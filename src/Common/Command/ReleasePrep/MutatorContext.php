@@ -4,12 +4,15 @@
  * Context passed to every release-prep mutator. Holds the parsed target
  * version and the project root each mutator operates against, plus
  * optional inputs (image digest, rel branch identifier, prior rel branch
- * identifier) supplied by the conductor or branch-cut workflows. Existing
- * mutators ignore the optional fields they don't need;
- * PostReleaseTargetsMutator requires `relBranch` to know which row of
- * release-targets.yml to mutate; TranslationFileCopyFromPriorRelMutator
- * requires `prevRelBranch` to know which rel branch to fetch the
- * translation blob from.
+ * identifier, explicit fromVersion override) supplied by the conductor or
+ * branch-cut/patch-prep workflows. Existing mutators ignore the optional
+ * fields they don't need; PostReleaseTargetsMutator requires `relBranch`
+ * to know which row of release-targets.yml to mutate;
+ * TranslationFileCopyFromPriorRelMutator requires `prevRelBranch` to know
+ * which rel branch to fetch the translation blob from;
+ * SqlUpgradeSkeletonMutator prefers `fromVersion` when set (used by
+ * patch-prep on both sides, where version.php on the rel branch has
+ * already been bumped past the value the skeleton needs to anchor at).
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -32,6 +35,7 @@ final readonly class MutatorContext
         public ?string $imageDigest = null,
         public ?string $relBranch = null,
         public ?string $prevRelBranch = null,
+        public ?string $fromVersion = null,
     ) {
         if ($imageDigest !== null && preg_match('/^sha256:[0-9a-f]{64}$/', $imageDigest) !== 1) {
             throw new \InvalidArgumentException(
@@ -48,6 +52,11 @@ final readonly class MutatorContext
                 'prevRelBranch must match rel-<digits>; got: ' . $prevRelBranch,
             );
         }
+        if ($fromVersion !== null && preg_match('/^\d+\.\d+\.\d+$/', $fromVersion) !== 1) {
+            throw new \InvalidArgumentException(
+                'fromVersion must match MAJOR.MINOR.PATCH; got: ' . $fromVersion,
+            );
+        }
     }
 
     public static function fromVersionString(
@@ -56,6 +65,7 @@ final readonly class MutatorContext
         ?string $imageDigest = null,
         ?string $relBranch = null,
         ?string $prevRelBranch = null,
+        ?string $fromVersion = null,
     ): self {
         if (preg_match('/^(\d+)\.(\d+)\.(\d+)$/', $version, $m) !== 1) {
             throw new \InvalidArgumentException(
@@ -70,6 +80,7 @@ final readonly class MutatorContext
             $imageDigest,
             $relBranch,
             $prevRelBranch,
+            $fromVersion,
         );
     }
 

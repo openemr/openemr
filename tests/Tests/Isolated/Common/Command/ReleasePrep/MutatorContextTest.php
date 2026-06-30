@@ -102,4 +102,47 @@ final class MutatorContextTest extends TestCase
         $context = MutatorContext::fromVersionString('/tmp/proj', '8.2.0', null, 'rel-820');
         self::assertNull($context->prevRelBranch);
     }
+
+    public function testFromVersionDefaultsToNull(): void
+    {
+        $context = MutatorContext::fromVersionString('/tmp/proj', '8.1.1');
+        self::assertNull($context->fromVersion);
+    }
+
+    public function testValidFromVersionIsAccepted(): void
+    {
+        $context = MutatorContext::fromVersionString(
+            '/tmp/proj',
+            '8.1.1',
+            null,
+            'rel-810',
+            null,
+            '8.1.0',
+        );
+        self::assertSame('8.1.0', $context->fromVersion);
+    }
+
+    public function testInvalidFromVersionRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/fromVersion/');
+        MutatorContext::fromVersionString(
+            '/tmp/proj',
+            '8.1.1',
+            null,
+            'rel-810',
+            null,
+            '8.1', // missing patch component
+        );
+    }
+
+    public function testFromVersionWithNonNumericComponentRejected(): void
+    {
+        try {
+            new MutatorContext('/tmp/proj', 8, 1, 1, null, null, null, '8.x.0');
+            self::fail('Expected InvalidArgumentException');
+        } catch (\InvalidArgumentException $e) {
+            self::assertStringContainsString('fromVersion', $e->getMessage());
+        }
+    }
 }

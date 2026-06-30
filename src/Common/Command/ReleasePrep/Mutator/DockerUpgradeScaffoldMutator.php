@@ -151,17 +151,24 @@ final readonly class DockerUpgradeScaffoldMutator implements MutatorInterface
     }
 
     /**
-     * The fsupgrade-(N+1).sh's `priorOpenemrVersion` is the X.Y.0 of the
-     * line that's shipping at the prior docker-version. For a branch-cut
-     * of rel-820 (target 8.2.0), the prior shipped line was 8.1.0; we
-     * encode that as "X.(target_minor-1).0".
+     * The fsupgrade-(N+1).sh's `priorOpenemrVersion` is the X.Y.Z of the
+     * line that's shipping at the prior docker-version.
      *
-     * This is a sensible default for the scaffolding — per-release work
-     * may refine this when filling in the upgrade body, but the scaffold
-     * keeps the structure consistent.
+     * Branch-cut (no fromVersion): for a cut of rel-820 (target 8.2.0),
+     * the prior shipped line was 8.1.0; encoded as "X.(target_minor-1).0".
+     *
+     * Patch-prep (fromVersion supplied): for a rel-810 patch-prep to
+     * 8.1.1, the prior shipped version was 8.1.0 — use the explicit
+     * from-version directly instead of decrementing the minor.
+     *
+     * Per-release work may refine this when filling in the upgrade body;
+     * the scaffold's job is structural consistency.
      */
     private function derivePriorOpenemrVersion(MutatorContext $context): string
     {
+        if ($context->fromVersion !== null) {
+            return $context->fromVersion;
+        }
         $priorMinor = $context->minor - 1;
         if ($priorMinor < 0) {
             $priorMinor = 0;
