@@ -48,6 +48,7 @@ return [
     Audit\SinkInterface::class => Audit\MultiSink::class,
     Audit\MultiSink::class => function (TC $c) {
         $sinks = [];
+        // TODO: LogTablesSink
         if ($c->getBool('ATNA_ENABLED')) {
             $sinks[] = $c->get(Audit\AtnaSink::class);
         }
