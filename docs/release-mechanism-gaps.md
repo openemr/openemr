@@ -88,8 +88,31 @@ known debt` section:
   with `scope=master`) would auto-drop the master-side blank, leaving
   only the rel-branch-side blank + master-side rename dance as manual
   steps.
+- **Consumed 2026-07-01 by workstreams 2 + 6.** Workstream 2's
+  branch-cut automation (openemr/openemr#12696) now runs
+  `SqlUpgradeSkeletonMutator` as part of `openemr:branch-cut --side=master`
+  when a `rel-NNN0` is cut — auto-dropping the master-side blank at
+  cut time as anticipated. Workstream 6's patch-prep automation
+  (openemr/openemr#12697) then handles the master-side rename dance +
+  the rel-branch-side blank on subsequent patch dev-cycle starts,
+  reusing `SqlUpgradeSkeletonMutator` via the new
+  `MutatorContext::$fromVersion` extension. See G12 for the full
+  patch-cycle bootstrap flow.
 
 ### G4 — No workflow invocation path for `--scope=master`  *(branch-cut prerequisite)*
+
+**STATUS: SHIPPED 2026-07-01** as part of workstream 2's
+openemr/openemr#12696 (merge commit `6513b487b6`). Reality diverged
+mildly from the original G4 framing: rather than wiring
+`VersionPhpMasterMutator` under a new invocation path of the existing
+`openemr:release-prep --scope=master`, workstream 2 introduced a
+sibling command `openemr:branch-cut` with its own mutator lists (see
+G5's shipped note for the full command shape). `--scope=master` on
+`openemr:release-prep` was formalized as release-time only in
+workstream 3 Phase A; `VersionPhpMasterMutator` now runs from
+`openemr:branch-cut --side=master` inside the branch-cut workflow.
+Net effect for the master-side advance is the same as the original
+design intent.
 
 - **What:** The `openemr:release-prep` console command supports
   `--scope=master` for "post-cut version bump on master" via
@@ -111,6 +134,20 @@ known debt` section:
   design.
 
 ### G5 — No automatic trigger when `rel-NNN0` is cut  *(workstream 2 design)*
+
+**STATUS: SHIPPED 2026-07-01** as workstream 2 / openemr/openemr#12696
+(merge commit `6513b487b6`). Delivered the full design as scoped:
+new `openemr:branch-cut` command + `.github/workflows/branch-cut-automation.yml`
+(triggering on `create` for `rel-[0-9]*0` refs + `workflow_dispatch`
+escape hatch) + 4 new mutators (`DockerUpgradeScaffoldMutator`,
+`DockerfileOpenemrVersionMutator`, `TranslationFileCopyFromPriorRelMutator`,
+`BranchCutReleaseTargetsMutator`) + tests, all in a single PR as
+planned. Reality matched design; the mutator audit's "5 already exist,
+4 new needed" split held up. Rabbit-fix follow-up PR #12709 in flight
+addresses 3 Major items missed at the initial merge (App-token
+permission scoping + `persist-credentials: false` on 3 checkouts in
+the new workflow + `endsWith` gate tightening). First real end-to-end
+production exercise is deferred to the rel-820 cut.
 
 - **What:** Cutting a new `rel-NNN0` branch is a manual git operation
   (`git push origin master:rel-NNN0`). Nothing fires automatically on
@@ -278,15 +315,13 @@ known debt` section:
   pieces only make sense together) and reviewers don't have to mentally
   stitch together a half-shipped feature across multiple commits.
 
-  **Conditional sequencing depending on 8.1.1 decision (open as of
-  2026-06-30):**
-  - **If pursuing 8.1.1**: workstream 3's Phase B (cherry-pick PR
-    #12662 to rel-810) is the next milestone. Workstream 2 (this
-    branch-cut work) follows.
-  - **If skipping 8.1.1 → 8.2.0**: Phase B is unnecessary (rel-820
-    inherits the post-Phase-A conductor). Workstream 2 becomes the
-    next milestone immediately; the rel-820 cut is where everything
-    is exercised end-to-end for the first time.
+  **Conditional sequencing — resolved 2026-07-01:** 8.1.1 is being
+  pursued. Workstreams 2 / 3 Phase A / 6 all landed to master on
+  2026-07-01 ahead of the 8.1.1 ship. Workstream 3's Phase B
+  cherry-pick to rel-810 is the next milestone (needed for the paired
+  release-finalize PR to fire on rel-810's 8.1.1 ship). Workstream 2
+  (this branch-cut work) is first exercised end-to-end at the rel-820
+  cut — not at the 8.1.1 ship itself.
 
 ### G6 — demo_farm_openemr's production-demo + flex-image mappings are manually maintained
 
@@ -751,6 +786,17 @@ known debt` section:
 
 ### G11 — Post-release release-targets.yml updates are manual  *(workstream 3 design)*
 
+**STATUS: PHASE A SHIPPED 2026-07-01** as openemr/openemr#12662
+(merge commit `abb1e2d940`). Delivered as scoped: new
+`PostReleaseTargetsMutator`, `MutatorContext::$relBranch` extension,
+`ReleasePrepCommand --rel-branch` option + master mutator list,
+conductor workflow extension opening the paired
+`release-finalize/<rel-branch>` PR against master. Reality matched
+plan. Phase B (cherry-pick to rel-810 for 8.1.1 ship) is the next
+milestone; auto-merge of the master partner PR on `openemr-tag`
+remains deferred. For the 8.1.1 ship, maintainer will mark Ready +
+merge manually after the tag fires.
+
 - **What:** After a rel-branch ships (e.g., 8.1.1 ships from
   rel-810), `.github/release-targets.yml` on master needs three
   coordinated edits that no automation produces today:
@@ -806,9 +852,9 @@ known debt` section:
   optimization). Tightly coupled with the broader release-cycle-bot
   for P1-P4 automation.
 
-- **Phase A refinement (2026-06-28):** Sliced the work into
-  master-side and rel-branch-side cherry-pick. Phase A scope (next
-  PR being scoped):
+- **Phase A refinement (2026-06-28; shipped 2026-07-01 as PR #12662):**
+  Sliced the work into master-side and rel-branch-side cherry-pick.
+  Phase A scope (what actually shipped):
   - **New mutator** `PostReleaseTargetsMutator` at
     `src/Common/Command/ReleasePrep/Mutator/`. Implements existing
     `MutatorInterface` (`name()`, `apply(MutatorContext): MutatorResult`).
@@ -870,6 +916,21 @@ known debt` section:
   designed to be reusable by workstream 2 without rework.
 
 ### G12 — Patch-cycle bootstrap on rel-* requires manual SQL skeleton + docker scaffolding + master file-rename  *(workstream 6 design)*
+
+**STATUS: SHIPPED 2026-07-01** as workstream 6 / openemr/openemr#12697
+(merge commit `c1af6370a0`), landed directly after workstream 2's
+#12696 the same day. Delivered as scoped in a single PR: new
+`openemr:patch-prep` command + `.github/workflows/patch-prep-automation.yml`
+(triggering on push to `rel-*` with `paths: version.php` + resolver
+gate) + 2 new mutators (`MasterSqlPatchBridgeMutator`,
+`PatchPrepReleaseTargetsMutator`) + strictly-additive
+`MutatorContext::$fromVersion` extension + tests. Reality matched
+plan; branch-cut callers unaffected by the context extension as
+designed (back-compat by construction). First production exercise
+fires at the patch after 8.1.1 (rel-810's `8.1.1 → 8.1.2-dev`
+transition) — contingent on the workflow YAML + supporting PHP being
+cherry-picked to rel-810 alongside the workstream 3 Phase B set, else
+fall back to a one-time manual patch-prep PR pair for that transition.
 
 - **What:** When a maintainer bumps `$v_patch` in `version.php` on a
   `rel-*` branch to start a new patch dev cycle (e.g., rel-810 going
@@ -976,27 +1037,23 @@ known debt` section:
   automation surface. This closes G12 in tandem with G4 (workstream
   2) and G11 (workstream 3 Phase A).
 
-- **Status:** Workstream 6 in-flight as of 2026-06-30. PR #12697
-  open (built on top of workstream 2's PR #12696 branch; rebases
-  cleanly once #12696 lands). Implementation goal: ONE PR for the
-  entire workstream 6 (new command + 2 new mutators + MutatorContext
-  extension + new workflow + tests). The MutatorContext extension is
-  strictly additive — existing branch-cut and release-prep callers
-  don't need updates.
+- **Status:** Workstream 6 SHIPPED 2026-07-01 as PR #12697 (merge
+  commit `c1af6370a0`). Implementation delivered as one PR (new
+  command + 2 new mutators + `MutatorContext::$fromVersion` extension
+  + new workflow + tests). The MutatorContext extension is strictly
+  additive — existing branch-cut and release-prep callers unaffected.
 
-- **Conditional sequencing depending on 8.1.1 decision (open as of
-  2026-06-30):**
-  - **If pursuing 8.1.1**: rel-810's first patch-prep firing would
-    be the post-8.1.1-ship `8.1.1 → 8.1.2-dev` transition. For the
-    patch-prep workflow to fire on rel-810, the workflow YAML +
-    new mutators + command must be cherry-picked to rel-810
-    (alongside the workstream 3 Phase B cherry-pick of the
-    conductor extension). Alternative: accept one manual patch-prep
-    PR pair for the 8.1.1 → 8.1.2 transition.
-  - **If skipping 8.1.1 → 8.2.0**: rel-820 inherits master's
-    post-workstream-6-merge state; first patch-prep firing on
-    rel-820's `8.2.0 → 8.2.1-dev` transition is fully automated
-    without any cherry-pick needed.
+- **Conditional sequencing — resolved 2026-07-01:** 8.1.1 is being
+  pursued. Rel-810's first patch-prep firing will be the
+  post-8.1.1-ship `8.1.1 → 8.1.2-dev` transition. For that firing
+  to actually invoke patch-prep, the workflow YAML + new mutators +
+  command need to be cherry-picked to rel-810 alongside the
+  workstream 3 Phase B cherry-pick of the conductor extension. If
+  the cherry-pick set gets constrained, accept a one-time manual
+  patch-prep PR pair for the 8.1.1 → 8.1.2 transition. Subsequent
+  rel branches cut from current master (rel-820 onward) inherit
+  patch-prep in-place without cherry-pick — first fully-automated
+  patch-prep firing will be rel-820's `8.2.0 → 8.2.1-dev`.
 
 ## Timing picture: who does what, when
 
