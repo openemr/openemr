@@ -6,7 +6,10 @@ on:
     - master
     - rel-*
     paths:
-    - '**/Dockerfile*'
+    # Restrict to docker/** so non-Dockerfile artifacts that happen to
+    # contain "Dockerfile" in their name (PHP mutators, partial test
+    # fixtures, etc.) don't trigger this workflow and choke hadolint.
+    - 'docker/**/Dockerfile*'
     - '.hadolint.yaml'
     - '.github/workflows/docker-lint-hadolint.yml'
   pull_request:
@@ -14,7 +17,10 @@ on:
     - master
     - rel-*
     paths:
-    - '**/Dockerfile*'
+    # Restrict to docker/** so non-Dockerfile artifacts that happen to
+    # contain "Dockerfile" in their name (PHP mutators, partial test
+    # fixtures, etc.) don't trigger this workflow and choke hadolint.
+    - 'docker/**/Dockerfile*'
     - '.hadolint.yaml'
     - '.github/workflows/docker-lint-hadolint.yml'
 
@@ -41,8 +47,11 @@ jobs:
       continue-on-error: true
       uses: tj-actions/changed-files@v47
       with:
+        # Mirror the workflow-level path filter: only real Dockerfiles
+        # under docker/** (avoid PHP files / test fixtures that happen
+        # to contain "Dockerfile" in their path).
         files: |
-          **/Dockerfile*
+          docker/**/Dockerfile*
 
     - name: Run hadolint on changed files
       if: ${{ steps.changed-files.outcome == 'success' && steps.changed-files.outputs.any_changed == 'true' }}
@@ -64,7 +73,10 @@ jobs:
       if: ${{ steps.changed-files.outcome != 'success' || steps.changed-files.outputs.any_changed != 'true' }}
       run: |
         echo "Linting all Dockerfiles in the repository..."
-        find . -type f -name "Dockerfile*" | while read -r file; do
+        # Mirror the changed-files filter: only real Dockerfiles under
+        # docker/**, not PHP files / test fixtures with "Dockerfile" in
+        # the path.
+        find ./docker -type f -name "Dockerfile*" | while read -r file; do
           echo "Checking: $file"
           docker run --rm -i -v "$(pwd)/.hadolint.yaml:/.config/hadolint.yaml" hadolint/hadolint < "$file"
         done

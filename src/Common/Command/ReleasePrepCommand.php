@@ -11,8 +11,21 @@
  * generate churn PRs.
  *
  * Scope:
- *   --scope=rel    pre-tag mutations on the release branch
- *   --scope=master post-cut version bump on master
+ *   --scope=rel    pre-tag mutations on the release branch.
+ *   --scope=master release-time only: post-tag mutations on master,
+ *                  paired with the rel-branch's release-prep PR. The
+ *                  conductor workflow opens both PRs together; this
+ *                  scope drives the master-side companion that pins
+ *                  release-targets.yml entries to the new tag, shuffles
+ *                  Docker Hub tag slots, and drops the unreleased
+ *                  placeholder row. Requires --rel-branch.
+ *
+ *                  Branch-cut master mutations (e.g. bumping version.php
+ *                  to next-dev via VersionPhpMasterMutator) are a
+ *                  workstream 2 concern (G4) and are NOT invoked from
+ *                  this command. They are wired by the sibling
+ *                  `openemr:branch-cut` command (see `BranchCutCommand`),
+ *                  driven by the branch-cut-automation workflow.
  *
  * See docs/release-automation-plan.md and openemr/openemr-devops#664
  * for the full design.
@@ -31,9 +44,8 @@ namespace OpenEMR\Common\Command;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\DockerComposeProductionMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\GlobalsIncMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\OpenApiVersionMutator;
-use OpenEMR\Common\Command\ReleasePrep\Mutator\SqlUpgradeSkeletonMutator;
+use OpenEMR\Common\Command\ReleasePrep\Mutator\PostReleaseTargetsMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\SwaggerRegenMutator;
-use OpenEMR\Common\Command\ReleasePrep\Mutator\VersionPhpMasterMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\VersionPhpMutator;
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
@@ -88,6 +100,12 @@ final class ReleasePrepCommand extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Project root (defaults to the repo containing this command file)',
+            )
+            ->addOption(
+                'rel-branch',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Rel branch identifier (e.g. rel-810). Required for --scope=master.',
             );
     }
 
@@ -108,8 +126,15 @@ final class ReleasePrepCommand extends Command
             ? $rawProjectDir
             : $this->defaultProjectDir();
 
+        $rawRelBranch = $input->getOption('rel-branch');
+        $relBranch = is_string($rawRelBranch) && $rawRelBranch !== '' ? $rawRelBranch : null;
+        if ($scope === self::SCOPE_MASTER && $relBranch === null) {
+            $output->writeln('<error>--rel-branch is required for --scope=master</error>');
+            return Command::INVALID;
+        }
+
         try {
-            $context = MutatorContext::fromVersionString($projectDir, $target, $imageDigest);
+            $context = MutatorContext::fromVersionString($projectDir, $target, $imageDigest, $relBranch);
         } catch (\InvalidArgumentException $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             return Command::INVALID;
@@ -160,13 +185,22 @@ final class ReleasePrepCommand extends Command
     }
 
     /**
+     * Master-scope mutators are release-time only: they run after the
+     * rel-branch's tag is created (or alongside its release-prep PR) to
+     * update master's release-targets.yml.
+     *
+     * Branch-cut master mutators (SqlUpgradeSkeletonMutator,
+     * VersionPhpMasterMutator, etc.) are intentionally NOT wired here —
+     * they belong to the workstream 2 (G4) branch-cut lifecycle event
+     * and are wired by `openemr:branch-cut` (see `BranchCutCommand`)
+     * driven by the branch-cut-automation workflow.
+     *
      * @return list<MutatorInterface>
      */
     private function buildDefaultMasterMutators(): array
     {
         return [
-            new SqlUpgradeSkeletonMutator(),
-            new VersionPhpMasterMutator(),
+            new PostReleaseTargetsMutator(),
         ];
     }
 

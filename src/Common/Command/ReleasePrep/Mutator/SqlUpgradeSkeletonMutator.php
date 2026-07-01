@@ -35,7 +35,13 @@ final readonly class SqlUpgradeSkeletonMutator implements MutatorInterface
     public function apply(MutatorContext $context): MutatorResult
     {
         $sqlDir = $context->projectDir . '/sql';
-        $fromVersion = $this->readVersionPhp($context->projectDir);
+        // Patch-prep paths supply an explicit from-version via context
+        // because version.php has either been bumped past the anchor we
+        // want (rel side, $v_patch already at the new value) or doesn't
+        // describe the right line at all (master side, where the patch
+        // sits on a rel branch master never reads). Branch-cut keeps the
+        // historical read-from-version.php behavior.
+        $fromVersion = $context->fromVersion ?? $this->readVersionPhp($context->projectDir);
         $toVersion = $context->versionString();
         if ($fromVersion === $toVersion) {
             // Master is already at the target version; nothing to scaffold.
