@@ -57,7 +57,4 @@ jobs:
           # DEBUG: surface the full transcript in the workflow log while we
           # validate the plugin runs end-to-end. Remove once verified.
         show_full_output: true
-          # Sonnet for the orchestrator; the skill's subagents pick their own
-          # tiers (Haiku/Sonnet/Opus) regardless of what is set here.
-        claude_args: "--model claude-sonnet-5"
         prompt: "/code-review:code-review --comment"
