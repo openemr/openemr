@@ -126,6 +126,46 @@ final class DispatcherTest extends TestCase
         $dispatcher->dispatch($this->buildRelCutRequest(), []);
     }
 
+    public function testReleaseTargetsChangedEmptyDataSerializesAsJsonObject(): void
+    {
+        // release-targets-changed carries no per-event fields (see the
+        // releaseTargetsChangedData definition in dispatch.schema.json),
+        // so its data payload is an empty PHP array. json_encode would
+        // otherwise emit `[]` for that, failing the schema's `type: object`
+        // constraint on `data`. This test locks the (object) cast in
+        // toEnvelope() that keeps the wire shape correct.
+        /** @var list<array{url: string, body: string}> $captured */
+        $captured = [];
+        $http = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$captured): MockResponse {
+                $body = $options['body'] ?? null;
+                $captured[] = [
+                    'url' => $url,
+                    'body' => is_string($body) ? $body : '',
+                ];
+                return new MockResponse('', ['http_code' => 204]);
+            },
+        );
+
+        $request = new DispatchRequest(
+            event: DispatchRequest::EVENT_RELEASE_TARGETS_CHANGED,
+            repo: 'openemr/openemr',
+            sha: str_repeat('a', 40),
+            actor: 'openemr-release-bot',
+            dispatchedAt: '2026-04-29T12:00:00Z',
+            appToken: 'tok',
+            data: [],
+        );
+        $dispatcher = new Dispatcher($http, self::SCHEMA_PATH, 'https://api.example.test');
+        $results = $dispatcher->dispatch($request, ['openemr/demo_farm_openemr']);
+
+        self::assertCount(1, $results);
+        self::assertTrue($results[0]->accepted);
+        self::assertCount(1, $captured);
+        self::assertStringContainsString('"data":{}', $captured[0]['body']);
+        self::assertStringNotContainsString('"data":[]', $captured[0]['body']);
+    }
+
     private function buildRelCutRequest(): DispatchRequest
     {
         return new DispatchRequest(
