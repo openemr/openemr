@@ -8,11 +8,18 @@ use OpenEMR\Config\{Key, ManagerInterface};
 
 class GlobalsTableManager implements ManagerInterface
 {
+    /**
+     * @var ?array<string, string>
+     */
+    private ?array $cache = null;
+
     public function getCurrentValue(Key $key): mixed
     {
-        // SELECT * FROM globals WHERE gl_key = ?
-        //
-        return $key::cast($key->value);
+        if ($this->cache === null) {
+            // SELECT gl_name, gl_value FROM globals
+            // memoize the result
+        }
+        return $key::cast($this->cache[$key->value]);
     }
 
     public function setValue(Key $key, mixed $newValue): void
