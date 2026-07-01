@@ -355,79 +355,40 @@ rel row picking up `next`. Meanwhile the conductor still fires its
 premature draft against the new rel — same story as any cut, just with
 zero surviving rows for the outgoing rel branch.
 
-### Sequence: cut → 8.M.0 release
+### Flow: cut → 8.M.0 release
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    actor M as Maintainer
-    participant BC as branch-cut-automation.yml
-    participant CP as release-prep.yml
-    participant R as rel-NNN0
-    participant Mas as master
-
-    M->>R: git push master:rel-NNN0
-    par branch-cut on create
-        BC->>R: open branch-cut/rel-NNN0
-        BC->>Mas: open branch-cut/rel-NNN0-master
-    and conductor on push
-        CP->>R: open release-prep/rel-NNN0 (draft)
-        CP->>Mas: open release-finalize/rel-NNN0 (draft)
-    end
-
-    M->>R: merge branch-cut/rel-NNN0 (rel-side FIRST)
-    CP-->>R: refire, force-push release-prep
-    CP-->>Mas: refire, force-push release-finalize
-
-    M->>Mas: merge branch-cut/rel-NNN0-master
-
-    Note over R,CP: dev cycle — every push refires conductor pair
-
-    M->>R: mark release-prep ready + merge
-    CP->>R: create annotated tag vN_M_0
-    CP->>Mas: dispatch openemr-tag
-
-    M->>Mas: merge release-finalize/rel-NNN0
+flowchart TD
+    A["git push master:rel-NNN0<br/>(cut)"]
+    A --> B["branch-cut-automation.yml fires<br/>opens branch-cut/rel-NNN0 +<br/>branch-cut/rel-NNN0-master<br/><i>ready-for-review</i>"]
+    A --> C["release-prep.yml fires<br/>opens release-prep/rel-NNN0 +<br/>release-finalize/rel-NNN0<br/><i>draft, premature</i>"]
+    B --> D["Merge branch-cut/rel-NNN0<br/><b>rel-side FIRST</b>"]
+    D --> E["release-prep.yml refires<br/>force-pushes conductor pair<br/>(still draft)"]
+    D --> F["Merge branch-cut/rel-NNN0-master"]
+    F --> G["Dev cycle:<br/>every rel-branch push refires<br/>conductor pair"]
+    G --> H["Mark release-prep/rel-NNN0 ready<br/>+ merge"]
+    H --> I["Finalize job:<br/>create annotated tag vN_M_0<br/>+ dispatch openemr-tag"]
+    I --> J["Merge release-finalize/rel-NNN0"]
 ```
 
-### Sequence: cut → patch bump → 8.M.P release
+### Flow: cut → patch bump → 8.M.P release
 
 Same start as above (cut → 8.M.0 ships). Later, a `$v_patch` bump on
 the rel branch fires patch-prep alongside the conductor:
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    actor M as Maintainer
-    participant PP as patch-prep-automation.yml
-    participant CP as release-prep.yml
-    participant R as rel-NNN0
-    participant Mas as master
-
-    Note over M,Mas: 8.M.0 already shipped (see prior diagram)
-
-    M->>R: bump $v_patch, set $v_tag = -dev
-    par patch-prep on push (paths version.php)
-        PP->>R: open patch-prep/rel-NNN0
-        PP->>Mas: open patch-prep/rel-NNN0-master
-    and conductor on push
-        CP-->>R: force-push release-prep (target N.M.1)
-        CP-->>Mas: force-push release-finalize (target N.M.1)
-    end
-
-    M->>R: merge patch-prep/rel-NNN0 (rel-side FIRST)
-    CP-->>R: refire, force-push release-prep
-    CP-->>Mas: refire, force-push release-finalize
-
-    M->>Mas: merge patch-prep/rel-NNN0-master
-
-    Note over R,CP: dev cycle for N.M.1
-
-    M->>R: mark release-prep ready + merge
-    CP->>R: create annotated tag vN_M_1
-    CP->>Mas: dispatch openemr-tag
-
-    M->>Mas: merge release-finalize/rel-NNN0
+flowchart TD
+    A["8.M.0 already shipped<br/>(tag vN_M_0 exists)"]
+    A --> B["Commit on rel-NNN0:<br/>bump $v_patch<br/>set $v_tag = -dev"]
+    B --> C["patch-prep-automation.yml fires<br/>opens patch-prep/rel-NNN0 +<br/>patch-prep/rel-NNN0-master<br/><i>ready-for-review</i>"]
+    B --> D["release-prep.yml refires<br/>force-pushes conductor pair<br/>(target now N.M.1)"]
+    C --> E["Merge patch-prep/rel-NNN0<br/><b>rel-side FIRST</b>"]
+    E --> F["release-prep.yml refires again<br/>force-pushes conductor pair"]
+    E --> G["Merge patch-prep/rel-NNN0-master"]
+    G --> H["Dev cycle for N.M.1:<br/>pushes refire conductor pair"]
+    H --> I["Mark release-prep/rel-NNN0 ready<br/>+ merge"]
+    I --> J["Finalize job:<br/>create annotated tag vN_M_1<br/>+ dispatch openemr-tag"]
+    J --> K["Merge release-finalize/rel-NNN0"]
 ```
 
 Subsequent patch bumps (`N.M.1 → N.M.2 → …`) follow the same shape;
