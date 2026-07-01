@@ -15,4 +15,7 @@ interface Key extends BackedEnum
      * @return T
      */
     public static function cast(string $value): mixed;
+
+    // deprecated from start?
+    public function uiControlType(): UiType;
 }

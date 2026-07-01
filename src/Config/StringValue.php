@@ -16,4 +16,9 @@ enum StringValue: string implements Key
     {
         return $value;
     }
+
+    public function uiControlType(): UiType
+    {
+        return UiType::String;
+    }
 }

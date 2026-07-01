@@ -16,4 +16,9 @@ enum BoolValue: string implements Key
     {
         return (bool)$value;
     }
+
+    public function uiControlType(): UiType
+    {
+        return UiType::Bool;
+    }
 }

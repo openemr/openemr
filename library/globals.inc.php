@@ -187,7 +187,7 @@ foreach ($wellDefinedSettings as $section => $defs) {
     foreach ($defs as $def) {
         $gmd[$section][$def->key->value] = [
             xl($def->titleKey), // @phpstan-ignore argument.type (sourced from xld call)
-            // type: how?
+            $def->key->uiControlType()->value,
             $def->defaultValue,
             xl($def->descriptionKey), // @phpstan-ignore argument.type (sourced from xld call)
         ];
