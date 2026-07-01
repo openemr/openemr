@@ -315,13 +315,14 @@ production exercise is deferred to the rel-820 cut.
   pieces only make sense together) and reviewers don't have to mentally
   stitch together a half-shipped feature across multiple commits.
 
-  **Conditional sequencing — resolved 2026-07-01:** 8.1.1 is being
-  pursued. Workstreams 2 / 3 Phase A / 6 all landed to master on
-  2026-07-01 ahead of the 8.1.1 ship. Workstream 3's Phase B
-  cherry-pick to rel-810 is the next milestone (needed for the paired
-  release-finalize PR to fire on rel-810's 8.1.1 ship). Workstream 2
-  (this branch-cut work) is first exercised end-to-end at the rel-820
-  cut — not at the 8.1.1 ship itself.
+  **Conditional sequencing — resolved 2026-07-01 (revised):** 8.1.x is
+  being skipped entirely — no 8.1.1 ship. Pre-cut posture landed in
+  openemr/openemr#12712 (both rel-810 rows marked `unreleased: true`,
+  `next` moved to master interim). rel-820 cut becomes the first
+  end-to-end exercise of branch-cut automation AND (subsequently) of
+  the paired release-prep + release-finalize conductor (at 8.2.0 ship
+  from rel-820). Workstream 3 Phase B (cherry-pick to rel-810) is
+  unnecessary — rel-820 inherits all three automations in-place.
 
 ### G6 — demo_farm_openemr's production-demo + flex-image mappings are manually maintained
 
@@ -1043,17 +1044,12 @@ fall back to a one-time manual patch-prep PR pair for that transition.
   + new workflow + tests). The MutatorContext extension is strictly
   additive — existing branch-cut and release-prep callers unaffected.
 
-- **Conditional sequencing — resolved 2026-07-01:** 8.1.1 is being
-  pursued. Rel-810's first patch-prep firing will be the
-  post-8.1.1-ship `8.1.1 → 8.1.2-dev` transition. For that firing
-  to actually invoke patch-prep, the workflow YAML + new mutators +
-  command need to be cherry-picked to rel-810 alongside the
-  workstream 3 Phase B cherry-pick of the conductor extension. If
-  the cherry-pick set gets constrained, accept a one-time manual
-  patch-prep PR pair for the 8.1.1 → 8.1.2 transition. Subsequent
-  rel branches cut from current master (rel-820 onward) inherit
-  patch-prep in-place without cherry-pick — first fully-automated
-  patch-prep firing will be rel-820's `8.2.0 → 8.2.1-dev`.
+- **Conditional sequencing — resolved 2026-07-01 (revised):** 8.1.x is
+  being skipped entirely — no 8.1.1 ship. rel-820 is the first rel
+  branch that ships anything after the automation landed. First
+  fully-automated patch-prep firing is rel-820's
+  `8.2.0 → 8.2.1-dev` transition. No cherry-pick to rel-810 needed
+  since rel-810 will never ship anything.
 
 ## Timing picture: who does what, when
 
