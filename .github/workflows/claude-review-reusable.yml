@@ -1,0 +1,84 @@
+# .github/workflows/claude-review-reusable.yml
+# Lives ONCE in openemr/openemr. All four repos (including openemr itself)
+# call it via the thin caller workflow claude-review.yml.
+name: Claude PR Review (reusable)
+
+on:
+  workflow_call:
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: true
+
+jobs:
+  review:
+    # Run when EITHER:
+    #  (a) a NON-bot PR is opened  -> auto-review on open
+    #  (b) a maintainer comments "@claude review" on a PR -> force review
+    #      (also covers fork PRs and bot PRs; the only path with secret
+    #       access for forks, so it doubles as the fork/bot escape hatch)
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.user.type != 'Bot' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
+      ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request != null &&
+       contains(github.event.comment.body, '@claude review') &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
+                github.event.comment.author_association))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read          # read-only: this bot reviews, it does not push
+      pull-requests: write     # needed to post review + inline comments
+      issues: read
+      id-token: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 1
+        persist-credentials: false
+        # issue_comment events fire in base-branch context; pin to the PR
+        # head so @claude review sees the actual proposed code, not master.
+        ref: >-
+          ${{ github.event_name == 'issue_comment'
+              && format('refs/pull/{0}/head', github.event.issue.number)
+              || github.ref }}
+
+    - name: Claude review
+      uses: anthropics/claude-code-action@v1
+      with:
+          # Metered API-key auth (platform.claude.com). Billed per token against
+          # the org's API workspace — independent of Pro/Max subscription limits.
+          # Cap spend on the workspace's Limits page. Set as an ORG secret.
+        anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # If claude-sonnet-5 isn't resolvable yet on your plan, swap to
+          # claude-sonnet-4-6 (same price after the intro window).
+        claude_args: "--model claude-sonnet-5 --max-turns 15"
+        prompt: |
+          You are reviewing a pull request for OpenEMR, a production PHP/Symfony
+          electronic health record system running in live clinical settings.
+
+          If the repository contains a CLAUDE.md, follow its standards; they take
+          precedence over the general guidance below.
+
+          Review the DIFF for this PR in the context of the surrounding code.
+          Prioritize substance over style, in this order:
+
+          1. SECURITY (treat as high severity — this is an EHR):
+             authn/authz gaps, missing access checks, SQL injection, XSS, CSRF,
+             unsafe deserialization, path traversal, secrets in code, PHI exposure,
+             and injection through Symfony/Doctrine query building.
+          2. CORRECTNESS: logic errors, null/undefined handling, off-by-one,
+             race conditions, incorrect SQL, broken or changed API contracts,
+             backward-compatibility breaks.
+          3. TESTS: missing coverage for the changed behavior, assertions that
+             test the wrong thing, tests that mock away the logic under test.
+          4. MAINTAINABILITY: only flag issues that materially hurt clarity.
+
+          Do NOT report pure formatting/style nits — PHPStan (level 10), Rector,
+          and linters already cover those. Skip praise and filler.
+
+          Post inline comments on the specific lines that need attention. Finish
+          with a short summary and an overall call (approve / comment /
+          request-changes). Every comment must be concrete and actionable.
