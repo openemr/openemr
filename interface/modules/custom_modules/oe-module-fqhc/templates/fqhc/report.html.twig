@@ -160,6 +160,27 @@
           </table>
         </fqhc-card>
 
+        <fqhc-card heading="Table 5 — Utilization by service category">
+          <table class="fqhc-table">
+            <thead><tr><th>Service category</th><th>In-person</th><th>Virtual</th><th>Total visits</th><th>Patients</th></tr></thead>
+            <tbody>
+              {% for row in table5.rows %}
+                <tr>
+                  <td>{{ row.label|e('html') }}</td>
+                  <td>{{ row.clinic }}</td>
+                  <td>{{ row.virtual }}</td>
+                  <td>{{ row.visits }}</td>
+                  <td>{{ row.patients }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr><th>Total</th><th>{{ table5.clinic }}</th><th>{{ table5.virtual }}</th><th>{{ table5.visits }}</th><th>{{ table5.patients }}</th></tr>
+            </tfoot>
+          </table>
+          <p class="fqhc-note">Patients are counted once per service category (duplicated across categories), so the patient total is not the unduplicated health-center count. Staffing/FTE (Column A) is not yet included.</p>
+        </fqhc-card>
+
       </div>
     {% endif %}
 
