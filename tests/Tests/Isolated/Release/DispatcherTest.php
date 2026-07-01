@@ -162,8 +162,12 @@ final class DispatcherTest extends TestCase
         self::assertCount(1, $results);
         self::assertTrue($results[0]->accepted);
         self::assertCount(1, $captured);
-        self::assertStringContainsString('"data":{}', $captured[0]['body']);
-        self::assertStringNotContainsString('"data":[]', $captured[0]['body']);
+        // Decode in object mode (not array mode) so JSON `{}` stays a
+        // stdClass and JSON `[]` stays an array — array-mode decode would
+        // collapse both to the same PHP []. instanceof stdClass locks the
+        // wire shape that the schema requires.
+        $body = json_decode($captured[0]['body'], false, 512, JSON_THROW_ON_ERROR);
+        self::assertInstanceOf(\stdClass::class, $body->client_payload->data);
     }
 
     private function buildRelCutRequest(): DispatchRequest
