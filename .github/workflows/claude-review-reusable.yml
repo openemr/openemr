@@ -54,4 +54,12 @@ jobs:
           # https://github.com/anthropics/claude-code/tree/main/plugins/code-review
         plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
         plugins: "code-review@claude-code-plugins"
+          # Pin the orchestrator to Sonnet. Without this pin the action
+          # defaults to claude-opus-4-8[1m] (Opus with 1M-context, the
+          # premium tier) — a large PR with the plugin was $5+ in that
+          # config. Sonnet drives cost 3-5x lower for the orchestration
+          # work. The skill's subagents (Haiku for skip-check, Sonnet for
+          # CLAUDE.md compliance, Opus for bug detection) are hardcoded
+          # in the skill and ignore this flag.
+        claude_args: "--model claude-sonnet-4-6"
         prompt: "/code-review:code-review --comment"
