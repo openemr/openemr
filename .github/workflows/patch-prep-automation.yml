@@ -191,9 +191,12 @@ jobs:
               echo "should-run=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            # Gate: $v_patch must have strictly increased.
-            if ! [ "${after_patch}" -gt "${before_patch}" ] 2>/dev/null; then
-              echo "\$v_patch did not increase (before=${before_patch} after=${after_patch}); not our event."
+            # Gate: $v_patch must have increased by exactly one. A larger
+            # jump (e.g., 8.1.0-dev -> 8.1.2-dev skipping .1) would still
+            # scaffold patch-prep with prev-version pointing at the
+            # skipped patch — avoid auto-firing on that shape.
+            if [ "$((before_patch + 1))" != "${after_patch}" ] 2>/dev/null; then
+              echo "\$v_patch did not increase by exactly one (before=${before_patch} after=${after_patch}); skipping to avoid scaffolding for a skipped patch."
               echo "should-run=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
