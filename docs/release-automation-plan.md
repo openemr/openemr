@@ -197,6 +197,15 @@ job on merge), and `workflow_dispatch` with `target-version` + `branch` +
 optional `test` (opens `release-prep-test/<branch>` for end-to-end test
 runs) and `force-dispatch`.
 
+The `push` filter matches the branch-creation push too, so this
+workflow fires *at cut time* alongside `branch-cut-automation.yml` —
+opening a premature draft `release-prep/<rel-branch>` (paired with a
+`release-finalize/<rel-branch>` targeting master) before the branch is
+anywhere near ready to ship. Accepted as a tradeoff: the PRs sit inert as drafts,
+re-render on each push through the dev cycle, and become real when the
+branch is actually ready. See [Lifecycle: rel-NNN0 cut event](#lifecycle-rel-nnn0-cut-event)
+for the full picture.
+
 **Rel-side prep PR** (`release-prep/<rel-branch>`, base `<rel-branch>`,
 draft, force-pushed on each run):
 
@@ -261,6 +270,129 @@ day and lands **after** the tag is created. It's not gated on the tag
 creation (a maintainer can review and land it before merging release-prep);
 the semantic invariant is only that the tag it references exists by
 the time master's `release-targets.yml` is consulted downstream.
+
+## Lifecycle: rel-NNN0 cut event
+
+The most complex per-workflow interaction happens when a new `rel-NNN0`
+branch is cut. A single `git push origin master:rel-NNN0` fires two
+workflows simultaneously — `branch-cut-automation.yml` on the `create`
+event, and `release-prep.yml` on the `push` event (the create is also
+a push of master's tip to the new ref). Between them they open **four
+PRs** in the first minute or two:
+
+| PR (head → base) | Opened by | State | Lifetime |
+| --- | --- | --- | --- |
+| `branch-cut/<rel-branch>` → `<rel-branch>` | branch-cut | ready-for-review | until merged (or re-opened via `workflow_dispatch` recovery) |
+| `branch-cut/<rel-branch>-master` → `master` | branch-cut | ready-for-review | until merged |
+| `release-prep/<rel-branch>` → `<rel-branch>` | release-prep conductor | draft, force-pushed on every rel-branch push | until ship day |
+| `release-finalize/<rel-branch>` → `master` | release-prep conductor (Phase A partner) | draft, force-pushed on every rel-branch push | until ship day |
+
+**Lockstep on the conductor pair.** The last two are produced by a
+single `release-prep.yml` run, using two checkouts and one Symfony
+console invocation per side. Every subsequent push to `<rel-branch>` —
+whether it's the branch-cut PR merging, a dev commit, or a
+release-cycle-bot preparation PR — re-fires the conductor and
+force-pushes both sides. Reviewers should treat them as one review
+target that happens to span two PRs; the diff on one implies specific
+content on the other.
+
+**File overlap between the two pairs.** The branch-cut and conductor
+PRs against the same base branch touch some of the same files:
+
+- Rel-side both PRs touch `library/globals.inc.php` (branch-cut flips
+  `allow_debug_language` → `'0'`; release-prep's `GlobalsIncMutator` is
+  reused and idempotent, so a re-render sees the flag already flipped
+  and no-ops).
+- Rel-side both touch the `docker-version` triple (branch-cut bumps by
+  one for the new minor's dev cycle; release-prep leaves them alone at
+  ship time).
+- Master-side both touch `.github/release-targets.yml`, but different
+  operations: branch-cut inserts the new rel row + bumps master's
+  docker_tags; release-finalize does the eventual `latest`/`next` slot
+  shuffle when the branch actually ships.
+
+No merge conflicts at open time — force-pushed regeneration keeps the
+conductor pair current against the rel branch's tip. Recommended merge
+order:
+
+1. **`branch-cut/<rel-branch>` (rel-side) first.** This is the critical
+   ordering: the master-side PR inserts a row in `.github/release-targets.yml`
+   (with `openemr_version_ref: <rel-branch>`), and the docker release
+   orchestrator now fires on pushes to that file
+   (openemr/openemr#12720). So merging master-side kicks off an image
+   build against the rel branch's tip. If master-side lands *before*
+   rel-side, that build bakes an image labeled `<version>,next` from a
+   rel branch that's still bit-identical to master. No fatal error —
+   the Dockerfile is byte-identical across branches — but the image
+   won't carry the rel-branch identity mutations (Dockerfile `ARG
+   OPENEMR_VERSION` pin, docker-version bump, translation blob copy,
+   `allow_debug_language` flip) until rel-side lands and the next
+   orchestrator run picks it up.
+2. **`branch-cut/<rel-branch>-master` (master-side) second.**
+3. **Conductor pair (release-prep + release-finalize) stays draft** until
+   the branch is actually ready to ship (dev cycle complete, all
+   pre-ship checklists satisfied). The pair re-renders on every push
+   through the dev cycle, so it stays fresh.
+
+**Known gap: master-side release-finalize doesn't auto-refresh on
+master pushes.** The conductor fires on `push` to `<rel-branch>`, not
+on `push` to master. So the sequence "merge `branch-cut/<rel-branch>-master`
+→ master advances → `release-finalize/<rel-branch>` (which targets
+master) still points at the pre-branch-cut master" persists until the
+next push to `<rel-branch>` refreshes it. Not a practical problem — release-finalize is draft, no
+one merges it until ship day, and dev commits to the rel branch fire
+throughout the cycle — but worth knowing when inspecting the diff
+between the two events.
+
+**Skip-line cut (`unreleased: true` on outgoing rel branch's rows).**
+When a rel line is being skipped entirely (e.g., the 8.1.x skip that
+preceded rel-820 — see openemr/openemr#12712), the pre-cut posture
+flags the outgoing branch's rows as `unreleased: true` and moves the
+`next` docker tag to master interim. At the create event, the
+branch-cut `BranchCutReleaseTargetsMutator` drops all unreleased rows
+uniformly (leaving no rows for the skipped rel), and inserts the new
+rel row picking up `next`. Meanwhile the conductor still fires its
+premature draft against the new rel — same story as any cut, just with
+zero surviving rows for the outgoing rel branch.
+
+### Flow: cut → 8.M.0 release
+
+```mermaid
+flowchart TD
+    A["git push master:rel-NNN0<br/>(cut)"]
+    A --> B["branch-cut-automation.yml fires<br/>opens branch-cut/rel-NNN0 +<br/>branch-cut/rel-NNN0-master<br/><i>ready-for-review</i>"]
+    A --> C["release-prep.yml fires<br/>opens release-prep/rel-NNN0 (→ rel-NNN0) +<br/>release-finalize/rel-NNN0 (→ master)<br/><i>draft, premature</i>"]
+    B --> D["Merge branch-cut/rel-NNN0 (→ rel-NNN0)<br/><b>rel-side FIRST</b>"]
+    D --> E["release-prep.yml refires<br/>force-pushes conductor pair<br/>(still draft)"]
+    D --> F["Merge branch-cut/rel-NNN0-master (→ master)"]
+    F --> G["Dev cycle:<br/>every rel-branch push refires<br/>conductor pair"]
+    G --> H["Mark release-prep/rel-NNN0 ready<br/>+ merge (→ rel-NNN0)"]
+    H --> I["Finalize job:<br/>create annotated tag vN_M_0<br/>+ dispatch openemr-tag"]
+    I --> J["Merge release-finalize/rel-NNN0 (→ master)"]
+```
+
+### Flow: cut → patch bump → 8.M.P release
+
+Same start as above (cut → 8.M.0 ships). Later, a `$v_patch` bump on
+the rel branch fires patch-prep alongside the conductor:
+
+```mermaid
+flowchart TD
+    A["8.M.0 already shipped<br/>(tag vN_M_0 exists)"]
+    A --> B["Commit on rel-NNN0:<br/>bump $v_patch<br/>set $v_tag = -dev"]
+    B --> C["patch-prep-automation.yml fires<br/>opens patch-prep/rel-NNN0 +<br/>patch-prep/rel-NNN0-master<br/><i>ready-for-review</i>"]
+    B --> D["release-prep.yml refires<br/>force-pushes conductor pair<br/>(target now N.M.1)"]
+    C --> E["Merge patch-prep/rel-NNN0 (→ rel-NNN0)<br/><b>rel-side FIRST</b>"]
+    E --> F["release-prep.yml refires again<br/>force-pushes conductor pair"]
+    E --> G["Merge patch-prep/rel-NNN0-master (→ master)"]
+    G --> H["Dev cycle for N.M.1:<br/>pushes refire conductor pair"]
+    H --> I["Mark release-prep/rel-NNN0 ready<br/>+ merge (→ rel-NNN0)"]
+    I --> J["Finalize job:<br/>create annotated tag vN_M_1<br/>+ dispatch openemr-tag"]
+    J --> K["Merge release-finalize/rel-NNN0 (→ master)"]
+```
+
+Subsequent patch bumps (`N.M.1 → N.M.2 → …`) follow the same shape;
+the diagram scales by inspection.
 
 ## Mutator framework
 
