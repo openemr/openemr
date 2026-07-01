@@ -12,8 +12,8 @@ Master-side partner PR for the freshly-cut `<REL_BRANCH>` branch (target version
 
 ## What this PR covers (master-side, next-dev advance)
 
-- **Docker upgrade scaffolding** — same docker-version bump + new `fsupgrade-N.sh` stub + Dockerfile manifest update as the rel-side PR (cross-branch sync requirement per the `docker upgrade actions mandatory per release` rule).
-- **SQL upgrade skeleton** — creates `sql/<from>-to-<to>_upgrade.sql` stub (header only; per-release work fills the body).
+- **Docker upgrade scaffolding** — same docker-version bump + new `fsupgrade-N.sh` (full copy of `fsupgrade-(N-1).sh` with the five version-substituted lines) + Dockerfile manifest update as the rel-side PR (cross-branch sync requirement per the `docker upgrade actions mandatory per release` rule; byte-identical between rel-side and master-side).
+- **SQL upgrade skeleton** — creates `sql/<from>-to-<to>_upgrade.sql` carrying the comment-meta-language header copied from the most recent existing bridge (body is empty; per-release work fills it in). The `<from>` is derived from `version.php` (branch-cut) or supplied via `--prev-version` (patch-prep).
 - **`version.php`** — bumps from `8.M.0-dev` to `8.(M+1).0-dev` so master keeps marking development builds for the next minor line.
 - **`src/RestControllers/OpenApi/OpenApiDefinitions.php`** — bumps `OA\Info(version: ...)` to the new master version.
 - **`swagger/openemr-api.yaml`** — regenerated from `OpenApiDefinitions.php` via `openemr:create-api-documentation`.
@@ -22,8 +22,8 @@ Master-side partner PR for the freshly-cut `<REL_BRANCH>` branch (target version
 ## Lifecycle
 
 1. Workflow fires on `create` event for the new `rel-NNN0` branch (or via `workflow_dispatch` for recovery).
-2. This master-side PR opens as a draft alongside the rel-side PR.
-3. Maintainer reviews both, marks Ready, and merges in order: rel-side first, then master-side.
+2. This master-side PR opens (ready-for-review, not draft) alongside the rel-side PR.
+3. Maintainer reviews both and merges in order: rel-side first, then master-side. The rel-side must land first — the master-side PR touches `.github/release-targets.yml`, and the docker release orchestrator fires on pushes to that file, so merging master-side kicks off an image build against the rel branch tip; landing rel-side first ensures that build carries the rel-branch identity mutations.
 
 ## Release manager checklist
 

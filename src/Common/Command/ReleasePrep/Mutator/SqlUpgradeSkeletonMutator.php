@@ -141,6 +141,16 @@ final readonly class SqlUpgradeSkeletonMutator implements MutatorInterface
      * blank lines. The first non-comment, non-blank line ends the
      * header; everything after it is real upgrade SQL from the source
      * release that we don't want to copy.
+     *
+     * The output ends with exactly one trailing newline. A double
+     * trailing newline breaks the `end-of-file-fixer` pre-commit hook
+     * on the generated file. That can happen when either
+     *   (a) the source file is 100% comment/blank lines and ends `\n`,
+     *       so split leaves a trailing empty element, or
+     *   (b) the header run itself ends with one or more blank lines
+     *       before the first SQL statement.
+     * Trim any trailing blanks from the kept run and append a single
+     * `\n` so the emitted file is always canonical.
      */
     private function extractCommentHeader(string $contents): string
     {
@@ -155,6 +165,9 @@ final readonly class SqlUpgradeSkeletonMutator implements MutatorInterface
                 continue;
             }
             break;
+        }
+        while ($kept !== [] && end($kept) === '') {
+            array_pop($kept);
         }
         return implode("\n", $kept) . "\n";
     }
