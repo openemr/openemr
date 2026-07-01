@@ -69,7 +69,7 @@ final class TranslationFileCopyFromPriorRelMutatorTest extends TestCase
     public function testThrowsWhenPrevRelBranchMissing(): void
     {
         $this->writeLocal('foo');
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.2.0', null, 'rel-820');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.2.0', 'rel-820');
 
         $factory = $this->stubProcessFactory(true, '', '');
         $this->expectException(\RuntimeException::class);
@@ -113,7 +113,6 @@ final class TranslationFileCopyFromPriorRelMutatorTest extends TestCase
         return MutatorContext::fromVersionString(
             $this->tmpDir,
             '8.2.0',
-            null,
             'rel-820',
             $prevRelBranch,
         );

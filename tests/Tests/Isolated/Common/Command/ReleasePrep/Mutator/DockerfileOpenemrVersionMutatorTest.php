@@ -98,7 +98,7 @@ final class DockerfileOpenemrVersionMutatorTest extends TestCase
 
     private function context(string $relBranch): MutatorContext
     {
-        return MutatorContext::fromVersionString($this->tmpDir, '8.2.0', null, $relBranch, 'rel-810');
+        return MutatorContext::fromVersionString($this->tmpDir, '8.2.0', $relBranch, 'rel-810');
     }
 
     private function write(string $contents): void

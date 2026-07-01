@@ -96,7 +96,7 @@ Common envelope on every event: `{ event, repo, sha, actor, dispatched_at, data 
 
 Long-lived draft PR against the `rel-*` branch, force-updated by [`.github/workflows/release-prep.yml`](../.github/workflows/release-prep.yml) on every push to a production release branch (matching `rel-[0-9]*0`, with `docs/**`-only pushes ignored). Test branches like `rel-test` go through `workflow_dispatch` instead. The mechanical edits applied by `bin/console openemr:release-prep` are documented in [`docs/release-automation-plan.md`](release-automation-plan.md) (the conductor slice plan).
 
-In short, the conductor rewrites: `version.php`, `library/globals.inc.php` (debug toggle), `docker/production/docker-compose.yml` (image pin), `src/RestControllers/OpenApi/OpenApiDefinitions.php`, `swagger/openemr-api.yaml` (regenerated from the CLI), every `docker-version` file, and (on master) a fresh `sql/X_Y_Z-to-X_Y_Z+1_upgrade.sql` skeleton.
+In short, the conductor rewrites: `version.php`, `docker/production/docker-compose.yml` (image tag pin), `src/RestControllers/OpenApi/OpenApiDefinitions.php`, and `swagger/openemr-api.yaml` (regenerated from the CLI). (The `library/globals.inc.php` debug toggle is applied by the sibling branch-cut conductor at cut time; release-prep does not re-apply it. The `docker-version` triple and `sql/*_upgrade.sql` skeleton are scaffolded at branch-cut / patch-prep time, not at ship time.)
 
 ### Docs PR — `release-docs/<version>` in `openemr/website-openemr`
 

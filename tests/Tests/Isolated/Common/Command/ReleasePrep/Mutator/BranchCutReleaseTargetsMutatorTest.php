@@ -285,7 +285,6 @@ final class BranchCutReleaseTargetsMutatorTest extends TestCase
         return MutatorContext::fromVersionString(
             $this->tmpDir,
             $targetVersion,
-            null,
             $relBranch,
         );
     }

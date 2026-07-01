@@ -99,7 +99,7 @@ final class MasterSqlPatchBridgeMutatorTest extends TestCase
     public function testRequiresFromVersion(): void
     {
         $this->writeSql('8_1_0-to-8_2_0_upgrade.sql', "-- header\n");
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', null, 'rel-810');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/--prev-version/');
@@ -135,7 +135,6 @@ final class MasterSqlPatchBridgeMutatorTest extends TestCase
         return MutatorContext::fromVersionString(
             $this->tmpDir,
             $targetVersion,
-            null,
             null,
             null,
             $prevVersion,

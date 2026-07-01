@@ -89,28 +89,19 @@ final class MutatorTest extends TestCase
         );
     }
 
-    public function testDockerComposePinsTagOnly(): void
+    public function testDockerComposePinsTagAndDiscardsSourceDigest(): void
     {
+        // Source has `latest@sha256:...`; expected output has
+        // `<version>` with no `@sha256:` — the release image isn't
+        // published at release-prep time so there is no valid digest to
+        // preserve or supply.
         $this->copyFixture('docker_compose/latest_input.yml', 'docker/production/docker-compose.yml');
         $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0');
         $this->assertMutationProducesAndIdempotent(
             new DockerComposeProductionMutator(),
             $context,
             'docker/production/docker-compose.yml',
-            self::FIXTURE_DIR . '/docker_compose/pinned_no_digest_expected.yml',
-        );
-    }
-
-    public function testDockerComposePinsTagAndDigest(): void
-    {
-        $this->copyFixture('docker_compose/latest_input.yml', 'docker/production/docker-compose.yml');
-        $digest = 'sha256:' . str_repeat('a', 64);
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0', $digest);
-        $this->assertMutationProducesAndIdempotent(
-            new DockerComposeProductionMutator(),
-            $context,
-            'docker/production/docker-compose.yml',
-            self::FIXTURE_DIR . '/docker_compose/pinned_with_digest_expected.yml',
+            self::FIXTURE_DIR . '/docker_compose/pinned_tag_only_expected.yml',
         );
     }
 
@@ -123,19 +114,6 @@ final class MutatorTest extends TestCase
             $context,
             'docker/production/docker-compose.yml',
             self::FIXTURE_DIR . '/docker_compose/bare_tag_pinned_expected.yml',
-        );
-    }
-
-    public function testDockerComposeAddsDigestToBareTag(): void
-    {
-        $this->copyFixture('docker_compose/bare_tag_input.yml', 'docker/production/docker-compose.yml');
-        $digest = 'sha256:' . str_repeat('a', 64);
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0', $digest);
-        $this->assertMutationProducesAndIdempotent(
-            new DockerComposeProductionMutator(),
-            $context,
-            'docker/production/docker-compose.yml',
-            self::FIXTURE_DIR . '/docker_compose/bare_tag_pinned_with_digest_expected.yml',
         );
     }
 
@@ -187,7 +165,6 @@ final class MutatorTest extends TestCase
         $context = MutatorContext::fromVersionString(
             $this->tmpDir,
             '8.1.1',
-            null,
             'rel-810',
             null,
             '8.1.0',
@@ -223,7 +200,6 @@ final class MutatorTest extends TestCase
         $context = MutatorContext::fromVersionString(
             $this->tmpDir,
             '8.1.1',
-            null,
             'rel-810',
             null,
             '8.1.0',

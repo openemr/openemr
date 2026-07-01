@@ -336,7 +336,6 @@ final class PatchPrepReleaseTargetsMutatorTest extends TestCase
         return MutatorContext::fromVersionString(
             $this->tmpDir,
             $targetVersion,
-            null,
             $relBranch,
         );
     }
