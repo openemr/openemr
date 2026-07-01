@@ -143,9 +143,9 @@ escape hatch) + 4 new mutators (`DockerUpgradeScaffoldMutator`,
 `DockerfileOpenemrVersionMutator`, `TranslationFileCopyFromPriorRelMutator`,
 `BranchCutReleaseTargetsMutator`) + tests, all in a single PR as
 planned. Reality matched design; the mutator audit's "5 already exist,
-4 new needed" split held up. Rabbit-fix follow-up PR #12709 in flight
-addresses 3 Major items missed at the initial merge (App-token
-permission scoping + `persist-credentials: false` on 3 checkouts in
+4 new needed" split held up. Rabbit-fix follow-up shipped in
+openemr/openemr#12709 (merge `8a01001a27`) — 3 Major items missed at
+the initial merge (App-token permission scoping + `persist-credentials: false` on 3 checkouts in
 the new workflow + `endsWith` gate tightening). First real end-to-end
 production exercise is deferred to the rel-820 cut.
 
