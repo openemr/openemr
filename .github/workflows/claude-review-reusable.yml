@@ -54,7 +54,4 @@ jobs:
           # https://github.com/anthropics/claude-code/tree/main/plugins/code-review
         plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
         plugins: "code-review@claude-code-plugins"
-          # DEBUG: surface the full transcript in the workflow log while we
-          # validate the plugin runs end-to-end. Remove once verified.
-        show_full_output: true
         prompt: "/code-review:code-review --comment"
