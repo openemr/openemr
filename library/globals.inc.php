@@ -180,6 +180,21 @@ function gblTimeZones()
     return $arr;
 }
 
+$wellDefinedSettings = \OpenEMR\Config\Definitions::getSystemSettingsByTabName();
+$gmd = [];
+foreach ($wellDefinedSettings as $section => $defs) {
+    $gmd[$section] = [];
+    foreach ($defs as $def) {
+        $gmd[$section][$def->key->value] = [
+            xl($def->titleKey), // @phpstan-ignore argument.type (sourced from xld call)
+            // type: how?
+            $def->defaultValue,
+            xl($def->descriptionKey), // @phpstan-ignore argument.type (sourced from xld call)
+        ];
+    }
+}
+// GLOBALS_METADATA=gmd
+
 $GLOBALS_METADATA = [
 
     // Appearance Tab

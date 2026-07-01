@@ -239,3 +239,16 @@ function getLanguageDir($lang_id)
 
     return !empty($row['lang_is_rtl']) ? 'rtl' : 'ltr';
 }
+
+/**
+ * "Translate Deferred"
+ * This function exists solely as a marker for the translation detection script
+ * (currently `contrib/util/language_translations/collectConstants.pl`) to
+ * find keys.
+ *
+ * @param literal-string $key
+ */
+function xld(string $key): string
+{
+    return $key;
+}
