@@ -197,6 +197,15 @@ job on merge), and `workflow_dispatch` with `target-version` + `branch` +
 optional `test` (opens `release-prep-test/<branch>` for end-to-end test
 runs) and `force-dispatch`.
 
+The `push` filter matches the branch-creation push too, so this
+workflow fires *at cut time* alongside `branch-cut-automation.yml` —
+opening a premature draft `release-prep/<rel-branch>` (paired with a
+`release-finalize/<rel-branch>-master`) before the branch is anywhere
+near ready to ship. Accepted as a tradeoff: the PRs sit inert as drafts,
+re-render on each push through the dev cycle, and become real when the
+branch is actually ready. See [Lifecycle: rel-NNN0 cut event](#lifecycle-rel-nnn0-cut-event)
+for the full picture.
+
 **Rel-side prep PR** (`release-prep/<rel-branch>`, base `<rel-branch>`,
 draft, force-pushed on each run):
 
@@ -261,6 +270,73 @@ day and lands **after** the tag is created. It's not gated on the tag
 creation (a maintainer can review and land it before merging release-prep);
 the semantic invariant is only that the tag it references exists by
 the time master's `release-targets.yml` is consulted downstream.
+
+## Lifecycle: rel-NNN0 cut event
+
+The most complex per-workflow interaction happens when a new `rel-NNN0`
+branch is cut. A single `git push origin master:rel-NNN0` fires two
+workflows simultaneously — `branch-cut-automation.yml` on the `create`
+event, and `release-prep.yml` on the `push` event (the create is also
+a push of master's tip to the new ref). Between them they open **four
+PRs** in the first minute or two:
+
+| PR (head → base) | Opened by | State | Lifetime |
+| --- | --- | --- | --- |
+| `branch-cut/<rel-branch>` → `<rel-branch>` | branch-cut | ready-for-review | until merged (or re-opened via `workflow_dispatch` recovery) |
+| `branch-cut/<rel-branch>-master` → `master` | branch-cut | ready-for-review | until merged |
+| `release-prep/<rel-branch>` → `<rel-branch>` | release-prep conductor | draft, force-pushed on every rel-branch push | until ship day |
+| `release-finalize/<rel-branch>-master` → `master` | release-prep conductor (Phase A partner) | draft, force-pushed on every rel-branch push | until ship day |
+
+**Lockstep on the conductor pair.** The last two are produced by a
+single `release-prep.yml` run, using two checkouts and one Symfony
+console invocation per side. Every subsequent push to `<rel-branch>` —
+whether it's the branch-cut PR merging, a dev commit, or a
+release-cycle-bot preparation PR — re-fires the conductor and
+force-pushes both sides. Reviewers should treat them as one review
+target that happens to span two PRs; the diff on one implies specific
+content on the other.
+
+**File overlap between the two pairs.** The branch-cut and conductor
+PRs against the same base branch touch some of the same files:
+
+- Rel-side both PRs touch `library/globals.inc.php` (branch-cut flips
+  `allow_debug_language` → `'0'`; release-prep's `GlobalsIncMutator` is
+  reused and idempotent, so a re-render sees the flag already flipped
+  and no-ops).
+- Rel-side both touch the `docker-version` triple (branch-cut bumps by
+  one for the new minor's dev cycle; release-prep leaves them alone at
+  ship time).
+- Master-side both touch `.github/release-targets.yml`, but different
+  operations: branch-cut inserts the new rel row + bumps master's
+  docker_tags; release-finalize does the eventual `latest`/`next` slot
+  shuffle when the branch actually ships.
+
+No merge conflicts at open time — force-pushed regeneration keeps the
+conductor pair current against the rel branch's tip. Recommended merge
+order is **branch-cut PRs first** (they're ready-for-review, not draft,
+and meant to land in the days immediately after the cut); the next push
+to `<rel-branch>` re-renders the conductor pair against the new base.
+
+**Known gap: master-side release-finalize doesn't auto-refresh on
+master pushes.** The conductor fires on `push` to `<rel-branch>`, not
+on `push` to master. So the sequence "merge `branch-cut/<rel-branch>-master`
+→ master advances → `release-finalize/<rel-branch>-master` still points
+at the pre-branch-cut master" persists until the next push to
+`<rel-branch>` refreshes it. Not a practical problem — release-finalize
+is draft, no one merges it until ship day, and dev commits to the rel
+branch fire throughout the cycle — but worth knowing when inspecting
+the diff between the two events.
+
+**Skip-line cut (`unreleased: true` on outgoing rel branch's rows).**
+When a rel line is being skipped entirely (e.g., the 8.1.x skip that
+preceded rel-820 — see openemr/openemr#12712), the pre-cut posture
+flags the outgoing branch's rows as `unreleased: true` and moves the
+`next` docker tag to master interim. At the create event, the
+branch-cut `BranchCutReleaseTargetsMutator` drops all unreleased rows
+uniformly (leaving no rows for the skipped rel), and inserts the new
+rel row picking up `next`. Meanwhile the conductor still fires its
+premature draft against the new rel — same story as any cut, just with
+zero surviving rows for the outgoing rel branch.
 
 ## Mutator framework
 
