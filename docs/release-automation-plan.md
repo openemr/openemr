@@ -190,12 +190,15 @@ Workflow: [`.github/workflows/release-prep.yml`](../.github/workflows/release-pr
 partner PR on master alongside the rel-side PR (see
 [release-finalize](#release-finalize-partner-pr)).
 
-**Trigger.** `push` to `rel-<digits ending 0>` (production shape), with
-`paths-ignore: docs/**` so doc-only pushes don't churn the prep PR. Also
+**Trigger.** `push` to `rel-<digits ending 0>` (production shape). Also
 `pull_request: closed` on `rel-*` (drives the tag-and-dispatch finalize
 job on merge), and `workflow_dispatch` with `target-version` + `branch` +
 optional `test` (opens `release-prep-test/<branch>` for end-to-end test
-runs) and `force-dispatch`.
+runs) and `force-dispatch`. No `paths-ignore` — every push, including
+doc-only pushes, fires the conductor. Force-pushes with no diff are no-ops
+via peter-evans's `pull-request-operation=none` signal, and the downstream
+consumer dispatch is gated on that same signal, so idle refires produce
+no external churn.
 
 The `push` filter matches the branch-creation push too, so this
 workflow fires *at cut time* alongside `branch-cut-automation.yml` —

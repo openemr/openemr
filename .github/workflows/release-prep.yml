@@ -16,8 +16,6 @@ on:
     # workflow_dispatch instead.
     branches:
     - 'rel-[0-9]*0'
-    paths-ignore:
-    - 'docs/**'
   pull_request:
     types:
     - closed
