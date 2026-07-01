@@ -25,6 +25,8 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FQHC\DesignSystem\DesignSystemAssets;
 use OpenEMR\FQHC\Reporting\ReportingPatientRepository;
+use OpenEMR\FQHC\Reporting\Table5ReportGenerator;
+use OpenEMR\FQHC\Reporting\Table5VisitRepository;
 use OpenEMR\FQHC\Reporting\UdsReportGenerator;
 use OpenEMR\FQHC\Reporting\UdsReportPresenter;
 
@@ -46,15 +48,17 @@ $year = is_int($yearInput) && $yearInput >= 2000 && $yearInput <= $currentYear
     : $currentYear - 1;
 $yearOptions = range($currentYear, $currentYear - 6);
 
+$presenter = new UdsReportPresenter();
 $report = (new UdsReportGenerator(new ReportingPatientRepository()))->generateForYear($year);
-$view = (new UdsReportPresenter())->present($report);
+$table5 = (new Table5ReportGenerator(new Table5VisitRepository()))->generateForYear($year);
 
 $content = (new TwigContainer(__DIR__ . '/../templates', $globals->getKernel()))
     ->getTwig()
     ->render('fqhc/report.html.twig', [
         'year' => $year,
         'yearOptions' => $yearOptions,
-        'report' => $view,
+        'report' => $presenter->present($report),
+        'table5' => $presenter->table5($table5),
     ]);
 ?>
 <!DOCTYPE html>

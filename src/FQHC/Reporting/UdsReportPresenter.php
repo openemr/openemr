@@ -29,6 +29,7 @@ use OpenEMR\FQHC\SpecialPopulation\HomelessStatus;
  * @phpstan-type AgeRow array{label: string, male: int, female: int, total: int}
  * @phpstan-type RaceRow array{label: string, detail: bool, hispanic: int, notHispanic: int, unreported: int, total: int}
  * @phpstan-type ZipRow array{label: string, uninsured: int, publicInsurance: int, medicare: int, private: int, total: int}
+ * @phpstan-type Table5Row array{label: string, clinic: int, virtual: int, visits: int, patients: int}
  */
 final class UdsReportPresenter
 {
@@ -59,6 +60,33 @@ final class UdsReportPresenter
             'ageSex' => $this->ageSex($report->table3a),
             'race' => $this->race($report->table3b),
             'zip' => $this->zip($report->zipCodeTable),
+        ];
+    }
+
+    /**
+     * The UDS Table 5 utilization rows (one per service category) plus totals.
+     *
+     * @return array{rows: list<Table5Row>, clinic: int, virtual: int, visits: int, patients: int}
+     */
+    public function table5(Table5Report $table5): array
+    {
+        $rows = [];
+        foreach (UdsServiceCategory::cases() as $category) {
+            $rows[] = [
+                'label' => $category->label(),
+                'clinic' => $table5->clinicVisits($category),
+                'virtual' => $table5->virtualVisits($category),
+                'visits' => $table5->totalVisits($category),
+                'patients' => $table5->patients($category),
+            ];
+        }
+
+        return [
+            'rows' => $rows,
+            'clinic' => $table5->totalClinicVisits(),
+            'virtual' => $table5->totalVirtualVisits(),
+            'visits' => $table5->grandTotalVisits(),
+            'patients' => $table5->totalPatients(),
         ];
     }
 
