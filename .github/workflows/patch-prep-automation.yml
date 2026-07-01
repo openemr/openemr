@@ -283,6 +283,7 @@ jobs:
         PREV_VERSION: ${{ steps.resolve.outputs.prev-version }}
       run: |
         php bin/console openemr:patch-prep \
+          --skip-globals \
           --target-version="${VERSION}" \
           --rel-branch="${REL_BRANCH}" \
           --prev-version="${PREV_VERSION}" \
@@ -347,6 +348,7 @@ jobs:
         PREV_VERSION: ${{ steps.resolve.outputs.prev-version }}
       run: |
         php bin/console openemr:patch-prep \
+          --skip-globals \
           --target-version="${VERSION}" \
           --rel-branch="${REL_BRANCH}" \
           --prev-version="${PREV_VERSION}" \
