@@ -14,4 +14,9 @@ class GlobalsTableManager implements ManagerInterface
         //
         return $key::cast($key->value);
     }
+
+    public function setValue(Key $key, mixed $newValue): void
+    {
+        // upsert globals...
+    }
 }
