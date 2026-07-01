@@ -88,10 +88,13 @@ be auto-derived by decrementing minor below 1).
 **Rel-side PR** (`branch-cut/<rel-branch>`, base `<rel-branch>`,
 ready-for-review):
 
-- `DockerUpgradeScaffoldMutator` — new `fsupgrade-N.sh` skeleton +
-  Dockerfile manifest updates (both `COPY` and `chmod` blocks). Same
-  scaffolding the docker-upgrade-actions memo enumerates as mandatory
-  per release.
+- `DockerUpgradeScaffoldMutator` — new `fsupgrade-N.sh` (copied in full
+  from the prior `fsupgrade-N-1.sh` with only the docker-version /
+  priorOpenemrVersion header lines substituted; the upgrade body is
+  preserved byte-for-byte from the prior file for per-release refinement
+  in place) + Dockerfile manifest updates (both `COPY` and `chmod`
+  blocks). Same scaffolding the docker-upgrade-actions memo enumerates
+  as mandatory per release.
 - `DockerfileOpenemrVersionMutator` — pins the `OPENEMR_VERSION` ARG
   in the branch's Dockerfile to the new rel line.
 - `TranslationFileCopyFromPriorRelMutator` — fetches the translation
@@ -213,16 +216,23 @@ for the full picture.
 draft, force-pushed on each run):
 
 - `VersionPhpMutator` — strip `-dev` suffix from `$v_tag`.
-- `GlobalsIncMutator` — reused from branch-cut (idempotent, so re-running
-  is safe if the branch-cut PR wasn't merged before dev started).
-- `DockerComposeProductionMutator` — pin `openemr/openemr:latest@sha256:…`
-  to `openemr/openemr:<version>@sha256:…`. Image digest is supplied via
-  `--image-digest` from the workflow after the release image is published;
-  if absent, the existing digest is preserved and only the tag is swapped.
+- `DockerComposeProductionMutator` — swap the openemr image tag:
+  `openemr/openemr:latest[@sha256:…]` → `openemr/openemr:<version>` (no
+  digest). At release-prep time the release image doesn't yet exist in
+  Docker Hub (the tag→build sequence fires only after release-prep merges),
+  so there is no valid digest to pin. Any existing `@sha256:…` suffix on
+  the source line is dropped.
 - `OpenApiVersionMutator` — bump `#[OA\Info(title: 'OpenEMR API', version: 'X.Y.Z')]`.
   (The wiki + earlier drafts of this plan said `_rest_routes.inc.php` but
   the version constant actually lives in `src/RestControllers/OpenApi/OpenApiDefinitions.php`.)
 - `SwaggerRegenMutator` — regenerate `swagger/openemr-api.yaml`.
+
+`GlobalsIncMutator` is intentionally NOT in the release-prep rel-side
+list even though branch-cut runs it: re-running it here would be
+defensive but redundant, and it hides the "did branch-cut merge?"
+question behind mutator idempotency. Surface as a real diff if
+branch-cut hasn't landed yet. (Removed in round-2 fixes after the
+rel-820 first exercise; see PR #12725.)
 
 The `docker-version` files and `sql/*_upgrade.sql` skeleton the earlier
 draft of this plan enumerated for the release-prep PR moved to
@@ -302,10 +312,12 @@ content on the other.
 **File overlap between the two pairs.** The branch-cut and conductor
 PRs against the same base branch touch some of the same files:
 
-- Rel-side both PRs touch `library/globals.inc.php` (branch-cut flips
-  `allow_debug_language` → `'0'`; release-prep's `GlobalsIncMutator` is
-  reused and idempotent, so a re-render sees the flag already flipped
-  and no-ops).
+- Rel-side branch-cut touches `library/globals.inc.php` (flips
+  `allow_debug_language` → `'0'`). Release-prep does NOT re-run the
+  flip — running it twice is defensive but redundant, and it hides the
+  "did branch-cut merge?" question behind mutator idempotency. If
+  branch-cut hasn't landed yet, the flip surfaces as a real diff at
+  ship time instead of a silent no-op.
 - Rel-side both touch the `docker-version` triple (branch-cut bumps by
   one for the new minor's dev cycle; release-prep leaves them alone at
   ship time).
@@ -406,8 +418,7 @@ against a shared framework at [`src/Common/Command/ReleasePrep/`](../src/Common/
 - **`MutatorInterface`** — `name(): string` + `apply(MutatorContext): MutatorResult`.
 - **`MutatorContext`** — `readonly` value object carrying `projectDir`,
   parsed `major`/`minor`/`patch`, and the optional context fields the
-  various mutators need: `imageDigest` (release-prep only, when
-  `--image-digest` is passed), `relBranch` (release-finalize, branch-cut,
+  various mutators need: `relBranch` (release-finalize, branch-cut,
   patch-prep), `prevRelBranch` (branch-cut rel-side translation copy),
   `fromVersion` (patch-prep SQL skeleton override — validated to be
   same major/minor as target with patch == target - 1). Constructor
@@ -428,8 +439,8 @@ mutators would produce churn PRs.
 |---------|---------|---------|
 | `VersionPhpMutator` | release-prep (rel) | Strip `-dev` from `$v_tag`. |
 | `VersionPhpMasterMutator` | branch-cut (master) | Advance to next-minor `-dev`. |
-| `GlobalsIncMutator` | branch-cut (rel), release-prep (rel) | `allow_debug_language = 0`. |
-| `DockerComposeProductionMutator` | release-prep (rel) | Pin `openemr/openemr` tag + digest. |
+| `GlobalsIncMutator` | branch-cut (rel) | `allow_debug_language = 0`. |
+| `DockerComposeProductionMutator` | release-prep (rel) | Pin `openemr/openemr` tag (no digest). |
 | `DockerfileOpenemrVersionMutator` | branch-cut (rel) | Pin Dockerfile `OPENEMR_VERSION` ARG. |
 | `DockerUpgradeScaffoldMutator` | branch-cut (rel + master), patch-prep (rel + master) | New `fsupgrade-N.sh` + Dockerfile manifest wiring. |
 | `TranslationFileCopyFromPriorRelMutator` | branch-cut (rel) | Fetch translation blob from prior rel branch. |

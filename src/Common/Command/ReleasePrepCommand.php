@@ -42,7 +42,6 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Command;
 
 use OpenEMR\Common\Command\ReleasePrep\Mutator\DockerComposeProductionMutator;
-use OpenEMR\Common\Command\ReleasePrep\Mutator\GlobalsIncMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\OpenApiVersionMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\PostReleaseTargetsMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\SwaggerRegenMutator;
@@ -90,12 +89,6 @@ final class ReleasePrepCommand extends Command
                 'Mutation scope: rel (pre-tag) or master (post-cut)',
             )
             ->addOption(
-                'image-digest',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Optional sha256: digest for the docker image pin',
-            )
-            ->addOption(
                 'project-dir',
                 null,
                 InputOption::VALUE_REQUIRED,
@@ -118,9 +111,6 @@ final class ReleasePrepCommand extends Command
             return Command::INVALID;
         }
 
-        $rawDigest = $input->getOption('image-digest');
-        $imageDigest = is_string($rawDigest) && $rawDigest !== '' ? $rawDigest : null;
-
         $rawProjectDir = $input->getOption('project-dir');
         $projectDir = is_string($rawProjectDir) && $rawProjectDir !== ''
             ? $rawProjectDir
@@ -134,7 +124,7 @@ final class ReleasePrepCommand extends Command
         }
 
         try {
-            $context = MutatorContext::fromVersionString($projectDir, $target, $imageDigest, $relBranch);
+            $context = MutatorContext::fromVersionString($projectDir, $target, $relBranch);
         } catch (\InvalidArgumentException $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             return Command::INVALID;
@@ -175,9 +165,14 @@ final class ReleasePrepCommand extends Command
      */
     private function buildDefaultRelMutators(): array
     {
+        // GlobalsIncMutator intentionally NOT wired here: the
+        // `allow_debug_language` flip is owned by branch-cut
+        // (BranchCutCommand's rel-side list). Running it again at
+        // release-prep time is defensive but redundant, and it hides
+        // the "did branch-cut merge?" question behind mutator idempotency
+        // — surface as a real diff if branch-cut hasn't landed yet.
         return [
             new VersionPhpMutator(),
-            new GlobalsIncMutator(),
             new DockerComposeProductionMutator(),
             new OpenApiVersionMutator(),
             new SwaggerRegenMutator(),

@@ -48,7 +48,7 @@ final class PostReleaseTargetsMutatorTest extends TestCase
     public function testCanonical811FromRel810AppliesAllThreeTransforms(): void
     {
         $this->copyFixture('canonical_input.yml');
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', null, 'rel-810');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
 
         $result = (new PostReleaseTargetsMutator())->apply($context);
 
@@ -64,7 +64,7 @@ final class PostReleaseTargetsMutatorTest extends TestCase
     public function testCanonical811FromRel810IsIdempotent(): void
     {
         $this->copyFixture('canonical_input.yml');
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', null, 'rel-810');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
 
         $mutator = new PostReleaseTargetsMutator();
         $mutator->apply($context);
@@ -84,7 +84,7 @@ final class PostReleaseTargetsMutatorTest extends TestCase
         // The canonical input already contains the unreleased placeholder
         // for rel-810. Verify dropping it leaves the file with no row
         // carrying `unreleased: true` for that branch.
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', null, 'rel-810');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
         (new PostReleaseTargetsMutator())->apply($context);
 
         $parsed = Yaml::parse($this->readTarget());
@@ -112,7 +112,7 @@ final class PostReleaseTargetsMutatorTest extends TestCase
   openemr_version_ref: rel-810
 YAML;
         $this->writeTarget($input);
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', null, 'rel-810');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
         (new PostReleaseTargetsMutator())->apply($context);
 
         $expected = <<<'YAML'
@@ -130,7 +130,7 @@ YAML;
     public function testCommentsArePreservedOnSlotShuffleRows(): void
     {
         $this->copyFixture('canonical_input.yml');
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', null, 'rel-810');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
         (new PostReleaseTargetsMutator())->apply($context);
 
         $output = $this->readTarget();
@@ -175,7 +175,7 @@ YAML;
   openemr_version_ref: v8_0_0
 YAML;
         $this->writeTarget($input);
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', null, 'rel-810');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
         (new PostReleaseTargetsMutator())->apply($context);
 
         $parsed = Yaml::parse($this->readTarget());
@@ -213,7 +213,7 @@ YAML;
   openemr_version_ref: rel-810  # tracks tip until release
 YAML;
         $this->writeTarget($input);
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', null, 'rel-810');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', 'rel-810');
         (new PostReleaseTargetsMutator())->apply($context);
 
         $output = $this->readTarget();
@@ -248,7 +248,7 @@ YAML;
   openemr_version_ref: v7_0_4
 YAML;
         $this->writeTarget($input);
-        $context = MutatorContext::fromVersionString($this->tmpDir, '7.0.4', null, 'rel-704');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '7.0.4', 'rel-704');
 
         $mutator = new PostReleaseTargetsMutator();
         $first = $mutator->apply($context);
@@ -256,6 +256,62 @@ YAML;
             $first->changed(),
             'already-shipped rel-704 should be a no-op (active row recognised via v7_0_X tag)',
         );
+        self::assertSame($input, $this->readTarget());
+    }
+
+    public function testSkipsWhenTargetRelBranchHasNoLiveRow(): void
+    {
+        // Premature-finalize scenario: release-finalize fires for a
+        // rel-820 push before the paired branch-cut PR has landed the
+        // rel-820 row in release-targets.yml. If the mutator proceeded,
+        // the slot-shuffle step would drop `latest` from rel-810 without
+        // a promotion target — leaving nobody holding `latest`. The
+        // mutator must skip cleanly instead.
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.2.0,dev,next
+  openemr_version_ref: master
+
+- branch: rel-810
+  docker_tags: 8.1.0,latest
+  openemr_version_ref: v8_1_0
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.2.0', 'rel-820');
+
+        $result = (new PostReleaseTargetsMutator())->apply($context);
+        self::assertFalse($result->changed(), 'no diff when target rel branch has no live row');
+        self::assertSame($input, $this->readTarget(), 'file must be untouched');
+        self::assertNotEmpty($result->messages, 'skip should surface an informational message');
+        self::assertStringContainsString('rel-820', $result->messages[0]);
+        self::assertStringContainsString('no live row', $result->messages[0]);
+    }
+
+    public function testSkipsWhenOnlyRowForRelBranchIsUnreleasedPlaceholder(): void
+    {
+        // Edge case: a placeholder row for rel-820 exists (marked
+        // `unreleased: true`) but no live row yet. The placeholder alone
+        // shouldn't unblock the shuffle — same invalid-state hazard as
+        // when no row exists at all.
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.2.0,dev,next
+  openemr_version_ref: master
+
+- branch: rel-820
+  docker_tags: 8.1.0,latest
+  openemr_version_ref: v8_1_0
+  unreleased: true
+
+- branch: rel-810
+  docker_tags: 8.1.0,latest
+  openemr_version_ref: v8_1_0
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.2.0', 'rel-820');
+
+        $result = (new PostReleaseTargetsMutator())->apply($context);
+        self::assertFalse($result->changed());
         self::assertSame($input, $this->readTarget());
     }
 
@@ -293,7 +349,7 @@ YAML;
   openemr_version_ref: v8_0_0
 YAML;
         $this->writeTarget($input);
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.2', null, 'rel-810');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.2', 'rel-810');
         (new PostReleaseTargetsMutator())->apply($context);
 
         $parsed = Yaml::parse($this->readTarget());

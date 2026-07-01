@@ -134,7 +134,6 @@ final class PatchPrepCommand extends Command
             $context = MutatorContext::fromVersionString(
                 $projectDir,
                 $target,
-                null,
                 $relBranch,
                 null,
                 $prevVersion,

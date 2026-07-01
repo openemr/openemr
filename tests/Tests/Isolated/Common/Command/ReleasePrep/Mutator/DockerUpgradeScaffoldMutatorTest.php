@@ -50,16 +50,49 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
         self::assertSame("12\n", file_get_contents($this->tmpDir . '/sites/default/docker-version'));
     }
 
-    public function testCreatesFsupgradeStub(): void
+    public function testCreatesFsupgradeByCopyingPriorInFull(): void
     {
         (new DockerUpgradeScaffoldMutator())->apply($this->context());
 
-        $stub = file_get_contents($this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh');
-        self::assertIsString($stub);
-        self::assertStringContainsString('# Upgrade number 12 for OpenEMR docker', $stub);
-        self::assertStringContainsString('priorOpenemrVersion="8.1.0"', $stub);
-        self::assertStringContainsString('Start: Upgrade to docker-version 12', $stub);
-        self::assertStringContainsString('TODO: fill in upgrade logic per-release', $stub);
+        $next = file_get_contents($this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh');
+        self::assertIsString($next);
+        // Byte-for-byte match against the expected fixture: the mutator
+        // copies fsupgrade-11.sh in full and applies exactly the five
+        // documented substitutions.
+        self::assertSame(
+            $this->fixture('fsupgrade-12.sh.expected'),
+            $next,
+        );
+    }
+
+    public function testFsupgradeCopyDiffsOnlyOnTheFiveSubstitutedLines(): void
+    {
+        // Concrete guard against silent body drift: the diff between the
+        // prior file and the produced file should be exactly the five
+        // documented substitutions.
+        (new DockerUpgradeScaffoldMutator())->apply($this->context());
+
+        $prior = $this->fixture('fsupgrade-11.sh');
+        $next = file_get_contents($this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh');
+        self::assertIsString($next);
+
+        $priorLines = explode("\n", $prior);
+        $nextLines = explode("\n", $next);
+        self::assertCount(count($priorLines), $nextLines, 'file line count must match');
+
+        $changedIndexes = [];
+        foreach ($priorLines as $i => $priorLine) {
+            if ($priorLine !== $nextLines[$i]) {
+                $changedIndexes[] = $i;
+            }
+        }
+        // Exactly five lines changed: header comment, from-prior-version
+        // comment, priorOpenemrVersion="…", Start: echo, Completed: echo.
+        self::assertCount(
+            5,
+            $changedIndexes,
+            'expected exactly 5 substituted lines; got ' . implode(',', $changedIndexes),
+        );
     }
 
     public function testExtendsDockerfileCopyAndChmodBlocks(): void
@@ -114,31 +147,69 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
         (new DockerUpgradeScaffoldMutator())->apply($this->context());
     }
 
-    public function testPriorVersionDerivedFromTargetMinor(): void
+    public function testAnchorSearchIsDerivedFromTargetMinor(): void
     {
-        // target=8.5.0 → prior=8.4.0 (minor-1).
-        (new DockerUpgradeScaffoldMutator())->apply(
-            MutatorContext::fromVersionString($this->tmpDir, '8.5.0', null, 'rel-850', 'rel-840'),
+        // For target=8.5.0, the mutator computes prev=8.4.0 (target minor-1)
+        // and uses that as the substitution anchor. Simulate the on-tree
+        // reality at rel-850's cut: fsupgrade-11.sh's priorOpenemrVersion is
+        // 8.4.0 (rel-840's shipped version). The mutator produces
+        // fsupgrade-12.sh with priorOpenemrVersion=8.5.0 (rel-850's shipped
+        // version, i.e. the target-version).
+        $priorAt840 = str_replace(
+            ['priorOpenemrVersion="8.1.0"', 'From prior version 8.1.0'],
+            ['priorOpenemrVersion="8.4.0"', 'From prior version 8.4.0'],
+            $this->fixture('fsupgrade-11.sh'),
         );
-        $stub = file_get_contents($this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh');
-        self::assertIsString($stub);
-        self::assertStringContainsString('priorOpenemrVersion="8.4.0"', $stub);
+        file_put_contents(
+            $this->tmpDir . '/docker/release/upgrade/fsupgrade-11.sh',
+            $priorAt840,
+        );
+
+        (new DockerUpgradeScaffoldMutator())->apply(
+            MutatorContext::fromVersionString($this->tmpDir, '8.5.0', 'rel-850', 'rel-840'),
+        );
+        $next = file_get_contents($this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh');
+        self::assertIsString($next);
+        self::assertStringContainsString('priorOpenemrVersion="8.5.0"', $next);
+        self::assertStringNotContainsString('priorOpenemrVersion="8.4.0"', $next);
+    }
+
+    public function testThrowsWhenPriorFsupgradeLacksExpectedAnchor(): void
+    {
+        // The prior fsupgrade file must contain all five anchor lines
+        // for the substitution to succeed. Substitute one of them out
+        // (the priorOpenemrVersion assignment) and expect a clear error
+        // rather than a silently corrupt output.
+        $malformed = str_replace(
+            'priorOpenemrVersion="8.1.0"',
+            '# priorOpenemrVersion removed',
+            $this->fixture('fsupgrade-11.sh'),
+        );
+        file_put_contents(
+            $this->tmpDir . '/docker/release/upgrade/fsupgrade-11.sh',
+            $malformed,
+        );
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/fsupgrade scaffold expected to substitute/');
+        (new DockerUpgradeScaffoldMutator())->apply($this->context());
     }
 
     public function testNoopWhenAlreadyAtPostCutState(): void
     {
         // Simulate the post-first-run state: docker-version bumped to
-        // 12 + fsupgrade-12.sh carrying this cut's prior version marker
-        // (priorOpenemrVersion="8.1.0" for the rel-820 cut). The mutator
-        // should recognise its own work and no-op cleanly.
+        // 12 + fsupgrade-12.sh carrying this cut's target-version marker
+        // (priorOpenemrVersion="8.2.0" for the rel-820 cut — the version
+        // rel-820 is shipping and rel-830 would need to upgrade from).
+        // The mutator should recognise its own work and no-op cleanly.
         file_put_contents($this->tmpDir . '/docker-version', "12\n");
         file_put_contents($this->tmpDir . '/docker/release/upgrade/docker-version', "12\n");
         file_put_contents($this->tmpDir . '/sites/default/docker-version', "12\n");
         file_put_contents(
             $this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh',
             "#!/bin/bash\n# Upgrade number 12 for OpenEMR docker\n"
-            . 'priorOpenemrVersion="8.1.0"' . "\n"
-            . "# TODO: fill in upgrade logic per-release; see prior fsupgrade-*.sh for examples\n",
+            . 'priorOpenemrVersion="8.2.0"' . "\n"
+            . "# body preserved from prior file\n",
         );
 
         $result = (new DockerUpgradeScaffoldMutator())->apply($this->context());
@@ -147,29 +218,30 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
         self::assertSame("12", trim(file_get_contents($this->tmpDir . '/docker-version') ?: ''));
     }
 
-    public function testNotNoopWhenStubLacksOurCutMarker(): void
+    public function testNotNoopWhenCurrentDockerVersionFileLacksOurCutMarker(): void
     {
         // If a partial state exists (docker-version bumped to 12 but
-        // fsupgrade-12.sh lacks our cut's TODO marker — e.g., somebody
-        // manually filled in the upgrade body before re-running), the
+        // fsupgrade-12.sh lacks our cut's target-version marker — e.g.,
+        // somebody manually edited the priorOpenemrVersion value), the
         // mutator should NOT no-op; it should attempt the work and let
-        // the downstream Dockerfile anchor mismatch surface as a clear
-        // error rather than silently passing through.
+        // the downstream anchor mismatch surface as a clear error
+        // rather than silently passing through. The prior-file anchor
+        // check catches it first (fsupgrade-12.sh is malformed when
+        // read as the "prior" file for the N=13 write).
         file_put_contents($this->tmpDir . '/docker-version', "12\n");
         file_put_contents($this->tmpDir . '/docker/release/upgrade/docker-version', "12\n");
         file_put_contents($this->tmpDir . '/sites/default/docker-version', "12\n");
         file_put_contents(
             $this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh',
-            "#!/bin/bash\n# Manually filled-in upgrade, not our stub\n"
+            "#!/bin/bash\n# Upgrade number 12 for OpenEMR docker\n"
             . 'priorOpenemrVersion="8.1.0"' . "\n"
             . "echo doing real work\n",
         );
 
-        // The Dockerfile still references fsupgrade-11.sh as the latest
-        // entry; bumping to 13 will fail the anchor check, surfacing the
-        // inconsistent state.
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageMatches('/COPY block does not contain expected anchor/');
+        $this->expectExceptionMessageMatches(
+            '/fsupgrade scaffold expected to substitute|COPY block does not contain expected anchor/',
+        );
         (new DockerUpgradeScaffoldMutator())->apply($this->context());
     }
 
@@ -200,7 +272,7 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
 
     private function context(): MutatorContext
     {
-        return MutatorContext::fromVersionString($this->tmpDir, '8.2.0', null, 'rel-820', 'rel-810');
+        return MutatorContext::fromVersionString($this->tmpDir, '8.2.0', 'rel-820', 'rel-810');
     }
 
     private function fixture(string $name): string
