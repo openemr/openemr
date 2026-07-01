@@ -18,7 +18,8 @@ jobs:
     #       access for forks, so it doubles as the fork/bot escape hatch)
     if: >-
       (github.event_name == 'pull_request' &&
-       github.event.pull_request.user.type != 'Bot')
+       github.event.pull_request.user.type != 'Bot' &&
+       github.event.pull_request.head.repo.full_name == github.repository)
       ||
       (github.event_name == 'issue_comment' &&
        github.event.issue.pull_request != null &&
@@ -36,6 +37,13 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 1
+        persist-credentials: false
+        # issue_comment events fire in base-branch context; pin to the PR
+        # head so @claude review sees the actual proposed code, not master.
+        ref: >-
+          ${{ github.event_name == 'issue_comment'
+              && format('refs/pull/{0}/head', github.event.issue.number)
+              || github.ref }}
 
     - name: Claude review
       uses: anthropics/claude-code-action@v1

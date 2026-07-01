@@ -13,6 +13,14 @@ on:
 
 jobs:
   call-review:
+    # Reusable workflows can only reduce, not elevate, the caller job's
+    # permissions. Declare the same scopes the reusable's job needs so the
+    # effective GITHUB_TOKEN can actually post review comments.
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
     # Reusable workflow lives in openemr/openemr. Adjust the branch ref
     # (@master vs @main) to match that repo's default branch.
     uses: openemr/openemr/.github/workflows/claude-review-reusable.yml@master
