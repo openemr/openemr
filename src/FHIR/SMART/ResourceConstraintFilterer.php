@@ -29,6 +29,12 @@ class ResourceConstraintFilterer {
 
     public function canAccessResource(FHIRDomainResource $resource, HttpRestRequest $request): bool {
         $endpointScope = $request->getRequestRequiredScope();
+
+        // Local API requests bypass scope authorization, so no constraints to check
+        if ($endpointScope === null) {
+            return true;
+        }
+
         // TODO: @adunsulag we could move this all into the HttpRestRequest class... but it seems heavy, is there a better
         // class with more cohesion to put this logic into?
         $scopeEntities = $request->getAllContainedScopesForScopeEntity($endpointScope);
