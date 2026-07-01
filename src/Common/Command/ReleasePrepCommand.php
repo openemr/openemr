@@ -23,8 +23,9 @@
  *                  Branch-cut master mutations (e.g. bumping version.php
  *                  to next-dev via VersionPhpMasterMutator) are a
  *                  workstream 2 concern (G4) and are NOT invoked from
- *                  this command in Phase A. A future branch-cut workflow
- *                  will register its own mutator list and invocation path.
+ *                  this command. They are wired by the sibling
+ *                  `openemr:branch-cut` command (see `BranchCutCommand`),
+ *                  driven by the branch-cut-automation workflow.
  *
  * See docs/release-automation-plan.md and openemr/openemr-devops#664
  * for the full design.
@@ -184,14 +185,15 @@ final class ReleasePrepCommand extends Command
     }
 
     /**
-     * Master-scope mutators are release-time only in Phase A: they run
-     * after the rel-branch's tag is created (or alongside its
-     * release-prep PR) to update master's release-targets.yml.
+     * Master-scope mutators are release-time only: they run after the
+     * rel-branch's tag is created (or alongside its release-prep PR) to
+     * update master's release-targets.yml.
      *
      * Branch-cut master mutators (SqlUpgradeSkeletonMutator,
-     * VersionPhpMasterMutator) exist as classes but are intentionally
-     * NOT wired here — workstream 2 (G4) will introduce a separate
-     * branch-cut workflow + invocation path for them.
+     * VersionPhpMasterMutator, etc.) are intentionally NOT wired here —
+     * they belong to the workstream 2 (G4) branch-cut lifecycle event
+     * and are wired by `openemr:branch-cut` (see `BranchCutCommand`)
+     * driven by the branch-cut-automation workflow.
      *
      * @return list<MutatorInterface>
      */

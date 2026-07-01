@@ -70,4 +70,36 @@ final class MutatorContextTest extends TestCase
             self::assertStringContainsString('imageDigest', $e->getMessage());
         }
     }
+
+    public function testValidPrevRelBranchIsAccepted(): void
+    {
+        $context = MutatorContext::fromVersionString(
+            '/tmp/proj',
+            '8.2.0',
+            null,
+            'rel-820',
+            'rel-810',
+        );
+        self::assertSame('rel-810', $context->prevRelBranch);
+        self::assertSame('rel-820', $context->relBranch);
+    }
+
+    public function testInvalidPrevRelBranchRejected(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/prevRelBranch/');
+        MutatorContext::fromVersionString(
+            '/tmp/proj',
+            '8.2.0',
+            null,
+            'rel-820',
+            'master',
+        );
+    }
+
+    public function testPrevRelBranchDefaultsToNull(): void
+    {
+        $context = MutatorContext::fromVersionString('/tmp/proj', '8.2.0', null, 'rel-820');
+        self::assertNull($context->prevRelBranch);
+    }
 }
