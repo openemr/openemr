@@ -19,4 +19,9 @@ interface ManagerInterface
      * @param T $newValue
      */
     public function setValue(Key $key, mixed $newValue): void;
+
+    // Ideally, there's a bulk setValues as well, but you can't use enums as
+    // keys so the ergonomics get weird fast. It's only really needed during
+    // initial install so...meh. The current UI's implementation would benefit
+    // too, but that's more an indication that the impl should change.
 }
