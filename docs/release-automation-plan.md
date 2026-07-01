@@ -200,8 +200,8 @@ runs) and `force-dispatch`.
 The `push` filter matches the branch-creation push too, so this
 workflow fires *at cut time* alongside `branch-cut-automation.yml` —
 opening a premature draft `release-prep/<rel-branch>` (paired with a
-`release-finalize/<rel-branch>`) before the branch is anywhere
-near ready to ship. Accepted as a tradeoff: the PRs sit inert as drafts,
+`release-finalize/<rel-branch>` targeting master) before the branch is
+anywhere near ready to ship. Accepted as a tradeoff: the PRs sit inert as drafts,
 re-render on each push through the dev cycle, and become real when the
 branch is actually ready. See [Lifecycle: rel-NNN0 cut event](#lifecycle-rel-nnn0-cut-event)
 for the full picture.
@@ -337,9 +337,9 @@ order:
 **Known gap: master-side release-finalize doesn't auto-refresh on
 master pushes.** The conductor fires on `push` to `<rel-branch>`, not
 on `push` to master. So the sequence "merge `branch-cut/<rel-branch>-master`
-→ master advances → `release-finalize/<rel-branch>` still points at the
-pre-branch-cut master" persists until the next push to `<rel-branch>`
-refreshes it. Not a practical problem — release-finalize is draft, no
+→ master advances → `release-finalize/<rel-branch>` (which targets
+master) still points at the pre-branch-cut master" persists until the
+next push to `<rel-branch>` refreshes it. Not a practical problem — release-finalize is draft, no
 one merges it until ship day, and dev commits to the rel branch fire
 throughout the cycle — but worth knowing when inspecting the diff
 between the two events.
@@ -361,14 +361,14 @@ zero surviving rows for the outgoing rel branch.
 flowchart TD
     A["git push master:rel-NNN0<br/>(cut)"]
     A --> B["branch-cut-automation.yml fires<br/>opens branch-cut/rel-NNN0 +<br/>branch-cut/rel-NNN0-master<br/><i>ready-for-review</i>"]
-    A --> C["release-prep.yml fires<br/>opens release-prep/rel-NNN0 +<br/>release-finalize/rel-NNN0<br/><i>draft, premature</i>"]
-    B --> D["Merge branch-cut/rel-NNN0<br/><b>rel-side FIRST</b>"]
+    A --> C["release-prep.yml fires<br/>opens release-prep/rel-NNN0 (→ rel-NNN0) +<br/>release-finalize/rel-NNN0 (→ master)<br/><i>draft, premature</i>"]
+    B --> D["Merge branch-cut/rel-NNN0 (→ rel-NNN0)<br/><b>rel-side FIRST</b>"]
     D --> E["release-prep.yml refires<br/>force-pushes conductor pair<br/>(still draft)"]
-    D --> F["Merge branch-cut/rel-NNN0-master"]
+    D --> F["Merge branch-cut/rel-NNN0-master (→ master)"]
     F --> G["Dev cycle:<br/>every rel-branch push refires<br/>conductor pair"]
-    G --> H["Mark release-prep/rel-NNN0 ready<br/>+ merge"]
+    G --> H["Mark release-prep/rel-NNN0 ready<br/>+ merge (→ rel-NNN0)"]
     H --> I["Finalize job:<br/>create annotated tag vN_M_0<br/>+ dispatch openemr-tag"]
-    I --> J["Merge release-finalize/rel-NNN0"]
+    I --> J["Merge release-finalize/rel-NNN0 (→ master)"]
 ```
 
 ### Flow: cut → patch bump → 8.M.P release
@@ -382,13 +382,13 @@ flowchart TD
     A --> B["Commit on rel-NNN0:<br/>bump $v_patch<br/>set $v_tag = -dev"]
     B --> C["patch-prep-automation.yml fires<br/>opens patch-prep/rel-NNN0 +<br/>patch-prep/rel-NNN0-master<br/><i>ready-for-review</i>"]
     B --> D["release-prep.yml refires<br/>force-pushes conductor pair<br/>(target now N.M.1)"]
-    C --> E["Merge patch-prep/rel-NNN0<br/><b>rel-side FIRST</b>"]
+    C --> E["Merge patch-prep/rel-NNN0 (→ rel-NNN0)<br/><b>rel-side FIRST</b>"]
     E --> F["release-prep.yml refires again<br/>force-pushes conductor pair"]
-    E --> G["Merge patch-prep/rel-NNN0-master"]
+    E --> G["Merge patch-prep/rel-NNN0-master (→ master)"]
     G --> H["Dev cycle for N.M.1:<br/>pushes refire conductor pair"]
-    H --> I["Mark release-prep/rel-NNN0 ready<br/>+ merge"]
+    H --> I["Mark release-prep/rel-NNN0 ready<br/>+ merge (→ rel-NNN0)"]
     I --> J["Finalize job:<br/>create annotated tag vN_M_1<br/>+ dispatch openemr-tag"]
-    J --> K["Merge release-finalize/rel-NNN0"]
+    J --> K["Merge release-finalize/rel-NNN0 (→ master)"]
 ```
 
 Subsequent patch bumps (`N.M.1 → N.M.2 → …`) follow the same shape;
