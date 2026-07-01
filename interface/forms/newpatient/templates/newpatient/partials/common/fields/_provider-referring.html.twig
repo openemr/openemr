@@ -1,7 +1,7 @@
 {# Referring Provider #}
 <div class="col-sm {{ displayOptionClass('enc_enable_referring_provider') }}">
-    <div class="form-group">
-        <label for='referring_provider_id' class="text-right">{{ 'Referring Provider'|xlt  }}:</label>
+    <div class="mb-3">
+        <label for='referring_provider_id' class="text-end">{{ 'Referring Provider'|xlt  }}:</label>
         {% if referringProviders|length > 0 %}
             <select name="referring_provider_id" id="referring_provider_id" class="form-control">
                 <option value="">-- {{ "Please Select"|xlt }} --</option>

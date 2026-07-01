@@ -437,12 +437,12 @@ if (typeof asyncAlertMsg !== "function") {
 
         const alertDiv = document.createElement('div');
         alertDiv.id = 'alertmsg';
-        alertDiv.className = 'alert alert-' + type + ' alert-dismissable';
+        alertDiv.className = 'alert alert-' + type + ' alert-dismissible';
 
         const closeBtn = document.createElement('button');
         closeBtn.type = 'button';
-        closeBtn.className = 'close btn btn-link btn-cancel';
-        closeBtn.setAttribute('data-dismiss', 'alert');
+        closeBtn.className = 'btn-close';
+        closeBtn.setAttribute('data-bs-dismiss', 'alert');
         closeBtn.setAttribute('aria-hidden', 'true');
 
         const heading = document.createElement('h5');

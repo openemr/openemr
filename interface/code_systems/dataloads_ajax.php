@@ -108,13 +108,13 @@ $activeAccordionSection = $_GET['aas'] ?? '0';
     <div class="card">
         <div class="card-header" id="overview">
         <h2 class="mb-0">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOverview" aria-expanded="true" aria-controls="collapseOne">
+            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOverview" aria-expanded="true" aria-controls="collapseOne">
                 <?php echo xlt("Overview"); ?>
             </button>
         </h2>
         </div>
 
-        <div id="collapseOverview" class="collapse show" aria-labelledby="overview" data-parent="#externalDatabaseAccordion">
+        <div id="collapseOverview" class="collapse show" aria-labelledby="overview" data-bs-parent="#externalDatabaseAccordion">
         <div class="card-body stg">
             <div class="overview"><?php echo xlt("This page allows you to review each of the supported external dataloads that you can install and upgrade. Each section below can be expanded by clicking on the section header to review the status of the particular database of interest."); ?>
                 <div class="text-danger"><?php echo xlt("NOTE: Importing external data can take more than an hour depending on your hardware configuration. For example, one of the RxNorm data tables contain in excess of 6 million rows."); ?></div>
@@ -136,12 +136,12 @@ $activeAccordionSection = $_GET['aas'] ?? '0';
         <div class="card">
             <div class="card-header" id="<?php echo attr($db); ?>">
                 <h2 class="mb-0">
-                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse<?php echo attr($db); ?>" aria-expanded="false" aria-controls="collapseTwo">
+                    <button class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?php echo attr($db); ?>" aria-expanded="false" aria-controls="collapseTwo">
                         <?php echo attr($db); ?>
                     </button>
                 </h2>
             </div>
-            <div id="collapse<?php echo attr($db); ?>" class="collapse" aria-labelledby="<?php echo attr($db); ?>" data-parent="#externalDatabaseAccordion">
+            <div id="collapse<?php echo attr($db); ?>" class="collapse" aria-labelledby="<?php echo attr($db); ?>" data-bs-parent="#externalDatabaseAccordion">
                 <div class="card-body">
                     <div class="status" id="<?php echo attr($db); ?>_status">
                     </div>
@@ -222,11 +222,11 @@ $activeAccordionSection = $_GET['aas'] ?? '0';
                         });
                     });
                     // Initial tooltip
-                    $(`#${dbName}_unsupportedmsg`).attr({"title": "<?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?>", "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+                    $(`#${dbName}_unsupportedmsg`).attr({"title": "<?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?>", "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
 
-                    $(`#${dbName}_dirmsg`).attr({"title": "<?php echo xla("Please create the following directory before proceeding"); ?>: contrib/" + (dbName).toLowerCase(), "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+                    $(`#${dbName}_dirmsg`).attr({"title": "<?php echo xla("Please create the following directory before proceeding"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
 
-                    $(`#${dbName}_msg`).attr({"title": "<?php echo xla("Please place your install files in following directory"); ?>: contrib/" + (dbName).toLowerCase(), "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+                    $(`#${dbName}_msg`).attr({"title": "<?php echo xla("Please place your install files in following directory"); ?>: contrib/" + (dbName).toLowerCase(), "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
 
                     // Upgrade Database button event
                     $(`#${dbName}_install_button`).click(function(e) {

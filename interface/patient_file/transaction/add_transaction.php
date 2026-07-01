@@ -425,7 +425,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <fieldset>
                         <legend><?php echo xlt('Select Transaction Type'); ?></legend>
                         <div class="forms col-sm-7">
-                            <label class="control-label" for="title"><?php echo xlt('Transaction Type'); ?>:</label>
+                            <label class="col-form-label" for="title"><?php echo xlt('Transaction Type'); ?>:</label>
                             <?php
                             $ttres = sqlStatement("SELECT grp_form_id, grp_title " .
                               "FROM layout_group_properties WHERE " .

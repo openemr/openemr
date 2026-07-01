@@ -83,7 +83,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             const variants = { success: 'success', waiting: 'info' };
                             const variant = variants[data] || 'warning';
                             const label = row.status_label || data;
-                            return `<span class="badge badge-${variant}">${jsText(label)}</span>`;
+                            return `<span class="badge text-bg-${variant}">${jsText(label)}</span>`;
                         }
                     },
                     { "data": "x12_partner_name" },

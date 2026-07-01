@@ -523,6 +523,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5ComponentTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5SmokeTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
     'count' => 12,
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];

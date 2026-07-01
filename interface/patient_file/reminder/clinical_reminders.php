@@ -118,7 +118,7 @@ $patient_id = $_GET['patient_id'] ?: "";
                         $select = "default";
                     }
                 } ?>
-            <div class="form-group">
+            <div class="mb-3">
               <select class="plan_show form-control col-4" name="<?php echo attr($plan['id']); ?>">
                 <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo xlt('Default'); ?></option>
                 <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo xlt('On'); ?></option>
@@ -172,7 +172,7 @@ $patient_id = $_GET['patient_id'] ?: "";
                         $select = "default";
                     }
                 } ?>
-                <div class="form-group">
+                <div class="mb-3">
               <select class="passive_alert form-control" name="<?php echo attr($rule['id']); ?>">
                 <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo xlt('Default'); ?></option>
                 <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo xlt('On'); ?></option>
@@ -203,7 +203,7 @@ $patient_id = $_GET['patient_id'] ?: "";
                         $select = "default";
                     }
                 } ?>
-                 <div class="form-group">
+                 <div class="mb-3">
               <select class="active_alert form-control" name="<?php echo attr($rule['id']); ?>">
                 <option value="default" <?php echo ($select == "default") ? "selected" : ""; ?>><?php echo xlt('Default'); ?></option>
                 <option value="on" <?php echo ($select == "on") ? "selected" : ""; ?>><?php echo xlt('On'); ?></option>

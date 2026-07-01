@@ -48722,6 +48722,36 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'count\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5ComponentTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'error\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5ComponentTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'initialized\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5ComponentTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'hasCollapse\'\\|\'hasDropdown\'\\|\'hasModal\'\\|\'hasTooltip\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5SmokeTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'loaded\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5SmokeTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'version\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5SmokeTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',

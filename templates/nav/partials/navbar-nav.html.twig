@@ -11,7 +11,7 @@ Render a navbar-nav element. menu must be a MenuItems object
 
 {% macro navbar_nav(menu, container = "ul", listElement = "li") %}
 {% import "html/macros/attribute_list.twig" as html %}
-{% set _containerClasses = ['navbar-nav', 'mr-auto'] %}
+{% set _containerClasses = ['navbar-nav', 'me-auto'] %}
 <{{ container }} class="{{ _containerClasses|join(' ') }}">
     {% for item in menu %}
         {% set _preText = (item.getPreTextContent()) ? item.getPreTextContent() ~ " " : "" %}

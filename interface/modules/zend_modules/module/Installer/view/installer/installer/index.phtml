@@ -115,7 +115,7 @@ $help_items = [
     <div class="bg-light text-dark text-center" id="helpPanel">
         <button class="btn btn-outline-primary btn-sm btn-show my-2" type="button" onclick="toggleHelp()"><?php echo xlt('Modules Help'); ?></button>
         <a class="btn btn-outline-info btn-sm btn-show bg-light text-dark my-2" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank"><?php echo xlt('Visit Third Party Modules Wiki'); ?></a>
-        <div class="help-content bg-light text-dark text-left d-none" id="helpContent">
+        <div class="help-content bg-light text-dark text-start d-none" id="helpContent">
             <ul style="font-size: 1.0rem;">
                 <?php
                 echo '';
@@ -125,7 +125,7 @@ $help_items = [
                 echo '';
                 ?>
             </ul>
-            <button class="btn btn-sm btn-outline-primary float-right mb-2" type="button" onclick="toggleHelp()"><?php echo xlt('Dismiss'); ?></button>
+            <button class="btn btn-sm btn-outline-primary float-end mb-2" type="button" onclick="toggleHelp()"><?php echo xlt('Dismiss'); ?></button>
         </div>
     </div>
     <div class="text-center"><span class="h3"><?php echo $listener->z_xlt('Custom Module Listings'); ?></span></div>

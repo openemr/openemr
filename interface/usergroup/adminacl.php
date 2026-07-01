@@ -41,11 +41,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $(function () {
             //Bootstrap tooltip
             var groupTitle = <?php echo xlj('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>;
-            $('#advanced-tooltip').attr({"title": <?php echo xlj('Click to manually configure access control, recommended for advanced users'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#user-tooltip').attr({"title": <?php echo xlj('Click the pencil icon to grant and remove access privileges to the selected user'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#group-tooltip').attr({"title": groupTitle, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#new-group-tooltip').attr({"title": <?php echo xlj('Enter values in this section to create a new group also known as Access Request Object (ARO)'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#remove-group-tooltip').attr({"title": <?php echo xlj('Use this section to delete existing groups or Access Request Objects (AROs)'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#advanced-tooltip').attr({"title": <?php echo xlj('Click to manually configure access control, recommended for advanced users'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            $('#user-tooltip').attr({"title": <?php echo xlj('Click the pencil icon to grant and remove access privileges to the selected user'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            $('#group-tooltip').attr({"title": groupTitle, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            $('#new-group-tooltip').attr({"title": <?php echo xlj('Enter values in this section to create a new group also known as Access Request Object (ARO)'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            $('#remove-group-tooltip').attr({"title": <?php echo xlj('Use this section to delete existing groups or Access Request Objects (AROs)'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            // Initialize BS5 tooltips
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
             //Show membership section by default
             $("#membership_show").click();
             membership_show();
@@ -549,7 +551,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             <div class='col-12'>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="title_field"><?php echo xlt('Title'); ?>:</label>
+                                        <label class="col-form-label" for="title_field"><?php echo xlt('Title'); ?>:</label>
                                         <input id="title_field" type="text" class="form-control">
                                     </div>
                                     <div class='col-6'>
@@ -558,7 +560,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 </div>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="id_field"><?php echo xlt('Identifier(one word)'); ?>:</label>
+                                        <label class="col-form-label" for="id_field"><?php echo xlt('Identifier(one word)'); ?>:</label>
                                         <input id="id_field" type="text" class="form-control">
                                     </div>
                                     <div class='col-6'>
@@ -567,7 +569,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 </div>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="return_field"><?php echo xlt('Return Value'); ?>:</label>
+                                        <label class="col-form-label" for="return_field"><?php echo xlt('Return Value'); ?>:</label>
                                         <select id="return_field" class="form-control">
                                         </select>
                                     </div>
@@ -577,7 +579,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 </div>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="desc_field"><?php echo xlt('Description'); ?>:</label>
+                                        <label class="col-form-label" for="desc_field"><?php echo xlt('Description'); ?>:</label>
                                         <input id="desc_field" type="text" class="form-control">
                                     </div>
                                     <div class='col-6'>
@@ -603,7 +605,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             <div class='col-12'>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="acl_field"><?php echo xlt('Group'); ?>:</label>
+                                        <label class="col-form-label" for="acl_field"><?php echo xlt('Group'); ?>:</label>
                                         <select id="acl_field" class='form-control'>
                                         </select>
                                     </div>
