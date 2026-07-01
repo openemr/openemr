@@ -28,6 +28,14 @@
 name: Docker release orchestrator
 
 on:
+  # Fire immediately when master's release-targets.yml changes (branch-cut,
+  # patch-prep, release-finalize, or a manual edit). Prior to this trigger,
+  # the daily 06:00 UTC tick was the only scheduled path, so a new/modified
+  # row would sit unpublished for up to 24h. Push events treat inputs as
+  # empty -> the fan-out matrix defaults to include=all (same as schedule).
+  push:
+    branches: [master]
+    paths: [.github/release-targets.yml]
   schedule:
   - cron: '0 6 * * *'    # 06:00 UTC daily
   workflow_dispatch:
@@ -40,6 +48,14 @@ on:
         description: 'Branches to skip (comma-separated). Useful with include=all.'
         type: string
         default: ''
+
+# Serialize orchestrator runs so a burst of release-targets.yml pushes
+# (or a schedule tick landing during a manual dispatch) doesn't fan out
+# overlapping builds against the same rows. Single global group by
+# workflow name because include/exclude inputs vary per invocation.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
