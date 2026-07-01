@@ -114,9 +114,10 @@ class HttpRestRequest extends Request implements Stringable
     private string $apiBaseFullUrl;
 
     /**
-     * @var ScopeEntity The required endpoint scope for this request
+     * @var ScopeEntity|null The required endpoint scope for this request.
+     * Null for local API requests where scope authorization is bypassed.
      */
-    protected ScopeEntity $requiredEndpointScope;
+    protected ?ScopeEntity $requiredEndpointScope = null;
 
     public static function createFromGlobals(): static
     {
@@ -860,9 +861,9 @@ class HttpRestRequest extends Request implements Stringable
     /**
      * Returns the required endpoint scope necessary for the current request to be authorized.  This can be useful
      * to do additional access checks based on the scope required for the request.
-     * @return ScopeEntity The required endpoint scope necessary for the current request to be authorized
+     * @return ScopeEntity|null The required endpoint scope, or null for local API requests
      */
-    public function getRequestRequiredScope(): ScopeEntity {
+    public function getRequestRequiredScope(): ?ScopeEntity {
         return $this->requiredEndpointScope;
     }
 }
