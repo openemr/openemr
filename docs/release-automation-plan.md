@@ -200,7 +200,7 @@ runs) and `force-dispatch`.
 The `push` filter matches the branch-creation push too, so this
 workflow fires *at cut time* alongside `branch-cut-automation.yml` —
 opening a premature draft `release-prep/<rel-branch>` (paired with a
-`release-finalize/<rel-branch>-master`) before the branch is anywhere
+`release-finalize/<rel-branch>`) before the branch is anywhere
 near ready to ship. Accepted as a tradeoff: the PRs sit inert as drafts,
 re-render on each push through the dev cycle, and become real when the
 branch is actually ready. See [Lifecycle: rel-NNN0 cut event](#lifecycle-rel-nnn0-cut-event)
@@ -285,7 +285,7 @@ PRs** in the first minute or two:
 | `branch-cut/<rel-branch>` → `<rel-branch>` | branch-cut | ready-for-review | until merged (or re-opened via `workflow_dispatch` recovery) |
 | `branch-cut/<rel-branch>-master` → `master` | branch-cut | ready-for-review | until merged |
 | `release-prep/<rel-branch>` → `<rel-branch>` | release-prep conductor | draft, force-pushed on every rel-branch push | until ship day |
-| `release-finalize/<rel-branch>-master` → `master` | release-prep conductor (Phase A partner) | draft, force-pushed on every rel-branch push | until ship day |
+| `release-finalize/<rel-branch>` → `master` | release-prep conductor (Phase A partner) | draft, force-pushed on every rel-branch push | until ship day |
 
 **Lockstep on the conductor pair.** The last two are produced by a
 single `release-prep.yml` run, using two checkouts and one Symfony
@@ -313,19 +313,38 @@ PRs against the same base branch touch some of the same files:
 
 No merge conflicts at open time — force-pushed regeneration keeps the
 conductor pair current against the rel branch's tip. Recommended merge
-order is **branch-cut PRs first** (they're ready-for-review, not draft,
-and meant to land in the days immediately after the cut); the next push
-to `<rel-branch>` re-renders the conductor pair against the new base.
+order:
+
+1. **`branch-cut/<rel-branch>` (rel-side) first.** This transforms the
+   freshly-cut branch into a proper rel branch: Dockerfile `ARG
+   OPENEMR_VERSION` pinned to the rel line, docker-version files
+   bumped, translation blob copied from the prior rel, `allow_debug_language`
+   flipped to `'0'`. Until this lands, `rel-<rel-branch>`'s tip is bit-
+   identical to master.
+2. **`branch-cut/<rel-branch>-master` (master-side) second.** This
+   inserts the new rel branch's row into `.github/release-targets.yml`
+   (with `openemr_version_ref: <rel-branch>`). Since the docker release
+   orchestrator now fires on pushes to `release-targets.yml`
+   (openemr/openemr#12720), merging master-side triggers an image build
+   against the rel branch's tip. If master-side lands *before* rel-side,
+   that build bakes an image labeled `<version>,next` from a rel branch
+   that's still bit-identical to master — no fatal error, but the image
+   won't carry the rel-branch identity mutations until the rel-side PR
+   lands and the next orchestrator run picks it up.
+3. **Conductor pair (release-prep + release-finalize) stays draft** until
+   the branch is actually ready to ship (dev cycle complete, all
+   pre-ship checklists satisfied). The pair re-renders on every push
+   through the dev cycle, so it stays fresh.
 
 **Known gap: master-side release-finalize doesn't auto-refresh on
 master pushes.** The conductor fires on `push` to `<rel-branch>`, not
 on `push` to master. So the sequence "merge `branch-cut/<rel-branch>-master`
-→ master advances → `release-finalize/<rel-branch>-master` still points
-at the pre-branch-cut master" persists until the next push to
-`<rel-branch>` refreshes it. Not a practical problem — release-finalize
-is draft, no one merges it until ship day, and dev commits to the rel
-branch fire throughout the cycle — but worth knowing when inspecting
-the diff between the two events.
+→ master advances → `release-finalize/<rel-branch>` still points at the
+pre-branch-cut master" persists until the next push to `<rel-branch>`
+refreshes it. Not a practical problem — release-finalize is draft, no
+one merges it until ship day, and dev commits to the rel branch fire
+throughout the cycle — but worth knowing when inspecting the diff
+between the two events.
 
 **Skip-line cut (`unreleased: true` on outgoing rel branch's rows).**
 When a rel line is being skipped entirely (e.g., the 8.1.x skip that
@@ -337,6 +356,87 @@ uniformly (leaving no rows for the skipped rel), and inserts the new
 rel row picking up `next`. Meanwhile the conductor still fires its
 premature draft against the new rel — same story as any cut, just with
 zero surviving rows for the outgoing rel branch.
+
+### Sequence: cut → 8.M.0 release
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor M as Maintainer
+    participant BC as branch-cut<br/>workflow
+    participant CP as release-prep<br/>conductor
+    participant R as rel-NNN0
+    participant Mas as master
+
+    M->>R: git push origin master:rel-NNN0<br/>(create event)
+    par branch-cut on `create`
+        BC->>R: open branch-cut/rel-NNN0<br/>(ready-for-review)
+        BC->>Mas: open branch-cut/rel-NNN0-master<br/>(ready-for-review)
+    and conductor on `push`
+        CP->>R: open release-prep/rel-NNN0<br/>(draft, premature)
+        CP->>Mas: open release-finalize/rel-NNN0<br/>(draft, premature)
+    end
+
+    M->>R: merge branch-cut/rel-NNN0 (rel-side FIRST)
+    Note over R,CP: push refires conductor pair
+    CP-->>R: force-push release-prep/rel-NNN0
+    CP-->>Mas: force-push release-finalize/rel-NNN0
+
+    M->>Mas: merge branch-cut/rel-NNN0-master
+
+    Note over R,CP: dev cycle — every push refires<br/>conductor pair with latest target
+
+    M->>R: mark release-prep/rel-NNN0 ready + merge
+    Note over CP: pull_request:closed →<br/>finalize job
+    CP->>R: create annotated tag vN_M_0
+    CP->>Mas: dispatch openemr-tag
+
+    M->>Mas: merge release-finalize/rel-NNN0
+```
+
+### Sequence: cut → patch bump → 8.M.P release
+
+Same start as above (cut → 8.M.0 ships). Then a `$v_patch` bump on the
+rel branch fires patch-prep alongside the conductor:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor M as Maintainer
+    participant PP as patch-prep<br/>workflow
+    participant CP as release-prep<br/>conductor
+    participant R as rel-NNN0
+    participant Mas as master
+
+    Note over R,Mas: 8.M.0 has already shipped<br/>(see prior diagram); tag vN_M_0 exists
+
+    M->>R: commit: bump $v_patch (0→1),<br/>set $v_tag to '-dev'
+    par patch-prep on `push` (paths: version.php)
+        PP->>R: open patch-prep/rel-NNN0<br/>(ready-for-review)
+        PP->>Mas: open patch-prep/rel-NNN0-master<br/>(ready-for-review)
+    and conductor on `push`
+        CP-->>R: force-push release-prep/rel-NNN0<br/>(target now N.M.1)
+        CP-->>Mas: force-push release-finalize/rel-NNN0<br/>(target now N.M.1)
+    end
+
+    M->>R: merge patch-prep/rel-NNN0 (rel-side FIRST)
+    Note over R,CP: push refires conductor pair
+    CP-->>R: force-push release-prep/rel-NNN0
+    CP-->>Mas: force-push release-finalize/rel-NNN0
+
+    M->>Mas: merge patch-prep/rel-NNN0-master
+
+    Note over R,CP: dev cycle for N.M.1
+
+    M->>R: mark release-prep/rel-NNN0 ready + merge
+    CP->>R: create annotated tag vN_M_1
+    CP->>Mas: dispatch openemr-tag
+
+    M->>Mas: merge release-finalize/rel-NNN0
+```
+
+Subsequent patch bumps (`N.M.1 → N.M.2 → …`) follow the same shape
+verbatim; the diagram scales by inspection.
 
 ## Mutator framework
 
