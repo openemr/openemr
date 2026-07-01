@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Config\Reader;
+namespace OpenEMR\Config\Manager;
 
-use OpenEMR\Config\{Key, ReaderInterface};
+use OpenEMR\Config\{Key, ManagerInterface};
 
-class GlobalsTableReader implements ReaderInterface
+class GlobalsTableManager implements ManagerInterface
 {
     public function getCurrentValue(Key $key): mixed
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Config;
 
-interface ReaderInterface
+interface ManagerInterface
 {
     /**
      * @template T
