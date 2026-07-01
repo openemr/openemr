@@ -46,11 +46,18 @@ use Symfony\Component\Console\SingleCommandApplication;
         InputOption::VALUE_REQUIRED,
         'Rel branch identifier (e.g. rel-810). Substituted for <REL_BRANCH> in the template; required for the release-finalize template.',
     )
+    ->addOption(
+        'prev-version',
+        null,
+        InputOption::VALUE_REQUIRED,
+        'Prior patch version (e.g. 8.1.0). Substituted for <PREV_VERSION> in the template; required for the patch-prep templates.',
+    )
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $version = $input->getArgument('version');
         $templateRel = $input->getOption('template');
         $repoDir = $input->getOption('repo-dir');
         $relBranch = $input->getOption('rel-branch');
+        $prevVersion = $input->getOption('prev-version');
         if (
             !is_string($version) || $version === ''
             || !is_string($templateRel) || $templateRel === ''
@@ -69,12 +76,19 @@ use Symfony\Component\Console\SingleCommandApplication;
         if (is_string($relBranch) && $relBranch !== '') {
             $rendered = str_replace('<REL_BRANCH>', $relBranch, $rendered);
         }
+        if (is_string($prevVersion) && $prevVersion !== '') {
+            $rendered = str_replace('<PREV_VERSION>', $prevVersion, $rendered);
+        }
         // Fail fast if a required-when-given placeholder is still in the
-        // output. Silently shipping `<REL_BRANCH>` (or `<VERSION>`) into a
-        // PR body produces broken release-finalize PRs that look correct
-        // at a glance.
+        // output. Silently shipping `<REL_BRANCH>` (or `<VERSION>` /
+        // `<PREV_VERSION>`) into a PR body produces broken PRs that look
+        // correct at a glance.
         if (str_contains($rendered, '<REL_BRANCH>')) {
             fwrite(STDERR, "render-pr-body: template contains <REL_BRANCH> placeholder but --rel-branch was not provided\n");
+            return 2;
+        }
+        if (str_contains($rendered, '<PREV_VERSION>')) {
+            fwrite(STDERR, "render-pr-body: template contains <PREV_VERSION> placeholder but --prev-version was not provided\n");
             return 2;
         }
         if (str_contains($rendered, '<VERSION>')) {

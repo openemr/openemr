@@ -173,6 +173,66 @@ final class MutatorTest extends TestCase
         self::assertFalse($secondResult->changed());
     }
 
+    public function testSqlUpgradeSkeletonRespectsFromVersionOverride(): void
+    {
+        // Patch-prep scenario: rel-810 version.php has ALREADY been bumped
+        // to 8.1.1-dev. The skeleton should anchor at 8.1.0 (the explicit
+        // fromVersion override), NOT read 8.1.1 from version.php.
+        $this->writeFile('version.php', "<?php\n\$v_major='8';\n\$v_minor='1';\n\$v_patch='1';\n");
+        $this->writeFile(
+            'sql/8_0_0-to-8_1_0_upgrade.sql',
+            "-- header\nINSERT INTO foo VALUES (1);\n",
+        );
+
+        $context = MutatorContext::fromVersionString(
+            $this->tmpDir,
+            '8.1.1',
+            null,
+            'rel-810',
+            null,
+            '8.1.0',
+        );
+        $result = (new SqlUpgradeSkeletonMutator())->apply($context);
+
+        // From-version 8.1.0 (override), to-version 8.1.1 (target). The
+        // mutator must NOT read version.php (which would yield 8.1.1 →
+        // 8.1.1 → no-op).
+        self::assertSame(['sql/8_1_0-to-8_1_1_upgrade.sql'], $result->changedFiles);
+        self::assertSame(
+            "-- header\n",
+            file_get_contents($this->tmpDir . '/sql/8_1_0-to-8_1_1_upgrade.sql'),
+        );
+
+        // Idempotence under override path.
+        $second = (new SqlUpgradeSkeletonMutator())->apply($context);
+        self::assertFalse($second->changed());
+    }
+
+    public function testSqlUpgradeSkeletonFromVersionOverrideWorksWithoutVersionPhp(): void
+    {
+        // Master-side patch-prep: master's version.php is for the
+        // next-minor line entirely (e.g., 8.2.0-dev) — it shouldn't be
+        // consulted at all when fromVersion is supplied. To prove the
+        // mutator never reads version.php on the override path, simply
+        // omit version.php entirely.
+        $this->writeFile(
+            'sql/8_0_0-to-8_1_0_upgrade.sql',
+            "-- header\n",
+        );
+
+        $context = MutatorContext::fromVersionString(
+            $this->tmpDir,
+            '8.1.1',
+            null,
+            'rel-810',
+            null,
+            '8.1.0',
+        );
+        $result = (new SqlUpgradeSkeletonMutator())->apply($context);
+
+        self::assertSame(['sql/8_1_0-to-8_1_1_upgrade.sql'], $result->changedFiles);
+    }
+
     public function testSwaggerRegenInvokesConsoleSubprocess(): void
     {
         $this->writeFile('swagger/openemr-api.yaml', "openapi: 3.0.0\ninfo:\n  version: 8.0.1\n");
