@@ -67,7 +67,7 @@ jobs:
         claude_args: |
           --model claude-sonnet-5
           --max-turns 15
-          --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+          --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr review:*)"
         prompt: |
           REPO: ${{ github.repository }}
           PR NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
@@ -98,8 +98,10 @@ jobs:
           How to post the review — this is mandatory, not optional:
           - Use `mcp__github_inline_comment__create_inline_comment` (with
             `confirmed: true`) for every line-specific finding.
-          - Use `gh pr comment` (via Bash) for the overall summary and the
-            final call (approve / comment / request-changes).
+          - Use `gh pr comment` (via Bash) for the overall summary text.
+          - Use `gh pr review --approve` / `--request-changes` / `--comment`
+            (via Bash) to submit the final call. `gh pr comment` only posts a
+            plain issue comment and cannot set a review state.
           - Do NOT emit the review as a chat message; only comments posted via
             the tools above are visible to reviewers. Every comment must be
             concrete and actionable.
