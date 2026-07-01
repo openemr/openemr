@@ -6,10 +6,8 @@
 name: Claude PR Review
 
 on:
-  pull_request:
-    types: [opened]        # auto-review non-bot PRs on open
   issue_comment:
-    types: [created]       # maintainers force a review with "@claude review"
+    types: [created]       # maintainer comments "@claude review" on a PR
 
 jobs:
   call-review:
