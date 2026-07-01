@@ -40,7 +40,7 @@ jobs:
         (github.event_name == 'create'
          && github.event.ref_type == 'branch'
          && startsWith(github.event.ref, 'rel-')
-         && contains(github.event.ref, '0'))
+         && endsWith(github.event.ref, '0'))
         || github.event_name == 'workflow_dispatch'
       )
     runs-on: ubuntu-24.04
@@ -63,6 +63,11 @@ jobs:
         # first push to the rel branch).
         owner: ${{ github.repository_owner }}
         repositories: openemr
+        # Least-privilege: this workflow needs to push branches (contents)
+        # and open PRs (pull-requests). Without explicit permission-*
+        # inputs, the token inherits the App installation's full grant.
+        permission-contents: write
+        permission-pull-requests: write
 
     - name: Resolve rel-branch + target-version + prev-rel-branch
       id: resolve
@@ -131,6 +136,7 @@ jobs:
       with:
         ref: master
         fetch-depth: 1
+        persist-credentials: false
 
     - name: Setup PHP and Composer (shared)
       uses: ./.github/actions/setup-php-composer
@@ -146,6 +152,11 @@ jobs:
         path: rel-checkout
         token: ${{ steps.app-token.outputs.token }}
         fetch-depth: 0
+        # peter-evans/create-pull-request uses its own token: input for
+        # pushing, so we don't need the App token persisted in
+        # rel-checkout/.git/config where a composer vendor script could
+        # read it during the install step below.
+        persist-credentials: false
 
     - name: Install Composer dependencies (rel-checkout)
       working-directory: rel-checkout
@@ -203,6 +214,8 @@ jobs:
         path: master-checkout
         token: ${{ steps.app-token.outputs.token }}
         fetch-depth: 0
+        # Same rationale as the rel-checkout above.
+        persist-credentials: false
 
     - name: Install Composer dependencies (master-checkout)
       working-directory: master-checkout
