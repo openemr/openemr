@@ -355,71 +355,83 @@ rel row picking up `next`. Meanwhile the conductor still fires its
 premature draft against the new rel — same story as any cut, just with
 zero surviving rows for the outgoing rel branch.
 
-### Flow: events → workflows → PRs → consumers
+### Sequence: cut → 8.M.0 release
 
-```text
-                                        openemr/openemr                            consumers
-                                        ─────────────────                          ─────────
-create rel-NNN0                 branch-cut/<rel-branch>            ───┐  (ready-for-review)
-   │                            branch-cut/<rel-branch>-master     ───┤  (ready-for-review)
-   ├──► branch-cut-automation.yml                                     │
-   │                                                                  │
-push $v_patch bump on rel-*     patch-prep/<rel-branch>            ───┤  (ready-for-review)
-   │  (paths: version.php)      patch-prep/<rel-branch>-master     ───┤  (ready-for-review)
-   ├──► patch-prep-automation.yml                                     │
-   │                                                                  │
-push to rel-*                   release-prep/<rel-branch>          ───┤  (draft, force-pushed)
-   │  (any push during the      release-finalize/<rel-branch>      ───┤  (draft, force-pushed)
-   │   dev cycle; also fires                                          │
-   │   on create + on $v_patch                                        │
-   │   push shown above)                                              ├─► openemr-rel-cut     ─► openemr-devops,
-   ├──► release-prep.yml                                              │   openemr-rel-update      website-openemr
-   │                                                                  │
-   ▼                                                                  │
-merge release-prep/<rel-branch>                                       │
-   │                                                                  │
-   ├──► release-prep.yml (finalize job, on pull_request:closed)       │
-   │       │                                                          │
-   │       ▼                                                          │
-   │    annotated tag v{M}_{m}_{p}                                    │
-   │                                                                  ├─► openemr-tag         ─► openemr-devops
-   │                                                                                              (build-release.yml:
-   │                                                                                               build packages,
-   │                                                                                               create Release,
-   │                                                                                               upload assets)
-   │                                                                                          ─► website-openemr
-   │                                                                                              (release-docs PR)
-   │
-merge release-finalize/<rel-branch>       (pins rel branch row to new tag,
-   │   (or merge branch-cut/…-master,      shuffles docker slots)
-   │    or merge patch-prep/…-master)
-   │
-   ├──► push to .github/release-targets.yml on master
-   │
-   └──► docker-release-orchestrator.yml       ─► docker images published
-        (fan-out one build per non-              per active rel branch
-         unreleased row)                     ─► notify-release-targets-changed.yml
-                                                ─► demo_farm_openemr
-                                                    (auto-derive reconciliation PR)
+```mermaid
+sequenceDiagram
+    autonumber
+    actor M as Maintainer
+    participant BC as branch-cut-automation.yml
+    participant CP as release-prep.yml
+    participant R as rel-NNN0
+    participant Mas as master
+
+    M->>R: git push master:rel-NNN0
+    par branch-cut on create
+        BC->>R: open branch-cut/rel-NNN0
+        BC->>Mas: open branch-cut/rel-NNN0-master
+    and conductor on push
+        CP->>R: open release-prep/rel-NNN0 (draft)
+        CP->>Mas: open release-finalize/rel-NNN0 (draft)
+    end
+
+    M->>R: merge branch-cut/rel-NNN0 (rel-side FIRST)
+    CP-->>R: refire, force-push release-prep
+    CP-->>Mas: refire, force-push release-finalize
+
+    M->>Mas: merge branch-cut/rel-NNN0-master
+
+    Note over R,CP: dev cycle — every push refires conductor pair
+
+    M->>R: mark release-prep ready + merge
+    CP->>R: create annotated tag vN_M_0
+    CP->>Mas: dispatch openemr-tag
+
+    M->>Mas: merge release-finalize/rel-NNN0
 ```
 
-Reading the flow:
+### Sequence: cut → patch bump → 8.M.P release
 
-- The top three sections are the three trigger types that produce PRs
-  in `openemr/openemr`. Branch-cut and patch-prep each open a pair
-  (rel-side + master-side, ready-for-review). Release-prep opens its
-  own pair (rel-side + master-side, draft, force-pushed on every push
-  to the rel branch — including the create event and the `$v_patch`
-  bump above, which is why the "push to rel-*" trigger visually
-  encompasses both).
-- Merging the release-prep PR fires the conductor's finalize job,
-  which creates the annotated tag and dispatches the `openemr-tag`
-  event to consumers.
-- Any merge that touches `.github/release-targets.yml` on master —
-  branch-cut master-side, patch-prep master-side, or release-finalize
-  — fires the docker orchestrator (via the push trigger from
-  openemr/openemr#12720) *and* the demo_farm dispatch (via
-  `notify-release-targets-changed.yml`).
+Same start as above (cut → 8.M.0 ships). Later, a `$v_patch` bump on
+the rel branch fires patch-prep alongside the conductor:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor M as Maintainer
+    participant PP as patch-prep-automation.yml
+    participant CP as release-prep.yml
+    participant R as rel-NNN0
+    participant Mas as master
+
+    Note over M,Mas: 8.M.0 already shipped (see prior diagram)
+
+    M->>R: bump $v_patch, set $v_tag = -dev
+    par patch-prep on push (paths version.php)
+        PP->>R: open patch-prep/rel-NNN0
+        PP->>Mas: open patch-prep/rel-NNN0-master
+    and conductor on push
+        CP-->>R: force-push release-prep (target N.M.1)
+        CP-->>Mas: force-push release-finalize (target N.M.1)
+    end
+
+    M->>R: merge patch-prep/rel-NNN0 (rel-side FIRST)
+    CP-->>R: refire, force-push release-prep
+    CP-->>Mas: refire, force-push release-finalize
+
+    M->>Mas: merge patch-prep/rel-NNN0-master
+
+    Note over R,CP: dev cycle for N.M.1
+
+    M->>R: mark release-prep ready + merge
+    CP->>R: create annotated tag vN_M_1
+    CP->>Mas: dispatch openemr-tag
+
+    M->>Mas: merge release-finalize/rel-NNN0
+```
+
+Subsequent patch bumps (`N.M.1 → N.M.2 → …`) follow the same shape;
+the diagram scales by inspection.
 
 ## Mutator framework
 
