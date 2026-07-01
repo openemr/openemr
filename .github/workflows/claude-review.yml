@@ -1,0 +1,20 @@
+# .github/workflows/claude-review.yml
+# Drop this IDENTICAL file into all FOUR repos:
+#   openemr, openemr-devops, website-openemr, demo_farm_openemr
+#
+# It forwards events to the shared reusable workflow in openemr/openemr.
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened]        # auto-review non-bot PRs on open
+  issue_comment:
+    types: [created]       # maintainers force a review with "@claude review"
+
+jobs:
+  call-review:
+    # Reusable workflow lives in openemr/openemr. Adjust the branch ref
+    # (@master vs @main) to match that repo's default branch.
+    uses: openemr/openemr/.github/workflows/claude-review-reusable.yml@master
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
