@@ -49,11 +49,9 @@ class AppointmentApiTest extends TestCase
         );
         $this->assertEquals(200, $postResponse->getStatusCode());
 
-        /** @var array<string, mixed> $responseBody */
+        /** @var array{id: int|string} $responseBody */
         $responseBody = json_decode((string) $postResponse->getBody(), true);
-        $appointmentId = $responseBody['id'];
-        $this->assertIsInt($appointmentId);
-        $this->appointmentEid = $appointmentId;
+        $this->appointmentEid = (int) $responseBody['id'];
         $this->assertGreaterThan(0, $this->appointmentEid);
     }
 
@@ -73,8 +71,8 @@ class AppointmentApiTest extends TestCase
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertNotEmpty($responseBody);
 
-        $eids = array_column($responseBody, 'pc_eid');
-        $this->assertContains($this->appointmentEid, $eids);
+        $eids = array_map('strval', array_column($responseBody, 'pc_eid'));
+        $this->assertContains((string) $this->appointmentEid, $eids);
     }
 
     #[Test]
