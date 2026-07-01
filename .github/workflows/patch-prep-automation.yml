@@ -37,7 +37,7 @@ concurrency:
   # Serialise per rel branch — concurrent patch-prep events on the same
   # branch must queue. Different rel branches don't interact, so the
   # group key includes the rel branch name.
-  group: ${{ github.workflow }}-${{ github.ref_name || inputs.rel-branch }}
+  group: ${{ github.workflow }}-${{ inputs.rel-branch || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -85,6 +85,21 @@ jobs:
         INPUT_PREV_VERSION: ${{ inputs.prev-version }}
       run: |
         set -euo pipefail
+        # Shared with the push path below — populates MAJOR/MINOR/PATCH/TAG
+        # globals from a version.php blob.
+        parse_version_php() {
+          local raw="$1" var
+          for var in v_major v_minor v_patch v_tag; do
+            local value
+            value="$(printf '%s\n' "${raw}" | grep -oP "^\\\$${var}\\s*=\\s*'\\K[^']*" | head -n1 || true)"
+            case "${var}" in
+              v_major) MAJOR="${value}" ;;
+              v_minor) MINOR="${value}" ;;
+              v_patch) PATCH="${value}" ;;
+              v_tag)   TAG="${value}" ;;
+            esac
+          done
+        }
         case "${EVENT_NAME}" in
           workflow_dispatch)
             rel_branch="${INPUT_REL_BRANCH}"
@@ -94,12 +109,40 @@ jobs:
               echo "::error::rel-branch '${rel_branch}' does not match rel-<digits>"
               exit 1
             fi
-            if ! [[ "${target_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            if ! [[ "${target_version}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
               echo "::error::target-version '${target_version}' must be MAJOR.MINOR.PATCH"
               exit 1
             fi
-            if ! [[ "${prev_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            target_major="${BASH_REMATCH[1]}"
+            target_minor="${BASH_REMATCH[2]}"
+            target_patch="${BASH_REMATCH[3]}"
+            if ! [[ "${prev_version}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
               echo "::error::prev-version '${prev_version}' must be MAJOR.MINOR.PATCH"
+              exit 1
+            fi
+            prev_major="${BASH_REMATCH[1]}"
+            prev_minor="${BASH_REMATCH[2]}"
+            prev_patch="${BASH_REMATCH[3]}"
+            # Semantic invariants — mirror the push-path gates so a mistyped
+            # manual recovery can't scaffold files for the wrong patch.
+            if [ "${prev_major}" != "${target_major}" ] || [ "${prev_minor}" != "${target_minor}" ]; then
+              echo "::error::prev-version '${prev_version}' major/minor must match target '${target_version}'"
+              exit 1
+            fi
+            if [ "$((target_patch - 1))" != "${prev_patch}" ]; then
+              echo "::error::prev-version patch '${prev_patch}' must equal target patch minus 1 (${target_patch} - 1 = $((target_patch - 1)))"
+              exit 1
+            fi
+            # Verify rel-branch's version.php actually reads <target>-dev at
+            # HEAD; otherwise the mutators will operate on the wrong state.
+            if ! rel_head_b64="$(gh api "repos/${REPO}/contents/version.php?ref=${rel_branch}" --jq '.content' 2>/dev/null)"; then
+              echo "::error::could not fetch version.php from ${rel_branch}"
+              exit 1
+            fi
+            rel_head_raw="$(printf '%s' "${rel_head_b64}" | base64 -d)"
+            parse_version_php "${rel_head_raw}"
+            if [ "${MAJOR}.${MINOR}.${PATCH}" != "${target_version}" ] || [ "${TAG}" != '-dev' ]; then
+              echo "::error::rel-branch ${rel_branch} version.php is '${MAJOR}.${MINOR}.${PATCH}${TAG}', expected '${target_version}-dev'"
               exit 1
             fi
             should_run='true'
@@ -134,43 +177,30 @@ jobs:
             fi
             before_raw="$(printf '%s' "${before_b64}" | base64 -d)"
             after_raw="$(printf '%s' "${after_b64}" | base64 -d)"
-            parse_version_php() {
-              local raw="$1" var
-              for var in v_major v_minor v_patch v_tag; do
-                local value
-                value="$(printf '%s\n' "${raw}" | grep -oP "^\\\$${var}\\s*=\\s*'\\K[^']*" | head -n1 || true)"
-                case "${var}" in
-                  v_major) MAJOR="${value}" ;;
-                  v_minor) MINOR="${value}" ;;
-                  v_patch) PATCH="${value}" ;;
-                  v_tag)   TAG="${value}" ;;
-                esac
-              done
-            }
             parse_version_php "${before_raw}"
             before_major="${MAJOR}"; before_minor="${MINOR}"; before_patch="${PATCH}"; before_tag="${TAG}"
             parse_version_php "${after_raw}"
             after_major="${MAJOR}"; after_minor="${MINOR}"; after_patch="${PATCH}"; after_tag="${TAG}"
             if [ -z "${after_major}" ] || [ -z "${after_minor}" ] || [ -z "${after_patch}" ]; then
-              echo "::warning::Could not parse $v_major/$v_minor/$v_patch from after-state version.php; skipping."
+              echo "::warning::Could not parse \$v_major/\$v_minor/\$v_patch from after-state version.php; skipping."
               echo "should-run=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             if [ -z "${before_patch}" ]; then
-              echo "Could not parse before-state $v_patch; skipping (treat as no-op)."
+              echo "Could not parse before-state \$v_patch; skipping (treat as no-op)."
               echo "should-run=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             # Gate: $v_patch must have strictly increased.
             if ! [ "${after_patch}" -gt "${before_patch}" ] 2>/dev/null; then
-              echo "$v_patch did not increase (before=${before_patch} after=${after_patch}); not our event."
+              echo "\$v_patch did not increase (before=${before_patch} after=${after_patch}); not our event."
               echo "should-run=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
             # Gate: after-state must be -dev. Release-prep mid-flight
             # strips -dev to ship; that's not our event.
             if [ "${after_tag}" != '-dev' ]; then
-              echo "after $v_tag is '${after_tag}', not '-dev'; not a dev-cycle entry, skipping."
+              echo "after \$v_tag is '${after_tag}', not '-dev'; not a dev-cycle entry, skipping."
               echo "should-run=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi
