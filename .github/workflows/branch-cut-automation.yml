@@ -171,6 +171,7 @@ jobs:
         PREV_REL_BRANCH: ${{ steps.resolve.outputs.prev-rel-branch }}
       run: |
         php bin/console openemr:branch-cut \
+          --skip-globals \
           --target-version="${VERSION}" \
           --rel-branch="${REL_BRANCH}" \
           --prev-rel-branch="${PREV_REL_BRANCH}" \
@@ -230,6 +231,7 @@ jobs:
         PREV_REL_BRANCH: ${{ steps.resolve.outputs.prev-rel-branch }}
       run: |
         php bin/console openemr:branch-cut \
+          --skip-globals \
           --target-version="${VERSION}" \
           --rel-branch="${REL_BRANCH}" \
           --prev-rel-branch="${PREV_REL_BRANCH}" \
