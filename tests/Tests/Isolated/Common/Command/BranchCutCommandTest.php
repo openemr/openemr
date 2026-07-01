@@ -219,7 +219,7 @@ final class BranchCutCommandTest extends TestCase
     {
         $command = new BranchCutCommand($relMutators, $masterMutators);
         $app = new Application();
-        $app->add($command);
+        $app->addCommand($command);
         return new CommandTester($app->find('openemr:branch-cut'));
     }
 }
