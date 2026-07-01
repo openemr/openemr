@@ -56,7 +56,15 @@ final readonly class DispatchRequest
             'sha' => $this->sha,
             'actor' => $this->actor,
             'dispatched_at' => $this->dispatchedAt,
-            'data' => $this->data,
+            // Cast to object so an empty data payload (e.g. the
+            // release-targets-changed event, which carries no per-event
+            // fields — see dispatch.schema.json's releaseTargetsChangedData
+            // definition) serializes to `{}` and satisfies the schema's
+            // `type: object` constraint. PHP's json_encode would otherwise
+            // emit an empty array as `[]`. Populated string-keyed arrays
+            // already serialize as objects, so the cast is a no-op for
+            // them.
+            'data' => (object) $this->data,
         ];
     }
 }
