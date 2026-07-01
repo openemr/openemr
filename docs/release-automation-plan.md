@@ -315,22 +315,20 @@ No merge conflicts at open time — force-pushed regeneration keeps the
 conductor pair current against the rel branch's tip. Recommended merge
 order:
 
-1. **`branch-cut/<rel-branch>` (rel-side) first.** This transforms the
-   freshly-cut branch into a proper rel branch: Dockerfile `ARG
-   OPENEMR_VERSION` pinned to the rel line, docker-version files
-   bumped, translation blob copied from the prior rel, `allow_debug_language`
-   flipped to `'0'`. Until this lands, `rel-<rel-branch>`'s tip is bit-
-   identical to master.
-2. **`branch-cut/<rel-branch>-master` (master-side) second.** This
-   inserts the new rel branch's row into `.github/release-targets.yml`
-   (with `openemr_version_ref: <rel-branch>`). Since the docker release
-   orchestrator now fires on pushes to `release-targets.yml`
-   (openemr/openemr#12720), merging master-side triggers an image build
-   against the rel branch's tip. If master-side lands *before* rel-side,
-   that build bakes an image labeled `<version>,next` from a rel branch
-   that's still bit-identical to master — no fatal error, but the image
-   won't carry the rel-branch identity mutations until the rel-side PR
-   lands and the next orchestrator run picks it up.
+1. **`branch-cut/<rel-branch>` (rel-side) first.** This is the critical
+   ordering: the master-side PR inserts a row in `.github/release-targets.yml`
+   (with `openemr_version_ref: <rel-branch>`), and the docker release
+   orchestrator now fires on pushes to that file
+   (openemr/openemr#12720). So merging master-side kicks off an image
+   build against the rel branch's tip. If master-side lands *before*
+   rel-side, that build bakes an image labeled `<version>,next` from a
+   rel branch that's still bit-identical to master. No fatal error —
+   the Dockerfile is byte-identical across branches — but the image
+   won't carry the rel-branch identity mutations (Dockerfile `ARG
+   OPENEMR_VERSION` pin, docker-version bump, translation blob copy,
+   `allow_debug_language` flip) until rel-side lands and the next
+   orchestrator run picks it up.
+2. **`branch-cut/<rel-branch>-master` (master-side) second.**
 3. **Conductor pair (release-prep + release-finalize) stays draft** until
    the branch is actually ready to ship (dev cycle complete, all
    pre-ship checklists satisfied). The pair re-renders on every push
@@ -357,86 +355,71 @@ rel row picking up `next`. Meanwhile the conductor still fires its
 premature draft against the new rel — same story as any cut, just with
 zero surviving rows for the outgoing rel branch.
 
-### Sequence: cut → 8.M.0 release
+### Flow: events → workflows → PRs → consumers
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor M as Maintainer
-    participant BC as branch-cut<br/>workflow
-    participant CP as release-prep<br/>conductor
-    participant R as rel-NNN0
-    participant Mas as master
-
-    M->>R: git push origin master:rel-NNN0<br/>(create event)
-    par branch-cut on `create`
-        BC->>R: open branch-cut/rel-NNN0<br/>(ready-for-review)
-        BC->>Mas: open branch-cut/rel-NNN0-master<br/>(ready-for-review)
-    and conductor on `push`
-        CP->>R: open release-prep/rel-NNN0<br/>(draft, premature)
-        CP->>Mas: open release-finalize/rel-NNN0<br/>(draft, premature)
-    end
-
-    M->>R: merge branch-cut/rel-NNN0 (rel-side FIRST)
-    Note over R,CP: push refires conductor pair
-    CP-->>R: force-push release-prep/rel-NNN0
-    CP-->>Mas: force-push release-finalize/rel-NNN0
-
-    M->>Mas: merge branch-cut/rel-NNN0-master
-
-    Note over R,CP: dev cycle — every push refires<br/>conductor pair with latest target
-
-    M->>R: mark release-prep/rel-NNN0 ready + merge
-    Note over CP: pull_request:closed →<br/>finalize job
-    CP->>R: create annotated tag vN_M_0
-    CP->>Mas: dispatch openemr-tag
-
-    M->>Mas: merge release-finalize/rel-NNN0
+```text
+                                        openemr/openemr                            consumers
+                                        ─────────────────                          ─────────
+create rel-NNN0                 branch-cut/<rel-branch>            ───┐  (ready-for-review)
+   │                            branch-cut/<rel-branch>-master     ───┤  (ready-for-review)
+   ├──► branch-cut-automation.yml                                     │
+   │                                                                  │
+push $v_patch bump on rel-*     patch-prep/<rel-branch>            ───┤  (ready-for-review)
+   │  (paths: version.php)      patch-prep/<rel-branch>-master     ───┤  (ready-for-review)
+   ├──► patch-prep-automation.yml                                     │
+   │                                                                  │
+push to rel-*                   release-prep/<rel-branch>          ───┤  (draft, force-pushed)
+   │  (any push during the      release-finalize/<rel-branch>      ───┤  (draft, force-pushed)
+   │   dev cycle; also fires                                          │
+   │   on create + on $v_patch                                        │
+   │   push shown above)                                              ├─► openemr-rel-cut     ─► openemr-devops,
+   ├──► release-prep.yml                                              │   openemr-rel-update      website-openemr
+   │                                                                  │
+   ▼                                                                  │
+merge release-prep/<rel-branch>                                       │
+   │                                                                  │
+   ├──► release-prep.yml (finalize job, on pull_request:closed)       │
+   │       │                                                          │
+   │       ▼                                                          │
+   │    annotated tag v{M}_{m}_{p}                                    │
+   │                                                                  ├─► openemr-tag         ─► openemr-devops
+   │                                                                                              (build-release.yml:
+   │                                                                                               build packages,
+   │                                                                                               create Release,
+   │                                                                                               upload assets)
+   │                                                                                          ─► website-openemr
+   │                                                                                              (release-docs PR)
+   │
+merge release-finalize/<rel-branch>       (pins rel branch row to new tag,
+   │   (or merge branch-cut/…-master,      shuffles docker slots)
+   │    or merge patch-prep/…-master)
+   │
+   ├──► push to .github/release-targets.yml on master
+   │
+   └──► docker-release-orchestrator.yml       ─► docker images published
+        (fan-out one build per non-              per active rel branch
+         unreleased row)                     ─► notify-release-targets-changed.yml
+                                                ─► demo_farm_openemr
+                                                    (auto-derive reconciliation PR)
 ```
 
-### Sequence: cut → patch bump → 8.M.P release
+Reading the flow:
 
-Same start as above (cut → 8.M.0 ships). Then a `$v_patch` bump on the
-rel branch fires patch-prep alongside the conductor:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor M as Maintainer
-    participant PP as patch-prep<br/>workflow
-    participant CP as release-prep<br/>conductor
-    participant R as rel-NNN0
-    participant Mas as master
-
-    Note over R,Mas: 8.M.0 has already shipped<br/>(see prior diagram); tag vN_M_0 exists
-
-    M->>R: commit: bump $v_patch (0→1),<br/>set $v_tag to '-dev'
-    par patch-prep on `push` (paths: version.php)
-        PP->>R: open patch-prep/rel-NNN0<br/>(ready-for-review)
-        PP->>Mas: open patch-prep/rel-NNN0-master<br/>(ready-for-review)
-    and conductor on `push`
-        CP-->>R: force-push release-prep/rel-NNN0<br/>(target now N.M.1)
-        CP-->>Mas: force-push release-finalize/rel-NNN0<br/>(target now N.M.1)
-    end
-
-    M->>R: merge patch-prep/rel-NNN0 (rel-side FIRST)
-    Note over R,CP: push refires conductor pair
-    CP-->>R: force-push release-prep/rel-NNN0
-    CP-->>Mas: force-push release-finalize/rel-NNN0
-
-    M->>Mas: merge patch-prep/rel-NNN0-master
-
-    Note over R,CP: dev cycle for N.M.1
-
-    M->>R: mark release-prep/rel-NNN0 ready + merge
-    CP->>R: create annotated tag vN_M_1
-    CP->>Mas: dispatch openemr-tag
-
-    M->>Mas: merge release-finalize/rel-NNN0
-```
-
-Subsequent patch bumps (`N.M.1 → N.M.2 → …`) follow the same shape
-verbatim; the diagram scales by inspection.
+- The top three sections are the three trigger types that produce PRs
+  in `openemr/openemr`. Branch-cut and patch-prep each open a pair
+  (rel-side + master-side, ready-for-review). Release-prep opens its
+  own pair (rel-side + master-side, draft, force-pushed on every push
+  to the rel branch — including the create event and the `$v_patch`
+  bump above, which is why the "push to rel-*" trigger visually
+  encompasses both).
+- Merging the release-prep PR fires the conductor's finalize job,
+  which creates the annotated tag and dispatches the `openemr-tag`
+  event to consumers.
+- Any merge that touches `.github/release-targets.yml` on master —
+  branch-cut master-side, patch-prep master-side, or release-finalize
+  — fires the docker orchestrator (via the push trigger from
+  openemr/openemr#12720) *and* the demo_farm dispatch (via
+  `notify-release-targets-changed.yml`).
 
 ## Mutator framework
 
