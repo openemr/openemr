@@ -165,8 +165,12 @@ final class DispatcherTest extends TestCase
         // Decode in object mode (not array mode) so JSON `{}` stays a
         // stdClass and JSON `[]` stays an array — array-mode decode would
         // collapse both to the same PHP []. instanceof stdClass locks the
-        // wire shape that the schema requires.
+        // wire shape that the schema requires. The intermediate instanceof
+        // gates narrow the mixed return of json_decode for phpstan and
+        // fail loudly if the structure ever changes.
         $body = json_decode($captured[0]['body'], false, 512, JSON_THROW_ON_ERROR);
+        self::assertInstanceOf(\stdClass::class, $body);
+        self::assertInstanceOf(\stdClass::class, $body->client_payload);
         self::assertInstanceOf(\stdClass::class, $body->client_payload->data);
     }
 
