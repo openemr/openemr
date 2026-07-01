@@ -1,6 +1,12 @@
 # .github/workflows/claude-review-reusable.yml
 # Lives ONCE in openemr/openemr. All four repos (including openemr itself)
 # call it via the thin caller workflow claude-review.yml.
+#
+# On-demand only: fires when an OWNER/MEMBER/COLLABORATOR comments
+# "@claude review" on a PR. Auto-review on open is intentionally off;
+# CodeRabbit covers the every-PR baseline and Claude is invoked for
+# deeper looks on demand. (issue_comment is also the only fork-PR-safe
+# trigger — secrets are shared with fork PRs on that event.)
 name: Claude PR Review (reusable)
 
 on:
@@ -11,21 +17,12 @@ on:
 
 jobs:
   review:
-    # Run when EITHER:
-    #  (a) a NON-bot PR is opened  -> auto-review on open
-    #  (b) a maintainer comments "@claude review" on a PR -> force review
-    #      (also covers fork PRs and bot PRs; the only path with secret
-    #       access for forks, so it doubles as the fork/bot escape hatch)
     if: >-
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.user.type != 'Bot' &&
-       github.event.pull_request.head.repo.full_name == github.repository)
-      ||
-      (github.event_name == 'issue_comment' &&
-       github.event.issue.pull_request != null &&
-       contains(github.event.comment.body, '@claude review') &&
-       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
-                github.event.comment.author_association))
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request != null &&
+      contains(github.event.comment.body, '@claude review') &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'),
+               github.event.comment.author_association)
     runs-on: ubuntu-latest
     permissions:
       contents: read          # read-only: this bot reviews, it does not push
@@ -39,11 +36,8 @@ jobs:
         fetch-depth: 1
         persist-credentials: false
         # issue_comment events fire in base-branch context; pin to the PR
-        # head so @claude review sees the actual proposed code, not master.
-        ref: >-
-          ${{ github.event_name == 'issue_comment'
-              && format('refs/pull/{0}/head', github.event.issue.number)
-              || github.ref }}
+        # head so the review sees the actual proposed code, not master.
+        ref: refs/pull/${{ github.event.issue.number }}/head
 
     - name: Claude review
       uses: anthropics/claude-code-action@v1
@@ -52,56 +46,18 @@ jobs:
           # the org's API workspace — independent of Pro/Max subscription limits.
           # Cap spend on the workspace's Limits page. Set as an ORG secret.
         anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          # DEBUG: surface Claude's full transcript in the workflow log while
-          # we validate that reviews actually post. Remove once verified.
+          # Install Anthropic's official code-review plugin and invoke its
+          # /code-review skill. The skill orchestrates parallel review agents
+          # (Haiku for skip-check, Sonnet for CLAUDE.md compliance, Opus for
+          # bug detection), scores each finding 0-100 for confidence, and
+          # auto-skips draft / closed / trivial / already-reviewed PRs.
+          # https://github.com/anthropics/claude-code/tree/main/plugins/code-review
+        plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
+        plugins: "code-review@claude-code-plugins"
+          # DEBUG: surface the full transcript in the workflow log while we
+          # validate the plugin runs end-to-end. Remove once verified.
         show_full_output: true
-          # Post a sticky "Claude Code is reviewing..." comment updated with
-          # progress checkboxes so it is obvious the workflow is doing work,
-          # even before the final review is posted.
-        track_progress: true
-          # Tools Claude needs to post reviews. Without an explicit allow-list
-          # the default sandbox denies the GitHub comment tools, and Claude
-          # finishes the run with nothing posted (see PR review on #12662).
-          # If claude-sonnet-5 isn't resolvable yet on your plan, swap to
-          # claude-sonnet-4-6 (same price after the intro window).
-        claude_args: |
-          --model claude-sonnet-5
-          --max-turns 15
-          --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr review:*)"
-        prompt: |
-          REPO: ${{ github.repository }}
-          PR NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
-
-          You are reviewing a pull request for OpenEMR, a production PHP/Symfony
-          electronic health record system running in live clinical settings.
-
-          If the repository contains a CLAUDE.md, follow its standards; they take
-          precedence over the general guidance below.
-
-          Review the DIFF for this PR in the context of the surrounding code.
-          Prioritize substance over style, in this order:
-
-          1. SECURITY (treat as high severity — this is an EHR):
-             authn/authz gaps, missing access checks, SQL injection, XSS, CSRF,
-             unsafe deserialization, path traversal, secrets in code, PHI exposure,
-             and injection through Symfony/Doctrine query building.
-          2. CORRECTNESS: logic errors, null/undefined handling, off-by-one,
-             race conditions, incorrect SQL, broken or changed API contracts,
-             backward-compatibility breaks.
-          3. TESTS: missing coverage for the changed behavior, assertions that
-             test the wrong thing, tests that mock away the logic under test.
-          4. MAINTAINABILITY: only flag issues that materially hurt clarity.
-
-          Do NOT report pure formatting/style nits — PHPStan (level 10), Rector,
-          and linters already cover those. Skip praise and filler.
-
-          How to post the review — this is mandatory, not optional:
-          - Use `mcp__github_inline_comment__create_inline_comment` (with
-            `confirmed: true`) for every line-specific finding.
-          - Use `gh pr comment` (via Bash) for the overall summary text.
-          - Use `gh pr review --approve` / `--request-changes` / `--comment`
-            (via Bash) to submit the final call. `gh pr comment` only posts a
-            plain issue comment and cannot set a review state.
-          - Do NOT emit the review as a chat message; only comments posted via
-            the tools above are visible to reviewers. Every comment must be
-            concrete and actionable.
+          # Sonnet for the orchestrator; the skill's subagents pick their own
+          # tiers (Haiku/Sonnet/Opus) regardless of what is set here.
+        claude_args: "--model claude-sonnet-5"
+        prompt: "/code-review:code-review --comment"
