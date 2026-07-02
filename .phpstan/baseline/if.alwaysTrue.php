@@ -374,6 +374,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Core/Kernel.php',
 ];
 $ignoreErrors[] = [
