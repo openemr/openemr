@@ -656,14 +656,52 @@ lifecycle events confirmed them.
   [`tools/release/bin/check-vendored.php`](../tools/release/bin/check-vendored.php)
   (`openemr/openemr#12619`).
 
+## First production exercise — 2026-07-02
+
+The rel-820 cut was the first end-to-end production exercise of
+branch-cut + release-prep + release-finalize together. Took three
+attempts and three rounds of mutator/workflow fixes before landing
+clean; the fourth attempt (02:39Z 2026-07-02) opened all three PRs
+correctly, and downstream artifacts all landed on schedule.
+
+- **Round 1** (attempt 1): missing `--skip-globals` on both
+  branch-cut + patch-prep CLI invocations (`mysqli_query` bootstrap
+  error); `paths-ignore: docs/**` on release-prep filtered out
+  master's docs-only-tip cut. Fixed in #12722 + #12724.
+- **Round 2** (attempt 2): 5 mutator surface fixes — landed in #12731.
+  `DockerUpgradeScaffoldMutator` generates `fsupgrade-N.sh` as a full
+  copy of the prior file with 5-line substitutions (not a stub);
+  `PostReleaseTargetsMutator` early-returns when the target rel has
+  no live row; `ReleasePrepCommand` drops `GlobalsIncMutator` from
+  the rel-side list (branch-cut owns it); `DockerComposeProductionMutator`
+  swaps tag only, no digest handling. `MutatorContext::imageDigest`
+  removed.
+- **Round 3** (attempt 3): 2 mutator fixes + PR template audit —
+  landed in #12735. `SqlUpgradeSkeletonMutator` no longer emits a
+  double-trailing-newline; `DockerUpgradeScaffoldMutator` derives
+  `priorOpenemrVersion` from `sql/*_upgrade.sql` highest LEFT
+  (with `MutatorContext::$fromVersion` override for patch-prep), and
+  a `priorOpenemrVersion < target` invariant defends the mutator
+  ordering.
+- **Attempt 4** (clean): rel-820 landed via #12743 (rel-side) +
+  #12744 (master-side); release-prep #12742 auto-updated on rel-side
+  merge. Downstream: Docker Hub `openemr/openemr:8.2.0` + `next` +
+  `8.2.0-2026-07-02` published with OCI `revision: rel-820`;
+  `8.3.0` + `dev` + `8.3.0-2026-07-02` published with `revision: master`;
+  Dockerhub README refreshed; `demo_farm_openemr#168` opened cleanly
+  by the auto-derive bot. The known "release-finalize doesn't
+  auto-refresh on master pushes" gap held as documented — the
+  release-finalize PR will re-render on the next natural rel-820 push.
+
 ## Status
 
 **Live.** All four workflows shipped 2026-07-01 (#12662, #12696, #12697)
 on top of the conductor that shipped earlier this cycle. The 8.1.1 ship
 in 2026-06 was the first real production exercise of release-prep +
-release-finalize; the next rel-820 cut will be the first production
-exercise of branch-cut; the next patch dev-cycle entry (e.g. 8.1.2-dev
-on rel-810) will be the first production exercise of patch-prep.
+release-finalize; the rel-820 cut on 2026-07-02 was the first production
+exercise of branch-cut (see "First production exercise" above); the next
+patch dev-cycle entry (e.g. 8.2.1-dev on rel-820) will be the first
+production exercise of patch-prep.
 
 Companion docs — start here for the wider context:
 
