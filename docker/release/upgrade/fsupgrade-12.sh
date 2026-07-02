@@ -1,8 +1,8 @@
 #!/bin/bash
-# Upgrade number 11 for OpenEMR docker
-#  From prior version 8.1.0 (needed for the sql upgrade script).
-priorOpenemrVersion="8.1.0"
-echo "Start: Upgrade to docker-version 11"
+# Upgrade number 12 for OpenEMR docker
+#  From prior version 8.1.1 (needed for the sql upgrade script).
+priorOpenemrVersion="8.1.1"
+echo "Start: Upgrade to docker-version 12"
 # Perform codebase upgrade on each directory in sites/
 for dir in /var/www/localhost/htdocs/openemr/sites/*/; do
     sitename="${dir%/}"
@@ -38,4 +38,4 @@ for dirdata in /var/www/localhost/htdocs/openemr/sites/*/; do
     rm -f /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php
     echo "Completed: Upgrade database for ${sitename} from ${priorOpenemrVersion}"
 done
-echo "Completed: Upgrade to docker-version 11"
+echo "Completed: Upgrade to docker-version 12"

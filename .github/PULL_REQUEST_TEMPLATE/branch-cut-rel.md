@@ -12,7 +12,7 @@ Rel-side partner PR for the freshly-cut `<REL_BRANCH>` branch (target version `<
 
 ## What this PR covers (rel-side)
 
-- **Docker upgrade scaffolding** — bumps `docker-version` (3 files), creates the next `fsupgrade-N.sh` stub, extends the Dockerfile manifest's COPY and chmod blocks. Per-release work fills the upgrade body before each ship.
+- **Docker upgrade scaffolding** — bumps `docker-version` (3 files), creates the next `fsupgrade-N.sh` by copying `fsupgrade-(N-1).sh` in full and applying exactly five line-level version substitutions (upgrade number in header + start/completed echoes, `From prior version` comment, `priorOpenemrVersion="..."` shell variable). The upgrade body is preserved byte-for-byte from the prior file — it's immediately shellcheck-clean and runnable. Extends the Dockerfile manifest's COPY and chmod blocks to reference the new file. Per-release work refines the upgrade body in-place as needed. The `priorOpenemrVersion` value is the last-shipped version from the prior release line, derived by scanning `sql/*_upgrade.sql` for the highest LEFT-side version.
 - **`docker/release/Dockerfile`** — changes `ARG OPENEMR_VERSION=master` → `ARG OPENEMR_VERSION=<REL_BRANCH>` for branch-identity consistency (CI overrides via `--build-arg`).
 - **`contrib/util/language_translations/currentLanguage_utf8.sql`** — copies from the prior rel branch's tip so the freshly-cut branch starts with the latest translation snapshot.
 - **`library/globals.inc.php`** — flips `allow_debug_language` default from `'1'` (dev) to `'0'` (production).
@@ -20,13 +20,14 @@ Rel-side partner PR for the freshly-cut `<REL_BRANCH>` branch (target version `<
 ## Lifecycle
 
 1. Workflow fires on `create` event for the new `rel-NNN0` branch (or via `workflow_dispatch` for recovery).
-2. This rel-side PR opens as a draft alongside the master-side PR.
-3. Maintainer reviews both, marks Ready, and merges in order: rel-side first, then master-side.
+2. This rel-side PR opens (ready-for-review, not draft) alongside the master-side PR.
+3. Maintainer reviews both and merges in order: rel-side first, then master-side. Landing this rel-side PR first is critical because the master-side PR updates `.github/release-targets.yml` and the docker release orchestrator fires on pushes to that file — merging master-side kicks off an image build against the rel branch tip, and the image should carry this PR's rel-branch identity mutations (Dockerfile `ARG OPENEMR_VERSION`, docker-version bump, translation blob copy, `allow_debug_language` flip) before that build happens.
 
 ## Release manager checklist
 
 - [ ] Confirm the docker-version bump matches the expected next integer.
-- [ ] Confirm the new `fsupgrade-N.sh` stub is present and the Dockerfile manifest references it.
+- [ ] Confirm the new `fsupgrade-N.sh` is present, differs from `fsupgrade-(N-1).sh` on exactly the five version-substituted lines, and that the Dockerfile manifest references it in both the COPY and chmod blocks.
+- [ ] Confirm the new `fsupgrade-N.sh`'s `priorOpenemrVersion="..."` value matches the last-shipped version from the prior release line (highest LEFT among `sql/*_upgrade.sql`).
 - [ ] Verify the translation file copy matches the prior rel branch's blob.
 - [ ] Confirm the paired `branch-cut/<REL_BRANCH>-master` PR opened and is in the same review queue.
 - [ ] Merge this PR (rel-side).

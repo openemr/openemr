@@ -139,7 +139,6 @@ final class BranchCutCommand extends Command
             $targetContext = MutatorContext::fromVersionString(
                 $projectDir,
                 $target,
-                null,
                 $relBranch,
                 $prevRelBranch,
             );
@@ -161,7 +160,6 @@ final class BranchCutCommand extends Command
             $targetContext->major,
             $targetContext->minor + 1,
             0,
-            null,
             $targetContext->relBranch,
             $targetContext->prevRelBranch,
         );

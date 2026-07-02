@@ -88,8 +88,18 @@ be auto-derived by decrementing minor below 1).
 **Rel-side PR** (`branch-cut/<rel-branch>`, base `<rel-branch>`,
 ready-for-review):
 
-- `DockerUpgradeScaffoldMutator` — new `fsupgrade-N.sh` skeleton +
-  Dockerfile manifest updates (both `COPY` and `chmod` blocks). Same
+- `DockerUpgradeScaffoldMutator` — new `fsupgrade-N.sh` (copied in full
+  from the prior `fsupgrade-N-1.sh` with only the five docker-version
+  and `priorOpenemrVersion` header lines substituted; the upgrade body
+  is preserved byte-for-byte from the prior file for per-release
+  refinement in place) + Dockerfile manifest updates (both `COPY` and
+  `chmod` blocks). The `priorOpenemrVersion` value is the last-shipped
+  version from the prior release line — derived by scanning
+  `sql/*_upgrade.sql` for the highest LEFT-side version at branch-cut
+  time, or supplied explicitly via `MutatorContext::$fromVersion` at
+  patch-prep time. A strictly-less-than-target invariant catches
+  ordering bugs (e.g. `SqlUpgradeSkeletonMutator` accidentally running
+  first would inflate the sql-scan result to the target). Same
   scaffolding the docker-upgrade-actions memo enumerates as mandatory
   per release.
 - `DockerfileOpenemrVersionMutator` — pins the `OPENEMR_VERSION` ARG
@@ -190,12 +200,15 @@ Workflow: [`.github/workflows/release-prep.yml`](../.github/workflows/release-pr
 partner PR on master alongside the rel-side PR (see
 [release-finalize](#release-finalize-partner-pr)).
 
-**Trigger.** `push` to `rel-<digits ending 0>` (production shape), with
-`paths-ignore: docs/**` so doc-only pushes don't churn the prep PR. Also
+**Trigger.** `push` to `rel-<digits ending 0>` (production shape). Also
 `pull_request: closed` on `rel-*` (drives the tag-and-dispatch finalize
 job on merge), and `workflow_dispatch` with `target-version` + `branch` +
 optional `test` (opens `release-prep-test/<branch>` for end-to-end test
-runs) and `force-dispatch`.
+runs) and `force-dispatch`. No `paths-ignore` — every push, including
+doc-only pushes, fires the conductor. Force-pushes with no diff are no-ops
+via peter-evans's `pull-request-operation=none` signal, and the downstream
+consumer dispatch is gated on that same signal, so idle refires produce
+no external churn.
 
 The `push` filter matches the branch-creation push too, so this
 workflow fires *at cut time* alongside `branch-cut-automation.yml` —
@@ -210,16 +223,23 @@ for the full picture.
 draft, force-pushed on each run):
 
 - `VersionPhpMutator` — strip `-dev` suffix from `$v_tag`.
-- `GlobalsIncMutator` — reused from branch-cut (idempotent, so re-running
-  is safe if the branch-cut PR wasn't merged before dev started).
-- `DockerComposeProductionMutator` — pin `openemr/openemr:latest@sha256:…`
-  to `openemr/openemr:<version>@sha256:…`. Image digest is supplied via
-  `--image-digest` from the workflow after the release image is published;
-  if absent, the existing digest is preserved and only the tag is swapped.
+- `DockerComposeProductionMutator` — swap the openemr image tag:
+  `openemr/openemr:latest[@sha256:…]` → `openemr/openemr:<version>` (no
+  digest). At release-prep time the release image doesn't yet exist in
+  Docker Hub (the tag→build sequence fires only after release-prep merges),
+  so there is no valid digest to pin. Any existing `@sha256:…` suffix on
+  the source line is dropped.
 - `OpenApiVersionMutator` — bump `#[OA\Info(title: 'OpenEMR API', version: 'X.Y.Z')]`.
   (The wiki + earlier drafts of this plan said `_rest_routes.inc.php` but
   the version constant actually lives in `src/RestControllers/OpenApi/OpenApiDefinitions.php`.)
 - `SwaggerRegenMutator` — regenerate `swagger/openemr-api.yaml`.
+
+`GlobalsIncMutator` is intentionally NOT in the release-prep rel-side
+list even though branch-cut runs it: re-running it here would be
+defensive but redundant, and it hides the "did branch-cut merge?"
+question behind mutator idempotency. Surface as a real diff if
+branch-cut hasn't landed yet. (Removed in round-2 fixes after the
+rel-820 first exercise; see PR #12725.)
 
 The `docker-version` files and `sql/*_upgrade.sql` skeleton the earlier
 draft of this plan enumerated for the release-prep PR moved to
@@ -299,10 +319,12 @@ content on the other.
 **File overlap between the two pairs.** The branch-cut and conductor
 PRs against the same base branch touch some of the same files:
 
-- Rel-side both PRs touch `library/globals.inc.php` (branch-cut flips
-  `allow_debug_language` → `'0'`; release-prep's `GlobalsIncMutator` is
-  reused and idempotent, so a re-render sees the flag already flipped
-  and no-ops).
+- Rel-side branch-cut touches `library/globals.inc.php` (flips
+  `allow_debug_language` → `'0'`). Release-prep does NOT re-run the
+  flip — running it twice is defensive but redundant, and it hides the
+  "did branch-cut merge?" question behind mutator idempotency. If
+  branch-cut hasn't landed yet, the flip surfaces as a real diff at
+  ship time instead of a silent no-op.
 - Rel-side both touch the `docker-version` triple (branch-cut bumps by
   one for the new minor's dev cycle; release-prep leaves them alone at
   ship time).
@@ -403,8 +425,7 @@ against a shared framework at [`src/Common/Command/ReleasePrep/`](../src/Common/
 - **`MutatorInterface`** — `name(): string` + `apply(MutatorContext): MutatorResult`.
 - **`MutatorContext`** — `readonly` value object carrying `projectDir`,
   parsed `major`/`minor`/`patch`, and the optional context fields the
-  various mutators need: `imageDigest` (release-prep only, when
-  `--image-digest` is passed), `relBranch` (release-finalize, branch-cut,
+  various mutators need: `relBranch` (release-finalize, branch-cut,
   patch-prep), `prevRelBranch` (branch-cut rel-side translation copy),
   `fromVersion` (patch-prep SQL skeleton override — validated to be
   same major/minor as target with patch == target - 1). Constructor
@@ -425,8 +446,8 @@ mutators would produce churn PRs.
 |---------|---------|---------|
 | `VersionPhpMutator` | release-prep (rel) | Strip `-dev` from `$v_tag`. |
 | `VersionPhpMasterMutator` | branch-cut (master) | Advance to next-minor `-dev`. |
-| `GlobalsIncMutator` | branch-cut (rel), release-prep (rel) | `allow_debug_language = 0`. |
-| `DockerComposeProductionMutator` | release-prep (rel) | Pin `openemr/openemr` tag + digest. |
+| `GlobalsIncMutator` | branch-cut (rel) | `allow_debug_language = 0`. |
+| `DockerComposeProductionMutator` | release-prep (rel) | Pin `openemr/openemr` tag (no digest). |
 | `DockerfileOpenemrVersionMutator` | branch-cut (rel) | Pin Dockerfile `OPENEMR_VERSION` ARG. |
 | `DockerUpgradeScaffoldMutator` | branch-cut (rel + master), patch-prep (rel + master) | New `fsupgrade-N.sh` + Dockerfile manifest wiring. |
 | `TranslationFileCopyFromPriorRelMutator` | branch-cut (rel) | Fetch translation blob from prior rel branch. |
@@ -435,7 +456,7 @@ mutators would produce churn PRs.
 | `SqlUpgradeSkeletonMutator` | branch-cut (master), patch-prep (rel + master) | Scaffold `sql/X_Y_Z-to-X_Y_Z+N_upgrade.sql`. |
 | `MasterSqlPatchBridgeMutator` | patch-prep (master) | Rename bridge file to track new patch. |
 | `BranchCutReleaseTargetsMutator` | branch-cut (master) | Insert row for new rel branch. |
-| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert unreleased placeholder row for new patch. |
+| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert new dev row (`docker_tags: <version>,next`) for the patch + drop any prior `unreleased: true` placeholder for the branch. |
 | `PostReleaseTargetsMutator` | release-prep (master, release-finalize) | Pin rel row + slot shuffle + drop placeholder. |
 
 Adding a new lifecycle event (or a new mutation to an existing one) is
@@ -635,14 +656,52 @@ lifecycle events confirmed them.
   [`tools/release/bin/check-vendored.php`](../tools/release/bin/check-vendored.php)
   (`openemr/openemr#12619`).
 
+## First production exercise — 2026-07-02
+
+The rel-820 cut was the first end-to-end production exercise of
+branch-cut + release-prep + release-finalize together. Took three
+attempts and three rounds of mutator/workflow fixes before landing
+clean; the fourth attempt (02:39Z 2026-07-02) opened all three PRs
+correctly, and downstream artifacts all landed on schedule.
+
+- **Round 1** (attempt 1): missing `--skip-globals` on both
+  branch-cut + patch-prep CLI invocations (`mysqli_query` bootstrap
+  error); `paths-ignore: docs/**` on release-prep filtered out
+  master's docs-only-tip cut. Fixed in #12722 + #12724.
+- **Round 2** (attempt 2): 5 mutator surface fixes — landed in #12731.
+  `DockerUpgradeScaffoldMutator` generates `fsupgrade-N.sh` as a full
+  copy of the prior file with 5-line substitutions (not a stub);
+  `PostReleaseTargetsMutator` early-returns when the target rel has
+  no live row; `ReleasePrepCommand` drops `GlobalsIncMutator` from
+  the rel-side list (branch-cut owns it); `DockerComposeProductionMutator`
+  swaps tag only, no digest handling. `MutatorContext::imageDigest`
+  removed.
+- **Round 3** (attempt 3): 2 mutator fixes + PR template audit —
+  landed in #12735. `SqlUpgradeSkeletonMutator` no longer emits a
+  double-trailing-newline; `DockerUpgradeScaffoldMutator` derives
+  `priorOpenemrVersion` from `sql/*_upgrade.sql` highest LEFT
+  (with `MutatorContext::$fromVersion` override for patch-prep), and
+  a `priorOpenemrVersion < target` invariant defends the mutator
+  ordering.
+- **Attempt 4** (clean): rel-820 landed via #12743 (rel-side) +
+  #12744 (master-side); release-prep #12742 auto-updated on rel-side
+  merge. Downstream: Docker Hub `openemr/openemr:8.2.0` + `next` +
+  `8.2.0-2026-07-02` published with OCI `revision: rel-820`;
+  `8.3.0` + `dev` + `8.3.0-2026-07-02` published with `revision: master`;
+  Dockerhub README refreshed; `demo_farm_openemr#168` opened cleanly
+  by the auto-derive bot. The known "release-finalize doesn't
+  auto-refresh on master pushes" gap held as documented — the
+  release-finalize PR will re-render on the next natural rel-820 push.
+
 ## Status
 
 **Live.** All four workflows shipped 2026-07-01 (#12662, #12696, #12697)
 on top of the conductor that shipped earlier this cycle. The 8.1.1 ship
 in 2026-06 was the first real production exercise of release-prep +
-release-finalize; the next rel-820 cut will be the first production
-exercise of branch-cut; the next patch dev-cycle entry (e.g. 8.1.2-dev
-on rel-810) will be the first production exercise of patch-prep.
+release-finalize; the rel-820 cut on 2026-07-02 was the first production
+exercise of branch-cut (see "First production exercise" above); the next
+patch dev-cycle entry (e.g. 8.2.1-dev on rel-820) will be the first
+production exercise of patch-prep.
 
 Companion docs — start here for the wider context:
 

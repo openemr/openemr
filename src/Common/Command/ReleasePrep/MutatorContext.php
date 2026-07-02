@@ -3,8 +3,8 @@
 /**
  * Context passed to every release-prep mutator. Holds the parsed target
  * version and the project root each mutator operates against, plus
- * optional inputs (image digest, rel branch identifier, prior rel branch
- * identifier, explicit fromVersion override) supplied by the conductor or
+ * optional inputs (rel branch identifier, prior rel branch identifier,
+ * explicit fromVersion override) supplied by the conductor or
  * branch-cut/patch-prep workflows. Existing mutators ignore the optional
  * fields they don't need; PostReleaseTargetsMutator requires `relBranch`
  * to know which row of release-targets.yml to mutate;
@@ -32,16 +32,10 @@ final readonly class MutatorContext
         public int $major,
         public int $minor,
         public int $patch,
-        public ?string $imageDigest = null,
         public ?string $relBranch = null,
         public ?string $prevRelBranch = null,
         public ?string $fromVersion = null,
     ) {
-        if ($imageDigest !== null && preg_match('/^sha256:[0-9a-f]{64}$/', $imageDigest) !== 1) {
-            throw new \InvalidArgumentException(
-                'imageDigest must match sha256:<64-hex>; got: ' . $imageDigest,
-            );
-        }
         if ($relBranch !== null && preg_match('/^rel-\d+$/', $relBranch) !== 1) {
             throw new \InvalidArgumentException(
                 'relBranch must match rel-<digits>; got: ' . $relBranch,
@@ -88,7 +82,6 @@ final readonly class MutatorContext
     public static function fromVersionString(
         string $projectDir,
         string $version,
-        ?string $imageDigest = null,
         ?string $relBranch = null,
         ?string $prevRelBranch = null,
         ?string $fromVersion = null,
@@ -103,7 +96,6 @@ final readonly class MutatorContext
             (int) $m[1],
             (int) $m[2],
             (int) $m[3],
-            $imageDigest,
             $relBranch,
             $prevRelBranch,
             $fromVersion,

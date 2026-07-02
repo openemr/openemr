@@ -16,7 +16,7 @@
 // upgrade file is the starting point for the next upgrade.
 
 $v_major = '8';
-$v_minor = '2';
+$v_minor = '3';
 $v_patch = '0';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 

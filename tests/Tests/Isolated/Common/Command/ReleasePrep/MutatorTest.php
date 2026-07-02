@@ -89,28 +89,19 @@ final class MutatorTest extends TestCase
         );
     }
 
-    public function testDockerComposePinsTagOnly(): void
+    public function testDockerComposePinsTagAndDiscardsSourceDigest(): void
     {
+        // Source has `latest@sha256:...`; expected output has
+        // `<version>` with no `@sha256:` — the release image isn't
+        // published at release-prep time so there is no valid digest to
+        // preserve or supply.
         $this->copyFixture('docker_compose/latest_input.yml', 'docker/production/docker-compose.yml');
         $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0');
         $this->assertMutationProducesAndIdempotent(
             new DockerComposeProductionMutator(),
             $context,
             'docker/production/docker-compose.yml',
-            self::FIXTURE_DIR . '/docker_compose/pinned_no_digest_expected.yml',
-        );
-    }
-
-    public function testDockerComposePinsTagAndDigest(): void
-    {
-        $this->copyFixture('docker_compose/latest_input.yml', 'docker/production/docker-compose.yml');
-        $digest = 'sha256:' . str_repeat('a', 64);
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0', $digest);
-        $this->assertMutationProducesAndIdempotent(
-            new DockerComposeProductionMutator(),
-            $context,
-            'docker/production/docker-compose.yml',
-            self::FIXTURE_DIR . '/docker_compose/pinned_with_digest_expected.yml',
+            self::FIXTURE_DIR . '/docker_compose/pinned_tag_only_expected.yml',
         );
     }
 
@@ -123,19 +114,6 @@ final class MutatorTest extends TestCase
             $context,
             'docker/production/docker-compose.yml',
             self::FIXTURE_DIR . '/docker_compose/bare_tag_pinned_expected.yml',
-        );
-    }
-
-    public function testDockerComposeAddsDigestToBareTag(): void
-    {
-        $this->copyFixture('docker_compose/bare_tag_input.yml', 'docker/production/docker-compose.yml');
-        $digest = 'sha256:' . str_repeat('a', 64);
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0', $digest);
-        $this->assertMutationProducesAndIdempotent(
-            new DockerComposeProductionMutator(),
-            $context,
-            'docker/production/docker-compose.yml',
-            self::FIXTURE_DIR . '/docker_compose/bare_tag_pinned_with_digest_expected.yml',
         );
     }
 
@@ -187,7 +165,6 @@ final class MutatorTest extends TestCase
         $context = MutatorContext::fromVersionString(
             $this->tmpDir,
             '8.1.1',
-            null,
             'rel-810',
             null,
             '8.1.0',
@@ -223,7 +200,6 @@ final class MutatorTest extends TestCase
         $context = MutatorContext::fromVersionString(
             $this->tmpDir,
             '8.1.1',
-            null,
             'rel-810',
             null,
             '8.1.0',
@@ -231,6 +207,47 @@ final class MutatorTest extends TestCase
         $result = (new SqlUpgradeSkeletonMutator())->apply($context);
 
         self::assertSame(['sql/8_1_0-to-8_1_1_upgrade.sql'], $result->changedFiles);
+    }
+
+    public function testSqlUpgradeSkeletonTrimsTrailingBlankBeforeSql(): void
+    {
+        // Source header ends with a blank line before the first SQL
+        // statement. Prior behavior would concatenate `implode + "\n"`
+        // and produce a double trailing newline in the output, breaking
+        // the `end-of-file-fixer` pre-commit hook on the emitted skeleton.
+        $this->writeFile('version.php', "<?php\n\$v_major='8';\n\$v_minor='1';\n\$v_patch='1';\n");
+        $existing = "-- header line\n\nINSERT INTO foo VALUES (1);\n";
+        $this->writeFile('sql/8_0_0-to-8_1_0_upgrade.sql', $existing);
+
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.2');
+        $result = (new SqlUpgradeSkeletonMutator())->apply($context);
+        self::assertSame(['sql/8_1_1-to-8_1_2_upgrade.sql'], $result->changedFiles);
+        $output = $this->readFile($this->tmpDir . '/sql/8_1_1-to-8_1_2_upgrade.sql');
+        self::assertSame("-- header line\n", $output);
+        // Explicit byte-level guard: the file must end with a single `\n`,
+        // not `\n\n` (double newline breaks end-of-file-fixer pre-commit).
+        // Redundant given assertSame above but calls out the invariant.
+        self::assertStringEndsWith("\n", $output);
+        self::assertFalse(
+            str_ends_with($output, "\n\n"),
+            'skeleton must not end with a double newline',
+        );
+    }
+
+    public function testSqlUpgradeSkeletonTrimsTrailingBlankWhenSourceIsAllCommentsAndEndsWithNewline(): void
+    {
+        // Real-world shape: source file is entirely comment-meta-language
+        // lines and ends with a trailing `\n`. preg_split yields a trailing
+        // empty element that our loop kept; implode+"\n" then produced
+        // `...\n\n`. Trim to a single trailing newline.
+        $this->writeFile('version.php', "<?php\n\$v_major='8';\n\$v_minor='1';\n\$v_patch='1';\n");
+        $existing = "-- alpha\n-- beta\n-- gamma\n";
+        $this->writeFile('sql/8_0_0-to-8_1_0_upgrade.sql', $existing);
+
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.2');
+        (new SqlUpgradeSkeletonMutator())->apply($context);
+        $output = file_get_contents($this->tmpDir . '/sql/8_1_1-to-8_1_2_upgrade.sql');
+        self::assertSame("-- alpha\n-- beta\n-- gamma\n", $output);
     }
 
     public function testSwaggerRegenInvokesConsoleSubprocess(): void

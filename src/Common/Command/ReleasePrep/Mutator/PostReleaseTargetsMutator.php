@@ -71,6 +71,23 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
             throw new \RuntimeException('Cannot read ' . $path);
         }
 
+        // Early-return guard: the slot-shuffle step drops `latest` from
+        // the prior holder assuming there is a target row (the just-shipped
+        // rel branch) ready to receive it. If no live row exists for the
+        // target rel branch — e.g., release-finalize firing on a push
+        // before the paired branch-cut PR has landed the new rel-branch
+        // row — the shuffle would leave release-targets.yml in an invalid
+        // state (nobody holds `latest`). Skip the whole mutator instead.
+        if (!$this->hasLiveRowForRelBranch($original, $relBranch)) {
+            return new MutatorResult(
+                [],
+                [
+                    'no live row for ' . $relBranch
+                    . ' in release-targets.yml; skipping premature slot shuffle',
+                ],
+            );
+        }
+
         $tagName = $context->tagName();
 
         $newText = $this->dropUnreleasedPlaceholderRow($original, $relBranch);
@@ -98,6 +115,22 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
         }
 
         return new MutatorResult([self::RELATIVE_PATH]);
+    }
+
+    /**
+     * A "live" row is one whose `branch:` matches the target rel branch
+     * AND is NOT marked `unreleased: true`. The unreleased placeholder
+     * is the multi-row pattern's development scaffold — it doesn't count
+     * as the shippable row this mutator's transforms target.
+     */
+    private function hasLiveRowForRelBranch(string $text, string $relBranch): bool
+    {
+        foreach ($this->indexRows($text) as $row) {
+            if ($row['branch'] === $relBranch && $row['unreleased'] !== 'true') {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
