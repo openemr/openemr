@@ -39,10 +39,10 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
@@ -536,12 +536,12 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 
     // To see if the encounter is locked. If it is, no new forms can be created
     $encounterLocked = false;
+    $encounter = EncounterSessionUtil::getEncounter();
     if (
         $esignApi->lockEncounters() &&
-        OEGlobalsBag::getInstance()->has('encounter') &&
-        !empty(OEGlobalsBag::getInstance()->get('encounter'))
+        $encounter !== 0
     ) {
-        $esign = $esignApi->createEncounterESign(OEGlobalsBag::getInstance()->get('encounter'));
+        $esign = $esignApi->createEncounterESign($encounter);
         if ($esign->isLocked()) {
             $encounterLocked = true;
         }

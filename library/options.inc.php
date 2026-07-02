@@ -69,6 +69,8 @@ use OpenEMR\Common\Forms\Types\BillingCodeType;
 use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
@@ -119,7 +121,7 @@ function optionalAge($frow, $date, &$asof, $description = '')
         $tmp = sqlQuery(
             "SELECT date FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
-            [OEGlobalsBag::getInstance()->get('pid'), OEGlobalsBag::getInstance()->get('encounter')]
+            [PatientSessionUtil::getPid(), EncounterSessionUtil::getEncounter()]
         );
         if (!empty($tmp['date'])) {
             $asof = substr((string) $tmp['date'], 0, 10);

@@ -29,9 +29,9 @@ require_once("../../../library/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 formHeader("Form: CAMOS");
 $textarea_rows = 22;
@@ -95,8 +95,8 @@ echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "'>
 <?php
 //experimental code start
 
-$pid = OEGlobalsBag::getInstance()->get('pid');
-$encounter = OEGlobalsBag::getInstance()->get('encounter');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
 
 // escape_table_name() on a literal handles case-insensitive table name matching.
 $tbl_camos = escape_table_name("form_CAMOS");

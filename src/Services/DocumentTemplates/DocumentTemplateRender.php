@@ -22,8 +22,8 @@ namespace OpenEMR\Services\DocumentTemplates;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
 use Psr\Log\LoggerInterface;
@@ -61,7 +61,7 @@ class DocumentTemplateRender
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->user = $user ?: $session->get('authUserID', 0);
-        $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
+        $this->encounter = $encounter ?: EncounterSessionUtil::getEncounter();
         $this->version = (string) (new VersionService())->getSoftwareVersion();
         $this->templateService = new DocumentTemplateService();
         $this->logger = $logger ?? ServiceContainer::getLogger();
@@ -606,7 +606,7 @@ class DocumentTemplateRender
     {
         $tmp = '';
         $lres = sqlStatement("SELECT title, comments FROM lists WHERE " . "pid = ? AND type = ? AND enddate IS NULL " . "ORDER BY begdate", [
-            OEGlobalsBag::getInstance()->get('pid'),
+            $this->pid,
             $type
         ]);
         while ($lrow = sqlFetchArray($lres)) {
