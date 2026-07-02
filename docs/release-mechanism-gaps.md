@@ -324,6 +324,94 @@ production exercise is deferred to the rel-820 cut.
   from rel-820). Workstream 3 Phase B (cherry-pick to rel-810) is
   unnecessary — rel-820 inherits all three automations in-place.
 
+<a id="g5-refinement-2026-07-02"></a>
+- **Refinement (2026-07-02) — first production exercise:**
+
+  The rel-820 cut on 2026-07-02 was the first end-to-end production
+  exercise of branch-cut alongside the release-prep + release-finalize
+  pair. It took **three attempts and three rounds of fixes** before
+  landing clean on attempt four. The bugs were meaningful — worth
+  cataloging so future exercises benefit.
+
+  **Round 1** (fix PRs #12722 + cherry-pick #12723; #12724):
+  - `--skip-globals` missing from both `branch-cut-automation.yml` and
+    `patch-prep-automation.yml` CLI invocations of the Symfony console
+    command — caused `mysqli_query` bootstrap error on every run.
+  - `release-prep.yml` had `paths-ignore: docs/**` which filtered
+    the conductor out at cut time whenever master's tip was a
+    docs-only PR (as it was on 2026-07-01 for #12721). Removed —
+    the conductor now fires on every push, and peter-evans's
+    `pull-request-operation=none` signal suppresses downstream
+    consumer dispatch when no diff.
+
+  **Round 2** (fix PR #12731 — 5 mutator surface fixes):
+  - `DockerUpgradeScaffoldMutator`: `fsupgrade-(N+1).sh` is now a
+    **full copy** of the prior file with 5 header lines substituted
+    (docker versions + priorOpenemrVersion), not a bare stub. Preserves
+    the previous release's upgrade body byte-for-byte for per-release
+    refinement.
+  - `PostReleaseTargetsMutator`: early-return / no-op when the target
+    rel branch has no live row in release-targets.yml (avoids
+    incorrectly trying to slot-shuffle rows that don't exist yet at
+    premature-draft time).
+  - `ReleasePrepCommand`: dropped `GlobalsIncMutator` from the
+    release-prep rel-side list. Branch-cut owns that flip; running it
+    again at release-prep time is redundant and hides "did branch-cut
+    merge?" behind mutator idempotency.
+  - `DockerComposeProductionMutator`: swap the tag only. No
+    `--image-digest`, no `@sha256:...` output. At release-prep time
+    the release image doesn't yet exist in Docker Hub (tag→build fires
+    only after release-prep merges), so there is no valid digest to
+    pin — chicken-and-egg. Any existing `@sha256:...` suffix on the
+    source line is dropped.
+  - `MutatorContext::$imageDigest` removed entirely (was unused after
+    the digest handling was dropped).
+
+  **Round 3** (fix PR #12735 — 2 mutator fixes + PR template audit):
+  - `SqlUpgradeSkeletonMutator`: no more double trailing newline in
+    the generated skeleton output.
+  - `DockerUpgradeScaffoldMutator`: `priorOpenemrVersion` derivation
+    now scans `sql/*_upgrade.sql` for the highest LEFT-side version
+    at branch-cut time, with `MutatorContext::$fromVersion` override
+    for patch-prep (where version.php has already been bumped past
+    the anchor). A `priorOpenemrVersion < target` invariant defends
+    the derivation — mutator ordering bugs (e.g.,
+    `SqlUpgradeSkeletonMutator` running before this one and inflating
+    the sql-scan result to the target version) now throw loudly
+    rather than silently producing wrong scaffolding.
+  - PR body templates audited for stale content: 4 of the 6
+    templates (branch-cut-rel, branch-cut-master, patch-prep-rel,
+    patch-prep-master) updated to remove "stub" language, describe
+    the 5-line substitution shape, note `priorOpenemrVersion`
+    derivation, and expand merge-order guidance. release-prep +
+    release-finalize templates had no drift.
+  - Coderabbit follow-up on #12735 hoisted validation before
+    destructive writes for atomicity.
+
+  **Attempt 4 (clean):** All three PRs opened correctly —
+  branch-cut rel-side #12743, master-side #12744, release-prep
+  #12742. Merging rel-side #12743 re-fired the conductor and
+  auto-updated release-prep #12742. Merging master-side #12744 wired
+  master's release-targets.yml row for rel-820, kicking off:
+  docker-release-orchestrator, notify-release-targets-changed,
+  demo_farm auto-derive, and dockerhub-readme-push. All fired cleanly.
+  - Docker Hub: `openemr/openemr:8.2.0` + `next` + `8.2.0-2026-07-02`
+    with OCI `revision: rel-820`; `8.3.0` + `dev` + `8.3.0-2026-07-02`
+    with `revision: master`.
+  - Dockerhub README refreshed.
+  - `demo_farm_openemr#168` auto-derive reconciliation PR opened cleanly.
+  - release-finalize PR pending — will materialize on next natural
+    push to rel-820 (the "release-finalize doesn't auto-refresh on
+    master pushes" gap called out in the Lifecycle section of
+    `release-automation-plan.md` is real but not blocking; dev
+    cycle pushes to the rel branch happen naturally).
+
+  **Takeaway:** Mutator ordering matters and is now defended by the
+  `priorOpenemrVersion < target` invariant. The premature-draft
+  design worked as documented — accepted tradeoff, zero external
+  noise. Three rounds of fixes is not ideal but each round caught
+  something real that would have bit at some future exercise.
+
 ### G6 — demo_farm_openemr's production-demo + flex-image mappings are manually maintained
 
 **STATUS: SHIPPED 2026-06-28.** Bot operational end-to-end. Demo_farm PRs: #135 (scaffold + dry-run), #138 (write + auto-PR mode), #141 (atomic flip retiring `bump-tag.yml` + `tools/release/` PHP toolchain), #142 (printf-dash bash bug fix), #143 (first real bot-produced reconciliation PR — `rel-704/800/810` col-3 tag-pin transitions). Sibling infra: #136 (dependabot github-actions weekly), #139 (shellcheck workflow with ratchet `.shellcheckrc`), #140 (issue tracking first ratchet: SC2115 rm-rf guard, 5 sites in demo_build.sh). Cross-repo dispatch event: openemr-devops#846 (canonical `release-targets-changed` event in dispatch.schema.json), openemr/openemr#12657 (vendored schema + `EVENT_RELEASE_TARGETS_CHANGED` + DispatchDataBuilder case + `.github/workflows/notify-release-targets-changed.yml` firing on push to release-targets.yml). Bonus phpstan CI cleanup: openemr#12658 (COMPOSER_AUTH band-aid for the wkhtmltopdf 429 flake) + openemr#12659 (real fix: dropped vestigial `Remove Rector` step — empirically verified phpstan output is byte-identical with rector installed vs removed).
