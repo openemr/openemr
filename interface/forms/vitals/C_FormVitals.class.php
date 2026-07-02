@@ -496,11 +496,7 @@ class C_FormVitals
 
         $this->populate_session_user_information($obj);
 
-        $encounter = EncounterSessionUtil::getEncounter();
-        if ($encounter === 0) {
-            EncounterSessionUtil::setEncounter('0');
-            $encounter = EncounterSessionUtil::getEncounter();
-        }
+        $encounter = EncounterSessionUtil::getOrInitialize();
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // have to set these global settings in order for us to save.

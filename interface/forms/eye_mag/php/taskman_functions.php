@@ -244,7 +244,6 @@ function show_task($ajax_req): void
 function make_document($task)
 {
     global $providerNAME;
-    global $encounter;
     global $facilityService;
 
     // Resolve the eye_mag form row for this (patient, encounter). The taskman

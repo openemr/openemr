@@ -63,11 +63,7 @@ class C_FormPriorAuth extends Controller
 
 
         $this->form->persist();
-        $encounter = EncounterSessionUtil::getEncounter();
-        if ($encounter === 0) {
-            EncounterSessionUtil::setEncounter('0');
-            $encounter = EncounterSessionUtil::getEncounter();
-        }
+        $encounter = EncounterSessionUtil::getOrInitialize();
 
         if (empty($_POST['id'])) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();

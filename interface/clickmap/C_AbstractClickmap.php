@@ -160,11 +160,7 @@ abstract class C_AbstractClickmap extends Controller
         $model = $this->createModel($_POST['id']);
         parent::populate_object($model);
         $model->persist();
-        $encounter = EncounterSessionUtil::getEncounter();
-        if ($encounter === 0) {
-            EncounterSessionUtil::setEncounter('0');
-            $encounter = EncounterSessionUtil::getEncounter();
-        }
+        $encounter = EncounterSessionUtil::getOrInitialize();
 
         if (empty($_POST['id'])) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();

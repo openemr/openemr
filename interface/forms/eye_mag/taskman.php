@@ -37,6 +37,8 @@ if (php_sapi_name() === 'cli') {
 }
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
@@ -77,8 +79,8 @@ require_once("report.php");
  *      5.  If the Object is created and it is a Fax, send it, and Flag DB done.
  *
  */
-global $encounter;
-global $pid;
+$encounter = (string) EncounterSessionUtil::getEncounter();
+$pid = (string) PatientSessionUtil::getPid();
 global $visit_date;
 global $PDF_OUTPUT;
 global $form_id;
