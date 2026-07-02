@@ -14,9 +14,9 @@ namespace OpenEMR\Services;
 use Exception;
 use InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -223,7 +223,7 @@ class DrugSalesService extends BaseService
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         if (empty($patient_id)) {
-            $patient_id   = OEGlobalsBag::getInstance()->get('pid');
+            $patient_id   = PatientSessionUtil::getPid();
         }
 
         if (empty($sale_date)) {
