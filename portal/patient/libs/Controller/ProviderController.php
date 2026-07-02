@@ -10,9 +10,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
 
 /** import supporting libraries */
 
@@ -52,7 +52,7 @@ class ProviderController extends AppBasePortalController
             exit;
         }
 
-        $pid = OEGlobalsBag::getInstance()->get('pid');
+        $pid = PatientSessionUtil::getPid();
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $cuser);
 

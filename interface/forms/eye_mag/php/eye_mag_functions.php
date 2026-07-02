@@ -14,6 +14,8 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
@@ -1630,8 +1632,8 @@ margin: 2px 0 2px 2px;">
  */
 function send_json_values($PMSFH = ""): void
 {
-    global $pid;
     global $form_id;
+    $pid = (string) PatientSessionUtil::getPid();
     if (!$PMSFH) {
         build_PMSFH();
     }
@@ -2086,8 +2088,8 @@ function build_PMSFH($pid)
 function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px;")
 {
     global $PMSFH;
-    global $pid;
     global $PMSFH_titles;
+    $pid = (string) PatientSessionUtil::getPid();
     $count = [];
     $total_PMSFH = 0;
     $header1 = '';
@@ -2706,8 +2708,8 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
  */
 function show_PMSFH_report($PMSFH): void
 {
-    global $pid;
     global $ISSUE_TYPES;
+    $pid = (string) PatientSessionUtil::getPid();
     $count = [];
     $total_PMSFH = 0;
 
@@ -4006,7 +4008,6 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam"): void
 {
     global $form_folder;
     global $prov_data;
-    global $encounter;
     global $form_id;
     global $display;
     global $provider_id;
@@ -4324,8 +4325,8 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
  */
 function report_header($pid, $direction = 'shell')
 {
-    global $encounter;
     global $visit_date;
+    $encounter = (string) EncounterSessionUtil::getEncounter();
     global $facilityService;
     global $OE_SITE_DIR;
 
@@ -4420,8 +4421,8 @@ function report_header($pid, $direction = 'shell')
 function start_your_engines($FIELDS)
 {
 //pass an assoc array of fields with terms in it and search them
-    global $pid;
     global $codes_found;
+    $pid = (string) PatientSessionUtil::getPid();
     global $PMSFH;
     $clinical_terms = [];
     $hit_RVO = [];
@@ -6246,7 +6247,9 @@ function generate_lens_treatments($W, $LTs_present)
  */
 function generate_specRx($W)
 {
-    global $pid,$form_id,$encounter,$display_W_width;
+    global $form_id,$display_W_width;
+    $pid = (string) PatientSessionUtil::getPid();
+    $encounter = (string) EncounterSessionUtil::getEncounter();
 
     $query  = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? and RX_NUMBER =?";
     $wear   = sqlQuery($query, [$pid,$form_id,$encounter,$W]);

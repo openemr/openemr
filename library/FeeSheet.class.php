@@ -36,6 +36,8 @@ require_once(__DIR__ . "/forms.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
@@ -100,11 +102,11 @@ class FeeSheet
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (empty($pid)) {
-            $pid = OEGlobalsBag::getInstance()->get('pid');
+            $pid = PatientSessionUtil::getPid();
         }
 
         if (empty($encounter)) {
-            $encounter = OEGlobalsBag::getInstance()->get('encounter');
+            $encounter = EncounterSessionUtil::getEncounter();
         }
 
         $this->pid = $pid;
@@ -1459,6 +1461,7 @@ class FeeSheet
     //
     public function doContraceptionForm($ippfconmeth = null, $newmauser = null, $main_provid = 0)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!empty($ippfconmeth)) {
             /**********************************************************
             $csrow = sqlQuery(
@@ -1512,7 +1515,7 @@ class FeeSheet
                         "DELETE FROM lbf_data WHERE form_id = ? AND field_id = ''",
                         [$newid]
                     );
-                    addForm($this->encounter, 'Contraception Summary', $newid, 'LBFcontra', $this->pid, OEGlobalsBag::getInstance()->get('userauthorized'));
+                    addForm($this->encounter, 'Contraception Summary', $newid, 'LBFcontra', $this->pid, $session->get('userauthorized'));
                     // Now add the needed visit fields.
                     $this->insert_lbf_item('cgen_newmauser', $newmauser);
                     $this->insert_lbf_item('cgen_MethAdopt', "IPPFCM:$ippfconmeth");

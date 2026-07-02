@@ -31,6 +31,19 @@ class EncounterSessionUtil
         return is_numeric($raw) ? (int) $raw : 0;
     }
 
+    /**
+     * Get the current encounter, initializing to today's date if none is set.
+     */
+    public static function getOrInitialize(): int
+    {
+        $encounter = self::getEncounter();
+        if ($encounter === 0) {
+            self::setEncounter('0');
+            $encounter = self::getEncounter();
+        }
+        return $encounter;
+    }
+
     public static function setEncounter(string $enc): int
     {
         global $encounter;

@@ -15,7 +15,8 @@ namespace Application\Controller;
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 
 class SendtoController extends AbstractActionController
@@ -45,7 +46,7 @@ class SendtoController extends AbstractActionController
         $selected_cform = $this->params()->fromQuery('selected_form');
         $default_send_via = $this->params()->fromQuery('default_send_via');
         $default_send_via = $default_send_via ?: 'printer';
-        $encounter = OEGlobalsBag::getInstance()->get('encounter');
+        $encounter = EncounterSessionUtil::getEncounter();
         $faxRecievers = $this->getSendtoTable()->getFaxRecievers();
         $ccda_sections = $this->getSendtoTable()->getCCDAComponents(0);
         $ccda_components = $this->getSendtoTable()->getCCDAComponents(1);
@@ -77,8 +78,8 @@ class SendtoController extends AbstractActionController
     public function ajaxAction()
     {
         $ajax_mode = $this->getRequest()->getPost('ajax_mode', null);
-        $encounter = OEGlobalsBag::getInstance()->get('encounter');
-        $pid = OEGlobalsBag::getInstance()->get('pid');
+        $encounter = EncounterSessionUtil::getEncounter();
+        $pid = PatientSessionUtil::getPid();
         switch ($ajax_mode) {
             case 'get_componets':
                 $formId = $this->getRequest()->getPost('form_id', null);

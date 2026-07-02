@@ -23,6 +23,7 @@ namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -101,7 +102,7 @@ class FormVitals extends ORDataObject
 
         $this->_table = self::TABLE_NAME;
         $this->activity = 1;
-        $this->pid = OEGlobalsBag::getInstance()->get('pid');
+        $this->pid = PatientSessionUtil::getPid();
         if (!empty($id)) {
             $this->populate();
         }
