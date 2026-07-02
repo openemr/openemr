@@ -43,6 +43,7 @@ use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
@@ -536,10 +537,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 
     // To see if the encounter is locked. If it is, no new forms can be created
     $encounterLocked = false;
-    $encounter = EncounterSessionUtil::getEncounter();
     if (
         $esignApi->lockEncounters() &&
-        $encounter !== 0
+        !empty($encounter)
     ) {
         $esign = $esignApi->createEncounterESign($encounter);
         if ($esign->isLocked()) {
@@ -558,7 +558,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
             $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
                 ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
                 : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
-            $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
+            $sensitivity = sqlQuery($sensitivityQuery, [EncounterSessionUtil::getEncounter()])['sensitivity'] ?? null;
             $pass_sens = true;
             if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
                 $pass_sens = false;

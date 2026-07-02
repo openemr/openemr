@@ -24,6 +24,7 @@ use HTMLPurifier_Config;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
 use Psr\Log\LoggerInterface;

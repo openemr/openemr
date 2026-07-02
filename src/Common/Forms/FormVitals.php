@@ -26,6 +26,7 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 
 class FormVitals extends ORDataObject
 {
