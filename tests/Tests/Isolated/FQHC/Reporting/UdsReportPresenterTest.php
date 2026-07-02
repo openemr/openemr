@@ -15,6 +15,9 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\FQHC\Reporting;
 
 use OpenEMR\FQHC\Fpl\FplBand;
+use OpenEMR\FQHC\Reporting\Clinical\Table6bReportBuilder;
+use OpenEMR\FQHC\Reporting\Clinical\UdsClinicalMeasure;
+use OpenEMR\FQHC\Reporting\Clinical\UdsMeasurePopulationCounts;
 use OpenEMR\FQHC\Reporting\ReportingPatient;
 use OpenEMR\FQHC\Reporting\ReportingPatientSource;
 use OpenEMR\FQHC\Reporting\UdsPatientCharacteristicsReport;
@@ -123,6 +126,41 @@ final class UdsReportPresenterTest extends TestCase
         }
 
         self::fail('No row labelled "' . $label . '"');
+    }
+
+    public function testPresentsTable6bAndTable7Rows(): void
+    {
+        $table6b = (new Table6bReportBuilder())->build(2025, [
+            UdsClinicalMeasure::ControllingHighBloodPressure->cmsId() => new UdsMeasurePopulationCounts(
+                initialPopulation: 100,
+                denominator: 100,
+                denominatorExclusions: 0,
+                denominatorExceptions: 0,
+                numerator: 70,
+            ),
+        ]);
+
+        $presenter = new UdsReportPresenter();
+        $table6bView = $presenter->table6b($table6b);
+        $table7View = $presenter->table7($table6b);
+
+        $computedRow = $this->row($table6bView['rows'], 'Controlling High Blood Pressure');
+        self::assertTrue($computedRow['computed']);
+        self::assertSame('CMS165v14', $computedRow['cmsId']);
+        self::assertSame(100, $computedRow['denominator']);
+        self::assertSame(70, $computedRow['numerator']);
+        self::assertEqualsWithDelta(0.7, $computedRow['rate'], 0.0001);
+
+        $pendingRow = $this->row($table6bView['rows'], 'Cervical Cancer Screening');
+        self::assertFalse($pendingRow['computed']);
+        self::assertNull($pendingRow['denominator']);
+        self::assertNull($pendingRow['rate']);
+
+        self::assertCount(2, $table7View['rows']);
+        $table7Row = $this->row($table7View['rows'], 'Controlling High Blood Pressure');
+        self::assertTrue($table7Row['computed']);
+        self::assertEqualsWithDelta(0.7, $table7Row['rate'], 0.0001);
+        self::assertFalse($this->row($table7View['rows'], 'Diabetes: Glycemic Status Assessment > 9%')['computed']);
     }
 
     private function patient(

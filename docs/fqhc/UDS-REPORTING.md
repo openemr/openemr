@@ -24,8 +24,8 @@ already captured, and lists the gaps this project must close.
 | 4 | Income (% FPL), insurance source, managed care, special populations | Demographics + **new** socioeconomic/special-pop data + insurance | ⚠️ partial — major gaps |
 | 5 / 5A | Staffing, utilization, FTEs, tenure | Scheduling, encounters, users/facilities | ⚠️ partial |
 | 6A | Selected diagnoses & services | Billing (ICD-10), encounters (CPT/HCPCS) | ✅ data exists; needs report |
-| 6B | Clinical quality measures | **CQM/AMC/CDR engine** | ⚠️ engine exists; UDS mapping needed |
-| 7 | Health outcomes & disparities (A1c, BP, prenatal, birth weight) | CQM engine + clinical data | ⚠️ engine exists; UDS mapping needed |
+| 6B | Clinical quality measures | **CQM/AMC/CDR engine** | ⚠️ measure map + report shipped (`src/FQHC/Reporting/Clinical/*`); live engine population counts pending |
+| 7 | Health outcomes & disparities (A1c, BP, prenatal, birth weight) | CQM engine + clinical data | ⚠️ 2 eCQM-backed lines mapped; prenatal care/birth weight and disparity stratification not yet built |
 | 8A | Financial costs | Accounting/billing | ❌ largely out of scope for EHR |
 | 9D / 9E | Patient service & other revenue | Billing/payments | ⚠️ partial |
 | Appendix D | Health IT | Configuration/attestation | ✅ certified capabilities |

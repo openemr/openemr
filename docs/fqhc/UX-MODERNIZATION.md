@@ -71,6 +71,11 @@ Target FQHC roles (each gets a purpose-built home/workspace, not just a menu):
   eligibility intake.
 - **Eligibility / enrollment / care management** — FPL & SFDP determination,
   enabling services, special-population tracking, follow-up worklists.
+  **First slice shipped (issue #28):** a data-quality follow-up worklist
+  (`public/eligibility-worklist.php`) listing patients missing age/sex,
+  Unknown FPL band, or an unmapped insurance code. The rest of this role's
+  workspace (FPL/SFDP determination in bulk, enabling services, special-
+  population tracking beyond the Snapshot) is still open.
 - **Behavioral health** — sensitive-data-aware workflows (42 CFR Part 2),
   screening tools, warm-handoff tracking.
 - **Billing** — claims, payer mix, UDS revenue inputs.

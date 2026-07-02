@@ -192,7 +192,14 @@
 }
 
 /* Tabular report data. The design system has no table component, so report
-   tables use this style inside an fqhc-card. */
+   tables use this style inside an fqhc-card. fqhc-card clips overflow, so a
+   table wider than its card (common on narrow viewports with several
+   columns) must scroll inside this wrapper — otherwise the extra columns are
+   silently clipped and unreachable rather than forcing page-level scroll. */
+.fqhc-table-wrap {
+  overflow-x: auto;
+}
+
 .fqhc-table {
   width: 100%;
   border-collapse: collapse;

@@ -27,6 +27,7 @@ class Bootstrap
     public const MODULE_INSTALLATION_PATH = '/interface/modules/custom_modules/oe-module-fqhc';
     private const MENU_ID = 'fqhc0';
     private const REPORT_MENU_ID = 'fqhc_report0';
+    private const ELIGIBILITY_WORKLIST_MENU_ID = 'fqhc_eligibility_worklist0';
 
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -59,7 +60,7 @@ class Bootstrap
         $fqhc->menu_id = self::MENU_ID;
         $fqhc->label = xlt('FQHC');
         $fqhc->url = self::MODULE_INSTALLATION_PATH . '/public/index.php';
-        $fqhc->children = [$this->reportMenuItem()];
+        $fqhc->children = [$this->reportMenuItem(), $this->eligibilityWorklistMenuItem()];
         $fqhc->acl_req = ['patients', 'demo'];
         $fqhc->global_req = [];
 
@@ -85,5 +86,24 @@ class Bootstrap
         $report->global_req = [];
 
         return $report;
+    }
+
+    /**
+     * The "Eligibility Worklist" child item that opens the data-quality
+     * worklist page (issue #28).
+     */
+    private function eligibilityWorklistMenuItem(): stdClass
+    {
+        $worklist = new stdClass();
+        $worklist->requirement = 0;
+        $worklist->target = 'fqhc-eligibility-worklist';
+        $worklist->menu_id = self::ELIGIBILITY_WORKLIST_MENU_ID;
+        $worklist->label = xlt('Eligibility Worklist');
+        $worklist->url = self::MODULE_INSTALLATION_PATH . '/public/eligibility-worklist.php';
+        $worklist->children = [];
+        $worklist->acl_req = ['patients', 'demo'];
+        $worklist->global_req = [];
+
+        return $worklist;
     }
 }

@@ -1,0 +1,86 @@
+{#
+  Eligibility/care-management data-quality worklist (issue #28).
+
+  Lists patients with a UDS data-quality gap for a reporting year: missing
+  age/sex, unknown FPL band, or an unmapped insurance code. Server-rendered
+  shell + design-system components; tabular data uses the .fqhc-table style.
+
+  Context:
+    year         — selected reporting calendar year (int).
+    yearOptions  — list<int> of selectable years.
+    worklist     — view model from OpenEMR\FQHC\Reporting\DataQuality\DataQualityWorklistPresenter::present().
+    patientBaseUrl — absolute URL to interface/patient_file/summary/demographics.php.
+
+  TwigContainer disables autoescaping, so values are escaped explicitly.
+
+  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="fqhc-root">
+  <div class="fqhc-container">
+
+    <fqhc-page-header
+      heading="Eligibility Worklist — {{ year }}"
+      subheading="{{ worklist.total }} patient(s) with a data-quality gap in {{ year }}">
+      <div slot="actions" class="fqhc-cluster">
+        {% if worklist.total == 0 %}
+          <fqhc-status-badge variant="success">No gaps found</fqhc-status-badge>
+        {% else %}
+          <fqhc-status-badge variant="warning">Follow-up needed</fqhc-status-badge>
+        {% endif %}
+      </div>
+    </fqhc-page-header>
+
+    <form method="get" class="fqhc-row-between fqhc-inline-form">
+      <div class="fqhc-field">
+        <label for="year">Reporting year</label>
+        <select id="year" name="year" onchange="this.form.submit()">
+          {% for option in yearOptions %}
+            <option value="{{ option }}"{{ option == year ? ' selected' : '' }}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="fqhc-button">View</button>
+    </form>
+
+    <div class="fqhc-stack">
+
+      <fqhc-card heading="Gaps by type">
+        <div class="fqhc-table-wrap">
+          <table class="fqhc-table">
+            <thead><tr><th>Gap</th><th>Patients</th></tr></thead>
+            <tbody>
+              {% for row in worklist.gapCounts %}
+                <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </fqhc-card>
+
+      {% if worklist.total == 0 %}
+        <fqhc-card heading="Patients">
+          <fqhc-empty-state message="No patients had a data-quality gap in {{ year }}."></fqhc-empty-state>
+        </fqhc-card>
+      {% else %}
+        <fqhc-card heading="Patients needing follow-up">
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>Patient</th><th>Gaps</th><th></th></tr></thead>
+              <tbody>
+                {% for row in worklist.rows %}
+                  <tr>
+                    <td>{{ row.pid }}</td>
+                    <td>{{ row.gaps|join(', ')|e('html') }}</td>
+                    <td><a class="fqhc-button" href="{{ (patientBaseUrl ~ '?set_pid=' ~ row.pid)|e('html_attr') }}">Open patient</a></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </fqhc-card>
+      {% endif %}
+
+    </div>
+
+  </div>
+</div>

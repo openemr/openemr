@@ -21,6 +21,8 @@ namespace OpenEMR\FQHC\Reporting;
 
 use OpenEMR\FQHC\Fpl\FplBand;
 use OpenEMR\FQHC\Payer\UdsPayerCategory;
+use OpenEMR\FQHC\Reporting\Clinical\Table6bReport;
+use OpenEMR\FQHC\Reporting\Clinical\UdsClinicalMeasure;
 use OpenEMR\FQHC\SpecialPopulation\HomelessStatus;
 
 /**
@@ -30,6 +32,8 @@ use OpenEMR\FQHC\SpecialPopulation\HomelessStatus;
  * @phpstan-type RaceRow array{label: string, detail: bool, hispanic: int, notHispanic: int, unreported: int, total: int}
  * @phpstan-type ZipRow array{label: string, uninsured: int, publicInsurance: int, medicare: int, private: int, total: int}
  * @phpstan-type Table5Row array{label: string, clinic: int, virtual: int, visits: int, patients: int}
+ * @phpstan-type Table6bRow array{label: string, cmsId: string, computed: bool, denominator: ?int, numerator: ?int, rate: ?float}
+ * @phpstan-type Table7Row array{label: string, computed: bool, rate: ?float}
  */
 final class UdsReportPresenter
 {
@@ -88,6 +92,54 @@ final class UdsReportPresenter
             'visits' => $table5->grandTotalVisits(),
             'patients' => $table5->totalPatients(),
         ];
+    }
+
+    /**
+     * The UDS Table 6B clinical quality measure rows: one per mapped eCQM.
+     *
+     * @return array{rows: list<Table6bRow>}
+     */
+    public function table6b(Table6bReport $table6b): array
+    {
+        $rows = [];
+        foreach (UdsClinicalMeasure::cases() as $measure) {
+            $result = $table6b->resultFor($measure);
+            $rows[] = [
+                'label' => $measure->label(),
+                'cmsId' => $measure->cmsId(),
+                'computed' => $result !== null,
+                'denominator' => $result?->eligibleDenominator(),
+                'numerator' => $result?->numerator,
+                'rate' => $result?->rate(),
+            ];
+        }
+
+        return ['rows' => $rows];
+    }
+
+    /**
+     * The UDS Table 7 health-outcomes rows fed by the clinical measure map.
+     * Early entry into prenatal care and low birth weight are not eCQM-backed
+     * and are not represented here yet.
+     *
+     * @return array{rows: list<Table7Row>}
+     */
+    public function table7(Table6bReport $table6b): array
+    {
+        $rows = [];
+        foreach (UdsClinicalMeasure::cases() as $measure) {
+            if (!$measure->feedsTable7()) {
+                continue;
+            }
+            $result = $table6b->resultFor($measure);
+            $rows[] = [
+                'label' => $measure->label(),
+                'computed' => $result !== null,
+                'rate' => $result?->rate(),
+            ];
+        }
+
+        return ['rows' => $rows];
     }
 
     /**

@@ -1,11 +1,14 @@
 <?php
 
 /**
- * FQHC module — UDS patient-characteristics report host page (epic #4).
+ * FQHC module — eligibility/care-management data-quality worklist (issue #28).
  *
- * Runs the UDS report generator for a chosen calendar year and renders the
- * patient-characteristics tables (3A, 3B, 4, and the ZIP Code Table) with the
- * cross-table reconciliation, using the design-system shell.
+ * The first purpose-built role workspace (epic #6): lists every patient in a
+ * reporting year with a concrete UDS data-quality gap (missing age/sex,
+ * unknown FPL band, or an insurance code that doesn't map to a UDS payer
+ * category) so eligibility/care-management staff can follow up, rather than
+ * the gap only showing up as a cross-table reconciliation mismatch on the UDS
+ * report (epic #4).
  *
  * The reporting year is read from the query string at this entry point and
  * parsed into a typed value; superglobals do not leak past this boundary.
@@ -17,6 +20,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../../../../globals.php';
 
 use OpenEMR\Common\Acl\AclMain;
@@ -24,13 +29,9 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FQHC\DesignSystem\DesignSystemAssets;
-use OpenEMR\FQHC\Reporting\Clinical\PendingCqmMeasureResultSource;
-use OpenEMR\FQHC\Reporting\Clinical\Table6bReportGenerator;
+use OpenEMR\FQHC\Reporting\DataQuality\DataQualityWorklistGenerator;
+use OpenEMR\FQHC\Reporting\DataQuality\DataQualityWorklistPresenter;
 use OpenEMR\FQHC\Reporting\ReportingPatientRepository;
-use OpenEMR\FQHC\Reporting\Table5ReportGenerator;
-use OpenEMR\FQHC\Reporting\Table5VisitRepository;
-use OpenEMR\FQHC\Reporting\UdsReportGenerator;
-use OpenEMR\FQHC\Reporting\UdsReportPresenter;
 
 if (!AclMain::aclCheckCore('patients', 'demo')) {
     echo xlt('Access denied');
@@ -41,8 +42,7 @@ $globals = OEGlobalsBag::getInstance();
 $publicBaseUrl = $globals->getString('webroot') . '/interface/modules/custom_modules/oe-module-fqhc/public';
 $assets = new DesignSystemAssets(__DIR__, $publicBaseUrl);
 
-// Reporting year: a UDS report covers a calendar year; default to the most
-// recently completed one. Anything outside a sane range falls back to that.
+// Reporting year: matches the UDS report page's year selection/default.
 $currentYear = (int) date('Y');
 $yearInput = filter_input(INPUT_GET, 'year', FILTER_VALIDATE_INT);
 $year = is_int($yearInput) && $yearInput >= 2000 && $yearInput <= $currentYear
@@ -50,26 +50,24 @@ $year = is_int($yearInput) && $yearInput >= 2000 && $yearInput <= $currentYear
     : $currentYear - 1;
 $yearOptions = range($currentYear, $currentYear - 6);
 
-$presenter = new UdsReportPresenter();
-$report = (new UdsReportGenerator(new ReportingPatientRepository()))->generateForYear($year);
-$table5 = (new Table5ReportGenerator(new Table5VisitRepository()))->generateForYear($year);
-$table6b = (new Table6bReportGenerator(new PendingCqmMeasureResultSource()))->generateForYear($year);
+$worklist = (new DataQualityWorklistGenerator(new ReportingPatientRepository()))->generateForYear($year);
+$view = (new DataQualityWorklistPresenter())->present($worklist);
+
+$patientBaseUrl = $globals->getString('webroot') . '/interface/patient_file/summary/demographics.php';
 
 $content = (new TwigContainer(__DIR__ . '/../templates', $globals->getKernel()))
     ->getTwig()
-    ->render('fqhc/report.html.twig', [
+    ->render('fqhc/eligibility-worklist.html.twig', [
         'year' => $year,
         'yearOptions' => $yearOptions,
-        'report' => $presenter->present($report),
-        'table5' => $presenter->table5($table5),
-        'table6b' => $presenter->table6b($table6b),
-        'table7' => $presenter->table7($table6b),
+        'worklist' => $view,
+        'patientBaseUrl' => $patientBaseUrl,
     ]);
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo xlt('UDS Report'); ?></title>
+    <title><?php echo xlt('Eligibility Worklist'); ?></title>
     <?php Header::setupHeader(['common']); ?>
     <?php foreach ($assets->styleUrls() as $styleUrl) { ?>
         <link rel="stylesheet" href="<?php echo attr($styleUrl); ?>">

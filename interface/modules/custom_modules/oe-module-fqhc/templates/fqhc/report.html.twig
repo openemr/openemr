@@ -60,125 +60,190 @@
         {% endif %}
 
         <fqhc-card heading="Table 4 — Income as a percentage of the Federal Poverty Level">
-          <table class="fqhc-table">
-            <thead><tr><th>Income band</th><th>Patients</th></tr></thead>
-            <tbody>
-              {% for row in report.income.rows %}
-                <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
-              {% endfor %}
-            </tbody>
-            <tfoot><tr><th>Total patients</th><th>{{ report.income.total }}</th></tr></tfoot>
-          </table>
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>Income band</th><th>Patients</th></tr></thead>
+              <tbody>
+                {% for row in report.income.rows %}
+                  <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
+                {% endfor %}
+              </tbody>
+              <tfoot><tr><th>Total patients</th><th>{{ report.income.total }}</th></tr></tfoot>
+            </table>
+          </div>
         </fqhc-card>
 
         <fqhc-card heading="Table 4 — Principal third-party medical insurance">
-          <table class="fqhc-table">
-            <thead><tr><th>Category</th><th>0–17</th><th>18 and over</th><th>Total</th></tr></thead>
-            <tbody>
-              {% for row in report.insurance.rows %}
-                <tr>
-                  <td>{{ row.label|e('html') }}</td>
-                  <td>{{ row.age0to17 }}</td>
-                  <td>{{ row.age18AndOver }}</td>
-                  <td>{{ row.total }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-            <tfoot><tr><th>Total patients</th><th></th><th></th><th>{{ report.insurance.total }}</th></tr></tfoot>
-          </table>
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>Category</th><th>0–17</th><th>18 and over</th><th>Total</th></tr></thead>
+              <tbody>
+                {% for row in report.insurance.rows %}
+                  <tr>
+                    <td>{{ row.label|e('html') }}</td>
+                    <td>{{ row.age0to17 }}</td>
+                    <td>{{ row.age18AndOver }}</td>
+                    <td>{{ row.total }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot><tr><th>Total patients</th><th></th><th></th><th>{{ report.insurance.total }}</th></tr></tfoot>
+            </table>
+          </div>
         </fqhc-card>
 
         <fqhc-card heading="Table 4 — Special populations">
-          <table class="fqhc-table">
-            <thead><tr><th>Population</th><th>Patients</th></tr></thead>
-            <tbody>
-              {% for row in report.specialPopulations %}
-                <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>Population</th><th>Patients</th></tr></thead>
+              <tbody>
+                {% for row in report.specialPopulations %}
+                  <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </fqhc-card>
 
         <fqhc-card heading="Table 3A — Patients by age and by sex">
-          <table class="fqhc-table">
-            <thead><tr><th>Age group</th><th>Male</th><th>Female</th><th>Total</th></tr></thead>
-            <tbody>
-              {% for row in report.ageSex.rows %}
-                <tr>
-                  <td>{{ row.label|e('html') }}</td>
-                  <td>{{ row.male }}</td>
-                  <td>{{ row.female }}</td>
-                  <td>{{ row.total }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-            <tfoot>
-              <tr><th>Total patients</th><th>{{ report.ageSex.male }}</th><th>{{ report.ageSex.female }}</th><th>{{ report.ageSex.total }}</th></tr>
-            </tfoot>
-          </table>
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>Age group</th><th>Male</th><th>Female</th><th>Total</th></tr></thead>
+              <tbody>
+                {% for row in report.ageSex.rows %}
+                  <tr>
+                    <td>{{ row.label|e('html') }}</td>
+                    <td>{{ row.male }}</td>
+                    <td>{{ row.female }}</td>
+                    <td>{{ row.total }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr><th>Total patients</th><th>{{ report.ageSex.male }}</th><th>{{ report.ageSex.female }}</th><th>{{ report.ageSex.total }}</th></tr>
+              </tfoot>
+            </table>
+          </div>
         </fqhc-card>
 
         <fqhc-card heading="Table 3B — Race and Hispanic/Latino ethnicity">
-          <table class="fqhc-table">
-            <thead><tr><th>Race</th><th>Hispanic</th><th>Not Hispanic</th><th>Unreported</th><th>Total</th></tr></thead>
-            <tbody>
-              {% for row in report.race.rows %}
-                <tr class="{{ row.detail ? 'fqhc-table-detail' : '' }}">
-                  <td>{{ row.label|e('html') }}</td>
-                  <td>{{ row.hispanic }}</td>
-                  <td>{{ row.notHispanic }}</td>
-                  <td>{{ row.unreported }}</td>
-                  <td>{{ row.total }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-            <tfoot>
-              <tr><th>Total patients</th><th>{{ report.race.hispanic }}</th><th>{{ report.race.notHispanic }}</th><th>{{ report.race.unreported }}</th><th>{{ report.race.total }}</th></tr>
-            </tfoot>
-          </table>
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>Race</th><th>Hispanic</th><th>Not Hispanic</th><th>Unreported</th><th>Total</th></tr></thead>
+              <tbody>
+                {% for row in report.race.rows %}
+                  <tr class="{{ row.detail ? 'fqhc-table-detail' : '' }}">
+                    <td>{{ row.label|e('html') }}</td>
+                    <td>{{ row.hispanic }}</td>
+                    <td>{{ row.notHispanic }}</td>
+                    <td>{{ row.unreported }}</td>
+                    <td>{{ row.total }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr><th>Total patients</th><th>{{ report.race.hispanic }}</th><th>{{ report.race.notHispanic }}</th><th>{{ report.race.unreported }}</th><th>{{ report.race.total }}</th></tr>
+              </tfoot>
+            </table>
+          </div>
           <fqhc-field-row label="Best served in a language other than English" value="{{ report.race.language }}"></fqhc-field-row>
         </fqhc-card>
 
         <fqhc-card heading="Patients by ZIP Code">
-          <table class="fqhc-table">
-            <thead><tr><th>ZIP</th><th>Uninsured</th><th>Medicaid / CHIP / Other Public</th><th>Medicare</th><th>Private</th><th>Total</th></tr></thead>
-            <tbody>
-              {% for row in report.zip.rows %}
-                <tr>
-                  <td>{{ row.label|e('html') }}</td>
-                  <td>{{ row.uninsured }}</td>
-                  <td>{{ row.publicInsurance }}</td>
-                  <td>{{ row.medicare }}</td>
-                  <td>{{ row.private }}</td>
-                  <td>{{ row.total }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-            <tfoot>
-              <tr><th>Total patients</th><th>{{ report.zip.uninsured }}</th><th>{{ report.zip.publicInsurance }}</th><th>{{ report.zip.medicare }}</th><th>{{ report.zip.private }}</th><th>{{ report.zip.total }}</th></tr>
-            </tfoot>
-          </table>
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>ZIP</th><th>Uninsured</th><th>Medicaid / CHIP / Other Public</th><th>Medicare</th><th>Private</th><th>Total</th></tr></thead>
+              <tbody>
+                {% for row in report.zip.rows %}
+                  <tr>
+                    <td>{{ row.label|e('html') }}</td>
+                    <td>{{ row.uninsured }}</td>
+                    <td>{{ row.publicInsurance }}</td>
+                    <td>{{ row.medicare }}</td>
+                    <td>{{ row.private }}</td>
+                    <td>{{ row.total }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr><th>Total patients</th><th>{{ report.zip.uninsured }}</th><th>{{ report.zip.publicInsurance }}</th><th>{{ report.zip.medicare }}</th><th>{{ report.zip.private }}</th><th>{{ report.zip.total }}</th></tr>
+              </tfoot>
+            </table>
+          </div>
         </fqhc-card>
 
         <fqhc-card heading="Table 5 — Utilization by service category">
-          <table class="fqhc-table">
-            <thead><tr><th>Service category</th><th>In-person</th><th>Virtual</th><th>Total visits</th><th>Patients</th></tr></thead>
-            <tbody>
-              {% for row in table5.rows %}
-                <tr>
-                  <td>{{ row.label|e('html') }}</td>
-                  <td>{{ row.clinic }}</td>
-                  <td>{{ row.virtual }}</td>
-                  <td>{{ row.visits }}</td>
-                  <td>{{ row.patients }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-            <tfoot>
-              <tr><th>Total</th><th>{{ table5.clinic }}</th><th>{{ table5.virtual }}</th><th>{{ table5.visits }}</th><th>{{ table5.patients }}</th></tr>
-            </tfoot>
-          </table>
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>Service category</th><th>In-person</th><th>Virtual</th><th>Total visits</th><th>Patients</th></tr></thead>
+              <tbody>
+                {% for row in table5.rows %}
+                  <tr>
+                    <td>{{ row.label|e('html') }}</td>
+                    <td>{{ row.clinic }}</td>
+                    <td>{{ row.virtual }}</td>
+                    <td>{{ row.visits }}</td>
+                    <td>{{ row.patients }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr><th>Total</th><th>{{ table5.clinic }}</th><th>{{ table5.virtual }}</th><th>{{ table5.visits }}</th><th>{{ table5.patients }}</th></tr>
+              </tfoot>
+            </table>
+          </div>
           <p class="fqhc-note">Patients are counted once per service category (duplicated across categories), so the patient total is not the unduplicated health-center count. Staffing/FTE (Column A) is not yet included.</p>
+        </fqhc-card>
+
+        <fqhc-card heading="Table 6B — Clinical quality measures">
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>Measure</th><th>eCQM</th><th>Denominator</th><th>Numerator</th><th>Rate</th><th>Status</th></tr></thead>
+              <tbody>
+                {% for row in table6b.rows %}
+                  <tr>
+                    <td>{{ row.label|e('html') }}</td>
+                    <td>{{ row.cmsId|e('html') }}</td>
+                    <td>{{ row.computed ? row.denominator : '—' }}</td>
+                    <td>{{ row.computed ? row.numerator : '—' }}</td>
+                    <td>{{ row.computed and row.rate is not null ? (row.rate * 100)|round(1) ~ '%' : '—' }}</td>
+                    <td>
+                      {% if row.computed %}
+                        <fqhc-status-badge variant="success">Computed</fqhc-status-badge>
+                      {% else %}
+                        <fqhc-status-badge variant="neutral">Not yet computed</fqhc-status-badge>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <p class="fqhc-note">Measures are mapped to their CY2026 CMS eCQM (docs/fqhc/UDS-DATA-MODEL.md §3); population counts are pending the CQM/AMC engine population-set wiring.</p>
+        </fqhc-card>
+
+        <fqhc-card heading="Table 7 — Health outcomes and disparities">
+          <div class="fqhc-table-wrap">
+            <table class="fqhc-table">
+              <thead><tr><th>Measure</th><th>Rate</th><th>Status</th></tr></thead>
+              <tbody>
+                {% for row in table7.rows %}
+                  <tr>
+                    <td>{{ row.label|e('html') }}</td>
+                    <td>{{ row.computed and row.rate is not null ? (row.rate * 100)|round(1) ~ '%' : '—' }}</td>
+                    <td>
+                      {% if row.computed %}
+                        <fqhc-status-badge variant="success">Computed</fqhc-status-badge>
+                      {% else %}
+                        <fqhc-status-badge variant="neutral">Not yet computed</fqhc-status-badge>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <p class="fqhc-note">Early entry into prenatal care and low birth weight are not eCQM-backed and are not yet represented on this table; disparity stratification by race/ethnicity/sex is not yet built.</p>
         </fqhc-card>
 
       </div>

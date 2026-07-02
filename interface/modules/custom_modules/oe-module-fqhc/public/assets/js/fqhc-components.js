@@ -109,6 +109,7 @@
           }
           .card:hover { box-shadow: var(--fqhc-shadow-md); }
           .head {
+            margin: 0;
             padding: var(--fqhc-space-4) var(--fqhc-space-5);
             border-bottom: 1px solid var(--fqhc-border);
             font-family: var(--fqhc-font-sans);
@@ -120,7 +121,7 @@
           .body { padding: var(--fqhc-space-2) var(--fqhc-space-5) var(--fqhc-space-4); }
         </style>
         <div class="card">
-          ${heading ? `<div class="head">${escapeHtml(heading)}</div>` : ''}
+          ${heading ? `<h2 class="head">${escapeHtml(heading)}</h2>` : ''}
           <div class="body"><slot></slot></div>
         </div>
       `;
@@ -206,7 +207,7 @@
           }
         </style>
         <div class="empty">
-          <span class="dot"></span>
+          <span class="dot" aria-hidden="true"></span>
           <span>${escapeHtml(message)}</span>
           <slot></slot>
         </div>
