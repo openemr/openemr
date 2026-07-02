@@ -4351,7 +4351,8 @@ class EncounterccdadispatchTable
             $sdoh = (HistorySdohService::getCurrentAssessment((int)$pid)) ?? null;
             if ($sdoh) {
                 // Author/provenance (use last updater or current user)
-                $authorId = $sdoh['user'] ?? $sdoh['provider'] ?? (OEGlobalsBag::getInstance()->get('authUserID') ?? null);
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                $authorId = $sdoh['user'] ?? $sdoh['provider'] ?? $session->get('authUserID');
                 $authorTime = $sdoh['updated_at'] ?? $sdoh['assessment_date'] ?? date('Y-m-d');
                 $encId = (int)($sdoh['encounter'] ?? $encounter ?? 0);
 

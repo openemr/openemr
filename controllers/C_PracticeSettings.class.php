@@ -1,5 +1,6 @@
 <?php
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 class C_PracticeSettings extends Controller
@@ -12,7 +13,8 @@ class C_PracticeSettings extends Controller
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("TOP_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings" . "&");
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
-        $this->direction = (OEGlobalsBag::getInstance()->get('_SESSION')['language_direction'] == 'rtl') ? 'right' : 'left';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->direction = ($session->get('language_direction') === 'rtl') ? 'right' : 'left';
     }
 
     function default_action($display = "")
