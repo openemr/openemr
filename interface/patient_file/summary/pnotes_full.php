@@ -29,7 +29,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-$userauthorized = OEGlobalsBag::getInstance()->get('userauthorized', 0);
+$userauthorized = $session->get('userauthorized', 0);
 $result_count = 0;
 $result_sent_count = 0;
 $notes_sent_count = 0;

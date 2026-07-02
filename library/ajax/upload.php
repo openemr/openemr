@@ -70,7 +70,7 @@ $patient_id = filter_input(INPUT_GET, 'patient_id');
 $category_id = filter_input(INPUT_GET, 'parent_id');
 
 if ($isPortal ?? false) {
-    $owner = OEGlobalsBag::getInstance()->get('userauthorized');
+    $owner = $session->get('userauthorized');
     $files = getMultiple();
     if (count($files["file"] ?? []) > 0) {
         $messageService = new MessageService();
@@ -123,7 +123,7 @@ if (!empty($_FILES)) {
     $type = $_FILES['file']['type'];
     $tmp_name = $_FILES['file']['tmp_name'];
     $size = $_FILES['file']['size'];
-    $owner = OEGlobalsBag::getInstance()->get('userauthorized');
+    $owner = $session->get('userauthorized');
 
     addNewDocument($name, $type, $tmp_name, '', $size, $owner, $patient_id, $category_id);
     exit;

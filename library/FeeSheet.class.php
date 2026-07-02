@@ -1459,6 +1459,7 @@ class FeeSheet
     //
     public function doContraceptionForm($ippfconmeth = null, $newmauser = null, $main_provid = 0)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!empty($ippfconmeth)) {
             /**********************************************************
             $csrow = sqlQuery(
@@ -1512,7 +1513,7 @@ class FeeSheet
                         "DELETE FROM lbf_data WHERE form_id = ? AND field_id = ''",
                         [$newid]
                     );
-                    addForm($this->encounter, 'Contraception Summary', $newid, 'LBFcontra', $this->pid, OEGlobalsBag::getInstance()->get('userauthorized'));
+                    addForm($this->encounter, 'Contraception Summary', $newid, 'LBFcontra', $this->pid, $session->get('userauthorized'));
                     // Now add the needed visit fields.
                     $this->insert_lbf_item('cgen_newmauser', $newmauser);
                     $this->insert_lbf_item('cgen_MethAdopt', "IPPFCM:$ippfconmeth");
