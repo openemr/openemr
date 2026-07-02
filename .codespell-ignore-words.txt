@@ -24,6 +24,10 @@ inforce
 numer
 requestor
 
+# CCDA
+# There's a spelling error in the source data and inferno tests, possibly part of the spec?
+elegibility
+
 # Variable names, SQL aliases, and legacy code identifiers
 alog
 bu
@@ -38,6 +42,7 @@ exten
 fo
 formend
 grp
+idel
 inout
 inpt
 insid
@@ -51,6 +56,7 @@ oce
 ot
 parm
 parms
+plantext
 provid
 provids
 ptd
