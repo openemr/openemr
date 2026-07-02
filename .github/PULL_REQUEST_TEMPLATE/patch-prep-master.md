@@ -12,8 +12,8 @@ Master-side partner PR for `<REL_BRANCH>` entering dev for patch `<VERSION>` (pr
 
 ## What this PR covers (master-side)
 
-- **Docker upgrade scaffolding** — same docker-version bump + new `fsupgrade-N.sh` stub + Dockerfile manifest update as the rel-side PR (cross-branch sync requirement per the `docker upgrade actions mandatory per release` rule).
-- **SQL patch upgrade skeleton** — new `sql/<from>-to-<to>_upgrade.sql` carrying the comment header only. Same file as the rel-side stub; master accumulates the cumulative upgrade catalog.
+- **Docker upgrade scaffolding** — same docker-version bump + new `fsupgrade-N.sh` (full copy of `fsupgrade-(N-1).sh` with the five version-substituted lines) + Dockerfile manifest update as the rel-side PR (cross-branch sync requirement per the `docker upgrade actions mandatory per release` rule; byte-identical between rel-side and master-side).
+- **SQL patch upgrade skeleton** — new `sql/<from>-to-<to>_upgrade.sql` carrying the comment-meta-language header only. Same file as the rel-side skeleton; master accumulates the cumulative upgrade catalog.
 - **Master bridge file rename** — renames the long-lived `sql/<X_Y_(P-1)>-to-<X_(Y+1)_0>_upgrade.sql` → `sql/<X_Y_P>-to-<X_(Y+1)_0>_upgrade.sql`. The file's *contents* are preserved (they accumulate dev-cycle SQL); only the "from" anchor in the filename advances to reflect the new patch shipping.
 - **`.github/release-targets.yml`** — adds a new dev row for the rel branch carrying `docker_tags: <VERSION>,next`, and drops any rows for this branch flagged `unreleased: true` (covers the initial-cycle placeholder dropped when real dev begins). Existing finalized rows (the just-shipped patch carrying `latest`) are left alone.
 
@@ -27,7 +27,8 @@ Master-side partner PR for `<REL_BRANCH>` entering dev for patch `<VERSION>` (pr
 ## Release manager checklist
 
 - [ ] Confirm the docker-version bump matches the rel-side PR's bump (byte-identical).
-- [ ] Confirm the new SQL upgrade skeleton filename matches the patch pair (e.g., `8_1_0-to-8_1_1_upgrade.sql`) and matches the rel-side stub.
+- [ ] Confirm the new `fsupgrade-N.sh` is byte-identical to the rel-side PR's `fsupgrade-N.sh` (cross-branch sync).
+- [ ] Confirm the new SQL upgrade skeleton filename matches the patch pair (e.g., `8_1_0-to-8_1_1_upgrade.sql`) and its contents match the rel-side skeleton.
 - [ ] Verify the bridge rename: `sql/<X_Y_(P-1)>-to-<X_(Y+1)_0>_upgrade.sql` is gone; `sql/<X_Y_P>-to-<X_(Y+1)_0>_upgrade.sql` is present with the same content.
 - [ ] Verify the `release-targets.yml` diff: new dev row present with `<VERSION>,next`; any prior `unreleased: true` row for this branch dropped; the just-shipped patch row carrying `latest` is untouched.
 - [ ] Confirm the paired `patch-prep/<REL_BRANCH>` (rel-side) PR opened and merged first.

@@ -12,8 +12,8 @@ Rel-side partner PR for `<REL_BRANCH>` entering dev for patch `<VERSION>` (prior
 
 ## What this PR covers (rel-side)
 
-- **Docker upgrade scaffolding** — bumps `docker-version` (3 files), creates the next `fsupgrade-N.sh` stub, extends the Dockerfile manifest's COPY and chmod blocks. Per-release work fills the upgrade body before the patch ships.
-- **SQL patch upgrade skeleton** — scaffolds `sql/<from>-to-<to>_upgrade.sql` (header only; per-release work fills the body). The from-version is supplied explicitly (`--prev-version`) because `version.php` has already been bumped to the new `$v_patch`.
+- **Docker upgrade scaffolding** — bumps `docker-version` (3 files), creates the next `fsupgrade-N.sh` by copying `fsupgrade-(N-1).sh` in full and applying the five line-level version substitutions, extends the Dockerfile manifest's COPY and chmod blocks. The `priorOpenemrVersion` value written into the new file is the explicit `--prev-version` supplied on the CLI (which matches the last-shipped patch version). Per-release work refines the upgrade body in-place as needed.
+- **SQL patch upgrade skeleton** — scaffolds `sql/<from>-to-<to>_upgrade.sql` carrying the comment-meta-language header from the most recent existing bridge (body is empty; per-release work fills it in). The from-version is supplied explicitly (`--prev-version`) because `version.php` has already been bumped to the new `$v_patch`.
 
 ## Lifecycle
 
@@ -25,7 +25,8 @@ Rel-side partner PR for `<REL_BRANCH>` entering dev for patch `<VERSION>` (prior
 ## Release manager checklist
 
 - [ ] Confirm the docker-version bump matches the expected next integer.
-- [ ] Confirm the new `fsupgrade-N.sh` stub is present and the Dockerfile manifest references it.
+- [ ] Confirm the new `fsupgrade-N.sh` is present, differs from `fsupgrade-(N-1).sh` on exactly the five version-substituted lines, and that the Dockerfile manifest references it in both the COPY and chmod blocks.
+- [ ] Confirm the new `fsupgrade-N.sh`'s `priorOpenemrVersion="..."` value matches `<PREV_VERSION>`.
 - [ ] Confirm the new SQL upgrade skeleton filename matches the patch pair (e.g., `8_1_0-to-8_1_1_upgrade.sql`).
 - [ ] Confirm the paired `patch-prep/<REL_BRANCH>-master` PR opened and is in the same review queue.
 - [ ] Merge this PR (rel-side).

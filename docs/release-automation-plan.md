@@ -89,12 +89,19 @@ be auto-derived by decrementing minor below 1).
 ready-for-review):
 
 - `DockerUpgradeScaffoldMutator` — new `fsupgrade-N.sh` (copied in full
-  from the prior `fsupgrade-N-1.sh` with only the docker-version /
-  priorOpenemrVersion header lines substituted; the upgrade body is
-  preserved byte-for-byte from the prior file for per-release refinement
-  in place) + Dockerfile manifest updates (both `COPY` and `chmod`
-  blocks). Same scaffolding the docker-upgrade-actions memo enumerates
-  as mandatory per release.
+  from the prior `fsupgrade-N-1.sh` with only the five docker-version
+  and `priorOpenemrVersion` header lines substituted; the upgrade body
+  is preserved byte-for-byte from the prior file for per-release
+  refinement in place) + Dockerfile manifest updates (both `COPY` and
+  `chmod` blocks). The `priorOpenemrVersion` value is the last-shipped
+  version from the prior release line — derived by scanning
+  `sql/*_upgrade.sql` for the highest LEFT-side version at branch-cut
+  time, or supplied explicitly via `MutatorContext::$fromVersion` at
+  patch-prep time. A strictly-less-than-target invariant catches
+  ordering bugs (e.g. `SqlUpgradeSkeletonMutator` accidentally running
+  first would inflate the sql-scan result to the target). Same
+  scaffolding the docker-upgrade-actions memo enumerates as mandatory
+  per release.
 - `DockerfileOpenemrVersionMutator` — pins the `OPENEMR_VERSION` ARG
   in the branch's Dockerfile to the new rel line.
 - `TranslationFileCopyFromPriorRelMutator` — fetches the translation
@@ -449,7 +456,7 @@ mutators would produce churn PRs.
 | `SqlUpgradeSkeletonMutator` | branch-cut (master), patch-prep (rel + master) | Scaffold `sql/X_Y_Z-to-X_Y_Z+N_upgrade.sql`. |
 | `MasterSqlPatchBridgeMutator` | patch-prep (master) | Rename bridge file to track new patch. |
 | `BranchCutReleaseTargetsMutator` | branch-cut (master) | Insert row for new rel branch. |
-| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert unreleased placeholder row for new patch. |
+| `PatchPrepReleaseTargetsMutator` | patch-prep (master) | Insert new dev row (`docker_tags: <version>,next`) for the patch + drop any prior `unreleased: true` placeholder for the branch. |
 | `PostReleaseTargetsMutator` | release-prep (master, release-finalize) | Pin rel row + slot shuffle + drop placeholder. |
 
 Adding a new lifecycle event (or a new mutation to an existing one) is
