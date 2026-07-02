@@ -215,7 +215,7 @@ table, th, td {
                        <b><?php echo xlt('Patient Name') ?>: </b>  <br />
                     </div>
                     <div class="pFill">
-                        <?php echo text($pid); ?><br />
+                        <?php echo $pid; ?><br />
                         <?php echo text($pdata['DOB']); ?><br />
                         <?php echo text(getListItemTitle('sex', $pdata['sex'])); ?><br />
                         <?php echo text($pdata['fname']) . " " . text($pdata['lname']); ?><br />
