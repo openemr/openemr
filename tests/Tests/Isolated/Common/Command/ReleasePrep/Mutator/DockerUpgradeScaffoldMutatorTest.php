@@ -147,14 +147,22 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
         (new DockerUpgradeScaffoldMutator())->apply($this->context());
     }
 
-    public function testAnchorSearchIsDerivedFromTargetMinor(): void
+    public function testPriorOpenemrVersionDerivedFromSqlBridgeLeft(): void
     {
-        // For target=8.5.0, the mutator computes prev=8.4.0 (target minor-1)
-        // and uses that as the substitution anchor. Simulate the on-tree
-        // reality at rel-850's cut: fsupgrade-11.sh's priorOpenemrVersion is
-        // 8.4.0 (rel-840's shipped version). The mutator produces
-        // fsupgrade-12.sh with priorOpenemrVersion=8.5.0 (rel-850's shipped
-        // version, i.e. the target-version).
+        // Happy-path branch-cut derivation: fsupgrade-12.sh's
+        // priorOpenemrVersion is read from the highest LEFT version
+        // among sql/*_upgrade.sql bridges — that's the last shipped
+        // version. Seed a rel-850 cut fixture: `8_4_1-to-8_5_0_upgrade.sql`
+        // is the latest bridge, so priorOpenemrVersion must resolve to
+        // "8.4.1".
+        //
+        // Prior fsupgrade file's own priorOpenemrVersion marker (the
+        // search anchor for the substitution) is whatever the prior
+        // cycle wrote; here we set it to "8.4.0" (rel-840's shipped
+        // version). The scaffold reads the marker from the file, so the
+        // substitution succeeds regardless of what the marker value is,
+        // provided the load-bearing schema (all five anchor patterns)
+        // is intact.
         $priorAt840 = str_replace(
             ['priorOpenemrVersion="8.1.0"', 'From prior version 8.1.0'],
             ['priorOpenemrVersion="8.4.0"', 'From prior version 8.4.0'],
@@ -164,25 +172,143 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
             $this->tmpDir . '/docker/release/upgrade/fsupgrade-11.sh',
             $priorAt840,
         );
+        // Wipe the setUp's default sql bridge and seed rel-850 shape.
+        foreach (glob($this->tmpDir . '/sql/*_upgrade.sql') ?: [] as $f) {
+            unlink($f);
+        }
+        file_put_contents(
+            $this->tmpDir . '/sql/8_4_1-to-8_5_0_upgrade.sql',
+            "-- rel-850 bridge fixture\n",
+        );
 
         (new DockerUpgradeScaffoldMutator())->apply(
             MutatorContext::fromVersionString($this->tmpDir, '8.5.0', 'rel-850', 'rel-840'),
         );
         $next = file_get_contents($this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh');
         self::assertIsString($next);
-        self::assertStringContainsString('priorOpenemrVersion="8.5.0"', $next);
-        self::assertStringNotContainsString('priorOpenemrVersion="8.4.0"', $next);
+        self::assertStringContainsString('priorOpenemrVersion="8.4.1"', $next);
+        self::assertStringNotContainsString('priorOpenemrVersion="8.5.0"', $next);
+        self::assertStringContainsString('#  From prior version 8.4.1 ', $next);
     }
 
-    public function testThrowsWhenPriorFsupgradeLacksExpectedAnchor(): void
+    public function testFromVersionOverridesTheSqlScan(): void
     {
-        // The prior fsupgrade file must contain all five anchor lines
-        // for the substitution to succeed. Substitute one of them out
-        // (the priorOpenemrVersion assignment) and expect a clear error
-        // rather than a silently corrupt output.
+        // Patch-prep supplies an explicit fromVersion via MutatorContext.
+        // The mutator must use it verbatim as the last-shipped marker,
+        // bypassing the sql scan.
+        //
+        // Target 8.1.2, fromVersion 8.1.1. sql/ has a bridge with a
+        // DIFFERENT left (8.0.9 — deliberately below fromVersion) to
+        // prove the mutator picks fromVersion, not the sql scan.
+        foreach (glob($this->tmpDir . '/sql/*_upgrade.sql') ?: [] as $f) {
+            unlink($f);
+        }
+        file_put_contents(
+            $this->tmpDir . '/sql/8_0_9-to-8_1_0_upgrade.sql',
+            "-- older bridge fixture\n",
+        );
+
+        (new DockerUpgradeScaffoldMutator())->apply(
+            MutatorContext::fromVersionString(
+                $this->tmpDir,
+                '8.1.2',
+                'rel-810',
+                null,
+                '8.1.1',
+            ),
+        );
+        $next = file_get_contents($this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh');
+        self::assertIsString($next);
+        self::assertStringContainsString('priorOpenemrVersion="8.1.1"', $next);
+        self::assertStringContainsString('#  From prior version 8.1.1 ', $next);
+    }
+
+    public function testThrowsWhenSqlScanYieldsVersionEqualToTarget(): void
+    {
+        // Simulates the bug shape: sql/ already contains a bridge whose
+        // left equals the target version (as if the sibling
+        // SqlUpgradeSkeletonMutator ran BEFORE us on master-side, or a
+        // stale sql tree was checked out). Invariant fires with a
+        // pointed message rather than emitting a corrupt fsupgrade.
+        foreach (glob($this->tmpDir . '/sql/*_upgrade.sql') ?: [] as $f) {
+            unlink($f);
+        }
+        file_put_contents(
+            $this->tmpDir . '/sql/8_2_0-to-8_3_0_upgrade.sql',
+            "-- shouldn't be here yet\n",
+        );
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches(
+            '/priorOpenemrVersion 8\.2\.0 must be strictly less than target 8\.2\.0.*SqlUpgradeSkeletonMutator ran before DockerUpgradeScaffoldMutator/s',
+        );
+        (new DockerUpgradeScaffoldMutator())->apply($this->context());
+    }
+
+    public function testThrowsWhenSqlScanYieldsVersionGreaterThanTarget(): void
+    {
+        // Extreme regression signal: sql/ already contains a bridge
+        // with a left > target (e.g., a checkout from a much newer line).
+        foreach (glob($this->tmpDir . '/sql/*_upgrade.sql') ?: [] as $f) {
+            unlink($f);
+        }
+        file_put_contents(
+            $this->tmpDir . '/sql/9_0_0-to-9_1_0_upgrade.sql',
+            "-- future bridge\n",
+        );
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches(
+            '/priorOpenemrVersion 9\.0\.0 must be strictly less than target 8\.2\.0/',
+        );
+        (new DockerUpgradeScaffoldMutator())->apply($this->context());
+    }
+
+    public function testThrowsWhenSqlHasNoUpgradeBridge(): void
+    {
+        // Rel-side branch-cut in a hypothetical fully-empty sql/ dir:
+        // the derivation can't complete; surface a clear message rather
+        // than proceed with a bogus value.
+        foreach (glob($this->tmpDir . '/sql/*_upgrade.sql') ?: [] as $f) {
+            unlink($f);
+        }
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches(
+            '/Cannot derive priorOpenemrVersion.*no sql\/.*_upgrade\.sql files/',
+        );
+        (new DockerUpgradeScaffoldMutator())->apply($this->context());
+    }
+
+    public function testThrowsWhenPriorFsupgradeLacksPriorOpenemrVersionAnchor(): void
+    {
+        // The prior fsupgrade file must carry a `priorOpenemrVersion="X.Y.Z"`
+        // marker — that's what the scaffold uses as the substitution
+        // anchor to derive the new file's marker. Strip it and expect
+        // a clear error rather than a silently corrupt output.
         $malformed = str_replace(
             'priorOpenemrVersion="8.1.0"',
             '# priorOpenemrVersion removed',
+            $this->fixture('fsupgrade-11.sh'),
+        );
+        file_put_contents(
+            $this->tmpDir . '/docker/release/upgrade/fsupgrade-11.sh',
+            $malformed,
+        );
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/cannot find priorOpenemrVersion/');
+        (new DockerUpgradeScaffoldMutator())->apply($this->context());
+    }
+
+    public function testThrowsWhenPriorFsupgradeLacksUpgradeNumberAnchor(): void
+    {
+        // The five-substitution schema is load-bearing. Strip the
+        // "Upgrade number N" header and expect the substitution loop
+        // to fail with a clear error.
+        $malformed = str_replace(
+            '# Upgrade number 11 for OpenEMR docker',
+            '# header stripped',
             $this->fixture('fsupgrade-11.sh'),
         );
         file_put_contents(
@@ -195,21 +321,31 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
         (new DockerUpgradeScaffoldMutator())->apply($this->context());
     }
 
-    public function testNoopWhenAlreadyAtPostCutState(): void
+    public function testNoopMasterSidePostScaffoldWithSqlSiblingOutputPresent(): void
     {
-        // Simulate the post-first-run state: docker-version bumped to
-        // 12 + fsupgrade-12.sh carrying this cut's target-version marker
-        // (priorOpenemrVersion="8.2.0" for the rel-820 cut — the version
-        // rel-820 is shipping and rel-830 would need to upgrade from).
-        // The mutator should recognise its own work and no-op cleanly.
+        // Master-side post-scaffold state: docker-version bumped to 12,
+        // fsupgrade-12.sh exists carrying priorOpenemrVersion="8.1.1",
+        // AND the sibling SqlUpgradeSkeletonMutator has run —
+        // sql/8_2_0-to-8_3_0_upgrade.sql is present alongside the
+        // pre-existing 8_1_1-to-8_2_0 bridge from setup. Idempotency
+        // relies on the "pre-scaffold view" derivation filtering out
+        // any sql bridge with left >= target (8.2.0), so 8.1.1 remains
+        // the highest LEFT and matches fsupgrade-12.sh's marker.
+        // Without that filter, the invariant would trip on the raw
+        // sql scan yielding "8.2.0".
         file_put_contents($this->tmpDir . '/docker-version', "12\n");
         file_put_contents($this->tmpDir . '/docker/release/upgrade/docker-version', "12\n");
         file_put_contents($this->tmpDir . '/sites/default/docker-version', "12\n");
         file_put_contents(
             $this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh',
             "#!/bin/bash\n# Upgrade number 12 for OpenEMR docker\n"
-            . 'priorOpenemrVersion="8.2.0"' . "\n"
+            . 'priorOpenemrVersion="8.1.1"' . "\n"
             . "# body preserved from prior file\n",
+        );
+        // SqlUpgradeSkeletonMutator's output on master-side.
+        file_put_contents(
+            $this->tmpDir . '/sql/8_2_0-to-8_3_0_upgrade.sql',
+            "-- master-side skeleton\n",
         );
 
         $result = (new DockerUpgradeScaffoldMutator())->apply($this->context());
@@ -218,10 +354,34 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
         self::assertSame("12", trim(file_get_contents($this->tmpDir . '/docker-version') ?: ''));
     }
 
+    public function testNoopRelSidePostScaffoldViaFsupgradeMarker(): void
+    {
+        // Rel-side post-scaffold state: there is no master-side sql
+        // bridge signal to key off (SqlUpgradeSkeletonMutator doesn't
+        // run on rel-side branch-cut). Instead, idempotency detects OUR
+        // work by matching fsupgrade-(current).sh's markers against
+        // what derivePriorOpenemrVersion produces RIGHT NOW: docker-version
+        // is bumped to 12, fsupgrade-12.sh has Upgrade number 12 and
+        // priorOpenemrVersion="8.1.1" (matches sql-scan of the setup
+        // fixture's 8_1_1-to-8_2_0 bridge).
+        file_put_contents($this->tmpDir . '/docker-version', "12\n");
+        file_put_contents($this->tmpDir . '/docker/release/upgrade/docker-version', "12\n");
+        file_put_contents($this->tmpDir . '/sites/default/docker-version', "12\n");
+        file_put_contents(
+            $this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh',
+            "#!/bin/bash\n# Upgrade number 12 for OpenEMR docker\n"
+            . 'priorOpenemrVersion="8.1.1"' . "\n"
+            . "# body preserved from prior file\n",
+        );
+
+        $result = (new DockerUpgradeScaffoldMutator())->apply($this->context());
+        self::assertFalse($result->changed());
+    }
+
     public function testNotNoopWhenCurrentDockerVersionFileLacksOurCutMarker(): void
     {
         // If a partial state exists (docker-version bumped to 12 but
-        // fsupgrade-12.sh lacks our cut's target-version marker — e.g.,
+        // fsupgrade-12.sh lacks our cut's last-shipped marker — e.g.,
         // somebody manually edited the priorOpenemrVersion value), the
         // mutator should NOT no-op; it should attempt the work and let
         // the downstream anchor mismatch surface as a clear error
@@ -234,7 +394,7 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
         file_put_contents(
             $this->tmpDir . '/docker/release/upgrade/fsupgrade-12.sh',
             "#!/bin/bash\n# Upgrade number 12 for OpenEMR docker\n"
-            . 'priorOpenemrVersion="8.1.0"' . "\n"
+            . 'priorOpenemrVersion="8.0.5"' . "\n"
             . "echo doing real work\n",
         );
 
@@ -251,6 +411,7 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
             $this->tmpDir,
             $this->tmpDir . '/docker/release/upgrade',
             $this->tmpDir . '/sites/default',
+            $this->tmpDir . '/sql',
         ];
         foreach ($dirs as $d) {
             if (!is_dir($d) && !mkdir($d, 0700, true)) {
@@ -267,6 +428,13 @@ final class DockerUpgradeScaffoldMutatorTest extends TestCase
         file_put_contents(
             $this->tmpDir . '/docker/release/Dockerfile',
             $this->fixture('Dockerfile.input'),
+        );
+        // Seed sql/ with an 8_1_1-to-8_2_0_upgrade.sql bridge so the
+        // mutator's sql-scan derivation resolves priorOpenemrVersion to
+        // "8.1.1" (the last shipped version before the rel-820 cut).
+        file_put_contents(
+            $this->tmpDir . '/sql/8_1_1-to-8_2_0_upgrade.sql',
+            "-- last shipped bridge fixture\n",
         );
     }
 
