@@ -157,6 +157,30 @@ final readonly class DockerUpgradeScaffoldMutator implements MutatorInterface
         $priorStubRelPath = self::UPGRADE_DIR . '/fsupgrade-' . $current . '.sh';
         $priorStubAbs = $projectDir . '/' . $priorStubRelPath;
 
+        // Validate + derive everything that can throw BEFORE any
+        // destructive writes. Otherwise a mid-flight failure (unreadable
+        // prior fsupgrade, missing marker, invariant violation) would
+        // leave docker-version files bumped without the paired new
+        // fsupgrade — a partial state that's harder to recover from
+        // than a clean throw.
+        $priorContents = file_get_contents($priorStubAbs);
+        if ($priorContents === false) {
+            throw new \RuntimeException('Cannot read ' . $priorStubAbs);
+        }
+        $priorFileMarker = $this->extractPriorMarkerFromFsupgrade($priorContents, $priorStubAbs);
+        // The `priorOpenemrVersion` marker in the prior file is the
+        // PRIOR CYCLE's value (e.g. "8.1.0" in fsupgrade-11.sh, from the
+        // rel-810 cut). That's the search anchor. The REPLACEMENT is
+        // this cut's derived last-shipped value (e.g. "8.1.1" for rel-820).
+        $nextContents = $this->deriveNextFromPrior(
+            $priorContents,
+            $current,
+            $next,
+            $priorFileMarker,
+            $priorOpenemrVersion,
+            $priorStubAbs,
+        );
+
         $changedFiles = [];
 
         // (1) Bump the three docker-version files.
@@ -168,25 +192,8 @@ final readonly class DockerUpgradeScaffoldMutator implements MutatorInterface
             $changedFiles[] = $relPath;
         }
 
-        // (2) Create the next fsupgrade-(N+1).sh by copying the prior
-        // file in full and applying the five line-level substitutions.
-        // The `priorOpenemrVersion` marker in the prior file is the
-        // PRIOR CYCLE's value (e.g. "8.1.0" in fsupgrade-11.sh, from the
-        // rel-810 cut). That's the search anchor. The REPLACEMENT is
-        // this cut's derived last-shipped value (e.g. "8.1.1" for rel-820).
-        $priorContents = file_get_contents($priorStubAbs);
-        if ($priorContents === false) {
-            throw new \RuntimeException('Cannot read ' . $priorStubAbs);
-        }
-        $priorFileMarker = $this->extractPriorMarkerFromFsupgrade($priorContents, $priorStubAbs);
-        $nextContents = $this->deriveNextFromPrior(
-            $priorContents,
-            $current,
-            $next,
-            $priorFileMarker,
-            $priorOpenemrVersion,
-            $priorStubAbs,
-        );
+        // (2) Write the next fsupgrade-(N+1).sh (contents pre-derived
+        // above so the write itself cannot throw a parse/marker error).
         if (file_put_contents($nextStubAbs, $nextContents) === false) {
             throw new \RuntimeException('Cannot write ' . $nextStubAbs);
         }
