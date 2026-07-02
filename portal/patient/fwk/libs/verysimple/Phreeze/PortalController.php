@@ -750,7 +750,7 @@ abstract class PortalController
      * Assigns a variable to the view
      *
      * @param string $varname
-     * @param variant $varval
+     * @param mixed $varval
      */
     protected function Assign($varname, $varval)
     {
