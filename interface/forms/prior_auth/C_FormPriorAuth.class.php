@@ -14,6 +14,8 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/libr
 require_once("FormPriorAuth.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -61,13 +63,15 @@ class C_FormPriorAuth extends Controller
 
 
         $this->form->persist();
-        if (OEGlobalsBag::getInstance()->get('encounter') == "") {
-            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
+        $encounter = EncounterSessionUtil::getEncounter();
+        if ($encounter === 0) {
+            EncounterSessionUtil::setEncounter('0');
+            $encounter = EncounterSessionUtil::getEncounter();
         }
 
         if (empty($_POST['id'])) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            addForm(OEGlobalsBag::getInstance()->get('encounter'), "Prior Authorization", $this->form->id, "prior_auth", OEGlobalsBag::getInstance()->get('pid'), $session->get('userauthorized'));
+            addForm($encounter, "Prior Authorization", $this->form->id, "prior_auth", PatientSessionUtil::getPid(), $session->get('userauthorized'));
             $_POST['process'] = "";
         }
         return;
