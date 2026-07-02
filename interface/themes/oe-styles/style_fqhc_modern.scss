@@ -1,0 +1,242 @@
+/*
+*
+*   FQHC Modern Theme for OpenEMR
+*   Based on the Light Theme, restyled with the FQHC module's design tokens
+*   (see interface/modules/custom_modules/oe-module-fqhc/public/assets/css/tokens.css)
+*   so the certified core screens (login, patient finder, new patient,
+*   demographics) share the same visual language as the newer FQHC module
+*   screens: a teal/slate palette, Inter-first type, softer radius and
+*   elevation than stock Bootstrap 4.
+*
+*   This is purely additive — selectable from Administration > Globals >
+*   Appearance > Theme. The certified default theme is untouched.
+*
+*/
+
+/* ------------------------------------------------------------------
+ * Palette overrides (must be set before default-variables.scss / Bootstrap
+ * import below, since Bootstrap's own variables are declared !default).
+ *
+ * Note: in this fork's theme-colors map, "primary" is sourced from $blue,
+ * "success" from $green, "danger" from $red, "warning" from $yellow, and
+ * "info" from $cyan — see interface/themes/default-variables.scss.
+ * ------------------------------------------------------------------ */
+
+/* FQHC token colors (mirrors tokens.css) */
+$blue: #0f766e; // teal-700 -> Bootstrap "primary"
+$green: #15803d; // -> "success"
+$red: #b91c1c; // -> "danger"
+$yellow: #b45309; // -> "warning" (dark amber; Bootstrap's color-yiq() picks readable text automatically)
+$cyan: #1d4ed8; // -> "info"
+
+/* Slate grayscale (mirrors tokens.css --fqhc-* surface/border/text scale) */
+$white: #ffffff;
+$gray-100: #f1f5f9; // slate-100
+$gray-200: #e2e8f0; // slate-200 == --fqhc-border
+$gray-300: #cbd5e1; // slate-300 == --fqhc-border-strong
+$gray-400: #94a3b8; // slate-400
+$gray-500: #64748b; // slate-500 == --fqhc-text-muted
+$gray-600: #475569; // slate-600 == --fqhc-color-neutral
+$gray-700: #334155; // slate-700
+$gray-800: #1e293b; // slate-800
+$gray-900: #0f172a; // slate-900 == --fqhc-text
+$black: $gray-900;
+
+$ovr-dark: $gray-800;
+$ovr-light: $white;
+
+$light: $gray-100;
+$dark: $gray-800;
+$gray: $gray-500;
+$gray-dark: $gray-800;
+
+/* Section/card-header bars (.bg-secondary) use a deep teal instead of stock
+   Bootstrap navy, so they read as on-brand rather than harsh. */
+$secondary-color: #115e59; // teal-800 == --fqhc-color-primary-strong
+
+$link-color: #4f46e5; // indigo-600 == --fqhc-color-accent
+
+$body-bg: #f8fafc; // slate-50 == --fqhc-surface-page
+$body-color: $gray-900;
+
+/* Typography */
+$font-family-sans-serif: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif !default;
+$font-size-base: 1rem;
+$rfs-base-value: 1rem;
+
+/* Softer, more modern geometry than Bootstrap's default 0.25rem radius.
+   $card-border-radius / $btn-border-radius / $input-border-radius all
+   default to $border-radius in Bootstrap 4, so this one override cascades. */
+$border-radius: 0.625rem; // 10px == --fqhc-radius-md
+$border-radius-sm: 0.375rem; // 6px == --fqhc-radius-sm
+$border-radius-lg: 1rem; // 16px == --fqhc-radius-lg
+
+/* Soft elevation instead of Bootstrap's default flat/heavy shadows. */
+$box-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06); // == --fqhc-shadow-sm
+$box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08); // == --fqhc-shadow-md
+$box-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12); // == --fqhc-shadow-lg
+
+/* Bring in theme defaults so they use this palette (also builds the $colors
+   map that Bootstrap's _root.scss turns into --primary/--gray300/etc. CSS
+   custom properties, which interface/main/finder/patient_select.php reads
+   directly). */
+@import "../default-variables";
+
+// Import Bootstrap 4 SCSS Files before doing anything
+// This gets replaced in gulp now -- do not touch
+// bs4import
+
+// Fix Font Awesome fonts path
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+// Font Awesome Import
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../../public/assets/@fortawesome/fontawesome-free/scss/solid";
+
+/* Core OpenEMR imports (includes Select2 BS4 theme etc.) */
+@import "../core";
+
+/* Core defaults for themes */
+@import "../theme-defaults";
+
+@import "../navigation-slide/future-bootstrap";
+
+/* ------------------------------------------------------------------
+ * Global surface hardening
+ * ------------------------------------------------------------------ */
+
+html,
+body {
+  background-color: $body-bg;
+  color: $body-color;
+}
+
+.btn-primary,
+.btn-success,
+.btn-danger,
+.btn-info,
+.btn-warning,
+.btn-secondary {
+  color: #ffffff;
+}
+
+.btn-outline-primary,
+.btn-outline-success {
+  color: $blue;
+}
+
+.form-control,
+select,
+textarea,
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+.input-group-text {
+  background-color: #ffffff;
+  color: $body-color;
+  border-color: $gray-300;
+}
+
+.form-control:focus,
+select:focus,
+textarea:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  background-color: #ffffff;
+  color: $body-color;
+  border-color: lighten($blue, 10%);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.45); // == --fqhc-focus-ring
+}
+
+.card,
+.panel,
+.modal-content {
+  background-color: #ffffff;
+  color: $body-color;
+  box-shadow: $box-shadow-sm;
+}
+
+.text-muted {
+  color: $gray-500 !important;
+}
+
+/* ------------------------------------------------------------------
+ * Login screen (templates/login/*.html.twig — .box / .band card wrapper)
+ * ------------------------------------------------------------------ */
+
+.box,
+.band,
+.vertical-band {
+  border-radius: $border-radius-lg;
+  box-shadow: $box-shadow;
+  border: none;
+}
+
+/* ------------------------------------------------------------------
+ * Patient Finder (interface/main/finder/patient_select.php)
+ * Reads var(--gray300)/var(--gray)/var(--white)/var(--gray200)/var(--danger)/
+ * var(--primary) directly — those inherit the palette above automatically
+ * via Bootstrap's generated :root custom properties. These rules just
+ * soften the borders/hover state on top of that.
+ * ------------------------------------------------------------------ */
+
+#searchResultsHeader {
+  border-radius: $border-radius-sm $border-radius-sm 0 0;
+}
+
+#searchResults table {
+  border-radius: 0 0 $border-radius-sm $border-radius-sm;
+}
+
+#searchResults td {
+  border-bottom: 1px solid $gray-200;
+}
+
+#searchResults tr.oneresult:hover {
+  background-color: $gray-100 !important;
+}
+
+/* ------------------------------------------------------------------
+ * New Patient form (interface/new/new_comprehensive.php — the whole
+ * section/card pattern lives inside <form id="DEM">).
+ * .bg-secondary bars already recolor via $secondary-color above; this
+ * just tidies spacing/radius on the repeated card/section pattern.
+ * ------------------------------------------------------------------ */
+
+#DEM .card {
+  border-radius: $border-radius;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+#DEM .card-header.bg-secondary {
+  border-radius: 0;
+}
+
+#DEM .btn-link.text-light {
+  padding: 0.6rem 1rem;
+}
+
+/* ------------------------------------------------------------------
+ * Demographics summary (interface/patient_file/summary/demographics.php,
+ * body class "patient-demographic"; cards from
+ * templates/patient/card/card_base.html.twig)
+ * ------------------------------------------------------------------ */
+
+body.patient-demographic .card {
+  border-radius: $border-radius;
+  box-shadow: $box-shadow-sm;
+  border: 1px solid $gray-200;
+  margin-bottom: 0.75rem;
+}
+
+body.patient-demographic .card-title {
+  padding: 0.25rem 0.25rem 0;
+}
+
+/* Last: BS4/OpenEMR helper overrides */
+@import "../oe-bootstrap";
