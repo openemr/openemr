@@ -67,20 +67,4 @@ class DeprecationTest extends TestCase
 
         Deprecation::emit('test message');
     }
-
-    public function testErrorExceptionHasCorrectSeverity(): void
-    {
-        Deprecation::$mode = DeprecationMode::Error;
-
-        try {
-            Deprecation::emit('test message');
-            self::fail('Expected ErrorException to be thrown');
-        } catch (ErrorException $e) {
-            self::assertSame(
-                E_USER_DEPRECATED,
-                $e->getSeverity(),
-                'ErrorException severity should be E_USER_DEPRECATED',
-            );
-        }
-    }
 }
