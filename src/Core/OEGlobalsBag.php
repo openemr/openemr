@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Core;
 
+use OpenEMR\BC\Deprecation;
 use OpenEMR\Core\Traits\SingletonTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -36,6 +37,13 @@ class OEGlobalsBag extends ParameterBag
 {
     use SingletonTrait;
 
+    private const DEPRECATED_KEYS = [
+        'pid' => 'Use PatientSessionUtil::getPid() instead',
+        'encounter' => 'Use EncounterSessionUtil::getEncounter() instead',
+        'userauthorized' => 'Use $session->get(\'userauthorized\') instead',
+        'authUserID' => 'Use $session->get(\'authUserID\') instead',
+    ];
+
     protected static function createInstance(): static
     {
         /** @var array<string, mixed> $GLOBALS */
@@ -53,6 +61,14 @@ class OEGlobalsBag extends ParameterBag
 
     public function get(string $key, mixed $default = null): mixed
     {
+        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
+            Deprecation::warn(sprintf(
+                'Key "%s" will be removed from OEGlobalsBag. %s',
+                $key,
+                self::DEPRECATED_KEYS[$key],
+            ));
+        }
+
         // During the transition from $GLOBALS to OEGlobalsBag, legacy code may
         // still write to or unset from $GLOBALS directly. For the singleton
         // instance, use $GLOBALS as the sole source of truth.
