@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -111,7 +112,7 @@ function formJump($address = ''): void
 function formFetch($tableName, $id, $cols = "*", $activity = "1")
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), [$tableName]) . " from " . escape_table_name($tableName) . " where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", [$id,OEGlobalsBag::getInstance()->get('pid'),$activity]) ;
+    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), [$tableName]) . " from " . escape_table_name($tableName) . " where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", [$id, PatientSessionUtil::getPid(), $activity]);
 }
 
 function formDisappear($tableName, $id)
