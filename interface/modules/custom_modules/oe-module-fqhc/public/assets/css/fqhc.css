@@ -235,3 +235,99 @@
   padding-left: var(--fqhc-space-5);
   color: var(--fqhc-text-muted);
 }
+
+/* Card-per-row layout on phones (follow-up to #30): below 640px the table
+   stops being a table at all — each row becomes a bordered card, its first
+   cell as the card title and remaining cells as label/value pairs (label
+   from the now visually-hidden header via data-label), so there is no
+   sideways scroll to read a row. */
+@media (max-width: 639px) {
+  .fqhc-table-wrap {
+    overflow-x: visible;
+  }
+
+  .fqhc-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .fqhc-table,
+  .fqhc-table tbody,
+  .fqhc-table tfoot,
+  .fqhc-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .fqhc-table tbody tr,
+  .fqhc-table tfoot tr {
+    padding: var(--fqhc-space-3);
+    margin-bottom: var(--fqhc-space-3);
+    border: 1px solid var(--fqhc-border);
+    border-radius: var(--fqhc-radius-sm);
+  }
+
+  .fqhc-table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .fqhc-table td,
+  .fqhc-table tfoot th {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--fqhc-space-3);
+    text-align: right;
+    padding: var(--fqhc-space-1) 0;
+    border-bottom: none;
+  }
+
+  .fqhc-table td + td,
+  .fqhc-table tfoot th + th {
+    border-top: 1px solid var(--fqhc-border);
+    padding-top: var(--fqhc-space-2);
+    margin-top: var(--fqhc-space-1);
+  }
+
+  .fqhc-table td:first-child,
+  .fqhc-table tfoot th:first-child {
+    display: block;
+    text-align: left;
+    font-weight: var(--fqhc-font-weight-semibold);
+    color: var(--fqhc-text);
+    padding-bottom: var(--fqhc-space-2);
+    margin-bottom: var(--fqhc-space-1);
+    border-bottom: 1px solid var(--fqhc-border);
+  }
+
+  .fqhc-table td:not(:first-child)::before,
+  .fqhc-table tfoot th:not(:first-child)::before {
+    content: attr(data-label);
+    font-size: var(--fqhc-font-size-xs);
+    font-weight: var(--fqhc-font-weight-semibold);
+    color: var(--fqhc-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+  }
+
+  .fqhc-table-detail td:first-child {
+    padding-left: 0;
+    color: var(--fqhc-text-muted);
+    font-weight: var(--fqhc-font-weight-regular);
+  }
+
+  /* Desktop-only spacer cells in a tfoot row (e.g. a totals row that only
+     fills the label + one value column) carry no data, so drop them
+     entirely rather than showing an empty label/value pair. */
+  .fqhc-table tfoot th:empty {
+    display: none;
+  }
+}

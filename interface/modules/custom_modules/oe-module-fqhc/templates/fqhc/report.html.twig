@@ -65,10 +65,10 @@
               <thead><tr><th>Income band</th><th>Patients</th></tr></thead>
               <tbody>
                 {% for row in report.income.rows %}
-                  <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
+                  <tr><td>{{ row.label|e('html') }}</td><td data-label="Patients">{{ row.count }}</td></tr>
                 {% endfor %}
               </tbody>
-              <tfoot><tr><th>Total patients</th><th>{{ report.income.total }}</th></tr></tfoot>
+              <tfoot><tr><th>Total patients</th><th data-label="Patients">{{ report.income.total }}</th></tr></tfoot>
             </table>
           </div>
         </fqhc-card>
@@ -81,13 +81,13 @@
                 {% for row in report.insurance.rows %}
                   <tr>
                     <td>{{ row.label|e('html') }}</td>
-                    <td>{{ row.age0to17 }}</td>
-                    <td>{{ row.age18AndOver }}</td>
-                    <td>{{ row.total }}</td>
+                    <td data-label="0–17">{{ row.age0to17 }}</td>
+                    <td data-label="18 and over">{{ row.age18AndOver }}</td>
+                    <td data-label="Total">{{ row.total }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
-              <tfoot><tr><th>Total patients</th><th></th><th></th><th>{{ report.insurance.total }}</th></tr></tfoot>
+              <tfoot><tr><th>Total patients</th><th></th><th></th><th data-label="Total">{{ report.insurance.total }}</th></tr></tfoot>
             </table>
           </div>
         </fqhc-card>
@@ -98,7 +98,7 @@
               <thead><tr><th>Population</th><th>Patients</th></tr></thead>
               <tbody>
                 {% for row in report.specialPopulations %}
-                  <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
+                  <tr><td>{{ row.label|e('html') }}</td><td data-label="Patients">{{ row.count }}</td></tr>
                 {% endfor %}
               </tbody>
             </table>
@@ -113,14 +113,14 @@
                 {% for row in report.ageSex.rows %}
                   <tr>
                     <td>{{ row.label|e('html') }}</td>
-                    <td>{{ row.male }}</td>
-                    <td>{{ row.female }}</td>
-                    <td>{{ row.total }}</td>
+                    <td data-label="Male">{{ row.male }}</td>
+                    <td data-label="Female">{{ row.female }}</td>
+                    <td data-label="Total">{{ row.total }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
               <tfoot>
-                <tr><th>Total patients</th><th>{{ report.ageSex.male }}</th><th>{{ report.ageSex.female }}</th><th>{{ report.ageSex.total }}</th></tr>
+                <tr><th>Total patients</th><th data-label="Male">{{ report.ageSex.male }}</th><th data-label="Female">{{ report.ageSex.female }}</th><th data-label="Total">{{ report.ageSex.total }}</th></tr>
               </tfoot>
             </table>
           </div>
@@ -134,15 +134,15 @@
                 {% for row in report.race.rows %}
                   <tr class="{{ row.detail ? 'fqhc-table-detail' : '' }}">
                     <td>{{ row.label|e('html') }}</td>
-                    <td>{{ row.hispanic }}</td>
-                    <td>{{ row.notHispanic }}</td>
-                    <td>{{ row.unreported }}</td>
-                    <td>{{ row.total }}</td>
+                    <td data-label="Hispanic">{{ row.hispanic }}</td>
+                    <td data-label="Not Hispanic">{{ row.notHispanic }}</td>
+                    <td data-label="Unreported">{{ row.unreported }}</td>
+                    <td data-label="Total">{{ row.total }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
               <tfoot>
-                <tr><th>Total patients</th><th>{{ report.race.hispanic }}</th><th>{{ report.race.notHispanic }}</th><th>{{ report.race.unreported }}</th><th>{{ report.race.total }}</th></tr>
+                <tr><th>Total patients</th><th data-label="Hispanic">{{ report.race.hispanic }}</th><th data-label="Not Hispanic">{{ report.race.notHispanic }}</th><th data-label="Unreported">{{ report.race.unreported }}</th><th data-label="Total">{{ report.race.total }}</th></tr>
               </tfoot>
             </table>
           </div>
@@ -157,16 +157,16 @@
                 {% for row in report.zip.rows %}
                   <tr>
                     <td>{{ row.label|e('html') }}</td>
-                    <td>{{ row.uninsured }}</td>
-                    <td>{{ row.publicInsurance }}</td>
-                    <td>{{ row.medicare }}</td>
-                    <td>{{ row.private }}</td>
-                    <td>{{ row.total }}</td>
+                    <td data-label="Uninsured">{{ row.uninsured }}</td>
+                    <td data-label="Medicaid / CHIP / Other Public">{{ row.publicInsurance }}</td>
+                    <td data-label="Medicare">{{ row.medicare }}</td>
+                    <td data-label="Private">{{ row.private }}</td>
+                    <td data-label="Total">{{ row.total }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
               <tfoot>
-                <tr><th>Total patients</th><th>{{ report.zip.uninsured }}</th><th>{{ report.zip.publicInsurance }}</th><th>{{ report.zip.medicare }}</th><th>{{ report.zip.private }}</th><th>{{ report.zip.total }}</th></tr>
+                <tr><th>Total patients</th><th data-label="Uninsured">{{ report.zip.uninsured }}</th><th data-label="Medicaid / CHIP / Other Public">{{ report.zip.publicInsurance }}</th><th data-label="Medicare">{{ report.zip.medicare }}</th><th data-label="Private">{{ report.zip.private }}</th><th data-label="Total">{{ report.zip.total }}</th></tr>
               </tfoot>
             </table>
           </div>
@@ -180,15 +180,15 @@
                 {% for row in table5.rows %}
                   <tr>
                     <td>{{ row.label|e('html') }}</td>
-                    <td>{{ row.clinic }}</td>
-                    <td>{{ row.virtual }}</td>
-                    <td>{{ row.visits }}</td>
-                    <td>{{ row.patients }}</td>
+                    <td data-label="In-person">{{ row.clinic }}</td>
+                    <td data-label="Virtual">{{ row.virtual }}</td>
+                    <td data-label="Total visits">{{ row.visits }}</td>
+                    <td data-label="Patients">{{ row.patients }}</td>
                   </tr>
                 {% endfor %}
               </tbody>
               <tfoot>
-                <tr><th>Total</th><th>{{ table5.clinic }}</th><th>{{ table5.virtual }}</th><th>{{ table5.visits }}</th><th>{{ table5.patients }}</th></tr>
+                <tr><th>Total</th><th data-label="In-person">{{ table5.clinic }}</th><th data-label="Virtual">{{ table5.virtual }}</th><th data-label="Total visits">{{ table5.visits }}</th><th data-label="Patients">{{ table5.patients }}</th></tr>
               </tfoot>
             </table>
           </div>
@@ -203,11 +203,11 @@
                 {% for row in table6b.rows %}
                   <tr>
                     <td>{{ row.label|e('html') }}</td>
-                    <td>{{ row.cmsId|e('html') }}</td>
-                    <td>{{ row.computed ? row.denominator : '—' }}</td>
-                    <td>{{ row.computed ? row.numerator : '—' }}</td>
-                    <td>{{ row.computed and row.rate is not null ? (row.rate * 100)|round(1) ~ '%' : '—' }}</td>
-                    <td>
+                    <td data-label="eCQM">{{ row.cmsId|e('html') }}</td>
+                    <td data-label="Denominator">{{ row.computed ? row.denominator : '—' }}</td>
+                    <td data-label="Numerator">{{ row.computed ? row.numerator : '—' }}</td>
+                    <td data-label="Rate">{{ row.computed and row.rate is not null ? (row.rate * 100)|round(1) ~ '%' : '—' }}</td>
+                    <td data-label="Status">
                       {% if row.computed %}
                         <fqhc-status-badge variant="success">Computed</fqhc-status-badge>
                       {% else %}
@@ -230,8 +230,8 @@
                 {% for row in table7.rows %}
                   <tr>
                     <td>{{ row.label|e('html') }}</td>
-                    <td>{{ row.computed and row.rate is not null ? (row.rate * 100)|round(1) ~ '%' : '—' }}</td>
-                    <td>
+                    <td data-label="Rate">{{ row.computed and row.rate is not null ? (row.rate * 100)|round(1) ~ '%' : '—' }}</td>
+                    <td data-label="Status">
                       {% if row.computed %}
                         <fqhc-status-badge variant="success">Computed</fqhc-status-badge>
                       {% else %}

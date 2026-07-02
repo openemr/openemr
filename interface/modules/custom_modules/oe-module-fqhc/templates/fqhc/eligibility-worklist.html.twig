@@ -50,7 +50,7 @@
             <thead><tr><th>Gap</th><th>Patients</th></tr></thead>
             <tbody>
               {% for row in worklist.gapCounts %}
-                <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
+                <tr><td>{{ row.label|e('html') }}</td><td data-label="Patients">{{ row.count }}</td></tr>
               {% endfor %}
             </tbody>
           </table>
@@ -70,7 +70,7 @@
                 {% for row in worklist.rows %}
                   <tr>
                     <td>{{ row.pid }}</td>
-                    <td>{{ row.gaps|join(', ')|e('html') }}</td>
+                    <td data-label="Gaps">{{ row.gaps|join(', ')|e('html') }}</td>
                     <td><a class="fqhc-button" href="{{ (patientBaseUrl ~ '?set_pid=' ~ row.pid)|e('html_attr') }}">Open patient</a></td>
                   </tr>
                 {% endfor %}
