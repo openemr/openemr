@@ -15,6 +15,7 @@ use Exception;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
@@ -283,7 +284,7 @@ class RCFaxClient extends AppDispatch
         // Check if the content is from patient report
         if ($isContent) {
             $content = $file;
-            $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
+            $file = 'report-' . attr(PatientSessionUtil::getPid()) . '.pdf';
         } else {
             // Is it from patient documents
             if ($isDocuments) {
