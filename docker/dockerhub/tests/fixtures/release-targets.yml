@@ -1,5 +1,5 @@
 # Synthetic release-targets fixture for the golden-file test in
-# docker/dockerhub/tests/golden-test.sh. Designed to exercise the four
+# docker/dockerhub/tests/golden-test.sh. Designed to exercise the five
 # patterns the renderer should handle:
 #
 #   1. Master-style row: combined dev + next floating tags alongside a
@@ -9,6 +9,10 @@
 #   3. Multi-version-tag row: both base and base.realpatch in docker_tags,
 #      matching the rel-800 pattern of 8.0.0 + 8.0.0.3.
 #   4. Minimal row: a single version-number tag, no floating alias.
+#   5. Multi-row-per-branch + unreleased placeholder: second rel-fix row
+#      with unreleased: true (consumers skip it). Locks in regression
+#      coverage for the multi-row + skip mechanism independent of whether
+#      live release-targets.yml currently has an unreleased row.
 #
 # Branch names are deliberately fictional (rel-fix, rel-old, rel-ancient)
 # so the test isn't tracking the live release-targets.yml's content.
@@ -20,6 +24,14 @@
 - branch: rel-fix
   docker_tags: 8.5.0,latest
   openemr_version_ref: v8_5_0
+
+# Multi-row + unreleased placeholder for the rel-fix branch. The renderer
+# must skip this row entirely; golden.md should be byte-identical with or
+# without it. Catches regressions to the consumer-side skip logic.
+- branch: rel-fix
+  docker_tags: 8.4.0
+  openemr_version_ref: v8_4_0
+  unreleased: true
 
 - branch: rel-old
   docker_tags: 7.0.0,7.0.0.5

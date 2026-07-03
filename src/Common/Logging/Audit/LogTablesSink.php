@@ -35,7 +35,7 @@ readonly class LogTablesSink implements SinkInterface
     ) {
     }
 
-    public function record(Event $event): bool
+    public function record(Event $event): void
     {
         $api = $event->api;
 
@@ -97,7 +97,5 @@ readonly class LogTablesSink implements SinkInterface
         if ($api !== null) {
             $this->conn->insert('api_log', $apiLogData);
         }
-
-        return true;
     }
 }

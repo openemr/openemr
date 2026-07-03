@@ -82,7 +82,7 @@ class EventAuditLogger
         );
 
         return new self(
-            sinks: $sinks,
+            sink: new Audit\MultiSink($sinks),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
@@ -90,16 +90,38 @@ class EventAuditLogger
         );
     }
 
-    /**
-     * @param Audit\SinkInterface[] $sinks
-     */
     public function __construct(
-        private readonly array $sinks,
+        private readonly Audit\SinkInterface $sink,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
         private readonly ClockInterface $clock,
     ) {
+    }
+
+    /**
+     * Determines whether a SQL event should be logged based on config settings
+     * and breakglass overrides.
+     */
+    private function shouldLogSqlEvent(string $user, string $querytype, string $event): bool
+    {
+        // Selects from uncategorized tables are never logged
+        if ($querytype === 'select' && $event === 'other') {
+            return false;
+        }
+
+        // Breakglass override: log everything for emergency access users,
+        // except uncategorized reads above (this has been preserved across
+        // refactors, not entirely clear if this was the originally intended
+        // behavior)
+        if ($this->config->forceBreakglass && $this->breakglassChecker->isBreakglassUser($user)) {
+            return true;
+        }
+
+        // Normal path: all config flags must be satisfied
+        return $this->config->enabled
+            && ($querytype !== 'select' || $this->config->queryEvents)
+            && $this->config->isEventTypeEnabled($event);
     }
 
     /**
@@ -407,15 +429,6 @@ class EventAuditLogger
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        $user = (string) ($this->session->get('authUser') ?? '');
-
-        /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (!$this->config->enabled) {
-            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
-                return;
-            }
-        }
-
         $statement = trim((string) $statement);
 
         if (
@@ -436,13 +449,6 @@ class EventAuditLogger
             if (stripos($statement, $qtype) === 0) {
                 $querytype = $qtype;
                 break;
-            }
-        }
-
-        /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !$this->config->queryEvents) {
-            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
-                return;
             }
         }
 
@@ -498,13 +504,10 @@ class EventAuditLogger
             }
         }
 
-        /* Avoid filling the audit log with trivial SELECT statements.
-         * Skip SELECTs from unknown tables.
-         */
-        if ($querytype == "select") {
-            if ($event == "other") {
-                return;
-            }
+        // Now that we know _what_ to log, check _if_ it should be logged
+        $user = (string) ($this->session->get('authUser') ?? '');
+        if (!$this->shouldLogSqlEvent($user, $querytype, $event)) {
+            return;
         }
 
         /* If the event is a patient-record, then note the patient id */
@@ -514,10 +517,6 @@ class EventAuditLogger
             if ($sessionPid !== null && $sessionPid != '') {
                 $pid = $sessionPid;
             }
-        }
-
-        if (!$this->config->isEventTypeEnabled($event) && (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user))) {
-            return;
         }
 
         $event = $event . "-" . $querytype;
@@ -694,9 +693,7 @@ class EventAuditLogger
             $api,
         );
 
-        foreach ($this->sinks as $sink) {
-            $sink->record($auditEvent);
-        }
+        $this->sink->record($auditEvent);
     }
 
     /**

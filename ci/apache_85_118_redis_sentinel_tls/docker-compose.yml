@@ -242,7 +242,7 @@ services:
 
   # ---------- OpenEMR: add TLS env vars + cert volume ----------
   openemr:
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:e27b64d17e0bb0a63ca97a7d95832ea3e892b8129e6b5205e13519a913dcd013
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:c2a14c13df98e597558aa35d7f4c8306a3a6c3f36ae01fe3cef24ea84bd0bd99
     environment:
       REDIS_TLS: "yes"
       REDIS_TLS_CERT_KEY_PATH: /redis-certs
@@ -253,7 +253,7 @@ services:
         condition: service_completed_successfully
 
   mysql:
-    image: mariadb:11.8.8@sha256:be1ef4fe5f14589325c08a41c76334097ce66c86264b75e1d28342c742782a61
+    image: mariadb:11.8.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
 
 volumes:
   redis-certs:

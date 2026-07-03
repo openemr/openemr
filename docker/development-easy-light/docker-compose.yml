@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.8.8@sha256:be1ef4fe5f14589325c08a41c76334097ce66c86264b75e1d28342c742782a61
+    image: mariadb:11.8.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
     command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:e27b64d17e0bb0a63ca97a7d95832ea3e892b8129e6b5205e13519a913dcd013
+    image: openemr/openemr:flex@sha256:c2a14c13df98e597558aa35d7f4c8306a3a6c3f36ae01fe3cef24ea84bd0bd99
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -45,6 +45,17 @@ services:
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
     environment:
+      # HOST_UID/HOST_GID let the entrypoint adopt the host user's uid for
+      # apache (see docker/flex/openemr.sh — adoption is a no-op when these
+      # default to 1000). Without override, behavior matches the original
+      # Dockerfile-baked uid=1000. Override (e.g. `HOST_UID=$(id -u)
+      # docker compose up`) so apache writes bind-mount files as your host
+      # user — eliminates the uid-mismatch class of bugs for any host whose
+      # uid != 1000 (CI runners, multi-user dev boxes, distros that start
+      # uids at 1001+, macOS via Docker Desktop). Always exported by
+      # openemr-cmd, optional everywhere else.
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: "true"
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -93,7 +104,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:51b74806646fb15aa59df2a2e73573969a44f4b7d4729e4a5c4ba364bc20ec77
+    image: phpmyadmin:5.2.3@sha256:aa4e217ae760c8f609840c28f612d86d017db5e37b5d4543764309f28fba2eb8
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
