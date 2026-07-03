@@ -27,6 +27,7 @@ class InternalToCdaConverter
     private DOMDocument $output;
     private DOMDocument $input;
     private DOMXPath $inputXpath;
+    private int $clinicalNoteRefCounter = 0;
 
     public function convert(string $internalXml): string
     {
@@ -207,7 +208,7 @@ class InternalToCdaConverter
         $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
 
         $useablePeriod = $this->output->createElement('useablePeriod');
-        $useablePeriod->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_TS');
+        $this->setXsiType($useablePeriod, 'IVL_TS');
         $low = $this->createElement('low');
         $low->setAttribute('value', date('Ymd'));
         $useablePeriod->appendChild($low);
@@ -307,10 +308,7 @@ class InternalToCdaConverter
         $raceCode = $this->xpathValue('/CCDA/patient/race_code');
         $race = $this->xpathValue('/CCDA/patient/race');
         $raceEl = $this->createElement('raceCode');
-        $raceEl->setAttribute('displayName', $race);
-        $raceEl->setAttribute('code', $raceCode);
-        $raceEl->setAttribute('codeSystem', '2.16.840.1.113883.6.238');
-        $raceEl->setAttribute('codeSystemName', 'Race and Ethnicity - CDC');
+        $this->applyCodedOrNullFlavor($raceEl, $raceCode, $race, '2.16.840.1.113883.6.238', 'Race and Ethnicity - CDC');
         $patient->appendChild($raceEl);
 
         $sdtcRace = $this->output->createElementNS(self::NS_SDTC, 'sdtc:raceCode');
@@ -326,10 +324,7 @@ class InternalToCdaConverter
         $ethnicityCode = $this->xpathValue('/CCDA/patient/ethnicity_code');
         $ethnicity = $this->xpathValue('/CCDA/patient/ethnicity');
         $ethnicEl = $this->createElement('ethnicGroupCode');
-        $ethnicEl->setAttribute('displayName', $ethnicity);
-        $ethnicEl->setAttribute('code', $ethnicityCode);
-        $ethnicEl->setAttribute('codeSystem', '2.16.840.1.113883.6.238');
-        $ethnicEl->setAttribute('codeSystemName', 'Race and Ethnicity - CDC');
+        $this->applyCodedOrNullFlavor($ethnicEl, $ethnicityCode, $ethnicity, '2.16.840.1.113883.6.238', 'Race and Ethnicity - CDC');
         $patient->appendChild($ethnicEl);
 
         $this->appendLanguageCommunication($patient);
@@ -432,6 +427,21 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystem', $this->xpathValue('/CCDA/author/physician_type_system'));
         $code->setAttribute('codeSystemName', $this->xpathValue('/CCDA/author/physician_type_system_name'));
         $assignedAuthor->appendChild($code);
+
+        // assignedAuthor SHALL contain at least one telecom (CONF:1198-5428);
+        // fall back to nullFlavor when no author contact number is available.
+        $authorPhone = $this->xpathValue('/CCDA/author/phone');
+        if ($authorPhone === '') {
+            $authorPhone = $this->xpathValue('/CCDA/author/telecom');
+        }
+        $authorTelecom = $this->createElement('telecom');
+        if ($authorPhone !== '') {
+            $authorTelecom->setAttribute('value', 'tel:' . $authorPhone);
+            $authorTelecom->setAttribute('use', 'WP');
+        } else {
+            $authorTelecom->setAttribute('nullFlavor', 'UNK');
+        }
+        $assignedAuthor->appendChild($authorTelecom);
 
         $addr = $this->createElement('addr');
         $addr->setAttribute('use', 'WP');
@@ -614,7 +624,21 @@ class InternalToCdaConverter
         if ($addrUse !== '') {
             $addr->setAttribute('use', $addrUse);
         }
+        $street = $this->xpathValue('street', $participantEl);
+        $city = $this->xpathValue('city', $participantEl);
+        $state = $this->xpathValue('state', $participantEl);
+        $postalCode = $this->xpathValue('postalCode', $participantEl);
+        if ($postalCode === '') {
+            $postalCode = $this->xpathValue('zip', $participantEl);
+        }
         $country = $this->xpathValue('country', $participantEl);
+        // Related Person addr: SHALL contain >=1 streetAddressLine and exactly
+        // one city; for a US address, state and postalCode are required and
+        // SHOULD carry nullFlavor when unknown.
+        $this->appendAddrPart($addr, 'streetAddressLine', $street);
+        $this->appendAddrPart($addr, 'city', $city);
+        $this->appendAddrPart($addr, 'state', $state);
+        $this->appendAddrPart($addr, 'postalCode', $postalCode);
         $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
         $associatedEntity->appendChild($addr);
 
@@ -994,13 +1018,13 @@ class InternalToCdaConverter
 
         $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.500', '2019-07-01');
 
-        // uniqueId
+        // uniqueId — Care Team Organizer SHALL contain at least one id
+        // (CONF:4435-126); use the facility OID when present, otherwise a
+        // generated UUID, so the required id is always emitted.
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
-        if ($facilityOid !== '') {
-            $id = $this->createElement('id');
-            $id->setAttribute('root', $facilityOid);
-            $organizer->appendChild($id);
-        }
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $facilityOid !== '' ? $facilityOid : $this->generateUuid());
+        $organizer->appendChild($id);
 
         $organizer->appendChild($this->createLoincCode('86744-0', 'Care Team Information'));
 
@@ -1048,13 +1072,12 @@ class InternalToCdaConverter
 
         $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.500.1', '2019-07-01');
 
-        // uniqueId
+        // uniqueId — Care Team Member Act SHALL contain at least one id
+        // (CONF:4435-162); generate a UUID root when no facility OID is present.
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
-        if ($facilityOid !== '') {
-            $id = $this->createElement('id');
-            $id->setAttribute('root', $facilityOid);
-            $act->appendChild($id);
-        }
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $facilityOid !== '' ? $facilityOid : $this->generateUuid());
+        $act->appendChild($id);
 
         $act->appendChild($this->createLoincCode('85847-2', 'Patient Care team information'));
 
@@ -1306,7 +1329,7 @@ class InternalToCdaConverter
 
         // Intolerance value
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', '420134006');
         $value->setAttribute('displayName', 'Propensity to adverse reactions to drug');
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
@@ -1405,7 +1428,7 @@ class InternalToCdaConverter
         $this->appendStatusCode($statusObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CE');
+        $this->setXsiType($value, 'CE');
         $value->setAttribute('code', $this->cleanCode($statusCode));
         $value->setAttribute('displayName', $statusTable);
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
@@ -1461,7 +1484,7 @@ class InternalToCdaConverter
         $reactionText = $this->xpathValue('reaction_text', $allergy);
         $reactionCode = $this->xpathValue('reaction_code', $allergy);
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         if ($reactionCode !== '' || $reactionText !== '') {
             $codeType = $this->xpathValue('reaction_code_type', $allergy);
             $value->setAttribute('code', $this->cleanCode($reactionCode));
@@ -1508,7 +1531,7 @@ class InternalToCdaConverter
         $this->appendStatusCode($sevObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', '0');
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED CT');
@@ -1550,7 +1573,7 @@ class InternalToCdaConverter
         $this->appendStatusCode($sevObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $outcomeCode !== '' ? $this->cleanCode($outcomeCode) : '0');
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED CT');
@@ -1620,7 +1643,7 @@ class InternalToCdaConverter
         $obs->appendChild($obsEffTime);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', '419199007');
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED-CT');
@@ -1727,7 +1750,7 @@ class InternalToCdaConverter
         $startDate = $this->xpathValue('start_date', $med);
         $endDate = $this->xpathValue('end_date', $med);
         $effTime1 = $this->output->createElement('effectiveTime');
-        $effTime1->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_TS');
+        $this->setXsiType($effTime1, 'IVL_TS');
         $low = $this->createElement('low');
         $low->setAttribute('value', $this->formatDateOnly($startDate));
         $effTime1->appendChild($low);
@@ -1742,7 +1765,7 @@ class InternalToCdaConverter
         // Node.js only renders period when there's actual data
         if ($dosageFloat > 0 || $interval !== '') {
             $effTime2 = $this->output->createElement('effectiveTime');
-            $effTime2->setAttributeNS(self::NS_XSI, 'xsi:type', 'PIVL_TS');
+            $this->setXsiType($effTime2, 'PIVL_TS');
             $effTime2->setAttribute('institutionSpecified', 'true');
             $effTime2->setAttribute('operator', 'A');
             $period = $this->createElement('period');
@@ -1844,8 +1867,22 @@ class InternalToCdaConverter
         if ($input === '' || $input === '0000-00-00' || (int) $input === 0) {
             return date('Ymd');
         }
-        $input = str_replace(['-', ' ', ':'], '', $input);
-        return substr($input, 0, 8);
+        // Bare HL7 date/datetime already leads with YYYYMMDD.
+        if (preg_match('/^\\d{8}/', $input) === 1) {
+            return substr($input, 0, 8);
+        }
+        // Parse recognizable separated formats (e.g. MM/DD/YYYY, YYYY-MM-DD)
+        // and normalize to the HL7 TS date form YYYYMMDD.
+        $timestamp = strtotime($input);
+        if ($timestamp !== false) {
+            return date('Ymd', $timestamp);
+        }
+        // Last resort: keep digits; if we have a full date assume YYYYMMDD.
+        $digits = preg_replace('/\\D+/', '', $input) ?? '';
+        if (strlen($digits) >= 8) {
+            return substr($digits, 0, 8);
+        }
+        return date('Ymd');
     }
 
     private function renderProblemsSection(DOMElement $structuredBody): void
@@ -2010,7 +2047,7 @@ class InternalToCdaConverter
         $codeType = $this->xpathValue('code_type', $problem);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         if ($problemCode !== '') {
             $codeSystemInfo = $this->mapCodeTypeToSystem($codeType);
             $normalizedCode = $this->normalizeCodeForSystem($problemCode, $codeType);
@@ -2067,7 +2104,7 @@ class InternalToCdaConverter
         $statusTable = $this->xpathValue('status_table', $problem);
         $statusCode = $this->xpathValue('status_code', $problem);
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         if ($statusTable === 'Resolved') {
             $value->setAttribute('code', '413322009');
             $value->setAttribute('displayName', 'Resolved');
@@ -2110,7 +2147,7 @@ class InternalToCdaConverter
         $this->appendStatusCode($healthObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', '81323004');
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED CT');
@@ -2148,7 +2185,7 @@ class InternalToCdaConverter
         $this->appendStatusCode($ageObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'PQ');
+        $this->setXsiType($value, 'PQ');
         $value->setAttribute('value', $age);
         $value->setAttribute('unit', 'a');
         $ageObs->appendChild($value);
@@ -2169,12 +2206,17 @@ class InternalToCdaConverter
         $section->appendChild($this->createElement('title', 'History of Procedures'));
 
         $procedures = $this->xpath('/CCDA/procedures/procedure');
-        $this->appendProceduresNarrative($section, $procedures);
+        if ($procedures->length === 0) {
+            $section->setAttribute('nullFlavor', 'NI');
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendProceduresNarrative($section, $procedures);
 
-        $index = 1;
-        foreach ($procedures as $proc) {
-            $this->appendProcedureEntry($section, $proc, $index);
-            $index++;
+            $index = 1;
+            foreach ($procedures as $proc) {
+                $this->appendProcedureEntry($section, $proc, $index);
+                $index++;
+            }
         }
 
         $this->appendSection($structuredBody, $component, $section);
@@ -2482,7 +2524,7 @@ class InternalToCdaConverter
         }
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', $valueType);
+        $this->setXsiType($value, $valueType);
         if ($valueType === 'PQ') {
             $value->setAttribute('value', $resultValue);
             $value->setAttribute('unit', $unit);
@@ -2519,7 +2561,7 @@ class InternalToCdaConverter
 
         if ($low !== '' || $high !== '') {
             $rangeValue = $this->output->createElement('value');
-            $rangeValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_PQ');
+            $this->setXsiType($rangeValue, 'IVL_PQ');
             if ($low !== '') {
                 $lowEl = $this->createElement('low');
                 $lowEl->setAttribute('value', $low);
@@ -2542,7 +2584,7 @@ class InternalToCdaConverter
             $obsRange->appendChild($rangeText);
         } else {
             $rangeValue = $this->output->createElement('value');
-            $rangeValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_PQ');
+            $this->setXsiType($rangeValue, 'IVL_PQ');
             $obsRange->appendChild($rangeValue);
         }
         $refRange->appendChild($obsRange);
@@ -2712,7 +2754,7 @@ class InternalToCdaConverter
             $act->appendChild($id);
 
             $actCode = $this->createElement('code');
-            $actCode->setAttributeNS(self::NS_XSI, 'xsi:type', 'CE');
+            $this->setXsiType($actCode, 'CE');
             $actCode->setAttribute('code', '29308-4');
             $actCode->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
             $actCode->setAttribute('codeSystemName', 'LOINC');
@@ -2790,7 +2832,7 @@ class InternalToCdaConverter
         $codeSystemInfo = $this->mapCodeTypeToSystem($codeType);
 
         $value = $this->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $code);
         $value->setAttribute('displayName', $text);
         $value->setAttribute('codeSystem', $codeSystemInfo['oid']);
@@ -3002,7 +3044,7 @@ class InternalToCdaConverter
 
         $administeredFormatted = $this->xpathValue('administered_formatted', $imm);
         $effTime = $this->output->createElement('effectiveTime');
-        $effTime->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_TS');
+        $this->setXsiType($effTime, 'IVL_TS');
         $low = $this->createElement('low');
         $low->setAttribute('value', $administeredFormatted);
         $effTime->appendChild($low);
@@ -3547,7 +3589,7 @@ class InternalToCdaConverter
         $obs->appendChild($effectiveTime);
 
         $valueEl = $this->output->createElement('value');
-        $valueEl->setAttributeNS(self::NS_XSI, 'xsi:type', 'PQ');
+        $this->setXsiType($valueEl, 'PQ');
         $valueEl->setAttribute('value', $value);
         if ($unit !== '') {
             $valueEl->setAttribute('unit', $unit);
@@ -3704,7 +3746,7 @@ class InternalToCdaConverter
         // Value (smoking status code)
         $description = $this->xpathValue('description', $item);
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $smokingCode = $this->mapSmokingStatusCode($description);
         if ($smokingCode['code'] !== null) {
             $value->setAttribute('code', $smokingCode['code']);
@@ -3780,7 +3822,7 @@ class InternalToCdaConverter
         $obs->appendChild($effTime);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
 
         $sexCode = $this->mapSexObservationCode($sexObservation);
         $value->setAttribute('code', $sexCode['code']);
@@ -3852,7 +3894,7 @@ class InternalToCdaConverter
         $this->appendStatusCode($obs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
 
         $genderCode = $this->mapAdminGenderCode($gender);
         $value->setAttribute('code', $genderCode['code']);
@@ -3986,7 +4028,7 @@ class InternalToCdaConverter
         // Value
         $occupationTitle = $this->xpathValue('/CCDA/patient/occupation/occupation_title');
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $occupationCode);
         $value->setAttribute('displayName', $occupationTitle);
         $value->setAttribute('codeSystem', '2.16.840.1.114222.4.5.327');
@@ -4041,7 +4083,7 @@ class InternalToCdaConverter
         $industryCode = $this->xpathValue('/CCDA/patient/occupation/industry/industry_code');
         $industryTitle = $this->xpathValue('/CCDA/patient/occupation/industry/industry_title');
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $industryCode);
         $value->setAttribute('displayName', $industryTitle);
         $value->setAttribute('codeSystem', '2.16.840.1.114222.4.5.327');
@@ -4088,7 +4130,7 @@ class InternalToCdaConverter
 
         // Value - tribal code is the title/name, not a coded value in the current implementation
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $tribalCode);
         $value->setAttribute('codeSystem', '2.16.840.1.113883.5.140');
         $value->setAttribute('codeSystemName', 'Tribal TribalEntityUS');
@@ -4139,7 +4181,7 @@ class InternalToCdaConverter
 
         $pregnancyTitle = $this->xpathValue('/CCDA/patient/sdoh_data/pregnancy_title');
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $pregnancyCode);
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED-CT');
@@ -4246,7 +4288,7 @@ class InternalToCdaConverter
 
         $score = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/score');
         $panelValue = $this->output->createElement('value');
-        $panelValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'INT');
+        $this->setXsiType($panelValue, 'INT');
         $panelValue->setAttribute('value', $score !== '' ? $score : '0');
         $panelObs->appendChild($panelValue);
 
@@ -4311,7 +4353,7 @@ class InternalToCdaConverter
         $answerDisplay = $this->xpathValue($basePath . '/answer_display');
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $answerCode);
         $value->setAttribute('displayName', $answerDisplay);
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
@@ -4359,7 +4401,7 @@ class InternalToCdaConverter
         if ($statusCode !== '') {
             $statusDisplay = $this->xpathValue('/CCDA/patient/sdoh_data/disability_assessment/overall_status/answer_display');
             $value = $this->output->createElement('value');
-            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            $this->setXsiType($value, 'CD');
             $value->setAttribute('code', $statusCode);
             $value->setAttribute('displayName', $statusDisplay);
             $value->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
@@ -4403,7 +4445,7 @@ class InternalToCdaConverter
             $this->appendStatusCode($qObs, ActStatus::Completed);
 
             $qValue = $this->output->createElement('value');
-            $qValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            $this->setXsiType($qValue, 'CD');
             $qValue->setAttribute('code', $answerCode);
             $qValue->setAttribute('displayName', $answerDisplay);
             $qValue->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
@@ -5171,7 +5213,9 @@ class InternalToCdaConverter
         $ext = $this->xpathValue('extension', $item);
         $id = $this->createElement('id');
         $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc809000');
-        $id->setAttribute('extension', $ext);
+        if ($ext !== '') {
+            $id->setAttribute('extension', $ext);
+        }
         $organizer->appendChild($id);
 
         // Code - Self-Care from ICF
@@ -5206,11 +5250,17 @@ class InternalToCdaConverter
         $obs->setAttribute('moodCode', 'EVN');
 
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.67', '2014-06-09');
+        // Self-Care Activities (ADL and IADL): the ICF self-care organizer
+        // requires its member observation to conform to this template
+        // (2.16.840.1.113883.10.20.22.4.128).
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.128');
 
         $ext = $this->xpathValue('extension', $item);
         $id = $this->createElement('id');
         $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc8090ab');
-        $id->setAttribute('extension', $ext);
+        if ($ext !== '') {
+            $id->setAttribute('extension', $ext);
+        }
         $obs->appendChild($id);
 
         // Code
@@ -5229,7 +5279,7 @@ class InternalToCdaConverter
 
         if ($itemCode !== '' || ($codeText !== '' && $codeText !== 'NULL')) {
             $value = $this->output->createElement('value');
-            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            $this->setXsiType($value, 'CD');
             if ($itemCode !== '') {
                 $value->setAttribute('code', $this->cleanCode($itemCode));
             }
@@ -5369,15 +5419,17 @@ class InternalToCdaConverter
 
         $section->appendChild($this->createElement('title', $title));
 
-        // Narrative table
-        $this->appendClinicalNoteNarrative($section, $notes);
+        // Narrative table (document-unique reference ids across all note sections)
+        $startIndex = $this->clinicalNoteRefCounter + 1;
+        $this->appendClinicalNoteNarrative($section, $notes, $startIndex);
 
         // Entries
-        $refIndex = 1;
+        $refIndex = $startIndex;
         foreach ($notes as $note) {
             $this->appendClinicalNoteEntry($section, $note, $refIndex);
             $refIndex++;
         }
+        $this->clinicalNoteRefCounter += count($notes);
 
         $component->appendChild($section);
         $structuredBody->appendChild($component);
@@ -5386,12 +5438,12 @@ class InternalToCdaConverter
     /**
      * @param list<DOMElement> $notes
      */
-    private function appendClinicalNoteNarrative(DOMElement $section, array $notes): void
+    private function appendClinicalNoteNarrative(DOMElement $section, array $notes, int $startIndex = 1): void
     {
         $text = $this->createElement('text');
         $table = $this->createNarrativeTable(['Summary', 'Author', 'Date']);
 
-        $refIndex = 1;
+        $refIndex = $startIndex;
         foreach ($notes as $note) {
             $description = $this->xpathValue('description', $note);
             $authorFname = $this->xpathValue('author/fname', $note);
@@ -5550,7 +5602,7 @@ class InternalToCdaConverter
 
         if ($itemCode !== '' || ($codeText !== '' && $codeText !== 'NULL')) {
             $value = $this->output->createElement('value');
-            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            $this->setXsiType($value, 'CD');
             if ($itemCode !== '') {
                 $value->setAttribute('code', $this->cleanCode($itemCode));
             }
@@ -5720,7 +5772,7 @@ class InternalToCdaConverter
         $description = $this->xpathValue('description', $item);
         if ($description !== '') {
             $value = $this->output->createElement('value');
-            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'ST');
+            $this->setXsiType($value, 'ST');
             $value->appendChild($this->output->createTextNode($description));
             $obs->appendChild($value);
         }
@@ -6053,7 +6105,7 @@ class InternalToCdaConverter
         $sdohCode = $this->xpathValue('sdoh_code', $goal);
         $value = $this->output->createElement('value');
         if ($sdohCode !== '') {
-            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            $this->setXsiType($value, 'CD');
             $value->setAttribute('code', $sdohCode);
             $sdohCodeSystem = $this->xpathValue('sdoh_code_system', $goal);
             if ($sdohCodeSystem !== '') {
@@ -6068,7 +6120,7 @@ class InternalToCdaConverter
                 $value->setAttribute('displayName', $sdohCodeText);
             }
         } else {
-            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'ST');
+            $this->setXsiType($value, 'ST');
             $description = $this->xpathValue('description', $goal);
             if ($description !== '') {
                 $value->nodeValue = $description;
@@ -6253,7 +6305,7 @@ class InternalToCdaConverter
 
         // Value - CD type with concern code, or nullFlavor if no code
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         if ($concernCode !== '') {
             $value->setAttribute('code', $this->cleanCode($concernCode));
             if ($codeText !== '') {
@@ -6405,7 +6457,7 @@ class InternalToCdaConverter
         $valueDisplay = $this->xpathValue('observation/value_display', $directive);
 
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $this->setXsiType($value, 'CD');
         $value->setAttribute('code', $valueCode !== '' ? $valueCode : '373066001');
         $value->setAttribute('codeSystem', $valueCodeSystem !== '' ? $valueCodeSystem : '2.16.840.1.113883.6.96');
         $valueCodeSystemName = $valueCodeSystem === '2.16.840.1.113883.6.1' ? 'LOINC' : 'SNOMED CT';
@@ -6565,6 +6617,60 @@ class InternalToCdaConverter
     {
         $nodes = $this->xpath($query, $context);
         return $nodes->length > 0 ? trim((string) $nodes->item(0)?->textContent) : '';
+    }
+
+    /**
+     * Set an xsi:type attribute reusing the xsi prefix declared once on the
+     * document root. Using a literal-prefixed attribute (rather than
+     * setAttributeNS with the XSI namespace URI) prevents libxml from
+     * emitting a redundant xmlns:xsi declaration on every element that
+     * carries an xsi:type, which breaks C-CDA IG/Schematron validation.
+     */
+    /**
+     * Populate a coded element (raceCode, ethnicGroupCode, ...) with its
+     * code/displayName/codeSystem attributes, or collapse it to
+     * nullFlavor="UNK" when no code is available. The cs/CD datatypes forbid
+     * empty code/displayName values, and US Realm value-set bindings require a
+     * nullFlavor for unknowns rather than a blank code.
+     */
+    /**
+     * Append an address part element, using nullFlavor="UNK" when the value is
+     * empty. C-CDA Related Person addr requires streetAddressLine and city and,
+     * for US addresses, state and postalCode (nullFlavor when unknown).
+     */
+    private function appendAddrPart(DOMElement $addr, string $tag, string $value): void
+    {
+        if ($value === '') {
+            $part = $this->createElement($tag);
+            $part->setAttribute('nullFlavor', 'UNK');
+            $addr->appendChild($part);
+            return;
+        }
+        $addr->appendChild($this->createElement($tag, $value));
+    }
+
+    private function applyCodedOrNullFlavor(
+        DOMElement $el,
+        string $code,
+        string $displayName,
+        string $codeSystem,
+        string $codeSystemName
+    ): void {
+        if ($code === '') {
+            $el->setAttribute('nullFlavor', 'UNK');
+            return;
+        }
+        $el->setAttribute('code', $code);
+        if ($displayName !== '') {
+            $el->setAttribute('displayName', $displayName);
+        }
+        $el->setAttribute('codeSystem', $codeSystem);
+        $el->setAttribute('codeSystemName', $codeSystemName);
+    }
+
+    private function setXsiType(DOMElement $el, string $type): void
+    {
+        $el->setAttribute('xsi:type', $type);
     }
 
     private function createElement(string $name, ?string $text = null): DOMElement
