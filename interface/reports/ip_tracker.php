@@ -202,7 +202,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
         <div id="report_results">
             <table class='table'>
 
-                <thead class='thead-light'>
+                <thead class='table-light'>
                 <th><?php echo xlt('IP String'); ?></th>
                 <th><?php echo xlt('Total Failed Logins'); ?></th>
                 <th><?php echo xlt('Applicable Failed Logins'); ?></th>
@@ -225,7 +225,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
                             <?php
                             echo text($row['ip_login_fail_counter']);
                             if ($row['ip_login_fail_counter'] > 0) {
-                                echo '<button type="button" class="btn btn-sm btn-danger ml-2" onclick="resetCounterIp(' . attr_js($row["id"]) . ')">' . xlt("Reset Counter") . '</button>';
+                                echo '<button type="button" class="btn btn-sm btn-danger ms-2" onclick="resetCounterIp(' . attr_js($row["id"]) . ')">' . xlt("Reset Counter") . '</button>';
                             }
                             ?>
                         </td>

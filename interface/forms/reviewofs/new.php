@@ -48,7 +48,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="fever" name='fever' />
                                                 <label class="form-check-label" for="fever"><?php echo xlt('Fever');?></label>
@@ -62,7 +62,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="night_sweats"><?php echo xlt('Night Sweats');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="weight_loss" name='weight_loss' />
                                                 <label class="form-check-label" for="weight_loss"><?php echo xlt('Weight Loss');?></label>
@@ -76,7 +76,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="insomnia"><?php echo xlt('Insomnia');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="fatigued" name='fatigued' />
                                                 <label class="form-check-label" for="fatigued"><?php echo xlt('Fatigued');?></label>
@@ -86,7 +86,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="depressed"><?php echo xlt('Depressed');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="hyperactive" name='hyperactive' />
                                                 <label class="form-check-label" for="hyperactive"><?php echo xlt('Hyperactive');?></label>
@@ -105,7 +105,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="rashes" name='rashes' />
                                                 <label class="form-check-label" for="rashes"><?php echo xlt('Rashes');?></label>
@@ -115,19 +115,19 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="infections"><?php echo xlt('Infections');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="ulcerations" name='ulcerations' />
                                                 <label class="form-check-label" for="ulcerations"><?php echo xlt('Ulcerations');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="pemphigus" name='pemphigus' />
                                                 <label class="form-check-label" for="pemphigus"><?php echo xlt('Pemphigus');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="herpes" name='pemphigus' />
                                                 <label class="form-check-label" for="herpes"><?php echo xlt('Herpes');?></label>
@@ -142,7 +142,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="cataracts" name='cataracts' />
                                                 <label class="form-check-label" for="cataracts"><?php echo xlt('Cataracts');?></label>
@@ -164,7 +164,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="blurred_vision"><?php echo xlt('Blurred Vision');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="poor_hearing" name='poor_hearing' />
                                                 <label class="form-check-label" for="poor_hearing"><?php echo xlt('Poor Hearing');?></label>
@@ -182,7 +182,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="bloody_nose"><?php echo xlt('Bloody Nose');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="sinusitis" name='sinusitis' />
                                                 <label class="form-check-label" for="sinusitis"><?php echo xlt('Sinusitis');?></label>
@@ -200,7 +200,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="strep_throat"><?php echo xlt('Strep Throat');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="tonsillectomy" name='tonsillectomy' />
                                                 <label class="form-check-label" for="tonsillectomy"><?php echo xlt('Tonsillectomy');?></label>
@@ -227,7 +227,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="emphysema" name='emphysema' />
                                                 <label class="form-check-label" for="emphysema"><?php echo xlt('Emphysema');?></label>
@@ -237,7 +237,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="chronic_bronchitis"><?php echo xlt('Chronic Bronchitis');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="interstitial_lung_disease" name='interstitial_lung_disease' />
                                                 <label class="form-check-label" for="interstitial_lung_disease"><?php echo xlt('Interstitial Lung Disease');?></label>
@@ -247,7 +247,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="shortness_of_breath_2"><?php echo xlt('Shortness of Breath');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="lung_cancer" name='lung_cancer' />
                                                 <label class="form-check-label" for="lung_cancer"><?php echo xlt('Lung Cancer');?></label>
@@ -257,7 +257,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="lung_cancer_surgery"><?php echo xlt('Lung Cancer Surgery');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="pheumothorax" name='pheumothorax' />
                                                 <label class="form-check-label" for="pheumothorax"><?php echo xlt('Pheumothorax');?></label>
@@ -272,7 +272,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="heart_attack" name='heart_attack' />
                                                 <label class="form-check-label" for="heart_attack"><?php echo xlt('Heart Attack');?></label>
@@ -286,7 +286,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="chest_pains"><?php echo xlt('Chest Pains');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="shortness_of_breath" name='shortness_of_breath' />
                                                 <label class="form-check-label" for="shortness_of_breath"><?php echo xlt('Shortness of Breath');?></label>
@@ -300,7 +300,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="heart_failure"><?php echo xlt('Heart Failure');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="poor_circulation" name='poor_circulation' />
                                                 <label class="form-check-label" for="poor_circulation"><?php echo xlt('Poor Circulation');?></label>
@@ -314,7 +314,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="cardiac_catheterization"><?php echo xlt('Cardiac Catheterization');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="coronary_artery_bypass" name='coronary_artery_bypass' />
                                                 <label class="form-check-label" for="coronary_artery_bypass"><?php echo xlt('Coronary Artery Bypass');?></label>
@@ -337,7 +337,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="stomach_pains" name='stomach_pains' />
                                                 <label class="form-check-label" for="stomach_pains"><?php echo xlt('Stomach Pains');?></label>
@@ -359,7 +359,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="polyps"><?php echo xlt('Polyps');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="colonoscopy" name='colonoscopy' />
                                                 <label class="form-check-label" for="colonoscopy"><?php echo xlt('Colonoscopy');?></label>
@@ -381,7 +381,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="crohns_disease"><?php echo xlt('Crohn\'s Disease');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="appendectomy" name='appendectomy' />
                                                 <label class="form-check-label" for="appendectomy"><?php echo xlt('Appendectomy');?></label>
@@ -399,7 +399,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="gall_stones"><?php echo xlt('Gall Stones');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="cholecystectomy" name='cholecystectomy' />
                                                 <label class="form-check-label" for="cholecystectomy"><?php echo xlt('Cholecystectomy');?></label>
@@ -426,7 +426,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="kidney_failure" name='kidney_failure' />
                                                 <label class="form-check-label" for="kidney_failure"><?php echo xlt('Kidney Failure');?></label>
@@ -440,7 +440,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="kidney_cancer"><?php echo xlt('Kidney Cancer');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="kidney_infections" name='kidney_infections' />
                                                 <label class="form-check-label" for="kidney_infections"><?php echo xlt('Kidney Infections');?></label>
@@ -454,7 +454,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="bladder_cancer"><?php echo xlt('Bladder Cancer');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="prostate_problems" name='prostate_problems' />
                                                 <label class="form-check-label" for="prostate_problems"><?php echo xlt('Prostate Problems');?></label>
@@ -468,7 +468,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="kidney_transplant"><?php echo xlt('Kidney Transplant');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="sexually_transmitted_disease" name='sexually_transmitted_disease' />
                                                 <label class="form-check-label" for="sexually_transmitted_disease"><?php echo xlt('Sexually Transmitted Disease');?></label>
@@ -491,7 +491,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="osetoarthritis" name='osetoarthritis' />
                                                 <label class="form-check-label" for="osetoarthritis"><?php echo xlt('Osetoarthritis');?></label>
@@ -513,7 +513,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="swollen_joints"><?php echo xlt('Swollen Joints');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="stiff_joints" name='stiff_joints' />
                                                 <label class="form-check-label" for="stiff_joints"><?php echo xlt('Stiff Joints');?></label>
@@ -535,7 +535,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="back_surgery"><?php echo xlt('Back Surgery');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="scoliosis" name='scoliosis' />
                                                 <label class="form-check-label" for="scoliosis"><?php echo xlt('Scoliosis');?></label>
@@ -557,7 +557,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="wrist_problems"><?php echo xlt('Wrist Problems');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="hand_problems" name='hand_problems' />
                                                 <label class="form-check-label" for="hand_problems"><?php echo xlt('Hand Problems');?></label>
@@ -588,7 +588,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="insulin_dependent_diabetes" name='insulin_dependent_diabetes' />
                                                 <label class="form-check-label" for="insulin_dependent_diabetes"><?php echo xlt('Insulin Dependent Diabetes');?></label>
@@ -598,7 +598,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="noninsulin_dependent_diabetes"><?php echo xlt('Non-Insulin Dependent Diabetes');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="hypothyroidism" name='hypothyroidism' />
                                                 <label class="form-check-label" for="hypothyroidism"><?php echo xlt('Hypothyroidism');?></label>
@@ -608,13 +608,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                                 <label class="form-check-label" for="hyperthyroidism"><?php echo xlt('Hyperthyroidism');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="cushing_syndrom" name='cushing_syndrom' />
                                                 <label class="form-check-label" for="cushing_syndrom"><?php echo xlt('Cushing Syndrome');?></label>
                                             </div>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="form-check">
                                                 <input type="checkbox" class="form-check-input" id="addison_syndrom" name='addison_syndrom' />
                                                 <label class="form-check-label" for="addison_syndrom"><?php echo xlt('Addison Syndrome');?></label>
@@ -629,14 +629,14 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         <div class="container">
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <textarea name="additional_notes" class="form-control" cols="80" rows="5" ></textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </fieldset>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="row">
                             <div class="col-12 position-override">
                                 <div class="btn-group" role="group">

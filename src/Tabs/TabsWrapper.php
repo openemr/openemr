@@ -184,7 +184,7 @@ function twAddTab(tabsid, label, content) {
   var panelId = nextPanelId(tabsid);
   var closeId = panelId + '-close';
   var li = $("<li class='tabs-tabs'></li>");
-  var anchor = $("<a data-toggle='tab' class='tabs-anchor'></a>").attr('href', '#' + panelId);
+  var anchor = $("<a data-bs-toggle='tab' class='tabs-anchor'></a>").attr('href', '#' + panelId);
   anchor.append(document.createTextNode(label));
   anchor.append($("<span aria-label='close' class='icon-close' role='close'>&times;</span>").attr('id', closeId).attr('data-tab-label', label));
   li.append(anchor);
@@ -247,7 +247,7 @@ EOD;
         foreach ($this->tabs as $val) {
             ++$i;
             $activateTab = count($this->tabs) == $i ? 'active' : '';
-            $s .= "<li class='tabs-tabs' ><a data-toggle='tab' class='tabs-anchor {$activateTab}' href='#{$this->tabsid}-$i'>" . text($val['title']);
+            $s .= "<li class='tabs-tabs' ><a data-bs-toggle='tab' class='tabs-anchor {$activateTab}' href='#{$this->tabsid}-$i'>" . text($val['title']);
             if ($val['closeable']) {
                 $s .= " <span aria-label='close' class='icon-close' role='close'>&times;</span>";
             }

@@ -31,7 +31,7 @@ use OpenEMR\Services\UserService;
 
     <?php
     if (!isset($pid)) {
-        $pid = $session->get('pid');
+        $pid = $_SESSION['pid'];
     }
     if ($_POST['form_yesno']) {
         CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
@@ -40,7 +40,7 @@ use OpenEMR\Services\UserService;
         $form_adreviewed = DateTimeToYYYYMMDDHHMMSS(filter_input(INPUT_POST, 'form_adreviewed'));
         QueryUtils::sqlStatementThrowException("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ?"
         . " ,advance_directive_user_authenticator = ? where pid = ?"
-            , [$form_yesno,$form_adreviewed, $session->get('authUserID'), $pid]);
+            , [$form_yesno,$form_adreviewed, $_SESSION['authUserID'], $pid]);
         // Close this window and refresh the calendar display.
         echo "</head><body>\n<script>\n";
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
@@ -51,7 +51,7 @@ use OpenEMR\Services\UserService;
 
     $sql = "select completed_ad, ad_reviewed from patient_data where pid = ?";
     $userService = new UserService();
-    $userRecord = $userService->getUser($session->get('authUserID'));
+    $userRecord = $userService->getUser($_SESSION['authUserID']);
     $myrow = sqlQuery($sql, [$pid]);
     $form_completedad = '';
     $form_adreviewed = '';
@@ -97,15 +97,15 @@ use OpenEMR\Services\UserService;
             <div class="col-12">
                 <form action='advancedirectives.php' method='post' onsubmit='return validate(this)'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_yesno"><?php echo xlt('Completed'); ?></label>
                         <?php generate_form_field(['data_type' => 1,'field_id' => 'yesno','list_id' => 'yesno','empty_title' => 'SKIP'], $form_completedad); ?>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_adreviewed"><?php echo xlt('Last Reviewed'); ?></label>
                         <?php generate_form_field(['data_type' => 4,'field_id' => 'adreviewed', 'edit_options' => 'F'], $form_adreviewed); ?>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="btn-group" role="group">
                             <button type="submit" id="create" class="btn btn-secondary btn-save"><?php echo xla('Save'); ?></button>
                             <button type="button" id="cancel" class="btn btn-link btn-cancel"><?php echo xla('Cancel'); ?></button>

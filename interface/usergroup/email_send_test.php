@@ -95,7 +95,7 @@ if ($isPost) {
                     <div class="alert <?php echo $result->success ? 'alert-success' : 'alert-danger'; ?>" role="alert">
                         <strong><?php echo text($result->method->label()); ?>:</strong>
                         <?php echo text($result->message); ?>
-                        <small class="text-muted ml-2">(<?php echo text($result->timestamp->format('H:i:s')); ?>)</small>
+                        <small class="text-muted ms-2">(<?php echo text($result->timestamp->format('H:i:s')); ?>)</small>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -110,7 +110,7 @@ if ($isPost) {
         <form method="post" action="" onsubmit="return top.restoreSession()">
             <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>">
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="sender"><?php echo xlt('Sender Email'); ?></label>
                 <input type="email" class="form-control" id="sender" name="sender"
                        value="<?php echo attr($submittedSender); ?>"
@@ -118,14 +118,14 @@ if ($isPost) {
                 <small class="form-text text-muted"><?php echo xlt('The From address for the test email. Use an address from your domain to avoid spam filters.'); ?></small>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="recipient"><?php echo xlt('Recipient Email'); ?></label>
                 <input type="email" class="form-control" id="recipient" name="recipient"
                        value="<?php echo attr($submittedRecipient); ?>"
                        placeholder="admin@example.com" required>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label><?php echo xlt('Send Methods'); ?></label>
                 <?php foreach (EmailSendMethod::cases() as $method) : ?>
                     <div class="form-check">

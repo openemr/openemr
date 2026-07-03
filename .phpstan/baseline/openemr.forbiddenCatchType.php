@@ -863,6 +863,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5ComponentTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../tests/Tests/E2e/Bootstrap5SmokeTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 12,
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];

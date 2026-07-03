@@ -65,9 +65,9 @@
     }
     ?>
     </span>
-    <span class="panel-title" style="margin-left:5px; width:105px;"><?php echo $this->listenerObject->z_xlt('Total Records');?>.</span>
+    <span class="card-title" style="margin-left:5px; width:105px;"><?php echo $this->listenerObject->z_xlt('Total Records');?>.</span>
     <span><?php echo $this->escapeHtml($rows); ?></span>
-    <span class="panel-title" style="padding-left:10px; width:100px;"><?php echo $this->listenerObject->z_xlt('Total Pages');?>.</span>
+    <span class="card-title" style="padding-left:10px; width:100px;"><?php echo $this->listenerObject->z_xlt('Total Pages');?>.</span>
     <span><?php if ($rows > 0) echo ($this->escapeHtml($limitStart / $limit) + 1) . ' / ' . $this->escapeHtml($pages); ?></span>
 
 

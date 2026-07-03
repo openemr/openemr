@@ -233,7 +233,7 @@ function authorized_clicked() {
 <input type='hidden' name='mode' value='new_user'>
 <input type='hidden' name='secure_pwd' value="<?php echo attr((int) OEGlobalsBag::getInstance()->getBoolean('secure_password')); ?>">
 
-<span class="font-weight-bold">&nbsp;</span>
+<span class="fw-bold">&nbsp;</span>
 <table class="border-0" cellpadding='0' cellspacing='0' style="width:600px;">
 <tr>
     <td colspan="4">
@@ -657,7 +657,7 @@ if (!OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) {
     }
 
     foreach ($grouplist as $groupname => $list) {
-        print "<span class='font-weight-bold'>" . text($groupname) . "</span><br />\n<span class='text'>" .
+        print "<span class='fw-bold'>" . text($groupname) . "</span><br />\n<span class='text'>" .
         text(substr($list, 0, strlen($list) - 2)) . "</span><br />\n";
     }
 }

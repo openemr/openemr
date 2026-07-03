@@ -36,13 +36,13 @@
                     {# Basic Information Card #}
                     <div class="card mb-4">
                         <div class="card-header bg-light d-flex align-items-center">
-                            <i class="fa fa-info-circle text-primary mr-2"></i>
+                            <i class="fa fa-info-circle text-primary me-2"></i>
                             <strong>{{ "Basic Information"|xlt }}</strong>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-3">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="form-label">{{ "Code"|xlt }}:</label>
                                         <input type="text" name="code" class="form-control code"
                                                value="{{ observation.code|default('')|attr }}"
@@ -51,7 +51,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="form-label">{{ "Description"|xlt }}:</label>
                                         <input id='observation-description' type="text" name="description" class="form-control description"
                                                value="{{ observation.description|default('')|attr }}"
@@ -59,7 +59,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="form-label">{{ "Date"|xlt }}:</label>
                                         <input type="text" name="date" class="form-control datepicker"
                                                value="{{ observation.date|default('now')|oeFormatDateTime|attr }}"
@@ -70,7 +70,7 @@
 
                             <div class="row">
                                 <div class="col-md-4">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="form-label">{{ "Value"|xlt }}:</label>
                                         <input type="text" name="ob_value" class="form-control"
                                                value="{{ observation.ob_value|default('')|attr }}"
@@ -78,7 +78,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-2">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="form-label">{{ "Unit"|xlt }}:</label>
                                         <input type="text" name="ob_unit" class="form-control"
                                                value="{{ observation.ob_unit|default('')|attr }}"
@@ -86,13 +86,13 @@
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="form-label">{{ "Status"|xlt }}: </label>
                                         {{ selectList('ob_status', 'observation-status', observation.ob_status, '') }}
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label class="form-label">{{ "Type"|xlt }}:</label>
                                         {{ selectList('ob_type', 'Observation_Types', observation.ob_type, 'Select Type'|xla, {empty_name: 'Select Type'|xlt}) }}
                                     </div>
@@ -104,7 +104,7 @@
                     {# AI Generated: QuestionnaireResponse Linking Card #}
                     <div class="card mb-4">
                         <div class="card-header bg-light d-flex align-items-center">
-                            <i class="fa fa-file-text-o text-info mr-2"></i>
+                            <i class="fa fa-file-text-o text-info me-2"></i>
                             <strong>{{ "Linked Questionnaire"|xlt }}</strong>
                         </div>
                         <div class="card-body">
@@ -115,7 +115,7 @@
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div>
                                                 <h6 class="text-success mb-2">
-                                                    <i class="fa fa-link mr-1"></i>{{ "Linked"|xlt }}:
+                                                    <i class="fa fa-link me-1"></i>{{ "Linked"|xlt }}:
                                                     <span class="questionnaire-name">{{ linkedQuestionnaireResponse.name|text }}</span>
                                                 </h6>
                                                 <p class="text-muted mb-1">
@@ -124,7 +124,7 @@
                                                 </p>
                                                 <p class="text-muted mb-3">
                                                     <strong>{{ "Date"|xlt }}:</strong> {{ linkedQuestionnaireResponse.date|oeFormatDateTime|attr }}
-                                                    <span class="ml-3"><strong>{{ "Status"|xlt }}:</strong> {{ linkedQuestionnaireResponse.status|text }}</span>
+                                                    <span class="ms-3"><strong>{{ "Status"|xlt }}:</strong> {{ linkedQuestionnaireResponse.status|text }}</span>
                                                 </p>
                                             </div>
                                             <div class="btn-group-vertical">
@@ -156,7 +156,7 @@
                     <div class="card mb-4">
                         <div class="card-header bg-light d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <i class="fa fa-list text-secondary mr-2"></i>
+                                <i class="fa fa-list text-secondary me-2"></i>
                                 <strong>{{ "Sub-observations"|xlt }}</strong>
                             </div>
                             <button type="button" class="btn btn-sm btn-outline-primary btn-add-sub-observation">
@@ -181,11 +181,11 @@
                     {# Comments Card - existing content remains the same #}
                     <div class="card mb-4">
                         <div class="card-header bg-light d-flex align-items-center">
-                            <i class="fa fa-comment text-warning mr-2"></i>
+                            <i class="fa fa-comment text-warning me-2"></i>
                             <strong>{{ "Comments"|xlt }}</strong>
                         </div>
                         <div class="card-body">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <textarea name="observation" class="form-control" rows="3"
                                           placeholder="{{ 'Additional comments or notes about this observation'|xla }}">{{ observation.observation|default('')|text }}</textarea>
                             </div>
@@ -197,7 +197,7 @@
                 {# Reason Code Card - Hidden by default #}
                 <div class="card mb-4 reasonCodeContainer {% if observation.ob_reason_code is empty %}d-none{% endif %}" id="reason_code_1">
                     <div class="card-header bg-light d-flex align-items-center">
-                        <i class="fa fa-asterisk text-secondary mr-2"></i>
+                        <i class="fa fa-asterisk text-secondary me-2"></i>
                         <strong>{{ "Reason for Observation"|xlt }}</strong>
                     </div>
                     <div class="card-body">
@@ -210,14 +210,14 @@
                         </div>
                         <div class="row">
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label class="form-label">{{ "Reason Code"|xlt }}:</label>
                                     <input type="text" name="ob_reason_code" class="form-control code-selector-popup"
                                            value="{{ observation.ob_reason_code|default('')|attr }}">
                                 </div>
                             </div>
                             <div class="col-md-8">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label class="form-label">{{ "Reason Status"|xlt }}:</label>
                                     <select name="ob_reason_status" class="form-control">
                                         {% for code, codeDesc in reasonCodeStatii %}
@@ -245,7 +245,7 @@
                 <div class="action-bar bg-light border-top p-3 d-flex justify-content-between align-items-center">
                     <div class="status-indicator d-flex align-items-center">
                         {# if we do any more ajax stuff we can do some auto saving here #}
-{#                        <span class="badge badge-success mr-2">{{ "Form Ready"|xlt }}</span>#}
+{#                        <span class="badge bg-success me-2">{{ "Form Ready"|xlt }}</span>#}
                     </div>
                     <div class="btn-group">
                         {% if isEdit %}
@@ -285,7 +285,7 @@
                     <div class="search-filters mb-3">
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="questionnaire-search">{{ "Search by questionnaire name"|xlt }}:</label>
                                     <input type="text" class="form-control" id="questionnaire-search"
                                            placeholder="{{ 'Enter questionnaire name...'|xla }}">
@@ -293,13 +293,13 @@
                             </div>
                             {# TODO: add in date searching #}
 {#                            <div class="col-md-3">#}
-{#                                <div class="form-group">#}
+{#                                <div class="mb-3">#}
 {#                                    <label for="date-from">{{ "From date"|xlt }}:</label>#}
 {#                                    <input type="text" class="form-control datepicker" id="date-from">#}
 {#                                </div>#}
 {#                            </div>#}
 {#                            <div class="col-md-3">#}
-{#                                <div class="form-group">#}
+{#                                <div class="mb-3">#}
 {#                                    <label for="date-to">{{ "To date"|xlt }}:</label>#}
 {#                                    <input type="text" class="form-control datepicker" id="date-to">#}
 {#                                </div>#}
@@ -310,7 +310,7 @@
                                 <button type="button" class="btn btn-secondary btn-sm" id="search-questionnaires">
                                     <i class="fa fa-search"></i> {{ "Search"|xlt }}
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm ml-2" id="clear-search">
+                                <button type="button" class="btn btn-outline-secondary btn-sm ms-2" id="clear-search">
                                     <i class="fa fa-times"></i> {{ "Clear"|xlt }}
                                 </button>
                             </div>
@@ -356,10 +356,10 @@
                         <div class="flex-grow-1">
                             <h6 class="questionnaire-title mb-1 text-primary"></h6>
                             <p class="questionnaire-date text-muted mb-1">
-                                <i class="fa fa-calendar mr-1"></i><span class="date-text"></span>
+                                <i class="fa fa-calendar me-1"></i><span class="date-text"></span>
                             </p>
                             <div class="d-flex align-items-center mb-2">
-                                <span class="questionnaire-status badge mr-2"></span>
+                                <span class="questionnaire-status badge me-2"></span>
                                 <small class="text-muted response-id"></small>
                             </div>
                             <div class="questionnaire-summary collapse">
@@ -381,7 +381,7 @@
                                 <i class="fa fa-chevron-down"></i> {{ "Show Details"|xlt }}
                             </button>
                         </div>
-                        <div class="ml-3">
+                        <div class="ms-3">
                             <button type="button" class="btn btn-primary select-questionnaire">
                                 <i class="fa fa-check"></i> {{ "Select"|xlt }}
                             </button>
@@ -396,7 +396,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h6 class="text-success mb-2">
-                                <i class="fa fa-link mr-1"></i>{{ "Linked"|xlt }}:
+                                <i class="fa fa-link me-1"></i>{{ "Linked"|xlt }}:
                                 <span class="questionnaire-name"></span>
                             </h6>
                             <p class="text-muted mb-1">
@@ -405,7 +405,7 @@
                             </p>
                             <p class="text-muted mb-3">
                                 <strong>{{ "Date"|xlt }}:</strong> <span class="response-date"></span>
-                                <span class="ml-3"><strong>{{ "Status"|xlt }}:</strong> <span class="response-status"></span></span>
+                                <span class="ms-3"><strong>{{ "Status"|xlt }}:</strong> <span class="response-status"></span></span>
                             </p>
                         </div>
                         <div class="btn-group-vertical">
@@ -439,7 +439,7 @@
             <template id="response-summary-row">
                 <div class="mb-2">
                     <strong class="text-primary response-summary-question"></strong>:
-                    <span class="ml-2 response-summary-answer"></span>
+                    <span class="ms-2 response-summary-answer"></span>
                 </div>
             </template>
         </div>

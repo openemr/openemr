@@ -296,7 +296,7 @@ require_once("../../interface/globals.php");
                 <p><?php echo xlt("The filtered results will show up in the section below it"); ?>.</p>
 
                 <p><?php echo xlt("The filter section can be hidden or revealed by clicking the arrowhead  on the bottom right "); ?>.</p>
-                <span class="text-right fa-stack fa-lg pull_right small oe-text-black"style="position:relative;right:0;top:0;">
+                <span class="text-end fa-stack fa-lg pull_right small oe-text-black"style="position:relative;right:0;top:0;">
                     <i class="fa fa-square-o fa-stack-2x"></i>
                     <i id="print_caret" class="fa fa-caret-up fa-stack-1x"></i>
                 </span>

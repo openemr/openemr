@@ -12,16 +12,16 @@
     }
 </style>
 
-<div id="table_edit_addresses___UNIQ__" class="form-row mt-3">
+<div id="table_edit_addresses___UNIQ__" class="row g-2 mt-3">
     <div class="table_edit_addresses col-12">
-        <div class="display_addresses_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
+        <div class="display_addresses_header ps-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">
                                             Additional Addresses
                                     </div>
-                <div id="btn_add_addresses_table_edit_addresses___UNIQ__" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+                <div id="btn_add_addresses_table_edit_addresses___UNIQ__" class="fas fa-plus-square text-primary ps-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
-            <div class="form-check mr-3" style="margin-bottom: 0;">
+            <div class="form-check me-3" style="margin-bottom: 0;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_addresses_table_edit_addresses___UNIQ__">
                 <label class="form-check-label" for="show_inactive_addresses_table_edit_addresses___UNIQ__" style="font-size: 0.9em;">
                     Show Inactive
@@ -30,7 +30,7 @@
         </div>
 
                 <div class="no_addresses">
-            <span class="label_custom pl-1" style="line-height: 2.0;">NONE</span>
+            <span class="label_custom ps-1" style="line-height: 2.0;">NONE</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
 
@@ -38,7 +38,7 @@
 </div>
 
 <template class="template_add_address">
-    <div class="addresses_group col-12 pl-0" data-status="A" data-index="__A-INDEX__">
+    <div class="addresses_group col-12 ps-0" data-status="A" data-index="__A-INDEX__">
 
                 <input type="hidden" class="form_addresses_data_action"
             name="form_test_address_list[__A-INDEX__][data_action]" value="ADD" />
@@ -51,7 +51,7 @@
         <input type="hidden" class="form_addresses_status"
             name="form_test_address_list[__A-INDEX__][status]" value="A" />
 
-        <div class="display_addresses form-row no-gutters justify-content-between pl-1">
+        <div class="display_addresses row g-0 justify-content-between ps-1">
             <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
                 <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
                 <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;"></span>
@@ -69,11 +69,11 @@
 
         </div>
 
-        <div class='form_addresses form-row mx-3 my-2'>
+        <div class='form_addresses row g-2 mx-3 my-2'>
 
 
 <div class="col-12">
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3 label_custom">
             Address Use
         </div>
@@ -88,7 +88,7 @@
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3">
             <div class='input-group'><select name="form_test_address_list[__A-INDEX__][use]"
 id="form_test_address_list[__A-INDEX__][use]"
@@ -117,7 +117,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3 label_custom">
             Address
         </div>
@@ -132,7 +132,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3">
             <input type='text'
             class='form-controlform-control form-control-sm form_addresses_line1'
@@ -179,7 +179,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3 label_custom">
             State
         </div>
@@ -194,7 +194,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3">
             <div class='input-group'><select name="form_test_address_list[__A-INDEX__][state]"
 id="form_test_address_list[__A-INDEX__][state]"
@@ -284,12 +284,12 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-12 label_custom">
             Notes
         </div>
     </div>
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-12">
             <textarea class="form-control form_addresses_notes"
                       name="form_test_address_list[__A-INDEX__][notes]"
@@ -678,7 +678,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
                     var useSpan = row_display_addresses.querySelector('.display_addresses_use');
                     if (!useSpan.querySelector('.badge')) {
                         var badge = document.createElement('span');
-                        badge.className = 'badge badge-secondary text-white ml-1';
+                        badge.className = 'badge bg-secondary text-white ms-1';
                         badge.style.fontSize = '0.7em';
                         badge.textContent = window.xl('Inactive');
                         useSpan.appendChild(badge);

@@ -156,14 +156,14 @@ td {
 
 <table class="table table-sm border-0 w-100">
  <tr>
-  <td class='font-weight-bold'><?php echo xlt('Name');?>&nbsp;</td>
-  <td class='font-weight-bold'><?php echo xlt('Attn');?>&nbsp;</td>
-  <td class='font-weight-bold'><?php echo xlt('Address');?>&nbsp;</td>
-  <td class='font-weight-bold'>&nbsp;&nbsp;</td>
-  <td class='font-weight-bold'><?php echo xlt('City');?>&nbsp;</td>
-  <td class='font-weight-bold'><?php echo xlt('State');?>&nbsp;</td>
-  <td class='font-weight-bold'><?php echo xlt('Zip');?>&nbsp;</td>
-  <td class='font-weight-bold'><?php echo xlt('Phone');?></td>
+  <td class='fw-bold'><?php echo xlt('Name');?>&nbsp;</td>
+  <td class='fw-bold'><?php echo xlt('Attn');?>&nbsp;</td>
+  <td class='fw-bold'><?php echo xlt('Address');?>&nbsp;</td>
+  <td class='fw-bold'>&nbsp;&nbsp;</td>
+  <td class='fw-bold'><?php echo xlt('City');?>&nbsp;</td>
+  <td class='fw-bold'><?php echo xlt('State');?>&nbsp;</td>
+  <td class='fw-bold'><?php echo xlt('Zip');?>&nbsp;</td>
+  <td class='fw-bold'><?php echo xlt('Phone');?></td>
  </tr>
 
 <?php

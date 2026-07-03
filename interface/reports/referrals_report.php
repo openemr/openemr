@@ -171,7 +171,7 @@ if (!empty($_POST['form_refresh'])) {
     ?>
 <div id="report_results">
 <table class='table' width='98%' id='mymaintable'>
-<thead class='thead-light'>
+<thead class='table-light'>
 <th> <?php echo xlt('Refer To'); ?> </th>
 <th> <?php echo xlt('Refer Date'); ?> </th>
 <th> <?php echo xlt('Reply Date'); ?> </th>
