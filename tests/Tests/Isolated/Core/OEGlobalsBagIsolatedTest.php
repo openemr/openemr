@@ -64,10 +64,7 @@ class OEGlobalsBagIsolatedTest extends TestCase
     public static function deprecatedKeysProvider(): array
     {
         return [
-            'pid' => ['pid', 'PatientSessionUtil'],
-            'encounter' => ['encounter', 'EncounterSessionUtil'],
-            'userauthorized' => ['userauthorized', '$session->get/set(\'userauthorized\')'],
-            'authUserID' => ['authUserID', '$session->get/set(\'authUserID\')'],
+            // This is intentionally empty for now.
         ];
     }
 
