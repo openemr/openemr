@@ -34,14 +34,13 @@ class EncounterSessionUtil
     public static function setEncounter(string $enc): int
     {
         global $encounter;
-        global $pid;
         global $attendant_type;
 
         $formsService = new FormService();
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-        $attendant_id = $attendant_type === 'pid' ? $pid : $session->get('therapy_group');
+        $attendant_id = $attendant_type === 'pid' ? PatientSessionUtil::getPid() : $session->get('therapy_group');
 
         // Forcing enc through an integer to protect from sql injection
         $enc = (string) intval($enc);
