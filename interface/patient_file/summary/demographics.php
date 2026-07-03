@@ -44,6 +44,7 @@ require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -70,9 +71,7 @@ use OpenEMR\Services\PatientService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!isset($pid)) {
-    $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
-}
+$pid = PatientSessionUtil::getPid() ?: ($_GET['pid'] ?? null);
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.

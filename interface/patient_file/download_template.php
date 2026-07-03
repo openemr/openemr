@@ -24,11 +24,12 @@ require_once($srcdir . '/options.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = $session->get('pid', 0);
+$pid = PatientSessionUtil::getPid();
 $encounter = $session->get('encounter', 0);
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
