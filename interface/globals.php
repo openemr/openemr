@@ -201,6 +201,27 @@ if (preg_match("/^[^\/]/", $web_root)) {
     $web_root = "/" . $web_root;
 }
 
+// Running OpenEMR outside of the root path is deprecated, and support will be
+// removed in the future. Install it to an entire domain or subdomain.
+//
+// See https://github.com/openemr/openemr/issues/12690
+//
+// Acceptable examples:
+// - example.com
+// - openemr.example.com
+// - practicename.sharedhost.com
+// - emr.my.practice.org
+//
+// Deprecated:
+// - example.com/openemr
+// - sharedhost.com/practicename
+// - my.practice.org/emr
+
+if ($web_root !== '' && $web_root !== '/') {
+    \OpenEMR\BC\Deprecation::emit('Running OpenEMR outside of the web root will no longer be supported. See https://github.com/openemr/openemr/issues/12690 for more information.');
+}
+
+
 // The webserver_root and web_root are now automatically collected in
 //  real time per above code. If above is not working, can uncomment and
 //  set manually here:
