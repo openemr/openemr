@@ -62,7 +62,7 @@ class OEGlobalsBagIsolatedTest extends TestCase
     public static function deprecatedKeysProvider(): array
     {
         $keys = [
-            'unit_test_placeholder',
+            'pid',
         ];
         // Format to DataProvider
         return array_combine($keys, array_map(fn($k) => [$k], $keys));
