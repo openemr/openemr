@@ -16,6 +16,7 @@ namespace Carecoordination\Model;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Cda\InternalToCdaConverter;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcdaGenerator
@@ -170,6 +171,12 @@ class CcdaGenerator
 
     public function normalize(string $data): string
     {
+        // 1 -> Care coordination module, 2 -> portal, 3 -> Both
+        // Any non-zero value enables the service
+        if (OEGlobalsBag::getInstance()->getInt('ccda_alt_service_enable') === 0) {
+            throw new CcdaServiceConnectionException("Please Enable C-CDA Alternate Service in Global Settings");
+        }
+
         $converter = new InternalToCdaConverter();
         return trim($converter->convert($data));
     }
