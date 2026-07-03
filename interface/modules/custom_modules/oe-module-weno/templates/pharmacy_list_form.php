@@ -23,6 +23,7 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
@@ -38,8 +39,7 @@ $widgetConstants = [
     , 'textbox' => 2
 ];
 
-global $pid; // we need to grab our pid from our global settings.
-$pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+$pid = ($frow['blank_form'] ?? null) ? 0 : PatientSessionUtil::getPid();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -54,8 +54,8 @@ $name_field_id = "form_" . $field_id_esc;
 $small_form ??= '';
 
 $pharmacyService = new PharmacyService();
-$prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid')) ?? [];
-$prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid')) ?? [];
+$prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm(PatientSessionUtil::getPid()) ?? [];
+$prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm(PatientSessionUtil::getPid()) ?? [];
 $prev_prim_pharmacy = js_escape($prev_prim_pharmacy);
 $prev_alt_pharmacy = js_escape($prev_alt_pharmacy);
 
