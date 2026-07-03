@@ -340,7 +340,7 @@ abstract class PortalController
      *
      * This method is used by ValidateInput for automation AJAX server-side validation.
      *
-     * @param variant $pk
+     * @param mixed $pk
      *          the primary key (optional)
      * @return Phreezable a phreezable object
      */
@@ -750,7 +750,7 @@ abstract class PortalController
      * Assigns a variable to the view
      *
      * @param string $varname
-     * @param variant $varval
+     * @param mixed $varval
      */
     protected function Assign($varname, $varval)
     {
@@ -797,7 +797,7 @@ abstract class PortalController
     /**
      * Renders the given value as JSON
      *
-     * @param variant $var the variable, array, object, etc to be rendered as JSON
+     * @param mixed $var the variable, array, object, etc to be rendered as JSON
      * @param string $callback if a callback is provided, this will be rendered as JSONP
      * @param bool $useSimpleObject if true then objects will be returned ->GetObject() (only supports ObjectArray or individual Phreezable or Reporter object)
      * @param array $options (only relevant if useSimpleObject is true) options array passed through to Phreezable->ToString()
@@ -937,7 +937,7 @@ abstract class PortalController
      *
      * NOTE: this does not have a return value. value is passed by reference and updated
      *
-     * @param variant $input
+     * @param mixed $input
      */
     private function UTF8Encode(&$input)
     {
@@ -963,7 +963,7 @@ abstract class PortalController
      *
      * @access public
      * @param string $name
-     * @param variant $vars
+     * @param mixed $vars
      * @throws Exception
      */
     function __call($name, $vars = null)
