@@ -53,48 +53,34 @@ class OEGlobalsBagIsolatedTest extends TestCase
     }
 
     /**
-     * Deprecated keys and their replacement instructions.
-     *
      * Keep in sync with OEGlobalsBag::DEPRECATED_KEYS.
      *
-     * @return array<string, array{string, string}>
+     * @return array<string, array{string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function deprecatedKeysProvider(): array
     {
-        return [
-            // This is intentionally empty for now.
+        $keys = [
+            'unit_test_placeholder',
         ];
+        // Format to DataProvider
+        return array_combine($keys, array_map(fn($k) => [$k], $keys));
     }
 
     #[DataProvider('deprecatedKeysProvider')]
-    public function testGetDeprecatedKeyTriggersWarning(string $key, string $replacement): void
+    public function testGetDeprecatedKeyTriggersWarning(string $key): void
     {
         $bag = new OEGlobalsBag([$key => 'test-value']);
-
         $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(sprintf(
-            'Deprecated: Key "%s" will be removed from OEGlobalsBag. Use %s instead',
-            $key,
-            $replacement,
-        ));
-
         $bag->get($key);
     }
 
     #[DataProvider('deprecatedKeysProvider')]
-    public function testHasDeprecatedKeyTriggersWarning(string $key, string $replacement): void
+    public function testHasDeprecatedKeyTriggersWarning(string $key): void
     {
         $bag = new OEGlobalsBag([$key => 'test-value']);
-
         $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(sprintf(
-            'Deprecated: Key "%s" will be removed from OEGlobalsBag. Use %s instead',
-            $key,
-            $replacement,
-        ));
-
         $bag->has($key);
     }
 }

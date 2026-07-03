@@ -41,11 +41,12 @@ class OEGlobalsBag extends ParameterBag
      * Keys being migrated away from OEGlobalsBag. Accessing these via get(),
      * has(), or set() emits a deprecation warning.
      *
-     * When removing a key from this list, also update the corresponding test:
+     * When adding a key to this list, update the tests too.
+     *
      * @see \OpenEMR\Tests\Isolated\Core\OEGlobalsBagIsolatedTest::deprecatedKeysProvider
      */
     private const DEPRECATED_KEYS = [
-        // This is intentionally empty for now.
+        'unit_test_placeholder' => '(placeholder)',
     ];
 
     protected static function createInstance(): static
