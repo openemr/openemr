@@ -14,6 +14,8 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -35,9 +37,8 @@ $returnurl = 'encounter_top.php';
 $formid = (int) ($_GET['id'] ?? 0);
 $obj = $formid ? formFetch("form_requisition", $formid) : [];
 
-global $pid ;
-
-$encounter = $session->get('encounter');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
 
 $oid = fetchProcedureId($pid, $encounter);
 
@@ -214,7 +215,7 @@ table, th, td {
                        <b><?php echo xlt('Patient Name') ?>: </b>  <br />
                     </div>
                     <div class="pFill">
-                        <?php echo text($pid); ?><br />
+                        <?php echo $pid; ?><br />
                         <?php echo text($pdata['DOB']); ?><br />
                         <?php echo text(getListItemTitle('sex', $pdata['sex'])); ?><br />
                         <?php echo text($pdata['fname']) . " " . text($pdata['lname']); ?><br />

@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../globals.php");
@@ -35,7 +36,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
 {
     $count = 0;
     $data = formFetch("form_vitals", $id);
-    $patient_data = getPatientData(OEGlobalsBag::getInstance()->get('pid'));
+    $patient_data = getPatientData(PatientSessionUtil::getPid());
     $patient_age = getPatientAge($patient_data['DOB']);
     $is_pediatric_patient = ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)));
 

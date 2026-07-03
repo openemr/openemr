@@ -39,6 +39,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
@@ -538,10 +539,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     $encounterLocked = false;
     if (
         $esignApi->lockEncounters() &&
-        OEGlobalsBag::getInstance()->has('encounter') &&
-        !empty(OEGlobalsBag::getInstance()->get('encounter'))
+        !empty($encounter)
     ) {
-        $esign = $esignApi->createEncounterESign(OEGlobalsBag::getInstance()->get('encounter'));
+        $esign = $esignApi->createEncounterESign($encounter);
         if ($esign->isLocked()) {
             $encounterLocked = true;
         }
@@ -558,7 +558,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
             $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
                 ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
                 : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
-            $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
+            $sensitivity = sqlQuery($sensitivityQuery, [EncounterSessionUtil::getEncounter()])['sensitivity'] ?? null;
             $pass_sens = true;
             if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
                 $pass_sens = false;

@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Core;
 
+use OpenEMR\BC\Deprecation;
 use OpenEMR\Core\Traits\SingletonTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -36,6 +37,20 @@ class OEGlobalsBag extends ParameterBag
 {
     use SingletonTrait;
 
+    /**
+     * Keys being migrated away from OEGlobalsBag. Accessing these via get(),
+     * has(), or set() emits a deprecation warning.
+     *
+     * When removing a key from this list, also update the corresponding test:
+     * @see \OpenEMR\Tests\Isolated\Core\OEGlobalsBagIsolatedTest::deprecatedKeysProvider
+     */
+    private const DEPRECATED_KEYS = [
+        'pid' => 'Use PatientSessionUtil instead',
+        'encounter' => 'Use EncounterSessionUtil instead',
+        'userauthorized' => 'Use $session->get/set(\'userauthorized\') instead',
+        'authUserID' => 'Use $session->get/set(\'authUserID\') instead',
+    ];
+
     protected static function createInstance(): static
     {
         /** @var array<string, mixed> $GLOBALS */
@@ -53,6 +68,14 @@ class OEGlobalsBag extends ParameterBag
 
     public function get(string $key, mixed $default = null): mixed
     {
+        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
+            Deprecation::emit(sprintf(
+                'Key "%s" will be removed from OEGlobalsBag. %s',
+                $key,
+                self::DEPRECATED_KEYS[$key],
+            ));
+        }
+
         // During the transition from $GLOBALS to OEGlobalsBag, legacy code may
         // still write to or unset from $GLOBALS directly. For the singleton
         // instance, use $GLOBALS as the sole source of truth.
@@ -69,6 +92,14 @@ class OEGlobalsBag extends ParameterBag
 
     public function has(string $key): bool
     {
+        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
+            Deprecation::emit(sprintf(
+                'Key "%s" will be removed from OEGlobalsBag. %s',
+                $key,
+                self::DEPRECATED_KEYS[$key],
+            ));
+        }
+
         if (parent::has($key)) {
             return true;
         }

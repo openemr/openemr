@@ -25,6 +25,7 @@
  * @link       https://www.open-emr.org
  */
 
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -48,8 +49,8 @@ $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
 
 if (array_key_exists('patient', $_REQUEST)) {
     $eRxSOAP->setPatientId($_REQUEST['patient']);
-} elseif (OEGlobalsBag::getInstance()->has('pid')) {
-    $eRxSOAP->setPatientId(OEGlobalsBag::getInstance()->get('pid'));
+} elseif (($pid = PatientSessionUtil::getPid()) !== 0) {
+    $eRxSOAP->setPatientId($pid);
 }
 
 if (
