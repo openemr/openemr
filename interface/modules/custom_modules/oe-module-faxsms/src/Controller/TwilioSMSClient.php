@@ -15,7 +15,6 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use DateTime;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
 use Twilio\Rest\Client;
@@ -234,14 +233,6 @@ class TwilioSMSClient extends AppDispatch
      */
     protected function index()
     {
-        $pid = PatientSessionUtil::getPid();
-        if (!$this->getSession('pid', '')) {
-            $pid_s = $this->getRequest('patient_id');
-            $this->setSession('pid', $pid ?: $pid_s);
-        }
-        if (empty($pid)) {
-            $pid = $this->getSession('pid', '');
-        }
         return null;
     }
 
