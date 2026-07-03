@@ -15,6 +15,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -27,7 +28,7 @@ $globalsBag = OEGlobalsBag::getInstance();
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
-    $pid = $session->get('pid');
+    $pid = PatientSessionUtil::getPid();
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);

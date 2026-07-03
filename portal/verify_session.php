@@ -26,6 +26,7 @@
 
 // All of the common initialization steps for the get_* patient portal functions are now in this single include.
 
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //continue session
@@ -48,7 +49,7 @@ if (!isset($skipLandingPageError)) {
 
 // kick out if patient not authenticated
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
-    $pid = $session->get('pid');
+    $pid = PatientSessionUtil::getPid();
 } else {
     SessionWrapperFactory::getInstance()->destroyPortalSession();
     if ($skipLandingPageError === true) {
