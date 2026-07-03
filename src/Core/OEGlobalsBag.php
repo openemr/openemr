@@ -37,11 +37,18 @@ class OEGlobalsBag extends ParameterBag
 {
     use SingletonTrait;
 
+    /**
+     * Keys being migrated away from OEGlobalsBag. Accessing these via get(),
+     * has(), or set() emits a deprecation warning.
+     *
+     * When removing a key from this list, also update the corresponding test:
+     * @see \OpenEMR\Tests\Isolated\Core\OEGlobalsBagIsolatedTest::deprecatedKeysProvider
+     */
     private const DEPRECATED_KEYS = [
-        'pid' => 'Use PatientSessionUtil::getPid() instead',
-        'encounter' => 'Use EncounterSessionUtil::getEncounter() instead',
-        'userauthorized' => 'Use $session->get(\'userauthorized\') instead',
-        'authUserID' => 'Use $session->get(\'authUserID\') instead',
+        'pid' => 'Use PatientSessionUtil instead',
+        'encounter' => 'Use EncounterSessionUtil instead',
+        'userauthorized' => 'Use $session->get/set(\'userauthorized\') instead',
+        'authUserID' => 'Use $session->get/set(\'authUserID\') instead',
     ];
 
     protected static function createInstance(): static
@@ -52,6 +59,14 @@ class OEGlobalsBag extends ParameterBag
 
     public function set(string $key, mixed $value): void
     {
+        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
+            Deprecation::emit(sprintf(
+                'Key "%s" will be removed from OEGlobalsBag. %s',
+                $key,
+                self::DEPRECATED_KEYS[$key],
+            ));
+        }
+
         parent::set($key, $value);
 
         // Push the value into GLOBALS for backwards compatibility. Eventually
@@ -85,6 +100,14 @@ class OEGlobalsBag extends ParameterBag
 
     public function has(string $key): bool
     {
+        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
+            Deprecation::emit(sprintf(
+                'Key "%s" will be removed from OEGlobalsBag. %s',
+                $key,
+                self::DEPRECATED_KEYS[$key],
+            ));
+        }
+
         if (parent::has($key)) {
             return true;
         }

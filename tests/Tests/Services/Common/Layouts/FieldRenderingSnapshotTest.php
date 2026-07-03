@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\Common\Layouts;
 
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Tests\Fixtures\LayoutFieldFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -38,14 +39,12 @@ final class FieldRenderingSnapshotTest extends TestCase
 {
     private const FIXTURE_DIR = __DIR__ . '/fixtures';
 
-    // Stable test sentinels used by the session/OEGlobalsBag wiring so any
-    // value that leaks into rendered HTML is recognizable and deterministic.
-    // The pid is intentionally a high integer that no seed data will collide
-    // with — patient-allergies (24) reads OEGlobalsBag::pid and queries lists;
+    // Stable test sentinels used by the session wiring so any value that leaks
+    // into rendered HTML is recognizable and deterministic. The pid is
+    // intentionally a high integer that no seed data will collide with —
+    // patient-allergies (24) reads pid from the session and queries lists;
     // with no rows for this pid, every environment renders the same empty
-    // fragment. Cases 54/55/56 still need blank_form=true in their $frow
-    // because their templates read $GLOBALS['pid'] (not the session) and
-    // emit form-row markup that includes the queried contact's autoinc id.
+    // fragment.
     private const SITE_ID = 'default';
     private const AUTH_USER_ID = '1';
     private const TEST_PID = 999999;
@@ -58,8 +57,7 @@ final class FieldRenderingSnapshotTest extends TestCase
     /** @var array{hadSession: bool, session: ?SessionInterface} */
     private static array $previousSession = ['hadSession' => false, 'session' => null];
 
-    /** @var array{hadPid: bool, pid: mixed} */
-    private static array $previousOEGlobalsBagPid = ['hadPid' => false, 'pid' => null];
+    private static int $previousPid = 0;
 
     private static ?string $previousTimezone = null;
 
@@ -113,11 +111,7 @@ final class FieldRenderingSnapshotTest extends TestCase
             'hadSession' => $factory->isSessionActive(),
             'session'    => $factory->isSessionActive() ? $factory->getActiveSession() : null,
         ];
-        $bag = OEGlobalsBag::getInstance();
-        self::$previousOEGlobalsBagPid = [
-            'hadPid' => $bag->has('pid'),
-            'pid'    => $bag->has('pid') ? $bag->get('pid') : null,
-        ];
+        self::$previousPid = PatientSessionUtil::getPid();
 
         // Pin the timezone so any renderer code path that reads PHP's
         // default timezone (e.g. Twig 'now'|date(...)) computes the same
@@ -135,12 +129,11 @@ final class FieldRenderingSnapshotTest extends TestCase
         $GLOBALS['gbl_time_zone'] ??= 'UTC';
 
         // Inject a deterministic in-memory session with the keys the renderer
-        // reads (site_id for canvas image lookup, authUserID + pid for the
-        // patient/admin signature branches, pid for patient-scoped lists).
+        // reads (site_id for canvas image lookup, authUserID for the
+        // patient/admin signature branches).
         $session = new Session(new MockArraySessionStorage());
         $session->set('site_id', self::SITE_ID);
         $session->set('authUserID', self::AUTH_USER_ID);
-        $session->set('pid', self::TEST_PID);
         // CsrfUtils::collectCsrfToken throws when this key is missing; the
         // relation_form template calls it during data_type 56 rendering. The
         // value just has to be present and stable — the test sentinel makes
@@ -148,9 +141,8 @@ final class FieldRenderingSnapshotTest extends TestCase
         $session->set('csrf_private_key', '__test_layout_field_csrf__');
         $factory->setActiveSession($session);
 
-        // OEGlobalsBag is the modern accessor the canvas/signature branches use
-        // for pid; mirror the session value so both code paths agree.
-        $bag->set('pid', self::TEST_PID);
+        // Set the test pid via the session utility so all code paths see it.
+        PatientSessionUtil::setPid(self::TEST_PID);
 
         self::$fixtures = new LayoutFieldFixtureManager();
         self::$fixtures->seed();
@@ -186,13 +178,8 @@ final class FieldRenderingSnapshotTest extends TestCase
                 ->setValue($factory, null);
         }
 
-        // Restore OEGlobalsBag::pid.
-        $bag = OEGlobalsBag::getInstance();
-        if (self::$previousOEGlobalsBagPid['hadPid']) {
-            $bag->set('pid', self::$previousOEGlobalsBagPid['pid']);
-        } else {
-            $bag->remove('pid');
-        }
+        // Restore pid via the session utility.
+        PatientSessionUtil::setPid(self::$previousPid);
 
         if (self::$previousTimezone !== null) {
             date_default_timezone_set(self::$previousTimezone);
