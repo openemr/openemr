@@ -22,6 +22,7 @@ use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Forms\VitalsFieldRanges;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -450,7 +451,7 @@ class C_FormVitals
             // If not, treat as a new form (ignore the supplied id).
             if (
                 !empty($vitalsArray)
-                && ($vitalsArray['pid'] != $GLOBALS['pid'] || $vitalsArray['eid'] != $GLOBALS['encounter'])
+                && ($vitalsArray['pid'] != PatientSessionUtil::getPid() || $vitalsArray['eid'] != $GLOBALS['encounter'])
             ) {
                 $vitalsArray = [];
             }
