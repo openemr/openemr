@@ -1773,7 +1773,7 @@ class InternalToCdaConverter
             $effTime2->setAttribute('operator', 'A');
             $period = $this->createElement('period');
             if ($dosageFloat > 0) {
-                $period->setAttribute('value', (string) (int) $dosageFloat);
+                $period->setAttribute('value', (string) $dosageFloat);
             }
             if ($interval !== '') {
                 $period->setAttribute('unit', $interval);
