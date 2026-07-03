@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Services\Common\Layouts;
 
 use OpenEMR\Common\Session\PatientSessionUtil;
-use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Tests\Fixtures\LayoutFieldFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
