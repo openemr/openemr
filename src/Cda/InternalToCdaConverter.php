@@ -2518,13 +2518,16 @@ class InternalToCdaConverter
         $range = $this->xpathValue('range', $subtest);
 
         // Determine value type: PQ for numeric with unit, ST for string, CO for "NEGATIVE"
+        // Note: range_type is separate from value type - range="NEGATIVE" affects the
+        // reference range display, not the value element
         $valueType = 'PQ';
         if (!is_numeric($resultValue) || $unit === '') {
             $valueType = 'ST';
         }
-        if (strtoupper($resultValue) === 'NEGATIVE' || strtoupper($range) === 'NEGATIVE') {
+        if (strtoupper($resultValue) === 'NEGATIVE') {
             $valueType = 'CO';
         }
+        $rangeType = strtoupper($range) === 'NEGATIVE' ? 'CO' : $valueType;
 
         $value = $this->output->createElement('value');
         $this->setXsiType($value, $valueType);
@@ -2562,23 +2565,41 @@ class InternalToCdaConverter
         $refRange = $this->createElement('referenceRange');
         $obsRange = $this->createElement('observationRange');
 
-        if ($low !== '' || $high !== '') {
+        if ($rangeType === 'CO') {
+            $rangeValue = $this->output->createElement('value');
+            $this->setXsiType($rangeValue, 'CO');
+            $rangeValue->setAttribute('code', '260385009');
+            $rangeValue->setAttribute('codeSystemName', 'SNOMED-CT');
+            $rangeValue->setAttribute('displayName', 'Negative');
+            $rangeValue->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            $obsRange->appendChild($rangeValue);
+        } elseif (($low !== '' || $high !== '') && $unit !== '') {
             $rangeValue = $this->output->createElement('value');
             $this->setXsiType($rangeValue, 'IVL_PQ');
             if ($low !== '') {
                 $lowEl = $this->createElement('low');
                 $lowEl->setAttribute('value', $low);
-                if ($unit !== '') {
-                    $lowEl->setAttribute('unit', $unit);
-                }
+                $lowEl->setAttribute('unit', $unit);
                 $rangeValue->appendChild($lowEl);
             }
             if ($high !== '') {
                 $highEl = $this->createElement('high');
                 $highEl->setAttribute('value', $high);
-                if ($unit !== '') {
-                    $highEl->setAttribute('unit', $unit);
-                }
+                $highEl->setAttribute('unit', $unit);
+                $rangeValue->appendChild($highEl);
+            }
+            $obsRange->appendChild($rangeValue);
+        } elseif ($low !== '' || $high !== '') {
+            $rangeValue = $this->output->createElement('value');
+            $this->setXsiType($rangeValue, 'IVL_PQ');
+            if ($low !== '') {
+                $lowEl = $this->createElement('low');
+                $lowEl->setAttribute('value', $low);
+                $rangeValue->appendChild($lowEl);
+            }
+            if ($high !== '') {
+                $highEl = $this->createElement('high');
+                $highEl->setAttribute('value', $high);
                 $rangeValue->appendChild($highEl);
             }
             $obsRange->appendChild($rangeValue);
