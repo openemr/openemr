@@ -26312,11 +26312,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method DataAdapter\\:\\:IsCommunicationError\\(\\) has parameter \\$error with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method DataSet\\:\\:IsLocked\\(\\) has parameter \\$cachekey with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',

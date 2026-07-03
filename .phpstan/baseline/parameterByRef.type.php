@@ -26,10 +26,5 @@ $ignoreErrors[] = [
     'count' => 6,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Parameter &\\$input by\\-ref type of method PortalController\\:\\:UTF8Encode\\(\\) expects VARIANT, array\\|string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
