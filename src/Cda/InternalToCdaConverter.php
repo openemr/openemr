@@ -428,6 +428,16 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', $this->xpathValue('/CCDA/author/physician_type_system_name'));
         $assignedAuthor->appendChild($code);
 
+        $addr = $this->createElement('addr');
+        $addr->setAttribute('use', 'WP');
+        $country = $this->xpathValue('/CCDA/author/country');
+        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
+        $addr->appendChild($this->createElement('state', $this->xpathValue('/CCDA/author/state') ?: null));
+        $addr->appendChild($this->createElement('city', $this->xpathValue('/CCDA/author/city') ?: null));
+        $addr->appendChild($this->createElement('postalCode', $this->xpathValue('/CCDA/author/postalCode') ?: null));
+        $addr->appendChild($this->createElement('streetAddressLine', $this->xpathValue('/CCDA/author/streetAddressLine') ?: null));
+        $assignedAuthor->appendChild($addr);
+
         // assignedAuthor SHALL contain at least one telecom (CONF:1198-5428);
         // fall back to nullFlavor when no author contact number is available.
         $authorPhone = $this->xpathValue('/CCDA/author/phone');
@@ -442,16 +452,6 @@ class InternalToCdaConverter
             $authorTelecom->setAttribute('nullFlavor', 'UNK');
         }
         $assignedAuthor->appendChild($authorTelecom);
-
-        $addr = $this->createElement('addr');
-        $addr->setAttribute('use', 'WP');
-        $country = $this->xpathValue('/CCDA/author/country');
-        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
-        $addr->appendChild($this->createElement('state', $this->xpathValue('/CCDA/author/state') ?: null));
-        $addr->appendChild($this->createElement('city', $this->xpathValue('/CCDA/author/city') ?: null));
-        $addr->appendChild($this->createElement('postalCode', $this->xpathValue('/CCDA/author/postalCode') ?: null));
-        $addr->appendChild($this->createElement('streetAddressLine', $this->xpathValue('/CCDA/author/streetAddressLine') ?: null));
-        $assignedAuthor->appendChild($addr);
 
         $assignedPerson = $this->createElement('assignedPerson');
         $name = $this->createElement('name');
@@ -1111,6 +1111,9 @@ class InternalToCdaConverter
             $functionCode->setAttribute('codeSystemName', 'SNOMED CT');
 
             $origText = $this->createElement('originalText');
+            // Explicit namespace required: functionCode is in sdtc namespace, but
+            // originalText must be in hl7 namespace per C-CDA schema.
+            $origText->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns', 'urn:hl7-org:v3');
             $ref = $this->createElement('reference');
             $ref->setAttribute('value', '#teamMember' . $index);
             $origText->appendChild($ref);
