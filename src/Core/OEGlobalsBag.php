@@ -38,8 +38,9 @@ class OEGlobalsBag extends ParameterBag
     use SingletonTrait;
 
     /**
-     * Keys being migrated away from OEGlobalsBag. Accessing these via get(),
-     * has(), or set() emits a deprecation warning.
+     * Keys being migrated away from OEGlobalsBag. Accessing these via get() or
+     * has() emits a deprecation warning. set() is intentionally omitted at
+     * this time.
      *
      * When adding a key to this list, update the tests too.
      *
@@ -55,6 +56,17 @@ class OEGlobalsBag extends ParameterBag
         return new self($GLOBALS);
     }
 
+    private static function emitDeprecationIfNeeded(string $key): void
+    {
+        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
+            Deprecation::emit(sprintf(
+                'Key "%s" will be removed from OEGlobalsBag. %s',
+                $key,
+                self::DEPRECATED_KEYS[$key],
+            ));
+        }
+    }
+
     public function set(string $key, mixed $value): void
     {
         parent::set($key, $value);
@@ -66,13 +78,7 @@ class OEGlobalsBag extends ParameterBag
 
     public function get(string $key, mixed $default = null): mixed
     {
-        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
-            Deprecation::emit(sprintf(
-                'Key "%s" will be removed from OEGlobalsBag. %s',
-                $key,
-                self::DEPRECATED_KEYS[$key],
-            ));
-        }
+        self::emitDeprecationIfNeeded($key);
 
         // During the transition from $GLOBALS to OEGlobalsBag, legacy code may
         // still write to or unset from $GLOBALS directly. For the singleton
@@ -90,13 +96,7 @@ class OEGlobalsBag extends ParameterBag
 
     public function has(string $key): bool
     {
-        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
-            Deprecation::emit(sprintf(
-                'Key "%s" will be removed from OEGlobalsBag. %s',
-                $key,
-                self::DEPRECATED_KEYS[$key],
-            ));
-        }
+        self::emitDeprecationIfNeeded($key);
 
         if (parent::has($key)) {
             return true;
