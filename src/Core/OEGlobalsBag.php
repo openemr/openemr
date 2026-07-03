@@ -59,14 +59,6 @@ class OEGlobalsBag extends ParameterBag
 
     public function set(string $key, mixed $value): void
     {
-        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
-            Deprecation::emit(sprintf(
-                'Key "%s" will be removed from OEGlobalsBag. %s',
-                $key,
-                self::DEPRECATED_KEYS[$key],
-            ));
-        }
-
         parent::set($key, $value);
 
         // Push the value into GLOBALS for backwards compatibility. Eventually

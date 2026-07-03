@@ -100,19 +100,4 @@ class OEGlobalsBagIsolatedTest extends TestCase
 
         $bag->has($key);
     }
-
-    #[DataProvider('deprecatedKeysProvider')]
-    public function testSetDeprecatedKeyTriggersWarning(string $key, string $replacement): void
-    {
-        $bag = new OEGlobalsBag([]);
-
-        $this->expectException(ErrorException::class);
-        $this->expectExceptionMessage(sprintf(
-            'Deprecated: Key "%s" will be removed from OEGlobalsBag. Use %s instead',
-            $key,
-            $replacement,
-        ));
-
-        $bag->set($key, 'test-value');
-    }
 }
