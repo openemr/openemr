@@ -12,7 +12,9 @@
 
 namespace OpenEMR\Tests\Isolated\Core;
 
+use ErrorException;
 use OpenEMR\Core\OEGlobalsBag;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -48,5 +50,35 @@ class OEGlobalsBagIsolatedTest extends TestCase
 
         $this->assertArrayHasKey($key, $GLOBALS);
         $this->assertSame($value, $GLOBALS[$key]);
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function deprecatedKeysProvider(): array
+    {
+        return [
+            'pid' => ['pid', 'PatientSessionUtil::getPid()'],
+            'encounter' => ['encounter', 'EncounterSessionUtil::getEncounter()'],
+            'userauthorized' => ['userauthorized', '$session->get(\'userauthorized\')'],
+            'authUserID' => ['authUserID', '$session->get(\'authUserID\')'],
+        ];
+    }
+
+    #[DataProvider('deprecatedKeysProvider')]
+    public function testGetDeprecatedKeyTriggersWarning(string $key, string $replacement): void
+    {
+        $bag = new OEGlobalsBag([$key => 'test-value']);
+
+        $this->expectException(ErrorException::class);
+        $this->expectExceptionMessage(sprintf(
+            'Deprecated: Key "%s" will be removed from OEGlobalsBag. Use %s instead',
+            $key,
+            $replacement,
+        ));
+
+        $bag->get($key);
     }
 }

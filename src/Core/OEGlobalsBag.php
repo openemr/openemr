@@ -62,7 +62,7 @@ class OEGlobalsBag extends ParameterBag
     public function get(string $key, mixed $default = null): mixed
     {
         if (array_key_exists($key, self::DEPRECATED_KEYS)) {
-            Deprecation::warn(sprintf(
+            Deprecation::emit(sprintf(
                 'Key "%s" will be removed from OEGlobalsBag. %s',
                 $key,
                 self::DEPRECATED_KEYS[$key],
