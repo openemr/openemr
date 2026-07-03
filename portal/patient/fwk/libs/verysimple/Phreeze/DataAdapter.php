@@ -362,7 +362,7 @@ class DataAdapter implements IObservable
      */
     public function IsCommunicationError($error)
     {
-        $msg = is_a($error, 'Exception') ? $error->getMessage() : $error;
+        $msg = $error instanceof \Throwable ? $error->getMessage() : $error;
         return str_contains(strtolower((string) $msg), 'lost connection');
     }
 

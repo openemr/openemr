@@ -479,7 +479,7 @@ class Phreezer extends Observable
 * @access public
 * @param string $objectclass
 *          to query
-* @param mixed $id
+* @param string $id
 *          the value of the primary key
 * @param int $cache_timeout cache timeout (in seconds). Default is Phreezer->ObjectCacheTimeout. Set to 0 for no cache
 * @return Phreezable
@@ -952,7 +952,7 @@ class Phreezer extends Observable
 /**
 * Utility method that calls DataAdapter::Escape($val)
 *
-* @param mixed $val
+* @param string $val
 *          to be escaped
 * @return string
 */
@@ -964,7 +964,7 @@ class Phreezer extends Observable
 /**
 * Utility method that calls DataAdapter::GetQuotedSql($val)
 *
-* @param mixed $val
+* @param string $val
 *          to be quoted
 * @return string
 */

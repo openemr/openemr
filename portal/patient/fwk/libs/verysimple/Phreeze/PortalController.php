@@ -807,17 +807,17 @@ abstract class PortalController
     {
         $obj = null;
 
-        if (is_a($var, 'DataSet') || is_a($var, 'DataPage')) {
+        if ($var instanceof DataSet || $var instanceof DataPage) {
             // if a dataset or datapage can be converted directly into an array without enumerating twice
             $obj = $var->ToObjectArray($useSimpleObject, $options);
         } elseif ($useSimpleObject) {
             // we need to figure out what type
-            if (is_array($var) || is_a($var, 'SplFixedArray')) {
+            if (is_array($var) || $var instanceof \SplFixedArray) {
                 $obj =  [];
                 foreach ($var as $item) {
                     $obj [] = $item->ToObject($options);
                 }
-            } elseif (is_a($var, 'Phreezable') || is_a($var, 'Reporter')) {
+            } elseif ($var instanceof Phreezable || $var instanceof Reporter) {
                 $obj = $var->ToObject($options);
             } else {
                 throw new Exception('RenderJSON could not determine the type of object to render');
