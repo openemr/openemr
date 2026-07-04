@@ -16,6 +16,7 @@
  require_once("../interface/globals.php");
  require_once("../library/patient.inc.php");
 
+ use OpenEMR\Common\Session\PatientSessionUtil;
  use OpenEMR\Core\Header;
 
  // FTP parameters that you must customize.  If you are not sending
@@ -78,7 +79,7 @@ function mydie($msg): void
  // This mess gets all the info for the patient.
  //
  $insrow = [];
- global $pid; // defined in globals.php
+ $pid = PatientSessionUtil::getPid();
 foreach (['primary','secondary'] as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
     "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", [$pid, $value]);

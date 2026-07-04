@@ -21,7 +21,9 @@
  * @link    https://www.open-emr.org
  */
 
-global $pid;
+use OpenEMR\Common\Session\PatientSessionUtil;
+
+$pid = PatientSessionUtil::getPid();
 
 /**
  * @var \DOMDocument $ccr (created in createCCR.php)

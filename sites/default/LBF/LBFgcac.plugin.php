@@ -10,12 +10,15 @@
 // This provides enhancement functions for the LBFgcac visit form.
 // It is invoked by interface/forms/LBF/new.php.
 
+use OpenEMR\Common\Session\PatientSessionUtil;
+
 // Private function.  Constructs a query to find a given lbf_data field's
 // values from visits within the past 2 weeks.
 //
 function _LBFgcac_query_recent($more)
 {
-    global $pid, $encounter, $formname, $formid;
+    $pid = PatientSessionUtil::getPid();
+    global $encounter, $formname, $formid;
 
   // Get the date of this visit.
     $encrow = sqlQuery("SELECT date FROM form_encounter WHERE " .
@@ -65,7 +68,8 @@ function _LBFgcac_recent_default($name)
 //
 function _LBFgcac_query_recent_services()
 {
-    global $pid, $encounter;
+    $pid = PatientSessionUtil::getPid();
+    global $encounter;
 
   // Get the date of this visit.
     $encrow = sqlQuery("SELECT date FROM form_encounter WHERE " .
@@ -89,7 +93,8 @@ function _LBFgcac_query_recent_services()
 //
 function _LBFgcac_query_current_services()
 {
-    global $pid, $encounter;
+    $pid = PatientSessionUtil::getPid();
+    global $encounter;
 
     $query = "SELECT c.related_code " .
     "FROM billing AS b, codes AS c WHERE " .
