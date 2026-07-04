@@ -1499,14 +1499,20 @@ class InternalToCdaConverter
         }
         $reactionObs->appendChild($value);
 
-        $this->appendNestedSeverityObservation($reactionObs, $index);
+        $this->appendNestedSeverityObservation($reactionObs, $allergy, $index);
 
         $entryRel->appendChild($reactionObs);
         $obs->appendChild($entryRel);
     }
 
-    private function appendNestedSeverityObservation(DOMElement $reactionObs, int $index): void
+    private function appendNestedSeverityObservation(DOMElement $reactionObs, DOMElement $allergy, int $index): void
     {
+        // Node.js only renders severity observation when outcome_code exists
+        $outcomeCode = $this->xpathValue('outcome_code', $allergy);
+        if ($outcomeCode === '') {
+            return;
+        }
+
         $severityIdx = ($index * 2) - 1;
         $entryRel = $this->createElement('entryRelationship');
         $entryRel->setAttribute('typeCode', 'SUBJ');
@@ -1533,9 +1539,13 @@ class InternalToCdaConverter
 
         $this->appendStatusCode($sevObs, ActStatus::Completed);
 
+        $outcome = $this->xpathValue('outcome', $allergy);
         $value = $this->output->createElement('value');
         $this->setXsiType($value, 'CD');
-        $value->setAttribute('code', '0');
+        $value->setAttribute('code', $this->cleanCode($outcomeCode));
+        if ($outcome !== '') {
+            $value->setAttribute('displayName', $outcome);
+        }
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED CT');
         $sevObs->appendChild($value);
@@ -1546,8 +1556,13 @@ class InternalToCdaConverter
 
     private function appendAllergySeverityObservation(DOMElement $obs, DOMElement $allergy, int $index): void
     {
-        $outcome = $this->xpathValue('outcome', $allergy);
+        // Node.js only renders severity observation when outcome_code exists
         $outcomeCode = $this->xpathValue('outcome_code', $allergy);
+        if ($outcomeCode === '') {
+            return;
+        }
+
+        $outcome = $this->xpathValue('outcome', $allergy);
         $severityIdx = $index * 2;
 
         $entryRel = $this->createElement('entryRelationship');
@@ -1577,7 +1592,10 @@ class InternalToCdaConverter
 
         $value = $this->output->createElement('value');
         $this->setXsiType($value, 'CD');
-        $value->setAttribute('code', $outcomeCode !== '' ? $this->cleanCode($outcomeCode) : '0');
+        $value->setAttribute('code', $this->cleanCode($outcomeCode));
+        if ($outcome !== '') {
+            $value->setAttribute('displayName', $outcome);
+        }
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED CT');
         $sevObs->appendChild($value);
