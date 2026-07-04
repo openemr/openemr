@@ -182,19 +182,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$targets in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$arates in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$all_allergy_alerts in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/reminder/active_reminder_popup.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$arr_report in empty\\(\\) always exists and is always falsy\\.$#',

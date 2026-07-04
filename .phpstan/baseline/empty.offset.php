@@ -87,7 +87,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/SDOH/HistorySdohService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 2 on array\\{non\\-empty\\-string, non\\-falsy\\-string\\|null, decimal\\-int\\-string&non\\-falsy\\-string, non\\-falsy\\-string\\|null, non\\-falsy\\-string\\|null, non\\-falsy\\-string\\|null, non\\-falsy\\-string\\|null, non\\-falsy\\-string\\|null, \\.\\.\\.\\} in empty\\(\\) always exists and is not falsy\\.$#',
+    'message' => '#^Offset 2 on array\\{non\\-empty\\-string, non\\-falsy\\-string\\|null, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string\\|null, non\\-falsy\\-string\\|null, non\\-falsy\\-string\\|null, non\\-falsy\\-string\\|null, non\\-falsy\\-string\\|null, \\.\\.\\.\\} in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/DateSearchField.php',
 ];
