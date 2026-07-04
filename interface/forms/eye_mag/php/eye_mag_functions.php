@@ -1640,7 +1640,7 @@ function send_json_values($PMSFH = ""): void
     $send['PMSFH'] = $PMSFH[0]; //actual array
     $send['PMH_panel'] = display_PMSFH('2');//display PMSFH next to the PMSFH Builder
     $send['right_panel'] = show_PMSFH_panel($PMSFH);//display PMSFH in a slidable right-sided panel
-    $send['IMPPLAN_items'] = build_IMPPLAN_items($pid, $form_id);
+    $send['IMPPLAN_items'] = build_IMPPLAN_items((string) $pid, $form_id);
     echo json_encode($send);
 }
 
@@ -2094,7 +2094,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     $header1 = '';
     $display_PMSFH = [];
     if (!($PMFSH ?? '')) {
-        $PMSFH = build_PMSFH($pid);
+        $PMSFH = build_PMSFH((string) $pid);
     }
 
     ob_start();
@@ -2715,7 +2715,7 @@ function show_PMSFH_report($PMSFH): void
     //4 panels
     $rows = '4';
     if (!($PMFSH ?? '')) {
-        $PMSFH = build_PMSFH($pid);
+        $PMSFH = build_PMSFH((string) $pid);
     }
 
     // Find out the number of items present now and put 1/4 in each column.
@@ -4432,7 +4432,7 @@ function start_your_engines($FIELDS)
     $sub_term = '';
     $count = 0;
     if (!($PMFSH ?? '')) {
-        $PMSFH = build_PMSFH($pid);
+        $PMSFH = build_PMSFH((string) $pid);
     }
 
     $query = "select * from list_options where list_id ='Eye_Coding_Fields' Order by seq";
