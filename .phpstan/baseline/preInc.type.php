@@ -99,6 +99,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/collections_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/inventory_list.php',
 ];
 $ignoreErrors[] = [

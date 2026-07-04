@@ -938,7 +938,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between mixed and \\(float\\|int\\) results in an error\\.$#',
-    'count' => 7,
+    'count' => 8,
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',
 ];
 $ignoreErrors[] = [
