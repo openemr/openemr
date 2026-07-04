@@ -1,175 +1,192 @@
-"use strict";
+'use strict'
 
-var bbu = require("../../oe-blue-button-util");
+var bbu = require('../../oe-blue-button-util')
 
-var translate = require('./translate');
+var translate = require('./translate')
 
-var bbuo = bbu.object;
-var bbud = bbu.datetime;
+var bbuo = bbu.object
+var bbud = bbu.datetime
 
 exports.input = function (input) {
-    return input;
-};
+    return input
+}
 
 exports.inputProperty = function (key) {
     return function (input) {
-        return input && input[key];
-    };
-};
+        return input && input[key]
+    }
+}
+
+// Like inputProperty, but returns undefined for empty/whitespace values so the
+// attribute is omitted rather than emitted empty. Used for II @extension, where
+// an empty string is a datatype violation (MDHT IIImpl "bad value"); a root-only
+// II is valid.
+exports.nonEmptyInputProperty = function (key) {
+    return function (input) {
+        var value = input && input[key]
+        if ((value === null) || (value === undefined)) {
+            return undefined
+        }
+        if (value.toString().trim() === '') {
+            return undefined
+        }
+        return value
+    }
+}
 
 exports.docDateProperty = function (key) {
     return function (input, context) {
-        return context && context[key];
-    };
-};
+        return context && context[key]
+    }
+}
 
 exports.boolInputProperty = function (key) {
     return function (input) {
         if (input && Object.prototype.hasOwnProperty.call(input, key)) {
-            return input[key].toString();
+            return input[key].toString()
         } else {
-            return null;
+            return null
         }
-    };
-};
+    }
+}
 
-exports.code = translate.code;
+exports.code = translate.code
 
-exports.codeFromName = translate.codeFromName;
+exports.codeFromName = translate.codeFromName
 
 exports.codeOnlyFromName = function (OID, key) {
-    var f = translate.codeFromName(OID);
+    var f = translate.codeFromName(OID)
     return function (input) {
         if (input && input[key]) {
-            return f(input[key]).code;
+            return f(input[key]).code
         } else {
-            return null;
+            return null
         }
-    };
-};
+    }
+}
 
-exports.time = translate.time;
+exports.time = translate.time
 
 exports.use = function (key) {
     return function (input) {
-        var value = input && input[key];
+        var value = input && input[key]
         if (value) {
-            return translate.acronymize(value);
+            return translate.acronymize(value)
         } else {
-            return null;
+            return null
         }
-    };
-};
+    }
+}
 
 exports.typeCD = {
-    "xsi:type": "CD"
-};
+    'xsi:type': 'CD'
+}
 
 exports.typeCE = {
-    "xsi:type": "CE"
-};
+    'xsi:type': 'CE'
+}
 
 // Tables render first, so each table ID will sequence index referenceKey
 // of the same referenceKey for template reference. e.g ID="result1" ... ID="severity1"
 exports.nextTableReference = function (referenceKey) {
     return function (input, context) {
-        return context.nextTableReference(referenceKey);
-    };
-};
+        return context.nextTableReference(referenceKey)
+    }
+}
 
 // For our template references to table content ID.
 // e.g <text><reference value="#result1"/></text>
 exports.nextReference = function (referenceKey) {
     return function (input, context) {
-        return context.nextReference(referenceKey);
-    };
-};
+        return context.nextReference(referenceKey)
+    }
+}
 
 exports.sameReference = function (referenceKey) {
     return function (input, context) {
-        return context.sameReference(referenceKey);
-    };
-};
+        return context.sameReference(referenceKey)
+    }
+}
 
-exports.deepInputProperty = function (deepProperty, defaultValue, plus = "") {
+exports.deepInputProperty = function (deepProperty, defaultValue, plus = '') {
     return function (input) {
-        let value = bbuo.deepValue(input, deepProperty);
-        value = bbuo.exists(value) ? value : defaultValue;
+        let value = bbuo.deepValue(input, deepProperty)
+        value = bbuo.exists(value) ? value : defaultValue
         if (typeof value !== 'string') {
-            value = value.toString();
+            value = value.toString()
         }
         if (value === '' || value === 'NaN') {
-            return defaultValue;
+            return defaultValue
         }
         if (plus) {
-            let valuePlus = bbuo.deepValue(input, plus);
-            valuePlus = valuePlus ? valuePlus : defaultValue;
+            let valuePlus = bbuo.deepValue(input, plus)
+            valuePlus = valuePlus ? valuePlus : defaultValue
             if (typeof valuePlus !== 'string') {
-                valuePlus = valuePlus.toString();
+                valuePlus = valuePlus.toString()
             }
             if (valuePlus === '' || valuePlus === 'NaN') {
-                return "";
+                return ''
             }
-            value = bbuo.exists(valuePlus) ? (value + ' ' + valuePlus) : value;
+            value = bbuo.exists(valuePlus) ? (value + ' ' + valuePlus) : value
         }
-        return value;
-    };
-};
+        return value
+    }
+}
 
-exports.deepInputPropertyDisplay = function (deepProperty, defaultValue, plus = "") {
+exports.deepInputPropertyDisplay = function (deepProperty, defaultValue, plus = '') {
     return function (input) {
-        let value = bbuo.deepValue(input, deepProperty);
-        value = bbuo.exists(value) ? value : defaultValue;
+        let value = bbuo.deepValue(input, deepProperty)
+        value = bbuo.exists(value) ? value : defaultValue
 
         if (value === null || value === undefined) {
-            return defaultValue;
+            return defaultValue
         }
         if (typeof value !== 'string') {
-            value = value.toString();
+            value = value.toString()
         }
         if (value === '' || value === 'NaN') {
-            return defaultValue;
+            return defaultValue
         }
 
         // Add secondary field (e.g., first + last name)
         if (plus) {
-            let valuePlus = bbuo.deepValue(input, plus);
-            valuePlus = valuePlus ? valuePlus : defaultValue;
+            let valuePlus = bbuo.deepValue(input, plus)
+            valuePlus = valuePlus ? valuePlus : defaultValue
             if (typeof valuePlus !== 'string') {
-                valuePlus = valuePlus.toString();
+                valuePlus = valuePlus.toString()
             }
             if (valuePlus !== '' && valuePlus !== 'NaN') {
-                value = bbuo.exists(valuePlus) ? (value + ' ' + valuePlus) : value;
+                value = bbuo.exists(valuePlus) ? (value + ' ' + valuePlus) : value
             }
         }
 
         // ---- Format for display ----
         // Replace underscores with spaces
-        value = value.replace(/_/g, ' ');
+        value = value.replace(/_/g, ' ')
         // Capitalize each word
         value = value.replace(/\w\S*/g, (txt) => {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        });
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        })
 
-        return value.trim();
-    };
-};
+        return value.trim()
+    }
+}
 
 exports.deepInputDate = function (deepProperty, defaultValue) {
     return function (input) {
-        var value = bbuo.deepValue(input, deepProperty);
+        var value = bbuo.deepValue(input, deepProperty)
         if (!bbuo.exists(value)) {
-            return defaultValue;
+            return defaultValue
         } else {
             value = bbud.modelToDate({
                 date: value.date,
                 precision: value.precision // workaround a bug in bbud.  Changes precision.
-            });
+            })
             if (bbuo.exists(value)) {
-                return value;
+                return value
             } else {
-                return defaultValue;
+                return defaultValue
             }
         }
-    };
-};
+    }
+}
