@@ -299,6 +299,38 @@ var nonEmptyText = function (input) {
     return (input !== null) && (input !== undefined) && (input.toString().trim() !== "");
 };
 
+// True when an organization carries a usable identifier or name, so an empty
+// <representedOrganization/> (no id, no name) is suppressed rather than emitted.
+var organizationHasContent = function (input) {
+    if (!input) {
+        return false;
+    }
+    var idHasContent = function (id) {
+        return id && (nonEmptyText(id.root) || nonEmptyText(id.extension));
+    };
+    var identity = input.identity;
+    if (Array.isArray(identity)) {
+        for (var i = 0; i < identity.length; ++i) {
+            if (idHasContent(identity[i])) {
+                return true;
+            }
+        }
+    } else if (idHasContent(identity)) {
+        return true;
+    }
+    var name = input.name;
+    if (Array.isArray(name)) {
+        for (var j = 0; j < name.length; ++j) {
+            if (nonEmptyText(name[j])) {
+                return true;
+            }
+        }
+    } else if (nonEmptyText(name)) {
+        return true;
+    }
+    return false;
+};
+
 var representedOrganization = {
     key: "representedOrganization",
     content: [
@@ -318,7 +350,8 @@ var representedOrganization = {
         //usRealmAddress,
         //telecom
     ],
-    dataKey: "organization"
+    dataKey: "organization",
+    existsWhen: organizationHasContent
 };
 
 var assignedEntity = exports.assignedEntity = {
@@ -483,7 +516,8 @@ var linkedRepresentedOrganization = {
             existsWhen: nonEmptyText
         }
     ],
-    dataKey: "organization"
+    dataKey: "organization",
+    existsWhen: organizationHasContent
 };
 
 exports.actAuthor = {

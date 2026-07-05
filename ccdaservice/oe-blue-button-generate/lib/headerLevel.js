@@ -335,7 +335,8 @@ var attributed_provider = exports.attributed_provider = {
                 return input.number;
             }
         }],
-        dataKey: "phone"
+        dataKey: "phone",
+        existsWhen: condition.propertyValueNotEmpty("number")
     }, orgAddress, orgAddressNullFlavor],
     dataKey: "attributed_provider"
 };

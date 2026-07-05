@@ -71,6 +71,103 @@ class CcdaGeneratorTest extends TestCase
         $this->assertCdaEquals($expectedOutput, $actualOutput);
     }
 
+    /**
+     * Cert-oriented invariant checks on the generated document.
+     *
+     * Unlike the golden comparison, this pins IG/datatype *properties* rather than
+     * exact bytes, so it (a) survives intentional output improvements without a
+     * fixture regeneration, and (b) asserts properties of the output rather than a
+     * stored document, so it carries over unchanged to any generator — including
+     * the PHP module intended to replace the Node service.
+     *
+     * Every assertion below is calibrated against a known ONC SITE-passing OpenEMR
+     * document.
+     */
+    public function testGeneratedCdaMeetsIgInvariants(): void
+    {
+        // Generate from the populated cert scenario (the payload that produces a
+        // known ONC SITE-passing document), not the sparse example input.
+        $inputData = file_get_contents(self::FIXTURE_DIR . 'ccda-cert-data.xml');
+        self::assertNotFalse($inputData, 'Failed to read input fixture');
+
+        $dispatchTable = $this->createMock(EncounterccdadispatchTable::class);
+        $generator = new CcdaGenerator($dispatchTable);
+        $xml = $generator->socket_get(trim($inputData));
+        self::assertNotEmpty($xml, 'socket_get returned empty response');
+
+        $dom = $this->loadDom($xml);
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        // Root is a US Realm Clinical Document.
+        self::assertSame('ClinicalDocument', $dom->documentElement->localName, 'Root is not ClinicalDocument');
+
+        // No empty required attributes. An empty @extension / @code / @displayName /
+        // @root / @value / @nullFlavor is an HL7 datatype violation (MDHT "bad value").
+        $emptyAttrs = $xpath->query(
+            '//*[@extension=""] | //*[@code=""] | //*[@displayName=""] | //*[@root=""] | //*[@value=""] | //*[@nullFlavor=""]'
+        );
+        self::assertSame(0, $emptyAttrs->length, $this->describeNodes('empty attribute', $emptyAttrs));
+
+        // No empty name / address ST parts (ADXP / ENXP validateST): each part
+        // carries text, or the element is omitted.
+        $emptyParts = $xpath->query(
+            '//hl7:family[not(node())] | //hl7:given[not(node())] | //hl7:prefix[not(node())] | //hl7:suffix[not(node())]'
+            . ' | //hl7:streetAddressLine[not(node())] | //hl7:city[not(node())] | //hl7:state[not(node())]'
+            . ' | //hl7:postalCode[not(node())]'
+        );
+        self::assertSame(0, $emptyParts->length, $this->describeNodes('empty name/address part', $emptyParts));
+
+        // No empty <name> that also lacks a nullFlavor.
+        $emptyNames = $xpath->query('//hl7:name[not(node()) and not(@nullFlavor)]');
+        self::assertSame(0, $emptyNames->length, $this->describeNodes('empty <name> without nullFlavor', $emptyNames));
+
+        // Every assignedPerson carries a name (fielded or nullFlavor).
+        $namelessAuthors = $xpath->query('//hl7:assignedPerson[not(hl7:name)]');
+        self::assertSame(0, $namelessAuthors->length, $this->describeNodes('assignedPerson without name', $namelessAuthors));
+
+        // Every date value is a well-formed HL7 timestamp (YYYY..YYYYMMDDHHMMSS,
+        // optional timezone). Unknown dates use nullFlavor rather than an empty,
+        // "Invalid date", or fabricated value.
+        $dateRegex = '/^\d{4}(\d{2}(\d{2}(\d{2}(\d{2}(\d{2})?)?)?)?)?([+-]\d{4})?$/';
+        foreach ($xpath->query('//hl7:low | //hl7:high | //hl7:center | //hl7:effectiveTime | //hl7:time') as $el) {
+            if (!$el instanceof \DOMElement || !$el->hasAttribute('value')) {
+                continue;
+            }
+            $value = $el->getAttribute('value');
+            self::assertMatchesRegularExpression($dateRegex, $value, 'Malformed date @value: "' . $value . '"');
+        }
+
+        // Required US Realm CCD sections present (SHALL, entries-required).
+        $requiredSections = [
+            '48765-2' => 'Allergies',
+            '10160-0' => 'Medications',
+            '11450-4' => 'Problems',
+            '47519-4' => 'Procedures',
+            '30954-2' => 'Results',
+        ];
+        foreach ($requiredSections as $code => $label) {
+            $section = $xpath->query("//hl7:structuredBody/hl7:component/hl7:section/hl7:code[@code='" . $code . "']");
+            self::assertGreaterThan(0, $section->length, "Missing required section: {$label} ({$code})");
+        }
+    }
+
+    private function describeNodes(string $what, \DOMNodeList $nodes): string
+    {
+        if ($nodes->length === 0) {
+            return "Found 0 {$what}(s)";
+        }
+        $samples = [];
+        $limit = min(5, $nodes->length);
+        for ($i = 0; $i < $limit; $i++) {
+            $node = $nodes->item($i);
+            if ($node !== null) {
+                $samples[] = trim((string)$node->ownerDocument->saveXML($node));
+            }
+        }
+        return "Found {$nodes->length} {$what}(s), e.g.:\n" . implode("\n", $samples);
+    }
+
     private function assertCdaEquals(string $expected, string $actual): void
     {
         $expectedDom = $this->loadDom($expected);
@@ -118,7 +215,7 @@ class CcdaGeneratorTest extends TestCase
         $textNodes = $xpath->query('//hl7:td/text() | //xhtml:td/text()');
         if ($textNodes !== false) {
             foreach ($textNodes as $textNode) {
-                if (preg_match('/^\s*\d{4}-\d{2}-\d{2}\s*$/', (string) $textNode->nodeValue) === 1) {
+                if (preg_match('/^\s*\d{4}-\d{2}-\d{2}\s*$/', (string)$textNode->nodeValue) === 1) {
                     $textNode->nodeValue = 'NORMALIZED_DATE';
                 }
             }
@@ -156,7 +253,7 @@ class CcdaGeneratorTest extends TestCase
         $nodes = $xpath->query('//hl7:text//text() | //xhtml:td//text() | //hl7:value//text()');
         if ($nodes !== false) {
             foreach ($nodes as $node) {
-                $node->nodeValue = trim((string) preg_replace('/\s+/u', ' ', (string) $node->nodeValue));
+                $node->nodeValue = trim((string)preg_replace('/\s+/u', ' ', (string)$node->nodeValue));
             }
         }
 
