@@ -34,6 +34,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\SingleCommandApplication;
+use Symfony\Component\HttpClient\HttpClient;
 
 (new SingleCommandApplication())
     ->setName('derive-prev-release')
@@ -46,15 +47,28 @@ use Symfony\Component\Console\SingleCommandApplication;
         'Repo path (defaults to cwd)',
         getcwd() === false ? '.' : getcwd(),
     )
+    ->addOption(
+        'manifest-url',
+        null,
+        InputOption::VALUE_REQUIRED,
+        'Overrides the website-openemr data/releases.json URL used to filter skipped tags',
+        BranchVersionResolver::DEFAULT_MANIFEST_URL,
+    )
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $target = $input->getArgument('target-version');
         $repoDir = $input->getOption('repo-dir');
+        $manifestUrl = $input->getOption('manifest-url');
         if (!is_string($target) || $target === '' || !is_string($repoDir) || $repoDir === '') {
             $output->writeln('<error>target-version and --repo-dir are required</error>');
             return 2;
         }
+        if (!is_string($manifestUrl) || $manifestUrl === '') {
+            $output->writeln('<error>--manifest-url must be a non-empty string</error>');
+            return 2;
+        }
         try {
-            $output->writeln((new BranchVersionResolver($repoDir))->previousRelease($target));
+            $resolver = new BranchVersionResolver($repoDir, HttpClient::create(), $manifestUrl);
+            $output->writeln($resolver->previousRelease($target));
             return 0;
         } catch (\InvalidArgumentException $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
