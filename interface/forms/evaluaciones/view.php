@@ -85,7 +85,7 @@ if ($id > 0) {
         } else {
             $g_class = 'danger';  $g_level = xlt('Severe');
         }
-    ?>
+        ?>
     <div class="registro-card">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
@@ -118,7 +118,7 @@ if ($id > 0) {
         foreach ($fields as $field => [$label, $obs_field]) :
             $val = $row[$field] ?? '';
             $obs = $row[$obs_field] ?? '';
-        ?>
+            ?>
         <div class="field-detail <?php echo !empty($obs) ? 'has-obs' : ''; ?>">
             <strong><?php echo text($label); ?>:</strong> <?php echo text($val ?: '—'); ?>
             <?php if ($obs) : ?>

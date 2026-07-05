@@ -1,10 +1,8 @@
 <?php
 
-use Particle\Validator\Rule\Length;
-
 require_once(__DIR__ . "/../globals.php");
 
-/*Extraer todos los internados actuales, tabla: form_encounter, con tipo Internación pc_catid = 16 (referencia tabla: openemr_postcalendar_categories	)*/
+/*Extraer todos los internados actuales, tabla: form_encounter, con tipo Internación pc_catid = 16 (referencia tabla: openemr_postcalendar_categories   )*/
 $salas=$_GET['salas'];
 $camas=$_GET['camas'];
 $query_where='where f.pc_catid = 16 and f.out_date is null';
@@ -17,7 +15,7 @@ if($salas!=''){
     }
     $query_where=rtrim($query_where, ',');
     $query_where.=')';
-    
+
 }
 if($camas!=''){
     $query_where.=' and f.cama IN (';
@@ -27,7 +25,7 @@ if($camas!=''){
     }
     $query_where=rtrim($query_where, ',');
     $query_where.=')';
-    
+
 }
 $internados_actuales_consult = "SELECT f.pid, CONCAT(CONCAT(p.fname, ' '),p.lname) as paciente, f.cuarto as sala, f.cama as cama from form_encounter as f join patient_data as p on p.pid = f.pid ".$query_where."  order by sala, f.cama ASC";
 $res = sqlStatement($internados_actuales_consult);

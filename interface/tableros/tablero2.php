@@ -10,7 +10,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once(__DIR__ . "/../globals.php");
 include("../fusioncharts.php");
 ?>

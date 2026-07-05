@@ -12,7 +12,6 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 $pid       = isset($_GET['pid'])       ? (int)$_GET['pid']       : (int)($session->get('pid') ?? 0);
 $encounter = isset($_GET['encounter']) ? (int)$_GET['encounter'] : (int)($session->get('encounter') ?? 0);

@@ -1,4 +1,5 @@
 <?php
+
 require_once(__DIR__ . "/../globals.php");
 $inicio = $_REQUEST["inicio"];
 $fin = $_REQUEST["fin"];
