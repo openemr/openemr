@@ -208,7 +208,7 @@ function populateAuthorFromAuthorContainer(pd) {
         },
         "date_time": {
             "point": {
-                "date": fDate(author.time) || fDate(""),
+                "date": fDate(author.time, false, true),
                 "precision": "tz"
             }
         },
@@ -328,7 +328,7 @@ function populateMedication(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
@@ -392,7 +392,7 @@ function populateMedication(pd) {
                 },
                 "date_time": {
                     "point": {
-                        "date": authorDateTime || fDate(""),
+                        "date": authorDateTime || fDate("", false, true),
                         "precision": "tz"
                     }
                 },
@@ -587,7 +587,7 @@ function getFinding(pd, problem) {
             },
             "date_time": {
                 "point": {
-                    "date": authorDateTime || fDate(""),
+                    "date": authorDateTime || fDate("", false, true),
                     "precision": "tz"
                 }
             },
@@ -738,7 +738,7 @@ function populateAllergy(pd) {
         },
         "date_time": {
             "point": {
-                "date": fDate(author.time) || fDate(""),
+                "date": fDate(author.time, false, true),
                 "precision": "tz"
             }
         },
@@ -881,7 +881,7 @@ function populateProblem(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
@@ -1047,7 +1047,7 @@ function populateMedicalDevice(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
@@ -1401,7 +1401,7 @@ function getFunctionalStatus(pd) {
         },
         "date_time": {
             "point": {
-                "date": authorDateTime || fDate(""),
+                "date": authorDateTime || fDate("", false, true),
                 "precision": "tz"
             }
         },
@@ -1475,7 +1475,7 @@ function getDisabilityAssessment(pd) {
         },
         "date_time": {
             "point": {
-                "date": authorDateTime || fDate(""),
+                "date": authorDateTime || fDate("", false, true),
                 "precision": "tz"
             }
         },
@@ -1516,7 +1516,7 @@ function getDisabilityAssessment(pd) {
         "disability_questions": pd.disability_questions || "",
         "date_time": {
             "point": {
-                "date": fDate(pd.date || all?.created_time_timezone) || fDate(""),
+                "date": fDate(pd.date || all?.created_time_timezone, false, true),
                 "precision": "day"
             }
         }
@@ -1552,7 +1552,7 @@ function getMentalStatus(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": authorDateTime || fDate(""),
+                    "date": authorDateTime || fDate("", false, true),
                     "precision": "tz"
                 }
             },
@@ -2121,7 +2121,7 @@ function populateSocialHistory(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
@@ -2160,7 +2160,7 @@ function populateSocialHistory(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(patient.author?.time) || fDate(""),
+                    "date": fDate(patient.author?.time, false, true),
                     "precision": "tz"
                 }
             },
@@ -2267,7 +2267,7 @@ function populateImmunization(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
@@ -2579,7 +2579,7 @@ function populateAdvanceDirective(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
@@ -2655,7 +2655,7 @@ function populateHeader(pd) {
         "title": name,
         "date_time": {
             "point": {
-                "date": fDate(pd.created_time_timezone) || fDate(""),
+                "date": fDate(pd.created_time_timezone, false, true),
                 "precision": "tz"
             }
         },
@@ -2668,7 +2668,7 @@ function populateHeader(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": authorDateTime || fDate(""),
+                    "date": authorDateTime || fDate("", false, true),
                     "precision": "tz"
                 }
             },
@@ -3277,7 +3277,7 @@ function generateCcda(pd) {
                 },
                 "date_time": {
                     "point": {
-                        "date": authorDateTime || fDate(""),
+                        "date": authorDateTime || fDate("", false, true),
                         "precision": "tz"
                     }
                 },

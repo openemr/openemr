@@ -67,6 +67,17 @@ exports.codeOnlyFromName = function (OID, key) {
 
 exports.time = translate.time;
 
+// Date/time attribute set for effectiveTime/low/high/center: a value when the
+// date is present and valid, otherwise nullFlavor="UNK" rather than an empty or
+// bogus @value. Keeps missing clinical dates IG-conformant.
+exports.timeAttr = function (input) {
+    var value = translate.time(input);
+    if (value === null || value === undefined || value === "" || value === "Invalid date") {
+        return { nullFlavor: "UNK" };
+    }
+    return { value: value };
+};
+
 exports.use = function (key) {
     return function (input) {
         var value = input && input[key];
