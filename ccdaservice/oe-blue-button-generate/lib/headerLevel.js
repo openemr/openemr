@@ -1,18 +1,18 @@
-'use strict'
+"use strict";
 
-var fieldLevel = require('./fieldLevel')
-var leafLevel = require('./leafLevel')
-var condition = require('./condition')
-var contentModifier = require('./contentModifier')
-var translate = require('./translate')
-var key = contentModifier.key
-var required = contentModifier.required
-var dataKey = contentModifier.dataKey
+var fieldLevel = require('./fieldLevel');
+var leafLevel = require('./leafLevel');
+var condition = require('./condition');
+var contentModifier = require("./contentModifier");
+var translate = require("./translate");
+var key = contentModifier.key;
+var required = contentModifier.required;
+var dataKey = contentModifier.dataKey;
 
-var patientName = Object.create(fieldLevel.usRealmName)
+var patientName = Object.create(fieldLevel.usRealmName);
 patientName.attributes = {
-    use: 'L'
-}
+    use: "L"
+};
 
 // US Realm organization address. Emit fielded parts only when populated, and a
 // nullFlavor address when the meaningful parts (street/city/state/zip) are all
@@ -21,518 +21,518 @@ patientName.attributes = {
 // constraints. country alone does not count as content.
 var orgAddressHasContent = function (input) {
     if (!input) {
-        return false
+        return false;
     }
     var hasValue = function (value) {
-        return (value !== null) && (value !== undefined) && (value.toString().trim() !== '')
-    }
+        return (value !== null) && (value !== undefined) && (value.toString().trim() !== "");
+    };
     if (hasValue(input.city) || hasValue(input.state) || hasValue(input.zip)) {
-        return true
+        return true;
     }
-    var lines = input.street_lines
+    var lines = input.street_lines;
     if (Array.isArray(lines)) {
         for (var i = 0; i < lines.length; ++i) {
             if (hasValue(lines[i])) {
-                return true
+                return true;
             }
         }
     } else if (hasValue(lines)) {
-        return true
+        return true;
     }
-    return false
-}
+    return false;
+};
 
 var orgAddress = {
-    key: 'addr',
+    key: "addr",
     attributes: {
-        use: leafLevel.use('use')
+        use: leafLevel.use("use")
     },
     content: [{
-        key: 'country',
-        text: leafLevel.inputProperty('country'),
-        existsWhen: condition.propertyNotEmpty('country')
+        key: "country",
+        text: leafLevel.inputProperty("country"),
+        existsWhen: condition.propertyNotEmpty("country")
     }, {
-        key: 'state',
-        text: leafLevel.inputProperty('state'),
-        existsWhen: condition.propertyNotEmpty('state')
+        key: "state",
+        text: leafLevel.inputProperty("state"),
+        existsWhen: condition.propertyNotEmpty("state")
     }, {
-        key: 'city',
-        text: leafLevel.inputProperty('city'),
-        existsWhen: condition.propertyNotEmpty('city')
+        key: "city",
+        text: leafLevel.inputProperty("city"),
+        existsWhen: condition.propertyNotEmpty("city")
     }, {
-        key: 'postalCode',
-        text: leafLevel.inputProperty('zip'),
-        existsWhen: condition.propertyNotEmpty('zip')
+        key: "postalCode",
+        text: leafLevel.inputProperty("zip"),
+        existsWhen: condition.propertyNotEmpty("zip")
     }, {
-        key: 'streetAddressLine',
+        key: "streetAddressLine",
         text: leafLevel.input,
-        dataKey: 'street_lines',
-        existsWhen: condition.propertyNotEmpty('street_lines[0]')
+        dataKey: "street_lines",
+        existsWhen: condition.propertyNotEmpty("street_lines[0]")
     }],
-    dataKey: 'address',
+    dataKey: "address",
     existsWhen: orgAddressHasContent
-}
+};
 
 var orgAddressNullFlavor = {
-    key: 'addr',
+    key: "addr",
     attributes: {
-        nullFlavor: 'NI'
+        nullFlavor: "NI"
     },
-    dataKey: 'address',
+    dataKey: "address",
     existsWhen: function (input) {
-        return input && !orgAddressHasContent(input)
+        return input && !orgAddressHasContent(input);
     }
-}
+};
 
 var patient = exports.patient = {
-    key: 'patient',
+    key: "patient",
     content: [
         patientName,
         {
-            key: 'name',
+            key: "name",
             content: [{
-                key: 'given',
+                key: "given",
                 attributes: {
-                    qualifier: 'BR'
+                    qualifier: "BR"
                 },
-                text: leafLevel.inputProperty('first')
+                text: leafLevel.inputProperty("first")
             }, {
-                key: 'given',
-                text: leafLevel.inputProperty('middle'),
-                existsWhen: condition.propertyNotEmpty('middle')
+                key: "given",
+                text: leafLevel.inputProperty("middle"),
+                existsWhen: condition.propertyNotEmpty("middle")
             }, {
-                key: 'family',
+                key: "family",
                 attributes: {
-                    qualifier: 'BR'
+                    qualifier: "BR"
                 },
-                text: leafLevel.inputProperty('last')
+                text: leafLevel.inputProperty("last")
             }],
-            dataKey: 'birth_name',
-            existsWhen: condition.propertyNotEmpty('last')
+            dataKey: "birth_name",
+            existsWhen: condition.propertyNotEmpty("last")
         }, {
-            key: 'administrativeGenderCode',
+            key: "administrativeGenderCode",
             attributes: {
                 code: function (input) {
-                    if (Object.prototype.toString.call(input) === '[object String]')
-                        return input.substring(0, 1)
-                    else return input.code.substring(0, 1)
+                    if (Object.prototype.toString.call(input) === "[object String]")
+                        return input.substring(0, 1);
+                    else return input.code.substring(0, 1);
                 },
-                codeSystem: '2.16.840.1.113883.5.1',
-                codeSystemName: 'HL7 AdministrativeGender',
+                codeSystem: "2.16.840.1.113883.5.1",
+                codeSystemName: "HL7 AdministrativeGender",
                 displayName: leafLevel.input
             },
-            dataKey: 'gender'
+            dataKey: "gender"
         },
-        [fieldLevel.effectiveTime, key('birthTime'), dataKey('dob')], {
-            key: 'maritalStatusCode',
+        [fieldLevel.effectiveTime, key("birthTime"), dataKey("dob")], {
+            key: "maritalStatusCode",
             attributes: {
                 code: function (input) {
-                    if (Object.prototype.toString.call(input) === '[object String]') {
-                        return input.substring(0, 1)
+                    if (Object.prototype.toString.call(input) === "[object String]") {
+                        return input.substring(0, 1);
                     } else {
-                        return input.code.substring(0, 1)
+                        return input.code.substring(0, 1);
                     }
                 },
                 displayName: leafLevel.input,
-                codeSystem: '2.16.840.1.113883.5.2',
-                codeSystemName: 'HL7 Marital Status'
+                codeSystem: "2.16.840.1.113883.5.2",
+                codeSystemName: "HL7 Marital Status"
             },
-            dataKey: 'marital_status',
+            dataKey: "marital_status",
         }, {
-            key: 'religiousAffiliationCode',
-            attributes: leafLevel.codeFromName('2.16.840.1.113883.5.1076'),
-            dataKey: 'religion'
+            key: "religiousAffiliationCode",
+            attributes: leafLevel.codeFromName("2.16.840.1.113883.5.1076"),
+            dataKey: "religion"
         }, {
-            key: 'raceCode',
-            attributes: leafLevel.codeFromName('2.16.840.1.113883.6.238'),
-            dataKey: 'race'
+            key: "raceCode",
+            attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
+            dataKey: "race"
         }, {
-            key: 'sdtc:raceCode',
-            attributes: leafLevel.codeFromName('2.16.840.1.113883.6.238'),
-            dataKey: 'race_additional'
+            key: "sdtc:raceCode",
+            attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
+            dataKey: "race_additional"
         }, {
-            key: 'ethnicGroupCode',
-            attributes: leafLevel.codeFromName('2.16.840.1.113883.6.238'),
-            dataKey: 'ethnicity'
+            key: "ethnicGroupCode",
+            attributes: leafLevel.codeFromName("2.16.840.1.113883.6.238"),
+            dataKey: "ethnicity"
         }, {
-            key: 'guardian',
+            key: "guardian",
             content: [{
-                key: 'code',
+                key: "code",
                 attributes: leafLevel.code,
-                dataKey: 'code'
+                dataKey: "code"
             },
-                [fieldLevel.usRealmAddress, dataKey('addresses')],
+                [fieldLevel.usRealmAddress, dataKey("addresses")],
                 fieldLevel.telecom, {
-                    key: 'guardianPerson',
+                    key: "guardianPerson",
                     content: {
-                        key: 'name',
+                        key: "name",
                         content: [{
-                            key: 'given',
-                            text: leafLevel.inputProperty('first')
+                            key: "given",
+                            text: leafLevel.inputProperty("first")
                         }, {
-                            key: 'family',
-                            text: leafLevel.inputProperty('last')
+                            key: "family",
+                            text: leafLevel.inputProperty("last")
                         }],
-                        dataKey: 'names'
+                        dataKey: "names"
                     }
                 }
             ],
-            dataKey: 'guardians'
+            dataKey: "guardians"
         }, {
-            key: 'birthplace',
+            key: "birthplace",
             content: {
-                key: 'place',
+                key: "place",
                 content: [
-                    [fieldLevel.usRealmAddress, dataKey('birthplace')]
+                    [fieldLevel.usRealmAddress, dataKey("birthplace")]
                 ]
             },
-            existsWhen: condition.keyExists('birthplace')
+            existsWhen: condition.keyExists("birthplace")
         }, {
-            key: 'languageCommunication',
+            key: "languageCommunication",
             content: [{
-                key: 'languageCode',
+                key: "languageCode",
                 attributes: {
                     code: leafLevel.input
                 },
-                dataKey: 'language'
+                dataKey: "language"
             }, {
-                key: 'modeCode',
-                attributes: leafLevel.codeFromName('2.16.840.1.113883.5.60'),
-                dataKey: 'mode'
+                key: "modeCode",
+                attributes: leafLevel.codeFromName("2.16.840.1.113883.5.60"),
+                dataKey: "mode"
             }, {
-                key: 'proficiencyLevelCode',
+                key: "proficiencyLevelCode",
                 attributes: {
                     code: function (input) {
-                        if (Object.prototype.toString.call(input) === '[object String]')
-                            return input.substring(0, 1)
-                        else return input.code.substring(0, 1)
+                        if (Object.prototype.toString.call(input) === "[object String]")
+                            return input.substring(0, 1);
+                        else return input.code.substring(0, 1);
                     },
                     displayName: leafLevel.input,
-                    codeSystem: '2.16.840.1.113883.5.61',
-                    codeSystemName: 'LanguageAbilityProficiency'
+                    codeSystem: "2.16.840.1.113883.5.61",
+                    codeSystemName: "LanguageAbilityProficiency"
                 },
-                dataKey: 'proficiency'
+                dataKey: "proficiency"
             }, {
-                key: 'preferenceInd',
+                key: "preferenceInd",
                 attributes: {
                     value: function (input) {
-                        return input.toString()
+                        return input.toString();
                     }
                 },
-                dataKey: 'preferred'
+                dataKey: "preferred"
             }],
-            dataKey: 'languages'
+            dataKey: "languages"
         }
     ]
-}
+};
 
 var provider = exports.provider = [{
-    key: 'performer',
+    key: "performer",
     attributes: {
-        typeCode: 'PRF'
+        typeCode: "PRF"
     },
     content: [
         {
-            key: 'functionCode',
+            key: "functionCode",
             attributes: {
-                'code': 'PP',
-                'displayName': 'Primary Performer',
-                'codeSystem': '2.16.840.1.113883.12.443',
-                'codeSystemName': 'Provider Role'
+                "code": "PP",
+                "displayName": "Primary Performer",
+                "codeSystem": "2.16.840.1.113883.12.443",
+                "codeSystemName": "Provider Role"
             },
             existsWhen: condition.propertyNotEmpty('function_code'),
-            content: [{ key: 'originalText', text: 'Primary Care Provider' }]
+            content: [{key: "originalText", text: "Primary Care Provider"}]
         },
         {
-            key: 'assignedEntity',
+            key: "assignedEntity",
             content: [{
-                key: 'id',
+                key: "id",
                 attributes: {
-                    root: leafLevel.inputProperty('root'),
-                    extension: leafLevel.nonEmptyInputProperty('extension')
+                    root: leafLevel.inputProperty("root"),
+                    extension: leafLevel.nonEmptyInputProperty("extension")
                 },
-                dataKey: 'identity'
+                dataKey: "identity"
             }, {
-                key: 'code',
+                key: "code",
                 attributes: leafLevel.code,
-                content: [{ key: 'originalText', text: 'Care Team Member' }],
-                dataKey: 'type'
+                content: [{key: "originalText", text: "Care Team Member"}],
+                dataKey: "type"
             },
                 fieldLevel.usRealmAddress,
                 fieldLevel.telecom,
                 {
-                    key: 'assignedPerson',
+                    key: "assignedPerson",
                     content: fieldLevel.usRealmName
                 }
             ]
         }
     ],
-    dataKey: 'providers.provider'
-}]
+    dataKey: "providers.provider"
+}];
 
 var providers = exports.providers = {
-    key: 'documentationOf',
+    key: "documentationOf",
     attributes: {
-        typeCode: 'DOC'
+        typeCode: "DOC"
     },
     content: {
-        key: 'serviceEvent',
+        key: "serviceEvent",
         attributes: {
-            classCode: 'PCPR'
+            classCode: "PCPR"
         },
         content: [
             {
-                key: 'code',
+                key: "code",
                 attributes: leafLevel.code,
                 existsWhen: condition.propertyNotEmpty('code'),
-                dataKey: 'providers.code'
+                dataKey: "providers.code"
             },
-            [fieldLevel.effectiveTime, key('effectiveTime'), dataKey('providers.date_time'), required],
+            [fieldLevel.effectiveTime, key("effectiveTime"), dataKey("providers.date_time"), required],
             provider
         ]
     },
-    dataKey: 'data.demographics'
-}
+    dataKey: "data.demographics"
+};
 
 var participants = (exports.participant = [
     {
-        key: 'participant',
+        key: "participant",
         attributes: {
-            typeCode: leafLevel.inputProperty('typeCode'),
+            typeCode: leafLevel.inputProperty("typeCode"),
         },
         content: [
-            fieldLevel.templateIdExt('2.16.840.1.113883.10.20.22.5.8', '2023-05-01'),
+            fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.5.8", "2023-05-01"),
             [
-                fieldLevel.effectiveTime, required, key('time')
+                fieldLevel.effectiveTime, required, key("time")
             ],
             // associatedEntity
             fieldLevel.associatedEntity,
         ],
         /* eslint-enable no-sparse-arrays */
-        dataKey: 'meta.ccda_header.participants',
+        dataKey: "meta.ccda_header.participants",
         existsWhen: condition.propertyNotEmpty('meta.ccda_header.participants'),
     },
-])
+]);
 
 var attributed_provider = exports.attributed_provider = {
-    key: 'providerOrganization',
+    key: "providerOrganization",
     content: [{
-        key: 'id',
+        key: "id",
         attributes: {
-            root: leafLevel.inputProperty('root'),
-            extension: leafLevel.nonEmptyInputProperty('extension')
+            root: leafLevel.inputProperty("root"),
+            extension: leafLevel.nonEmptyInputProperty("extension")
         },
-        dataKey: 'identity'
+        dataKey: "identity"
     }, {
-        key: 'name',
-        text: leafLevel.inputProperty('full'),
-        dataKey: 'name'
+        key: "name",
+        text: leafLevel.inputProperty("full"),
+        dataKey: "name"
     }, {
-        key: 'telecom',
+        key: "telecom",
         attributes: [{
-            use: 'WP',
+            use: "WP",
             value: function (input) {
-                return input.number
+                return input.number;
             }
         }],
-        dataKey: 'phone'
+        dataKey: "phone"
     }, orgAddress, orgAddressNullFlavor],
-    dataKey: 'attributed_provider'
-}
+    dataKey: "attributed_provider"
+};
 
 var recordTarget = exports.recordTarget = {
-    key: 'recordTarget',
+    key: "recordTarget",
     content: {
-        key: 'patientRole',
+        key: "patientRole",
         content: [
-            fieldLevel.id, [fieldLevel.usRealmAddress, dataKey('addresses')],
+            fieldLevel.id, [fieldLevel.usRealmAddress, dataKey("addresses")],
             fieldLevel.telecom,
             patient,
             attributed_provider
         ]
     },
-    dataKey: 'data.demographics'
-}
+    dataKey: "data.demographics"
+};
 
 var headerAuthor = exports.headerAuthor = {
-    key: 'author',
+    key: "author",
     content: [
-        [fieldLevel.effectiveTime, required, key('time')],
+        [fieldLevel.effectiveTime, required, key("time")],
         {
-            key: 'assignedAuthor',
+            key: "assignedAuthor",
             content: [{
-                key: 'id',
+                key: "id",
                 attributes: {
-                    root: leafLevel.inputProperty('identifier'),
-                    extension: leafLevel.nonEmptyInputProperty('extension')
+                    root: leafLevel.inputProperty("identifier"),
+                    extension: leafLevel.nonEmptyInputProperty("extension")
                 },
                 dataKey: 'identifiers',
             }, {
-                key: 'code',
+                key: "code",
                 attributes: leafLevel.code,
                 existsWhen: condition.propertyNotEmpty('code'),
-                dataKey: 'code'
+                dataKey: "code"
             }, orgAddress, orgAddressNullFlavor, {
-                key: 'telecom',
+                key: "telecom",
                 attributes: {
-                    value: leafLevel.inputProperty('value'),
-                    use: leafLevel.inputProperty('use')
+                    value: leafLevel.inputProperty("value"),
+                    use: leafLevel.inputProperty("use")
                 },
                 dataTransform: translate.telecom
             }, {
-                key: 'assignedPerson',
+                key: "assignedPerson",
                 content: {
-                    key: 'name',
+                    key: "name",
                     content: [
                         {
-                            key: 'family',
-                            text: leafLevel.inputProperty('family')
+                            key: "family",
+                            text: leafLevel.inputProperty("family")
                         }, {
-                            key: 'given',
+                            key: "given",
                             text: leafLevel.input,
-                            dataKey: 'given'
+                            dataKey: "given"
                         }, {
-                            key: 'prefix',
-                            text: leafLevel.inputProperty('prefix')
+                            key: "prefix",
+                            text: leafLevel.inputProperty("prefix")
                         }, {
-                            key: 'suffix',
-                            text: leafLevel.inputProperty('suffix')
+                            key: "suffix",
+                            text: leafLevel.inputProperty("suffix")
                         }],
-                    dataKey: 'name',
+                    dataKey: "name",
                     dataTransform: translate.name
                 } // content
             }, {
-                key: 'representedOrganization',
+                key: "representedOrganization",
                 content: [
                     {
-                        key: 'id',
+                        key: "id",
                         attributes: {
-                            root: leafLevel.inputProperty('root')
+                            root: leafLevel.inputProperty("root")
                         },
-                        dataKey: 'identity'
+                        dataKey: "identity"
                     }, {
-                        key: 'name',
+                        key: "name",
                         text: leafLevel.input,
-                        dataKey: 'name'
+                        dataKey: "name"
                     }, {
-                        key: 'telecom',
+                        key: "telecom",
                         attributes: {
-                            value: leafLevel.inputProperty('value'),
-                            use: leafLevel.inputProperty('use')
+                            value: leafLevel.inputProperty("value"),
+                            use: leafLevel.inputProperty("use")
                         },
                         dataTransform: translate.telecom,
-                        datakey: 'phone'
+                        datakey: "phone"
                     },
                     orgAddress, orgAddressNullFlavor
                 ],
-                dataKey: 'organization'
+                dataKey: "organization"
             }
             ] // content
         }
     ],
-    dataKey: 'meta.ccda_header.author'
-}
+    dataKey: "meta.ccda_header.author"
+};
 var headerInformant = exports.headerInformant = {
-    key: 'informant',
+    key: "informant",
     content: {
-        key: 'assignedEntity',
+        key: "assignedEntity",
         //attributes: {id:}
         content: [{
-            key: 'id',
+            key: "id",
             attributes: {
-                root: leafLevel.inputProperty('identifier')
+                root: leafLevel.inputProperty("identifier")
             },
-            dataKey: 'identifiers'
+            dataKey: "identifiers"
 
         }, {
-            key: 'representedOrganization',
+            key: "representedOrganization",
             content: [{
-                key: 'id',
+                key: "id",
                 attributes: {
-                    root: leafLevel.inputProperty('identifier')
+                    root: leafLevel.inputProperty("identifier")
                 },
-                dataKey: 'identifiers'
+                dataKey: "identifiers"
             }, {
-                key: 'name',
-                text: leafLevel.inputProperty('name'),
-                dataKey: 'name'
+                key: "name",
+                text: leafLevel.inputProperty("name"),
+                dataKey: "name"
             }]
         }]
     },
-    dataKey: 'meta.ccda_header.informant'
-}
+    dataKey: "meta.ccda_header.informant"
+};
 var headerCustodian = exports.headerCustodian = {
-    key: 'custodian',
+    key: "custodian",
     content: {
-        key: 'assignedCustodian',
+        key: "assignedCustodian",
         //attributes: {id:}
         content: [{
-            key: 'representedCustodianOrganization',
+            key: "representedCustodianOrganization",
             content: [
                 {
-                    key: 'id',
+                    key: "id",
                     attributes: {
-                        root: leafLevel.inputProperty('root'),
-                        extension: leafLevel.nonEmptyInputProperty('extension')
+                        root: leafLevel.inputProperty("root"),
+                        extension: leafLevel.nonEmptyInputProperty("extension")
                     },
-                    dataKey: 'identity'
+                    dataKey: "identity"
                 }, {
-                    key: 'name',
+                    key: "name",
                     text: leafLevel.input,
-                    dataKey: 'name'
+                    dataKey: "name"
                 },
                 {
-                    key: 'telecom',
+                    key: "telecom",
                     attributes: {
-                        value: leafLevel.inputProperty('value'),
-                        use: leafLevel.inputProperty('use')
+                        value: leafLevel.inputProperty("value"),
+                        use: leafLevel.inputProperty("use")
                     },
                     dataTransform: translate.telecom,
-                    datakey: 'phone'
+                    datakey: "phone"
                 },
                 orgAddress, orgAddressNullFlavor
             ],
         }]
     },
-    dataKey: 'meta.ccda_header.custodian'
-}
+    dataKey: "meta.ccda_header.custodian"
+};
 var headerInformationRecipient = exports.headerInformationRecipient = {
-    key: 'informationRecipient',
+    key: "informationRecipient",
     content: {
-        key: 'intendedRecipient',
+        key: "intendedRecipient",
         content: [{
-            key: 'informationRecipient',
+            key: "informationRecipient",
             content: {
-                key: 'name',
+                key: "name",
                 content: [
                     {
-                        key: 'family',
-                        text: leafLevel.inputProperty('family')
+                        key: "family",
+                        text: leafLevel.inputProperty("family")
                     }, {
-                        key: 'given',
+                        key: "given",
                         text: leafLevel.input,
-                        dataKey: 'given'
+                        dataKey: "given"
                     }, {
-                        key: 'prefix',
-                        text: leafLevel.inputProperty('prefix')
+                        key: "prefix",
+                        text: leafLevel.inputProperty("prefix")
                     }, {
-                        key: 'suffix',
-                        text: leafLevel.inputProperty('suffix')
+                        key: "suffix",
+                        text: leafLevel.inputProperty("suffix")
                     }],
-                dataKey: 'name',
+                dataKey: "name",
                 dataTransform: translate.name,
             },
         },
             {
-                key: 'receivedOrganization',
+                key: "receivedOrganization",
                 content: [{
-                    key: 'name',
-                    text: leafLevel.inputProperty('name'),
-                    dataKey: 'organization'
+                    key: "name",
+                    text: leafLevel.inputProperty("name"),
+                    dataKey: "organization"
                 }],
             }]
     },
-    dataKey: 'meta.ccda_header.information_recipient'
+    dataKey: "meta.ccda_header.information_recipient"
 }
 
 /* {
@@ -545,43 +545,43 @@ var headerInformationRecipient = exports.headerInformationRecipient = {
 }*/
 
 var headerComponentOf = exports.headerComponentOf = {
-    key: 'componentOf',
+    key: "componentOf",
     content: {
-        key: 'encompassingEncounter',
+        key: "encompassingEncounter",
         content: [
             fieldLevel.id,
             {
-                key: 'code',
+                key: "code",
                 attributes: leafLevel.code,
                 existsWhen: condition.propertyNotEmpty('code'),
-                dataKey: 'code'
+                dataKey: "code"
             },
-            [fieldLevel.effectiveTime, key('effectiveTime'), dataKey('date_time'), required],
+            [fieldLevel.effectiveTime, key("effectiveTime"), dataKey("date_time"), required],
             fieldLevel.responsibleParty,
             {
-                key: 'encounterParticipant',
+                key: "encounterParticipant",
                 attributes: {
-                    'typeCode': 'ATND'
+                    "typeCode": "ATND"
                 },
                 content: [{
-                    key: 'assignedEntity',
+                    key: "assignedEntity",
                     content: [{
-                        key: 'id',
+                        key: "id",
                         attributes: {
-                            root: leafLevel.inputProperty('root')
+                            root: leafLevel.inputProperty("root")
                         }
                     }
                         , fieldLevel.usRealmAddress
                         , fieldLevel.telecom
                         , {
-                            key: 'assignedPerson',
+                            key: "assignedPerson",
                             content: fieldLevel.usRealmName
                         }]
                 }],
-                dataKey: 'encounter_participant',
-                existsWhen: condition.propertyValueNotEmpty('name.last')
+                dataKey: "encounter_participant",
+                existsWhen: condition.propertyValueNotEmpty("name.last")
             }
         ]
     },
-    dataKey: 'meta.ccda_header.component_of'
-}
+    dataKey: "meta.ccda_header.component_of"
+};

@@ -2056,7 +2056,6 @@ class EncounterccdadispatchTable
                 $row['code_type'] = $tmp[0];
                 $row['code'] = $tmp[1];
             }
-            $system_oid = (new CodeTypesService())->resolveCode($row['code'], $row['code_type'])['system_oid'];
             if ($row['code_type'] == 'SNOMED-PR') {
                 $row['code_type'] = 'SNOMED CT';
             }
