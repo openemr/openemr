@@ -127,7 +127,14 @@ final readonly class BranchVersionResolver
             return null;
         }
         try {
-            $response = $this->httpClient->request('GET', $this->manifestUrl);
+            // Both timeout (idle) and max_duration (total wall-clock) are
+            // capped so a slow or hung raw.githubusercontent response
+            // can't stall the conductor workflow for a full 60s (PHP's
+            // default_socket_timeout) before falling back to tag-only.
+            $response = $this->httpClient->request('GET', $this->manifestUrl, [
+                'timeout' => 5,
+                'max_duration' => 10,
+            ]);
             $body = $response->getContent();
         } catch (HttpClientException) {
             return null;
