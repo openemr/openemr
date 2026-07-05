@@ -1471,7 +1471,8 @@ class AuthorizationController
             // as a pipe-delimited list (see ClientRepository::hydrateClientEntityFromArray()),
             // so we must explode and check membership rather than compare the whole column.
             $client = sqlQueryNoLog("SELECT logout_redirect_uris FROM `oauth_clients` WHERE `client_id` = ?", [$client_id]);
-            $registeredLogoutRedirectUris = explode('|', (string) ($client['logout_redirect_uris'] ?? ''));
+            $logoutRedirectUris = $client['logout_redirect_uris'] ?? '';
+            $registeredLogoutRedirectUris = explode('|', is_string($logoutRedirectUris) ? $logoutRedirectUris : '');
             $isRegisteredLogoutRedirect = !empty($post_logout_url) && in_array($post_logout_url, $registeredLogoutRedirectUris, true);
             $trustedUser = $this->trustedUser($client_id, $user);
             if (empty($trustedUser['id'])) {
