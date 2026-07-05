@@ -1139,6 +1139,123 @@ fall back to a one-time manual patch-prep PR pair for that transition.
   `8.2.0 → 8.2.1-dev` transition. No cherry-pick to rel-810 needed
   since rel-810 will never ship anything.
 
+### G13 — `derive-prev-release` returned skipped-version tags  *(discovered + closed 2026-07-05)*
+
+**STATUS: SHIPPED 2026-07-05** as openemr/openemr#12769 (master) +
+#12770 (rel-820 backport, identical patch-id), with follow-up #12771
+(master) + #12772 (rel-820 backport) fixing a secondary bug the initial
+version missed. All four merges landed same session; full chain verified
+end-to-end via a manual `workflow_dispatch` on `release-prep.yml`
+producing `prev_release: 8.0.0` in the dispatch payload for target 8.2.0.
+
+- **What:** `tools/release/bin/derive-prev-release.php` (called from
+  `release-prep.yml`'s Dispatch step to populate the
+  `openemr-rel-cut` / `openemr-rel-update` payload's `prev_release`
+  field) walked annotated `v<M>_<m>_<p>` tags and returned the highest
+  below the target. That worked as long as every tag corresponded to a
+  shipped release. But **8.1.0 was cut (`v8_1_0` exists as an annotated
+  tag with GitHub Release assets) and then skipped** — never publicly
+  released, permanently absent from
+  `website-openemr/data/releases.json`. So 8.2.0's dispatch payload got
+  `prev_release=8.1.0`, and its acknowledgements + release-notes
+  generated against a ~30-day window (v8_1_0..HEAD) instead of the
+  correct ~5-month window (v8_0_0..HEAD). Users going 8.0.0 → 8.2.0
+  would have seen a truncated changelog.
+
+- **Fix:** `BranchVersionResolver` consults
+  `website-openemr/data/releases.json` at derive time and treats any
+  tag whose version isn't in the FINAL entries as skipped. Fetched
+  fresh over HTTPS (`raw.githubusercontent.com`) with explicit
+  timeout/max_duration. Any fetch/parse failure falls back to the
+  pre-manifest annotated-tag walk (safety net so a raw-content hiccup
+  can't block dispatch). Landed with constructor-injected
+  `HttpClientInterface` (nullable, defaults to null → skip
+  manifest lookup) so existing single-arg constructor calls in tests
+  stay valid; production consumer creates `HttpClient::create()` and
+  passes it in.
+
+- **Secondary bug (openemr/openemr#12771/#12772):** the initial fix
+  still walked annotated tags only, then filtered via the manifest.
+  Historic SourceForge-era tags like `v8_0_0` are LIGHTWEIGHT, not
+  annotated — dropped silently by the walk. So for target 8.2.0 the
+  walk saw only `v8_1_0` (annotated + skipped), filtered it out via
+  the manifest, fell through to `null`, and `previousRelease()`
+  synthesised prev-minor as fallback → returned "8.1.0" anyway
+  (target's minor is 2, prev-minor is 1, so `8.1.0`). Follow-up
+  changed the flow: when manifest is available, iterate shipped-version
+  list directly instead of git-tag walk. Tag walk stays as fallback
+  when manifest fetch fails.
+
+- **Not used as signal:** `unreleased: true` in
+  `release-targets.yml`. That flag is transient — clears once the
+  next release supersedes the placeholder row — so any code keyed
+  on it would silently break in a later release cycle. The website
+  manifest is durable: skipped versions are permanently absent from
+  it.
+
+- **Coordination:** `tools/release/` is not in the byte-identical set,
+  so no auto-sync. Fix landed on master + rel-820 in parallel (patch-id
+  parity verified: `55fa587bf66e...` on both initial fixes,
+  `4aa74098c...` on both follow-ups, `c232842e11...` on both squash
+  merges). rel-800, rel-704, rel-810 don't need the fix — rel-810
+  isn't shipping; rel-800/rel-704 next patches don't cross the
+  skipped-8.1.0 boundary.
+
+- **Verification (2026-07-05):** After all four PRs landed and a
+  `workflow_dispatch` on `release-prep.yml` fired against rel-820, PR
+  openemr/website-openemr#164 regenerated with `prev_release: 8.0.0`
+  in the dispatch payload — 930 PRs in the release-notes window
+  (v8_0_0..HEAD, matching 1508 total commits in that range less #173's
+  bot-filter drops).
+
+### G14 — `release-docs/<version>` branches accumulated divergent history  *(discovered + closed 2026-07-05)*
+
+**STATUS: SHIPPED 2026-07-05** as three cascading PRs on
+openemr/website-openemr — #174 (initial reset-manifest-from-master, later
+subsumed), #175 (rebase-per-dispatch structural fix), and #176 (restore
+branch-ref fetch so `--force-with-lease` has a baseline).
+
+- **What:** Byproduct of validating G13's fix. Even after
+  `derive-prev-release` correctly returned 8.0.0, PR
+  openemr/website-openemr#164 stayed CONFLICTING because the docs
+  branch had been committing on top of the previous branch state on
+  each dispatch. Two forms of drift compounded:
+  - **File-content drift** — master's edits to unrelated
+    `data/releases.json` entries (e.g. #167's 8.0.0 checksums URL
+    fix) never propagated to the docs branch because
+    `update-manifest.php` reads the branch's stale snapshot and only
+    mutates the dispatched version's entry.
+  - **History drift** — each dispatch's commit and each master merge
+    to `data/releases.json` edited overlapping lines, and 3-way merge
+    with master flagged spurious content-agrees-history-diverges
+    conflicts even when the file content on both sides was
+    identical.
+
+- **Fix:** Rebuilt `workflow:prepare-publish` to unconditionally
+  `checkout -B $BRANCH origin/HEAD` — every dispatch produces a
+  single-commit branch rooted at master's current tip. Merge base
+  with master is always master's tip → 3-way merge is trivial. Loses
+  per-dispatch commit history on the docs branches, which nobody
+  consumes (each commit was a full-file rewrite anyway).
+
+- **Intermediate PRs the fix went through:** #174 added a
+  `git checkout origin/HEAD -- data/releases.json` reset step that
+  fixed content drift but not history drift (branches still
+  committed on top of previous state). #175 restructured to
+  `checkout -B $BRANCH origin/HEAD` — but dropping the remote branch
+  fetch broke `commit-push`'s `--force-with-lease` baseline lookup,
+  fell to plain push, and hit `[rejected] (fetch first)` because the
+  remote branch existed. #176 restored the fetch alongside the
+  master-based checkout and tightened error handling (only "couldn't
+  find remote ref" is silently ignored; real fetch failures now
+  surface in CI logs).
+
+- **Verification (2026-07-05):** After all three PRs landed and a
+  fresh dispatch fired, PR #164 became `mergeable: MERGEABLE` with
+  `ahead: 1, behind: 0` — clean single-commit branch on top of
+  current master. `data/releases.json` diff is a single-hunk add
+  (the 8.2.0 DRAFT entry). No 8.0.0 formatting or content drift.
+
 ## Timing picture: who does what, when
 
 Consolidates "what the conductor handles automatically" vs "what's
@@ -1922,3 +2039,54 @@ checklist + the existing master-bump pattern.
   (cut) + 3 (ship), this closes the full release-lifecycle
   automation surface. Cross-referenced from P8 in the canonical
   sequence.
+- **2026-07-05**: G13 discovered + closed same session during 8.2.0
+  dispatch shake-out. `derive-prev-release` for target 8.2.0 was
+  returning 8.1.0 — a tag that exists (annotated v8_1_0) but a
+  release that was SKIPPED (not in
+  website-openemr/data/releases.json). Root cause: resolver walked
+  tags without consulting the shipped-versions manifest. Landed
+  manifest-aware behavior in openemr/openemr#12769 (master) + #12770
+  (rel-820 backport), with follow-up #12771/#12772 fixing a secondary
+  bug (annotated-tag filter dropping historic lightweight tags like
+  v8_0_0 → walk-then-filter produced null → synthesized prev-minor
+  fallback returned 8.1.0 anyway). Also clarified permanently that
+  `release-targets.yml`'s `unreleased: true` marker is TRANSIENT
+  (clears once next release supersedes the placeholder) — any code
+  needing a durable "was-this-released" signal should consult
+  data/releases.json instead.
+- **2026-07-05**: G14 discovered + closed same session. Byproduct of
+  validating G13's fix. Even with `prev_release=8.0.0` correctly
+  computed, openemr/website-openemr#164 stayed CONFLICTING because
+  the docs branch had been committing on top of the previous branch
+  state each dispatch and history diverged from master indefinitely.
+  Three cascading PRs on openemr/website-openemr: #174 (initial
+  reset-manifest-from-master, later subsumed), #175 (rebase-per-
+  dispatch structural fix), and #176 (restore branch-ref fetch so
+  `--force-with-lease` baseline works). Post-merge dispatch produces
+  a single-commit docs branch rooted at master's current HEAD; PR #164
+  becomes MERGEABLE with a clean single-hunk diff (adds 8.2.0 DRAFT
+  entry only).
+- **2026-07-05**: End-to-end verification of the release-prep
+  `workflow_dispatch` path against rel-820. Full chain fired
+  cleanly: release-prep on rel-820 → derive-prev-release with merged
+  fixes returns `8.0.0` → dispatches openemr-rel-update to all three
+  consumers → website-openemr's release-docs.yml regenerates PR #164
+  against the correct 0.0.0 → 8.2.0 window (930 PRs from
+  v8_0_0..HEAD = 1508 total commits less #173's bot-filter drops).
+  The `workflow_dispatch` inputs to watch: `--ref rel-820` +
+  `--field force-dispatch=true` are both required; without either
+  the workflow rejects or short-circuits. Confirmed the pattern is
+  safe (no release-side effects — `finalize` job is gated on
+  pull_request.merged, unreachable from workflow_dispatch).
+- **2026-07-05**: openemr/website-openemr release-docs consumer had
+  a parallel workstream landed same day: 8.0.0-download-page cleanup
+  (#167), /releases/ Checksums column + backfill (#168), dispatch-
+  managed URL derivation for /downloads/ (#169), version-agnostic
+  install/upgrade wiki defaults (#170), drop per-release install/
+  upgrade page generation (#171), filter [bot] acknowledgements
+  (#172), release-notes bot filter hybrid (#173 — keeps composer/npm
+  dependabot bumps per #136 intent, drops docker-image bumps
+  identified by openemr/openemr's dependabot.yml groups + path
+  patterns). Recorded here for cross-reference; ancillary to the
+  release-mechanism migration but relevant for the "what does the
+  docs PR contain now" surface area.
