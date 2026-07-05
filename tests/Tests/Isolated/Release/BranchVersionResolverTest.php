@@ -14,6 +14,8 @@ namespace OpenEMR\Tests\Isolated\Release;
 
 use OpenEMR\Release\BranchVersionResolver;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\Process\Process;
 
 final class BranchVersionResolverTest extends TestCase
@@ -140,6 +142,80 @@ final class BranchVersionResolverTest extends TestCase
         $this->git(['tag', '-a', 'v8_2_0', '-m', 'OpenEMR 8.2.0 released 2026-04-01']);
         $resolver = new BranchVersionResolver($this->tmpDir);
         self::assertSame('8.0.0', $resolver->previousRelease('8.1.0'));
+    }
+
+    public function testPreviousReleaseSkipsTagsMissingFromManifest(): void
+    {
+        // 8.1.0 was cut as an annotated v8_1_0 tag but never released -
+        // it's absent from data/releases.json. When computing prev_release
+        // for 8.2.0, the resolver must skip 8.1.0 and fall through to
+        // 8.0.0 (the last actually-shipped release).
+        $this->git(['tag', '-a', 'v8_0_0', '-m', 'OpenEMR 8.0.0 released 2026-01-01']);
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 cut but skipped']);
+        $resolver = new BranchVersionResolver(
+            $this->tmpDir,
+            $this->manifestClient(['8.0.0']),
+        );
+        self::assertSame('8.0.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    public function testPreviousReleaseAcceptsTagsPresentInManifest(): void
+    {
+        // Same tag set as above, but this time 8.1.0 shipped normally.
+        // The manifest contains both entries; both are eligible; 8.1.0
+        // wins as the newest below target 8.2.0.
+        $this->git(['tag', '-a', 'v8_0_0', '-m', 'OpenEMR 8.0.0 released 2026-01-01']);
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 released 2026-06-01']);
+        $resolver = new BranchVersionResolver(
+            $this->tmpDir,
+            $this->manifestClient(['8.0.0', '8.1.0']),
+        );
+        self::assertSame('8.1.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    public function testPreviousReleaseTreatsDraftEntriesAsUnshipped(): void
+    {
+        // A DRAFT entry in the manifest is not FINAL, so its version is
+        // not considered shipped. In practice this covers the case where
+        // the release-docs bot pre-populates a DRAFT entry for the next
+        // release before it flips FINAL - that draft mustn't be used as
+        // a prev_release for anything.
+        $this->git(['tag', '-a', 'v8_0_0', '-m', 'OpenEMR 8.0.0 released 2026-01-01']);
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 draft']);
+        $manifest = [
+            '8.0.0' => ['status' => 'FINAL',  'released_at' => '2026-01-01'],
+            '8.1.0' => ['status' => 'DRAFT',  'branch' => 'rel-810', 'sha' => str_repeat('0', 40), 'released_at' => null],
+        ];
+        $client = new MockHttpClient([new MockResponse((string) json_encode($manifest))]);
+        $resolver = new BranchVersionResolver($this->tmpDir, $client);
+        self::assertSame('8.0.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    public function testPreviousReleaseFallsBackToTagsWhenManifestFetchFails(): void
+    {
+        // Network hiccup / rate-limit / bad JSON should never crash the
+        // conductor. When the manifest fetch fails the resolver falls
+        // back to tag-only behaviour - accepting 8.1.0 as prev, which is
+        // the pre-manifest behaviour. Preferable to a hard failure that
+        // would block every release dispatch on any GitHub raw-content
+        // hiccup.
+        $this->git(['tag', '-a', 'v8_0_0', '-m', 'OpenEMR 8.0.0 released 2026-01-01']);
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 cut but skipped']);
+        $client = new MockHttpClient([new MockResponse('not json at all', ['http_code' => 200])]);
+        $resolver = new BranchVersionResolver($this->tmpDir, $client);
+        self::assertSame('8.1.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    /**
+     * @param list<string> $shippedVersions
+     */
+    private function manifestClient(array $shippedVersions): MockHttpClient
+    {
+        $entries = [];
+        foreach ($shippedVersions as $version) {
+            $entries[$version] = ['status' => 'FINAL', 'released_at' => '2026-01-01'];
+        }
+        return new MockHttpClient([new MockResponse((string) json_encode($entries))]);
     }
 
     /**
