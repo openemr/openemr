@@ -144,24 +144,34 @@ var timeNow = exports.timeNow = {
 
 var timeDocumentTime = exports.timeDocumentTime = {
     key: "time",
-    attributes: leafLevel.timeAttr
+    attributes: {
+        "value": leafLevel.time
+    }
 };
 
 var effectiveTime = exports.effectiveTime = {
     key: "effectiveTime",
-    attributes: leafLevel.timeAttr,
+    attributes: {
+        "value": leafLevel.time,
+    },
     attributeKey: 'point',
     content: [{
         key: "low",
-        attributes: leafLevel.timeAttr,
+        attributes: {
+            "value": leafLevel.time
+        },
         dataKey: 'low',
     }, {
         key: "high",
-        attributes: leafLevel.timeAttr,
+        attributes: {
+            "value": leafLevel.time
+        },
         dataKey: 'high',
     }, {
         key: "center",
-        attributes: leafLevel.timeAttr,
+        attributes: {
+            "value": leafLevel.time
+        },
         dataKey: 'center',
     }],
     dataKey: 'date_time',
@@ -176,15 +186,21 @@ var effectiveTimeIVL_TS = exports.effectiveTimeIVL_TS = {
     //attributeKey: 'point',
     content: [{
         key: "low",
-        attributes: leafLevel.timeAttr,
+        attributes: {
+            "value": leafLevel.time
+        },
         dataKey: 'low',
     }, {
         key: "high",
-        attributes: leafLevel.timeAttr,
+        attributes: {
+            "value": leafLevel.time
+        },
         dataKey: 'high',
     }, {
         key: "center",
-        attributes: leafLevel.timeAttr,
+        attributes: {
+            "value": leafLevel.time
+        },
         dataKey: 'center',
     }],
     dataKey: 'date_time',
@@ -222,11 +238,15 @@ var useablePeriod = exports.useablePeriod = {
     },
     content: [{
         key: "low",
-        attributes: leafLevel.timeAttr,
+        attributes: {
+            "value": leafLevel.time
+        },
         dataKey: 'low',
     }, {
         key: "high",
-        attributes: leafLevel.timeAttr,
+        attributes: {
+            "value": leafLevel.time
+        },
         dataKey: 'high',
     }],
     dataKey: 'date_time',

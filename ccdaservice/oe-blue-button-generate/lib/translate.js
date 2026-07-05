@@ -75,16 +75,10 @@ var precisionToFormat = {
 };
 
 exports.time = function (input) {
-    if (!input || !input.date) {
-        return "";
-    }
     let result = '';
     var m = moment.parseZone(input.date);
-    if (!m.isValid()) {
+    if (m._isValid !== true) {
         m = moment(input.date, "YYYYMMDD HH:mm:ss")
-    }
-    if (!m.isValid()) {
-        return "";
     }
     let formatSpec = precisionToFormat[input.precision];
     if (input.precision === 'tz') {

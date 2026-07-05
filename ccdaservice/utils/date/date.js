@@ -1,13 +1,11 @@
 'use strict';
 
-function fDate(str, lim8 = false, emptyToNow = false) {
+function fDate(str, lim8 = false) {
     const input = String(str).trim();
 
-    // Handle null-like values. An unknown date returns empty so it renders as
-    // nullFlavor upstream; only explicit generation timestamps (document/author
-    // creation time) opt into "now" via emptyToNow.
+    // Handle null-like values
     if (!input || input === '0000-00-00' || Number(input) === 0) {
-        return emptyToNow ? new Date().toISOString() : '';
+        return new Date().toISOString();
     }
 
     // If lim8 is set, return only first 8 digits
