@@ -159,6 +159,30 @@ final class BranchVersionResolverTest extends TestCase
         self::assertSame('8.0.0', $resolver->previousRelease('8.2.0'));
     }
 
+    public function testPreviousReleaseTrustsManifestOverAnnotatedTagFilter(): void
+    {
+        // Historic SourceForge-era v* tags are LIGHTWEIGHT, not annotated
+        // (openemr/openemr's real v8_0_0 predates the annotated-tag policy
+        // TagVerifier enforces on new cuts). The manifest is the source
+        // of truth for what shipped; the resolver must trust it and NOT
+        // discard 8.0.0 just because its tag is lightweight.
+        //
+        // Regression pin for the "8.2.0 dispatch got prev_release=8.1.0
+        // even after the manifest fix" post-merge bug: v8_1_0 was
+        // annotated + skipped, v8_0_0 was lightweight + shipped, so the
+        // original manifest-filter walked the annotated-only set (just
+        // v8_1_0), filtered v8_1_0 out as unshipped, fell through to
+        // null, and previousRelease synthesised 8.1.0 as the prev-minor
+        // fallback — the same skipped version we were trying to avoid.
+        $this->git(['tag', 'v8_0_0']); // lightweight (no -a)
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'cut and skipped']);
+        $resolver = new BranchVersionResolver(
+            $this->tmpDir,
+            $this->manifestClient(['8.0.0' => 'FINAL']),
+        );
+        self::assertSame('8.0.0', $resolver->previousRelease('8.2.0'));
+    }
+
     public function testPreviousReleaseAcceptsTagsPresentInManifest(): void
     {
         // Same tag set as above, but this time 8.1.0 shipped normally.

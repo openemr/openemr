@@ -93,21 +93,33 @@ final readonly class BranchVersionResolver
 
     private function latestVersionTagBelow(string $targetVersion): ?string
     {
-        // Fetch the shipped-versions allow-list once per call. When the
-        // resolver has no HttpClient, or the fetch/parse failed, the value
-        // is null and every tag below the target is accepted — preserving
-        // pre-manifest behaviour as a safety net.
+        // When the shipped-versions manifest is available it's the source
+        // of truth: iterate its entries directly. The annotated-tag walk
+        // below silently drops lightweight tags — and historic SourceForge-
+        // era releases like v8_0_0 are lightweight. Filtering annotated
+        // tags through the manifest would incorrectly discard v8_0_0 as
+        // "unshipped," even though data/releases.json marks 8.0.0 FINAL.
+        // Keying on the manifest directly avoids that conflation.
         $shipped = $this->fetchShippedVersions();
+        if ($shipped !== null) {
+            usort($shipped, static fn (string $a, string $b): int => version_compare($b, $a));
+            foreach ($shipped as $candidate) {
+                if (version_compare($candidate, $targetVersion, '<')) {
+                    return $candidate;
+                }
+            }
+            return null;
+        }
+        // Manifest fetch/parse failed. Fall back to the pre-manifest
+        // annotated-tag walk — imperfect for the skipped-release edge
+        // case (a cut-then-skipped tag will win over the actually-shipped
+        // predecessor) but the safest available floor when we have no
+        // better source of truth.
         foreach ($this->releaseTags() as [$major, $minor, $patch]) {
             $candidate = sprintf('%d.%d.%d', $major, $minor, $patch);
-            if (version_compare($candidate, $targetVersion, '>=')) {
-                continue;
+            if (version_compare($candidate, $targetVersion, '<')) {
+                return $candidate;
             }
-            if ($shipped !== null && !in_array($candidate, $shipped, true)) {
-                // Tag exists but isn't in the manifest — skipped release.
-                continue;
-            }
-            return $candidate;
         }
         return null;
     }
