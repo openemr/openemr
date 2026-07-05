@@ -1307,6 +1307,33 @@ G7-G10 for full detail):**
   docker pipeline would become the lone holdout using canary; aligning the
   two on the same pattern would be a natural follow-up.
 
+**Post-2026-07-05 gaps closed during 8.2.0 dispatch shake-out (see gaps
+doc G12-G13 for full detail):**
+
+- **G12 — `derive-prev-release` returned skipped-version tags.**
+  `BranchVersionResolver::previousRelease()` walked annotated
+  `v<M>_<m>_<p>` tags and returned the highest below target, but v8_1_0
+  was a cut-then-skipped tag (in-repo annotated, but absent from
+  `website-openemr/data/releases.json`). Effect: 8.2.0's dispatch
+  payload got `prev_release=8.1.0`, so release-notes+acknowledgements
+  generated against the wrong ~30-day window. Fixed by consulting the
+  website manifest at derive time (openemr/openemr#12769/#12770, with
+  follow-up #12771/#12772 for a lightweight-tag secondary bug). The
+  `unreleased: true` flag in `release-targets.yml` is transient and NOT
+  the durable signal — the website manifest is. Landed same session.
+  Validates the "conductor self-heals on next push" pattern for tool-
+  behavior fixes, not just misfires.
+- **G13 — `release-docs/<version>` branches accumulated divergent
+  history.** Byproduct of validating G12's fix. Even after the derive
+  correctly returned 8.0.0, PR openemr/website-openemr#164 stayed
+  CONFLICTING because the docs branch had been committing on top of the
+  previous branch state each dispatch (7 commits since branch cut vs
+  master's 9 commits touching the same file). Rebuilt
+  `workflow:prepare-publish` in the docs pipeline to unconditionally
+  create the branch fresh on master's HEAD each dispatch → single-commit
+  branches, clean merge base with master, PR merges cleanly.
+  openemr/website-openemr#174/#175/#176.
+
 ## Feedback wanted
 
 Specifically on:
