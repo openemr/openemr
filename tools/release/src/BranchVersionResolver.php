@@ -21,11 +21,26 @@ declare(strict_types=1);
 namespace OpenEMR\Release;
 
 use Symfony\Component\Process\Process;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class BranchVersionResolver
 {
+    /**
+     * Canonical release manifest fetched to distinguish tags that actually
+     * shipped from tags that were cut and then skipped. Any version entry
+     * with `status: FINAL` in this file is a released version; a
+     * v<MAJOR>_<MINOR>_<PATCH> tag whose version isn't in the manifest was
+     * skipped (see: 8.1.0 was cut as v8_1_0 but never released) and must
+     * not be reported as a "previous release" for any subsequent version.
+     */
+    public const DEFAULT_MANIFEST_URL =
+        'https://raw.githubusercontent.com/openemr/website-openemr/master/data/releases.json';
+
     public function __construct(
         private string $repoDir,
+        private ?HttpClientInterface $httpClient = null,
+        private string $manifestUrl = self::DEFAULT_MANIFEST_URL,
     ) {
     }
 
@@ -78,13 +93,77 @@ final readonly class BranchVersionResolver
 
     private function latestVersionTagBelow(string $targetVersion): ?string
     {
+        // Fetch the shipped-versions allow-list once per call. When the
+        // resolver has no HttpClient, or the fetch/parse failed, the value
+        // is null and every tag below the target is accepted — preserving
+        // pre-manifest behaviour as a safety net.
+        $shipped = $this->fetchShippedVersions();
         foreach ($this->releaseTags() as [$major, $minor, $patch]) {
             $candidate = sprintf('%d.%d.%d', $major, $minor, $patch);
-            if (version_compare($candidate, $targetVersion, '<')) {
-                return $candidate;
+            if (version_compare($candidate, $targetVersion, '>=')) {
+                continue;
             }
+            if ($shipped !== null && !in_array($candidate, $shipped, true)) {
+                // Tag exists but isn't in the manifest — skipped release.
+                continue;
+            }
+            return $candidate;
         }
         return null;
+    }
+
+    /**
+     * Fetch the openemr/website-openemr `data/releases.json` manifest and
+     * return the set of versions with `status: FINAL` — the source of
+     * truth for what actually shipped. Returns null when no HTTP client
+     * was supplied, or when the fetch/parse fails for any reason; callers
+     * treat null as "fall back to tag-only".
+     *
+     * @return ?list<string>
+     */
+    private function fetchShippedVersions(): ?array
+    {
+        if ($this->httpClient === null) {
+            return null;
+        }
+        try {
+            // Both timeout (idle) and max_duration (total wall-clock) are
+            // capped so a slow or hung raw.githubusercontent response
+            // can't stall the conductor workflow for a full 60s (PHP's
+            // default_socket_timeout) before falling back to tag-only.
+            $response = $this->httpClient->request('GET', $this->manifestUrl, [
+                'timeout' => 5,
+                'max_duration' => 10,
+            ]);
+            $body = $response->getContent();
+        } catch (HttpClientException) {
+            return null;
+        }
+        try {
+            $decoded = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return null;
+        }
+        if (!is_array($decoded)) {
+            return null;
+        }
+        $shipped = [];
+        foreach ($decoded as $version => $entry) {
+            if (!is_string($version)) {
+                continue;
+            }
+            if (preg_match('/^\d+\.\d+\.\d+$/', $version) !== 1) {
+                continue;
+            }
+            if (!is_array($entry)) {
+                continue;
+            }
+            if (($entry['status'] ?? null) !== 'FINAL') {
+                continue;
+            }
+            $shipped[] = $version;
+        }
+        return $shipped;
     }
 
     /**
