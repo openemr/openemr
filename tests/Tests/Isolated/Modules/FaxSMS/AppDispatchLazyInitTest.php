@@ -72,7 +72,7 @@ final class AppDispatchLazyInitTest extends TestCase
             }
 
             /** @codeCoverageIgnore Stub satisfies abstract contract. */
-            public function sendFax(): string|bool
+            public function sendFax(): bool
             {
                 return false;
             }
@@ -117,7 +117,7 @@ final class AppDispatchLazyInitTest extends TestCase
             }
 
             /** @codeCoverageIgnore Stub satisfies abstract contract. */
-            public function sendFax(): string|bool
+            public function sendFax(): bool
             {
                 return false;
             }

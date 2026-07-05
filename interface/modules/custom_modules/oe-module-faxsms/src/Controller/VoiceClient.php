@@ -5,7 +5,7 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
 
 /**
  * Server-side credential provider for the in-browser RingCentral softphone.
@@ -38,6 +38,7 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 class VoiceClient extends AppDispatch
 {
     use AuthenticateTrait;
+    use VoiceFunctionsTrait;
 
     public static $timeZone;
     public $baseDir;
@@ -51,6 +52,7 @@ class VoiceClient extends AppDispatch
     protected $platform;
     protected $rcsdk;
     protected CryptoInterface $crypto;
+
     public function __construct()
     {
         if (empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null)) {
@@ -61,11 +63,22 @@ class VoiceClient extends AppDispatch
         $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->cacheDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/logs_and_misc/_cache';
         $this->credentials = $this->getCredentials();
-        $this->portalUrl = $this->credentials['production'] ?? null ? "https://service.ringcentral.com/" : "https://service.devtest.ringcentral.com/";
-        $this->serverUrl = $this->credentials['production'] ?? null ? "https://platform.ringcentral.com" : "https://platform.devtest.ringcentral.com";
+        // RingCentral retired the developer sandbox (platform.devtest.ringcentral.com)
+        // at the end of 2024; only production remains and the devtest domain no
+        // longer resolves ("Could not resolve host"). Hardcode production (as
+        // RCFaxClient does) so a cleared "production" checkbox can't aim the SDK
+        // at the dead host.
+        $this->portalUrl = "https://service.ringcentral.com/";
+        $this->serverUrl = "https://platform.ringcentral.com";
         $this->redirectUrl = $this->credentials['redirect_url'] ?? null;
         $this->initializeSDK();
-        //$this->initVoice($this->platform);
+        // Call-event tracking (the RingCentral webhook subscription) is NOT
+        // registered here. install() used to run on every construction, but
+        // getApiService() builds a fresh VoiceClient on every page render
+        // (renderPhoneButton + renderPhoneWidget), which hammered the RC
+        // subscription API per page. Registration is now an explicit, flag-
+        // gated admin action (the "Register Webhook" button in setup_voice.php
+        // -> install action). $this->platform is already set by initializeSDK().
         parent::__construct();
     }
 
@@ -107,24 +120,6 @@ class VoiceClient extends AppDispatch
             mkdir($this->cacheDir, 0777, true);
         }
         return $this->getSetup();
-    }
-
-    function sendFax(): string|bool
-    {
-        return '';
-        // TODO: Implement sendFax() method.
-    }
-
-    function sendSMS(): mixed
-    {
-        return '';
-        // TODO: Implement sendSMS() method.
-    }
-
-    function sendEmail(): mixed
-    {
-        return '';
-        // TODO: Implement sendEmail() method.
     }
 
     function fetchReminderCount(): string|bool
