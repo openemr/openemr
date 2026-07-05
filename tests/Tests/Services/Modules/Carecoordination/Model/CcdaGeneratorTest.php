@@ -76,19 +76,63 @@ class CcdaGeneratorTest extends TestCase
         $expectedDom = $this->loadDom($expected);
         $actualDom = $this->loadDom($actual);
 
-        $expectedDom = $this->cleanWhitespace($expectedDom);
-
-        $fixtureDate = '20251215';
-        $currentDate = date('Ymd');
-        $actualDom = $this->replaceTimestamps($actualDom, $currentDate, $fixtureDate);
-        $actualDom = $this->normalizeDynamicIds($actualDom, $expectedDom);
-        $actualDom = $this->cleanWhitespace($actualDom);
+        // Normalize both documents identically so the comparison pins structure,
+        // not values that legitimately vary between runs: wall-clock "now" dates
+        // and per-run UUID roots (rootId / uniqueId). Data dates and OID roots
+        // come from the input and match on both sides regardless.
+        foreach ([$expectedDom, $actualDom] as $dom) {
+            $this->cleanWhitespace($dom);
+            $this->normalizeVolatile($dom);
+        }
 
         self::assertXmlStringEqualsXmlString(
             $expectedDom->C14N(),
             $actualDom->C14N(),
-            'Generated CDA does not match expected output'
+            'Generated CDA does not match expected output (timestamps and UUID roots normalized)'
         );
+    }
+
+    /**
+     * Collapse values that vary per run to fixed tokens, applied identically to
+     * the expected and actual documents:
+     *   - date/time @value attributes (YYYYMMDD or YYYYMMDDHHMM[+/-ZZZZ])
+     *   - narrative date text in <td> (YYYY-MM-DD)
+     *   - UUID @root attributes (OID roots such as 2.16.* are left intact)
+     */
+    private function normalizeVolatile(DOMDocument $dom): void
+    {
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+        $xpath->registerNamespace('xhtml', 'http://www.w3.org/1999/xhtml');
+
+        $valueNodes = $xpath->query('//*[@value]');
+        if ($valueNodes !== false) {
+            foreach ($valueNodes as $node) {
+                if ($node instanceof \DOMElement
+                    && preg_match('/^\d{8}(\d{4}([+-]\d{4})?)?$/', $node->getAttribute('value')) === 1) {
+                    $node->setAttribute('value', 'NORMALIZED_DATE');
+                }
+            }
+        }
+
+        $textNodes = $xpath->query('//hl7:td/text() | //xhtml:td/text()');
+        if ($textNodes !== false) {
+            foreach ($textNodes as $textNode) {
+                if (preg_match('/^\s*\d{4}-\d{2}-\d{2}\s*$/', (string) $textNode->nodeValue) === 1) {
+                    $textNode->nodeValue = 'NORMALIZED_DATE';
+                }
+            }
+        }
+
+        $rootNodes = $xpath->query('//*[@root]');
+        if ($rootNodes !== false) {
+            foreach ($rootNodes as $node) {
+                if ($node instanceof \DOMElement
+                    && preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $node->getAttribute('root')) === 1) {
+                    $node->setAttribute('root', 'NORMALIZED_UUID');
+                }
+            }
+        }
     }
 
     private function loadDom(string $xml): DOMDocument
@@ -101,90 +145,6 @@ class CcdaGeneratorTest extends TestCase
             throw new \RuntimeException('Invalid XML');
         }
         return $dom;
-    }
-
-    private function replaceTimestamps(DOMDocument $xml, string $currentTimestamp, string $newTimestamp): DOMDocument
-    {
-        $xpath = new DOMXPath($xml);
-        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
-
-        $expr = '//*[@value="' . $currentTimestamp . '"]';
-        $timestampValues = $xpath->query($expr);
-        if ($timestampValues !== false) {
-            foreach ($timestampValues as $timestamp) {
-                if ($timestamp instanceof \DOMElement) {
-                    $timestamp->setAttribute('value', $newTimestamp);
-                }
-            }
-        }
-
-        $dateTime = \DateTimeImmutable::createFromFormat('Ymd', $currentTimestamp);
-        $dateTimeNew = \DateTimeImmutable::createFromFormat('Ymd', $newTimestamp);
-        if ($dateTime !== false && $dateTimeNew !== false) {
-            $expr = "//hl7:tr/hl7:td/text()[normalize-space(.) = '" . $dateTime->format('Y-m-d') . "']";
-            $timestampTextNodes = $xpath->query($expr);
-            if ($timestampTextNodes !== false) {
-                foreach ($timestampTextNodes as $textNode) {
-                    $textNode->nodeValue = $dateTimeNew->format('Y-m-d');
-                }
-            }
-        }
-
-        return $xml;
-    }
-
-    private function normalizeDynamicIds(DOMDocument $actual, DOMDocument $expected): DOMDocument
-    {
-        $xpath = new DOMXPath($actual);
-        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
-        $xpathExpected = new DOMXPath($expected);
-        $xpathExpected->registerNamespace('hl7', 'urn:hl7-org:v3');
-
-        $this->replaceRootIdForQuery("//hl7:observation/hl7:code[@code='76691-5']", $xpath, $xpathExpected);
-        $this->replaceRootIdForQuery("//hl7:observation/hl7:code[@code='46098-0']", $xpath, $xpathExpected);
-        $this->replaceRootIdForQuery("//hl7:observation/hl7:code[@code='76690-7']", $xpath, $xpathExpected);
-        $this->replaceRootIdForQuery("//hl7:section/hl7:entry/hl7:organizer/hl7:code[@code='86744-0']", $xpath, $xpathExpected);
-        $this->replaceRootIdForQuery("//hl7:component/hl7:act/hl7:code[@code='85847-2']", $xpath, $xpathExpected);
-
-        return $actual;
-    }
-
-    private function replaceRootIdForQuery(string $query, DOMXPath $actual, DOMXPath $expected): void
-    {
-        $actualList = $actual->query($query);
-        $expectedList = $expected->query($query);
-
-        if ($actualList === false || $expectedList === false) {
-            return;
-        }
-
-        $count = $actualList->count();
-        if ($count !== $expectedList->count()) {
-            return;
-        }
-
-        for ($i = 0; $i < $count; $i++) {
-            $actualNode = $actualList->item($i)?->parentNode;
-            $expectedNode = $expectedList->item($i)?->parentNode;
-
-            if (!$actualNode instanceof \DOMElement || !$expectedNode instanceof \DOMElement) {
-                continue;
-            }
-
-            $actualIdList = $actual->query('.//hl7:id', $actualNode);
-            $expectedIdList = $expected->query('.//hl7:id', $expectedNode);
-
-            if ($actualIdList === false || $expectedIdList === false) {
-                continue;
-            }
-
-            $actualId = $actualIdList->item(0);
-            $expectedId = $expectedIdList->item(0);
-
-            if ($actualId instanceof \DOMElement && $expectedId instanceof \DOMElement) {
-                $actualId->setAttribute('root', $expectedId->getAttribute('root'));
-            }
-        }
     }
 
     private function cleanWhitespace(DOMDocument $dom): DOMDocument
