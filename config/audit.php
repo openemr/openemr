@@ -80,7 +80,7 @@ return [
         serverName: '', // SERVER[SERVER_NAME]
         serverAddress: '', // SERVER[SERVER_ADDRESS]
     ),
-    'AUDIT_ENABLE' => env('AUDIT_EVENTS', 'true')->asBool(),
+    'AUDIT_ENABLE' => env('AUDIT_ENABLE', 'true')->asBool(),
     'AUDIT_QUERIES' => env('AUDIT_QUERIES', 'true')->asBool(),
     'AUDIT_HTTP_REQUESTS' => env('AUDIT_HTTP_REQUESTS', 'true')->asBool(),
     'AUDIT_EVENT_TYPES' => env('AUDIT_EVENT_TYPES', 'patient-record,scheduling,order,lab-order,lab-results,security-administration,other'),
