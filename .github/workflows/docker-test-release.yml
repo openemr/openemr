@@ -9,6 +9,14 @@
 # workflow primarily exists to validate. Changes to flex / binary fire their
 # own targeted test-flex-*.yml and BATS workflows respectively.
 #
+# Also triggers on version.php changes -- docker-build-release.yml bakes
+# version.php's contents into the shipped image as OCI labels (IMAGE_VERSION
+# arg → org.opencontainers.image.version), so a version.php bump is a
+# legitimate change to the release image's identity even when the Dockerfile
+# itself is unchanged. This is what fires the full production-mode docker
+# test on release-prep PRs (the conductor's version.php bump is the canonical
+# rel-branch push that trips this path).
+#
 #  - is_production_docker: true  -- triggers the production-mode test path
 #    inside docker-test-core.yml (vs the dev-mode path used by the
 #    docker-test-flex-*.yml callers).
@@ -31,12 +39,14 @@ on:
     paths:
     - '.github/workflows/docker-test-release.yml'
     - 'docker/release/**'
+    - 'version.php'
     - '.github/actions/test-actions-core/action.yml'
     - '.github/workflows/docker-test-core.yml'
   pull_request:
     paths:
     - '.github/workflows/docker-test-release.yml'
     - 'docker/release/**'
+    - 'version.php'
     - '.github/actions/test-actions-core/action.yml'
     - '.github/workflows/docker-test-core.yml'
 
