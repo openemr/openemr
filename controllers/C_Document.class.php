@@ -120,7 +120,7 @@ class C_Document extends Controller
         $this->assign("TEMPLATES_LIST", $templates_options);
 
         // will call as module or individual template.
-        $templates_list = $this->templateService->renderPortalTemplateMenu($patient_id, '-patient-', false) ?? [];
+        $templates_list = $this->templateService->renderPortalTemplateMenu($patient_id, '-patient-', false);
         $this->assign("TEMPLATES_LIST_PATIENT", $templates_list);
 
         $activity = $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "documents/" . $this->template_mod . "_upload.html");
