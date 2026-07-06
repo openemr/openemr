@@ -11,7 +11,7 @@
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
-use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\PatientSessionUtil;
 
 /**
  * class PriorAuth
@@ -56,7 +56,7 @@ class FormPriorAuth extends ORDataObject implements \Stringable
             $id = "";
         }
 
-        $this->pid = OEGlobalsBag::getInstance()->get('pid');
+        $this->pid = PatientSessionUtil::getPid();
         $this->activity = 1;
         $this->date = date("Y-m-d H:i:s");
         $this->prior_auth_number = "";
