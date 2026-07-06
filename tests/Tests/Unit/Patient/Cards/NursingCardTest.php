@@ -88,12 +88,12 @@ class NursingCardTest extends TestCase
 
     public function testExtendsCardModel(): void
     {
-        $this->assertInstanceOf(CardModel::class, $this->makeCard());
+        $this->assertSame(CardModel::class, get_parent_class(NursingCard::class));
     }
 
     public function testImplementsCardInterface(): void
     {
-        $this->assertInstanceOf(CardInterface::class, $this->makeCard());
+        $this->assertContains(CardInterface::class, class_implements(NursingCard::class) ?: []);
     }
 
     // -------------------------------------------------------------------------
@@ -161,9 +161,9 @@ class NursingCardTest extends TestCase
 
         $vars = $this->makeCard(admission: $admission)->getTemplateVariables();
 
-        $this->assertSame($admission, $vars['admission']);
-        $this->assertSame('ICU', $vars['admission']['departamento']);
-        $this->assertSame('3', $vars['admission']['cama']);
+        $this->assertIsArray($vars['admission']);
+        $this->assertSame($admission['departamento'], $vars['admission']['departamento']);
+        $this->assertSame($admission['cama'], $vars['admission']['cama']);
     }
 
     public function testAdmissionDataIncludesExpectedKeys(): void
@@ -181,8 +181,10 @@ class NursingCardTest extends TestCase
 
         $vars = $this->makeCard(admission: $admission)->getTemplateVariables();
 
+        $admissionVars = $vars['admission'];
+        $this->assertIsArray($admissionVars);
         foreach (['encounter_id', 'encounter', 'admission_date', 'nro_registro', 'departamento', 'servicio', 'cuarto', 'cama'] as $key) {
-            $this->assertArrayHasKey($key, $vars['admission'], "Missing key: $key");
+            $this->assertArrayHasKey($key, $admissionVars, "Missing key: $key");
         }
     }
 

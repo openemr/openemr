@@ -61,10 +61,11 @@ class NursingCard extends CardModel
 
     protected function resolveInitiallyCollapsed(): bool
     {
-        return (UserSettingsService::getUserSetting(self::CARD_ID . '_expand') == 0);
+        $setting = UserSettingsService::getUserSetting(self::CARD_ID . '_expand');
+        return ((int)($setting ?? 0)) === 0;
     }
 
-    /** @return array<string,mixed>|null */
+    /** @return array<mixed>|null */
     protected function getActiveAdmission(int $pid): ?array
     {
         $catRow = QueryUtils::querySingleRow(
@@ -82,7 +83,7 @@ class NursingCard extends CardModel
              WHERE fe.pid = ? AND fe.pc_catid = ? AND fe.date_end IS NULL
              ORDER BY fe.date DESC
              LIMIT 1",
-            [$pid, (int)((string)($catRow['pc_catid'] ?? 0))]
+            [$pid, intval($catRow['pc_catid'] ?? 0)]
         );
 
         return $row ?: null;
