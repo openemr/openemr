@@ -20,15 +20,20 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Services\Globals\UserSettingsService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class NursingCard extends CardModel
 {
     private const TEMPLATE_FILE = 'patient/partials/nursing.html.twig';
     private const CARD_ID = 'nursing_admission';
 
-    public function __construct(int $pid)
+    public function __construct(int $pid, ?EventDispatcherInterface $dispatcher = null)
     {
-        parent::__construct($this->buildOpts($pid));
+        $opts = $this->buildOpts($pid);
+        if ($dispatcher !== null) {
+            $opts['dispatcher'] = $dispatcher;
+        }
+        parent::__construct($opts);
     }
 
     /** @return array<string,mixed> */
@@ -39,7 +44,7 @@ class NursingCard extends CardModel
 
         return [
             'acl' => ['patients', 'med'],
-            'initiallyCollapsed' => (UserSettingsService::getUserSetting(self::CARD_ID . '_expand') == 0),
+            'initiallyCollapsed' => $this->resolveInitiallyCollapsed(),
             'add' => false,
             'edit' => false,
             'collapse' => true,
@@ -54,8 +59,13 @@ class NursingCard extends CardModel
         ];
     }
 
+    protected function resolveInitiallyCollapsed(): bool
+    {
+        return (UserSettingsService::getUserSetting(self::CARD_ID . '_expand') == 0);
+    }
+
     /** @return array<string,mixed>|null */
-    private function getActiveAdmission(int $pid): ?array
+    protected function getActiveAdmission(int $pid): ?array
     {
         $catRow = QueryUtils::querySingleRow(
             "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_catname = ? LIMIT 1",
