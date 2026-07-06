@@ -36,7 +36,6 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/inte
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 set_time_limit(0);
 $GLOBALS_REF = $GLOBALS;

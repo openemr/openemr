@@ -2,7 +2,6 @@
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Session\PatientSessionUtil;
-use OpenEMR\Core\OEGlobalsBag;
 
 /*
  * Copyright Medical Information Integration,LLC info@mi-squared.com
