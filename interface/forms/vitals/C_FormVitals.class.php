@@ -79,14 +79,14 @@ class C_FormVitals
         }
 
         // get the patient's current age
-        $patient_data = getPatientData(OEGlobalsBag::getInstance()->get('pid'));
+        $patient_data = getPatientData(PatientSessionUtil::getPid());
         $patient_dob = $patient_data['DOB'];
         $patient_age = getPatientAge($patient_dob);
 
         $i = 1;
         $results = [];
         // eventually we want this just to use the service search date but we will move this here.
-        $records = $vitalsService->getVitalsHistoryForPatient(OEGlobalsBag::getInstance()->get('pid'), $form_id);
+        $records = $vitalsService->getVitalsHistoryForPatient(PatientSessionUtil::getPid(), $form_id);
 
         foreach ($records as $result) {
             $historicalVitals = new FormVitals();
@@ -501,7 +501,7 @@ class C_FormVitals
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // have to set these global settings in order for us to save.
         $obj->set_encounter(OEGlobalsBag::getInstance()->get('encounter'));
-        $obj->set_pid(OEGlobalsBag::getInstance()->get('pid'));
+        $obj->set_pid(PatientSessionUtil::getPid());
         $obj->set_authorized($session->get('userauthorized'));
 
         // handle all of the vital details that we need here.
