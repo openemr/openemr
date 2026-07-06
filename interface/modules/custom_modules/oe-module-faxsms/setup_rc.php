@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\FaxSMS\Controllers;
 
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -23,6 +24,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $serviceType = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? '';
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
+// getApiService() can return null for an unknown/unconfigured service type.
+// Narrow to a concrete AppDispatch here so the downstream helper calls
+// (defaultPhonePrefix(), getServiceType(), verifyAcl(), getCredentials())
+// resolve against a real object rather than the nullable union.
+if (!$clientApp instanceof AppDispatch) {
+    die("<h3>" . xlt("Service unavailable.") . "</h3>");
+}
 $service = $clientApp::getServiceType();
 if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -82,10 +90,16 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                     return false;
                 }
             });
+            // Hide the field group that does not apply to this service AND drop the
+            // HTML5 "required" constraint from the inputs inside it. A required
+            // control that is hidden cannot be focused, so the browser aborts the
+            // submit with "An invalid form control with name='smsnumber' is not
+            // focusable." Only the required flag is toggled (not disabled) so the
+            // hidden value still serializes into the POST exactly as before.
             if (Service === 'fax') {
-                $(".smsHide").hide();
+                $(".smsHide").hide().find(':input').prop('required', false);
             } else {
-                $(".faxHide").hide();
+                $(".faxHide").hide().find(':input').prop('required', false);
             }
         });
 
@@ -126,6 +140,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
         <?php } ?>
         <form class="form" id="setup-form" role="form">
             <div class="messages"></div>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'contact-form'); ?>" />
             <div class="row">
                 <div class="col-md-12">
                     <div class="checkbox">
@@ -141,12 +156,12 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                         </div>
                         <div class="form-group faxHide">
                             <label for="form_phone"><?php echo xlt("FAX Phone Number") ?> *</label>
-                            <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone'] ?? '+1') ?>' required />
+                            <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone'] ?? $clientApp->defaultPhonePrefix()) ?>' required />
                         </div>
                         <div class="form-group smsHide">
                             <label for="form_smsnumber"><?php echo xlt("SMS Phone Number") ?> *</label>
                             <input id="form_smsnumber" type="tel" name="smsnumber" class="form-control"
-                                value='<?php echo attr($c['smsNumber']) ?>' required />
+                                value='<?php echo attr($c['smsNumber'] ?? $clientApp->defaultPhonePrefix()) ?>' required />
                         </div>
                     </div>
                     <div class="col-md">

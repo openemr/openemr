@@ -16,10 +16,12 @@ use DateTime;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
+use OpenEMR\Modules\FaxSMS\RestClient\Twilio\Rest\Client;
 use RuntimeException;
-use Twilio\Rest\Client;
+use Throwable;
 
-class TwilioSMSClient extends AppDispatch
+class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
 {
     public $baseDir;
     public $uriDir;
@@ -55,7 +57,7 @@ class TwilioSMSClient extends AppDispatch
      * @param $dateTo
      * @return void
      */
-    public function fetchSMSFilteredList($dateFrom, $dateTo)
+    public function fetchSMSFilteredList(string $dateFrom, string $dateTo): void
     {
     }
 
@@ -63,7 +65,7 @@ class TwilioSMSClient extends AppDispatch
      * @param $uiDateRangeFlag
      * @return false|string|null
      */
-    public function fetchSMSList($uiDateRangeFlag = true): false|string|null
+    public function fetchSMSList(bool $uiDateRangeFlag = true): false|string|null
     {
         return $this->_getPending();
     }
@@ -85,7 +87,7 @@ class TwilioSMSClient extends AppDispatch
         return $credentials;
     }
 
-    public function sendSMS($toPhone = '', $subject = '', $message = '', $from = ''): mixed
+    public function sendSMS($toPhone = '', string $subject = '', string $message = '', string $from = ''): mixed
     {
         $toPhone = $toPhone ?: $this->getRequest('phone');
         $from = $from ?: $this->getRequest('from');
@@ -102,7 +104,7 @@ class TwilioSMSClient extends AppDispatch
                     "from" => attr($from)
                 ]
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $message = $e->getMessage();
             return text('Error: ' . $message);
         }
@@ -150,7 +152,7 @@ class TwilioSMSClient extends AppDispatch
                     "dateSentAfter" => $dateFrom,
                     "dateSentBefore" => $dateTo
                 ], 100);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $message = $e->getMessage();
                 $emsg = xlt('Report to Administration');
                 return json_encode(['error' => $message . " : " . $emsg]);
@@ -167,7 +169,7 @@ class TwilioSMSClient extends AppDispatch
                 $from = $messageStore->from;
                 $status = $messageStore->status;
                 // purge failed. a day is enough time to report.
-                if ($status) {
+                if ($status && $messageStore->dateCreated !== null) {
                     $d1 = new DateTime($messageStore->dateCreated->format('Ymd Hi'));
                     $d2 = new DateTime(gmdate('Ymd Hi', time()));
                     $dif = $d1->diff($d2);
@@ -181,15 +183,17 @@ class TwilioSMSClient extends AppDispatch
                 } else {
                     $vreply = "<a href='#' title='SMS failure'> <span class='fa fa-file-pdf text-danger'></span></a></br>";
                 }
-                $utc_time = strtotime($messageStore->dateUpdated->format('Ymd His') . ' UTC');
+                $utc_time = $messageStore->dateUpdated !== null
+                    ? strtotime($messageStore->dateUpdated->format('Ymd His') . ' UTC')
+                    : time();
                 $updateDate = date('M j Y g:i:sa T', $utc_time);
-                if (strtolower($messageStore->direction) != "outbound-api") {
-                    $responseMsgs[0] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . ($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><<td>" . $vreply . "</td></tr>";
+                if (strtolower((string)$messageStore->direction) != "outbound-api") {
+                    $responseMsgs[0] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $vreply . "</td></tr>";
                 } else {
-                    $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . ($status) . "</td><<td>" . $vreply . "</td></tr>";
+                    $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $vreply . "</td></tr>";
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $message = $e->getMessage();
             $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Report to Administration') . "</td></tr>";
             echo json_encode(['error' => $responseMsgs]);
@@ -239,24 +243,9 @@ class TwilioSMSClient extends AppDispatch
     /**
      * @return string|bool
      */
-    function sendFax(): string|bool
-    {
-        return false;
-    }
-
-    /**
-     * @return string|bool
-     */
     function fetchReminderCount(): string|bool
     {
         return 0;
     }
 
-    /**
-     * @return mixed
-     */
-    function sendEmail(): mixed
-    {
-        return false;
-    }
 }
