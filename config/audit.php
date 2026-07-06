@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\{
 use OpenEMR\Common\Logging\{
     Audit,
     AuditConfig,
+    AuditLoggerInterface,
     BreakglassChecker,
     BreakglassCheckerInterface,
     EventAuditLogger,
@@ -37,6 +38,7 @@ return [
         $c->get(ConnectionManager::class)->get(ConnectionType::NonAudited),
     ),
 
+    AuditLoggerInterface::class => EventAuditLogger::class,
     EventAuditLogger::class,
 
     AuditConfig::class => function (TC $c) {

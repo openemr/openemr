@@ -52,10 +52,10 @@ return [
         $opts = $c->get(DatabaseConnectionOptions::class);
 
         // Main connection: with audit logging middleware
-        $manager->register(ConnectionType::Main, function () use ($opts) {
+        $manager->register(ConnectionType::Main, function () use ($c, $opts) {
             $config = new DbalConfiguration();
             $config->setMiddlewares([
-                new LoggingMiddleware(new AuditingDbalLogger()),
+                new LoggingMiddleware($c->get(AuditingDbalLogger::class)),
             ]);
             return DriverManager::getConnection($opts->toDbalParams(), $config);
         });
@@ -71,6 +71,8 @@ return [
     // DBAL - delegates to ConnectionManager
     Connection::class => fn (TC $c) =>
         $c->get(ConnectionManager::class)->get(ConnectionType::Main),
+
+    AuditingDbalLogger::class,
 
     // DB connection config
     DatabaseConnectionOptions::class => function (TC $c) {

@@ -14,7 +14,7 @@ namespace OpenEMR\Common\Database\Middleware;
 
 use Doctrine\DBAL\ParameterType;
 use Firehed\DbalLogger\DbalLogger;
-use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\AuditLoggerInterface;
 use Throwable;
 
 /**
@@ -31,6 +31,11 @@ final class AuditingDbalLogger implements DbalLogger
     /** @var array<int|string, mixed>|null */
     private ?array $currentParams = null;
 
+    public function __construct(
+        private readonly AuditLoggerInterface $auditLogger,
+    ) {
+
+    }
     /**
      * @param array<int|string, mixed>|null $params
      * @param array<int|string, ParameterType>|null $types
@@ -50,7 +55,7 @@ final class AuditingDbalLogger implements DbalLogger
         $outcome = $exception === null;
 
         // Delegate to the existing EventAuditLogger infrastructure.
-        EventAuditLogger::getInstance()->auditSQLEvent(
+        $this->auditLogger->auditSQLEvent(
             $this->currentSql,
             $outcome,
             $this->currentParams,

@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * @phpstan-import-type ApiData from Audit\Event
  */
-class EventAuditLogger
+class EventAuditLogger implements AuditLoggerInterface
 {
     use SingletonTrait;
 
