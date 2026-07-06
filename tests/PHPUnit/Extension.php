@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\PHPUnit;
 
+use OpenEMR\BC\Deprecation;
+use OpenEMR\BC\DeprecationMode;
 use PHPUnit\Runner\Extension\Extension as PHPUnitExtension;
 use PHPUnit\Runner\Extension\Facade;
 use PHPUnit\Runner\Extension\ParameterCollection;
@@ -33,6 +35,8 @@ class Extension implements PHPUnitExtension
         Facade $facade,
         ParameterCollection $parameters
     ): void {
+        Deprecation::$mode = DeprecationMode::Error;
+
         $shutdownTracker = new ShutdownTracker();
         $shutdownTracker->install();
         $facade->registerSubscriber($shutdownTracker);

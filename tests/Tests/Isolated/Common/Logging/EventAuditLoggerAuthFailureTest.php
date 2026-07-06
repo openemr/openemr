@@ -39,7 +39,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
         $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
 
