@@ -54,8 +54,8 @@ $name_field_id = "form_" . $field_id_esc;
 $small_form ??= '';
 
 $pharmacyService = new PharmacyService();
-$prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm(PatientSessionUtil::getPid()) ?? [];
-$prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm(PatientSessionUtil::getPid()) ?? [];
+$prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($pid) ?? [];
+$prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm($pid) ?? [];
 $prev_prim_pharmacy = js_escape($prev_prim_pharmacy);
 $prev_alt_pharmacy = js_escape($prev_alt_pharmacy);
 
