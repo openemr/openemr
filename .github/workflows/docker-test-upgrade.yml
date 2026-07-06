@@ -1,0 +1,229 @@
+# Docker image-to-image upgrade path validation.
+#
+# Boots the production compose stack from a prior openemr Docker Hub image
+# (default: openemr/openemr:latest -- the current shipped-stable, per
+# .github/release-targets.yml this points at rel-800's v8_0_0_3), lets it
+# install fresh, stops the stack while preserving the named volumes
+# (databasevolume, sitevolume, logvolume01), then boots the same stack
+# against a newer image (default: openemr/openemr:next -- the daily-rebuilt
+# release-in-flight, per release-targets.yml this points at rel-820 today,
+# reflecting what will ship as 8.2.0). The second boot triggers the
+# production entrypoint's auto-upgrade path (fsupgrade-<N>.sh +
+# sql_upgrade.php).
+#
+# Complements docker-test-release.yml: that validates "does the current
+# branch's Dockerfile build and boot?" -- this validates "does an existing
+# installation cleanly upgrade to what this branch will ship?"
+#
+# Uses docker/production/docker-compose.yml as the base compose file --
+# that's what end users deploy, so we test the exact stack shape they'll
+# use. An in-workflow override file replaces the sha-pinned image ref
+# with a plain tag ref so we can swap between FROM_TAG and TO_TAG without
+# editing the compose file itself. The healthcheck is also relaxed to
+# hit `/` instead of `/meta/health/readyz`, since older openemr images
+# may not have the readyz endpoint (added later).
+#
+# Triggers:
+#
+#   1. push on rel-* branches when release-adjacent files change --
+#      catches the moment a release-prep merge pushes a version.php bump
+#      onto rel-*, giving pre-tag confidence that the shipped image will
+#      cleanly upgrade an existing 8.0.0.x installation.
+#
+#   2. schedule daily at 12:00 UTC -- catches drift where "next" or
+#      "latest" tags on Docker Hub degrade independent of this repo
+#      (e.g. Alpine base image regression).
+#
+#   3. workflow_dispatch -- manual dispatch to test arbitrary tag pairs
+#      (e.g. 7.0.4 -> 8.0.0.3 for a two-release skip test, or a specific
+#      dated variant like 8.1.0-2026-06-01 -> next).
+#
+# Not wired to master pushes yet -- on master the natural upgrade target
+# is `dev`, and the natural "from" is arguably still `latest`, but the
+# jump size (8.0.0 -> 8.3.0-dev today) is bigger than most real-world
+# upgrades. Deferring master until we've validated the rel-* case.
+
+name: Docker upgrade test
+
+on:
+  workflow_dispatch:
+    inputs:
+      from_tag:
+        description: 'Prior openemr Docker Hub tag (e.g. latest, 8.0.0, 7.0.4)'
+        required: true
+        type: string
+        default: 'latest'
+      to_tag:
+        description: 'Target openemr Docker Hub tag to upgrade to (e.g. next, dev, 8.2.0)'
+        required: true
+        type: string
+        default: 'next'
+  push:
+    branches:
+    - 'rel-*'
+    paths:
+    - '.github/workflows/docker-test-upgrade.yml'
+    - 'docker/production/docker-compose.yml'
+    - 'version.php'
+  schedule:
+  - cron: '0 12 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-test-upgrade-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'schedule' }}
+
+jobs:
+  upgrade:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    env:
+      FROM_TAG: ${{ inputs.from_tag || 'latest' }}
+      TO_TAG: ${{ inputs.to_tag || 'next' }}
+      # Named-volume persistence works across `docker compose down` when
+      # both invocations use the same project name. Pin explicitly rather
+      # than letting compose derive from cwd (`production` -> ambiguous).
+      COMPOSE_PROJECT_NAME: openemr-upgrade-test
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Write compose override for FROM_TAG
+      # Two purposes:
+      #   1. Swap the sha-pinned `image:` in docker-compose.yml for a
+      #      plain tag ref driven by ${FROM_TAG}/${TO_TAG}.
+      #   2. Override the healthcheck to hit `/` instead of
+      #      `/meta/health/readyz`, since older openemr images (pre-8.0)
+      #      may not have the readyz endpoint. Keep the same overall
+      #      startup budget (3m start_period), which is generous for a
+      #      fresh install.
+      run: |
+        cat >compose.override.yml <<'YAML'
+        services:
+          openemr:
+            image: openemr/openemr:__TAG__
+            healthcheck:
+              test:
+              - CMD
+              - /usr/bin/curl
+              - --fail
+              - --insecure
+              - --location
+              - --silent
+              - --output
+              - /dev/null
+              - http://localhost/
+              start_period: 3m
+              start_interval: 10s
+              interval: 30s
+              timeout: 5s
+              retries: 3
+        YAML
+        sed -i "s|__TAG__|${FROM_TAG}|" compose.override.yml
+        echo "=== Effective compose config ==="
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f compose.override.yml \
+          config
+
+    - name: Boot prior version (${{ env.FROM_TAG }})
+      run: |
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f compose.override.yml \
+          up --detach --wait --wait-timeout 900
+
+    - name: Sanity check prior version responds
+      run: |
+        for i in 1 2 3 4 5; do
+          HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" http://localhost/ || echo 000)
+          echo "Attempt $i: HTTP $HTTP_CODE"
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
+            exit 0
+          fi
+          sleep 10
+        done
+        echo "::error::Prior version did not respond with 200/302"
+        exit 1
+
+    - name: Capture prior-version state (for debug on failure)
+      if: always()
+      run: |
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f compose.override.yml \
+          ps
+        echo "=== openemr container image ID ==="
+        docker inspect --format '{{ .Image }}' "$(docker compose -f docker/production/docker-compose.yml -f compose.override.yml ps -q openemr)"
+
+    - name: Stop containers (preserve named volumes)
+      run: |
+        # `down` without --volumes preserves the named volumes
+        # (databasevolume, sitevolume, logvolume01), which is what we
+        # want -- the whole point of this test is that the new image
+        # picks up an existing installation and upgrades it in place.
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f compose.override.yml \
+          down
+
+    - name: Confirm volumes persist post-down
+      run: |
+        docker volume ls | grep "${COMPOSE_PROJECT_NAME}" || {
+          echo "::error::Named volumes were unexpectedly removed by docker compose down"
+          exit 1
+        }
+
+    - name: Switch compose override to TO_TAG
+      run: |
+        sed -i "s|openemr/openemr:${FROM_TAG}|openemr/openemr:${TO_TAG}|" compose.override.yml
+        echo "=== Effective compose config for target version ==="
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f compose.override.yml \
+          config
+
+    - name: Boot target version (${{ env.TO_TAG }}) -- auto-upgrade path runs
+      # The production entrypoint (docker/release/openemr.sh) detects an
+      # existing installation via /var/www/localhost/htdocs/openemr/sites/
+      # persistence and runs the auto-upgrade path -- fsupgrade-<N>.sh
+      # scripts to migrate on-disk state, then sql_upgrade.php to migrate
+      # the schema. If either fails, the container fails healthcheck and
+      # --wait times out.
+      run: |
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f compose.override.yml \
+          up --detach --wait --wait-timeout 1200
+
+    - name: Sanity check upgraded version responds
+      run: |
+        for i in 1 2 3 4 5; do
+          HTTP_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" http://localhost/ || echo 000)
+          echo "Attempt $i: HTTP $HTTP_CODE"
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "302" ]; then
+            exit 0
+          fi
+          sleep 10
+        done
+        echo "::error::Upgraded version did not respond with 200/302"
+        exit 1
+
+    - name: Capture upgraded-version state (for debug on failure)
+      if: always()
+      run: |
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f compose.override.yml \
+          ps
+        echo "=== openemr container image ID (should differ from prior) ==="
+        docker inspect --format '{{ .Image }}' "$(docker compose -f docker/production/docker-compose.yml -f compose.override.yml ps -q openemr)"
+
+    - name: Container logs (for debug on failure)
+      if: always()
+      run: |
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f compose.override.yml \
+          logs openemr
