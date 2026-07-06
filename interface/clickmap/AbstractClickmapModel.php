@@ -1,6 +1,7 @@
 <?php
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 
 /*
@@ -83,7 +84,7 @@ abstract class AbstractClickmapModel extends ORDataObject
         $this->date = date("Y-m-d H:i:s");
         $this->_table = $table;
         $this->data = "";
-        $this->pid = OEGlobalsBag::getInstance()->get('pid');
+        $this->pid = PatientSessionUtil::getPid();
         if ($id != "") {
             $this->populate();
         }

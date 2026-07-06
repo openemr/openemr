@@ -120,7 +120,7 @@ function optionalAge($frow, $date, &$asof, $description = '')
         $tmp = sqlQuery(
             "SELECT date FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
-            [OEGlobalsBag::getInstance()->get('pid'), OEGlobalsBag::getInstance()->get('encounter')]
+            [PatientSessionUtil::getPid(), OEGlobalsBag::getInstance()->get('encounter')]
         );
         if (!empty($tmp['date'])) {
             $asof = substr((string) $tmp['date'], 0, 10);
@@ -1203,7 +1203,7 @@ function generate_form_field($frow, $currvalue): void
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
+        $lres = sqlStatement($query, [PatientSessionUtil::getPid()]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -1551,7 +1551,7 @@ function generate_form_field($frow, $currvalue): void
         $date_init .= " lbfCanvasSetup('form_$field_id_esc', $canWidth, $canHeight);\n";
     } elseif ($data_type == 41 || $data_type == 42) {
         $datatype = 'patient-signature';
-        $cpid = OEGlobalsBag::getInstance()->get('pid');
+        $cpid = PatientSessionUtil::getPid();
         $cuser = $session->get('authUserID');
         if ($data_type == 42) {
             $datatype = 'admin-signature';
@@ -2053,7 +2053,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
+        $lres = sqlStatement($query, [PatientSessionUtil::getPid()]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -2594,7 +2594,7 @@ function generate_display_field($frow, $currvalue)
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
+        $lres = sqlStatement($query, [PatientSessionUtil::getPid()]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -3042,7 +3042,7 @@ function generate_plaintext_field($frow, $currvalue)
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
+        $lres = sqlStatement($query, [PatientSessionUtil::getPid()]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {

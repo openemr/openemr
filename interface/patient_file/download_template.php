@@ -96,7 +96,7 @@ function getIssues($type)
     $tmp = '';
     $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .
     "pid = ? AND type = ? AND enddate IS NULL " .
-    "ORDER BY begdate", [OEGlobalsBag::getInstance()->get('pid'), $type]);
+    "ORDER BY begdate", [PatientSessionUtil::getPid(), $type]);
     while ($lrow = sqlFetchArray($lres)) {
         if ($tmp) {
             $tmp .= '; ';

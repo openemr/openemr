@@ -24,6 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
@@ -195,7 +196,7 @@ class C_Prescription extends Controller
                 $interaction = xlt("Could not find RxNorm Table! Please install.");
             } else {
                 //   Grab medication list from prescriptions list and load into array
-                $pid = OEGlobalsBag::getInstance()->get('pid');
+                $pid = PatientSessionUtil::getPid();
                 $medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", [$pid]);
                 // escape_table_name() on a literal handles case-insensitive table name matching.
                 $tbl_rxnconso = escape_table_name('RXNCONSO');
