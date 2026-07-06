@@ -238,7 +238,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
         const clone = document.importNode(template.content, true);
         wenoForm.appendChild(clone);
 
-        const pid = <?php echo js_escape($pid); ?>;
+        const pid = <?php echo $pid; ?>;
         const prevPrimPharmacy = <?php echo js_escape($prev_prim_pharmacy); ?>;
         const prevAltPharmacy = <?php echo js_escape($prev_alt_pharmacy); ?>;
 
