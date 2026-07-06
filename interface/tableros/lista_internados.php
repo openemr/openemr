@@ -11,20 +11,26 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
+/** @var string $srcdir */
+/** @var string $web_root */
 require_once "$srcdir/user.inc.php";
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$id_encounter    = isset($_GET['id_encounter']) ? (int)$_GET['id_encounter'] : null;
-$nombre_paciente = isset($_GET['paciente'])     ? $_GET['paciente']          : null;
-$death_date      = isset($_GET['death_date'])   ? $_GET['death_date']        : null;
-$update          = isset($_GET['update'])       ? (int)$_GET['update']       : null;
+$id_encounter_raw = filter_input(INPUT_GET, 'id_encounter', FILTER_SANITIZE_NUMBER_INT);
+$id_encounter     = ($id_encounter_raw !== null && $id_encounter_raw !== '') ? (int)$id_encounter_raw : null;
+$nombre_paciente  = filter_input(INPUT_GET, 'paciente', FILTER_SANITIZE_SPECIAL_CHARS);
+$death_date       = filter_input(INPUT_GET, 'death_date', FILTER_SANITIZE_SPECIAL_CHARS);
+$update_raw       = filter_input(INPUT_GET, 'update', FILTER_SANITIZE_NUMBER_INT);
+$update           = ($update_raw !== null && $update_raw !== '') ? (int)$update_raw : null;
 
 if ($death_date) {
     $death_date_safe = date('Y-m-d', strtotime($death_date));
@@ -42,11 +48,11 @@ if ($death_date) {
 
 // Resolve inpatient category ID by name (portable across installations)
 define('NURSING_INPATIENT_CATEGORY', 'Inpatient');
-$catRow = sqlQuery(
+$catRow = QueryUtils::querySingleRow(
     "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_catname = ? LIMIT 1",
     [NURSING_INPATIENT_CATEGORY]
 );
-$inpatient_catid = $catRow ? (int)$catRow['pc_catid'] : 0;
+$inpatient_catid = $catRow ? (int) $catRow['pc_catid'] : 0;
 
 $res = sqlStatement(
     "SELECT f.*, CONCAT(p.fname, ' ', p.lname) AS paciente, p.pubpid AS pubpid
@@ -461,7 +467,7 @@ $nursing_forms = [
 
         var xl_strings_tabs_view_model = <?php echo json_encode(array(
             'encounter_locked'    => xla('This encounter is locked. No new forms can be added.'),
-            'must_select_patient' => $GLOBALS['enable_group_therapy']
+            'must_select_patient' => OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')
                 ? xla('You must first select or add a patient or therapy group.')
                 : xla('You must first select or add a patient.'),
             'must_select_encounter' => xla('You must first select or create an encounter.'),

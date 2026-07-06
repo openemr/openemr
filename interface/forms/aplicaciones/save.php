@@ -12,10 +12,13 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+/** @var string $srcdir */
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -24,36 +27,38 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'], session: $session)) {
+$csrf_token = (string) filter_input(INPUT_POST, 'csrf_token_form');
+if (!CsrfUtils::verifyCsrfToken($csrf_token, session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
-$pid       = (int)($_POST['pid']       ?? 0);
-$encounter = (int)($_POST['encounter'] ?? 0);
-$id        = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$pid       = (int) filter_input(INPUT_POST, 'pid', FILTER_SANITIZE_NUMBER_INT);
+$encounter = (int) filter_input(INPUT_POST, 'encounter', FILTER_SANITIZE_NUMBER_INT);
+$id        = (int) filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
 if (!$pid || !$encounter) {
     die(xlt("Error: Missing required data (PID or Encounter)"));
 }
 
-$user       = $session->get('authUser')       ?? 'admin';
-$groupname  = $session->get('authProvider')   ?? 'Default';
-$authorized = $session->get('userauthorized') ?? 1;
+$user       = (string) ($session->get('authUser')       ?? 'admin');
+$groupname  = (string) ($session->get('authProvider')   ?? 'Default');
+$authorized = (int)    ($session->get('userauthorized') ?? 1);
 // Sanitize input fields
-$medicamentos      = (int)($_POST['medicamentos']      ?? 0);
-$obs_medicamentos  = $_POST['obs_medicamentos']         ?? '';
-$sueros            = (int)($_POST['sueros']            ?? 0);
-$obs_sueros        = $_POST['obs_sueros']               ?? '';
-$vacunas           = (int)($_POST['vacunas']           ?? 0);
-$obs_vacunas       = $_POST['obs_vacunas']              ?? '';
-$expansiones       = (int)($_POST['expansiones']       ?? 0);
-$obs_expansiones   = $_POST['obs_expansiones']          ?? '';
-$sangre            = (int)($_POST['sangre']            ?? 0);
-$obs_sangre        = $_POST['obs_sangre']               ?? '';
-$hora_registro     = !empty($_POST['hora_registro']) ? $_POST['hora_registro'] : null;
+$medicamentos      = (int)    filter_input(INPUT_POST, 'medicamentos', FILTER_SANITIZE_NUMBER_INT);
+$obs_medicamentos  = (string) filter_input(INPUT_POST, 'obs_medicamentos');
+$sueros            = (int)    filter_input(INPUT_POST, 'sueros', FILTER_SANITIZE_NUMBER_INT);
+$obs_sueros        = (string) filter_input(INPUT_POST, 'obs_sueros');
+$vacunas           = (int)    filter_input(INPUT_POST, 'vacunas', FILTER_SANITIZE_NUMBER_INT);
+$obs_vacunas       = (string) filter_input(INPUT_POST, 'obs_vacunas');
+$expansiones       = (int)    filter_input(INPUT_POST, 'expansiones', FILTER_SANITIZE_NUMBER_INT);
+$obs_expansiones   = (string) filter_input(INPUT_POST, 'obs_expansiones');
+$sangre            = (int)    filter_input(INPUT_POST, 'sangre', FILTER_SANITIZE_NUMBER_INT);
+$obs_sangre        = (string) filter_input(INPUT_POST, 'obs_sangre');
+$hora_raw          = (string) filter_input(INPUT_POST, 'hora_registro');
+$hora_registro     = ($hora_raw !== '') ? $hora_raw : null;
 $is_edit = ($id > 0);
 if ($is_edit) {
 // Verify the record belongs to this patient/encounter
-    $check = sqlQuery("SELECT id FROM form_aplicaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
+    $check = QueryUtils::querySingleRow("SELECT id FROM form_aplicaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
     if (!$check) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
@@ -109,5 +114,5 @@ if ($is_edit) {
 }
 
 formHeader(xlt("Redirecting..."));
-formJump($GLOBALS['webroot'] . "/interface/tableros/lista_internados.php");
+formJump(OEGlobalsBag::getInstance()->getString('webroot') . "/interface/tableros/lista_internados.php");
 formFooter();

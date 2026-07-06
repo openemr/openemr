@@ -12,18 +12,22 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+/** @var string $srcdir */
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Get parameters
-$pid       = isset($_GET['pid'])       ? (int)$_GET['pid']       : (int)($_SESSION['pid'] ?? 0);
-$encounter = isset($_GET['encounter']) ? (int)$_GET['encounter'] : (int)($_SESSION['encounter'] ?? 0);
-$id        = isset($_GET['id'])        ? (int)$_GET['id']        : 0;
+$pid       = (int) filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)
+    ?: (int) ($session->get('pid') ?? 0);
+$encounter = (int) filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)
+    ?: (int) ($session->get('encounter') ?? 0);
+$id        = (int) filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
 if (!$pid || !$encounter) {
     die(xlt("Error: Missing required parameters (PID or Encounter)"));
@@ -48,7 +52,7 @@ $hora_cuidado             = '';
 
 // Load existing data in edit mode
 if ($is_edit) {
-    $row = sqlQuery("SELECT * FROM form_cuidados WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
+    $row = QueryUtils::querySingleRow("SELECT * FROM form_cuidados WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
     if ($row) {
         $posicion_paciente        = $row['posicion_paciente']        ?? '';
         $obs_posicion_paciente    = $row['obs_posicion_paciente']    ?? '';
@@ -104,16 +108,16 @@ $page_title = $is_edit ? xlt('Edit Care Bundle') : xlt('New Care Bundle');
                     <?php echo $is_edit ? xlt('Edit Mode') : xlt('Create Mode'); ?>
                 </span>
             </h4>
-            <small class="text-muted"><?php echo xlt('Encounter'); ?>: <?php echo text($encounter); ?></small>
+            <small class="text-muted"><?php echo xlt('Encounter'); ?>: <?php echo text((string)$encounter); ?></small>
         </div>
     </div>
 
     <form method="POST" action="save.php" id="formCuidados" onsubmit="top.restoreSession();">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
-        <input type="hidden" name="pid"       value="<?php echo attr($pid); ?>">
-        <input type="hidden" name="encounter" value="<?php echo attr($encounter); ?>">
+        <input type="hidden" name="pid"       value="<?php echo attr((string)$pid); ?>">
+        <input type="hidden" name="encounter" value="<?php echo attr((string)$encounter); ?>">
         <?php if ($is_edit) : ?>
-        <input type="hidden" name="id" value="<?php echo attr($id); ?>">
+        <input type="hidden" name="id" value="<?php echo attr((string)$id); ?>">
         <?php endif; ?>
 
         <!-- PATIENT POSITION -->

@@ -12,9 +12,11 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-function aplicaciones_report($pid, $encounter, $cols, $id)
-{
-    $row = sqlQuery("SELECT * FROM form_aplicaciones WHERE id = ? AND pid = ?", array($id, $pid));
+
+use OpenEMR\Common\Database\QueryUtils;
+
+$aplicaciones_report = function (int $pid, int $encounter, int $cols, int $id): void {
+    $row = QueryUtils::querySingleRow("SELECT * FROM form_aplicaciones WHERE id = ? AND pid = ?", array($id, $pid));
     if (!$row) {
         echo "<p style='color:#c0392b;padding:10px;'>" . xlt("No data found for this record.") . "</p>";
         return;
@@ -27,11 +29,13 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
         'expansiones'   => xlt('Plasma Expanders'),
         'sangre'        => xlt('Blood and Blood Products'),
     ];
-    $hora = !empty($row['hora_registro'])
-        ? date('H:i', strtotime($row['hora_registro']))
+    $hora_raw = $row['hora_registro'] ?? '';
+    $hora = ($hora_raw !== '')
+        ? date('H:i', strtotime($hora_raw))
         : xlt('Not specified');
-    $fecha = !empty($row['date'])
-        ? date('d/m/Y H:i', strtotime($row['date']))
+    $date_raw = $row['date'] ?? '';
+    $fecha = ($date_raw !== '')
+        ? date('d/m/Y H:i', strtotime($date_raw))
         : '-';
     $total_activos = 0;
     foreach (array_keys($items) as $campo) {
@@ -215,7 +219,7 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
         <div class="meta-bar">
             <span><strong><?php echo xlt('Record Time'); ?>:</strong> <?php echo text($hora); ?></span>
             <span><strong><?php echo xlt('Recorded'); ?>:</strong> <?php echo text($fecha); ?></span>
-            <?php if (!empty($row['user'])) :
+            <?php if (isset($row['user']) && $row['user'] !== '') :
                 ?>
             <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text($row['user']); ?></span>
                 <?php
@@ -283,5 +287,4 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
 
     </div>
     <?php
-}
-?>
+};

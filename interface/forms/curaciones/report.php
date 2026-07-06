@@ -12,9 +12,11 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-function curaciones_report($pid, $encounter, $cols, $id)
-{
-    $row = sqlQuery("SELECT * FROM form_curaciones WHERE id = ? AND pid = ?", array($id, $pid));
+
+use OpenEMR\Common\Database\QueryUtils;
+
+$curaciones_report = function (int $pid, int $encounter, int $cols, int $id): void {
+    $row = QueryUtils::querySingleRow("SELECT * FROM form_curaciones WHERE id = ? AND pid = ?", array($id, $pid));
     if (!$row) {
         echo "<p style='color:#c0392b;padding:10px;'>" . xlt("No data found for this record.") . "</p>";
         return;
@@ -28,11 +30,13 @@ function curaciones_report($pid, $encounter, $cols, $id)
         'via_venosa_central' => xlt('Central Venous Line'),
         'via_venosa'         => xlt('Peripheral IV Line'),
     ];
-    $hora = !empty($row['hora_operacion'])
-        ? date('H:i', strtotime($row['hora_operacion']))
+    $hora_raw = $row['hora_operacion'] ?? '';
+    $hora = ($hora_raw !== '')
+        ? date('H:i', strtotime($hora_raw))
         : xlt('Not specified');
-    $fecha = !empty($row['date'])
-        ? date('d/m/Y H:i', strtotime($row['date']))
+    $date_raw = $row['date'] ?? '';
+    $fecha = ($date_raw !== '')
+        ? date('d/m/Y H:i', strtotime($date_raw))
         : '-';
 // Contar activos
     $total_activos = 0;
@@ -223,7 +227,7 @@ function curaciones_report($pid, $encounter, $cols, $id)
         <div class="meta-bar">
             <span><strong><?php echo xlt('Care Time'); ?>:</strong> <?php echo text($hora); ?></span>
             <span><strong><?php echo xlt('Recorded'); ?>:</strong> <?php echo text($fecha); ?></span>
-            <?php if (!empty($row['user'])) :
+            <?php if (isset($row['user']) && $row['user'] !== '') :
                 ?>
             <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text($row['user']); ?></span>
                 <?php
@@ -291,5 +295,4 @@ function curaciones_report($pid, $encounter, $cols, $id)
 
     </div>
     <?php
-}
-?>
+};

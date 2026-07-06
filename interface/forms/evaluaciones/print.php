@@ -12,26 +12,34 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
 use Mpdf\Mpdf;
-$pid       = isset($_GET['pid'])       ? (int)$_GET['pid']       : (int)($_SESSION['pid']       ?? 0);
-$encounter = isset($_GET['encounter']) ? (int)$_GET['encounter'] : (int)($_SESSION['encounter'] ?? 0);
-$id        = isset($_GET['id'])        ? (int)$_GET['id']        : 0;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$_print_session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid       = (int) filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)
+    ?: (int) ($_print_session->get('pid') ?? 0);
+$encounter = (int) filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)
+    ?: (int) ($_print_session->get('encounter') ?? 0);
+$id        = (int) filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 if (!$pid || !$encounter || !$id) {
     die(xlt("Error: Missing required parameters."));
 }
 
 // Load evaluation record
-$row = sqlQuery("SELECT * FROM form_evaluaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
+$row = QueryUtils::querySingleRow("SELECT * FROM form_evaluaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
 if (!$row) {
     die(xlt("Error: Record not found or insufficient permissions."));
 }
 
 // Load patient data
-$paciente = sqlQuery("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", array($pid));
+$paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", array($pid));
 // Calculate age
 $age = '';
-if (!empty($paciente['DOB'])) {
-    $dob = new DateTime($paciente['DOB']);
+$dob_val = ($paciente ?? [])['DOB'] ?? '';
+if ($dob_val !== '') {
+    $dob = new DateTime($dob_val);
     $age = (new DateTime())->diff($dob)->y . ' ' . xlt('years');
 }
 
@@ -64,13 +72,13 @@ if ($glasgow >= 13) {
 }
 
 // Evaluation date/time
-$eval_date = !empty($row['date']) ? date('d/m/Y', strtotime($row['date'])) : '-';
-$eval_time = !empty($row['hora_evaluacion']) ? $row['hora_evaluacion'] : '-';
+$date_raw  = $row['date'] ?? '';
+$eval_date = ($date_raw !== '')                   ? date('d/m/Y', strtotime($date_raw)) : '-';
+$hora_raw  = $row['hora_evaluacion'] ?? '';
+$eval_time = ($hora_raw !== '') ? $hora_raw       : '-';
 
 // Helper: table row
-function evalRow($label, $value, $obs)
-{
-
+$evalRow = function (string $label, string $value, string $obs): string {
     $obs_html = ($obs !== '' && $obs !== '-')
         ? htmlspecialchars($obs)
         : '<span style="color:#bbb;font-style:italic;">' . xlt('No observations recorded') . '</span>';
@@ -84,21 +92,17 @@ function evalRow($label, $value, $obs)
         <td style="padding:7px 10px;border-bottom:1px solid #e4e9ef;width:20%;">' . $val_html . '</td>
         <td style="padding:7px 10px;border-bottom:1px solid #e4e9ef;font-size:9px;color:#444;">' . $obs_html . '</td>
     </tr>';
-}
+};
 
 // Section header helper
-function secHeader($title, $bg)
-{
-
+$secHeader = function (string $title, string $bg): string {
     return '<div style="background:' . $bg . ';color:#fff;font-size:9px;font-weight:bold;'
          . 'text-transform:uppercase;letter-spacing:1px;padding:7px 12px;margin:12px 0 0 0;">'
          . $title . '</div>';
-}
+};
 
 // Table header row
-function tableHeader($c1, $c2, $c3)
-{
-
+$tableHeader = function (string $c1, string $c2, string $c3): string {
     return '<table style="width:100%;border-collapse:collapse;margin-bottom:10px;">'
          . '<thead><tr>'
          . '<th style="background:#34495e;color:#fff;padding:7px 10px;text-align:left;font-size:9px;'
@@ -108,7 +112,7 @@ function tableHeader($c1, $c2, $c3)
          . '<th style="background:#34495e;color:#fff;padding:7px 10px;text-align:left;font-size:9px;'
          . 'text-transform:uppercase;letter-spacing:0.5px;">' . $c3 . '</th>'
          . '</tr></thead><tbody>';
-}
+};
 
 // ---------------------------------------------------------------
 // Build HTML
@@ -136,7 +140,7 @@ ob_start();
             <?php echo xlt('NURSING EVALUATIONS RECORD'); ?>
         </div>
         <div style="font-size:8px; color:#7f8c8d; margin-top:5px;">
-            <?php echo xlt('Encounter'); ?>: <strong><?php echo text($encounter); ?></strong>
+            <?php echo xlt('Encounter'); ?>: <strong><?php echo text((string)$encounter); ?></strong>
             &nbsp;|&nbsp;
             <?php echo xlt('Date'); ?>: <strong><?php echo text($eval_date); ?></strong>
             &nbsp;|&nbsp;
@@ -154,13 +158,13 @@ ob_start();
             <tr>
                 <td style="width:38%; padding:3px 8px 3px 0;">
                     <div style="font-size:7px; color:#888; margin-bottom:2px;"><?php echo xlt('Patient'); ?></div>
-                    <div style="font-weight:bold; font-size:11px;"><?php echo text($paciente['full_name'] ?? '-'); ?></div>
+                    <div style="font-weight:bold; font-size:11px;"><?php echo text(($paciente ?? [])['full_name'] ?? '-'); ?></div>
                 </td>
                 <td style="width:18%; padding:3px 8px;">
                     <div style="font-size:7px; color:#888; margin-bottom:2px;"><?php echo xlt('ID'); ?></div>
-                    <div style="font-weight:bold; font-size:11px;"><?php echo text($paciente['pubpid'] ?? '-'); ?></div>
+                    <div style="font-weight:bold; font-size:11px;"><?php echo text(($paciente ?? [])['pubpid'] ?? '-'); ?></div>
                 </td>
-                <?php if (!empty($age)) :
+                <?php if ($age !== '') :
                     ?>
                 <td style="width:18%; padding:3px 8px;">
                     <div style="font-size:7px; color:#888; margin-bottom:2px;"><?php echo xlt('Age'); ?></div>
@@ -177,8 +181,8 @@ ob_start();
     </div>
 
     <!-- BASIC ASSESSMENTS -->
-    <?php echo secHeader(xlt('Basic Assessments'), '#2c3e50'); ?>
-    <?php echo tableHeader(xlt('Item'), xlt('Response'), xlt('Observations')); ?>
+    <?php echo $secHeader(xlt('Basic Assessments'), '#2c3e50'); ?>
+    <?php echo $tableHeader(xlt('Item'), xlt('Response'), xlt('Observations')); ?>
     <?php
     $basic = [
         xlt('Consciousness')    => ['val' => $row['conciencia']  ?? '', 'obs' => $row['obs_conciencia']  ?? ''],
@@ -187,14 +191,14 @@ ob_start();
         xlt('Mucous Membranes') => ['val' => $row['mucosas']     ?? '', 'obs' => $row['obs_mucosas']     ?? ''],
     ];
     foreach ($basic as $label => $data) {
-        echo evalRow($label, $data['val'], $data['obs']);
+        echo $evalRow($label, (string)($data['val'] ?? ''), (string)($data['obs'] ?? ''));
     }
     ?>
     </tbody></table>
 
     <!-- GLASGOW COMA SCALE -->
-    <?php echo secHeader(xlt('Glasgow Coma Scale'), '#c0392b'); ?>
-    <?php echo tableHeader(xlt('Component'), xlt('Score'), xlt('Observations')); ?>
+    <?php echo $secHeader(xlt('Glasgow Coma Scale'), '#c0392b'); ?>
+    <?php echo $tableHeader(xlt('Component'), xlt('Score'), xlt('Observations')); ?>
     <?php
     $glasgow_fields = [
         xlt('Eye Opening')     => ['val' => $row['glasgow_ojos']   ?? '', 'obs' => $row['obs_glasgow_ojos']   ?? ''],
@@ -202,7 +206,7 @@ ob_start();
         xlt('Verbal Response') => ['val' => $row['glasgow_verbal'] ?? '', 'obs' => $row['obs_glasgow_verbal'] ?? ''],
     ];
     foreach ($glasgow_fields as $label => $data) {
-        echo evalRow($label, $data['val'], $data['obs']);
+        echo $evalRow($label, (string)($data['val'] ?? ''), (string)($data['obs'] ?? ''));
     }
     ?>
     </tbody></table>
@@ -222,7 +226,7 @@ ob_start();
                 <!-- Puntaje grande -->
                 <td style="width:22%; text-align:center; padding:16px 10px; border-right:1px solid <?php echo $glasgow_border; ?>; vertical-align:middle;">
                     <div style="font-size:44px; font-weight:bold; color:#2c3e50; line-height:1;">
-                        <?php echo text($glasgow); ?>
+                        <?php echo text((string)$glasgow); ?>
                     </div>
                     <div style="font-size:11px; color:#999; margin-top:2px;">/ 15</div>
                 </td>
@@ -311,9 +315,8 @@ $mpdf = new Mpdf([
     'default_font_size' => 10,
     'tempDir'           => sys_get_temp_dir(),
 ]);
-$mpdf->SetTitle(xlt('Nursing Evaluations') . ' - ' . ($paciente['full_name'] ?? ''));
-$mpdf->WriteHTML($html);
-$filename = 'Evaluaciones_' . preg_replace('/\s+/', '_', $paciente['full_name'] ?? 'paciente') . '_' . date('Ymd_His') . '.pdf';
+$mpdf->SetTitle(xlt('Nursing Evaluations') . ' - ' . (($paciente ?? [])['full_name'] ?? ''));
+$mpdf->WriteHTML((string)$html);
+$filename = 'Evaluaciones_' . preg_replace('/\s+/', '_', ($paciente ?? [])['full_name'] ?? 'paciente') . '_' . date('Ymd_His') . '.pdf';
 $mpdf->Output($filename, 'D');
 exit;
-?>

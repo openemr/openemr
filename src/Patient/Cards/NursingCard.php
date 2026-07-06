@@ -16,8 +16,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
+use OpenEMR\Services\Globals\UserSettingsService;
 
 class NursingCard extends CardModel
 {
@@ -29,6 +31,7 @@ class NursingCard extends CardModel
         parent::__construct($this->buildOpts($pid));
     }
 
+    /** @return array<string,mixed> */
     private function buildOpts(int $pid): array
     {
         $admission = $this->getActiveAdmission($pid);
@@ -36,7 +39,7 @@ class NursingCard extends CardModel
 
         return [
             'acl' => ['patients', 'med'],
-            'initiallyCollapsed' => (getUserSetting(self::CARD_ID . '_expand') == 0),
+            'initiallyCollapsed' => (UserSettingsService::getUserSetting(self::CARD_ID . '_expand') == 0),
             'add' => false,
             'edit' => false,
             'collapse' => true,
@@ -51,24 +54,25 @@ class NursingCard extends CardModel
         ];
     }
 
+    /** @return array<string,mixed>|null */
     private function getActiveAdmission(int $pid): ?array
     {
-        $catRow = sqlQuery(
+        $catRow = QueryUtils::querySingleRow(
             "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_catname = ? LIMIT 1",
             ['Inpatient']
         );
-        if (empty($catRow['pc_catid'])) {
+        if (!$catRow || ($catRow['pc_catid'] ?? '') === '') {
             return null;
         }
 
-        $row = sqlQuery(
+        $row = QueryUtils::querySingleRow(
             "SELECT fe.id AS encounter_id, fe.encounter, fe.date AS admission_date,
                     fe.nro_registro, fe.departamento, fe.servicio, fe.cuarto, fe.cama
              FROM form_encounter AS fe
              WHERE fe.pid = ? AND fe.pc_catid = ? AND fe.date_end IS NULL
              ORDER BY fe.date DESC
              LIMIT 1",
-            [$pid, (int)$catRow['pc_catid']]
+            [$pid, (int)((string)($catRow['pc_catid'] ?? 0))]
         );
 
         return $row ?: null;

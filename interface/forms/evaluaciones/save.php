@@ -12,11 +12,14 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+/** @var string $srcdir */
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -24,37 +27,39 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     die(xlt("Method not allowed"));
 }
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'], session: $session)) {
+$csrf_token = (string) filter_input(INPUT_POST, 'csrf_token_form');
+if (!CsrfUtils::verifyCsrfToken($csrf_token, session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
-$pid       = (int)($_POST['pid']       ?? 0);
-$encounter = (int)($_POST['encounter'] ?? 0);
-$id        = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$pid       = (int) filter_input(INPUT_POST, 'pid', FILTER_SANITIZE_NUMBER_INT);
+$encounter = (int) filter_input(INPUT_POST, 'encounter', FILTER_SANITIZE_NUMBER_INT);
+$id        = (int) filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
 
 if (!$pid || !$encounter) {
     die(xlt("Error: Missing required data (PID or Encounter)"));
 }
 
-$user       = $session->get('authUser')       ?? 'admin';
-$groupname  = $session->get('authProvider')   ?? 'Default';
-$authorized = $session->get('userauthorized') ?? 1;
+$user       = (string) ($session->get('authUser')       ?? 'admin');
+$groupname  = (string) ($session->get('authProvider')   ?? 'Default');
+$authorized = (int)    ($session->get('userauthorized') ?? 1);
 
-$conciencia         = $_POST['conciencia']         ?? '';
-$obs_conciencia     = $_POST['obs_conciencia']     ?? '';
-$tono               = $_POST['tono']               ?? '';
-$obs_tono           = $_POST['obs_tono']           ?? '';
-$pupilas            = $_POST['pupilas']            ?? '';
-$obs_pupilas        = $_POST['obs_pupilas']        ?? '';
-$mucosas            = $_POST['mucosas']            ?? '';
-$obs_mucosas        = $_POST['obs_mucosas']        ?? '';
-$glasgow_ojos       = $_POST['glasgow_ojos']       ?? '';
-$obs_glasgow_ojos   = $_POST['obs_glasgow_ojos']   ?? '';
-$glasgow_motora     = $_POST['glasgow_motora']     ?? '';
-$obs_glasgow_motora = $_POST['obs_glasgow_motora'] ?? '';
-$glasgow_verbal     = $_POST['glasgow_verbal']     ?? '';
-$obs_glasgow_verbal = $_POST['obs_glasgow_verbal'] ?? '';
-$hora_evaluacion    = !empty($_POST['hora_evaluacion']) ? $_POST['hora_evaluacion'] : null;
+$conciencia         = (string) filter_input(INPUT_POST, 'conciencia');
+$obs_conciencia     = (string) filter_input(INPUT_POST, 'obs_conciencia');
+$tono               = (string) filter_input(INPUT_POST, 'tono');
+$obs_tono           = (string) filter_input(INPUT_POST, 'obs_tono');
+$pupilas            = (string) filter_input(INPUT_POST, 'pupilas');
+$obs_pupilas        = (string) filter_input(INPUT_POST, 'obs_pupilas');
+$mucosas            = (string) filter_input(INPUT_POST, 'mucosas');
+$obs_mucosas        = (string) filter_input(INPUT_POST, 'obs_mucosas');
+$glasgow_ojos       = (string) filter_input(INPUT_POST, 'glasgow_ojos');
+$obs_glasgow_ojos   = (string) filter_input(INPUT_POST, 'obs_glasgow_ojos');
+$glasgow_motora     = (string) filter_input(INPUT_POST, 'glasgow_motora');
+$obs_glasgow_motora = (string) filter_input(INPUT_POST, 'obs_glasgow_motora');
+$glasgow_verbal     = (string) filter_input(INPUT_POST, 'glasgow_verbal');
+$obs_glasgow_verbal = (string) filter_input(INPUT_POST, 'obs_glasgow_verbal');
+$hora_raw           = (string) filter_input(INPUT_POST, 'hora_evaluacion');
+$hora_evaluacion    = ($hora_raw !== '') ? $hora_raw : null;
 
 // Calculate Glasgow score server-side
 $scores_ojos   = ['ESPONTANEAMENTE' => 4, 'A ESTIMULOS AUDITIVOS' => 3, 'AL DOLOR' => 2, 'SIN RESPUESTA' => 1];
@@ -68,7 +73,7 @@ $glasgow_total  = ($scores_ojos[$glasgow_ojos]     ?? 0)
 $is_edit = ($id > 0);
 
 if ($is_edit) {
-    $check = sqlQuery("SELECT id FROM form_evaluaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
+    $check = QueryUtils::querySingleRow("SELECT id FROM form_evaluaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
     if (!$check) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
@@ -126,5 +131,5 @@ if ($is_edit) {
 }
 
 formHeader(xlt("Redirecting..."));
-formJump($GLOBALS['webroot'] . "/interface/tableros/lista_internados.php");
+formJump(OEGlobalsBag::getInstance()->getString('webroot') . "/interface/tableros/lista_internados.php");
 formFooter();

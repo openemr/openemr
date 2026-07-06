@@ -12,10 +12,13 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+/** @var string $srcdir */
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -24,41 +27,42 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'], session: $session)) {
+$csrf_token = (string) filter_input(INPUT_POST, 'csrf_token_form');
+if (!CsrfUtils::verifyCsrfToken($csrf_token, session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
-$pid       = (int)($_POST['pid']       ?? 0);
-$encounter = (int)($_POST['encounter'] ?? 0);
-$id        = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$pid       = (int) filter_input(INPUT_POST, 'pid', FILTER_SANITIZE_NUMBER_INT);
+$encounter = (int) filter_input(INPUT_POST, 'encounter', FILTER_SANITIZE_NUMBER_INT);
+$id        = (int) filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
 if (!$pid || !$encounter) {
     die(xlt("Error: Missing required data (PID or Encounter)"));
 }
 
-$user       = $session->get('authUser')       ?? 'admin';
-$groupname  = $session->get('authProvider')   ?? 'Default';
-$authorized = $session->get('userauthorized') ?? 1;
+$user       = (string) ($session->get('authUser')       ?? 'admin');
+$groupname  = (string) ($session->get('authProvider')   ?? 'Default');
+$authorized = (int)    ($session->get('userauthorized') ?? 1);
 // Allowed patient position values
 $allowed_positions = ['DLI', 'DLD', 'DS', 'DV', 'CABECERA 30°', ''];
-$posicion_paciente        = in_array($_POST['posicion_paciente'] ?? '', $allowed_positions)
-                            ? ($_POST['posicion_paciente'] ?? '')
-                            : '';
-$obs_posicion_paciente    = $_POST['obs_posicion_paciente']    ?? '';
-$enjuague_bucal           = (int)($_POST['enjuague_bucal']           ?? 0);
-$obs_enjuague_bucal       = $_POST['obs_enjuague_bucal']       ?? '';
-$higiene_manos            = (int)($_POST['higiene_manos']            ?? 0);
-$obs_higiene_manos        = $_POST['obs_higiene_manos']        ?? '';
-$aspirado_secreciones     = (int)($_POST['aspirado_secreciones']     ?? 0);
-$obs_aspirado_secreciones = $_POST['obs_aspirado_secreciones'] ?? '';
-$suspension_sedacion      = (int)($_POST['suspension_sedacion']      ?? 0);
-$obs_suspension_sedacion  = $_POST['obs_suspension_sedacion']  ?? '';
-$medicion_cuff            = (int)($_POST['medicion_cuff']            ?? 0);
-$obs_medicion_cuff        = $_POST['obs_medicion_cuff']        ?? '';
-$hora_cuidado             = !empty($_POST['hora_cuidado']) ? $_POST['hora_cuidado'] : null;
+$posicion_raw             = (string) filter_input(INPUT_POST, 'posicion_paciente');
+$posicion_paciente        = in_array($posicion_raw, $allowed_positions, true) ? $posicion_raw : '';
+$obs_posicion_paciente    = (string) filter_input(INPUT_POST, 'obs_posicion_paciente');
+$enjuague_bucal           = (int)    filter_input(INPUT_POST, 'enjuague_bucal', FILTER_SANITIZE_NUMBER_INT);
+$obs_enjuague_bucal       = (string) filter_input(INPUT_POST, 'obs_enjuague_bucal');
+$higiene_manos            = (int)    filter_input(INPUT_POST, 'higiene_manos', FILTER_SANITIZE_NUMBER_INT);
+$obs_higiene_manos        = (string) filter_input(INPUT_POST, 'obs_higiene_manos');
+$aspirado_secreciones     = (int)    filter_input(INPUT_POST, 'aspirado_secreciones', FILTER_SANITIZE_NUMBER_INT);
+$obs_aspirado_secreciones = (string) filter_input(INPUT_POST, 'obs_aspirado_secreciones');
+$suspension_sedacion      = (int)    filter_input(INPUT_POST, 'suspension_sedacion', FILTER_SANITIZE_NUMBER_INT);
+$obs_suspension_sedacion  = (string) filter_input(INPUT_POST, 'obs_suspension_sedacion');
+$medicion_cuff            = (int)    filter_input(INPUT_POST, 'medicion_cuff', FILTER_SANITIZE_NUMBER_INT);
+$obs_medicion_cuff        = (string) filter_input(INPUT_POST, 'obs_medicion_cuff');
+$hora_raw                 = (string) filter_input(INPUT_POST, 'hora_cuidado');
+$hora_cuidado             = ($hora_raw !== '') ? $hora_raw : null;
 $is_edit = ($id > 0);
 if ($is_edit) {
 // Verify the record belongs to this patient/encounter
-    $check = sqlQuery("SELECT id FROM form_cuidados WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
+    $check = QueryUtils::querySingleRow("SELECT id FROM form_cuidados WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
     if (!$check) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
@@ -118,5 +122,5 @@ if ($is_edit) {
 }
 
 formHeader(xlt("Redirecting..."));
-formJump($GLOBALS['webroot'] . "/interface/tableros/lista_internados.php");
+formJump(OEGlobalsBag::getInstance()->getString('webroot') . "/interface/tableros/lista_internados.php");
 formFooter();

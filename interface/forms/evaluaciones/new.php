@@ -12,16 +12,20 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+/** @var string $srcdir */
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $session   = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid       = isset($_GET['pid'])       ? (int)$_GET['pid']       : (int)($session->get('pid') ?? 0);
-$encounter = isset($_GET['encounter']) ? (int)$_GET['encounter'] : (int)($session->get('encounter') ?? 0);
-$id        = isset($_GET['id'])        ? (int)$_GET['id']        : 0;
+$pid       = (int) filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)
+    ?: (int)($session->get('pid') ?? 0);
+$encounter = (int) filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)
+    ?: (int)($session->get('encounter') ?? 0);
+$id        = (int) filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
 if (!$pid || !$encounter) {
     die(xlt("Error: Missing required parameters (PID or Encounter)"));
@@ -47,7 +51,7 @@ $glasgow_total      = 0;
 $hora_evaluacion    = '';
 
 if ($is_edit) {
-    $row = sqlQuery("SELECT * FROM form_evaluaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
+    $row = QueryUtils::querySingleRow("SELECT * FROM form_evaluaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
     if ($row) {
         $conciencia         = $row['conciencia']         ?? '';
         $obs_conciencia     = $row['obs_conciencia']     ?? '';
@@ -114,16 +118,16 @@ $page_title = $is_edit ? xlt('Edit Nursing Evaluation') : xlt('New Nursing Evalu
                     <?php echo $is_edit ? xlt('Edit Mode') : xlt('Create Mode'); ?>
                 </span>
             </h4>
-            <small class="text-muted"><?php echo xlt('Encounter'); ?>: <?php echo text($encounter); ?></small>
+            <small class="text-muted"><?php echo xlt('Encounter'); ?>: <?php echo text((string)$encounter); ?></small>
         </div>
     </div>
 
     <form method="POST" action="save.php" id="formEvaluaciones" onsubmit="top.restoreSession();">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
-        <input type="hidden" name="pid"       value="<?php echo attr($pid); ?>">
-        <input type="hidden" name="encounter" value="<?php echo attr($encounter); ?>">
+        <input type="hidden" name="pid"       value="<?php echo attr((string)$pid); ?>">
+        <input type="hidden" name="encounter" value="<?php echo attr((string)$encounter); ?>">
         <?php if ($is_edit) : ?>
-        <input type="hidden" name="id" value="<?php echo attr($id); ?>">
+        <input type="hidden" name="id" value="<?php echo attr((string)$id); ?>">
         <?php endif; ?>
 
         <!-- CONSCIOUSNESS -->
@@ -258,7 +262,7 @@ $page_title = $is_edit ? xlt('Edit Nursing Evaluation') : xlt('New Nursing Evalu
                       placeholder="<?php echo attr(xlt('Observations...')); ?>"><?php echo text($obs_glasgow_verbal); ?></textarea>
 
             <div class="glasgow-info mt-3">
-                <h6><?php echo xlt('Glasgow Total Score'); ?>: <strong><span id="glasgowTotal"><?php echo text($glasgow_total ?: '0'); ?></span>/15</strong></h6>
+                <h6><?php echo xlt('Glasgow Total Score'); ?>: <strong><span id="glasgowTotal"><?php echo text($glasgow_total > 0 ? (string)$glasgow_total : '0'); ?></span>/15</strong></h6>
                 <small>13-15: <?php echo xlt('Mild'); ?> &nbsp;|&nbsp; 9-12: <?php echo xlt('Moderate'); ?> &nbsp;|&nbsp; 3-8: <?php echo xlt('Severe'); ?></small>
             </div>
         </div>

@@ -12,10 +12,13 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+/** @var string $srcdir */
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -24,63 +27,65 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'], session: $session)) {
+$csrf_token = (string) filter_input(INPUT_POST, 'csrf_token_form');
+if (!CsrfUtils::verifyCsrfToken($csrf_token, session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
-$pid       = (int)($_POST['pid']       ?? 0);
-$encounter = (int)($_POST['encounter'] ?? 0);
-$id        = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$pid       = (int) filter_input(INPUT_POST, 'pid', FILTER_SANITIZE_NUMBER_INT);
+$encounter = (int) filter_input(INPUT_POST, 'encounter', FILTER_SANITIZE_NUMBER_INT);
+$id        = (int) filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
 if (!$pid || !$encounter) {
     die(xlt("Error: Missing required data (PID or Encounter)"));
 }
 
-$user       = $session->get('authUser')       ?? 'admin';
-$groupname  = $session->get('authProvider')   ?? 'Default';
-$authorized = $session->get('userauthorized') ?? 1;
+$user       = (string) ($session->get('authUser')       ?? 'admin');
+$groupname  = (string) ($session->get('authProvider')   ?? 'Default');
+$authorized = (int)    ($session->get('userauthorized') ?? 1);
 // Ventilation mode whitelist
 $allowed_modos = ['ESPONTANEA', 'VENTILACION MECANICA', ''];
-$modo_ventilacion            = in_array($_POST['modo_ventilacion'] ?? '', $allowed_modos)
-                               ? ($_POST['modo_ventilacion'] ?? '') : '';
-$obs_modo                    = $_POST['obs_modo']                    ?? '';
-$presion                     = (int)($_POST['presion']                     ?? 0);
-$obs_presion                  = $_POST['obs_presion']                  ?? '';
-$volumen                     = (int)($_POST['volumen']                     ?? 0);
-$obs_volumen                  = $_POST['obs_volumen']                  ?? '';
-$simv                        = (int)($_POST['simv']                        ?? 0);
-$obs_simv                     = $_POST['obs_simv']                     ?? '';
-$psv                         = (int)($_POST['psv']                         ?? 0);
-$obs_psv                      = $_POST['obs_psv']                      ?? '';
-$otros                       = (int)($_POST['otros']                       ?? 0);
-$obs_otros                    = $_POST['obs_otros']                    ?? '';
-$frecuencia_respiratoria     = (int)($_POST['frecuencia_respiratoria']     ?? 0);
-$obs_frecuencia_respiratoria  = $_POST['obs_frecuencia_respiratoria']  ?? '';
-$p_inspiratorio              = (int)($_POST['p_inspiratorio']              ?? 0);
-$obs_p_inspiratorio           = $_POST['obs_p_inspiratorio']           ?? '';
-$p_media                     = (int)($_POST['p_media']                     ?? 0);
-$obs_p_media                  = $_POST['obs_p_media']                  ?? '';
-$p_max                       = (int)($_POST['p_max']                       ?? 0);
-$obs_p_max                    = $_POST['obs_p_max']                    ?? '';
-$chst                        = (int)($_POST['chst']                        ?? 0);
-$obs_chst                     = $_POST['obs_chst']                     ?? '';
-$disparo                     = (int)($_POST['disparo']                     ?? 0);
-$obs_disparo                  = $_POST['obs_disparo']                  ?? '';
-$fvt                         = (int)($_POST['fvt']                         ?? 0);
-$obs_fvt                      = $_POST['obs_fvt']                      ?? '';
-$vol_tidal                   = (int)($_POST['vol_tidal']                   ?? 0);
-$obs_vol_tidal                = $_POST['obs_vol_tidal']                ?? '';
-$vm_programado               = (int)($_POST['vm_programado']               ?? 0);
-$obs_vm_programado            = $_POST['obs_vm_programado']            ?? '';
-$petco2                      = (int)($_POST['petco2']                      ?? 0);
-$obs_petco2                   = $_POST['obs_petco2']                   ?? '';
-$vdvt                        = (int)($_POST['vdvt']                        ?? 0);
-$obs_vdvt                     = $_POST['obs_vdvt']                     ?? '';
-$ko2                         = (int)($_POST['ko2']                         ?? 0);
-$obs_ko2                      = $_POST['obs_ko2']                      ?? '';
-$hora_registro               = !empty($_POST['hora_registro']) ? $_POST['hora_registro'] : null;
+$modo_ventilacion_raw        = (string) filter_input(INPUT_POST, 'modo_ventilacion');
+$modo_ventilacion            = in_array($modo_ventilacion_raw, $allowed_modos, true) ? $modo_ventilacion_raw : '';
+$obs_modo                    = (string) filter_input(INPUT_POST, 'obs_modo');
+$presion                     = (int)    filter_input(INPUT_POST, 'presion', FILTER_SANITIZE_NUMBER_INT);
+$obs_presion                 = (string) filter_input(INPUT_POST, 'obs_presion');
+$volumen                     = (int)    filter_input(INPUT_POST, 'volumen', FILTER_SANITIZE_NUMBER_INT);
+$obs_volumen                 = (string) filter_input(INPUT_POST, 'obs_volumen');
+$simv                        = (int)    filter_input(INPUT_POST, 'simv', FILTER_SANITIZE_NUMBER_INT);
+$obs_simv                    = (string) filter_input(INPUT_POST, 'obs_simv');
+$psv                         = (int)    filter_input(INPUT_POST, 'psv', FILTER_SANITIZE_NUMBER_INT);
+$obs_psv                     = (string) filter_input(INPUT_POST, 'obs_psv');
+$otros                       = (int)    filter_input(INPUT_POST, 'otros', FILTER_SANITIZE_NUMBER_INT);
+$obs_otros                   = (string) filter_input(INPUT_POST, 'obs_otros');
+$frecuencia_respiratoria     = (int)    filter_input(INPUT_POST, 'frecuencia_respiratoria', FILTER_SANITIZE_NUMBER_INT);
+$obs_frecuencia_respiratoria = (string) filter_input(INPUT_POST, 'obs_frecuencia_respiratoria');
+$p_inspiratorio              = (int)    filter_input(INPUT_POST, 'p_inspiratorio', FILTER_SANITIZE_NUMBER_INT);
+$obs_p_inspiratorio          = (string) filter_input(INPUT_POST, 'obs_p_inspiratorio');
+$p_media                     = (int)    filter_input(INPUT_POST, 'p_media', FILTER_SANITIZE_NUMBER_INT);
+$obs_p_media                 = (string) filter_input(INPUT_POST, 'obs_p_media');
+$p_max                       = (int)    filter_input(INPUT_POST, 'p_max', FILTER_SANITIZE_NUMBER_INT);
+$obs_p_max                   = (string) filter_input(INPUT_POST, 'obs_p_max');
+$chst                        = (int)    filter_input(INPUT_POST, 'chst', FILTER_SANITIZE_NUMBER_INT);
+$obs_chst                    = (string) filter_input(INPUT_POST, 'obs_chst');
+$disparo                     = (int)    filter_input(INPUT_POST, 'disparo', FILTER_SANITIZE_NUMBER_INT);
+$obs_disparo                 = (string) filter_input(INPUT_POST, 'obs_disparo');
+$fvt                         = (int)    filter_input(INPUT_POST, 'fvt', FILTER_SANITIZE_NUMBER_INT);
+$obs_fvt                     = (string) filter_input(INPUT_POST, 'obs_fvt');
+$vol_tidal                   = (int)    filter_input(INPUT_POST, 'vol_tidal', FILTER_SANITIZE_NUMBER_INT);
+$obs_vol_tidal               = (string) filter_input(INPUT_POST, 'obs_vol_tidal');
+$vm_programado               = (int)    filter_input(INPUT_POST, 'vm_programado', FILTER_SANITIZE_NUMBER_INT);
+$obs_vm_programado           = (string) filter_input(INPUT_POST, 'obs_vm_programado');
+$petco2                      = (int)    filter_input(INPUT_POST, 'petco2', FILTER_SANITIZE_NUMBER_INT);
+$obs_petco2                  = (string) filter_input(INPUT_POST, 'obs_petco2');
+$vdvt                        = (int)    filter_input(INPUT_POST, 'vdvt', FILTER_SANITIZE_NUMBER_INT);
+$obs_vdvt                    = (string) filter_input(INPUT_POST, 'obs_vdvt');
+$ko2                         = (int)    filter_input(INPUT_POST, 'ko2', FILTER_SANITIZE_NUMBER_INT);
+$obs_ko2                     = (string) filter_input(INPUT_POST, 'obs_ko2');
+$hora_raw                    = (string) filter_input(INPUT_POST, 'hora_registro');
+$hora_registro               = ($hora_raw !== '') ? $hora_raw : null;
 $is_edit = ($id > 0);
 if ($is_edit) {
-    $check = sqlQuery("SELECT id FROM form_registro_vm WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
+    $check = QueryUtils::querySingleRow("SELECT id FROM form_registro_vm WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
     if (!$check) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
@@ -161,5 +166,5 @@ if ($is_edit) {
 }
 
 formHeader(xlt("Redirecting..."));
-formJump($GLOBALS['webroot'] . "/interface/tableros/lista_internados.php");
+formJump(OEGlobalsBag::getInstance()->getString('webroot') . "/interface/tableros/lista_internados.php");
 formFooter();

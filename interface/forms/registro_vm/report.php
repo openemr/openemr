@@ -12,9 +12,11 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-function registro_vm_report($pid, $encounter, $cols, $id)
-{
-    $row = sqlQuery("SELECT * FROM form_registro_vm WHERE id = ? AND pid = ?", array($id, $pid));
+
+use OpenEMR\Common\Database\QueryUtils;
+
+$registro_vm_report = function (int $pid, int $encounter, int $cols, int $id): void {
+    $row = QueryUtils::querySingleRow("SELECT * FROM form_registro_vm WHERE id = ? AND pid = ?", array($id, $pid));
     if (!$row) {
         echo "<p style='color:#c0392b;padding:10px;'>" . xlt("No data found for this record.") . "</p>";
         return;
@@ -44,11 +46,13 @@ function registro_vm_report($pid, $encounter, $cols, $id)
         'VENTILACION MECANICA' => xlt('Mechanical Ventilation'),
     ];
     $modo_display = $modo_labels[$row['modo_ventilacion'] ?? ''] ?? ($row['modo_ventilacion'] ?? xlt('Not specified'));
-    $hora = !empty($row['hora_registro'])
-        ? date('H:i', strtotime($row['hora_registro']))
+    $hora_raw = $row['hora_registro'] ?? '';
+    $hora = ($hora_raw !== '')
+        ? date('H:i', strtotime($hora_raw))
         : xlt('Not specified');
-    $fecha = !empty($row['date'])
-        ? date('d/m/Y H:i', strtotime($row['date']))
+    $date_raw = $row['date'] ?? '';
+    $fecha = ($date_raw !== '')
+        ? date('d/m/Y H:i', strtotime($date_raw))
         : '-';
     $total_activos = 0;
     foreach (array_keys($bool_items) as $campo) {
@@ -203,7 +207,7 @@ function registro_vm_report($pid, $encounter, $cols, $id)
         <div class="meta-bar">
             <span><strong><?php echo xlt('Record Time'); ?>:</strong> <?php echo text($hora); ?></span>
             <span><strong><?php echo xlt('Recorded'); ?>:</strong> <?php echo text($fecha); ?></span>
-            <?php if (!empty($row['user'])) :
+            <?php if (isset($row['user']) && $row['user'] !== '') :
                 ?>
             <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text($row['user']); ?></span>
                 <?php
@@ -214,7 +218,7 @@ function registro_vm_report($pid, $encounter, $cols, $id)
         <div class="modo-bar">
             <?php echo xlt('Ventilation Mode'); ?>:
             <strong><?php echo text($modo_display); ?></strong>
-            <?php if (!empty($row['obs_modo'])) :
+            <?php if (($row['obs_modo'] ?? '') !== '') :
                 ?>
             &mdash; <span style="color:#555;font-size:11px;"><?php echo text($row['obs_modo']); ?></span>
                 <?php
@@ -282,5 +286,5 @@ function registro_vm_report($pid, $encounter, $cols, $id)
 
     </div>
     <?php
-}
+};
 ?>

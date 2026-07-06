@@ -12,9 +12,11 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-function cuidados_report($pid, $encounter, $cols, $id)
-{
-    $row = sqlQuery("SELECT * FROM form_cuidados WHERE id = ? AND pid = ?", array($id, $pid));
+
+use OpenEMR\Common\Database\QueryUtils;
+
+$cuidados_report = function (int $pid, int $encounter, int $cols, int $id): void {
+    $row = QueryUtils::querySingleRow("SELECT * FROM form_cuidados WHERE id = ? AND pid = ?", array($id, $pid));
     if (!$row) {
         echo "<p style='color:#c0392b;padding:10px;'>" . xlt("No data found for this record.") . "</p>";
         return;
@@ -27,11 +29,13 @@ function cuidados_report($pid, $encounter, $cols, $id)
         'suspension_sedacion'  => xlt('Daily Sedation Suspension and Extubation Evaluation'),
         'medicion_cuff'        => xlt('Cuff Pressure Measurement'),
     ];
-    $hora = !empty($row['hora_cuidado'])
-        ? date('H:i', strtotime($row['hora_cuidado']))
+    $hora_raw = $row['hora_cuidado'] ?? '';
+    $hora = ($hora_raw !== '')
+        ? date('H:i', strtotime($hora_raw))
         : xlt('Not specified');
-    $fecha = !empty($row['date'])
-        ? date('d/m/Y H:i', strtotime($row['date']))
+    $date_raw = $row['date'] ?? '';
+    $fecha = ($date_raw !== '')
+        ? date('d/m/Y H:i', strtotime($date_raw))
         : '-';
     $total_activos = 0;
     foreach (array_keys($bool_items) as $campo) {
@@ -225,7 +229,7 @@ function cuidados_report($pid, $encounter, $cols, $id)
         <div class="meta-bar">
             <span><strong><?php echo xlt('Care Time'); ?>:</strong> <?php echo text($hora); ?></span>
             <span><strong><?php echo xlt('Recorded'); ?>:</strong> <?php echo text($fecha); ?></span>
-            <?php if (!empty($row['user'])) :
+            <?php if (isset($row['user']) && $row['user'] !== '') :
                 ?>
             <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text($row['user']); ?></span>
                 <?php
@@ -235,8 +239,8 @@ function cuidados_report($pid, $encounter, $cols, $id)
         <!-- PATIENT POSITION -->
         <div class="posicion-bar">
             <?php echo xlt('Patient Position'); ?>:
-            <strong><?php echo !empty($row['posicion_paciente']) ? text($row['posicion_paciente']) : xlt('Not specified'); ?></strong>
-            <?php if (!empty($row['obs_posicion_paciente'])) :
+            <strong><?php echo ($row['posicion_paciente'] ?? '') !== '' ? text($row['posicion_paciente']) : xlt('Not specified'); ?></strong>
+            <?php if (($row['obs_posicion_paciente'] ?? '') !== '') :
                 ?>
             &mdash; <span style="color:#555;font-size:11px;"><?php echo text($row['obs_posicion_paciente']); ?></span>
                 <?php
@@ -304,5 +308,4 @@ function cuidados_report($pid, $encounter, $cols, $id)
 
     </div>
     <?php
-}
-?>
+};

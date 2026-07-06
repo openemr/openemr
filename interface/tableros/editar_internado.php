@@ -15,11 +15,15 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
+/** @var string $srcdir */
+/** @var string $web_root */
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -29,27 +33,29 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 }
 
 // Determine mode
-$encounter_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$pid_new      = isset($_GET['pid']) ? (int)$_GET['pid'] : 0;
+$encounter_id = (int) filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+$pid_new      = (int) filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT);
 $viewmode     = ($encounter_id > 0);
 
 // Data containers
-$encounter_row = [];
+/** @var array<string,mixed>|null $encounter_row */
+$encounter_row = null;
 $nursing_row   = [];
-$patient       = [];
+/** @var array<string,mixed>|null $patient */
+$patient       = null;
 
 if ($viewmode) {
-    $encounter_row = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", [$encounter_id]);
-    if (empty($encounter_row)) {
+    $encounter_row = QueryUtils::querySingleRow("SELECT * FROM form_encounter WHERE id = ?", [$encounter_id]);
+    if (!$encounter_row) {
         die(xlt('Encounter not found'));
     }
-    $patient  = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", [$encounter_row['pid']]);
-    $pid_form = (int)$encounter_row['pid'];
+    $patient  = QueryUtils::querySingleRow("SELECT * FROM patient_data WHERE pid = ?", [$encounter_row['pid']]);
+    $pid_form = (int) $encounter_row['pid'];
 } else {
     if ($pid_new <= 0) {
         die(xlt('Missing patient ID'));
     }
-    $patient  = sqlQuery("SELECT * FROM patient_data WHERE pid = ?", [$pid_new]);
+    $patient  = QueryUtils::querySingleRow("SELECT * FROM patient_data WHERE pid = ?", [$pid_new]);
     $pid_form = $pid_new;
 }
 
@@ -98,7 +104,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="page-header clearfix">
                 <h2>
                     <?php echo $viewmode ? xlt('Edit Admission') : xlt('New Admission'); ?>
-                    — <?php echo text($patient['fname'] . ' ' . $patient['lname']); ?>
+                    — <?php echo text(($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '')); ?>
                 </h2>
             </div>
         </div>
@@ -109,9 +115,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <form method="post" action="<?php echo $web_root; ?>/interface/tableros/save_internado.php">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
                 <input type="hidden" name="mode"  value="<?php echo $viewmode ? 'edit' : 'new'; ?>">
-                <input type="hidden" name="pid"   value="<?php echo attr($pid_form); ?>">
+                <input type="hidden" name="pid"   value="<?php echo attr((string)$pid_form); ?>">
                 <?php if ($viewmode): ?>
-                <input type="hidden" name="encounter_id" value="<?php echo attr($encounter_id); ?>">
+                <input type="hidden" name="encounter_id" value="<?php echo attr((string)$encounter_id); ?>">
                 <?php endif; ?>
 
                 <fieldset class="p-3 mt-2">
@@ -131,7 +137,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <label class="col-sm-3 col-form-label"><?php echo xlt('Reg. No.'); ?></label>
                         <div class="col-sm-4">
                             <input type="text" name="nro_registro" class="form-control"
-                                   value="<?php echo attr($encounter_row['nro_registro'] ?? ''); ?>">
+                                   value="<?php echo attr(($encounter_row ?? [])['nro_registro'] ?? ''); ?>">
                         </div>
                     </div>
 
@@ -141,7 +147,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="departamento" class="form-control">
                                 <?php foreach ($departamentos as $val => $label): ?>
                                 <option value="<?php echo attr($val); ?>"
-                                    <?php echo (($encounter_row['departamento'] ?? '') === $val) ? 'selected' : ''; ?>>
+                                    <?php echo ((($encounter_row ?? [])['departamento'] ?? '') === $val) ? 'selected' : ''; ?>>
                                     <?php echo text($label); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -155,7 +161,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="servicio" class="form-control">
                                 <?php foreach ($servicios as $val => $label): ?>
                                 <option value="<?php echo attr($val); ?>"
-                                    <?php echo (($encounter_row['servicio'] ?? '') === $val) ? 'selected' : ''; ?>>
+                                    <?php echo ((($encounter_row ?? [])['servicio'] ?? '') === $val) ? 'selected' : ''; ?>>
                                     <?php echo text($label); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -169,7 +175,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="cuarto" class="form-control">
                                 <?php foreach ($cuartos as $val => $label): ?>
                                 <option value="<?php echo attr($val); ?>"
-                                    <?php echo (($encounter_row['cuarto'] ?? '') === $val) ? 'selected' : ''; ?>>
+                                    <?php echo ((($encounter_row ?? [])['cuarto'] ?? '') === $val) ? 'selected' : ''; ?>>
                                     <?php echo text($label); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -182,9 +188,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="col-sm-4">
                             <select name="cama" class="form-control">
                                 <?php for ($i = 1; $i <= 10; $i++): ?>
-                                <option value="<?php echo attr($i); ?>"
-                                    <?php echo (($encounter_row['cama'] ?? '') == $i) ? 'selected' : ''; ?>>
-                                    <?php echo xlt('Bed') . ' ' . text($i); ?>
+                                <option value="<?php echo attr((string)$i); ?>"
+                                    <?php echo ((($encounter_row ?? [])['cama'] ?? '') == $i) ? 'selected' : ''; ?>>
+                                    <?php echo xlt('Bed') . ' ' . text((string)$i); ?>
                                 </option>
                                 <?php endfor; ?>
                             </select>
@@ -213,7 +219,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $datetimepicker_timepicker = false;
         $datetimepicker_showseconds = false;
         $datetimepicker_formatInput = true;
-        require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+        require(OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
         ?>
     });
 </script>

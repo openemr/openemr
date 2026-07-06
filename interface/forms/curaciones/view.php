@@ -12,21 +12,30 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-$pid       = isset($_GET['pid'])       ? (int)$_GET['pid']       : (int)($session->get('pid') ?? 0);
-$encounter = isset($_GET['encounter']) ? (int)$_GET['encounter'] : (int)($session->get('encounter') ?? 0);
-$id        = isset($_GET['id'])        ? (int)$_GET['id']        : 0;
+use OpenEMR\Core\OEGlobalsBag;
+
+$session   = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid       = (int) filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)
+    ?: (int)($session->get('pid') ?? 0);
+$encounter = (int) filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)
+    ?: (int)($session->get('encounter') ?? 0);
+$id        = (int) filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 if (!$pid || !$encounter) {
     echo "<div style='padding:20px;color:red;'>" . xlt("Could not retrieve PID or Encounter.") . "</div>";
     exit;
 }
 
 // Get patient info
-$paciente = sqlQuery("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", array($pid));
+$paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", array($pid));
 // Calculate age
 $age = '';
-if (!empty($paciente['DOB'])) {
-    $dob = new DateTime($paciente['DOB']);
+$dob_val = ($paciente ?? [])['DOB'] ?? '';
+if ($dob_val !== '') {
+    $dob = new DateTime($dob_val);
     $age  = (new DateTime())->diff($dob)->y . ' ' . xlt('years');
 }
 
@@ -94,13 +103,13 @@ if ($id > 0) {
         <div class="info-row">
             <div class="info-item">
                 <strong><?php echo xlt('Patient'); ?>:</strong>
-                <span><?php echo text($paciente['full_name'] ?? xlt('Not available')); ?></span>
+                <span><?php echo text(($paciente ?? [])['full_name'] ?? xlt('Not available')); ?></span>
             </div>
             <div class="info-item">
                 <strong><?php echo xlt('ID'); ?>:</strong>
-                <span><?php echo text($paciente['pubpid'] ?? xlt('Not available')); ?></span>
+                <span><?php echo text(($paciente ?? [])['pubpid'] ?? xlt('Not available')); ?></span>
             </div>
-            <?php if (!empty($age)) :
+            <?php if ($age !== '') :
                 ?>
             <div class="info-item">
                 <strong><?php echo xlt('Age'); ?>:</strong>
@@ -131,15 +140,15 @@ if ($id > 0) {
     <div class="registro-card">
         <div class="registro-header">
             <div class="registro-fecha">
-                <span class="fecha-principal"><?php echo text(date('d/m/Y', strtotime($row['date']))); ?></span>
-                <span class="hora-principal"><?php echo text(date('H:i', strtotime($row['date']))); ?></span>
+                <span class="fecha-principal"><?php echo text(date('d/m/Y', strtotime((string)($row['date'] ?? '')))); ?></span>
+                <span class="hora-principal"><?php echo text(date('H:i', strtotime((string)($row['date'] ?? '')))); ?></span>
             </div>
             <div class="registro-acciones">
-                <a href="<?php echo attr($GLOBALS['webroot'] . '/interface/forms/curaciones/new.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . $row['id']); ?>"
+                <a href="<?php echo attr(OEGlobalsBag::getInstance()->getString('webroot') . '/interface/forms/curaciones/new.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . (int)($row['id'] ?? 0)); ?>"
                    class="btn btn-primary mr-1" onclick="top.restoreSession()">
                     <i class="fas fa-pen mr-1"></i><?php echo xlt('Edit'); ?>
                 </a>
-                <a href="<?php echo attr($GLOBALS['webroot'] . '/interface/forms/curaciones/print.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . $row['id']); ?>"
+                <a href="<?php echo attr(OEGlobalsBag::getInstance()->getString('webroot') . '/interface/forms/curaciones/print.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . (int)($row['id'] ?? 0)); ?>"
                    target="_blank" class="btn btn-success" onclick="top.restoreSession()">
                     <i class="fas fa-print mr-1"></i><?php echo xlt('Print'); ?>
                 </a>
@@ -149,11 +158,11 @@ if ($id > 0) {
         <div class="registro-info">
             <div class="info-box-small">
                 <strong><?php echo xlt('Care Time'); ?>:</strong>
-                <span><?php echo text($row['hora_operacion'] ?? 'N/A'); ?></span>
+                <span><?php echo text((string)($row['hora_operacion'] ?? 'N/A')); ?></span>
             </div>
             <div class="info-box-small">
                 <strong><?php echo xlt('User'); ?>:</strong>
-                <span><?php echo text($row['user'] ?? 'N/A'); ?></span>
+                <span><?php echo text((string)($row['user'] ?? 'N/A')); ?></span>
             </div>
         </div>
 
@@ -171,9 +180,9 @@ if ($id > 0) {
                     <?php echo $val ? xlt('Yes') : xlt('No'); ?>
                 </span>
             </div>
-            <div class="curacion-obs <?php echo !empty($obs) ? 'con-contenido' : ''; ?>">
+            <div class="curacion-obs <?php echo ($obs !== '') ? 'con-contenido' : ''; ?>">
                 <h5><?php echo xlt('Observations'); ?></h5>
-                <p><?php echo !empty($obs) ? nl2br(text($obs)) : xlt('No observations recorded'); ?></p>
+                <p><?php echo ($obs !== '') ? nl2br(text($obs)) : xlt('No observations recorded'); ?></p>
             </div>
         </div>
             <?php

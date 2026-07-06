@@ -10,9 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function evaluaciones_report($pid, $encounter, $cols, $id)
-{
-    $result = sqlQuery(
+require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Database\QueryUtils;
+
+$evaluaciones_report = function (int $pid, int $encounter, int $cols, int $id): void {
+    $result = QueryUtils::querySingleRow(
         "SELECT * FROM form_evaluaciones WHERE id = ? AND pid = ? LIMIT 1",
         array($id, $pid)
     );
@@ -40,8 +43,10 @@ function evaluaciones_report($pid, $encounter, $cols, $id)
         $level_border = '#e74c3c';
     }
 
-    $hora  = text($result['hora_evaluacion'] ?? '-');
-    $fecha = text(!empty($result['date']) ? date('d/m/Y H:i', strtotime($result['date'])) : '-');
+    $hora_raw = $result['hora_evaluacion'] ?? '';
+    $hora  = text($hora_raw !== '' ? $hora_raw : '-');
+    $date_raw = $result['date'] ?? '';
+    $fecha = text($date_raw !== '' ? date('d/m/Y H:i', strtotime($date_raw)) : '-');
     $user  = text($result['user'] ?? '-');
     ?>
 
@@ -271,7 +276,7 @@ function evaluaciones_report($pid, $encounter, $cols, $id)
             </div>
             <div class="glasgow-card-body" style="background:<?php echo attr($level_bg); ?>">
                 <div class="glasgow-big" style="color:<?php echo attr($level_color); ?>">
-                    <?php echo text($score); ?><small>/15</small>
+                    <?php echo text((string)$score); ?><small>/15</small>
                 </div>
                 <div class="glasgow-label" style="color:<?php echo attr($level_color); ?>">
                     <?php echo text($level_text); ?>
@@ -286,5 +291,5 @@ function evaluaciones_report($pid, $encounter, $cols, $id)
 
     </div>
     <?php
-}
+};
 ?>
