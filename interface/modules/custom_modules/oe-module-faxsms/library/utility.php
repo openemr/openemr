@@ -54,7 +54,7 @@ if ($_POST['form_create'] ?? null) {
         $newpid = $result['pid'];
     }
     setpid($newpid);
-    $pid = PatientSessionUtil::getPid() ?? 0;
+    $pid = PatientSessionUtil::getPid();
     $mypubpid = isset($_POST["pubpid"]) && $_POST["pubpid"] != "" ? $_POST["pubpid"] ?? '' : $pid;
 
     $form_fname = ucwords(trim($_POST["fname"] ?? ''));

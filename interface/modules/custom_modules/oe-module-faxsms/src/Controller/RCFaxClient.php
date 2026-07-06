@@ -284,7 +284,7 @@ class RCFaxClient extends AppDispatch
         // Check if the content is from patient report
         if ($isContent) {
             $content = $file;
-            $file = 'report-' . attr(PatientSessionUtil::getPid()) . '.pdf';
+            $file = 'report-' . PatientSessionUtil::getPid() . '.pdf';
         } else {
             // Is it from patient documents
             if ($isDocuments) {
