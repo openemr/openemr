@@ -149,18 +149,24 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 # ============================================================================
 # MULTI-STAGE BUILD: OpenEMR Source and Dependencies
 # ============================================================================
-# Stage 1: Fetch OpenEMR source code via git clone
-# Use git clone instead of GitHub archive because OpenEMR's .gitattributes
-# marks tests/, phpunit*.xml, and other dev files as export-ignore, which
-# excludes them from archives but not from clones.
+# Stage 1: Fetch OpenEMR source code and apply .gitattributes export-ignore.
+# Two-step: shallow clone to get the tree, then `git archive HEAD` piped
+# through tar to materialize a copy filtered by the same export-ignore rules
+# the release tarball uses. Result: the shipped image contains only what
+# the release tarball ships (.github/, ci/, docker/, tests/, tools/,
+# build.xml, phpstan.neon.dist, .pre-commit-config.yaml, most of
+# Documentation/EHI_Export/ schemaspy artifacts, etc. all stripped).
+#
 # Supports branches or tags via OPENEMR_VERSION build argument.
 # Examples:
 #   - Branch: --build-arg OPENEMR_VERSION=master
 #   - Tag:    --build-arg OPENEMR_VERSION=v7.0.5
 ARG OPENEMR_VERSION=master
 FROM base AS openemr-source
-RUN git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION}" --depth 1 \
-    && rm -rf openemr/.git
+RUN git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION}" --depth 1 openemr-clone \
+    && mkdir openemr \
+    && git -C openemr-clone archive HEAD | tar -x -C openemr \
+    && rm -rf openemr-clone
 
 # Stage 2: Install PHP dependencies (Composer)
 # Separate stage allows Docker to cache this layer independently
