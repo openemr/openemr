@@ -24,6 +24,8 @@ class InternalToCdaConverter
     private const NS_SDTC = 'urn:hl7-org:sdtc';
     private const NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance';
 
+    private const DEFAULT_FACILITY_OID = '2.16.840.1.113883.19.5.99999.1';
+
     private DOMDocument $output;
     private DOMDocument $input;
     private DOMXPath $inputXpath;
@@ -114,7 +116,7 @@ class InternalToCdaConverter
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
         if ($facilityOid === '') {
-            $facilityOid = '2.16.840.1.113883.19.5.99999.1';
+            $facilityOid = self::DEFAULT_FACILITY_OID;
         }
 
         $this->appendId($root, $facilityOid, 'OE-DOC-0001');
@@ -161,7 +163,7 @@ class InternalToCdaConverter
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
         if ($facilityOid === '') {
-            $facilityOid = '2.16.840.1.113883.19.5.99999.1';
+            $facilityOid = self::DEFAULT_FACILITY_OID;
         }
 
         $patientUuid = $this->xpathValue('/CCDA/patient/uuid');
@@ -463,7 +465,7 @@ class InternalToCdaConverter
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
         if ($facilityOid === '') {
-            $facilityOid = '2.16.840.1.113883.19.5.99999.1';
+            $facilityOid = self::DEFAULT_FACILITY_OID;
         }
 
         $id = $this->createElement('id');
@@ -686,7 +688,7 @@ class InternalToCdaConverter
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
         if ($facilityOid === '') {
-            $facilityOid = '2.16.840.1.113883.19.5.99999.1';
+            $facilityOid = self::DEFAULT_FACILITY_OID;
         }
 
         $providerNpi = $this->xpathValue('/CCDA/primary_care_provider/provider/npi');
@@ -760,7 +762,7 @@ class InternalToCdaConverter
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
         if ($facilityOid === '') {
-            $facilityOid = '2.16.840.1.113883.19.5.99999.1';
+            $facilityOid = self::DEFAULT_FACILITY_OID;
         }
 
         $componentOf = $this->createElement('componentOf');
