@@ -24,7 +24,7 @@ use Throwable;
  * infrastructure. EventAuditLogger reads session state (authUser, authProvider,
  * pid) at query time via its internally-held session reference.
  */
-final class AuditingDbalLogger implements DbalLogger
+final class QueryAuditor implements DbalLogger
 {
     private ?string $currentSql = null;
 

@@ -18,8 +18,11 @@ use Doctrine\DBAL\{
     Connection,
     DriverManager,
 };
-use Firehed\DbalLogger\Middleware as LoggingMiddleware;
-use OpenEMR\Common\Database\Middleware\AuditingDbalLogger;
+use Firehed\DbalLogger\{
+    ChainLogger,
+    Middleware as LoggingMiddleware,
+};
+use OpenEMR\Common\Database\Middleware\QueryAuditor;
 use Doctrine\Migrations\Configuration\{
     Connection\ExistingConnection,
     EntityManager\ExistingEntityManager,
@@ -55,7 +58,9 @@ return [
         $manager->register(ConnectionType::Main, function () use ($c, $opts) {
             $config = new DbalConfiguration();
             $config->setMiddlewares([
-                new LoggingMiddleware($c->get(AuditingDbalLogger::class)),
+                new LoggingMiddleware(new ChainLogger([
+                    $c->get(QueryAuditor::class),
+                ])),
             ]);
             return DriverManager::getConnection($opts->toDbalParams(), $config);
         });
@@ -72,7 +77,7 @@ return [
     Connection::class => fn (TC $c) =>
         $c->get(ConnectionManager::class)->get(ConnectionType::Main),
 
-    AuditingDbalLogger::class,
+    QueryAuditor::class,
 
     // DB connection config
     DatabaseConnectionOptions::class => function (TC $c) {
