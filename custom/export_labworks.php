@@ -35,7 +35,7 @@
  $out = "";
 
  // Add a string to output with some basic sanitizing.
-function custom_labworks_Add($field)
+function custom_labworks_Add($field): string
 {
     return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
@@ -131,7 +131,7 @@ if ($row['providerID']) {
 
  // Patient Section.
  //
- $out .= $pid;                     // patient id
+ $out .= (string)$pid;                     // patient id
  $out .= custom_labworks_Add($row['pubpid']);              // chart number
  $out .= custom_labworks_Add($row['lname']);               // last name
  $out .= custom_labworks_Add($row['fname']);               // first name

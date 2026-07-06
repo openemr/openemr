@@ -319,15 +319,15 @@ function image_widget($doc_id, $doc_catg): void
     $viewable_types = ['.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP'];
     if (in_array($extension, $viewable_types)) { // extension matches list
         $to_url = "<td> <a href = '$web_root" .
-            "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'" .
+            "/controller.php?document&retrieve&patient_id=$pid&document_id=" . attr_url($doc_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'" .
             " onclick='top.restoreSession();' class='image_modal'>" .
             " <img src = '$web_root" .
-            "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false'" .
+            "/controller.php?document&retrieve&patient_id=$pid&document_id=" . attr_url($doc_id) . "&as_file=false'" .
             " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file_name) . "'>  </a> </td> <td class='align-middle'>" .
             text($doc_catg) . '<br />&nbsp;' . text($image_file_name) . "</td>";
     } else {
         $to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
-            "&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "'" .
+            "&patient_id=$pid&document_id=" . attr_url($doc_id) . "'" .
             " onclick='top.restoreSession()' class='btn btn-primary btn-sm'>" .
             "<span>" .
             xlt("View") . "</a> &nbsp;" .

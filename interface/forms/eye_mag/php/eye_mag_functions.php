@@ -5246,14 +5246,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                     foreach ($documents['docs_in_name']['VF'] as $VF) {
                         if ($count < 1) {
                             $current_VF = '<tr><td class="GFS_td_1 blue">
-                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
+                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
                                 <img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                 </td>
                                 <td class="GFS_td_1">' . $VF['docdate'] . '</td>
                                 </tr>';
                         } else {
                             $old_VFs .= '<tr><td class="GFS_td_1 hideme_VFs nodisplay"">
-                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
+                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . attr($VF['id']) . '\',\'Documents\');">
                                 <img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a></td>
                                 <td class="hideme_VFs nodisplay GFS_td_1">' . $VF['docdate'] . '</td></tr>';
                         }
@@ -5291,14 +5291,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                                 if ($count < 1) {
                                     $current_OCT = '<tr>
                                             <td class="GFS_td_1">
-                                            <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                            <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                             </td>
                                             <td class="GFS_td_1">' . $OCT['docdate'] . '</td>
                                         </tr>
                                         ';
                                 } else {
                                     $old_OCTs .= '<tr><td class="hideme_OCTs nodisplay GFS_td_1">
-                                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . attr($pid) . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
+                                                <a onclick="openNewForm(\'' . OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&view&patient_id=' . $pid . '&doc_id=' . attr($OCT['id']) . '\',\'Documents\');"><img src="../../forms/' . $form_folder . '/images/jpg.png" class="little_image" style="width:15px; height:15px;" /></a>
                                                 </td><td class="hideme_OCTs nodisplay GFS_td_1">' . $OCT['docdate'] . '</td></tr>';
                                 }
                                 $count++;
@@ -6269,9 +6269,9 @@ function generate_specRx($W)
                         title="<?php echo xla('Close this panel and delete this Rx'); ?>"></i>
                       <i class="closeButton_2 fas fa-arrows-alt-h" id="W_width_display_<?php echo attr($W); ?>" name="W_width_display"
                         title="<?php echo xla("Rx Details"); ?>" ></i>
-                      <i onclick="top.restoreSession();  doscript('W','<?php echo attr($pid); ?>','<?php echo attr($encounter); ?>','<?php echo attr($W); ?>'); return false;"
+                      <i onclick="top.restoreSession();  doscript('W','<?php echo $pid; ?>','<?php echo attr($encounter); ?>','<?php echo attr($W); ?>'); return false;"
                        title="<?php echo xla("Dispense Rx"); ?>" class="closeButton_3 fa fa-print"></i>
-                      <i onclick="top.restoreSession();  dispensed('<?php echo attr($pid); ?>');return false;"
+                      <i onclick="top.restoreSession();  dispensed('<?php echo $pid; ?>');return false;"
                          title="<?php echo xla("List of previously dispensed Spectacle and Contact Lens Rxs"); ?>" class="closeButton_4 fa fa-list-ul"></i>
                       <table id="wearing_<?php echo attr($W); ?>" >
                         <tr>
