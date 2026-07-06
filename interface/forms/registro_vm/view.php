@@ -30,7 +30,7 @@ if (!$pid || !$encounter) {
 }
 
 // Get patient info
-$paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", array($pid));
+$paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", [$pid]);
 // Calculate age
 $age = '';
 $dob_val = ($paciente ?? [])['DOB'] ?? '';
@@ -40,9 +40,9 @@ if ($dob_val !== '') {
 }
 
 if ($id > 0) {
-    $result = sqlStatement("SELECT * FROM form_registro_vm WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
+    $result = sqlStatement("SELECT * FROM form_registro_vm WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
 } else {
-    $result = sqlStatement("SELECT * FROM form_registro_vm WHERE pid = ? AND encounter = ? ORDER BY date DESC", array($pid, $encounter));
+    $result = sqlStatement("SELECT * FROM form_registro_vm WHERE pid = ? AND encounter = ? ORDER BY date DESC", [$pid, $encounter]);
 }
 
 // Ventilation mode display map

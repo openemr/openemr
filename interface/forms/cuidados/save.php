@@ -62,7 +62,7 @@ $hora_cuidado             = ($hora_raw !== '') ? $hora_raw : null;
 $is_edit = ($id > 0);
 if ($is_edit) {
 // Verify the record belongs to this patient/encounter
-    $check = QueryUtils::querySingleRow("SELECT id FROM form_cuidados WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
+    $check = QueryUtils::querySingleRow("SELECT id FROM form_cuidados WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
     if (!$check) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
@@ -76,7 +76,7 @@ if ($is_edit) {
             suspension_sedacion = ?, obs_suspension_sedacion = ?,
             medicion_cuff = ?, obs_medicion_cuff = ?,
             hora_cuidado = ?
-         WHERE id = ? AND pid = ? AND encounter = ?", array(
+         WHERE id = ? AND pid = ? AND encounter = ?", [
             $user, $groupname, $authorized,
             $posicion_paciente, $obs_posicion_paciente,
             $enjuague_bucal, $obs_enjuague_bucal,
@@ -86,7 +86,7 @@ if ($is_edit) {
             $medicion_cuff, $obs_medicion_cuff,
             $hora_cuidado,
             $id, $pid, $encounter,
-        ));
+        ]);
     if ($upd === false) {
         die(xlt("Error: Could not update the record. Please try again."));
     }
@@ -104,7 +104,7 @@ if ($is_edit) {
             NOW(), ?, ?, ?, ?, ?, 1,
             ?, ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?, ?
-         )", array(
+         )", [
             $pid, $encounter, $user, $groupname, $authorized,
             $posicion_paciente, $obs_posicion_paciente,
             $enjuague_bucal, $obs_enjuague_bucal,
@@ -113,7 +113,7 @@ if ($is_edit) {
             $suspension_sedacion, $obs_suspension_sedacion,
             $medicion_cuff, $obs_medicion_cuff,
             $hora_cuidado,
-        ));
+        ]);
     if (!$newid) {
         die(xlt("Error: Could not save the record. Please try again."));
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Nursing Evaluations Form - report.php
  * Renders a summary of the evaluation for the OpenEMR encounter report view.
@@ -17,7 +18,7 @@ use OpenEMR\Common\Database\QueryUtils;
 $evaluaciones_report = function (int $pid, int $encounter, int $cols, int $id): void {
     $result = QueryUtils::querySingleRow(
         "SELECT * FROM form_evaluaciones WHERE id = ? AND pid = ? LIMIT 1",
-        array($id, $pid)
+        [$id, $pid]
     );
 
     if (!$result) {
@@ -46,7 +47,7 @@ $evaluaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
     $hora_raw = $result['hora_evaluacion'] ?? '';
     $hora  = text($hora_raw !== '' ? $hora_raw : '-');
     $date_raw = $result['date'] ?? '';
-    $fecha = text($date_raw !== '' ? date('d/m/Y H:i', strtotime($date_raw)) : '-');
+    $fecha = text($date_raw !== '' ? date('d/m/Y H:i', strtotime((string) $date_raw)) : '-');
     $user  = text($result['user'] ?? '-');
     ?>
 

@@ -203,17 +203,17 @@ $nursing_forms = [
     </style>
 
     <?php
-    $arrOeUiSettings = array(
+    $arrOeUiSettings = [
         'heading_title'        => xl('Patient Finder'),
         'include_patient_name' => false,
         'expandable'           => true,
-        'expandable_files'     => array('dynamic_finder_xpd'),
+        'expandable_files'     => ['dynamic_finder_xpd'],
         'action'               => "search",
         'action_title'         => "",
         'action_href'          => "",
         'show_help_icon'       => false,
         'help_file_name'       => ""
-    );
+    ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
 </head>
@@ -276,11 +276,11 @@ $nursing_forms = [
                                     <?php echo text($result['pid']); ?>
                                 </td>
                                 <td><?php echo text($result['paciente']); ?></td>
-                                <td><?php echo text(date('d/m/Y', strtotime($result['date']))); ?></td>
+                                <td><?php echo text(date('d/m/Y', strtotime((string) $result['date']))); ?></td>
                                 <td><?php echo text($result['pubpid']); ?></td>
                                 <td><?php echo text($result['nro_registro']); ?></td>
-                                <td><?php echo text(strtoupper($result['servicio'])); ?></td>
-                                <td><?php echo text(strtoupper($result['cuarto'])); ?></td>
+                                <td><?php echo text(strtoupper((string) $result['servicio'])); ?></td>
+                                <td><?php echo text(strtoupper((string) $result['cuarto'])); ?></td>
                                 <td><?php echo text($result['cama']); ?></td>
                                 <td>
                                     <div class="outer">
@@ -465,14 +465,14 @@ $nursing_forms = [
         var encounter_sel;
         var pid_sel;
 
-        var xl_strings_tabs_view_model = <?php echo json_encode(array(
+        var xl_strings_tabs_view_model = <?php echo json_encode([
             'encounter_locked'    => xla('This encounter is locked. No new forms can be added.'),
             'must_select_patient' => OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')
                 ? xla('You must first select or add a patient or therapy group.')
                 : xla('You must first select or add a patient.'),
             'must_select_encounter' => xla('You must first select or create an encounter.'),
             'new' => xla('New')
-        )); ?>;
+        ]); ?>;
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
 
         $(function() {

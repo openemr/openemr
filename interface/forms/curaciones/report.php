@@ -16,7 +16,7 @@ require_once(__DIR__ . "/../../globals.php");
 use OpenEMR\Common\Database\QueryUtils;
 
 $curaciones_report = function (int $pid, int $encounter, int $cols, int $id): void {
-    $row = QueryUtils::querySingleRow("SELECT * FROM form_curaciones WHERE id = ? AND pid = ?", array($id, $pid));
+    $row = QueryUtils::querySingleRow("SELECT * FROM form_curaciones WHERE id = ? AND pid = ?", [$id, $pid]);
     if (!$row) {
         echo "<p style='color:#c0392b;padding:10px;'>" . xlt("No data found for this record.") . "</p>";
         return;
@@ -32,11 +32,11 @@ $curaciones_report = function (int $pid, int $encounter, int $cols, int $id): vo
     ];
     $hora_raw = $row['hora_operacion'] ?? '';
     $hora = ($hora_raw !== '')
-        ? date('H:i', strtotime($hora_raw))
+        ? date('H:i', strtotime((string) $hora_raw))
         : xlt('Not specified');
     $date_raw = $row['date'] ?? '';
     $fecha = ($date_raw !== '')
-        ? date('d/m/Y H:i', strtotime($date_raw))
+        ? date('d/m/Y H:i', strtotime((string) $date_raw))
         : '-';
 // Contar activos
     $total_activos = 0;
@@ -219,7 +219,7 @@ $curaciones_report = function (int $pid, int $encounter, int $cols, int $id): vo
             <div class="title"><?php echo xlt('Wound Care Record'); ?></div>
             <div class="counter">
                 <?php echo xlt('Active procedures'); ?>:
-                <span><?php echo (int)$total_activos; ?></span> / <?php echo (int)$total_items; ?>
+                <span><?php echo $total_activos; ?></span> / <?php echo $total_items; ?>
             </div>
         </div>
 
@@ -284,11 +284,11 @@ $curaciones_report = function (int $pid, int $encounter, int $cols, int $id): vo
         <div class="summary-bar">
             <span><?php echo xlt('Summary'); ?>:</span>
             <span class="pill pill-activos">
-                <span class="num"><?php echo (int)$total_activos; ?></span>
+                <span class="num"><?php echo $total_activos; ?></span>
                 <?php echo xlt('active'); ?>
             </span>
             <span class="pill pill-inactivos">
-                <span class="num"><?php echo (int)($total_items - $total_activos); ?></span>
+                <span class="num"><?php echo $total_items - $total_activos; ?></span>
                 <?php echo xlt('inactive'); ?>
             </span>
         </div>

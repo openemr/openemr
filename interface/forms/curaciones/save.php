@@ -60,7 +60,7 @@ $hora_operacion         = ($hora_raw !== '') ? $hora_raw : null;
 $is_edit = ($id > 0);
 if ($is_edit) {
 // Verify the record belongs to this patient/encounter
-    $check = QueryUtils::querySingleRow("SELECT id FROM form_curaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
+    $check = QueryUtils::querySingleRow("SELECT id FROM form_curaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
     if (!$check) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
@@ -74,7 +74,7 @@ if ($is_edit) {
             via_venosa_central = ?, obs_via_venosa_central = ?,
             via_venosa = ?, obs_via_venosa = ?,
             hora_operacion = ?
-         WHERE id = ? AND pid = ? AND encounter = ?", array(
+         WHERE id = ? AND pid = ? AND encounter = ?", [
             $user, $groupname, $authorized,
             $herida_operatoria, $obs_herida_operatoria,
             $traqueostomia, $obs_traqueostomia,
@@ -84,7 +84,7 @@ if ($is_edit) {
             $via_venosa, $obs_via_venosa,
             $hora_operacion,
             $id, $pid, $encounter,
-        ));
+        ]);
     if ($upd === false) {
         die(xlt("Error: Could not update the record. Please try again."));
     }
@@ -102,7 +102,7 @@ if ($is_edit) {
             NOW(), ?, ?, ?, ?, ?, 1,
             ?, ?, ?, ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?
-         )", array(
+         )", [
             $pid, $encounter, $user, $groupname, $authorized,
             $herida_operatoria, $obs_herida_operatoria,
             $traqueostomia, $obs_traqueostomia,
@@ -111,7 +111,7 @@ if ($is_edit) {
             $via_venosa_central, $obs_via_venosa_central,
             $via_venosa, $obs_via_venosa,
             $hora_operacion,
-        ));
+        ]);
     if (!$newid) {
         die(xlt("Error: Could not save the record. Please try again."));
     }

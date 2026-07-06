@@ -28,13 +28,13 @@ if (!$pid || !$encounter || !$id) {
 }
 
 // Load wound care record
-$row = QueryUtils::querySingleRow("SELECT * FROM form_curaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
+$row = QueryUtils::querySingleRow("SELECT * FROM form_curaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
 if (!$row) {
     die(xlt("Error: Record not found or insufficient permissions."));
 }
 
 // Load patient data
-$paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", array($pid));
+$paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", [$pid]);
 // Calculate age
 $age = '';
 $dob_val = ($paciente ?? [])['DOB'] ?? '';
@@ -44,7 +44,7 @@ if ($dob_val !== '') {
 }
 
 $date_raw  = $row['date'] ?? '';
-$eval_date = ($date_raw !== '')           ? date('d/m/Y', strtotime($date_raw)) : '-';
+$eval_date = ($date_raw !== '')           ? date('d/m/Y', strtotime((string) $date_raw)) : '-';
 $hora_raw  = $row['hora_operacion'] ?? '';
 $eval_time = ($hora_raw !== '') ? $hora_raw                 : '-';
 
@@ -66,24 +66,20 @@ $curRow = function (string $label, int $val, string $obs): string {
 };
 
 // Section header helper
-$secHeader = function (string $title, string $bg): string {
-    return '<div style="background:' . $bg . ';color:#fff;font-size:9px;font-weight:bold;'
-         . 'text-transform:uppercase;letter-spacing:1px;padding:7px 12px;margin:12px 0 0 0;">'
-         . $title . '</div>';
-};
+$secHeader = (fn(string $title, string $bg): string => '<div style="background:' . $bg . ';color:#fff;font-size:9px;font-weight:bold;'
+     . 'text-transform:uppercase;letter-spacing:1px;padding:7px 12px;margin:12px 0 0 0;">'
+     . $title . '</div>');
 
 // Table header row
-$tableHeader = function (string $c1, string $c2, string $c3): string {
-    return '<table style="width:100%;border-collapse:collapse;margin-bottom:10px;">'
-         . '<thead><tr>'
-         . '<th style="background:#34495e;color:#fff;padding:7px 10px;text-align:left;font-size:9px;'
-         . 'text-transform:uppercase;letter-spacing:0.5px;width:30%;">' . $c1 . '</th>'
-         . '<th style="background:#34495e;color:#fff;padding:7px 10px;text-align:center;font-size:9px;'
-         . 'text-transform:uppercase;letter-spacing:0.5px;width:20%;">' . $c2 . '</th>'
-         . '<th style="background:#34495e;color:#fff;padding:7px 10px;text-align:left;font-size:9px;'
-         . 'text-transform:uppercase;letter-spacing:0.5px;">' . $c3 . '</th>'
-         . '</tr></thead><tbody>';
-};
+$tableHeader = (fn(string $c1, string $c2, string $c3): string => '<table style="width:100%;border-collapse:collapse;margin-bottom:10px;">'
+     . '<thead><tr>'
+     . '<th style="background:#34495e;color:#fff;padding:7px 10px;text-align:left;font-size:9px;'
+     . 'text-transform:uppercase;letter-spacing:0.5px;width:30%;">' . $c1 . '</th>'
+     . '<th style="background:#34495e;color:#fff;padding:7px 10px;text-align:center;font-size:9px;'
+     . 'text-transform:uppercase;letter-spacing:0.5px;width:20%;">' . $c2 . '</th>'
+     . '<th style="background:#34495e;color:#fff;padding:7px 10px;text-align:left;font-size:9px;'
+     . 'text-transform:uppercase;letter-spacing:0.5px;">' . $c3 . '</th>'
+     . '</tr></thead><tbody>');
 
 // ---------------------------------------------------------------
 // Build HTML

@@ -85,7 +85,7 @@ $hora_raw                    = (string) filter_input(INPUT_POST, 'hora_registro'
 $hora_registro               = ($hora_raw !== '') ? $hora_raw : null;
 $is_edit = ($id > 0);
 if ($is_edit) {
-    $check = QueryUtils::querySingleRow("SELECT id FROM form_registro_vm WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", array($id, $pid, $encounter));
+    $check = QueryUtils::querySingleRow("SELECT id FROM form_registro_vm WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
     if (!$check) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
@@ -111,7 +111,7 @@ if ($is_edit) {
             vdvt = ?, obs_vdvt = ?,
             ko2 = ?, obs_ko2 = ?,
             hora_registro = ?
-         WHERE id = ? AND pid = ? AND encounter = ?", array(
+         WHERE id = ? AND pid = ? AND encounter = ?", [
             $user, $groupname, $authorized,
             $modo_ventilacion, $obs_modo,
             $presion, $obs_presion, $volumen, $obs_volumen,
@@ -124,7 +124,7 @@ if ($is_edit) {
             $vdvt, $obs_vdvt, $ko2, $obs_ko2,
             $hora_registro,
             $id, $pid, $encounter,
-        ));
+        ]);
     if ($upd === false) {
         die(xlt("Error: Could not update the record. Please try again."));
     }
@@ -146,7 +146,7 @@ if ($is_edit) {
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?, ?
-         )", array(
+         )", [
             $pid, $encounter, $user, $groupname, $authorized,
             $modo_ventilacion, $obs_modo,
             $presion, $obs_presion, $volumen, $obs_volumen,
@@ -157,7 +157,7 @@ if ($is_edit) {
             $fvt, $obs_fvt, $vol_tidal, $obs_vol_tidal,
             $vm_programado, $obs_vm_programado, $petco2, $obs_petco2,
             $vdvt, $obs_vdvt, $ko2, $obs_ko2, $hora_registro,
-        ));
+        ]);
     if (!$newid) {
         die(xlt("Error: Could not save the record. Please try again."));
     }

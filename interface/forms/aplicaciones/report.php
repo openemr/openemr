@@ -16,7 +16,7 @@ require_once(__DIR__ . "/../../globals.php");
 use OpenEMR\Common\Database\QueryUtils;
 
 $aplicaciones_report = function (int $pid, int $encounter, int $cols, int $id): void {
-    $row = QueryUtils::querySingleRow("SELECT * FROM form_aplicaciones WHERE id = ? AND pid = ?", array($id, $pid));
+    $row = QueryUtils::querySingleRow("SELECT * FROM form_aplicaciones WHERE id = ? AND pid = ?", [$id, $pid]);
     if (!$row) {
         echo "<p style='color:#c0392b;padding:10px;'>" . xlt("No data found for this record.") . "</p>";
         return;
@@ -31,11 +31,11 @@ $aplicaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
     ];
     $hora_raw = $row['hora_registro'] ?? '';
     $hora = ($hora_raw !== '')
-        ? date('H:i', strtotime($hora_raw))
+        ? date('H:i', strtotime((string) $hora_raw))
         : xlt('Not specified');
     $date_raw = $row['date'] ?? '';
     $fecha = ($date_raw !== '')
-        ? date('d/m/Y H:i', strtotime($date_raw))
+        ? date('d/m/Y H:i', strtotime((string) $date_raw))
         : '-';
     $total_activos = 0;
     foreach (array_keys($items) as $campo) {
@@ -211,7 +211,7 @@ $aplicaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
             <div class="title"><?php echo xlt('Application Record'); ?></div>
             <div class="counter">
                 <?php echo xlt('Active items'); ?>:
-                <span><?php echo (int)$total_activos; ?></span> / <?php echo (int)$total_items; ?>
+                <span><?php echo $total_activos; ?></span> / <?php echo $total_items; ?>
             </div>
         </div>
 
@@ -276,11 +276,11 @@ $aplicaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
         <div class="summary-bar">
             <span><?php echo xlt('Summary'); ?>:</span>
             <span class="pill pill-activos">
-                <span class="num"><?php echo (int)$total_activos; ?></span>
+                <span class="num"><?php echo $total_activos; ?></span>
                 <?php echo xlt('active'); ?>
             </span>
             <span class="pill pill-inactivos">
-                <span class="num"><?php echo (int)($total_items - $total_activos); ?></span>
+                <span class="num"><?php echo $total_items - $total_activos; ?></span>
                 <?php echo xlt('inactive'); ?>
             </span>
         </div>
