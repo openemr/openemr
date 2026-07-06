@@ -48,7 +48,7 @@ $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
 
 if (array_key_exists('patient', $_REQUEST)) {
     $eRxSOAP->setPatientId($_REQUEST['patient']);
-} elseif (PatientSessionUtil::getPid() > 0) {
+} elseif (PatientSessionUtil::getPid() !== 0) {
     $eRxSOAP->setPatientId(PatientSessionUtil::getPid());
 }
 
