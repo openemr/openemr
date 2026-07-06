@@ -65,6 +65,14 @@ on:
     - '.github/workflows/docker-test-upgrade.yml'
     - 'docker/production/docker-compose.yml'
     - 'version.php'
+  pull_request:
+    # No branches: filter -- fires on PRs against any base (master, rel-*)
+    # so we validate workflow-file changes end-to-end before merge, and
+    # release-prep PRs get pre-tag confidence via the paths filter below.
+    paths:
+    - '.github/workflows/docker-test-upgrade.yml'
+    - 'docker/production/docker-compose.yml'
+    - 'version.php'
   schedule:
   - cron: '0 12 * * *'
 
