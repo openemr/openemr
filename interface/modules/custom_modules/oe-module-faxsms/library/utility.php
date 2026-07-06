@@ -17,6 +17,7 @@ require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -53,7 +54,7 @@ if ($_POST['form_create'] ?? null) {
         $newpid = $result['pid'];
     }
     setpid($newpid);
-    $pid = OEGlobalsBag::getInstance()->get('pid') ?? 0;
+    $pid = PatientSessionUtil::getPid() ?? 0;
     $mypubpid = isset($_POST["pubpid"]) && $_POST["pubpid"] != "" ? $_POST["pubpid"] ?? '' : $pid;
 
     $form_fname = ucwords(trim($_POST["fname"] ?? ''));

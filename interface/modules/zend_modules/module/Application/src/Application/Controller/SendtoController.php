@@ -15,6 +15,7 @@ namespace Application\Controller;
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 
@@ -78,7 +79,7 @@ class SendtoController extends AbstractActionController
     {
         $ajax_mode = $this->getRequest()->getPost('ajax_mode', null);
         $encounter = OEGlobalsBag::getInstance()->get('encounter');
-        $pid = OEGlobalsBag::getInstance()->get('pid');
+        $pid = PatientSessionUtil::getPid();
         switch ($ajax_mode) {
             case 'get_componets':
                 $formId = $this->getRequest()->getPost('form_id', null);
