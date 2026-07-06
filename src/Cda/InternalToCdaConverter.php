@@ -263,21 +263,12 @@ class InternalToCdaConverter
     {
         $patient = $this->createElement('patient');
 
-        $name = $this->createElement('name');
-        $name->setAttribute('use', 'L');
-        $lname = $this->xpathValue('/CCDA/patient/lname');
-        $fname = $this->xpathValue('/CCDA/patient/fname');
-        $mname = $this->xpathValue('/CCDA/patient/mname');
-        if ($lname !== '') {
-            $name->appendChild($this->createElement('family', $lname));
-        }
-        if ($fname !== '') {
-            $name->appendChild($this->createElement('given', $fname));
-        }
-        if ($mname !== '') {
-            $name->appendChild($this->createElement('given', $mname));
-        }
-        $patient->appendChild($name);
+        $patient->appendChild($this->createPersonName(
+            family: $this->xpathValue('/CCDA/patient/lname'),
+            given: $this->xpathValue('/CCDA/patient/fname'),
+            middle: $this->xpathValue('/CCDA/patient/mname'),
+            use: 'L',
+        ));
 
         $genderCode = $this->xpathValue('/CCDA/patient/gender_code');
         $gender = $this->xpathValue('/CCDA/patient/gender');
@@ -454,16 +445,10 @@ class InternalToCdaConverter
         $assignedAuthor->appendChild($authorTelecom);
 
         $assignedPerson = $this->createElement('assignedPerson');
-        $name = $this->createElement('name');
-        $lname = $this->xpathValue('/CCDA/author/lname');
-        $fname = $this->xpathValue('/CCDA/author/fname');
-        if ($lname !== '') {
-            $name->appendChild($this->createElement('family', $lname));
-        }
-        if ($fname !== '') {
-            $name->appendChild($this->createElement('given', $fname));
-        }
-        $assignedPerson->appendChild($name);
+        $assignedPerson->appendChild($this->createPersonName(
+            family: $this->xpathValue('/CCDA/author/lname'),
+            given: $this->xpathValue('/CCDA/author/fname'),
+        ));
         $assignedAuthor->appendChild($assignedPerson);
 
         $this->appendRepresentedOrganization($assignedAuthor);
@@ -756,16 +741,10 @@ class InternalToCdaConverter
         }
 
         $assignedPerson = $this->createElement('assignedPerson');
-        $name = $this->createElement('name');
-        $lname = $this->xpathValue('/CCDA/author/lname');
-        $fname = $this->xpathValue('/CCDA/author/fname');
-        if ($lname !== '') {
-            $name->appendChild($this->createElement('family', $lname));
-        }
-        if ($fname !== '') {
-            $name->appendChild($this->createElement('given', $fname));
-        }
-        $assignedPerson->appendChild($name);
+        $assignedPerson->appendChild($this->createPersonName(
+            family: $this->xpathValue('/CCDA/author/lname'),
+            given: $this->xpathValue('/CCDA/author/fname'),
+        ));
         $assignedEntity->appendChild($assignedPerson);
 
         $performer->appendChild($assignedEntity);
@@ -821,16 +800,10 @@ class InternalToCdaConverter
         $assignedEntity->appendChild($id);
 
         $assignedPerson = $this->createElement('assignedPerson');
-        $name = $this->createElement('name');
-        $lname = $this->xpathValue('/CCDA/author/lname');
-        $fname = $this->xpathValue('/CCDA/author/fname');
-        if ($lname !== '') {
-            $name->appendChild($this->createElement('family', $lname));
-        }
-        if ($fname !== '') {
-            $name->appendChild($this->createElement('given', $fname));
-        }
-        $assignedPerson->appendChild($name);
+        $assignedPerson->appendChild($this->createPersonName(
+            family: $this->xpathValue('/CCDA/author/lname'),
+            given: $this->xpathValue('/CCDA/author/fname'),
+        ));
         $assignedEntity->appendChild($assignedPerson);
 
         $responsibleParty->appendChild($assignedEntity);
@@ -883,14 +856,11 @@ class InternalToCdaConverter
         }
 
         $assignedPerson = $this->createElement('assignedPerson');
-        $name = $this->createElement('name');
-        $fname = $this->xpathValue('/CCDA/author/fname');
         // $lname guaranteed non-empty due to early return above
-        $name->appendChild($this->createElement('family', $lname));
-        if ($fname !== '') {
-            $name->appendChild($this->createElement('given', $fname));
-        }
-        $assignedPerson->appendChild($name);
+        $assignedPerson->appendChild($this->createPersonName(
+            family: $lname,
+            given: $this->xpathValue('/CCDA/author/fname'),
+        ));
         $assignedEntity->appendChild($assignedPerson);
 
         $encounterParticipant->appendChild($assignedEntity);
@@ -2908,17 +2878,11 @@ class InternalToCdaConverter
         }
         $assignedEntity->appendChild($code);
 
-        $fname = $this->xpathValue('fname', $enc);
-        $lname = $this->xpathValue('lname', $enc);
         $assignedPerson = $this->createElement('assignedPerson');
-        $name = $this->createElement('name');
-        if ($lname !== '') {
-            $name->appendChild($this->createElement('family', $lname));
-        }
-        if ($fname !== '') {
-            $name->appendChild($this->createElement('given', $fname));
-        }
-        $assignedPerson->appendChild($name);
+        $assignedPerson->appendChild($this->createPersonName(
+            family: $this->xpathValue('lname', $enc),
+            given: $this->xpathValue('fname', $enc),
+        ));
         $assignedEntity->appendChild($assignedPerson);
 
         $performer->appendChild($assignedEntity);
@@ -3214,17 +3178,11 @@ class InternalToCdaConverter
         $addr->appendChild($this->createElement('country', 'US'));
         $assignedEntity->appendChild($addr);
 
-        $fname = $this->xpathValue('fname', $imm);
-        $lname = $this->xpathValue('lname', $imm);
         $assignedPerson = $this->createElement('assignedPerson');
-        $name = $this->createElement('name');
-        if ($lname !== '') {
-            $name->appendChild($this->createElement('family', $lname));
-        }
-        if ($fname !== '') {
-            $name->appendChild($this->createElement('given', $fname));
-        }
-        $assignedPerson->appendChild($name);
+        $assignedPerson->appendChild($this->createPersonName(
+            family: $this->xpathValue('lname', $imm),
+            given: $this->xpathValue('fname', $imm),
+        ));
         $assignedEntity->appendChild($assignedPerson);
 
         $repOrg = $this->createElement('representedOrganization');
@@ -4819,17 +4777,11 @@ class InternalToCdaConverter
         $birthTime = $this->xpathValue('/CCDA/patient/dob');
         if ($firstName !== '' || $lastName !== '') {
             $playingEntity = $this->createElement('playingEntity');
-            $name = $this->createElement('name');
-            if ($lastName !== '') {
-                $name->appendChild($this->createElement('family', $lastName));
-            }
-            if ($firstName !== '') {
-                $name->appendChild($this->createElement('given', $firstName));
-            }
-            if ($middleName !== '') {
-                $name->appendChild($this->createElement('given', $middleName));
-            }
-            $playingEntity->appendChild($name);
+            $playingEntity->appendChild($this->createPersonName(
+                family: $lastName,
+                given: $firstName,
+                middle: $middleName,
+            ));
 
             if ($birthTime !== '') {
                 $bt = $this->output->createElementNS(self::NS_SDTC, 'sdtc:birthTime');
@@ -4911,20 +4863,12 @@ class InternalToCdaConverter
         $prefix = $this->xpathValue('guarantor/name/prefix', $payer);
         if ($firstName !== '' || $lastName !== '') {
             $assignedPerson = $this->createElement('assignedPerson');
-            $name = $this->createElement('name');
-            if ($lastName !== '') {
-                $name->appendChild($this->createElement('family', $lastName));
-            }
-            if ($firstName !== '') {
-                $name->appendChild($this->createElement('given', $firstName));
-            }
-            if ($middleName !== '') {
-                $name->appendChild($this->createElement('given', $middleName));
-            }
-            if ($prefix !== '') {
-                $name->appendChild($this->createElement('prefix', $prefix));
-            }
-            $assignedPerson->appendChild($name);
+            $assignedPerson->appendChild($this->createPersonName(
+                family: $lastName,
+                given: $firstName,
+                middle: $middleName,
+                prefix: $prefix,
+            ));
             $assignedEntity->appendChild($assignedPerson);
         }
 
@@ -6689,6 +6633,32 @@ class InternalToCdaConverter
             return;
         }
         $addr->appendChild($this->createElement($tag, $value));
+    }
+
+    private function createPersonName(
+        string $family,
+        string $given,
+        string $middle = '',
+        ?string $use = null,
+        string $prefix = '',
+    ): DOMElement {
+        $name = $this->createElement('name');
+        if ($use !== null) {
+            $name->setAttribute('use', $use);
+        }
+        if ($family !== '') {
+            $name->appendChild($this->createElement('family', $family));
+        }
+        if ($given !== '') {
+            $name->appendChild($this->createElement('given', $given));
+        }
+        if ($middle !== '') {
+            $name->appendChild($this->createElement('given', $middle));
+        }
+        if ($prefix !== '') {
+            $name->appendChild($this->createElement('prefix', $prefix));
+        }
+        return $name;
     }
 
     private function applyCodedOrNullFlavor(
