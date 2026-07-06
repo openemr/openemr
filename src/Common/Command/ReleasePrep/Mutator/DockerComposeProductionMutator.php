@@ -2,10 +2,14 @@
 
 /**
  * Pin docker/production/docker-compose.yml's openemr image from
- * `latest@sha256:...` to `<version>@sha256:...`. The published image's
- * digest is supplied via --image-digest by the conductor workflow after
- * the release image has been built and pushed; if absent the existing
- * digest is preserved and only the tag is swapped.
+ * `latest[@sha256:...]` to `<version>` (tag only, no digest).
+ *
+ * At release-prep time, the release-tagged image does not yet exist in
+ * Docker Hub — it's produced downstream only AFTER the release-prep PR
+ * merges (which triggers the tag creation which triggers the image
+ * build). So there's no valid digest to pin at this stage. The old
+ * `--image-digest` pathway assumed an out-of-band digest lookup that
+ * doesn't fit the actual sequencing; drop it and just swap the tag.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -30,7 +34,7 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
 
     public function name(): string
     {
-        return 'docker/production/docker-compose.yml (pin openemr image)';
+        return 'docker/production/docker-compose.yml (pin openemr image tag)';
     }
 
     public function apply(MutatorContext $context): MutatorResult
@@ -42,29 +46,18 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
         }
 
         $version = $context->versionString();
-        // Accept the digest with or without the `sha256:` prefix; we always
-        // emit `@sha256:<hex>` regardless.
-        $newDigestHex = $context->imageDigest === null
-            ? null
-            : preg_replace('/^sha256:/', '', $context->imageDigest);
 
         // Pattern matches `image: openemr/openemr:<tag>` with an optional
         // `@sha256:<digest>` suffix. The tag may be `latest`, the target
-        // version, or another version (idempotence + handles re-runs after
-        // a digest update). The digest is optional because rel-* branches
-        // that were cut before the digest-pinning automation existed start
-        // with a bare tag (e.g. `openemr/openemr:8.1.0`).
-        $pattern = '/(image:\s*openemr\/openemr:)([^@\s]+)(?:(@sha256:)([0-9a-f]{64}))?/';
+        // version, or another version (idempotence + handles re-runs).
+        // The digest is optional because rel-* branches that were cut
+        // before the digest-pinning automation existed start with a bare
+        // tag (e.g. `openemr/openemr:8.1.0`). Whatever's after `:`, we
+        // replace it with the target version and strip the digest entirely.
+        $pattern = '/(image:\s*openemr\/openemr:)([^@\s]+)(?:@sha256:[0-9a-f]{64})?/';
         $updated = preg_replace_callback(
             $pattern,
-            static function (array $match) use ($version, $newDigestHex): string {
-                $existingDigest = $match[4] ?? '';
-                $digest = $newDigestHex ?? ($existingDigest !== '' ? $existingDigest : null);
-                if ($digest === null) {
-                    return $match[1] . $version;
-                }
-                return $match[1] . $version . '@sha256:' . $digest;
-            },
+            static fn (array $match): string => $match[1] . $version,
             $contents,
             1,
             $count,
@@ -95,10 +88,7 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
                 $e,
             );
         }
-        $expectedDigest = $newDigestHex ?? $this->extractDigest($contents);
-        $expectedImage = $expectedDigest === null
-            ? sprintf('openemr/openemr:%s', $version)
-            : sprintf('openemr/openemr:%s@sha256:%s', $version, $expectedDigest);
+        $expectedImage = sprintf('openemr/openemr:%s', $version);
         $actualImage = is_array($parsed)
             && is_array($parsed['services'] ?? null)
             && is_array($parsed['services']['openemr'] ?? null)
@@ -114,21 +104,9 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
         if (file_put_contents($path, $updated) === false) {
             throw new \RuntimeException('Cannot write ' . $path);
         }
-        if ($newDigestHex !== null) {
-            $messages = [];
-        } elseif ($expectedDigest === null) {
-            $messages = ['docker-compose.yml: tag pinned to ' . $version . '; no digest (source had none, no --image-digest provided)'];
-        } else {
-            $messages = ['docker-compose.yml: tag pinned to ' . $version . '; digest preserved (no --image-digest provided)'];
-        }
-        return new MutatorResult([self::RELATIVE_PATH], $messages);
-    }
-
-    private function extractDigest(string $original): ?string
-    {
-        if (preg_match('/image:\s*openemr\/openemr:[^@\s]+@sha256:([0-9a-f]{64})/', $original, $m) !== 1) {
-            return null;
-        }
-        return $m[1];
+        return new MutatorResult(
+            [self::RELATIVE_PATH],
+            ['docker-compose.yml: tag pinned to ' . $version . ' (no digest — release image is not yet built at release-prep time)'],
+        );
     }
 }

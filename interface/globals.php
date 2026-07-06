@@ -14,6 +14,8 @@
  */
 
 use Dotenv\Dotenv;
+use OpenEMR\BC\Deprecation;
+use OpenEMR\BC\DeprecationMode;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -68,6 +70,10 @@ if (IS_WINDOWS) {
  */
 if (file_exists("{$webserver_root}/.env")) {
     Dotenv::createImmutable($webserver_root)->load();
+}
+
+if (($_ENV['OPENEMR_DEPRECATION_MODE'] ?? null) === 'error') {
+    Deprecation::$mode = DeprecationMode::Error;
 }
 
 $logger = ServiceContainer::getLogger();

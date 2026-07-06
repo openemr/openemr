@@ -14,6 +14,8 @@ namespace OpenEMR\Tests\Isolated\Release;
 
 use OpenEMR\Release\BranchVersionResolver;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\Process\Process;
 
 final class BranchVersionResolverTest extends TestCase
@@ -140,6 +142,120 @@ final class BranchVersionResolverTest extends TestCase
         $this->git(['tag', '-a', 'v8_2_0', '-m', 'OpenEMR 8.2.0 released 2026-04-01']);
         $resolver = new BranchVersionResolver($this->tmpDir);
         self::assertSame('8.0.0', $resolver->previousRelease('8.1.0'));
+    }
+
+    public function testPreviousReleaseSkipsTagsMissingFromManifest(): void
+    {
+        // 8.1.0 was cut as an annotated v8_1_0 tag but never released -
+        // it's absent from data/releases.json. When computing prev_release
+        // for 8.2.0, the resolver must skip 8.1.0 and fall through to
+        // 8.0.0 (the last actually-shipped release).
+        $this->git(['tag', '-a', 'v8_0_0', '-m', 'OpenEMR 8.0.0 released 2026-01-01']);
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 cut but skipped']);
+        $resolver = new BranchVersionResolver(
+            $this->tmpDir,
+            $this->manifestClient(['8.0.0' => 'FINAL']),
+        );
+        self::assertSame('8.0.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    public function testPreviousReleaseTrustsManifestOverAnnotatedTagFilter(): void
+    {
+        // Historic SourceForge-era v* tags are LIGHTWEIGHT, not annotated
+        // (openemr/openemr's real v8_0_0 predates the annotated-tag policy
+        // TagVerifier enforces on new cuts). The manifest is the source
+        // of truth for what shipped; the resolver must trust it and NOT
+        // discard 8.0.0 just because its tag is lightweight.
+        //
+        // Regression pin for the "8.2.0 dispatch got prev_release=8.1.0
+        // even after the manifest fix" post-merge bug: v8_1_0 was
+        // annotated + skipped, v8_0_0 was lightweight + shipped, so the
+        // original manifest-filter walked the annotated-only set (just
+        // v8_1_0), filtered v8_1_0 out as unshipped, fell through to
+        // null, and previousRelease synthesised 8.1.0 as the prev-minor
+        // fallback — the same skipped version we were trying to avoid.
+        $this->git(['tag', 'v8_0_0']); // lightweight (no -a)
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'cut and skipped']);
+        $resolver = new BranchVersionResolver(
+            $this->tmpDir,
+            $this->manifestClient(['8.0.0' => 'FINAL']),
+        );
+        self::assertSame('8.0.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    public function testPreviousReleaseAcceptsTagsPresentInManifest(): void
+    {
+        // Same tag set as above, but this time 8.1.0 shipped normally.
+        // The manifest contains both entries; both are eligible; 8.1.0
+        // wins as the newest below target 8.2.0.
+        $this->git(['tag', '-a', 'v8_0_0', '-m', 'OpenEMR 8.0.0 released 2026-01-01']);
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 released 2026-06-01']);
+        $resolver = new BranchVersionResolver(
+            $this->tmpDir,
+            $this->manifestClient(['8.0.0' => 'FINAL', '8.1.0' => 'FINAL']),
+        );
+        self::assertSame('8.1.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    public function testPreviousReleaseTreatsDraftEntriesAsUnshipped(): void
+    {
+        // A DRAFT entry in the manifest is not FINAL, so its version is
+        // not considered shipped. In practice this covers the case where
+        // the release-docs bot pre-populates a DRAFT entry for the next
+        // release before it flips FINAL - that draft mustn't be used as
+        // a prev_release for anything.
+        $this->git(['tag', '-a', 'v8_0_0', '-m', 'OpenEMR 8.0.0 released 2026-01-01']);
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 draft']);
+        $resolver = new BranchVersionResolver(
+            $this->tmpDir,
+            $this->manifestClient(['8.0.0' => 'FINAL', '8.1.0' => 'DRAFT']),
+        );
+        self::assertSame('8.0.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    public function testPreviousReleaseFallsBackToTagsOnBadJson(): void
+    {
+        // Manifest fetch returns a 200 body that isn't valid JSON (some
+        // upstream issue on raw.githubusercontent, cached error page,
+        // etc.). Resolver's JSON-decode wrapper catches JsonException
+        // and falls back to tag-only behaviour - accepting 8.1.0 as
+        // prev, which is the pre-manifest behaviour. Preferable to a
+        // hard failure that would block every release dispatch on any
+        // parse hiccup.
+        $this->git(['tag', '-a', 'v8_0_0', '-m', 'OpenEMR 8.0.0 released 2026-01-01']);
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 cut but skipped']);
+        $client = new MockHttpClient([new MockResponse('not json at all', ['http_code' => 200])]);
+        $resolver = new BranchVersionResolver($this->tmpDir, $client);
+        self::assertSame('8.1.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    public function testPreviousReleaseFallsBackToTagsOnHttpError(): void
+    {
+        // Manifest fetch gets a non-2xx status (rate limit, GitHub Pages
+        // downtime, DNS blip). getContent() throws a ClientException /
+        // ServerException (both extend HttpClientException); resolver's
+        // try/catch on the HTTP call catches and falls back to tag-only.
+        $this->git(['tag', '-a', 'v8_0_0', '-m', 'OpenEMR 8.0.0 released 2026-01-01']);
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 cut but skipped']);
+        $client = new MockHttpClient([new MockResponse('server error', ['http_code' => 500])]);
+        $resolver = new BranchVersionResolver($this->tmpDir, $client);
+        self::assertSame('8.1.0', $resolver->previousRelease('8.2.0'));
+    }
+
+    /**
+     * @param array<string, string> $versionStatuses map of version to status
+     *   (e.g. `['8.0.0' => 'FINAL', '8.1.0' => 'DRAFT']`). Each entry gets
+     *   a plausible-shaped stub of the fields data/releases.json entries
+     *   carry - the fetchShippedVersions() reader only inspects `status`,
+     *   so the rest of the payload just needs to be structurally valid.
+     */
+    private function manifestClient(array $versionStatuses): MockHttpClient
+    {
+        $entries = [];
+        foreach ($versionStatuses as $version => $status) {
+            $entries[$version] = ['status' => $status, 'released_at' => '2026-01-01'];
+        }
+        return new MockHttpClient([new MockResponse((string) json_encode($entries))]);
     }
 
     /**

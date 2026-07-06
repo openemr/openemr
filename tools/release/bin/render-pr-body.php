@@ -24,7 +24,7 @@ use Symfony\Component\Console\SingleCommandApplication;
 
 (new SingleCommandApplication())
     ->setName('render-pr-body')
-    ->setDescription('Render the release-prep PR body for a given version')
+    ->setDescription('Render a release PR body (prep or finalize) for a given version')
     ->addArgument('version', InputArgument::REQUIRED, 'Release version (MAJOR.MINOR.PATCH)')
     ->addOption(
         'template',
@@ -40,10 +40,24 @@ use Symfony\Component\Console\SingleCommandApplication;
         'Repo path (defaults to cwd)',
         getcwd() === false ? '.' : getcwd(),
     )
+    ->addOption(
+        'rel-branch',
+        null,
+        InputOption::VALUE_REQUIRED,
+        'Rel branch identifier (e.g. rel-810). Substituted for <REL_BRANCH> in the template; required for the release-finalize template.',
+    )
+    ->addOption(
+        'prev-version',
+        null,
+        InputOption::VALUE_REQUIRED,
+        'Prior patch version (e.g. 8.1.0). Substituted for <PREV_VERSION> in the template; required for the patch-prep templates.',
+    )
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $version = $input->getArgument('version');
         $templateRel = $input->getOption('template');
         $repoDir = $input->getOption('repo-dir');
+        $relBranch = $input->getOption('rel-branch');
+        $prevVersion = $input->getOption('prev-version');
         if (
             !is_string($version) || $version === ''
             || !is_string($templateRel) || $templateRel === ''
@@ -58,7 +72,30 @@ use Symfony\Component\Console\SingleCommandApplication;
             $output->writeln('<error>cannot read template at ' . $path . '</error>');
             return 1;
         }
-        $output->write(str_replace('<VERSION>', $version, $template));
+        $rendered = str_replace('<VERSION>', $version, $template);
+        if (is_string($relBranch) && $relBranch !== '') {
+            $rendered = str_replace('<REL_BRANCH>', $relBranch, $rendered);
+        }
+        if (is_string($prevVersion) && $prevVersion !== '') {
+            $rendered = str_replace('<PREV_VERSION>', $prevVersion, $rendered);
+        }
+        // Fail fast if a required-when-given placeholder is still in the
+        // output. Silently shipping `<REL_BRANCH>` (or `<VERSION>` /
+        // `<PREV_VERSION>`) into a PR body produces broken PRs that look
+        // correct at a glance.
+        if (str_contains($rendered, '<REL_BRANCH>')) {
+            fwrite(STDERR, "render-pr-body: template contains <REL_BRANCH> placeholder but --rel-branch was not provided\n");
+            return 2;
+        }
+        if (str_contains($rendered, '<PREV_VERSION>')) {
+            fwrite(STDERR, "render-pr-body: template contains <PREV_VERSION> placeholder but --prev-version was not provided\n");
+            return 2;
+        }
+        if (str_contains($rendered, '<VERSION>')) {
+            fwrite(STDERR, "render-pr-body: template contains <VERSION> placeholder that was not substituted\n");
+            return 2;
+        }
+        $output->write($rendered);
         return 0;
     })
     ->run();
