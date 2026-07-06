@@ -15,6 +15,7 @@
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
@@ -34,7 +35,7 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
             exit;
         }
     }
-    $pid = $session->get('pid');
+    $pid = PatientSessionUtil::getPid();
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
     // only support download handler from patient portal
@@ -72,7 +73,7 @@ CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 $logit = new ApplicationTable();
 $htmlin = $_POST['content'] ?? null;
 $dispose = $_POST['handler'] ?? null;
-$cpid = $_POST['cpid'] ?: $globalsBag->get('pid');
+$cpid = $_POST['cpid'] ?: PatientSessionUtil::getPid();
 $category = $_POST['catid'] ?? 0;
 
 
