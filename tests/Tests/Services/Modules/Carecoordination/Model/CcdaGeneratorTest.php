@@ -58,6 +58,12 @@ class CcdaGeneratorTest extends TestCase
         self::assertNotFalse($inputData, 'Failed to read input fixture');
         $inputData = trim($inputData);
 
+        // Expected fixture is aligned to the current C-CDA IG (Companion Guide R3,
+        // "v3"): the Goals Section (2.16.840.1.113883.10.20.22.2.60) carries the
+        // bare-root templateId only. It is an R2.1-only section with no R1.1
+        // predecessor, so a versioned extension="2015-08-01" templateId is
+        // intentionally absent — a second templateId sharing that root violates
+        // "exactly one" (CONF:1098-29584). Do not re-add the versioned templateId.
         $expectedOutput = file_get_contents(self::FIXTURE_DIR . 'ccda-example-response1.xml');
         self::assertNotFalse($expectedOutput, 'Failed to read expected fixture');
 
@@ -100,18 +106,22 @@ class CcdaGeneratorTest extends TestCase
         $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
 
         // Root is a US Realm Clinical Document.
-        self::assertSame('ClinicalDocument', $dom->documentElement->localName, 'Root is not ClinicalDocument');
+        $root = $dom->documentElement;
+        self::assertNotNull($root, 'Document has no root element');
+        self::assertSame('ClinicalDocument', $root->localName, 'Root is not ClinicalDocument');
 
         // No empty required attributes. An empty @extension / @code / @displayName /
         // @root / @value / @nullFlavor is an HL7 datatype violation (MDHT "bad value").
-        $emptyAttrs = $xpath->query(
+        $emptyAttrs = $this->query(
+            $xpath,
             '//*[@extension=""] | //*[@code=""] | //*[@displayName=""] | //*[@root=""] | //*[@value=""] | //*[@nullFlavor=""]'
         );
         self::assertSame(0, $emptyAttrs->length, $this->describeNodes('empty attribute', $emptyAttrs));
 
         // No empty name / address ST parts (ADXP / ENXP validateST): each part
         // carries text, or the element is omitted.
-        $emptyParts = $xpath->query(
+        $emptyParts = $this->query(
+            $xpath,
             '//hl7:family[not(node())] | //hl7:given[not(node())] | //hl7:prefix[not(node())] | //hl7:suffix[not(node())]'
             . ' | //hl7:streetAddressLine[not(node())] | //hl7:city[not(node())] | //hl7:state[not(node())]'
             . ' | //hl7:postalCode[not(node())]'
@@ -119,18 +129,18 @@ class CcdaGeneratorTest extends TestCase
         self::assertSame(0, $emptyParts->length, $this->describeNodes('empty name/address part', $emptyParts));
 
         // No empty <name> that also lacks a nullFlavor.
-        $emptyNames = $xpath->query('//hl7:name[not(node()) and not(@nullFlavor)]');
+        $emptyNames = $this->query($xpath, '//hl7:name[not(node()) and not(@nullFlavor)]');
         self::assertSame(0, $emptyNames->length, $this->describeNodes('empty <name> without nullFlavor', $emptyNames));
 
         // Every assignedPerson carries a name (fielded or nullFlavor).
-        $namelessAuthors = $xpath->query('//hl7:assignedPerson[not(hl7:name)]');
+        $namelessAuthors = $this->query($xpath, '//hl7:assignedPerson[not(hl7:name)]');
         self::assertSame(0, $namelessAuthors->length, $this->describeNodes('assignedPerson without name', $namelessAuthors));
 
         // Every date value is a well-formed HL7 timestamp (YYYY..YYYYMMDDHHMMSS,
         // optional timezone). Unknown dates use nullFlavor rather than an empty,
         // "Invalid date", or fabricated value.
         $dateRegex = '/^\d{4}(\d{2}(\d{2}(\d{2}(\d{2}(\d{2})?)?)?)?)?([+-]\d{4})?$/';
-        foreach ($xpath->query('//hl7:low | //hl7:high | //hl7:center | //hl7:effectiveTime | //hl7:time') as $el) {
+        foreach ($this->query($xpath, '//hl7:low | //hl7:high | //hl7:center | //hl7:effectiveTime | //hl7:time') as $el) {
             if (!$el instanceof \DOMElement || !$el->hasAttribute('value')) {
                 continue;
             }
@@ -147,11 +157,31 @@ class CcdaGeneratorTest extends TestCase
             '30954-2' => 'Results',
         ];
         foreach ($requiredSections as $code => $label) {
-            $section = $xpath->query("//hl7:structuredBody/hl7:component/hl7:section/hl7:code[@code='" . $code . "']");
+            $section = $this->query($xpath, "//hl7:structuredBody/hl7:component/hl7:section/hl7:code[@code='" . $code . "']");
             self::assertGreaterThan(0, $section->length, "Missing required section: {$label} ({$code})");
         }
     }
 
+    /**
+     * Run an XPath query and fail the test if the expression is invalid.
+     *
+     * DOMXPath::query() returns false only for a malformed expression or a bad
+     * context node; narrowing that here keeps every call site typed as a real
+     * DOMNodeList without repeating the guard.
+     *
+     * @return \DOMNodeList<\DOMNode|\DOMNameSpaceNode>
+     */
+    private function query(DOMXPath $xpath, string $expression): \DOMNodeList
+    {
+        $nodes = $xpath->query($expression);
+        self::assertNotFalse($nodes, 'Invalid XPath expression: ' . $expression);
+
+        return $nodes;
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMNode|\DOMNameSpaceNode> $nodes
+     */
     private function describeNodes(string $what, \DOMNodeList $nodes): string
     {
         if ($nodes->length === 0) {
@@ -161,8 +191,11 @@ class CcdaGeneratorTest extends TestCase
         $limit = min(5, $nodes->length);
         for ($i = 0; $i < $limit; $i++) {
             $node = $nodes->item($i);
-            if ($node !== null) {
-                $samples[] = trim((string)$node->ownerDocument->saveXML($node));
+            if ($node instanceof \DOMNode) {
+                $owner = $node->ownerDocument;
+                if ($owner !== null) {
+                    $samples[] = trim((string)$owner->saveXML($node));
+                }
             }
         }
         return "Found {$nodes->length} {$what}(s), e.g.:\n" . implode("\n", $samples);
