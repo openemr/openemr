@@ -30,13 +30,11 @@ $cuidados_report = function (int $pid, int $encounter, int $cols, int $id): void
         'medicion_cuff'        => xlt('Cuff Pressure Measurement'),
     ];
     $hora_raw = $row['hora_cuidado'] ?? '';
-    $hora = ($hora_raw !== '')
-        ? date('H:i', strtotime((string) $hora_raw))
-        : xlt('Not specified');
+    $ts_hora = $hora_raw !== '' ? strtotime((string) $hora_raw) : false;
+    $hora = $ts_hora !== false ? date('H:i', $ts_hora) : xlt('Not specified');
     $date_raw = $row['date'] ?? '';
-    $fecha = ($date_raw !== '')
-        ? date('d/m/Y H:i', strtotime((string) $date_raw))
-        : '-';
+    $ts_fecha = $date_raw !== '' ? strtotime((string) $date_raw) : false;
+    $fecha = $ts_fecha !== false ? date('d/m/Y H:i', $ts_fecha) : '-';
     $total_activos = 0;
     foreach (array_keys($bool_items) as $campo) {
         if ((int)($row[$campo] ?? 0) === 1) {
@@ -231,7 +229,7 @@ $cuidados_report = function (int $pid, int $encounter, int $cols, int $id): void
             <span><strong><?php echo xlt('Recorded'); ?>:</strong> <?php echo text($fecha); ?></span>
             <?php if (isset($row['user']) && $row['user'] !== '') :
                 ?>
-            <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text($row['user']); ?></span>
+            <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text((string)($row['user'] ?? '')); ?></span>
                 <?php
             endif; ?>
         </div>
@@ -239,10 +237,10 @@ $cuidados_report = function (int $pid, int $encounter, int $cols, int $id): void
         <!-- PATIENT POSITION -->
         <div class="posicion-bar">
             <?php echo xlt('Patient Position'); ?>:
-            <strong><?php echo ($row['posicion_paciente'] ?? '') !== '' ? text($row['posicion_paciente']) : xlt('Not specified'); ?></strong>
-            <?php if (($row['obs_posicion_paciente'] ?? '') !== '') :
+            <strong><?php echo (string)($row['posicion_paciente'] ?? '') !== '' ? text((string)($row['posicion_paciente'] ?? '')) : xlt('Not specified'); ?></strong>
+            <?php if ((string)($row['obs_posicion_paciente'] ?? '') !== '') :
                 ?>
-            &mdash; <span style="color:#555;font-size:11px;"><?php echo text($row['obs_posicion_paciente']); ?></span>
+            &mdash; <span style="color:#555;font-size:11px;"><?php echo text((string)($row['obs_posicion_paciente'] ?? '')); ?></span>
                 <?php
             endif; ?>
         </div>
@@ -259,7 +257,7 @@ $cuidados_report = function (int $pid, int $encounter, int $cols, int $id): void
             <tbody>
             <?php foreach ($bool_items as $campo => $label) :
                 $valor  = (int)($row[$campo] ?? 0);
-                $obs    = trim($row['obs_' . $campo] ?? '');
+                $obs    = trim((string)($row['obs_' . $campo] ?? ''));
                 $rowCls = $valor ? 'row-si' : 'row-no';
                 $tdCls  = $valor ? 'td-nombre activo' : 'td-nombre';
                 ?>

@@ -19,10 +19,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') !== 'POST') {
     die(xlt("Method not allowed"));
 }
 
@@ -41,7 +42,7 @@ if (!$pid || !$encounter) {
 
 $user       = (string) ($session->get('authUser')       ?? 'admin');
 $groupname  = (string) ($session->get('authProvider')   ?? 'Default');
-$authorized = (int)    ($session->get('userauthorized') ?? 1);
+$authorized = intval($session->get('userauthorized') ?? 1);
 // Sanitize input fields
 $medicamentos      = (int)    filter_input(INPUT_POST, 'medicamentos', FILTER_SANITIZE_NUMBER_INT);
 $obs_medicamentos  = (string) filter_input(INPUT_POST, 'obs_medicamentos');
@@ -63,7 +64,7 @@ if ($is_edit) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
 
-    $upd = sqlStatement("UPDATE form_aplicaciones SET
+    QueryUtils::sqlStatementThrowException("UPDATE form_aplicaciones SET
             date = NOW(), user = ?, groupname = ?, authorized = ?,
             medicamentos = ?, obs_medicamentos = ?,
             sueros = ?, obs_sueros = ?,
@@ -81,11 +82,8 @@ if ($is_edit) {
             $hora_registro,
             $id, $pid, $encounter,
         ]);
-    if ($upd === false) {
-        die(xlt("Error: Could not update the record. Please try again."));
-    }
 } else {
-    $newid = sqlInsert("INSERT INTO form_aplicaciones (
+    $newid = QueryUtils::sqlInsert("INSERT INTO form_aplicaciones (
             date, pid, encounter, user, groupname, authorized, activity,
             medicamentos, obs_medicamentos,
             sueros, obs_sueros,
@@ -110,7 +108,7 @@ if ($is_edit) {
         die(xlt("Error: Could not save the record. Please try again."));
     }
 
-    addForm($encounter, 'Nursing Applications', $newid, 'aplicaciones', $pid, $authorized);
+    (new FormService())->addForm($encounter, 'Nursing Applications', (int)$newid, 'aplicaciones', $pid, $authorized);
 }
 
 formHeader(xlt("Redirecting..."));

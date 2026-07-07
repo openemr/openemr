@@ -20,10 +20,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') !== 'POST') {
     die(xlt("Method not allowed"));
 }
 
@@ -42,7 +43,7 @@ if (!$pid || !$encounter) {
 
 $user       = (string) ($session->get('authUser')       ?? 'admin');
 $groupname  = (string) ($session->get('authProvider')   ?? 'Default');
-$authorized = (int)    ($session->get('userauthorized') ?? 1);
+$authorized = intval($session->get('userauthorized') ?? 1);
 
 $conciencia         = (string) filter_input(INPUT_POST, 'conciencia');
 $obs_conciencia     = (string) filter_input(INPUT_POST, 'obs_conciencia');
@@ -77,7 +78,7 @@ if ($is_edit) {
     if (!$check) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
-    sqlStatement(
+    QueryUtils::sqlStatementThrowException(
         "UPDATE form_evaluaciones SET
             date = NOW(), user = ?, groupname = ?, authorized = ?,
             conciencia = ?, obs_conciencia = ?,
@@ -103,7 +104,7 @@ if ($is_edit) {
         ]
     );
 } else {
-    $newid = sqlInsert(
+    $newid = QueryUtils::sqlInsert(
         "INSERT INTO form_evaluaciones (
             date, pid, encounter, user, groupname, authorized, activity,
             conciencia, obs_conciencia, tono, obs_tono,
@@ -127,7 +128,7 @@ if ($is_edit) {
             $glasgow_total, $hora_evaluacion,
         ]
     );
-    addForm($encounter, 'Nursing Evaluations', $newid, 'evaluaciones', $pid, $authorized);
+    (new FormService())->addForm($encounter, 'Nursing Evaluations', (int)$newid, 'evaluaciones', $pid, $authorized);
 }
 
 formHeader(xlt("Redirecting..."));

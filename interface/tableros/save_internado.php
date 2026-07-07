@@ -15,6 +15,7 @@ require_once(__DIR__ . "/../globals.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Services\FormService;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -43,13 +44,14 @@ $date_raw     = (string) filter_input(INPUT_POST, 'form_date');
 $date         = $date_raw !== '' ? $date_raw : date('Y-m-d');
 
 // Sanitize date
-$date = date('Y-m-d', strtotime($date));
+$ts_date = strtotime($date);
+$date = $ts_date !== false ? date('Y-m-d', $ts_date) : date('Y-m-d');
 
 // Resolve Inpatient category id
 $catRow = QueryUtils::querySingleRow(
     "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_catname = 'Inpatient' LIMIT 1"
 );
-$inpatient_catid = $catRow ? (int) $catRow['pc_catid'] : 0;
+$inpatient_catid = $catRow ? (int)(string)($catRow['pc_catid'] ?? '0') : 0;
 
 if ($mode === 'new') {
     if ($pid <= 0 || $inpatient_catid === 0) {
@@ -68,7 +70,7 @@ if ($mode === 'new') {
     $user        = (string) ($session->get('authUser')   ?? '');
     $group       = (string) ($session->get('authProvider') ?? '');
 
-    $fe_id = sqlInsert(
+    $fe_id = QueryUtils::sqlInsert(
         "INSERT INTO form_encounter
             (pid, encounter, uuid, date, facility, facility_id, pc_catid, provider_id, billing_facility,
              nro_registro, departamento, servicio, cuarto, cama)
@@ -78,7 +80,7 @@ if ($mode === 'new') {
          $nro_registro, $departamento, $servicio, $cuarto, $cama]
     );
 
-    addForm($encounter, "New Patient Encounter", $fe_id, "newpatient", $pid, $provider_id, $date, $user, $group);
+    (new FormService())->addForm($encounter, "New Patient Encounter", (int)$fe_id, "newpatient", $pid, $provider_id);
 
     header("Location: lista_internados.php?update=1");
     exit;
@@ -94,7 +96,7 @@ if ($mode === 'edit') {
         die(xlt('Encounter not found'));
     }
 
-    sqlStatement(
+    QueryUtils::sqlStatementThrowException(
         "UPDATE form_encounter
          SET nro_registro = ?, departamento = ?, servicio = ?, cuarto = ?, cama = ?
          WHERE id = ?",

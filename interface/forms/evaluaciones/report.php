@@ -45,10 +45,11 @@ $evaluaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
     }
 
     $hora_raw = $result['hora_evaluacion'] ?? '';
-    $hora  = text($hora_raw !== '' ? $hora_raw : '-');
+    $hora  = text((string)($hora_raw !== '' ? $hora_raw : '-'));
     $date_raw = $result['date'] ?? '';
-    $fecha = text($date_raw !== '' ? date('d/m/Y H:i', strtotime((string) $date_raw)) : '-');
-    $user  = text($result['user'] ?? '-');
+    $ts_fecha = $date_raw !== '' ? strtotime((string) $date_raw) : false;
+    $fecha = text($ts_fecha !== false ? date('d/m/Y H:i', $ts_fecha) : '-');
+    $user  = text((string)($result['user'] ?? '-'));
     ?>
 
     <style>
@@ -212,8 +213,8 @@ $evaluaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
                 'mucosas'    => ['label' => xlt('Mucous Membranes'), 'obs' => 'obs_mucosas'],
             ];
             foreach ($basic as $field => $meta) :
-                $val = trim($result[$field] ?? '');
-                $obs = trim($result[$meta['obs']] ?? '');
+                $val = trim((string)($result[$field] ?? ''));
+                $obs = trim((string)($result[$meta['obs']] ?? ''));
                 ?>
                 <tr>
                     <td class="td-item"><?php echo text($meta['label']); ?></td>
@@ -250,8 +251,8 @@ $evaluaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
                 'glasgow_verbal' => ['label' => xlt('Verbal Response'), 'obs' => 'obs_glasgow_verbal'],
             ];
             foreach ($glasgow_fields as $field => $meta) :
-                $val = trim($result[$field] ?? '');
-                $obs = trim($result[$meta['obs']] ?? '');
+                $val = trim((string)($result[$field] ?? ''));
+                $obs = trim((string)($result[$meta['obs']] ?? ''));
                 ?>
                 <tr>
                     <td class="td-item td-sub"><?php echo text($meta['label']); ?></td>

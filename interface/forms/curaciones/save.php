@@ -19,10 +19,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') !== 'POST') {
     die(xlt("Method not allowed"));
 }
 
@@ -41,7 +42,7 @@ if (!$pid || !$encounter) {
 
 $user       = (string) ($session->get('authUser')       ?? 'admin');
 $groupname  = (string) ($session->get('authProvider')   ?? 'Default');
-$authorized = (int)    ($session->get('userauthorized') ?? 1);
+$authorized = intval($session->get('userauthorized') ?? 1);
 // Sanitize input fields
 $herida_operatoria      = (int)    filter_input(INPUT_POST, 'herida_operatoria', FILTER_SANITIZE_NUMBER_INT);
 $obs_herida_operatoria  = (string) filter_input(INPUT_POST, 'obs_herida_operatoria');
@@ -65,7 +66,7 @@ if ($is_edit) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
 
-    $upd = sqlStatement("UPDATE form_curaciones SET
+    QueryUtils::sqlStatementThrowException("UPDATE form_curaciones SET
             date = NOW(), user = ?, groupname = ?, authorized = ?,
             herida_operatoria = ?, obs_herida_operatoria = ?,
             traqueostomia = ?, obs_traqueostomia = ?,
@@ -85,11 +86,8 @@ if ($is_edit) {
             $hora_operacion,
             $id, $pid, $encounter,
         ]);
-    if ($upd === false) {
-        die(xlt("Error: Could not update the record. Please try again."));
-    }
 } else {
-    $newid = sqlInsert("INSERT INTO form_curaciones (
+    $newid = QueryUtils::sqlInsert("INSERT INTO form_curaciones (
             date, pid, encounter, user, groupname, authorized, activity,
             herida_operatoria, obs_herida_operatoria,
             traqueostomia, obs_traqueostomia,
@@ -116,7 +114,7 @@ if ($is_edit) {
         die(xlt("Error: Could not save the record. Please try again."));
     }
 
-    addForm($encounter, 'Nursing Wound Care', $newid, 'curaciones', $pid, $authorized);
+    (new FormService())->addForm($encounter, 'Nursing Wound Care', (int)$newid, 'curaciones', $pid, $authorized);
 }
 
 formHeader(xlt("Redirecting..."));

@@ -33,16 +33,16 @@ if (!$pid || !$encounter) {
 $paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", [$pid]);
 // Calculate age
 $age = '';
-$dob_val = ($paciente ?? [])['DOB'] ?? '';
+$dob_val = $paciente !== null ? (string)($paciente['DOB'] ?? '') : '';
 if ($dob_val !== '') {
     $dob = new DateTime($dob_val);
     $age  = (new DateTime())->diff($dob)->y . ' ' . xlt('years');
 }
 
 if ($id > 0) {
-    $result = sqlStatement("SELECT * FROM form_cuidados WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
+    $rows = QueryUtils::fetchRecords("SELECT * FROM form_cuidados WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
 } else {
-    $result = sqlStatement("SELECT * FROM form_cuidados WHERE pid = ? AND encounter = ? ORDER BY date DESC", [$pid, $encounter]);
+    $rows = QueryUtils::fetchRecords("SELECT * FROM form_cuidados WHERE pid = ? AND encounter = ? ORDER BY date DESC", [$pid, $encounter]);
 }
 ?>
 
@@ -107,11 +107,11 @@ if ($id > 0) {
         <div class="info-row">
             <div class="info-item">
                 <strong><?php echo xlt('Patient'); ?>:</strong>
-                <span><?php echo text(($paciente ?? [])['full_name'] ?? xlt('Not available')); ?></span>
+                <span><?php echo text($paciente !== null ? (string)($paciente['full_name'] ?? xlt('Not available')) : xlt('Not available')); ?></span>
             </div>
             <div class="info-item">
                 <strong><?php echo xlt('ID'); ?>:</strong>
-                <span><?php echo text(($paciente ?? [])['pubpid'] ?? xlt('Not available')); ?></span>
+                <span><?php echo text($paciente !== null ? (string)($paciente['pubpid'] ?? xlt('Not available')) : xlt('Not available')); ?></span>
             </div>
             <?php if ($age !== '') :
                 ?>
@@ -125,7 +125,7 @@ if ($id > 0) {
     </div>
 
     <?php
-    if (sqlNumRows($result) == 0) {
+    if (empty($rows)) {
         echo "<div class='no-registros'><h3>" . xlt('No care bundle records found') . "</h3></div>";
     }
 
@@ -137,14 +137,15 @@ if ($id > 0) {
         'medicion_cuff'        => xlt('Cuff Pressure Measurement'),
     ];
 
-    while ($row = sqlFetchArray($result)) :
+    foreach ($rows as $row) :
         ?>
 
     <div class="registro-card">
         <div class="registro-header">
             <div class="registro-fecha">
-                <span class="fecha-principal"><?php echo text(date('d/m/Y', strtotime((string)($row['date'] ?? '')))); ?></span>
-                <span class="hora-principal"><?php echo text(date('H:i', strtotime((string)($row['date'] ?? '')))); ?></span>
+                <?php $ts_date = strtotime((string)($row['date'] ?? '')); ?>
+                <span class="fecha-principal"><?php echo text(date('d/m/Y', $ts_date !== false ? $ts_date : time())); ?></span>
+                <span class="hora-principal"><?php echo text(date('H:i', $ts_date !== false ? $ts_date : time())); ?></span>
             </div>
             <div class="registro-acciones">
                 <a href="<?php echo attr(OEGlobalsBag::getInstance()->getString('webroot') . '/interface/forms/cuidados/new.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . (int)($row['id'] ?? 0)); ?>"
@@ -174,10 +175,10 @@ if ($id > 0) {
         <!-- Patient position -->
         <div class="posicion-block">
             <div class="posicion-label"><?php echo xlt('Patient Position'); ?></div>
-            <div class="posicion-valor"><?php echo ($row['posicion_paciente'] ?? '') !== '' ? text($row['posicion_paciente']) : xlt('Not specified'); ?></div>
-            <?php if (($row['obs_posicion_paciente'] ?? '') !== '') :
+            <div class="posicion-valor"><?php echo (string)($row['posicion_paciente'] ?? '') !== '' ? text((string)($row['posicion_paciente'] ?? '')) : xlt('Not specified'); ?></div>
+            <?php if ((string)($row['obs_posicion_paciente'] ?? '') !== '') :
                 ?>
-            <div style="margin-top:8px;font-size:13px;color:#495057;"><?php echo nl2br(text($row['obs_posicion_paciente'])); ?></div>
+            <div style="margin-top:8px;font-size:13px;color:#495057;"><?php echo nl2br(text((string)($row['obs_posicion_paciente'] ?? ''))); ?></div>
                 <?php
             endif; ?>
         </div>
@@ -205,7 +206,7 @@ if ($id > 0) {
     </div>
 
         <?php
-    endwhile; ?>
+    endforeach; ?>
 
     <div class="form-group mt-3">
         <button type="button" onclick="history.back()" class="btn btn-outline-secondary">

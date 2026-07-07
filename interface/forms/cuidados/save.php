@@ -19,10 +19,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') !== 'POST') {
     die(xlt("Method not allowed"));
 }
 
@@ -41,7 +42,7 @@ if (!$pid || !$encounter) {
 
 $user       = (string) ($session->get('authUser')       ?? 'admin');
 $groupname  = (string) ($session->get('authProvider')   ?? 'Default');
-$authorized = (int)    ($session->get('userauthorized') ?? 1);
+$authorized = intval($session->get('userauthorized') ?? 1);
 // Allowed patient position values
 $allowed_positions = ['DLI', 'DLD', 'DS', 'DV', 'CABECERA 30°', ''];
 $posicion_raw             = (string) filter_input(INPUT_POST, 'posicion_paciente');
@@ -67,7 +68,7 @@ if ($is_edit) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
 
-    $upd = sqlStatement("UPDATE form_cuidados SET
+    QueryUtils::sqlStatementThrowException("UPDATE form_cuidados SET
             date = NOW(), user = ?, groupname = ?, authorized = ?,
             posicion_paciente = ?, obs_posicion_paciente = ?,
             enjuague_bucal = ?, obs_enjuague_bucal = ?,
@@ -87,11 +88,8 @@ if ($is_edit) {
             $hora_cuidado,
             $id, $pid, $encounter,
         ]);
-    if ($upd === false) {
-        die(xlt("Error: Could not update the record. Please try again."));
-    }
 } else {
-    $newid = sqlInsert("INSERT INTO form_cuidados (
+    $newid = QueryUtils::sqlInsert("INSERT INTO form_cuidados (
             date, pid, encounter, user, groupname, authorized, activity,
             posicion_paciente, obs_posicion_paciente,
             enjuague_bucal, obs_enjuague_bucal,
@@ -118,7 +116,7 @@ if ($is_edit) {
         die(xlt("Error: Could not save the record. Please try again."));
     }
 
-    addForm($encounter, 'Nursing Care Bundle', $newid, 'cuidados', $pid, $authorized);
+    (new FormService())->addForm($encounter, 'Nursing Care Bundle', (int)$newid, 'cuidados', $pid, $authorized);
 }
 
 formHeader(xlt("Redirecting..."));

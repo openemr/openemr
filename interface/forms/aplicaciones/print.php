@@ -37,14 +37,15 @@ if (!$row) {
 $paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", [$pid]);
 // Calculate age
 $age = '';
-$dob_val = ($paciente ?? [])['DOB'] ?? '';
+$dob_val = $paciente !== null ? (string)($paciente['DOB'] ?? '') : '';
 if ($dob_val !== '') {
     $dob = new DateTime($dob_val);
     $age = (new DateTime())->diff($dob)->y . ' ' . xlt('years');
 }
 
 $date_raw = $row['date'] ?? '';
-$eval_date = ($date_raw !== '')         ? date('d/m/Y', strtotime((string) $date_raw)) : '-';
+$ts_eval = $date_raw !== '' ? strtotime((string) $date_raw) : false;
+$eval_date = $ts_eval !== false ? date('d/m/Y', $ts_eval) : '-';
 $hora_raw  = $row['hora_registro'] ?? '';
 $eval_time = ($hora_raw !== '') ? $hora_raw                 : '-';
 
@@ -125,11 +126,11 @@ ob_start();
             <tr>
                 <td style="width:38%; padding:3px 8px 3px 0;">
                     <div style="font-size:7px; color:#888; margin-bottom:2px;"><?php echo xlt('Patient'); ?></div>
-                    <div style="font-weight:bold; font-size:11px;"><?php echo text(($paciente ?? [])['full_name'] ?? '-'); ?></div>
+                    <div style="font-weight:bold; font-size:11px;"><?php echo text($paciente !== null ? (string)($paciente['full_name'] ?? '-') : '-'); ?></div>
                 </td>
                 <td style="width:18%; padding:3px 8px;">
                     <div style="font-size:7px; color:#888; margin-bottom:2px;"><?php echo xlt('ID'); ?></div>
-                    <div style="font-weight:bold; font-size:11px;"><?php echo text(($paciente ?? [])['pubpid'] ?? '-'); ?></div>
+                    <div style="font-weight:bold; font-size:11px;"><?php echo text($paciente !== null ? (string)($paciente['pubpid'] ?? '-') : '-'); ?></div>
                 </td>
                 <?php if ($age !== '') :
                     ?>
@@ -141,7 +142,7 @@ ob_start();
                 endif; ?>
                 <td style="padding:3px 0 3px 8px;">
                     <div style="font-size:7px; color:#888; margin-bottom:2px;"><?php echo xlt('User'); ?></div>
-                    <div style="font-weight:bold; font-size:11px;"><?php echo text($row['user'] ?? '-'); ?></div>
+                    <div style="font-weight:bold; font-size:11px;"><?php echo text((string)($row['user'] ?? '-')); ?></div>
                 </td>
             </tr>
         </table>
@@ -159,7 +160,7 @@ ob_start();
         xlt('Blood and Blood Products') => ['val' => (int)($row['sangre']        ?? 0), 'obs' => $row['obs_sangre']          ?? ''],
     ];
     foreach ($fields as $label => $data) {
-        echo $appRow($label, $data['val'], $data['obs']);
+        echo $appRow($label, (int)($data['val'] ?? 0), (string)($data['obs'] ?? ''));
     }
     ?>
     </tbody></table>
@@ -200,8 +201,8 @@ $mpdf = new Mpdf([
     'default_font_size' => 10,
     'tempDir'           => sys_get_temp_dir(),
 ]);
-$mpdf->SetTitle(xlt('Nursing Applications') . ' - ' . (($paciente ?? [])['full_name'] ?? ''));
+$mpdf->SetTitle(xlt('Nursing Applications') . ' - ' . ($paciente !== null ? (string)($paciente['full_name'] ?? '') : ''));
 $mpdf->WriteHTML((string)$html);
-$filename = 'Aplicaciones_' . preg_replace('/\s+/', '_', ($paciente ?? [])['full_name'] ?? 'paciente') . '_' . date('Ymd_His') . '.pdf';
+$filename = 'Aplicaciones_' . preg_replace('/\s+/', '_', $paciente !== null ? (string)($paciente['full_name'] ?? 'paciente') : 'paciente') . '_' . date('Ymd_His') . '.pdf';
 $mpdf->Output($filename, 'D');
 exit;

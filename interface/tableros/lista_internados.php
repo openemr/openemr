@@ -33,14 +33,15 @@ $update_raw       = filter_input(INPUT_GET, 'update', FILTER_SANITIZE_NUMBER_INT
 $update           = ($update_raw !== null && $update_raw !== '') ? (int)$update_raw : null;
 
 if ($death_date) {
-    $death_date_safe = date('Y-m-d', strtotime($death_date));
-    sqlStatement(
+    $ts_death = strtotime((string)$death_date);
+    $death_date_safe = $ts_death !== false ? date('Y-m-d', $ts_death) : date('Y-m-d');
+    QueryUtils::sqlStatementThrowException(
         "UPDATE form_encounter SET date_end = ?, death_date = ? WHERE id = ?",
         [$death_date_safe, $death_date_safe, $id_encounter]
     );
     $id_encounter = null;
 } elseif ($id_encounter) {
-    sqlStatement(
+    QueryUtils::sqlStatementThrowException(
         "UPDATE form_encounter SET date_end = DATE(NOW()) WHERE id = ?",
         [$id_encounter]
     );
@@ -52,19 +53,15 @@ $catRow = QueryUtils::querySingleRow(
     "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_catname = ? LIMIT 1",
     [NURSING_INPATIENT_CATEGORY]
 );
-$inpatient_catid = $catRow ? (int) $catRow['pc_catid'] : 0;
+$inpatient_catid = $catRow ? (int)(string)($catRow['pc_catid'] ?? '0') : 0;
 
-$res = sqlStatement(
+$inpatient = QueryUtils::fetchRecords(
     "SELECT f.*, CONCAT(p.fname, ' ', p.lname) AS paciente, p.pubpid AS pubpid
      FROM form_encounter AS f
      JOIN patient_data AS p ON p.pid = f.pid
      WHERE f.pc_catid = ? AND f.date_end IS NULL",
     [$inpatient_catid]
 );
-$inpatient = [];
-for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-    $inpatient[$iter] = $row;
-}
 
 // Nursing form definitions: form folder => display label
 $nursing_forms = [
@@ -232,7 +229,7 @@ $nursing_forms = [
                     <?php if ($id_encounter !== null) : ?>
                     <div class="alert alert-success alert-dismissible show" role="alert">
                         <?php echo xlt('Patient discharged successfully'); ?>:
-                        <strong><?php echo text($nombre_paciente); ?></strong>
+                        <strong><?php echo text((string)($nombre_paciente ?? '')); ?></strong>
                         <button type="button" class="close" data-dismiss="alert" aria-label="<?php echo xla('Close'); ?>">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -271,47 +268,48 @@ $nursing_forms = [
                             <?php foreach ($inpatient as $result) : ?>
                             <tr>
                                 <td class="btn-pacienteData btn-link"
-                                    data-pid="<?php echo attr($result['pid']); ?>"
-                                    data-encounter="<?php echo attr($result['encounter']); ?>">
-                                    <?php echo text($result['pid']); ?>
+                                    data-pid="<?php echo attr((string)($result['pid'] ?? '')); ?>"
+                                    data-encounter="<?php echo attr((string)($result['encounter'] ?? '')); ?>">
+                                    <?php echo text((string)($result['pid'] ?? '')); ?>
                                 </td>
-                                <td><?php echo text($result['paciente']); ?></td>
-                                <td><?php echo text(date('d/m/Y', strtotime((string) $result['date']))); ?></td>
-                                <td><?php echo text($result['pubpid']); ?></td>
-                                <td><?php echo text($result['nro_registro']); ?></td>
-                                <td><?php echo text(strtoupper((string) $result['servicio'])); ?></td>
-                                <td><?php echo text(strtoupper((string) $result['cuarto'])); ?></td>
-                                <td><?php echo text($result['cama']); ?></td>
+                                <td><?php echo text((string)($result['paciente'] ?? '')); ?></td>
+                                <?php $ts_date = strtotime((string)($result['date'] ?? '')); ?>
+                                <td><?php echo text(date('d/m/Y', $ts_date !== false ? $ts_date : time())); ?></td>
+                                <td><?php echo text((string)($result['pubpid'] ?? '')); ?></td>
+                                <td><?php echo text((string)($result['nro_registro'] ?? '')); ?></td>
+                                <td><?php echo text(strtoupper((string)($result['servicio'] ?? ''))); ?></td>
+                                <td><?php echo text(strtoupper((string)($result['cuarto'] ?? ''))); ?></td>
+                                <td><?php echo text((string)($result['cama'] ?? '')); ?></td>
                                 <td>
                                     <div class="outer">
                                         <div class="inner">
                                             <button class="btn btn-info btn-sm btn-editar" type="button"
-                                                data-id="<?php echo attr($result['id']); ?>">
+                                                data-id="<?php echo attr((string)($result['id'] ?? '')); ?>">
                                                 <i class="fa fa-pencil-alt mr-1"></i><?php echo xlt('Edit'); ?>
                                             </button>
                                         </div>
                                         <div class="inner">
                                             <button class="btn btn-outline-secondary btn-sm btn-alta" type="button"
-                                                id="<?php echo attr($result['id']); ?>"
-                                                data-title="<?php echo attr(xlt('Discharge patient') . ': ' . $result['paciente']); ?>"
-                                                data-paciente="<?php echo attr($result['paciente']); ?>">
+                                                id="<?php echo attr((string)($result['id'] ?? '')); ?>"
+                                                data-title="<?php echo attr(xlt('Discharge patient') . ': ' . (string)($result['paciente'] ?? '')); ?>"
+                                                data-paciente="<?php echo attr((string)($result['paciente'] ?? '')); ?>">
                                                 <i class="fa fa-sign-out-alt mr-1"></i><?php echo xlt('Discharge'); ?>
                                             </button>
                                         </div>
                                         <div class="inner">
                                             <button class="btn btn-danger btn-sm btn-death" type="button"
-                                                data-id="<?php echo attr($result['id']); ?>"
-                                                data-title="<?php echo attr(xlt('Register patient death') . ': ' . $result['paciente']); ?>"
-                                                data-paciente="<?php echo attr($result['paciente']); ?>">
+                                                data-id="<?php echo attr((string)($result['id'] ?? '')); ?>"
+                                                data-title="<?php echo attr(xlt('Register patient death') . ': ' . (string)($result['paciente'] ?? '')); ?>"
+                                                data-paciente="<?php echo attr((string)($result['paciente'] ?? '')); ?>">
                                                 <i class="fa fa-times-circle mr-1"></i><?php echo xlt('Deceased'); ?>
                                             </button>
                                         </div>
                                         <div class="inner">
                                             <button class="btn btn-primary btn-sm btn-Enferm" type="button"
-                                                data-id="<?php echo attr($result['id']); ?>"
-                                                data-paciente="<?php echo attr($result['paciente']); ?>"
-                                                data-pid="<?php echo attr($result['pid']); ?>"
-                                                data-encounter="<?php echo attr($result['encounter']); ?>">
+                                                data-id="<?php echo attr((string)($result['id'] ?? '')); ?>"
+                                                data-paciente="<?php echo attr((string)($result['paciente'] ?? '')); ?>"
+                                                data-pid="<?php echo attr((string)($result['pid'] ?? '')); ?>"
+                                                data-encounter="<?php echo attr((string)($result['encounter'] ?? '')); ?>">
                                                 <i class="fa fa-user-nurse mr-1"></i><?php echo xlt('Nursing'); ?>
                                             </button>
                                         </div>

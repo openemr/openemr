@@ -104,7 +104,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="page-header clearfix">
                 <h2>
                     <?php echo $viewmode ? xlt('Edit Admission') : xlt('New Admission'); ?>
-                    — <?php echo text(($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '')); ?>
+                    — <?php echo text(($patient !== null ? (string)($patient['fname'] ?? '') : '') . ' ' . ($patient !== null ? (string)($patient['lname'] ?? '') : '')); ?>
                 </h2>
             </div>
         </div>
@@ -137,7 +137,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <label class="col-sm-3 col-form-label"><?php echo xlt('Reg. No.'); ?></label>
                         <div class="col-sm-4">
                             <input type="text" name="nro_registro" class="form-control"
-                                   value="<?php echo attr(($encounter_row ?? [])['nro_registro'] ?? ''); ?>">
+                                   value="<?php echo attr($encounter_row !== null ? (string)($encounter_row['nro_registro'] ?? '') : ''); ?>">
                         </div>
                     </div>
 
@@ -147,7 +147,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="departamento" class="form-control">
                                 <?php foreach ($departamentos as $val => $label): ?>
                                 <option value="<?php echo attr($val); ?>"
-                                    <?php echo ((($encounter_row ?? [])['departamento'] ?? '') === $val) ? 'selected' : ''; ?>>
+                                    <?php echo (($encounter_row !== null ? (string)($encounter_row['departamento'] ?? '') : '') === $val) ? 'selected' : ''; ?>>
                                     <?php echo text($label); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -161,7 +161,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="servicio" class="form-control">
                                 <?php foreach ($servicios as $val => $label): ?>
                                 <option value="<?php echo attr($val); ?>"
-                                    <?php echo ((($encounter_row ?? [])['servicio'] ?? '') === $val) ? 'selected' : ''; ?>>
+                                    <?php echo (($encounter_row !== null ? (string)($encounter_row['servicio'] ?? '') : '') === $val) ? 'selected' : ''; ?>>
                                     <?php echo text($label); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -175,7 +175,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="cuarto" class="form-control">
                                 <?php foreach ($cuartos as $val => $label): ?>
                                 <option value="<?php echo attr($val); ?>"
-                                    <?php echo ((($encounter_row ?? [])['cuarto'] ?? '') === $val) ? 'selected' : ''; ?>>
+                                    <?php echo (($encounter_row !== null ? (string)($encounter_row['cuarto'] ?? '') : '') === $val) ? 'selected' : ''; ?>>
                                     <?php echo text($label); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -189,7 +189,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="cama" class="form-control">
                                 <?php for ($i = 1; $i <= 10; $i++): ?>
                                 <option value="<?php echo attr((string)$i); ?>"
-                                    <?php echo ((($encounter_row ?? [])['cama'] ?? '') == $i) ? 'selected' : ''; ?>>
+                                    <?php echo (($encounter_row !== null ? (string)($encounter_row['cama'] ?? '') : '') == $i) ? 'selected' : ''; ?>>
                                     <?php echo xlt('Bed') . ' ' . text((string)$i); ?>
                                 </option>
                                 <?php endfor; ?>

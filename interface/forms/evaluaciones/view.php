@@ -32,16 +32,16 @@ if (!$pid || !$encounter) {
 
 $paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", [$pid]);
 $age = '';
-$dob_val = ($paciente ?? [])['DOB'] ?? '';
+$dob_val = $paciente !== null ? (string)($paciente['DOB'] ?? '') : '';
 if ($dob_val !== '') {
     $dob = new DateTime($dob_val);
     $age = (new DateTime())->diff($dob)->y . ' ' . xlt('years');
 }
 
 if ($id > 0) {
-    $result = sqlStatement("SELECT * FROM form_evaluaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
+    $rows = QueryUtils::fetchRecords("SELECT * FROM form_evaluaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
 } else {
-    $result = sqlStatement("SELECT * FROM form_evaluaciones WHERE pid = ? AND encounter = ? ORDER BY date DESC", [$pid, $encounter]);
+    $rows = QueryUtils::fetchRecords("SELECT * FROM form_evaluaciones WHERE pid = ? AND encounter = ? ORDER BY date DESC", [$pid, $encounter]);
 }
 ?>
 <!DOCTYPE html>
@@ -68,8 +68,8 @@ if ($id > 0) {
     <div class="card mb-3">
         <div class="card-body py-2">
             <div class="row">
-                <div class="col-sm-4"><strong><?php echo xlt('Patient'); ?>:</strong> <?php echo text(($paciente ?? [])['full_name'] ?? ''); ?></div>
-                <div class="col-sm-3"><strong><?php echo xlt('ID'); ?>:</strong> <?php echo text(($paciente ?? [])['pubpid'] ?? ''); ?></div>
+                <div class="col-sm-4"><strong><?php echo xlt('Patient'); ?>:</strong> <?php echo text($paciente !== null ? (string)($paciente['full_name'] ?? '') : ''); ?></div>
+                <div class="col-sm-3"><strong><?php echo xlt('ID'); ?>:</strong> <?php echo text($paciente !== null ? (string)($paciente['pubpid'] ?? '') : ''); ?></div>
                 <?php if ($age !== '') : ?>
                 <div class="col-sm-3"><strong><?php echo xlt('Age'); ?>:</strong> <?php echo text($age); ?></div>
                 <?php endif; ?>
@@ -77,11 +77,11 @@ if ($id > 0) {
         </div>
     </div>
 
-    <?php if (sqlNumRows($result) == 0) : ?>
+    <?php if (empty($rows)) : ?>
     <div class="alert alert-info"><?php echo xlt('No evaluations recorded'); ?></div>
     <?php endif; ?>
 
-    <?php while ($row = sqlFetchArray($result)) :
+    <?php foreach ($rows as $row) :
         $glasgow = (int)($row['glasgow_total'] ?? 0);
         if ($glasgow >= 13) {
             $g_class = 'success'; $g_level = xlt('Mild');
@@ -94,7 +94,8 @@ if ($id > 0) {
     <div class="registro-card">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <strong><?php echo text(date('d/m/Y H:i', strtotime((string)($row['date'] ?? '')))); ?></strong>
+                <?php $ts_date = strtotime((string)($row['date'] ?? '')); ?>
+            <strong><?php echo text(date('d/m/Y H:i', $ts_date !== false ? $ts_date : time())); ?></strong>
                 <small class="text-muted ml-2"><?php echo xlt('User'); ?>: <?php echo text((string)($row['user'] ?? '')); ?></small>
             </div>
             <div>
@@ -121,8 +122,8 @@ if ($id > 0) {
             'glasgow_verbal' => [xlt('Verbal Response'),'obs_glasgow_verbal'],
         ];
         foreach ($fields as $field => [$label, $obs_field]) :
-            $val = $row[$field] ?? '';
-            $obs = $row[$obs_field] ?? '';
+            $val = (string)($row[$field] ?? '');
+            $obs = (string)($row[$obs_field] ?? '');
             ?>
         <div class="field-detail <?php echo ($obs !== '') ? 'has-obs' : ''; ?>">
             <strong><?php echo text($label); ?>:</strong> <?php echo text($val ?: '—'); ?>
@@ -136,7 +137,7 @@ if ($id > 0) {
         <small class="text-muted"><?php echo xlt('Evaluation Time'); ?>: <?php echo text((string)($row['hora_evaluacion'] ?? '')); ?></small>
         <?php endif; ?>
     </div>
-    <?php endwhile; ?>
+    <?php endforeach; ?>
 
     <div class="form-group mt-3">
         <button type="button" onclick="history.back()" class="btn btn-outline-secondary">

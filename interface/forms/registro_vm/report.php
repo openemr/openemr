@@ -45,15 +45,14 @@ $registro_vm_report = function (int $pid, int $encounter, int $cols, int $id): v
         'ESPONTANEA'           => xlt('Spontaneous'),
         'VENTILACION MECANICA' => xlt('Mechanical Ventilation'),
     ];
-    $modo_display = $modo_labels[$row['modo_ventilacion'] ?? ''] ?? ($row['modo_ventilacion'] ?? xlt('Not specified'));
-    $hora_raw = $row['hora_registro'] ?? '';
-    $hora = ($hora_raw !== '')
-        ? date('H:i', strtotime((string) $hora_raw))
-        : xlt('Not specified');
-    $date_raw = $row['date'] ?? '';
-    $fecha = ($date_raw !== '')
-        ? date('d/m/Y H:i', strtotime((string) $date_raw))
-        : '-';
+    $modo_key = (string)($row['modo_ventilacion'] ?? '');
+    $modo_display = $modo_labels[$modo_key] ?? ($modo_key !== '' ? $modo_key : xlt('Not specified'));
+    $hora_raw = (string)($row['hora_registro'] ?? '');
+    $ts_hora = $hora_raw !== '' ? strtotime($hora_raw) : false;
+    $hora = $ts_hora !== false ? date('H:i', $ts_hora) : xlt('Not specified');
+    $date_raw = (string)($row['date'] ?? '');
+    $ts_fecha = $date_raw !== '' ? strtotime($date_raw) : false;
+    $fecha = $ts_fecha !== false ? date('d/m/Y H:i', $ts_fecha) : '-';
     $total_activos = 0;
     foreach (array_keys($bool_items) as $campo) {
         if ((int)($row[$campo] ?? 0) === 1) {
@@ -207,9 +206,9 @@ $registro_vm_report = function (int $pid, int $encounter, int $cols, int $id): v
         <div class="meta-bar">
             <span><strong><?php echo xlt('Record Time'); ?>:</strong> <?php echo text($hora); ?></span>
             <span><strong><?php echo xlt('Recorded'); ?>:</strong> <?php echo text($fecha); ?></span>
-            <?php if (isset($row['user']) && $row['user'] !== '') :
+            <?php if ((string)($row['user'] ?? '') !== '') :
                 ?>
-            <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text($row['user']); ?></span>
+            <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text((string)($row['user'] ?? '')); ?></span>
                 <?php
             endif; ?>
         </div>
@@ -217,10 +216,10 @@ $registro_vm_report = function (int $pid, int $encounter, int $cols, int $id): v
         <!-- VENTILATION MODE -->
         <div class="modo-bar">
             <?php echo xlt('Ventilation Mode'); ?>:
-            <strong><?php echo text($modo_display); ?></strong>
-            <?php if (($row['obs_modo'] ?? '') !== '') :
+            <strong><?php echo text((string)$modo_display); ?></strong>
+            <?php if ((string)($row['obs_modo'] ?? '') !== '') :
                 ?>
-            &mdash; <span style="color:#555;font-size:11px;"><?php echo text($row['obs_modo']); ?></span>
+            &mdash; <span style="color:#555;font-size:11px;"><?php echo text((string)($row['obs_modo'] ?? '')); ?></span>
                 <?php
             endif; ?>
         </div>
@@ -237,7 +236,7 @@ $registro_vm_report = function (int $pid, int $encounter, int $cols, int $id): v
             <tbody>
             <?php foreach ($bool_items as $campo => $label) :
                 $valor  = (int)($row[$campo] ?? 0);
-                $obs    = trim($row['obs_' . $campo] ?? '');
+                $obs    = trim((string)($row['obs_' . $campo] ?? ''));
                 $rowCls = $valor ? 'row-si' : 'row-no';
                 $tdCls  = $valor ? 'td-nombre activo' : 'td-nombre';
                 ?>

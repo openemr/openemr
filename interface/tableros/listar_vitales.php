@@ -38,18 +38,19 @@ if ($camas !== '') {
     $query_where .= ')';
 }
 $internados_actuales_consult = "SELECT f.pid, CONCAT(CONCAT(p.fname, ' '),p.lname) as paciente, f.cuarto as sala, f.cama as cama from form_encounter as f join patient_data as p on p.pid = f.pid " . $query_where . "  order by sala, f.cama ASC";
-$res = sqlStatement($internados_actuales_consult);
+$rows_internados = QueryUtils::fetchRecords($internados_actuales_consult);
 $result = [];
-for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+foreach ($rows_internados as $row) {
     //encontrar el ultimo form_vitals insertado para este pid y mostrar
     $vital_sql = "SELECT * from form_vitals where  pid = ? order by DATE desc limit 1";
     /** @var array<string,mixed>|null $vitals */
-    $vitals = QueryUtils::querySingleRow($vital_sql, array($row['pid']));
+    $vitals = QueryUtils::querySingleRow($vital_sql, [(string)($row['pid'] ?? '')]);
     if ($vitals !== null) {
+        $ts_vital = strtotime((string)($vitals["date"] ?? ''));
         $result[] = [
-            "paciente"        => $row['paciente'],
+            "paciente"        => (string)($row['paciente'] ?? ''),
             "sala"            => strtoupper((string)($row['sala'] ?? '')),
-            "cama"            => $row['cama'],
+            "cama"            => (string)($row['cama'] ?? ''),
             "bps"             => $vitals["bps"],             //blood pressure systolic
             "bpd"             => $vitals["bpd"],             //blood pressure diastolic
             "temperatura"     => $vitals["temperature"],
@@ -57,7 +58,7 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             "pulse"           => $vitals["pulse"],
             "BMI"             => $vitals["BMI"],             //Índice de masa corporal
             "oxygen_saturation" => $vitals["oxygen_saturation"],
-            "date"            => date('d/m/Y H:i:s', strtotime((string)($vitals["date"] ?? ''))),
+            "date"            => $ts_vital !== false ? date('d/m/Y H:i:s', $ts_vital) : '',
             "pid"             => $vitals["pid"],
             "hr"              => $vitals["hr"],
             "vpc"             => $vitals["vpc"],

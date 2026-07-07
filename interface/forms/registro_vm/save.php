@@ -19,10 +19,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') !== 'POST') {
     die(xlt("Method not allowed"));
 }
 
@@ -41,7 +42,7 @@ if (!$pid || !$encounter) {
 
 $user       = (string) ($session->get('authUser')       ?? 'admin');
 $groupname  = (string) ($session->get('authProvider')   ?? 'Default');
-$authorized = (int)    ($session->get('userauthorized') ?? 1);
+$authorized = intval($session->get('userauthorized') ?? 1);
 // Ventilation mode whitelist
 $allowed_modos = ['ESPONTANEA', 'VENTILACION MECANICA', ''];
 $modo_ventilacion_raw        = (string) filter_input(INPUT_POST, 'modo_ventilacion');
@@ -90,7 +91,7 @@ if ($is_edit) {
         die(xlt("Error: Record not found or insufficient permissions."));
     }
 
-    $upd = sqlStatement("UPDATE form_registro_vm SET
+    QueryUtils::sqlStatementThrowException("UPDATE form_registro_vm SET
             date = NOW(), user = ?, groupname = ?, authorized = ?,
             modo_ventilacion = ?, obs_modo = ?,
             presion = ?, obs_presion = ?,
@@ -125,11 +126,8 @@ if ($is_edit) {
             $hora_registro,
             $id, $pid, $encounter,
         ]);
-    if ($upd === false) {
-        die(xlt("Error: Could not update the record. Please try again."));
-    }
 } else {
-    $newid = sqlInsert("INSERT INTO form_registro_vm (
+    $newid = QueryUtils::sqlInsert("INSERT INTO form_registro_vm (
             date, pid, encounter, user, groupname, authorized, activity,
             modo_ventilacion, obs_modo,
             presion, obs_presion, volumen, obs_volumen,
@@ -162,7 +160,7 @@ if ($is_edit) {
         die(xlt("Error: Could not save the record. Please try again."));
     }
 
-    addForm($encounter, 'Mechanical Ventilation Record', $newid, 'registro_vm', $pid, $authorized);
+    (new FormService())->addForm($encounter, 'Mechanical Ventilation Record', (int)$newid, 'registro_vm', $pid, $authorized);
 }
 
 formHeader(xlt("Redirecting..."));

@@ -30,13 +30,11 @@ $aplicaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
         'sangre'        => xlt('Blood and Blood Products'),
     ];
     $hora_raw = $row['hora_registro'] ?? '';
-    $hora = ($hora_raw !== '')
-        ? date('H:i', strtotime((string) $hora_raw))
-        : xlt('Not specified');
+    $ts_hora = $hora_raw !== '' ? strtotime((string) $hora_raw) : false;
+    $hora = $ts_hora !== false ? date('H:i', $ts_hora) : xlt('Not specified');
     $date_raw = $row['date'] ?? '';
-    $fecha = ($date_raw !== '')
-        ? date('d/m/Y H:i', strtotime((string) $date_raw))
-        : '-';
+    $ts_fecha = $date_raw !== '' ? strtotime((string) $date_raw) : false;
+    $fecha = $ts_fecha !== false ? date('d/m/Y H:i', $ts_fecha) : '-';
     $total_activos = 0;
     foreach (array_keys($items) as $campo) {
         if ((int)($row[$campo] ?? 0) === 1) {
@@ -221,7 +219,7 @@ $aplicaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
             <span><strong><?php echo xlt('Recorded'); ?>:</strong> <?php echo text($fecha); ?></span>
             <?php if (isset($row['user']) && $row['user'] !== '') :
                 ?>
-            <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text($row['user']); ?></span>
+            <span><strong><?php echo xlt('User'); ?>:</strong> <?php echo text((string)($row['user'] ?? '')); ?></span>
                 <?php
             endif; ?>
         </div>
@@ -238,7 +236,7 @@ $aplicaciones_report = function (int $pid, int $encounter, int $cols, int $id): 
             <tbody>
             <?php foreach ($items as $campo => $label) :
                 $valor  = (int)($row[$campo] ?? 0);
-                $obs    = trim($row['obs_' . $campo] ?? '');
+                $obs    = trim((string)($row['obs_' . $campo] ?? ''));
                 $rowCls = $valor ? 'row-si' : 'row-no';
                 $tdCls  = $valor ? 'td-nombre activo' : 'td-nombre';
                 ?>
