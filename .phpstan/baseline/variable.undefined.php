@@ -1648,7 +1648,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$returnval might not be defined\\.$#',
-    'count' => 9,
+    'count' => 8,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [

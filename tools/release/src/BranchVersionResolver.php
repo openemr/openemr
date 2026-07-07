@@ -21,11 +21,26 @@ declare(strict_types=1);
 namespace OpenEMR\Release;
 
 use Symfony\Component\Process\Process;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class BranchVersionResolver
 {
+    /**
+     * Canonical release manifest fetched to distinguish tags that actually
+     * shipped from tags that were cut and then skipped. Any version entry
+     * with `status: FINAL` in this file is a released version; a
+     * v<MAJOR>_<MINOR>_<PATCH> tag whose version isn't in the manifest was
+     * skipped (see: 8.1.0 was cut as v8_1_0 but never released) and must
+     * not be reported as a "previous release" for any subsequent version.
+     */
+    public const DEFAULT_MANIFEST_URL =
+        'https://raw.githubusercontent.com/openemr/website-openemr/master/data/releases.json';
+
     public function __construct(
         private string $repoDir,
+        private ?HttpClientInterface $httpClient = null,
+        private string $manifestUrl = self::DEFAULT_MANIFEST_URL,
     ) {
     }
 
@@ -78,6 +93,28 @@ final readonly class BranchVersionResolver
 
     private function latestVersionTagBelow(string $targetVersion): ?string
     {
+        // When the shipped-versions manifest is available it's the source
+        // of truth: iterate its entries directly. The annotated-tag walk
+        // below silently drops lightweight tags — and historic SourceForge-
+        // era releases like v8_0_0 are lightweight. Filtering annotated
+        // tags through the manifest would incorrectly discard v8_0_0 as
+        // "unshipped," even though data/releases.json marks 8.0.0 FINAL.
+        // Keying on the manifest directly avoids that conflation.
+        $shipped = $this->fetchShippedVersions();
+        if ($shipped !== null) {
+            usort($shipped, static fn (string $a, string $b): int => version_compare($b, $a));
+            foreach ($shipped as $candidate) {
+                if (version_compare($candidate, $targetVersion, '<')) {
+                    return $candidate;
+                }
+            }
+            return null;
+        }
+        // Manifest fetch/parse failed. Fall back to the pre-manifest
+        // annotated-tag walk — imperfect for the skipped-release edge
+        // case (a cut-then-skipped tag will win over the actually-shipped
+        // predecessor) but the safest available floor when we have no
+        // better source of truth.
         foreach ($this->releaseTags() as [$major, $minor, $patch]) {
             $candidate = sprintf('%d.%d.%d', $major, $minor, $patch);
             if (version_compare($candidate, $targetVersion, '<')) {
@@ -85,6 +122,60 @@ final readonly class BranchVersionResolver
             }
         }
         return null;
+    }
+
+    /**
+     * Fetch the openemr/website-openemr `data/releases.json` manifest and
+     * return the set of versions with `status: FINAL` — the source of
+     * truth for what actually shipped. Returns null when no HTTP client
+     * was supplied, or when the fetch/parse fails for any reason; callers
+     * treat null as "fall back to tag-only".
+     *
+     * @return ?list<string>
+     */
+    private function fetchShippedVersions(): ?array
+    {
+        if ($this->httpClient === null) {
+            return null;
+        }
+        try {
+            // Both timeout (idle) and max_duration (total wall-clock) are
+            // capped so a slow or hung raw.githubusercontent response
+            // can't stall the conductor workflow for a full 60s (PHP's
+            // default_socket_timeout) before falling back to tag-only.
+            $response = $this->httpClient->request('GET', $this->manifestUrl, [
+                'timeout' => 5,
+                'max_duration' => 10,
+            ]);
+            $body = $response->getContent();
+        } catch (HttpClientException) {
+            return null;
+        }
+        try {
+            $decoded = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return null;
+        }
+        if (!is_array($decoded)) {
+            return null;
+        }
+        $shipped = [];
+        foreach ($decoded as $version => $entry) {
+            if (!is_string($version)) {
+                continue;
+            }
+            if (preg_match('/^\d+\.\d+\.\d+$/', $version) !== 1) {
+                continue;
+            }
+            if (!is_array($entry)) {
+                continue;
+            }
+            if (($entry['status'] ?? null) !== 'FINAL') {
+                continue;
+            }
+            $shipped[] = $version;
+        }
+        return $shipped;
     }
 
     /**

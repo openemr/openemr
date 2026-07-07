@@ -283,11 +283,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
 ];
@@ -558,7 +553,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 33,
+    'count' => 36,
     'path' => __DIR__ . '/../../interface/reports/daily_summary_report.php',
 ];
 $ignoreErrors[] = [

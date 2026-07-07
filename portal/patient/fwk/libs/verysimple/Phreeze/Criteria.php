@@ -130,7 +130,7 @@ class Criteria
     /**
      * Returns DataAdapter::GetQuotedSql($val)
      *
-     * @param variant $val
+     * @param string $val
      *          to be quoted
      * @return string
      */

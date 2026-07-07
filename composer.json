@@ -57,6 +57,7 @@
         "dompdf/dompdf": "^3.1.4",
         "ezyang/htmlpurifier": "^4.19.0",
         "firehed/container": "^1.1",
+        "firehed/dbal-logger": "^3.0",
         "giggsey/libphonenumber-for-php": "^9.0",
         "google/apiclient": "^2.18.4",
         "guzzlehttp/guzzle": "^7.10.0",
@@ -131,7 +132,6 @@
         "symfony/routing": "^7.3",
         "symfony/yaml": "^7.3",
         "twig/twig": "^3.22.2",
-        "twilio/sdk": "^8.10.0",
         "vlucas/phpdotenv": "^5.6.3",
         "yubico/u2flib-server": "^1.0.2",
         "zircote/swagger-php": "^6.0"

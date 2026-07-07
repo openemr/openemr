@@ -2,16 +2,20 @@ name: All Checks Passed
 
 on:
   push:
-    branches: [master]
+    branches:
+    - master
+    - rel-*
   pull_request:
-    branches: [master]
+    branches:
+    - master
+    - rel-*
 
 jobs:
   all-checks:
     name: All Checks Passed
     runs-on: ubuntu-24.04
     steps:
-    - uses: lewagon/wait-on-check-action@v1.8.0
+    - uses: lewagon/wait-on-check-action@v1.8.1
       with:
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
         running-workflow-name: All Checks Passed

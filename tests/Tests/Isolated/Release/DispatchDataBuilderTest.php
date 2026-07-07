@@ -48,6 +48,15 @@ final class DispatchDataBuilderTest extends TestCase
         );
     }
 
+    public function testReleaseTargetsChangedBuildsEmptyData(): void
+    {
+        $builder = new DispatchDataBuilder($this->reader([]));
+        self::assertSame(
+            [],
+            $builder->build(DispatchRequest::EVENT_RELEASE_TARGETS_CHANGED),
+        );
+    }
+
     public function testUnknownEventThrows(): void
     {
         $builder = new DispatchDataBuilder($this->reader([]));

@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Core;
 
+use OpenEMR\BC\Deprecation;
 use OpenEMR\Core\Traits\SingletonTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -36,10 +37,34 @@ class OEGlobalsBag extends ParameterBag
 {
     use SingletonTrait;
 
+    /**
+     * Keys being migrated away from OEGlobalsBag. Accessing these via get() or
+     * has() emits a deprecation warning. set() is intentionally omitted at
+     * this time.
+     *
+     * When adding a key to this list, update the tests too.
+     *
+     * @see \OpenEMR\Tests\Isolated\Core\OEGlobalsBagIsolatedTest::deprecatedKeysProvider
+     */
+    private const DEPRECATED_KEYS = [
+        'unit_test_placeholder' => '(placeholder)',
+    ];
+
     protected static function createInstance(): static
     {
         /** @var array<string, mixed> $GLOBALS */
         return new self($GLOBALS);
+    }
+
+    private static function emitDeprecationIfNeeded(string $key): void
+    {
+        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
+            Deprecation::emit(sprintf(
+                'Key "%s" will be removed from OEGlobalsBag. %s',
+                $key,
+                self::DEPRECATED_KEYS[$key],
+            ));
+        }
     }
 
     public function set(string $key, mixed $value): void
@@ -53,6 +78,8 @@ class OEGlobalsBag extends ParameterBag
 
     public function get(string $key, mixed $default = null): mixed
     {
+        self::emitDeprecationIfNeeded($key);
+
         // During the transition from $GLOBALS to OEGlobalsBag, legacy code may
         // still write to or unset from $GLOBALS directly. For the singleton
         // instance, use $GLOBALS as the sole source of truth.
@@ -69,6 +96,8 @@ class OEGlobalsBag extends ParameterBag
 
     public function has(string $key): bool
     {
+        self::emitDeprecationIfNeeded($key);
+
         if (parent::has($key)) {
             return true;
         }

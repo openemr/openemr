@@ -239,7 +239,7 @@ services:
 
   # ---------- OpenEMR: TLS + X.509 client certs ----------
   openemr:
-    image: openemr/openemr:flex-3.22-php-8.2@sha256:ea6b482b7052429b458fa63c32fca0064b3a9d5b0bbc9112672d92163acffd24
+    image: openemr/openemr:flex-3.22-php-8.2@sha256:acb17bfb8549259a6042b792e007c99d727bd7479532eda133bb0789cbeee8f4
     environment:
       REDIS_TLS: "yes"
       REDIS_X509: "yes"
@@ -251,7 +251,7 @@ services:
         condition: service_completed_successfully
 
   mysql:
-    image: mariadb:11.8.8@sha256:be1ef4fe5f14589325c08a41c76334097ce66c86264b75e1d28342c742782a61
+    image: mariadb:11.8.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
 
 volumes:
   redis-certs:

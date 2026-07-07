@@ -16,8 +16,6 @@ on:
     # workflow_dispatch instead.
     branches:
     - 'rel-[0-9]*0'
-    paths-ignore:
-    - 'docs/**'
   pull_request:
     types:
     - closed
@@ -190,6 +188,79 @@ jobs:
         draft: true
         delete-branch: false
 
+    # --- Master-side partner PR (release-finalize) ---------------------
+    # Paired with the release-prep/<rel-branch> PR above. Carries the
+    # post-release master-side updates to .github/release-targets.yml:
+    # pins the rel branch row to the new tag, slot-shuffles
+    # latest/next/dev across rows, drops the unreleased placeholder row.
+    # See docs/release-mechanism-gaps.md (G11) for the design.
+    #
+    # Test-mode runs are skipped: the partner PR exists to update master
+    # for a real release and would produce a confusing master-side draft
+    # on every test exercise of the conductor.
+    - name: Checkout master for release-finalize partner PR
+      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      uses: actions/checkout@v7
+      with:
+        ref: master
+        path: master-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        fetch-depth: 0
+
+    # The setup-php-composer composite action installs into the workflow's
+    # default working directory only (no working-directory input). The
+    # second checkout above has no vendor/ — install composer deps there
+    # directly so `php bin/console` can boot the autoloader.
+    - name: Install Composer dependencies (master-checkout)
+      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      working-directory: master-checkout
+      shell: bash
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Run release-prep mutators (master scope, release-finalize)
+      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      working-directory: master-checkout
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+      run: |
+        php bin/console openemr:release-prep \
+          --skip-globals \
+          --target-version="${VERSION}" \
+          --rel-branch="${REL_BRANCH}" \
+          --scope=master
+
+    - name: Render release-finalize PR body
+      id: finalize-pr-body
+      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+      run: |
+        {
+          echo 'body<<EOF'
+          php tools/release/bin/render-pr-body.php "${VERSION}" \
+            --template=.github/PULL_REQUEST_TEMPLATE/release-finalize.md \
+            --rel-branch="${REL_BRANCH}"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Create or update release-finalize PR (master partner)
+      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      uses: peter-evans/create-pull-request@v8
+      with:
+        path: master-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        branch: release-finalize/${{ steps.resolve.outputs.branch }}
+        base: master
+        title: 'chore(release): finalize ${{ steps.resolve.outputs.version }} on master'
+        body: ${{ steps.finalize-pr-body.outputs.body }}
+        commit-message: 'chore(release): finalize ${{ steps.resolve.outputs.version }} on master'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        draft: true
+        delete-branch: false
+
     - name: Dispatch rel-cut / rel-update to consumers
       if: steps.prep-pr.outputs.pull-request-operation != 'none' || inputs.force-dispatch
       env:
@@ -253,8 +324,13 @@ jobs:
         # Scope the installation token to this repo plus the dispatch
         # targets, otherwise repository_dispatch to the consumer repos
         # returns 403 "Resource not accessible by integration".
+        # demo_farm_openemr dropped (was: ...,demo_farm_openemr) because
+        # the only dispatch in this `finalize` job is openemr-tag, and
+        # demo_farm no longer consumes it (demo_farm_openemr#141 retired
+        # bump-tag.yml; the auto-derive bot subscribes to
+        # release-targets-changed instead).
         owner: ${{ github.repository_owner }}
-        repositories: openemr,openemr-devops,website-openemr,demo_farm_openemr
+        repositories: openemr,openemr-devops,website-openemr
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
@@ -333,8 +409,14 @@ jobs:
         MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         TAG_NAME: ${{ steps.tag.outputs.tag-name }}
       run: |
+        # Demo_farm_openemr no longer consumes openemr-tag: its bump-tag.yml
+        # was retired in demo_farm_openemr#141 in favor of the auto-derive
+        # bot, which subscribes to release-targets-changed instead. Explicit
+        # --target-repos to drop demo_farm from the default list so the
+        # dispatch doesn't fire into a void.
         php tools/release/bin/dispatch.php \
           --event=openemr-tag \
+          --target-repos=openemr/openemr-devops,openemr/website-openemr \
           --sha="${MERGE_SHA}" \
           --actor='openemr-release-bot' \
           --branch="${REL_BRANCH}" \

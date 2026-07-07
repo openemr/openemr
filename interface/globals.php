@@ -14,6 +14,8 @@
  */
 
 use Dotenv\Dotenv;
+use OpenEMR\BC\Deprecation;
+use OpenEMR\BC\DeprecationMode;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -68,6 +70,10 @@ if (IS_WINDOWS) {
  */
 if (file_exists("{$webserver_root}/.env")) {
     Dotenv::createImmutable($webserver_root)->load();
+}
+
+if (($_ENV['OPENEMR_DEPRECATION_MODE'] ?? null) === 'error') {
+    Deprecation::$mode = DeprecationMode::Error;
 }
 
 $logger = ServiceContainer::getLogger();
@@ -731,40 +737,6 @@ if (!$ignoreAuth) {
 // Currently it is applicable only to the "Search or Add Patient" form.
 $globalsBag->set('layout_search_color', '#ff9919');
 
-// module configurations
-// upgrade fails for versions prior to 4.2.0 since no modules table
-$checkModulesTableExists = QueryUtils::existsTable('modules');
-
-if (!empty($checkModulesTableExists)) {
-    $globalsBag->set('baseModDir', "interface/modules/"); //default path of modules
-    $globalsBag->set('customModDir', "custom_modules"); //non zend modules
-    $globalsBag->set('zendModDir', "zend_modules"); //zend modules
-
-    try {
-        // load up the modules system and bootstrap them.
-        // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
-        // registering event listeners, etc.
-        // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
-        $globalsBag->set('modules_application', new ModulesApplication(
-            $globalsBag->getKernel(),
-            $globalsBag->getString('fileroot'),
-            $globalsBag->getString('baseModDir'),
-            $globalsBag->getString('zendModDir')
-        ));
-    } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
-        // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
-        http_response_code(401);
-        $logger->warning($accessDeniedException->getMessage(), ['exception' => $accessDeniedException]);
-        exit(1);
-    } catch (\Throwable $ex) {
-        http_response_code(500);
-        $logger->error($ex->getMessage(), ['exception' => $ex]);
-        exit(1);
-    }
-}
-
-// Don't change anything below this line. ////////////////////////////
-
 $encounter = EncounterSessionUtil::getEncounter();
 
 if (!empty($_GET['pid']) && empty($session->get('pid'))) {
@@ -859,5 +831,39 @@ if ($globalsBag->getBoolean('translation_preload_cache')) {
  * Used by include files to guard against direct HTTP access.
  */
 const OPENEMR_GLOBALS_LOADED = true;
+
+// Module configurations.
+// Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files
+// with direct-access guards can be autoloaded without tripping the guard.
+// Upgrade fails for versions prior to 4.2.0 since no modules table.
+$checkModulesTableExists = QueryUtils::existsTable('modules');
+
+if (!empty($checkModulesTableExists)) {
+    $globalsBag->set('baseModDir', "interface/modules/"); //default path of modules
+    $globalsBag->set('customModDir', "custom_modules"); //non zend modules
+    $globalsBag->set('zendModDir', "zend_modules"); //zend modules
+
+    try {
+        // load up the modules system and bootstrap them.
+        // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
+        // registering event listeners, etc.
+        // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
+        $globalsBag->set('modules_application', new ModulesApplication(
+            $globalsBag->getKernel(),
+            $globalsBag->getString('fileroot'),
+            $globalsBag->getString('baseModDir'),
+            $globalsBag->getString('zendModDir')
+        ));
+    } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
+        // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
+        http_response_code(401);
+        $logger->warning($accessDeniedException->getMessage(), ['exception' => $accessDeniedException]);
+        exit(1);
+    } catch (\Throwable $ex) {
+        http_response_code(500);
+        $logger->error($ex->getMessage(), ['exception' => $ex]);
+        exit(1);
+    }
+}
 
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value
