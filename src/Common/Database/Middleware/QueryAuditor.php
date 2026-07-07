@@ -18,7 +18,8 @@ use OpenEMR\Common\Logging\AuditLoggerInterface;
 use Throwable;
 
 /**
- * DBAL middleware logger that delegates to EventAuditLogger for SQL auditing.
+ * DBAL middleware logger that delegates to an AuditLoggerInterface (i.e.
+ * EventAuditLogger) for SQL auditing.
  *
  * This bridges the DBAL middleware system to the existing OpenEMR audit
  * infrastructure. EventAuditLogger reads session state (authUser, authProvider,
