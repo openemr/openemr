@@ -1200,7 +1200,7 @@ class X12File
         } // end foreach($srch_ar as $srch)
         if (count($slice)) {
             foreach ($slice as $sl) {
-                $ret_ar[] = array_slice($seg_ar, $sl['start'], $sl['count'], true);
+                $ret_ar[] = array_slice($seg_ar, $this->toInt($sl['start']), $this->toInt($sl['count']), true);
             }
         }
 
