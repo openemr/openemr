@@ -5,11 +5,21 @@ aren't blockers for the current migration but warrant follow-up. Captures
 things to investigate or address AFTER the release-mechanism migration
 completes, plus discoveries during the upcoming manual 8.1.1 work.
 
-**Last updated:** 2026-06-22
+**Last updated:** 2026-07-07
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
 `/home/brady2/git/openemr-wt-release-mechanism-migration-doc/docs/release-mechanism-migration-from-devops.md`
+
+**Artifact-testing gap tracked separately.** "How do we verify the shipped
+Docker image + release tarball actually install and upgrade cleanly for
+end users?" is not a gap in release-mechanism scope — it's being
+addressed by the sibling
+[`artifact-acceptance-testing-plan.md`](artifact-acceptance-testing-plan.md)
+(openemr/openemr#12811, draft). Anyone reading this file looking for
+that gap: it's not here on purpose. It sits at a distinct layer —
+release-mechanism owns the *pipeline that produces* artifacts;
+acceptance-testing owns the *verification that they work*.
 
 ## Quick context
 
