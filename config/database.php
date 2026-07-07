@@ -23,6 +23,7 @@ use Firehed\DbalLogger\{
     Middleware as LoggingMiddleware,
 };
 use OpenEMR\Common\Database\Middleware\QueryAuditor;
+use OpenEMR\Common\Database\Middleware\QueryLogger;
 use Doctrine\Migrations\Configuration\{
     Connection\ConnectionLoader,
     Connection\ExistingConnection,
@@ -65,10 +66,15 @@ return [
             return DriverManager::getConnection($opts->toDbalParams(), $config);
         });
 
-        // Audit connection: no middleware, used by EventAuditLogger and some
-        // application bootstrapping
-        $manager->register(ConnectionType::NonAudited, fn () =>
-            DriverManager::getConnection($opts->toDbalParams()));
+        // No audit middlware, others apply. Used by the auditor itself and
+        // some bootstrapping tools.
+        $manager->register(ConnectionType::NonAudited, function () use ($c, $opts) {
+            $config = new DbalConfiguration();
+            $config->setMiddlewares([
+                new LoggingMiddleware($c->get(QueryLogger::class)),
+            ]);
+            return DriverManager::getConnection($opts->toDbalParams(), $config);
+        });
 
         return $manager;
     },
@@ -78,6 +84,7 @@ return [
         $c->get(ConnectionManager::class)->get(ConnectionType::Main),
 
     QueryAuditor::class,
+    QueryLogger::class,
 
     // DB connection config
     DatabaseConnectionOptions::class => function (TC $c) {
