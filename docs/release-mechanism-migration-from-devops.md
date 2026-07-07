@@ -13,6 +13,14 @@ merge, cross-repo `repository_dispatch`, vendored contracts) are more
 intricate and benefit from being scoped against the post-docker-migration
 state, not the pre-docker-migration one.
 
+Also runs in parallel with [`artifact-acceptance-testing-plan.md`](artifact-acceptance-testing-plan.md),
+which adds a black-box acceptance test surface for the shipped Docker image
+and release tarball (openemr/openemr#12811). No structural ordering
+dependency — release-mechanism migration changes *who owns* the pipeline;
+acceptance-testing changes *what tests exist against the artifact*. Once both
+land, acceptance runs become the natural required-check surface for
+release-prep PRs.
+
 ## Contents
 
 - [Goal](#goal)
@@ -1119,8 +1127,18 @@ moves start, since they shape the destination structure:
    is its own composer project (own `vendor/`, own PHP version pin). Does the
    moved version (a) stay as its own composer project inside this repo
    (under `tools/release/`), or (b) merge into this repo's root `composer.json`
-   as PSR-4 entries + `require-dev`? Today's pattern in devops is (a);
-   simplest port preserves (a); but (b) reduces operational moving parts.
+   as PSR-4 entries + `require-dev`?
+
+   **Locked 2026-07-07: (a) — nested `tools/release/composer.json`.** Not a
+   preference call: root-merge is a hard block. The release toolchain
+   requires PHP `^8.5` and `symfony/yaml ^8.0`; this repo's root
+   `composer.json` requires PHP `^8.2` and `symfony/yaml ^7.3`. Merging
+   forces root's PHP minimum to 8.5, breaking every openemr install on
+   PHP 8.2/8.3/8.4 (which the CI matrix tests explicitly). Nested keeps
+   release-toolchain deps isolated at the cost of one extra
+   `composer install --working-dir=tools/release` step in the build
+   workflow (~30–60s in CI). No end-user impact — release toolchain deps
+   never enter an openemr install's `vendor/`.
 2. **Self-dispatch vs `workflow_run` for internal event consumers** — for
    the `openemr-tag` consumers that move into this repo (build-release-on-tag,
    release-announcements), should the conductor self-dispatch
@@ -1338,8 +1356,11 @@ doc G12-G13 for full detail):**
 
 Specifically on:
 
-- Composer integration shape (Phase 2 decision 1) — keep `tools/release/` as
-  its own composer project or merge into root `composer.json`?
+- ~~Composer integration shape (Phase 2 decision 1)~~ — **locked 2026-07-07,
+  nested `tools/release/composer.json`**. Was open until an investigation
+  of the actual dep constraints (PHP `^8.5` + `symfony/yaml ^8.0` in the
+  release toolchain vs root's `^8.2` + `^7.3`) made root-merge a hard
+  block, not a preference call. See Phase 2 decision 1 for details.
 - Self-dispatch vs `workflow_run` for internal event consumers (Phase 2
   decision 2)
 - Parallel-run-window risk tolerance — gate each phase's devops-side delete
