@@ -57,6 +57,7 @@
         "dompdf/dompdf": "^3.1.4",
         "ezyang/htmlpurifier": "^4.19.0",
         "firehed/container": "^1.1",
+        "firehed/dbal-logger": "^3.0",
         "giggsey/libphonenumber-for-php": "^9.0",
         "google/apiclient": "^2.18.4",
         "guzzlehttp/guzzle": "^7.10.0",

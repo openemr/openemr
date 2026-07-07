@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * @phpstan-import-type ApiData from Audit\Event
  */
-class EventAuditLogger
+class EventAuditLogger implements AuditLoggerInterface
 {
     use SingletonTrait;
 
@@ -426,7 +426,7 @@ class EventAuditLogger
      * @param $outcome
      * @param ?array $binds
      */
-    public function auditSQLEvent($statement, $outcome, $binds = null)
+    public function auditSQLEvent($statement, $outcome, $binds = null): void
     {
         $statement = trim((string) $statement);
 
