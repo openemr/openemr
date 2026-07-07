@@ -403,6 +403,34 @@ in acceptance."
   or also run a subset of API smoke tests, or also drive a Panther E2E
   flow? Suggest: layer these — data readable is required, API smoke is
   strong-preferred, Panther is nice-to-have.
+- **Drift management across rel-* branches.** ~~Open~~ **Locked
+  2026-07-07: byte-identical enforcement (docker-pipeline pattern).**
+  Same drift concern applies here as for the release-mechanism
+  migration (tracked in the release gaps doc as G15) — the acceptance
+  workflows + compose files + `tests/Acceptance/**` tree need to exist
+  on every rel-* branch to fire from those branches' PR + push
+  contexts, which is a drift surface. Same decision holds for the same
+  six reasons captured in G15 (production-validated pattern; lower
+  risk; same team mental model; doesn't preclude reusable-workflows
+  later; sync PRs stay review-gated; preserves per-branch customization
+  escape hatch). Add to `.github/docker-byte-identical.yml`'s
+  `files:` list at Phase 2 (docker acceptance workflow) and Phase 3
+  (package acceptance workflow):
+
+  ```yaml
+  files:
+    - .github/workflows/acceptance-docker.yml       # add in Phase 2
+    - .github/workflows/acceptance-package.yml      # add in Phase 3
+    - .github/docker/acceptance-docker-compose.yml  # add in Phase 2
+    - .github/docker/acceptance-package-compose.yml # add in Phase 3
+    - tests/Acceptance/**                           # add in Phase 2, grows through Phase 4
+  ```
+
+  Estimated additions: 2 workflow files + 2 compose files + whole
+  `tests/Acceptance/**` tree glob. Post-acceptance-plan additions
+  probably ~5-10 files enumerated + a glob (much smaller than the
+  release-mechanism migration's ~20-25 file addition since acceptance
+  has fewer moving parts).
 
 ## Risks and wrinkles
 
