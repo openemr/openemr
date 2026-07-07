@@ -2277,11 +2277,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$icn might not be defined\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$seg_ar might not be defined\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',

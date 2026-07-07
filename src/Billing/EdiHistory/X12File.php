@@ -637,6 +637,7 @@ class X12File
         //$id278 = false;
         $ta1_icn = '';
         $seg_ar = [];
+        $icn = '';
         // the segment IDs we look for
         $chk_segs = ['ISA', 'GS' . $de, 'TA1', 'ST' . $de, 'BHT', 'HL' . $de, 'TRN', 'CLP', 'CLM', 'SE' . $de, 'GE' . $de, 'IEA'];
         for ($i = $seg_first; $i < $seg_ct; $i++) {
