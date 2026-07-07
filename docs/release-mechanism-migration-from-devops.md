@@ -827,7 +827,7 @@ the 3-PR (or post-collapse) ship-release contract throughout.
 
 | Phase | What | Estimate |
 |---|---|---|
-| **1. Pre-migration cleanup + 2-PR collapse** | 🟡 Drafted. Three PRs (1 devops + 2 core). PR 1a+1b are coordinated (rotation deletion + 2-PR collapse on devops, paired with cross-repo docs update on core). PR 1c is an independent drive-by (drift-check wiring). Locks the 2-PR shape so Phase 3's ship-release move becomes mechanical. | ~1 day |
+| **1. Pre-migration cleanup + 2-PR collapse** | ✅ SHIPPED 2026-06-28. Three PRs landed: openemr-devops#835 (rotation deletion + 2-PR collapse), openemr/openemr#12631 (cross-repo docs collapsed), openemr/openemr#12619 (drift-check wiring). See "Phase 1 detail" section below. | ~1 day |
 | **2. Move build-release + build-patch + supporting tooling** | Move `build-release.yml` + `build-release-on-tag.yml` + `build-patch.yml` + `PackageAssembler` + `ChangelogGenerator` + `PreflightChecker` + `CompatibilityDeriver`/`Renderer` + supporting tests/fakes to this repo. Self-dispatch the `openemr-tag` consumer side. Devops copies stay live until phase 6 (parallel-run validation window). | ~1.5 days |
 | **3. Move ship-release** | Move `ship-release.yml` + `ShipReleaseOrchestrator` + `PullRequest*` classes + fakes + tests. Already in 2-PR shape (locked in Phase 1) so the port is mechanical — no contract change in this phase. Devops copy stays live until phase 6. | ~1 day |
 | **4. Move release-announcements + permissions probe (core-side scope)** | Move `release-announcements.yml` + `AnnouncementRenderer` + templates. Add the openemr-core-specific permission probes to core's `release-permissions-check.yml`. Devops's permissions-check.yml narrows scope. | ~0.5 day |
@@ -999,12 +999,26 @@ defuses a real silent-drift bug today, and (2) it gives Phase 5 a clear
 move to this repo. Each workflow already operates against this repo's git
 state and Docker Hub; the move is mostly relocation + adjusting the
 `repository_dispatch` consumer side (the conductor's `openemr-tag` event no
-longer needs to cross repo boundaries — can self-dispatch or use
-`workflow_run` after `release-prep.yml`'s `finalize` job). Devops keeps its
+longer needs to cross repo boundaries — can self-dispatch, use
+`workflow_run` after `release-prep.yml`'s `finalize` job, or fire on
+`push: tags: ['v*']` from the tag `release-prep.yml` creates via
+`create-tag.php`; the last is semantically clean and symmetric with how
+`docker-build-release.yml` already fires in this repo today — trigger
+choice locked at phase kickoff per Decision 2). Devops keeps its
 copies live during parallel-run validation; after one clean release through
 the new path, devops's copies get deleted in Phase 6. Supporting PHP classes
 (PackageAssembler, ChangelogGenerator, PreflightChecker, CompatibilityDeriver,
 CompatibilityNotesRenderer) move with their tests.
+
+The natural verification that Phase 2's moved build path produces a
+working artifact comes from the sibling
+[`artifact-acceptance-testing-plan.md`](artifact-acceptance-testing-plan.md)
+(openemr/openemr#12811) — its `acceptance-docker.yml` /
+`acceptance-package.yml` workflows exercise the shipped Docker image and
+release tarball end-to-end. If acceptance-testing lands before or
+alongside Phase 2, it's the ideal validation surface for the
+parallel-run window; if not, Phase 2 relies on the manual pre-release
+testing pattern used today.
 
 **Phase 3** — `ship-release.yml` + `ShipReleaseOrchestrator` move. Mechanical
 relocation since the 2-PR shape was already locked in Phase 1. The port moves
@@ -1139,13 +1153,24 @@ moves start, since they shape the destination structure:
    `composer install --working-dir=tools/release` step in the build
    workflow (~30–60s in CI). No end-user impact — release toolchain deps
    never enter an openemr install's `vendor/`.
-2. **Self-dispatch vs `workflow_run` for internal event consumers** — for
-   the `openemr-tag` consumers that move into this repo (build-release-on-tag,
-   release-announcements), should the conductor self-dispatch
-   `repository_dispatch` events to its own repo (lossy parity with cross-repo
-   pattern, requires extra PAT), or use `workflow_run` triggers tied to
-   `release-prep.yml :: finalize` (no extra PAT, but couples the workflows
-   structurally rather than via event contract)?
+2. **Trigger shape for internal event consumers** — for the `openemr-tag`
+   consumers that move into this repo (build-release-on-tag,
+   release-announcements), three options:
+   1. Self-dispatch `repository_dispatch` events to its own repo (lossy
+      parity with cross-repo pattern, requires extra PAT)
+   2. `workflow_run` triggers tied to `release-prep.yml :: finalize` (no
+      extra PAT, but couples the workflows structurally rather than via
+      event contract)
+   3. `push: tags: ['v*']` — fire on the tag-creation push that
+      release-prep.yml already produces via `create-tag.php`. Semantically
+      correct (the artifact under build corresponds to a specific tag; if
+      the tag exists, we build for it). Symmetric with how
+      `docker-build-release.yml` already fires in this repo today. Also
+      naturally covers any manual `v*` tag push (emergency release), which
+      the other two options don't. Devops uses option 1 today because it's
+      cross-repo — that constraint disappears in-repo. **Emerging leaning:
+      option 3** unless a same-run causality argument tips it to option 2.
+      Lock in phase 2 kickoff.
 3. **Token scope for the moved workflows** — today's `release-prep.yml` token
    is scoped to `openemr,openemr-devops,website-openemr,demo_farm_openemr`.
    Post-migration, the scope shrinks to `openemr,website-openemr,
