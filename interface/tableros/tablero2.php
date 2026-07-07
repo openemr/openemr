@@ -11,6 +11,10 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
+
+use OpenEMR\Common\Database\QueryUtils;
+
+/** @phpstan-ignore include.fileNotFound */
 include("../fusioncharts.php");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -97,18 +101,24 @@ include("../fusioncharts.php");
                         $fin = '2021-06-20 00:00';
                         //modificacion de consulta query para visualizar las salas y camas de forma ordenada ascendente
                         $internados_actuales_consult = "SELECT f.pid, CONCAT(CONCAT(p.fname, ' '),p.lname) as paciente, f.cuarto COLLATE utf8_general_ci sala, f.cama as cama from form_encounter as f join patient_data as p on p.pid = f.pid where f.pc_catid = 16 and f.out_date is null order by sala, f.cama ASC";
-                        $res = sqlStatement($internados_actuales_consult);
+                        /** @var list<array<string, string|int|null>> $encounters2 */
+                        $encounters2 = QueryUtils::fetchRecords($internados_actuales_consult);
                         $inpatient = [];
                         $result = [];
                         $arrayPID = []; //Array gigante nambrena luego
-                        for ($iter = 0; $encounter = sqlFetchArray($res); $iter++) {
-                            $sql_vitals = "SELECT p.fname, v.* FROM form_vitals as v JOIN patient_data as p on p.pid = v.pid  WHERE v.pid =? and v.date between '" . $inicio . "' and '" . $fin . "'  ORDER by v.date ASC";
-                            $results = sqlStatement($sql_vitals, array($encounter['pid']));
+                        $iter = 0;
+                        foreach ($encounters2 as $encounter) {
+                            /** @var string $esc_inicio2 */
+                            $esc_inicio2 = add_escape_custom($inicio);
+                            /** @var string $esc_fin2 */
+                            $esc_fin2 = add_escape_custom($fin);
+                            /** @var list<array<string, string|int|null>> $vitals2 */
+                            $vitals2 = QueryUtils::fetchRecords("SELECT p.fname, v.* FROM form_vitals as v JOIN patient_data as p on p.pid = v.pid  WHERE v.pid =? and v.date between '" . $esc_inicio2 . "' and '" . $esc_fin2 . "'  ORDER by v.date ASC", [(string)($encounter['pid'] ?? '')]);
                             $paciente = [];
-                            if ($results) {
-                                $i = 0;
-                                while ($row = sqlFetchArray($results)) {
-                                    $row["date"] = date('d-M-y H:i:s', strtotime($row["date"]));
+                            if ($vitals2 !== []) {
+                                foreach ($vitals2 as $row) {
+                                    $ts_row = strtotime((string)($row["date"] ?? ''));
+                                    $row["date"] = $ts_row !== false ? date('d-M-y H:i:s', $ts_row) : '';
                                     //echo $row["date"];
                                     array_push($paciente, [$row["date"], 'bps', $row["bps"]??0]);
                                     array_push($paciente, [$row["date"], 'bpd', $row["bpd"]??0]);
@@ -127,39 +137,46 @@ include("../fusioncharts.php");
                                     array_push($paciente, [$row["date"], 'st3', $row["st3"]??0]);
                                     array_push($paciente, [$row["date"], 'nibps_sys', $row["nibps_sys"]??0]);
                                     array_push($paciente, [$row["date"], 'nibps_dys', $row["nibps_dys"]]);
-                                    $i++;
                                 }
-                                if ($i > 0) {
-                                    echo '<div id="chart-container-'. $encounter['pid'].'"class="col-md-6"></div>';
+                                    echo '<div id="chart-container-'. text((string)($encounter['pid'] ?? '')) .'"class="col-md-6"></div>';
                                     $data = json_encode($paciente);
                                     //print_r(json_encode($paciente));
                                     $schema = '[{"name": "Time","type": "date","format": "%d-%b-%y %H:%M:%S"}, {"name": "Type","type": "string"}, {"name": "valor_vital","type": "number"}]';
 
+                                    /** @phpstan-ignore class.notFound */
                                     $fusionTable = new FusionTable($schema, $data);
+                                    /** @phpstan-ignore class.notFound */
                                     $timeSeries = new TimeSeries($fusionTable);
 
+                                    /** @phpstan-ignore class.notFound */
                                     $timeSeries->AddAttribute('chart', '{}');
-                                    $timeSeries->AddAttribute('caption', '{"text":"' . $encounter['paciente'] . '"}');
-                                    $timeSeries->AddAttribute('subcaption', '{"text":" Sala: ' . $encounter['sala'] . ' - Cama: ' . $encounter['cama'] . '"}');
+                                    /** @phpstan-ignore class.notFound */
+                                    $timeSeries->AddAttribute('caption', '{"text":"' . (string)($encounter['paciente'] ?? '') . '"}');
+                                    /** @phpstan-ignore class.notFound */
+                                    $timeSeries->AddAttribute('subcaption', '{"text":" Sala: ' . (string)($encounter['sala'] ?? '') . ' - Cama: ' . (string)($encounter['cama'] ?? '') . '"}');
+                                    /** @phpstan-ignore class.notFound */
                                     $timeSeries->AddAttribute('series', '"Type"');
+                                    /** @phpstan-ignore class.notFound */
                                     $timeSeries->AddAttribute('yaxis', '[{"plot":"valor_vital","title":"Signos Vitales"}]');
 
 
                                     // chart object
+                                    /** @phpstan-ignore class.notFound */
                                     $Chart = new FusionCharts(
                                         "timeseries",
-                                        "pid-chart-" . $encounter['pid'],
+                                        "pid-chart-" . (string)($encounter['pid'] ?? ''),
                                         "700",
                                         "450",
-                                        "chart-container-". $encounter['pid'],
+                                        "chart-container-" . (string)($encounter['pid'] ?? ''),
                                         "json",
                                         $timeSeries
                                     );
 
                                     // Render the chart
+                                    /** @phpstan-ignore class.notFound */
                                     $Chart->render();
-                                }
                             }
+                            $iter++;
                         }
 
                         ?>

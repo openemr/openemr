@@ -23,11 +23,11 @@ use OpenEMR\Core\Header;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Get parameters
-$pid       = (int) filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)
-    ?: (int)($session->get('pid') ?? 0);
-$encounter = (int) filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)
-    ?: (int)($session->get('encounter') ?? 0);
-$id        = (int) filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+$pid       = is_numeric($v = filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0
+    ?: (is_numeric($v = $session->get('pid')) ? (int) $v : 0);
+$encounter = is_numeric($v = filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0
+    ?: (is_numeric($v = $session->get('encounter')) ? (int) $v : 0);
+$id        = is_numeric($v = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0;
 
 if (!$pid || !$encounter) {
     die(xlt("Error: Missing required parameters (PID or Encounter)"));
@@ -76,6 +76,7 @@ $hora_registro               = '';
 
 // Load existing data in edit mode
 if ($is_edit) {
+    /** @var array<string, string|int|null>|false $row */
     $row = QueryUtils::querySingleRow("SELECT * FROM form_registro_vm WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
     if ($row) {
         $modo_ventilacion            = $row['modo_ventilacion']            ?? '';
@@ -189,7 +190,7 @@ $page_title = $is_edit ? xlt('Edit Ventilation Record') : xlt('New Ventilation R
                 <?php endforeach; ?>
             </div>
             <textarea name="obs_modo" class="form-control" rows="2"
-                      placeholder="<?php echo attr(xlt('Observations...')); ?>"><?php echo text($obs_modo); ?></textarea>
+                      placeholder="<?php echo attr(xlt('Observations...')); ?>"><?php echo text((string)$obs_modo); ?></textarea>
         </div>
 
         <?php
@@ -214,7 +215,7 @@ $page_title = $is_edit ? xlt('Edit Ventilation Record') : xlt('New Ventilation R
         ];
         foreach ($bool_fields as $name => $meta) : ?>
         <div class="nurs-section">
-            <h6 class="font-weight-bold"><?php echo text($meta['label']); ?></h6>
+            <h6 class="font-weight-bold"><?php echo text((string)$meta['label']); ?></h6>
             <div class="mb-2">
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio"
@@ -236,14 +237,14 @@ $page_title = $is_edit ? xlt('Edit Ventilation Record') : xlt('New Ventilation R
                 </div>
             </div>
             <textarea name="<?php echo attr('obs_' . $name); ?>" class="form-control" rows="2"
-                      placeholder="<?php echo attr(xlt('Observations...')); ?>"><?php echo text($meta['obs']); ?></textarea>
+                      placeholder="<?php echo attr(xlt('Observations...')); ?>"><?php echo text((string)$meta['obs']); ?></textarea>
         </div>
         <?php endforeach; ?>
 
         <div class="form-group">
             <label for="hora_registro" class="font-weight-bold"><?php echo xlt('Record Time'); ?>:</label>
             <input type="time" name="hora_registro" id="hora_registro"
-                   class="form-control w-auto" value="<?php echo attr($hora_registro); ?>">
+                   class="form-control w-auto" value="<?php echo attr((string)$hora_registro); ?>">
         </div>
 
         <div class="form-group mt-3">

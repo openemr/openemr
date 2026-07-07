@@ -16,6 +16,7 @@ require_once(__DIR__ . "/../../globals.php");
 use OpenEMR\Common\Database\QueryUtils;
 
 $evaluaciones_report = function (int $pid, int $encounter, int $cols, int $id): void {
+    /** @var array<string, string|int|null>|false $result */
     $result = QueryUtils::querySingleRow(
         "SELECT * FROM form_evaluaciones WHERE id = ? AND pid = ? LIMIT 1",
         [$id, $pid]

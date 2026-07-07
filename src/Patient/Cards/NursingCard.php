@@ -61,18 +61,20 @@ class NursingCard extends CardModel
 
     protected function resolveInitiallyCollapsed(): bool
     {
-        $setting = UserSettingsService::getUserSetting(self::CARD_ID . '_expand');
-        return ((int)(string)($setting ?? '0')) === 0;
+        // getUserSetting @return docblock says "Effective" but actually returns string|int|null
+        /** @phpstan-ignore nullCoalesce.expr */
+        return (int) (UserSettingsService::getUserSetting(self::CARD_ID . '_expand') ?? 0) === 0;
     }
 
     /** @return array<mixed>|null */
     protected function getActiveAdmission(int $pid): ?array
     {
+        /** @var array<string, string|int|null>|false $catRow */
         $catRow = QueryUtils::querySingleRow(
             "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_catname = ? LIMIT 1",
             ['Inpatient']
         );
-        if (!$catRow || ($catRow['pc_catid'] ?? '') === '') {
+        if ($catRow === false || ($catRow['pc_catid'] ?? '') === '') {
             return null;
         }
 
@@ -83,7 +85,7 @@ class NursingCard extends CardModel
              WHERE fe.pid = ? AND fe.pc_catid = ? AND fe.date_end IS NULL
              ORDER BY fe.date DESC
              LIMIT 1",
-            [$pid, (int)(string)($catRow['pc_catid'] ?? '0')]
+            [$pid, (int)($catRow['pc_catid'] ?? 0)]
         );
 
         return $row ?: null;

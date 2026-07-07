@@ -19,29 +19,32 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session   = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid       = (int) filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)
-    ?: (int)($session->get('pid') ?? 0);
-$encounter = (int) filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)
-    ?: (int)($session->get('encounter') ?? 0);
-$id        = (int) filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+$pid       = is_numeric($v = filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0
+    ?: (is_numeric($v = $session->get('pid')) ? (int) $v : 0);
+$encounter = is_numeric($v = filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0
+    ?: (is_numeric($v = $session->get('encounter')) ? (int) $v : 0);
+$id        = is_numeric($v = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0;
 if (!$pid || !$encounter) {
     echo "<div style='padding:20px;color:red;'>" . xlt("Could not retrieve PID or Encounter.") . "</div>";
     exit;
 }
 
 // Get patient info
+/** @var array<string, string|int|null>|false $paciente */
 $paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", [$pid]);
 // Calculate age
 $age = '';
-$dob_val = $paciente !== null ? (string)($paciente['DOB'] ?? '') : '';
+$dob_val = $paciente !== false ? (string)($paciente['DOB'] ?? '') : '';
 if ($dob_val !== '') {
     $dob = new DateTime($dob_val);
     $age  = (new DateTime())->diff($dob)->y . ' ' . xlt('years');
 }
 
 if ($id > 0) {
+    /** @var list<array<string, string|int|null>> $rows */
     $rows = QueryUtils::fetchRecords("SELECT * FROM form_cuidados WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
 } else {
+    /** @var list<array<string, string|int|null>> $rows */
     $rows = QueryUtils::fetchRecords("SELECT * FROM form_cuidados WHERE pid = ? AND encounter = ? ORDER BY date DESC", [$pid, $encounter]);
 }
 ?>
@@ -107,11 +110,11 @@ if ($id > 0) {
         <div class="info-row">
             <div class="info-item">
                 <strong><?php echo xlt('Patient'); ?>:</strong>
-                <span><?php echo text($paciente !== null ? (string)($paciente['full_name'] ?? xlt('Not available')) : xlt('Not available')); ?></span>
+                <span><?php echo text($paciente !== false ? (string)($paciente['full_name'] ?? xlt('Not available')) : xlt('Not available')); ?></span>
             </div>
             <div class="info-item">
                 <strong><?php echo xlt('ID'); ?>:</strong>
-                <span><?php echo text($paciente !== null ? (string)($paciente['pubpid'] ?? xlt('Not available')) : xlt('Not available')); ?></span>
+                <span><?php echo text($paciente !== false ? (string)($paciente['pubpid'] ?? xlt('Not available')) : xlt('Not available')); ?></span>
             </div>
             <?php if ($age !== '') :
                 ?>
@@ -125,7 +128,7 @@ if ($id > 0) {
     </div>
 
     <?php
-    if (empty($rows)) {
+    if ($rows === []) {
         echo "<div class='no-registros'><h3>" . xlt('No care bundle records found') . "</h3></div>";
     }
 
@@ -185,12 +188,12 @@ if ($id > 0) {
 
         <?php foreach ($bool_fields as $campo => $label) :
             $val = (int)($row[$campo] ?? 0);
-            $obs = $row['obs_' . $campo] ?? '';
+            $obs = (string)($row['obs_' . $campo] ?? '');
             $cls = $val ? 'si' : 'no';
             ?>
         <div class="cuidado-detalle">
             <div class="cuidado-header <?php echo $cls; ?>">
-                <div class="cuidado-nombre"><?php echo text($label); ?></div>
+                <div class="cuidado-nombre"><?php echo text((string)$label); ?></div>
                 <span class="estado-badge <?php echo $cls; ?>">
                     <?php echo $val ? xlt('Yes') : xlt('No'); ?>
                 </span>

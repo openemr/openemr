@@ -33,28 +33,29 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 }
 
 // Determine mode
-$encounter_id = (int) filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
-$pid_new      = (int) filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT);
+$encounter_id = is_numeric($v = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0;
+$pid_new      = is_numeric($v = filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0;
 $viewmode     = ($encounter_id > 0);
 
 // Data containers
-/** @var array<string,mixed>|null $encounter_row */
-$encounter_row = null;
+$encounter_row = false;
 $nursing_row   = [];
-/** @var array<string,mixed>|null $patient */
-$patient       = null;
+$patient       = false;
 
 if ($viewmode) {
+    /** @var array<string, string|int|null>|false $encounter_row */
     $encounter_row = QueryUtils::querySingleRow("SELECT * FROM form_encounter WHERE id = ?", [$encounter_id]);
     if (!$encounter_row) {
         die(xlt('Encounter not found'));
     }
+    /** @var array<string, string|int|null>|false $patient */
     $patient  = QueryUtils::querySingleRow("SELECT * FROM patient_data WHERE pid = ?", [$encounter_row['pid']]);
-    $pid_form = (int) $encounter_row['pid'];
+    $pid_form = (int) ($encounter_row['pid'] ?? 0);
 } else {
     if ($pid_new <= 0) {
         die(xlt('Missing patient ID'));
     }
+    /** @var array<string, string|int|null>|false $patient */
     $patient  = QueryUtils::querySingleRow("SELECT * FROM patient_data WHERE pid = ?", [$pid_new]);
     $pid_form = $pid_new;
 }
@@ -104,7 +105,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="page-header clearfix">
                 <h2>
                     <?php echo $viewmode ? xlt('Edit Admission') : xlt('New Admission'); ?>
-                    — <?php echo text(($patient !== null ? (string)($patient['fname'] ?? '') : '') . ' ' . ($patient !== null ? (string)($patient['lname'] ?? '') : '')); ?>
+                    — <?php echo text(($patient !== false ? (string)($patient['fname'] ?? '') : '') . ' ' . ($patient !== false ? (string)($patient['lname'] ?? '') : '')); ?>
                 </h2>
             </div>
         </div>
@@ -137,7 +138,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <label class="col-sm-3 col-form-label"><?php echo xlt('Reg. No.'); ?></label>
                         <div class="col-sm-4">
                             <input type="text" name="nro_registro" class="form-control"
-                                   value="<?php echo attr($encounter_row !== null ? (string)($encounter_row['nro_registro'] ?? '') : ''); ?>">
+                                   value="<?php echo attr($encounter_row !== false ? (string)($encounter_row['nro_registro'] ?? '') : ''); ?>">
                         </div>
                     </div>
 
@@ -147,7 +148,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="departamento" class="form-control">
                                 <?php foreach ($departamentos as $val => $label): ?>
                                 <option value="<?php echo attr($val); ?>"
-                                    <?php echo (($encounter_row !== null ? (string)($encounter_row['departamento'] ?? '') : '') === $val) ? 'selected' : ''; ?>>
+                                    <?php echo (($encounter_row !== false ? (string)($encounter_row['departamento'] ?? '') : '') === $val) ? 'selected' : ''; ?>>
                                     <?php echo text($label); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -161,7 +162,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="servicio" class="form-control">
                                 <?php foreach ($servicios as $val => $label): ?>
                                 <option value="<?php echo attr($val); ?>"
-                                    <?php echo (($encounter_row !== null ? (string)($encounter_row['servicio'] ?? '') : '') === $val) ? 'selected' : ''; ?>>
+                                    <?php echo (($encounter_row !== false ? (string)($encounter_row['servicio'] ?? '') : '') === $val) ? 'selected' : ''; ?>>
                                     <?php echo text($label); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -175,7 +176,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="cuarto" class="form-control">
                                 <?php foreach ($cuartos as $val => $label): ?>
                                 <option value="<?php echo attr($val); ?>"
-                                    <?php echo (($encounter_row !== null ? (string)($encounter_row['cuarto'] ?? '') : '') === $val) ? 'selected' : ''; ?>>
+                                    <?php echo (($encounter_row !== false ? (string)($encounter_row['cuarto'] ?? '') : '') === $val) ? 'selected' : ''; ?>>
                                     <?php echo text($label); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -189,7 +190,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <select name="cama" class="form-control">
                                 <?php for ($i = 1; $i <= 10; $i++): ?>
                                 <option value="<?php echo attr((string)$i); ?>"
-                                    <?php echo (($encounter_row !== null ? (string)($encounter_row['cama'] ?? '') : '') == $i) ? 'selected' : ''; ?>>
+                                    <?php echo (($encounter_row !== false ? (string)($encounter_row['cama'] ?? '') : '') == $i) ? 'selected' : ''; ?>>
                                     <?php echo xlt('Bed') . ' ' . text((string)$i); ?>
                                 </option>
                                 <?php endfor; ?>

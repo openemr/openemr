@@ -18,26 +18,28 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $_print_session = SessionWrapperFactory::getInstance()->getActiveSession();
-$pid       = (int) filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)
-    ?: (int) ($_print_session->get('pid') ?? 0);
-$encounter = (int) filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)
-    ?: (int) ($_print_session->get('encounter') ?? 0);
-$id        = (int) filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+$pid       = is_numeric($v = filter_input(INPUT_GET, 'pid', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0
+    ?: (is_numeric($v = $_print_session->get('pid')) ? (int) $v : 0);
+$encounter = is_numeric($v = filter_input(INPUT_GET, 'encounter', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0
+    ?: (is_numeric($v = $_print_session->get('encounter')) ? (int) $v : 0);
+$id        = is_numeric($v = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT)) ? (int) $v : 0;
 if (!$pid || !$encounter || !$id) {
     die(xlt("Error: Missing required parameters."));
 }
 
 // Load wound care record
+    /** @var array<string, string|int|null>|false $row */
 $row = QueryUtils::querySingleRow("SELECT * FROM form_curaciones WHERE id = ? AND pid = ? AND encounter = ? LIMIT 1", [$id, $pid, $encounter]);
 if (!$row) {
     die(xlt("Error: Record not found or insufficient permissions."));
 }
 
 // Load patient data
+/** @var array<string, string|int|null>|false $paciente */
 $paciente = QueryUtils::querySingleRow("SELECT CONCAT(fname, ' ', lname) AS full_name, pubpid, DOB FROM patient_data WHERE pid = ?", [$pid]);
 // Calculate age
 $age = '';
-$dob_val = $paciente !== null ? (string)($paciente['DOB'] ?? '') : '';
+$dob_val = $paciente !== false ? (string)($paciente['DOB'] ?? '') : '';
 if ($dob_val !== '') {
     $dob = new DateTime($dob_val);
     $age = (new DateTime())->diff($dob)->y . ' ' . xlt('years');
@@ -47,7 +49,7 @@ $date_raw  = $row['date'] ?? '';
 $ts_eval = $date_raw !== '' ? strtotime((string) $date_raw) : false;
 $eval_date = $ts_eval !== false ? date('d/m/Y', $ts_eval) : '-';
 $hora_raw  = $row['hora_operacion'] ?? '';
-$eval_time = ($hora_raw !== '') ? $hora_raw                 : '-';
+$eval_time = ($hora_raw !== '') ? (string)$hora_raw                 : '-';
 
 // Helper: table row
 $curRow = function (string $label, int $val, string $obs): string {
@@ -126,11 +128,11 @@ ob_start();
             <tr>
                 <td style="width:38%; padding:3px 8px 3px 0;">
                     <div style="font-size:7px; color:#888; margin-bottom:2px;"><?php echo xlt('Patient'); ?></div>
-                    <div style="font-weight:bold; font-size:11px;"><?php echo text($paciente !== null ? (string)($paciente['full_name'] ?? '-') : '-'); ?></div>
+                    <div style="font-weight:bold; font-size:11px;"><?php echo text($paciente !== false ? (string)($paciente['full_name'] ?? '-') : '-'); ?></div>
                 </td>
                 <td style="width:18%; padding:3px 8px;">
                     <div style="font-size:7px; color:#888; margin-bottom:2px;"><?php echo xlt('ID'); ?></div>
-                    <div style="font-weight:bold; font-size:11px;"><?php echo text($paciente !== null ? (string)($paciente['pubpid'] ?? '-') : '-'); ?></div>
+                    <div style="font-weight:bold; font-size:11px;"><?php echo text($paciente !== false ? (string)($paciente['pubpid'] ?? '-') : '-'); ?></div>
                 </td>
                 <?php if ($age !== '') :
                     ?>
@@ -161,7 +163,7 @@ ob_start();
         xlt('Peripheral IV Line')  => ['val' => (int)($row['via_venosa']             ?? 0), 'obs' => $row['obs_via_venosa']             ?? ''],
     ];
     foreach ($fields as $label => $data) {
-        echo $curRow($label, (int)($data['val'] ?? 0), (string)($data['obs'] ?? ''));
+        echo $curRow($label, $data['val'], (string)$data['obs']);
     }
     ?>
     </tbody></table>
@@ -202,8 +204,8 @@ $mpdf = new Mpdf([
     'default_font_size' => 10,
     'tempDir'           => sys_get_temp_dir(),
 ]);
-$mpdf->SetTitle(xlt('Nursing Wound Care') . ' - ' . ($paciente !== null ? (string)($paciente['full_name'] ?? '') : ''));
+$mpdf->SetTitle(xlt('Nursing Wound Care') . ' - ' . ($paciente !== false ? (string)($paciente['full_name'] ?? '') : ''));
 $mpdf->WriteHTML((string)$html);
-$filename = 'Curaciones_' . preg_replace('/\s+/', '_', $paciente !== null ? (string)($paciente['full_name'] ?? 'paciente') : 'paciente') . '_' . date('Ymd_His') . '.pdf';
+$filename = 'Curaciones_' . preg_replace('/\s+/', '_', $paciente !== false ? (string)($paciente['full_name'] ?? 'paciente') : 'paciente') . '_' . date('Ymd_His') . '.pdf';
 $mpdf->Output($filename, 'D');
 exit;
