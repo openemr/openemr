@@ -26,11 +26,11 @@ var app = {
         if (timeout < 1000) {
             timeout = 15000;
         }
-        if (typeof signerAlertMsg !== 'undefined') {
+        if (typeof asyncAlertMsg !== 'undefined') {
             if (message.includes("Site ID is missing from session data") !== false) {
                 parent.parent.location.replace(top.webroot_url + "/portal/verify_session.php" + '?w&u');
             }
-            signerAlertMsg(message, timeout, style);
+            asyncAlertMsg(message, timeout, style).then();
         } else {
             alert(message);
         }
