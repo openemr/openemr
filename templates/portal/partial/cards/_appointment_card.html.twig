@@ -11,11 +11,7 @@
             };
         } else if (mode === 'recurring') {
             let msg = {{ 'A Recurring Appointment. Please contact your appointment desk for any changes.' | xlj }};
-            {# TODO: look at refactoring signerAlertMsg into a portalAlertMsg function, would better fit
-                Single Responsibility Principle to use that instead of the digital signature api here to show alert messages.
-                - sjp Removed portal wide signer dependent alert for utility asyncAlertMsg() function.  2026-07-06.
-            #}
-            asyncAlertMsg(msg, 8000).then();
+            asyncAlertMsg(msg, 8000);
             return false;
         } else {
             title = {{ 'Edit Appointment' | xlj }};
