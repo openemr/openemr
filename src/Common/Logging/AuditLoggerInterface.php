@@ -6,5 +6,8 @@ namespace OpenEMR\Common\Logging;
 
 interface AuditLoggerInterface
 {
-    public function auditSQLEvent(string $statement, bool $outcome, ?array $binds = null);
+    /**
+     * @param ?mixed[] $binds
+     */
+    public function auditSQLEvent(string $statement, bool $outcome, ?array $binds = null): void;
 }

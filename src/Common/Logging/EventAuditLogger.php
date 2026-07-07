@@ -426,7 +426,7 @@ class EventAuditLogger implements AuditLoggerInterface
      * @param $outcome
      * @param ?array $binds
      */
-    public function auditSQLEvent($statement, $outcome, $binds = null)
+    public function auditSQLEvent($statement, $outcome, $binds = null): void
     {
         $statement = trim((string) $statement);
 
