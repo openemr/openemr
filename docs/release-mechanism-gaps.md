@@ -1330,21 +1330,72 @@ branch-ref fetch so `--force-with-lease` has a baseline).
   tracked item so it doesn't get lost in the migration doc's phasing
   discussion.
 
-- **Status:** Open question. Revisit at workstream 7 entry (i.e.,
-  when Phase 2 of the migration is about to start — post-8.2.0). Full
-  cost/benefit analysis of option 2 vs option 3 gets locked at that
-  point. Two data points that would help the decision:
-  1. Whether any new G7-class drift bugs surface on rel-810 between
-     now and workstream 7 entry. If yes → tightens the case for
-     option 2 or 3.
-  2. Whether Phase 2's actual file list (once designed at kickoff)
-     is small enough that option 2 is cheap OR big enough that
-     option 3's structural refactor pays for itself.
+- **Status:** **Locked 2026-07-07 — Option 2 (byte-identical canary +
+  auto-sync).** Reasons in weight order:
+  1. Production-validated this session. Track A openemr/openemr#12778
+     landed on master → sync-byte-identical fired → produced
+     #12787/#12788/#12789 auto-sync PRs against rel-820/800/704 within
+     13 minutes. Zero manual per-branch work. Real evidence, not theory.
+  2. Lower migration risk. Option 3 (reusable workflows) is a
+     structural refactor per workflow — adds complexity to the
+     migration itself. Option 2 is "add files to FILES_ALL" — trivial.
+  3. Same team mental model. Byte-identical is already understood
+     from the docker pipeline; extending it is a small delta. Option 3
+     introduces caller/impl decomposition + `uses: @master` cross-branch
+     action refs — a new pattern nobody in this codebase has used.
+  4. Doesn't preclude option 3 later. Migration doc explicitly notes
+     option 3 is an optimization on top of option 2 that can land later
+     without redoing migrated work. Zero lock-in.
+  5. Sync PRs are review-gated by default (auto-merge intentionally
+     off — from sync-byte-identical.yml's header). Drift-prevention
+     without giving up substantive review.
+  6. Preserves customization escape hatch. If a specific rel-* ever
+     needs legitimately divergent build behavior, remove the file from
+     FILES_ALL (or move it to the opt-out comment block) — the sync
+     PR reviewer sees the drift and decides case-by-case. Option 3
+     is much more restrictive (would require forking the impl or
+     pinning caller to a SHA, both brittle).
+
+- **File-set sizing:** Only Phase 2 (build-release + build-release-on-tag
+  + build-patch) fires from rel-* branches, so only Phase 2 adds to
+  FILES_ALL. Phases 3-6 are master-only (ship-release orchestrator,
+  announcements, contract flip, deletions) — no drift surface.
+
+  | Phase | Workflows | PHP src | Bin scripts | Adds to FILES_ALL |
+  |---|---|---|---|---|
+  | Phase 2 | 3 | ~10-12 | ~6-8 | **~20-25 files** |
+  | Phase 3 | 0 | 0 | 0 | 0 (master-only) |
+  | Phase 4 | 0 | 0 | 0 | 0 (master-only) |
+  | Phase 5 | 0 | 0 | 0 | 0 (master-only) |
+  | Phase 6 | 0 | 0 | 0 | 0 (deletions) |
+
+  Current docker FILES_ALL is 8 files. Post-migration total: ~30 files.
+
+- **Recommended shape: enumerate workflows individually, use a glob
+  for the PHP tree.** Since `tools/release/` is one composer project,
+  splitting per-class between "on rel-*" and "master-only" is
+  awkward — cleaner to include the whole tree via a glob pattern:
+  ```yaml
+  files:
+    - .github/workflows/build-release.yml
+    - .github/workflows/build-release-on-tag.yml
+    - .github/workflows/build-patch.yml
+    - tools/release/**            # whole tree byte-identical
+  ```
+  Cost: some ship-release / announcement PHP classes end up as dead
+  code on rel-* branches (their workflows never fire from rel-*, so
+  the code sits unused). ~10-15 KB dead weight per rel-* branch —
+  trivial. Benefit: no per-file curation as classes get added or
+  removed during Phase 2/3/4 development. Sync-byte-identical.yml's
+  script needs to be verified against glob expansion at phase kickoff
+  (should work per its FILES_ALL iteration pattern, but worth explicit
+  test).
 
 - **Related gaps:** G7 (empirical driver), G10 (future consideration
   of retiring the docker-pipeline canary in favor of reusable workflows
-  once release-mechanism adopts the pattern — but only if release
-  goes option 3, not option 2).
+  — that path was closed by locking option 2 here; G10 stays open as
+  a separate future consideration if reusable-workflows appetite ever
+  materializes).
 
 ## Timing picture: who does what, when
 
