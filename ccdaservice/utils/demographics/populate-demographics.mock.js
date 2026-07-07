@@ -5,7 +5,7 @@ const {
     DECLINED_TO_SPECIFY,
     NOT_INFORMED,
 } = require('../constants');
-const TODAY = '2021-04-06T18:55:55.301Z';
+const TODAY = '';
 
 const mockPatient = {
     race: 'mock_race',
