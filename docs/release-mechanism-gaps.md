@@ -1266,6 +1266,86 @@ branch-ref fetch so `--force-with-lease` has a baseline).
   current master. `data/releases.json` diff is a single-hunk add
   (the 8.2.0 DRAFT entry). No 8.0.0 formatting or content drift.
 
+### G15 — Drift-management strategy for migrated release-machinery on rel-* branches  *(workstream 7 entry decision)*
+
+- **What:** The workstream 7 migration brings `build-release.yml` +
+  `build-release-on-tag.yml` + `build-patch.yml` + `ship-release.yml` +
+  `release-announcements.yml` + their supporting PHP classes (`PackageAssembler`,
+  `ChangelogGenerator`, `PreflightChecker`, `CompatibilityDeriver`,
+  `ShipReleaseOrchestrator`, `AnnouncementRenderer`, `PullRequest*`, etc.)
+  into `openemr/openemr`. Some of these workflows need to exist on each
+  rel-* branch to fire from that branch's context (build-release-on-tag
+  in particular fires on `push: tags: ['v*']` which is inherently
+  branch-scoped). This creates a drift surface: rel-820's copy of the
+  release-machinery can silently diverge from master's, and a bug fixed
+  on master doesn't reach the branch until backport.
+
+- **Empirical precedent:** G7 (`BranchVersionResolver` drift on rel-810,
+  2026-06-23) is the reference incident — rel-810 carried a stale copy
+  of a class that had been fixed on master weeks earlier; the drift
+  wasn't discovered until 8.1.1 prep tried to use it. Cost: hours of
+  troubleshooting during a live release-prep exercise + a surgical
+  backport PR (openemr/openemr#12611). Currently only rel-810 is in
+  scope (rel-800 and rel-704 rotate out without future releases per
+  maintainer 2026-06-23), but every future rel-* branch inherits the
+  same drift risk unless a mechanism prevents it.
+
+- **Comparison with the docker pipeline:** The docker-pipeline migration
+  (completed 2026-06-20) explicitly instituted a byte-identical
+  enforcement mechanism because docker workflows fire from each rel-*
+  branch's tree and drift there was previously a live headache. That
+  mechanism has three moving parts, all working in production
+  (validated during Track A #12778 landing on 2026-07-06):
+  - **Source of truth:** `.github/docker-byte-identical.yml` FILES_ALL
+    list
+  - **Canary:** `docker-validate-byte-identical.yml` fails PRs when
+    any FILES_ALL file drifts across branches
+  - **Auto-sync:** `sync-byte-identical.yml` opens sync PRs on master
+    push to backfill each rel-* branch
+
+- **Three options for release-machinery drift management:**
+  1. **Per-branch copies, ad-hoc backport** (status quo pre-G7).
+     Every workflow + supporting class lands on every rel branch;
+     bugs get backported when discovered. Cost: G7-class drift bugs
+     surface at release time.
+  2. **Per-branch copies + byte-identical canary + auto-sync**
+     (docker-pipeline pattern extended). Add the migrated files to
+     FILES_ALL; the canary catches drift; auto-sync backfills.
+     Adds ~5-10 files per phase to the byte-identical surface. Same
+     mechanism that already works in production for docker.
+  3. **Reusable workflows** (caller/impl split). Master owns the
+     real workflow implementations; rel branches carry thin caller
+     stubs invoking master's impl via
+     `uses: openemr/openemr/.github/workflows/*-impl.yml@master`.
+     Supporting PHP classes live on master only; the impl workflow
+     checks out master's `tools/release/` tree explicitly regardless
+     of which branch fired the caller. Drift impossible by
+     construction. Structural refactor per workflow; higher upfront
+     cost.
+
+- **Migration doc coverage:** The tradeoff table + revisit criteria
+  live in the migration doc's `## Pre-Phase-1 architectural decision:
+  per-branch copies vs reusable workflows` section (currently deferred
+  to workstream 7 entry). This gap formalizes the same question as a
+  tracked item so it doesn't get lost in the migration doc's phasing
+  discussion.
+
+- **Status:** Open question. Revisit at workstream 7 entry (i.e.,
+  when Phase 2 of the migration is about to start — post-8.2.0). Full
+  cost/benefit analysis of option 2 vs option 3 gets locked at that
+  point. Two data points that would help the decision:
+  1. Whether any new G7-class drift bugs surface on rel-810 between
+     now and workstream 7 entry. If yes → tightens the case for
+     option 2 or 3.
+  2. Whether Phase 2's actual file list (once designed at kickoff)
+     is small enough that option 2 is cheap OR big enough that
+     option 3's structural refactor pays for itself.
+
+- **Related gaps:** G7 (empirical driver), G10 (future consideration
+  of retiring the docker-pipeline canary in favor of reusable workflows
+  once release-mechanism adopts the pattern — but only if release
+  goes option 3, not option 2).
+
 ## Timing picture: who does what, when
 
 Consolidates "what the conductor handles automatically" vs "what's
