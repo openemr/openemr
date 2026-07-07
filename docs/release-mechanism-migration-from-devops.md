@@ -641,42 +641,62 @@ practical drift surface is just rel-810.
 | Setup cost during migration | Lower (copy existing pattern) | Higher (caller/impl decomposition per workflow) |
 | Surface that needs byte-identity enforcement | Whole workflow + tooling files | Only the thin caller stubs (~3-5 files per branch) |
 
-**Decision deferred to workstream 7 (migration) entry** (per maintainer,
-2026-06-23; renumbered from workstream 6 on 2026-06-30). The
-reusable-workflow POC was originally proposed as Phase-1-blocking.
-Downgraded to "revisit when workstream 7 starts" because:
+**Decision locked 2026-07-07: option 1 with byte-identical enforcement
+(docker-pipeline pattern extended to release machinery).** Formal tracking
+lives in gaps doc as G15; full reasoning + file-set sizing there.
 
-- The actual G7 fallout is bounded — rel-810 already got the surgical
-  backport (openemr/openemr#12611); rel-800 and rel-704 will rotate out
-  without future releases, so per-branch drift on those branches is
-  effectively a non-issue. The "every future per-release cycle carries
-  discovery risk" framing only applies to rel-810 going forward.
-- Reusable workflows are an *optimization* on top of per-branch copies
-  rather than a prerequisite. The migration can ship with per-branch
-  copies (status quo extended) and adopt reusable workflows later
-  without re-doing migrated work — the caller+impl decomposition is a
-  structural refactor that can land any time.
-- 8.1.1 ships ~1 week out (2026-06-23); locking the POC question pre-ship
-  isn't justified given the bounded blast radius.
+Summary of the lock in weight order:
 
-**Revisit criteria at workstream 7 entry:**
-- Has any new G7-class bug surfaced on rel-810 between now and migration?
-  Cheap signal — if yes, the case for restructuring strengthens.
-- Are the soon-to-be-migrated workflows (build-release-on-tag,
-  ship-release, release-announcements) the kind that would benefit from
-  single-source-of-truth on master? Likely yes for ship-release (rich PR
-  orchestration logic that benefits from immediate bug-fix propagation);
-  less clear for build-release-on-tag (one-shot artifact creation,
-  per-rel-branch divergence less risky).
-- Has the docker pipeline's canary surface (G10) grown enough that a
-  unified pattern starts feeling more compelling?
+1. **Production-validated this session.** Track A openemr/openemr#12778
+   landed on master → sync-byte-identical fired → produced
+   #12787/#12788/#12789 auto-sync PRs against rel-820/800/704 within 13
+   minutes. Zero manual per-branch work. Real evidence, not theory.
+2. **Lower migration risk.** Reusable workflows would be a structural
+   refactor per workflow — adds complexity to the migration itself. Byte-
+   identical is "add files to FILES_ALL" — trivial.
+3. **Same team mental model.** Byte-identical already understood from
+   docker; reusable workflows introduce caller/impl decomposition + cross-
+   branch action refs that nobody in this codebase has used.
+4. **Doesn't preclude reusable workflows later.** They're an optimization
+   on top of byte-identical; can land as a follow-up refactor without
+   redoing migrated work. Zero lock-in.
+5. **Sync PRs stay review-gated** (auto-merge intentionally off in
+   sync-byte-identical.yml). Drift prevention without giving up substantive
+   review.
+6. **Preserves per-branch customization escape hatch.** If a specific
+   rel-* ever needs legitimately divergent build behavior, remove the file
+   from FILES_ALL (or move it to the opt-out comment block). Reusable-
+   workflow equivalent is much more restrictive.
 
-**Follow-up consideration (out of scope for this migration):** the docker
-pipeline today uses byte-identical canary; if reusable workflows are
-ever adopted for release-mechanism, a future consistency pass could
-migrate the docker pipeline to the same pattern, retiring the canary
-system entirely. Tracked as G10 in the gaps doc. Not urgent — canary
-works.
+**File-set sizing:** Only Phase 2 (build-release + build-release-on-tag +
+build-patch) fires from rel-* branches, so only Phase 2 adds to FILES_ALL.
+Phases 3-6 are master-only. Additions ~20-25 files (3 workflows +
+`tools/release/**` glob covering the PHP tree). Post-migration FILES_ALL
+totals ~30 files (current docker set is 8).
+
+**Recommended FILES_ALL shape at Phase 2 kickoff:**
+
+```yaml
+files:
+  - .github/workflows/build-release.yml
+  - .github/workflows/build-release-on-tag.yml
+  - .github/workflows/build-patch.yml
+  - tools/release/**            # whole tree byte-identical
+```
+
+Enumerate the workflows individually (only 3 fire from rel-*); use a
+glob for the PHP tree so per-file curation isn't needed as classes
+churn during Phase 2/3/4 development. Cost: some ship-release /
+announcement PHP classes end up as dead code on rel-* branches (their
+workflows never fire from there). ~10-15 KB dead weight per rel-* —
+trivial. Verify sync-byte-identical.yml handles glob expansion cleanly
+at Phase 2 kickoff.
+
+**G10 (future consideration in gaps doc):** the docker pipeline's own
+canary could be retired if reusable workflows were ever adopted for
+release-mechanism. That path narrowed by locking byte-identical here —
+G10 stays open as a separate future consideration if reusable-workflow
+appetite ever materializes.
 
 ## Validated foundation
 
