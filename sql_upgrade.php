@@ -52,6 +52,12 @@ if ($response !== true) {
 @ob_end_clean();
 // Disable PHP timeout.  This will not work in safe mode.
 @ini_set('max_execution_time', '0');
+// Decouple the upgrade continuation from browser connection state --
+// prevents a client disconnect (tab close, network glitch, or a false-
+// positive fallback trip in the polling loop that scares the user into
+// closing the tab) from aborting the sql_upgrade script mid-flight,
+// which could leave the schema in an inconsistent partial-upgrade state.
+ignore_user_abort(true);
 if (ob_get_level() === 0) {
     ob_start();
 }
@@ -146,8 +152,18 @@ header('Content-type: text/html; charset=utf-8');
         // loop exits via the usual gate before either threshold trips.
         let emptyPollCount = 0;
         let lastNonEmptyPollTime = Date.now();
-        const EMPTY_POLL_THRESHOLD = 100;
-        const IDLE_TIME_THRESHOLD_MS = 15000;
+        // Thresholds are deliberately generous. Asymmetric failure modes --
+        // premature-stop shows a "may be complete" message that could scare
+        // a user into closing the browser mid-upgrade (partly mitigated by
+        // the ignore_user_abort(true) at the top of the file, but why lean
+        // on it), while late-stop just delays the "done" message by a few
+        // more seconds on the sad path where the primary signal is lost.
+        // Realistic future phases might do 30-45 seconds of pure PHP work
+        // between DB batches; 60s of continuous idle is a strong signal
+        // that no phase is actively running, without misfiring on any
+        // plausible future addition to sql_upgrade's phase sequence.
+        const EMPTY_POLL_THRESHOLD = 200;
+        const IDLE_TIME_THRESHOLD_MS = 60000;
         // recursive long polling where ending is based
         // on global doPoll true or false.
         // added a forcePollOff parameter to avoid polling from staying on indefinitely when updating from patch.sql
@@ -235,7 +251,7 @@ header('Content-type: text/html; charset=utf-8');
                     if (emptyPollCount > EMPTY_POLL_THRESHOLD &&
                             Date.now() - lastNonEmptyPollTime > IDLE_TIME_THRESHOLD_MS) {
                         progressStatus("<li class='text-light bg-warning'>" +
-                            <?php echo xlj("Auto-stopped watching server processes (no DB activity for extended period; upgrade appears complete)"); ?> +
+                            <?php echo xlj("Status polling stopped -- no database activity detected recently. Upgrade may still be running in the background; keep this browser tab open until it completes."); ?> +
                             "</li>");
                         doPoll = 0;
                     }
