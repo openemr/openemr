@@ -1852,11 +1852,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function xl\\(\\) should return string but returns string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/translation.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getUserIDInfo\\(\\) should return array\\|false\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
