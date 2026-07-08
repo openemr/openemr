@@ -943,7 +943,7 @@ class InstallerController extends AbstractActionController
             $mod = new InstModule();
             $mod->exchangeArray($dataArray);
             $mod = $this->makeButtonForSqlAction($mod);
-            $mod = $this->makeButtonForAClAction($mod);
+            $mod = $this->makeButtonForACLAction($mod);
             $modules[] = $mod;
         }
         return $modules;
