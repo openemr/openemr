@@ -54,6 +54,7 @@ class TranslationDisabledPathTest extends TestCase
         // but still call xlCleanup(), which strips {{…}} markers.
         $GLOBALS['disable_translation'] = true;
 
+        // @phpstan-ignore argument.type (literal-string rule not relevant here)
         $this->assertSame($expected, xl($input));
     }
 
@@ -83,6 +84,7 @@ class TranslationDisabledPathTest extends TestCase
         // "convert to safe apostrophe" branch runs.
         unset($GLOBALS['translate_no_safe_apostrophe']);
 
+        // @phpstan-ignore argument.type (literal-string rule not relevant here)
         $this->assertSame($expected, xl($input));
     }
 
@@ -110,6 +112,7 @@ class TranslationDisabledPathTest extends TestCase
         $GLOBALS['disable_translation'] = true;
         $GLOBALS['translate_no_safe_apostrophe'] = true;
 
+        // @phpstan-ignore argument.type (literal-string rule not relevant here)
         $this->assertSame($expected, xl($input));
     }
 
