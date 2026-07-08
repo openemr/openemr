@@ -88,15 +88,23 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 //      current DB state, guiding users to the right starting point and
 //      reducing the "re-run on already-complete install" mistake.
 //   2. The client-side version-check polling loop only fires COMPLETE
-//      when v_database has *increased* since page load AND caught up to
+//      when the DB version differs from the initial value AND matches
 //      the target -- avoids firing COMPLETE prematurely if someone runs
-//      the upgrade on an install already at the target v_database.
-$verRow = QueryUtils::querySingleRow("SELECT v_major, v_minor, v_patch, v_database FROM version LIMIT 1") ?: [];
-/** @var array{v_major?: string, v_minor?: string, v_patch?: string, v_database?: int|string} $verRow */
-$initialDbVersion = (int)($verRow['v_database'] ?? 0);
-$initialDbHumanVersion = ($verRow['v_major'] ?? '') . '.'
-    . ($verRow['v_minor'] ?? '') . '.'
-    . ($verRow['v_patch'] ?? '');
+//      the upgrade on an install already at the target.
+$initialDbHumanVersion = '';
+$verRow = QueryUtils::querySingleRow("SELECT v_major, v_minor, v_patch FROM version LIMIT 1");
+if (
+    is_array($verRow)
+    && is_string($verRow['v_major'] ?? null)
+    && is_string($verRow['v_minor'] ?? null)
+    && is_string($verRow['v_patch'] ?? null)
+) {
+    $initialDbHumanVersion = $verRow['v_major'] . '.' . $verRow['v_minor'] . '.' . $verRow['v_patch'];
+}
+$targetHumanVersion = '';
+if (isset($v_major, $v_minor, $v_patch) && is_string($v_major) && is_string($v_minor) && is_string($v_patch)) {
+    $targetHumanVersion = $v_major . '.' . $v_minor . '.' . $v_patch;
+}
 
 $versions = [];
 $sqldir = "$webserver_root/sql";
@@ -158,7 +166,7 @@ header('Content-type: text/html; charset=utf-8');
         let serverPaused = 0;
         // Backup completion detection. Runs independently of the recursive
         // polling loop below. Every 15 seconds, checks whether the DB's
-        // version.v_database has increased since page load AND caught up
+        // v_major.v_minor.v_patch has changed since page load AND caught up
         // to what version.php on disk says is the target. sql_upgrade.php's
         // last DB write is $versionService->update(), so a match means
         // "upgrade complete." This survives every failure mode that can
@@ -168,16 +176,16 @@ header('Content-type: text/html; charset=utf-8');
         // Whichever mechanism notices completion first wins the race to
         // doPoll = 0.
         //
-        // The "increased since page load" gate (INITIAL_DB_VERSION comparison)
+        // The "changed since page load" gate (INITIAL_VERSION comparison)
         // prevents COMPLETE from firing in the fringe case of someone re-
-        // running the upgrade on an install already at the target v_database.
+        // running the upgrade on an install already at the target version.
         // In that case the current DB version equals the target on the first
         // check; without the initial-version gate the polling display would
         // terminate before the (idempotent-no-op) upgrade script finishes.
         let versionCheckIntervalId = null;
         const VERSION_CHECK_INTERVAL_MS = 15000;
-        const INITIAL_DB_VERSION = <?php echo $initialDbVersion; ?>;
-        const TARGET_DB_VERSION = <?php echo (int)$v_database; ?>;
+        const INITIAL_VERSION = <?php echo json_encode($initialDbHumanVersion); ?>;
+        const TARGET_VERSION = <?php echo json_encode($targetHumanVersion); ?>;
         // recursive long polling where ending is based
         // on global doPoll true or false.
         // added a forcePollOff parameter to avoid polling from staying on indefinitely when updating from patch.sql
@@ -279,10 +287,10 @@ header('Content-type: text/html; charset=utf-8');
                         body: data
                     });
                     if (resp.status === 200) {
-                        let currentDbVersion = parseInt((await resp.text()).trim(), 10);
-                        if (!isNaN(currentDbVersion)
-                                && currentDbVersion > INITIAL_DB_VERSION
-                                && currentDbVersion >= TARGET_DB_VERSION) {
+                        let currentVersion = (await resp.text()).trim();
+                        if (currentVersion !== ''
+                                && currentVersion !== INITIAL_VERSION
+                                && currentVersion === TARGET_VERSION) {
                             doPoll = 0;
                             // Note -- serverStatus()'s next iteration checks
                             // doPoll and takes the else branch, calling
