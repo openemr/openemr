@@ -76,9 +76,15 @@ class InstallerController extends AbstractActionController
     }
 
     /**
+     * Scan the zend and custom module directories on disk and register any
+     * module that does not yet have a row in the modules table. Invoked from
+     * indexAction() when the Manage Modules UI loads, and from the console
+     * (openemr:zfc-module --modaction=discover) so new modules can be picked
+     * up without visiting the UI first.
+     *
      * @return void
      */
-    private function scanAndRegisterCustomModules(): void
+    public function scanAndRegisterCustomModules(): void
     {
         $baseModuleDir = OEGlobalsBag::getInstance()->get('baseModDir');
         $customDir = OEGlobalsBag::getInstance()->get('customModDir');
