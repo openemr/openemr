@@ -143,7 +143,6 @@ class ConditionFhirApiTest extends TestCase
             $resource['subject']['reference'],
             "Condition subject should reference the seeded patient"
         );
-        /** @var array<string, mixed> $resource */
         $this->assertConditionCodeText($resource);
     }
 
@@ -180,7 +179,6 @@ class ConditionFhirApiTest extends TestCase
             $this->patientUuid,
             $resource['subject']['reference']
         );
-        /** @var array<string, mixed> $resource */
         $this->assertConditionCodeText($resource);
     }
 
@@ -207,7 +205,7 @@ class ConditionFhirApiTest extends TestCase
         $this->assertIsArray($bundle);
         $this->assertEquals("Bundle", $bundle['resourceType'] ?? null);
         $this->assertEquals("collection", $bundle['type'] ?? null);
-        $this->assertEquals(0, $bundle['total'] ?? null, "No-match search should have total 0");
+        $this->assertSame(0, $bundle['total'] ?? null, "No-match search should have total 0");
         $this->assertEmpty($bundle['entry'] ?? [], "No-match search should have no entries");
     }
 
@@ -295,7 +293,7 @@ class ConditionFhirApiTest extends TestCase
     /**
      * Assert code on master: problem-list items without parsed diagnosis use title as code.text.
      *
-     * @param array<string, mixed> $resource
+     * @param array<array-key, mixed> $resource
      */
     private function assertConditionCodeText(array $resource): void
     {
