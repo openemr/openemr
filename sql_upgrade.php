@@ -157,11 +157,6 @@ header('Content-type: text/html; charset=utf-8');
                 <?php echo xlj("End watching server processes for upgrade version"); ?>  +" " + currentVersion + "</li>";
             if (version) {
                 currentVersion = version;
-                // Reset the fallback counters at each phase boundary so a
-                // slow-starting phase doesn't inherit stale idle state from
-                // the fast tail-end of the prior phase.
-                emptyPollCount = 0;
-                lastNonEmptyPollTime = Date.now();
                 updateMsg = "<li class='text-light bg-success'>" +
                     <?php echo xlj("Start watching server processes for upgrade version"); ?> +" " + version + "</li>";
             }
@@ -212,6 +207,15 @@ header('Content-type: text/html; charset=utf-8');
                 }
                 if (start === 1) {
                     doPoll = 1;
+                    // Reset the fallback counters on (re)start -- covers both
+                    // the initial phase-start calls from the streaming
+                    // response and the resume-from-pause call in pausePoll()
+                    // where version is '' (which the version-block above
+                    // does not fire on). Without this, a paused window
+                    // longer than IDLE_TIME_THRESHOLD_MS could trip the
+                    // wall-clock guard on the first empty poll after resume.
+                    emptyPollCount = 0;
+                    lastNonEmptyPollTime = Date.now();
                 }
                 if (forcePollOff === 1) {
                     doPoll = 0;
