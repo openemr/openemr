@@ -19,6 +19,13 @@ $ignoreAuth = true;
 // to prevent config.php call keys table oops
 $GLOBALS['ongoing_sql_upgrade'] = true;
 $GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
+// Skip HTTP request audit logging on this endpoint. The poll fires 20+ times
+// per second during sql_upgrade; letting each poll write INSERT INTO log +
+// INSERT INTO log_comment_encrypt entries makes those queries show up in
+// subsequent polls' INFORMATION_SCHEMA.PROCESSLIST snapshots, which pollutes
+// the "no DB activity" signal that sql_upgrade.php's fallback termination
+// counter relies on. Health-check requests already use this same flag.
+$skipAuditLog = true;
 require_once(__DIR__ . '/../../interface/globals.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
