@@ -31,6 +31,60 @@ class InternalToCdaConverterTest extends TestCase
         $this->assertCdaEquals($expected, $actual);
     }
 
+    /**
+     * The Functional Status Organizer (4.66) must contain the Functional Status
+     * Observation (4.67) and Self Care Activities (4.128) as two separate member
+     * observations. Regression guard for the 4.128 templateId being incorrectly
+     * nested inside the 4.67 observation.
+     */
+    public function testFunctionalStatusSelfCareIsSeparateObservation(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <functional_status>
+                    <item>
+                        <extension>FS-1</extension>
+                        <date>2021-07-23</date>
+                        <code>3298001</code>
+                        <code_text>Amnestic disorder</code_text>
+                        <code_type>SNOMED CT</code_type>
+                    </item>
+                </functional_status>
+            </CCDA>
+            XML;
+
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $organizers = $xpath->query("//hl7:organizer[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.66']]");
+        self::assertNotFalse($organizers, 'Organizer query must be valid');
+        self::assertSame(1, $organizers->length, 'Expected exactly one Functional Status Organizer');
+        $organizer = $organizers->item(0);
+        self::assertInstanceOf(\DOMElement::class, $organizer, 'Organizer node must be an element');
+
+        $allObs = $xpath->query('hl7:component/hl7:observation', $organizer);
+        self::assertNotFalse($allObs, 'Component observation query must be valid');
+        self::assertSame(2, $allObs->length, 'Organizer must contain two separate member observations');
+
+        $funcObs = $xpath->query("hl7:component/hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.67']]", $organizer);
+        self::assertNotFalse($funcObs, 'Functional Status Observation query must be valid');
+        self::assertSame(1, $funcObs->length, 'Functional Status Observation (4.67) must be its own component');
+
+        $selfCareObs = $xpath->query("hl7:component/hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.128']]", $organizer);
+        self::assertNotFalse($selfCareObs, 'Self Care Activities query must be valid');
+        self::assertSame(1, $selfCareObs->length, 'Self Care Activities (4.128) must be its own component');
+
+        $misplaced = $xpath->query(
+            "hl7:component/hl7:observation[hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.67']]"
+            . "/hl7:templateId[@root='2.16.840.1.113883.10.20.22.4.128']",
+            $organizer
+        );
+        self::assertNotFalse($misplaced, 'Misplaced-templateId query must be valid');
+        self::assertSame(0, $misplaced->length, 'Self Care Activities templateId must not be nested in the Functional Status Observation');
+    }
+
     #[DataProvider('demoFixtureProvider')]
     public function testDemoFixture(string $inputFile, string $expectedFile): void
     {
