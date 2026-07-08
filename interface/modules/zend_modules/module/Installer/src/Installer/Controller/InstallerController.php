@@ -660,22 +660,19 @@ class InstallerController extends AbstractActionController
         return $mod;
     }
 
-    /**
-     * @param $moduleName
-     * @return bool
-     */
-    public function getModuleId($moduleName): bool
+    public function getModuleId($moduleName): ?int
     {
         if (empty($moduleName)) {
-            return false;
+            return null;
         }
         $allModules = $this->InstallerTable->allModules();
         foreach ($allModules as $module) {
             if ($module["mod_directory"] === $moduleName) {
-                return $module["mod_id"];
+                $modId = $module["mod_id"];
+                return is_numeric($modId) ? (int) $modId : null;
             }
         }
-        return false;
+        return null;
     }
 
     /**
