@@ -71,6 +71,7 @@ require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -80,6 +81,30 @@ use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+// Capture the DB version at the start of this request. Two version-
+// dependent features below use this:
+//   1. The prior-version dropdown preselects the row that matches the
+//      current DB state, guiding users to the right starting point and
+//      reducing the "re-run on already-complete install" mistake.
+//   2. The client-side version-check polling loop only fires COMPLETE
+//      when the DB version differs from the initial value AND matches
+//      the target -- avoids firing COMPLETE prematurely if someone runs
+//      the upgrade on an install already at the target.
+$initialDbHumanVersion = '';
+$verRow = QueryUtils::querySingleRow("SELECT v_major, v_minor, v_patch FROM version LIMIT 1");
+if (
+    is_array($verRow)
+    && is_string($verRow['v_major'] ?? null)
+    && is_string($verRow['v_minor'] ?? null)
+    && is_string($verRow['v_patch'] ?? null)
+) {
+    $initialDbHumanVersion = $verRow['v_major'] . '.' . $verRow['v_minor'] . '.' . $verRow['v_patch'];
+}
+$targetHumanVersion = '';
+if (isset($v_major, $v_minor, $v_patch) && is_string($v_major) && is_string($v_minor) && is_string($v_patch)) {
+    $targetHumanVersion = $v_major . '.' . $v_minor . '.' . $v_patch;
+}
 
 $versions = [];
 $sqldir = "$webserver_root/sql";
@@ -139,31 +164,28 @@ header('Content-type: text/html; charset=utf-8');
         let processProgress = 0;
         let doPoll = 0;
         let serverPaused = 0;
-        // Fallback termination for the polling loop. The primary termination
-        // signal is a doPoll=0 script chunk injected into sql_upgrade.php's
-        // streaming response. On fast/minimal-data upgrades where the phase
-        // finishes in under a second, that chunk can get swallowed by
-        // buffering somewhere in the pipeline (PHP output buffer, Apache
-        // mod_deflate, kernel TCP, browser fetch stream) even with the
-        // server-side sleep() delivery margin -- polling then runs forever.
-        // These counters detect that state via a sustained window of empty
-        // poll responses (no DB activity for the run's DB) and auto-terminate
-        // the loop. On the happy path where doPoll=0 arrives normally, the
-        // loop exits via the usual gate before either threshold trips.
-        let emptyPollCount = 0;
-        let lastNonEmptyPollTime = Date.now();
-        // Thresholds are deliberately generous. Asymmetric failure modes --
-        // premature-stop shows a "may be complete" message that could scare
-        // a user into closing the browser mid-upgrade (partly mitigated by
-        // the ignore_user_abort(true) at the top of the file, but why lean
-        // on it), while late-stop just delays the "done" message by a few
-        // more seconds on the sad path where the primary signal is lost.
-        // Realistic future phases might do 30-45 seconds of pure PHP work
-        // between DB batches; 60s of continuous idle is a strong signal
-        // that no phase is actively running, without misfiring on any
-        // plausible future addition to sql_upgrade's phase sequence.
-        const EMPTY_POLL_THRESHOLD = 200;
-        const IDLE_TIME_THRESHOLD_MS = 60000;
+        // Backup completion detection. Runs independently of the recursive
+        // polling loop below. Every 15 seconds, checks whether the DB's
+        // v_major.v_minor.v_patch has changed since page load AND caught up
+        // to what version.php on disk says is the target. sql_upgrade.php's
+        // last DB write is $versionService->update(), so a match means
+        // "upgrade complete." This survives every failure mode that can
+        // affect the primary termination signal (streaming chunk swallowed
+        // by output buffering, poll endpoint self-noise from globals.php
+        // bootstrap queries polluting the "no DB activity" signal, etc.).
+        // Whichever mechanism notices completion first wins the race to
+        // doPoll = 0.
+        //
+        // The "changed since page load" gate (INITIAL_VERSION comparison)
+        // prevents COMPLETE from firing in the fringe case of someone re-
+        // running the upgrade on an install already at the target version.
+        // In that case the current DB version equals the target on the first
+        // check; without the initial-version gate the polling display would
+        // terminate before the (idempotent-no-op) upgrade script finishes.
+        let versionCheckIntervalId = null;
+        const VERSION_CHECK_INTERVAL_MS = 15000;
+        const INITIAL_VERSION = <?php echo json_encode($initialDbHumanVersion); ?>;
+        const TARGET_VERSION = <?php echo json_encode($targetHumanVersion); ?>;
         // recursive long polling where ending is based
         // on global doPoll true or false.
         // added a forcePollOff parameter to avoid polling from staying on indefinitely when updating from patch.sql
@@ -223,46 +245,69 @@ header('Content-type: text/html; charset=utf-8');
                 }
                 if (start === 1) {
                     doPoll = 1;
-                    // Reset the fallback counters on (re)start -- covers both
-                    // the initial phase-start calls from the streaming
-                    // response and the resume-from-pause call in pausePoll()
-                    // where version is '' (which the version-block above
-                    // does not fire on). Without this, a paused window
-                    // longer than IDLE_TIME_THRESHOLD_MS could trip the
-                    // wall-clock guard on the first empty poll after resume.
-                    emptyPollCount = 0;
-                    lastNonEmptyPollTime = Date.now();
+                    startVersionCheckIfNotRunning();
                 }
                 if (forcePollOff === 1) {
                     doPoll = 0;
                 }
-                // display to screen div + track fallback termination signals
+                // display to screen div
                 if (status > "") {
                     progressStatus(status);
-                    emptyPollCount = 0;
-                    lastNonEmptyPollTime = Date.now();
-                } else if (doPoll) {
-                    // Empty poll -- no active DB activity from the sql_upgrade
-                    // run. If BOTH the consecutive-count and wall-clock
-                    // thresholds trip while we're still polling, treat it as
-                    // proof the phase completed and the primary doPoll=0
-                    // signal got lost in the buffering pipeline.
-                    emptyPollCount++;
-                    if (emptyPollCount > EMPTY_POLL_THRESHOLD &&
-                            Date.now() - lastNonEmptyPollTime > IDLE_TIME_THRESHOLD_MS) {
-                        progressStatus("<li class='text-light bg-warning'>" +
-                            <?php echo xlj("Status polling stopped -- no database activity detected recently. Upgrade may still be running in the background; keep this browser tab open until it completes."); ?> +
-                            "</li>");
-                        doPoll = 0;
-                    }
                 }
 
                 // and so forth.
                 if (doPoll) {
                     await serverStatus();
                 } else {
+                    stopVersionCheck();
                     progressStatus(endMsg);
                 }
+            }
+        }
+
+        // Independent completion detection -- polls a lightweight endpoint
+        // every VERSION_CHECK_INTERVAL_MS to see if the DB's v_database
+        // has caught up to what version.php on disk says is the target.
+        // Runs alongside serverStatus() polling; whichever notices
+        // completion first drops doPoll = 0 and ends the loop.
+        function startVersionCheckIfNotRunning() {
+            if (versionCheckIntervalId !== null) {
+                return;
+            }
+            versionCheckIntervalId = setInterval(async () => {
+                if (!doPoll) {
+                    stopVersionCheck();
+                    return;
+                }
+                try {
+                    let data = new FormData;
+                    data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'sqlupgrade')); ?>);
+                    let resp = await fetch('library/ajax/sql_upgrade_version_check.php', {
+                        method: 'post',
+                        body: data
+                    });
+                    if (resp.status === 200) {
+                        let currentVersion = (await resp.text()).trim();
+                        if (currentVersion !== ''
+                                && currentVersion !== INITIAL_VERSION
+                                && currentVersion === TARGET_VERSION) {
+                            doPoll = 0;
+                            // Note -- serverStatus()'s next iteration checks
+                            // doPoll and takes the else branch, calling
+                            // stopVersionCheck() + rendering endMsg. No need
+                            // to render here.
+                        }
+                    }
+                } catch (e) {
+                    // Network hiccup or similar -- try again next interval.
+                }
+            }, VERSION_CHECK_INTERVAL_MS);
+        }
+
+        function stopVersionCheck() {
+            if (versionCheckIntervalId !== null) {
+                clearInterval(versionCheckIntervalId);
+                versionCheckIntervalId = null;
             }
         }
 
@@ -381,14 +426,20 @@ header('Content-type: text/html; charset=utf-8');
                     <label><?php echo xlt("Please select the prior release you are converting from"); ?>:</label>
                     <select class='mx-3 form-control' name='form_old_version' onchange="setWarnings(this)">
                         <?php
-                        $cnt_versions = count($versions);
+                        // Selection priority (highest first):
+                        //   1. POSTed value (page re-render after form submit)
+                        //   2. Current DB version (best guess for where the user is)
+                        //   3. Most recent version in the list (historical fallback)
+                        $defaultSelection = $_POST['form_old_version'] ?? '';
+                        if ($defaultSelection === '' && isset($versions[$initialDbHumanVersion])) {
+                            $defaultSelection = $initialDbHumanVersion;
+                        }
+                        if ($defaultSelection === '') {
+                            $defaultSelection = array_key_last($versions);
+                        }
                         foreach ($versions as $version => $filename) {
-                            --$cnt_versions;
                             echo " <option value='$version'";
-                            // Defaulting to most recent version or last version in list.
-                            if ($version == ($_POST['form_old_version'] ?? '')) {
-                                echo " selected";
-                            } elseif ($cnt_versions === 0 && !($_POST['form_old_version'] ?? '')) {
+                            if ($version === $defaultSelection) {
                                 echo " selected";
                             }
                             echo ">$version</option>\n";
