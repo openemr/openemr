@@ -104,7 +104,7 @@
 
 - branch: rel-820
   docker_tags: 8.2.0,latest
-  openemr_version_ref: v8_2_1
+  openemr_version_ref: v8_2_0
 
 - branch: rel-800
   # 8.0.0 is the floating "current latest 8.0.0.x" pointer (always advances
