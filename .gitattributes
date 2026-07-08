@@ -8,6 +8,15 @@
 .phpstan/                      export-ignore
 ci/                            export-ignore
 docker/                        export-ignore
+# Selective carve-out: docker/production/ ships as a reference-production
+# compose template so tarball users have a blessed starting point for a
+# self-hosted Docker deployment (its image ref gets pinned by the release-
+# prep conductor before tag time). Development docker stacks (docker/
+# development-easy*, docker/flex, docker/dockerhub, docker/binary,
+# docker/container_benchmarking) stay excluded — they carry no user-facing
+# artifacts for the released tarball.
+docker/production/            -export-ignore
+docker/production/**          -export-ignore
 tests/                         export-ignore
 tools/                         export-ignore
 .gitattributes                 export-ignore
