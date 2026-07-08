@@ -52,6 +52,12 @@ if ($response !== true) {
 @ob_end_clean();
 // Disable PHP timeout.  This will not work in safe mode.
 @ini_set('max_execution_time', '0');
+// Decouple the upgrade continuation from browser connection state --
+// prevents a client disconnect (tab close, network glitch, or a false-
+// positive fallback trip in the polling loop that scares the user into
+// closing the tab) from aborting the sql_upgrade script mid-flight,
+// which could leave the schema in an inconsistent partial-upgrade state.
+ignore_user_abort(true);
 if (ob_get_level() === 0) {
     ob_start();
 }
@@ -133,6 +139,31 @@ header('Content-type: text/html; charset=utf-8');
         let processProgress = 0;
         let doPoll = 0;
         let serverPaused = 0;
+        // Fallback termination for the polling loop. The primary termination
+        // signal is a doPoll=0 script chunk injected into sql_upgrade.php's
+        // streaming response. On fast/minimal-data upgrades where the phase
+        // finishes in under a second, that chunk can get swallowed by
+        // buffering somewhere in the pipeline (PHP output buffer, Apache
+        // mod_deflate, kernel TCP, browser fetch stream) even with the
+        // server-side sleep() delivery margin -- polling then runs forever.
+        // These counters detect that state via a sustained window of empty
+        // poll responses (no DB activity for the run's DB) and auto-terminate
+        // the loop. On the happy path where doPoll=0 arrives normally, the
+        // loop exits via the usual gate before either threshold trips.
+        let emptyPollCount = 0;
+        let lastNonEmptyPollTime = Date.now();
+        // Thresholds are deliberately generous. Asymmetric failure modes --
+        // premature-stop shows a "may be complete" message that could scare
+        // a user into closing the browser mid-upgrade (partly mitigated by
+        // the ignore_user_abort(true) at the top of the file, but why lean
+        // on it), while late-stop just delays the "done" message by a few
+        // more seconds on the sad path where the primary signal is lost.
+        // Realistic future phases might do 30-45 seconds of pure PHP work
+        // between DB batches; 60s of continuous idle is a strong signal
+        // that no phase is actively running, without misfiring on any
+        // plausible future addition to sql_upgrade's phase sequence.
+        const EMPTY_POLL_THRESHOLD = 200;
+        const IDLE_TIME_THRESHOLD_MS = 60000;
         // recursive long polling where ending is based
         // on global doPoll true or false.
         // added a forcePollOff parameter to avoid polling from staying on indefinitely when updating from patch.sql
@@ -192,13 +223,38 @@ header('Content-type: text/html; charset=utf-8');
                 }
                 if (start === 1) {
                     doPoll = 1;
+                    // Reset the fallback counters on (re)start -- covers both
+                    // the initial phase-start calls from the streaming
+                    // response and the resume-from-pause call in pausePoll()
+                    // where version is '' (which the version-block above
+                    // does not fire on). Without this, a paused window
+                    // longer than IDLE_TIME_THRESHOLD_MS could trip the
+                    // wall-clock guard on the first empty poll after resume.
+                    emptyPollCount = 0;
+                    lastNonEmptyPollTime = Date.now();
                 }
                 if (forcePollOff === 1) {
                     doPoll = 0;
                 }
-                // display to screen div
+                // display to screen div + track fallback termination signals
                 if (status > "") {
                     progressStatus(status);
+                    emptyPollCount = 0;
+                    lastNonEmptyPollTime = Date.now();
+                } else if (doPoll) {
+                    // Empty poll -- no active DB activity from the sql_upgrade
+                    // run. If BOTH the consecutive-count and wall-clock
+                    // thresholds trip while we're still polling, treat it as
+                    // proof the phase completed and the primary doPoll=0
+                    // signal got lost in the buffering pipeline.
+                    emptyPollCount++;
+                    if (emptyPollCount > EMPTY_POLL_THRESHOLD &&
+                            Date.now() - lastNonEmptyPollTime > IDLE_TIME_THRESHOLD_MS) {
+                        progressStatus("<li class='text-light bg-warning'>" +
+                            <?php echo xlj("Status polling stopped -- no database activity detected recently. Upgrade may still be running in the background; keep this browser tab open until it completes."); ?> +
+                            "</li>");
+                        doPoll = 0;
+                    }
                 }
 
                 // and so forth.
@@ -386,7 +442,7 @@ header('Content-type: text/html; charset=utf-8');
                         $sqlUpgradeService->flush_echo("<script>serverStatus(" . js_escape($version) . ", 1);</script>");
                         $sqlUpgradeService->upgradeFromSqlFile($filename);
                         // end polling
-                        sleep(2); // fixes odd bug, where if the sql upgrade goes to fast, then the polling does not stop
+                        sleep(5); // gives the streaming doPoll=0 chunk a delivery margin (client-side fallback counter picks up if it's still lost)
                         $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
                     }
 
@@ -410,7 +466,7 @@ header('Content-type: text/html; charset=utf-8');
                     } else {
                         echo "Did not need to update or add any new UUIDs</p><br />\n";
                     }
-                    sleep(2); // fixes odd bug, where if process goes to fast, then the polling does not stop
+                    sleep(5); // gives the streaming doPoll=0 chunk a delivery margin (client-side fallback counter picks up if it's still lost)
                     $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
 
                     echo "<p class='text-success'>" . xlt("Updating global configuration defaults") . "..." . "</p><br />\n";
