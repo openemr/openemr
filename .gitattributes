@@ -7,7 +7,7 @@
 .github/                       export-ignore
 .phpstan/                      export-ignore
 ci/                            export-ignore
-docker/                        export-ignore
+docker/*                       export-ignore
 # Selective carve-out: docker/production/ ships as a reference-production
 # compose template so tarball users have a blessed starting point for a
 # self-hosted Docker deployment (its image ref gets pinned by the release-
