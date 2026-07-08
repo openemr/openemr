@@ -82,9 +82,9 @@ class InstallerController extends AbstractActionController
      * (openemr:zfc-module --modaction=discover) so new modules can be picked
      * up without visiting the UI first.
      *
-     * @return void
+     * @return string[] Directory names of modules newly registered by this scan
      */
-    public function scanAndRegisterCustomModules(): void
+    public function scanAndRegisterCustomModules(): array
     {
         $baseModuleDir = OEGlobalsBag::getInstance()->get('baseModDir');
         $customDir = OEGlobalsBag::getInstance()->get('customModDir');
@@ -132,14 +132,20 @@ class InstallerController extends AbstractActionController
                 }
             }
         }
+        $registered = [];
         foreach ($inDirLaminas as $file_name) {
             $rel_path = $file_name . "/index.php";
-            $status = $this->InstallerTable->register($file_name, $rel_path, 0, $zendModDir);
+            if ($this->InstallerTable->register($file_name, $rel_path, 0, $zendModDir)) {
+                $registered[] = $file_name;
+            }
         }
         foreach ($inDirCustom as $file_name) {
             $rel_path = $file_name . "/index.php";
-            $status = $this->InstallerTable->register($file_name, $rel_path);
+            if ($this->InstallerTable->register($file_name, $rel_path)) {
+                $registered[] = $file_name;
+            }
         }
+        return $registered;
     }
 
     /**
