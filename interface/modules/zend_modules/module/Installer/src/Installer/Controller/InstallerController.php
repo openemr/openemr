@@ -928,6 +928,28 @@ class InstallerController extends AbstractActionController
     }
 
     /**
+     * Build the list of registered modules with their status, mirroring what
+     * the Manage Modules UI computes (sql_action / acl_action indicate whether
+     * a SQL or ACL install/upgrade is pending). Read-only: unlike indexAction()
+     * this does not scan/register new on-disk modules -- run the discover action
+     * for that.
+     *
+     * @return InstModule[]
+     */
+    public function commandListModulesAction(): array
+    {
+        $modules = [];
+        foreach ($this->InstallerTable->allModules() as $dataArray) {
+            $mod = new InstModule();
+            $mod->exchangeArray($dataArray);
+            $mod = $this->makeButtonForSqlAction($mod);
+            $mod = $this->makeButtonForAClAction($mod);
+            $modules[] = $mod;
+        }
+        return $modules;
+    }
+
+    /**
      *
      */
     public function commandInstallModuleAction($moduleName, $moduleAction)
