@@ -5225,6 +5225,10 @@ class InternalToCdaConverter
         // Observation component
         $this->appendFunctionalStatusObservation($organizer, $item);
 
+        // Self Care Activities (ADL and IADL): a distinct member observation
+        // conforming to template 2.16.840.1.113883.10.20.22.4.128.
+        $this->appendFunctionalStatusSelfCareObservation($organizer, $item);
+
         $entry->appendChild($organizer);
         $section->appendChild($entry);
     }
@@ -5238,10 +5242,6 @@ class InternalToCdaConverter
         $obs->setAttribute('moodCode', 'EVN');
 
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.67', '2014-06-09');
-        // Self-Care Activities (ADL and IADL): the ICF self-care organizer
-        // requires its member observation to conform to this template
-        // (2.16.840.1.113883.10.20.22.4.128).
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.128');
 
         $ext = $this->xpathValue('extension', $item);
         $id = $this->createElement('id');
@@ -5286,6 +5286,52 @@ class InternalToCdaConverter
         }
 
         // Author
+        $authorEl = $this->xpath('/CCDA/author')->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        $component->appendChild($obs);
+        $organizer->appendChild($component);
+    }
+
+    private function appendFunctionalStatusSelfCareObservation(DOMElement $organizer, DOMElement $item): void
+    {
+        $component = $this->createElement('component');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.128');
+
+        $ext = $this->xpathValue('extension', $item);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc8090ab');
+        if ($ext !== '') {
+            $id->setAttribute('extension', $ext);
+        }
+        $obs->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('nullFlavor', 'NA');
+        $obs->appendChild($code);
+
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $date = $this->xpathValue('date', $item);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $obs->appendChild($effectiveTime);
+
+        $value = $this->output->createElement('value');
+        $this->setXsiType($value, 'CD');
+        $value->setAttribute('code', '371153006');
+        $value->setAttribute('displayName', 'Independent');
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $obs->appendChild($value);
+
         $authorEl = $this->xpath('/CCDA/author')->item(0);
         if ($authorEl instanceof DOMElement) {
             $this->appendEntryAuthor($obs, $authorEl);
