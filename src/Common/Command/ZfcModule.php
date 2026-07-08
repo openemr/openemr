@@ -57,12 +57,21 @@ class ZfcModule extends Command
 
         if ($modaction === 'list') {
             $this->renderModuleList($controller->commandListModulesAction(), $output);
+            $output->writeln('Only registered modules are shown. Run --modaction=discover to register newly added on-disk modules.');
             return 0;
         }
 
         if ($modaction === 'discover') {
-            $controller->scanAndRegisterCustomModules();
-            $output->writeln('Scanned module directories; newly found modules are now registered (disabled). Run --modaction=list to review.');
+            $registered = $controller->scanAndRegisterCustomModules();
+            if ($registered === []) {
+                $output->writeln('No new modules found; all on-disk modules are already registered.');
+                return 0;
+            }
+            $output->writeln(sprintf('Registered %d new module(s), disabled by default:', count($registered)));
+            foreach ($registered as $moduleDirectory) {
+                $output->writeln('  - ' . $moduleDirectory);
+            }
+            $output->writeln('Run --modaction=list to review, then enable/install as needed.');
             return 0;
         }
 
