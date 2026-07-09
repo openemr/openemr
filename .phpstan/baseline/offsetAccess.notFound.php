@@ -157,26 +157,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExportJobTaskService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 0 might not exist on string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/FaxDocumentService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 0 might not exist on array\\{\\}\\|array\\{1\\?\\: non\\-falsy\\-string, 2\\?\\: non\\-falsy\\-string, 0\\?\\: non\\-falsy\\-string\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{1\\?\\: non\\-falsy\\-string, 2\\?\\: non\\-falsy\\-string, 0\\?\\: non\\-falsy\\-string\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 2 might not exist on array\\{\\}\\|array\\{1\\?\\: non\\-falsy\\-string, 2\\?\\: non\\-falsy\\-string, 0\\?\\: non\\-falsy\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'email\' might not exist on array\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
@@ -737,22 +717,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'GS\' might not exist on array\\{ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>, GS\\?\\: non\\-empty\\-array\\<array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ISA\\: non\\-empty\\-array\\<array\\{count\\: int\\<1, max\\>, gscount\\: string, start\\: numeric\\-string, sender\\: string, receiver\\: string, icn\\: string, date\\: string, version\\: string\\}\\|array\\{count\\: int\\<1, max\\>, gscount\\: string\\}\\>\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'ST\' might not exist on array\\{ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>, GS\\: non\\-empty\\-array\\<non\\-empty\\-array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ISA\\?\\: non\\-empty\\-array\\<array\\{count\\?\\: int\\<1, max\\>, gscount\\?\\: string, start\\?\\: numeric\\-string, sender\\?\\: string, receiver\\?\\: string, icn\\?\\: string, date\\?\\: string, version\\?\\: string\\}\\>\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'count\' might not exist on array\\{start\\: mixed, count\\?\\: \\(float\\|int\\)\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'icn\' might not exist on array\\{count\\: int\\<1, max\\>, gscount\\: string, start\\?\\: numeric\\-string, sender\\?\\: string, receiver\\?\\: string, icn\\?\\: string, date\\?\\: string, version\\?\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];

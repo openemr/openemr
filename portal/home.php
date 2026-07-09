@@ -361,6 +361,7 @@ try {
         'newcnt' => $newcnt,
         'menuLogo' => $logoService->getLogo('portal/menu/primary'),
         'allow_portal_appointments' => $globalsBag->getBoolean('allow_portal_appointments'),
+        'viewOnlyAppointments' => $globalsBag->getBoolean('view_only_portal_appointments'),
         'web_root' => $globalsBag->get('web_root'),
         'payment_gateway' => $globalsBag->get('payment_gateway'),
         'gateway_mode_production' => $globalsBag->getBoolean('gateway_mode_production'),
