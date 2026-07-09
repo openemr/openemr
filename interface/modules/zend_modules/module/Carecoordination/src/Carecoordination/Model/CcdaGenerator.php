@@ -16,8 +16,8 @@ namespace Carecoordination\Model;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Cda\InternalToCdaConverter;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CcdaGenerator
 {
