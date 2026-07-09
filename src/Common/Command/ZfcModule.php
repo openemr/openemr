@@ -25,6 +25,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ZfcModule extends Command
 {
+    /**
+     * Actions that operate on a single named module. Kept in sync with the
+     * match arms in dispatchModuleAction(); used to reject unknown actions
+     * up front so they fail with a clear message rather than a misleading
+     * "module missing" error or an exception from the match default.
+     */
+    private const MODULE_ACTIONS = [
+        'install_sql',
+        'upgrade_sql',
+        'install_acl',
+        'upgrade_acl',
+        'enable',
+        'disable',
+        'install',
+        'unregister',
+    ];
+
     protected function configure(): void
     {
         $this
@@ -75,6 +92,11 @@ class ZfcModule extends Command
             return 0;
         }
 
+        if (!in_array($modaction, self::MODULE_ACTIONS, true)) {
+            $output->writeln(sprintf('Unsupported action "%s".', $modaction));
+            return 2;
+        }
+
         $modname = $input->getOption('modname');
         if (!is_string($modname) || $modname === '') {
             $output->writeln('modname parameter is missing (required), so exiting');
@@ -107,7 +129,9 @@ class ZfcModule extends Command
             'disable' => $controller->DisableModule($moduleId),
             'install' => $controller->InstallModule($moduleId),
             'unregister' => $controller->UnregisterModule($moduleId),
-            default => throw new \InvalidArgumentException(sprintf('Unsupported action "%s".', $modaction)),
+            // Unreachable: execute() validates $modaction against MODULE_ACTIONS
+            // before dispatching. Guards against that list drifting from these arms.
+            default => throw new \LogicException(sprintf('Action "%s" is in MODULE_ACTIONS but has no dispatch arm.', $modaction)),
         };
 
         foreach ($this->resultLines($result) as $line) {
