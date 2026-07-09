@@ -71,7 +71,6 @@
     <assignedAuthor>
       <id root="a208621d-316f-4c53-9553-dd76c516cd33" extension="NI"/>
       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
-      <telecom nullFlavor="UNK"/>
       <addr use="WP">
         <country>US</country>
         <state/>
@@ -79,6 +78,7 @@
         <postalCode/>
         <streetAddressLine/>
       </addr>
+      <telecom nullFlavor="UNK"/>
       <assignedPerson>
         <name>
           <family>Lee</family>
