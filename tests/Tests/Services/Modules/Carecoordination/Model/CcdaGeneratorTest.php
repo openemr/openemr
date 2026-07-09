@@ -98,8 +98,8 @@ class CcdaGeneratorTest extends TestCase
 
         $dispatchTable = $this->createMock(EncounterccdadispatchTable::class);
         $generator = new CcdaGenerator($dispatchTable);
-        $xml = $generator->socket_get(trim($inputData));
-        self::assertNotEmpty($xml, 'socket_get returned empty response');
+        $xml = $generator->normalize(trim($inputData));
+        self::assertNotEmpty($xml, 'normalizereturned empty response');
 
         $dom = $this->loadDom($xml);
         $xpath = new DOMXPath($dom);
