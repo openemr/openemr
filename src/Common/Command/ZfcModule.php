@@ -45,12 +45,12 @@ class ZfcModule extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (empty($input->getOption('modaction'))) {
+        $modaction = $input->getOption('modaction');
+        if (!is_string($modaction) || $modaction === '') {
             $output->writeln('modaction parameter is missing (required), so exiting');
             return 2;
         }
 
-        $modaction = $input->getOption('modaction');
         $controller = new InstallerController(
             OEGlobalsBag::getInstance()->get('modules_application')->getServiceManager()->build(InstModuleTable::class)
         );
@@ -75,14 +75,76 @@ class ZfcModule extends Command
             return 0;
         }
 
-        if (empty($input->getOption('modname'))) {
+        $modname = $input->getOption('modname');
+        if (!is_string($modname) || $modname === '') {
             $output->writeln('modname parameter is missing (required), so exiting');
             return 2;
         }
 
-        $modname = $input->getOption('modname');
-        $controller->commandInstallModuleAction($modname, $modaction);
+        return $this->dispatchModuleAction($controller, $modname, $modaction, $output);
+    }
+
+    private function dispatchModuleAction(
+        InstallerController $controller,
+        string $modname,
+        string $modaction,
+        OutputInterface $output,
+    ): int {
+        $moduleId = $controller->getModuleId($modname);
+        if ($moduleId === null) {
+            $output->writeln(sprintf('Module "%s" is not registered; run --modaction=discover if it was added recently.', $modname));
+            return 1;
+        }
+
+        $output->writeln(sprintf('Running "%s" on module "%s"...', $modaction, $modname));
+
+        $result = match ($modaction) {
+            'install_sql' => $controller->InstallModuleSQL($moduleId),
+            'upgrade_sql' => $controller->UpgradeModuleSQL($moduleId),
+            'install_acl' => $controller->InstallModuleACL($moduleId),
+            'upgrade_acl' => $controller->UpgradeModuleACL($moduleId),
+            'enable' => $controller->EnableModule($moduleId),
+            'disable' => $controller->DisableModule($moduleId),
+            'install' => $controller->InstallModule($moduleId),
+            'unregister' => $controller->UnregisterModule($moduleId),
+            default => throw new \InvalidArgumentException(sprintf('Unsupported action "%s".', $modaction)),
+        };
+
+        foreach ($this->resultLines($result) as $line) {
+            $output->writeln($line);
+        }
+        $output->writeln('Done.');
         return 0;
+    }
+
+    /**
+     * The installer methods return heterogeneous shapes (bool status, a status
+     * message, or an array of log fragments). Normalise to plain-text lines for
+     * console output.
+     *
+     * strip_tags() is applied because some methods (upgrade_sql, *_acl) were
+     * written for the web UI and return HTML markup (spoiler divs, <br />), which
+     * is noise in a terminal. The installer returning view markup is the real
+     * smell; laundering it here is a pragmatic stopgap until those methods return
+     * structured data.
+     *
+     * @return string[]
+     */
+    private function resultLines(mixed $result): array
+    {
+        if (is_array($result)) {
+            $lines = [];
+            foreach ($result as $line) {
+                if (is_string($line)) {
+                    $lines[] = trim(strip_tags($line));
+                }
+            }
+            return $lines;
+        }
+        if (is_string($result) && $result !== '') {
+            return [trim(strip_tags($result))];
+        }
+        return [];
     }
 
     /**
