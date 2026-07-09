@@ -26,7 +26,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
-use RuntimeException;
 
 class InstallerController extends AbstractActionController
 {
@@ -942,63 +941,5 @@ class InstallerController extends AbstractActionController
             $modules[] = $mod;
         }
         return $modules;
-    }
-
-    /**
-     *
-     */
-    public function commandInstallModuleAction($moduleName, $moduleAction)
-    {
-        if (php_sapi_name() !== 'cli') {
-            throw new RuntimeException('You can only use this action from a console!');
-        }
-
-        $moduleId = null;
-        $div = [];
-
-        echo PHP_EOL . '--- Run command [' . $moduleAction . '] in module:  ' . $moduleName . '---' . PHP_EOL;
-        echo 'start process - ' . date('Y-m-d H:i:s') . PHP_EOL;
-
-        if (!empty($moduleAction) && !empty($moduleName) && $moduleName != "all") {
-            $moduleId = $this->getModuleId($moduleName);
-        }
-
-        if ($moduleId !== null) {
-            echo 'module [' . $moduleName . '] was found' . PHP_EOL;
-
-            $msg = "command completed successfully";
-
-            if ($moduleAction === "install_sql") {
-                $this->InstallModuleSQL($moduleId);
-            } elseif ($moduleAction === "upgrade_sql") {
-                $div = $this->UpgradeModuleSQL($moduleId);
-            } elseif ($moduleAction === "install_acl") {
-                $div = $this->InstallModuleACL($moduleId);
-            } elseif ($moduleAction === "upgrade_acl") {
-                $div = $this->UpgradeModuleACL($moduleId);
-            } elseif ($moduleAction === "enable") {
-                $div = $this->EnableModule($moduleId);
-            } elseif ($moduleAction === "disable") {
-                $div = $this->DisableModule($moduleId);
-            } elseif ($moduleAction === "install") {
-                $div = $this->InstallModule($moduleId);
-            } elseif ($moduleAction === "unregister") {
-                $div = $this->UnregisterModule($moduleId);
-            } else {
-                $msg = 'Unsupported command';
-            }
-        } else {
-            $msg = "module Id is null";
-        }
-
-
-        $output = "";
-
-        if (is_array($div)) {
-            $output = implode("<br />\n", $div) . PHP_EOL;
-        }
-        echo $output;
-
-        exit($msg . PHP_EOL);
     }
 }
