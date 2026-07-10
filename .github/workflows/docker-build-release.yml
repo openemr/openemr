@@ -29,10 +29,14 @@
 #     scheduled tick (dispatching against this branch's --ref with both
 #     inputs set from release-targets.yml), or by a maintainer in the
 #     Actions UI.
-#   * push: tags: ['v*'] -- a git tag push fires the build directly with
-#     the tag value driving the docker tag (e.g. pushing v8.1.0 pushes
-#     openemr/openemr:8.1.0 plus the dated sibling), and the tag value
-#     itself is also used as the openemr_version_ref.
+#
+# Note: a `push: tags: ['v*']` trigger was previously wired here but
+# has been removed. Tag pushes now flow exclusively through the
+# orchestrator's release-targets.yml consumer path -- eliminates a
+# double-build race window (tag-push + orchestrator-fanout hitting
+# the same registry tag concurrently) and gives a single trigger
+# surface for post-release build state to reason about. See gaps doc
+# G17 for the design rationale.
 
 name: Docker build release
 
@@ -49,11 +53,27 @@ on:
         required: false
         type: string
         default: ''
-  push:
-    tags: ['v*']
 
 permissions:
   contents: read
+
+# Serialize per-(branch, docker_tags) builds. Two dispatches with
+# the same ref AND the same docker_tags input (e.g., release-
+# targets.yml push + daily orchestrator cron landing close
+# together, or two rapid manual dispatches) queue instead of
+# racing on the same registry tag pointer. Different refs (master
+# vs rel-820 vs rel-800) still fan out in parallel; different
+# docker_tags on the same branch (multi-row-per-branch case --
+# a rel-* branch with both a `<version>,latest` stable row and
+# an `unreleased: true` next-version row in release-targets.yml)
+# also fan out in parallel because they push different registry
+# tag pointers with no shared surface to race on. cancel-in-
+# progress: false because builds push to a shared registry --
+# cancelling mid-push could leave orphan manifest entries or
+# partial tag updates. See gaps doc G18.
+concurrency:
+  group: docker-build-release-${{ github.ref }}-${{ inputs.docker_tags }}
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -80,20 +100,12 @@ jobs:
       id: build_date
       run: echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
 
-    - name: Resolve docker_tags input (workflow_dispatch input or git tag)
+    - name: Resolve docker_tags input
       id: resolve_docker_tags
       env:
-        EVENT_NAME: ${{ github.event_name }}
         DISPATCH_TAGS: ${{ inputs.docker_tags }}
-        REF_NAME: ${{ github.ref_name }}
       run: |
-        if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
-          echo "raw=${DISPATCH_TAGS}" >> "$GITHUB_OUTPUT"
-        else
-          # push: tags: ['v*'] -- strip leading "v" from the git tag and use
-          # as the single docker tag. Push v8.1.0 -> docker tag 8.1.0.
-          echo "raw=${REF_NAME#v}" >> "$GITHUB_OUTPUT"
-        fi
+        echo "raw=${DISPATCH_TAGS}" >> "$GITHUB_OUTPUT"
 
     - name: Expand docker_tags list (add dated variant for version-number tags)
       id: expand_docker_tags
@@ -118,19 +130,15 @@ jobs:
           echo EOF
         } >> "$GITHUB_OUTPUT"
 
-    - name: Resolve openemr_version_ref (input, or fall back to dispatching branch / git tag)
+    - name: Resolve openemr_version_ref (input, or fall back to dispatching branch)
       id: resolve_openemr_version_ref
       env:
-        EVENT_NAME: ${{ github.event_name }}
         INPUT_REF: ${{ inputs.openemr_version_ref }}
         REF_NAME: ${{ github.ref_name }}
       run: |
         if [ -n "$INPUT_REF" ]; then
           # Orchestrator-driven dispatch (or maintainer explicitly set the input).
           echo "ref=$INPUT_REF" >> "$GITHUB_OUTPUT"
-        elif [ "$EVENT_NAME" = 'push' ]; then
-          # push: tags: ['v*'] -- bake the source at the same tag we're pushing the image as.
-          echo "ref=$REF_NAME" >> "$GITHUB_OUTPUT"
         else
           # Manual dispatch with no override -- use the dispatching branch name
           # (master, rel-810, etc.). What a maintainer testing a branch in
