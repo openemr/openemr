@@ -12,7 +12,8 @@
  * This must be done before any database access is attempted.
  * Use an IIFE to ensure no variables leak.
  */
-(function () {
+
+(function (): void {
     // Any directory name in sites that contains a sqlconf.php can be a site id.
     $sites_dirs = glob('sites/*', GLOB_ONLYDIR) ?: [];
     $valid_site_ids = array_map(
