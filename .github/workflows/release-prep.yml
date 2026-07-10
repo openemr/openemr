@@ -3,17 +3,28 @@ name: Release Prep Conductor
 # Long-lived release-prep PR pattern (release-please-shaped) for the
 # openemr/openemr conductor in the three-PR release-automation flow
 # (openemr/openemr-devops#664). On every push to a rel-* branch, runs
-# the mechanical edits and force-pushes them to release-prep/<rel-branch>,
+# the mechanical edits and force-pushes them to release-prep/<rel-branch>
+# (only when the branch is in an active dev cycle -- $v_tag == '-dev'),
 # opening or updating a draft PR. On merge of that PR, creates the
 # annotated release tag and dispatches openemr-tag to the consumer
 # repos.
 
 on:
   push:
-    # Production rel-* branches only. branch-to-version.php on the push
-    # path requires rel-<MAJOR><MINOR>0 and would crash on a stray push
-    # to a test branch like rel-test. Test runs come in via
-    # workflow_dispatch instead.
+    # Production rel-* branches only. The Resolve step below requires
+    # rel-<MAJOR><MINOR>0 and would crash on a stray push to a test
+    # branch like rel-test. Test runs come in via workflow_dispatch
+    # instead.
+    #
+    # No `paths:` filter here on purpose: the tracking release-prep PR
+    # must stay in sync with rel-branch tip across every commit during
+    # an active dev cycle, so the workflow fires on all pushes and
+    # gates cleanly in the Resolve step below (G16). Narrowing the
+    # trigger to paths: [version.php] would leave the release-prep PR
+    # stale after any non-version.php commit -- the peter-evans branch
+    # base drifts behind rel-branch tip and the PR diff either shows
+    # stale mutation content or reverts against the newer rel-branch
+    # commits.
     branches:
     - 'rel-[0-9]*0'
   pull_request:
@@ -101,6 +112,23 @@ jobs:
         INPUT_VERSION: ${{ inputs.target-version }}
         INPUT_TEST: ${{ inputs.test }}
       run: |
+        set -euo pipefail
+        # Shared helper -- parse $v_major/$v_minor/$v_patch/$v_tag out
+        # of a version.php blob. Populates the four globals. Mirrors
+        # patch-prep-automation.yml's parse_version_php pattern.
+        parse_version_php() {
+          local raw="$1" var value
+          for var in v_major v_minor v_patch v_tag; do
+            value="$(printf '%s\n' "${raw}" | grep -oP "^\\\$${var}\\s*=\\s*'\\K[^']*" | head -n1 || true)"
+            case "${var}" in
+              v_major) MAJOR="${value}" ;;
+              v_minor) MINOR="${value}" ;;
+              v_patch) PATCH="${value}" ;;
+              v_tag)   TAG="${value}" ;;
+            esac
+          done
+        }
+        should_run='true'
         case "${EVENT_NAME}" in
           workflow_dispatch)
             branch="${INPUT_BRANCH}"
@@ -120,19 +148,72 @@ jobs:
             ;;
           *)
             branch="${REF#refs/heads/}"
-            # The push glob (rel-[0-9]*0) is broader than what
-            # branch-to-version.php accepts (^rel-(\d+)(\d)0$, i.e.
-            # >=3 digits ending in 0). Guard explicitly so an off-pattern
-            # match like rel-10 surfaces a workflow-level ::error:: rather
-            # than a bare PHP stderr buried in the step log.
-            if ! version="$(php tools/release/bin/branch-to-version.php "${branch}" 2>&1)"; then
-              echo "::error::push trigger matched branch '${branch}' but branch-to-version rejected it: ${version}"
+            # Guard the push glob (rel-[0-9]*0) against off-pattern
+            # matches like rel-10 that would confuse downstream tooling.
+            # Capture MAJOR + MINOR so we can cross-check against the
+            # parsed version.php state below (defense in depth against
+            # a rel-branch and its version.php disagreeing on which
+            # minor line the branch represents).
+            if ! [[ "${branch}" =~ ^rel-([0-9]+)([0-9])0$ ]]; then
+              echo "::error::push trigger matched branch '${branch}' but branch does not fit rel-<MAJOR><MINOR>0"
               exit 1
+            fi
+            branch_major="${BASH_REMATCH[1]}"
+            branch_minor="${BASH_REMATCH[2]}"
+            # G16 gate: parse version.php at HEAD and require
+            # $v_tag == '-dev' before proceeding. This catches
+            # $v_database bumps and other version.php edits that
+            # don't put the branch into an active dev cycle. Without
+            # this the conductor produces a spurious "prep <next-
+            # patch>" PR against a branch that just shipped and is
+            # not in dev mode. See gaps doc G16.
+            if ! version_php_raw="$(cat version.php 2>/dev/null)"; then
+              echo "::error::could not read version.php at HEAD of ${branch}"
+              exit 1
+            fi
+            parse_version_php "${version_php_raw}"
+            # Distinguish "$v_tag assignment absent" from "$v_tag
+            # assignment present with an empty value" -- both leave
+            # TAG empty after parse_version_php, but the second is
+            # the normal shipped state (rel branch just shipped a
+            # release, $v_tag = '' in version.php) and must fall
+            # through to the clean-skip path below. Only an absent
+            # assignment indicates parser drift or a malformed
+            # version.php.
+            if ! printf '%s\n' "${version_php_raw}" | grep -qP "^\\\$v_tag\\s*="; then
+              echo "::error::could not find \$v_tag assignment in version.php on ${branch} (malformed or schema drift)"
+              exit 1
+            elif [ "${TAG}" != '-dev' ]; then
+              echo "Branch ${branch} is not in an active dev cycle (\$v_tag='${TAG}', expected '-dev'); nothing to prep."
+              should_run='false'
+              version=''
+            elif [ -z "${MAJOR}" ] || [ -z "${MINOR}" ] || [ -z "${PATCH}" ]; then
+              echo "::error::could not parse \$v_major/\$v_minor/\$v_patch from version.php on ${branch}"
+              exit 1
+            elif [ "${MAJOR}" != "${branch_major}" ] || [ "${MINOR}" != "${branch_minor}" ]; then
+              # Belt-and-braces: rel-<M><m>0 is per-minor-line, so
+              # version.php's major/minor MUST match the branch's
+              # <M><m>. A mismatch means someone accidentally
+              # committed an out-of-line version.php value (e.g.,
+              # 8.3.0-dev on rel-820) or the branch parse is off.
+              # Either way, preparing a version for the wrong minor
+              # line would produce a broken release.
+              echo "::error::version.php ${MAJOR}.${MINOR}${TAG} on ${branch} does not match branch's minor line (${branch_major}.${branch_minor})"
+              exit 1
+            else
+              # Target is version.php's own MAJOR.MINOR.PATCH -- the
+              # maintainer chose it when bumping the branch into dev.
+              # We do NOT walk tags to compute (highest_patch + 1)
+              # because that ignores the maintainer's explicit signal
+              # and misfires on branches that shipped without entering
+              # a new dev cycle.
+              version="${MAJOR}.${MINOR}.${PATCH}"
             fi
             test_mode='false'
             ;;
         esac
         {
+          echo "should-run=${should_run}"
           echo "branch=${branch}"
           echo "version=${version}"
         } >> "$GITHUB_OUTPUT"
@@ -152,6 +233,7 @@ jobs:
 
     - name: Render PR body
       id: pr-body
+      if: steps.resolve.outputs.should-run != 'false'
       env:
         VERSION: ${{ steps.resolve.outputs.version }}
       run: |
@@ -162,6 +244,7 @@ jobs:
         } >> "$GITHUB_OUTPUT"
 
     - name: Run release-prep mutators
+      if: steps.resolve.outputs.should-run != 'false'
       env:
         VERSION: ${{ steps.resolve.outputs.version }}
       run: |
@@ -175,6 +258,7 @@ jobs:
     # in one step. When there is no diff this is a no-op.
     - name: Create or update release-prep PR
       id: prep-pr
+      if: steps.resolve.outputs.should-run != 'false'
       uses: peter-evans/create-pull-request@v8
       with:
         token: ${{ steps.app-token.outputs.token }}
@@ -199,7 +283,7 @@ jobs:
     # for a real release and would produce a confusing master-side draft
     # on every test exercise of the conductor.
     - name: Checkout master for release-finalize partner PR
-      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
       uses: actions/checkout@v7
       with:
         ref: master
@@ -212,13 +296,13 @@ jobs:
     # second checkout above has no vendor/ — install composer deps there
     # directly so `php bin/console` can boot the autoloader.
     - name: Install Composer dependencies (master-checkout)
-      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
       working-directory: master-checkout
       shell: bash
       run: composer install --prefer-dist --no-progress --no-interaction
 
     - name: Run release-prep mutators (master scope, release-finalize)
-      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
       working-directory: master-checkout
       env:
         VERSION: ${{ steps.resolve.outputs.version }}
@@ -232,7 +316,7 @@ jobs:
 
     - name: Render release-finalize PR body
       id: finalize-pr-body
-      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
       env:
         VERSION: ${{ steps.resolve.outputs.version }}
         REL_BRANCH: ${{ steps.resolve.outputs.branch }}
@@ -246,7 +330,7 @@ jobs:
         } >> "$GITHUB_OUTPUT"
 
     - name: Create or update release-finalize PR (master partner)
-      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
       uses: peter-evans/create-pull-request@v8
       with:
         path: master-checkout
@@ -262,7 +346,7 @@ jobs:
         delete-branch: false
 
     - name: Dispatch rel-cut / rel-update to consumers
-      if: steps.prep-pr.outputs.pull-request-operation != 'none' || inputs.force-dispatch
+      if: steps.resolve.outputs.should-run != 'false' && (steps.prep-pr.outputs.pull-request-operation != 'none' || inputs.force-dispatch)
       env:
         RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
         OPERATION: ${{ steps.prep-pr.outputs.pull-request-operation }}
