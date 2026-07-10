@@ -86,6 +86,8 @@ flowchart TB
 
 Common envelope on every event: `{ event, repo, sha, actor, dispatched_at, data }`.
 
+**`prev_release` derivation.** The `prev_release` field in `openemr-rel-cut` / `openemr-rel-update` payloads is computed by [`tools/release/bin/derive-prev-release.php`](../tools/release/bin/derive-prev-release.php) at dispatch time. It calls `BranchVersionResolver::previousRelease($targetVersion)`, which fetches the canonical shipped-versions manifest from `openemr/website-openemr` (`https://raw.githubusercontent.com/openemr/website-openemr/master/data/releases.json`) and returns the highest FINAL version below the target. A tag whose version isn't in the manifest is treated as skipped (e.g., `v8_1_0` was cut and then skipped; the resolver correctly walks past it to `8.0.0` for target 8.2.0). Any manifest-fetch failure falls back to the pre-manifest annotated-tag walk as a safety net. `release-targets.yml`'s `unreleased: true` marker is NOT used as the signal — it's transient and clears once the next release supersedes the placeholder row.
+
 **Schema location.** The canonical JSON Schema lives in `openemr-devops` at [`tools/release/contracts/dispatch.schema.json`](https://github.com/openemr/openemr-devops/blob/master/tools/release/contracts/dispatch.schema.json) and is vendored into each consumer (drift-checked in CI). The vendored copy in this repo is at [`tools/release/contracts/dispatch.schema.json`](../tools/release/contracts/dispatch.schema.json).
 
 **Tag verifier.** The shared `TagVerifier` lives at [`tools/release/src/TagVerifier.php`](../tools/release/src/TagVerifier.php), vendored from `openemr-devops`'s [`tools/release/src/TagVerifier.php`](https://github.com/openemr/openemr-devops/blob/master/tools/release/src/TagVerifier.php). It confirms the tag is annotated (not a lightweight ref) and that the tag message contains a `MAJOR.MINOR.PATCH` version, an ISO date (`YYYY-MM-DD`), and the 40-hex merge-commit SHA — the fields the openemr-devops#664 spec requires CI to enforce.
@@ -100,9 +102,17 @@ In short, the conductor rewrites: `version.php`, `docker/production/docker-compo
 
 ### Docs PR — `release-docs/<version>` in `openemr/website-openemr`
 
-Long-lived PR per release. Generated content: install/upgrade Hugo pages, OpenAPI YAML, release-notes draft (grouped by `feat:` / `bug:` / `refactor:` / `chore:` prefix), acknowledgements (from `git shortlog vPREV..HEAD`), Hugo aliases for legacy URLs. Pages render with a `DRAFT — based on rel-* @ <sha>` shortcode until the `openemr-tag` event flips them to FINAL.
+Per-release PR that gets rewritten as a single-commit branch on master's HEAD each dispatch (openemr/website-openemr#175). Generated content: release-notes draft (grouped by `feat:` / `bug:` / `refactor:` / `chore:` prefix, with `[bot]`-authored PRs filtered per the hybrid rule in openemr/website-openemr#173), acknowledgements (from `git shortlog vPREV..HEAD`, `[bot]`-authored entries filtered per openemr/website-openemr#172). Install/upgrade pages are NO LONGER generated per release — the site's `/downloads/` template defaults to the wiki's version-agnostic `OpenEMR_<Linux|Windows>_<Installation|Upgrade>` pages instead (openemr/website-openemr#170/#171). Release-status shortcode still renders `DRAFT — based on rel-* @ <sha>` until the `openemr-tag` event flips it to FINAL.
 
 On the `openemr-tag` event, the same workflow also regenerates the EHI / ONC (b)(10) SchemaSpy schema documentation from the tagged release's schema and commits it under `static/documentation/<version>/b10/` (tracked by git-lfs) in this same docs PR. It is served at `/documentation/<version>/b10/`. The table set in scope is read from `Documentation/EHI_Export/b10-tables.yml` in the tagged openemr checkout, so it always matches that release's schema.
+
+### Finalize-on-master PR — `release-finalize/<rel-branch>` in `openemr/openemr`
+
+Auto-opened alongside the conductor PR during the release-prep phase. Carries the master-side updates to `.github/release-targets.yml`: pins the rel-branch row's `openemr_version_ref` to the new tag, slot-shuffles `latest` / `next` / `dev` across rows, and drops any `unreleased: true` placeholder row. The content is auto-updated one more time by the conductor after the annotated tag is created, so the merged diff reflects the actual just-shipped state.
+
+### Changelog PRs — `changelog-<version>-<rel-branch>` and `changelog-<version>-master` in `openemr/openemr`
+
+Auto-opened after the annotated tag lands. Two PRs, one against the rel-branch and one against master, each adding an identical single-file `CHANGELOG.md` entry mirroring the release notes on the tag.
 
 ## Orientation: finding the current release state
 
@@ -154,9 +164,16 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 7. **[Manual — judgment]** *(Major releases only)* In the `website-openemr` PR, sign off on the ONC Ambulatory EHR Certification Requirements page.
 8. **[Manual — judgment]** *(Major releases only)* Write the marketing piece for the website.
 
-### Phase 4 — Ship: merge the two PRs
+### Phase 4 — Ship: merge the bot-created PRs
 
-The two PRs merge in strict order **conductor → docs.** The conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and fires the `openemr-tag` cascade for the Release object and announcement drafts); merging the docs PR ships the now-FINAL pages. The demo-farm reconciliation runs on its own track — see step 15.
+The conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and fires the `openemr-tag` cascade for the Release object and announcement drafts). The other bot-created PRs land after the tag exists, in the following order:
+
+1. **Conductor PR** (`openemr/openemr` `release-prep/<rel-branch>`) — merges to rel-branch, creates the annotated tag.
+2. **Finalize-on-master PR** (`openemr/openemr` `release-finalize/<rel-branch>`) — auto-updated by the conductor post-tag; lands the master-side `release-targets.yml` rotation.
+3. **Changelog PRs** (`openemr/openemr` `changelog-<version>-<rel-branch>` and `changelog-<version>-master`) — `CHANGELOG.md` updates on both rel-branch and master.
+4. **Docs PR** (`openemr/website-openemr` `release-docs/<version>`) — ships the now-FINAL pages on the website.
+
+The demo-farm reconciliation runs on its own track — see step 15.
 
 > **Manual prerequisite before triggering ship-release:** the `release-docs/<version>` PR on `website-openemr` is opened as a GitHub **draft** by its generator workflow. An operator must mark it Ready in the GitHub UI before ship-release.yml's preflight will pass — preflight rejects draft PRs as "not ready" (`PullRequestReadiness` checks `isDraft`). Once the docs PR is Ready, ship-release.yml merges both PRs (conductor → docs) in order. Automating the mark-Ready step on `openemr-tag` is a tracked gap — see [Automation gaps](#automation-gaps).
 
@@ -175,7 +192,7 @@ The two PRs merge in strict order **conductor → docs.** The conductor merge cr
 
     This runs automatically: [`build-release-on-tag.yml`](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/build-release-on-tag.yml) in `openemr-devops` consumes the conductor's `openemr-tag` dispatch, derives the build inputs from the payload, looks up the previous release for the changelog `base_ref`, and calls the reusable [`build-release.yml`](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/build-release.yml) with `dry_run=false`. That workflow builds the packages with `task release:package:assemble` (`git archive HEAD` → `composer install --no-dev` → `npm ci && npm run build` → prune via `build.xml` phing targets); then its "Create annotated tag and GitHub release" step is no-op-safe when the tag already exists and proceeds to `gh release create --verify-tag --notes-file changelog.md`, generates the checksum sidecars, and uploads the packages + checksums + changelog with `gh release upload --clobber`. `build-release.yml` remains available as a manual `workflow_dispatch` fallback (`dry_run=false`, the conductor-created tag in `release_tag`). Closing this gap was tracked in [openemr/openemr-devops#756](https://github.com/openemr/openemr-devops/issues/756).
 11. **[Manual — judgment]** Verify the Release object on the [GitHub releases page](https://github.com/openemr/openemr/releases): distribution packages downloadable, all three checksum files present, changelog rendered.
-12. **[Automated]** Docker images for the new release build via the workflows in **this repo** (`.github/workflows/docker-release-orchestrator.yml` fans out per-branch `docker-build-release.yml` dispatches; each rel branch's `docker-build-release.yml` also fires on its own `push: tags: ['v*']`). Triggered by the daily orchestrator cron + the new tag landing on a rel branch. See [`docs/docker-migration-from-devops.md`](docker-migration-from-devops.md) for why this lives here rather than in `openemr-devops`.
+12. **[Automated]** Docker images for the new release build via the workflows in **this repo** (`.github/workflows/docker-release-orchestrator.yml` fans out per-branch `docker-build-release.yml` dispatches). Triggered by the daily orchestrator cron or by a master push touching `.github/release-targets.yml` (which reflects the just-shipped state after the finalize-on-master PR merges). See [`docs/docker-migration-from-devops.md`](docker-migration-from-devops.md) for why this lives here rather than in `openemr-devops`.
 13. **[Automated]** The DockerHub readme (per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)) is updated by `.github/workflows/docker-push-dockerhub-readme.yml` in **this repo**, which fires via `workflow_run` after each orchestrator run. Source template at [`docker/dockerhub/overview.md`](../docker/dockerhub/overview.md).
 14. **[Automated]** The Downloads landing page and the historical release table on `website-openemr` (`/downloads/` and `/releases/`) re-render from `data/releases.json`, which the docs PR workflow updates on every dispatch. The `/downloads/` page's "Download" buttons link to the Release-object assets from step 10 — if step 10 is skipped, those buttons 404. The legacy [OpenEMR Downloads wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads) is no longer the source of truth and should be edited by hand to a one-line pointer to https://www.open-emr.org/downloads/.
 
