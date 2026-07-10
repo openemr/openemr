@@ -57,16 +57,22 @@ on:
 permissions:
   contents: read
 
-# Serialize per-branch/per-tag builds. Two dispatches for the same
-# ref (e.g., release-targets.yml push + daily orchestrator cron
-# landing close together, or two rapid manual dispatches) queue
-# instead of racing. Different refs (master vs rel-820 vs rel-800)
-# still fan out in parallel. cancel-in-progress: false because
-# builds push to a shared registry -- cancelling mid-push could
-# leave orphan manifest entries or partial tag updates. See gaps
-# doc G18.
+# Serialize per-(branch, docker_tags) builds. Two dispatches with
+# the same ref AND the same docker_tags input (e.g., release-
+# targets.yml push + daily orchestrator cron landing close
+# together, or two rapid manual dispatches) queue instead of
+# racing on the same registry tag pointer. Different refs (master
+# vs rel-820 vs rel-800) still fan out in parallel; different
+# docker_tags on the same branch (multi-row-per-branch case --
+# a rel-* branch with both a `<version>,latest` stable row and
+# an `unreleased: true` next-version row in release-targets.yml)
+# also fan out in parallel because they push different registry
+# tag pointers with no shared surface to race on. cancel-in-
+# progress: false because builds push to a shared registry --
+# cancelling mid-push could leave orphan manifest entries or
+# partial tag updates. See gaps doc G18.
 concurrency:
-  group: docker-build-release-${{ github.ref }}
+  group: docker-build-release-${{ github.ref }}-${{ inputs.docker_tags }}
   cancel-in-progress: false
 
 jobs:
