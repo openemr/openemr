@@ -25,7 +25,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:8.2.0
+    image: openemr/openemr:8.2.1
     ports:
     - 80:80
     - 443:443
