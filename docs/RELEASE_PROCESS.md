@@ -106,6 +106,14 @@ Per-release PR that gets rewritten as a single-commit branch on master's HEAD ea
 
 On the `openemr-tag` event, the same workflow also regenerates the EHI / ONC (b)(10) SchemaSpy schema documentation from the tagged release's schema and commits it under `static/documentation/<version>/b10/` (tracked by git-lfs) in this same docs PR. It is served at `/documentation/<version>/b10/`. The table set in scope is read from `Documentation/EHI_Export/b10-tables.yml` in the tagged openemr checkout, so it always matches that release's schema.
 
+### Finalize-on-master PR — `release-finalize/<rel-branch>` in `openemr/openemr`
+
+Auto-opened alongside the conductor PR during the release-prep phase. Carries the master-side updates to `.github/release-targets.yml`: pins the rel-branch row's `openemr_version_ref` to the new tag, slot-shuffles `latest` / `next` / `dev` across rows, and drops any `unreleased: true` placeholder row. The content is auto-updated one more time by the conductor after the annotated tag is created, so the merged diff reflects the actual just-shipped state.
+
+### Changelog PRs — `changelog-<version>-<rel-branch>` and `changelog-<version>-master` in `openemr/openemr`
+
+Auto-opened after the annotated tag lands. Two PRs, one against the rel-branch and one against master, each adding an identical single-file `CHANGELOG.md` entry mirroring the release notes on the tag.
+
 ## Orientation: finding the current release state
 
 This document describes the *process*. The *current* state lives in Git and the GitHub API — discover it before acting; do not assume a release is or isn't in flight.
@@ -156,9 +164,16 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 7. **[Manual — judgment]** *(Major releases only)* In the `website-openemr` PR, sign off on the ONC Ambulatory EHR Certification Requirements page.
 8. **[Manual — judgment]** *(Major releases only)* Write the marketing piece for the website.
 
-### Phase 4 — Ship: merge the two PRs
+### Phase 4 — Ship: merge the bot-created PRs
 
-The two PRs merge in strict order **conductor → docs.** The conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and fires the `openemr-tag` cascade for the Release object and announcement drafts); merging the docs PR ships the now-FINAL pages. The demo-farm reconciliation runs on its own track — see step 15.
+The conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and fires the `openemr-tag` cascade for the Release object and announcement drafts). The other bot-created PRs land after the tag exists, in the following order:
+
+1. **Conductor PR** (`openemr/openemr` `release-prep/<rel-branch>`) — merges to rel-branch, creates the annotated tag.
+2. **Finalize-on-master PR** (`openemr/openemr` `release-finalize/<rel-branch>`) — auto-updated by the conductor post-tag; lands the master-side `release-targets.yml` rotation.
+3. **Changelog PRs** (`openemr/openemr` `changelog-<version>-<rel-branch>` and `changelog-<version>-master`) — `CHANGELOG.md` updates on both rel-branch and master.
+4. **Docs PR** (`openemr/website-openemr` `release-docs/<version>`) — ships the now-FINAL pages on the website.
+
+The demo-farm reconciliation runs on its own track — see step 15.
 
 > **Manual prerequisite before triggering ship-release:** the `release-docs/<version>` PR on `website-openemr` is opened as a GitHub **draft** by its generator workflow. An operator must mark it Ready in the GitHub UI before ship-release.yml's preflight will pass — preflight rejects draft PRs as "not ready" (`PullRequestReadiness` checks `isDraft`). Once the docs PR is Ready, ship-release.yml merges both PRs (conductor → docs) in order. Automating the mark-Ready step on `openemr-tag` is a tracked gap — see [Automation gaps](#automation-gaps).
 
