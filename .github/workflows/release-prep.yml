@@ -172,14 +172,16 @@ jobs:
               exit 1
             fi
             parse_version_php "${version_php_raw}"
-            if [ -z "${TAG}" ]; then
-              # Empty TAG means the parser couldn't find $v_tag in
-              # version.php at all -- either the file is malformed
-              # or its schema drifted from what parse_version_php
-              # expects. Both are workflow-blocking bugs, not
-              # "not in dev cycle." Fail loud instead of silently
-              # skipping.
-              echo "::error::could not parse \$v_tag from version.php on ${branch} (malformed or schema drift)"
+            # Distinguish "$v_tag assignment absent" from "$v_tag
+            # assignment present with an empty value" -- both leave
+            # TAG empty after parse_version_php, but the second is
+            # the normal shipped state (rel branch just shipped a
+            # release, $v_tag = '' in version.php) and must fall
+            # through to the clean-skip path below. Only an absent
+            # assignment indicates parser drift or a malformed
+            # version.php.
+            if ! printf '%s\n' "${version_php_raw}" | grep -qP "^\\\$v_tag\\s*="; then
+              echo "::error::could not find \$v_tag assignment in version.php on ${branch} (malformed or schema drift)"
               exit 1
             elif [ "${TAG}" != '-dev' ]; then
               echo "Branch ${branch} is not in an active dev cycle (\$v_tag='${TAG}', expected '-dev'); nothing to prep."
