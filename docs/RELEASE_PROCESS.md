@@ -114,6 +114,33 @@ Auto-opened alongside the conductor PR during the release-prep phase. Carries th
 
 Auto-opened after the annotated tag lands. Two PRs, one against the rel-branch and one against master, each adding an identical single-file `CHANGELOG.md` entry mirroring the release notes on the tag.
 
+## Workflow topology
+
+Three `openemr/openemr` workflows handle the release automation: two are lifecycle-event one-shots that open ready-for-review scaffolding PRs, and one is the continuous tracking + dispatch workflow that produces the drafts described above.
+
+### Lifecycle-event workflows (siblings)
+
+Both fire on a single event, open **two coordinated ready-for-review PRs** (rel-side + master-side) meant to be merged quickly after review, and don't run again for that same event. They handle the mechanical scaffolding a maintainer would otherwise do by hand.
+
+- **[`branch-cut-automation.yml`](../.github/workflows/branch-cut-automation.yml)** — fires on the `create` event when a new `rel-NNN0` branch is pushed. Rel-side PR carries the branch-cut mutations (`library/globals.inc.php` debug toggle, `docker-version` triple seed, `docker/release/Dockerfile` bump, `docker/release/upgrade/fsupgrade-<N>.sh` seed, etc.); master-side PR advances master's `-dev` version to the next minor line and inserts the new release-targets.yml row with the slot shuffle.
+- **[`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml)** — fires when a `$v_patch` bump into `-dev` lands on a `rel-*` branch (e.g., `8.1.0` → `8.1.1-dev` on `rel-810`). Path-filtered to `version.php` with a before/after diff check so unrelated pushes never trigger it. Rel-side PR seeds the patch-cycle boilerplate (`sql/*_upgrade.sql` skeleton for the incoming patch's migrations, docker `fsupgrade-<N>.sh`, docker-version triple bump); master-side PR handles the SQL bridge file-rename dance (e.g., `8_1_1-to-8_2_0_upgrade.sql` → `8_1_2-to-8_2_0_upgrade.sql` plus a new `8_1_1-to-8_1_2_upgrade.sql`) so master's upgrade chain stays consistent when a rel branch ships an intermediate minor.
+
+### Continuous tracking workflow
+
+- **[`release-prep.yml`](../.github/workflows/release-prep.yml)** — fires on **every push** to a `rel-[0-9]*0` branch (also triggered on the `create`-event push and on the `patch-prep`-triggering push, so it runs alongside its siblings on both cut events). Maintains the four **draft** PRs described in "What each PR contains" above (`release-prep/<rel-branch>` + `release-finalize/<rel-branch>`; the changelog PRs are opened later by the `finalize` job on tag creation). Also emits the `openemr-rel-cut` / `openemr-rel-update` `repository_dispatch` events to `openemr/website-openemr` so the docs draft PR stays in sync. Gates internally on `version.php`'s `$v_tag == '-dev'` — pushes to a rel branch that already shipped (post-tag, `$v_tag` empty) fire the workflow but exit cleanly without touching the draft PRs, so a `$v_database` bump from a database-migration PR or any other post-ship commit doesn't produce a spurious "prep <next-patch>" PR.
+
+### One-shot vs continuous — where each responsibility lives
+
+| Event | `branch-cut` | `patch-prep` | `release-prep` |
+| --- | --- | --- | --- |
+| New `rel-NNN0` branch created | fires; opens 2 ready-for-review PRs | — | fires (on the same push); opens 2 drafts + emits `openemr-rel-cut` |
+| Existing `rel-*` receives a `$v_patch` bump into `-dev` | — | fires; opens 2 ready-for-review PRs | fires (on the same push); opens/updates 2 drafts + emits `openemr-rel-update` |
+| Any subsequent commit while `$v_tag == '-dev'` | — | — | fires; updates 2 drafts + emits `openemr-rel-update` |
+| Any commit after the branch shipped (post-tag, `$v_tag` empty) | — | — | fires but exits with `should-run=false`; no draft PR changes, no dispatch |
+| Release-prep PR merged (annotated tag created) | — | — | `finalize` job; creates tag + opens changelog PRs + emits `openemr-tag` |
+
+The two sibling one-shots handle **discrete lifecycle events** (branch creation, patch-cycle start); `release-prep.yml` handles the **continuous state** (draft PRs following the branch tip during an active dev cycle) plus the tag-time emission on merge. Clean separation of concerns — no overlap on which PRs each workflow owns, and the parallel firing on cut events is by design so the ready-for-review scaffolding and the draft tracking both appear together.
+
 ## Orientation: finding the current release state
 
 This document describes the *process*. The *current* state lives in Git and the GitHub API — discover it before acting; do not assume a release is or isn't in flight.
