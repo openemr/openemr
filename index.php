@@ -31,7 +31,7 @@
         default:
             $site_id = filter_input(INPUT_GET, 'site') ?: (filter_input(INPUT_SERVER, 'HTTP_HOST') ?: 'default');
             if (!in_array($site_id, $valid_site_ids, true)) {
-                throw new RuntimeException("Invalid site id: {$site_id}");
+                throw new RuntimeException('Invalid site id');
             };
     }
     require_once "sites/{$site_id}/sqlconf.php";
