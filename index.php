@@ -4,27 +4,37 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-// Set the site ID if required.  This must be done before any database
-// access is attempted.
 
-$site_id = '';
 
-if (!empty($_GET['site'])) {
-    $site_id = $_GET['site'];
-} elseif (is_dir("sites/" . ($_SERVER['HTTP_HOST'] ?? 'default'))) {
-    $site_id = ($_SERVER['HTTP_HOST'] ?? 'default');
-} else {
-    $site_id = 'default';
-}
+/**
+ * Set the site ID if required.
+ *
+ * This must be done before any database access is attempted.
+ * Use an IIFE to ensure no variables leak.
+ */
+(function () {
+    // Any directory name in sites that contains a sqlconf.php can be a site id.
+    $valid_site_ids = array_map(
+        basename(...),
+        array_filter(
+            glob('sites/*', GLOB_ONLYDIR),
+            fn($d) => is_file("{$d}/sqlconf.php")
+        )
+    );
 
-if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id)) {
-    die("Site ID '" . htmlspecialchars($site_id, ENT_NOQUOTES) . "' contains invalid characters.");
-}
-
-require_once "sites/$site_id/sqlconf.php";
-
-if ($config == 1) {
-    header("Location: interface/login/login.php?site=$site_id");
-} else {
-    header("Location: setup.php?site=$site_id");
-}
+    switch(count($valid_site_ids)) {
+        case 0:
+            throw new RuntimeError('No valid sites found');
+        // Often there's only one valid request id, so we can ignore input.
+        case 1:
+            $site_id = $valid_site_ids[0];
+            break;
+        default:
+            $site_id = filter_input(INPUT_GET, 'site') ?: (filter_input(INPUT_SERVER, 'HTTP_HOST') ?: 'default');
+            if (!in_array($site_id, $valid_site_ids, true)) {
+                throw new RuntimeError("Invalid site id: {$site_id}");
+            };
+    }
+    require_once "sites/{$site_id}/sqlconf.php";
+    header('Location: ' . ($config === 1 ? 'interface/login/login.php' : 'setup.php') . "?site=$site_id");
+})();
