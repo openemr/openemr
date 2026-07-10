@@ -35,5 +35,6 @@
             };
     }
     require_once "sites/{$site_id}/sqlconf.php";
+    /** @var int $config Defined in sqlconf.php */
     header('Location: ' . ($config === 1 ? 'interface/login/login.php' : 'setup.php') . "?site=$site_id");
 })();
