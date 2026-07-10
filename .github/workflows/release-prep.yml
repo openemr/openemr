@@ -2,30 +2,31 @@ name: Release Prep Conductor
 
 # Long-lived release-prep PR pattern (release-please-shaped) for the
 # openemr/openemr conductor in the three-PR release-automation flow
-# (openemr/openemr-devops#664). On a push that touches version.php
-# on a rel-* branch, runs the mechanical edits and force-pushes them
-# to release-prep/<rel-branch>, opening or updating a draft PR (only
-# when the branch is in an active dev cycle -- $v_tag == '-dev'). On
-# merge of that PR, creates the annotated release tag and dispatches
-# openemr-tag to the consumer repos.
+# (openemr/openemr-devops#664). On every push to a rel-* branch, runs
+# the mechanical edits and force-pushes them to release-prep/<rel-branch>
+# (only when the branch is in an active dev cycle -- $v_tag == '-dev'),
+# opening or updating a draft PR. On merge of that PR, creates the
+# annotated release tag and dispatches openemr-tag to the consumer
+# repos.
 
 on:
   push:
-    # Production rel-* branches only. branch-to-version.php on the push
-    # path requires rel-<MAJOR><MINOR>0 and would crash on a stray push
-    # to a test branch like rel-test. Test runs come in via
-    # workflow_dispatch instead.
+    # Production rel-* branches only. The Resolve step below requires
+    # rel-<MAJOR><MINOR>0 and would crash on a stray push to a test
+    # branch like rel-test. Test runs come in via workflow_dispatch
+    # instead.
+    #
+    # No `paths:` filter here on purpose: the tracking release-prep PR
+    # must stay in sync with rel-branch tip across every commit during
+    # an active dev cycle, so the workflow fires on all pushes and
+    # gates cleanly in the Resolve step below (G16). Narrowing the
+    # trigger to paths: [version.php] would leave the release-prep PR
+    # stale after any non-version.php commit -- the peter-evans branch
+    # base drifts behind rel-branch tip and the PR diff either shows
+    # stale mutation content or reverts against the newer rel-branch
+    # commits.
     branches:
     - 'rel-[0-9]*0'
-    # G16 gate (layer 1): only fire on pushes that actually touch
-    # version.php. Without this, every push to a rel branch fires the
-    # conductor -- including sync-byte-identical bot merges, hotfix
-    # PRs, and any commit that doesn't move the release target at
-    # all. Layer 2 (state check in Resolve step below) additionally
-    # gates on $v_tag == '-dev' so a $v_database bump on a shipped
-    # branch also skips cleanly. Mirrors patch-prep-automation.yml.
-    paths:
-    - 'version.php'
   pull_request:
     types:
     - closed
@@ -149,29 +150,53 @@ jobs:
             branch="${REF#refs/heads/}"
             # Guard the push glob (rel-[0-9]*0) against off-pattern
             # matches like rel-10 that would confuse downstream tooling.
-            if ! [[ "${branch}" =~ ^rel-[0-9]+[0-9]0$ ]]; then
+            # Capture MAJOR + MINOR so we can cross-check against the
+            # parsed version.php state below (defense in depth against
+            # a rel-branch and its version.php disagreeing on which
+            # minor line the branch represents).
+            if ! [[ "${branch}" =~ ^rel-([0-9]+)([0-9])0$ ]]; then
               echo "::error::push trigger matched branch '${branch}' but branch does not fit rel-<MAJOR><MINOR>0"
               exit 1
             fi
-            # G16 gate (layer 2): parse version.php at HEAD and require
-            # $v_tag == '-dev' before proceeding. Layer 1 (path filter
-            # on the trigger) reduces the surface to pushes that touched
-            # version.php at all; this layer catches the $v_database
-            # bumps and other version.php edits that don't put the branch
-            # into an active dev cycle. Without layer 2 the conductor
-            # produces a spurious "prep <next-patch>" PR against a branch
-            # that just shipped and is not in dev mode. See gaps doc G16.
+            branch_major="${BASH_REMATCH[1]}"
+            branch_minor="${BASH_REMATCH[2]}"
+            # G16 gate: parse version.php at HEAD and require
+            # $v_tag == '-dev' before proceeding. This catches
+            # $v_database bumps and other version.php edits that
+            # don't put the branch into an active dev cycle. Without
+            # this the conductor produces a spurious "prep <next-
+            # patch>" PR against a branch that just shipped and is
+            # not in dev mode. See gaps doc G16.
             if ! version_php_raw="$(cat version.php 2>/dev/null)"; then
               echo "::error::could not read version.php at HEAD of ${branch}"
               exit 1
             fi
             parse_version_php "${version_php_raw}"
-            if [ "${TAG}" != '-dev' ]; then
+            if [ -z "${TAG}" ]; then
+              # Empty TAG means the parser couldn't find $v_tag in
+              # version.php at all -- either the file is malformed
+              # or its schema drifted from what parse_version_php
+              # expects. Both are workflow-blocking bugs, not
+              # "not in dev cycle." Fail loud instead of silently
+              # skipping.
+              echo "::error::could not parse \$v_tag from version.php on ${branch} (malformed or schema drift)"
+              exit 1
+            elif [ "${TAG}" != '-dev' ]; then
               echo "Branch ${branch} is not in an active dev cycle (\$v_tag='${TAG}', expected '-dev'); nothing to prep."
               should_run='false'
               version=''
             elif [ -z "${MAJOR}" ] || [ -z "${MINOR}" ] || [ -z "${PATCH}" ]; then
               echo "::error::could not parse \$v_major/\$v_minor/\$v_patch from version.php on ${branch}"
+              exit 1
+            elif [ "${MAJOR}" != "${branch_major}" ] || [ "${MINOR}" != "${branch_minor}" ]; then
+              # Belt-and-braces: rel-<M><m>0 is per-minor-line, so
+              # version.php's major/minor MUST match the branch's
+              # <M><m>. A mismatch means someone accidentally
+              # committed an out-of-line version.php value (e.g.,
+              # 8.3.0-dev on rel-820) or the branch parse is off.
+              # Either way, preparing a version for the wrong minor
+              # line would produce a broken release.
+              echo "::error::version.php ${MAJOR}.${MINOR}${TAG} on ${branch} does not match branch's minor line (${branch_major}.${branch_minor})"
               exit 1
             else
               # Target is version.php's own MAJOR.MINOR.PATCH -- the
