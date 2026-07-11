@@ -109,7 +109,6 @@ if ($authorized && $pid > 0) {
             AND lo.option_id = qr.category
             AND lo.activity = 1
          WHERE qr.active = 1
-            AND LOWER(COALESCE(qr.type, '')) <> 'encounter'
          ORDER BY COALESCE(lo.seq, 999999), COALESCE(lo.title, qr.category), qr.name"
     );
 
