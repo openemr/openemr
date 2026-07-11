@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once(dirname(__FILE__, 3) . "/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;

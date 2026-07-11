@@ -20,6 +20,7 @@ socio
 # HL7/FHIR/EDI codes and terms
 denex
 denom
+iif
 inforce
 numer
 requestor

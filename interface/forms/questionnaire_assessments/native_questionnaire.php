@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once(__DIR__ . '/../../../vendor/autoload.php');
 require_once(__DIR__ . '/../../globals.php');
 
@@ -100,6 +102,10 @@ if ($responseId !== '') {
     $questionnaireJson = is_string($questionnaireRecord['questionnaire'] ?? null)
         ? $questionnaireRecord['questionnaire']
         : '';
+}
+
+if ($questionnaireJson === '') {
+    throw new RuntimeException(xlt('The repository record does not contain a FHIR Questionnaire.'));
 }
 
 $questionnaire = json_decode($questionnaireJson, true, 512, JSON_THROW_ON_ERROR);

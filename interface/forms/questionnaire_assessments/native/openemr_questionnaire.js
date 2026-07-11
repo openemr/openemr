@@ -139,6 +139,68 @@
         return String(value);
     }
 
+    function padDateTimePart(value) {
+        return String(value).padStart(2, '0');
+    }
+
+    function formatDateTimeLocalValue(value) {
+        if (typeof value !== 'string' || value === '') {
+            return '';
+        }
+
+        const hasTimezone = /T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/.test(value);
+        if (!hasTimezone) {
+            return value.slice(0, 16);
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return value.slice(0, 16);
+        }
+
+        return [
+            date.getFullYear(),
+            '-',
+            padDateTimePart(date.getMonth() + 1),
+            '-',
+            padDateTimePart(date.getDate()),
+            'T',
+            padDateTimePart(date.getHours()),
+            ':',
+            padDateTimePart(date.getMinutes()),
+        ].join('');
+    }
+
+    function toFhirDateTime(value) {
+        if (typeof value !== 'string' || value === '') {
+            return '';
+        }
+
+        const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/.exec(value);
+        if (!match) {
+            return value;
+        }
+
+        const [, year, month, day, hour, minute, second = '00', fraction] = match;
+        const localDate = new Date(
+            Number(year),
+            Number(month) - 1,
+            Number(day),
+            Number(hour),
+            Number(minute),
+            Number(second),
+            fraction ? Number(fraction.padEnd(3, '0')) : 0
+        );
+        const offsetMinutes = -localDate.getTimezoneOffset();
+        const offsetSign = offsetMinutes >= 0 ? '+' : '-';
+        const absoluteOffset = Math.abs(offsetMinutes);
+        const offsetHours = padDateTimePart(Math.floor(absoluteOffset / 60));
+        const offsetRemainder = padDateTimePart(absoluteOffset % 60);
+        const fractionalSeconds = fraction ? '.' + fraction : '';
+
+        return `${year}-${month}-${day}T${hour}:${minute}:${second}${fractionalSeconds}${offsetSign}${offsetHours}:${offsetRemainder}`;
+    }
+
     class QuestionnaireCompiler {
         compile(questionnaire) {
             if (!questionnaire || questionnaire.resourceType !== 'Questionnaire') {
@@ -362,7 +424,7 @@
 
             const push = (type, value, position = index) => tokens.push({ type, value, position });
             const isIdentifierStart = (character) => /[A-Za-z_]/.test(character);
-            const isIdentifierPart = (character) => /[A-Za-z0-9_-]/.test(character);
+            const isIdentifierPart = (character) => /[A-Za-z0-9_]/.test(character);
 
             while (index < source.length) {
                 const character = source[index];
@@ -992,7 +1054,6 @@
             header.className = 'd-flex align-items-start justify-content-between';
             const label = document.createElement('label');
             label.className = 'oe-questionnaire-label font-weight-bold mb-2';
-            label.htmlFor = safeId(item.linkId);
             const labelText = [item.prefix, item.text].filter(Boolean).join(item.prefix && item.text ? ' — ' : '');
             label.textContent = labelText || item.linkId;
             if (item.required === true) {
@@ -1003,7 +1064,14 @@
             }
             header.appendChild(label);
 
+            const inputId = safeId(item.linkId);
+            const input = this.renderInput(item);
+            if (input.querySelector('#' + inputId)) {
+                label.htmlFor = inputId;
+            }
+
             const helpItem = (item.item ?? []).find((child) => child.type === 'display' && getItemControl(child) === 'help');
+            let help = null;
             if (helpItem) {
                 const helpButton = document.createElement('button');
                 helpButton.type = 'button';
@@ -1012,20 +1080,22 @@
                 helpButton.textContent = '?';
                 header.appendChild(helpButton);
 
-                const help = document.createElement('div');
+                help = document.createElement('div');
                 help.className = 'alert alert-info oe-questionnaire-help d-none';
                 help.textContent = helpItem.text ?? '';
                 helpButton.addEventListener('click', () => {
                     const hidden = help.classList.toggle('d-none');
                     helpButton.setAttribute('aria-expanded', hidden ? 'false' : 'true');
                 });
-                wrapper.appendChild(header);
-                wrapper.appendChild(this.renderInput(item));
+            }
+
+            wrapper.appendChild(header);
+            wrapper.appendChild(input);
+            if (help) {
                 wrapper.appendChild(help);
-            } else {
-                wrapper.appendChild(header);
-                wrapper.appendChild(this.renderInput(item));
-                for (const child of item.item ?? []) {
+            }
+            for (const child of item.item ?? []) {
+                if (child !== helpItem) {
                     wrapper.appendChild(this.renderItem(child));
                 }
             }
@@ -1270,13 +1340,20 @@
             input.className = 'form-control';
             input.type = item.type === 'dateTime' ? 'datetime-local' : item.type;
             let value = firstValue(answers)?.value ?? '';
-            if (item.type === 'dateTime' && typeof value === 'string') {
-                value = value.replace(/Z$/, '').slice(0, 16);
+            if (item.type === 'dateTime') {
+                value = formatDateTimeLocalValue(value);
             }
             input.value = value;
             input.readOnly = item.readOnly === true;
             input.addEventListener('change', () => {
-                this.runtime.setAnswers(item.linkId, input.value === '' ? [] : [{ valueKey: this.runtime.answerValueKeyForItem(item), value: input.value }]);
+                let answerValue = input.value;
+                if (item.type === 'dateTime') {
+                    answerValue = toFhirDateTime(answerValue);
+                }
+                this.runtime.setAnswers(
+                    item.linkId,
+                    answerValue === '' ? [] : [{ valueKey: this.runtime.answerValueKeyForItem(item), value: answerValue }]
+                );
             });
             container.appendChild(input);
             this.inputs.set(item.linkId, input);

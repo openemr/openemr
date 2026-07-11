@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once(__DIR__ . '/../../../vendor/autoload.php');
 require_once(__DIR__ . '/../../globals.php');
 
@@ -108,15 +110,15 @@ try {
     }
 
     $saved = $responseService->saveQuestionnaireResponse(
-        $questionnaireResponseJson,
-        $pid,
-        0,
-        $responseId !== '' ? $responseId : null,
-        null,
-        $questionnaireJson,
-        null,
-        null,
-        true
+        response: $questionnaireResponseJson,
+        pid: $pid,
+        encounter: 0,
+        qr_id: $responseId !== '' ? $responseId : null,
+        qr_record_id: null,
+        q: $questionnaireJson,
+        q_id: null,
+        form_response: null,
+        add_report: true,
     );
 
     if (!is_array($saved)) {
@@ -129,10 +131,16 @@ try {
         'response_id' => $saved['response_id'] ?? '',
         'new' => $saved['new'] ?? false,
     ], JSON_THROW_ON_ERROR);
-} catch (CsrfInvalidException | JsonException | RuntimeException $e) {
+} catch (RuntimeException $e) {
     http_response_code(400);
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage(),
+    ]);
+} catch (CsrfInvalidException | JsonException) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => xlt('Unable to save QuestionnaireResponse.'),
     ]);
 }
