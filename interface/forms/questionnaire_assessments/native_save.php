@@ -127,7 +127,7 @@ try {
 
     echo json_encode([
         'success' => true,
-        'id' => $saved['id'] ?? 0,
+        'id' => $saved['id'],
         'response_id' => $saved['response_id'] ?? '',
         'new' => $saved['new'] ?? false,
     ], JSON_THROW_ON_ERROR);
