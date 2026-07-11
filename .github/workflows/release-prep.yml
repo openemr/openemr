@@ -493,6 +493,16 @@ jobs:
         MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         TAG_NAME: ${{ steps.tag.outputs.tag-name }}
       run: |
+        # G20: openemr-tag now carries prev_release so website-openemr's
+        # release-docs.yml can generate acknowledgements + release-notes
+        # on the FINAL cut. Historically this dispatch omitted the field
+        # and the two generators SKIPPED (their `if: prev_release != ''`
+        # gates) on every release, leaving each shipped version without
+        # markdown files on master until a manual openemr-rel-update
+        # recovery dispatch. Derived from the same
+        # BranchVersionResolver::previousRelease() the sibling rel-cut/
+        # update dispatches use.
+        prev_release="$(php tools/release/bin/derive-prev-release.php "${VERSION}")"
         # Demo_farm_openemr no longer consumes openemr-tag: its bump-tag.yml
         # was retired in demo_farm_openemr#141 in favor of the auto-derive
         # bot, which subscribes to release-targets-changed instead. Explicit
@@ -505,4 +515,5 @@ jobs:
           --actor='openemr-release-bot' \
           --branch="${REL_BRANCH}" \
           --release-version="${VERSION}" \
-          --tag="${TAG_NAME}"
+          --tag="${TAG_NAME}" \
+          --prev-release="${prev_release}"
