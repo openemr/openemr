@@ -33,6 +33,16 @@
                 "pid": "true",
                 "children": [],
                 "requirement": 0
+            },
+            {
+                "label": "FHIR Assessments",
+                "menu_id": "fhir_assessments",
+                "target": "main",
+                "on_click": "top.restoreSession()",
+                "url": "interface/patient_file/assessment/fhir_assessments.php?pid=",
+                "pid": "true",
+                "children": [],
+                "requirement": 0
             }
         ],
         "requirement": 0
