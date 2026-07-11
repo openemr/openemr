@@ -35,15 +35,21 @@ final class DispatchDataBuilderTest extends TestCase
         );
     }
 
-    public function testTagBuildsTagBranchVersion(): void
+    public function testTagBuildsTagBranchVersionPrev(): void
     {
         $builder = new DispatchDataBuilder($this->reader([
             '--tag' => 'v8_1_0',
             '--branch' => 'rel-810',
             '--release-version' => '8.1.0',
+            '--prev-release' => '8.0.0',
         ]));
         self::assertSame(
-            ['tag' => 'v8_1_0', 'branch' => 'rel-810', 'version' => '8.1.0'],
+            [
+                'tag' => 'v8_1_0',
+                'branch' => 'rel-810',
+                'version' => '8.1.0',
+                'prev_release' => '8.0.0',
+            ],
             $builder->build(DispatchRequest::EVENT_TAG),
         );
     }
