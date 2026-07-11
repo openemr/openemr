@@ -149,7 +149,7 @@ try {
         } else {
             $fetchedQuestionnaire = $questionnaireService->fetchEncounterQuestionnaireForm($questionnaireForm);
         }
-        $q = is_array($fetchedQuestionnaire) ? $fetchedQuestionnaire : [];
+        $q = $fetchedQuestionnaire;
 
         $questionnaireJson = is_string($q['questionnaire'] ?? null) ? $q['questionnaire'] : '';
         $mode = 'new_form';
@@ -160,7 +160,7 @@ try {
     $repositoryItemId = $nonNegativeInt($repositoryItem);
     if ($repositoryItemId !== null && $repositoryItemId > 0 && $questionnaireForm === 'New Questionnaire') {
         $fetchedQuestionnaire = $questionnaireService->fetchQuestionnaireById($repositoryItemId);
-        $q = is_array($fetchedQuestionnaire) ? $fetchedQuestionnaire : [];
+        $q = $fetchedQuestionnaire;
         $questionnaireJson = is_string($q['questionnaire'] ?? null) ? $q['questionnaire'] : '';
         $formName = $scalarString($q['name'] ?? null);
         $category = $scalarString($q['category'] ?? null, 'survey');
@@ -417,7 +417,7 @@ $formAction .= '&mode=' . urlencode($mode);
                         if (!is_array($item)) {
                             continue;
                         }
-                        $id = $nonNegativeInt($item['id'] ?? null) ?? 0;
+                        $id = $nonNegativeInt($item['id']) ?? 0;
                         if ($id < 1) {
                             continue;
                         }
@@ -436,7 +436,7 @@ $formAction .= '&mode=' . urlencode($mode);
                     id="form_name"
                     name="form_name"
                     title="<?php echo xla('You may edit name to shorten to be more understandable.'); ?>"
-                    value="<?php echo attr($scalarString($form['form_name'] ?? null, $formName)); ?>"
+                    value="<?php echo attr($formName); ?>"
                 />
             </div>
         </div>
