@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Session\EncounterSessionUtil;
@@ -109,7 +110,7 @@ if ($mode !== 'new' && !$isRegistering) {
 
         if ($responseMeta === '' || ($savedResponse['new'] ?? false)) {
             $saved = $responseService->fetchQuestionnaireResponseById(
-                $savedResponse['id'] ?? 0,
+                $savedResponse['id'],
                 $savedResponse['response_id'] ?? null
             );
             $responseMeta = $responseService->extractResponseMetaData(
@@ -121,8 +122,11 @@ if ($mode !== 'new' && !$isRegistering) {
             $qrid = $_POST['response_id'];
         }
     } catch (\Throwable $e) {
-        echo '<p>' . xlt('Questionnaire Response save failed because') . '<br />'
-            . text($e->getMessage()) . '<br /><h3>'
+        ServiceContainer::getLogger()->error(
+            'QuestionnaireResponse save failed; using backed up form answers.',
+            ['exception' => $e]
+        );
+        echo '<p>' . xlt('Questionnaire Response save failed.') . '<br /><h3>'
             . xlt('Will attempt to save using backed up answers.') . '</h3></p>';
     }
 }
@@ -148,7 +152,11 @@ if ($isRegistering) {
             );
             $qid = $formForeignId;
         } catch (\Throwable $e) {
-            die(xlt('New Questionnaire insert failed') . '<br />' . text($e->getMessage()));
+            ServiceContainer::getLogger()->error(
+                'Questionnaire registration failed.',
+                ['exception' => $e]
+            );
+            die(xlt('New Questionnaire insert failed.'));
         }
 
         $registrySql = 'INSERT INTO `registry` SET '
@@ -182,7 +190,6 @@ if ($formid === 0) {
         $nonNegativeInt($session->get('pid', 0)) ?? 0
     );
     $formUpdateData = filter_input_array(INPUT_POST, FILTER_UNSAFE_RAW);
-    $formUpdateData = is_array($formUpdateData) ? $formUpdateData : [];
     unset($formUpdateData['select_item'], $formUpdateData['save_registry']);
     $formUpdateData['response_id'] = $qrid;
     $formUpdateData['response_meta'] = $responseMeta;

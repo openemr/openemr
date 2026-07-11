@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -99,10 +100,10 @@ try {
                 'SELECT * FROM `form_questionnaire_assessments` WHERE `id` = ? AND `activity` = 1 LIMIT 1',
                 [$formid]
             );
-            $form = is_array($fetchedForm) ? $fetchedForm : [];
+            $form = $fetchedForm;
         } else {
             $fetchedForm = formFetch('form_questionnaire_assessments', $formid);
-            $form = is_array($fetchedForm) ? $fetchedForm : [];
+            $form = $fetchedForm;
         }
 
         if ($form === []) {
@@ -191,7 +192,11 @@ try {
         throw new RuntimeException(xlt('Unable to find FHIR Questionnaire data for this form.'));
     }
 } catch (\Throwable $e) {
-    die("<p class='text-danger h5 m-3'>" . xlt('Can not continue') . ': ' . text($e->getMessage()) . '</p>');
+    ServiceContainer::getLogger()->error(
+        'Questionnaire assessment load failed.',
+        ['exception' => $e]
+    );
+    die("<p class='text-danger h5 m-3'>" . xlt('Can not continue') . '</p>');
 }
 
 $topNote = true;
