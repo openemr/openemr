@@ -357,11 +357,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$config might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../index.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$Table might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
