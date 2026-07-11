@@ -981,10 +981,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with arguments \'OpenEMR\\\\\\\\FHIR\\\\\\\\SMART\\\\\\\\SMARTLaunchToken\', OpenEMR\\\\FHIR\\\\SMART\\\\SMARTLaunchToken and \'deserializedToken…\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/SMARTLaunchTokenTest.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
