@@ -2125,9 +2125,9 @@ warning that appeared on every v2 usage.
   G27 is a content gap. Both surface on the same
   release-announcements pipeline.
 
-### G28 — Master-side finalize PR requires a post-tag auto-update before merge; ordering isn't documented or enforced  *(discovered 2026-07-08, captured 2026-07-10, fix in flight 2026-07-08)*
+### G28 — Master-side finalize PR requires a post-tag auto-update before merge; ordering isn't documented or enforced  *(discovered 2026-07-08, captured 2026-07-10, SHIPPED 2026-07-11)*
 
-**Status: PR in flight** — openemr/openemr#12889. rel-820 backport to follow after landing.
+**Status: SHIPPED on master via openemr/openemr#12889. rel-820 backport in flight as openemr/openemr#12891** (not byte-identical enforced; one-line conflict resolution around G20's `--prev-release` wiring that only exists on master).
 
 - **What:** The full "ship a release" sequence has two conductor
   PRs whose ordering is non-obvious:
@@ -3341,23 +3341,15 @@ checklist + the existing master-bump pattern.
   path (content landed via #181's recovery dispatch). G21's
   release-notes half stays open pending G22 (upstream filter
   alignment).
-- **2026-07-08** (fix in flight): G28 PR openemr/openemr#12889.
-  Investigation while drafting the fix surfaced that the G16
-  Layer 2 gate was doing more than intended — it correctly stops
-  the prep job from opening spurious "next-patch prep" PRs on
-  quiet post-ship rel branches, but as a side effect also stops
-  the prep job's release-finalize partner-PR refresh from firing
-  on the release-prep PR merge push. Result under the current
-  master: the release-finalize/<rel-branch> PR is permanently
-  stuck in preview state, and merging it would land
-  `openemr_version_ref` at the pre-shipping rel-branch tip
-  instead of the just-created annotated tag. Fix: fold the
-  master-scope mutator + peter-evans PR update work into the
-  `finalize` job (which fires post-tag), plus explicit
-  `gh pr ready` (peter-evans's `draft: false` doesn't unset
-  existing draft state) and `gh pr comment` for the "ready to
-  merge to master" maintainer signal. Combines G28's option 3
-  (draft-state UX) with fixing the underlying refresh regression
-  in a single PR. rel-820 backport to follow after landing (not
-  byte-identical enforced; same manual backport shape as G16
-  via #12872).
+- **2026-07-11**: G28 SHIPPED via openemr/openemr#12889 (master);
+  rel-820 backport in flight as openemr/openemr#12891 (not byte-
+  identical enforced; one-line conflict on the dispatch step
+  around G20's `--prev-release` wiring that only exists on
+  master, otherwise the six new steps apply cleanly). Also
+  carries a RELEASE_PROCESS.md two-phase-lifecycle doc update
+  (Finalize-on-master PR section, one-shot-vs-continuous
+  responsibility table, Phase 4 step 2) so the draft-preview
+  vs post-tag-ready-for-review distinction is documented
+  where maintainers will look. Investigation-narrative for
+  how the G16 gate compounded the ordering hazard is in G28's
+  "Actual fix" section above; not repeated here.
