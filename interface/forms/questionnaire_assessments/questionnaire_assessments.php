@@ -91,9 +91,9 @@ if (!AclMain::aclCheckForm($formDirectory)) {
 }
 
 try {
-    if (!empty($_GET['id'] ?? 0)) {
+    if (!empty($_GET['id'])) {
         $mode = 'update';
-        $formid = $nonNegativeInt($_GET['id'] ?? null) ?? 0;
+        $formid = $nonNegativeInt($_GET['id']) ?? 0;
 
         if (($_REQUEST['formOrigin'] ?? null) == 1 && !$isPortal) {
             $fetchedForm = sqlQuery(
