@@ -73,7 +73,12 @@ final class DispatchRequestGoldenTest extends TestCase
                 actor: 'openemr-release-bot',
                 dispatchedAt: '2026-04-29T12:30:00Z',
                 appToken: 'tok',
-                data: ['tag' => 'v8_1_0', 'branch' => 'rel-810', 'version' => '8.1.0'],
+                data: [
+                    'tag' => 'v8_2_0',
+                    'branch' => 'rel-820',
+                    'version' => '8.2.0',
+                    'prev_release' => '8.0.0',
+                ],
             ),
         ];
 
@@ -86,7 +91,12 @@ final class DispatchRequestGoldenTest extends TestCase
                 actor: 'openemr-release-bot',
                 dispatchedAt: '2026-04-29T12:30:00Z',
                 appToken: 'tok',
-                data: ['tag' => 'v8_1_0-test.abcdef0', 'branch' => 'rel-test', 'version' => '8.1.0'],
+                data: [
+                    'tag' => 'v8_2_0-test.abcdef0',
+                    'branch' => 'rel-test',
+                    'version' => '8.2.0',
+                    'prev_release' => '8.0.0',
+                ],
             ),
         ];
 
