@@ -1397,6 +1397,830 @@ branch-ref fetch so `--force-with-lease` has a baseline).
   a separate future consideration if reusable-workflows appetite ever
   materializes).
 
+### G16 — Conductor overshoots to next patch version post-tag  *(discovered live 2026-07-08, SHIPPED 2026-07-10)*
+
+**STATUS: SHIPPED 2026-07-10** as openemr/openemr#12868 (master)
++ #12872 (rel-820 backport, patch-id parity verified via
+`c25529e29e5459dac9e3be5b5a4d4f39bd921e7b`). Also required
+#12871 as a preceding rel-820 doc catch-up to make #12872 a
+clean cherry-pick.
+
+Fix approach: state gate in `release-prep.yml`'s Resolve step
+that parses version.php via a shell `parse_version_php` helper
+(mirroring `patch-prep-automation.yml`'s existing pattern) and
+requires `$v_tag == '-dev'` before proceeding. When absent, the
+step sets `should-run=false` and 9 subsequent steps in the
+`prep` job skip cleanly via a `steps.resolve.outputs.should-run
+!= 'false'` `if:` condition. Target version derived directly
+from version.php's own `MAJOR.MINOR.PATCH` — the maintainer's
+explicit choice when bumping the branch into dev — rather than
+`highest_patch + 1` from the tag walk. Includes belt-and-braces
+error paths for parser drift + branch/version.php major-minor
+consistency (both from CodeRabbit review). No changes to
+`BranchVersionResolver::branchToVersion()` itself; the tag walk
+is still used from the finalize job where its semantics are
+correct.
+
+
+- **What:** After a release tag is created, the release-prep conductor
+  auto-advances rotation as if the next patch cycle has already
+  started. On the 8.2.0 ship it produced four artifacts pointing at a
+  nonexistent `v8_2_1`:
+  - **openemr/openemr#12767** (finalize-on-master PR): rel-820 row's
+    `openemr_version_ref` force-pushed from `rel-820` to `v8_2_1`.
+    The `docker-validate-release-targets.yml` guard blocked the merge
+    with `openemr_version_ref 'v8_2_1' does not resolve` (HTTP 404 on
+    raw.githubusercontent.com fetch).
+  - **openemr/openemr#12843** (release-prep 8.2.1 PR): new bot PR
+    bumping `version.php` + `docker/production/docker-compose.yml` +
+    `swagger/openemr-api.yaml` + OpenApiDefinitions to 8.2.1.
+  - **openemr/website-openemr#179** (release-docs 8.2.1 DRAFT PR):
+    generated acknowledgements + release-notes for a nonexistent
+    8.2.1 against a `prev_release=8.2.0` window.
+  - Docker Hub `latest` fanout consequence: the guard-blocked #12767
+    stopped the corrected `release-targets.yml` from reaching
+    master, which delayed the `latest` tag promotion to 8.2.0 until
+    the ref was corrected.
+
+- **Policy:** rel-`NNN0` stays pinned at the just-released tag
+  (`v_X_Y_Z`) until an explicit patch cycle is started (via a
+  `$v_patch` bump on the rel branch — workstream 6's patch-prep
+  trigger surface). 8.2.1 is only a valid target when someone
+  decides to make it one — not on 8.2.0's ship.
+
+- **Immediate workarounds applied (2026-07-08):**
+  - #12767: force-pushed a corrective one-line edit changing
+    `openemr_version_ref: v8_2_1` back to `v8_2_0`; title corrected
+    from "finalize 8.2.1" to "finalize 8.2.0"; merged.
+  - #12843: closed as "no 8.2.1 patch cycle planned; conductor
+    overshoot after 8.2.0 tag creation".
+  - website #179: closed as stale draft.
+
+- **Root cause hypothesis:** whichever post-tag hook in the
+  conductor computes the next `openemr_version_ref` treats the
+  just-shipped tag as if the branch has already entered
+  `(patch+1)-dev`. Should either (a) point at the just-released tag
+  (`v_X_Y_Z`) and hold until a patch cycle explicitly starts, OR
+  (b) key the rotation on a `version.php` bump event on the rel
+  branch (mirroring workstream 6's patch-prep automation trigger
+  surface), not on the tag creation.
+
+- **Fix scope:** single conductor code fix eliminates all four
+  downstream symptoms.
+
+### G17 — Redundant `push: tags: ['v*']` trigger on `docker-build-release.yml`  *(discovered 2026-07-08, SHIPPED 2026-07-10)*
+
+**STATUS: SHIPPED 2026-07-10** as openemr/openemr#12862, bundled
+with G18. Removes the `push: tags: ['v*']` trigger and drops the
+now-unreachable push branches in the two resolve steps
+(`resolve_docker_tags` and `resolve_openemr_version_ref`).
+Byte-identical-enforced file — master merge auto-syncs to rel-820
++ rel-810 + rel-800 + rel-704 via sync-byte-identical.yml.
+Companion doc update to RELEASE_PROCESS.md step 12 landed in the
+same PR.
+
+
+- **What:** `docker-build-release.yml` currently triggers on
+  `push: tags: ['v*']` in addition to `workflow_dispatch`. The
+  orchestrator already fires per-branch fanout via
+  `push: paths: [.github/release-targets.yml]` on master, dispatched
+  to `docker-build-release` as `workflow_dispatch`. The tag-push
+  trigger is a second path to the same image content and causes
+  double-builds every release.
+
+- **8.2.0 concrete observation:** Tag-push run 28973845615
+  (event=push, branch=v8_2_0) built + pushed
+  `openemr/openemr:8.2.0`. After #12767 merged, orchestrator fanout
+  run 28976847649 (event=workflow_dispatch, branch=rel-820) built +
+  pushed the same `8.2.0` + `latest` from `release-targets.yml`
+  state. Content was equivalent — no correctness issue, just
+  wasted CI + two orphan image digests on Docker Hub.
+
+- **Fix:** Remove `push: tags: ['v*']` from
+  `docker-build-release.yml`. Rely on the orchestrator (release-
+  targets.yml push + daily 06:00 UTC cron + manual dispatch) as
+  the sole trigger surface. Loses the "immediate build on tag push"
+  reflex, gains a consistent-state guarantee: every docker build
+  reflects the current committed `release-targets.yml` and cannot
+  race a mid-flight release-targets update.
+
+- **Related:** G18 (concurrency group) would prevent the wasteful
+  overlap without removing the tag trigger, but G17 is the cleaner
+  fix — one trigger surface instead of two.
+
+### G18 — No `concurrency:` group on `docker-build-release.yml`  *(discovered 2026-07-08, SHIPPED 2026-07-10)*
+
+**STATUS: SHIPPED 2026-07-10** as openemr/openemr#12862, bundled
+with G17. Adds `concurrency: docker-build-release-${{ github.ref
+}}-${{ inputs.docker_tags }}` with `cancel-in-progress: false`.
+Key includes `inputs.docker_tags` per CodeRabbit review — same
+branch with different `docker_tags` (multi-row-per-branch case:
+a rel-* branch with both a stable-tag row and an `unreleased:
+true` next-version row) fans out in parallel because they push
+different registry tag pointers with no shared race surface.
+Same-branch/same-tags dispatches serialise as intended.
+
+
+- **What:** `docker-build-release.yml` has no `concurrency:` block,
+  so multiple simultaneous invocations against the same branch/tag
+  can race. Observed a benign version of this during 8.2.0 ship
+  (the same double-build called out in G17 — tag-push +
+  orchestrator-fanout running concurrently, both building the same
+  v8_2_0 source, pushing the same `8.2.0` tag pointer, last-write-
+  wins with identical content = no functional impact).
+
+- **Real race we haven't hit yet:** two orchestrator-fanout runs
+  for the same branch (e.g., release-targets.yml push + daily cron
+  tick landing close together) would push the same tag
+  simultaneously → registry sees both pushes → tag pointer race +
+  wasted CI + potential digest-swap flapping until the last push
+  wins.
+
+- **Fix:** Add
+  `concurrency: docker-build-release-${{ github.event.inputs.branch
+  || github.ref }}` with `cancel-in-progress: false` (regenerations
+  are cheap; cancelling could lose state mid-push). Serializes
+  per-branch builds without cross-branch interference.
+
+### G19 — `raw.githubusercontent.com` rate-limit + misleading error on version.php pre-fetch  *(discovered live 2026-07-08, SHIPPED 2026-07-11)*
+
+**STATUS: SHIPPED 2026-07-11** as openemr/openemr#12883.
+Applied uniformly across three version.php fetches in two
+release-flow workflows:
+
+- `.github/workflows/docker-build-release.yml` — pre-build
+  IMAGE_VERSION derivation (1 call).
+- `.github/workflows/docker-validate-release-targets.yml` —
+  "Verify every openemr_version_ref resolves" step (1 call) +
+  "Cross-check docker_tag version" step's non-master fetch (1
+  call). Master row still uses the local PR checkout (chicken-
+  and-egg preserved).
+
+Two coupled changes at each site:
+
+1. Anonymous `curl` against `raw.githubusercontent.com` → `gh api`
+   at `/repos/openemr/openemr/contents/version.php?ref=$REF`.
+   Content fetches use `Accept: application/vnd.github.raw` to
+   get the file body directly; status-only probes use the default
+   representation and check the return code. Each step gets
+   `GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` in `env:`. Authenticated
+   5000/hr per-token budget replaces anonymous 60/hr shared-IP.
+2. Error path distinguishes HTTP 404 (real bad ref → "does not
+   resolve in openemr/openemr; check release-targets.yml") from
+   any other failure (429, 5xx, network — surfaces the underlying
+   `gh api` error verbatim instead of the previous misleading
+   "ref likely doesn't exist" message).
+
+CodeRabbit review on the initial commit caught that
+`docker-validate-release-targets.yml` had the same vulnerability;
+the follow-up commit extended the fix to that file too. The
+`docker-build-release.yml` fix auto-syncs to rel-820 + rel-810 +
+rel-800 + rel-704 via `sync-byte-identical.yml` (byte-identical-
+enforced file). `docker-validate-release-targets.yml` is master-
+only (fires only on `pull_request: branches: [master]`) — no
+cross-branch propagation needed.
+
+
+- **What:** `docker-build-release.yml` prefetches
+  `https://raw.githubusercontent.com/openemr/openemr/${REF}/version.
+  php` via unauthenticated `curl` to sanity-check the
+  `openemr_version_ref` before building. On the 8.2.0 orchestrator
+  fanout, the rel-820 build hit HTTP 429 (rate limit) and reported
+  `##[error]Couldn't fetch version.php at openemr@v8_2_0. The ref
+  likely doesn't exist; check release-targets.yml.` — a misleading
+  message: the tag existed; the fetch was throttled after earlier
+  validate-loop fetches + all 4 fanout branches hitting the same
+  URL simultaneously.
+
+- **Fix (two parts):**
+  1. **Retry-with-backoff on 429:** wrap the curl with 3-5 retries
+     spaced by `Retry-After` (default 30-60s) before failing. Or
+     switch to `gh api` — has authenticated rate limits, much higher
+     ceiling, and better error semantics.
+  2. **Distinguish 404 vs 429 in the error message.** Emit a clear
+     `HTTP 429 rate limit — retry after N seconds` for 429s so the
+     operator doesn't chase a phantom "bad ref" during a real
+     transient throttle.
+
+- **Recovery cost during 8.2.0 ship:** ~20 min manual rerun latency
+  after diagnosing the 429 was the cause. Would have been zero with
+  either fix in place.
+
+### G20 — `openemr-tag` event schema drops `prev_release` end-to-end  *(discovered 2026-07-08, refined 2026-07-09, SHIPPED 2026-07-11)*
+
+**STATUS: SHIPPED 2026-07-11** as a coordinated three-repo change:
+
+- openemr/openemr-devops#855 — canonical
+  `tools/release/contracts/dispatch.schema.json`: `tagData`
+  block adds `prev_release` to `required` + `properties`. Also
+  updates the four fixture copies (dispatch/good-tag*.json and
+  the two vendored self-test schemas) to carry the field and
+  bump `8.1.0 → 8.2.0` (8.1.0 was a prerelease that never
+  publicly shipped and read misleadingly as if it had).
+- openemr/website-openemr#189 — website envelope schema +
+  `inputs-to-envelope.jq`'s openemr-tag branch (was the sole
+  event that omitted `prev_release`) + three fixtures updated
+  to carry the field and use 8.2.0.
+- openemr/openemr#12887 — vendored copy of the canonical
+  schema, `release-prep.yml`'s openemr-tag emitter now derives
+  `prev_release` via `derive-prev-release.php` and passes
+  `--prev-release`, `DispatchDataBuilder::EVENT_TAG` match arm
+  reads the CLI option into the emitted data block, tests and
+  fixtures updated to match.
+
+Together the three PRs close the schema-strips-prev_release
+chain so the next FINAL cut carries the field end-to-end. The
+downstream `release-docs.yml` generators (acknowledgements +
+release-notes), gated on `if: prev_release != ''`, will fire
+on FINAL cuts instead of silently skipping.
+
+The 8.2.0 acknowledgements page recovery was already handled
+out-of-band via openemr/website-openemr#181's manual
+openemr-rel-update dispatch. This shipping is prospective.
+
+
+- **What:** website-openemr's `release-docs.yml` gates two steps on
+  `if: prev_release != ''` — "Generate acknowledgements" (writes
+  `content/acknowledgements/$VERSION.md`) and "Generate release
+  notes" (writes `content/release-notes/$VERSION.md`). On the 8.2.0
+  shipping path, the `openemr-tag` dispatch fired without
+  `prev_release` and both steps SKIPPED. The `openemr-rel-cut` /
+  `openemr-rel-update` dispatches from earlier in the same cycle
+  DID carry `prev_release` and generated the pages, but those were
+  on the pre-final DRAFT content — and in the case of the 8.2.1
+  overshoot (G16), on wrong-version content that got closed as
+  stale. Net result: no `content/acknowledgements/8.2.0.md` or
+  `content/release-notes/8.2.0.md` exists on the FINAL release
+  branch.
+
+- **Recovery attempt (2026-07-09):** manually fired
+  `workflow_dispatch` on `release-docs.yml` with explicit
+  `event=openemr-tag`, `prev_release=8.0.0`, and other v8_2_0
+  payload fields. Run 28990379608 completed successfully — but
+  both "Generate acknowledgements" and "Generate release notes"
+  STILL skipped in the output. Digging in confirmed the root cause
+  is DEEPER than "openemr/openemr's tag dispatch omits
+  `prev_release`" — the openemr-tag event actively STRIPS
+  `prev_release` at the schema/envelope layer regardless of source
+  (repository_dispatch OR workflow_dispatch).
+
+- **Three-place fix (all in openemr/website-openemr):**
+  1. `tools/release-docs/contracts/dispatch.schema.json` — the
+     openemr-tag event schema (lines 91-111) sets
+     `additionalProperties: false` and lists only `["tag", "branch",
+     "version"]` in `required` + `properties`. `prev_release` needs
+     to be added to both. Compare to the rel-cut / rel-update event
+     schemas (lines 49-69, 70-90) which already require it.
+  2. `tools/release-docs/contracts/inputs-to-envelope.jq` (line
+     20-23) — the openemr-tag branch of the if/else drops
+     `prev_release` even when the workflow_dispatch input carries
+     it:
+     ```jq
+     if   .event == "openemr-tag"
+     then {tag: .tag, branch: .branch, version: .version}
+     else {branch: .branch, version: .version, prev_release: .prev_release}
+     end
+     ```
+     Needs `prev_release: .prev_release` added to the openemr-tag
+     branch.
+  3. openemr/openemr side — release-prep's tag-dispatch emitter
+     needs to include `prev_release` in the `data` payload of the
+     openemr-tag repository_dispatch. Same value as the earlier
+     cut/update dispatches (via `derive-prev-release.php`, fixed
+     via G13 on 2026-07-05).
+
+  All three parts are required. Any one alone leaves the pipe
+  broken: (1) without (2) doesn't affect envelope building; (2)
+  without (1) fails schema validation; (3) without (1)+(2) still
+  loses the value at the boundary.
+
+- **Design refinement (2026-07-09):** The three-place fix restores
+  BOTH release-notes and acknowledgements generation on the tag
+  path — but only acknowledgements need to LAND on master after
+  the fix. Per the "GitHub Release body is source of truth for
+  release notes" design (see G22), the website's per-version
+  release-notes markdown becomes a maintainer-preview artifact
+  visible in the DRAFT PR during rel-cut/rel-update dispatches but
+  is not merged to master on the FINAL cut. release-docs.yml will
+  need a companion change: on `openemr-tag` event, either skip
+  "Generate release notes" or delete `content/release-notes/
+  $VERSION.md` from $STAGING before `workflow:commit-push`. See
+  G22 for the full surface trim + upstream filter alignment.
+
+- **Related:** G21 (no layout links to these pages) means even a
+  fixed generation path doesn't surface acknowledgements on the
+  public site until layouts are wired.
+
+### G21 — No layout links to per-version acknowledgements or GitHub Release notes  *(discovered 2026-07-08, refined 2026-07-09, acknowledgements half CLOSED 2026-07-09, release-notes half CLOSED as won't-do 2026-07-09)*
+
+**STATUS: acknowledgements half SHIPPED 2026-07-09** via
+openemr/website-openemr#182 (`layouts/section/downloads.html` +
+`layouts/section/releases.html`, both use
+`site.GetPage "/acknowledgements/<version>"` for graceful
+degradation).
+
+**STATUS: release-notes / changelog half CLOSED as won't-do 2026-07-09.**
+Decision (during #184 review): no dedicated changelog surface on
+the public site. GitHub Release body + downloadable `changelog.md`
+release asset are the source of truth for release notes; the
+existing "Release notes (GitHub)" link on both layouts already
+takes users there. Website's release-docs DRAFT PR keeps
+generating a per-version release-notes markdown for maintainer
+preview during development, but the file is not surfaced on the
+public master. G22 (align GitHub Release body + codebase
+`CHANGELOG.md` filter algorithms to drop bot commits) remains
+the follow-up so the two surfaces stay high-quality without
+depending on the website's `gen-release-notes.php` for filtering.
+
+
+- **What:** website-openemr's release-docs workflow generates per-
+  version acknowledgements markdown at
+  `content/acknowledgements/$VERSION.md`. When present, Hugo renders
+  it at `/acknowledgements/$VERSION/` per the section-page
+  convention. But no layout template on the site links to it.
+  `grep` of `layouts/section/{downloads,releases}.html` +
+  `layouts/shortcodes/release-status.html` for "acknowledg" or
+  "release-notes" returns nothing.
+
+- **Impact:** Even when the generation path fires (which — per G20
+  — it currently doesn't for FINAL cuts), the content is
+  inaccessible to users except by typing the URL directly.
+
+- **Fix (per 2026-07-09 design refinement, see G22):** Add
+  per-version link entries to `layouts/section/releases.html`
+  and/or `layouts/section/downloads.html`. Two link targets per
+  released version:
+  - **Release notes:** point at the GitHub Release URL, computed
+    from the version key —
+    `https://github.com/openemr/openemr/releases/tag/v${major}_${minor}_${patch}`.
+    (The website does NOT surface its own per-version release-
+    notes markdown on master — that's a DRAFT-PR-only artifact.
+    See G22.)
+  - **Acknowledgements:** point at Hugo's rendered page for the
+    per-version markdown, via
+    `.Site.GetPage "/acknowledgements/$version"` — omit the link
+    when the page doesn't exist (graceful degradation for pre-
+    mechanism releases without generated pages).
+
+- **Related:** G20 needs to land first (or in parallel) for the
+  acknowledgements pages to exist for 8.2.0+. G22 defines the
+  "GitHub Release body = source of truth for release notes"
+  design that shapes the release-notes link target choice.
+
+### G22 — GitHub Release body + repo CHANGELOG.md need the website's dependabot filter algorithm  *(discovered 2026-07-09)*
+
+- **What:** website-openemr's `gen-release-notes.php` implements
+  a curated dependabot filter (#173, landed 2026-07-05): keeps
+  composer/npm dependabot bumps per #136 intent, drops docker-
+  image bumps identified by openemr/openemr's dependabot.yml
+  groups + path patterns (specifically the `openemr-images` group
+  bumps like `bump openemr/openemr from flex-3.17 to flex-3.17 in
+  /docker/development-insane in the openemr-images group across
+  1 directory`). The result is a clean, human-readable release-
+  notes markdown file.
+
+  Two other surfaces publish "release notes" for the same version
+  but do NOT apply this filter:
+  - **GitHub Release body** on the `v_M_m_p` tag object (visible
+    at `https://github.com/openemr/openemr/releases/tag/v_M_m_p`).
+    Auto-generated at tag creation.
+  - **`CHANGELOG.md`** in the openemr/openemr codebase (added per
+    release via the changelog-add PRs — for 8.2.0, that was
+    #12844 on rel-820 + #12845 on master). Same underlying
+    changelog is uploaded as the `changelog.md` release asset on
+    the GitHub Release.
+
+  Concrete measure for 8.2.0's GitHub Release body: **794 total
+  lines, ~224 (~28%) match `dependabot`/`[bot]`/`bump` patterns.**
+  Long consecutive runs of the `openemr-images group across 1
+  directory` bumps — precisely what #173 filters — are present
+  verbatim.
+
+- **Design (2026-07-09):** GitHub Release body is the source of
+  truth for release notes on the FINAL cut. The repo
+  `CHANGELOG.md` should carry the same filtered content (single
+  algorithm across both). The website's per-version release-notes
+  page is redundant with those two and should not land on master
+  after the FINAL tag dispatch. It remains valuable as a maintainer
+  preview during rel-cut/rel-update DRAFT PR cycles.
+
+- **Fix scope (three interlocking pieces):**
+  1. **Extract the #173 filter into a shared algorithm** — port
+     the logic out of website-openemr's `gen-release-notes.php`
+     into a form consumable by openemr/openemr's release tooling.
+     Either an inline copy (byte-identical risk on drift) or a
+     packaged tool that both consumers call.
+  2. **Apply the filter to `CHANGELOG.md` generation** on
+     openemr/openemr. Determine where the current CHANGELOG.md
+     entries get produced (release-prep conductor or a
+     conventional-commits tool wrapper) and inject the filter
+     there. Rebuild-safe — regenerate a filtered CHANGELOG.md at
+     release time from the same PR-list source.
+  3. **Apply the filter to GitHub Release body generation** on
+     openemr/openemr. If body is currently produced by
+     release-please, configure its skip labels/paths. If custom,
+     add the filter to that path. The `changelog.md` release
+     asset should also be regenerated with the filter (same
+     source content).
+
+  Companion workflow change on website-openemr side (also
+  described under G20's design refinement):
+  - `release-docs.yml`: on `openemr-tag` event, skip "Generate
+    release notes" or delete
+    `$STAGING/content/release-notes/$VERSION.md` before
+    `workflow:commit-push`. Preserves the release-notes preview
+    in DRAFT PRs (rel-cut/rel-update dispatches) without landing
+    the file on master.
+
+- **Sequencing:** G22 needs to land BEFORE dropping website
+  release-notes visibility. Until then, the website's per-version
+  release-notes markdown remains the highest-quality surface
+  (unfiltered GitHub Release body is not an equivalent
+  replacement).
+
+- **Related:** G20 (fix `prev_release` chain so acknowledgements
+  land on the FINAL cut) is orthogonal to G22 but the design
+  refinement in G20 depends on this gap's outcome. G21 (layout
+  links) references G22 for the "link to GitHub Release for
+  notes" target.
+
+### G23 — `workflow:upsert-pr` misses the "merged PR + regenerated branch" case  *(discovered live 2026-07-09, SHIPPED 2026-07-11)*
+
+**STATUS: SHIPPED 2026-07-11** as openemr/website-openemr#187.
+`workflow:upsert-pr` now uses `gh pr list --head "$BRANCH" --state
+open --json number` and captures the resulting PR number
+explicitly. When no open PR exists it `gh pr create --draft`
+regardless of whether merged/closed PRs are associated with the
+branch; when one does, it `gh pr edit`s by number so no branch-
+name ambiguity remains. Closes the silent-absorb failure mode
+that hit the 2026-07-09 8.2.0 recovery dispatch (which required
+manual `gh pr create` for #181 to salvage).
+
+
+- **What:** `tools/release-docs/Taskfile.yml`'s `workflow:upsert-pr`
+  task guards create-vs-edit on the presence of ANY PR for the
+  branch, without filtering by state:
+  ```bash
+  if gh pr view "$BRANCH" --repo "$GITHUB_REPOSITORY" --json number >/dev/null 2>&1; then
+      gh pr edit "$BRANCH" ...          # editing existing
+  else
+      gh pr create --draft ...          # opening new
+  fi
+  ```
+  `gh pr view <branch>` returns the most recent PR for that head
+  branch regardless of state. When a MERGED PR exists for
+  `release-docs/<version>` and a fresh dispatch regenerates the
+  branch, the task hits the edit branch and runs `gh pr edit` on
+  the merged PR (a silent no-op for the actual intent — a merged
+  PR can't be reopened or receive new commits). The force-pushed
+  branch content sits there with no live PR pointing at it.
+
+- **Concrete surface (2026-07-09):** Recovery dispatch for 8.2.0
+  (`openemr-rel-update` event with `prev_release=8.0.0`) ran
+  successfully — both `gen-acknowledgements` and
+  `gen-release-notes` produced files, `workflow:commit-push`
+  force-pushed `release-docs/8.2.0` to a fresh sha
+  (`d31a801d4fe2`). `workflow:upsert-pr` step marked SUCCESS but
+  `gh pr view release-docs/8.2.0` matched merged PR #164 →
+  ran `gh pr edit #164` → workflow log shows
+  `https://github.com/openemr/website-openemr/pull/164` in the
+  final line. No new PR opened. Recovery manually completed by
+  opening a fresh PR (#181) from the CLI.
+
+- **Fix:** filter by state=open in the view guard:
+  ```bash
+  if gh pr view "$BRANCH" --repo "$GITHUB_REPOSITORY" \
+       --json number,state --jq 'select(.state == "OPEN")' \
+       >/dev/null 2>&1 && [ -n "$(gh pr view "$BRANCH" \
+       --repo "$GITHUB_REPOSITORY" --json state --jq '.state')" ]; then
+  ```
+  Or simpler: use `gh pr list --head "$BRANCH" --state open --json number`
+  and branch on whether the result array is empty.
+
+- **When it triggers:** Any time a `release-docs/<version>`
+  branch gets regenerated AFTER its PR has merged. Two known
+  paths:
+  - **Recovery dispatches** (this incident): fixing content bugs
+    after the FINAL cut merged.
+  - **Post-merge conductor re-fires** that update release-docs
+    for a version that already shipped (edge cases in future
+    workflow paths).
+
+- **Related:** G20's recovery path via `openemr-rel-update` is
+  the concrete trigger that surfaced G23; but G23 is independent
+  and generic to the upsert-pr contract. Even after G20 lands
+  (schema + jq + emitter fix), G23 remains until upsert-pr is
+  hardened.
+
+### G24 — Demo page version references are manually maintained  *(discovered 2026-07-09, SHIPPED 2026-07-10)*
+
+**STATUS: SHIPPED 2026-07-10** as openemr/website-openemr#185.
+Implements the render-time Hugo shortcode option (preferred
+design captured below): new
+`layouts/shortcodes/current-stable-version.html` reads
+`data/releases.json`, filters for `status: FINAL`, sorts by
+version descending, and returns the highest as a plain string.
+Replaces three hardcoded `8.2.0` references in
+`content/demo/_index.md` (H1 heading + two table rows) with
+`{{< current-stable-version >}}`. Prerelease-only versions
+(status != FINAL) are ignored so an aborted cut like v8_1_0
+doesn't briefly become the "current stable" between its cut
+and the next real release. Empty fallback on no-FINAL entries
+(data-corruption case) rather than a hardcoded default -- makes
+the corruption visible fast rather than silently masking it.
+
+
+- **What:** website-openemr's `content/demo/_index.md` hardcodes
+  the current-stable OpenEMR version in three places (as of the
+  8.2.0 cycle):
+  - H1 heading — `# Fully Working OpenEMR 8.2.0 Demo`
+  - Main demo table row — `| OpenEMR 8.2.0 Main Demo | ... |`
+  - Portal demo table row — `| OpenEMR 8.2.0 Portal Demo | ... |`
+
+  The URLs, credentials, and alternate/portal demo entries are
+  version-agnostic and don't change per release. Only the three
+  version strings need updating each release cycle.
+
+- **Manual bump for 8.2.0 (2026-07-09):** landed via
+  openemr/website-openemr#183 as a straight-through
+  `s/8.0.0/8.2.0/g` on the three references. Was 8.0.0 before
+  because the 8.1.0 prerelease cycle was not a public release
+  (G13 backstory), so the previous shipped version was 8.0.0.
+
+- **Automation design (two options):**
+  1. **Data-driven at render time.** Replace the hardcoded
+     version strings with a Hugo shortcode that reads
+     `.Site.Data.releases`, picks the highest-version FINAL
+     entry, and renders the version into the heading/table
+     rows. Future bumps happen automatically the moment a new
+     FINAL entry lands in `data/releases.json` (via a
+     release-docs PR merge). Single source of truth, no
+     workflow logic needed.
+  2. **Auto-updated at release-docs dispatch time.** Have
+     `release-docs.yml` detect when a new FINAL version has
+     shipped and rewrite the demo page's version strings as
+     part of the existing per-version content generation.
+     Requires the workflow to touch content/demo/_index.md
+     during a dispatch it currently doesn't touch, plus a
+     "did anything change?" check to avoid empty commits.
+
+  **Preference: option 1.** Cleaner separation (workflow keeps
+  its per-version scope; layout keeps rendering responsibilities;
+  data drives). Also handles the "prerelease was cut but never
+  shipped" case gracefully — `data/releases.json` already knows
+  what's actually FINAL (per G13's manifest-aware behavior), so
+  the demo page would auto-skip prereleases without any
+  additional logic.
+
+- **Related:** G6 (demo_farm_openemr auto-derivation goal —
+  same theme: derive downstream state from upstream shipped
+  versions instead of hand-editing) applies the same principle
+  to demo_farm_openemr's `ip_map_branch.txt` +
+  `demoLibrary.source`. G24 is the website-side analogue.
+
+### G25 — Copilot appears as a contributor in generated acknowledgements  *(discovered 2026-07-09, SHIPPED 2026-07-10)*
+
+**STATUS: SHIPPED 2026-07-10** as openemr/website-openemr#186.
+Extended `AcknowledgementsGenerator`'s filter beyond the `[bot]`
+suffix rule (from #172) to also drop authors whose name is an
+exact-match member of a hand-curated `NON_HUMAN_NAMES` blocklist
+in the class. Initial blocklist entry: `Copilot`. Filter method
+renamed `filterBots()` → `filterAutomatedAuthors()` to reflect
+the broader scope. Tests updated + two new cases added (positive:
+Copilot dropped, humans preserved; negative: only exact full-name
+match triggers the block — `Copilot Enthusiast` and `copilot`
+both preserved). Prospective fix; the already-landed
+`content/acknowledgements/8.2.0.md` (via #181's recovery
+dispatch) is unaffected by this change and needs a separate
+touch-up (hand-edit or re-dispatch) if the 8.2.0 page is to
+lose the Copilot entry too.
+
+
+- **What:** website-openemr's `gen-acknowledgements.php` picks up
+  `Copilot` as a contributor name in the acknowledgements page.
+  Concrete for 8.2.0's just-landed acknowledgements page
+  (`content/acknowledgements/8.2.0.md`, via #181):
+  ```
+  - Copilot (16 commits)
+  ```
+  Copilot is not a person — it's the GitHub Copilot / VSCode
+  Copilot commit author string that some contributors leave in
+  their commit author field instead of their own name. Crediting
+  it in the release acknowledgements is wrong on two axes: not a
+  real contributor, and duplicates the actual human author who
+  authored the same commits under a different name in other
+  commits.
+
+- **Related to but distinct from:** website-openemr#172 (which
+  landed earlier — filters `[bot]` suffix from acknowledgements
+  authors). That filter catches obvious bot accounts
+  (`github-actions[bot]`, `dependabot[bot]`, `openemr-release-
+  bot[bot]`, etc.) via the `[bot]` marker in author name. Copilot
+  doesn't have a `[bot]` marker on GitHub — its commits appear
+  under a bare `Copilot` name string — so the existing filter
+  misses it.
+
+- **Fix:** Add `Copilot` to the acknowledgements author blocklist
+  in `gen-acknowledgements.php` (alongside the `[bot]` filter
+  from #172). Consider making the blocklist a hand-curated list
+  rather than pattern-only so future non-`[bot]` non-humans
+  (LLM assistants, other IDE tools) can be added by name as
+  they appear.
+
+- **Recovery for 8.2.0:** The acknowledgements page landed via
+  #181 already has the Copilot entry. Two options:
+  1. Land the fix on gen-acknowledgements.php + re-dispatch
+     `openemr-rel-update` for 8.2.0 → new PR (working around
+     G23's upsert-pr-vs-merged issue via manual PR create) →
+     merge.
+  2. Hand-edit `content/acknowledgements/8.2.0.md` on master to
+     drop the Copilot line (small one-line PR).
+  Option 2 is expedient; option 1 also validates the filter fix
+  end-to-end for future releases.
+
+### G26 — `arduino/setup-task@v2` rate-limit failure on release announcements  *(discovered 2026-07-08, SHIPPED 2026-07-10)*
+
+**STATUS: SHIPPED 2026-07-10** as openemr/openemr-devops#854
+(6 workflows: build-patch, build-release, build-release-on-tag,
+release-announcements, release-permissions-check, ship-release —
+all bumped to v3 and wired with `repo-token: ${{ secrets.GITHUB_
+TOKEN }}`) plus openemr/website-openemr#188 (release-docs.yml +
+release-docs-ci.yml — bumped to v3; `repo-token` was already
+wired on the website side so only the version bump was needed
+there). Dependabot's #165 proposing the same website-openemr
+version bump was superseded by #188 and auto-closed on merge.
+Authenticated API calls now use the per-token 5000/hr budget
+instead of the shared-IP anonymous 60/hr quota that failed the
+v8_2_0 tag-push cascade. Also clears the Node.js 20 deprecation
+warning that appeared on every v2 usage.
+
+
+- **What:** openemr/openemr-devops's `Release Announcements
+  (drafts)` workflow (fires on `openemr-tag` repository_dispatch,
+  runs on tag-push cascades) uses
+  `uses: arduino/setup-task@v2` to install the `task` CLI. The
+  v2 action makes UNAUTHENTICATED GitHub API calls to download
+  the Task binary release. Shared-IP runner pools can exhaust
+  the anonymous 60/hr rate limit — resulting in job failure.
+
+- **Concrete failure (2026-07-08):** Run 28973848333 fired from
+  the v8_2_0 tag creation at 20:35Z. Failed at the `Install
+  Task` step with:
+  ```
+  ##[error]API rate limit exceeded for 52.159.229.55. (But
+  here's the good news: Authenticated requests get a higher
+  rate limit...)
+  ```
+  Draft announcements for 8.2.0 were not rendered. Recoverable
+  by workflow rerun (rate limits reset hourly), but the release
+  cadence shouldn't depend on getting lucky with runner IP
+  quota.
+
+- **Fix:** Bump the action to `arduino/setup-task@v3` and pass
+  a token so its API calls are authenticated (5000/hr per-token
+  budget). v3 accepts a `repo-token` input for this purpose;
+  the default `secrets.GITHUB_TOKEN` is sufficient.
+  ```yaml
+  - uses: arduino/setup-task@v3
+    with:
+      version: 3.x
+      repo-token: ${{ secrets.GITHUB_TOKEN }}
+  ```
+  v3 is also Node.js 24 native — clears the "Node 20
+  deprecation, forced to Node 24" warning that also appears in
+  the failed run's log.
+
+- **Related consumer:** website-openemr has the analogous
+  `arduino/setup-task@v2` dependency; dependabot opened #165
+  there (bump to v3) as of 2026-07-04. Same fix pattern applies
+  — merge that + wire `repo-token`, and audit other repos
+  (demo_farm_openemr, website-openemr-files) for the same
+  action usage.
+
+- **Trigger surface:** any release path that fires the release
+  announcements workflow. Tag pushes, manual dispatches, and
+  cascades from other workflows.
+
+### G27 — Release announcement templates need content/style review  *(discovered 2026-07-09)*
+
+- **What:** After G26's rerun of the Release Announcements
+  (drafts) workflow succeeded on 2026-07-09, the rendered
+  drafts revealed content/style issues across all channel
+  templates. Templates live at
+  `openemr-devops/tools/release/templates/announcements/`:
+  - `chat.md.twig` (community/Slack/Discord)
+  - `facebook.txt.twig`
+  - `forum.md.twig`
+  - `linkedin.txt.twig`
+  - `mail.html.twig` + `mail.subject.txt.twig`
+  - `x.txt.twig` (Twitter/X)
+  - `step-summary.md.twig` (GitHub Actions job summary)
+
+- **Fix:** Per-template review pass. Concrete gaps to enumerate
+  as maintainer works through each template — capture the
+  actual per-template diffs here once identified so this gap
+  can be broken up into per-channel PRs.
+
+- **Related:** G26 (rate-limit fix) is a workflow-plumbing gap;
+  G27 is a content gap. Both surface on the same
+  release-announcements pipeline.
+
+### G28 — Master-side finalize PR requires a post-tag auto-update before merge; ordering isn't documented or enforced  *(discovered 2026-07-08, captured 2026-07-10, fix in flight 2026-07-08)*
+
+**Status: PR in flight** — openemr/openemr#12889. rel-820 backport to follow after landing.
+
+- **What:** The full "ship a release" sequence has two conductor
+  PRs whose ordering is non-obvious:
+  1. **Release-prep PR on the rel branch** (e.g., #12742
+     — `chore(release): prep 8.2.0` targeting rel-820).
+     Merging this triggers the annotated tag creation.
+  2. **Finalize-on-master PR** (e.g., #12767 —
+     `chore(release): finalize 8.2.0 on master` targeting
+     master). Auto-opened by the conductor **during** the
+     release-prep phase with preview content (release-targets.yml
+     rotation as it will look post-ship). This PR must be
+     **auto-updated one more time** by the conductor after the
+     rel-branch PR merges + tag is created, so that its content
+     reflects the actual just-shipped state (docker_tags slot
+     shuffle, openemr_version_ref pinned to the just-created
+     tag, etc.). **Only after that post-tag auto-update is the
+     finalize PR safe to merge.**
+
+- **Concrete 8.2.0 timeline:**
+  - 20:33Z — #12742 (release-prep 8.2.0) merged into rel-820
+  - 20:35Z — `v8_2_0` tag created by post-merge conductor
+  - 20:37Z — #12767 (finalize on master) force-pushed by
+    openemr-release-bot with the post-tag update
+    (independently affected by G16, but that's the update
+    event in question)
+  - Only after 20:37 is #12767's content correct-shape to
+    merge to master
+
+- **Ordering hazard:** Nothing in the workflow surface
+  currently signals "wait for the post-tag auto-update before
+  merging this finalize PR." A maintainer looking at #12767
+  during the release-prep window (before tag creation) sees a
+  green PR with preview content and could merge it — landing
+  the pre-shipping preview on master instead of the actual
+  shipped state.
+
+- **Fix options:**
+  1. **UI signal on the finalize PR body:** conductor renders
+     the PR body to include a state indicator — e.g.,
+     `Status: WAITING_FOR_TAG` before rel-branch PR merges;
+     `Status: READY_TO_MERGE` after post-tag auto-update.
+     Simple, human-readable, doesn't block anything but makes
+     the ordering explicit.
+  2. **Merge gate via GitHub required check:** conductor
+     writes a status check on the finalize PR that stays
+     "pending" until the post-tag auto-update fires, then
+     transitions to "success." Branch-protection rule requires
+     this check → PR literally can't merge early. Stronger but
+     needs branch-protection change.
+  3. **Draft state:** open the finalize PR in `draft: true`
+     during the release-prep phase, and flip to
+     `ready-for-review` in the post-tag auto-update event.
+     Matches existing conductor patterns (release-docs uses
+     draft state as a maintainer-review gate) and requires
+     no branch-protection change.
+
+  **Preference: option 3.** Reuses an existing UX signal
+  maintainers already understand ("draft = not ready");
+  aligns with the release-docs draft-gate pattern; needs no
+  branch-protection touch. Also serves as a natural indicator
+  for G16-related recovery scenarios: if the post-tag update
+  overshoots (as it did for 8.2.0), the draft state gives
+  time to correct before the maintainer flips-and-merges.
+
+- **Actual fix (2026-07-08, PR #12889):** Deeper investigation
+  revealed the ordering hazard was compounded by a regression
+  the G16 fix introduced: the Layer 2 gate (`$v_tag == '-dev'`)
+  now correctly skips the prep job on the release-prep PR merge
+  push, but the prep job re-firing on that push was what
+  previously refreshed the release-finalize PR with post-tag
+  content. Under the G16 fix that refresh never happens, so
+  the release-finalize PR is permanently stuck with preview
+  state and merging it would land the pre-shipping rel-branch
+  tip ref on master instead of the just-created annotated tag.
+  Fix: fold the master-scope mutator + peter-evans PR update
+  work into the `finalize` job (which fires on the release-prep
+  PR merge and creates the tag), so post-tag content lands on
+  the partner PR by the time a maintainer sees it. Adds
+  `gh pr ready` (peter-evans's `draft: false` doesn't unset
+  existing draft state) + `gh pr comment` for the "ready to
+  merge to master" maintainer signal. Combines option 3
+  (draft-state UX) with fixing the underlying refresh
+  regression.
+
+- **Related:**
+  - G16 (conductor overshoots to next patch version) — the
+    post-tag auto-update this gap describes is exactly where
+    G16's wrong-content surfaces.
+  - G23 (`workflow:upsert-pr` doesn't distinguish open vs
+    merged PRs) — same theme: silent
+    conductor-vs-maintainer coordination issues in the
+    release-prep / release-docs PR lifecycle.
+
 ## Timing picture: who does what, when
 
 Consolidates "what the conductor handles automatically" vs "what's
@@ -2231,3 +3055,309 @@ checklist + the existing master-bump pattern.
   patterns). Recorded here for cross-reference; ancillary to the
   release-mechanism migration but relevant for the "what does the
   docs PR contain now" surface area.
+- **2026-07-08 to 2026-07-09**: 8.2.0 shipped end-to-end. First real
+  production use of the migrated release mechanism for a public
+  release (rel-820 → v8_2_0 tag → docker fanout → website updates
+  → docker hub README push). Ship was blocked or degraded by six
+  new gaps discovered live during the run:
+  - **G16** (conductor overshoots to next patch): #12767 mis-titled
+    "finalize 8.2.1", release-prep #12843 opened for 8.2.1, website
+    #179 opened for 8.2.1 release-docs. All three closed or
+    corrected manually. Root cause is one conductor bug; single fix
+    eliminates all downstream symptoms.
+  - **G17** (redundant `push: tags` trigger on
+    docker-build-release): caused a benign double-build of
+    `openemr/openemr:8.2.0` (tag-push + orchestrator-fanout).
+    Content identical; no correctness impact, but two paths to the
+    same output complicate future debugging.
+  - **G18** (no `concurrency:` group on docker-build-release):
+    surfaced by G17's double-build but a latent race for any two
+    concurrent invocations against the same branch.
+  - **G19** (raw.githubusercontent.com 429 + misleading error):
+    rel-820 fanout failed with `##[error]The ref likely doesn't
+    exist`. Actual cause was HTTP 429 rate limit from the fanout's
+    four parallel version.php fetches (plus prior validate-loop
+    fetches). Manual rerun ~20 min later succeeded, unblocking
+    `latest` promotion to 8.2.0.
+  - **G20** (openemr-tag missing prev_release): 8.2.0's FINAL
+    release-docs regeneration skipped acknowledgements + release-
+    notes generation because prev_release was empty on the
+    openemr-tag dispatch payload. Recovered manually via a
+    `workflow_dispatch` on release-docs.yml supplying
+    prev_release=8.0.0.
+  - **G21** (no layout links to acknowledgements/release-notes):
+    even after G20 is fixed, no /releases/ or /downloads/ layout
+    links to these per-version pages. Users can't discover them
+    via normal navigation.
+  Also affirmed as by-design (not gaps): manual maintainer DRAFT-
+  flip on release-docs PRs (intentional review gate); release-docs
+  PRs going stale across subsequent release cycles (a one-off from
+  the 8.1.0 prerelease test — pattern is to close superseded /
+  aborted release-docs PRs).
+  End state (2026-07-09): 8.2.0 is fully shipped and consistent
+  across openemr/openemr (v8_2_0 tag + release assets +
+  CHANGELOG.md landed on rel-820 via #12844 and master via #12845),
+  Docker Hub (`openemr/openemr:8.2.0` + `latest`; `next` promoted
+  to master's 8.3.0-dev; Docker Hub README pushed reflecting new
+  slot state), website-openemr (`data/releases.json` has 8.2.0
+  FINAL entry via #164), and demo_farm_openemr (via #169). The
+  changelog is a repo-only doc; the website does not surface
+  `CHANGELOG.md` (repo diff of relevant Hugo layouts contains no
+  changelog references).
+- **2026-07-09**: G20/G21 refined + G22 added after design
+  discussion on release-notes surface trim. Two triggers:
+  - Manual `workflow_dispatch` on `release-docs.yml` supplying
+    `event=openemr-tag` + `prev_release=8.0.0` STILL skipped
+    acknowledgements + release-notes generation. Root cause is
+    deeper than "openemr-tag emitter omits prev_release" — the
+    website-openemr side actively STRIPS `prev_release` at the
+    envelope layer: `dispatch.schema.json` doesn't list it in the
+    openemr-tag event's properties, and `inputs-to-envelope.jq`
+    doesn't pass it through for that event. Three-place fix
+    required (schema + jq + openemr-side emitter).
+  - GitHub Release body for `v8_2_0` measured at 794 lines with
+    ~224 (~28%) dependabot/`[bot]`/`bump` noise, including many
+    consecutive `openemr-images group across 1 directory` bumps
+    that #173 was designed to filter out — but the filter only
+    applies to the website's `gen-release-notes.php`, not to the
+    GitHub Release body or the repo's `CHANGELOG.md`.
+  Design (locked with maintainer 2026-07-09): GitHub Release
+  body is the source of truth for release notes on the FINAL
+  cut; repo `CHANGELOG.md` should carry the same filtered
+  content; the website's per-version release-notes page is
+  redundant and should not land on master post-tag. Website's
+  release-notes preview stays useful during rel-cut/rel-update
+  DRAFT PR cycles for maintainer review. Acknowledgements
+  remains distinct on the website (contributor call-outs not
+  duplicated on GitHub Release).
+
+  Gap re-shape:
+  - **G20 narrowed:** three-place fix (schema + jq + emitter)
+    still needed to unblock the tag-path generation flow, but
+    only acknowledgements need to LAND on master after the fix.
+    release-notes generation on openemr-tag event should be
+    skipped (or its output deleted before commit-push) so the
+    website's master doesn't accumulate a redundant surface.
+  - **G21 narrowed:** downloads/releases layout links to
+    `github.com/openemr/openemr/releases/tag/v_M_m_p` for notes
+    + `/acknowledgements/<version>/` on website for
+    contributors.
+  - **G22 (new):** port #173's dependabot filter algorithm to
+    apply to both openemr/openemr's `CHANGELOG.md` generation
+    and the GitHub Release body generation. Sequencing: G22
+    lands BEFORE dropping website release-notes visibility;
+    until then the website surface is the higher-quality
+    version.
+
+  Immediate 8.2.0 workaround for missing content/acknowledgements/
+  8.2.0.md and content/release-notes/8.2.0.md: fire
+  `openemr-rel-update` workflow_dispatch instead of
+  `openemr-tag` — that event schema HAS `prev_release`, both
+  generators run, resulting draft PR gets merged. Merges the
+  release-notes too (temporarily accepted — will be removed
+  when G22 + G20's companion workflow change land).
+- **2026-07-09**: G23 discovered during the openemr-rel-update
+  recovery dispatch. The recovery run completed successfully
+  and both generators produced content, but `workflow:upsert-pr`
+  reported success while actually NOT opening a new draft PR.
+  Root cause: `gh pr view "$BRANCH"` matched merged PR #164 (the
+  original 8.2.0 release-docs PR) → task ran `gh pr edit #164` on
+  it → the merged PR silently ignored the intended new-PR-create.
+  Force-pushed branch content sat unattached until manual PR
+  create (#181). Independent of G20's schema chain — surfaces on
+  ANY post-merge regen of a release-docs branch. Fix is state=open
+  filter on the pr view guard.
+- **2026-07-09**: G24 added. `content/demo/_index.md` on
+  website-openemr hardcodes the current-stable version in three
+  places (H1 heading + main demo table row + portal demo table
+  row). Manual bump 8.0.0 → 8.2.0 landed via #183. Skipped 8.1.0
+  because that was a prerelease-only cut, not public. Automation
+  design captured: prefer render-time Hugo shortcode reading
+  `.Site.Data.releases` over dispatch-time workflow edit.
+- **2026-07-09**: G21 acknowledgements half SHIPPED via
+  openemr/website-openemr#182.
+- **2026-07-09**: G21 release-notes / changelog half CLOSED as
+  won't-do (during #184 review). No dedicated changelog surface
+  on the public site — the existing "Release notes (GitHub)"
+  link on the downloads/releases layouts is sufficient. Website's
+  release-docs DRAFT PR keeps generating per-version release-
+  notes markdown for maintainer preview during development, not
+  surfaced on public master. G22 remains the follow-up to make
+  the two upstream surfaces (GitHub Release body + repo
+  `CHANGELOG.md`) high-quality on their own.
+- **2026-07-09**: G25 added. `Copilot` appears as a contributor
+  in 8.2.0's generated acknowledgements page
+  (`- Copilot (16 commits)`) because the existing #172 `[bot]`
+  filter doesn't catch it — Copilot's commit author string is a
+  bare `Copilot` with no `[bot]` marker. Fix: extend the
+  acknowledgements author blocklist to a hand-curated list
+  covering non-`[bot]` non-humans (Copilot + future LLM
+  assistants + IDE tools).
+- **2026-07-09**: G26 added. openemr-devops's Release
+  Announcements (drafts) workflow failed on the v8_2_0 tag-push
+  cascade because `arduino/setup-task@v2` made unauthenticated
+  GitHub API calls that hit the shared-IP anonymous rate limit.
+  Failure recovered via workflow rerun (rate limits reset
+  hourly). Permanent fix: bump to v3 + wire `repo-token:
+  ${{ secrets.GITHUB_TOKEN }}` so API calls are authenticated.
+  Same action bump pending on website-openemr (#165) and
+  needs audit on demo_farm_openemr + website-openemr-files.
+- **2026-07-09**: G27 added. After G26's rerun succeeded, the
+  rendered announcement drafts across all 6 channel templates
+  (chat / facebook / forum / linkedin / mail / x) plus
+  step-summary revealed content/style issues that need a
+  per-template review pass. Placeholder gap; specific per-
+  template diffs to be captured as the maintainer works
+  through each channel.
+- **2026-07-10**: G28 added. Captured a two-conductor-PR
+  ordering hazard first surfaced during 8.2.0 shipping: the
+  master-side finalize PR is auto-opened during the
+  release-prep phase with preview content, then must be
+  auto-updated one more time by the conductor after the
+  rel-branch release-prep PR merges + tag is created. Only
+  after that post-tag update reflects the actual shipped
+  state is the finalize PR safe to merge. Nothing in the
+  current UI or workflow surface signals "wait for the
+  post-tag update" — a maintainer could merge the pre-
+  shipping preview onto master. Preferred fix: open the
+  finalize PR in `draft: true` and flip to
+  ready-for-review in the post-tag auto-update event
+  (matches release-docs draft-gate pattern; no branch-
+  protection changes needed). Also functions as a natural
+  guard rail for G16 overshoot cases.
+- **2026-07-10**: G17 + G18 opened as openemr/openemr#12862
+  (single-trigger + concurrency block on
+  docker-build-release.yml). Byte-identical-enforced file,
+  so master merge auto-syncs to rel-820, rel-810, rel-800,
+  rel-704 via sync-byte-identical.yml.
+- **2026-07-11**: G20 SHIPPED as a coordinated three-repo
+  change: openemr/openemr-devops#855 (canonical schema),
+  openemr/website-openemr#189 (envelope schema + jq + fixtures),
+  openemr/openemr#12887 (vendored schema + emitter + tests +
+  fixtures). All three add `prev_release` to the `openemr-tag`
+  event's `tagData` block; the openemr side's `release-prep.yml`
+  now derives it via `derive-prev-release.php` and passes it to
+  `dispatch.php`. Fixtures across all three repos also updated
+  from `8.1.0 / v8_1_0 / rel-810` to `8.2.0 / v8_2_0 / rel-820`
+  since 8.1.0 was cut as a prerelease and skipped -- never
+  publicly released, so referencing it as the canonical example
+  read as if a shipped 8.1.0 existed. Recovery for 8.2.0's own
+  acknowledgements + release-notes was handled out-of-band via
+  openemr/website-openemr#181; this ships the fix prospectively
+  from the next release forward.
+- **2026-07-11**: G19 SHIPPED via openemr/openemr#12883. Switched
+  three anonymous `raw.githubusercontent.com` version.php fetches
+  (one in `docker-build-release.yml`, two in `docker-validate-
+  release-targets.yml`) to authenticated `gh api` calls, and
+  distinguished HTTP 404 from any other failure in the error
+  path. CodeRabbit review caught the second file needing the same
+  treatment and the follow-up commit landed together with the
+  primary. `docker-build-release.yml` auto-syncs to the four rel
+  branches via `sync-byte-identical.yml`.
+- **2026-07-11**: G23 SHIPPED via openemr/website-openemr#187.
+  `workflow:upsert-pr` now filters `gh pr list --head "$BRANCH"
+  --state open` and captures the PR number explicitly, so a
+  post-merge branch regeneration (e.g., the 2026-07-09 8.2.0
+  acknowledgements-recovery dispatch that was silently absorbed
+  by the merged #164 → salvaged manually as #181) now opens a
+  fresh draft PR instead of no-op'ing `gh pr edit` on the
+  merged one.
+- **2026-07-10**: G26 SHIPPED via openemr/openemr-devops#854
+  (6 workflows) + openemr/website-openemr#188 (2 workflows;
+  supersedes dependabot #165 which was auto-closed on merge).
+  arduino/setup-task bumped v2 → v3 everywhere the release
+  path uses it, and `repo-token: ${{ secrets.GITHUB_TOKEN }}`
+  wired on all openemr-devops usages (website usages already
+  had it). Anonymous GitHub API rate limit exposure that
+  failed release-announcements on the v8_2_0 tag-push cascade
+  is now closed on the token-authenticated 5000/hr budget.
+  Node 20 deprecation warning on the action's runtime also
+  cleared as v3 is Node 24 native.
+- **2026-07-10**: G25 SHIPPED via openemr/website-openemr#186.
+  Extended the acknowledgements author-drop rule beyond
+  `[bot]`-suffix to a hand-curated exact-match blocklist for
+  non-`[bot]` non-humans. Initial blocklist: `Copilot`. Filter
+  method renamed `filterBots()` → `filterAutomatedAuthors()`.
+  Prospective fix; already-landed 8.2.0 acknowledgements page
+  keeps the Copilot line until a separate touch-up or
+  re-dispatch runs.
+- **2026-07-10**: G24 SHIPPED via openemr/website-openemr#185.
+  Render-time Hugo shortcode approach chosen: new
+  `layouts/shortcodes/current-stable-version.html` reads
+  `data/releases.json`, filters for FINAL, sorts descending,
+  returns highest as a plain string; `content/demo/_index.md`'s
+  three hardcoded `8.2.0` references replaced with the
+  shortcode. Prerelease-only versions ignored (status != FINAL),
+  empty fallback on no-FINAL rather than a hardcoded default.
+  Manual bump-on-ship (3 hand-edits per cycle, previously via
+  #183) retired.
+- **2026-07-10**: G16 SHIPPED via openemr/openemr#12868 (master)
+  + #12872 (rel-820 backport, patch-id parity verified). Doc
+  catch-up landed as a prerequisite via #12871 so #12872 could
+  cherry-pick cleanly. CodeRabbit review caught (a) branch/
+  version.php major-minor consistency check as defense-in-depth,
+  and — round 2 — (b) the value-vs-assignment ambiguity in my
+  first-pass `-z "${TAG}"` guard: empty TAG can mean either
+  "assignment absent from version.php" (parser drift, should
+  error) OR "assignment present with empty value" (the normal
+  shipped state, should skip cleanly). Fixed by replacing the
+  value-emptiness check with a separate `grep -qP` presence
+  probe for the assignment line. Bug was one grep away from
+  breaking G16 in reverse -- would have caused `exit 1` on any
+  push to rel-820 in its current shipped state.
+- **2026-07-10**: G17 + G18 SHIPPED via openemr/openemr#12862.
+  CodeRabbit review during PR life caught that the concurrency
+  key should include `inputs.docker_tags` in addition to
+  `github.ref` — otherwise multi-row-per-branch entries (an
+  rel-* branch with both a stable-tag row and an `unreleased:
+  true` next-version row in release-targets.yml) would queue
+  behind each other despite pushing different registry tag
+  pointers. Follow-up commit corrected the key and expanded
+  the inline rationale. Companion doc update to
+  RELEASE_PROCESS.md step 12 (dropping the obsolete "each rel
+  branch's docker-build-release.yml also fires on its own
+  `push: tags: ['v*']`" clause) bundled into the same PR.
+  sync-byte-identical.yml will now open four propagation PRs
+  (rel-820, rel-810, rel-800, rel-704); merging each carries
+  the trigger+concurrency change onto the corresponding rel
+  branch.
+- **2026-07-10**: `docs/RELEASE_PROCESS.md` "What each PR
+  contains" + Phase 4 title/intro updated via
+  openemr/openemr#12863 to document the four-step bot-created
+  PR sequence — conductor → finalize-on-master → changelog PRs
+  → docs. Minimal-scope patch; the ship-release description
+  is intentionally left unchanged (the current ship-release
+  workflow behavior for the finalize + changelog PRs is not
+  yet documented, and will be settled when the corresponding
+  gaps are addressed). Two layouts touched:
+  `layouts/section/downloads.html` adds an `Acknowledgements`
+  `<li>` on the current stable release's "What's in this release"
+  list; `layouts/section/releases.html` adds an inline
+  `notes | acknowledgements` link in each row's Release notes
+  cell. Both gate on `site.GetPage "/acknowledgements/<version>"`
+  so pre-mechanism releases without a generated acknowledgements
+  page stay quiet — no broken links or empty rows. 8.2.0 is the
+  first version to surface an acknowledgements page via this
+  path (content landed via #181's recovery dispatch). G21's
+  release-notes half stays open pending G22 (upstream filter
+  alignment).
+- **2026-07-08** (fix in flight): G28 PR openemr/openemr#12889.
+  Investigation while drafting the fix surfaced that the G16
+  Layer 2 gate was doing more than intended — it correctly stops
+  the prep job from opening spurious "next-patch prep" PRs on
+  quiet post-ship rel branches, but as a side effect also stops
+  the prep job's release-finalize partner-PR refresh from firing
+  on the release-prep PR merge push. Result under the current
+  master: the release-finalize/<rel-branch> PR is permanently
+  stuck in preview state, and merging it would land
+  `openemr_version_ref` at the pre-shipping rel-branch tip
+  instead of the just-created annotated tag. Fix: fold the
+  master-scope mutator + peter-evans PR update work into the
+  `finalize` job (which fires post-tag), plus explicit
+  `gh pr ready` (peter-evans's `draft: false` doesn't unset
+  existing draft state) and `gh pr comment` for the "ready to
+  merge to master" maintainer signal. Combines G28's option 3
+  (draft-state UX) with fixing the underlying refresh regression
+  in a single PR. rel-820 backport to follow after landing (not
+  byte-identical enforced; same manual backport shape as G16
+  via #12872).
