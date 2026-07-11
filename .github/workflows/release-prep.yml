@@ -602,6 +602,13 @@ jobs:
     # transition: content now reflects post-tag reality (openemr_version_
     # ref pinned to the just-created annotated tag) and the PR is ready
     # to be merged onto master.
+    #
+    # `gh pr ready` errors if the PR isn't a draft, which happens in two
+    # legitimate cases: (a) finalize job re-run after the PR was already
+    # flipped to ready, (b) release-finalize PR didn't previously exist
+    # and peter-evans created it fresh in this same run (its `draft: false`
+    # DOES apply on creation). Guard with an isDraft probe so those cases
+    # don't fail the step and skip the signal comment.
     - name: Flip release-finalize PR to ready-for-review + signal comment
       if: steps.resolve.outputs.test != 'true' && steps.finalize-post-tag-pr.outputs.pull-request-number != ''
       env:
@@ -612,6 +619,9 @@ jobs:
         TAG_NAME: ${{ steps.tag.outputs.tag-name }}
         REPO: ${{ github.repository }}
       run: |
-        gh pr ready "$PR_NUMBER" --repo "$REPO"
+        is_draft=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json isDraft --jq '.isDraft')
+        if [ "$is_draft" = "true" ]; then
+          gh pr ready "$PR_NUMBER" --repo "$REPO"
+        fi
         gh pr comment "$PR_NUMBER" --repo "$REPO" --body \
           "Post-tag update applied. \`openemr_version_ref\` for \`${REL_BRANCH}\` is now pinned to \`${TAG_NAME}\` (the just-created annotated tag for ${VERSION}) and \`docker_tags\` slot rotations reflect actual shipped state. PR flipped out of draft; ready to merge to master."
