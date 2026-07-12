@@ -29,7 +29,7 @@
 # base ref. So each branch's copy of THIS file fires only for events on
 # its own branch, no explicit filter needed. Dropping the per-branch filter
 # is what lets this file join the byte-identical FILES_ALL set in
-# docker-validate-byte-identical.yml -- one canonical file across master
+# validate-byte-identical.yml -- one canonical file across master
 # and every current and future rel-*, no edit needed at branch-cut.
 
 name: Docker release test

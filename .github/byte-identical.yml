@@ -11,7 +11,7 @@
 # cosmetic / documentation impact don't qualify.
 #
 # Consumed by:
-#   .github/workflows/docker-validate-byte-identical.yml  (drift canary)
+#   .github/workflows/validate-byte-identical.yml  (drift canary)
 #
 # To add a file: append under `files:`. The canary picks it up on the
 # next run; no workflow edit needed.
@@ -48,6 +48,6 @@ files:
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
 - .github/docker/compose.yml
-- .github/workflows/docker-validate-byte-identical.yml
-- .github/docker-byte-identical.yml
+- .github/workflows/validate-byte-identical.yml
+- .github/byte-identical.yml
 - .github/scripts/validate-byte-identical.sh
