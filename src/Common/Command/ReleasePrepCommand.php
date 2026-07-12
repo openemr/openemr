@@ -171,12 +171,14 @@ final class ReleasePrepCommand extends Command
         // release-prep time is defensive but redundant, and it hides
         // the "did branch-cut merge?" question behind mutator idempotency
         // — surface as a real diff if branch-cut hasn't landed yet.
-        return [
+        $mutators = [
             new VersionPhpMutator(),
             new DockerComposeProductionMutator(),
             new OpenApiVersionMutator(),
             new SwaggerRegenMutator(),
         ];
+        $this->appendOptionalReleaseMutators($mutators);
+        return $mutators;
     }
 
     /**
@@ -194,9 +196,40 @@ final class ReleasePrepCommand extends Command
      */
     private function buildDefaultMasterMutators(): array
     {
-        return [
+        $mutators = [
             new PostReleaseTargetsMutator(),
         ];
+        $this->appendOptionalReleaseMutators($mutators);
+        return $mutators;
+    }
+
+    /**
+     * Late-bound wiring for mutators that live in `tools/release/src/`
+     * (autoload-dev), keeping conductor-only classes out of the
+     * production autoload map per the original release-mechanism
+     * boundary (see composer.json's split between `OpenEMR\` production
+     * autoload and `OpenEMR\Release\` autoload-dev). Present in every
+     * environment that installs dev dependencies (CI, release workflows);
+     * silently absent from a production `composer install --no-dev`, which
+     * never invokes `openemr:release-prep` anyway.
+     *
+     * Class names are referenced as strings rather than `use`d so
+     * composer-require-checker does not flag the cross-boundary
+     * dependency.
+     *
+     * @param list<MutatorInterface> $mutators
+     */
+    private function appendOptionalReleaseMutators(array &$mutators): void
+    {
+        // String literal (not `::class`) so both composer-require-checker
+        // and phpstan treat this as a runtime lookup rather than a
+        // resolved symbol reference — the class deliberately isn't
+        // reachable from production autoload.
+        $changelogMutator = \OpenEMR\Release\Mutator\ChangelogMutator::class;
+        if (!class_exists($changelogMutator)) {
+            return;
+        }
+        $mutators[] = new $changelogMutator();
     }
 
     private function defaultProjectDir(): string
