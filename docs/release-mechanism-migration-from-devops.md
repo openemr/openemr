@@ -1066,7 +1066,12 @@ Code + tests (globs):
 - `src/Common/Command/ReleasePrepCommand.php`
 - `src/Common/Command/CreateReleaseChangelogCommand.php`
 - `tests/Tests/Isolated/Release/**`
-- `bin/console`
+
+Explicitly NOT included: `bin/console`. It's the general-purpose
+Symfony CLI runner (not release-mechanism-owned) and evolves for
+reasons unrelated to release-mechanism work. If a release-mechanism
+change on master needs a bootstrap change too, backport it targeted
+rather than forcing every unrelated bin/console tweak to sync.
 
 Workflows + composite actions (files that fire from rel branches —
 matches the manifest's existing "canary travels with the file set it
