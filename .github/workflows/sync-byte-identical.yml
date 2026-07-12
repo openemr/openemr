@@ -218,7 +218,15 @@ jobs:
         # (script + sibling lib/).
         git show master:.github/scripts/list-manifest-paths.sh > "$RUNNER_TEMP/list-manifest-paths.sh"
         git show master:.github/byte-identical.yml > "$RUNNER_TEMP/manifest.yml"
-        mapfile -t FILES_ALL < <(bash "$RUNNER_TEMP/list-manifest-paths.sh" "$RUNNER_TEMP/manifest.yml" "$TARGET_BRANCH")
+        # Two-step invocation (write to file, then mapfile from file)
+        # rather than `mapfile < <(bash ...)` process-substitution: the
+        # latter swallows the script's exit code, so a failure of
+        # list-manifest-paths.sh (missing manifest, missing yq, etc.)
+        # would silently yield an empty paths input to peter-evans,
+        # which would then open a PR with the wrong (or missing) file
+        # set. Splitting into two commands lets `set -e` propagate.
+        bash "$RUNNER_TEMP/list-manifest-paths.sh" "$RUNNER_TEMP/manifest.yml" "$TARGET_BRANCH" > "$RUNNER_TEMP/paths.txt"
+        mapfile -t FILES_ALL < "$RUNNER_TEMP/paths.txt"
         {
           echo "paths<<EOF"
           printf '%s\n' "${FILES_ALL[@]}"
