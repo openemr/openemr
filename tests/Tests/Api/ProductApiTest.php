@@ -7,10 +7,12 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Nick To <YOUR_EMAIL_HERE>
- * @copyright Copyright (c) 2026 Nick To <YOUR_EMAIL_HERE>
+ * @author    Nick To <tonick2310@gmail.com>
+ * @copyright Copyright (c) 2026 Nick To <tonick2310@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Tests\Api;
 
