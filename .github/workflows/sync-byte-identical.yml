@@ -198,18 +198,28 @@ jobs:
     - name: Compute add-paths input for peter-evans
       id: paths
       if: steps.apply.outputs.has_changes == 'true'
+      env:
+        TARGET_BRANCH: ${{ matrix.branch }}
       run: |
         # Tell peter-evans/create-pull-request to commit only the FILES_ALL
         # entries, not any other files that happen to be in the workspace
         # (e.g. composer.lock drift from a running container, or our own
         # /tmp body file if it ended up here).
-        # Extract just the path from each entry. Manifest supports two
-        # shapes since #12915:
+        #
+        # Manifest supports two entry shapes since #12915:
         #   - simple string: `- path/to/file`
         #   - object form:   `- path: path/to/file\n  exclude-branches: [...]`
-        # The `.path // .` expression returns the object's .path field
-        # when present, else the entry itself (string).
-        mapfile -t FILES_ALL < <(git show master:.github/byte-identical.yml | yq -r '.files[] | (.path // .)')
+        #
+        # Apply the per-entry exclude-branches filter for the target rel
+        # branch AND extract the path. Without the filter, peter-evans
+        # would be asked to `git add` paths that don't exist on this rel
+        # branch (e.g. release-mechanism files on rel-800 / rel-704 which
+        # are excluded from those branches per the manifest), and
+        # git-add would fail with "pathspec did not match any files."
+        mapfile -t FILES_ALL < <(
+          git show master:.github/byte-identical.yml \
+            | yq -r '.files[] | select((.["exclude-branches"] // []) | contains([env(TARGET_BRANCH)]) | not) | (.path // .)'
+        )
         {
           echo "paths<<EOF"
           printf '%s\n' "${FILES_ALL[@]}"
