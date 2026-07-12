@@ -360,6 +360,26 @@ teardown() {
     [[ $(grep -c "^add: src/glob.txt$" "$OUTPUT_DIR/changes.txt") -eq 1 ]]
 }
 
+@test "glob: negated character class [!...] converts to ERE [^...]" {
+    # Shell glob `[!aeiou]` matches consonants + non-alphabetics.
+    # Historically our glob_to_regex passed [!...] through verbatim,
+    # which in ERE is a positive class -- opposite semantics. This
+    # pins the fix: master has files matching + not matching the
+    # negation; only the negation-matching one gets synced.
+    write_on_branch master  src/a.txt "vowel-start"
+    write_on_branch master  src/x.txt "consonant-start"
+    write_files_all_config 'src/[!aeiou].txt'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/x.txt ]]                                           # matched the negation
+    [[ ! -f src/a.txt ]]                                         # excluded (vowel)
+    grep -qxF "add: src/x.txt" "$OUTPUT_DIR/changes.txt"
+    ! grep -qF "src/a.txt" "$OUTPUT_DIR/changes.txt"
+}
+
 @test "glob: pattern matches nothing on either side -> emits a stale-manifest warning" {
     # Pattern doesn't match anywhere: neither master nor rel carries
     # anything under `nonexistent/`. Sync succeeds (no changes) but

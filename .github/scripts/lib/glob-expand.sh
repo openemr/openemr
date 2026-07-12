@@ -81,6 +81,11 @@ glob_to_regex() {
   done
   # 3. Restore ** placeholder as regex `.*`
   out="${out//${GLOBSTAR}/.*}"
+  # 4. Convert POSIX glob negated character classes [!...] to ERE
+  #    negated classes [^...]. Shell globs don't permit a literal `[`
+  #    outside class context, so any `[!` in the built-up string is
+  #    unambiguously a negated-class opener.
+  out="${out//\[!/[^}"
   printf '^%s$\n' "${out}"
 }
 
