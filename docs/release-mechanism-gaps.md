@@ -3365,15 +3365,15 @@ checklist + the existing master-bump pattern.
   join `.github/docker-byte-identical.yml`'s manifest as part of
   the release-mechanism migration from devops. In the interim,
   keep manual cross-branch propagation the discipline.
-- **2026-07-12**: 8.1.0 fixture-drift cleanup SHIPPED on master
-  via openemr/openemr#12893; rel-820 backport in flight as
-  openemr/openemr#12894 (byte-identical patch-id parity
-  `02fa2f1c2926e1074531e9d5d727a611ee00823f`, clean
-  cherry-pick). #12887's fixture-update pass only touched the
-  openemr-tag goldens + good-tag*.json; #12893 sweeps the
-  remaining rel-cut / rel-update / docs-binaries goldens +
-  their good-/bad-* fixture JSONs + parallel
-  DispatchDataBuilderTest cases from 8.1.0/rel-810 to
-  8.2.0/rel-820/v8_2_0. Not touching BranchVersionResolverTest
-  -- its 8.1.0 refs exercise the load-bearing skipped-8.1.0
-  manifest-filter behaviour.
+- **2026-07-12**: 8.1.0 fixture-drift cleanup SHIPPED on both
+  master (openemr/openemr#12893) and rel-820 (openemr/openemr#12894),
+  byte-identical patch-id parity `02fa2f1c2926e1074531e9d5d727a611ee00823f`.
+  #12887's fixture-update pass only touched the openemr-tag
+  goldens + good-tag*.json; #12893 sweeps the remaining
+  rel-cut / rel-update / docs-binaries goldens + their
+  good-/bad-* fixture JSONs + parallel DispatchDataBuilderTest
+  cases from 8.1.0/rel-810 to 8.2.0/rel-820/v8_2_0. Not
+  touching BranchVersionResolverTest -- its 8.1.0 refs exercise
+  the load-bearing skipped-8.1.0 manifest-filter behaviour.
+  With this landed, master and rel-820 have zero drift in the
+  release-mechanism file surface again.
