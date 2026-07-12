@@ -1202,6 +1202,33 @@ moves start, since they shape the destination structure:
    receives dispatches today). Post-migration, devops no longer receives
    dispatches — the probe simplifies. This-repo's probe expands slightly to
    cover the consumers that move here. Mechanical.
+5. **Release-prep PR merge is irreducibly required — do not "simplify" by
+   creating the tag directly.** Idea floated (verbally) that post-migration
+   the release-prep PR could be skipped and `create-tag.php` could just
+   fire on some other trigger (workflow_dispatch, cron, a version.php
+   push, etc.). It cannot. The release-prep PR does three jobs:
+   1. Approval gate — replaceable with any signal.
+   2. Audit trail — replaceable with tag messages / commit trailers.
+   3. **Delivery mechanism for the mechanical mutations** — irreducible.
+      The mutators (`version.php` strip `-dev`, `docker/production/docker
+      -compose.yml` image-tag pin, `src/RestControllers/OpenApi/OpenApi
+      Definitions.php` version bump, `swagger/openemr-api.yaml` regen)
+      land on the rel branch *via the merge commit*. Without the merge,
+      the branch tip still says `X.Y.Z-dev` in `version.php` and still
+      pins `openemr/openemr:latest` in the compose. Tagging that state
+      would put a public `v_X_Y_Z` tag on a tree that reports itself
+      as `X.Y.Z-dev`.
+
+   Any "just create the tag directly" proposal has to first answer
+   *where do the mechanical edits go*. The only structurally-sound
+   answers are (a) a PR merge (which is what release-prep.yml already
+   does — reinvented) or (b) an unreviewed direct push to the rel
+   branch by the conductor (which loses the approval gate and skips
+   the byte-identical/actionlint/etc. CI that runs on the PR). Option
+   (b) is a strictly worse version of the PR flow. **Locked from the
+   start** — captured here so the "skip the PR" idea doesn't get
+   re-litigated later when the migration surfaces new ambitions to
+   trim steps.
 
 (The 3-PR-vs-2-PR question was previously listed here; it's locked to 2 PRs,
 landing as part of Phase 1.)
