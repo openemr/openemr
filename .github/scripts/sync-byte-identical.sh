@@ -80,7 +80,10 @@ emit_warning() {
 # Source the shared glob-expansion helpers (expand_pattern,
 # glob_to_regex, expand_patterns_into). Sourced AFTER emit_warning is
 # defined -- expand_patterns_into calls it on stale-glob patterns.
-# shellcheck source=lib/glob-expand.sh
+# See validate-byte-identical.sh's source line for the /dev/null
+# rationale (avoids requiring source-path=SCRIPTDIR in .shellcheckrc,
+# which isn't byte-identical enforced and would stay master-only).
+# shellcheck source=/dev/null
 source "$(dirname "${BASH_SOURCE[0]}")/lib/glob-expand.sh"
 
 # Preconditions

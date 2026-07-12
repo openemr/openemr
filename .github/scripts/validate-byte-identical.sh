@@ -87,7 +87,15 @@ emit_warning_file() {
 # Source the shared glob-expansion helpers (expand_pattern,
 # glob_to_regex, expand_patterns_into). Sourced AFTER emit_warning is
 # defined -- expand_patterns_into calls it on stale-glob patterns.
-# shellcheck source=lib/glob-expand.sh
+#
+# `source=/dev/null` opts out of shellcheck's static follow. The
+# alternative -- pointing the directive at `lib/glob-expand.sh` --
+# requires `source-path=SCRIPTDIR` in .shellcheckrc, which is not in
+# the byte-identical set and would therefore stay master-only,
+# breaking shellcheck on rel branches. Losing shellcheck's view into
+# the sourced helpers is a smaller cost than the cross-branch
+# coordination burden.
+# shellcheck source=/dev/null
 source "$(dirname "${BASH_SOURCE[0]}")/lib/glob-expand.sh"
 
 # Preconditions
