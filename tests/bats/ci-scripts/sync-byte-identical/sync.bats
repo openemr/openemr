@@ -359,3 +359,20 @@ teardown() {
     [[ $(grep -c "^add: src/lit.txt$" "$OUTPUT_DIR/changes.txt") -eq 1 ]]
     [[ $(grep -c "^add: src/glob.txt$" "$OUTPUT_DIR/changes.txt") -eq 1 ]]
 }
+
+@test "glob: pattern matches nothing on either side -> emits a stale-manifest warning" {
+    # Pattern doesn't match anywhere: neither master nor rel carries
+    # anything under `nonexistent/`. Sync succeeds (no changes) but
+    # surfaces the empty expansion via the shared expand_patterns_into
+    # emit_warning hook so a maintainer sees the stale manifest entry.
+    write_on_branch master  src/real.txt "real"
+    write_on_branch rel-810 src/real.txt "real"
+    write_files_all_config src/real.txt 'nonexistent/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
+    [[ "$output" == *"WARNING"*"nonexistent/**"*"expanded to zero files"* ]]
+}

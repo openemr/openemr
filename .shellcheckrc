@@ -2,3 +2,7 @@
 # Enable all optional shellcheck checks
 enable=all
 external-sources=true
+# Resolve `# shellcheck source=<relative-path>` directives against
+# each script's own directory. Lets `.github/scripts/*.sh` reference
+# helpers in `.github/scripts/lib/` via `source=lib/foo.sh`.
+source-path=SCRIPTDIR

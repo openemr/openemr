@@ -65,93 +65,23 @@ emit_error() {
   fi
 }
 
-# Expand one FILES_ALL entry against a git ref into zero-or-more concrete
-# paths. Non-glob entries pass through verbatim. Glob entries resolve
-# against `git ls-tree -r`:
-#
-#   dir/**            -> `git ls-tree -r --name-only <ref> -- dir/`
-#                        (fast path for whole-subtree matches)
-#   any other glob    -> `git ls-tree -r --name-only <ref>` piped
-#                        through `grep -E` with a regex from
-#                        glob_to_regex below
-#
-# `git ls-tree`'s :(glob) pathspec magic isn't supported (unlike
-# `git ls-files`), which forces the pipe-through-grep fallback.
-expand_pattern() {
-  local ref="$1" pattern="$2"
-  case "$pattern" in
-    *'*'* | *'?'* | *'['*)
-      if [[ "$pattern" == *'/**' ]] && [[ "${pattern%/**}" != *'*'* ]] \
-        && [[ "${pattern%/**}" != *'?'* ]] && [[ "${pattern%/**}" != *'['* ]]; then
-        local dir="${pattern%/**}"
-        git ls-tree -r --name-only "$ref" -- "${dir}/" 2>/dev/null || true
-      else
-        local regex
-        regex=$(glob_to_regex "$pattern")
-        git ls-tree -r --name-only "$ref" 2>/dev/null | grep -E "$regex" || true
-      fi
-      ;;
-    *)
-      echo "$pattern"
-      ;;
-  esac
+# expand_patterns_into (sourced below) surfaces stale-glob patterns via
+# emit_warning; provide the passthrough so those warnings show up in
+# the sync workflow summary. Matches the shape of emit_error above.
+emit_warning() {
+  local msg="$1"
+  if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
+    echo "::warning::${msg}"
+  else
+    echo "WARNING: ${msg}"
+  fi
 }
 
-# Convert a shell-glob pattern to an anchored ERE regex. Semantics:
-#   **  -> `.*`               (matches across path separators)
-#   *   -> `[^/]*`            (matches within one path component)
-#   ?   -> `[^/]`             (single non-slash char)
-#   [..] preserved as-is
-# Regex metacharacters other than * ? [ are escaped. Result is wrapped
-# in ^...$ so `grep -E` gives whole-path matches only.
-glob_to_regex() {
-  local p="$1"
-  local GLOBSTAR=$'\x1F\x1FGS\x1F\x1F'
-  p="${p//\*\*/${GLOBSTAR}}"
-  local out=""
-  local i c
-  for ((i = 0; i < ${#p}; i++)); do
-    c="${p:i:1}"
-    case "$c" in
-      '.' | '+' | '(' | ')' | '{' | '}' | '^' | '$' | '|' | '\')
-        out+="\\${c}"
-        ;;
-      '*') out+='[^/]*' ;;
-      '?') out+='[^/]' ;;
-      *)   out+="$c" ;;
-    esac
-  done
-  out="${out//${GLOBSTAR}/.*}"
-  printf '^%s$\n' "$out"
-}
-
-# Expand a list of patterns against a git ref into a dedup+sorted list
-# of concrete paths. Signature:
-#   expand_patterns_into <ref> <input_patterns_array_name> <output_array_name>
-# Sync uses this three times (master patterns against master, master
-# patterns against rel HEAD, rel patterns against rel HEAD) so the union
-# and sweep logic below has the concrete-path sets it needs.
-expand_patterns_into() {
-  local ref="$1" in_var="$2" out_var="$3"
-  local -n in_arr="$in_var"
-  local -n out_arr="$out_var"
-  local pattern p
-  local -A seen=()
-  local -a expanded=()
-  for pattern in "${in_arr[@]}"; do
-    while IFS= read -r p; do
-      [[ -z "$p" ]] && continue
-      if [[ -z "${seen[$p]:-}" ]]; then
-        seen[$p]=1
-        expanded+=("$p")
-      fi
-    done < <(expand_pattern "$ref" "$pattern")
-  done
-  # `printf '%s\n' "${arr[@]}"` on an empty array still emits one empty
-  # line in bash (format applied once with no args); filter with
-  # `grep -v '^$'` so out_arr comes back as a genuinely empty array.
-  mapfile -t out_arr < <(printf '%s\n' "${expanded[@]}" | grep -v '^$' | sort)
-}
+# Source the shared glob-expansion helpers (expand_pattern,
+# glob_to_regex, expand_patterns_into). Sourced AFTER emit_warning is
+# defined -- expand_patterns_into calls it on stale-glob patterns.
+# shellcheck source=lib/glob-expand.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/glob-expand.sh"
 
 # Preconditions
 command -v yq >/dev/null 2>&1 || {
@@ -209,12 +139,15 @@ expand_patterns_into HEAD   FILES_ALL REL_PATHS_UNDER_MASTER_CONFIG
 # Union of the two expansions -- everything master's config wants us to
 # consider on this rel branch. Dedup + sort for stable iteration order.
 # `grep -v '^$'` filters the empty-line printf-with-empty-array leaves.
+# Split into two steps so pipe stages' exit statuses aren't masked
+# (SC2312 -- printf/grep/sort are all no-fail here in practice, but
+# make it explicit).
 declare -a FILES_TO_CHECK=()
-mapfile -t FILES_TO_CHECK < <(
-  printf '%s\n' "${MASTER_PATHS[@]}" "${REL_PATHS_UNDER_MASTER_CONFIG[@]}" \
-    | grep -v '^$' \
-    | sort -u
-)
+FILES_TO_CHECK_INPUT="$(printf '%s\n' "${MASTER_PATHS[@]}" "${REL_PATHS_UNDER_MASTER_CONFIG[@]}" | grep -v '^$' | sort -u || true)"
+if [[ -n "${FILES_TO_CHECK_INPUT}" ]]; then
+  mapfile -t FILES_TO_CHECK <<<"${FILES_TO_CHECK_INPUT}"
+fi
+unset FILES_TO_CHECK_INPUT
 echo "Concrete paths after glob expansion (master + rel union): ${#FILES_TO_CHECK[@]}"
 
 CHANGES=()
