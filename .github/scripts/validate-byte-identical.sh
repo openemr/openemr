@@ -2,14 +2,14 @@
 #
 # Validate the byte-identical file set across master and every rel branch.
 #
-# Reads FILES_ALL from .github/docker-byte-identical.yml in cwd. In
+# Reads FILES_ALL from .github/byte-identical.yml in cwd. In
 # master context also reads REL_BRANCHES from .github/release-targets.yml;
 # that file is master-only orchestrator config and rel branches don't
 # carry it (the rel-* path doesn't need it -- it just walks FILES_ALL
 # and compares each entry to master HEAD). Compares each FILES_ALL
 # entry across branches via raw.githubusercontent.com fetches. Behavior
 # depends on run context -- see the header of
-# .github/workflows/docker-validate-byte-identical.yml for the rationale.
+# .github/workflows/validate-byte-identical.yml for the rationale.
 #
 # Inputs (env)
 #   GITHUB_EVENT_NAME    "pull_request", "schedule", "push",
@@ -89,8 +89,8 @@ command -v yq >/dev/null 2>&1 || {
   emit_error "yq not found on PATH (need Mike Farah's Go-based yq)."
   exit 2
 }
-[[ -f .github/docker-byte-identical.yml ]] || {
-  emit_error ".github/docker-byte-identical.yml not present in cwd."
+[[ -f .github/byte-identical.yml ]] || {
+  emit_error ".github/byte-identical.yml not present in cwd."
   exit 2
 }
 # Note: .github/release-targets.yml presence is only required in master
@@ -102,7 +102,7 @@ command -v yq >/dev/null 2>&1 || {
 # Read FILES_ALL (needed in both contexts). The subprocess is captured
 # separately so SC2312 (return-value masking via process substitution)
 # does not bite.
-files_yq_output=$(yq -r '.files[]' .github/docker-byte-identical.yml)
+files_yq_output=$(yq -r '.files[]' .github/byte-identical.yml)
 mapfile -t FILES_ALL <<<"${files_yq_output}"
 if [[ ${#FILES_ALL[@]} -eq 1 && -z "${FILES_ALL[0]}" ]]; then
   FILES_ALL=()
@@ -110,7 +110,7 @@ fi
 
 if [[ ${#FILES_ALL[@]} -eq 0 ]]; then
   # Fail closed: an empty FILES_ALL would silently disable the canary.
-  emit_error "No files listed in docker-byte-identical.yml; refusing to skip drift validation."
+  emit_error "No files listed in byte-identical.yml; refusing to skip drift validation."
   exit 1
 fi
 
@@ -119,7 +119,7 @@ fi
 dupes=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
 if [[ -n "${dupes}" ]]; then
   dupes_one_line=$(echo "${dupes}" | tr '\n' ' ')
-  emit_error "Duplicate entries in docker-byte-identical.yml files: ${dupes_one_line}"
+  emit_error "Duplicate entries in byte-identical.yml files: ${dupes_one_line}"
   exit 1
 fi
 
@@ -175,7 +175,7 @@ if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
     [[ -f "${FILE}" ]] || missing+=("${FILE}")
   done
   if [[ ${#missing[@]} -gt 0 ]]; then
-    emit_error "Files listed in docker-byte-identical.yml but missing from master checkout: ${missing[*]}"
+    emit_error "Files listed in byte-identical.yml but missing from master checkout: ${missing[*]}"
     exit 1
   fi
 
@@ -231,7 +231,7 @@ else
   for FILE in "${FILES_ALL[@]}"; do
     if [[ ! -f "${FILE}" ]]; then
       emit_error_file "${FILE}" "${FILE} listed in FILES_ALL but missing from ${CONTEXT_BRANCH}."
-      echo "  Either this PR deleted a protected file, or docker-byte-identical.yml lists a file the branch does not carry."
+      echo "  Either this PR deleted a protected file, or byte-identical.yml lists a file the branch does not carry."
       echo "  Fix: restore the file (let auto-sync redeliver it from master, or revert the deletion)."
       FAIL=1
       continue
