@@ -1767,7 +1767,20 @@ depending on the website's `gen-release-notes.php` for filtering.
   "GitHub Release body = source of truth for release notes"
   design that shapes the release-notes link target choice.
 
-### G22 — GitHub Release body + repo CHANGELOG.md need the website's dependabot filter algorithm  *(discovered 2026-07-09)*
+### G22 — GitHub Release body + repo CHANGELOG.md need the website's dependabot filter algorithm  *(discovered 2026-07-09, fix in flight 2026-07-12 as the "Changelog surface early-migration slice")*
+
+**Status: fix in flight** — being addressed as a six-PR "Changelog surface early-migration slice" (see `docs/release-mechanism-migration-from-devops.md` for the plan). Slice consolidates the changelog content across all three surfaces (website release-notes / codebase CHANGELOG.md / GitHub Release body) into a single generator that lives in openemr/openemr, ports the website filter along the way, and retires the website generator + the two post-tag changelog PRs. As of 2026-07-12:
+
+- **PR 1** openemr/openemr#12896 — rename `docker-byte-identical.yml` → `byte-identical.yml` (SHIPPED)
+- **PR 2** openemr/openemr#12904 — glob-pattern support in validator + sync scripts (SHIPPED)
+- **PR 3** openemr/openemr#12910 — add release-mechanism surface to byte-identical.yml (SHIPPED)
+- PR 4 — move `ChangelogGenerator` + `CompatibilityDeriver` + `CompatibilityNotesRenderer` from devops → openemr; port website filter; wire `ChangelogMutator` (pending)
+- PR 5 — rewire devops `build-release.yml` to section-extract (pending)
+- PR 6 — retire website's `gen-release-notes.php` + release-notes surface (pending)
+
+Ancillary follow-ups landed alongside: openemr/openemr#12901/#12902/#12903 (rel-branch orphan cleanup after PR 1's rename), openemr/openemr#12905 (rel-820 stale-refs cleanup), openemr/openemr#12906 (hotfix for sync workflow's RUNNER_TEMP extraction after PR 2 added a script dependency), openemr/openemr#12907/#12908/#12909 (sync PRs propagating PR 2's shared lib to rel branches). Also openemr/openemr-devops#856 (bump kubernetes deployment image pin from 8.1.0 → 8.2.0 — unrelated to this slice but done in the same window).
+
+The design + fix-scope discussion below reflects the plan the slice implements.
 
 - **What:** website-openemr's `gen-release-notes.php` implements
   a curated dependabot filter (#173, landed 2026-07-05): keeps
@@ -3377,3 +3390,33 @@ checklist + the existing master-bump pattern.
   the load-bearing skipped-8.1.0 manifest-filter behaviour.
   With this landed, master and rel-820 have zero drift in the
   release-mechanism file surface again.
+- **2026-07-12**: G22 "Changelog surface early-migration slice"
+  PRs 1-3 SHIPPED. The slice consolidates the changelog content
+  across all three surfaces (website release-notes / codebase
+  CHANGELOG.md / GitHub Release body) into one generator in
+  openemr/openemr, ports the website filter forward, and retires
+  the redundant surfaces. Preparatory infrastructure done in
+  three PRs: openemr/openemr#12896 (rename
+  docker-byte-identical.yml -> byte-identical.yml), #12904 (glob-
+  pattern support in the validator + sync scripts, extracted
+  shared lib), #12910 (12 new entries in byte-identical.yml
+  adding the release-mechanism surface -- release-prep.yml,
+  tools/release/**, mutator classes, tests, PR body templates,
+  setup-php-composer composite). PRs 4-6 pending: actual move
+  of ChangelogGenerator + friends from devops -> openemr,
+  devops build-release.yml rewire to section-extract from the
+  moved CHANGELOG.md, retire of website's gen-release-notes.php.
+  Ancillary landed: #12901/#12902/#12903 (rel-branch orphan
+  cleanup after PR 1's rename hit a sweep-logic gap in sync),
+  #12905 (rel-820 stale-refs cleanup for master-only files with
+  references to the pre-rename manifest name), #12906 (sync
+  workflow RUNNER_TEMP hotfix after PR 2 added a script
+  dependency), #12907/#12908/#12909 (auto-sync propagation of
+  PR 2's shared lib to rel branches). Two significant new
+  discoveries from this window captured as follow-up: sync
+  script's rename-sweep gap on manifest-file-rename cases (rare;
+  documented inline in the sync script for the next occurrence);
+  master's byte-identical machinery + sync + validator NOT
+  currently covering the sync-byte-identical.* + BATS test
+  files (per-file rationale in the manifest's "Intentionally
+  NOT in this list" block).
