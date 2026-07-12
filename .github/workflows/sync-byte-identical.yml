@@ -1,9 +1,9 @@
 # Auto-syncs the byte-identical file set from master into every rel branch
 # listed in .github/release-targets.yml. Pairs with
-# docker-validate-byte-identical.yml (the drift canary): the canary
+# validate-byte-identical.yml (the drift canary): the canary
 # detects drift, this workflow proactively closes it.
 #
-# Source of truth for the file set is .github/docker-byte-identical.yml,
+# Source of truth for the file set is .github/byte-identical.yml,
 # the same config the canary reads. Three triggers:
 #
 #   1. push on master -- fires the moment a master merge changes one
@@ -151,7 +151,7 @@ jobs:
         cat > "$RUNNER_TEMP/pr-body.md" <<EOF
         Auto-sync of FILES_ALL changes from master @ \`${{ steps.apply.outputs.master_sha }}\`
         per the byte-identical invariant declared in
-        [\`.github/docker-byte-identical.yml\`](.github/docker-byte-identical.yml).
+        [\`.github/byte-identical.yml\`](.github/byte-identical.yml).
 
         ### Changes
 
@@ -170,8 +170,8 @@ jobs:
         ### Why
 
         The byte-identical drift canary at
-        [\`.github/workflows/docker-validate-byte-identical.yml\`](.github/workflows/docker-validate-byte-identical.yml)
-        requires the files listed in \`.github/docker-byte-identical.yml\` to be
+        [\`.github/workflows/validate-byte-identical.yml\`](.github/workflows/validate-byte-identical.yml)
+        requires the files listed in \`.github/byte-identical.yml\` to be
         character-for-character identical across master and every rel branch
         (the orchestrator dispatches the same logical build against each branch
         and expects identical semantics). This PR re-establishes that invariant
@@ -191,7 +191,7 @@ jobs:
         # entries, not any other files that happen to be in the workspace
         # (e.g. composer.lock drift from a running container, or our own
         # /tmp body file if it ended up here).
-        mapfile -t FILES_ALL < <(git show master:.github/docker-byte-identical.yml | yq -r '.files[]')
+        mapfile -t FILES_ALL < <(git show master:.github/byte-identical.yml | yq -r '.files[]')
         {
           echo "paths<<EOF"
           printf '%s\n' "${FILES_ALL[@]}"

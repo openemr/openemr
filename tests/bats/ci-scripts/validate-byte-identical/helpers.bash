@@ -72,13 +72,13 @@ write_files_all_config() {
         for f in "$@"; do
             echo "  - ${f}"
         done
-    } > .github/docker-byte-identical.yml
+    } > .github/byte-identical.yml
 }
 
 # Write the FILES_ALL config raw -- caller provides the entire YAML.
 # Useful for malformed / duplicate-entry tests.
 write_files_all_raw() {
-    echo "$1" > .github/docker-byte-identical.yml
+    echo "$1" > .github/byte-identical.yml
 }
 
 # Write the release-targets config. Each arg is a rel branch name

@@ -87,7 +87,7 @@ teardown() {
     OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
 
     [[ $status -eq 1 ]]
-    [[ "$output" == *"No files in master's docker-byte-identical.yml"* ]]
+    [[ "$output" == *"No files in master's byte-identical.yml"* ]]
 }
 
 @test "duplicate FILES_ALL entries fail closed" {
@@ -201,7 +201,7 @@ teardown() {
 }
 
 @test "rel-only sweep handles rel branch with no FILES_ALL config gracefully (skip the sweep)" {
-    # rel-810 has no .github/docker-byte-identical.yml (pre-PR-D state).
+    # rel-810 has no .github/byte-identical.yml (pre-PR-D state).
     # No way to know what rel had "in config" -- script must not crash.
     write_on_branch master src/foo.txt "x"
     write_files_all_config src/foo.txt
