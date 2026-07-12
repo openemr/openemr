@@ -1054,20 +1054,54 @@ content change. Motivation: at the 58-75 file scale that release-mechanism
 enforcement needs, enumerating individual paths becomes a "forgot to add
 the new file" failure mode. Globs close that failure mode by contract.
 
-**PR 3 — Add release-mechanism globs to `byte-identical.yml`.** Roughly
-ten glob entries covering `tools/release/**`,
-`src/Common/Command/ReleasePrep/**`,
-`src/Common/Command/ReleasePrepCommand.php`,
-`src/Common/Command/CreateReleaseChangelogCommand.php`,
-`tests/Tests/Isolated/Release/**`, `bin/console`, plus the release-*
-workflow files (`release-prep.yml`, `branch-cut-automation.yml`,
-`patch-prep-automation.yml`, `notify-release-targets-changed.yml`). Sync
-workflow auto-opens sync PRs against rel-820 (small — surface already
-exists), rel-800 + rel-704 (large — ~58 file additions each). The
-rel-800/rel-704 additions are dead code (no workflow to invoke them
-there); harmless until those branches rotate out. Byte-identical
-enforcement now covers the release-mechanism surface, matching the
-protection currently applied to docker files.
+**PR 3 — Add release-mechanism globs to `byte-identical.yml`.** Covers the
+release-mechanism surface that already lives in openemr core today —
+this PR does not move any new content, it only starts enforcing
+uniformity on what's here. Roughly twelve entries:
+
+Code + tests (globs):
+
+- `tools/release/**`
+- `src/Common/Command/ReleasePrep/**`
+- `src/Common/Command/ReleasePrepCommand.php`
+- `src/Common/Command/CreateReleaseChangelogCommand.php`
+- `tests/Tests/Isolated/Release/**`
+- `bin/console`
+
+Workflows + composite actions (files that fire from rel branches —
+matches the manifest's existing "canary travels with the file set it
+polices" design principle):
+
+- `.github/workflows/release-prep.yml`
+- `.github/workflows/branch-cut-automation.yml`
+- `.github/workflows/patch-prep-automation.yml`
+- `.github/workflows/release-permissions-check.yml`
+- `.github/actions/setup-php-composer/action.yml`
+
+PR body templates (read at rel-branch runtime by peter-evans invocations
+in `release-prep.yml`; must exist on rel branches for the create-pull-
+request step to find them):
+
+- `.github/PULL_REQUEST_TEMPLATE/release-prep.md`
+- `.github/PULL_REQUEST_TEMPLATE/release-finalize.md`
+
+Explicitly NOT in this set (master-only-firing, no need to travel with
+rel branches):
+
+- `.github/workflows/notify-release-targets-changed.yml`
+- `.github/workflows/docker-release-orchestrator.yml`
+- `.github/workflows/docker-validate-release-targets.yml`
+- `.github/workflows/sync-byte-identical.yml`
+- `.github/scripts/sync-byte-identical.sh`
+- `.github/release-targets.yml` (master-authoritative by explicit design;
+  see file's own header comment)
+
+Sync workflow auto-opens sync PRs against rel-820 (small — surface
+already exists), rel-800 + rel-704 (large — ~60 file additions each).
+The rel-800/rel-704 additions are dead code (no workflow on those
+branches to invoke them); harmless until those branches rotate out.
+Byte-identical enforcement now covers the release-mechanism surface,
+matching the protection currently applied to docker files.
 
 **PR 4 — Move `ChangelogGenerator` + `CompatibilityDeriver` +
 `CompatibilityNotesRenderer` from devops → openemr; port website's filter;
