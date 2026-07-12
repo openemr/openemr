@@ -1013,6 +1013,137 @@ devops anymore) or flips direction. Worth landing now anyway because (1) it
 defuses a real silent-drift bug today, and (2) it gives Phase 5 a clear
 "before/after" to swap.
 
+### Changelog surface early-migration slice (G22 fix + workstream 7 pilot)
+
+Runs in the pre-Phase-2 window. Motivated by G22 in
+[`release-mechanism-gaps.md`](release-mechanism-gaps.md) — the CHANGELOG.md
++ GitHub Release body currently ship without the dependabot docker filter
+that website-openemr's `ReleaseNotesGenerator` applies (multiple docker
+bumps per day flood every release). Fix requires either patching devops's
+`ChangelogGenerator` in place and moving it later, or pulling the whole
+changelog surface (`ChangelogGenerator`, `CompatibilityDeriver`,
+`CompatibilityNotesRenderer` + bin scripts) forward into openemr now as
+an early Phase 2 increment. The second option avoids touching devops
+twice and doubles as a workstream-7 pattern pilot: proves that the
+existing byte-identical machinery (which today enforces docker files)
+carries over cleanly to release-mechanism files, before the umbrella
+migration commits to that pattern for the full workflow set.
+
+**Sequenced as six PRs** (dependencies noted):
+
+**PR 1 — Rename `.github/docker-byte-identical.yml` → `.github/byte-identical.yml`
+(+ sibling workflow rename).** The manifest and its enforcement pair are no
+longer docker-only. `git mv` the manifest + `git mv .github/workflows/docker-validate-byte-identical.yml
+→ validate-byte-identical.yml`. Update references in `sync-byte-identical.yml`,
+`.github/scripts/validate-byte-identical.sh`, and both docs. Self-track: the
+renamed manifest + renamed workflow paths update the FILES_ALL list inside
+the manifest itself. Sync workflow auto-propagates the rename to rel-820 +
+rel-800 + rel-704 in-place. BATS regression coverage at
+`tests/bats/ci-scripts/validate-byte-identical/` already exists for the
+diff logic; add pinned-name updates if any. Validation shape confirmed
+during the 2026-06-21 externalization work (docker-migration doc's
+"Post-migration refinement" note).
+
+**PR 2 — Add glob support to the validator + sync scripts.** Extend
+`validate-byte-identical.sh` and `sync-byte-identical.yml`'s apply step to
+expand glob patterns from the manifest (`git ls-files -- <pattern>` handles
+`**` natively). BATS regression tests: glob patterns matching multiple
+files, empty glob results, glob matching a mix of existing + newly-added
+files, glob delete-propagation. Purely a capability addition — no manifest
+content change. Motivation: at the 58-75 file scale that release-mechanism
+enforcement needs, enumerating individual paths becomes a "forgot to add
+the new file" failure mode. Globs close that failure mode by contract.
+
+**PR 3 — Add release-mechanism globs to `byte-identical.yml`.** Roughly
+ten glob entries covering `tools/release/**`,
+`src/Common/Command/ReleasePrep/**`,
+`src/Common/Command/ReleasePrepCommand.php`,
+`src/Common/Command/CreateReleaseChangelogCommand.php`,
+`tests/Tests/Isolated/Release/**`, `bin/console`, plus the release-*
+workflow files (`release-prep.yml`, `branch-cut-automation.yml`,
+`patch-prep-automation.yml`, `notify-release-targets-changed.yml`). Sync
+workflow auto-opens sync PRs against rel-820 (small — surface already
+exists), rel-800 + rel-704 (large — ~58 file additions each). The
+rel-800/rel-704 additions are dead code (no workflow to invoke them
+there); harmless until those branches rotate out. Byte-identical
+enforcement now covers the release-mechanism surface, matching the
+protection currently applied to docker files.
+
+**PR 4 — Move `ChangelogGenerator` + `CompatibilityDeriver` +
+`CompatibilityNotesRenderer` from devops → openemr; port website's filter;
+fix compare-link; wire mutator.** `git mv` from
+`openemr-devops/tools/release/src/` into `openemr/tools/release/src/`, plus
+the bin scripts (`changelog.php`, `derive-compatibility.php`; note
+`changelog-pr.php` is deleted rather than moved — the two post-tag PRs it
+opens go away in PR 5). Port the four private static methods (`isNoise`,
+`isDockerBump`, `isNoOpVersionBump`, `scopeOf`) and their constants
+(`DEPENDABOT`, `DEPENDABOT_DOCKER_GROUPS`, `MACHINERY_SCOPES`) from
+website-openemr's `ReleaseNotesGenerator` into openemr's `ChangelogGenerator`
+— self-contained port, no external dependencies. Fix the compare-link:
+`vPREV...rel-<XY0>` → `vPREV...vNEW` for immutable tag-to-tag diff shape.
+Add a `ChangelogMutator` to `src/Common/Command/ReleasePrep/Mutator/` that
+runs the generator during `openemr:release-prep`, appending the new-version
+section to `CHANGELOG.md`. Wire into `release-prep.yml`'s prep job
+(rel-branch scope) AND the finalize job's post-tag master-scope run
+(mirrors G28 shape — content generated at release-prep-PR time, refreshed
+post-tag on the finalize partner PR). Byte-identical enforcement from PR 3
+auto-syncs the moved files to rel-820. Include unit tests for the ported
+filter + a fixture-based regression that regenerates 8.2.0's committed
+`CHANGELOG.md` entry from frozen inputs. **Depends on PR 3.**
+
+**PR 5 — Rewire devops's `build-release.yml` to section-extract from
+openemr's tagged tree.** Delete `ChangelogGenerator.php`,
+`CompatibilityDeriver.php`, `CompatibilityNotesRenderer.php`, and
+`changelog-pr.php` from devops. Reshape `changelog.php` as a ~20-line
+`extract-changelog-section.php` — reads `CHANGELOG.md` from the checked-out
+openemr, extracts the `## [X.Y.Z]` block, writes to
+`release-output/changelog.md`. Or inline as a `run:` step in the workflow
+YAML: `sed -n '/## \[8.2.0\]/,/## \[/p' CHANGELOG.md | head -n -1`.
+Update `build-release.yml`: drop the `task release:changelog` +
+`task release:compatibility` + `task release:changelog-pr` steps; add the
+extraction step. `gh release create --notes-file
+release-output/changelog.md` still works — content shape is identical
+(same class produces both). Manual byte-comparison against
+`ChangelogGenerator`'s output for 8.2.0 as parity check pre-merge.
+**Depends on PR 4** — the CHANGELOG.md entry must land in openemr's
+tagged tree before devops can extract from it.
+
+**PR 6 — Retire website-openemr's release-notes generation surface.**
+Delete `tools/release-docs/bin/gen-release-notes.php`,
+`ReleaseNotesGenerator.php`, related tests. Update `release-docs.yml`
+workflow to drop the release-notes generation step (or delete the workflow
+if that was its only remaining job). Decide separately whether the Hugo
+page at `content/release-notes/<version>.md` also goes away or stays as a
+static per-release page pointing at the GitHub Release. Note the
+acknowledgements surface stays put on website — separate output, different
+generator (`AcknowledgementsGenerator`), consumed by the acknowledgements
+page. **Depends on PR 4** — filter must live in openemr before deletion.
+Can land in parallel with PR 5.
+
+**Testing / validation strategy per PR:**
+
+- PR 1: canary self-enforces; watch sync PRs open cleanly on all three
+  rel branches. Manual worktree_dispatch of the renamed validator
+  workflow as a smoke test.
+- PR 2: BATS coverage exercises new glob semantics. No functional impact
+  on the current 8-file manifest until PR 3 uses globs.
+- PR 3: canary + sync workflows auto-verify; observe rel-800/rel-704 sync
+  PRs (large additions) merge cleanly.
+- PR 4: `workflow_dispatch` dry-run against `rel-test` before the next
+  real release — mutator produces a plausible `CHANGELOG.md` diff without
+  cutting a real tag. Fixture-based regression pins the ported filter.
+- PR 5: byte-compare extracted section against `ChangelogGenerator` output
+  for 8.2.0 as parity check pre-merge.
+- Full-cycle: the next real release (probably 8.2.1) is the acceptance
+  test for the whole consolidation.
+
+**What Phase 2 inherits after this slice lands:** the ChangelogGenerator
++ CompatibilityDeriver + CompatibilityNotesRenderer moves are done;
+Phase 2's "supporting PHP classes move with their tests" clause shrinks
+to `PackageAssembler` + `PreflightChecker`. The `build-release.yml` move
+proceeds as originally sketched but from a smaller starting point in
+devops.
+
 ### Phase 2+ outlines (sketches; settle details when each phase starts)
 
 **Phase 2** — `build-release.yml` + `build-release-on-tag.yml` + `build-patch.yml`
@@ -1039,6 +1170,13 @@ release tarball end-to-end. If acceptance-testing lands before or
 alongside Phase 2, it's the ideal validation surface for the
 parallel-run window; if not, Phase 2 relies on the manual pre-release
 testing pattern used today.
+
+If the "Changelog surface early-migration slice" (above) lands before
+Phase 2, `ChangelogGenerator`, `CompatibilityDeriver`, and
+`CompatibilityNotesRenderer` are already in openemr and out of devops.
+Phase 2's PHP-classes move shrinks to `PackageAssembler` +
+`PreflightChecker`; `build-release.yml` moves from a smaller starting
+point.
 
 **Phase 3** — `ship-release.yml` + `ShipReleaseOrchestrator` move. Mechanical
 relocation since the 2-PR shape was already locked in Phase 1. The port moves
