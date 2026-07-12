@@ -203,7 +203,13 @@ jobs:
         # entries, not any other files that happen to be in the workspace
         # (e.g. composer.lock drift from a running container, or our own
         # /tmp body file if it ended up here).
-        mapfile -t FILES_ALL < <(git show master:.github/byte-identical.yml | yq -r '.files[]')
+        # Extract just the path from each entry. Manifest supports two
+        # shapes since #12915:
+        #   - simple string: `- path/to/file`
+        #   - object form:   `- path: path/to/file\n  exclude-branches: [...]`
+        # The `.path // .` expression returns the object's .path field
+        # when present, else the entry itself (string).
+        mapfile -t FILES_ALL < <(git show master:.github/byte-identical.yml | yq -r '.files[] | (.path // .)')
         {
           echo "paths<<EOF"
           printf '%s\n' "${FILES_ALL[@]}"
