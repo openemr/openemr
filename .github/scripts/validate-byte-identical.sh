@@ -113,48 +113,59 @@ command -v yq >/dev/null 2>&1 || {
 # fetches master's copy of each entry). Its check moves into the
 # master-context branch below.
 
-# Read FILES_ALL (needed in both contexts). The subprocess is captured
-# separately so SC2312 (return-value masking via process substitution)
-# does not bite.
-files_yq_output=$(yq -r '.files[]' .github/byte-identical.yml)
-mapfile -t FILES_ALL <<<"${files_yq_output}"
-if [[ ${#FILES_ALL[@]} -eq 1 && -z "${FILES_ALL[0]}" ]]; then
-  FILES_ALL=()
-fi
+# Read the manifest as two parallel arrays: paths + per-entry exclude
+# lists. String entries produce empty-string exclude, object-form
+# entries produce a comma-joined list. See read_manifest_entries in
+# lib/glob-expand.sh.
+declare -a FILES_ALL_RAW=()
+# shellcheck disable=SC2034  # nameref -- populated by read_manifest_entries
+declare -a FILES_ALL_EXCLUDES=()
+read_manifest_entries .github/byte-identical.yml FILES_ALL_RAW FILES_ALL_EXCLUDES
 
-if [[ ${#FILES_ALL[@]} -eq 0 ]]; then
-  # Fail closed: an empty FILES_ALL would silently disable the canary.
+if [[ ${#FILES_ALL_RAW[@]} -eq 0 ]]; then
+  # Fail closed: an empty manifest would silently disable the canary.
   emit_error "No files listed in byte-identical.yml; refusing to skip drift validation."
   exit 1
 fi
 
-# Reject duplicate entries -- harmless in this loop but indicates a
-# config bug worth surfacing.
-dupes=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
+# Reject duplicate paths in the raw manifest -- catches config bugs
+# like listing the same path twice with different exclude lists.
+dupes=$(printf '%s\n' "${FILES_ALL_RAW[@]}" | sort | uniq -d)
 if [[ -n "${dupes}" ]]; then
   dupes_one_line=$(echo "${dupes}" | tr '\n' ' ')
   emit_error "Duplicate entries in byte-identical.yml files: ${dupes_one_line}"
   exit 1
 fi
 
-# Expand FILES_ALL into concrete paths. Glob patterns (e.g. `tools/release/**`)
-# are expanded against HEAD via `git ls-tree`; literal path entries pass
-# through verbatim (existence gets checked in the main loops below).
-declare -a FILES_ALL_EXPANDED=()
-expand_patterns_into HEAD FILES_ALL FILES_ALL_EXPANDED
+# expand_files_for_branch <branch> <out_expanded_var>
+# Filter FILES_ALL_RAW for entries applicable to <branch>, expand
+# them against HEAD, and populate <out_expanded_var> with the
+# concrete paths. Per-branch empty results are fine (no fail here);
+# the full-scope no-filter empty check below catches truly-empty
+# manifests.
+expand_files_for_branch() {
+  local target="${1}" out_var="${2}"
+  # shellcheck disable=SC2034  # nameref -- populated by filter_by_branch
+  local -a filtered=()
+  filter_by_branch "${target}" FILES_ALL_RAW FILES_ALL_EXCLUDES filtered
+  # shellcheck disable=SC2178  # nameref
+  local -n out_ref="${out_var}"
+  # shellcheck disable=SC2034,SC2178
+  out_ref=()
+  expand_patterns_into HEAD filtered "${out_var}"
+}
 
-if [[ ${#FILES_ALL_EXPANDED[@]} -eq 0 ]]; then
-  # Every entry expanded to zero paths -- either every pattern is stale
-  # or the manifest is entirely glob-only and matched nothing. Fail
-  # closed so we don't silently skip validation.
+# Full-scope expansion (all raw entries, no branch filter) for
+# initial fail-closed checks. Empty full expansion means every
+# pattern is stale or the manifest is entirely glob-only + matched
+# nothing -- a config bug worth failing on.
+declare -a FULL_EXPANDED=()
+expand_patterns_into HEAD FILES_ALL_RAW FULL_EXPANDED
+if [[ ${#FULL_EXPANDED[@]} -eq 0 ]]; then
   emit_error "byte-identical.yml patterns expanded to zero paths on HEAD; refusing to skip drift validation."
   exit 1
 fi
-
-# Reject duplicates in the expanded set too -- a glob pattern overlapping
-# a literal entry would produce duplicates post-expansion; catch that as
-# a config bug even though the pre-expansion set was unique.
-dupes_expanded=$(printf '%s\n' "${FILES_ALL_EXPANDED[@]}" | sort | uniq -d)
+dupes_expanded=$(printf '%s\n' "${FULL_EXPANDED[@]}" | sort | uniq -d)
 if [[ -n "${dupes_expanded}" ]]; then
   dupes_expanded_one_line=$(echo "${dupes_expanded}" | tr '\n' ' ')
   emit_error "Duplicate paths after glob expansion (glob overlaps literal or another glob): ${dupes_expanded_one_line}"
@@ -206,12 +217,14 @@ if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
     exit 0
   fi
 
-  # Master context: master is canonical. Every FILES_ALL_EXPANDED entry
-  # must exist on master; missing ones are a config bug. For glob
-  # entries this is tautological (expansion only emits existing paths),
-  # so this catches literal-path entries pointing at a missing file.
+  # Master context: master is canonical. Every RAW entry (regardless
+  # of exclude-branches) must exist on master; missing ones are a
+  # config bug. Exclusions only scope which REL BRANCHES the file is
+  # checked against, not whether it's expected on master. Reuse the
+  # FULL_EXPANDED set already computed above for the empty-manifest
+  # check.
   missing=()
-  for FILE in "${FILES_ALL_EXPANDED[@]}"; do
+  for FILE in "${FULL_EXPANDED[@]}"; do
     [[ -f "${FILE}" ]] || missing+=("${FILE}")
   done
   if [[ ${#missing[@]} -gt 0 ]]; then
@@ -230,6 +243,11 @@ if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
 
   for BRANCH in "${REL_BRANCHES[@]}"; do
     echo "::group::Compare ${BRANCH} to master"
+    # Per-branch expansion: skip entries whose exclude-branches list
+    # contains this branch (e.g. release-mechanism files aren't
+    # expected on rel-800 / rel-704).
+    declare -a FILES_ALL_EXPANDED=()
+    expand_files_for_branch "${BRANCH}" FILES_ALL_EXPANDED
     for FILE in "${FILES_ALL_EXPANDED[@]}"; do
       LOCAL_SHA=$(sha256sum "${FILE}" | cut -d' ' -f1)
       URL="${RAW_FETCH_BASE_URL}/${BRANCH}/${FILE}"
@@ -268,6 +286,10 @@ else
   # local file is always either a destructive PR or a hand-edit config
   # bug -- either way, fail.
   echo "Comparing ${CONTEXT_BRANCH} (LOCAL) to master HEAD (REMOTE)."
+  # Expand only the entries applicable to THIS rel branch, honouring
+  # per-entry exclude-branches lists.
+  declare -a FILES_ALL_EXPANDED=()
+  expand_files_for_branch "${CONTEXT_BRANCH}" FILES_ALL_EXPANDED
   for FILE in "${FILES_ALL_EXPANDED[@]}"; do
     if [[ ! -f "${FILE}" ]]; then
       emit_error_file "${FILE}" "${FILE} listed in FILES_ALL but missing from ${CONTEXT_BRANCH}."
