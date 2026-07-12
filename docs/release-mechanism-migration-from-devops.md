@@ -1032,7 +1032,10 @@ migration commits to that pattern for the full workflow set.
 **Sequenced as six PRs** (dependencies noted):
 
 **PR 1 — Rename `.github/docker-byte-identical.yml` → `.github/byte-identical.yml`
-(+ sibling workflow rename).** The manifest and its enforcement pair are no
+(+ sibling workflow rename).** *SHIPPED 2026-07-12 as openemr/openemr#12896.
+Auto-sync required three follow-up cleanup PRs (openemr/openemr#12901/#12902/#12903)
+for the manifest-rename gap in the sweep logic, plus openemr/openemr#12905 for
+rel-820's stale references in master-only files.* The manifest and its enforcement pair are no
 longer docker-only. `git mv` the manifest + `git mv .github/workflows/docker-validate-byte-identical.yml
 → validate-byte-identical.yml`. Update references in `sync-byte-identical.yml`,
 `.github/scripts/validate-byte-identical.sh`, and both docs. Self-track: the
@@ -1044,7 +1047,15 @@ diff logic; add pinned-name updates if any. Validation shape confirmed
 during the 2026-06-21 externalization work (docker-migration doc's
 "Post-migration refinement" note).
 
-**PR 2 — Add glob support to the validator + sync scripts.** Extend
+**PR 2 — Add glob support to the validator + sync scripts.** *SHIPPED 2026-07-12
+as openemr/openemr#12904 (six-commit sequence covering the initial implementation,
+CodeRabbit round-1 + shellcheck cleanup with shared lib extracted into
+.github/scripts/lib/glob-expand.sh, byte-identical manifest addition, sync BATS
+GITHUB_ACTIONS unset for CI compat, POSIX-negated-class [!...] regex conversion
+per CodeRabbit round-2, and shellcheck source directive switched to /dev/null to
+avoid rel-branch break). Required openemr/openemr#12906 hotfix because
+sync-byte-identical.yml's RUNNER_TEMP extraction needed to also copy lib/
+alongside the sync script.* Extend
 `validate-byte-identical.sh` and `sync-byte-identical.yml`'s apply step to
 expand glob patterns from the manifest (`git ls-files -- <pattern>` handles
 `**` natively). BATS regression tests: glob patterns matching multiple
@@ -1054,7 +1065,9 @@ content change. Motivation: at the 58-75 file scale that release-mechanism
 enforcement needs, enumerating individual paths becomes a "forgot to add
 the new file" failure mode. Globs close that failure mode by contract.
 
-**PR 3 — Add release-mechanism globs to `byte-identical.yml`.** Covers the
+**PR 3 — Add release-mechanism globs to `byte-identical.yml`.** *SHIPPED 2026-07-12
+as openemr/openemr#12910. 12 new entries added, manifest went from 9 to 21
+entries.* Covers the
 release-mechanism surface that already lives in openemr core today —
 this PR does not move any new content, it only starts enforcing
 uniformity on what's here. Roughly twelve entries:
