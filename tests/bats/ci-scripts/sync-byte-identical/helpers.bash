@@ -30,6 +30,14 @@ setup_test_repo() {
     git config user.name "Test"
     git commit -q --allow-empty -m "seed"
     git branch "$rel_branch"
+
+    # Force plain output regardless of caller environment. On GitHub
+    # Actions runners GITHUB_ACTIONS=true is set globally, which would
+    # flip the emit_warning / emit_error helpers into
+    # ::warning::/::error:: annotation mode and break plain-text
+    # substring asserts in the .bats files. Mirrors the same defence
+    # in tests/bats/ci-scripts/validate-byte-identical/helpers.bash.
+    unset GITHUB_ACTIONS
 }
 
 teardown_test_repo() {
