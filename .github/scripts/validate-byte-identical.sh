@@ -84,6 +84,20 @@ emit_warning_file() {
   fi
 }
 
+# Source the shared glob-expansion helpers (expand_pattern,
+# glob_to_regex, expand_patterns_into). Sourced AFTER emit_warning is
+# defined -- expand_patterns_into calls it on stale-glob patterns.
+#
+# `source=/dev/null` opts out of shellcheck's static follow. The
+# alternative -- pointing the directive at `lib/glob-expand.sh` --
+# requires `source-path=SCRIPTDIR` in .shellcheckrc, which is not in
+# the byte-identical set and would therefore stay master-only,
+# breaking shellcheck on rel branches. Losing shellcheck's view into
+# the sourced helpers is a smaller cost than the cross-branch
+# coordination burden.
+# shellcheck source=/dev/null
+source "$(dirname "${BASH_SOURCE[0]}")/lib/glob-expand.sh"
+
 # Preconditions
 command -v yq >/dev/null 2>&1 || {
   emit_error "yq not found on PATH (need Mike Farah's Go-based yq)."
@@ -120,6 +134,30 @@ dupes=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
 if [[ -n "${dupes}" ]]; then
   dupes_one_line=$(echo "${dupes}" | tr '\n' ' ')
   emit_error "Duplicate entries in byte-identical.yml files: ${dupes_one_line}"
+  exit 1
+fi
+
+# Expand FILES_ALL into concrete paths. Glob patterns (e.g. `tools/release/**`)
+# are expanded against HEAD via `git ls-tree`; literal path entries pass
+# through verbatim (existence gets checked in the main loops below).
+declare -a FILES_ALL_EXPANDED=()
+expand_patterns_into HEAD FILES_ALL FILES_ALL_EXPANDED
+
+if [[ ${#FILES_ALL_EXPANDED[@]} -eq 0 ]]; then
+  # Every entry expanded to zero paths -- either every pattern is stale
+  # or the manifest is entirely glob-only and matched nothing. Fail
+  # closed so we don't silently skip validation.
+  emit_error "byte-identical.yml patterns expanded to zero paths on HEAD; refusing to skip drift validation."
+  exit 1
+fi
+
+# Reject duplicates in the expanded set too -- a glob pattern overlapping
+# a literal entry would produce duplicates post-expansion; catch that as
+# a config bug even though the pre-expansion set was unique.
+dupes_expanded=$(printf '%s\n' "${FILES_ALL_EXPANDED[@]}" | sort | uniq -d)
+if [[ -n "${dupes_expanded}" ]]; then
+  dupes_expanded_one_line=$(echo "${dupes_expanded}" | tr '\n' ' ')
+  emit_error "Duplicate paths after glob expansion (glob overlaps literal or another glob): ${dupes_expanded_one_line}"
   exit 1
 fi
 
@@ -168,10 +206,12 @@ if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
     exit 0
   fi
 
-  # Master context: master is canonical. Every FILES_ALL entry must
-  # exist on master; missing ones are a config bug.
+  # Master context: master is canonical. Every FILES_ALL_EXPANDED entry
+  # must exist on master; missing ones are a config bug. For glob
+  # entries this is tautological (expansion only emits existing paths),
+  # so this catches literal-path entries pointing at a missing file.
   missing=()
-  for FILE in "${FILES_ALL[@]}"; do
+  for FILE in "${FILES_ALL_EXPANDED[@]}"; do
     [[ -f "${FILE}" ]] || missing+=("${FILE}")
   done
   if [[ ${#missing[@]} -gt 0 ]]; then
@@ -190,7 +230,7 @@ if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
 
   for BRANCH in "${REL_BRANCHES[@]}"; do
     echo "::group::Compare ${BRANCH} to master"
-    for FILE in "${FILES_ALL[@]}"; do
+    for FILE in "${FILES_ALL_EXPANDED[@]}"; do
       LOCAL_SHA=$(sha256sum "${FILE}" | cut -d' ' -f1)
       URL="${RAW_FETCH_BASE_URL}/${BRANCH}/${FILE}"
       STATUS=$(fetch_status "${URL}")
@@ -228,7 +268,7 @@ else
   # local file is always either a destructive PR or a hand-edit config
   # bug -- either way, fail.
   echo "Comparing ${CONTEXT_BRANCH} (LOCAL) to master HEAD (REMOTE)."
-  for FILE in "${FILES_ALL[@]}"; do
+  for FILE in "${FILES_ALL_EXPANDED[@]}"; do
     if [[ ! -f "${FILE}" ]]; then
       emit_error_file "${FILE}" "${FILE} listed in FILES_ALL but missing from ${CONTEXT_BRANCH}."
       echo "  Either this PR deleted a protected file, or byte-identical.yml lists a file the branch does not carry."

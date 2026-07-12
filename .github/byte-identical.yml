@@ -51,3 +51,4 @@ files:
 - .github/workflows/validate-byte-identical.yml
 - .github/byte-identical.yml
 - .github/scripts/validate-byte-identical.sh
+- .github/scripts/lib/glob-expand.sh
