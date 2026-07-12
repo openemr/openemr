@@ -162,7 +162,8 @@
       "required": [
         "tag",
         "branch",
-        "version"
+        "version",
+        "prev_release"
       ],
       "additionalProperties": false,
       "properties": {
@@ -173,6 +174,9 @@
           "$ref": "#/definitions/branch"
         },
         "version": {
+          "$ref": "#/definitions/version"
+        },
+        "prev_release": {
           "$ref": "#/definitions/version"
         }
       }
