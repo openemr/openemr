@@ -9,7 +9,7 @@ from testing or reuse.
 | Path | Invoked by | Tested by |
 |---|---|---|
 | [`sync-byte-identical.sh`](sync-byte-identical.sh) | [`.github/workflows/sync-byte-identical.yml`](../workflows/sync-byte-identical.yml) | [`tests/bats/ci-scripts/sync-byte-identical/`](../../tests/bats/ci-scripts/sync-byte-identical/) (BATS, synthetic git repo) |
-| [`validate-byte-identical.sh`](validate-byte-identical.sh) | [`.github/workflows/docker-validate-byte-identical.yml`](../workflows/docker-validate-byte-identical.yml) | [`tests/bats/ci-scripts/validate-byte-identical/`](../../tests/bats/ci-scripts/validate-byte-identical/) (BATS, curl mocked via PATH shim) |
+| [`validate-byte-identical.sh`](validate-byte-identical.sh) | [`.github/workflows/validate-byte-identical.yml`](../workflows/validate-byte-identical.yml) | [`tests/bats/ci-scripts/validate-byte-identical/`](../../tests/bats/ci-scripts/validate-byte-identical/) (BATS, curl mocked via PATH shim) |
 
 ## Running the tests locally
 

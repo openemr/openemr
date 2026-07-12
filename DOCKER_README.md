@@ -70,6 +70,6 @@ At a glance:
   - `docker-build-{322,323,edge}.yml` + `docker-build-flex-core.yml` — flex publish (daily 02:00 UTC).
   - `docker-push-dockerhub-readme.yml` — pushes the rendered Docker Hub overview after each orchestrator
     run, sourced from `docker/dockerhub/overview.md`.
-  - `docker-validate-byte-identical.yml` + `docker-validate-release-targets.yml` — drift canaries.
+  - `validate-byte-identical.yml` + `docker-validate-release-targets.yml` — drift canaries.
 - **Docker Hub readme rendering**: [`docker/dockerhub/`](docker/dockerhub/) — `overview.md` template,
   `render.sh` bash + yq renderer, and a two-tier test suite (`tests/sanity.sh` + `tests/golden-test.sh`).
