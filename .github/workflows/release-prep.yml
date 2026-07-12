@@ -1,0 +1,627 @@
+name: Release Prep Conductor
+
+# Long-lived release-prep PR pattern (release-please-shaped) for the
+# openemr/openemr conductor in the three-PR release-automation flow
+# (openemr/openemr-devops#664). On every push to a rel-* branch, runs
+# the mechanical edits and force-pushes them to release-prep/<rel-branch>
+# (only when the branch is in an active dev cycle -- $v_tag == '-dev'),
+# opening or updating a draft PR. On merge of that PR, creates the
+# annotated release tag and dispatches openemr-tag to the consumer
+# repos.
+
+on:
+  push:
+    # Production rel-* branches only. The Resolve step below requires
+    # rel-<MAJOR><MINOR>0 and would crash on a stray push to a test
+    # branch like rel-test. Test runs come in via workflow_dispatch
+    # instead.
+    #
+    # No `paths:` filter here on purpose: the tracking release-prep PR
+    # must stay in sync with rel-branch tip across every commit during
+    # an active dev cycle, so the workflow fires on all pushes and
+    # gates cleanly in the Resolve step below (G16). Narrowing the
+    # trigger to paths: [version.php] would leave the release-prep PR
+    # stale after any non-version.php commit -- the peter-evans branch
+    # base drifts behind rel-branch tip and the PR diff either shows
+    # stale mutation content or reverts against the newer rel-branch
+    # commits.
+    branches:
+    - 'rel-[0-9]*0'
+  pull_request:
+    types:
+    - closed
+    branches:
+    - 'rel-*'
+  workflow_dispatch:
+    inputs:
+      target-version:
+        description: 'Target release version (MAJOR.MINOR.PATCH)'
+        required: true
+        type: string
+      branch:
+        description: 'Release branch (rel-NNN)'
+        required: true
+        type: string
+      test:
+        description: 'Test mode: open the prep PR under release-prep-test/<branch> so its merge produces a v{M}_{m}_{p}-test.{shortSha} tag instead of a real release tag. Use to exercise the conductor end-to-end without cutting a real release.'
+        required: false
+        default: false
+        type: boolean
+      force-dispatch:
+        description: 'Force the rel-update dispatch to consumers even when peter-evans reports pull-request-operation=none. Use to recover after a downstream workflow failed to consume the initial dispatch and the release-prep PR is already in its target state.'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  # Serialise every event for a given rel-branch into one queue so a
+  # fast follow-up push doesn't race the previous run's force-push, and
+  # a release-prep PR merge doesn't race a concurrent push to the base.
+  # Use ref_name (branch name without the refs/heads/ prefix) on push so
+  # the key matches pull_request.base.ref on the close event.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.base.ref || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  prep:
+    name: Generate release-prep PR (${{ matrix.php-version }})
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        # The conductor itself is tooling (only runs on CI) so per OCE
+        # conventions it tracks the latest stable PHP, not the openemr
+        # application floor. The release-prep mutators only need to
+        # parse application code, not execute it on this PHP version.
+        php-version:
+        - '8.5'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Mint App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        # Scope the installation token to this repo plus the dispatch
+        # targets, otherwise repository_dispatch to the consumer repos
+        # returns 403 "Resource not accessible by integration".
+        owner: ${{ github.repository_owner }}
+        repositories: openemr,openemr-devops,website-openemr,demo_farm_openemr
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: Resolve target version and branch
+      id: resolve
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        REF: ${{ github.ref }}
+        INPUT_BRANCH: ${{ inputs.branch }}
+        INPUT_VERSION: ${{ inputs.target-version }}
+        INPUT_TEST: ${{ inputs.test }}
+      run: |
+        set -euo pipefail
+        # Shared helper -- parse $v_major/$v_minor/$v_patch/$v_tag out
+        # of a version.php blob. Populates the four globals. Mirrors
+        # patch-prep-automation.yml's parse_version_php pattern.
+        parse_version_php() {
+          local raw="$1" var value
+          for var in v_major v_minor v_patch v_tag; do
+            value="$(printf '%s\n' "${raw}" | grep -oP "^\\\$${var}\\s*=\\s*'\\K[^']*" | head -n1 || true)"
+            case "${var}" in
+              v_major) MAJOR="${value}" ;;
+              v_minor) MINOR="${value}" ;;
+              v_patch) PATCH="${value}" ;;
+              v_tag)   TAG="${value}" ;;
+            esac
+          done
+        }
+        should_run='true'
+        case "${EVENT_NAME}" in
+          workflow_dispatch)
+            branch="${INPUT_BRANCH}"
+            version="${INPUT_VERSION}"
+            test_mode="${INPUT_TEST}"
+            # Production runs must dispatch against the same ref they target,
+            # otherwise the mutators run on the dispatched ref's tree but
+            # peter-evans opens the PR against base=inputs.branch, producing
+            # a confusing diff. Test runs intentionally diverge: they
+            # dispatch against a feature branch (to pick up new conductor
+            # logic) while targeting a real test branch.
+            ref_branch="${REF#refs/heads/}"
+            if [ "${test_mode}" != 'true' ] && [ "${ref_branch}" != "${branch}" ]; then
+              echo "::error::workflow dispatched with --ref '${ref_branch}' but --branch='${branch}'; production runs must dispatch against the target branch. Set test=true if you intentionally want a feature-branch ref."
+              exit 1
+            fi
+            ;;
+          *)
+            branch="${REF#refs/heads/}"
+            # Guard the push glob (rel-[0-9]*0) against off-pattern
+            # matches like rel-10 that would confuse downstream tooling.
+            # Capture MAJOR + MINOR so we can cross-check against the
+            # parsed version.php state below (defense in depth against
+            # a rel-branch and its version.php disagreeing on which
+            # minor line the branch represents).
+            if ! [[ "${branch}" =~ ^rel-([0-9]+)([0-9])0$ ]]; then
+              echo "::error::push trigger matched branch '${branch}' but branch does not fit rel-<MAJOR><MINOR>0"
+              exit 1
+            fi
+            branch_major="${BASH_REMATCH[1]}"
+            branch_minor="${BASH_REMATCH[2]}"
+            # G16 gate: parse version.php at HEAD and require
+            # $v_tag == '-dev' before proceeding. This catches
+            # $v_database bumps and other version.php edits that
+            # don't put the branch into an active dev cycle. Without
+            # this the conductor produces a spurious "prep <next-
+            # patch>" PR against a branch that just shipped and is
+            # not in dev mode. See gaps doc G16.
+            if ! version_php_raw="$(cat version.php 2>/dev/null)"; then
+              echo "::error::could not read version.php at HEAD of ${branch}"
+              exit 1
+            fi
+            parse_version_php "${version_php_raw}"
+            # Distinguish "$v_tag assignment absent" from "$v_tag
+            # assignment present with an empty value" -- both leave
+            # TAG empty after parse_version_php, but the second is
+            # the normal shipped state (rel branch just shipped a
+            # release, $v_tag = '' in version.php) and must fall
+            # through to the clean-skip path below. Only an absent
+            # assignment indicates parser drift or a malformed
+            # version.php.
+            if ! printf '%s\n' "${version_php_raw}" | grep -qP "^\\\$v_tag\\s*="; then
+              echo "::error::could not find \$v_tag assignment in version.php on ${branch} (malformed or schema drift)"
+              exit 1
+            elif [ "${TAG}" != '-dev' ]; then
+              echo "Branch ${branch} is not in an active dev cycle (\$v_tag='${TAG}', expected '-dev'); nothing to prep."
+              should_run='false'
+              version=''
+            elif [ -z "${MAJOR}" ] || [ -z "${MINOR}" ] || [ -z "${PATCH}" ]; then
+              echo "::error::could not parse \$v_major/\$v_minor/\$v_patch from version.php on ${branch}"
+              exit 1
+            elif [ "${MAJOR}" != "${branch_major}" ] || [ "${MINOR}" != "${branch_minor}" ]; then
+              # Belt-and-braces: rel-<M><m>0 is per-minor-line, so
+              # version.php's major/minor MUST match the branch's
+              # <M><m>. A mismatch means someone accidentally
+              # committed an out-of-line version.php value (e.g.,
+              # 8.3.0-dev on rel-820) or the branch parse is off.
+              # Either way, preparing a version for the wrong minor
+              # line would produce a broken release.
+              echo "::error::version.php ${MAJOR}.${MINOR}${TAG} on ${branch} does not match branch's minor line (${branch_major}.${branch_minor})"
+              exit 1
+            else
+              # Target is version.php's own MAJOR.MINOR.PATCH -- the
+              # maintainer chose it when bumping the branch into dev.
+              # We do NOT walk tags to compute (highest_patch + 1)
+              # because that ignores the maintainer's explicit signal
+              # and misfires on branches that shipped without entering
+              # a new dev cycle.
+              version="${MAJOR}.${MINOR}.${PATCH}"
+            fi
+            test_mode='false'
+            ;;
+        esac
+        {
+          echo "should-run=${should_run}"
+          echo "branch=${branch}"
+          echo "version=${version}"
+        } >> "$GITHUB_OUTPUT"
+        # Encode test mode in the prep PR's head branch name so the finalize
+        # job can detect it from pull_request.head.ref alone (no API call).
+        # The PR title is rendered as a Conventional Commits subject below
+        # so the conventional-commits PR-title check passes; test runs add
+        # a trailing [TEST] marker (still inside the subject and therefore
+        # still valid conventional grammar).
+        if [ "${test_mode}" = 'true' ]; then
+          echo "prep-prefix=release-prep-test"
+          echo "title-suffix= [TEST]"
+        else
+          echo "prep-prefix=release-prep"
+          echo "title-suffix="
+        fi >> "$GITHUB_OUTPUT"
+
+    - name: Render PR body
+      id: pr-body
+      if: steps.resolve.outputs.should-run != 'false'
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        {
+          echo 'body<<EOF'
+          php tools/release/bin/render-pr-body.php "${VERSION}"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Run release-prep mutators
+      if: steps.resolve.outputs.should-run != 'false'
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        php bin/console openemr:release-prep \
+          --skip-globals \
+          --target-version="${VERSION}" \
+          --scope=rel
+
+    # Open/update the long-lived release-prep PR via peter-evans/create-pull-request,
+    # which handles the diff detection, branch force-push, and PR open-or-update
+    # in one step. When there is no diff this is a no-op.
+    - name: Create or update release-prep PR
+      id: prep-pr
+      if: steps.resolve.outputs.should-run != 'false'
+      uses: peter-evans/create-pull-request@v8
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        branch: ${{ steps.resolve.outputs.prep-prefix }}/${{ steps.resolve.outputs.branch }}
+        base: ${{ steps.resolve.outputs.branch }}
+        title: 'chore(release): prep ${{ steps.resolve.outputs.version }}${{ steps.resolve.outputs.title-suffix }}'
+        body: ${{ steps.pr-body.outputs.body }}
+        commit-message: 'chore(release): prep ${{ steps.resolve.outputs.version }}${{ steps.resolve.outputs.title-suffix }}'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        draft: true
+        delete-branch: false
+
+    # --- Master-side partner PR (release-finalize) ---------------------
+    # Paired with the release-prep/<rel-branch> PR above. Carries the
+    # post-release master-side updates to .github/release-targets.yml:
+    # pins the rel branch row to the new tag, slot-shuffles
+    # latest/next/dev across rows, drops the unreleased placeholder row.
+    # See docs/release-mechanism-gaps.md (G11) for the design.
+    #
+    # Test-mode runs are skipped: the partner PR exists to update master
+    # for a real release and would produce a confusing master-side draft
+    # on every test exercise of the conductor.
+    - name: Checkout master for release-finalize partner PR
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
+      uses: actions/checkout@v7
+      with:
+        ref: master
+        path: master-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        fetch-depth: 0
+
+    # The setup-php-composer composite action installs into the workflow's
+    # default working directory only (no working-directory input). The
+    # second checkout above has no vendor/ — install composer deps there
+    # directly so `php bin/console` can boot the autoloader.
+    - name: Install Composer dependencies (master-checkout)
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
+      working-directory: master-checkout
+      shell: bash
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Run release-prep mutators (master scope, release-finalize)
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
+      working-directory: master-checkout
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+      run: |
+        php bin/console openemr:release-prep \
+          --skip-globals \
+          --target-version="${VERSION}" \
+          --rel-branch="${REL_BRANCH}" \
+          --scope=master
+
+    - name: Render release-finalize PR body
+      id: finalize-pr-body
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+      run: |
+        {
+          echo 'body<<EOF'
+          php tools/release/bin/render-pr-body.php "${VERSION}" \
+            --template=.github/PULL_REQUEST_TEMPLATE/release-finalize.md \
+            --rel-branch="${REL_BRANCH}"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Create or update release-finalize PR (master partner)
+      if: steps.resolve.outputs.should-run != 'false' && steps.resolve.outputs.prep-prefix == 'release-prep'
+      uses: peter-evans/create-pull-request@v8
+      with:
+        path: master-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        branch: release-finalize/${{ steps.resolve.outputs.branch }}
+        base: master
+        title: 'chore(release): finalize ${{ steps.resolve.outputs.version }} on master'
+        body: ${{ steps.finalize-pr-body.outputs.body }}
+        commit-message: 'chore(release): finalize ${{ steps.resolve.outputs.version }} on master'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        draft: true
+        delete-branch: false
+
+    - name: Dispatch rel-cut / rel-update to consumers
+      if: steps.resolve.outputs.should-run != 'false' && (steps.prep-pr.outputs.pull-request-operation != 'none' || inputs.force-dispatch)
+      env:
+        RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        OPERATION: ${{ steps.prep-pr.outputs.pull-request-operation }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+        PUSH_SHA: ${{ github.sha }}
+      run: |
+        prev_release="$(php tools/release/bin/derive-prev-release.php "${VERSION}")"
+        # peter-evans reports `created` when it opens a new release-prep PR
+        # for this rel-branch and `updated` when it pushes to an existing
+        # one. Use that signal directly: by the time we reach this step the
+        # peter-evans action has already created the branch upstream, so a
+        # post-hoc `gh api` existence check would always say "exists" and
+        # dispatch the very first push as rel-update.
+        #
+        # When OPERATION is empty (force-dispatch on an unchanged PR),
+        # treat it as rel-update — rel-cut is only correct on the very
+        # first PR creation.
+        case "${OPERATION}" in
+          created) event='openemr-rel-cut' ;;
+          *)       event='openemr-rel-update' ;;
+        esac
+        php tools/release/bin/dispatch.php \
+          --event="${event}" \
+          --sha="${PUSH_SHA}" \
+          --actor='openemr-release-bot' \
+          --branch="${REL_BRANCH}" \
+          --release-version="${VERSION}" \
+          --prev-release="${prev_release}"
+
+  finalize:
+    name: Tag + dispatch on release-prep merge
+    if: |
+      github.event_name == 'pull_request'
+      && github.event.pull_request.merged == true
+      && (startsWith(github.event.pull_request.head.ref, 'release-prep/')
+          || startsWith(github.event.pull_request.head.ref, 'release-prep-test/'))
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        # Same rationale as the prep job above.
+        php-version:
+        - '8.5'
+    steps:
+    - name: Checkout merge commit
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ github.event.pull_request.merge_commit_sha }}
+        fetch-depth: 0
+
+    - name: Mint App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        # Scope the installation token to this repo plus the dispatch
+        # targets, otherwise repository_dispatch to the consumer repos
+        # returns 403 "Resource not accessible by integration".
+        # demo_farm_openemr dropped (was: ...,demo_farm_openemr) because
+        # the only dispatch in this `finalize` job is openemr-tag, and
+        # demo_farm no longer consumes it (demo_farm_openemr#141 retired
+        # bump-tag.yml; the auto-derive bot subscribes to
+        # release-targets-changed instead).
+        owner: ${{ github.repository_owner }}
+        repositories: openemr,openemr-devops,website-openemr
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: Resolve version, test-mode, and branch from merged PR
+      id: resolve
+      env:
+        BASE_REF: ${{ github.event.pull_request.base.ref }}
+        HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+      run: |
+        # The prep job encodes test-mode into the PR head ref
+        # (release-prep-test/<rel-branch>) and the version into the PR
+        # title ('chore(release): prep <version> [TEST]'). Branch-to-version
+        # only handles production rel-NNN0 branches, so test-mode reads
+        # the version straight out of the title we authored.
+        if [[ "${HEAD_REF}" == release-prep-test/* ]]; then
+          test_mode='true'
+          # Extract MAJOR.MINOR.PATCH explicitly so an edited PR title
+          # surfaces a clear failure here instead of a downstream
+          # InvalidArgumentException from TagCreationRequest.
+          if [[ "${PR_TITLE}" =~ prep[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            version="${BASH_REMATCH[1]}"
+          else
+            echo "::error::could not parse MAJOR.MINOR.PATCH from PR title: ${PR_TITLE}"
+            exit 1
+          fi
+        else
+          test_mode='false'
+          version="$(php tools/release/bin/branch-to-version.php "${BASE_REF}")"
+        fi
+        {
+          echo "branch=${BASE_REF}"
+          echo "version=${version}"
+          echo "test=${test_mode}"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Create annotated tag
+      id: tag
+      env:
+        RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        REPO: ${{ github.repository }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+        MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        PR_URL: ${{ github.event.pull_request.html_url }}
+        TEST_MODE: ${{ steps.resolve.outputs.test }}
+      run: |
+        args=(
+          --repo="${REPO}"
+          --release-version="${VERSION}"
+          --commit-sha="${MERGE_SHA}"
+          --conductor-pr-url="${PR_URL}"
+        )
+        if [ "${TEST_MODE}" = 'true' ]; then
+          args+=(--test)
+        fi
+        php tools/release/bin/create-tag.php "${args[@]}"
+
+    - name: Verify annotated tag
+      env:
+        TAG_NAME: ${{ steps.tag.outputs.tag-name }}
+      run: |
+        # The tag was just created via the API; the local checkout
+        # doesn't have it yet. Fetch it before handing the local repo
+        # to TagVerifier.
+        git fetch --tags --quiet
+        php tools/release/bin/verify-tag.php "${TAG_NAME}"
+
+    - name: Dispatch openemr-tag to consumers
+      env:
+        RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        TAG_NAME: ${{ steps.tag.outputs.tag-name }}
+      run: |
+        # G20: openemr-tag now carries prev_release so website-openemr's
+        # release-docs.yml can generate acknowledgements + release-notes
+        # on the FINAL cut. Historically this dispatch omitted the field
+        # and the two generators SKIPPED (their `if: prev_release != ''`
+        # gates) on every release, leaving each shipped version without
+        # markdown files on master until a manual openemr-rel-update
+        # recovery dispatch. Derived from the same
+        # BranchVersionResolver::previousRelease() the sibling rel-cut/
+        # update dispatches use.
+        prev_release="$(php tools/release/bin/derive-prev-release.php "${VERSION}")"
+        # Demo_farm_openemr no longer consumes openemr-tag: its bump-tag.yml
+        # was retired in demo_farm_openemr#141 in favor of the auto-derive
+        # bot, which subscribes to release-targets-changed instead. Explicit
+        # --target-repos to drop demo_farm from the default list so the
+        # dispatch doesn't fire into a void.
+        php tools/release/bin/dispatch.php \
+          --event=openemr-tag \
+          --target-repos=openemr/openemr-devops,openemr/website-openemr \
+          --sha="${MERGE_SHA}" \
+          --actor='openemr-release-bot' \
+          --branch="${REL_BRANCH}" \
+          --release-version="${VERSION}" \
+          --tag="${TAG_NAME}" \
+          --prev-release="${prev_release}"
+
+    # G28: post-tag update to the release-finalize/<rel-branch> partner PR.
+    # The prep job's equivalent steps (Checkout master... through Create or
+    # update release-finalize PR) write the *preview* state during the -dev
+    # cycle. Under the G16 fix that same prep job skips on the release-prep
+    # merge push (Layer 2 gate rejects $v_tag == '' post-mutator), so
+    # nothing was updating the release-finalize PR to reflect the actual
+    # just-shipped state -- openemr_version_ref would stay pinned at the
+    # rel-branch tip instead of the just-created annotated tag. Fold the
+    # master-scope mutator + PR update work into the finalize job here so
+    # the release-finalize PR content and its draft/ready state both
+    # reflect post-tag reality by the time a maintainer sees it.
+    #
+    # Test-mode runs are skipped: the partner PR only exists for real
+    # releases and would produce a confusing master-side draft on every
+    # test exercise of the conductor.
+    - name: Checkout master for release-finalize post-tag update
+      if: steps.resolve.outputs.test != 'true'
+      uses: actions/checkout@v7
+      with:
+        ref: master
+        path: master-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        fetch-depth: 0
+
+    # setup-php-composer installs into the workflow's default working
+    # directory only; the second checkout above has no vendor/, so
+    # install composer deps there directly to boot the autoloader.
+    - name: Install Composer dependencies (master-checkout, finalize)
+      if: steps.resolve.outputs.test != 'true'
+      working-directory: master-checkout
+      shell: bash
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Run release-prep mutators (master scope, release-finalize) -- post-tag
+      if: steps.resolve.outputs.test != 'true'
+      working-directory: master-checkout
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+      run: |
+        php bin/console openemr:release-prep \
+          --skip-globals \
+          --target-version="${VERSION}" \
+          --rel-branch="${REL_BRANCH}" \
+          --scope=master
+
+    - name: Render release-finalize PR body -- post-tag
+      id: finalize-pr-body-post-tag
+      if: steps.resolve.outputs.test != 'true'
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+      run: |
+        {
+          echo 'body<<EOF'
+          php tools/release/bin/render-pr-body.php "${VERSION}" \
+            --template=.github/PULL_REQUEST_TEMPLATE/release-finalize.md \
+            --rel-branch="${REL_BRANCH}"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Update release-finalize PR -- post-tag
+      id: finalize-post-tag-pr
+      if: steps.resolve.outputs.test != 'true'
+      uses: peter-evans/create-pull-request@v8
+      with:
+        path: master-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        branch: release-finalize/${{ steps.resolve.outputs.branch }}
+        base: master
+        title: 'chore(release): finalize ${{ steps.resolve.outputs.version }} on master'
+        body: ${{ steps.finalize-pr-body-post-tag.outputs.body }}
+        commit-message: 'chore(release): finalize ${{ steps.resolve.outputs.version }} on master (post-tag)'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        draft: false
+        delete-branch: false
+
+    # peter-evans's `draft: false` only applies on PR creation -- it does
+    # NOT flip an existing draft PR out of draft. Do that explicitly here.
+    # Also post a maintainer-facing comment on the PR to signal the phase-2
+    # transition: content now reflects post-tag reality (openemr_version_
+    # ref pinned to the just-created annotated tag) and the PR is ready
+    # to be merged onto master.
+    #
+    # `gh pr ready` errors if the PR isn't a draft, which happens in two
+    # legitimate cases: (a) finalize job re-run after the PR was already
+    # flipped to ready, (b) release-finalize PR didn't previously exist
+    # and peter-evans created it fresh in this same run (its `draft: false`
+    # DOES apply on creation). Guard with an isDraft probe so those cases
+    # don't fail the step and skip the signal comment.
+    - name: Flip release-finalize PR to ready-for-review + signal comment
+      if: steps.resolve.outputs.test != 'true' && steps.finalize-post-tag-pr.outputs.pull-request-number != ''
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        PR_NUMBER: ${{ steps.finalize-post-tag-pr.outputs.pull-request-number }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        TAG_NAME: ${{ steps.tag.outputs.tag-name }}
+        REPO: ${{ github.repository }}
+      run: |
+        is_draft=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json isDraft --jq '.isDraft')
+        if [ "$is_draft" = "true" ]; then
+          gh pr ready "$PR_NUMBER" --repo "$REPO"
+        fi
+        gh pr comment "$PR_NUMBER" --repo "$REPO" --body \
+          "Post-tag update applied. \`openemr_version_ref\` for \`${REL_BRANCH}\` is now pinned to \`${TAG_NAME}\` (the just-created annotated tag for ${VERSION}) and \`docker_tags\` slot rotations reflect actual shipped state. PR flipped out of draft; ready to merge to master."

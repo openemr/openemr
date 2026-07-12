@@ -1,0 +1,268 @@
+name: Branch-Cut Automation
+
+# Fires when a new rel-NNN0 branch is created (or via manual dispatch for
+# recovery). Opens two coordinated ready-for-review PRs (not drafts — cut
+# PRs should be brought in as quickly as possible after the cut): one on
+# the new rel branch (rel-side mutations) and one on master (next-dev
+# advance + release-targets row insert + slot shuffle). See
+# docs/release-mechanism-gaps.md (G4 + G5) and
+# docs/release-mechanism-migration-from-devops.md (workstream 2 detail).
+
+on:
+  create:
+    # `create` events don't support path or branch filters; gate in the
+    # job's `if:` instead.
+  workflow_dispatch:
+    inputs:
+      rel-branch:
+        description: 'rel-NNN0 branch name (e.g., rel-820). Required when running manually.'
+        type: string
+        required: true
+      prev-rel-branch:
+        description: 'Prior rel-NNN0 branch name (e.g., rel-810). Optional override; required for first-minor cuts (e.g., rel-810) where auto-derivation cannot decrement minor below 1.'
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.ref || inputs.rel-branch }}
+  cancel-in-progress: false
+
+jobs:
+  branch-cut:
+    name: Open rel-side + master-side branch-cut PRs
+    if: |
+      github.repository == 'openemr/openemr'
+      && (
+        (github.event_name == 'create'
+         && github.event.ref_type == 'branch'
+         && startsWith(github.event.ref, 'rel-')
+         && endsWith(github.event.ref, '0'))
+        || github.event_name == 'workflow_dispatch'
+      )
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    strategy:
+      matrix:
+        php-version:
+        - '8.5'
+    steps:
+    - name: Mint App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        # Scope to this repo only — branch-cut doesn't dispatch to
+        # consumers (the conductor's rel-cut dispatch covers that on the
+        # first push to the rel branch).
+        owner: ${{ github.repository_owner }}
+        repositories: openemr
+        # Least-privilege: this workflow needs to push branches (contents)
+        # and open PRs (pull-requests). Without explicit permission-*
+        # inputs, the token inherits the App installation's full grant.
+        permission-contents: write
+        permission-pull-requests: write
+
+    - name: Resolve rel-branch + target-version + prev-rel-branch
+      id: resolve
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        EVENT_REF: ${{ github.event.ref }}
+        INPUT_REL_BRANCH: ${{ inputs.rel-branch }}
+        INPUT_PREV_REL_BRANCH: ${{ inputs.prev-rel-branch }}
+      run: |
+        case "${EVENT_NAME}" in
+          workflow_dispatch)
+            rel_branch="${INPUT_REL_BRANCH}"
+            ;;
+          *)
+            rel_branch="${EVENT_REF}"
+            ;;
+        esac
+        if ! [[ "${rel_branch}" =~ ^rel-([0-9]+)$ ]]; then
+            echo "::error::rel-branch '${rel_branch}' does not match expected rel-<digits> pattern"
+            exit 1
+        fi
+        digits="${BASH_REMATCH[1]}"
+        # Modern rel-NNN0 shape (3+ digits ending in 0): parse digits as
+        #   major = first digit, minor = remaining digits except last 0
+        # rel-820 -> major=8 minor=2 -> target 8.2.0; prev rel-810
+        # rel-830 -> major=8 minor=3 -> target 8.3.0; prev rel-820
+        # rel-8100 -> major=8 minor=10 -> target 8.10.0; prev rel-890
+        if [[ "${digits}" =~ ^([0-9])([0-9]+)0$ ]]; then
+            major="${BASH_REMATCH[1]}"
+            minor="${BASH_REMATCH[2]}"
+            target_version="${major}.${minor}.0"
+            # Manual dispatch may override prev-rel-branch (required for
+            # first-minor cuts where auto-derivation can't decrement
+            # below minor=1; also useful as a general escape hatch).
+            if [ -n "${INPUT_PREV_REL_BRANCH}" ]; then
+              if ! [[ "${INPUT_PREV_REL_BRANCH}" =~ ^rel-[0-9]+$ ]]; then
+                echo "::error::workflow_dispatch input prev-rel-branch '${INPUT_PREV_REL_BRANCH}' does not match expected rel-<digits> pattern"
+                exit 1
+              fi
+              prev_rel_branch="${INPUT_PREV_REL_BRANCH}"
+            elif [ "${minor}" -gt 1 ]; then
+              prev_minor=$((minor - 1))
+              prev_rel_branch="rel-${major}${prev_minor}0"
+            else
+              echo "::error::cannot auto-derive prev-rel-branch for first-minor cut '${rel_branch}' (minor=${minor}); re-run via workflow_dispatch with the prev-rel-branch input set"
+              exit 1
+            fi
+        else
+            echo "::error::rel-branch '${rel_branch}' is not a modern rel-NNN0 cut shape; legacy rel-NMP branches must be handled manually"
+            exit 1
+        fi
+        echo "Resolved: rel_branch=${rel_branch} target_version=${target_version} prev_rel_branch=${prev_rel_branch}"
+        {
+          echo "rel-branch=${rel_branch}"
+          echo "target-version=${target_version}"
+          echo "prev-rel-branch=${prev_rel_branch}"
+        } >> "$GITHUB_OUTPUT"
+
+    # Initial checkout at the workflow's default working directory so
+    # `./.github/actions/setup-php-composer` resolves (composite actions
+    # must live under GITHUB_WORKSPACE before they can be referenced).
+    # The mutator runs use the per-side checkouts below; this checkout
+    # is just for the composite action source.
+    - name: Checkout master (for composite action source)
+      uses: actions/checkout@v7
+      with:
+        ref: master
+        fetch-depth: 1
+        persist-credentials: false
+
+    - name: Setup PHP and Composer (shared)
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+        skip-composer-install: 'true'
+
+    # --- Rel-side -----------------------------------------------------
+    - name: Checkout the new rel branch
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ steps.resolve.outputs.rel-branch }}
+        path: rel-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        fetch-depth: 0
+        # peter-evans/create-pull-request uses its own token: input for
+        # pushing, so we don't need the App token persisted in
+        # rel-checkout/.git/config where a composer vendor script could
+        # read it during the install step below.
+        persist-credentials: false
+
+    - name: Install Composer dependencies (rel-checkout)
+      working-directory: rel-checkout
+      shell: bash
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Run branch-cut mutators (rel side)
+      working-directory: rel-checkout
+      env:
+        VERSION: ${{ steps.resolve.outputs.target-version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.rel-branch }}
+        PREV_REL_BRANCH: ${{ steps.resolve.outputs.prev-rel-branch }}
+      run: |
+        php bin/console openemr:branch-cut \
+          --skip-globals \
+          --target-version="${VERSION}" \
+          --rel-branch="${REL_BRANCH}" \
+          --prev-rel-branch="${PREV_REL_BRANCH}" \
+          --side=rel
+
+    - name: Render rel-side PR body
+      id: rel-pr-body
+      working-directory: rel-checkout
+      env:
+        VERSION: ${{ steps.resolve.outputs.target-version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.rel-branch }}
+      run: |
+        {
+          echo 'body<<EOF'
+          php tools/release/bin/render-pr-body.php "${VERSION}" \
+            --template=.github/PULL_REQUEST_TEMPLATE/branch-cut-rel.md \
+            --rel-branch="${REL_BRANCH}"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Open rel-side branch-cut PR
+      uses: peter-evans/create-pull-request@v8
+      with:
+        path: rel-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        branch: branch-cut/${{ steps.resolve.outputs.rel-branch }}
+        base: ${{ steps.resolve.outputs.rel-branch }}
+        title: 'chore(release): branch-cut ${{ steps.resolve.outputs.rel-branch }} (rel-side)'
+        body: ${{ steps.rel-pr-body.outputs.body }}
+        commit-message: 'chore(release): branch-cut ${{ steps.resolve.outputs.rel-branch }} (rel-side)'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        draft: false
+        delete-branch: false
+
+    # --- Master-side --------------------------------------------------
+    - name: Checkout master
+      uses: actions/checkout@v7
+      with:
+        ref: master
+        path: master-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        fetch-depth: 0
+        # Same rationale as the rel-checkout above.
+        persist-credentials: false
+
+    - name: Install Composer dependencies (master-checkout)
+      working-directory: master-checkout
+      shell: bash
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Run branch-cut mutators (master side)
+      working-directory: master-checkout
+      env:
+        VERSION: ${{ steps.resolve.outputs.target-version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.rel-branch }}
+        PREV_REL_BRANCH: ${{ steps.resolve.outputs.prev-rel-branch }}
+      run: |
+        php bin/console openemr:branch-cut \
+          --skip-globals \
+          --target-version="${VERSION}" \
+          --rel-branch="${REL_BRANCH}" \
+          --prev-rel-branch="${PREV_REL_BRANCH}" \
+          --side=master
+
+    - name: Render master-side PR body
+      id: master-pr-body
+      working-directory: master-checkout
+      env:
+        VERSION: ${{ steps.resolve.outputs.target-version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.rel-branch }}
+      run: |
+        {
+          echo 'body<<EOF'
+          php tools/release/bin/render-pr-body.php "${VERSION}" \
+            --template=.github/PULL_REQUEST_TEMPLATE/branch-cut-master.md \
+            --rel-branch="${REL_BRANCH}"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Open master-side branch-cut PR
+      uses: peter-evans/create-pull-request@v8
+      with:
+        path: master-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        branch: branch-cut/${{ steps.resolve.outputs.rel-branch }}-master
+        base: master
+        title: 'chore(release): branch-cut ${{ steps.resolve.outputs.rel-branch }} (master-side)'
+        body: ${{ steps.master-pr-body.outputs.body }}
+        commit-message: 'chore(release): branch-cut ${{ steps.resolve.outputs.rel-branch }} (master-side)'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        draft: false
+        delete-branch: false
