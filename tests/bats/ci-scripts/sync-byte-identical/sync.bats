@@ -396,3 +396,85 @@ teardown() {
     [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
     [[ "$output" == *"WARNING"*"nonexistent/**"*"expanded to zero files"* ]]
 }
+
+# --- exclude-branches (per-entry rel-branch exclusion) ---
+#
+# Manifest entries may be object-shaped with an `exclude-branches:` list.
+# Sync must skip those entries when the target branch is in the list,
+# leaving the file untouched on that branch. Motivating case: release-
+# mechanism PHP surface on rel-800 / rel-704 which predate the mechanism
+# and would fail phpstan + isolated tests + composer-require-checker.
+
+@test "exclude-branches: entry excluded from target branch is not synced" {
+    write_on_branch master src/shared.txt "master-content"
+    write_on_branch master src/rel820-only.txt "master-content"
+    write_files_all_raw 'files:
+- src/shared.txt
+- path: src/rel820-only.txt
+  exclude-branches:
+  - rel-810
+'
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/shared.txt ]]                     # unexcluded entry synced
+    [[ ! -f src/rel820-only.txt ]]              # excluded entry NOT synced
+    grep -qxF "add: src/shared.txt" "$OUTPUT_DIR/changes.txt"
+    ! grep -qF "src/rel820-only.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "exclude-branches: entry included for a non-excluded target still syncs" {
+    # setup_test_repo created rel-810 from the seed commit; add rel-820
+    # from the same seed so it starts EMPTY. Branching from master AFTER
+    # the writes below would put rel-820 at master's HEAD and the sync
+    # would see no changes needed.
+    git branch rel-820 rel-810
+    write_on_branch master src/shared.txt "master-content"
+    write_on_branch master src/rel820-only.txt "master-content"
+    write_files_all_raw 'files:
+- src/shared.txt
+- path: src/rel820-only.txt
+  exclude-branches:
+  - rel-810
+'
+    git checkout -q rel-820
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-820
+
+    [[ $status -eq 0 ]]
+    [[ -f src/shared.txt ]]
+    [[ -f src/rel820-only.txt ]]
+    grep -qxF "add: src/shared.txt" "$OUTPUT_DIR/changes.txt"
+    grep -qxF "add: src/rel820-only.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "exclude-branches: every entry excluded for target -> no-op sync succeeds" {
+    write_on_branch master src/only-for-others.txt "master-content"
+    write_files_all_raw 'files:
+- path: src/only-for-others.txt
+  exclude-branches:
+  - rel-810
+'
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -f src/only-for-others.txt ]]
+    [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
+    [[ "$output" == *"nothing to sync"* ]]
+}
+
+@test "exclude-branches: multiple branches in exclude list -- each honored" {
+    write_on_branch master src/only-for-820.txt "master-content"
+    write_files_all_raw 'files:
+- path: src/only-for-820.txt
+  exclude-branches:
+  - rel-810
+  - rel-800
+  - rel-704
+'
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+    [[ $status -eq 0 ]]
+    [[ ! -f src/only-for-820.txt ]]
+}

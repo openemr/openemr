@@ -148,3 +148,83 @@ expand_patterns_into() {
     emit_warning "Glob pattern '${ep}' expanded to zero files on ${ref}; manifest may be stale."
   done
 }
+
+# Read the two parallel arrays FILES_ALL (paths) and
+# FILES_ALL_EXCLUDE_LISTS (each element is a comma-separated string of
+# branch names that this entry is excluded from -- empty string when
+# the entry applies to every rel branch) from a manifest file.
+#
+# Signature: read_manifest_entries <manifest_path> <paths_var> <excludes_var>
+# Both output arrays are populated by parallel index, so the caller
+# can iterate one and look up exclusions in the other.
+#
+# Handles both entry shapes accepted in .github/byte-identical.yml:
+#   - simple string:   `- path/to/file`
+#   - object form:     `- path: path/to/file`
+#                      `  exclude-branches: [rel-800, rel-704]`
+#
+# Uses Mike Farah yq (v4+). The `.path // .` expression returns the
+# object's `path` field when the entry is an object and the entry
+# itself when it's a scalar string.
+read_manifest_entries() {
+  local manifest="${1}" paths_var="${2}" excludes_var="${3}"
+  # shellcheck disable=SC2178  # nameref
+  local -n paths_arr="${paths_var}"
+  # shellcheck disable=SC2178  # nameref
+  local -n excludes_arr="${excludes_var}"
+
+  local paths_raw excludes_raw
+  paths_raw="$(yq -r '.files[] | (.path // .)' "${manifest}")"
+  excludes_raw="$(yq -r '.files[] | (.["exclude-branches"] // [] | join(","))' "${manifest}")"
+
+  mapfile -t paths_arr <<<"${paths_raw}"
+  mapfile -t excludes_arr <<<"${excludes_raw}"
+
+  # yq emits one blank line per entry even when the array is empty;
+  # normalize to a truly-empty array in that edge case.
+  if [[ ${#paths_arr[@]} -eq 1 && -z "${paths_arr[0]}" ]]; then
+    paths_arr=()
+    # shellcheck disable=SC2034  # nameref -- consumed by caller
+    excludes_arr=()
+  fi
+}
+
+# Filter a (path, exclude-list) parallel pair down to just the entries
+# that apply to a given target rel branch. Signature:
+#   filter_by_branch <target_branch> <in_paths_var> <in_excl_var> <out_paths_var>
+# Entries whose exclude-list contains target_branch are dropped from
+# the output.
+filter_by_branch() {
+  local target="${1}" in_paths_var="${2}" in_excl_var="${3}" out_var="${4}"
+  # shellcheck disable=SC2178  # nameref
+  local -n in_paths="${in_paths_var}"
+  # shellcheck disable=SC2178  # nameref
+  local -n in_excl="${in_excl_var}"
+  # shellcheck disable=SC2034,SC2178  # nameref -- consumed by caller
+  local -n out_arr="${out_var}"
+
+  # shellcheck disable=SC2034  # populated below then copied out
+  local -a _fbb_out=()
+  local i excl
+  for i in "${!in_paths[@]}"; do
+    excl="${in_excl[i]:-}"
+    if [[ -n "${excl}" ]]; then
+      local -a excl_arr
+      IFS=',' read -ra excl_arr <<<"${excl}"
+      local skip=0
+      local e
+      for e in "${excl_arr[@]}"; do
+        if [[ "${e}" == "${target}" ]]; then
+          skip=1
+          break
+        fi
+      done
+      if [[ ${skip} -eq 1 ]]; then
+        continue
+      fi
+    fi
+    _fbb_out+=("${in_paths[i]}")
+  done
+  # shellcheck disable=SC2034  # nameref -- consumed by caller
+  out_arr=("${_fbb_out[@]}")
+}
