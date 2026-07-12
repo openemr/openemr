@@ -19,6 +19,7 @@ namespace OpenEMR\RestControllers;
 use DateInterval;
 use DateTimeImmutable;
 use Exception;
+use JsonException;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
@@ -80,7 +81,6 @@ use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
-use JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -383,7 +383,7 @@ class AuthorizationController
                 $params['dsi_type'] = $dsiTypeName;
 
                 $clientSaved = true;
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $this->getSystemLogger()->error("Failed to create account Exception: " . $exception->getMessage(), ['exception' => $exception]);
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             } finally {
@@ -392,7 +392,7 @@ class AuthorizationController
                 } else {
                     try {
                         $this->rollbackTransaction();
-                    } catch (\Throwable $exception) {
+                    } catch (Throwable $exception) {
                         $this->getSystemLogger()->error("Error rolling back transaction", ['exception' => $exception]);
                     }
                 }
@@ -629,7 +629,7 @@ class AuthorizationController
             );
             $httpRequest->getSession()->invalidate();
             return $exception->generateHttpResponse($response);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $logger->error("AuthorizationController->oauthAuthorizationFlow() Exception message: " . $exception->getMessage());
             $httpRequest->getSession()->invalidate();
             $body = $response->getBody();
@@ -966,7 +966,7 @@ class AuthorizationController
         // TODO: @adunsulag do we want to catch exceptions here?
         try {
             $responseBody = $twig->render($template, $vars);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->getSystemLogger()->error("caught exception rendering template", ['exception' => $e]);
             $responseBody = $twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
         }
@@ -1257,7 +1257,7 @@ class AuthorizationController
             $this->getSystemLogger()->debug("AuthorizationController->authorizeUser() sending server response");
             $this->session->invalidate();
             return $result;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->getSystemLogger()->error("AuthorizationController->authorizeUser() Exception thrown", ["message" => $exception->getMessage()]);
             $this->session->invalidate();
             $body = $response->getBody();
@@ -1301,7 +1301,7 @@ class AuthorizationController
                     $scopeUpdates[] = $approvedScopeEntity;
                 }
             }
-            catch (\Throwable $e) {
+            catch (Throwable $e) {
                 $this->getSystemLogger()->error(
                     "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
                     ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]
@@ -1345,7 +1345,7 @@ class AuthorizationController
             $authRequest->setState($outer['state']);
             $authRequest->setCodeChallenge($outer['codeChallenge']);
             $authRequest->setCodeChallengeMethod($outer['codeChallengeMethod']);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             echo $e;
         }
 
@@ -1413,7 +1413,7 @@ class AuthorizationController
             );
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->getSystemLogger()->error(
                 "AuthorizationController->oauthAuthorizeToken() Exception occurred",
                 ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
@@ -1444,7 +1444,7 @@ class AuthorizationController
                 return false;
             }
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->getSystemLogger()->error("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['exception' => $e]);
             return false;
         }
@@ -1636,7 +1636,7 @@ class AuthorizationController
      * can proceed.
      * @param HttpRestRequest $result
      * @param ResponseInterface $result
-     * @throws \JsonException
+     * @throws JsonException
      */
     private function saveTrustedUserForPasswordGrant(HttpRestRequest $request, ResponseInterface $result): void
     {
@@ -1683,7 +1683,7 @@ class AuthorizationController
      * @param ResponseInterface $response
      * @param string $userUuid
      * @return ResponseInterface
-     * @throws \JsonException
+     * @throws JsonException
      */
     private function processAuthorizeFlowForLaunch(AuthorizationRequest $authRequest, HttpRestRequest $request, ResponseInterface $response, string $userUuid)
     {
