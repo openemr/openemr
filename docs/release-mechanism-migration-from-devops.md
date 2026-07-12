@@ -1067,7 +1067,17 @@ the new file" failure mode. Globs close that failure mode by contract.
 
 **PR 3 — Add release-mechanism globs to `byte-identical.yml`.** *SHIPPED 2026-07-12
 as openemr/openemr#12910. 12 new entries added, manifest went from 9 to 21
-entries.* Covers the
+entries. Immediate follow-up openemr/openemr#12915 pivoted those 12 entries
+from bare-string form to object form with per-entry `exclude-branches:` —
+rel-800 and rel-704 lack the composer autoload topology needed for the
+release-mechanism PHP files, so adding 60 files there triggered phpstan /
+isolated-tests / composer-require-checker failures on the auto-sync PRs.
+Two workflow yq bugs surfaced while validating the new shape: openemr/openemr#12916
+(object entries dumped as raw YAML splat in `add-paths`) and openemr/openemr#12920
+(paths extracted but not filtered by target branch). Both were the same class
+of bug — the workflow's inline yq expression drifting from the sync script's
+`read_manifest_entries` + `filter_by_branch` in `lib/glob-expand.sh` —
+which motivated the pre-PR-4 refactor below.* Covers the
 release-mechanism surface that already lives in openemr core today —
 this PR does not move any new content, it only starts enforcing
 uniformity on what's here. Roughly twelve entries:
@@ -1120,6 +1130,22 @@ The rel-800/rel-704 additions are dead code (no workflow on those
 branches to invoke them); harmless until those branches rotate out.
 Byte-identical enforcement now covers the release-mechanism surface,
 matching the protection currently applied to docker files.
+
+**Pre-PR-4 refactor — Extract byte-identical manifest parsing into a shared
+script + BATS coverage.** *SHIPPED 2026-07-12 as openemr/openemr#12924.*
+Not a numbered PR in the original slice plan, added mid-slice after
+openemr/openemr#12916 and openemr/openemr#12920 (two consecutive workflow
+yq bugs) made it clear the three-way parsing duplication — sync script,
+validate script, and inline yq in `sync-byte-identical.yml`'s Compute step
+— was the underlying failure mode. New `.github/scripts/list-manifest-paths.sh`
+wraps `read_manifest_entries` + `filter_by_branch` (already in
+`lib/glob-expand.sh` from PR 2) as a callable driver; the workflow's Compute
+step now invokes it instead of parsing YAML inline. 10 new BATS cases at
+`tests/bats/ci-scripts/list-manifest-paths/` give the workflow-side
+manifest-parsing path its first regression coverage. Fires only on master
+(not in the byte-identical set — RUNNER_TEMP materialization uses master's
+copy at each workflow run). Auto-sync PRs from PR 3's fallout landed the
+same day as openemr/openemr#12921 / openemr/openemr#12922 / openemr/openemr#12923.
 
 **PR 4 — Move `ChangelogGenerator` + `CompatibilityDeriver` +
 `CompatibilityNotesRenderer` from devops → openemr; port website's filter;
