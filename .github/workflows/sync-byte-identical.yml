@@ -134,7 +134,19 @@ jobs:
         # FILES_ALL, no need to sync it to rel branches). The current
         # checkout is the rel branch, which may not have the script at
         # all. Materialize master's copy into RUNNER_TEMP and run that.
+        #
+        # The script sources .github/scripts/lib/glob-expand.sh at load
+        # time (added in PR #12904 for glob-pattern support). Also
+        # materialize that lib next to the script so the source directive
+        # resolves. The lib IS in FILES_ALL so rel branches carry their
+        # own copy too, but we can't use it because this workflow runs
+        # against master's version of the sync logic + rel branch's
+        # working tree -- reading the lib from the rel branch could
+        # cross wires if the lib has diverged. Master's copy alongside
+        # master's script is the safe pairing.
         git show master:.github/scripts/sync-byte-identical.sh > "$RUNNER_TEMP/sync-byte-identical.sh"
+        mkdir -p "$RUNNER_TEMP/lib"
+        git show master:.github/scripts/lib/glob-expand.sh > "$RUNNER_TEMP/lib/glob-expand.sh"
         bash "$RUNNER_TEMP/sync-byte-identical.sh" "$TARGET_BRANCH"
 
         # Translate the script's structured outputs into GitHub step outputs.
