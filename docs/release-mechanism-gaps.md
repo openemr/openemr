@@ -2127,7 +2127,7 @@ warning that appeared on every v2 usage.
 
 ### G28 — Master-side finalize PR requires a post-tag auto-update before merge; ordering isn't documented or enforced  *(discovered 2026-07-08, captured 2026-07-10, SHIPPED 2026-07-11)*
 
-**Status: SHIPPED on master via openemr/openemr#12889. rel-820 backport in flight as openemr/openemr#12891** (not byte-identical enforced; one-line conflict resolution around G20's `--prev-release` wiring that only exists on master).
+**Status: SHIPPED on master via openemr/openemr#12889 and on rel-820 via openemr/openemr#12891** (byte-identical patch-id parity after force-pushing a clean re-cherry-pick once #12892 landed G20 on rel-820 — the one-line divergence around G20's `--prev-release` wiring went away).
 
 - **What:** The full "ship a release" sequence has two conductor
   PRs whose ordering is non-obvious:
@@ -3341,11 +3341,10 @@ checklist + the existing master-bump pattern.
   path (content landed via #181's recovery dispatch). G21's
   release-notes half stays open pending G22 (upstream filter
   alignment).
-- **2026-07-11**: G28 SHIPPED via openemr/openemr#12889 (master);
-  rel-820 backport in flight as openemr/openemr#12891 (not byte-
-  identical enforced; one-line conflict on the dispatch step
-  around G20's `--prev-release` wiring that only exists on
-  master, otherwise the six new steps apply cleanly). Also
+- **2026-07-11**: G28 SHIPPED on master via openemr/openemr#12889
+  and (after force-push re-do post-#12892) SHIPPED on rel-820 via
+  openemr/openemr#12891 with byte-identical patch-id parity
+  (`73914f4d001c2edbb51b774cd8bd13974baa8bbd` on both). Also
   carries a RELEASE_PROCESS.md two-phase-lifecycle doc update
   (Finalize-on-master PR section, one-shot-vs-continuous
   responsibility table, Phase 4 step 2) so the draft-preview
@@ -3353,3 +3352,27 @@ checklist + the existing master-bump pattern.
   where maintainers will look. Investigation-narrative for
   how the G16 gate compounded the ordering hazard is in G28's
   "Actual fix" section above; not repeated here.
+- **2026-07-11 -> 2026-07-12**: G20 rel-820 drift caught + fixed
+  in the middle of G28's rel-820 backport work. G20 (#12887)
+  had landed on master ~24h earlier but no rel-820 backport had
+  been opened, and it would have silently repeated the 8.2.0
+  acknowledgements-skip on the next 8.2.x ship. Fix: opened
+  #12892 with byte-identical patch-id
+  (`1bb7b0be1ee60d7c249a11d62322c41c45b84d3e`), landed 2026-07-12.
+  Follow-up gap noted: release-mechanism files (`release-prep.yml`,
+  `tools/release/**`, contract schemas, dispatch fixtures) aren't
+  under byte-identical drift enforcement yet -- that surface will
+  join `.github/docker-byte-identical.yml`'s manifest as part of
+  the release-mechanism migration from devops. In the interim,
+  keep manual cross-branch propagation the discipline.
+- **2026-07-12**: 8.1.0 fixture-drift cleanup in flight as
+  openemr/openemr#12893. #12887's fixture-update pass only
+  touched the openemr-tag goldens + good-tag*.json; the other
+  five dispatch-event goldens (openemr-rel-cut, openemr-rel-
+  update, openemr-docs-binaries) and their good-/bad-* fixture
+  JSONs + parallel DispatchDataBuilderTest cases were left with
+  8.1.0/rel-810. Sweep them all to 8.2.0/rel-820/v8_2_0 for
+  consistency. Not touching BranchVersionResolverTest.php --
+  its 8.1.0 refs exercise the load-bearing skipped-8.1.0
+  manifest-filter behaviour. rel-820 backport to follow after
+  master lands (byte-identical patch-id enforced).
