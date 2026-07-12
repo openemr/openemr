@@ -1774,11 +1774,12 @@ depending on the website's `gen-release-notes.php` for filtering.
 - **PR 1** openemr/openemr#12896 — rename `docker-byte-identical.yml` → `byte-identical.yml` (SHIPPED)
 - **PR 2** openemr/openemr#12904 — glob-pattern support in validator + sync scripts (SHIPPED)
 - **PR 3** openemr/openemr#12910 — add release-mechanism surface to byte-identical.yml (SHIPPED)
+- **Pre-PR-4 refactor** openemr/openemr#12924 — extract manifest parsing into shared `list-manifest-paths.sh` + BATS coverage (SHIPPED). Not in the original slice plan; added after two consecutive workflow yq bugs traced back to three-way parsing duplication.
 - PR 4 — move `ChangelogGenerator` + `CompatibilityDeriver` + `CompatibilityNotesRenderer` from devops → openemr; port website filter; wire `ChangelogMutator` (pending)
 - PR 5 — rewire devops `build-release.yml` to section-extract (pending)
 - PR 6 — retire website's `gen-release-notes.php` + release-notes surface (pending)
 
-Ancillary follow-ups landed alongside: openemr/openemr#12901/#12902/#12903 (rel-branch orphan cleanup after PR 1's rename), openemr/openemr#12905 (rel-820 stale-refs cleanup), openemr/openemr#12906 (hotfix for sync workflow's RUNNER_TEMP extraction after PR 2 added a script dependency), openemr/openemr#12907/#12908/#12909 (sync PRs propagating PR 2's shared lib to rel branches). Also openemr/openemr-devops#856 (bump kubernetes deployment image pin from 8.1.0 → 8.2.0 — unrelated to this slice but done in the same window).
+Ancillary follow-ups landed alongside: openemr/openemr#12901/#12902/#12903 (rel-branch orphan cleanup after PR 1's rename), openemr/openemr#12905 (rel-820 stale-refs cleanup), openemr/openemr#12906 (hotfix for sync workflow's RUNNER_TEMP extraction after PR 2 added a script dependency), openemr/openemr#12907/#12908/#12909 (sync PRs propagating PR 2's shared lib to rel branches), openemr/openemr#12915 (pivot PR 3's 12 release-mechanism entries from bare-string form to object form with per-entry `exclude-branches:` — rel-800/rel-704 couldn't carry the 60 release-mechanism PHP files without autoload topology, phpstan + isolated-tests + composer-require-checker were failing on the sync PRs), openemr/openemr#12916 + openemr/openemr#12920 (two consecutive workflow yq bugs surfaced during the object-form validation — object entries dumped as raw YAML splat, then paths extracted but not filtered by branch), openemr/openemr#12921/#12922/#12923 (sync PRs propagating PR 3's release-mechanism surface + object-form manifest to rel branches). Also openemr/openemr-devops#856 (bump kubernetes deployment image pin from 8.1.0 → 8.2.0 — unrelated to this slice but done in the same window).
 
 The design + fix-scope discussion below reflects the plan the slice implements.
 
@@ -3391,32 +3392,49 @@ checklist + the existing master-bump pattern.
   With this landed, master and rel-820 have zero drift in the
   release-mechanism file surface again.
 - **2026-07-12**: G22 "Changelog surface early-migration slice"
-  PRs 1-3 SHIPPED. The slice consolidates the changelog content
-  across all three surfaces (website release-notes / codebase
-  CHANGELOG.md / GitHub Release body) into one generator in
-  openemr/openemr, ports the website filter forward, and retires
-  the redundant surfaces. Preparatory infrastructure done in
-  three PRs: openemr/openemr#12896 (rename
+  PRs 1-3 SHIPPED, plus a pre-PR-4 refactor. The slice
+  consolidates the changelog content across all three surfaces
+  (website release-notes / codebase CHANGELOG.md / GitHub Release
+  body) into one generator in openemr/openemr, ports the website
+  filter forward, and retires the redundant surfaces. Preparatory
+  infrastructure done in three PRs: openemr/openemr#12896 (rename
   docker-byte-identical.yml -> byte-identical.yml), #12904 (glob-
   pattern support in the validator + sync scripts, extracted
   shared lib), #12910 (12 new entries in byte-identical.yml
   adding the release-mechanism surface -- release-prep.yml,
   tools/release/**, mutator classes, tests, PR body templates,
-  setup-php-composer composite). PRs 4-6 pending: actual move
-  of ChangelogGenerator + friends from devops -> openemr,
-  devops build-release.yml rewire to section-extract from the
-  moved CHANGELOG.md, retire of website's gen-release-notes.php.
-  Ancillary landed: #12901/#12902/#12903 (rel-branch orphan
-  cleanup after PR 1's rename hit a sweep-logic gap in sync),
-  #12905 (rel-820 stale-refs cleanup for master-only files with
-  references to the pre-rename manifest name), #12906 (sync
-  workflow RUNNER_TEMP hotfix after PR 2 added a script
-  dependency), #12907/#12908/#12909 (auto-sync propagation of
-  PR 2's shared lib to rel branches). Two significant new
-  discoveries from this window captured as follow-up: sync
-  script's rename-sweep gap on manifest-file-rename cases (rare;
-  documented inline in the sync script for the next occurrence);
-  master's byte-identical machinery + sync + validator NOT
-  currently covering the sync-byte-identical.* + BATS test
-  files (per-file rationale in the manifest's "Intentionally
-  NOT in this list" block).
+  setup-php-composer composite). PR 3 required in-flight follow-
+  up #12915 to pivot the 12 entries from bare-string to object
+  form with per-entry `exclude-branches:` (rel-800 and rel-704
+  lack the composer autoload topology to carry 60 release-
+  mechanism PHP files -- phpstan + isolated-tests + composer-
+  require-checker failed on the auto-sync PRs). Object-form
+  validation surfaced two consecutive workflow yq bugs, #12916
+  (object entries dumped as raw YAML splat in `add-paths`) and
+  #12920 (paths extracted but not filtered by target branch) --
+  same root cause: the workflow's inline yq expression duplicated
+  the sync script's `read_manifest_entries` + `filter_by_branch`
+  logic in `lib/glob-expand.sh` and drifted from it. Motivated
+  the pre-PR-4 refactor #12924, which extracts manifest parsing
+  into `.github/scripts/list-manifest-paths.sh` (a shared driver
+  over the existing lib functions) with 10 new BATS cases at
+  `tests/bats/ci-scripts/list-manifest-paths/` -- first regression
+  coverage on the workflow-side manifest-parsing path. Sync PRs
+  #12921/#12922/#12923 landed the release-mechanism surface +
+  object-form manifest across rel-820/rel-800/rel-704. PRs 4-6
+  still pending: actual move of ChangelogGenerator + friends from
+  devops -> openemr, devops build-release.yml rewire to section-
+  extract from the moved CHANGELOG.md, retire of website's
+  gen-release-notes.php. Other ancillary landed: #12901/#12902/#12903
+  (rel-branch orphan cleanup after PR 1's rename hit a sweep-logic
+  gap in sync), #12905 (rel-820 stale-refs cleanup for master-only
+  files with references to the pre-rename manifest name), #12906
+  (sync workflow RUNNER_TEMP hotfix after PR 2 added a script
+  dependency), #12907/#12908/#12909 (auto-sync propagation of PR 2's
+  shared lib to rel branches). Two significant new discoveries
+  from this window captured as follow-up: sync script's rename-
+  sweep gap on manifest-file-rename cases (rare; documented inline
+  in the sync script for the next occurrence); master's byte-
+  identical machinery + sync + validator NOT currently covering
+  the sync-byte-identical.* + BATS test files (per-file rationale
+  in the manifest's "Intentionally NOT in this list" block).
