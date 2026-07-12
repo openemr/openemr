@@ -357,7 +357,7 @@ sequenceDiagram
     participant App as SMART App
 
     User->>OpenEMR: 1. View patient chart
-    User->>OpenEMR: 2. Click "Launch App"
+    User->>OpenEMR: 2. Open Patient Summary and click the app under "SMART Enabled Apps"
     OpenEMR->>App: 3. Redirect to launch URL (iss + launch)
     App->>OpenEMR: 4. Authorization request (with launch)
     OpenEMR->>User: 5. Consent screen (if needed)
@@ -479,19 +479,71 @@ if (encounterId) {
 }
 ```
 
-#### Enabling in OpenEMR
+#### Launching an EHR SMART App from OpenEMR
 
-**Step 1: Register app** (see [App Registration](#app-registration))
+After registering and approving an EHR-launch SMART application, clinicians launch it from the patient Summary or Demographics screen.
 
-**Step 2: Enable app**
+**Step 1: Register the application**
+
+Register the application using either the web-based registration form or the dynamic client registration API.
+
+For an EHR launch, the registered application must include:
+
+- a valid launch URI
+- the `launch` scope
+- the required `user/*` scopes
+- a valid OAuth redirect URI
+
+**Step 2: Enable the application**
+
 1. Navigate to **Administration → System → API Clients**
-2. Find your app
-3. Click **Enable**
+2. Locate the registered SMART application
+3. Review its launch URI, redirect URI, scopes, and client settings
+4. Enable the application
 
-**Step 3: App appears in Patient Summary**
-- Go to patient chart
-- Find **SMART Enabled Apps** widget
-- Click your app to launch
+Provider applications requesting `user/*` scopes may require administrator approval before they can be launched.
+
+**Step 3: Open a patient**
+
+1. Open a patient chart
+2. Go to **Patient Summary** or **Demographics**
+3. Locate the **SMART Enabled Apps** dashboard card
+4. Expand the card if it is collapsed
+5. Click the application's **Launch** button
+
+The SMART application launcher is a patient-summary dashboard card. It is not a main-menu item or global toolbar button.
+
+OpenEMR redirects to the application's registered launch URI with the SMART EHR launch parameters:
+
+```text
+iss=<FHIR base URL>
+launch=<single-use launch token>
+aud=<FHIR base URL>
+```
+
+The application then starts the OAuth authorization-code flow and includes the supplied `launch` value in its authorization request.
+
+##### When the SMART Enabled Apps card does not appear
+
+The card is displayed only when all of the following are true:
+
+- the OpenEMR FHIR API is enabled
+- at least one SMART client is enabled
+- the client includes the exact `launch` scope
+- the client has a valid launch URI
+- the clinician is viewing a patient Summary or Demographics screen
+
+The card may also be collapsed based on the user's saved dashboard preferences.
+
+If the card is missing:
+
+1. Confirm that FHIR is enabled under the OpenEMR API configuration
+2. Confirm that the application is enabled under **Administration → System → API Clients**
+3. Confirm that the registered scope contains `launch` as a separate scope
+4. Confirm that the application has a valid launch URI
+5. Refresh the patient Summary page after enabling the client
+
+Applications registered only for standalone launch will not appear in the **SMART Enabled Apps** card.
 
 #### Use Cases
 - Clinical decision support
@@ -1354,19 +1406,27 @@ See [Authorization Guide - Revoking Access](AUTHORIZATION.md#revoking-access) fo
 - ✅ Check granted scopes in token response
 - ✅ Handle scope denials gracefully
 
-#### Issue: "App not appearing in widget"
+#### Issue: "App not appearing in SMART Enabled Apps"
 
-**Symptoms:** App not visible in SMART Enabled Apps
+**Symptoms:** The **SMART Enabled Apps** card or the registered app is not visible on the patient Summary or Demographics screen.
 
 **Causes:**
-- App not enabled
-- App pending approval
-- App disabled by administrator
+- FHIR API is not enabled
+- App is not enabled
+- App is pending approval
+- App does not include the exact `launch` scope
+- App does not have a valid launch URI
+- User is not viewing a patient Summary or Demographics screen
+- The dashboard card is collapsed
 
 **Solutions:**
-- ✅ Enable app in Administration → System → API Clients
-- ✅ Wait for administrator approval
-- ✅ Check app status
+- ✅ Enable FHIR in the OpenEMR API configuration
+- ✅ Enable the app in Administration → System → API Clients
+- ✅ Complete administrator approval when required
+- ✅ Confirm the registered scopes include `launch`
+- ✅ Confirm the app has a valid launch URI
+- ✅ Open a patient Summary or Demographics screen
+- ✅ Expand the **SMART Enabled Apps** dashboard card
 
 #### Issue: "PKCE verification failed"
 

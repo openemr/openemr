@@ -80,7 +80,7 @@ use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
-use Symfony\Component\HttpClient\Exception\JsonException;
+use JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -337,11 +337,19 @@ class AuthorizationController
                     } else if (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
                     } elseif ($key === 'jwks') {
-                        $jwks = $data->all('jwks');
+                        $payload = $data->all();
+                        $jwks = $payload['jwks'] ?? null;
                         if (is_string($jwks)) {
                             $jwks = json_decode($jwks, true, 512, JSON_THROW_ON_ERROR);
                         }
-                        $params[$key] = json_encode($jwks);
+                        if (!is_array($jwks)) {
+                            throw new OAuthServerException(
+                                'jwks must be a JSON object',
+                                0,
+                                'invalid_client_metadata'
+                            );
+                        }
+                        $params[$key] = json_encode($jwks, JSON_THROW_ON_ERROR);
                     } else {
                         $params[$key] = $data->get($key);
                     }
