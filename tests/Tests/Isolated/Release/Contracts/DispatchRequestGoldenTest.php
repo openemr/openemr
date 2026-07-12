@@ -47,7 +47,7 @@ final class DispatchRequestGoldenTest extends TestCase
                 actor: 'openemr-release-bot',
                 dispatchedAt: '2026-04-29T12:00:00Z',
                 appToken: 'tok',
-                data: ['branch' => 'rel-810', 'version' => '8.1.0', 'prev_release' => '8.0.0'],
+                data: ['branch' => 'rel-820', 'version' => '8.2.0', 'prev_release' => '8.0.0'],
             ),
         ];
 
@@ -60,7 +60,7 @@ final class DispatchRequestGoldenTest extends TestCase
                 actor: 'openemr-release-bot',
                 dispatchedAt: '2026-04-29T12:15:30Z',
                 appToken: 'tok',
-                data: ['branch' => 'rel-810', 'version' => '8.1.0', 'prev_release' => '8.0.0'],
+                data: ['branch' => 'rel-820', 'version' => '8.2.0', 'prev_release' => '8.0.0'],
             ),
         ];
 
@@ -110,9 +110,9 @@ final class DispatchRequestGoldenTest extends TestCase
                 dispatchedAt: '2026-04-29T13:00:00Z',
                 appToken: 'tok',
                 data: [
-                    'version' => '8.1.0',
-                    'branch' => 'rel-810',
-                    'files' => ['openemr-8.1.0-ehi.tar.gz', 'openemr-8.1.0-b10.tar.gz'],
+                    'version' => '8.2.0',
+                    'branch' => 'rel-820',
+                    'files' => ['openemr-8.2.0-ehi.tar.gz', 'openemr-8.2.0-b10.tar.gz'],
                 ],
             ),
         ];
