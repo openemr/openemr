@@ -41,14 +41,76 @@
 #                                                  different coverage notes
 #                                                  (different PHP / Alpine
 #                                                  combos, different flows)
+#   .github/workflows/notify-release-targets-changed.yml
+#                                                  master-only-firing
+#   .github/workflows/docker-release-orchestrator.yml
+#                                                  master-only-firing (schedule)
+#   .github/workflows/docker-validate-release-targets.yml
+#                                                  master-only-firing (paths
+#                                                  filter to release-targets.yml
+#                                                  edits on master)
+#   .github/workflows/sync-byte-identical.yml      master-only-firing (push
+#                                                  to master + daily cron);
+#                                                  materializes master's copy
+#                                                  of the sync script at run
+#                                                  time so rel-branch copy is
+#                                                  dead weight
+#   .github/scripts/sync-byte-identical.sh         same rationale as the
+#                                                  workflow above
+#   .github/release-targets.yml                    master-authoritative; see
+#                                                  the file's own header
+#                                                  comment for the rationale
+#   bin/console                                    general-purpose Symfony CLI
+#                                                  runner; not release-
+#                                                  mechanism-owned. Bootstrap
+#                                                  changes evolve for reasons
+#                                                  unrelated to the release
+#                                                  mechanism; if a release-
+#                                                  prep change ever needs a
+#                                                  bootstrap change too,
+#                                                  backport targeted rather
+#                                                  than sync every unrelated
+#                                                  bin/console tweak
 
 files:
+# Docker orchestration surface -- the historical byte-identical scope
 - .github/workflows/docker-build-release.yml
 - .github/workflows/docker-test-core.yml
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
 - .github/docker/compose.yml
+
+# The byte-identical machinery itself (self-tracking so the trio moves
+# together across master + every rel branch)
 - .github/workflows/validate-byte-identical.yml
 - .github/byte-identical.yml
 - .github/scripts/validate-byte-identical.sh
 - .github/scripts/lib/glob-expand.sh
+
+# Release-mechanism surface (added 2026-07-12 -- see the "Changelog
+# surface early-migration slice" section of
+# docs/release-mechanism-migration-from-devops.md for the plan this is
+# PR 3 of).
+#
+# Files below fire from rel branches (release-prep.yml on every push,
+# branch-cut / patch-prep on lifecycle events, release-permissions-check
+# from anywhere) or are read by other rel-branch-executing code
+# (setup-php-composer composite is used by release-prep.yml; PR body
+# templates are read by peter-evans at rel-branch runtime).
+#
+# Master-only-firing workflows (notify-release-targets-changed,
+# docker-release-orchestrator, docker-validate-release-targets) are
+# NOT in this set -- see the "Intentionally NOT in this list" block
+# above.
+- .github/workflows/release-prep.yml
+- .github/workflows/branch-cut-automation.yml
+- .github/workflows/patch-prep-automation.yml
+- .github/workflows/release-permissions-check.yml
+- .github/actions/setup-php-composer/action.yml
+- .github/PULL_REQUEST_TEMPLATE/release-prep.md
+- .github/PULL_REQUEST_TEMPLATE/release-finalize.md
+- tools/release/**
+- src/Common/Command/ReleasePrep/**
+- src/Common/Command/ReleasePrepCommand.php
+- src/Common/Command/CreateReleaseChangelogCommand.php
+- tests/Tests/Isolated/Release/**
