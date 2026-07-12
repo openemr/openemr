@@ -2,11 +2,11 @@
 #
 # Sync byte-identical files from master into a rel branch's working tree.
 #
-# Reads the FILES_ALL list from master's .github/docker-byte-identical.yml
+# Reads the FILES_ALL list from master's .github/byte-identical.yml
 # and, for each entry, classifies the rel branch's state relative to master
 # (identical / add / update / delete / both-missing) and applies the right
 # operation to the current working tree. Then, after the main loop, also
-# walks the rel branch's own copy of docker-byte-identical.yml to find
+# walks the rel branch's own copy of byte-identical.yml to find
 # entries that are in rel's FILES_ALL but not master's -- those are paths
 # master removed from the managed set (either renamed to a new path, or
 # dropped entirely), and any rel-branch file still sitting at the old path
@@ -83,7 +83,7 @@ mkdir -p "${output_dir}"
 # rel branch's view. Each subprocess invocation is captured separately to
 # avoid SC2312 (pipeline return values being masked by mapfile process
 # substitution).
-config_contents=$(git show master:.github/docker-byte-identical.yml)
+config_contents=$(git show master:.github/byte-identical.yml)
 files_yq_output=$(echo "${config_contents}" | yq -r '.files[]')
 mapfile -t FILES_ALL <<<"${files_yq_output}"
 # When the yq output is empty, mapfile produces a single empty element;
@@ -93,7 +93,7 @@ if [[ ${#FILES_ALL[@]} -eq 1 && -z "${FILES_ALL[0]}" ]]; then
 fi
 
 if [[ ${#FILES_ALL[@]} -eq 0 ]]; then
-  emit_error "No files in master's docker-byte-identical.yml; refusing to sync (an empty list would propagate 'delete every synced file' to every rel branch)."
+  emit_error "No files in master's byte-identical.yml; refusing to sync (an empty list would propagate 'delete every synced file' to every rel branch)."
   exit 1
 fi
 
@@ -101,7 +101,7 @@ fi
 dupes=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
 if [[ -n "${dupes}" ]]; then
   dupes_one_line=$(echo "${dupes}" | tr '\n' ' ')
-  emit_error "Duplicate entries in docker-byte-identical.yml files: ${dupes_one_line}"
+  emit_error "Duplicate entries in byte-identical.yml files: ${dupes_one_line}"
   exit 1
 fi
 
@@ -119,7 +119,7 @@ for FILE in "${FILES_ALL[@]}"; do
   if [[ "${master_has}" == "n" ]] && [[ "${branch_has}" == "n" ]]; then
     # File is in FILES_ALL but absent from both branches -- always a config
     # bug (someone removed the file but forgot to update the list).
-    emit_error "${FILE}: listed in docker-byte-identical.yml but missing from both master and ${target_branch}"
+    emit_error "${FILE}: listed in byte-identical.yml but missing from both master and ${target_branch}"
     exit 1
   fi
 
@@ -152,7 +152,7 @@ for FILE in "${FILES_ALL[@]}"; do
 done
 
 # Rename / removed-from-config sweep: walk the rel branch's own
-# docker-byte-identical.yml (if it has one). Entries that are in rel's
+# byte-identical.yml (if it has one). Entries that are in rel's
 # FILES_ALL but not master's are paths master dropped from the managed
 # set. There are three sub-cases, distinguished by whether master still
 # carries the file at that path:
@@ -170,8 +170,8 @@ done
 #   3. Path not on rel branch HEAD either. Rel's FILES_ALL lists a
 #      path no one carries -- a config bug on rel's side. Silent skip;
 #      the canary's main loop is what surfaces config bugs, not sync.
-if git cat-file -e "HEAD:.github/docker-byte-identical.yml" 2>/dev/null; then
-  rel_config_contents=$(git show "HEAD:.github/docker-byte-identical.yml")
+if git cat-file -e "HEAD:.github/byte-identical.yml" 2>/dev/null; then
+  rel_config_contents=$(git show "HEAD:.github/byte-identical.yml")
   rel_files_yq_output=$(echo "${rel_config_contents}" | yq -r '.files[]')
   mapfile -t REL_FILES_ALL <<<"${rel_files_yq_output}"
   if [[ ${#REL_FILES_ALL[@]} -eq 1 && -z "${REL_FILES_ALL[0]}" ]]; then

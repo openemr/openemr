@@ -67,8 +67,8 @@ write_files_all_config() {
         for f in "$@"; do
             echo "  - $f"
         done
-    } > .github/docker-byte-identical.yml
-    git add .github/docker-byte-identical.yml
+    } > .github/byte-identical.yml
+    git add .github/byte-identical.yml
     git commit -q -m "FILES_ALL config: $*"
 }
 
@@ -78,8 +78,8 @@ write_files_all_raw() {
     local content="$1"
     git checkout -q master
     mkdir -p .github
-    echo "$content" > .github/docker-byte-identical.yml
-    git add .github/docker-byte-identical.yml
+    echo "$content" > .github/byte-identical.yml
+    git add .github/byte-identical.yml
     git commit -q -m "FILES_ALL config (raw)"
 }
 
@@ -97,7 +97,7 @@ write_files_all_config_on_branch() {
         for f in "$@"; do
             echo "  - $f"
         done
-    } > .github/docker-byte-identical.yml
-    git add .github/docker-byte-identical.yml
+    } > .github/byte-identical.yml
+    git add .github/byte-identical.yml
     git commit -q -m "FILES_ALL config on $branch: $*"
 }
