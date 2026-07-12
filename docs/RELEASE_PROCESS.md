@@ -108,7 +108,12 @@ On the `openemr-tag` event, the same workflow also regenerates the EHI / ONC (b)
 
 ### Finalize-on-master PR — `release-finalize/<rel-branch>` in `openemr/openemr`
 
-Auto-opened alongside the conductor PR during the release-prep phase. Carries the master-side updates to `.github/release-targets.yml`: pins the rel-branch row's `openemr_version_ref` to the new tag, slot-shuffles `latest` / `next` / `dev` across rows, and drops any `unreleased: true` placeholder row. The content is auto-updated one more time by the conductor after the annotated tag is created, so the merged diff reflects the actual just-shipped state.
+Auto-opened alongside the conductor PR during the release-prep phase. Carries the master-side updates to `.github/release-targets.yml`: pins the rel-branch row's `openemr_version_ref` to the new tag, slot-shuffles `latest` / `next` / `dev` across rows, and drops any `unreleased: true` placeholder row.
+
+Two-phase lifecycle:
+
+1. **Preview phase (during the `-dev` cycle).** Opened as a **draft** by `release-prep.yml`'s `prep` job on each push to the rel branch while `$v_tag == '-dev'`. Content reflects the *planned* post-ship rotation (`openemr_version_ref` points at the rel-branch tip as a preview since the annotated tag doesn't exist yet). Maintainers can preview and sanity-check the rotation shape here, but the draft state signals "not yet safe to merge."
+2. **Post-tag phase (after conductor PR merge).** The `finalize` job re-runs the master-scope mutators after creating the annotated tag, force-updates the PR body + commit with the actual just-shipped state (`openemr_version_ref` pinned to the real `v_X_Y_Z` tag), then explicitly flips the PR from draft to ready-for-review and posts a maintainer-facing signal comment ("Post-tag update applied ... ready to merge to master"). Only after this flip is the PR safe to merge.
 
 ### Changelog PRs — `changelog-<version>-<rel-branch>` and `changelog-<version>-master` in `openemr/openemr`
 
@@ -137,7 +142,7 @@ Both fire on a single event, open **two coordinated ready-for-review PRs** (rel-
 | Existing `rel-*` receives a `$v_patch` bump into `-dev` | — | fires; opens 2 ready-for-review PRs | fires (on the same push); opens/updates 2 drafts + emits `openemr-rel-update` |
 | Any subsequent commit while `$v_tag == '-dev'` | — | — | fires; updates 2 drafts + emits `openemr-rel-update` |
 | Any commit after the branch shipped (post-tag, `$v_tag` empty) | — | — | fires but exits with `should-run=false`; no draft PR changes, no dispatch |
-| Release-prep PR merged (annotated tag created) | — | — | `finalize` job; creates tag + opens changelog PRs + emits `openemr-tag` |
+| Release-prep PR merged (annotated tag created) | — | — | `finalize` job; creates tag + refreshes release-finalize PR with post-tag content + flips it draft → ready + opens changelog PRs + emits `openemr-tag` |
 
 The two sibling one-shots handle **discrete lifecycle events** (branch creation, patch-cycle start); `release-prep.yml` handles the **continuous state** (draft PRs following the branch tip during an active dev cycle) plus the tag-time emission on merge. Clean separation of concerns — no overlap on which PRs each workflow owns, and the parallel firing on cut events is by design so the ready-for-review scaffolding and the draft tracking both appear together.
 
@@ -196,7 +201,7 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 The conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and fires the `openemr-tag` cascade for the Release object and announcement drafts). The other bot-created PRs land after the tag exists, in the following order:
 
 1. **Conductor PR** (`openemr/openemr` `release-prep/<rel-branch>`) — merges to rel-branch, creates the annotated tag.
-2. **Finalize-on-master PR** (`openemr/openemr` `release-finalize/<rel-branch>`) — auto-updated by the conductor post-tag; lands the master-side `release-targets.yml` rotation.
+2. **Finalize-on-master PR** (`openemr/openemr` `release-finalize/<rel-branch>`) — auto-updated by the `finalize` job post-tag, flipped from draft to ready-for-review with a signal comment; lands the master-side `release-targets.yml` rotation. Don't merge while it's still in draft state — the draft flag is the "post-tag update hasn't happened yet" indicator.
 3. **Changelog PRs** (`openemr/openemr` `changelog-<version>-<rel-branch>` and `changelog-<version>-master`) — `CHANGELOG.md` updates on both rel-branch and master.
 4. **Docs PR** (`openemr/website-openemr` `release-docs/<version>`) — ships the now-FINAL pages on the website.
 
