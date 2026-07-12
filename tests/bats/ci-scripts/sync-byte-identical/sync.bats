@@ -256,3 +256,106 @@ teardown() {
     grep -qxF "add: src/real.txt" "$OUTPUT_DIR/changes.txt"
     ! grep -qF "phantom" "$OUTPUT_DIR/changes.txt"                # not recorded
 }
+
+# --- glob-pattern support (PR 2 of the changelog-surface migration slice) ---
+#
+# The manifest can now list glob patterns like `tools/release/**`.
+# Expansion happens at script-run time via `git ls-tree`, so master and
+# rel branches see whichever concrete paths they actually carry.
+
+@test "glob: pattern matches multiple files, all identical -> no changes" {
+    write_on_branch master   src/a.txt "content-A"
+    write_on_branch master   src/b.txt "content-B"
+    write_on_branch master   src/c.txt "content-C"
+    write_on_branch rel-810  src/a.txt "content-A"
+    write_on_branch rel-810  src/b.txt "content-B"
+    write_on_branch rel-810  src/c.txt "content-C"
+    write_files_all_config 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
+}
+
+@test "glob: pattern expands to master-only files -> all added to rel" {
+    write_on_branch master src/a.txt "content-A"
+    write_on_branch master src/b.txt "content-B"
+    write_files_all_config 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/a.txt ]]
+    [[ -f src/b.txt ]]
+    grep -qxF "add: src/a.txt" "$OUTPUT_DIR/changes.txt"
+    grep -qxF "add: src/b.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "glob: pattern-matched file on rel but not master -> delete" {
+    write_on_branch master  src/keeper.txt "keep-content"
+    write_on_branch rel-810 src/keeper.txt "keep-content"
+    write_on_branch rel-810 src/orphan.txt "orphan-on-rel-only"
+    write_files_all_config 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -f src/orphan.txt ]]                              # deleted
+    [[ -f src/keeper.txt ]]                                # untouched (identical)
+    grep -qxF "delete: src/orphan.txt" "$OUTPUT_DIR/changes.txt"
+    ! grep -qF "keeper" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "glob: mixed add + update + delete under one pattern all applied in one run" {
+    write_on_branch master  src/added.txt   "new"
+    write_on_branch master  src/changed.txt "master-version"
+    write_on_branch rel-810 src/changed.txt "older-version"
+    write_on_branch rel-810 src/removed.txt "to-remove"
+    write_files_all_config 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/added.txt ]]
+    [[ "$(cat src/changed.txt)" == "master-version" ]]
+    [[ ! -f src/removed.txt ]]
+    grep -qxF "add: src/added.txt" "$OUTPUT_DIR/changes.txt"
+    grep -qxF "update: src/changed.txt" "$OUTPUT_DIR/changes.txt"
+    grep -qxF "delete: src/removed.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "glob: pattern matches nothing on either side -> no error, no changes" {
+    write_on_branch master  src/other.txt "other"
+    write_on_branch rel-810 src/other.txt "other"
+    write_files_all_config 'nonexistent/**' src/other.txt
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
+}
+
+@test "glob: mixed literal + glob entries expand and dedupe cleanly" {
+    write_on_branch master  src/lit.txt  "literal-content"
+    write_on_branch master  src/glob.txt "glob-content"
+    write_files_all_config src/lit.txt 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    # src/lit.txt appears from both the literal entry AND the glob
+    # expansion; the union+sort+dedupe upstream keeps the main loop
+    # from processing it twice.
+    [[ $status -eq 0 ]]
+    [[ -f src/lit.txt ]]
+    [[ -f src/glob.txt ]]
+    # exactly one "add" line each
+    [[ $(grep -c "^add: src/lit.txt$" "$OUTPUT_DIR/changes.txt") -eq 1 ]]
+    [[ $(grep -c "^add: src/glob.txt$" "$OUTPUT_DIR/changes.txt") -eq 1 ]]
+}

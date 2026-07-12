@@ -65,6 +65,94 @@ emit_error() {
   fi
 }
 
+# Expand one FILES_ALL entry against a git ref into zero-or-more concrete
+# paths. Non-glob entries pass through verbatim. Glob entries resolve
+# against `git ls-tree -r`:
+#
+#   dir/**            -> `git ls-tree -r --name-only <ref> -- dir/`
+#                        (fast path for whole-subtree matches)
+#   any other glob    -> `git ls-tree -r --name-only <ref>` piped
+#                        through `grep -E` with a regex from
+#                        glob_to_regex below
+#
+# `git ls-tree`'s :(glob) pathspec magic isn't supported (unlike
+# `git ls-files`), which forces the pipe-through-grep fallback.
+expand_pattern() {
+  local ref="$1" pattern="$2"
+  case "$pattern" in
+    *'*'* | *'?'* | *'['*)
+      if [[ "$pattern" == *'/**' ]] && [[ "${pattern%/**}" != *'*'* ]] \
+        && [[ "${pattern%/**}" != *'?'* ]] && [[ "${pattern%/**}" != *'['* ]]; then
+        local dir="${pattern%/**}"
+        git ls-tree -r --name-only "$ref" -- "${dir}/" 2>/dev/null || true
+      else
+        local regex
+        regex=$(glob_to_regex "$pattern")
+        git ls-tree -r --name-only "$ref" 2>/dev/null | grep -E "$regex" || true
+      fi
+      ;;
+    *)
+      echo "$pattern"
+      ;;
+  esac
+}
+
+# Convert a shell-glob pattern to an anchored ERE regex. Semantics:
+#   **  -> `.*`               (matches across path separators)
+#   *   -> `[^/]*`            (matches within one path component)
+#   ?   -> `[^/]`             (single non-slash char)
+#   [..] preserved as-is
+# Regex metacharacters other than * ? [ are escaped. Result is wrapped
+# in ^...$ so `grep -E` gives whole-path matches only.
+glob_to_regex() {
+  local p="$1"
+  local GLOBSTAR=$'\x1F\x1FGS\x1F\x1F'
+  p="${p//\*\*/${GLOBSTAR}}"
+  local out=""
+  local i c
+  for ((i = 0; i < ${#p}; i++)); do
+    c="${p:i:1}"
+    case "$c" in
+      '.' | '+' | '(' | ')' | '{' | '}' | '^' | '$' | '|' | '\')
+        out+="\\${c}"
+        ;;
+      '*') out+='[^/]*' ;;
+      '?') out+='[^/]' ;;
+      *)   out+="$c" ;;
+    esac
+  done
+  out="${out//${GLOBSTAR}/.*}"
+  printf '^%s$\n' "$out"
+}
+
+# Expand a list of patterns against a git ref into a dedup+sorted list
+# of concrete paths. Signature:
+#   expand_patterns_into <ref> <input_patterns_array_name> <output_array_name>
+# Sync uses this three times (master patterns against master, master
+# patterns against rel HEAD, rel patterns against rel HEAD) so the union
+# and sweep logic below has the concrete-path sets it needs.
+expand_patterns_into() {
+  local ref="$1" in_var="$2" out_var="$3"
+  local -n in_arr="$in_var"
+  local -n out_arr="$out_var"
+  local pattern p
+  local -A seen=()
+  local -a expanded=()
+  for pattern in "${in_arr[@]}"; do
+    while IFS= read -r p; do
+      [[ -z "$p" ]] && continue
+      if [[ -z "${seen[$p]:-}" ]]; then
+        seen[$p]=1
+        expanded+=("$p")
+      fi
+    done < <(expand_pattern "$ref" "$pattern")
+  done
+  # `printf '%s\n' "${arr[@]}"` on an empty array still emits one empty
+  # line in bash (format applied once with no args); filter with
+  # `grep -v '^$'` so out_arr comes back as a genuinely empty array.
+  mapfile -t out_arr < <(printf '%s\n' "${expanded[@]}" | grep -v '^$' | sort)
+}
+
 # Preconditions
 command -v yq >/dev/null 2>&1 || {
   emit_error "yq not found on PATH (need Mike Farah's Go-based yq)."
@@ -107,10 +195,30 @@ fi
 
 master_sha=$(git rev-parse master)
 echo "Syncing master (${master_sha}) -> ${target_branch}"
-echo "Files in FILES_ALL: ${#FILES_ALL[@]}"
+echo "Patterns in master's FILES_ALL: ${#FILES_ALL[@]}"
+
+# Expand master's FILES_ALL against BOTH refs. A path may exist only on
+# master (add), only on rel (delete), on both (identical/update), or --
+# for a stale glob pattern -- on neither (config bug, caught in the
+# main loop's both-missing branch).
+declare -a MASTER_PATHS=()
+declare -a REL_PATHS_UNDER_MASTER_CONFIG=()
+expand_patterns_into master FILES_ALL MASTER_PATHS
+expand_patterns_into HEAD   FILES_ALL REL_PATHS_UNDER_MASTER_CONFIG
+
+# Union of the two expansions -- everything master's config wants us to
+# consider on this rel branch. Dedup + sort for stable iteration order.
+# `grep -v '^$'` filters the empty-line printf-with-empty-array leaves.
+declare -a FILES_TO_CHECK=()
+mapfile -t FILES_TO_CHECK < <(
+  printf '%s\n' "${MASTER_PATHS[@]}" "${REL_PATHS_UNDER_MASTER_CONFIG[@]}" \
+    | grep -v '^$' \
+    | sort -u
+)
+echo "Concrete paths after glob expansion (master + rel union): ${#FILES_TO_CHECK[@]}"
 
 CHANGES=()
-for FILE in "${FILES_ALL[@]}"; do
+for FILE in "${FILES_TO_CHECK[@]}"; do
   master_has=n
   branch_has=n
   if git cat-file -e "master:${FILE}" 2>/dev/null; then master_has=y; fi
@@ -118,7 +226,10 @@ for FILE in "${FILES_ALL[@]}"; do
 
   if [[ "${master_has}" == "n" ]] && [[ "${branch_has}" == "n" ]]; then
     # File is in FILES_ALL but absent from both branches -- always a config
-    # bug (someone removed the file but forgot to update the list).
+    # bug (someone removed the file but forgot to update the list). With
+    # glob expansion this should be unreachable (union of master + rel
+    # expansions only includes files present on at least one side), but
+    # kept as a defense in depth.
     emit_error "${FILE}: listed in byte-identical.yml but missing from both master and ${target_branch}"
     exit 1
   fi
@@ -152,24 +263,27 @@ for FILE in "${FILES_ALL[@]}"; do
 done
 
 # Rename / removed-from-config sweep: walk the rel branch's own
-# byte-identical.yml (if it has one). Entries that are in rel's
-# FILES_ALL but not master's are paths master dropped from the managed
-# set. There are three sub-cases, distinguished by whether master still
-# carries the file at that path:
+# byte-identical.yml (if it has one) and expand its patterns against
+# rel HEAD to get every path rel's config says it wants to manage.
+# Diff that concrete-path set against MASTER_PATHS (master's own
+# expansion). Paths in rel's set but not master's are paths master
+# dropped from the managed set. Two sub-cases, distinguished by whether
+# master still carries the file at that path:
 #
-#   1. Master neither lists nor carries the path. True removal (or
-#      rename -- the new path appears in master's config and was already
-#      handled as `add` by the main loop above). The old path lingering
-#      on the rel branch is orphaned -- delete it.
+#   1. Master doesn't carry the path (git cat-file -e master:PATH fails).
+#      True removal (or rename -- the new path appears in master's
+#      config and was already handled as `add` by the main loop above).
+#      The old path lingering on the rel branch is orphaned -- delete it.
 #
 #   2. Master still carries the path but dropped it from FILES_ALL.
 #      Deliberate "demote to per-branch divergence" -- the file is no
-#      longer being byte-identity-enforced. Leave the rel-branch copy
-#      alone; it can now legitimately drift.
+#      longer byte-identity-enforced. Leave the rel-branch copy alone.
 #
-#   3. Path not on rel branch HEAD either. Rel's FILES_ALL lists a
-#      path no one carries -- a config bug on rel's side. Silent skip;
-#      the canary's main loop is what surfaces config bugs, not sync.
+# Case 3 (rel doesn't have the file either) survives for literal-path
+# entries -- expand_pattern echoes literals verbatim regardless of
+# existence, so a literal in rel's config that rel HEAD lacks lands
+# in the diff and needs a silent skip. Glob entries only emit
+# existing paths, so case 3 doesn't apply to them.
 if git cat-file -e "HEAD:.github/byte-identical.yml" 2>/dev/null; then
   rel_config_contents=$(git show "HEAD:.github/byte-identical.yml")
   rel_files_yq_output=$(echo "${rel_config_contents}" | yq -r '.files[]')
@@ -178,28 +292,40 @@ if git cat-file -e "HEAD:.github/byte-identical.yml" 2>/dev/null; then
     REL_FILES_ALL=()
   fi
 
-  # Set difference (rel - master). `comm -23` needs sorted input.
-  master_sorted=$(printf '%s\n' "${FILES_ALL[@]}" | sort)
-  rel_sorted=$(printf '%s\n' "${REL_FILES_ALL[@]}" | sort)
-  rel_only=$(comm -23 <(echo "${rel_sorted}") <(echo "${master_sorted}"))
+  if [[ ${#REL_FILES_ALL[@]} -gt 0 ]]; then
+    # Expand rel's own patterns against rel HEAD to get concrete paths
+    # rel intends to manage.
+    declare -a REL_PATHS_UNDER_REL_CONFIG=()
+    expand_patterns_into HEAD REL_FILES_ALL REL_PATHS_UNDER_REL_CONFIG
 
-  if [[ -n "${rel_only}" ]]; then
-    while IFS= read -r STALE; do
-      [[ -z "${STALE}" ]] && continue
-      if ! git cat-file -e "HEAD:${STALE}" 2>/dev/null; then
-        continue   # case 3: rel doesn't have the file either
-      fi
-      if git cat-file -e "master:${STALE}" 2>/dev/null; then
-        # case 2: master still carries the file, just stopped enforcing
-        # byte-identity. Leave rel's copy alone.
-        echo "  ${STALE}  (skip: dropped from FILES_ALL but master still carries the file -- per-branch divergence now allowed)"
-        continue
-      fi
-      # case 1: true removal (or rename's old-path side).
-      echo "  - ${STALE}  (delete: master removed this path entirely)"
-      git rm -- "${STALE}" >/dev/null
-      CHANGES+=("delete: ${STALE}")
-    done <<< "${rel_only}"
+    # Set difference (rel-managed - master-managed). Both are already
+    # sorted by expand_patterns_into.
+    rel_only=$(comm -23 \
+      <(printf '%s\n' "${REL_PATHS_UNDER_REL_CONFIG[@]}") \
+      <(printf '%s\n' "${MASTER_PATHS[@]}"))
+
+    if [[ -n "${rel_only}" ]]; then
+      while IFS= read -r STALE; do
+        [[ -z "${STALE}" ]] && continue
+        if ! git cat-file -e "HEAD:${STALE}" 2>/dev/null; then
+          # case 3: rel doesn't have the file either. Reachable only
+          # for literal-path entries (globs would have filtered this
+          # out at expansion time). Silent skip -- config-bug surfacing
+          # is the canary's job, not sync's.
+          continue
+        fi
+        if git cat-file -e "master:${STALE}" 2>/dev/null; then
+          # case 2: master still carries the file, just stopped enforcing
+          # byte-identity. Leave rel's copy alone.
+          echo "  ${STALE}  (skip: dropped from FILES_ALL but master still carries the file -- per-branch divergence now allowed)"
+          continue
+        fi
+        # case 1: true removal (or rename's old-path side).
+        echo "  - ${STALE}  (delete: master removed this path entirely)"
+        git rm -- "${STALE}" >/dev/null
+        CHANGES+=("delete: ${STALE}")
+      done <<< "${rel_only}"
+    fi
   fi
 fi
 

@@ -48,6 +48,128 @@ set -euo pipefail
 
 RAW_FETCH_BASE_URL="${RAW_FETCH_BASE_URL:-https://raw.githubusercontent.com/openemr/openemr}"
 
+# Expand one FILES_ALL entry against a git ref into zero-or-more concrete
+# paths. Non-glob entries (no *, ?, or [ metachars) pass through
+# verbatim -- callers handle existence checking. Glob entries are
+# resolved against `git ls-tree -r`:
+#
+#   dir/**            -> `git ls-tree -r --name-only <ref> -- dir/`
+#                        (fast path -- most manifest globs are whole-
+#                        subtree matches like `tools/release/**`)
+#   any other glob    -> `git ls-tree -r --name-only <ref>` piped
+#                        through `grep -E` with a regex synthesized
+#                        from the glob (see glob_to_regex below)
+#
+# Empty output for a glob that matches nothing is not fatal at this
+# layer -- the caller decides how to interpret it.
+#
+# `git ls-tree`'s :(glob) pathspec magic is not supported (unlike
+# `git ls-files`), which forces the pipe-through-grep fallback for
+# arbitrary globs. The bare-subtree fast path covers the common case
+# and avoids the regex synthesis when possible.
+expand_pattern() {
+  local ref="$1" pattern="$2"
+  case "$pattern" in
+    *'*'* | *'?'* | *'['*)
+      # Fast path for the common `<dir>/**` shape
+      if [[ "$pattern" == *'/**' ]] && [[ "${pattern%/**}" != *'*'* ]] \
+        && [[ "${pattern%/**}" != *'?'* ]] && [[ "${pattern%/**}" != *'['* ]]; then
+        local dir="${pattern%/**}"
+        git ls-tree -r --name-only "$ref" -- "${dir}/" 2>/dev/null || true
+      else
+        # Generic glob: full ls-tree, filter via regex
+        local regex
+        regex=$(glob_to_regex "$pattern")
+        git ls-tree -r --name-only "$ref" 2>/dev/null | grep -E "$regex" || true
+      fi
+      ;;
+    *)
+      echo "$pattern"
+      ;;
+  esac
+}
+
+# Convert a shell-glob pattern to an anchored ERE regex. Semantics:
+#   **  -> `.*`               (matches across path separators)
+#   *   -> `[^/]*`            (matches within one path component)
+#   ?   -> `[^/]`             (single non-slash char)
+#   [..] preserved as-is (character class)
+# Regex metacharacters other than * ? [ are escaped. Result is wrapped
+# in ^...$ so `grep -E` gives whole-path matches only.
+glob_to_regex() {
+  local p="$1"
+  # Placeholder swap so `**` is treated distinctly from `*` before we
+  # escape and rewrite. `\x00` isn't valid in bash strings; use a
+  # rare printable sentinel instead.
+  local GLOBSTAR=$'\x1F\x1FGS\x1F\x1F'
+  # 1. Substitute ** with the sentinel (must happen before single-*
+  #    substitution, otherwise ** becomes [^/]*[^/]*).
+  p="${p//\*\*/${GLOBSTAR}}"
+  # 2. Escape regex metacharacters except: * ? [ ] (glob chars) and /
+  #    (path separator, safe as-is).
+  local out=""
+  local i c
+  for ((i = 0; i < ${#p}; i++)); do
+    c="${p:i:1}"
+    case "$c" in
+      '.' | '+' | '(' | ')' | '{' | '}' | '^' | '$' | '|' | '\')
+        out+="\\${c}"
+        ;;
+      '*') out+='[^/]*' ;;
+      '?') out+='[^/]' ;;
+      *)   out+="$c" ;;
+    esac
+  done
+  # 3. Restore ** placeholder as regex `.*`
+  out="${out//${GLOBSTAR}/.*}"
+  printf '^%s$\n' "$out"
+}
+
+# Expand a list of patterns against a git ref into a dedup+sorted list
+# of concrete paths. Signature:
+#   expand_patterns_into <ref> <input_patterns_array_name> <output_array_name>
+# Glob patterns that expanded to zero files are surfaced as warnings
+# (usually a stale manifest entry) but not fatal at this layer.
+expand_patterns_into() {
+  local ref="$1" in_var="$2" out_var="$3"
+  local -n in_arr="$in_var"
+  local -n out_arr="$out_var"
+  local pattern p
+  local -A seen=()
+  local -a expanded=()
+  local -a empty_patterns=()
+  for pattern in "${in_arr[@]}"; do
+    local pattern_matched=0
+    while IFS= read -r p; do
+      [[ -z "$p" ]] && continue
+      pattern_matched=1
+      if [[ -z "${seen[$p]:-}" ]]; then
+        seen[$p]=1
+        expanded+=("$p")
+      fi
+    done < <(expand_pattern "$ref" "$pattern")
+    case "$pattern" in
+      *'*'* | *'?'* | *'['*)
+        if [[ $pattern_matched -eq 0 ]]; then
+          empty_patterns+=("$pattern")
+        fi
+        ;;
+    esac
+  done
+  # sort for stable iteration (helps golden-comparison tests too).
+  # `printf '%s\n' "${arr[@]}"` on an empty array still emits one empty
+  # line in bash (format applied once with no args); filter with
+  # `grep -v '^$'` so out_arr comes back as a genuinely empty array
+  # rather than a one-empty-string array.
+  mapfile -t out_arr < <(printf '%s\n' "${expanded[@]}" | grep -v '^$' | sort)
+  # Warn (do not fail) on globs that matched nothing -- almost always a
+  # stale manifest entry, worth surfacing but not blocking.
+  local ep
+  for ep in "${empty_patterns[@]}"; do
+    emit_warning "Glob pattern '${ep}' expanded to zero files on ${ref}; manifest may be stale."
+  done
+}
+
 emit_error() {
   local msg="$1"
   if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
@@ -123,6 +245,30 @@ if [[ -n "${dupes}" ]]; then
   exit 1
 fi
 
+# Expand FILES_ALL into concrete paths. Glob patterns (e.g. `tools/release/**`)
+# are expanded against HEAD via `git ls-tree`; literal path entries pass
+# through verbatim (existence gets checked in the main loops below).
+declare -a FILES_ALL_EXPANDED=()
+expand_patterns_into HEAD FILES_ALL FILES_ALL_EXPANDED
+
+if [[ ${#FILES_ALL_EXPANDED[@]} -eq 0 ]]; then
+  # Every entry expanded to zero paths -- either every pattern is stale
+  # or the manifest is entirely glob-only and matched nothing. Fail
+  # closed so we don't silently skip validation.
+  emit_error "byte-identical.yml patterns expanded to zero paths on HEAD; refusing to skip drift validation."
+  exit 1
+fi
+
+# Reject duplicates in the expanded set too -- a glob pattern overlapping
+# a literal entry would produce duplicates post-expansion; catch that as
+# a config bug even though the pre-expansion set was unique.
+dupes_expanded=$(printf '%s\n' "${FILES_ALL_EXPANDED[@]}" | sort | uniq -d)
+if [[ -n "${dupes_expanded}" ]]; then
+  dupes_expanded_one_line=$(echo "${dupes_expanded}" | tr '\n' ' ')
+  emit_error "Duplicate paths after glob expansion (glob overlaps literal or another glob): ${dupes_expanded_one_line}"
+  exit 1
+fi
+
 # Determine run context. pull_request uses the PR's base ref; everything
 # else (schedule, push, workflow_dispatch) uses the ref the workflow
 # ran on.
@@ -168,10 +314,12 @@ if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
     exit 0
   fi
 
-  # Master context: master is canonical. Every FILES_ALL entry must
-  # exist on master; missing ones are a config bug.
+  # Master context: master is canonical. Every FILES_ALL_EXPANDED entry
+  # must exist on master; missing ones are a config bug. For glob
+  # entries this is tautological (expansion only emits existing paths),
+  # so this catches literal-path entries pointing at a missing file.
   missing=()
-  for FILE in "${FILES_ALL[@]}"; do
+  for FILE in "${FILES_ALL_EXPANDED[@]}"; do
     [[ -f "${FILE}" ]] || missing+=("${FILE}")
   done
   if [[ ${#missing[@]} -gt 0 ]]; then
@@ -190,7 +338,7 @@ if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
 
   for BRANCH in "${REL_BRANCHES[@]}"; do
     echo "::group::Compare ${BRANCH} to master"
-    for FILE in "${FILES_ALL[@]}"; do
+    for FILE in "${FILES_ALL_EXPANDED[@]}"; do
       LOCAL_SHA=$(sha256sum "${FILE}" | cut -d' ' -f1)
       URL="${RAW_FETCH_BASE_URL}/${BRANCH}/${FILE}"
       STATUS=$(fetch_status "${URL}")
@@ -228,7 +376,7 @@ else
   # local file is always either a destructive PR or a hand-edit config
   # bug -- either way, fail.
   echo "Comparing ${CONTEXT_BRANCH} (LOCAL) to master HEAD (REMOTE)."
-  for FILE in "${FILES_ALL[@]}"; do
+  for FILE in "${FILES_ALL_EXPANDED[@]}"; do
     if [[ ! -f "${FILE}" ]]; then
       emit_error_file "${FILE}" "${FILE} listed in FILES_ALL but missing from ${CONTEXT_BRANCH}."
       echo "  Either this PR deleted a protected file, or byte-identical.yml lists a file the branch does not carry."
