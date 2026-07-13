@@ -1253,6 +1253,50 @@ invoke `openemr:create-release-changelog` (grep confirms none post-PR 4).
 fully cut over so we're not retiring anything a maintainer might still
 reach for during the transition.
 
+**PR 8 — Add `CompatibilityMutator`; fix `CompatibilityNotesRenderer::inject()`
+idempotence.** Deferred from PR 4. Add a new
+`tools/release/src/Mutator/CompatibilityMutator.php` (same autoload-dev
+placement as `ChangelogMutator`) that runs
+`CompatibilityDeriver->derive()` against the target rel branch's `ci/`
+directory, then `CompatibilityNotesRenderer->render()` + `->inject()`
+into `CHANGELOG.md`, keeping the "### Minimum supported versions"
+section 8.2.0's entry has today. Wire into ReleasePrepCommand's default
+mutator lists on both scopes via the same `class_exists()`-guarded FQCN
+pattern (adding another whitelist entry to
+`.composer-require-checker.json`). Fix
+`CompatibilityNotesRenderer::inject()` non-idempotence at the same time
+— CR round-2 on PR 4 (openemr/openemr#12925) flagged that a second
+`inject()` call on an already-injected notes file duplicates the section
+because the implementation always splices after the first `## ` heading
+without checking for an existing block. Detecting + replacing the
+existing block before inserting matches `ChangelogMutator`'s
+prepend-or-replace pattern. Fixture regression: same shape as PR 9
+(regenerate 8.2.0's compatibility section from frozen `ci/` contents),
+or bundle both under a single fixture harness. **Depends on PR 4** —
+uses classes it moved. Can land any time after PR 4; slotted at the
+end of the slice because it wasn't blocking.
+
+**PR 9 — Fixture-based regression regenerating 8.2.0's real CHANGELOG
+entry from frozen inputs.** Deferred from PR 4. Capture the actual
+inputs the mutator would have seen when generating 8.2.0's committed
+CHANGELOG entry: SHAs from `v8_1_0...rel-820`, one PR object per SHA
+(number / title / labels / url / author), the published advisories set
+at tag time. Persist as JSON fixtures at
+`tests/Tests/Isolated/Release/fixtures/8_2_0/`. Add a test that
+constructs `ChangelogGenerator` with a `FakeGitHubApi` returning the
+frozen data + a `FrozenClock` set to 2026-07-08 (the tag date) and
+asserts the rendered output matches a locked expected `CHANGELOG.md`
+section (`fixtures/8_2_0/expected.md`). Regenerates the real 8.2.0
+entry byte-for-byte with the noise filter applied — locks the
+categorization + section ordering + area sub-grouping + dependabot
+filter behavior against realistic input, not just the discrete unit
+cases. If PR 8 (CompatibilityMutator) landed first, the fixture
+covers the compatibility injection too. **Depends on PR 4** (uses
+the ported filter); best to land after PR 8 so the fixture exercises
+the fully consolidated flow. Punts a real risk: our smoke test in PR 4
+only had 2 PRs in the v8_2_0...rel-820 range; the categorization +
+sub-grouping + area-label paths were only exercised by synthetic PRs.
+
 **Testing / validation strategy per PR:**
 
 - PR 1: canary self-enforces; watch sync PRs open cleanly on all three
@@ -1270,6 +1314,14 @@ reach for during the transition.
 - PR 7: repo-wide grep for `openemr:create-release-changelog` +
   `CreateReleaseChangelogCommand` before deletion — no live callers
   should remain post-PR 6.
+- PR 8: smoke-test the mutator against rel-820's `ci/` directory (real
+  CI matrix), verify the rendered Minimum-supported-versions block
+  matches the block already in 8.2.0's CHANGELOG entry. Also cover the
+  rerun-idempotence fix: apply twice, assert no second copy of the
+  section appears.
+- PR 9: fixture regression pins byte-identical output; regenerate the
+  fixture (via a small `bin/capture-8_2_0-inputs.php` one-shot) any time
+  the noise filter, section ordering, or area labels shift.
 - Full-cycle: the next real release (probably 8.2.1) is the acceptance
   test for the whole consolidation.
 
