@@ -55,9 +55,30 @@ final readonly class CompatibilityNotesRenderer
      * Insert a section into notes just after the first `## ` heading line (and
      * the blank line that conventionally follows it). If the notes have no such
      * heading, prepend the section instead.
+     *
+     * Idempotent: if the notes already contain a "### Minimum supported
+     * versions" block (bounded by the heading and the next `##`-prefixed
+     * heading of any depth or EOF), that block is removed first so a rerun
+     * with the same section produces the same output rather than a duplicate.
      */
     public function inject(string $notes, string $section): string
     {
+        // Strip any existing Minimum-supported-versions block first so a
+        // second inject() call with the same section is a no-op instead of
+        // producing a duplicate section. The block runs from the heading
+        // to the next `##`-prefixed heading of any depth (### or ##) or
+        // EOF, so we anchor on the following heading in a lookahead.
+        $stripped = preg_replace(
+            '/^### Minimum supported versions.*?(?=^##|\z)/ms',
+            '',
+            $notes,
+            1,
+        );
+        if ($stripped === null) {
+            throw new \RuntimeException('CompatibilityNotesRenderer::inject regex failure');
+        }
+        $notes = $stripped;
+
         $lines = explode("\n", $notes);
         foreach ($lines as $index => $line) {
             if (!str_starts_with($line, '## ')) {

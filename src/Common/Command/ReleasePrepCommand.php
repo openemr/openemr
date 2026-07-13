@@ -217,24 +217,32 @@ final class ReleasePrepCommand extends Command
      * composer-require-checker does not flag the cross-boundary
      * dependency.
      *
+     * Ordering matters: CompatibilityMutator must run AFTER
+     * ChangelogMutator because it injects into the `## [X.Y.Z]` heading
+     * ChangelogMutator writes.
+     *
      * @param list<MutatorInterface> $mutators
      */
     private function appendOptionalReleaseMutators(array &$mutators): void
     {
-        // FQCN via ::class: composer-require-checker sees the reference
-        // (which is why the class name is whitelisted in
+        // FQCNs via ::class: composer-require-checker sees the reference
+        // (which is why the class names are whitelisted in
         // .composer-require-checker.json), but autoload is not triggered
         // by the reference itself — only by the guarded new below. Under
-        // a production `composer install --no-dev` the class is not
+        // a production `composer install --no-dev` the classes are not
         // autoloadable, class_exists() returns false, and the mutator is
         // silently skipped. Kept as ::class (rather than a plain string
         // literal) so an IDE can refactor the FQCN alongside the file if
         // it ever moves.
-        $changelogMutator = \OpenEMR\Release\Mutator\ChangelogMutator::class;
-        if (!class_exists($changelogMutator)) {
-            return;
+        $optionalMutators = [
+            \OpenEMR\Release\Mutator\ChangelogMutator::class,
+            \OpenEMR\Release\Mutator\CompatibilityMutator::class,
+        ];
+        foreach ($optionalMutators as $mutator) {
+            if (class_exists($mutator)) {
+                $mutators[] = new $mutator();
+            }
         }
-        $mutators[] = new $changelogMutator();
     }
 
     private function defaultProjectDir(): string
