@@ -130,6 +130,129 @@ final class CompatibilityMutatorTest extends TestCase
         self::assertStringContainsString('mariadb=10.11', $result->messages[0]);
     }
 
+    public function testResolvesRelBranchViaOriginRemoteTrackingRefWhenLocalBranchAbsent(): void
+    {
+        // Simulate the master-scope workflow shape: a separate
+        // `master-checkout` cloned with --branch master --single-branch.
+        // The rel-820 branch is not locally reachable; only origin/rel-820
+        // exists as a remote-tracking ref.
+        $this->seedCi(['nginx_82_1011' => 'mariadb:10.11.0']);
+        $this->seedChangelog();
+        $this->commit();
+        $this->git(['branch', 'rel-820']);
+
+        // Set up a bare "origin" and clone --single-branch master
+        $originDir = sys_get_temp_dir() . '/openemr-origin-' . bin2hex(random_bytes(6));
+        $checkoutDir = sys_get_temp_dir() . '/openemr-master-co-' . bin2hex(random_bytes(6));
+        try {
+            (new Process(['git', 'clone', '--quiet', '--bare', $this->tmpDir, $originDir]))->mustRun();
+            (new Process([
+                'git', 'clone', '--quiet',
+                '--branch', 'main', '--single-branch',
+                $originDir, $checkoutDir,
+            ]))->mustRun();
+
+            // Verify pre-conditions: rel-820 is NOT a local branch,
+            // but origin/rel-820 is a remote-tracking ref. With
+            // --single-branch we need an explicit refspec to populate
+            // refs/remotes/origin/rel-820 (bare `git fetch origin rel-820`
+            // would only update FETCH_HEAD).
+            $fetch = new Process(
+                ['git', 'fetch', '--quiet', 'origin', 'rel-820:refs/remotes/origin/rel-820'],
+                $checkoutDir,
+            );
+            $fetch->mustRun();
+            $probeLocal = new Process(['git', 'rev-parse', '--verify', '--quiet', 'refs/heads/rel-820'], $checkoutDir);
+            $probeLocal->run();
+            self::assertFalse($probeLocal->isSuccessful(), 'rel-820 must not be a local branch in the master-style checkout');
+            $probeRemote = new Process(['git', 'rev-parse', '--verify', '--quiet', 'refs/remotes/origin/rel-820'], $checkoutDir);
+            $probeRemote->mustRun();
+
+            file_put_contents($checkoutDir . '/CHANGELOG.md', <<<'MD'
+# CHANGELOG.md
+
+## [8.2.1](https://github.com/openemr/openemr/compare/v8_2_0...v8_2_1) - 2026-08-01
+
+### Fixed
+
+  - new bugfix ([#1](https://github.com/openemr/openemr/pull/1))
+
+MD);
+            $context = MutatorContext::fromVersionString($checkoutDir, '8.2.1', 'rel-820');
+            $result = (new CompatibilityMutator())->apply($context);
+
+            self::assertTrue($result->changed());
+            $updated = (string) file_get_contents($checkoutDir . '/CHANGELOG.md');
+            self::assertStringContainsString('- **MariaDB** 10.11+', $updated);
+        } finally {
+            $this->removeRecursive($checkoutDir);
+            $this->removeRecursive($originDir);
+        }
+    }
+
+    public function testResolveRelBranchThrowsWhenNeitherLocalNorRemoteRefExists(): void
+    {
+        $this->seedCi(['nginx_82_1011' => 'mariadb:10.11.0']);
+        $this->seedChangelog();
+        $this->commit();
+        // rel-820 NOT created
+
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.2.1', 'rel-820');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/neither rel-820 nor origin\/rel-820/');
+        (new CompatibilityMutator())->apply($context);
+    }
+
+    public function testInjectPreservesOlderReleasesCompatBlock(): void
+    {
+        // Multi-heading CHANGELOG: prior release already has its own compat
+        // block. The mutator should inject into the NEW top section and
+        // leave the older release's block intact.
+        $this->seedCi(['nginx_82_1011' => 'mariadb:10.11.0']);
+        file_put_contents($this->tmpDir . '/CHANGELOG.md', <<<'MD'
+# CHANGELOG.md
+
+## [8.2.1](https://github.com/openemr/openemr/compare/v8_2_0...v8_2_1) - 2026-08-01
+
+### Fixed
+
+  - new bugfix ([#200](https://github.com/openemr/openemr/pull/200))
+
+## [8.2.0](https://github.com/openemr/openemr/compare/v8_1_0...v8_2_0) - 2026-07-08
+
+### Minimum supported versions
+
+- **PHP** 8.2+
+
+See the [tested CI matrix](https://github.com/openemr/openemr/tree/rel-820/ci) for all tested version combinations.
+
+### Fixed
+
+  - old bugfix ([#100](https://github.com/openemr/openemr/pull/100))
+
+MD);
+        $this->commit();
+        $this->git(['branch', 'rel-820']);
+
+        $this->apply();
+        $updated = (string) file_get_contents($this->tmpDir . '/CHANGELOG.md');
+
+        // 8.2.1 gets its new compat block (mariadb 10.11 from seedCi)
+        self::assertStringContainsString('- **MariaDB** 10.11+', $updated);
+        // 8.2.0's original compat block is untouched (still PHP 8.2 + no MariaDB entry)
+        self::assertMatchesRegularExpression(
+            '/## \[8\.2\.0\].*?### Minimum supported versions.*?- \*\*PHP\*\* 8\.2\+/s',
+            $updated,
+        );
+        // Exactly two compat sections now (one per release)
+        self::assertSame(
+            2,
+            substr_count($updated, '### Minimum supported versions'),
+            'top section gets new compat block, older section keeps its own',
+        );
+    }
+
     public function testMasterScopeExtractsRelBranchCiNotMasterCi(): void
     {
         // rel-820 has PHP 8.2 in its ci/; master has drifted to PHP 8.3.

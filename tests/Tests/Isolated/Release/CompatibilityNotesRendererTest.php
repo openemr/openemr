@@ -122,6 +122,53 @@ MD;
         self::assertStringContainsString('#123', $out);
     }
 
+    public function testInjectDoesNotStripCompatBlocksFromOlderReleaseSections(): void
+    {
+        // CHANGELOG with two prior release entries -- the OLDER one has a
+        // compat block from its own release-prep run. When we inject into
+        // the NEW top section, the older release's compat block must be
+        // preserved.
+        $notes = <<<'MD'
+## [8.2.1](https://github.com/openemr/openemr/compare/v8_2_0...v8_2_1) - 2026-08-01
+
+### Fixed
+
+  - new bugfix ([#200](https://github.com/openemr/openemr/pull/200))
+
+## [8.2.0](https://github.com/openemr/openemr/compare/v8_1_0...v8_2_0) - 2026-07-08
+
+### Minimum supported versions
+
+- **PHP** 8.2+
+- **MariaDB** 10.6+
+
+See the [tested CI matrix](https://github.com/openemr/openemr/tree/rel-820/ci) for all tested version combinations.
+
+### Fixed
+
+  - old bugfix ([#100](https://github.com/openemr/openemr/pull/100))
+
+MD;
+        $section = $this->renderer->render(
+            ['php' => '8.3', 'mariadb' => '11.4'],
+            'https://github.com/openemr/openemr/tree/rel-821/ci',
+        );
+
+        $out = $this->renderer->inject($notes, $section);
+
+        // The new 8.2.1 compat block is added
+        self::assertStringContainsString('- **PHP** 8.3+', $out);
+        // The older 8.2.0 compat block is preserved
+        self::assertStringContainsString('- **PHP** 8.2+', $out);
+        self::assertStringContainsString('- **MariaDB** 10.6+', $out);
+        // Exactly two headings now (one per release)
+        self::assertSame(
+            2,
+            substr_count($out, '### Minimum supported versions'),
+            'top section gets a new compat block, older section keeps its own',
+        );
+    }
+
     public function testInjectReplacesStaleSectionWithNewValues(): void
     {
         $notes = <<<'MD'

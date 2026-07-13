@@ -153,11 +153,12 @@ final readonly class CompatibilityMutator implements MutatorInterface
         };
 
         try {
+            $ref = $this->resolveRelBranchRef($context);
+
             $ls = new Process(
                 [
                     'git', 'ls-tree', '-r', '--name-only',
-                    (string) $context->relBranch, '--',
-                    self::CI_RELATIVE_PATH . '/',
+                    $ref, '--', self::CI_RELATIVE_PATH . '/',
                 ],
                 $context->projectDir,
             );
@@ -168,7 +169,7 @@ final readonly class CompatibilityMutator implements MutatorInterface
                     continue;
                 }
                 $show = new Process(
-                    ['git', 'show', $context->relBranch . ':' . $file],
+                    ['git', 'show', $ref . ':' . $file],
                     $context->projectDir,
                 );
                 $show->mustRun();
@@ -188,5 +189,38 @@ final readonly class CompatibilityMutator implements MutatorInterface
         }
 
         return [$tempDir . '/' . self::CI_RELATIVE_PATH, $cleanup];
+    }
+
+    /**
+     * Resolve the rel-branch name to a ref reachable from the current
+     * checkout. On rel scope the checkout is on the rel branch and the
+     * bare branch name resolves via refs/heads/. On master scope the
+     * workflow uses a separate `master-checkout` cloned with
+     * --branch master --single-branch, where only refs/remotes/origin/
+     * <relBranch> exists (if it was fetched); fall back to that form.
+     * Throws if neither resolves, with a clear message pointing at the
+     * workflow-side fetch that would fix it.
+     */
+    private function resolveRelBranchRef(MutatorContext $context): string
+    {
+        $relBranch = (string) $context->relBranch;
+        foreach ([$relBranch, 'origin/' . $relBranch] as $candidate) {
+            $probe = new Process(
+                ['git', 'rev-parse', '--verify', '--quiet', $candidate . '^{commit}'],
+                $context->projectDir,
+            );
+            $probe->run();
+            if ($probe->isSuccessful()) {
+                return $candidate;
+            }
+        }
+        throw new \RuntimeException(sprintf(
+            'CompatibilityMutator: neither %s nor origin/%s is a resolvable ref in %s;'
+            . ' fetch the rel branch (e.g. `git fetch --depth=1 origin %s`) before invoking.',
+            $relBranch,
+            $relBranch,
+            $context->projectDir,
+            $relBranch,
+        ));
     }
 }
