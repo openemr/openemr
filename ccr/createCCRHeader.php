@@ -20,6 +20,7 @@
  * @author  Garden State Health Systems <http://www.gshsys.com/>
  * @link    https://www.open-emr.org
  */
+use OpenEMR\BC\ServiceContainer;
 
 global $pid;
 
@@ -27,7 +28,7 @@ global $pid;
  * @var \DOMDocument $ccr (created in createCCR.php)
  * @var \DOMDocument $e_ccr (created in createCCR.php)
  */
-           $e_ccrDocObjID = $ccr->createElement('CCRDocumentObjectID', getUuid());
+           $e_ccrDocObjID = $ccr->createElement('CCRDocumentObjectID', ServiceContainer::getUuidFactory()->uuid4()->toString());
            $e_ccr->appendChild($e_ccrDocObjID);
 
            $e_Language = $ccr->createElement('Language');

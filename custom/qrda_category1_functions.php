@@ -23,6 +23,8 @@
  */
 // This program exports report to QRDA Category I 2014 XML format.
 
+use OpenEMR\BC\ServiceContainer;
+
 
 function mainQrdaCatOneGenerate($xml, $patient_id, $rule_id, $provider_id)
 {
@@ -82,7 +84,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id): void
     $tempId = '2.16.840.1.113883.10.20.24.1.3';
     $xml->self_templateid($tempId);
 
-    $xml->unique_id = getUuid();
+    $xml->unique_id = ServiceContainer::getUuidFactory()->uuid4()->toString();
     $xml->self_id();
 
     $arr = ['code' => '55182-0', 'displayName' => 'Quality Measure Report', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC'];
@@ -196,7 +198,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id): void
     $xml->self_legalSignCode();
 
     $xml->open_assignedEntity();
-    $assignedEntityId = getUuid();
+    $assignedEntityId = ServiceContainer::getUuidFactory()->uuid4()->toString();
     $xml->self_customId($assignedEntityId);
     $xml->add_facilAddress($facilResRow);
     if (!empty($facilResRow['phone'])) {
@@ -387,7 +389,7 @@ function getAllImmunization($xml, $patient_id): void
                 $tempID = "2.16.840.1.113883.10.20.24.3.42";
                 $xml->self_templateid($tempID);
 
-                $refID = getUuid();
+                $refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
                 $xml->self_customId($refID);
 
                 $arr = ['code' => '416118004', 'codeSystemName' => 'SNOMED CT', 'codeSystem' => '2.16.840.1.113883.6.96', 'displayName' => 'Administration'];
@@ -412,7 +414,7 @@ function getAllImmunization($xml, $patient_id): void
             //$tempID = "2.16.840.1.113883.10.20.24.3.41";
             //$xml->self_templateid($tempID);
 
-                $refID = getUuid();
+                $refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
                 $xml->self_customId($refID);
 
                 $arr = ['code' => $statusChk];
@@ -430,7 +432,7 @@ function getAllImmunization($xml, $patient_id): void
                 $tempID = "2.16.840.1.113883.10.20.22.4.23";
                 $xml->self_templateid($tempID);
 
-                $actId = getUuid();
+                $actId = ServiceContainer::getUuidFactory()->uuid4()->toString();
                 $xml->self_customId($actId);
 
             //manufacturedMaterial open
@@ -497,7 +499,7 @@ function getAllPhysicalExams($xml, $patient_id): void
                 $tempID = "2.16.840.1.113883.10.20.24.3.57";
                 $xml->self_templateid($tempID);
 
-            //$refID = getUuid();
+            //$refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
                 $refID = $encCheckUniqId[$vitRow['encounter']];
                 $xml->self_customId($refID);
 
@@ -548,7 +550,7 @@ function getAllRiskCatAssessment($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.69";
             $xml->self_templateid($tempID);
 
-            //$refID = getUuid();
+            //$refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $refID = $encCheckUniqId[$procRow['encounter']];
             $xml->self_customId($refID);
 
@@ -603,7 +605,7 @@ function getAllProcedures($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.40";
             $xml->self_templateid($tempID);
 
-            //$refID = getUuid();
+            //$refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $refID = $encCheckUniqId[$procRow['encounter']];
             $xml->self_customId($refID);
 
@@ -648,7 +650,7 @@ function getAllLabTests($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.38";
             $xml->self_templateid($tempID);
 
-            //$refID = getUuid();
+            //$refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $refID = $encCheckUniqId[$procRow['encounter']];
             $xml->self_customId($refID);
 
@@ -697,7 +699,7 @@ function getAllInterventionProcedures($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.32";
             $xml->self_templateid($tempID);
 
-            //$refID = getUuid();
+            //$refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $refID = $encCheckUniqId[$procRow['encounter']];
             $xml->self_customId($refID);
 
@@ -746,7 +748,7 @@ function getAllOrderMedications($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.47";
             $xml->self_templateid($tempID);
 
-            $refID = getUuid();
+            $refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $xml->self_customId($refID);
 
 
@@ -776,7 +778,7 @@ function getAllOrderMedications($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.22.4.23";
             $xml->self_templateid($tempID);
 
-            $actId = getUuid();
+            $actId = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $xml->self_customId($actId);
 
             //manufacturedMaterial open
@@ -831,7 +833,7 @@ function getAllActiveMedications($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.41";
             $xml->self_templateid($tempID);
 
-            $refID = getUuid();
+            $refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $xml->self_customId($refID);
 
 
@@ -861,7 +863,7 @@ function getAllActiveMedications($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.22.4.23";
             $xml->self_templateid($tempID);
 
-            $actId = getUuid();
+            $actId = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $xml->self_customId($actId);
 
             //manufacturedMaterial open
@@ -927,7 +929,7 @@ function getAllMedicalProbs($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.11";
             $xml->self_templateid($tempID);
 
-            $refID = getUuid();
+            $refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $xml->self_customId($refID);
 
             $arr = ['code' => '282291009', 'codeSystemName' => 'SNOMED-CT', 'codeSystem' => '2.16.840.1.113883.6.96', 'displayName' => 'diagnosis'];
@@ -964,7 +966,7 @@ function getAllMedicalProbs($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.94";
             $xml->self_templateid($tempID);
 
-            $refID = getUuid();
+            $refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $xml->self_customId($refID);
 
             $arr = ['code' => '33999-4', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC', 'displayName' => 'status'];
@@ -1015,7 +1017,7 @@ function getAllPatientEncounters($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.23";
             $xml->self_templateid($tempID);
 
-            $refID = getUuid();
+            $refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $xml->self_customId($refID);
             $encCheckUniqId[$encRow['encounter']] = $refID;
 
@@ -1054,7 +1056,7 @@ function getAllPatientEncounters($xml, $patient_id): void
             $tempID = "2.16.840.1.113883.10.20.24.3.23";
             $xml->self_templateid($tempID);
 
-            $refID = getUuid();
+            $refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $xml->self_customId($refID);
             $encCheckUniqId[$encRow['encounter']] = $refID;
 
@@ -1094,7 +1096,7 @@ function payerQRDA($xml, $patient_id): void
     $tempID = "2.16.840.1.113883.10.20.24.3.55";
     $xml->self_templateid($tempID);
 
-    $actId = getUuid();
+    $actId = ServiceContainer::getUuidFactory()->uuid4()->toString();
     $xml->self_customId($actId);
 
     $arr = ['code' => '48768-6', 'displayName' => 'Payment source', 'codeSystem' => '2.16.840.1.113883.6.1', 'codeSystemName' => 'LOINC'];
@@ -1148,7 +1150,7 @@ function getReportingParam($xml): void
     $tempID = '2.16.840.1.113883.10.20.17.3.8';
     $xml->self_templateid($tempID);
 
-    $arr = ['extension' => getUuid()];
+    $arr = ['extension' => ServiceContainer::getUuidFactory()->uuid4()->toString()];
     $xml->self_customTag('id', $arr);
 
     $arr = ['code' => '252116004', 'codeSystem' => '2.16.840.1.113883.6.96', 'displayName' => 'Observation Parameters'];
@@ -1209,7 +1211,7 @@ function getMeasureSection($xml, $rule_id): void
         $tdTitle = "NQF:" . $rule_id;
     }
 
-    $tdVersionNeutral = getUuid();
+    $tdVersionNeutral = ServiceContainer::getUuidFactory()->uuid4()->toString();
     $tdVersionSpecific = $preDefinedUniqIDRules[$rule_id];
     $uniqIdArr[] = $tdVersionSpecific;
 
@@ -1257,7 +1259,7 @@ function getMeasureSection($xml, $rule_id): void
 
     $xml->element('text', "NQF# " . $rule_id);
 
-    $setidVal = getUuid();
+    $setidVal = ServiceContainer::getUuidFactory()->uuid4()->toString();
     $xml->self_setid($setidVal);
 
     $arr = ['value' => '3'];
@@ -1326,7 +1328,7 @@ function patCharactersticQRDA($xml, $patient_id): void
         $tempID = "2.16.840.1.113883.10.20.22.4.85";
         $xml->self_templateid($tempID);
 
-        $actId = getUuid();
+        $actId = ServiceContainer::getUuidFactory()->uuid4()->toString();
         $xml->self_customId($actId);
 
         $arr = ['code' => 'ASSERTION', 'displayName' => 'Assertion', 'codeSystem' => '2.16.840.1.113883.5.4', 'codeSystemName' => 'ActCode'];

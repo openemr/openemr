@@ -57,11 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/transmitCCD.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getUuid may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/uuid.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function outputMessage may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/ccda_import/import_ccda.php',

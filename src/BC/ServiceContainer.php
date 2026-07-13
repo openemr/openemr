@@ -36,6 +36,10 @@ use Psr\Http\Message\{
     UploadedFileFactoryInterface,
     UriFactoryInterface,
 };
+use Ramsey\Uuid\{
+    UuidFactory,
+    UuidFactoryInterface,
+};
 
 /**
  * Utility class for accessing common system services.
@@ -205,6 +209,14 @@ class ServiceContainer
         return self::resolveOrCreate(
             UriFactoryInterface::class,
             static fn() => new Psr17Factory(),
+        );
+    }
+
+    public static function getUuidFactory(): UuidFactoryInterface
+    {
+        return self::resolveOrCreate(
+            UuidFactoryInterface::class,
+            static fn() => new UuidFactory(),
         );
     }
 }
