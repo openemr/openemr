@@ -30,6 +30,14 @@ setup_test_repo() {
     git config user.name "Test"
     git commit -q --allow-empty -m "seed"
     git branch "$rel_branch"
+
+    # Force plain output regardless of caller environment. On GitHub
+    # Actions runners GITHUB_ACTIONS=true is set globally, which would
+    # flip the emit_warning / emit_error helpers into
+    # ::warning::/::error:: annotation mode and break plain-text
+    # substring asserts in the .bats files. Mirrors the same defence
+    # in tests/bats/ci-scripts/validate-byte-identical/helpers.bash.
+    unset GITHUB_ACTIONS
 }
 
 teardown_test_repo() {
@@ -67,8 +75,8 @@ write_files_all_config() {
         for f in "$@"; do
             echo "  - $f"
         done
-    } > .github/docker-byte-identical.yml
-    git add .github/docker-byte-identical.yml
+    } > .github/byte-identical.yml
+    git add .github/byte-identical.yml
     git commit -q -m "FILES_ALL config: $*"
 }
 
@@ -78,8 +86,8 @@ write_files_all_raw() {
     local content="$1"
     git checkout -q master
     mkdir -p .github
-    echo "$content" > .github/docker-byte-identical.yml
-    git add .github/docker-byte-identical.yml
+    echo "$content" > .github/byte-identical.yml
+    git add .github/byte-identical.yml
     git commit -q -m "FILES_ALL config (raw)"
 }
 
@@ -97,7 +105,7 @@ write_files_all_config_on_branch() {
         for f in "$@"; do
             echo "  - $f"
         done
-    } > .github/docker-byte-identical.yml
-    git add .github/docker-byte-identical.yml
+    } > .github/byte-identical.yml
+    git add .github/byte-identical.yml
     git commit -q -m "FILES_ALL config on $branch: $*"
 }

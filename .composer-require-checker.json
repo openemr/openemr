@@ -24,6 +24,8 @@
         "OpenEMR\\Common\\Utils\\Exception",
         "OpenEMR\\Common\\Http\\UploadedFile",
         "OpenEMR\\Gacl\\Hashed_Cache_Lite",
+        "OpenEMR\\Release\\Mutator\\ChangelogMutator",
+        "OpenEMR\\Release\\Mutator\\CompatibilityMutator",
         "Pdo\\Mysql",
         "PHPUnit\\Framework\\Attributes\\Test",
         "Psy\\Shell",

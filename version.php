@@ -7,7 +7,6 @@
  * @link https://www.open-emr.org/wiki
  * @author Robert Down <robertdown@live.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
  */
 
 // Software version identification.
@@ -46,7 +45,7 @@ $v_acl = 13;
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
 // Need to assign it as a global below to work in template scripts.
-if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 'dev')) {
+if (($_ENV['OPENEMR__ENVIRONMENT'] ?? '') === 'dev') {
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping

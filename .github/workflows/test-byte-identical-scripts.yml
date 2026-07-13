@@ -46,3 +46,4 @@ jobs:
       run: |
         bats tests/bats/ci-scripts/sync-byte-identical/
         bats tests/bats/ci-scripts/validate-byte-identical/
+        bats tests/bats/ci-scripts/list-manifest-paths/

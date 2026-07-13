@@ -1,9 +1,9 @@
 # Auto-syncs the byte-identical file set from master into every rel branch
 # listed in .github/release-targets.yml. Pairs with
-# docker-validate-byte-identical.yml (the drift canary): the canary
+# validate-byte-identical.yml (the drift canary): the canary
 # detects drift, this workflow proactively closes it.
 #
-# Source of truth for the file set is .github/docker-byte-identical.yml,
+# Source of truth for the file set is .github/byte-identical.yml,
 # the same config the canary reads. Three triggers:
 #
 #   1. push on master -- fires the moment a master merge changes one
@@ -134,7 +134,19 @@ jobs:
         # FILES_ALL, no need to sync it to rel branches). The current
         # checkout is the rel branch, which may not have the script at
         # all. Materialize master's copy into RUNNER_TEMP and run that.
+        #
+        # The script sources .github/scripts/lib/glob-expand.sh at load
+        # time (added in PR #12904 for glob-pattern support). Also
+        # materialize that lib next to the script so the source directive
+        # resolves. The lib IS in FILES_ALL so rel branches carry their
+        # own copy too, but we can't use it because this workflow runs
+        # against master's version of the sync logic + rel branch's
+        # working tree -- reading the lib from the rel branch could
+        # cross wires if the lib has diverged. Master's copy alongside
+        # master's script is the safe pairing.
         git show master:.github/scripts/sync-byte-identical.sh > "$RUNNER_TEMP/sync-byte-identical.sh"
+        mkdir -p "$RUNNER_TEMP/lib"
+        git show master:.github/scripts/lib/glob-expand.sh > "$RUNNER_TEMP/lib/glob-expand.sh"
         bash "$RUNNER_TEMP/sync-byte-identical.sh" "$TARGET_BRANCH"
 
         # Translate the script's structured outputs into GitHub step outputs.
@@ -151,7 +163,7 @@ jobs:
         cat > "$RUNNER_TEMP/pr-body.md" <<EOF
         Auto-sync of FILES_ALL changes from master @ \`${{ steps.apply.outputs.master_sha }}\`
         per the byte-identical invariant declared in
-        [\`.github/docker-byte-identical.yml\`](.github/docker-byte-identical.yml).
+        [\`.github/byte-identical.yml\`](.github/byte-identical.yml).
 
         ### Changes
 
@@ -170,8 +182,8 @@ jobs:
         ### Why
 
         The byte-identical drift canary at
-        [\`.github/workflows/docker-validate-byte-identical.yml\`](.github/workflows/docker-validate-byte-identical.yml)
-        requires the files listed in \`.github/docker-byte-identical.yml\` to be
+        [\`.github/workflows/validate-byte-identical.yml\`](.github/workflows/validate-byte-identical.yml)
+        requires the files listed in \`.github/byte-identical.yml\` to be
         character-for-character identical across master and every rel branch
         (the orchestrator dispatches the same logical build against each branch
         and expects identical semantics). This PR re-establishes that invariant
@@ -186,12 +198,35 @@ jobs:
     - name: Compute add-paths input for peter-evans
       id: paths
       if: steps.apply.outputs.has_changes == 'true'
+      env:
+        TARGET_BRANCH: ${{ matrix.branch }}
       run: |
         # Tell peter-evans/create-pull-request to commit only the FILES_ALL
         # entries, not any other files that happen to be in the workspace
         # (e.g. composer.lock drift from a running container, or our own
         # /tmp body file if it ended up here).
-        mapfile -t FILES_ALL < <(git show master:.github/docker-byte-identical.yml | yq -r '.files[]')
+        #
+        # Uses master's copy of list-manifest-paths.sh, which shares the
+        # same manifest-parsing + exclude-branches filtering as the sync
+        # script (via lib/glob-expand.sh's read_manifest_entries +
+        # filter_by_branch). Eliminates the workflow-vs-script yq
+        # duplication that produced #12916 and #12920.
+        #
+        # lib/glob-expand.sh was already materialized to $RUNNER_TEMP/lib/
+        # by the Apply step above; list-manifest-paths.sh source-loads it
+        # by relative path, so RUNNER_TEMP's layout matches master's
+        # (script + sibling lib/).
+        git show master:.github/scripts/list-manifest-paths.sh > "$RUNNER_TEMP/list-manifest-paths.sh"
+        git show master:.github/byte-identical.yml > "$RUNNER_TEMP/manifest.yml"
+        # Two-step invocation (write to file, then mapfile from file)
+        # rather than `mapfile < <(bash ...)` process-substitution: the
+        # latter swallows the script's exit code, so a failure of
+        # list-manifest-paths.sh (missing manifest, missing yq, etc.)
+        # would silently yield an empty paths input to peter-evans,
+        # which would then open a PR with the wrong (or missing) file
+        # set. Splitting into two commands lets `set -e` propagate.
+        bash "$RUNNER_TEMP/list-manifest-paths.sh" "$RUNNER_TEMP/manifest.yml" "$TARGET_BRANCH" > "$RUNNER_TEMP/paths.txt"
+        mapfile -t FILES_ALL < "$RUNNER_TEMP/paths.txt"
         {
           echo "paths<<EOF"
           printf '%s\n' "${FILES_ALL[@]}"
