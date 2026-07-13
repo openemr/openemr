@@ -24,24 +24,26 @@ class DiagnosisHelper
      */
     public static function save(string $lineId, array $formDiagnoses, array $formOrderings): void
     {
-        QueryUtils::sqlStatementThrowException("DELETE FROM form_physical_exam_diagnoses WHERE line_id = ?", [$lineId]);
+        QueryUtils::inTransaction(function () use ($lineId, $formDiagnoses, $formOrderings): void {
+            QueryUtils::sqlStatementThrowException("DELETE FROM form_physical_exam_diagnoses WHERE line_id = ?", [$lineId]);
 
-        foreach ($formDiagnoses as $i => $diagnosis) {
-            if (!is_scalar($diagnosis) || (string) $diagnosis === '') {
-                continue;
+            foreach ($formDiagnoses as $i => $diagnosis) {
+                if (!is_scalar($diagnosis) || (string) $diagnosis === '') {
+                    continue;
+                }
+
+                $ordering = $formOrderings[$i] ?? '';
+                if (!is_scalar($ordering)) {
+                    $ordering = '';
+                }
+
+                $query = "INSERT INTO form_physical_exam_diagnoses (
+                    line_id, ordering, diagnosis
+                    ) VALUES (
+                    ?, ?, ?
+                    )";
+                QueryUtils::sqlStatementThrowException($query, [$lineId, (string) $ordering, (string) $diagnosis]);
             }
-
-            $ordering = $formOrderings[$i] ?? '';
-            if (!is_scalar($ordering)) {
-                $ordering = '';
-            }
-
-            $query = "INSERT INTO form_physical_exam_diagnoses (
-                line_id, ordering, diagnosis
-                ) VALUES (
-                ?, ?, ?
-                )";
-            QueryUtils::sqlStatementThrowException($query, [$lineId, (string) $ordering, (string) $diagnosis]);
-        }
+        });
     }
 }
