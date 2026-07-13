@@ -297,7 +297,12 @@ final class ChangelogGeneratorTest extends TestCase
         $out = (new ChangelogGenerator($api))->generate('v8_2_0', 'rel-820', '8.2.1', includeGhsa: false);
 
         self::assertStringNotContainsString('attacker.example.com', $out);
-        self::assertStringContainsString('https://github.com/openemr/openemr', $out);
+        // Target the PR bullet line specifically -- the release heading
+        // trivially contains `https://github.com/openemr/openemr` (compare
+        // URL), so a broader assertion would pass even if the PR-line
+        // sanitizer regressed. Match on the `[#1](...)` shape which only
+        // renders for the PR entry.
+        self::assertStringContainsString('([#1](https://github.com/openemr/openemr)', $out);
     }
 
     public function testAdvisorySummaryAndUrlSanitized(): void
