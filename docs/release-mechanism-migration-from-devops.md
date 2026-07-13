@@ -1211,6 +1211,18 @@ that regenerates 8.2.0's real CHANGELOG entry from frozen inputs
 (would need ~100 real PR objects captured to fixtures, deferred for
 scope).
 
+**Sequencing note (added 2026-07-13):** PR 8 lands BEFORE PR 5.
+Original ordering had PR 5 first (as a "close out devops-side
+duplication first, add compat later" plan), but that creates a real
+compat-gap window: 8.2.0's CHANGELOG.md has a "Minimum supported
+versions" section that devops's current `derive-compatibility.php`
+step injects; ChangelogMutator (PR 4) writes only the ChangelogGenerator
+body, no compat. Post-PR-5 the section-extract would pull an entry
+missing that block. Landing PR 8 (CompatibilityMutator) first closes
+the gap: by the time PR 5 swaps devops to extract-only, openemr's
+CHANGELOG.md already has compat baked in, extracts are complete
+end-to-end.
+
 **PR 5 — Rewire devops's `build-release.yml` to section-extract from
 openemr's tagged tree.** Delete `ChangelogGenerator.php`,
 `CompatibilityDeriver.php`, and `CompatibilityNotesRenderer.php` from
@@ -1273,8 +1285,8 @@ existing block before inserting matches `ChangelogMutator`'s
 prepend-or-replace pattern. Fixture regression: same shape as PR 9
 (regenerate 8.2.0's compatibility section from frozen `ci/` contents),
 or bundle both under a single fixture harness. **Depends on PR 4** —
-uses classes it moved. Can land any time after PR 4; slotted at the
-end of the slice because it wasn't blocking.
+uses classes it moved. **Blocks PR 5** — resequenced 2026-07-13 to
+avoid the compat-gap window described above; land this before PR 5.
 
 **PR 9 — Fixture-based regression regenerating 8.2.0's real CHANGELOG
 entry from frozen inputs.** Deferred from PR 4. Capture the actual
