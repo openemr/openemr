@@ -1266,27 +1266,48 @@ fully cut over so we're not retiring anything a maintainer might still
 reach for during the transition.
 
 **PR 8 — Add `CompatibilityMutator`; fix `CompatibilityNotesRenderer::inject()`
-idempotence.** Deferred from PR 4. Add a new
-`tools/release/src/Mutator/CompatibilityMutator.php` (same autoload-dev
-placement as `ChangelogMutator`) that runs
-`CompatibilityDeriver->derive()` against the target rel branch's `ci/`
-directory, then `CompatibilityNotesRenderer->render()` + `->inject()`
-into `CHANGELOG.md`, keeping the "### Minimum supported versions"
-section 8.2.0's entry has today. Wire into ReleasePrepCommand's default
-mutator lists on both scopes via the same `class_exists()`-guarded FQCN
-pattern (adding another whitelist entry to
-`.composer-require-checker.json`). Fix
-`CompatibilityNotesRenderer::inject()` non-idempotence at the same time
-— CR round-2 on PR 4 (openemr/openemr#12925) flagged that a second
-`inject()` call on an already-injected notes file duplicates the section
-because the implementation always splices after the first `## ` heading
-without checking for an existing block. Detecting + replacing the
-existing block before inserting matches `ChangelogMutator`'s
-prepend-or-replace pattern. Fixture regression: same shape as PR 9
-(regenerate 8.2.0's compatibility section from frozen `ci/` contents),
-or bundle both under a single fixture harness. **Depends on PR 4** —
-uses classes it moved. **Blocks PR 5** — resequenced 2026-07-13 to
-avoid the compat-gap window described above; land this before PR 5.
+idempotence.** *SHIPPED 2026-07-13 as openemr/openemr#12928 (paired with
+openemr/openemr#12933 for the rel-820 config-file ports —
+`.composer-require-checker.json` whitelist entry + `.codespell-ignore-words.txt`
+`deriver` entry — neither file is in the byte-identical set so the
+auto-sync PR openemr/openemr#12932 didn't carry them).* New
+`tools/release/src/Mutator/CompatibilityMutator.php` at namespace
+`OpenEMR\Release\Mutator` (autoload-dev alongside its dep chain)
+materializes rel branch's `ci/*/docker-compose.yml` via `git ls-tree` +
+`git show` per file (not `git archive` — `.gitattributes` marks `ci/`
+as `export-ignore`, correctly, but that means archive silently produces
+an empty tarball). Master scope handling: same `git ls-tree` code path
+resolves the rel branch as either the bare name (rel scope, refs/heads/
+present) or `origin/<relBranch>` (master scope, refs/remotes/origin/
+populated by workflow's `fetch-depth: 0`). Wired into
+`ReleasePrepCommand`'s default mutator lists AFTER `ChangelogMutator`
+on both scopes — ordering matters, injects into the `## [X.Y.Z]`
+heading the changelog mutator writes. Refactored
+`appendOptionalReleaseMutators()` to loop over an FQCN array (was one
+hardcoded entry). Fixed `CompatibilityNotesRenderer::inject()`
+non-idempotence: the original CR-round-2 fix on PR 4 flagged blindly
+splicing after the first `## ` heading duplicates the section on
+rerun; PR 8's first pass fixed that but CR-round-1 on 12928 caught a
+worse variant — the strip regex was unscoped, so on a multi-release
+CHANGELOG (older release with its own compat block below the current
+heading), the strip deleted the older release's block. Landed fix
+scopes the strip to the FIRST `## ` section's contents only, older
+sections preserved. Also fixed a latent bug in ChangelogMutator
+noticed while planning PR 8: release-prep.yml's rel-scope invocation
+didn't pass `--rel-branch`, so `$context->relBranch` was null on
+rel scope and ChangelogMutator's `resolveRangeHead()` would throw on
+the first real 8.2.1 release-prep run. Fix: pass `--rel-branch` on
+rel scope too (workflow already computes the value).
+`CompatibilityMutatorTest` covers 8 scenarios (injection after
+version heading, matrixUrl uses rel-branch, rerun idempotence,
+master-scope reads rel branch's ci/ after intentional master-side
+drift, multi-heading-preserves-older-block, origin-remote-tracking-ref
+fallback, throw-when-neither-ref-resolves, MutatorResult shape).
+`CompatibilityNotesRendererTest` covers 5 scenarios (render shape,
+inject after version heading, prepend when no heading, idempotence,
+stale-section replacement). Live smoke test against real rel-820
+produced the exact `- **PHP** 8.2+ / - **MariaDB** 10.6+ / - **MySQL**
+5.7+` block that 8.2.0's committed entry has.
 
 **PR 9 — Fixture-based regression regenerating 8.2.0's real CHANGELOG
 entry from frozen inputs.** Deferred from PR 4. Capture the actual
