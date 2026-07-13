@@ -72,10 +72,14 @@ use Symfony\Component\Console\SingleCommandApplication;
         $outputFile = $input->getOption('output');
         if ($outputFile !== null) {
             $dir = dirname($outputFile);
-            if (!is_dir($dir)) {
-                mkdir($dir, 0755, true);
+            if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
+                fwrite(STDERR, "Failed to create output directory: {$dir}\n");
+                return 1;
             }
-            file_put_contents($outputFile, $changelog);
+            if (file_put_contents($outputFile, $changelog) === false) {
+                fwrite(STDERR, "Failed to write changelog to: {$outputFile}\n");
+                return 1;
+            }
             $output->writeln("Changelog written to <info>{$outputFile}</info>");
         } else {
             $output->write($changelog);

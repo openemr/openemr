@@ -195,9 +195,21 @@ final readonly class ChangelogMutator implements MutatorInterface
         );
         if (preg_match($sectionRegex, $existing) === 1) {
             // Replace existing section (heading + body) with the newly-rendered content.
-            $replaced = preg_replace($sectionRegex, rtrim($body, "\n") . "\n\n", $existing, 1);
+            //
+            // preg_replace_callback rather than preg_replace: $body originates
+            // from live PR titles and GHSA summaries, which may contain
+            // literal `$1` or `\1` sequences that preg_replace would
+            // interpret as backreferences and corrupt the rewritten
+            // section. The callback returns $body verbatim.
+            $replacement = rtrim($body, "\n") . "\n\n";
+            $replaced = preg_replace_callback(
+                $sectionRegex,
+                static fn (): string => $replacement,
+                $existing,
+                1,
+            );
             if ($replaced === null) {
-                throw new \RuntimeException('ChangelogMutator: preg_replace failed for existing section');
+                throw new \RuntimeException('ChangelogMutator: preg_replace_callback failed for existing section');
             }
             return $replaced;
         }

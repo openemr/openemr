@@ -221,10 +221,15 @@ final class ReleasePrepCommand extends Command
      */
     private function appendOptionalReleaseMutators(array &$mutators): void
     {
-        // String literal (not `::class`) so both composer-require-checker
-        // and phpstan treat this as a runtime lookup rather than a
-        // resolved symbol reference — the class deliberately isn't
-        // reachable from production autoload.
+        // FQCN via ::class: composer-require-checker sees the reference
+        // (which is why the class name is whitelisted in
+        // .composer-require-checker.json), but autoload is not triggered
+        // by the reference itself — only by the guarded new below. Under
+        // a production `composer install --no-dev` the class is not
+        // autoloadable, class_exists() returns false, and the mutator is
+        // silently skipped. Kept as ::class (rather than a plain string
+        // literal) so an IDE can refactor the FQCN alongside the file if
+        // it ever moves.
         $changelogMutator = \OpenEMR\Release\Mutator\ChangelogMutator::class;
         if (!class_exists($changelogMutator)) {
             return;

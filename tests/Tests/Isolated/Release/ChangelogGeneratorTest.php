@@ -24,6 +24,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Release;
 
+use DateTimeImmutable;
+use DateTimeZone;
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Release\ChangelogGenerator;
 use OpenEMR\Release\GitHubApi;
 use PHPUnit\Framework\TestCase;
@@ -260,6 +263,23 @@ final class ChangelogGeneratorTest extends TestCase
         // `## [<version>]…` release heading is what must be absent.
         self::assertStringNotContainsString('## [', $out);
         self::assertStringContainsString('#1', $out);
+    }
+
+    public function testHeadingDateComesFromInjectedClockForRerunIdempotence(): void
+    {
+        $prs = [$this->pr(1, 'feat: something')];
+        $shas = ['0000000000000000000000000000000000000001'];
+        $api = new FakeGitHubApi(shas: $shas, prs: $prs, advisories: []);
+        $frozen = new FrozenClock(new DateTimeImmutable('2026-01-15T00:00:00Z', new DateTimeZone('UTC')));
+
+        $out = (new ChangelogGenerator($api, 'openemr/openemr', $frozen))->generate(
+            'v8_2_0',
+            'rel-820',
+            '8.2.1',
+            includeGhsa: false,
+        );
+
+        self::assertStringContainsString('## [8.2.1](https://github.com/openemr/openemr/compare/v8_2_0...rel-820) - 2026-01-15', $out);
     }
 }
 

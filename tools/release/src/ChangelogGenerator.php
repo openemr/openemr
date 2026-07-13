@@ -20,6 +20,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Release;
 
+use DateTimeZone;
+use Lcobucci\Clock\SystemClock;
+use Psr\Clock\ClockInterface;
+
 /**
  * @phpstan-type CategorizedPr array{
  *     number: int, category: string, area: string,
@@ -139,10 +143,19 @@ class ChangelogGenerator
         'selenium-updates',
     ];
 
+    private readonly ClockInterface $clock;
+
     public function __construct(
         private readonly GitHubApi $api,
         private readonly string $repo = 'openemr/openemr',
+        ?ClockInterface $clock = null,
     ) {
+        // Construct SystemClock inline (with the system timezone) so
+        // repeated calls to `generate()` on the same day yield an
+        // identical heading date and the mutator's rerun-idempotence
+        // guarantee holds. Tests inject a frozen clock for
+        // deterministic output.
+        $this->clock = $clock ?? new SystemClock(new DateTimeZone(date_default_timezone_get()));
     }
 
     /**
@@ -193,7 +206,7 @@ class ChangelogGenerator
             $encodedBase = rawurlencode($base);
             $encodedHead = rawurlencode($compareLinkOverride ?? $head);
             $compareUrl = "https://github.com/{$this->repo}/compare/{$encodedBase}...{$encodedHead}";
-            $lines[] = "## [{$title}]({$compareUrl}) - " . date('Y-m-d');
+            $lines[] = "## [{$title}]({$compareUrl}) - " . $this->clock->now()->format('Y-m-d');
             $lines[] = '';
         }
 
