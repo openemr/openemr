@@ -21,6 +21,8 @@
  * @link    https://www.open-emr.org
  */
 
+use OpenEMR\BC\ServiceContainer;
+
 $result = getAlertData();
 $row = sqlFetchArray($result);
 
@@ -35,7 +37,7 @@ do {
     $e_Alert = $ccr->createElement('Alert');
     $e_Alerts->appendChild($e_Alert);
 
-    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', getUuid());
+    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', ServiceContainer::getUuidFactory()->uuid4()->toString());
     $e_Alert->appendChild($e_CCRDataObjectID);
 
     $e_DateTime = $ccr->createElement('DateTime');
@@ -83,7 +85,7 @@ do {
     $e_EnvironmentalAgent = $ccr->createElement('EnvironmentalAgent');
     $e_EnvironmentalAgents->appendChild($e_EnvironmentalAgent);
 
-    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', getUuid());
+    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', ServiceContainer::getUuidFactory()->uuid4()->toString());
     $e_EnvironmentalAgent->appendChild($e_CCRDataObjectID);
 
     $e_DateTime = $ccr->createElement('DateTime');
