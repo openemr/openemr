@@ -1224,24 +1224,47 @@ CHANGELOG.md already has compat baked in, extracts are complete
 end-to-end.
 
 **PR 5 — Rewire devops's `build-release.yml` to section-extract from
-openemr's tagged tree.** Delete `ChangelogGenerator.php`,
-`CompatibilityDeriver.php`, and `CompatibilityNotesRenderer.php` from
-devops (their `changelog.php` + `derive-compatibility.php` consumers
-still live in devops until this PR). Note `changelog-pr.php` was
-already removed as part of PR 4's coordinated devops PR
-(openemr/openemr-devops#857) since its behavior was subsumed by
-`ChangelogMutator` — no cleanup needed here. Reshape `changelog.php`
-as a ~20-line `extract-changelog-section.php` — reads `CHANGELOG.md`
-from the checked-out openemr, extracts the `## [X.Y.Z]` block, writes
-to `release-output/changelog.md`. Or inline as a `run:` step in the
-workflow YAML: `sed -n '/## \[8.2.0\]/,/## \[/p' CHANGELOG.md | head
--n -1`. Update `build-release.yml`: drop the `task release:changelog`
-+ `task release:compatibility` steps; add the extraction step. `gh
-release create --notes-file release-output/changelog.md` still works —
-content shape is identical (same class produces both). Manual byte-
-comparison against `ChangelogGenerator`'s output for 8.2.0 as parity
-check pre-merge. **Depends on PR 4** — the CHANGELOG.md entry must
-land in openemr's tagged tree before devops can extract from it.
+openemr's tagged tree.** *SHIPPED 2026-07-13 as
+openemr/openemr-devops#858.* Deleted `ChangelogGenerator.php` +
+`CompatibilityDeriver.php` + `CompatibilityNotesRenderer.php` + the
+two consumer bin scripts (`changelog.php`, `derive-compatibility.php`)
+from devops. `changelog-pr.php` was already gone (PR 4's coordinated
+devops PR openemr/openemr-devops#857). GitHubApi.php stays in devops
+-- `preflight.php` + `PreflightChecker.php` still consume it;
+consolidation is a future PR when PreflightChecker also migrates.
+New `tools/release/bin/extract-changelog-section.php` (60-line
+Symfony Console CLI, `--release-version` chosen to avoid Symfony's
+built-in `--version` / `--verbose` clashes) reads openemr's
+CHANGELOG.md, locates `## [MAJOR.MINOR.PATCH]`, writes everything
+up to (but not including) the next `## ` heading or EOF to
+`release-output/changelog.md`. Content is pre-computed in openemr's
+CHANGELOG.md by ChangelogMutator + CompatibilityMutator (PRs 4 + 8),
+so the extract carries both the noise-filtered PR list and the
+Minimum-supported-versions block in a single pass. Taskfile: dropped
+`changelog:` + `compatibility:` tasks, added `changelog:extract`.
+`build-release.yml`: replaced the two steps (`task release:changelog`
+walking commits + `task release:compatibility` injecting the
+ci-matrix section) with one `task release:changelog:extract` step.
+No `GH_TOKEN` / no `gh api` calls needed here anymore -- everything
+reads from the openemr checkout already sitting at `$OPENEMR_DIR`.
+Cleaned up dead `base_ref` end-to-end: removed from
+`build-release.yml`'s workflow_dispatch + workflow_call input
+declarations, removed the "Derive base_ref from previous release"
+step from `build-release-on-tag.yml`'s derive job (previously
+gh-api-called to find the previous release tag). Ancillary CR
+round-1 fix: routed `inputs.version` through an env var in the
+Extract CHANGELOG section step so a shell-metachar in the input
+can't break out of the task-argument quoting (rest of the workflow
+uses the direct-template-expansion pattern; hardening the rest is
+a separate follow-up PR). Byte-comparison parity: extracted 8.2.0
+section from live rel-820 CHANGELOG.md → 792 lines / 83.6KB,
+matching the "~794 total lines" measure from openemr's gaps-doc
+analysis of 8.2.0's GitHub Release body. Since 8.2.0's CHANGELOG.md
+was written by pre-PR-4 devops's own ChangelogGenerator, extract IS
+byte-identical to what today's changelog.php would produce for
+8.2.0; parity check trivially passes. 8.2.1+ will have the noise
+filter applied (mutator writes filtered content) -- the intended
+semantic improvement.
 
 **PR 6 — Retire website-openemr's release-notes generation surface.**
 Delete `tools/release-docs/bin/gen-release-notes.php`,
