@@ -38,7 +38,6 @@ class VersionApiTest extends TestCase
         $response = $this->testClient->get(self::VERSION_API_ENDPOINT);
         $this->assertEquals(200, $response->getStatusCode());
 
-        /** @var array<string, mixed> $body */
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
 

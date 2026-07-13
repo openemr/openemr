@@ -39,12 +39,12 @@ class ListApiTest extends TestCase
         $response = $this->testClient->get(self::LIST_API_ENDPOINT . "/yesno");
         $this->assertEquals(200, $response->getStatusCode());
 
-        /** @var array<int, array<string, mixed>> $body */
         $body = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($body);
         $this->assertNotEmpty($body, "The yesno list should contain at least one option");
 
         foreach ($body as $option) {
+            $this->assertIsArray($option);
             $this->assertArrayHasKey("option_id", $option);
             $this->assertArrayHasKey("title", $option);
             $this->assertEquals("yesno", $option["list_id"]);
