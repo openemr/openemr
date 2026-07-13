@@ -236,18 +236,17 @@ class SmartLaunchController
         }
 
         $questionnaireRecords = QueryUtils::fetchRecordsNoLog(
-            "SELECT id FROM questionnaire_repository WHERE id = ? AND active = 1",
+            "SELECT uuid FROM questionnaire_repository WHERE id = ? AND active = 1",
             [$questionnaireId]
         );
         $questionnaireRecord = $questionnaireRecords[0] ?? null;
-        $resolvedQuestionnaireId = is_array($questionnaireRecord)
-            ? $this->getPositiveInteger($questionnaireRecord['id'] ?? null)
-            : null;
-        if ($resolvedQuestionnaireId !== $questionnaireId) {
+        $questionnaireUuidBinary = is_array($questionnaireRecord) ? ($questionnaireRecord['uuid'] ?? null) : null;
+        if (!is_string($questionnaireUuidBinary) || $questionnaireUuidBinary === '') {
             throw new \InvalidArgumentException("Questionnaire SMART launch context was not found");
         }
 
-        $launchCode->addFhirContextReference('Questionnaire', (string)$questionnaireId);
+        $questionnaireUuid = UuidRegistry::uuidToString($questionnaireUuidBinary);
+        $launchCode->addFhirContextReference('Questionnaire', $questionnaireUuid);
 
         $responseStatus = '';
         if ($questionnaireResponseId !== null) {

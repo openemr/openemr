@@ -117,7 +117,7 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
         }
 
         $id = new FHIRId();
-        $id->setValue((string)($dataRecord['id'] ?? ''));
+        $id->setValue($dataRecord['uuid']);
         $fhirResource->setId($id);
 
         return $fhirResource;
@@ -132,7 +132,7 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
             '_id' => new FhirSearchParameterDefinition(
                 '_id',
                 SearchFieldType::TOKEN,
-                [new ServiceField('id', ServiceField::TYPE_NUMBER)]
+                [new ServiceField('uuid', ServiceField::TYPE_UUID)]
             ),
             'title' => new FhirSearchParameterDefinition(
                 'title',
