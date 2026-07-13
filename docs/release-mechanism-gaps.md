@@ -1767,17 +1767,17 @@ depending on the website's `gen-release-notes.php` for filtering.
   "GitHub Release body = source of truth for release notes"
   design that shapes the release-notes link target choice.
 
-### G22 — GitHub Release body + repo CHANGELOG.md need the website's dependabot filter algorithm  *(discovered 2026-07-09, fix in flight 2026-07-12, PR 4 landed 2026-07-13; PRs 5+6+7+8+9 pending)*
+### G22 — GitHub Release body + repo CHANGELOG.md need the website's dependabot filter algorithm  *(discovered 2026-07-09, fix in flight 2026-07-12, PRs 4+8 landed 2026-07-13; PRs 5+6+7+9 pending)*
 
-**Status: 4 of 9 PRs SHIPPED** — being addressed as a nine-PR "Changelog surface early-migration slice" (see `docs/release-mechanism-migration-from-devops.md` for the plan). Slice consolidates the changelog content across all three surfaces (website release-notes / codebase CHANGELOG.md / GitHub Release body) into a single generator that lives in openemr/openemr, ports the website filter along the way, and retires the website generator + the two post-tag changelog PRs. As of 2026-07-13:
+**Status: 5 of 9 PRs SHIPPED** — being addressed as a nine-PR "Changelog surface early-migration slice" (see `docs/release-mechanism-migration-from-devops.md` for the plan). Slice consolidates the changelog content across all three surfaces (website release-notes / codebase CHANGELOG.md / GitHub Release body) into a single generator that lives in openemr/openemr, ports the website filter along the way, and retires the website generator + the two post-tag changelog PRs. As of 2026-07-13:
 
 - **PR 1** openemr/openemr#12896 — rename `docker-byte-identical.yml` → `byte-identical.yml` (SHIPPED)
 - **PR 2** openemr/openemr#12904 — glob-pattern support in validator + sync scripts (SHIPPED)
 - **PR 3** openemr/openemr#12910 — add release-mechanism surface to byte-identical.yml (SHIPPED)
 - **Pre-PR-4 refactor** openemr/openemr#12924 — extract manifest parsing into shared `list-manifest-paths.sh` + BATS coverage (SHIPPED). Not in the original slice plan; added after two consecutive workflow yq bugs traced back to three-way parsing duplication.
 - **PR 4** openemr/openemr#12925 + openemr/openemr-devops#857 — move ChangelogGenerator + friends to openemr, wire ChangelogMutator, retire devops's `changelog-pr.php` (SHIPPED same-day coordinated to avoid the "release cut in the gap" window where devops has stopped opening the two post-tag PRs but the mutator isn't in place yet)
-- PR 8 — add CompatibilityMutator (thread CompatibilityDeriver + CompatibilityNotesRenderer through the mutator flow so the CHANGELOG.md gets its Minimum-supported-versions section; also fixes CompatibilityNotesRenderer::inject() non-idempotence at the same time — CR round-2 finding from PR 4). **Resequenced 2026-07-13 to land BEFORE PR 5** — closing the compat-gap window: PR 5's section-extract would pull an entry missing the compat block for 8.2.1+ if the mutator isn't in place yet.
-- PR 5 — rewire devops `build-release.yml` to section-extract (pending; blocked on PR 8 for compat-gap sequencing)
+- **PR 8** openemr/openemr#12928 + openemr/openemr#12933 (rel-820 config-file ports for `.composer-require-checker.json` + `.codespell-ignore-words.txt`) + auto-sync openemr/openemr#12932 — CompatibilityMutator wired after ChangelogMutator on both scopes; `CompatibilityNotesRenderer::inject()` idempotence fixed (with a CR-round-1 catch scoping the strip to the first `## ` section so older releases' compat blocks are preserved); latent ChangelogMutator relBranch bug from PR 4 fixed (workflow now passes `--rel-branch` on rel scope). Resequenced 2026-07-13 to land BEFORE PR 5 (compat-gap window: PR 5's section-extract would have pulled entries missing the compat block for 8.2.1+ without the mutator in place). (SHIPPED)
+- PR 5 — rewire devops `build-release.yml` to section-extract (pending; **unblocked** now that PR 8 landed and closed the compat-gap window)
 - PR 6 — retire website's `gen-release-notes.php` + release-notes surface (pending)
 - PR 7 — retire `src/Common/Command/CreateReleaseChangelogCommand.php` (added 2026-07-13 after PR 4 landed; belongs after PR 6 so we've fully cut over first)
 - PR 9 — fixture-based regression that regenerates 8.2.0's committed CHANGELOG entry from frozen inputs (~100 real PRs from v8_1_0...rel-820 + advisories, JSON fixtures at tests/Tests/Isolated/Release/fixtures/8_2_0/). Skipped in PR 4 for scope. Slotted last so the fixture covers the fully consolidated flow (including compatibility once PR 8 lands).
@@ -3485,3 +3485,38 @@ checklist + the existing master-bump pattern.
   test against real v8_2_0...rel-820 range exercised the full
   mutator end-to-end (prev-tag resolution, range-head fallback,
   aspirational URL, prepend behavior).
+- **2026-07-13** (later): G22 PR 8 SHIPPED as
+  openemr/openemr#12928 (master) + openemr/openemr#12933
+  (coordinated rel-820 config-file ports for
+  .composer-require-checker.json whitelist +
+  .codespell-ignore-words.txt "deriver" entry -- neither file is
+  in the byte-identical set, so #12928's auto-sync PR
+  openemr/openemr#12932 needed #12933 landed first to pass CI).
+  Resequenced 2026-07-13 to land BEFORE PR 5 (compat-gap window:
+  PR 5's section-extract would have pulled CHANGELOG entries
+  missing the Minimum-supported-versions block for 8.2.1+ if the
+  mutator wasn't in place). Content: CompatibilityMutator at
+  tools/release/src/Mutator/CompatibilityMutator.php (autoload-dev
+  alongside CompatibilityDeriver + Renderer deps), materializes
+  rel branch's ci/ compose files via git ls-tree + git show per
+  file (not git archive -- .gitattributes marks ci/ as
+  export-ignore, correctly, but that means archive silently
+  produces an empty tarball). Wired AFTER ChangelogMutator on
+  both scopes via the same class_exists()-guarded FQCN pattern
+  (refactored appendOptionalReleaseMutators() to loop over an
+  FQCN array). Fixed CompatibilityNotesRenderer::inject()
+  non-idempotence (CR round-2 finding from PR 4), then CR round-1
+  on #12928 caught a worse variant: my initial strip regex was
+  unscoped, so on a multi-release CHANGELOG the strip deleted the
+  OLDER release's compat block. Landed fix scopes the strip to
+  the FIRST ## section only. Also fixed a latent bug in
+  ChangelogMutator noticed while planning PR 8: release-prep.yml's
+  rel-scope invocation didn't pass --rel-branch, so
+  $context->relBranch was null on rel scope and
+  ChangelogMutator::resolveRangeHead() would throw on the first
+  real 8.2.1 release-prep run. Workflow fix passes --rel-branch
+  on rel scope too. Live smoke test against real rel-820's ci/
+  produced exactly the shape 8.2.0's committed entry has (PHP
+  8.2+ / MariaDB 10.6+ / MySQL 5.7+ + tested-CI-matrix link).
+  With PR 8 landed the compat-gap window is closed and PR 5
+  (devops section-extract) is unblocked.
