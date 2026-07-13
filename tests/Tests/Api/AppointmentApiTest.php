@@ -71,7 +71,7 @@ class AppointmentApiTest extends TestCase
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertNotEmpty($responseBody);
 
-        $eids = array_map('strval', array_column($responseBody, 'pc_eid'));
+        $eids = array_map(strval(...), array_column($responseBody, 'pc_eid'));
         $this->assertContains((string) $this->appointmentEid, $eids);
     }
 
