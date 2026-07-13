@@ -247,10 +247,12 @@ jobs:
       if: steps.resolve.outputs.should-run != 'false'
       env:
         VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
       run: |
         php bin/console openemr:release-prep \
           --skip-globals \
           --target-version="${VERSION}" \
+          --rel-branch="${REL_BRANCH}" \
           --scope=rel
 
     # Open/update the long-lived release-prep PR via peter-evans/create-pull-request,
