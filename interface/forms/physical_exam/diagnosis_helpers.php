@@ -32,18 +32,33 @@ class DiagnosisHelper
                     continue;
                 }
 
-                $ordering = $formOrderings[$i] ?? '';
-                if (!is_scalar($ordering)) {
-                    $ordering = '';
-                }
+                $ordering = self::normalizeOrdering($formOrderings[$i] ?? null, $i);
 
                 $query = "INSERT INTO form_physical_exam_diagnoses (
                     line_id, ordering, diagnosis
                     ) VALUES (
                     ?, ?, ?
                     )";
-                QueryUtils::sqlStatementThrowException($query, [$lineId, (string) $ordering, (string) $diagnosis]);
+                QueryUtils::sqlStatementThrowException($query, [$lineId, $ordering, (string) $diagnosis]);
             }
         });
+    }
+
+    private static function normalizeOrdering(mixed $ordering, int|string $fallback): int
+    {
+        return self::integerValue($ordering) ?? self::integerValue($fallback) ?? 0;
+    }
+
+    private static function integerValue(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (!is_string($value) || !preg_match('/^-?\d+$/', trim($value))) {
+            return null;
+        }
+
+        return (int) $value;
     }
 }

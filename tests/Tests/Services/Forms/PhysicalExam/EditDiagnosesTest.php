@@ -93,6 +93,29 @@ class EditDiagnosesTest extends TestCase
         );
     }
 
+    public function testSaveFallsBackToRowNumberForInvalidOrdering(): void
+    {
+        DiagnosisHelper::save(
+            self::LINE_ID,
+            [
+                1 => 'First diagnosis',
+                2 => 'Second diagnosis',
+            ],
+            [
+                1 => 'not numeric',
+                2 => [],
+            ]
+        );
+
+        $this->assertSame(
+            [
+                ['ordering' => 1, 'diagnosis' => 'First diagnosis'],
+                ['ordering' => 2, 'diagnosis' => 'Second diagnosis'],
+            ],
+            $this->fetchDiagnoses()
+        );
+    }
+
     private function renderEditor(): string
     {
         $_GET['lineid'] = self::LINE_ID;
