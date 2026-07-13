@@ -1149,42 +1149,87 @@ same day as openemr/openemr#12921 / openemr/openemr#12922 / openemr/openemr#1292
 
 **PR 4 — Move `ChangelogGenerator` + `CompatibilityDeriver` +
 `CompatibilityNotesRenderer` from devops → openemr; port website's filter;
-fix compare-link; wire mutator.** `git mv` from
-`openemr-devops/tools/release/src/` into `openemr/tools/release/src/`, plus
-the bin scripts (`changelog.php`, `derive-compatibility.php`; note
-`changelog-pr.php` is deleted rather than moved — the two post-tag PRs it
-opens go away in PR 5). Port the four private static methods (`isNoise`,
-`isDockerBump`, `isNoOpVersionBump`, `scopeOf`) and their constants
-(`DEPENDABOT`, `DEPENDABOT_DOCKER_GROUPS`, `MACHINERY_SCOPES`) from
-website-openemr's `ReleaseNotesGenerator` into openemr's `ChangelogGenerator`
-— self-contained port, no external dependencies. Fix the compare-link:
-`vPREV...rel-<XY0>` → `vPREV...vNEW` for immutable tag-to-tag diff shape.
-Add a `ChangelogMutator` to `src/Common/Command/ReleasePrep/Mutator/` that
-runs the generator during `openemr:release-prep`, appending the new-version
-section to `CHANGELOG.md`. Wire into `release-prep.yml`'s prep job
-(rel-branch scope) AND the finalize job's post-tag master-scope run
-(mirrors G28 shape — content generated at release-prep-PR time, refreshed
-post-tag on the finalize partner PR). Byte-identical enforcement from PR 3
-auto-syncs the moved files to rel-820. Include unit tests for the ported
-filter + a fixture-based regression that regenerates 8.2.0's committed
-`CHANGELOG.md` entry from frozen inputs. **Depends on PR 3.**
+fix compare-link; wire mutator.** *SHIPPED 2026-07-13 as
+openemr/openemr#12925 (paired with openemr/openemr-devops#857 which retired
+`changelog-pr.php` — landed same day to avoid the "release cut in the gap"
+window where devops has stopped opening the two post-tag PRs but the mutator
+isn't in place yet).* Four PHP classes came across from
+`openemr-devops/tools/release/src/` into `openemr/tools/release/src/`
+(GitHubApi, ChangelogGenerator, CompatibilityDeriver,
+CompatibilityNotesRenderer) plus the two bin wrappers
+(`changelog.php`, `derive-compatibility.php`). `changelog-pr.php`
+deleted from devops rather than moved — its "open two post-tag PRs
+that prepend the CHANGELOG.md entry" behavior is subsumed by
+`ChangelogMutator`. The four private static filter methods (`isNoise`,
+`isDockerBump`, `isNoOpVersionBump`, `scopeOf`) plus four constants
+(`RELEASE_BOT`, `DEPENDABOT`, `DEPENDABOT_DOCKER_GROUPS`,
+`MACHINERY_SCOPES`) ported from website-openemr's `ReleaseNotesGenerator`
+into openemr's `ChangelogGenerator` as a pre-`categorize()` filter step,
+after extending `GitHubApi::prsForCommits()` to also return the PR
+author login (needed to identify dependabot/release-bot PRs). Compare-
+link fix: new `compareLinkOverride` param on `generate()` renders
+`vPREV...vNEW` (aspirational immutable-tag URL) while the git-range
+API call still enumerates commits from a ref that exists (rel branch
+tip at release-prep time, target tag post-tag on finalize). Ancillary
+CR round-1/2/3 fixes: `preg_replace_callback()` for backref-safe
+section replacement, `Psr\Clock\ClockInterface` injection for
+rerun-idempotent dates, `escapeMarkdown()` + `sanitizeGitHubUrl()` to
+prevent Markdown injection via contributor-controlled PR titles / area
+labels / advisory summaries, `mkdir`/`file_put_contents` return-value
+checks in the bin script. `ChangelogMutator` landed at
+`tools/release/src/Mutator/ChangelogMutator.php` under namespace
+`OpenEMR\Release\Mutator` (autoload-dev alongside its dep chain,
+preserving the original dev/prod split for `OpenEMR\Release\`).
+`ReleasePrepCommand`'s default mutator lists wire it in on BOTH scopes
+via a `class_exists()`-guarded FQCN reference (whitelisted in
+`.composer-require-checker.json` so require-checker allows the
+documented cross-boundary reference). Wired at both
+`buildDefaultRelMutators` (release-prep PR, rel-branch scope) and
+`buildDefaultMasterMutators` (release-finalize partner PR, master
+scope, post-tag — the persisted CHANGELOG entry becomes the canonical
+immutable-tag diff shape). 20 isolated `ChangelogGeneratorTest` cases
++ 8 `ChangelogMutatorTest` cases. Live smoke test against real
+`v8_2_0...rel-820` gh api walk exercised prev-tag resolution + range-
+head fallback + aspirational URL rendering + prepend behavior end-to-
+end. Auto-sync PR #12926 propagated the 10 new files to rel-820;
+rel-800 + rel-704 correctly no-op'd (the object-form
+`exclude-branches: [rel-800, rel-704]` filter from PR 3's #12915 does
+its job for both `tools/release/**` and `src/Common/Command/
+ReleasePrep/**`). Follow-up openemr/openemr#12927 added the
+`ChangelogMutator` whitelist entry to rel-820's
+`.composer-require-checker.json` — that file isn't in the byte-
+identical set, so the sync PR didn't carry it, and require-checker
+was failing on rel-820 until the manual port. Follow-ups deferred:
+compatibility injection into the mutator flow (a future
+CompatibilityMutator will thread CompatibilityDeriver +
+CompatibilityNotesRenderer through, keeping the CHANGELOG.md
+Minimum-supported-versions section that 8.2.0's entry has today);
+`CompatibilityNotesRenderer::inject()` non-idempotence for a second
+inject call (pre-existing devops behavior, no consumer today, will be
+fixed alongside the CompatibilityMutator work); fixture regression
+that regenerates 8.2.0's real CHANGELOG entry from frozen inputs
+(would need ~100 real PR objects captured to fixtures, deferred for
+scope).
 
 **PR 5 — Rewire devops's `build-release.yml` to section-extract from
 openemr's tagged tree.** Delete `ChangelogGenerator.php`,
-`CompatibilityDeriver.php`, `CompatibilityNotesRenderer.php`, and
-`changelog-pr.php` from devops. Reshape `changelog.php` as a ~20-line
-`extract-changelog-section.php` — reads `CHANGELOG.md` from the checked-out
-openemr, extracts the `## [X.Y.Z]` block, writes to
-`release-output/changelog.md`. Or inline as a `run:` step in the workflow
-YAML: `sed -n '/## \[8.2.0\]/,/## \[/p' CHANGELOG.md | head -n -1`.
-Update `build-release.yml`: drop the `task release:changelog` +
-`task release:compatibility` + `task release:changelog-pr` steps; add the
-extraction step. `gh release create --notes-file
-release-output/changelog.md` still works — content shape is identical
-(same class produces both). Manual byte-comparison against
-`ChangelogGenerator`'s output for 8.2.0 as parity check pre-merge.
-**Depends on PR 4** — the CHANGELOG.md entry must land in openemr's
-tagged tree before devops can extract from it.
+`CompatibilityDeriver.php`, and `CompatibilityNotesRenderer.php` from
+devops (their `changelog.php` + `derive-compatibility.php` consumers
+still live in devops until this PR). Note `changelog-pr.php` was
+already removed as part of PR 4's coordinated devops PR
+(openemr/openemr-devops#857) since its behavior was subsumed by
+`ChangelogMutator` — no cleanup needed here. Reshape `changelog.php`
+as a ~20-line `extract-changelog-section.php` — reads `CHANGELOG.md`
+from the checked-out openemr, extracts the `## [X.Y.Z]` block, writes
+to `release-output/changelog.md`. Or inline as a `run:` step in the
+workflow YAML: `sed -n '/## \[8.2.0\]/,/## \[/p' CHANGELOG.md | head
+-n -1`. Update `build-release.yml`: drop the `task release:changelog`
++ `task release:compatibility` steps; add the extraction step. `gh
+release create --notes-file release-output/changelog.md` still works —
+content shape is identical (same class produces both). Manual byte-
+comparison against `ChangelogGenerator`'s output for 8.2.0 as parity
+check pre-merge. **Depends on PR 4** — the CHANGELOG.md entry must
+land in openemr's tagged tree before devops can extract from it.
 
 **PR 6 — Retire website-openemr's release-notes generation surface.**
 Delete `tools/release-docs/bin/gen-release-notes.php`,
@@ -1197,6 +1242,16 @@ acknowledgements surface stays put on website — separate output, different
 generator (`AcknowledgementsGenerator`), consumed by the acknowledgements
 page. **Depends on PR 4** — filter must live in openemr before deletion.
 Can land in parallel with PR 5.
+
+**PR 7 — Retire `src/Common/Command/CreateReleaseChangelogCommand.php`.**
+Stephen Nielson's older milestone-driven changelog helper (374 lines,
+uses Guzzle) predates the current release-mechanism migration and is
+redundant with the ChangelogGenerator + ChangelogMutator flow that PR 4
+introduces. Delete the class + its tests. Verify no workflows still
+invoke `openemr:create-release-changelog` (grep confirms none post-PR 4).
+**Depends on PR 6** — hold until the website release-notes surface is
+fully cut over so we're not retiring anything a maintainer might still
+reach for during the transition.
 
 **Testing / validation strategy per PR:**
 
@@ -1212,6 +1267,9 @@ Can land in parallel with PR 5.
   cutting a real tag. Fixture-based regression pins the ported filter.
 - PR 5: byte-compare extracted section against `ChangelogGenerator` output
   for 8.2.0 as parity check pre-merge.
+- PR 7: repo-wide grep for `openemr:create-release-changelog` +
+  `CreateReleaseChangelogCommand` before deletion — no live callers
+  should remain post-PR 6.
 - Full-cycle: the next real release (probably 8.2.1) is the acceptance
   test for the whole consolidation.
 
