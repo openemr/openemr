@@ -1353,6 +1353,29 @@ the fully consolidated flow. Punts a real risk: our smoke test in PR 4
 only had 2 PRs in the v8_2_0...rel-820 range; the categorization +
 sub-grouping + area-label paths were only exercised by synthetic PRs.
 
+**PR 10 — Update `docs/RELEASE_PROCESS.md` for the new mutator-driven
+changelog flow.** After the earlier PRs land, the process doc still
+describes the retired paths: devops's `task release:changelog` +
+`task release:compatibility` + the two post-tag `changelog-pr.php`
+PRs against openemr's rel and master branches, Stephen Nielson's
+milestone-driven `openemr:create-release-changelog`. Rewrite those
+sections to describe the actual flow: at release-prep-PR time
+`ChangelogMutator` walks commits (filtered) and prepends the
+`## [X.Y.Z]` section to CHANGELOG.md on the rel branch; on the
+release-finalize partner PR it re-runs with the immutable tag URL
+and appends the same on master; `CompatibilityMutator` injects the
+`### Minimum supported versions` block after each; devops's
+`build-release.yml` extracts that pre-computed section for the
+GitHub Release body + release-notes asset. Also cross-link the new
+mutator classes (`OpenEMR\Release\Mutator\ChangelogMutator`,
+`OpenEMR\Release\Mutator\CompatibilityMutator`) + the byte-identical
+enforcement that keeps them in sync across rel branches (per PR 3's
+manifest). **Depends on PR 7** — hold until every retired path is
+actually gone from the tree so the process doc doesn't describe
+paths that still exist somewhere (`CreateReleaseChangelogCommand`
+in particular). Not blocking any consumer; strictly a documentation
+cleanup.
+
 **Testing / validation strategy per PR:**
 
 - PR 1: canary self-enforces; watch sync PRs open cleanly on all three
@@ -1375,6 +1398,12 @@ sub-grouping + area-label paths were only exercised by synthetic PRs.
   matches the block already in 8.2.0's CHANGELOG entry. Also cover the
   rerun-idempotence fix: apply twice, assert no second copy of the
   section appears.
+- PR 10: cross-check every retired path referenced in
+  `RELEASE_PROCESS.md` is actually gone from the tree (no
+  `changelog-pr.php`, no `task release:changelog`, no
+  `task release:compatibility`, no `openemr:create-release-changelog`).
+  No CI signal to lean on for docs correctness — reviewer eyeballs the
+  rewritten sections against the actual mutator + workflow code.
 - PR 9: fixture regression pins byte-identical output; regenerate the
   fixture (via a small `bin/capture-8_2_0-inputs.php` one-shot) any time
   the noise filter, section ordering, or area labels shift.
