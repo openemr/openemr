@@ -93,6 +93,7 @@ class ServiceContainer
             ));
         }
         self::$overrides[$interface] = $instance;
+        unset(self::$cache[$interface]);
     }
 
     /**
