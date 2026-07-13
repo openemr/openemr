@@ -6,7 +6,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,6 +19,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -144,7 +147,8 @@ class SmartLaunchController
                 $appointment = $appointmentService->getAppointment($intentData['appointment_id']);
                 if (!empty($appointment)) {
                     $patientService = new PatientService();
-                    $appointmentUuid = $appointment[0]['pc_uuid'];
+                    $appointmentUuidValue = $appointment[0]['pc_uuid'] ?? null;
+                    $appointmentUuid = is_string($appointmentUuidValue) ? $appointmentUuidValue : null;
                     $pid = $appointment[0]['pid'];
                     $puuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
                     // at some point if the appointment has a link to encounters we could grab that here.
@@ -163,6 +167,11 @@ class SmartLaunchController
         if (!empty($appointmentUuid)) {
             $launchCode->setAppointmentUuid($appointmentUuid);
         }
+
+        // Questionnaire context is resolved from OpenEMR database ids so the browser cannot inject FHIR references.
+        /** @var array<string, mixed> $intentData */
+        $this->addQuestionnaireLaunchContext($launchCode, $intentData, $pid);
+
         $serializedCode = $launchCode->serialize();
         $launchParams = "?launch=" . urlencode((string) $serializedCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
         $redirectUrl = $client->getLaunchUri($launchParams);
@@ -197,8 +206,113 @@ class SmartLaunchController
         return $smartList;
     }
 
-    private function getLaunchCodeContext($patientUUID, $encounterId = null, $intent = null)
+    /**
+     * @param array<string, mixed> $intentData
+     */
+    private function addQuestionnaireLaunchContext(
+        SMARTLaunchToken $launchCode,
+        array $intentData,
+        mixed $pid
+    ): void {
+        $questionnaireValue = $intentData['questionnaire_id'] ?? null;
+        $questionnaireResponseValue = $intentData['questionnaire_response_id'] ?? null;
+        if ($questionnaireValue === null && $questionnaireResponseValue === null) {
+            return;
+        }
+
+        $questionnaireId = $this->getPositiveInteger($questionnaireValue);
+        $questionnaireResponseId = $this->getPositiveInteger($questionnaireResponseValue);
+        $patientId = $this->getPositiveInteger($pid);
+        if (
+            $launchCode->getIntent() !== SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT
+            || $questionnaireId === null
+            || $patientId === null
+            || ($questionnaireResponseValue !== null && $questionnaireResponseId === null)
+        ) {
+            throw new \InvalidArgumentException("Questionnaire SMART launch context is invalid");
+        }
+        if (!AclMain::aclCheckCore('patients', 'med')) {
+            throw new AccessDeniedException("patients", "med", "You do not have permission to access patient assessments");
+        }
+
+        $questionnaireRecords = QueryUtils::fetchRecordsNoLog(
+            "SELECT uuid FROM questionnaire_repository WHERE id = ? AND active = 1",
+            [$questionnaireId]
+        );
+        $questionnaireRecord = $questionnaireRecords[0] ?? null;
+        $questionnaireUuidBinary = is_array($questionnaireRecord) ? ($questionnaireRecord['uuid'] ?? null) : null;
+        if (!is_string($questionnaireUuidBinary) || $questionnaireUuidBinary === '') {
+            throw new \InvalidArgumentException("Questionnaire SMART launch context was not found");
+        }
+
+        $questionnaireUuid = UuidRegistry::uuidToString($questionnaireUuidBinary);
+        $launchCode->addFhirContextReference('Questionnaire', $questionnaireUuid);
+
+        $responseStatus = '';
+        if ($questionnaireResponseId !== null) {
+            $responseRecords = QueryUtils::fetchRecordsNoLog(
+                "SELECT uuid, patient_id, questionnaire_foreign_id, status
+                 FROM questionnaire_response
+                 WHERE id = ? AND COALESCE(encounter, 0) = 0",
+                [$questionnaireResponseId]
+            );
+            $responseRecord = $responseRecords[0] ?? null;
+            $responseUuidBinary = is_array($responseRecord) ? ($responseRecord['uuid'] ?? null) : null;
+            $responsePatientId = is_array($responseRecord)
+                ? $this->getPositiveInteger($responseRecord['patient_id'] ?? null)
+                : null;
+            $responseQuestionnaireId = is_array($responseRecord)
+                ? $this->getPositiveInteger($responseRecord['questionnaire_foreign_id'] ?? null)
+                : null;
+            $responseStatus = is_array($responseRecord) && is_string($responseRecord['status'] ?? null)
+                ? $responseRecord['status']
+                : '';
+            if (
+                !is_string($responseUuidBinary)
+                || $responseUuidBinary === ''
+                || $responsePatientId !== $patientId
+                || $responseQuestionnaireId !== $questionnaireId
+            ) {
+                throw new \InvalidArgumentException("QuestionnaireResponse SMART launch context is invalid");
+            }
+
+            $questionnaireResponseUuid = UuidRegistry::uuidToString($responseUuidBinary);
+            $launchCode->addFhirContextReference('QuestionnaireResponse', $questionnaireResponseUuid);
+        }
+
+        $action = 'start';
+        if ($questionnaireResponseId !== null) {
+            $action = $responseStatus === 'in-progress' ? 'continue' : 'review';
+        }
+        $appContext = json_encode(
+            [
+                'workflow' => 'questionnaire-assessment',
+                'action' => $action,
+                'returnContext' => 'patient-fhir-assessments',
+            ],
+            JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+        );
+        $launchCode->setAppContext($appContext);
+    }
+
+    private function getPositiveInteger(mixed $value): ?int
     {
+        if (is_int($value)) {
+            return $value > 0 ? $value : null;
+        }
+        if (!is_string($value) || $value === '' || !ctype_digit($value)) {
+            return null;
+        }
+
+        $validated = filter_var($value, FILTER_VALIDATE_INT);
+        return is_int($validated) && $validated > 0 ? $validated : null;
+    }
+
+    private function getLaunchCodeContext(
+        $patientUUID,
+        $encounterId = null,
+        $intent = null
+    ): SMARTLaunchToken {
         $token = new SMARTLaunchToken($patientUUID, $encounterId);
         $token->setIntent($intent);
         if ($intent === null) {

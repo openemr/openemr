@@ -15,10 +15,14 @@ declare(strict_types=1);
 require_once(dirname(__FILE__, 3) . "/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 
 $pid = PatientSessionUtil::getPid();
@@ -27,6 +31,20 @@ $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
     ? 'container'
     : 'container-fluid';
+
+$smartAssessmentClients = [];
+if ($authorized && OEGlobalsBag::getInstance()->getBoolean('rest_fhir_api')) {
+    $clientRepository = new ClientRepository();
+    foreach ($clientRepository->listClientEntities() as $client) {
+        if (
+            $client->isEnabled()
+            && $client->hasScope(SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE)
+        ) {
+            $smartAssessmentClients[] = $client;
+        }
+    }
+}
+$smartLaunchCsrfToken = CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->getActiveSession());
 
 /**
  * @var Closure(mixed): string $assessmentString
@@ -131,6 +149,7 @@ if ($authorized && $pid > 0) {
 
     $assessmentHistory = QueryUtils::fetchRecordsNoLog(
         "SELECT
+            qr.id AS questionnaire_response_id,
             qr.questionnaire_foreign_id,
             qr.response_id,
             qr.questionnaire_name,
@@ -157,6 +176,7 @@ if ($authorized && $pid > 0) {
 }
 
 $nativeQuestionnaireUrl = $webRoot . '/interface/forms/questionnaire_assessments/native_questionnaire.php';
+$smartLaunchUrl = $webRoot . '/interface/smart/ehr-launch-client.php';
 $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
 ?>
 <!doctype html>
@@ -286,7 +306,13 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                         $latestResponseId = is_array($latestAssessment)
                                             ? $assessmentString($latestAssessment['response_id'] ?? null)
                                             : '';
+                                        $latestQuestionnaireResponseId = is_array($latestAssessment)
+                                            ? $assessmentPositiveInt($latestAssessment['questionnaire_response_id'] ?? null)
+                                            : null;
                                         $isContinuable = $latestResponseId !== '' && $latestStatus === 'in-progress';
+                                        $smartQuestionnaireResponseId = $isContinuable
+                                            ? $latestQuestionnaireResponseId
+                                            : null;
                                         $launchUrl = $nativeQuestionnaireUrl . '?' . http_build_query(
                                                 $isContinuable
                                                     ? ['response_id' => $latestResponseId]
@@ -334,6 +360,33 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                         >
                                                             <?php echo $isContinuable ? xlt('Continue') : xlt('Start Assessment'); ?>
                                                         </button>
+                                                        <?php if ($smartAssessmentClients !== []) : ?>
+                                                            <div class="btn-group ml-1">
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                                                    data-toggle="dropdown"
+                                                                    aria-haspopup="true"
+                                                                    aria-expanded="false"
+                                                                >
+                                                                    <?php echo xlt('Launch SMART App'); ?>
+                                                                </button>
+                                                                <div class="dropdown-menu">
+                                                                    <?php foreach ($smartAssessmentClients as $smartClient) : ?>
+                                                                        <button
+                                                                            type="button"
+                                                                            class="dropdown-item assessment-smart-launch"
+                                                                            data-smart-name="<?php echo attr($smartClient->getName()); ?>"
+                                                                            data-client-id="<?php echo attr($assessmentString($smartClient->getIdentifier())); ?>"
+                                                                            data-questionnaire-id="<?php echo attr((string)$questionnaireId); ?>"
+                                                                            data-questionnaire-response-id="<?php echo attr((string)($smartQuestionnaireResponseId ?? '')); ?>"
+                                                                        >
+                                                                            <?php echo text($smartClient->getName()); ?>
+                                                                        </button>
+                                                                    <?php endforeach; ?>
+                                                                </div>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </div>
                                             </div>
@@ -386,6 +439,8 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                         $contextLabel = xl('Patient');
                                         $historyVersion = $assessmentString($assessment['version'] ?? null);
                                         $responseId = $assessmentString($assessment['response_id'] ?? null);
+                                        $historyQuestionnaireId = $assessmentPositiveInt($assessment['questionnaire_foreign_id'] ?? null);
+                                        $historyQuestionnaireResponseId = $assessmentPositiveInt($assessment['questionnaire_response_id'] ?? null);
                                         $editUrl = $responseId !== ''
                                             ? $nativeQuestionnaireUrl . '?' . http_build_query(['response_id' => $responseId])
                                             : '';
@@ -411,6 +466,37 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                                                         <?php echo xlt('View / Edit'); ?>
                                                     </button>
                                                 <?php endif; ?>
+                                                <?php if (
+                                                    $smartAssessmentClients !== []
+                                                    && $historyQuestionnaireId !== null
+                                                    && $historyQuestionnaireResponseId !== null
+                                                ) : ?>
+                                                    <div class="btn-group ml-1">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true"
+                                                            aria-expanded="false"
+                                                        >
+                                                            <?php echo xlt('Launch SMART App'); ?>
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <?php foreach ($smartAssessmentClients as $smartClient) : ?>
+                                                                <button
+                                                                    type="button"
+                                                                    class="dropdown-item assessment-smart-launch"
+                                                                    data-smart-name="<?php echo attr($smartClient->getName()); ?>"
+                                                                    data-client-id="<?php echo attr($assessmentString($smartClient->getIdentifier())); ?>"
+                                                                    data-questionnaire-id="<?php echo attr((string)$historyQuestionnaireId); ?>"
+                                                                    data-questionnaire-response-id="<?php echo attr((string)$historyQuestionnaireResponseId); ?>"
+                                                                >
+                                                                    <?php echo text($smartClient->getName()); ?>
+                                                                </button>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </div>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -432,6 +518,11 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             const assessmentTitle = document.getElementById('assessment-title')
             const assessmentSaveButton = document.getElementById('assessment-save')
             const assessmentLauncherUrl = <?php echo js_escape($selfUrl); ?>;
+            const smartLaunchUrl = <?php echo js_escape($smartLaunchUrl); ?>;
+            const smartLaunchCsrfToken = <?php echo js_escape($smartLaunchCsrfToken); ?>;
+            const smartLaunchIntent = <?php echo js_escape(
+                \OpenEMR\FHIR\SMART\SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT
+                                      ); ?>;
             let assessmentSavePending = false
 
             function openAssessment (url, title) {
@@ -456,6 +547,40 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             document.querySelectorAll('.assessment-launch').forEach((button) => {
                 button.addEventListener('click', () => {
                     openAssessment(button.dataset.assessmentUrl, button.dataset.assessmentTitle)
+                })
+            })
+
+            document.querySelectorAll('.assessment-smart-launch').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const clientId = button.dataset.clientId || ''
+                    const questionnaireId = button.dataset.questionnaireId || ''
+                    const questionnaireResponseId = button.dataset.questionnaireResponseId || ''
+                    if (clientId === '' || questionnaireId === '') {
+                        return
+                    }
+
+                    top.restoreSession()
+                    const params = new URLSearchParams({
+                        client_id: clientId,
+                        csrf_token: smartLaunchCsrfToken,
+                        intent: smartLaunchIntent,
+                        questionnaire_id: questionnaireId
+                    })
+                    if (questionnaireResponseId !== '') {
+                        params.set('questionnaire_response_id', questionnaireResponseId)
+                    }
+
+                    const title = button.dataset.smartName || <?php echo xlj('SMART Assessment App'); ?>;
+                    const height = window.top.innerHeight
+                    dlgopen(
+                        smartLaunchUrl + '?' + params.toString(),
+                        '_blank',
+                        'modal-full',
+                        height,
+                        '',
+                        title,
+                        { allowExternal: true }
+                    )
                 })
             })
 

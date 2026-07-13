@@ -5,7 +5,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,6 +27,8 @@ class SMARTLaunchTokenTest extends TestCase
         $this->assertEquals($patientUUID, $token->getPatient(), "Patient id should have been set in constructor");
         $this->assertEquals($encounterID, $token->getEncounter(), "Encounter id should have been set in constructor");
         $this->assertEquals(null, $token->getIntent(), "Other parameters should not be initialized in constructor");
+        $this->assertEquals([], $token->getFhirContext(), "FHIR context should not be initialized in constructor");
+        $this->assertEquals(null, $token->getAppContext(), "App context should not be initialized in constructor");
 
         $token = new SMARTLaunchToken();
         $this->assertEquals(null, $token->getPatient(), "Patient id on empty constructor should be null");
@@ -48,6 +52,10 @@ class SMARTLaunchTokenTest extends TestCase
         $intent = SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG;
         $token = new SMARTLaunchToken($patientUUID, $encounterID);
         $token->setIntent($intent);
+        $token->setAppointmentUuid('999-999-9999');
+        $token->addFhirContextReference('Questionnaire', 'questionnaire-uuid');
+        $token->addFhirContextReference('QuestionnaireResponse', 'questionnaire-response-uuid');
+        $token->setAppContext('{"workflow":"questionnaire-assessment"}');
         $serialized = $token->serialize();
 
         $this->assertNotEmpty($serialized, "Token serialization should be a valid value");
@@ -57,5 +65,19 @@ class SMARTLaunchTokenTest extends TestCase
         $this->assertEquals($patientUUID, $deserializedToken->getPatient(), "Patient UUID should be set from deserialization");
         $this->assertEquals($encounterID, $deserializedToken->getEncounter(), "Encounter UUID should be set from deserialization");
         $this->assertEquals($intent, $deserializedToken->getIntent(), "SMART Intent context should be set from deserialization");
+        $this->assertEquals('999-999-9999', $deserializedToken->getAppointmentUuid(), "Existing appointment context should be preserved");
+        $this->assertEquals(
+            [
+                ['reference' => 'Questionnaire/questionnaire-uuid'],
+                ['reference' => 'QuestionnaireResponse/questionnaire-response-uuid'],
+            ],
+            $deserializedToken->getFhirContext(),
+            "FHIR context should be set from deserialization"
+        );
+        $this->assertEquals(
+            '{"workflow":"questionnaire-assessment"}',
+            $deserializedToken->getAppContext(),
+            "SMART appContext should be set from deserialization"
+        );
     }
 }

@@ -6,7 +6,9 @@
  * @package OpenEMR\FHIR\SMART
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,7 +20,9 @@ class SMARTLaunchToken
 {
     public const INTENT_PATIENT_DEMOGRAPHICS_DIALOG = 'patient.demographics.dialog';
 
-    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG, self::INTENT_ENCOUNTER_DIALOG, self::INTENT_MAIN_TAB];
+    public const INTENT_QUESTIONNAIRE_ASSESSMENT = 'questionnaire.assessment.dialog';
+
+    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG, self::INTENT_ENCOUNTER_DIALOG, self::INTENT_MAIN_TAB, self::INTENT_QUESTIONNAIRE_ASSESSMENT];
 
     // used on the appointment add/edit dialog, context will include the selected appointment
     // for now this intent is used by custom apps that consume the openemr.appointment.add_edit_event.close.before event
@@ -42,6 +46,16 @@ class SMARTLaunchToken
      * @var string The uuid of the appointment
      */
     private ?string $appointmentUuid;
+
+    /**
+     * @var array<int, array{reference: string}> Additional SMART FHIR launch context references.
+     */
+    private array $fhirContext = [];
+
+    /**
+     * @var string|null SMART application workflow context.
+     */
+    private ?string $appContext = null;
 
     public function __construct($patientUUID = null, $encounterUUID = null)
     {
@@ -104,6 +118,42 @@ class SMARTLaunchToken
         $this->intent = $intent;
     }
 
+    /**
+     * Adds a validated relative FHIR reference to the SMART launch context.
+     */
+    public function addFhirContextReference(string $resourceType, string $resourceId): void
+    {
+        if (preg_match('/^[A-Z][A-Za-z0-9]*$/', $resourceType) !== 1) {
+            throw new \InvalidArgumentException("FHIR context resource type is invalid");
+        }
+        if (preg_match('/^[A-Za-z0-9\-.]{1,64}$/', $resourceId) !== 1) {
+            throw new \InvalidArgumentException("FHIR context resource id is invalid");
+        }
+
+        $reference = ['reference' => $resourceType . '/' . $resourceId];
+        if (!in_array($reference, $this->fhirContext, true)) {
+            $this->fhirContext[] = $reference;
+        }
+    }
+
+    /**
+     * @return array<int, array{reference: string}>
+     */
+    public function getFhirContext(): array
+    {
+        return $this->fhirContext;
+    }
+
+    public function setAppContext(?string $appContext): void
+    {
+        $this->appContext = $appContext;
+    }
+
+    public function getAppContext(): ?string
+    {
+        return $this->appContext;
+    }
+
     public function serialize()
     {
         $context = [];
@@ -121,6 +171,14 @@ class SMARTLaunchToken
         }
         if (!empty($this->getAppointmentUuid())) {
             $context['apt'] = $this->getAppointmentUuid();
+        }
+        $fhirContext = $this->getFhirContext();
+        if ($fhirContext !== []) {
+            $context['fc'] = $fhirContext;
+        }
+        $appContext = $this->getAppContext();
+        if ($appContext !== null && $appContext !== '') {
+            $context['ctx'] = $appContext;
         }
 
         // no security is really needed here... just need to be able to wrap
@@ -166,6 +224,9 @@ class SMARTLaunchToken
 
         // invalid json let it throw here
         $context = json_decode($jsonEncoded, true, 512, JSON_THROW_ON_ERROR);
+        if (!is_array($context)) {
+            throw new \InvalidArgumentException("serialized token context must be a JSON object");
+        }
         ServiceContainer::getLogger()->debug(self::class . "->deserialize() Decoded context is ", $context);
         if (!empty($context['p'])) {
             $this->setPatient($context['p']);
@@ -178,6 +239,28 @@ class SMARTLaunchToken
         }
         if (!empty($context['apt'])) {
             $this->setAppointmentUuid($context['apt']);
+        }
+        if (isset($context['fc'])) {
+            if (!is_array($context['fc'])) {
+                throw new \InvalidArgumentException("FHIR launch context must be an array");
+            }
+            foreach ($context['fc'] as $fhirContextReference) {
+                $reference = is_array($fhirContextReference) ? ($fhirContextReference['reference'] ?? null) : null;
+                if (!is_string($reference)) {
+                    throw new \InvalidArgumentException("FHIR launch context reference is invalid");
+                }
+                $referenceParts = explode('/', $reference, 2);
+                if (count($referenceParts) !== 2) {
+                    throw new \InvalidArgumentException("FHIR launch context reference is invalid");
+                }
+                $this->addFhirContextReference($referenceParts[0], $referenceParts[1]);
+            }
+        }
+        if (isset($context['ctx'])) {
+            if (!is_string($context['ctx'])) {
+                throw new \InvalidArgumentException("SMART app context must be a string");
+            }
+            $this->setAppContext($context['ctx']);
         }
     }
 
