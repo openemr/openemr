@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -45,7 +46,6 @@ if (isset($_GET['portal_auth'])) {
 
 require_once(__DIR__ . "/../interface/globals.php");
 require_once(__DIR__ . "/../library/sql-ccr.inc.php");
-use OpenEMR\BC\ServiceContainer;
 require_once(__DIR__ . "/transmitCCD.php");
 require_once(__DIR__ . "/../custom/code_types.inc.php");
 

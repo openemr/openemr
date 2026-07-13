@@ -20,6 +20,7 @@
  * @author  Garden State Health Systems <http://www.gshsys.com/>
  * @link    https://www.open-emr.org
  */
+
 use OpenEMR\BC\ServiceContainer;
 
 $result = getResultData();

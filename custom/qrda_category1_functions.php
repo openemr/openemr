@@ -21,10 +21,10 @@
  * @author  Ensoftek
  * @link    https://www.open-emr.org
  */
+
 // This program exports report to QRDA Category I 2014 XML format.
 
 use OpenEMR\BC\ServiceContainer;
-
 
 function mainQrdaCatOneGenerate($xml, $patient_id, $rule_id, $provider_id)
 {
