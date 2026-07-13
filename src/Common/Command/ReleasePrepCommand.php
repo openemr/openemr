@@ -221,15 +221,16 @@ final class ReleasePrepCommand extends Command
      */
     private function appendOptionalReleaseMutators(array &$mutators): void
     {
-        // String literal (not ::class) so composer-require-checker sees
-        // no compile-time reference to a class that lives in autoload-dev.
-        // rector's StringClassNameToClassConstantRector would otherwise
-        // rewrite this to ::class, breaking the boundary; it is skipped
-        // for this file in rector.php's withSkip block. Under a production
-        // `composer install --no-dev` the class is not autoloadable,
-        // class_exists() returns false, and the mutator is silently
-        // skipped.
-        $changelogMutator = 'OpenEMR\\Release\\Mutator\\ChangelogMutator';
+        // FQCN via ::class: composer-require-checker sees the reference
+        // (which is why the class name is whitelisted in
+        // .composer-require-checker.json), but autoload is not triggered
+        // by the reference itself — only by the guarded new below. Under
+        // a production `composer install --no-dev` the class is not
+        // autoloadable, class_exists() returns false, and the mutator is
+        // silently skipped. Kept as ::class (rather than a plain string
+        // literal) so an IDE can refactor the FQCN alongside the file if
+        // it ever moves.
+        $changelogMutator = \OpenEMR\Release\Mutator\ChangelogMutator::class;
         if (!class_exists($changelogMutator)) {
             return;
         }
