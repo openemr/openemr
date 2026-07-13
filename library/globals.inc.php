@@ -3261,6 +3261,13 @@ $GLOBALS_METADATA = [
             xl('Enable OpenEMR Standard FHIR RESTful API.')
         ],
 
+        GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
+            xl('Enable OpenEMR SMART ON FHIR Context Test Launches (Turn on only if you know what you are doing)'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR SMART ON FHIR Current Context Test Launches.')
+        ],
+
         GlobalConnectorsEnum::REST_SYSTEM_SCOPES_API->value => [
             xl('Enable OpenEMR FHIR System Scopes (Turn on only if you know what you are doing)'),
             'bool',

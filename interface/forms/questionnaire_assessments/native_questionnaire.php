@@ -95,10 +95,6 @@ if ($responseId !== '') {
     if ($questionnaireRecord === [] || $nonNegativeInt($questionnaireRecord['active'] ?? null) !== 1) {
         throw new RuntimeException(xlt('The selected Questionnaire is not active or was not found.'));
     }
-    $questionnaireType = $questionnaireRecord['type'] ?? null;
-    if (is_string($questionnaireType) && strtolower($questionnaireType) === 'encounter') {
-        throw new RuntimeException(xlt('Encounter questionnaires cannot be launched from the patient assessment workspace.'));
-    }
     $questionnaireJson = is_string($questionnaireRecord['questionnaire'] ?? null)
         ? $questionnaireRecord['questionnaire']
         : '';

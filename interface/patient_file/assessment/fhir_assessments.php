@@ -31,6 +31,9 @@ $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
 $container = OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')
     ? 'container'
     : 'container-fluid';
+$showSmartContextTestLaunches = OEGlobalsBag::getInstance()->getBoolean(
+    'smart_context_test_launches'
+);
 
 $smartAssessmentClients = [];
 if ($authorized && OEGlobalsBag::getInstance()->getBoolean('rest_fhir_api')) {
@@ -44,7 +47,9 @@ if ($authorized && OEGlobalsBag::getInstance()->getBoolean('rest_fhir_api')) {
         }
     }
 }
-$smartLaunchCsrfToken = CsrfUtils::collectCsrfToken(SessionWrapperFactory::getInstance()->getActiveSession());
+$activeSession = SessionWrapperFactory::getInstance()->getActiveSession();
+$smartLaunchCsrfToken = CsrfUtils::collectCsrfToken($activeSession);
+$currentEncounterValue = $activeSession->get('encounter');
 
 /**
  * @var Closure(mixed): string $assessmentString
@@ -73,6 +78,8 @@ $assessmentPositiveInt = static function (mixed $value): ?int {
     $validated = filter_var($value, FILTER_VALIDATE_INT);
     return is_int($validated) && $validated > 0 ? $validated : null;
 };
+
+$currentEncounterId = $assessmentPositiveInt($currentEncounterValue);
 
 /**
  * @var Closure(array<mixed>): string $assessmentDescription
@@ -226,6 +233,76 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                 </div>
             </div>
 
+            <?php if ($showSmartContextTestLaunches && $smartAssessmentClients !== []) : ?>
+                <div class="card my-3">
+                    <div class="card-header">
+                        <strong><?php echo xlt('SMART Context Test Launches'); ?></strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="small text-muted mb-3">
+                            <?php echo xlt('Launch a registered SMART app with standard OpenEMR patient, encounter, main-tab, or appointment context.'); ?>
+                        </div>
+                        <?php foreach ($smartAssessmentClients as $smartClient) : ?>
+                            <?php $smartClientId = $assessmentString($smartClient->getIdentifier()); ?>
+                            <div class="border rounded p-2 mb-2">
+                                <div class="font-weight-bold mb-2"><?php echo text($smartClient->getName()); ?></div>
+                                <div class="d-flex flex-wrap align-items-center">
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch"
+                                        data-smart-name="<?php echo attr($assessmentString($smartClient->getName())); ?>"
+                                        data-client-id="<?php echo attr($smartClientId); ?>"
+                                        data-intent="<?php echo attr(\OpenEMR\FHIR\SMART\SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG); ?>"
+                                    >
+                                        <?php echo xlt('Patient'); ?>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch"
+                                        data-smart-name="<?php echo attr($assessmentString($smartClient->getName())); ?>"
+                                        data-client-id="<?php echo attr($smartClientId); ?>"
+                                        data-intent="<?php echo attr(\OpenEMR\FHIR\SMART\SMARTLaunchToken::INTENT_ENCOUNTER_DIALOG); ?>"
+                                        <?php echo $currentEncounterId === null ? 'disabled' : ''; ?>
+                                    >
+                                        <?php echo xlt('Current Encounter'); ?>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm mr-2 mb-2 smart-context-launch"
+                                        data-smart-name="<?php echo attr($assessmentString($smartClient->getName())); ?>"
+                                        data-client-id="<?php echo attr($smartClientId); ?>"
+                                        data-intent="<?php echo attr(\OpenEMR\FHIR\SMART\SMARTLaunchToken::INTENT_MAIN_TAB); ?>"
+                                    >
+                                        <?php echo xlt('Main Tab'); ?>
+                                    </button>
+                                    <div class="input-group input-group-sm mb-2" style="max-width: 280px;">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            class="form-control smart-appointment-id"
+                                            aria-label="<?php echo xla('Appointment ID'); ?>"
+                                            placeholder="<?php echo xla('Appointment ID'); ?>"
+                                        >
+                                        <div class="input-group-append">
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-primary smart-context-launch"
+                                                data-smart-name="<?php echo attr($assessmentString($smartClient->getName())); ?>"
+                                                data-client-id="<?php echo attr($smartClientId); ?>"
+                                                data-intent="<?php echo attr(\OpenEMR\FHIR\SMART\SMARTLaunchToken::INTENT_APPOINTMENT_DIALOG); ?>"
+                                                data-appointment-launch="true"
+                                            >
+                                                <?php echo xlt('Appointment'); ?>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <div id="assessment-catalog" class="my-3">
                 <ul class="nav nav-tabs" id="assessment-tabs" role="tablist">
                     <li class="nav-item" role="presentation">
@@ -269,7 +346,7 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
                             <div>
                                 <h5 class="mb-1"><?php echo xlt('Available Assessments'); ?></h5>
                                 <div class="small text-muted">
-                                    <?php echo xlt('Active patient-context FHIR Questionnaires available from the repository.'); ?>
+                                    <?php echo xlt('Active FHIR Questionnaires available from the repository. Dashboard launches are saved as patient assessments.'); ?>
                                 </div>
                             </div>
                         </div>
@@ -547,6 +624,55 @@ $selfUrl = $webRoot . '/interface/patient_file/assessment/fhir_assessments.php';
             document.querySelectorAll('.assessment-launch').forEach((button) => {
                 button.addEventListener('click', () => {
                     openAssessment(button.dataset.assessmentUrl, button.dataset.assessmentTitle)
+                })
+            })
+
+            function launchSmartContext (button, extraParams = {}) {
+                const clientId = button.dataset.clientId || ''
+                const intent = button.dataset.intent || ''
+                if (clientId === '' || intent === '') {
+                    return
+                }
+
+                top.restoreSession()
+                const params = new URLSearchParams({
+                    client_id: clientId,
+                    csrf_token: smartLaunchCsrfToken,
+                    intent
+                })
+                Object.entries(extraParams).forEach(([name, value]) => {
+                    if (value !== '') {
+                        params.set(name, value)
+                    }
+                })
+
+                const title = button.dataset.smartName || <?php echo xlj('SMART App'); ?>;
+                const height = window.top.innerHeight
+                dlgopen(
+                    smartLaunchUrl + '?' + params.toString(),
+                    '_blank',
+                    'modal-full',
+                    height,
+                    '',
+                    title,
+                    { allowExternal: true }
+                )
+            }
+
+            document.querySelectorAll('.smart-context-launch').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const extraParams = {}
+                    if (button.dataset.appointmentLaunch === 'true') {
+                        const container = button.closest('.input-group')
+                        const appointmentInput = container?.querySelector('.smart-appointment-id')
+                        const appointmentId = appointmentInput?.value || ''
+                        if (appointmentId === '') {
+                            appointmentInput?.focus()
+                            return
+                        }
+                        extraParams.appointment_id = appointmentId
+                    }
+                    launchSmartContext(button, extraParams)
                 })
             })
 
