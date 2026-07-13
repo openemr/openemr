@@ -10,6 +10,7 @@ use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodingStyle\Rector\FuncCall\CallUserFuncArrayToVariadicRector;
 use Rector\Config\RectorConfig;
+use Rector\Php55\Rector\String_\StringClassNameToClassConstantRector;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\ValueObject\PhpVersion;
 
@@ -42,6 +43,17 @@ return RectorConfig::configure()
     // vendor/ is skipped.
     ->withSkip([
         __DIR__ . '/interface/modules/custom_modules/oe-module-claimrev-connect',
+        // ReleasePrepCommand deliberately references OpenEMR\Release\Mutator\
+        // ChangelogMutator as a runtime string literal so the class is only
+        // materialized when composer's dev-only autoload map is loaded. The
+        // string form keeps composer-require-checker (and IDEs) from
+        // treating the reference as a compile-time symbol and therefore
+        // requiring the dev-side namespace to be reachable from production.
+        // Rector's StringClassNameToClassConstantRector would otherwise
+        // convert this literal to `::class`, defeating that boundary.
+        StringClassNameToClassConstantRector::class => [
+            __DIR__ . '/src/Common/Command/ReleasePrepCommand.php',
+        ],
     ])
     ->withCache(
         // ensure file system caching is used instead of in-memory
