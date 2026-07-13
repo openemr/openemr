@@ -450,8 +450,11 @@ class ChangelogGenerator
         $lines = ['### Security Fixes', ''];
 
         foreach ($advisories as $advisory) {
-            $severity = ucfirst($advisory['severity']);
-            $lines[] = "  - [{$severity}] {$advisory['summary']} ([{$advisory['ghsa_id']}]({$advisory['url']}))";
+            $severity = self::escapeMarkdown(ucfirst($advisory['severity']));
+            $summary = self::escapeMarkdown($advisory['summary']);
+            $ghsaId = self::escapeMarkdown($advisory['ghsa_id']);
+            $url = self::sanitizeGitHubUrl($advisory['url']);
+            $lines[] = "  - [{$severity}] {$summary} ([{$ghsaId}]({$url}))";
         }
 
         $lines[] = '';
@@ -505,7 +508,7 @@ class ChangelogGenerator
         // Unlabeled PRs first (empty area key)
         if (isset($byArea[''])) {
             foreach ($byArea[''] as $pr) {
-                $lines[] = "  - {$pr['title']} ([#{$pr['number']}]({$pr['url']}))";
+                $lines[] = self::formatPrLine($pr);
             }
             $lines[] = '';
             unset($byArea['']);
@@ -514,14 +517,52 @@ class ChangelogGenerator
         // Area sub-groups
         $subHeading = str_repeat('#', $depth + 1);
         foreach ($byArea as $area => $areaPrs) {
-            $lines[] = "{$subHeading} {$area}";
+            $lines[] = "{$subHeading} " . self::escapeMarkdown($area);
             $lines[] = '';
             foreach ($areaPrs as $pr) {
-                $lines[] = "  - {$pr['title']} ([#{$pr['number']}]({$pr['url']}))";
+                $lines[] = self::formatPrLine($pr);
             }
             $lines[] = '';
         }
 
         return $lines;
+    }
+
+    /**
+     * @param CategorizedPr $pr
+     */
+    private static function formatPrLine(array $pr): string
+    {
+        $title = self::escapeMarkdown($pr['title']);
+        $url = self::sanitizeGitHubUrl($pr['url']);
+        return "  - {$title} ([#{$pr['number']}]({$url}))";
+    }
+
+    /**
+     * Escape bracket characters so contributor-controlled strings (PR
+     * titles, area labels, advisory summaries) cannot inject Markdown
+     * link syntax into the rendered CHANGELOG. `[text](url)` is the
+     * primary spoofing vector; escaping just `[` and `]` neutralizes it
+     * while preserving legitimate uses of backticks (code identifiers),
+     * asterisks, and other Markdown that survives in PR titles today.
+     */
+    private static function escapeMarkdown(string $value): string
+    {
+        return str_replace(['[', ']'], ['\\[', '\\]'], $value);
+    }
+
+    /**
+     * Only emit URLs that point at the openemr GitHub org (PR + GHSA
+     * origins). Anything else — an advisory referencing an external
+     * mirror, a PR URL that has been rewritten upstream — becomes a
+     * neutral placeholder, so the rendered CHANGELOG cannot smuggle an
+     * off-origin link past readers who trust the surrounding context.
+     */
+    private static function sanitizeGitHubUrl(string $url): string
+    {
+        if (str_starts_with($url, 'https://github.com/openemr/')) {
+            return $url;
+        }
+        return 'https://github.com/openemr/openemr';
     }
 }

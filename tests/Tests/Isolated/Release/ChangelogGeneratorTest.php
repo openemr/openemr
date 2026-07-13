@@ -265,6 +265,60 @@ final class ChangelogGeneratorTest extends TestCase
         self::assertStringContainsString('#1', $out);
     }
 
+    public function testBracketsInPrTitlesEscapedToPreventLinkInjection(): void
+    {
+        $out = $this->generate([
+            $this->pr(1, 'feat: shiny thing [click here](https://evil.example.com)'),
+        ]);
+        self::assertStringContainsString('\\[click here\\](https://evil.example.com)', $out);
+        self::assertStringNotContainsString('[click here](https://evil.example.com)', $out);
+    }
+
+    public function testBracketsInAreaLabelsEscaped(): void
+    {
+        $out = $this->generate([
+            $this->pr(1, 'feat: something', labels: ['[EVIL](https://x)']),
+        ]);
+        self::assertStringContainsString('\\[EVIL\\](https://x)', $out);
+        self::assertStringNotContainsString('#### [EVIL](https://x)', $out);
+    }
+
+    public function testPrUrlOutsideOpenemrOrgReplacedWithSafePlaceholder(): void
+    {
+        $prs = [[
+            'number' => 1,
+            'title' => 'feat: hijacked url',
+            'labels' => [],
+            'url' => 'https://attacker.example.com/pull/1',
+            'author' => 'someone',
+        ]];
+        $shas = ['0000000000000000000000000000000000000001'];
+        $api = new FakeGitHubApi(shas: $shas, prs: $prs, advisories: []);
+        $out = (new ChangelogGenerator($api))->generate('v8_2_0', 'rel-820', '8.2.1', includeGhsa: false);
+
+        self::assertStringNotContainsString('attacker.example.com', $out);
+        self::assertStringContainsString('https://github.com/openemr/openemr', $out);
+    }
+
+    public function testAdvisorySummaryAndUrlSanitized(): void
+    {
+        $prs = [$this->pr(1, 'feat: baseline PR')];
+        $shas = ['0000000000000000000000000000000000000001'];
+        $advisories = [[
+            'ghsa_id' => 'GHSA-abcd-abcd-abcd',
+            'severity' => 'high',
+            'summary' => 'nasty [phish](https://evil.example.com)',
+            'html_url' => 'https://attacker.example.com/advisory/1',
+            'references' => [['url' => 'https://github.com/openemr/openemr/pull/1']],
+        ]];
+        $api = new FakeGitHubApi(shas: $shas, prs: $prs, advisories: $advisories);
+        $out = (new ChangelogGenerator($api))->generate('v8_2_0', 'rel-820', '8.2.1', includeGhsa: true);
+
+        self::assertStringContainsString('\\[phish\\](https://evil.example.com)', $out);
+        self::assertStringNotContainsString('] nasty [phish](https://evil.example.com)', $out);
+        self::assertStringNotContainsString('attacker.example.com', $out);
+    }
+
     public function testHeadingDateComesFromInjectedClockForRerunIdempotence(): void
     {
         $prs = [$this->pr(1, 'feat: something')];
