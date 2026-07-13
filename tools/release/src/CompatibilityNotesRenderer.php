@@ -55,21 +55,63 @@ final readonly class CompatibilityNotesRenderer
      * Insert a section into notes just after the first `## ` heading line (and
      * the blank line that conventionally follows it). If the notes have no such
      * heading, prepend the section instead.
+     *
+     * Idempotent: if the FIRST `## ` section already contains a
+     * "### Minimum supported versions" block, that block is stripped in place
+     * before the new section is inserted. Only the first `## ` section's
+     * contents are considered — older release sections further down the file
+     * (which have their own compat blocks from earlier release-prep runs) are
+     * left untouched.
      */
     public function inject(string $notes, string $section): string
     {
         $lines = explode("\n", $notes);
+
+        $headingIndex = null;
         foreach ($lines as $index => $line) {
-            if (!str_starts_with($line, '## ')) {
-                continue;
+            if (str_starts_with($line, '## ')) {
+                $headingIndex = $index;
+                break;
             }
-            $insertAt = isset($lines[$index + 1]) && trim($lines[$index + 1]) === ''
-                ? $index + 2
-                : $index + 1;
-            array_splice($lines, $insertAt, 0, [rtrim($section, "\n"), '']);
-            return implode("\n", $lines);
         }
 
-        return $section . "\n" . $notes;
+        if ($headingIndex === null) {
+            return $section . "\n" . $notes;
+        }
+
+        // Bound the first section: heading -> next `## ` heading or EOF.
+        // Only strip existing compat blocks inside THIS scope so older
+        // release sections keep their own Minimum-supported-versions blocks.
+        $sectionEnd = count($lines);
+        for ($i = $headingIndex + 1, $n = count($lines); $i < $n; $i++) {
+            if (str_starts_with($lines[$i], '## ')) {
+                $sectionEnd = $i;
+                break;
+            }
+        }
+        $targetBlock = implode("\n", array_slice($lines, $headingIndex, $sectionEnd - $headingIndex));
+        // Strip an existing compat block bounded by its heading and the next
+        // `##`-prefixed heading of any depth (### or ##) or the section end.
+        $stripped = preg_replace(
+            '/^### Minimum supported versions.*?(?=^##|\z)/ms',
+            '',
+            $targetBlock,
+            1,
+        );
+        if ($stripped === null) {
+            throw new \RuntimeException('CompatibilityNotesRenderer::inject regex failure');
+        }
+        array_splice(
+            $lines,
+            $headingIndex,
+            $sectionEnd - $headingIndex,
+            explode("\n", $stripped),
+        );
+
+        $insertAt = isset($lines[$headingIndex + 1]) && trim($lines[$headingIndex + 1]) === ''
+            ? $headingIndex + 2
+            : $headingIndex + 1;
+        array_splice($lines, $insertAt, 0, [rtrim($section, "\n"), '']);
+        return implode("\n", $lines);
     }
 }
