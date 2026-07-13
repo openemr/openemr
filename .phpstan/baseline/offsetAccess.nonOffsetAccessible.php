@@ -39122,26 +39122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/RouteController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'apt\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'e\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'i\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'p\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_uuid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',

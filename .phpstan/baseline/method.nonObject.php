@@ -5022,16 +5022,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method serialize\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setAppointmentUuid\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method clean\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',

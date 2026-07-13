@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Unit\FHIR\SMART;
 
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -28,9 +29,13 @@ class SMARTSessionTokenContextBuilderTest extends TestCase
 
         $context = $this->buildContext($token);
 
+        $fhirContext = $context['fhirContext'];
+        $this->assertIsArray($fhirContext);
+        $this->assertCount(1, $fhirContext);
+        $this->assertInstanceOf(FHIRReference::class, $fhirContext[0]);
         $this->assertSame(
-            [['reference' => 'Appointment/appointment-uuid']],
-            $context['fhirContext'],
+            'Appointment/appointment-uuid',
+            (string)$fhirContext[0]->getReference(),
             'Existing appointment fhirContext should remain unchanged'
         );
     }
@@ -51,14 +56,20 @@ class SMARTSessionTokenContextBuilderTest extends TestCase
             $context['intent'],
             'Questionnaire assessment intent should be preserved'
         );
+        $fhirContext = $context['fhirContext'];
+        $this->assertIsArray($fhirContext);
+        $this->assertCount(3, $fhirContext);
+        $this->assertInstanceOf(FHIRReference::class, $fhirContext[0]);
+        $this->assertSame('Appointment/appointment-uuid', (string)$fhirContext[0]->getReference());
         $this->assertSame(
-            [
-                ['reference' => 'Appointment/appointment-uuid'],
-                ['reference' => 'Questionnaire/questionnaire-uuid'],
-                ['reference' => 'QuestionnaireResponse/response-uuid'],
-            ],
-            $context['fhirContext'],
-            'Additional FHIR references should be appended after the existing appointment context'
+            ['reference' => 'Questionnaire/questionnaire-uuid'],
+            $fhirContext[1],
+            'Questionnaire context should follow the existing appointment context'
+        );
+        $this->assertSame(
+            ['reference' => 'QuestionnaireResponse/response-uuid'],
+            $fhirContext[2],
+            'QuestionnaireResponse context should follow the Questionnaire context'
         );
         $this->assertSame(
             '{"workflow":"questionnaire-assessment"}',
