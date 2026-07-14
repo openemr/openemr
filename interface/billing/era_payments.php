@@ -467,10 +467,45 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         document.getElementById('confirm_overwrite').value = 'no';
         document.forms[0].submit();
     }
-    <?php if ($showOverwriteConfirm) { ?>
-    $(document).ready(function() {
+    function showOverwriteConfirm() {
         $('#overwriteConfirmModal').modal('show');
+    }
+    function handleExpandContract($el, config) {
+        var expanding = $el.prop('title') === config.expandTitle;
+        if (!expanding && $el.prop('title') !== config.contractTitle) {
+            return;
+        }
+        $el.prop('title', expanding ? config.contractTitle : config.expandTitle);
+        $el.toggleClass('fa-expand fa-compress');
+        $('.expandable').toggleClass('container container-fluid');
+        $.each(config.files, function (index, value) {
+            $.post(
+                config.userSettingsUrl,
+                {
+                    target: value.trim(),
+                    setting: expanding ? 1 : 0,
+                    csrf_token_form: config.csrfToken
+                }
+            );
+        });
+    }
+    $(function () {
+        <?php
+        $expandContractConfig = [
+            'contractTitle' => xl('Click to Contract and set to henceforth open in Centered mode'),
+            'expandTitle' => xl('Click to Expand and set to henceforth open in Expanded mode'),
+            'files' => $arr_files_php,
+            'userSettingsUrl' => OEGlobalsBag::getInstance()->getWebRoot() . '/library/ajax/user_settings.php',
+            'csrfToken' => CsrfUtils::collectCsrfToken(session: $session),
+        ];
+        ?>
+        var expandContractConfig = <?php echo json_encode($expandContractConfig); ?>;
+        $('.expand_contract').click(function () {
+            handleExpandContract($(this), expandContractConfig);
+        });
     });
+    <?php if ($showOverwriteConfirm) { ?>
+        $(showOverwriteConfirm);
     <?php } ?>
     </script>
 </body>
