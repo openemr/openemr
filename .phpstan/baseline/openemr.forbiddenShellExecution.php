@@ -18,7 +18,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Shell execution function exec\\(\\) is forbidden\\. exec\\(\\) executes a shell command\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
-    'count' => 13,
+    'count' => 12,
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
 ];
 $ignoreErrors[] = [
