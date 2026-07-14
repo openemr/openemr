@@ -276,4 +276,14 @@ try {
     echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
     echo "<p style='font-size:24px; color: red;'>" . text($e->getMessage()) . '</p>';
+    // TEMPORARY debug hook (issue #12423): log the full Twig exception plus
+    // any wrapped previous exceptions so the crash-diagnostics artifact
+    // upload captures the real stack trace. The exception chain typically
+    // bottoms out in a PHP TypeError with the exact vendor/twig line that
+    // failed. Remove once root cause is found.
+    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
+    $logger->error('LOGIN TWIG DEBUG: ' . (string) $e);
+    for ($p = $e->getPrevious(); $p; $p = $p->getPrevious()) {
+        $logger->error('LOGIN TWIG DEBUG PREV: ' . (string) $p);
+    }
 }
