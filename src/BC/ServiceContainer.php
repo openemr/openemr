@@ -12,9 +12,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+use GuzzleHttp\{
+    Client,
+    RequestOptions,
+};
 use InvalidArgumentException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\{
     LoggerInterface,
     NullLogger,
@@ -130,6 +135,20 @@ class ServiceContainer
         return self::resolveOrCreate(
             Crypto\CryptoInterface::class,
             static fn() => new Crypto\CryptoGen(),
+        );
+    }
+
+    public static function getHttpClient(): ClientInterface
+    {
+        return self::resolveOrCreate(
+            ClientInterface::class,
+            static fn() => new Client([
+                // see notes in config/psr.php
+                RequestOptions::ALLOW_REDIRECTS => true,
+                RequestOptions::CONNECT_TIMEOUT => 5,
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::TIMEOUT => 15,
+            ]),
         );
     }
 
