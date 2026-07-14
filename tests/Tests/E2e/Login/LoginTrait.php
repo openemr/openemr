@@ -78,7 +78,22 @@ trait LoginTrait
     private function performLogin(string $name, string $password, bool $goalPass): void
     {
         $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
-        $form = $this->crawler->filter('#login_form')->form();
+        try {
+            $form = $this->crawler->filter('#login_form')->form();
+        } catch (\Throwable $e) {
+            // TEMPORARY debug hook (issue #12423): the login page has been
+            // returning ~225 bytes with no #login_form after upgrade from
+            // 5.0.0 on PHP 8.2, and the failure only reproduces in CI.
+            // Dump the response body so we can see what the truncated page
+            // actually contains. Remove once root cause is identified.
+            $body = $this->client->getWebDriver()->getPageSource();
+            fwrite(STDERR, sprintf(
+                "\n[LoginTrait DEBUG] #login_form missing, response body length=%d\n---\n%s\n[/LoginTrait DEBUG]\n",
+                strlen((string) $body),
+                $body
+            ));
+            throw $e;
+        }
         $form['authUser'] = $name;
         $form['clearPass'] = $password;
         $this->crawler = $this->client->submit($form);

@@ -17,6 +17,12 @@ services:
       EMPTY: yes
       FORCE_NO_BUILD_MODE: yes
       OPENEMR_DEPRECATION_MODE: error
+      # TEMPORARY (issue #12423): dev environment makes ErrorHandler render
+      # exception messages + stack traces into the response body, so the
+      # LoginTrait body dump (see tests/Tests/E2e/Login/LoginTrait.php)
+      # captures any otherwise-silent exception during login-page render.
+      # Remove alongside the LoginTrait debug hook.
+      OPENEMR__ENVIRONMENT: dev
       OPENEMR_ENABLE_CI_PHP: '1'
       ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}
       PCOV_ON: ${ENABLE_COVERAGE:-false}
