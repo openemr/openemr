@@ -147,7 +147,5 @@ files:
   exclude-branches: [rel-800, rel-704]
 - path: src/Common/Command/ReleasePrepCommand.php
   exclude-branches: [rel-800, rel-704]
-- path: src/Common/Command/CreateReleaseChangelogCommand.php
-  exclude-branches: [rel-800, rel-704]
 - path: tests/Tests/Isolated/Release/**
   exclude-branches: [rel-800, rel-704]
