@@ -40,7 +40,7 @@ return [
     UploadedFileFactoryInterface::class => Psr17Factory::class,
     UriFactoryInterface::class => Psr17Factory::class,
 
-    // 18: HTTP Client
+    // PSR-18
     ClientInterface::class => Client::class,
     Client::class,
 
