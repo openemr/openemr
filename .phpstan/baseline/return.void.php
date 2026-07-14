@@ -11,4 +11,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/UserInterface/BaseActionButtonHelper.php',
 ];
+
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
