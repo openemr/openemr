@@ -34,7 +34,12 @@ $questionnaireJson = '';
 if (!empty($q)) {
     $templateService = new QuestionnaireService();
     $resource = $templateService->fetchQuestionnaireResource($q, $q);
-    $questionnaireJson = is_string($resource['questionnaire'] ?? null)
+    // Only surface active repository questionnaires through the qId path. fetchQuestionnaireResource()
+    // is a shared lookup with no active filter, so without this gate a portal (or any) caller could
+    // enumerate the repository, including inactive/draft records, by iterating qId values.
+    $activeFlag = $resource['active'] ?? null;
+    $resourceIsActive = is_numeric($activeFlag) && (int) $activeFlag === 1;
+    $questionnaireJson = ($resourceIsActive && is_string($resource['questionnaire'] ?? null))
         ? $resource['questionnaire']
         : '';
 }

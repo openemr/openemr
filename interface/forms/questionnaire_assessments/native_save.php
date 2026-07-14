@@ -15,14 +15,24 @@ declare(strict_types=1);
 require_once(__DIR__ . '/../../../vendor/autoload.php');
 require_once(__DIR__ . '/../../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
 header('Content-Type: application/json; charset=utf-8');
+
+// Maximum accepted QuestionnaireResponse payload. Large SDC responses are well under this;
+// anything bigger is either malformed or hostile.
+const OE_QR_MAX_PAYLOAD_BYTES = 2097152; // 2 MiB
+
+// QuestionnaireResponse.status values this workspace is allowed to persist.
+const OE_QR_ALLOWED_STATUSES = ['in-progress', 'completed', 'amended'];
 
 $nonNegativeInt = static function (mixed $value): ?int {
     if (is_int($value)) {
@@ -60,10 +70,18 @@ try {
     if (trim($questionnaireResponseJson) === '') {
         throw new RuntimeException(xlt('QuestionnaireResponse data is missing.'));
     }
+    if (strlen($questionnaireResponseJson) > OE_QR_MAX_PAYLOAD_BYTES) {
+        throw new RuntimeException(xlt('QuestionnaireResponse data exceeds the maximum allowed size.'));
+    }
 
     $questionnaireResponse = json_decode($questionnaireResponseJson, true, 512, JSON_THROW_ON_ERROR);
     if (!is_array($questionnaireResponse) || ($questionnaireResponse['resourceType'] ?? null) !== 'QuestionnaireResponse') {
         throw new RuntimeException(xlt('FHIR QuestionnaireResponse data is invalid.'));
+    }
+
+    $responseStatus = $questionnaireResponse['status'] ?? null;
+    if (!is_string($responseStatus) || !in_array($responseStatus, OE_QR_ALLOWED_STATUSES, true)) {
+        throw new RuntimeException(xlt('FHIR QuestionnaireResponse status is invalid.'));
     }
 
     $responseIdInput = filter_input(INPUT_POST, 'response_id', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
@@ -105,8 +123,49 @@ try {
         throw new RuntimeException(xlt('FHIR Questionnaire data is invalid.'));
     }
 
+    // Server-side stamping. The DB row linkage above is authoritative, so the persisted FHIR
+    // resource content must agree with it rather than trusting whatever the browser submitted.
+    // These values flow out through the FHIR API and CCDA, where consumers trust the resource.
+    UuidRegistry::createMissingUuidsForTables(['patient_data']);
+    $patientService = new PatientService();
+    $puuidBinary = $patientService->getUuid((string) $pid);
+    $puuid = $puuidBinary !== false ? UuidRegistry::uuidToString($puuidBinary) : '';
+    if ($puuid === '') {
+        throw new RuntimeException(xlt('Unable to resolve the patient identity for this QuestionnaireResponse.'));
+    }
+
+    // Identity and versioning are owned by the server. Stripping any client-supplied id also
+    // prevents the save service from adopting a caller-chosen response_id on new saves.
+    unset($questionnaireResponse['id'], $questionnaireResponse['meta']);
+
+    // Subject must be the session patient regardless of what the client claimed.
+    $questionnaireResponse['subject'] = ['reference' => 'Patient/' . $puuid];
+
+    // Canonical questionnaire reference comes from the server-side Questionnaire snapshot.
+    $questionnaireUrl = $questionnaire['url'] ?? null;
+    $questionnaireIdValue = $questionnaire['id'] ?? null;
+    $questionnaireCanonical = '';
+    if (is_string($questionnaireUrl) && $questionnaireUrl !== '') {
+        $questionnaireCanonical = $questionnaireUrl;
+    } elseif (is_string($questionnaireIdValue) && $questionnaireIdValue !== '') {
+        $questionnaireCanonical = 'Questionnaire/' . $questionnaireIdValue;
+    }
+    if ($questionnaireCanonical !== '') {
+        $questionnaireResponse['questionnaire'] = $questionnaireCanonical;
+    } else {
+        unset($questionnaireResponse['questionnaire']);
+    }
+
+    // Authoring time is stamped by the server so it cannot be forged or drift with client clocks.
+    $questionnaireResponse['authored'] = date('c');
+
+    $stampedResponseJson = json_encode(
+        $questionnaireResponse,
+        JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+    );
+
     $saved = $responseService->saveQuestionnaireResponse(
-        response: $questionnaireResponseJson,
+        response: $stampedResponseJson,
         pid: $pid,
         encounter: 0,
         qr_id: $responseId !== '' ? $responseId : null,
@@ -139,4 +198,12 @@ try {
         'success' => false,
         'message' => xlt('Unable to save QuestionnaireResponse.'),
     ]);
+} catch (Throwable $e) {
+    // Error/TypeError must not be suppressed (openemr.forbiddenCatchType); log for
+    // observability, then let it propagate to the global exception handler.
+    ServiceContainer::getLogger()->error(
+        'Native QuestionnaireResponse save failed with a fatal error.',
+        ['exception' => $e]
+    );
+    throw $e;
 }

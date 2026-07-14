@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -122,7 +123,11 @@ class SmartLaunchController
             throw new \Exception("Invalid client id");
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        CsrfUtils::verifyCsrfToken($csrf_token, session: $session);
+        // verifyCsrfToken() returns a boolean and never throws, so the result must be
+        // checked here or CSRF is silently unenforced on this launch endpoint.
+        if (!CsrfUtils::verifyCsrfToken($csrf_token, session: $session)) {
+            throw new CsrfInvalidException('CSRF token validation failed');
+        }
         $puuid = null;
         $euuid = null;
         $pid = $session->get('pid');
@@ -155,10 +160,6 @@ class SmartLaunchController
 //                    $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($appointment['encounter'], 'form_encounter', 'encounter'));
                 }
             }
-        }
-        if (!empty($encounter)) {
-            // grab the encounter euuid
-            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($encounter, 'form_encounter', 'encounter'));
         }
 
         $issuer = (new ServerConfig())->getFhirUrl();
@@ -314,7 +315,6 @@ class SmartLaunchController
         $intent = null
     ): SMARTLaunchToken {
         $token = new SMARTLaunchToken($patientUUID, $encounterId);
-        $token->setIntent($intent);
         if ($intent === null) {
             $intent = SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG;
         }
