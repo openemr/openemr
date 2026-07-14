@@ -185,6 +185,7 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 2. **[Manual — judgment]** Cut the release branch: `rel-<MAJOR><MINOR>0` (e.g. `rel-810`) from `master`. This is the only step that creates new state from nothing. The demo-farm side requires no manual seeding for new minor lines — the `derive-ip-map` bot in `demo_farm_openemr` derives `ip_map_branch.txt` and `demoLibrary.source` entirely from upstream `openemr/openemr` state (chiefly `.github/release-targets.yml` plus per-rel-branch Dockerfile ARGs), so a new minor flows through naturally once it's represented in `release-targets.yml` (see step 15).
 3. **[Automated]** Conductor workflow (`release-prep.yml` in `openemr/openemr`) opens or updates the `release-prep/<rel-branch>` draft PR with all mechanical version bumps plus a regenerated `CHANGELOG.md` entry (via `ChangelogMutator` + `CompatibilityMutator`; see the Conductor PR section). Re-fires on every relevant push.
 4. **[Automated]** Docs workflow (in `website-openemr`) opens or updates the `release-docs/<version>` draft PR with acknowledgements, the release-status shortcode (rendering `DRAFT — based on rel-* @ <sha>`), and Hugo aliases.
+5. **[Automated]** Continuous cycle: as further commits land on the rel-branch during the dev cycle, `release-prep.yml` re-fires on every push and both draft PRs regenerate (including a fresh `CHANGELOG.md` block). No maintainer action in this window — iterate until QA sign-off and the release-cycle commits have settled.
 
 ### Phase 3 — Manual editorial work (in the open PRs)
 
@@ -196,9 +197,9 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 
 The conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and fires the `openemr-tag` cascade for the Release object and announcement drafts). The other bot-created PRs land after the tag exists, in the following order:
 
-1. **Conductor PR** (`openemr/openemr` `release-prep/<rel-branch>`) — merges to rel-branch, creates the annotated tag. Includes the finalized `CHANGELOG.md` entry for the rel-branch side.
-2. **Finalize-on-master PR** (`openemr/openemr` `release-finalize/<rel-branch>`) — auto-updated by the `finalize` job post-tag, flipped from draft to ready-for-review with a signal comment; lands the master-side `release-targets.yml` rotation and the matching master-side `CHANGELOG.md` entry (regenerated post-tag against `vNEW` so master and rel-branch land the identical block). Don't merge while it's still in draft state — the draft flag is the "post-tag update hasn't happened yet" indicator.
-3. **Docs PR** (`openemr/website-openemr` `release-docs/<version>`) — ships the now-FINAL pages on the website.
+1. **Conductor PR** (`openemr/openemr` `release-prep/<rel-branch>`) — merges to rel-branch, creates the annotated tag. Includes the finalized `CHANGELOG.md` entry for the rel-branch side. *Merged by ship-release (step 9).*
+2. **Finalize-on-master PR** (`openemr/openemr` `release-finalize/<rel-branch>`) — auto-updated by the `finalize` job post-tag, flipped from draft to ready-for-review with a signal comment; lands the master-side `release-targets.yml` rotation and the matching master-side `CHANGELOG.md` entry (regenerated post-tag against `vNEW` so master and rel-branch land the identical block). Don't merge while it's still in draft state — the draft flag is the "post-tag update hasn't happened yet" indicator. *Merged manually by a maintainer once the draft→ready flip happens — not driven by ship-release.*
+3. **Docs PR** (`openemr/website-openemr` `release-docs/<version>`) — ships the now-FINAL pages on the website. *Merged by ship-release (step 9), which handles items 1 and 3 as the two `repository_dispatch`-coupled sibling PRs.*
 
 The demo-farm reconciliation runs on its own track — see step 15.
 
