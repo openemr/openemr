@@ -1767,9 +1767,9 @@ depending on the website's `gen-release-notes.php` for filtering.
   "GitHub Release body = source of truth for release notes"
   design that shapes the release-notes link target choice.
 
-### G22 — GitHub Release body + repo CHANGELOG.md need the website's dependabot filter algorithm  *(discovered 2026-07-09, fix in flight 2026-07-12, PRs 4+5+8 landed 2026-07-13, PR 6 landed 2026-07-14; PRs 7+9+10 pending)*
+### G22 — GitHub Release body + repo CHANGELOG.md need the website's dependabot filter algorithm  *(discovered 2026-07-09, fix in flight 2026-07-12, PRs 4+5+8 landed 2026-07-13, PRs 6+7 landed 2026-07-14; PRs 9+10 pending)*
 
-**Status: 7 of 10 PRs SHIPPED** — being addressed as a ten-PR "Changelog surface early-migration slice" (see `docs/release-mechanism-migration-from-devops.md` for the plan). Slice consolidates the changelog content across all three surfaces (website release-notes / codebase CHANGELOG.md / GitHub Release body) into a single generator that lives in openemr/openemr, ports the website filter along the way, and retires the website generator + the two post-tag changelog PRs. As of 2026-07-13:
+**Status: 8 of 10 PRs SHIPPED** — being addressed as a ten-PR "Changelog surface early-migration slice" (see `docs/release-mechanism-migration-from-devops.md` for the plan). Slice consolidates the changelog content across all three surfaces (website release-notes / codebase CHANGELOG.md / GitHub Release body) into a single generator that lives in openemr/openemr, ports the website filter along the way, and retires the website generator + the two post-tag changelog PRs. As of 2026-07-13:
 
 - **PR 1** openemr/openemr#12896 — rename `docker-byte-identical.yml` → `byte-identical.yml` (SHIPPED)
 - **PR 2** openemr/openemr#12904 — glob-pattern support in validator + sync scripts (SHIPPED)
@@ -1779,7 +1779,7 @@ depending on the website's `gen-release-notes.php` for filtering.
 - **PR 8** openemr/openemr#12928 + openemr/openemr#12933 (rel-820 config-file ports for `.composer-require-checker.json` + `.codespell-ignore-words.txt`) + auto-sync openemr/openemr#12932 — CompatibilityMutator wired after ChangelogMutator on both scopes; `CompatibilityNotesRenderer::inject()` idempotence fixed (with a CR-round-1 catch scoping the strip to the first `## ` section so older releases' compat blocks are preserved); latent ChangelogMutator relBranch bug from PR 4 fixed (workflow now passes `--rel-branch` on rel scope). Resequenced 2026-07-13 to land BEFORE PR 5 (compat-gap window: PR 5's section-extract would have pulled entries missing the compat block for 8.2.1+ without the mutator in place). (SHIPPED)
 - **PR 5** openemr/openemr-devops#858 — rewire devops `build-release.yml` to section-extract from openemr's tagged CHANGELOG.md; deleted ChangelogGenerator + CompatibilityDeriver + CompatibilityNotesRenderer + their bin wrappers from devops; new `extract-changelog-section.php` reads the pre-computed section (both filtered PR list + Minimum-supported-versions block, both baked into openemr's CHANGELOG.md by PR 4 + PR 8 mutators); also cleaned up dead `base_ref` end-to-end. (SHIPPED)
 - **PR 6** openemr/website-openemr#190 — retired website's `gen-release-notes.php` + `ReleaseNotesGenerator.php` + test + Taskfile task; workflow "Generate release notes" step replaced with scrub-stale-page step (matches the retired install/upgrade-pages pattern); 8.2.0's live page at openemr.org/release-notes/8.2.0/ grandfathered (scrub only touches the current dispatch's version). AcknowledgementsGenerator untouched. (SHIPPED)
-- PR 7 — retire `src/Common/Command/CreateReleaseChangelogCommand.php` (added 2026-07-13 after PR 4 landed; belongs after PR 6 so we've fully cut over first)
+- **PR 7** openemr/openemr#12964 — retired `src/Common/Command/CreateReleaseChangelogCommand.php` (Stephen Nielson's 374-line Guzzle-based milestone helper); also removed the byte-identical manifest entry + pruned 66 stale phpstan-baseline entries across 17 files + lowered two fatal-baseline-caps (`method.notFound` 138→137, `variable.undefined` 509→508) in the same commit. 706 deletions net. Unblocks PR 10. (SHIPPED)
 - PR 9 — fixture-based regression that regenerates 8.2.0's committed CHANGELOG entry from frozen inputs (~100 real PRs from v8_1_0...rel-820 + advisories, JSON fixtures at tests/Tests/Isolated/Release/fixtures/8_2_0/). Skipped in PR 4 for scope. Slotted last so the fixture covers the fully consolidated flow (including compatibility once PR 8 lands).
 - PR 10 — update `docs/RELEASE_PROCESS.md` (openemr) to describe the new mutator-driven changelog flow: ChangelogMutator writes the CHANGELOG entry at release-prep PR time (rel scope) + release-finalize partner PR (master scope, post-tag); CompatibilityMutator injects the Minimum-supported-versions block after ChangelogMutator; devops's build-release.yml just extracts the pre-computed section for the GitHub Release body + release-notes asset. Drop references to the retired flows (`task release:changelog`, `task release:compatibility`, the two post-tag CHANGELOG PRs from `changelog-pr.php`, milestone-driven `openemr:create-release-changelog`). Best slotted after PR 7 (so all retired paths are actually gone before the doc says they're gone).
 
@@ -3573,3 +3573,20 @@ checklist + the existing master-bump pattern.
   Slice now 7 of 10 SHIPPED; remaining: PR 7 (retire
   CreateReleaseChangelogCommand), PR 9 (fixture regression), PR 10
   (RELEASE_PROCESS.md rewrite, depends on PR 7).
+- **2026-07-14** (later): G22 PR 7 SHIPPED as
+  openemr/openemr#12964. Deleted CreateReleaseChangelogCommand
+  (Stephen Nielson's 374-line Guzzle-based milestone helper;
+  predates the migration, fully redundant with the
+  ChangelogGenerator + ChangelogMutator flow). Also removed the
+  file's `.github/byte-identical.yml` entry, pruned 66 stale
+  phpstan-baseline entries across 17 baseline files (via awk
+  block-filter), and lowered two fatal-baseline-caps
+  (method.notFound 138->137, variable.undefined 509->508) in the
+  same commit -- caps only go down per the caps contract. No live
+  callers of `openemr:create-release-changelog` grepped anywhere
+  in the tree; no tests referenced the class. 19 files changed /
+  706 deletions net. Sync workflow propagates the file deletion +
+  manifest update to rel-820 (excluded from rel-800 + rel-704 per
+  the object-form filter). Slice now 8 of 10 SHIPPED; remaining:
+  PR 9 (fixture regression) and PR 10 (RELEASE_PROCESS.md rewrite,
+  now unblocked).
