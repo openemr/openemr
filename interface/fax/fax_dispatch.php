@@ -143,45 +143,46 @@ if ($_POST['form_save']) {
             // exist in the faxcache directory.
             //
             $info_msg .= mergeTiffs();
-            // The -j option here requires that libtiff is configured with libjpeg.
-            // It could be omitted, but the output PDFs would then be quite large.
             $tmppdf = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'fax');
-            $tmp0 = exec("tiff2pdf -j -p letter -o " . escapeshellarg($tmppdf) . " " . escapeshellarg($faxcache . '/temp.tif'), $tmp1, $tmp2);
 
-            if ($tmp2) {
-                $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
+            if ($tmppdf === false) {
+                $info_msg .= xl('Unable to create a temporary file for the document') . ' ';
             } else {
-                // Store through the Document model so drive encryption, the
-                // storage path, UUID, hash and category linkage are all handled
-                // consistently. A raw INSERT here previously wrote the PDF to
-                // disk in plaintext regardless of the drive_encryption setting.
-                $data = file_get_contents($tmppdf);
-                if ($data === false) {
-                    $info_msg .= xl('Failed to read the generated document');
+                // The -j option here requires that libtiff is configured with libjpeg.
+                // It could be omitted, but the output PDFs would then be quite large.
+                $tmp0 = exec("tiff2pdf -j -p letter -o " . escapeshellarg($tmppdf) . " " . escapeshellarg($faxcache . '/temp.tif'), $tmp1, $tmp2);
+
+                if ($tmp2) {
+                    $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
                 } else {
-                    $document = new Document();
-                    $store_msg = $document->createDocument(
-                        (string) $patient_id,
-                        $catid,
-                        $docname,
-                        'application/pdf',
-                        $data,
-                        tmpfile: $tmppdf,
-                    );
-                    $newid = $document->get_id();
-                    if (is_numeric($newid)) {
-                        // createDocument does not set docdate; carry over the
-                        // user-supplied document date.
-                        sqlStatement("UPDATE documents SET docdate = ? WHERE id = ?", [$docdate, $newid]);
+                    // Storing through the Document model keeps drive encryption,
+                    // the storage path, UUID, hash and category linkage consistent
+                    // with every other way a document enters the system.
+                    $data = file_get_contents($tmppdf);
+                    if ($data === false) {
+                        $info_msg .= xl('Failed to read the generated document') . ' ';
                     } else {
-                        $info_msg .= $store_msg ?: xl('Failed to store the document');
+                        $document = new Document();
+                        $document->set_docdate($docdate);
+                        $store_msg = $document->createDocument(
+                            (string) $patient_id,
+                            $catid,
+                            $docname,
+                            'application/pdf',
+                            $data,
+                            tmpfile: $tmppdf,
+                        );
+                        $newid = $document->get_id();
+                        if (!is_numeric($newid)) {
+                            $info_msg .= ($store_msg ?: xl('Failed to store the document')) . ' ';
+                        }
                     }
                 }
-            } // end not error
 
-            if (is_file($tmppdf)) {
-                unlink($tmppdf);
-            }
+                if (is_file($tmppdf)) {
+                    unlink($tmppdf);
+                }
+            } // end temporary file created
 
             // If we are posting a note...
             if ($_POST['form_cb_note'] && !$info_msg) {
