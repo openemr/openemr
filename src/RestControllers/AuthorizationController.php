@@ -8,7 +8,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,7 +19,6 @@ namespace OpenEMR\RestControllers;
 use DateInterval;
 use DateTimeImmutable;
 use Exception;
-use JsonException;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
@@ -81,6 +80,7 @@ use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
+use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -254,7 +254,7 @@ class AuthorizationController
             $this->getSystemLogger()->debug("AuthorizationController::clientRegistration start");
             $request_headers = $request->getHeaders();
             foreach ($request_headers as $header => $value) {
-                $headers[strtolower((string)$header)] = $value[0];
+                $headers[strtolower((string) $header)] = $value[0];
             }
             if (!$headers['content-type'] || !str_starts_with($headers['content-type'], 'application/json')) {
                 throw new OAuthServerException('Unexpected content type', 0, 'invalid_client_metadata');
@@ -334,22 +334,14 @@ class AuthorizationController
                 if ($data->has($key)) {
                     if (in_array($key, ['contacts', 'redirect_uris', 'request_uris', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values'])) {
                         $params[$key] = implode('|', $data->all($key));
-                    } elseif (in_array($key, ['dsi_source_attributes'])) {
+                    } else if (in_array($key, ['dsi_source_attributes'])) {
                         $params[$key] = $data->all($key);
                     } elseif ($key === 'jwks') {
-                        $payload = $data->all();
-                        $jwks = $payload['jwks'] ?? null;
+                        $jwks = $data->all('jwks');
                         if (is_string($jwks)) {
                             $jwks = json_decode($jwks, true, 512, JSON_THROW_ON_ERROR);
                         }
-                        if (!is_array($jwks) || array_is_list($jwks)) {
-                            throw new OAuthServerException(
-                                'jwks must be a JSON object',
-                                0,
-                                'invalid_client_metadata'
-                            );
-                        }
-                        $params[$key] = json_encode($jwks, JSON_THROW_ON_ERROR);
+                        $params[$key] = json_encode($jwks);
                     } else {
                         $params[$key] = $data->get($key);
                     }
@@ -491,11 +483,11 @@ class AuthorizationController
                 }
             }
             // TODO: @adunsulag this was the server path but can't we just have it be getPathInfo()?
-            $pos = strpos((string)$request->server->get('PATH_INFO'), '/client/');
+            $pos = strpos((string) $request->server->get('PATH_INFO'), '/client/');
             if ($pos === false) {
                 throw new OAuthServerException('Invalid path', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
-            $uri_path = substr((string)$request->server->get('PATH_INFO'), $pos + 8);
+            $uri_path = substr((string) $request->server->get('PATH_INFO'), $pos + 8);
             $client = sqlQuery("SELECT * FROM `oauth_clients` WHERE `registration_uri_path` = ?", [$uri_path]);
             if (!$client) {
                 throw new OAuthServerException('Invalid client', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
@@ -509,10 +501,10 @@ class AuthorizationController
             } catch (CryptoGenException) {
                 throw new OAuthServerException('Client secret decryption failed', 0, 'server_error', Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-            $params['contacts'] = explode('|', (string)$client['contacts']);
+            $params['contacts'] = explode('|', (string) $client['contacts']);
             $params['application_type'] = $client['client_role'];
             $params['client_name'] = $client['client_name'];
-            $params['redirect_uris'] = explode('|', (string)$client['redirect_uri']);
+            $params['redirect_uris'] = explode('|', (string) $client['redirect_uri']);
 
             // need to grab dsi information
             $this->addDSIInformation($params, $client);
@@ -536,7 +528,7 @@ class AuthorizationController
         $request_headers = $request->getHeaders();
         $headers = [];
         foreach ($request_headers as $header => $value) {
-            $headers[strtolower((string)$header)] = $value[0];
+            $headers[strtolower((string) $header)] = $value[0];
         }
         $authorization = $headers['authorization'];
         if ($authorization) {
@@ -825,22 +817,22 @@ class AuthorizationController
         $patientRoleSupport = (!empty($this->globalsBag->get('rest_portal_api')) || !empty($this->globalsBag->get('rest_fhir_api')));
         $loginTwigVars = [
             'authorize' => null
-            , 'mfaRequired' => false
-            , 'redirect' => $this->authBaseUrl . "/login"
-            , 'isTOTP' => false
-            , 'isU2F' => false
-            , 'u2fRequests' => ''
-            , 'appId' => ''
-            , 'enforce_signin_email' => $this->globalsBag->getBoolean('enforce_signin_email')
-            , 'user' => [
+            ,'mfaRequired' => false
+            ,'redirect' => $this->authBaseUrl . "/login"
+            ,'isTOTP' => false
+            ,'isU2F' => false
+            ,'u2fRequests' => ''
+            ,'appId' => ''
+            ,'enforce_signin_email' => $this->globalsBag->getBoolean('enforce_signin_email')
+            ,'user' => [
                 'email' => $request->request->get('email', '')
-                , 'username' => $request->request->get('username', '')
-                , 'password' => $request->request->get('password', '')
+                ,'username' => $request->request->get('username', '')
+                ,'password' => $request->request->get('password', '')
             ]
-            , 'patientRoleSupport' => $patientRoleSupport
-            , 'invalid' => ''
-            , 'client' => $client
-            , 'csrfToken' => CsrfUtils::collectCsrfToken($session, 'oauth2')
+            ,'patientRoleSupport' => $patientRoleSupport
+            ,'invalid' => ''
+            ,'client' => $client
+            ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'oauth2')
         ];
         if (empty($request->request->get('username')) && empty($request->request->get('password'))) {
             $this->getSystemLogger()->debug("AuthorizationController->userLogin() presenting blank login form");
@@ -893,7 +885,7 @@ class AuthorizationController
                 return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
             }
             //Check the validity of the authentication token
-            if ($request->request->get('user_role') === 'api' && $mfa->isMfaRequired() && !is_null($mfaToken)) {
+            if ($request->request->get('user_role') === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
                 if (!$mfaToken || !$mfa->check($mfaToken, $request->request->get('mfa_type'))) {
                     // Log failed MFA authentication attempt
                     $rawMfaType = $request->request->getString('mfa_type');
@@ -941,12 +933,12 @@ class AuthorizationController
         $this->getSystemLogger()->debug(
             "AuthorizationController->userLogin() complete redirecting",
             ["scopes" => $session->get('scopes', '')
-                ,
-                'claims' => $session->get(
-                    'claims',
-                    []
-                ),
-                'redirect' => $redirect]
+            ,
+            'claims' => $session->get(
+                'claims',
+                []
+            ),
+            'redirect' => $redirect]
         );
 
         return $this->createServerResponse()->withStatus(Response::HTTP_TEMPORARY_REDIRECT)->withHeader("Location", $redirect);
@@ -1045,7 +1037,7 @@ class AuthorizationController
         $session = $this->session;
         $scopeString = $session->get('scopes', '');
 
-        $scopesList = explode(' ', (string)$scopeString);
+        $scopesList = explode(' ', (string) $scopeString);
         $offline_requested = false;
         $scopes = [];
 
@@ -1082,7 +1074,7 @@ class AuthorizationController
             // Hidden scopes
             if ($scope == 'openid') {
                 $hiddenScopes[] = $scope;
-            } elseif (in_array($scope, $fhirRequiredSmartScopes)) {
+            } else if (in_array($scope, $fhirRequiredSmartScopes)) {
                 $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope);
             }
         }
@@ -1090,31 +1082,31 @@ class AuthorizationController
         // Process claims
         $updatedClaims = [];
         foreach ($claims as $key => $value) {
-            $key_n = explode('_', (string)$key);
-            if (stripos((string)$scopeString, $key_n[0]) === false) {
+            $key_n = explode('_', (string) $key);
+            if (stripos((string) $scopeString, $key_n[0]) === false) {
                 continue;
             }
             if ((int)$value === 1) {
                 $value = 'True';
             }
             $updatedKey = $key;
-            $updatedClaims[$key] = $value;
             if ($key != 'fhirUser') {
                 $updatedKey = ucwords(str_replace("_", " ", $key));
             }
+            $updatedClaims[$updatedKey] = $value;
         }
 
         $twigVars = [
             'redirect' => $redirect
-            , 'client' => $client
-            , 'otherScopes' => $otherScopes
-            , 'structuredScopes' => $structuredScopes  // New structured data
-            , 'hiddenScopes' => $hiddenScopes
-            , 'claims' => $updatedClaims
-            , 'userAccount' => $userAccount
-            , 'offlineRequested' => true == $offline_requested
-            , 'offline_access_date' => $offline_access_date
-            , 'csrfToken' => CsrfUtils::collectCsrfToken($session, 'oauth2')
+            ,'client' => $client
+            ,'otherScopes' => $otherScopes
+            ,'structuredScopes' => $structuredScopes  // New structured data
+            ,'hiddenScopes' => $hiddenScopes
+            ,'claims' => $updatedClaims
+            ,'userAccount' => $userAccount
+            ,'offlineRequested' => true == $offline_requested
+            ,'offline_access_date' => $offline_access_date
+            ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'oauth2')
         ];
 
         return $this->renderTwigPage('oauth2/authorize/scopes-authorize', "oauth2/scope-authorize.html.twig", $twigVars);
@@ -1236,16 +1228,14 @@ class AuthorizationController
                     CsrfUtils::csrfViolation(toScreen: false);
                     throw OAuthServerException::serverError("Failed authorization due to failed CSRF check.");
                 } else {
-                    if (
-                        !$this->saveTrustedUser(
-                            $this->session->get('client_id'),
-                            $this->session->get('user_id'),
-                            $this->session->get('scopes'),
-                            $this->session->get('persist_login'),
-                            $code,
-                            $session_cache
-                        )
-                    ) {
+                    if (!$this->saveTrustedUser(
+                        $this->session->get('client_id'),
+                        $this->session->get('user_id'),
+                        $this->session->get('scopes'),
+                        $this->session->get('persist_login'),
+                        $code,
+                        $session_cache
+                    )) {
                         $this->getSystemLogger()->error("AuthorizationController::authorizeUser() failed to save trusted user session");
                         throw OAuthServerException::serverError("Failed authorization due to internal server error.");
                     }
@@ -1285,7 +1275,7 @@ class AuthorizationController
     {
         $this->getSystemLogger()->debug(
             "AuthorizationController->updateAuthRequestWithUserApprovedScopes() attempting to update auth request with user approved scopes",
-            ['userApprovedScopes' => $approvedScopes]
+            ['userApprovedScopes' => $approvedScopes ]
         );
         // the request scopes are just the straight up identifier and not our more complex ScopeEntity so we can't use
         // them directly for validation.
@@ -1302,7 +1292,8 @@ class AuthorizationController
                 ) {
                     $scopeUpdates[] = $approvedScopeEntity;
                 }
-            } catch (\Throwable $e) {
+            }
+            catch (\Throwable $e) {
                 $this->getSystemLogger()->error(
                     "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
                     ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]
@@ -1323,7 +1314,7 @@ class AuthorizationController
         $authRequest = new AuthorizationRequest();
         try {
             $requestData = $this->session->get('authRequestSerial', $this->authRequestSerial);
-            $restore = json_decode((string)$requestData, true);
+            $restore = json_decode((string) $requestData, true);
             $outer = $restore['outer'];
             $client = $restore['client'];
             $scoped = $restore['scopes'];
@@ -1346,8 +1337,8 @@ class AuthorizationController
             $authRequest->setState($outer['state']);
             $authRequest->setCodeChallenge($outer['codeChallenge']);
             $authRequest->setCodeChallengeMethod($outer['codeChallengeMethod']);
-        } catch (\Throwable $e) {
-            echo $e;
+        } catch (\Throwable) {
+            // Preserve the existing empty AuthorizationRequest error flow without exposing exception details.
         }
 
         return $authRequest;
@@ -1376,7 +1367,7 @@ class AuthorizationController
             // re-populate from saved session cache populated in authorizeUser().
             $ssbc = $this->sessionUserByCode($code);
             if (!empty($ssbc)) {
-                $this->session->replace(json_decode((string)$ssbc['session_cache'], true));
+                $this->session->replace(json_decode((string) $ssbc['session_cache'], true));
             } else {
                 // TODO: @adunsulag should we throw an exception here?
             }
@@ -1487,7 +1478,7 @@ class AuthorizationController
                     throw new HttpException(Response::HTTP_UNAUTHORIZED, $message);
                 }
             }
-            $session_nonce = (json_decode((string)$trustedUser['session_cache'], true)['nonce']) ?? '';
+            $session_nonce = (json_decode((string) $trustedUser['session_cache'], true)['nonce']) ?? '';
             // this should be enough to confirm valid id
             if ($session_nonce !== $id_nonce) {
                 throw new OAuthServerException('Id token not issued from this server', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
@@ -1528,8 +1519,8 @@ class AuthorizationController
 
     /**
      * Returns the authentication server token Url endpoint
-     * @return string
      * @deprecated Use ServerConfig::getTokenUrl()
+     * @return string
      */
     public function getTokenUrl()
     {
@@ -1565,8 +1556,8 @@ class AuthorizationController
 
     /**
      * Returns the authentication server authorization url to use for oauth authentication
-     * @return string
      * @deprecated Use ServerConfig::getAuthorizeUrl()
+     * @return string
      */
     public function getAuthorizeUrl(): string
     {
@@ -1584,8 +1575,8 @@ class AuthorizationController
 
     /**
      * Returns the authentication server registration url to use for client app / api registration
-     * @return string
      * @deprecated Use ServerConfig::getIntrospectionUrl()
+     * @return string
      */
     public function getRegistrationUrl(): string
     {
@@ -1603,8 +1594,8 @@ class AuthorizationController
 
     /**
      * Returns the authentication server introspection url to use for checking tokens
-     * @return string
      * @deprecated Use ServerConfig::getIntrospectionUrl()
+     * @return string
      */
     public function getIntrospectionUrl(): string
     {
@@ -1755,7 +1746,6 @@ class AuthorizationController
         // so we'll set this to true and then reset it after we commit
         $this->getDecisionSupportInterventionService()->setInNestedTransaction(true);
     }
-
     private function getDecisionSupportInterventionService(): DecisionSupportInterventionService
     {
         if (empty($this->dsiService)) {
@@ -1891,7 +1881,6 @@ class AuthorizationController
         $userIdentityRepository->setSystemLogger($this->getSystemLogger());
         return $userIdentityRepository;
     }
-
     /**
      * @return AccessTokenRepository
      */
