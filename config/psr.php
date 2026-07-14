@@ -12,10 +12,7 @@
 
 declare(strict_types=1);
 
-use GuzzleHttp\{
-    Client,
-    RequestOptions,
-};
+use GuzzleHttp\Client;
 use Lcobucci\Clock\SystemClock;
 use Monolog\Logger;
 use Psr\Clock\ClockInterface;
