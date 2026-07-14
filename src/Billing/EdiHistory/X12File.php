@@ -103,7 +103,7 @@ class X12File
     function __construct($file_path = '', $mk_segs = true, $text = false)
     {
         if ($file_path === '') {
-            return true;
+            return;
         }
 
         if (is_file($file_path) && is_readable($file_path)) {
@@ -142,7 +142,6 @@ class X12File
         }
 
         $this->constructing = false;
-        return $this->valid;
     }
 
     /*
