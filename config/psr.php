@@ -45,17 +45,6 @@ return [
 
     // PSR-18
     ClientInterface::class => Client::class,
-    Client::class => fn () => new Client([
-        // PSR-18 does not specify behavior on following redirects; it's
-        // usually the correct thing to do.
-        RequestOptions::ALLOW_REDIRECTS => true,
-        // Set _reasonable_ timeouts to avoid permanent hangs
-        RequestOptions::CONNECT_TIMEOUT => 5,
-        RequestOptions::TIMEOUT => 15,
-        // PSR-18 explicitly states that implementations must not throw on
-        // 4xx/5xx responses.
-        RequestOptions::HTTP_ERRORS => false,
-    ]),
 
     // PSR-20
     ClockInterface::class => SystemClock::class,

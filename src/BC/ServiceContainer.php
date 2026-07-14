@@ -14,6 +14,7 @@ namespace OpenEMR\BC;
 
 use GuzzleHttp\{
     Client,
+    ClientInterface as GuzzleClientInterface,
     RequestOptions,
 };
 use InvalidArgumentException;
@@ -138,18 +139,36 @@ class ServiceContainer
         );
     }
 
-    public static function getHttpClient(): ClientInterface
+    /**
+     * Guzzle Client. This builds on the pure PSR-18 interface by adding:
+     * 1) Async request handling options
+     * 2) Request-specific options (an array keyed by RequestOptions constants)
+     *
+     * While we generally prefer binding to vendor-agnostic interfaces,
+     * pragmatism wins out here - there's often a _lot_ of boilerplate in
+     * constructing all of the PSR messages.
+     */
+    public static function getGuzzle(): GuzzleClientInterface & ClientInterface
     {
+        /** @phpstan-ignore return.type (can't represent the native union with the generics in an array key) */
         return self::resolveOrCreate(
-            ClientInterface::class,
+            GuzzleClientInterface::class,
             static fn() => new Client([
-                // see notes in config/psr.php
+                // See config/services.php for details
                 RequestOptions::ALLOW_REDIRECTS => true,
                 RequestOptions::CONNECT_TIMEOUT => 5,
                 RequestOptions::HTTP_ERRORS => false,
                 RequestOptions::TIMEOUT => 15,
             ]),
         );
+    }
+
+    /**
+     * Pure PSR-18 client; this will return 4xx/5xx for the caller to handle
+     */
+    public static function getHttpClient(): ClientInterface
+    {
+        return self::getGuzzle();
     }
 
     public static function getLogger(): LoggerInterface
