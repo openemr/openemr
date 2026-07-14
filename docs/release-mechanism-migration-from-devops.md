@@ -1288,14 +1288,20 @@ v8_2_0 for uniform user experience with 8.2.1+ (which won't have a
 per-version page). Tests: 67 pass; phpstan + phpcs clean.
 
 **PR 7 — Retire `src/Common/Command/CreateReleaseChangelogCommand.php`.**
-Stephen Nielson's older milestone-driven changelog helper (374 lines,
-uses Guzzle) predates the current release-mechanism migration and is
-redundant with the ChangelogGenerator + ChangelogMutator flow that PR 4
-introduces. Delete the class + its tests. Verify no workflows still
-invoke `openemr:create-release-changelog` (grep confirms none post-PR 4).
-**Depends on PR 6** — hold until the website release-notes surface is
-fully cut over so we're not retiring anything a maintainer might still
-reach for during the transition.
+*SHIPPED 2026-07-14 as openemr/openemr#12964.* Deleted the 374-line
+Guzzle-based milestone-driven changelog helper (Stephen Nielson's,
+predates the migration; fully redundant with ChangelogGenerator +
+ChangelogMutator). Also removed the `.github/byte-identical.yml`
+entry for the file and pruned 66 stale phpstan-baseline entries
+across 17 baseline files (all referencing the deleted class). Two
+fatal-baseline-caps followed the count reductions
+(`method.notFound.php` 138→137, `variable.undefined.php` 509→508)
+in the same commit -- caps only go down per the fatal-baseline-caps
+contract. No live callers grepped anywhere in the tree; no tests
+referenced the class. 19 files changed / 706 deletions net. Sync
+workflow will propagate the file deletion + manifest update to
+rel-820 (excluded from rel-800 + rel-704 per the object-form
+`exclude-branches:` on the release-mechanism paths).
 
 **PR 8 — Add `CompatibilityMutator`; fix `CompatibilityNotesRenderer::inject()`
 idempotence.** *SHIPPED 2026-07-13 as openemr/openemr#12928 (paired with
