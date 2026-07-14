@@ -194,6 +194,9 @@ function postcalendar_user_search()
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sessionPcUsername = $session->get('pc_username', []);
+    // pc_username may be a single username (string) or a list of usernames
+    // (from the multi-select pc_username[] input); normalize to the first one.
+    $firstPcUsername = is_array($sessionPcUsername) ? ($sessionPcUsername[0] ?? null) : $sessionPcUsername;
     $provider_options .= ">" . xlt('All Providers') . "</option>";
     foreach ($provinfo as $provider) {
         $selected = "";
@@ -202,7 +205,7 @@ function postcalendar_user_search()
         if ($ProviderID == "") {
             // that variable stores the 'username' and not the numeric 'id'
 
-            if ($sessionPcUsername[0] == $provider['username']) {
+            if ($firstPcUsername !== null && $firstPcUsername == $provider['username']) {
                 $selected = " SELECTED ";
             }
         } elseif ($ProviderID == $provider['id']) {
