@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Http;
 
+use GuzzleHttp\ClientInterface;
 use OpenEMR\Core\OEGlobalsBag;
 
 /**
@@ -26,7 +27,9 @@ class oeHttpRequest extends oeHttp
     private string $bodyFormat;
     private array $options;
 
-    public function __construct($client)
+    private static ClientInterface $client;
+
+    public function __construct(ClientInterface $client)
     {
         parent::__construct();
 
@@ -68,9 +71,12 @@ class oeHttpRequest extends oeHttp
         return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, $options));
     }
 
-    public static function newArgs(...$args): oeHttpRequest
+    /**
+     * @deprecated - use the constructor
+     */
+    public static function newArgs(ClientInterface $client): oeHttpRequest
     {
-        return new self(...$args);
+        return new self($client);
     }
 
     public function setDebug($port = '')
