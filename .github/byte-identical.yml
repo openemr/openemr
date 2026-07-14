@@ -13,6 +13,23 @@
 # Consumed by:
 #   .github/workflows/validate-byte-identical.yml  (drift canary)
 #
+# Two entry shapes are accepted:
+#   - simple string form: applies to master + every rel branch
+#       - .github/workflows/docker-build-release.yml
+#   - object form with per-branch exclusions:
+#       - path: tools/release/**
+#         exclude-branches:
+#         - rel-800
+#         - rel-704
+#     Use for files that master + newer rel branches carry but older
+#     rel branches predate. Applies to master + every rel branch NOT
+#     in the exclude list. The release-mechanism surface is the current
+#     motivating case: rel-800 + rel-704 predate the mechanism, and
+#     forcing the PHP source there would fail phpstan + isolated
+#     tests + composer-require-checker on those branches (those
+#     linters run on every PHP file regardless of whether any
+#     workflow invokes them).
+#
 # To add a file: append under `files:`. The canary picks it up on the
 # next run; no workflow edit needed.
 #
@@ -98,19 +115,37 @@ files:
 # (setup-php-composer composite is used by release-prep.yml; PR body
 # templates are read by peter-evans at rel-branch runtime).
 #
+# All entries in this block exclude rel-800 + rel-704: those branches
+# predate the release mechanism entirely. They lack the composer
+# autoload for OpenEMR\Release\* / OpenEMR\Common\Command\ReleasePrep\*
+# and the Symfony Console classes the release-prep code depends on.
+# Syncing the code there would fail phpstan + isolated tests +
+# composer-require-checker on those branches (see #12912/#12913 for
+# the concrete failure mode this exclusion prevents).
+#
 # Master-only-firing workflows (notify-release-targets-changed,
 # docker-release-orchestrator, docker-validate-release-targets) are
 # NOT in this set -- see the "Intentionally NOT in this list" block
 # above.
-- .github/workflows/release-prep.yml
-- .github/workflows/branch-cut-automation.yml
-- .github/workflows/patch-prep-automation.yml
-- .github/workflows/release-permissions-check.yml
-- .github/actions/setup-php-composer/action.yml
-- .github/PULL_REQUEST_TEMPLATE/release-prep.md
-- .github/PULL_REQUEST_TEMPLATE/release-finalize.md
-- tools/release/**
-- src/Common/Command/ReleasePrep/**
-- src/Common/Command/ReleasePrepCommand.php
-- src/Common/Command/CreateReleaseChangelogCommand.php
-- tests/Tests/Isolated/Release/**
+- path: .github/workflows/release-prep.yml
+  exclude-branches: [rel-800, rel-704]
+- path: .github/workflows/branch-cut-automation.yml
+  exclude-branches: [rel-800, rel-704]
+- path: .github/workflows/patch-prep-automation.yml
+  exclude-branches: [rel-800, rel-704]
+- path: .github/workflows/release-permissions-check.yml
+  exclude-branches: [rel-800, rel-704]
+- path: .github/actions/setup-php-composer/action.yml
+  exclude-branches: [rel-800, rel-704]
+- path: .github/PULL_REQUEST_TEMPLATE/release-prep.md
+  exclude-branches: [rel-800, rel-704]
+- path: .github/PULL_REQUEST_TEMPLATE/release-finalize.md
+  exclude-branches: [rel-800, rel-704]
+- path: tools/release/**
+  exclude-branches: [rel-800, rel-704]
+- path: src/Common/Command/ReleasePrep/**
+  exclude-branches: [rel-800, rel-704]
+- path: src/Common/Command/ReleasePrepCommand.php
+  exclude-branches: [rel-800, rel-704]
+- path: tests/Tests/Isolated/Release/**
+  exclude-branches: [rel-800, rel-704]

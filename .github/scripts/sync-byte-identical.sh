@@ -101,34 +101,47 @@ mkdir -p "${output_dir}"
 
 # Read the FILES_ALL set from master's config file. Even if the rel branch
 # has its own copy, master is the source of truth -- we never sync FROM a
-# rel branch's view. Each subprocess invocation is captured separately to
-# avoid SC2312 (pipeline return values being masked by mapfile process
-# substitution).
-config_contents=$(git show master:.github/byte-identical.yml)
-files_yq_output=$(echo "${config_contents}" | yq -r '.files[]')
-mapfile -t FILES_ALL <<<"${files_yq_output}"
-# When the yq output is empty, mapfile produces a single empty element;
-# normalize to an empty array so the length-zero check below is honest.
-if [[ ${#FILES_ALL[@]} -eq 1 && -z "${FILES_ALL[0]}" ]]; then
-  FILES_ALL=()
-fi
+# rel branch's view. read_manifest_entries needs a file so we materialize
+# master's copy into a temp path first.
+master_manifest=$(mktemp)
+trap 'rm -f "${master_manifest}"' EXIT
+git show master:.github/byte-identical.yml > "${master_manifest}"
 
-if [[ ${#FILES_ALL[@]} -eq 0 ]]; then
+declare -a MASTER_FILES_ALL_RAW=()
+# shellcheck disable=SC2034  # nameref -- populated by read_manifest_entries
+declare -a MASTER_FILES_ALL_EXCLUDES=()
+read_manifest_entries "${master_manifest}" MASTER_FILES_ALL_RAW MASTER_FILES_ALL_EXCLUDES
+
+if [[ ${#MASTER_FILES_ALL_RAW[@]} -eq 0 ]]; then
   emit_error "No files in master's byte-identical.yml; refusing to sync (an empty list would propagate 'delete every synced file' to every rel branch)."
   exit 1
 fi
 
-# Reject duplicates -- idempotent in practice, but a config bug worth surfacing.
-dupes=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
+# Reject duplicates in the raw path list -- idempotent in practice, but a config bug worth surfacing.
+dupes=$(printf '%s\n' "${MASTER_FILES_ALL_RAW[@]}" | sort | uniq -d)
 if [[ -n "${dupes}" ]]; then
   dupes_one_line=$(echo "${dupes}" | tr '\n' ' ')
   emit_error "Duplicate entries in byte-identical.yml files: ${dupes_one_line}"
   exit 1
 fi
 
+# Filter master's manifest for the target rel branch. Entries whose
+# exclude-branches list contains target_branch are dropped -- those
+# files stay per-branch-drifting (e.g. release-mechanism surface on
+# rel-800/rel-704 which predate the mechanism).
+declare -a FILES_ALL=()
+filter_by_branch "${target_branch}" MASTER_FILES_ALL_RAW MASTER_FILES_ALL_EXCLUDES FILES_ALL
+
+if [[ ${#FILES_ALL[@]} -eq 0 ]]; then
+  echo "No FILES_ALL entries apply to ${target_branch} after exclude-branches filtering; nothing to sync."
+  : > "${output_dir}/changes.txt"  # truly empty; `echo "" > ...` would write a newline
+  git rev-parse master > "${output_dir}/master-sha.txt"
+  exit 0
+fi
+
 master_sha=$(git rev-parse master)
 echo "Syncing master (${master_sha}) -> ${target_branch}"
-echo "Patterns in master's FILES_ALL: ${#FILES_ALL[@]}"
+echo "Patterns applicable to ${target_branch}: ${#FILES_ALL[@]} (of ${#MASTER_FILES_ALL_RAW[@]} total)"
 
 # Expand master's FILES_ALL against BOTH refs. A path may exist only on
 # master (add), only on rel (delete), on both (identical/update), or --
@@ -221,12 +234,24 @@ done
 # in the diff and needs a silent skip. Glob entries only emit
 # existing paths, so case 3 doesn't apply to them.
 if git cat-file -e "HEAD:.github/byte-identical.yml" 2>/dev/null; then
-  rel_config_contents=$(git show "HEAD:.github/byte-identical.yml")
-  rel_files_yq_output=$(echo "${rel_config_contents}" | yq -r '.files[]')
-  mapfile -t REL_FILES_ALL <<<"${rel_files_yq_output}"
-  if [[ ${#REL_FILES_ALL[@]} -eq 1 && -z "${REL_FILES_ALL[0]}" ]]; then
-    REL_FILES_ALL=()
-  fi
+  # Materialize rel's manifest into a temp file so read_manifest_entries
+  # can process both entry shapes (string + object with exclude-branches).
+  rel_manifest=$(mktemp)
+  # shellcheck disable=SC2064  # expand-now on purpose
+  trap "rm -f '${rel_manifest}' '${master_manifest}'" EXIT
+  git show "HEAD:.github/byte-identical.yml" > "${rel_manifest}"
+
+  # shellcheck disable=SC2034  # nameref -- populated by read_manifest_entries
+  declare -a REL_FILES_ALL_RAW=()
+  # shellcheck disable=SC2034  # nameref -- populated by read_manifest_entries
+  declare -a REL_FILES_ALL_EXCLUDES=()
+  read_manifest_entries "${rel_manifest}" REL_FILES_ALL_RAW REL_FILES_ALL_EXCLUDES
+
+  # Filter rel's manifest for target_branch too -- if rel's manifest
+  # says a path is excluded from itself, that path isn't part of rel's
+  # managed set.
+  declare -a REL_FILES_ALL=()
+  filter_by_branch "${target_branch}" REL_FILES_ALL_RAW REL_FILES_ALL_EXCLUDES REL_FILES_ALL
 
   if [[ ${#REL_FILES_ALL[@]} -gt 0 ]]; then
     # Expand rel's own patterns against rel HEAD to get concrete paths

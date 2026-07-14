@@ -198,12 +198,35 @@ jobs:
     - name: Compute add-paths input for peter-evans
       id: paths
       if: steps.apply.outputs.has_changes == 'true'
+      env:
+        TARGET_BRANCH: ${{ matrix.branch }}
       run: |
         # Tell peter-evans/create-pull-request to commit only the FILES_ALL
         # entries, not any other files that happen to be in the workspace
         # (e.g. composer.lock drift from a running container, or our own
         # /tmp body file if it ended up here).
-        mapfile -t FILES_ALL < <(git show master:.github/byte-identical.yml | yq -r '.files[]')
+        #
+        # Uses master's copy of list-manifest-paths.sh, which shares the
+        # same manifest-parsing + exclude-branches filtering as the sync
+        # script (via lib/glob-expand.sh's read_manifest_entries +
+        # filter_by_branch). Eliminates the workflow-vs-script yq
+        # duplication that produced #12916 and #12920.
+        #
+        # lib/glob-expand.sh was already materialized to $RUNNER_TEMP/lib/
+        # by the Apply step above; list-manifest-paths.sh source-loads it
+        # by relative path, so RUNNER_TEMP's layout matches master's
+        # (script + sibling lib/).
+        git show master:.github/scripts/list-manifest-paths.sh > "$RUNNER_TEMP/list-manifest-paths.sh"
+        git show master:.github/byte-identical.yml > "$RUNNER_TEMP/manifest.yml"
+        # Two-step invocation (write to file, then mapfile from file)
+        # rather than `mapfile < <(bash ...)` process-substitution: the
+        # latter swallows the script's exit code, so a failure of
+        # list-manifest-paths.sh (missing manifest, missing yq, etc.)
+        # would silently yield an empty paths input to peter-evans,
+        # which would then open a PR with the wrong (or missing) file
+        # set. Splitting into two commands lets `set -e` propagate.
+        bash "$RUNNER_TEMP/list-manifest-paths.sh" "$RUNNER_TEMP/manifest.yml" "$TARGET_BRANCH" > "$RUNNER_TEMP/paths.txt"
+        mapfile -t FILES_ALL < "$RUNNER_TEMP/paths.txt"
         {
           echo "paths<<EOF"
           printf '%s\n' "${FILES_ALL[@]}"
