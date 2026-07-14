@@ -1,0 +1,583 @@
+[
+    {
+        "ghsa_id": "GHSA-6vx2-w9hw-prqj",
+        "severity": "medium",
+        "summary": "SQL Injection via Unsanitized Variables in MedEx Recall/Reminder Processing",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-6vx2-w9hw-prqj",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-x32c-xj5g-7jx7",
+        "severity": "high",
+        "summary": "SQL Injection Vulnerability in patient selection (OpenEMR <8.0.0.3)",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-x32c-xj5g-7jx7",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-6ch2-p26g-x33h",
+        "severity": "high",
+        "summary": "Stored XSS in patient encounter Eye Exam form $CHRONIC2 and $CHRONIC3",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-6ch2-p26g-x33h",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-54m8-wpg9-9665",
+        "severity": "medium",
+        "summary": "Improper ACL On Import/Export Popup",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-54m8-wpg9-9665",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-wwhf-6cvc-6766",
+        "severity": "medium",
+        "summary": "Reflected XSS in graphs.php via title parameter",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-wwhf-6cvc-6766",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-cpph-949w-w79v",
+        "severity": "medium",
+        "summary": "Reflected XSS in ajax_download.php via reportID parameter",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-cpph-949w-w79v",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-9757-3cfj-wc8q",
+        "severity": "high",
+        "summary": "XInclude Injection in CCDA Import Allows Reading Arbitrary Server Files",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-9757-3cfj-wc8q",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-rq3v-38x5-3rm5",
+        "severity": "high",
+        "summary": "SQL Injection in PostCalendar Category Delete",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-rq3v-38x5-3rm5",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-ww94-26v7-x4gp",
+        "severity": "medium",
+        "summary": "Missing ACL Checks on Insurance Company API Routes",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-ww94-26v7-x4gp",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-v8q6-h79f-736x",
+        "severity": "high",
+        "summary": "SQL Injection Vulnerability in ajax graphs library (OpenEMR <8.0.0.1)",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-v8q6-h79f-736x",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-r6xq-mfwf-wgq8",
+        "severity": "high",
+        "summary": "SQL Injection in CAMOS Form",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-r6xq-mfwf-wgq8",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-g3p5-5grq-m65m",
+        "severity": "high",
+        "summary": "Missing Authorization on Claim File Download Endpoint",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-g3p5-5grq-m65m",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-hf37-5rp9-j27j",
+        "severity": "medium",
+        "summary": "IDOR in Portal Payment Page Allows Cross-Patient Record Access",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-hf37-5rp9-j27j",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-g77x-9p3x-2j8f",
+        "severity": "high",
+        "summary": "Stored XSS in CCDA Preview via Unsanitized linkHtml Attributes",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-g77x-9p3x-2j8f",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-9qh7-cfq4-j7c3",
+        "severity": "medium",
+        "summary": "Reflected XSS via Unescaped contextName Parameter in Custom Template Editor",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-9qh7-cfq4-j7c3",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-w9w5-7x6h-657q",
+        "severity": "medium",
+        "summary": "Missing Authorization in show-signature.php Allows Portal Patients to Read Staff Signatures",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-w9w5-7x6h-657q",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-r973-h5cq-35rc",
+        "severity": "medium",
+        "summary": "Authorization Bypass in FaxSMS AppDispatch Constructor",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-r973-h5cq-35rc",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-752v-x6m4-6cf8",
+        "severity": "high",
+        "summary": "008: Inverted ACL Condition in CDR ControllerRouter Allows Any Authenticated User to Modify/Delete Clinical Rules and Plans",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-752v-x6m4-6cf8",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-qvf6-6xc6-9qv7",
+        "severity": "high",
+        "summary": "Stored XSS in portal_payment.php via Unescaped table_args",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-qvf6-6xc6-9qv7",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-66j9-ffq4-h222",
+        "severity": "medium",
+        "summary": "Authorization Bypass in Dated Reminders Log",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-66j9-ffq4-h222",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-cp37-pmfx-5mhm",
+        "severity": "medium",
+        "summary": "Stored XSS via Unescaped portal_login_username in Credential Print View",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-cp37-pmfx-5mhm",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-244w-vxhp-7x99",
+        "severity": "medium",
+        "summary": "POC_18: Stored XSS in Track Anything Graphs via Unescaped Dygraph Titles/Labels (VULN-1)",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-244w-vxhp-7x99",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-9hw7-22mr-qhfc",
+        "severity": "medium",
+        "summary": "POC_17: Dynamic Code Picker Renders Unescaped Descriptions (Stored XSS) (V1)",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-9hw7-22mr-qhfc",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-j4mm-wg7q-v57q",
+        "severity": "high",
+        "summary": "POC_16: Therapy Group Sensitivity ACL No Longer Enforced (OPENEMR-2024-001)",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-j4mm-wg7q-v57q",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-rwf9-px3c-3prw",
+        "severity": "medium",
+        "summary": "POC_15: Missing Authorization on Claim File Tracker UI and AJAX Endpoint (V2)",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-rwf9-px3c-3prw",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-68fr-xm3v-p4vw",
+        "severity": "high",
+        "summary": "184: Stored DOM XSS via `.html()` in Portal Signer Modal",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-68fr-xm3v-p4vw",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-pvvj-mv7h-7847",
+        "severity": "medium",
+        "summary": "IDOR in Fee Sheet Product Save",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-pvvj-mv7h-7847",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-3vvq-pfq6-pw98",
+        "severity": "high",
+        "summary": "Missing Authorization in Procedure Order AJAX Deletion Handler",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-3vvq-pfq6-pw98",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-q283-5j7f-r6hp",
+        "severity": "medium",
+        "summary": "vuln29: Stored DOM XSS via SearchHighlight text-node reconstruction on Custom Report page",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-q283-5j7f-r6hp",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-4gh4-q39r-45wf",
+        "severity": "high",
+        "summary": "vuln06: Stored XSS in prescription CSS/HTML print view via patient demographics",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-4gh4-q39r-45wf",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-55qj-x8wh-m4rm",
+        "severity": "medium",
+        "summary": "Stored XSS in Graphical Pain Map legend via unescaped annotation text",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-55qj-x8wh-m4rm",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-6pmc-3xm7-pm86",
+        "severity": "critical",
+        "summary": "Remote Code Execution in backup functionality (OpenEMR < 8.0.0.2)",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-6pmc-3xm7-pm86",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-6qg7-6jf3-xrfh",
+        "severity": "high",
+        "summary": "Privilege Escalation Allows a Low-Level User to View Admin-Only Data",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-6qg7-6jf3-xrfh",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-8gj5-r8vm-mghq",
+        "severity": "high",
+        "summary": "IDOR in Patient Notes Web UI allows unauthorized note access/modification",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-8gj5-r8vm-mghq",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-2r7h-xm8v-m872",
+        "severity": "high",
+        "summary": "Authenticated Blind Boolean-Based SQL Injection in new_search_popup.php",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-2r7h-xm8v-m872",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-v9v3-q973-xp2h",
+        "severity": "high",
+        "summary": "Arbitrary image file read via PDF generator",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-v9v3-q973-xp2h",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-5pc3-2crw-96rv",
+        "severity": "high",
+        "summary": "Out-of-Band Server-Side Request Forgery (OOB SSRF)",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-5pc3-2crw-96rv",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-pgvq-f22q-2whp",
+        "severity": "high",
+        "summary": "Stored XSS in patient encounter Eye Exam form answers",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-pgvq-f22q-2whp",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-3xx2-qf6g-6p28",
+        "severity": "high",
+        "summary": "Stored XSS in Questionnaire answers",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-3xx2-qf6g-6p28",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-jm78-x5p7-52qh",
+        "severity": "medium",
+        "summary": "Message Update Ignores Patient id",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-jm78-x5p7-52qh",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-mv9m-j65p-g55f",
+        "severity": "medium",
+        "summary": "POST /api/.../vital Accepts Attacker-Supplied id and Overwrites Arbitrary Vitals",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-mv9m-j65p-g55f",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-78r7-g65p-gpw3",
+        "severity": "high",
+        "summary": "SQL Injection Vulnerability in the prescription controller (OpenEMR <8.0.0)",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-78r7-g65p-gpw3",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-qj9f-x7v2-hrr7",
+        "severity": "high",
+        "summary": "Missing Authorization Checks in DICOM Viewer State API",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-qj9f-x7v2-hrr7",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-rppw-f689-6hrm",
+        "severity": "medium",
+        "summary": "Path Traversal When Zipping DICOM Folders",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-rppw-f689-6hrm",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-q96x-qw99-6xq9",
+        "severity": "medium",
+        "summary": "Eye Exam View Trusts form_id Without Verifying Patient/Encounter Ownership",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-q96x-qw99-6xq9",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-778w-r8rm-8qhq",
+        "severity": "medium",
+        "summary": " Patient Picture Context Allows Arbitrary Patient Photo Retrieval",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-778w-r8rm-8qhq",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-h3xx-8cp7-hf7m",
+        "severity": "medium",
+        "summary": "Printable LBF Endpoint Leaks Arbitrary Patient Forms",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-h3xx-8cp7-hf7m",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-phcp-7qjx-83cm",
+        "severity": "medium",
+        "summary": "Messages \"Show All\" Not Restricted to Admins",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-phcp-7qjx-83cm",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-v68v-pwc4-8p2m",
+        "severity": "high",
+        "summary": "zhAclCheck Ignores Explicit ACL Denies",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-v68v-pwc4-8p2m",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-f64c-h2gh-g3f9",
+        "severity": "high",
+        "summary": "Document and Insurance REST Endpoints Skip ACL",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-f64c-h2gh-g3f9",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-mwmw-qxv3-8whh",
+        "severity": "high",
+        "summary": "Portal Payment Endpoint Trusts User-Controlled pid",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-mwmw-qxv3-8whh",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-gx7q-6fhr-5h33",
+        "severity": "high",
+        "summary": "Session Timeout Bypass via skip_timeout_reset",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-gx7q-6fhr-5h33",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-4frq-f657-hwrc",
+        "severity": "high",
+        "summary": "FHIR Patient Compartment Bypass in CareTeam Resource",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-4frq-f657-hwrc",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-xc8x-mfh8-9xvh",
+        "severity": "high",
+        "summary": "Portal Users Can Forge Provider Signatures",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-xc8x-mfh8-9xvh",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-rcc2-45v3-qmqm",
+        "severity": "critical",
+        "summary": "SQL Injection in Patient API Sort Parameter",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-rcc2-45v3-qmqm",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-765x-8v97-c7g8",
+        "severity": "medium",
+        "summary": "Arbitrary File Exfiltration via Fax Endpoint",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-765x-8v97-c7g8",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-qwff-3mw7-7rc7",
+        "severity": "critical",
+        "summary": "Unauthenticated MedEx Session-Token Disclosure via Callback Endpoint",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-qwff-3mw7-7rc7",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-x3hw-rwrg-v25h",
+        "severity": "critical",
+        "summary": "SQL Injection in Immunization Search/Report ",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-x3hw-rwrg-v25h",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-2hq8-wc73-jvvq",
+        "severity": "critical",
+        "summary": "Payments `gateway_api_key` secret rendered into client JS code",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-2hq8-wc73-jvvq",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-mf62-q2xc-hxm3",
+        "severity": "high",
+        "summary": "Stored XSS in GAD-7 Form Enables Session Hijacking and Privilege Escalation",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-mf62-q2xc-hxm3",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-6f42-6q2r-fc2h",
+        "severity": "medium",
+        "summary": "Open Redirect in Eye Exam Form",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-6f42-6q2r-fc2h",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-3f9j-cqjj-7h46",
+        "severity": "low",
+        "summary": "Inconsistent escaping of translation function output",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-3f9j-cqjj-7h46",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-2g6h-725p-pqhp",
+        "severity": "high",
+        "summary": "Disabled SSL Certificate Verification in HTTP Client",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-2g6h-725p-pqhp",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-566c-8c52-2jch",
+        "severity": "high",
+        "summary": "Links sent via Secure Messaging open in OpenEMR and Portal",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-566c-8c52-2jch",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-5fq8-jwvw-3m5w",
+        "severity": "high",
+        "summary": "Stored XSS in ub04 helper of OpenEMR",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-5fq8-jwvw-3m5w",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-5vp5-4rm6-h4c9",
+        "severity": "critical",
+        "summary": "OpenEMR Arbitrary File Write leading to Remote Code Execution",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-5vp5-4rm6-h4c9",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-w6vc-hx2x-48pc",
+        "severity": "critical",
+        "summary": "OpenEMR Arbitrary File Read Vulnerability",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-w6vc-hx2x-48pc",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-vjmv-cf46-gffv",
+        "severity": "high",
+        "summary": "Broken Access Control in Profile Edit Endpoint",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-vjmv-cf46-gffv",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-fgxg-wg4w-rj23",
+        "severity": "medium",
+        "summary": "Information Disclosure: Location resource for Group.$export operation returns entire patient/user population contact information",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-fgxg-wg4w-rj23",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-69cv-rv28-4g85",
+        "severity": "high",
+        "summary": "Broken Access Control on Care Coordination Module",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-69cv-rv28-4g85",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-739g-6m63-p7fr",
+        "severity": "high",
+        "summary": "Contents of Clinical Notes and Care Plan, where an encounter has Sensitivity=high, can be viewed and changed by users who do not have Sensitivities=high privilige",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-739g-6m63-p7fr",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-q7p5-rrwj-qmp2",
+        "severity": "medium",
+        "summary": "Broken Access Control in Report/Clients/Message List CSV Export",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-q7p5-rrwj-qmp2",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-6h2m-4ppf-ph4j",
+        "severity": "high",
+        "summary": "Broken Access Control in Procedures Configuration",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-6h2m-4ppf-ph4j",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-rccq-vjfg-ggjh",
+        "severity": "medium",
+        "summary": "Broken Access Control in OpenEMR allows unauthorized access to EDI Logs",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-rccq-vjfg-ggjh",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-2h9p-7vmc-wmqv",
+        "severity": "high",
+        "summary": "Stored XSS Attack in the Additional Address Section of Patient Demographics",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-2h9p-7vmc-wmqv",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-3c27-2m7h-f7rx",
+        "severity": "high",
+        "summary": "Stored XSS via Patient Name Field in Procedure Orders",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-3c27-2m7h-f7rx",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-7qj6-jxfc-xw4v",
+        "severity": "medium",
+        "summary": "Password administration is not logged properly",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-7qj6-jxfc-xw4v",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-2pvv-ph3x-2f9h",
+        "severity": "high",
+        "summary": "Out-of-Band Server-Side Request Forgery (OOB SSRF) Vulnerability",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-2pvv-ph3x-2f9h",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-2w94-qmj6-3qxx",
+        "severity": "high",
+        "summary": "XSS in Patient Image feature",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-2w94-qmj6-3qxx",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-59rv-645x-rg6p",
+        "severity": "high",
+        "summary": "Stored XSS in OpenEMR Bronchitis Form",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-59rv-645x-rg6p",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-ffpq-2wqj-v8ff",
+        "severity": "medium",
+        "summary": "Directory Traversal in Load Code feature",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-ffpq-2wqj-v8ff",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-fwfv-8583-6rr7",
+        "severity": "medium",
+        "summary": "Reflected XSS in AJAX Script",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-fwfv-8583-6rr7",
+        "references": []
+    },
+    {
+        "ghsa_id": "GHSA-89gp-g4c9-hv8h",
+        "severity": "high",
+        "summary": "Reflected XSS in CAMOS new.php",
+        "html_url": "https://github.com/openemr/openemr/security/advisories/GHSA-89gp-g4c9-hv8h",
+        "references": []
+    }
+]
