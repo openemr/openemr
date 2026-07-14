@@ -178,8 +178,6 @@ class Gacl {
             ];
             $this->Cache_Lite = new Hashed_Cache_Lite($cache_options);
         }
-
-        return true;
     }
 
     /**
