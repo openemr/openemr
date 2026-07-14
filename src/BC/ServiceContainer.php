@@ -93,7 +93,12 @@ class ServiceContainer
             ));
         }
         self::$overrides[$interface] = $instance;
-        unset(self::$cache[$interface]);
+        // TEMPORARY (issue #12423): revert of PR #12953's cache-invalidation
+        // hunk to test whether that change is causally responsible for the
+        // upgrade-e2e Twig setSourceContext failure. If CI clears with this
+        // reverted, causality is confirmed. Restore alongside the other
+        // debug hooks once we have the answer.
+        // unset(self::$cache[$interface]);
     }
 
     /**
