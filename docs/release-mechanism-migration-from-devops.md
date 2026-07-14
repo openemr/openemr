@@ -1267,16 +1267,25 @@ filter applied (mutator writes filtered content) -- the intended
 semantic improvement.
 
 **PR 6 — Retire website-openemr's release-notes generation surface.**
-Delete `tools/release-docs/bin/gen-release-notes.php`,
-`ReleaseNotesGenerator.php`, related tests. Update `release-docs.yml`
-workflow to drop the release-notes generation step (or delete the workflow
-if that was its only remaining job). Decide separately whether the Hugo
-page at `content/release-notes/<version>.md` also goes away or stays as a
-static per-release page pointing at the GitHub Release. Note the
-acknowledgements surface stays put on website — separate output, different
-generator (`AcknowledgementsGenerator`), consumed by the acknowledgements
-page. **Depends on PR 4** — filter must live in openemr before deletion.
-Can land in parallel with PR 5.
+*SHIPPED 2026-07-14 as openemr/website-openemr#190.* Deleted
+`tools/release-docs/bin/gen-release-notes.php` +
+`src/ReleaseNotesGenerator.php` + `tests/ReleaseNotesGeneratorTest.php`
++ the `tests/fixtures/release-notes/` fixture directory (only used
+by the retired test). Taskfile: dropped `gen-release-notes:` task.
+`.github/workflows/release-docs.yml`: replaced the "Generate release
+notes" step with a "Remove stale per-release release-notes page"
+scrub, matching the pattern already in place for the retired
+per-release install/upgrade pages. Scrub touches
+`$PUBLISH/content/release-notes/$VERSION.md` for the current
+dispatch's version only — 8.2.0's live page at
+openemr.org/release-notes/8.2.0/ stays grandfathered (VERSION=8.2.0
+will never dispatch again). AcknowledgementsGenerator +
+acknowledgements page untouched — separate output with a separate
+template, still consumed by the release-cycle acknowledgements
+surface. Follow-up not in this PR: replace 8.2.0's static live page
+with a redirect to https://github.com/openemr/openemr/releases/tag/
+v8_2_0 for uniform user experience with 8.2.1+ (which won't have a
+per-version page). Tests: 67 pass; phpstan + phpcs clean.
 
 **PR 7 — Retire `src/Common/Command/CreateReleaseChangelogCommand.php`.**
 Stephen Nielson's older milestone-driven changelog helper (374 lines,
