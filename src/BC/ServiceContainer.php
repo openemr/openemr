@@ -168,7 +168,10 @@ class ServiceContainer
      */
     public static function getHttpClient(): ClientInterface
     {
-        return self::getGuzzle();
+        return self::resolveOrCreate(
+            ClientInterface::class,
+            static fn() => self::getGuzzle(),
+        );
     }
 
     public static function getLogger(): LoggerInterface
