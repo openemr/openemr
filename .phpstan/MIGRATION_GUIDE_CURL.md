@@ -152,23 +152,7 @@ $response = $client->request('POST', 'https://api.example.com/upload', [
 
 ### Using OpenEMR's oeHttp Wrapper
 
-OpenEMR provides a convenient wrapper around Guzzle:
-
-```php
-use OpenEMR\Common\Http\oeHttp;
-
-try {
-    $response = oeHttp::get('https://api.example.com/data', [
-        'headers' => [
-            'Authorization' => 'Bearer ' . $token
-        ]
-    ]);
-
-    $data = json_decode($response->getBody()->getContents(), true);
-} catch (\Exception $e) {
-    error_log("HTTP request failed: " . $e->getMessage());
-}
-```
+Using the `oeHttp` family of classes is discouraged. Prefer DI or the ServiceContainer methods.
 
 ## Handling Errors
 
