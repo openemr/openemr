@@ -18,6 +18,7 @@ require_once __DIR__ . '/../globals.php';
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -41,17 +42,15 @@ $request = Request::createFromGlobals();
 $filesystem = new Filesystem();
 $userauthorized = $globalsBag->getInt('userauthorized');
 
-// Send a real HTTP error status instead of die(). Callers follow this with a
-// top-level `return`, which ends the request like exit() but keeps the script
-// includable (and therefore testable) — no process kill, no swallowed status.
-// Response::send() skips the status line if headers already went out.
-$sendError = static function (int $statusCode, string $message): void {
-    (new Response($message, $statusCode))->send();
-};
+// Error paths send a real HTTP status instead of die(), then `return` at the
+// top level — which ends the request like exit() but keeps the script
+// includable (and therefore testable). The default terminator exits nonzero
+// for error statuses; tests can inject a non-exiting one.
+$terminator = new RequestTerminator();
 
 $site_id = $session->get('site_id');
 if (!is_string($site_id) || $site_id === '') {
-    $sendError(Response::HTTP_UNAUTHORIZED, "Site ID is missing from the session.");
+    $terminator->error(Response::HTTP_UNAUTHORIZED, "Site ID is missing from the session.");
     return;
 }
 
@@ -79,7 +78,7 @@ if ($fileParam !== '') {
 
     $filepath = $globalsBag->getString('scanner_output_directory') . '/' . $filename;
 } else {
-    $sendError(Response::HTTP_BAD_REQUEST, "No filename was given.");
+    $terminator->error(Response::HTTP_BAD_REQUEST, "No filename was given.");
     return;
 }
 
@@ -149,7 +148,7 @@ if ($request->request->getString('form_save') !== '') {
     if ($request->request->getBoolean('form_cb_copy')) {
         $patient_id = $request->request->getInt('form_pid');
         if ($patient_id === 0) {
-            $sendError(Response::HTTP_BAD_REQUEST, xlt('Internal error - patient ID was not provided!'));
+            $terminator->error(Response::HTTP_BAD_REQUEST, xlt('Internal error - patient ID was not provided!'));
             return;
         }
 
@@ -298,7 +297,7 @@ if ($request->request->getString('form_save') !== '') {
                 // we already have a jpeg for each page in faxcache.
                 $process = $runProcess(['convert', '-resize', '800', '-density', '96', $tmp_name, '-append', $imagepath]);
                 if (!$process->isSuccessful()) {
-                    $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, "convert returned " . text($processError($process)));
+                    $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, "convert returned " . text($processError($process)));
                     return;
                 }
             }
@@ -400,7 +399,7 @@ if ($request->request->getString('form_save') !== '') {
         if ($action_taken) {
             $dh = opendir($faxcache);
             if (! $dh) {
-                $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
+                $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
                 return;
             }
 
@@ -430,7 +429,7 @@ if ($request->request->getString('form_save') !== '') {
         if (is_dir($faxcache)) {
             $dh = opendir($faxcache);
             if (! $dh) {
-                $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
+                $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
                 return;
             }
 
@@ -535,7 +534,7 @@ $buildFaxcache = static function () use ($ext, $filepath, $faxcache, $filesystem
 if (! is_dir($faxcache)) {
     $buildError = $buildFaxcache();
     if ($buildError !== '') {
-        $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, $buildError);
+        $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, $buildError);
         return;
     }
 }
@@ -957,7 +956,7 @@ $userRows = QueryUtils::fetchRecords(
 <?php
 $dh = opendir($faxcache);
 if (! $dh) {
-    $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
+    $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
     return;
 }
 
