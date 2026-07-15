@@ -314,6 +314,19 @@ jobs:
         committer: 'openemr-release-bot <release-bot@openemr.invalid>'
         delete-branch: false
 
+    # Remove rel-checkout before master steps run. rel-checkout is a
+    # sub-directory of the workflow root (master's git tree) with its
+    # own `.git/` from the rel-820 checkout. The master-scope
+    # peter-evans call runs `git add -A` at the workflow root, which
+    # treats any nested-git subdirectory as a submodule and adds a
+    # spurious `Subproject commit <sha>` entry to the amendment PR
+    # (observed in openemr/openemr#13003's first version). By this
+    # point Extract has already saved the section to $RUNNER_TEMP and
+    # rel-side peter-evans has captured its diff, so nothing else
+    # downstream reads from rel-checkout.
+    - name: Remove rel-checkout to keep it out of master's commit
+      run: rm -rf rel-checkout
+
     # --- Master amendment ----------------------------------------------
     - name: Install Composer dependencies (master)
       run: composer install --prefer-dist --no-progress --no-interaction
