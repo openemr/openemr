@@ -132,12 +132,12 @@ class oeHttpRequest extends oeHttp
         return $this->bodyFormat('form_params')->contentType('application/x-www-form-urlencoded');
     }
 
-    public function contentType($contentType)
+    public function contentType(string $contentType)
     {
         return $this->usingHeaders(['Content-Type' => $contentType]);
     }
 
-    public function accept($header)
+    public function accept(string $header)
     {
         return $this->usingHeaders(['Accept' => $header]);
     }
@@ -149,7 +149,7 @@ class oeHttpRequest extends oeHttp
         ]));
     }
 
-    public function usingBaseUri($baseUri)
+    public function usingBaseUri(string $baseUri)
     {
         $baseUri = str_ends_with((string) $baseUri, '/') ? $baseUri : $baseUri . '/';
         return $this->tap($this, fn($request): array => $this->options = array_merge($this->options, [
@@ -157,14 +157,14 @@ class oeHttpRequest extends oeHttp
         ]));
     }
 
-    public function get($url, $queryParams = []): oeHttpResponse
+    public function get(string $url, $queryParams = []): oeHttpResponse
     {
         return $this->send('GET', $url, [
             'query' => $queryParams,
         ]);
     }
 
-    public function send($method, $url, $options = ''): oeHttpResponse
+    public function send(string $method, string $url, $options = ''): oeHttpResponse
     {
         if ($this->apiOAuth) {
             $this->setOptions([
@@ -178,15 +178,15 @@ class oeHttpRequest extends oeHttp
         ], $options)));
     }
 
-    protected function mergeOptions(...$options)
+    protected function mergeOptions(...$options): array
     {
         return array_merge_recursive($this->options, ...$options);
     }
 
-    protected function parseQueryParams($url)
+    protected function parseQueryParams(string $url)
     {
         return $this->tap([], function (&$query) use ($url): void {
-            parse_str(parse_url((string) $url, PHP_URL_QUERY), $query);
+            parse_str(parse_url($url, PHP_URL_QUERY), $query);
         });
     }
 
@@ -201,7 +201,7 @@ class oeHttpRequest extends oeHttp
      * apparently still used by the CMS server.  Once CMS updates their encryption it may be possible to
      * remove this additional function.
      */
-    public function getCurlOptions($url, $queryParams = [], $curlOptions = []): oeHttpResponse
+    public function getCurlOptions(string $url, $queryParams = [], $curlOptions = []): oeHttpResponse
     {
         return $this->send('GET', $url, [
             'query' => $queryParams,
@@ -209,28 +209,28 @@ class oeHttpRequest extends oeHttp
         ]);
     }
 
-    public function post($url, $params = []): oeHttpResponse
+    public function post(string $url, $params = []): oeHttpResponse
     {
         return $this->send('POST', $url, [
             $this->bodyFormat => $params,
         ]);
     }
 
-    public function patch($url, $params = []): oeHttpResponse
+    public function patch(string $url, $params = []): oeHttpResponse
     {
         return $this->send('PATCH', $url, [
             $this->bodyFormat => $params,
         ]);
     }
 
-    public function put($url, $params = []): oeHttpResponse
+    public function put(string $url, $params = []): oeHttpResponse
     {
         return $this->send('PUT', $url, [
             $this->bodyFormat => $params,
         ]);
     }
 
-    public function delete($url, $params = []): oeHttpResponse
+    public function delete(string $url, $params = []): oeHttpResponse
     {
         return $this->send('DELETE', $url, [
             $this->bodyFormat => $params,

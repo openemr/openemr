@@ -30502,27 +30502,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/oeHttp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:accept\\(\\) has parameter \\$header with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:bodyFormat\\(\\) has parameter \\$format with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:contentType\\(\\) has parameter \\$contentType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:delete\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:delete\\(\\) has parameter \\$url with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
@@ -30537,17 +30522,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:getCurlOptions\\(\\) has parameter \\$url with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:get\\(\\) has parameter \\$queryParams with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:get\\(\\) has parameter \\$url with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
@@ -30557,17 +30532,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:parseQueryParams\\(\\) has parameter \\$url with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:patch\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:patch\\(\\) has parameter \\$url with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
@@ -30577,32 +30542,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:post\\(\\) has parameter \\$url with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:put\\(\\) has parameter \\$params with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:put\\(\\) has parameter \\$url with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:send\\(\\) has parameter \\$method with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:send\\(\\) has parameter \\$options with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:send\\(\\) has parameter \\$url with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
@@ -30628,11 +30573,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:tap\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:usingBaseUri\\(\\) has parameter \\$baseUri with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];

@@ -21307,11 +21307,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:mergeOptions\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:parseQueryParams\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
