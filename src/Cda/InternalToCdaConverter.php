@@ -2910,7 +2910,9 @@ class InternalToCdaConverter
         $npi = $this->xpathValue('npi', $enc);
         $id = $this->createElement('id');
         $id->setAttribute('root', '2.16.840.1.113883.4.6');
-        $id->setAttribute('extension', $npi);
+        if ($npi !== '') {
+            $id->setAttribute('extension', $npi);
+        }
         $assignedEntity->appendChild($id);
 
         $code = $this->createElement('code');
@@ -2987,11 +2989,15 @@ class InternalToCdaConverter
             $role->appendChild($telecom);
         }
 
-        $playingEntity = $this->createElement('playingEntity');
-        $playingEntity->setAttribute('classCode', 'PLC');
+        // Node omits the playingEntity entirely when no facility name is
+        // available rather than emitting an empty <name/>.
         $facilityName = $this->xpathValue('/CCDA/encounter_provider/facility_name');
-        $playingEntity->appendChild($this->createElement('name', $facilityName !== '' ? $facilityName : null));
-        $role->appendChild($playingEntity);
+        if ($facilityName !== '') {
+            $playingEntity = $this->createElement('playingEntity');
+            $playingEntity->setAttribute('classCode', 'PLC');
+            $playingEntity->appendChild($this->createElement('name', $facilityName));
+            $role->appendChild($playingEntity);
+        }
 
         $participant->appendChild($role);
         $encounter->appendChild($participant);
@@ -6085,8 +6091,11 @@ class InternalToCdaConverter
             $section->setAttribute('nullFlavor', 'NI');
         }
 
+        // Node emits only the unversioned Goal Section templateId; the IG's
+        // versioned (2015-08-01) templateId is absent from certified output.
+        // Match node here and treat the missing version as a spec-variation
+        // follow-up rather than diverging.
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60', '2015-08-01');
 
         $section->appendChild($this->createLoincCode('61146-7', 'Goals'));
         $section->appendChild($this->createElement('title', 'Goals'));
