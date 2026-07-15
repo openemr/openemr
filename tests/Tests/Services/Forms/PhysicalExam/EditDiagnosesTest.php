@@ -19,8 +19,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Forms\PhysicalExam\DiagnosisHelper;
 use PHPUnit\Framework\TestCase;
 
-require_once dirname(__DIR__, 5) . '/interface/forms/physical_exam/diagnosis_helpers.php';
-
 class EditDiagnosesTest extends TestCase
 {
     private const LINE_ID = 'OE12030A';
