@@ -27,7 +27,7 @@
         <postalCode>44433</postalCode>
         <country>USA</country>
         <useablePeriod xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="IVL_TS">
-          <low value="20260616"/>
+          <low nullFlavor="UNK"/>
         </useablePeriod>
       </addr>
       <telecom value="tel:333-444-2222" use="HP"/>
@@ -54,7 +54,7 @@
         </languageCommunication>
       </patient>
       <providerOrganization>
-        <id root="2.16.840.1.113883.4.6" extension=""/>
+        <id root="2.16.840.1.113883.4.6"/>
         <name>Great Clinic</name>
         <telecom use="WP" value="000-000-0000"/>
         <addr use="WP">
@@ -70,16 +70,9 @@
   <author>
     <time value="202606160036+0000"/>
     <assignedAuthor>
-      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
-      <addr use="WP">
-        <country>US</country>
-        <state/>
-        <city/>
-        <postalCode/>
-        <streetAddressLine/>
-      </addr>
-      <telecom nullFlavor="UNK"/>
+      <addr nullFlavor="NI"/>
       <assignedPerson>
         <name>
           <family>Smith</family>
@@ -103,16 +96,10 @@
   <custodian>
     <assignedCustodian>
       <representedCustodianOrganization>
-        <id root="2.16.840.1.113883.4.6" extension=""/>
+        <id root="2.16.840.1.113883.4.6"/>
         <name/>
         <telecom value="tel:0" use="WP"/>
-        <addr>
-          <country>US</country>
-          <state/>
-          <city/>
-          <postalCode/>
-          <streetAddressLine/>
-        </addr>
+        <addr nullFlavor="NI"/>
       </representedCustodianOrganization>
     </assignedCustodian>
   </custodian>
@@ -132,13 +119,9 @@
     <templateId root="2.16.840.1.113883.10.20.22.5.8" extension="2023-05-01"/>
     <time value="202606160036+0000"/>
     <associatedEntity classCode="ASSIGNED">
-      <id root="a208621a-51bd-4ebe-ac9b-fd56f0497406" extension="NI"/>
+      <id root="a208621a-51bd-4ebe-ac9b-fd56f0497406"/>
       <code nullFlavor="UNK"/>
       <addr use="WP">
-        <streetAddressLine nullFlavor="UNK"/>
-        <city nullFlavor="UNK"/>
-        <state nullFlavor="UNK"/>
-        <postalCode nullFlavor="UNK"/>
         <country>US</country>
       </addr>
       <associatedPerson classCode="PSN" determinerCode="INSTANCE">
@@ -184,8 +167,8 @@
     <encompassingEncounter>
       <id root="2.16.840.1.113883.19.5.99999.1" extension="PT-1"/>
       <effectiveTime>
-        <low value="Invalid date"/>
-        <high value="Invalid date"/>
+        <low nullFlavor="UNK"/>
+        <high nullFlavor="UNK"/>
       </effectiveTime>
       <responsibleParty>
         <assignedEntity>
@@ -265,13 +248,13 @@
               <code code="48765-2" displayName="Allergies, adverse reactions, alerts" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
               <statusCode code="active"/>
               <effectiveTime>
-                <low value="20260616"/>
+                <low nullFlavor="UNK"/>
               </effectiveTime>
               <author typeCode="AUT">
                 <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                 <time value="202606160014+0000"/>
                 <assignedAuthor>
-                  <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                  <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                   <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                   <assignedPerson>
                     <name>
@@ -280,7 +263,7 @@
                     </name>
                   </assignedPerson>
                   <representedOrganization>
-                    <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                    <id root="2.16.840.1.113883.4.6"/>
                     <name>Great Clinic</name>
                   </representedOrganization>
                 </assignedAuthor>
@@ -293,7 +276,7 @@
                   <code code="ASSERTION" displayName="Assertion" codeSystem="2.16.840.1.113883.5.4" codeSystemName="ActCode"/>
                   <statusCode code="completed"/>
                   <effectiveTime>
-                    <low value="20260616"/>
+                    <low nullFlavor="UNK"/>
                   </effectiveTime>
                   <value xsi:type="CD" code="420134006" displayName="Propensity to adverse reactions to drug" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
                     <originalText>
@@ -304,7 +287,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="202606160014+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -313,7 +296,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -348,8 +331,8 @@
                       </text>
                       <statusCode code="completed"/>
                       <effectiveTime>
-                        <low value="20260616"/>
-                        <high value="20260616"/>
+                        <low nullFlavor="UNK"/>
+                        <high nullFlavor="UNK"/>
                       </effectiveTime>
                       <value xsi:type="CD" nullFlavor="UNK"/>
                       <entryRelationship typeCode="SUBJ" inversionInd="true">
@@ -361,7 +344,7 @@
                             <reference value="#severity1"/>
                           </text>
                           <statusCode code="completed"/>
-                          <value xsi:type="CD" code="0" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                          <value nullFlavor="UNK"/>
                         </observation>
                       </entryRelationship>
                     </observation>
@@ -375,7 +358,7 @@
                         <reference value="#severity2"/>
                       </text>
                       <statusCode code="completed"/>
-                      <value xsi:type="CD" code="0" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
+                      <value nullFlavor="UNK"/>
                     </observation>
                   </entryRelationship>
                 </observation>
@@ -412,14 +395,14 @@
                 <tr>
                   <td ID="problem1">HTN</td>
                   <td ID="healthStatus1">Unassigned</td>
-                  <td>2026-06-16</td>
+                  <td>Invalid date</td>
                 </tr>
               </tbody>
               <tbody>
                 <tr>
                   <td ID="problem2">Chronic Renal Insufficiency</td>
                   <td ID="healthStatus2">Unassigned</td>
-                  <td>2026-06-16</td>
+                  <td>Invalid date</td>
                 </tr>
               </tbody>
             </table>
@@ -432,13 +415,13 @@
               <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6" codeSystemName="HL7ActClass"/>
               <statusCode code="completed"/>
               <effectiveTime>
-                <low value="20260616"/>
+                <low nullFlavor="UNK"/>
               </effectiveTime>
               <author typeCode="AUT">
                 <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                 <time value="202606160014+0000"/>
                 <assignedAuthor>
-                  <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                  <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                   <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                   <assignedPerson>
                     <name>
@@ -447,7 +430,7 @@
                     </name>
                   </assignedPerson>
                   <representedOrganization>
-                    <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                    <id root="2.16.840.1.113883.4.6"/>
                     <name>Great Clinic</name>
                   </representedOrganization>
                 </assignedAuthor>
@@ -465,14 +448,14 @@
                   </text>
                   <statusCode code="completed"/>
                   <effectiveTime>
-                    <low value="20260616"/>
+                    <low nullFlavor="UNK"/>
                   </effectiveTime>
                   <value xsi:type="CD" code="4010" displayName="HTN" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD-10-CM"/>
                   <author typeCode="AUT">
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="202606160014+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -481,7 +464,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -493,7 +476,7 @@
                       <code code="33999-4" displayName="Status" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
                       <statusCode code="completed"/>
                       <effectiveTime>
-                        <low value="20260616"/>
+                        <low nullFlavor="UNK"/>
                       </effectiveTime>
                       <value xsi:type="CD" displayName="Active" code="55561003" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
                     </observation>
@@ -529,13 +512,13 @@
               <code code="CONC" displayName="Concern" codeSystem="2.16.840.1.113883.5.6" codeSystemName="HL7ActClass"/>
               <statusCode code="completed"/>
               <effectiveTime>
-                <low value="20260616"/>
+                <low nullFlavor="UNK"/>
               </effectiveTime>
               <author typeCode="AUT">
                 <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                 <time value="202606160014+0000"/>
                 <assignedAuthor>
-                  <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                  <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                   <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                   <assignedPerson>
                     <name>
@@ -544,7 +527,7 @@
                     </name>
                   </assignedPerson>
                   <representedOrganization>
-                    <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                    <id root="2.16.840.1.113883.4.6"/>
                     <name>Great Clinic</name>
                   </representedOrganization>
                 </assignedAuthor>
@@ -562,14 +545,14 @@
                   </text>
                   <statusCode code="completed"/>
                   <effectiveTime>
-                    <low value="20260616"/>
+                    <low nullFlavor="UNK"/>
                   </effectiveTime>
                   <value xsi:type="CD" code="5851" displayName="Chronic Renal Insufficiency" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD-10-CM"/>
                   <author typeCode="AUT">
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="202606160014+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -578,7 +561,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -590,7 +573,7 @@
                       <code code="33999-4" displayName="Status" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
                       <statusCode code="completed"/>
                       <effectiveTime>
-                        <low value="20260616"/>
+                        <low nullFlavor="UNK"/>
                       </effectiveTime>
                       <value xsi:type="CD" displayName="Active" code="55561003" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT"/>
                     </observation>
@@ -672,7 +655,7 @@
                 <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                 <time value="201402011845+0000"/>
                 <assignedAuthor>
-                  <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                  <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                   <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                   <assignedPerson>
                     <name>
@@ -681,7 +664,7 @@
                     </name>
                   </assignedPerson>
                   <representedOrganization>
-                    <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                    <id root="2.16.840.1.113883.4.6"/>
                     <name>Great Clinic</name>
                   </representedOrganization>
                 </assignedAuthor>
@@ -703,7 +686,7 @@
                 <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                 <time value="201402011845+0000"/>
                 <assignedAuthor>
-                  <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                  <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                   <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                   <assignedPerson>
                     <name>
@@ -712,7 +695,7 @@
                     </name>
                   </assignedPerson>
                   <representedOrganization>
-                    <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                    <id root="2.16.840.1.113883.4.6"/>
                     <name>Great Clinic</name>
                   </representedOrganization>
                 </assignedAuthor>
@@ -788,7 +771,7 @@
               <effectiveTime value="201402010000+0000"/>
               <performer>
                 <assignedEntity>
-                  <id root="2.16.840.1.113883.4.6" extension=""/>
+                  <id root="2.16.840.1.113883.4.6"/>
                   <code nullFlavor="UNK"/>
                   <assignedPerson>
                     <name>
@@ -854,7 +837,7 @@
                   <td>444</td>
                   <td>555</td>
                   <td>2012-02-08</td>
-                  <td>2026-06-16</td>
+                  <td>Invalid date</td>
                 </tr>
               </tbody>
             </table>
@@ -918,7 +901,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.89"/>
                     <time>
                       <low value="20120208"/>
-                      <high value="20260616"/>
+                      <high nullFlavor="UNK"/>
                     </time>
                     <participantRole classCode="PAT">
                       <id root="a208621d-2f4b-4f3a-a072-3477ecfdc6fe" extension="555"/>
@@ -985,7 +968,6 @@
       <component>
         <section nullFlavor="NI">
           <templateId root="2.16.840.1.113883.10.20.22.2.60"/>
-          <templateId root="2.16.840.1.113883.10.20.22.2.60" extension="2015-08-01"/>
           <code code="61146-7" displayName="Goals" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
           <title>Goals</title>
           <text>Not Available</text>
@@ -1036,7 +1018,7 @@
                 <tr>
                   <td ID="social1">Smoking</td>
                   <td>No Data Available</td>
-                  <td>2026-06-16</td>
+                  <td>Invalid date</td>
                 </tr>
               </tbody>
             </table>
@@ -1054,7 +1036,7 @@
             <observation classCode="OBS" moodCode="EVN">
               <templateId root="2.16.840.1.113883.10.20.22.4.38"/>
               <templateId root="2.16.840.1.113883.10.20.22.4.501" extension="2022-06-01"/>
-              <id root="58408b5b-28e9-4d7d-ab9f-83c7b24a39a1"/>
+              <id root="22dfedf4-b3db-4e9d-9c4b-1d508f488c2c"/>
               <code code="76690-7" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Sexual Orientation"/>
               <statusCode code="completed"/>
               <effectiveTime nullFlavor="NI"/>
@@ -1064,7 +1046,7 @@
             <observation classCode="OBS" moodCode="EVN">
               <templateId root="2.16.840.1.113883.10.20.22.4.38"/>
               <templateId root="2.16.840.1.113883.10.20.34.3.45" extension="2022-06-01"/>
-              <id root="b49714af-b3f5-46f6-b672-69395a1f505c"/>
+              <id root="7e474deb-418f-40ac-86b4-619770732e11"/>
               <code code="76691-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Gender Identity"/>
               <statusCode code="completed"/>
               <effectiveTime nullFlavor="NI"/>
@@ -1074,7 +1056,7 @@
             <observation classCode="OBS" moodCode="EVN">
               <templateId root="2.16.840.1.113883.10.20.22.4.507" extension="2023-06-28"/>
               <templateId root="2.16.840.1.113883.10.20.22.4.507"/>
-              <id root="09394675-32ab-4459-b81f-33fa943d8816"/>
+              <id root="e2fe0a71-2ed0-4e85-b2b9-759c1eb62e4b"/>
               <code code="46098-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Sex"/>
               <statusCode code="completed"/>
               <effectiveTime nullFlavor="NI"/>
@@ -1145,7 +1127,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1154,7 +1136,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1179,7 +1161,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1188,7 +1170,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1213,7 +1195,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1222,7 +1204,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1247,7 +1229,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1256,7 +1238,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1281,7 +1263,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1290,7 +1272,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1315,7 +1297,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1324,7 +1306,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1349,7 +1331,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1358,7 +1340,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1383,7 +1365,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1392,7 +1374,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1417,7 +1399,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1426,7 +1408,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1451,7 +1433,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1460,7 +1442,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1485,7 +1467,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1494,7 +1476,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
@@ -1519,7 +1501,7 @@
                     <templateId root="2.16.840.1.113883.10.20.22.4.119"/>
                     <time value="201402011844+0000"/>
                     <assignedAuthor>
-                      <id root="a208621d-3161-44e0-a316-cc907728fe76" extension="NI"/>
+                      <id root="a208621d-3161-44e0-a316-cc907728fe76"/>
                       <code code="207Q00000X" displayName="Family Medicine" codeSystem="2.16.840.1.114222.4.11.1066" codeSystemName="ValueSet Healthcare Provider Taxonomy (HIPAA)"/>
                       <assignedPerson>
                         <name>
@@ -1528,7 +1510,7 @@
                         </name>
                       </assignedPerson>
                       <representedOrganization>
-                        <id root="2.16.840.1.113883.4.6" extension="NI"/>
+                        <id root="2.16.840.1.113883.4.6"/>
                         <name>Great Clinic</name>
                       </representedOrganization>
                     </assignedAuthor>
