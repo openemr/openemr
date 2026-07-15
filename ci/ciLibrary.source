@@ -669,6 +669,15 @@ enable_coredumps() {
     dc exec -T openemr sh -c "mkdir -p '${COREDUMP_DIR}' && chmod 1777 '${COREDUMP_DIR}'"
     sudo sysctl -w "kernel.core_pattern=${COREDUMP_DIR}/core.%e.%p.%t"
     sudo sysctl -w 'fs.suid_dumpable=2'
+    # TEMPORARY (issue #12423/#12438): the sysctls above are checked at the
+    # moment a process changes UID. Apache started earlier in the compose
+    # `up` and its worker prefork model already dropped root -> apache
+    # before we ran these sysctls, so existing workers have dumpable=0 and
+    # will silently drop their cores. `httpd -k graceful` (SIGUSR1 to the
+    # parent) tells apache to fork fresh workers — those inherit dumpable=1
+    # under fs.suid_dumpable=2. Cores land as root/mode 600, which is fine
+    # since capture_coredumps runs gdb as root.
+    dc exec -T openemr sh -c 'httpd -k graceful' || echo 'enable_coredumps: graceful restart failed; existing workers keep dumpable=0'
 }
 
 ##

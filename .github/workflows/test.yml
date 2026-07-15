@@ -240,13 +240,6 @@ jobs:
         . ci/ciLibrary.source
         composer_install
 
-    # TEMPORARY (issue #12423) — patch Twig Node::setSourceContext to log
-    # non-Node children instead of throwing, so we can compare fresh-install
-    # vs upgrade-e2e apache logs and identify what's malformed in the AST.
-    # Remove alongside the other debug hooks once root cause is identified.
-    - name: Patch Twig Node for debug (temporary, issue #12423)
-      run: bash ci/patch-twig-node-debug.sh
-
     ##
     # Restore everything that node built for the given key.
     # We don't need to run npm ci && npm build at all if we get a hit.
@@ -509,13 +502,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-vendor-${{ needs.setup.outputs.php }}-
           ${{ runner.os }}-vendor-
-
-    # TEMPORARY (issue #12423) — mirror the setup-job patch on the test-job
-    # runner. Cache may deliver an unpatched vendor/ (setup saves before our
-    # patch runs) — the script is idempotent, silently succeeding if already
-    # patched. Remove alongside the other debug hooks.
-    - name: Patch Twig Node for debug (temporary, issue #12423)
-      run: bash ci/patch-twig-node-debug.sh
 
     - name: Restore npm build artifacts
       uses: actions/cache/restore@v6
