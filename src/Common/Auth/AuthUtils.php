@@ -1180,7 +1180,7 @@ class AuthUtils
                 self::resetLoginFailedCounter($user);
                 return ['pass' => true, 'email_notification' => null];
             }
-            $emailNotification = empty($query['auto_block_emailed']) ? true : false;
+            $emailNotification = empty($query['auto_block_emailed']);
             return ['pass' => false, 'email_notification' => $emailNotification];
         } else {
             return ['pass' => true, 'email_notification' => null];
@@ -1223,7 +1223,7 @@ class AuthUtils
                 $this->resetIpLoginFailedCounter($ipString);
                 return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
             }
-            $emailNotification = empty($query['ip_auto_block_emailed']) ? true : false;
+            $emailNotification = empty($query['ip_auto_block_emailed']);
             return ['pass' => false, 'force_block' => false, 'skip_timing_attack' => false, 'email_notification' => $emailNotification];
         } else {
             return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];

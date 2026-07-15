@@ -61,7 +61,7 @@ if ($pid == "") {
 
 $vitalsService = new VitalsService();
 
-$isMetric = (((OEGlobalsBag::getInstance()->get('units_of_measurement') == 2) || (OEGlobalsBag::getInstance()->get('units_of_measurement') == 4)) ? true : false);
+$isMetric = ((OEGlobalsBag::getInstance()->get('units_of_measurement') == 2) || (OEGlobalsBag::getInstance()->get('units_of_measurement') == 4));
 
 $patient_data = "";
 $sex = '';

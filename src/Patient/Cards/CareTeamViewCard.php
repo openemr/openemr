@@ -101,7 +101,7 @@ class CareTeamViewCard extends CardModel
                 'btnClass' => 'btn-edit-care-team',
                 'btnLink' => "javascript:void(0);",
                 'linkMethod' => 'html',
-                'initiallyCollapsed' => $initiallyCollapsed ? true : false,
+                'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]
         ];

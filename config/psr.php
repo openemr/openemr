@@ -12,9 +12,11 @@
 
 declare(strict_types=1);
 
+use GuzzleHttp\Client;
 use Lcobucci\Clock\SystemClock;
 use Monolog\Logger;
 use Psr\Clock\ClockInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\{
     RequestFactoryInterface,
     ResponseFactoryInterface,
@@ -38,6 +40,9 @@ return [
     UploadedFileFactoryInterface::class => Psr17Factory::class,
     UriFactoryInterface::class => Psr17Factory::class,
 
+    // PSR-18
+    ClientInterface::class => Client::class,
+
     // PSR-20
     ClockInterface::class => SystemClock::class,
 
@@ -48,5 +53,4 @@ return [
     // 13: Hypermedia Links
     // 14: Event Dispatcher
     // 15: HTTP Handlers
-    // 18: HTTP Client
 ];

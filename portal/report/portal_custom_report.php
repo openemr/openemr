@@ -89,7 +89,7 @@ $auth_demo     = true; //AclMain::aclCheckCore('patients'  , 'demo');
 
 $esignApi = new Api();
 
-$printable = empty($_GET['printable']) ? false : true;
+$printable = !empty($_GET['printable']);
 if ($PDF_OUTPUT) {
     $printable = true;
 }

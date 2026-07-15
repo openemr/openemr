@@ -351,7 +351,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             } else {
                                 // MU3 criteria, show medical problem's with end dates as a status of Completed.
                                 $statusCompute = ($t == 'medical_problem') ? xlt("Completed") : xlt("Inactive");
-                                $resolved = ($t == "medical_problems") ? true : false;
+                                $resolved = $t == "medical_problems";
                             }
 
                             $click_class = 'statrow';

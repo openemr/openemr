@@ -569,7 +569,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
         $isok = false;
         $idx = 0;
         foreach ($csv_ar as $data) {
-            $isok = (strcmp((string) $data[$dtcol], $dts) >= 0) ? true : false;
+            $isok = strcmp((string) $data[$dtcol], $dts) >= 0;
             $isok = (strcmp((string) $data[$dtcol], $dte) > 0) ? false : $isok;
             //
             if ($isok) {

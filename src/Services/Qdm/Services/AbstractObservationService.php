@@ -80,8 +80,8 @@ abstract class AbstractObservationService extends AbstractQdmService implements 
                 'high' => new DateTime([
                     'date' => $record['date_end'] ?: null
                 ]),
-                'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
+                'lowClosed' => (bool) $record['date'],
+                'highClosed' => (bool) $this->validDateOrNull($record['date_end'])
             ]),
             'authorDatetime' => new DateTime([
                 'date' => $record['date']

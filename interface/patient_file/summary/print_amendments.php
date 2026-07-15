@@ -99,7 +99,7 @@ function printAmendment($amendmentID, $lastAmendment): void
 
     <?php
     for ($i = 0; $i < count($amendmentsList); $i++) {
-        $lastAmendment = ( $i == count($amendmentsList) - 1 ) ? true : false;
+        $lastAmendment = $i == count($amendmentsList) - 1;
         printAmendment($amendmentsList[$i], $lastAmendment);
     }
     ?>
