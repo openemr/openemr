@@ -6,7 +6,7 @@
  * PSR-18 clients must not throw on 4xx/5xx, so this is opt-in for callers that
  * prefer exceptions over inspecting the status. It implements the base
  * ClientExceptionInterface rather than RequestExceptionInterface, which would
- * require the originating request this only has the response.
+ * require the originating request; this only has the response.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
