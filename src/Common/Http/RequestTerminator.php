@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
  * first, then hands control to a terminator that never returns.
  *
  * The default terminator exits the process: nonzero when the response status
- * is an error (>= 400), zero otherwise. Tests inject a throwing closure so
+ * is a client or server error (4xx/5xx), zero otherwise. Tests inject a throwing closure so
  * request-ending code paths remain executable under PHPUnit instead of
  * killing the test runner.
  *
@@ -39,7 +39,7 @@ final readonly class RequestTerminator
 
     /**
      * @param (Closure(int): never)|null $terminator receives the intended
-     *        process exit code: 1 when the response status is >= 400, else 0
+     *        process exit code: 1 when the response status is 4xx/5xx, else 0
      */
     public function __construct(?Closure $terminator = null)
     {
@@ -56,7 +56,7 @@ final readonly class RequestTerminator
     public function respond(Response $response): never
     {
         $response->send();
-        ($this->terminator)((int) ($response->getStatusCode() >= 400));
+        ($this->terminator)((int) ($response->isClientError() || $response->isServerError()));
     }
 
     /**
