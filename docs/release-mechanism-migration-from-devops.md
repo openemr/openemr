@@ -1452,46 +1452,95 @@ everything was now consolidated in openemr core. Follow-ups:
   The `openemr:release-prep` unit + fixture tests don't exercise the
   actual `gh api` shellout (they inject FakeGitHubApi), so this is
   the only place that catches env-plumbing bugs like #12999.
-- **openemr/openemr#13004** — extract-order fix. First real dispatch
-  of the amendment workflow on 8.2.0/rel-820 surfaced a second bug:
-  `peter-evans/create-pull-request@v8` resets the calling checkout's
-  working tree back to base-branch HEAD after committing to the
-  amendment branch. The Extract step (which reads `rel-checkout/CHANGELOG.md`
-  and pipes to `gh release edit --notes-file`) was running AFTER
-  peter-evans, so it saw the pre-amendment content. Release body +
-  attachment got overwritten with byte-identical pre-amendment
-  content — no user-visible damage, but the amendment didn't
-  actually take. Fix: reorder Extract to run BEFORE peter-evans;
-  extracted content lives in `$RUNNER_TEMP/section.md` which
-  survives peter-evans's reset.
-- **openemr/openemr#13002 + #13003** — first real amendment PRs
-  (8.2.0-rel-820 + 8.2.0-master). The commits on the amendment
-  branches contain the correct mutator output (peter-evans captured
-  the diff BEFORE resetting the working tree, so the commit is
-  fine; only the post-peter-evans Extract read stale content). Once
-  #13004 lands and a re-dispatch fires, these get force-updated
-  idempotently (same content, no change).
+- **openemr/openemr#13004** *(SHIPPED)* — extract-order fix. First
+  real dispatch of the amendment workflow on 8.2.0/rel-820 surfaced
+  a bug: `peter-evans/create-pull-request@v8` resets the calling
+  checkout's working tree back to base-branch HEAD after committing
+  to the amendment branch. The Extract step (which reads
+  `rel-checkout/CHANGELOG.md` and pipes to `gh release edit
+  --notes-file`) was running AFTER peter-evans, so it saw the
+  pre-amendment content. Release body + attachment got overwritten
+  with byte-identical pre-amendment content — no user-visible
+  damage, but the amendment didn't actually take. Fix: reorder
+  Extract to run BEFORE peter-evans; extracted content lives in
+  `$RUNNER_TEMP/section.md` which survives peter-evans's reset.
+  Behavior gotcha saved as memory
+  (`feedback_peter_evans_resets_working_tree.md`) for future
+  workflows that follow the same shape.
+- **openemr/openemr#13005** *(SHIPPED, rel-820 sync
+  openemr/openemr#13006)* — noise-filter relaxation. Review of the
+  first real amendment dispatch (see PRs #13002/#13003 below)
+  showed the ported website filter was too aggressive for the
+  CHANGELOG surface: it dropped rel-branch backport PRs (like
+  openemr/openemr#12827, #12832 — sql-upgrade fixes backported to
+  rel-820 for 8.2.0) and human-authored `fix(release):` /
+  `fix(release-prep):` PRs (~10 in 8.2.0's range). Backports are
+  the PRs that actually shipped in a release; release-scoped human
+  PRs are internal-tooling changes but CHANGELOG readers (devs +
+  release engineers) benefit from seeing them. Dropped both filter
+  rules. The docker auto-bump noise the release-scope rule was
+  meant to catch is already handled specifically by
+  `isDockerBump()` + `isNoOpVersionBump()` under the DEPENDABOT
+  author branch — those stay. Website's release-notes surface
+  still uses the stricter filter (different audience). Also
+  tightened the chore-release-cut regex to require a version
+  number after "release" (`\s+v?\d`) so titles like
+  `chore(docs): release notes update` don't false-match — CR
+  round 1 catch on a pre-existing over-match.
+- **openemr/openemr#13007** *(SHIPPED)* — rel-checkout submodule
+  leak fix. Third dispatch (first fully-green end-to-end run)
+  surfaced yet another bug: master-side peter-evans's `git add -A`
+  at the workflow root treated `rel-checkout/` (a sub-directory
+  with its own `.git/` from the rel-820 checkout) as a git
+  submodule and added a spurious `Subproject commit <sha>` entry
+  to the master amendment PR. Fix: `rm -rf rel-checkout` between
+  the rel-side peter-evans call and the master-scope block. By
+  that point Extract has saved to `$RUNNER_TEMP` and rel-side
+  peter-evans has captured its diff, so nothing downstream reads
+  from rel-checkout.
+- **openemr/openemr#13002 + #13003** *(SHIPPED)* — real amendment
+  PRs (8.2.0-rel-820 + 8.2.0-master). CHANGELOG.md diffs land the
+  8.2.0 Security section (`GHSA-vv5j-6gjw-ffx9`) + the full PR
+  list (including the ~12 previously-filtered PRs from #13005's
+  relaxation). Compare link corrected to `v8_1_0...v8_2_0`, date
+  preserved as `2026-07-08`. Body of both PRs is `chore(release):
+  amend 8.2.0 CHANGELOG (post-GHSA-publish)`. Force-updated three
+  times across the fix iterations — final content is identical to
+  the fourth dispatch's mutator output.
 
 **End-to-end validation history for the amendment workflow:**
 
 - Dry-run #1 (openemr/openemr actions run 29392343714, 2026-07-15
   05:46Z): **failed** at "Run release-prep mutators (rel scope)"
-  — missing GH_TOKEN. Prompted #12999.
+  — missing GH_TOKEN. Prompted openemr/openemr#12999.
 - Dry-run #2 (run 29396553059, 07:11Z, post-#12999): **succeeded**.
   All 28 steps green, PR-open steps correctly SKIPPED via
   `if: ${{ !inputs.dry_run }}`, mutator diff previewed in step
   summary. `changed=true` on both scopes (GHSA-vv5j-6gjw-ffx9
   matched via patched_versions == "8.2.0"). ~14 minutes total.
-- Real dispatch (run 29397657588, 07:31Z, post-#12999): all steps
-  green, amendment PRs #13002 + #13003 opened with correct content,
-  but Release body edit put byte-identical pre-amendment content
-  because of the peter-evans reset. Prompted #13004. Body updated_at
-  timestamp confirms the API call fired; content mismatch confirms
-  the extract read stale data.
-- Re-dispatch after #13004 lands: will re-force-update #13002 +
-  #13003 (idempotent — same content) and correctly write the
-  amended Security section to the Release body + `changelog.md`
-  attachment this time.
+- Real dispatch #1 (run 29397657588, 07:31Z, post-#12999): all
+  steps green; amendment PRs #13002 + #13003 opened with correct
+  content; but Release body edit put byte-identical pre-amendment
+  content because of the peter-evans reset. Prompted #13004.
+- Real dispatch #2 (run 29404476642, 09:26Z, post-#13004 +
+  #13005 + #13006): Release body + attachment correctly updated
+  with amended content (Security Fixes section, tag-to-tag
+  compare link, preserved date). Amendment PRs force-updated with
+  the fuller PR list (+ backports + release-scoped PRs). BUT
+  #13003 accumulated a spurious `rel-checkout` submodule entry
+  (peter-evans's `git add -A` at workflow root treated the
+  rel-820 checkout subdirectory as a submodule). Prompted #13007.
+- Real dispatch #3 (run 29422237030, 14:08Z, post-#13007):
+  **fully green end-to-end**. Both #13002 + #13003 now show only
+  `CHANGELOG.md` in their files list (+6/-265 each, identical
+  diff shape). Release body + attachment stayed byte-identical
+  (already amended in dispatch #2; content didn't change so no
+  visible update). #13002 + #13003 merged shortly after.
+
+Both amendment PRs landed 2026-07-15 — closes the loop end-to-end.
+All four surfaces (rel-branch CHANGELOG, master CHANGELOG,
+GitHub Release body, `changelog.md` attachment) now carry the
+amended 8.2.0 Security section + full PR list.
 
 **Testing / validation strategy per PR:**
 
