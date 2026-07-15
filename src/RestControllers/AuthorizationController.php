@@ -170,6 +170,7 @@ class AuthorizationController
         private OEHttpKernel $kernel,
         private bool $providerForm = true
     ) {
+        SessionWrapperFactory::getInstance()->setActiveSession($this->session);
         $globalsBag = $this->kernel->getGlobalsBag();
         $this->webroot = $globalsBag->getWebRoot();
         $this->globalsBag = $globalsBag;
