@@ -6953,7 +6953,9 @@ class InternalToCdaConverter
         $authorNpi = $this->xpathValue('npi', $sourceAuthor);
         $id = $this->createElement('id');
         $id->setAttribute('root', $authorNpi !== '' ? '2.16.840.1.113883.4.6' : $authorId);
-        $id->setAttribute('extension', $authorNpi !== '' ? $authorNpi : 'NI');
+        if ($authorNpi !== '') {
+            $id->setAttribute('extension', $authorNpi);
+        }
         $assignedAuthor->appendChild($id);
 
         $code = $this->createElement('code');
@@ -6981,10 +6983,14 @@ class InternalToCdaConverter
         $facilityOid = $this->xpathValue('facility_oid', $sourceAuthor);
         $facilityNpi = $this->xpathValue('facility_npi', $sourceAuthor);
         $orgId->setAttribute('root', $facilityOid !== '' ? $facilityOid : '2.16.840.1.113883.4.6');
-        $orgId->setAttribute('extension', $facilityNpi !== '' ? $facilityNpi : 'NI');
+        if ($facilityNpi !== '') {
+            $orgId->setAttribute('extension', $facilityNpi);
+        }
         $repOrg->appendChild($orgId);
         $facilityName = $this->xpathValue('facility_name', $sourceAuthor);
-        $repOrg->appendChild($this->createElement('name', $facilityName !== '' ? $facilityName : null));
+        if ($facilityName !== '') {
+            $repOrg->appendChild($this->createElement('name', $facilityName));
+        }
         $assignedAuthor->appendChild($repOrg);
 
         $author->appendChild($assignedAuthor);
