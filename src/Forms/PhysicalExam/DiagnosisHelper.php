@@ -20,12 +20,12 @@ class DiagnosisHelper
 {
     public static function normalizeLineId(mixed $lineId): ?string
     {
-        if (!is_scalar($lineId)) {
+        if (!is_int($lineId) && !is_string($lineId)) {
             return null;
         }
 
-        $lineId = (string) $lineId;
-        if (trim($lineId) === '') {
+        $lineId = trim((string) $lineId);
+        if ($lineId === '') {
             return null;
         }
 

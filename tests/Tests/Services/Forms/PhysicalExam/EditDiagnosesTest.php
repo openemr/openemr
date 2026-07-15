@@ -119,12 +119,15 @@ class EditDiagnosesTest extends TestCase
         $this->assertSame(self::LINE_ID, DiagnosisHelper::normalizeLineId(self::LINE_ID));
         $this->assertSame('0', DiagnosisHelper::normalizeLineId('0'));
         $this->assertSame('42', DiagnosisHelper::normalizeLineId(42));
+        $this->assertSame('42', DiagnosisHelper::normalizeLineId(' 42 '));
 
         $this->assertNull(DiagnosisHelper::normalizeLineId(null));
         $this->assertNull(DiagnosisHelper::normalizeLineId([]));
         $this->assertNull(DiagnosisHelper::normalizeLineId(''));
         $this->assertNull(DiagnosisHelper::normalizeLineId('   '));
         $this->assertNull(DiagnosisHelper::normalizeLineId(false));
+        $this->assertNull(DiagnosisHelper::normalizeLineId(true));
+        $this->assertNull(DiagnosisHelper::normalizeLineId(42.5));
     }
 
     private function renderEditor(): string
