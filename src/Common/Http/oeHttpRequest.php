@@ -17,11 +17,6 @@ namespace OpenEMR\Common\Http;
 use GuzzleHttp\ClientInterface;
 use OpenEMR\Core\OEGlobalsBag;
 
-/**
- * Class oeHttpRequest
- *
- * @package OpenEMR\Common\Http
- */
 class oeHttpRequest extends oeHttp
 {
     private string $bodyFormat;
@@ -63,7 +58,7 @@ class oeHttpRequest extends oeHttp
         return $value;
     }
 
-    public function setOptions($options)
+    public function setOptions(array $options)
     {
         return $this->tap($this, fn($request): array => $this->options = array_merge_recursive($this->options, $options));
     }
@@ -161,7 +156,7 @@ class oeHttpRequest extends oeHttp
         ]);
     }
 
-    public function send(string $method, string $url, $options = ''): oeHttpResponse
+    public function send(string $method, string $url, array $options = []): oeHttpResponse
     {
         if ($this->apiOAuth) {
             $this->setOptions([
