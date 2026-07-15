@@ -1247,7 +1247,7 @@ class InternalToCdaConverter
         $startDate = $this->xpathValue('startdate', $allergy);
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $this->setDateAttribute($low, $startDate);
         $effectiveTime->appendChild($low);
         $act->appendChild($effectiveTime);
 
@@ -1298,7 +1298,7 @@ class InternalToCdaConverter
         $startDate = $this->xpathValue('startdate', $allergy);
         $obsEffTime = $this->createElement('effectiveTime');
         $obsLow = $this->createElement('low');
-        $obsLow->setAttribute('value', $this->formatDateOnly($startDate));
+        $this->setDateAttribute($obsLow, $startDate);
         $obsEffTime->appendChild($obsLow);
         $obs->appendChild($obsEffTime);
 
@@ -1601,7 +1601,7 @@ class InternalToCdaConverter
 
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', date('Ymd'));
+        $low->setAttribute('nullFlavor', 'UNK');
         $effectiveTime->appendChild($low);
         $act->appendChild($effectiveTime);
 
@@ -1631,7 +1631,7 @@ class InternalToCdaConverter
 
         $obsEffTime = $this->createElement('effectiveTime');
         $obsLow = $this->createElement('low');
-        $obsLow->setAttribute('value', date('Ymd'));
+        $obsLow->setAttribute('nullFlavor', 'UNK');
         $obsEffTime->appendChild($obsLow);
         $obs->appendChild($obsEffTime);
 
@@ -1745,10 +1745,10 @@ class InternalToCdaConverter
         $effTime1 = $this->output->createElement('effectiveTime');
         $this->setXsiType($effTime1, 'IVL_TS');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $this->setDateAttribute($low, $startDate);
         $effTime1->appendChild($low);
         $high = $this->createElement('high');
-        $high->setAttribute('value', $this->formatDateOnly($endDate));
+        $this->setDateAttribute($high, $endDate);
         $effTime1->appendChild($high);
         $subAdmin->appendChild($effTime1);
 
@@ -1852,6 +1852,21 @@ class InternalToCdaConverter
         if ($authorEl instanceof DOMElement) {
             $this->appendEntryAuthor($subAdmin, $authorEl);
         }
+    }
+
+    /**
+     * Set a date-bearing element to either @value (formatted) or, when the
+     * source date is absent, @nullFlavor="UNK" — matching the node service,
+     * which never fabricates a date for unknown values.
+     */
+    private function setDateAttribute(DOMElement $element, string $date): void
+    {
+        $trimmed = trim($date);
+        if ($trimmed === '' || $trimmed === '0000-00-00' || (int) $trimmed === 0) {
+            $element->setAttribute('nullFlavor', 'UNK');
+            return;
+        }
+        $element->setAttribute('value', $this->formatDateOnly($trimmed));
     }
 
     private function formatDateOnly(string $input): string
