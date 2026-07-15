@@ -19,6 +19,7 @@ namespace OpenEMR\RestControllers;
 use DateInterval;
 use DateTimeImmutable;
 use Exception;
+use JsonException;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
@@ -80,7 +81,6 @@ use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
-use JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -377,7 +377,13 @@ class AuthorizationController
                 $dsiSourceAttributes = $data->all('dsi_source_attributes');
                 $clientRepository->insertNewClient($client_id, $params, $this->siteId);
                 if ($params['dsi_type'] !== ClientEntity::DSI_TYPE_NONE) {
-                    $this->createDecisionSupportInterventionServiceForType($client_id, $params['client_name'], $params['dsi_type'], $dsiSourceAttributes);
+                    $clientName = $params['client_name'] ?? '';
+                    $this->createDecisionSupportInterventionServiceForType(
+                        $client_id,
+                        is_string($clientName) ? $clientName : '',
+                        $params['dsi_type'],
+                        $dsiSourceAttributes
+                    );
                 }
                 // set it back to the string name for the response
                 $params['dsi_type'] = $dsiTypeName;
@@ -1331,7 +1337,7 @@ class AuthorizationController
         $authRequest = new AuthorizationRequest();
         try {
             $requestData = $this->session->get('authRequestSerial', $this->authRequestSerial);
-            $restore = json_decode((string)($requestData ?? ''), true);
+            $restore = json_decode(is_string($requestData) ? $requestData : '', true);
             $outer = $restore['outer'];
             $client = $restore['client'];
             $scoped = $restore['scopes'];
@@ -1384,7 +1390,8 @@ class AuthorizationController
             // re-populate from saved session cache populated in authorizeUser().
             $ssbc = $this->sessionUserByCode($code);
             if (!empty($ssbc)) {
-                $sessionCache = json_decode((string)($ssbc['session_cache'] ?? '{}'), true);
+                $cacheData = $ssbc['session_cache'] ?? null;
+                $sessionCache = json_decode(is_string($cacheData) ? $cacheData : '{}', true);
                 $this->session->replace(is_array($sessionCache) ? $sessionCache : []);
             } else {
                 // TODO: @adunsulag should we throw an exception here?
@@ -1496,7 +1503,8 @@ class AuthorizationController
                     throw new HttpException(Response::HTTP_UNAUTHORIZED, $message);
                 }
             }
-            $session_nonce = (json_decode((string)($trustedUser['session_cache'] ?? '{}'), true)['nonce']) ?? '';
+            $cacheData = $trustedUser['session_cache'] ?? null;
+            $session_nonce = (json_decode(is_string($cacheData) ? $cacheData : '{}', true)['nonce']) ?? '';
             // this should be enough to confirm valid id
             if ($session_nonce !== $id_nonce) {
                 throw new OAuthServerException('Id token not issued from this server', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
