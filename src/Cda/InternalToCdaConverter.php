@@ -2164,6 +2164,11 @@ class InternalToCdaConverter
     private function appendHealthStatus(DOMElement $obs, int $index, DOMElement $problem): void
     {
         $observation = $this->xpathValue('observation', $problem);
+        // Node omits the Health Status observation entirely when no status is
+        // recorded rather than emitting one with an empty displayName.
+        if ($observation === '') {
+            return;
+        }
 
         $entryRel = $this->createElement('entryRelationship');
         $entryRel->setAttribute('typeCode', 'REFR');
@@ -3224,7 +3229,9 @@ class InternalToCdaConverter
         $npi = $this->xpathValue('npi', $imm);
         $id = $this->createElement('id');
         $id->setAttribute('root', '2.16.840.1.113883.4.6');
-        $id->setAttribute('extension', $npi);
+        if ($npi !== '') {
+            $id->setAttribute('extension', $npi);
+        }
         $assignedEntity->appendChild($id);
 
         $addr = $this->createElement('addr');
@@ -3238,10 +3245,14 @@ class InternalToCdaConverter
         ));
         $assignedEntity->appendChild($assignedPerson);
 
-        $repOrg = $this->createElement('representedOrganization');
+        // Node omits the representedOrganization when no facility name is known
+        // rather than emitting an empty <name/>.
         $facilityName = $this->xpathValue('facility_name', $imm);
-        $repOrg->appendChild($this->createElement('name', $facilityName !== '' ? $facilityName : null));
-        $assignedEntity->appendChild($repOrg);
+        if ($facilityName !== '') {
+            $repOrg = $this->createElement('representedOrganization');
+            $repOrg->appendChild($this->createElement('name', $facilityName));
+            $assignedEntity->appendChild($repOrg);
+        }
 
         $performer->appendChild($assignedEntity);
         $subAdmin->appendChild($performer);
