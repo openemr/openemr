@@ -41,17 +41,18 @@ $request = Request::createFromGlobals();
 $filesystem = new Filesystem();
 $userauthorized = $globalsBag->getInt('userauthorized');
 
-// Stop with a real HTTP error status instead of die(): callers and proxies
-// see the failure, and the nonzero exit fails loudly outside a web SAPI.
+// Send a real HTTP error status instead of die(). Callers follow this with a
+// top-level `return`, which ends the request like exit() but keeps the script
+// includable (and therefore testable) — no process kill, no swallowed status.
 // Response::send() skips the status line if headers already went out.
-$abort = static function (int $statusCode, string $message): never {
+$sendError = static function (int $statusCode, string $message): void {
     (new Response($message, $statusCode))->send();
-    exit(1);
 };
 
 $site_id = $session->get('site_id');
 if (!is_string($site_id) || $site_id === '') {
-    $abort(Response::HTTP_UNAUTHORIZED, "Site ID is missing from the session.");
+    $sendError(Response::HTTP_UNAUTHORIZED, "Site ID is missing from the session.");
+    return;
 }
 
 $fileParam = $request->query->getString('file');
@@ -78,7 +79,8 @@ if ($fileParam !== '') {
 
     $filepath = $globalsBag->getString('scanner_output_directory') . '/' . $filename;
 } else {
-    $abort(Response::HTTP_BAD_REQUEST, "No filename was given.");
+    $sendError(Response::HTTP_BAD_REQUEST, "No filename was given.");
+    return;
 }
 
 $dotPos = strrpos($filename, '.');
@@ -103,7 +105,7 @@ $processError = (static fn(Process $process): string => (string) $process->getEx
 // This merges the tiff files for the selected pages into one tiff file.
 // $images holds the form_images checkboxes to the right of the images.
 //
-$mergeTiffs = static function (array $images) use ($faxcache, $filesystem, $runProcess, $processError, $abort): string {
+$mergeTiffs = static function (array $images) use ($faxcache, $filesystem, $runProcess, $processError): string {
     $tiffNames = [];
     foreach ($images as $name) {
         if (is_string($name)) {
@@ -112,7 +114,7 @@ $mergeTiffs = static function (array $images) use ($faxcache, $filesystem, $runP
     }
 
     if (count($tiffNames) === 0) {
-        $abort(Response::HTTP_BAD_REQUEST, xlt("Internal error - no pages were selected!"));
+        return xl('Internal error - no pages were selected!') . ' ';
     }
 
     // Remove any merge output from a previous run so a failed tiffcp cannot
@@ -147,7 +149,8 @@ if ($request->request->getString('form_save') !== '') {
     if ($request->request->getBoolean('form_cb_copy')) {
         $patient_id = $request->request->getInt('form_pid');
         if ($patient_id === 0) {
-            $abort(Response::HTTP_BAD_REQUEST, xlt('Internal error - patient ID was not provided!'));
+            $sendError(Response::HTTP_BAD_REQUEST, xlt('Internal error - patient ID was not provided!'));
+            return;
         }
 
         // If copying to patient documents...
@@ -295,7 +298,8 @@ if ($request->request->getString('form_save') !== '') {
                 // we already have a jpeg for each page in faxcache.
                 $process = $runProcess(['convert', '-resize', '800', '-density', '96', $tmp_name, '-append', $imagepath]);
                 if (!$process->isSuccessful()) {
-                    $abort(Response::HTTP_INTERNAL_SERVER_ERROR, "convert returned " . text($processError($process)));
+                    $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, "convert returned " . text($processError($process)));
+                    return;
                 }
             }
 
@@ -396,7 +400,8 @@ if ($request->request->getString('form_save') !== '') {
         if ($action_taken) {
             $dh = opendir($faxcache);
             if (! $dh) {
-                $abort(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
+                $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
+                return;
             }
 
             $form_cb_delete = '2';
@@ -425,7 +430,8 @@ if ($request->request->getString('form_save') !== '') {
         if (is_dir($faxcache)) {
             $dh = opendir($faxcache);
             if (! $dh) {
-                $abort(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
+                $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
+                return;
             }
 
             while (($tmp = readdir($dh)) !== false) {
@@ -455,7 +461,7 @@ if ($request->request->getString('form_save') !== '') {
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
         echo " window.close();\n";
         echo "</script>\n</body>\n</html>\n";
-        exit();
+        return;
     }
 } // end submit logic
 
@@ -475,14 +481,11 @@ $using_scanned_notes = is_numeric($scannedNotesCount) && (int) $scannedNotesCoun
 // If the image cache does not yet exist for this fax, build it.
 // This will contain a .tif image as well as a .jpg image for each page.
 //
-if (! is_dir($faxcache)) {
-    // Remove the partial cache on any failure so a later request rebuilds it
-    // instead of silently serving an incomplete set of pages.
-    $failCache = static function (string $message) use ($faxcache, $filesystem, $abort): never {
-        $filesystem->remove($faxcache);
-        $abort(Response::HTTP_INTERNAL_SERVER_ERROR, $message);
-    };
-
+// Build the page images for the fax under $faxcache: a .tif and a .jpg per
+// page. Returns '' on success. On failure, removes the partial cache — so a
+// later request rebuilds it instead of silently serving an incomplete set of
+// pages — and returns the error message.
+$buildFaxcache = static function () use ($ext, $filepath, $faxcache, $filesystem, $runProcess, $processError): string {
     $filesystem->mkdir($faxcache);
 
     if (strtolower($ext) != '.tif') {
@@ -491,19 +494,22 @@ if (! is_dir($faxcache)) {
         // better and faster if the scanner produces TIFFs instead of PDFs.
         $process = $runProcess(['convert', '-density', '203x196', $filepath, $faxcache . '/deleteme.tif']);
         if (!$process->isSuccessful()) {
-            $failCache("convert returned " . text($processError($process)));
+            $filesystem->remove($faxcache);
+            return "convert returned " . text($processError($process));
         }
 
         $process = $runProcess(['tiffsplit', 'deleteme.tif'], $faxcache);
         if (!$process->isSuccessful()) {
-            $failCache("tiffsplit returned " . text($processError($process)));
+            $filesystem->remove($faxcache);
+            return "tiffsplit returned " . text($processError($process));
         }
 
         $filesystem->remove($faxcache . '/deleteme.tif');
     } else {
         $process = $runProcess(['tiffsplit', $filepath], $faxcache);
         if (!$process->isSuccessful()) {
-            $failCache("tiffsplit returned " . text($processError($process)));
+            $filesystem->remove($faxcache);
+            return "tiffsplit returned " . text($processError($process));
         }
     }
 
@@ -518,8 +524,19 @@ if (! is_dir($faxcache)) {
     if (count($pageTiffs) > 0) {
         $process = $runProcess(array_merge(['mogrify', '-resize', '750x970', '-format', 'jpg'], $pageTiffs), $faxcache);
         if (!$process->isSuccessful()) {
-            $failCache("mogrify returned " . text($processError($process)) . "; ext is '" . text($ext) . "'; filepath is '" . text($filepath) . "'");
+            $filesystem->remove($faxcache);
+            return "mogrify returned " . text($processError($process)) . "; ext is '" . text($ext) . "'; filepath is '" . text($filepath) . "'";
         }
+    }
+
+    return '';
+};
+
+if (! is_dir($faxcache)) {
+    $buildError = $buildFaxcache();
+    if ($buildError !== '') {
+        $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, $buildError);
+        return;
     }
 }
 
@@ -940,7 +957,8 @@ $userRows = QueryUtils::fetchRecords(
 <?php
 $dh = opendir($faxcache);
 if (! $dh) {
-    $abort(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
+    $sendError(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
+    return;
 }
 
 $jpgarray = [];
