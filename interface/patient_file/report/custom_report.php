@@ -134,7 +134,7 @@ function getContent()
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
-    <?php Header::setupAssets(['pdf-style', 'esign-theme-only']); ?>
+    <?php echo Header::setupAssets(['pdf-style', 'esign-theme-only']); ?>
 <?php } else { ?>
 <html>
 <head>
@@ -167,7 +167,7 @@ function getContent()
     <?php if (!$PDF_OUTPUT) { ?>
         <?php // if the track_anything form exists, then include the styling
         if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
-            <?php Header::setupAssets('track-anything'); ?>
+            <?php echo Header::setupAssets(['track-anything']); ?>
         <?php } ?>
 
 </head>
