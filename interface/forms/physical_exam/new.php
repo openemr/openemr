@@ -9,17 +9,23 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2010 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
+use Symfony\Component\HttpFoundation\Request;
+
+use function OpenEMR\Forms\PhysicalExam\physical_exam_lines;
 
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
@@ -30,36 +36,42 @@ $userauthorized = PatientSessionUtil::getUserAuthorized();
 
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
-require_once("lines.php");
-/** @var array<string, array<string, string>> $pelines (set in lines.php via $GLOBALS) */
+require_once(__DIR__ . "/lines.php");
 
-if (! $encounter) { // comes from globals.php
+if (!$encounter) {
     die("Internal error: we do not seem to be in an encounter!");
 }
 
 $returnurl = 'encounter_top.php';
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = Request::createFromGlobals();
 
-function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp): void
-{
-    $dres = sqlStatement("SELECT * FROM form_physical_exam_diagnoses " .
-    "WHERE line_id = ? ORDER BY ordering, diagnosis", [$line_id]);
+// Coerce a raw request/database value (which PHPStan sees as mixed) to a string.
+$scalarString = static fn (mixed $value): string => is_scalar($value) ? (string) $value : '';
+
+$showExamLine = function (string $line_id, string $description, array $linedbrow, string $sysnamedisp) use ($scalarString): void {
+    $wnl = $scalarString($linedbrow['wnl'] ?? null);
+    $abn = $scalarString($linedbrow['abn'] ?? null);
+    $comments = $scalarString($linedbrow['comments'] ?? null);
+    $diagnosis = $scalarString($linedbrow['diagnosis'] ?? null);
+    $wnlChecked = ($wnl !== '' && $wnl !== '0') ? " checked" : "";
+    $abnChecked = ($abn !== '' && $abn !== '0') ? " checked" : "";
 
     echo " <tr>\n";
     echo "  <td align='center'><input type='checkbox' name='form_obs[" . attr($line_id) . "][wnl]' " .
-    "value='1'" . ($linedbrow['wnl'] ? " checked" : "") . " /></td>\n";
+    "value='1'" . $wnlChecked . " /></td>\n";
     echo "  <td align='center'><input type='checkbox' name='form_obs[" . attr($line_id) . "][abn]' " .
-    "value='1'" . ($linedbrow['abn'] ? " checked" : "") . " /></td>\n";
+    "value='1'" . $abnChecked . " /></td>\n";
     echo "  <td nowrap>" . text($sysnamedisp) . "</td>\n";
     echo "  <td nowrap>" . text($description) . "</td>\n";
 
     echo "  <td><select name='form_obs[" . attr($line_id) . "][diagnosis]' onchange='seldiag(this, " . attr_js($line_id) . ")' style='width:100%'>\n";
     echo "   <option value=''></option>\n";
-    $diagnosis = $linedbrow['diagnosis'];
-    while ($drow = sqlFetchArray($dres)) {
+    $dres = QueryUtils::fetchRecords('SELECT * FROM form_physical_exam_diagnoses WHERE line_id = ? ORDER BY ordering, diagnosis', [$line_id]);
+    foreach ($dres as $drow) {
         $sel = '';
-        $diag = $drow['diagnosis'];
-        if ($diagnosis && $diag == $diagnosis) {
+        $diag = $scalarString($drow['diagnosis'] ?? null);
+        if ($diagnosis !== '' && $diag === $diagnosis) {
             $sel = 'selected';
             $diagnosis = '';
         }
@@ -69,7 +81,7 @@ function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp): void
 
  // If the diagnosis was not in the standard list then it must have been
  // there before and then removed.  In that case show it in parentheses.
-    if ($diagnosis) {
+    if ($diagnosis !== '') {
         echo "   <option value='" . attr($diagnosis) . "' selected>(" . text($diagnosis) . ")</option>\n";
     }
 
@@ -78,28 +90,31 @@ function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp): void
 
     echo "  <td><input type='text' name='form_obs[" . attr($line_id) . "][comments]' " .
     "size='20' maxlength='250' style='width:100%' " .
-    "value='" . attr($linedbrow['comments']) . "' /></td>\n";
+    "value='" . attr($comments) . "' /></td>\n";
     echo " </tr>\n";
-}
+};
 
-function showTreatmentLine($line_id, $description, &$linedbrow): void
-{
+$showTreatmentLine = function (string $line_id, string $description, array $linedbrow) use ($scalarString): void {
+    $wnl = $scalarString($linedbrow['wnl'] ?? null);
+    $comments = $scalarString($linedbrow['comments'] ?? null);
+    $wnlChecked = ($wnl !== '' && $wnl !== '0') ? " checked" : "";
+
     echo " <tr>\n";
     echo "  <td align='center'><input type='checkbox' name='form_obs[" . attr($line_id) . "][wnl]' " .
-    "value='1'" . ($linedbrow['wnl'] ? " checked" : "") . " /></td>\n";
+    "value='1'" . $wnlChecked . " /></td>\n";
     echo "  <td></td>\n";
     echo "  <td colspan='2' nowrap>" . text($description) . "</td>\n";
     echo "  <td colspan='2'><input type='text' name='form_obs[" . attr($line_id) . "][comments]' " .
     "size='20' maxlength='250' style='width:100%' " .
-    "value='" . attr($linedbrow['comments']) . "' /></td>\n";
+    "value='" . attr($comments) . "' /></td>\n";
     echo " </tr>\n";
-}
+};
 
-$formid = $_GET['id'];
+$formid = $request->query->getString('id');
 
 // If Save was clicked, save the info.
 //
-if ($_POST['bn_save']) {
+if ($request->request->getString('bn_save') !== '') {
  // We are to update/insert multiple table rows for the form.
  // Each has 2 checkboxes, a dropdown and a text input field.
  // Skip rows that have no entries.
@@ -107,32 +122,35 @@ if ($_POST['bn_save']) {
  // input field.  Maybe also a diagnosis line, not clear.
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-    if ($formid) {
-        $query = "DELETE FROM form_physical_exam WHERE forms_id = ?";
-        sqlStatement($query, [$formid]);
+    if ($formid !== '') {
+        QueryUtils::sqlStatementThrowException('DELETE FROM form_physical_exam WHERE forms_id = ?', [$formid]);
     } else {
-        $formid = addForm($encounter, "Physical Exam", 0, "physical_exam", $pid, $userauthorized);
-        $query = "UPDATE forms SET form_id = id WHERE id = ? AND form_id = 0";
-        sqlStatement($query, [$formid]);
+        $formid = $scalarString((new FormService())->addForm($encounter, "Physical Exam", 0, "physical_exam", $pid, $userauthorized));
+        QueryUtils::sqlStatementThrowException('UPDATE forms SET form_id = id WHERE id = ? AND form_id = 0', [$formid]);
     }
 
-    $form_obs = $_POST['form_obs'];
-    foreach ($form_obs as $line_id => $line_array) {
-        $wnl = $line_array['wnl'] ? '1' : '0';
-        $abn = $line_array['abn'] ? '1' : '0';
-        $diagnosis = $line_array['diagnosis'] ?: '';
-        $comments  = $line_array['comments'] ?: '';
-        if ($wnl || $abn || $diagnosis || $comments) {
-            $query = "INSERT INTO form_physical_exam (
-             forms_id, line_id, wnl, abn, diagnosis, comments
-             ) VALUES (
-             ?, ?, ?, ?, ?, ?
-             )";
-            sqlStatement($query, [$formid, $line_id, $wnl, $abn, $diagnosis, $comments]);
+    foreach ($request->request->all('form_obs') as $line_id => $line_array) {
+        if (!is_array($line_array)) {
+            continue;
+        }
+
+        $wnlRaw = $scalarString($line_array['wnl'] ?? null);
+        $abnRaw = $scalarString($line_array['abn'] ?? null);
+        $wnl = ($wnlRaw !== '' && $wnlRaw !== '0') ? '1' : '0';
+        $abn = ($abnRaw !== '' && $abnRaw !== '0') ? '1' : '0';
+        $diagnosis = $scalarString($line_array['diagnosis'] ?? null);
+        $comments  = $scalarString($line_array['comments'] ?? null);
+        if ($wnl === '1' || $abn === '1' || $diagnosis !== '' || $comments !== '') {
+            $insert = <<<'SQL'
+            INSERT INTO form_physical_exam (
+                forms_id, line_id, wnl, abn, diagnosis, comments
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            SQL;
+            QueryUtils::sqlStatementThrowException($insert, [$formid, $line_id, $wnl, $abn, $diagnosis, $comments]);
         }
     }
 
-    if (! $_POST['form_refresh']) {
+    if ($request->request->getString('form_refresh') === '') {
         formHeader("Redirecting....");
         formJump();
         formFooter();
@@ -143,10 +161,9 @@ if ($_POST['bn_save']) {
 // Load all existing rows for this form as a hash keyed on line_id.
 //
 $rows = [];
-if ($formid) {
-    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?", [$formid]);
-    while ($row = sqlFetchArray($res)) {
-        $rows[$row['line_id']] = $row;
+if ($formid !== '') {
+    foreach (QueryUtils::fetchRecords('SELECT * FROM form_physical_exam WHERE forms_id = ?', [$formid]) as $row) {
+        $rows[$scalarString($row['line_id'] ?? null)] = $row;
     }
 }
 ?>
@@ -194,22 +211,21 @@ if ($formid) {
  </tr>
 
 <?php
-foreach ($pelines as $sysname => $sysarray) {
-    $sysnamedisp = $sysname;
-    if ($sysname == '*') {
+foreach (physical_exam_lines() as $system) {
+    $sysnamedisp = $system['label'];
+    if ($system['code'] === '*') {
        // TBD: Show any remaining entries in $rows (should not be any).
         echo " <tr><td colspan='6'>\n";
         echo "   &nbsp;<br /><b>" . xlt('Treatment:') . "</b>\n";
         echo " </td></tr>\n";
-    } else {
-        $sysnamedisp = xl($sysname);
+        $sysnamedisp = '';
     }
 
-    foreach ($sysarray as $line_id => $description) {
-        if ($sysname != '*') {
-            showExamLine($line_id, $description, $rows[$line_id], $sysnamedisp);
+    foreach ($system['lines'] as $line_id => $description) {
+        if ($system['code'] !== '*') {
+            $showExamLine($line_id, $description, $rows[$line_id] ?? [], $sysnamedisp);
         } else {
-            showTreatmentLine($line_id, $description, $rows[$line_id]);
+            $showTreatmentLine($line_id, $description, $rows[$line_id] ?? []);
         }
 
         $sysnamedisp = '';
