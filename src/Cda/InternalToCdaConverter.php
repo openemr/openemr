@@ -212,7 +212,7 @@ class InternalToCdaConverter
         $useablePeriod = $this->output->createElement('useablePeriod');
         $this->setXsiType($useablePeriod, 'IVL_TS');
         $low = $this->createElement('low');
-        $low->setAttribute('value', date('Ymd'));
+        $low->setAttribute('nullFlavor', 'UNK');
         $useablePeriod->appendChild($low);
         $addr->appendChild($useablePeriod);
 
@@ -359,6 +359,46 @@ class InternalToCdaConverter
         $patient->appendChild($langComm);
     }
 
+    /**
+     * Append a work address. When no street/city/state/postalCode is known the
+     * node service collapses the whole element to <addr nullFlavor="NI"/> rather
+     * than emitting empty ST parts (which are IG datatype violations). Populated
+     * addresses omit any individually empty part.
+     */
+    private function appendWorkAddress(
+        DOMElement $parent,
+        string $street,
+        string $city,
+        string $state,
+        string $postalCode,
+        string $country,
+        bool $workUse = true,
+    ): void {
+        $addr = $this->createElement('addr');
+        if ($street === '' && $city === '' && $state === '' && $postalCode === '') {
+            $addr->setAttribute('nullFlavor', 'NI');
+            $parent->appendChild($addr);
+            return;
+        }
+        if ($workUse) {
+            $addr->setAttribute('use', 'WP');
+        }
+        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
+        if ($state !== '') {
+            $addr->appendChild($this->createElement('state', $state));
+        }
+        if ($city !== '') {
+            $addr->appendChild($this->createElement('city', $city));
+        }
+        if ($postalCode !== '') {
+            $addr->appendChild($this->createElement('postalCode', $postalCode));
+        }
+        if ($street !== '') {
+            $addr->appendChild($this->createElement('streetAddressLine', $street));
+        }
+        $parent->appendChild($addr);
+    }
+
     private function appendProviderOrganization(DOMElement $patientRole): void
     {
         $provOrg = $this->createElement('providerOrganization');
@@ -366,27 +406,31 @@ class InternalToCdaConverter
         $npi = $this->xpathValue('/CCDA/encounter_provider/facility_npi');
         $id = $this->createElement('id');
         $id->setAttribute('root', '2.16.840.1.113883.4.6');
-        $id->setAttribute('extension', $npi);
+        if ($npi !== '') {
+            $id->setAttribute('extension', $npi);
+        }
         $provOrg->appendChild($id);
 
         $name = $this->xpathValue('/CCDA/encounter_provider/facility_name');
         $provOrg->appendChild($this->createElement('name', $name !== '' ? $name : null));
 
+        // Node omits the telecom entirely when no facility phone is known.
         $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
-        $telecom = $this->createElement('telecom');
-        $telecom->setAttribute('use', 'WP');
-        $telecom->setAttribute('value', $phone);
-        $provOrg->appendChild($telecom);
+        if ($phone !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('use', 'WP');
+            $telecom->setAttribute('value', $phone);
+            $provOrg->appendChild($telecom);
+        }
 
-        $addr = $this->createElement('addr');
-        $addr->setAttribute('use', 'WP');
-        $country = $this->xpathValue('/CCDA/encounter_provider/facility_country_code');
-        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
-        $addr->appendChild($this->createElement('state', $this->xpathValue('/CCDA/encounter_provider/facility_state') ?: null));
-        $addr->appendChild($this->createElement('city', $this->xpathValue('/CCDA/encounter_provider/facility_city') ?: null));
-        $addr->appendChild($this->createElement('postalCode', $this->xpathValue('/CCDA/encounter_provider/facility_postal_code') ?: null));
-        $addr->appendChild($this->createElement('streetAddressLine', $this->xpathValue('/CCDA/encounter_provider/facility_street') ?: null));
-        $provOrg->appendChild($addr);
+        $this->appendWorkAddress(
+            $provOrg,
+            $this->xpathValue('/CCDA/encounter_provider/facility_street'),
+            $this->xpathValue('/CCDA/encounter_provider/facility_city'),
+            $this->xpathValue('/CCDA/encounter_provider/facility_state'),
+            $this->xpathValue('/CCDA/encounter_provider/facility_postal_code'),
+            $this->xpathValue('/CCDA/encounter_provider/facility_country_code'),
+        );
 
         $patientRole->appendChild($provOrg);
     }
@@ -410,7 +454,6 @@ class InternalToCdaConverter
             $id->setAttribute('extension', $npi);
         } else {
             $id->setAttribute('root', $authorUuid);
-            $id->setAttribute('extension', 'NI');
         }
         $assignedAuthor->appendChild($id);
 
@@ -421,30 +464,29 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', $this->xpathValue('/CCDA/author/physician_type_system_name'));
         $assignedAuthor->appendChild($code);
 
-        $addr = $this->createElement('addr');
-        $addr->setAttribute('use', 'WP');
-        $country = $this->xpathValue('/CCDA/author/country');
-        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
-        $addr->appendChild($this->createElement('state', $this->xpathValue('/CCDA/author/state') ?: null));
-        $addr->appendChild($this->createElement('city', $this->xpathValue('/CCDA/author/city') ?: null));
-        $addr->appendChild($this->createElement('postalCode', $this->xpathValue('/CCDA/author/postalCode') ?: null));
-        $addr->appendChild($this->createElement('streetAddressLine', $this->xpathValue('/CCDA/author/streetAddressLine') ?: null));
-        $assignedAuthor->appendChild($addr);
+        $this->appendWorkAddress(
+            $assignedAuthor,
+            $this->xpathValue('/CCDA/author/streetAddressLine'),
+            $this->xpathValue('/CCDA/author/city'),
+            $this->xpathValue('/CCDA/author/state'),
+            $this->xpathValue('/CCDA/author/postalCode'),
+            $this->xpathValue('/CCDA/author/country'),
+        );
 
-        // assignedAuthor SHALL contain at least one telecom (CONF:1198-5428);
-        // fall back to nullFlavor when no author contact number is available.
+        // The IG requires assignedAuthor to carry a telecom (CONF:1198-5428),
+        // but node omits it entirely when no contact number is known. We match
+        // certified node output; the missing telecom is a spec variation for a
+        // follow-up issue rather than a fabricated nullFlavor.
         $authorPhone = $this->xpathValue('/CCDA/author/phone');
         if ($authorPhone === '') {
             $authorPhone = $this->xpathValue('/CCDA/author/telecom');
         }
-        $authorTelecom = $this->createElement('telecom');
         if ($authorPhone !== '') {
+            $authorTelecom = $this->createElement('telecom');
             $authorTelecom->setAttribute('value', 'tel:' . $authorPhone);
             $authorTelecom->setAttribute('use', 'WP');
-        } else {
-            $authorTelecom->setAttribute('nullFlavor', 'UNK');
+            $assignedAuthor->appendChild($authorTelecom);
         }
-        $assignedAuthor->appendChild($authorTelecom);
 
         $assignedPerson = $this->createElement('assignedPerson');
         $assignedPerson->appendChild($this->createPersonName(
@@ -483,15 +525,14 @@ class InternalToCdaConverter
             $repOrg->appendChild($telecom);
         }
 
-        $addr = $this->createElement('addr');
-        $addr->setAttribute('use', 'WP');
-        $country = $this->xpathValue('/CCDA/encounter_provider/facility_country_code');
-        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
-        $addr->appendChild($this->createElement('state', $this->xpathValue('/CCDA/encounter_provider/facility_state') ?: null));
-        $addr->appendChild($this->createElement('city', $this->xpathValue('/CCDA/encounter_provider/facility_city') ?: null));
-        $addr->appendChild($this->createElement('postalCode', $this->xpathValue('/CCDA/encounter_provider/facility_postal_code') ?: null));
-        $addr->appendChild($this->createElement('streetAddressLine', $this->xpathValue('/CCDA/encounter_provider/facility_street') ?: null));
-        $repOrg->appendChild($addr);
+        $this->appendWorkAddress(
+            $repOrg,
+            $this->xpathValue('/CCDA/encounter_provider/facility_street'),
+            $this->xpathValue('/CCDA/encounter_provider/facility_city'),
+            $this->xpathValue('/CCDA/encounter_provider/facility_state'),
+            $this->xpathValue('/CCDA/encounter_provider/facility_postal_code'),
+            $this->xpathValue('/CCDA/encounter_provider/facility_country_code'),
+        );
 
         $assignedAuthor->appendChild($repOrg);
     }
@@ -505,7 +546,9 @@ class InternalToCdaConverter
         $npi = $this->xpathValue('/CCDA/encounter_provider/facility_npi');
         $id = $this->createElement('id');
         $id->setAttribute('root', '2.16.840.1.113883.4.6');
-        $id->setAttribute('extension', $npi);
+        if ($npi !== '') {
+            $id->setAttribute('extension', $npi);
+        }
         $repCustOrg->appendChild($id);
 
         $name = $this->xpathValue('/CCDA/custodian/name');
@@ -517,14 +560,15 @@ class InternalToCdaConverter
         $telecom->setAttribute('use', 'WP');
         $repCustOrg->appendChild($telecom);
 
-        $addr = $this->createElement('addr');
-        $country = $this->xpathValue('/CCDA/custodian/country');
-        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
-        $addr->appendChild($this->createElement('state', $this->xpathValue('/CCDA/custodian/state') ?: null));
-        $addr->appendChild($this->createElement('city', $this->xpathValue('/CCDA/custodian/city') ?: null));
-        $addr->appendChild($this->createElement('postalCode', $this->xpathValue('/CCDA/custodian/postalCode') ?: null));
-        $addr->appendChild($this->createElement('streetAddressLine', $this->xpathValue('/CCDA/custodian/streetAddressLine') ?: null));
-        $repCustOrg->appendChild($addr);
+        $this->appendWorkAddress(
+            $repCustOrg,
+            $this->xpathValue('/CCDA/custodian/streetAddressLine'),
+            $this->xpathValue('/CCDA/custodian/city'),
+            $this->xpathValue('/CCDA/custodian/state'),
+            $this->xpathValue('/CCDA/custodian/postalCode'),
+            $this->xpathValue('/CCDA/custodian/country'),
+            workUse: false,
+        );
 
         $assignedCustodian->appendChild($repCustOrg);
         $custodian->appendChild($assignedCustodian);
@@ -589,7 +633,9 @@ class InternalToCdaConverter
         $orgNpi = $this->xpathValue('organization_npi', $participantEl);
         $id = $this->createElement('id');
         $id->setAttribute('root', $orgId);
-        $id->setAttribute('extension', $orgNpi !== '' ? $orgNpi : 'NI');
+        if ($orgNpi !== '') {
+            $id->setAttribute('extension', $orgNpi);
+        }
         $associatedEntity->appendChild($id);
 
         $code = $this->createElement('code');
@@ -619,13 +665,21 @@ class InternalToCdaConverter
             $postalCode = $this->xpathValue('zip', $participantEl);
         }
         $country = $this->xpathValue('country', $participantEl);
-        // Related Person addr: SHALL contain >=1 streetAddressLine and exactly
-        // one city; for a US address, state and postalCode are required and
-        // SHOULD carry nullFlavor when unknown.
-        $this->appendAddrPart($addr, 'streetAddressLine', $street);
-        $this->appendAddrPart($addr, 'city', $city);
-        $this->appendAddrPart($addr, 'state', $state);
-        $this->appendAddrPart($addr, 'postalCode', $postalCode);
+        // The IG's Related Person addr wants nullFlavor'd ST parts when unknown,
+        // but node emits only the populated parts plus country. Match node; the
+        // omitted parts are a spec variation for a follow-up issue.
+        if ($street !== '') {
+            $addr->appendChild($this->createElement('streetAddressLine', $street));
+        }
+        if ($city !== '') {
+            $addr->appendChild($this->createElement('city', $city));
+        }
+        if ($state !== '') {
+            $addr->appendChild($this->createElement('state', $state));
+        }
+        if ($postalCode !== '') {
+            $addr->appendChild($this->createElement('postalCode', $postalCode));
+        }
         $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
         $associatedEntity->appendChild($addr);
 
