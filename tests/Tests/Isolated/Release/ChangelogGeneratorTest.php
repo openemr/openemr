@@ -4,7 +4,7 @@
  * Isolated tests for OpenEMR\Release\ChangelogGenerator.
  *
  * Focus areas: the ported noise filter (isNoise/isDockerBump/
- * isNoOpVersionBump/scopeOf), section ordering, area sub-grouping,
+ * isNoOpVersionBump), section ordering, area sub-grouping,
  * developer-changes bucket, and the compareLinkOverride behaviour that
  * ChangelogMutator uses at release-prep time (aspirational vNEW URL
  * while the git-range still resolves against the rel branch).
@@ -89,26 +89,39 @@ final class ChangelogGeneratorTest extends TestCase
         self::assertStringNotContainsString('#2', $out);
     }
 
-    public function testBackportInTitleIsDropped(): void
+    public function testBackportInTitleIsKept(): void
     {
+        // Backports on a rel branch ARE the PRs that shipped in that
+        // release. The earlier filter (ported from website's stricter
+        // rules) dropped them, but that swallowed user-visible fixes
+        // like openemr/openemr#12827 / #12832 from the 8.2.0 CHANGELOG.
+        // Now kept.
         $out = $this->generate([
             $this->pr(1, 'feat: real change'),
-            $this->pr(2, 'fix(backport): patch to rel-800'),
+            $this->pr(2, 'fix(sql-upgrade): audit-logging fix (rel-820 backport for 8.2.0)'),
         ]);
         self::assertStringContainsString('#1', $out);
-        self::assertStringNotContainsString('#2', $out);
+        self::assertStringContainsString('#2', $out);
     }
 
-    public function testMachineryScopedCommitsAreDropped(): void
+    public function testReleaseMachineryScopedCommitsAreKept(): void
     {
+        // `fix(release):` / `ci(release-prep):` are internal-tooling PRs
+        // but CHANGELOG readers (devs + release engineers) benefit from
+        // seeing what changed in the release-mechanism during a given
+        // release. Docker auto-bump noise, which is what the earlier
+        // filter was actually intended to remove, is handled specifically
+        // by the DEPENDABOT branch below (isDockerBump + isNoOpVersionBump).
+        // A separately-covered `chore: release X.Y.Z` PR still gets
+        // filtered by the chore-release-cut rule tested below.
         $out = $this->generate([
             $this->pr(1, 'feat: real change'),
-            $this->pr(2, 'chore(release): bump for 8.2.1-dev'),
+            $this->pr(2, 'fix(release): scope App token to dispatch target repos'),
             $this->pr(3, 'ci(release-prep): tweak orchestrator token permissions'),
         ]);
         self::assertStringContainsString('#1', $out);
-        self::assertStringNotContainsString('#2', $out);
-        self::assertStringNotContainsString('#3', $out);
+        self::assertStringContainsString('#2', $out);
+        self::assertStringContainsString('#3', $out);
     }
 
     public function testChoreReleaseAtStartOfTitleIsDropped(): void
@@ -116,9 +129,29 @@ final class ChangelogGeneratorTest extends TestCase
         $out = $this->generate([
             $this->pr(1, 'feat: real change'),
             $this->pr(2, 'chore: release 8.2.1'),
+            $this->pr(3, 'chore(release): release v8_2_2'),
         ]);
         self::assertStringContainsString('#1', $out);
         self::assertStringNotContainsString('#2', $out);
+        self::assertStringNotContainsString('#3', $out);
+    }
+
+    public function testChoreReleaseWithoutVersionIsKept(): void
+    {
+        // The chore-release-cut filter requires a version number after
+        // "release" (see the `\s+v?\d` in the regex). Titles that use
+        // "release" as an English word rather than as the release-cut
+        // marker -- like `chore(docs): release notes update` or
+        // `chore(build): release artifacts to S3` -- must not be
+        // false-matched.
+        $out = $this->generate([
+            $this->pr(1, 'feat: real change'),
+            $this->pr(2, 'chore(docs): release notes update'),
+            $this->pr(3, 'chore(build): release artifacts to S3'),
+        ]);
+        self::assertStringContainsString('#1', $out);
+        self::assertStringContainsString('#2', $out);
+        self::assertStringContainsString('#3', $out);
     }
 
     public function testDependabotNoOpVersionBumpIsDropped(): void
