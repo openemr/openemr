@@ -111,14 +111,6 @@ class ChangelogGenerator
     private const DEPENDABOT = 'dependabot[bot]';
 
     /**
-     * Conventional-Commits scopes that mark a PR as release automation
-     * rather than a user-facing change.
-     *
-     * @var list<string>
-     */
-    private const MACHINERY_SCOPES = ['release', 'release-prep'];
-
-    /**
      * Dependabot docker-compose group names from openemr/openemr
      * `.github/dependabot.yml`. Grouped-update PR titles look like
      * `bump the <group> group across N directories with M updates`;
@@ -257,12 +249,10 @@ class ChangelogGenerator
         if (stripos($title, '[TEST]') !== false) {
             return true;
         }
-        if (stripos($title, 'backport') !== false) {
-            return true;
-        }
-        if (in_array(self::scopeOf($title), self::MACHINERY_SCOPES, true)) {
-            return true;
-        }
+        // Chore-release cut commits. The release-bot's own `chore: release
+        // X.Y.Z` PRs are already caught by the RELEASE_BOT author filter
+        // above; this pattern additionally covers the same shape if a
+        // maintainer opens it by hand.
         if (preg_match('/^chore(?:\([^)]*\))?:\s*release\b/i', $title) === 1) {
             return true;
         }
@@ -277,6 +267,32 @@ class ChangelogGenerator
         }
 
         return false;
+
+        // Two rules deliberately NOT applied here (they were in an
+        // earlier revision that ported the website's stricter filter
+        // wholesale; both relaxed 2026-07-15 after review of a live
+        // 8.2.0 amendment run):
+        //
+        // - Titles containing "backport": backports on a rel branch are
+        //   the actual PRs that shipped in that release (the original
+        //   master-side PR either doesn't exist yet or shipped/will ship
+        //   in a different master release). Filtering them meant per-
+        //   release CHANGELOG entries missed user-visible fixes -- e.g.
+        //   openemr/openemr#12827 + #12832 (sql-upgrade fixes backported
+        //   to rel-820 for 8.2.0). No duplication risk in practice:
+        //   backports get distinct PR numbers from any master-side
+        //   original, and each rel branch's CHANGELOG only shows what
+        //   landed on that branch.
+        // - Conventional-commits scope in {release, release-prep}: these
+        //   are internal-tooling PRs but CHANGELOG readers (devs +
+        //   release engineers) benefit from seeing what changed in the
+        //   release-mechanism during a given release. The docker auto-
+        //   bump noise this was originally intended to catch is already
+        //   handled specifically by isDockerBump() + isNoOpVersionBump()
+        //   under the DEPENDABOT author branch above -- those rules
+        //   remove the actual noise without swallowing human-authored
+        //   `fix(release):` entries. The website's release-notes surface
+        //   still uses the stricter filter (different audience).
     }
 
     /**
@@ -302,19 +318,6 @@ class ChangelogGenerator
             self::DEPENDABOT_DOCKER_GROUPS,
         ));
         return preg_match("/\\bbump the ($groups) group\\b/", $title) === 1;
-    }
-
-    /**
-     * Lowercased Conventional-Commits scope, or null when the title has
-     * no parseable `type(scope):` prefix.
-     */
-    private static function scopeOf(string $title): ?string
-    {
-        if (preg_match('/^\w+\(([^)]*)\)!?:/', $title, $matches) !== 1) {
-            return null;
-        }
-
-        return strtolower($matches[1]);
     }
 
     /**
