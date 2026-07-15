@@ -129,9 +129,29 @@ final class ChangelogGeneratorTest extends TestCase
         $out = $this->generate([
             $this->pr(1, 'feat: real change'),
             $this->pr(2, 'chore: release 8.2.1'),
+            $this->pr(3, 'chore(release): release v8_2_2'),
         ]);
         self::assertStringContainsString('#1', $out);
         self::assertStringNotContainsString('#2', $out);
+        self::assertStringNotContainsString('#3', $out);
+    }
+
+    public function testChoreReleaseWithoutVersionIsKept(): void
+    {
+        // The chore-release-cut filter requires a version number after
+        // "release" (see the `\s+v?\d` in the regex). Titles that use
+        // "release" as an English word rather than as the release-cut
+        // marker -- like `chore(docs): release notes update` or
+        // `chore(build): release artifacts to S3` -- must not be
+        // false-matched.
+        $out = $this->generate([
+            $this->pr(1, 'feat: real change'),
+            $this->pr(2, 'chore(docs): release notes update'),
+            $this->pr(3, 'chore(build): release artifacts to S3'),
+        ]);
+        self::assertStringContainsString('#1', $out);
+        self::assertStringContainsString('#2', $out);
+        self::assertStringContainsString('#3', $out);
     }
 
     public function testDependabotNoOpVersionBumpIsDropped(): void

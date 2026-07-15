@@ -252,8 +252,13 @@ class ChangelogGenerator
         // Chore-release cut commits. The release-bot's own `chore: release
         // X.Y.Z` PRs are already caught by the RELEASE_BOT author filter
         // above; this pattern additionally covers the same shape if a
-        // maintainer opens it by hand.
-        if (preg_match('/^chore(?:\([^)]*\))?:\s*release\b/i', $title) === 1) {
+        // maintainer opens it by hand. The trailing `\s+v?\d` requires a
+        // version number (with optional `v` prefix) after "release" so
+        // titles like `chore(docs): release notes update` or
+        // `chore(build): release artifacts to S3` -- which mention
+        // "release" as an English word rather than as the release-cut
+        // marker -- don't get false-matched.
+        if (preg_match('/^chore(?:\([^)]*\))?:\s*release\s+v?\d/i', $title) === 1) {
             return true;
         }
 
