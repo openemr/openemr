@@ -678,6 +678,8 @@ enable_coredumps() {
     # under fs.suid_dumpable=2. Cores land as root/mode 600, which is fine
     # since capture_coredumps runs gdb as root.
     dc exec -T openemr sh -c 'httpd -k graceful' || echo 'enable_coredumps: graceful restart failed; existing workers keep dumpable=0'
+    # No-op comment to trigger a fresh CI run for N=2 datapoint on whether
+    # the graceful restart is a real fix or luck.
 }
 
 ##
