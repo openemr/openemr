@@ -187,6 +187,12 @@ jobs:
       env:
         VERSION: ${{ inputs.version }}
         REL_BRANCH: ${{ inputs.rel_branch }}
+        # ChangelogMutator shells out to `gh api` for commit + PR walking.
+        # `gh` looks for GH_TOKEN / GITHUB_TOKEN and errors otherwise;
+        # without persist-credentials it can't fall back on .git/config
+        # auth either. Explicit token here keeps the mutator step self-
+        # contained.
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
       # All mutators except ChangelogMutator + CompatibilityMutator are
       # already idempotent no-ops on a shipped release (version.php has
       # $v_tag='', release-targets.yml is post-rotation, etc.). The two
@@ -282,6 +288,8 @@ jobs:
       env:
         VERSION: ${{ inputs.version }}
         REL_BRANCH: ${{ inputs.rel_branch }}
+        # Same GH_TOKEN requirement as the rel-scope mutator run above.
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         php bin/console openemr:release-prep \
           --skip-globals \
