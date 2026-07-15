@@ -165,6 +165,7 @@ jobs:
       working-directory: rel-checkout
       env:
         VERSION: ${{ inputs.version }}
+        REL_BRANCH: ${{ inputs.rel_branch }}
       run: |
         escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
         date=$(awk -v ver="${escaped_version}" '
@@ -179,7 +180,7 @@ jobs:
           exit 1
         fi
         echo "date=${date}" >> "$GITHUB_OUTPUT"
-        echo "Original release date for ${VERSION} on ${{ inputs.rel_branch }}: ${date}"
+        echo "Original release date for ${VERSION} on ${REL_BRANCH}: ${date}"
 
     - name: Run release-prep mutators (rel scope)
       working-directory: rel-checkout
@@ -208,7 +209,20 @@ jobs:
         ORIGINAL_DATE: ${{ steps.original-date.outputs.date }}
       run: |
         escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
-        sed -i -E "s|^(## \\[${escaped_version}\\][^-]*)- [0-9]{4}-[0-9]{2}-[0-9]{2}\$|\\1- ${ORIGINAL_DATE}|" CHANGELOG.md
+        # `.*` (greedy) backtracks to satisfy the anchored ` - YYYY-MM-DD`
+        # trailer, so this matches headings with any inline content
+        # between the version tag and the trailing date -- including
+        # the compare-URL Markdown link that ChangelogGenerator emits,
+        # even if that URL ever contains hyphens.
+        sed -i -E "s|^(## \\[${escaped_version}\\].*)- [0-9]{4}-[0-9]{2}-[0-9]{2}\$|\\1- ${ORIGINAL_DATE}|" CHANGELOG.md
+        # sed doesn't error on no-match. Verify the substitution
+        # actually happened; if the heading format drifted enough that
+        # the pattern missed, the heading still holds today's date and
+        # the amendment would silently ship the wrong date.
+        if ! grep -qE "^## \\[${escaped_version}\\].*- ${ORIGINAL_DATE}\$" CHANGELOG.md; then
+          echo "::error::date restore did not apply to rel-checkout/CHANGELOG.md -- heading format may have drifted from the expected shape"
+          exit 1
+        fi
 
     # Capture whether the mutator produced any diff, and preview it in
     # the workflow log + step summary. Distinguishes three states in
@@ -286,7 +300,11 @@ jobs:
         ORIGINAL_DATE: ${{ steps.original-date.outputs.date }}
       run: |
         escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
-        sed -i -E "s|^(## \\[${escaped_version}\\][^-]*)- [0-9]{4}-[0-9]{2}-[0-9]{2}\$|\\1- ${ORIGINAL_DATE}|" CHANGELOG.md
+        sed -i -E "s|^(## \\[${escaped_version}\\].*)- [0-9]{4}-[0-9]{2}-[0-9]{2}\$|\\1- ${ORIGINAL_DATE}|" CHANGELOG.md
+        if ! grep -qE "^## \\[${escaped_version}\\].*- ${ORIGINAL_DATE}\$" CHANGELOG.md; then
+          echo "::error::date restore did not apply to master CHANGELOG.md -- heading format may have drifted from the expected shape"
+          exit 1
+        fi
 
     - name: Capture master-scope diff
       id: master-diff
