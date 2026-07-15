@@ -33,6 +33,7 @@ if (($squad === '' || AclMain::aclCheckCore('squads', $squad)) && AclMain::aclCh
     require_once("common.php");
     return;
 }
+http_response_code(403);
 $notAuthorizedText = xlt('New encounters not authorized');
 ?>
 <html>
