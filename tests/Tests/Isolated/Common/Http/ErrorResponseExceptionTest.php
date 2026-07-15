@@ -13,7 +13,6 @@
 namespace OpenEMR\Tests\Isolated\Common\Http;
 
 use OpenEMR\Common\Http\ErrorResponseException;
-use OpenEMR\Common\Http\Psr17Factory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -23,7 +22,9 @@ class ErrorResponseExceptionTest extends TestCase
 {
     private function makeResponse(int $statusCode): ResponseInterface
     {
-        return (new Psr17Factory())->createResponse($statusCode);
+        $stub = self::createStub(ResponseInterface::class);
+        $stub->method('getStatusCode')->willReturn($statusCode);
+        return $stub;
     }
 
     #[DataProvider('nonErrorStatusProvider')]
