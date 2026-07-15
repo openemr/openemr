@@ -14,6 +14,17 @@
 namespace OpenEMR\Forms\PhysicalExam;
 
 /**
+ * Coerce a raw request or database value (which PHPStan sees as mixed) to a
+ * string. Non-scalars (arrays, objects, null) become the empty string.
+ *
+ * Shared by new.php and report.php so the coercion cannot drift apart.
+ */
+function scalar_string(mixed $value): string
+{
+    return is_scalar($value) ? (string) $value : '';
+}
+
+/**
  * The physical-exam checklist, in display order.
  *
  * Each entry is one exam "system": `code` is the internal system identifier
