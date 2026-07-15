@@ -255,6 +255,40 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
         fi
 
+    # Extract runs HERE (not after peter-evans opens the PR) because
+    # peter-evans/create-pull-request@v8 resets the rel-checkout working
+    # tree back to rel-branch HEAD after committing the diff to the
+    # amendment branch. If Extract ran after peter-evans, it would read
+    # the pre-amendment CHANGELOG.md and set the Release body + attachment
+    # to stale content -- the exact failure mode observed in workflow run
+    # 29397657588. Extracting BEFORE peter-evans captures the amended
+    # content into $RUNNER_TEMP/section.md, which survives peter-evans's
+    # working-tree reset (it lives in the runner's temp dir, not the
+    # rel-checkout).
+    - name: Extract amended section from rel-branch CHANGELOG
+      id: extract
+      working-directory: rel-checkout
+      env:
+        VERSION: ${{ inputs.version }}
+      run: |
+        # Match `## [X.Y.Z]` heading (with optional link markup that
+        # ChangelogGenerator emits) and take everything up to the next
+        # `## ` heading or EOF. Escape dots in the version literal so
+        # awk doesn't treat them as regex any-char.
+        escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
+        awk -v ver="${escaped_version}" '
+          BEGIN { in_section = 0 }
+          $0 ~ "^## \\[" ver "\\]" { in_section = 1; print; next }
+          in_section && /^## / { exit }
+          in_section { print }
+        ' CHANGELOG.md > "${RUNNER_TEMP}/section.md"
+        if [ ! -s "${RUNNER_TEMP}/section.md" ]; then
+          echo "::error::extracted section is empty; CHANGELOG.md may not contain a ## [${VERSION}] heading"
+          exit 1
+        fi
+        echo "section-path=${RUNNER_TEMP}/section.md" >> "$GITHUB_OUTPUT"
+        echo "Extracted $(wc -l < "${RUNNER_TEMP}/section.md") lines from CHANGELOG.md"
+
     - name: Open rel-side amendment PR
       if: ${{ !inputs.dry_run }}
       id: rel-pr
@@ -356,39 +390,15 @@ jobs:
         delete-branch: false
 
     # --- Release body sync ---------------------------------------------
-    # Extract the `## [X.Y.Z]` section from the freshly-mutated
-    # rel-branch CHANGELOG and update the GitHub Release body. The
-    # extraction runs against the in-workflow checkout -- doesn't wait
-    # for the amendment PRs to merge, so the Release body reflects the
-    # amended state immediately.
+    # Section already extracted BEFORE peter-evans (see the Extract step
+    # in the rel-scope block). The extraction lives in ${RUNNER_TEMP}
+    # so it survives peter-evans's working-tree reset of rel-checkout/.
+    # These steps update the Release object using that pre-captured
+    # section content; run in order: body first, then attachment.
     #
-    # If no advisories matched (rel-checkout/CHANGELOG.md unchanged from
-    # what shipped), the extracted section is byte-identical to the
-    # current Release body and gh release edit is a no-op.
-    - name: Extract amended section from rel-branch CHANGELOG
-      id: extract
-      working-directory: rel-checkout
-      env:
-        VERSION: ${{ inputs.version }}
-      run: |
-        # Match `## [X.Y.Z]` heading (with optional link markup that
-        # ChangelogGenerator emits) and take everything up to the next
-        # `## ` heading or EOF. Escape dots in the version literal so
-        # awk doesn't treat them as regex any-char.
-        escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
-        awk -v ver="${escaped_version}" '
-          BEGIN { in_section = 0 }
-          $0 ~ "^## \\[" ver "\\]" { in_section = 1; print; next }
-          in_section && /^## / { exit }
-          in_section { print }
-        ' CHANGELOG.md > "${RUNNER_TEMP}/section.md"
-        if [ ! -s "${RUNNER_TEMP}/section.md" ]; then
-          echo "::error::extracted section is empty; CHANGELOG.md may not contain a ## [${VERSION}] heading"
-          exit 1
-        fi
-        echo "section-path=${RUNNER_TEMP}/section.md" >> "$GITHUB_OUTPUT"
-        echo "Extracted $(wc -l < "${RUNNER_TEMP}/section.md") lines from CHANGELOG.md"
-
+    # If no advisories matched (extracted section byte-identical to
+    # what shipped), gh release edit is a user-visible no-op (updatedAt
+    # bumps but body content is unchanged).
     - name: Update GitHub Release body
       if: ${{ !inputs.dry_run }}
       env:
