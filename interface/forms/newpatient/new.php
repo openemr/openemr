@@ -28,7 +28,7 @@ $tmp = getPatientData($pid, "squad");
 $squad = $tmp['squad'] ?? '';
 $squad = is_string($squad) ? $squad : '';
 
-if ($squad === '' || AclMain::aclCheckCore('squads', $squad) || AclMain::aclCheckForm('newpatient', '', ['write', 'addonly'])) {
+if (($squad === '' || AclMain::aclCheckCore('squads', $squad)) && AclMain::aclCheckForm('newpatient', '', ['write', 'addonly'])) {
     $viewmode = false;
     require_once("common.php");
     return;
