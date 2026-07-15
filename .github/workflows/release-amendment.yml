@@ -444,15 +444,20 @@ jobs:
         #   dry-run + changed=false -> no amendment needed
         #   live + changed=true     -> PR URL (peter-evans opened/updated)
         #   live + changed=false    -> no diff (idempotent no-op)
+        # Local param names deliberately differ from the env-var names
+        # (is_dry_run vs. DRY_RUN, has_diff vs. *_CHANGED, url vs.
+        # *_PR_URL) so shellcheck's SC2153 case-confusion heuristic
+        # does not flag the env-var references as possible misspellings
+        # of the locals.
         format_scope() {
-          local dry_run="$1" changed="$2" pr_url="$3"
-          if [ "${dry_run}" = 'true' ] && [ "${changed}" = 'true' ]; then
+          local is_dry_run="$1" has_diff="$2" url="$3"
+          if [ "${is_dry_run}" = 'true' ] && [ "${has_diff}" = 'true' ]; then
             echo "would open PR (dry run; diff previewed above)"
-          elif [ "${dry_run}" = 'true' ]; then
+          elif [ "${is_dry_run}" = 'true' ]; then
             echo "no amendment needed (dry run; mutators produced no diff)"
-          elif [ "${changed}" = 'true' ] && [ -n "${pr_url}" ]; then
-            echo "${pr_url}"
-          elif [ "${changed}" = 'true' ]; then
+          elif [ "${has_diff}" = 'true' ] && [ -n "${url}" ]; then
+            echo "${url}"
+          elif [ "${has_diff}" = 'true' ]; then
             echo "diff present but peter-evans reported no PR change (branch may already be up-to-date)"
           else
             echo "no diff (idempotent no-op)"
