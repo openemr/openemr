@@ -576,7 +576,7 @@ class FaxDocumentService
     protected function fetchMediaBytes(string $mediaUrl, string $projectId, string $apiToken, bool $useBearer): ?array
     {
         try {
-            $httpRequest = oeHttpRequest::newArgs(oeHttp::client());
+            $httpRequest = new oeHttpRequest(oeHttp::client());
 
             if ($useBearer) {
                 $httpRequest->usingHeaders(['Authorization' => 'Bearer ' . $apiToken]);

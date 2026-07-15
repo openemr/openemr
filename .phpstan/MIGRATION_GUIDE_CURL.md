@@ -4,7 +4,7 @@ This guide helps you migrate from raw `curl_*` functions to GuzzleHttp, the mode
 
 ## Why Migrate?
 
-1. **Better Error Handling**: Guzzle throws exceptions for HTTP errors, making error handling more robust
+1. **Better Error Handling**: structured PSR-7 responses plus opt-in error exceptions (see [Handling Errors](#handling-errors))
 2. **Testability**: Guzzle can be easily mocked in unit tests
 3. **PSR-7 Compliance**: Uses standard HTTP message interfaces
 4. **Rich Features**: Built-in middleware, retries, authentication, and more
@@ -150,41 +150,80 @@ $response = $client->request('POST', 'https://api.example.com/upload', [
 ]);
 ```
 
-### Using OpenEMR's oeHttp Wrapper
+### Obtaining a Client in OpenEMR
 
-OpenEMR provides a convenient wrapper around Guzzle:
+Either Guzzle's `GuzzleHttp\ClientInterface` or a raw `Psr\Http\Client\ClientInterface`
+is fine — pick whichever fits the call site. Guzzle's interface adds per-request
+options (timeouts, `verify`, `http_errors`, etc.) and trims PSR-7 boilerplate; the
+raw PSR-18 interface keeps the dependency vendor-agnostic.
+
+**Prefer dependency injection.** Type-hint the interface you need and let the
+container wire it:
 
 ```php
-use OpenEMR\Common\Http\oeHttp;
-
-try {
-    $response = oeHttp::get('https://api.example.com/data', [
-        'headers' => [
-            'Authorization' => 'Bearer ' . $token
-        ]
-    ]);
-
-    $data = json_decode($response->getBody()->getContents(), true);
-} catch (\Exception $e) {
-    error_log("HTTP request failed: " . $e->getMessage());
+public function __construct(
+    private readonly \Psr\Http\Client\ClientInterface $http, // or \GuzzleHttp\ClientInterface
+) {
 }
 ```
 
-## Handling Errors
-
-Guzzle throws different exceptions for different error scenarios:
+**For legacy code** that can't yet take constructor dependencies, pull the shared
+instance from `ServiceContainer`:
 
 ```php
-use GuzzleHttp\Client;
+use OpenEMR\BC\ServiceContainer;
+
+$psr18  = ServiceContainer::getHttpClient(); // Psr\Http\Client\ClientInterface
+$guzzle = ServiceContainer::getGuzzle();     // GuzzleHttp\ClientInterface
+```
+
+The `oeHttp` family of classes is discouraged for new code.
+
+## Handling Errors
+
+The shared client — whether injected or fetched from `ServiceContainer` — is
+configured with `http_errors => false`, so **it does not throw on 4xx/5xx**. A
+well-formed error response comes back like any other. This is deliberate and
+required for strict PSR-18 compliance. (A bare `new Client()`, by contrast,
+defaults to `http_errors => true` and throws.) You choose how to react:
+
+**Option 1 — throw explicitly (any client, including raw PSR-18):** pass the
+response through `ErrorResponseException::throwIfError()`. It returns the response
+unchanged when the status is < 400 and otherwise throws an exception implementing
+`Psr\Http\Client\ClientExceptionInterface`, carrying the response.
+
+```php
+use OpenEMR\Common\Http\ErrorResponseException;
+
+$response = ErrorResponseException::throwIfError($client->sendRequest($request));
+// past this line, $response is guaranteed to be < 400
+```
+
+**Option 2 — let Guzzle throw (Guzzle's `ClientInterface` only):** opt back in
+per request with `http_errors => true`. Raw PSR-18 has no per-request options, so
+this path is Guzzle-specific.
+
+```php
+use GuzzleHttp\RequestOptions;
+
+$response = $client->request('GET', 'https://api.example.com/data', [
+    RequestOptions::HTTP_ERRORS => true,
+]);
+```
+
+With `http_errors` enabled, Guzzle throws different exceptions for different
+scenarios:
+
+```php
 use GuzzleHttp\Exception\ClientException;  // 4xx errors
 use GuzzleHttp\Exception\ServerException;  // 5xx errors
 use GuzzleHttp\Exception\ConnectException; // Connection failures
 use GuzzleHttp\Exception\RequestException; // General request errors
 
-$client = new Client();
-
 try {
-    $response = $client->request('GET', 'https://api.example.com/data');
+    $response = $client->request('GET', 'https://api.example.com/data', [
+        RequestOptions::HTTP_ERRORS => true,
+    ]);
 } catch (ClientException $e) {
     // 400-level errors (client errors)
     $statusCode = $e->getResponse()->getStatusCode();
