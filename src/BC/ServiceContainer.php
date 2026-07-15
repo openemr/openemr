@@ -150,8 +150,7 @@ class ServiceContainer
      */
     public static function getGuzzle(): GuzzleClientInterface & ClientInterface
     {
-        /** @phpstan-ignore return.type (can't represent the native union with the generics in an array key) */
-        return self::resolveOrCreate(
+        $client = self::resolveOrCreate(
             GuzzleClientInterface::class,
             static fn() => new Client([
                 // See config/services.php for details
@@ -161,6 +160,10 @@ class ServiceContainer
                 RequestOptions::TIMEOUT => 15,
             ]),
         );
+        // This is just to make PHPStan happy, the native return type will
+        // flare up if this were to actually fail.
+        assert($client instanceof ClientInterface);
+        return $client;
     }
 
     /**
