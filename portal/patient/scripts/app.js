@@ -7,11 +7,11 @@
  */
 var app = {
 
-	/** @var landmarks used to screen-scrape the html error output for a friendly message */
-	errorLandmarkStart: '<!-- ERROR ',
-	errorLandmarkEnd: ' /ERROR -->',
+    /** @var landmarks used to screen-scrape the html error output for a friendly message */
+    errorLandmarkStart: '<!-- ERROR ',
+    errorLandmarkEnd: ' /ERROR -->',
 
-	/**
+    /**
      * Display an alert message inside the element with the id containerId
      *
      * @param message
@@ -19,18 +19,18 @@ var app = {
      * @param timeout
      * @param containerId
      */
-	appendAlert: function(message, style, timeout,containerId) {
-	    if (!message) {
-	        return;
+    appendAlert: function(message, style, timeout,containerId) {
+        if (!message) {
+            return;
         }
         if (timeout < 1000) {
             timeout = 15000;
         }
-        if (typeof signerAlertMsg !== 'undefined') {
+        if (typeof asyncAlertMsg !== 'undefined') {
             if (message.includes("Site ID is missing from session data") !== false) {
                 parent.parent.location.replace(top.webroot_url + "/portal/verify_session.php" + '?w&u');
             }
-            signerAlertMsg(message, timeout, style);
+            asyncAlertMsg(message, timeout, style);
         } else {
             alert(message);
         }

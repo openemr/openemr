@@ -33,6 +33,20 @@ class SessionWrapperFactory
 
     private bool $readOnly = true;
 
+    /**
+     * @param string $webRoot The deployment root; i.e. the cookie path
+     */
+    public function __construct(
+        private string $webRoot,
+    ) {
+    }
+
+    protected static function createInstance(): static
+    {
+        $webRoot = OEGlobalsBag::getInstance()->getString('web_root');
+        return new self(webRoot: $webRoot);
+    }
+
     public function isSessionActive(): bool
     {
         return $this->activeSession !== null;
@@ -134,9 +148,8 @@ class SessionWrapperFactory
 
     private function createPortalSession(): SessionInterface
     {
-        $web_root = OEGlobalsBag::getInstance()->getString('web_root');
         $request = HttpRestRequest::createFromGlobals();
-        $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_PORTAL, $this->getEffectiveReadOnly());
+        $sessionFactory = new HttpSessionFactory($request, $this->webRoot, HttpSessionFactory::SESSION_TYPE_PORTAL, $this->getEffectiveReadOnly());
         $this->activeSession = $sessionFactory->createSession();
         $this->activeStorage = $sessionFactory->getLastCreatedStorage();
         return $this->activeSession;
@@ -144,9 +157,8 @@ class SessionWrapperFactory
 
     private function createCoreSession(): SessionInterface
     {
-        $web_root = OEGlobalsBag::getInstance()->getString('web_root');
         $request = HttpRestRequest::createFromGlobals();
-        $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_CORE, $this->getEffectiveReadOnly());
+        $sessionFactory = new HttpSessionFactory($request, $this->webRoot, HttpSessionFactory::SESSION_TYPE_CORE, $this->getEffectiveReadOnly());
         $this->activeSession = $sessionFactory->createSession();
         $this->activeStorage = $sessionFactory->getLastCreatedStorage();
         return $this->activeSession;

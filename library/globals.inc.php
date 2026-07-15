@@ -3169,6 +3169,13 @@ $GLOBALS_METADATA = [
             xl('Allow Patient to make and view appointments online.')
         ],
 
+        'view_only_portal_appointments' => [
+            xl('Allow Online Appointments View Only.'),
+            'bool',                           // data type
+            '0',
+            xl('Allow Patient only to view appointments online. Overrides the above setting to allow only view of appointments.')
+        ],
+
         'allow_custom_report' => [
             xl('Allow Online Custom Content Report'),
             'bool',                           // data type

@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -46,7 +47,6 @@ if (isset($_GET['portal_auth'])) {
 
 require_once(__DIR__ . "/../interface/globals.php");
 require_once(__DIR__ . "/../library/sql-ccr.inc.php");
-require_once(__DIR__ . "/uuid.php");
 require_once(__DIR__ . "/transmitCCD.php");
 require_once(__DIR__ . "/../custom/code_types.inc.php");
 
@@ -61,14 +61,14 @@ if ($notPatientPortal) {
 function createCCR($action, $raw = "no", $requested_by = ""): void
 {
 
-    $authorID = getUuid();
-    $patientID = getUuid();
-    $sourceID = getUuid();
-    $oemrID = getUuid();
+    $authorID = ServiceContainer::getUuidFactory()->uuid4()->toString();
+    $patientID = ServiceContainer::getUuidFactory()->uuid4()->toString();
+    $sourceID = ServiceContainer::getUuidFactory()->uuid4()->toString();
+    $oemrID = ServiceContainer::getUuidFactory()->uuid4()->toString();
 
     $result = getActorData();
     while ($res = sqlFetchArray($result[2])) {
-        ${"labID{$res['id']}"} = getUuid();
+        ${"labID{$res['id']}"} = ServiceContainer::getUuidFactory()->uuid4()->toString();
     }
 
        $ccr = new DOMDocument('1.0', 'UTF-8');

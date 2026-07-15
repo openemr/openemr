@@ -171,7 +171,6 @@
             }
 
             function resetLogOutTimer() {
-                $('#alert_box').remove(); // reset alert if set
                 resetWarnTimer();
                 clearTimeout(timeOut);
                 timeOut = setTimeout(logout, time);

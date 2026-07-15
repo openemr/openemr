@@ -54,7 +54,6 @@ class SMARTLaunchTokenTest extends TestCase
         $this->assertTrue(is_string($serialized), "Token serialization should be set to a string");
 
         $deserializedToken = SMARTLaunchToken::deserializeToken($serialized);
-        $this->assertInstanceOf(SMARTLaunchToken::class, $deserializedToken, "deserializedToken should return a valid token object");
         $this->assertEquals($patientUUID, $deserializedToken->getPatient(), "Patient UUID should be set from deserialization");
         $this->assertEquals($encounterID, $deserializedToken->getEncounter(), "Encounter UUID should be set from deserialization");
         $this->assertEquals($intent, $deserializedToken->getIntent(), "SMART Intent context should be set from deserialization");

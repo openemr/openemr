@@ -29,10 +29,14 @@
 #     scheduled tick (dispatching against this branch's --ref with both
 #     inputs set from release-targets.yml), or by a maintainer in the
 #     Actions UI.
-#   * push: tags: ['v*'] -- a git tag push fires the build directly with
-#     the tag value driving the docker tag (e.g. pushing v8.1.0 pushes
-#     openemr/openemr:8.1.0 plus the dated sibling), and the tag value
-#     itself is also used as the openemr_version_ref.
+#
+# Note: a `push: tags: ['v*']` trigger was previously wired here but
+# has been removed. Tag pushes now flow exclusively through the
+# orchestrator's release-targets.yml consumer path -- eliminates a
+# double-build race window (tag-push + orchestrator-fanout hitting
+# the same registry tag concurrently) and gives a single trigger
+# surface for post-release build state to reason about. See gaps doc
+# G17 for the design rationale.
 
 name: Docker build release
 
@@ -49,11 +53,27 @@ on:
         required: false
         type: string
         default: ''
-  push:
-    tags: ['v*']
 
 permissions:
   contents: read
+
+# Serialize per-(branch, docker_tags) builds. Two dispatches with
+# the same ref AND the same docker_tags input (e.g., release-
+# targets.yml push + daily orchestrator cron landing close
+# together, or two rapid manual dispatches) queue instead of
+# racing on the same registry tag pointer. Different refs (master
+# vs rel-820 vs rel-800) still fan out in parallel; different
+# docker_tags on the same branch (multi-row-per-branch case --
+# a rel-* branch with both a `<version>,latest` stable row and
+# an `unreleased: true` next-version row in release-targets.yml)
+# also fan out in parallel because they push different registry
+# tag pointers with no shared surface to race on. cancel-in-
+# progress: false because builds push to a shared registry --
+# cancelling mid-push could leave orphan manifest entries or
+# partial tag updates. See gaps doc G18.
+concurrency:
+  group: docker-build-release-${{ github.ref }}-${{ inputs.docker_tags }}
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -80,20 +100,12 @@ jobs:
       id: build_date
       run: echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
 
-    - name: Resolve docker_tags input (workflow_dispatch input or git tag)
+    - name: Resolve docker_tags input
       id: resolve_docker_tags
       env:
-        EVENT_NAME: ${{ github.event_name }}
         DISPATCH_TAGS: ${{ inputs.docker_tags }}
-        REF_NAME: ${{ github.ref_name }}
       run: |
-        if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
-          echo "raw=${DISPATCH_TAGS}" >> "$GITHUB_OUTPUT"
-        else
-          # push: tags: ['v*'] -- strip leading "v" from the git tag and use
-          # as the single docker tag. Push v8.1.0 -> docker tag 8.1.0.
-          echo "raw=${REF_NAME#v}" >> "$GITHUB_OUTPUT"
-        fi
+        echo "raw=${DISPATCH_TAGS}" >> "$GITHUB_OUTPUT"
 
     - name: Expand docker_tags list (add dated variant for version-number tags)
       id: expand_docker_tags
@@ -118,19 +130,15 @@ jobs:
           echo EOF
         } >> "$GITHUB_OUTPUT"
 
-    - name: Resolve openemr_version_ref (input, or fall back to dispatching branch / git tag)
+    - name: Resolve openemr_version_ref (input, or fall back to dispatching branch)
       id: resolve_openemr_version_ref
       env:
-        EVENT_NAME: ${{ github.event_name }}
         INPUT_REF: ${{ inputs.openemr_version_ref }}
         REF_NAME: ${{ github.ref_name }}
       run: |
         if [ -n "$INPUT_REF" ]; then
           # Orchestrator-driven dispatch (or maintainer explicitly set the input).
           echo "ref=$INPUT_REF" >> "$GITHUB_OUTPUT"
-        elif [ "$EVENT_NAME" = 'push' ]; then
-          # push: tags: ['v*'] -- bake the source at the same tag we're pushing the image as.
-          echo "ref=$REF_NAME" >> "$GITHUB_OUTPUT"
         else
           # Manual dispatch with no override -- use the dispatching branch name
           # (master, rel-810, etc.). What a maintainer testing a branch in
@@ -142,12 +150,39 @@ jobs:
       id: image_version
       env:
         REF: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Fetch version.php at the resolved ref via raw.githubusercontent.com.
-        # No git checkout needed; works for branches, tags, and SHAs alike.
-        URL="https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php"
-        if ! curl -fsSL "$URL" -o /tmp/version.php; then
-          echo "::error::Couldn't fetch version.php at openemr@${REF}. The ref likely doesn't exist; check release-targets.yml."
+        # Fetch version.php at the resolved ref via the authenticated
+        # GitHub Contents API. Works for branches, tags, and SHAs alike;
+        # no git checkout needed.
+        #
+        # Previously used anonymous raw.githubusercontent.com. On the
+        # 8.2.0 orchestrator fanout that came back with HTTP 429 (shared-
+        # IP anonymous quota exhausted by 4 parallel per-branch dispatches
+        # hitting the same URL family concurrently) and the error path
+        # here misreported the 429 as "ref likely doesn't exist," sending
+        # operators on wild goose chases through release-targets.yml.
+        # gaps doc G19 has the incident detail. Authenticated GH_TOKEN
+        # gets us the per-token 5000/hr budget instead, which even at
+        # 8-branch fanout is comfortably ahead of any rate-limit floor.
+        #
+        # `Accept: application/vnd.github.raw` returns the file body
+        # directly (no base64 wrapping).
+        if ! gh api "/repos/openemr/openemr/contents/version.php?ref=${REF}" \
+             -H 'Accept: application/vnd.github.raw' \
+             > /tmp/version.php 2> /tmp/gh-api-err; then
+          # Distinguish "ref doesn't resolve" (bad release-targets.yml
+          # entry -- actionable) from every other failure (transient --
+          # worth surfacing verbatim so the operator sees the actual
+          # HTTP status / gh error rather than a wrong "ref doesn't
+          # exist" claim). 404 is the only case that means "check
+          # release-targets.yml"; 429 / 5xx / network errors do not.
+          if grep -qE 'HTTP 404|Not Found' /tmp/gh-api-err; then
+            echo "::error::openemr_version_ref '${REF}' does not resolve in openemr/openemr; check release-targets.yml."
+          else
+            echo "::error::Failed to fetch version.php at openemr@${REF} (not a 404 -- check the underlying gh error below rather than release-targets.yml):"
+            cat /tmp/gh-api-err
+          fi
           exit 1
         fi
 

@@ -412,7 +412,6 @@ exports.goalSection = function (htmlHeader, na) {
             attributes: condition.isNullFlavorSection('goals'),
             content: [
                 fieldLevel.templateId("2.16.840.1.113883.10.20.22.2.60"),
-                fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.2.60", "2015-08-01"),
                 fieldLevel.templateCode("GoalSection"),
                 fieldLevel.templateTitle("GoalSection"), {
                     key: "text",
