@@ -24,6 +24,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Process;
 
 $globalsBag = OEGlobalsBag::getInstance();
@@ -39,6 +40,19 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $request = Request::createFromGlobals();
 $filesystem = new Filesystem();
 $userauthorized = $globalsBag->getInt('userauthorized');
+
+// Stop with a real HTTP error status instead of die(): callers and proxies
+// see the failure, and the nonzero exit fails loudly outside a web SAPI.
+// Response::send() skips the status line if headers already went out.
+$abort = static function (int $statusCode, string $message): never {
+    (new Response($message, $statusCode))->send();
+    exit(1);
+};
+
+$site_id = $session->get('site_id');
+if (!is_string($site_id) || $site_id === '') {
+    $abort(Response::HTTP_UNAUTHORIZED, "Site ID is missing from the session.");
+}
 
 $fileParam = $request->query->getString('file');
 $scanParam = $request->query->getString('scan');
@@ -64,7 +78,7 @@ if ($fileParam !== '') {
 
     $filepath = $globalsBag->getString('scanner_output_directory') . '/' . $filename;
 } else {
-    die("No filename was given.");
+    $abort(Response::HTTP_BAD_REQUEST, "No filename was given.");
 }
 
 $dotPos = strrpos($filename, '.');
@@ -89,7 +103,7 @@ $processError = (static fn(Process $process): string => (string) $process->getEx
 // This merges the tiff files for the selected pages into one tiff file.
 // $images holds the form_images checkboxes to the right of the images.
 //
-$mergeTiffs = static function (array $images) use ($faxcache, $filesystem, $runProcess, $processError): string {
+$mergeTiffs = static function (array $images) use ($faxcache, $filesystem, $runProcess, $processError, $abort): string {
     $tiffNames = [];
     foreach ($images as $name) {
         if (is_string($name)) {
@@ -98,7 +112,7 @@ $mergeTiffs = static function (array $images) use ($faxcache, $filesystem, $runP
     }
 
     if (count($tiffNames) === 0) {
-        die(xlt("Internal error - no pages were selected!"));
+        $abort(Response::HTTP_BAD_REQUEST, xlt("Internal error - no pages were selected!"));
     }
 
     // Remove any merge output from a previous run so a failed tiffcp cannot
@@ -133,7 +147,7 @@ if ($request->request->getString('form_save') !== '') {
     if ($request->request->getBoolean('form_cb_copy')) {
         $patient_id = $request->request->getInt('form_pid');
         if ($patient_id === 0) {
-            die(xlt('Internal error - patient ID was not provided!'));
+            $abort(Response::HTTP_BAD_REQUEST, xlt('Internal error - patient ID was not provided!'));
         }
 
         // If copying to patient documents...
@@ -281,7 +295,7 @@ if ($request->request->getString('form_save') !== '') {
                 // we already have a jpeg for each page in faxcache.
                 $process = $runProcess(['convert', '-resize', '800', '-density', '96', $tmp_name, '-append', $imagepath]);
                 if (!$process->isSuccessful()) {
-                    die("convert returned " . text($processError($process)));
+                    $abort(Response::HTTP_INTERNAL_SERVER_ERROR, "convert returned " . text($processError($process)));
                 }
             }
 
@@ -382,7 +396,7 @@ if ($request->request->getString('form_save') !== '') {
         if ($action_taken) {
             $dh = opendir($faxcache);
             if (! $dh) {
-                die("Cannot read " . text($faxcache));
+                $abort(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
             }
 
             $form_cb_delete = '2';
@@ -411,7 +425,7 @@ if ($request->request->getString('form_save') !== '') {
         if (is_dir($faxcache)) {
             $dh = opendir($faxcache);
             if (! $dh) {
-                die("Cannot read " . text($faxcache));
+                $abort(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
             }
 
             while (($tmp = readdir($dh)) !== false) {
@@ -464,9 +478,9 @@ $using_scanned_notes = is_numeric($scannedNotesCount) && (int) $scannedNotesCoun
 if (! is_dir($faxcache)) {
     // Remove the partial cache on any failure so a later request rebuilds it
     // instead of silently serving an incomplete set of pages.
-    $failCache = static function (string $message) use ($faxcache, $filesystem): never {
+    $failCache = static function (string $message) use ($faxcache, $filesystem, $abort): never {
         $filesystem->remove($faxcache);
-        die($message);
+        $abort(Response::HTTP_INTERNAL_SERVER_ERROR, $message);
     };
 
     $filesystem->mkdir($faxcache);
@@ -926,7 +940,7 @@ $userRows = QueryUtils::fetchRecords(
 <?php
 $dh = opendir($faxcache);
 if (! $dh) {
-    die("Cannot read " . text($faxcache));
+    $abort(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
 }
 
 $jpgarray = [];
@@ -941,11 +955,6 @@ closedir($dh);
 // by filename so the display order matches the original document.
 ksort($jpgarray);
 $page = 0;
-$site_id = $session->get('site_id');
-if (!is_string($site_id)) {
-    die("Site ID is missing from the session.");
-}
-
 foreach ($jpgarray as $jfnamebase => $jfname) {
     ++$page;
     echo " <tr>\n";
