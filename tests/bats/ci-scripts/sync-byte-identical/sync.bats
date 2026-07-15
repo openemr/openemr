@@ -87,7 +87,7 @@ teardown() {
     OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
 
     [[ $status -eq 1 ]]
-    [[ "$output" == *"No files in master's docker-byte-identical.yml"* ]]
+    [[ "$output" == *"No files in master's byte-identical.yml"* ]]
 }
 
 @test "duplicate FILES_ALL entries fail closed" {
@@ -201,7 +201,7 @@ teardown() {
 }
 
 @test "rel-only sweep handles rel branch with no FILES_ALL config gracefully (skip the sweep)" {
-    # rel-810 has no .github/docker-byte-identical.yml (pre-PR-D state).
+    # rel-810 has no .github/byte-identical.yml (pre-PR-D state).
     # No way to know what rel had "in config" -- script must not crash.
     write_on_branch master src/foo.txt "x"
     write_files_all_config src/foo.txt
@@ -255,4 +255,226 @@ teardown() {
     [[ -f src/real.txt ]]                                         # added by main loop
     grep -qxF "add: src/real.txt" "$OUTPUT_DIR/changes.txt"
     ! grep -qF "phantom" "$OUTPUT_DIR/changes.txt"                # not recorded
+}
+
+# --- glob-pattern support (PR 2 of the changelog-surface migration slice) ---
+#
+# The manifest can now list glob patterns like `tools/release/**`.
+# Expansion happens at script-run time via `git ls-tree`, so master and
+# rel branches see whichever concrete paths they actually carry.
+
+@test "glob: pattern matches multiple files, all identical -> no changes" {
+    write_on_branch master   src/a.txt "content-A"
+    write_on_branch master   src/b.txt "content-B"
+    write_on_branch master   src/c.txt "content-C"
+    write_on_branch rel-810  src/a.txt "content-A"
+    write_on_branch rel-810  src/b.txt "content-B"
+    write_on_branch rel-810  src/c.txt "content-C"
+    write_files_all_config 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
+}
+
+@test "glob: pattern expands to master-only files -> all added to rel" {
+    write_on_branch master src/a.txt "content-A"
+    write_on_branch master src/b.txt "content-B"
+    write_files_all_config 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/a.txt ]]
+    [[ -f src/b.txt ]]
+    grep -qxF "add: src/a.txt" "$OUTPUT_DIR/changes.txt"
+    grep -qxF "add: src/b.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "glob: pattern-matched file on rel but not master -> delete" {
+    write_on_branch master  src/keeper.txt "keep-content"
+    write_on_branch rel-810 src/keeper.txt "keep-content"
+    write_on_branch rel-810 src/orphan.txt "orphan-on-rel-only"
+    write_files_all_config 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -f src/orphan.txt ]]                              # deleted
+    [[ -f src/keeper.txt ]]                                # untouched (identical)
+    grep -qxF "delete: src/orphan.txt" "$OUTPUT_DIR/changes.txt"
+    ! grep -qF "keeper" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "glob: mixed add + update + delete under one pattern all applied in one run" {
+    write_on_branch master  src/added.txt   "new"
+    write_on_branch master  src/changed.txt "master-version"
+    write_on_branch rel-810 src/changed.txt "older-version"
+    write_on_branch rel-810 src/removed.txt "to-remove"
+    write_files_all_config 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/added.txt ]]
+    [[ "$(cat src/changed.txt)" == "master-version" ]]
+    [[ ! -f src/removed.txt ]]
+    grep -qxF "add: src/added.txt" "$OUTPUT_DIR/changes.txt"
+    grep -qxF "update: src/changed.txt" "$OUTPUT_DIR/changes.txt"
+    grep -qxF "delete: src/removed.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "glob: pattern matches nothing on either side -> no error, no changes" {
+    write_on_branch master  src/other.txt "other"
+    write_on_branch rel-810 src/other.txt "other"
+    write_files_all_config 'nonexistent/**' src/other.txt
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
+}
+
+@test "glob: mixed literal + glob entries expand and dedupe cleanly" {
+    write_on_branch master  src/lit.txt  "literal-content"
+    write_on_branch master  src/glob.txt "glob-content"
+    write_files_all_config src/lit.txt 'src/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    # src/lit.txt appears from both the literal entry AND the glob
+    # expansion; the union+sort+dedupe upstream keeps the main loop
+    # from processing it twice.
+    [[ $status -eq 0 ]]
+    [[ -f src/lit.txt ]]
+    [[ -f src/glob.txt ]]
+    # exactly one "add" line each
+    [[ $(grep -c "^add: src/lit.txt$" "$OUTPUT_DIR/changes.txt") -eq 1 ]]
+    [[ $(grep -c "^add: src/glob.txt$" "$OUTPUT_DIR/changes.txt") -eq 1 ]]
+}
+
+@test "glob: negated character class [!...] converts to ERE [^...]" {
+    # Shell glob `[!aeiou]` matches consonants + non-alphabetics.
+    # Historically our glob_to_regex passed [!...] through verbatim,
+    # which in ERE is a positive class -- opposite semantics. This
+    # pins the fix: master has files matching + not matching the
+    # negation; only the negation-matching one gets synced.
+    write_on_branch master  src/a.txt "vowel-start"
+    write_on_branch master  src/x.txt "consonant-start"
+    write_files_all_config 'src/[!aeiou].txt'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/x.txt ]]                                           # matched the negation
+    [[ ! -f src/a.txt ]]                                         # excluded (vowel)
+    grep -qxF "add: src/x.txt" "$OUTPUT_DIR/changes.txt"
+    ! grep -qF "src/a.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "glob: pattern matches nothing on either side -> emits a stale-manifest warning" {
+    # Pattern doesn't match anywhere: neither master nor rel carries
+    # anything under `nonexistent/`. Sync succeeds (no changes) but
+    # surfaces the empty expansion via the shared expand_patterns_into
+    # emit_warning hook so a maintainer sees the stale manifest entry.
+    write_on_branch master  src/real.txt "real"
+    write_on_branch rel-810 src/real.txt "real"
+    write_files_all_config src/real.txt 'nonexistent/**'
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
+    [[ "$output" == *"WARNING"*"nonexistent/**"*"expanded to zero files"* ]]
+}
+
+# --- exclude-branches (per-entry rel-branch exclusion) ---
+#
+# Manifest entries may be object-shaped with an `exclude-branches:` list.
+# Sync must skip those entries when the target branch is in the list,
+# leaving the file untouched on that branch. Motivating case: release-
+# mechanism PHP surface on rel-800 / rel-704 which predate the mechanism
+# and would fail phpstan + isolated tests + composer-require-checker.
+
+@test "exclude-branches: entry excluded from target branch is not synced" {
+    write_on_branch master src/shared.txt "master-content"
+    write_on_branch master src/rel820-only.txt "master-content"
+    write_files_all_raw 'files:
+- src/shared.txt
+- path: src/rel820-only.txt
+  exclude-branches:
+  - rel-810
+'
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/shared.txt ]]                     # unexcluded entry synced
+    [[ ! -f src/rel820-only.txt ]]              # excluded entry NOT synced
+    grep -qxF "add: src/shared.txt" "$OUTPUT_DIR/changes.txt"
+    ! grep -qF "src/rel820-only.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "exclude-branches: entry included for a non-excluded target still syncs" {
+    # setup_test_repo created rel-810 from the seed commit; add rel-820
+    # from the same seed so it starts EMPTY. Branching from master AFTER
+    # the writes below would put rel-820 at master's HEAD and the sync
+    # would see no changes needed.
+    git branch rel-820 rel-810
+    write_on_branch master src/shared.txt "master-content"
+    write_on_branch master src/rel820-only.txt "master-content"
+    write_files_all_raw 'files:
+- src/shared.txt
+- path: src/rel820-only.txt
+  exclude-branches:
+  - rel-810
+'
+    git checkout -q rel-820
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-820
+
+    [[ $status -eq 0 ]]
+    [[ -f src/shared.txt ]]
+    [[ -f src/rel820-only.txt ]]
+    grep -qxF "add: src/shared.txt" "$OUTPUT_DIR/changes.txt"
+    grep -qxF "add: src/rel820-only.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "exclude-branches: every entry excluded for target -> no-op sync succeeds" {
+    write_on_branch master src/only-for-others.txt "master-content"
+    write_files_all_raw 'files:
+- path: src/only-for-others.txt
+  exclude-branches:
+  - rel-810
+'
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -f src/only-for-others.txt ]]
+    [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
+    [[ "$output" == *"nothing to sync"* ]]
+}
+
+@test "exclude-branches: multiple branches in exclude list -- each honored" {
+    write_on_branch master src/only-for-820.txt "master-content"
+    write_files_all_raw 'files:
+- path: src/only-for-820.txt
+  exclude-branches:
+  - rel-810
+  - rel-800
+  - rel-704
+'
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+    [[ $status -eq 0 ]]
+    [[ ! -f src/only-for-820.txt ]]
 }

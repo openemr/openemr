@@ -39,6 +39,7 @@ final readonly class DispatchDataBuilder
                 'tag' => $this->opts->string('tag'),
                 'branch' => $this->opts->string('branch'),
                 'version' => $this->opts->string('release-version'),
+                'prev_release' => $this->opts->string('prev-release'),
             ],
             DispatchRequest::EVENT_RELEASE_TARGETS_CHANGED => [],
             DispatchRequest::EVENT_PROBE => [

@@ -15,11 +15,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\library;
 
+use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
 #[Small]
+#[BackupGlobals(true)]
 class SmartyXlPluginsTest extends TestCase
 {
     private const PLUGINS_DIR = __DIR__ . '/../../../../library/smarty/plugins';
@@ -28,13 +30,11 @@ class SmartyXlPluginsTest extends TestCase
     {
         // Make xl() a pass-through so we test the escaping behavior of the
         // Smarty plugins in isolation, without touching the DB or the
-        // translation cache.
+        // translation cache. translate_no_safe_apostrophe keeps quotes intact
+        // so xla()'s ENT_QUOTES escaping still has a quote to act on; without
+        // it xl() rewrites quotes to backticks before the plugin sees them.
         $GLOBALS['disable_translation'] = true;
-    }
-
-    protected function tearDown(): void
-    {
-        unset($GLOBALS['disable_translation']);
+        $GLOBALS['translate_no_safe_apostrophe'] = true;
     }
 
     private function loadPlugin(string $file): void

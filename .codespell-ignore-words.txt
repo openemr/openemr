@@ -118,6 +118,7 @@ cancelled
 # These require separate PRs with proper testing (see SPELLCHECK_BATCHES.md)
 cant
 collapsable
+deriver
 detatch
 durationm
 ect
