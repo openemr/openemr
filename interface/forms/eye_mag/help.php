@@ -21,14 +21,6 @@ require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 $form_folder = "eye_mag";
-$showit    = $_REQUEST['zone'];
-if ($showit == '') {
-    $showit = "general";
-}
-
-if ($showit == 'ext') {
-    $showit = "external";
-}
 ?>
 <html>
     <head>

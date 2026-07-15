@@ -154,10 +154,19 @@ class GitHubApi
     /**
      * Fetch all published security advisories.
      *
+     * The `state=published` query param filters at the API level; the
+     * post-filter here is a belt-and-suspenders guard so a stray draft
+     * or withdrawn advisory can never leak into a rendered CHANGELOG
+     * Security section if the API-side filter regresses.
+     *
      * @return list<array<string, mixed>>
      */
     public function publishedAdvisories(): array
     {
-        return $this->paginate('/security-advisories?state=published&per_page=100');
+        $all = $this->paginate('/security-advisories?state=published&per_page=100');
+        return array_values(array_filter(
+            $all,
+            static fn (array $advisory): bool => ($advisory['state'] ?? '') === 'published',
+        ));
     }
 }

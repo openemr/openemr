@@ -457,23 +457,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/easipro/pro.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$arr_files_php might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/expand_contract_js.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$catid might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$erow might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$newid might not be defined\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
 ];
 $ignoreErrors[] = [
@@ -2310,11 +2295,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$response might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$issues might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$fhirScopes might not be defined\\.$#',

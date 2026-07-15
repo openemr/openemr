@@ -20,7 +20,6 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -120,14 +119,10 @@ if ($_POST['form_save']) {
             die(xlt('Internal error - patient ID was not provided!'));
         }
 
-        // Compute the name of the target directory and make sure it exists.
-        $docdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/" . check_file_dir_name($patient_id);
-        exec("mkdir -p " . escapeshellarg($docdir));
-
         // If copying to patient documents...
         //
         if ($_POST['form_cb_copy_type'] == 1) {
-            // Compute a target filename that does not yet exist.
+            // Compute the document's display filename.
             $ffname = (string) check_file_dir_name(trim((string) $_POST['form_filename']));
             $i = strrpos($ffname, '.');
             if ($i) {
@@ -138,53 +133,62 @@ if ($_POST['form_save']) {
                 $ffname = $filebase;
             }
 
-            $ffmod  = '';
-            $ffsuff = '.pdf';
-            // If the target filename exists, modify it until it doesn't.
-            $count = 0;
-            while (is_file("$docdir/$ffname$ffmod$ffsuff")) {
-                ++$count;
-                $ffmod = "_$count";
-            }
-
-            $target = "$docdir/$ffname$ffmod$ffsuff";
+            $docname = "$ffname.pdf";
             $docdate = fixDate($_POST['form_docdate']);
+            $catid = (int) $_POST['form_category'];
+            $newid = null;
 
-            // Create the target PDF.  Note that we are relying on the .tif files for
-            // the individual pages to already exist in the faxcache directory.
+            // Create the target PDF in a temporary file.  Note that we are
+            // relying on the .tif files for the individual pages to already
+            // exist in the faxcache directory.
             //
             $info_msg .= mergeTiffs();
-            // The -j option here requires that libtiff is configured with libjpeg.
-            // It could be omitted, but the output PDFs would then be quite large.
-            $tmp0 = exec("tiff2pdf -j -p letter -o " . escapeshellarg($target) . " " . escapeshellarg($faxcache . '/temp.tif'), $tmp1, $tmp2);
+            $tmppdf = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'fax');
 
-            if ($tmp2) {
-                $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
+            if ($tmppdf === false) {
+                $info_msg .= xl('Unable to create a temporary file for the document') . ' ';
             } else {
-                $newid = QueryUtils::generateId();
-                $fsize = filesize($target);
-                $catid = (int) $_POST['form_category'];
-                // Update the database.
-                $query = "INSERT INTO documents ( " .
-                "id, type, size, date, url, mimetype, foreign_id, docdate" .
-                " ) VALUES ( " .
-                "?, 'file_url', ?, NOW(), ?, " .
-                "'application/pdf', ?, ? " .
-                ")";
-                sqlStatement($query, [$newid, $fsize, 'file://' . $target, $patient_id, $docdate]);
-                $query = "INSERT INTO categories_to_documents ( " .
-                "category_id, document_id" .
-                " ) VALUES ( " .
-                "?, ? " .
-                ")";
-                sqlStatement($query, [$catid, $newid]);
-            } // end not error
+                // The -j option here requires that libtiff is configured with libjpeg.
+                // It could be omitted, but the output PDFs would then be quite large.
+                $tmp0 = exec("tiff2pdf -j -p letter -o " . escapeshellarg($tmppdf) . " " . escapeshellarg($faxcache . '/temp.tif'), $tmp1, $tmp2);
+
+                if ($tmp2) {
+                    $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
+                } else {
+                    // Storing through the Document model keeps drive encryption,
+                    // the storage path, UUID, hash and category linkage consistent
+                    // with every other way a document enters the system.
+                    $data = file_get_contents($tmppdf);
+                    if ($data === false) {
+                        $info_msg .= xl('Failed to read the generated document') . ' ';
+                    } else {
+                        $document = new Document();
+                        $document->set_docdate($docdate);
+                        $store_msg = $document->createDocument(
+                            (string) $patient_id,
+                            $catid,
+                            $docname,
+                            'application/pdf',
+                            $data,
+                            tmpfile: $tmppdf,
+                        );
+                        $newid = $document->get_id();
+                        if (!is_numeric($newid)) {
+                            $info_msg .= ($store_msg ?: xl('Failed to store the document')) . ' ';
+                        }
+                    }
+                }
+
+                if (is_file($tmppdf)) {
+                    unlink($tmppdf);
+                }
+            } // end temporary file created
 
             // If we are posting a note...
             if ($_POST['form_cb_note'] && !$info_msg) {
                 // Build note text in a way that identifies the new document.
                 // See pnotes_full.php which uses this to auto-display the document.
-                $note = "$ffname$ffmod$ffsuff";
+                $note = $docname;
                 for ($tmp = $catid; $tmp;) {
                     $catrow = sqlQuery("SELECT name, parent FROM categories WHERE id = ?", [$tmp]);
                     $note = $catrow['name'] . "/$note";

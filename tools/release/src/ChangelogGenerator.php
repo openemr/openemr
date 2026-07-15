@@ -111,14 +111,6 @@ class ChangelogGenerator
     private const DEPENDABOT = 'dependabot[bot]';
 
     /**
-     * Conventional-Commits scopes that mark a PR as release automation
-     * rather than a user-facing change.
-     *
-     * @var list<string>
-     */
-    private const MACHINERY_SCOPES = ['release', 'release-prep'];
-
-    /**
      * Dependabot docker-compose group names from openemr/openemr
      * `.github/dependabot.yml`. Grouped-update PR titles look like
      * `bump the <group> group across N directories with M updates`;
@@ -198,7 +190,7 @@ class ChangelogGenerator
         $advisories = [];
         if ($includeGhsa) {
             $prNumbers = array_map(static fn(array $pr): int => $pr['number'], $categorized);
-            $advisories = $this->matchAdvisories($shas, $prNumbers);
+            $advisories = $this->matchAdvisories($shas, $prNumbers, $title);
         }
 
         $lines = [];
@@ -257,13 +249,16 @@ class ChangelogGenerator
         if (stripos($title, '[TEST]') !== false) {
             return true;
         }
-        if (stripos($title, 'backport') !== false) {
-            return true;
-        }
-        if (in_array(self::scopeOf($title), self::MACHINERY_SCOPES, true)) {
-            return true;
-        }
-        if (preg_match('/^chore(?:\([^)]*\))?:\s*release\b/i', $title) === 1) {
+        // Chore-release cut commits. The release-bot's own `chore: release
+        // X.Y.Z` PRs are already caught by the RELEASE_BOT author filter
+        // above; this pattern additionally covers the same shape if a
+        // maintainer opens it by hand. The trailing `\s+v?\d` requires a
+        // version number (with optional `v` prefix) after "release" so
+        // titles like `chore(docs): release notes update` or
+        // `chore(build): release artifacts to S3` -- which mention
+        // "release" as an English word rather than as the release-cut
+        // marker -- don't get false-matched.
+        if (preg_match('/^chore(?:\([^)]*\))?:\s*release\s+v?\d/i', $title) === 1) {
             return true;
         }
 
@@ -277,6 +272,32 @@ class ChangelogGenerator
         }
 
         return false;
+
+        // Two rules deliberately NOT applied here (they were in an
+        // earlier revision that ported the website's stricter filter
+        // wholesale; both relaxed 2026-07-15 after review of a live
+        // 8.2.0 amendment run):
+        //
+        // - Titles containing "backport": backports on a rel branch are
+        //   the actual PRs that shipped in that release (the original
+        //   master-side PR either doesn't exist yet or shipped/will ship
+        //   in a different master release). Filtering them meant per-
+        //   release CHANGELOG entries missed user-visible fixes -- e.g.
+        //   openemr/openemr#12827 + #12832 (sql-upgrade fixes backported
+        //   to rel-820 for 8.2.0). No duplication risk in practice:
+        //   backports get distinct PR numbers from any master-side
+        //   original, and each rel branch's CHANGELOG only shows what
+        //   landed on that branch.
+        // - Conventional-commits scope in {release, release-prep}: these
+        //   are internal-tooling PRs but CHANGELOG readers (devs +
+        //   release engineers) benefit from seeing what changed in the
+        //   release-mechanism during a given release. The docker auto-
+        //   bump noise this was originally intended to catch is already
+        //   handled specifically by isDockerBump() + isNoOpVersionBump()
+        //   under the DEPENDABOT author branch above -- those rules
+        //   remove the actual noise without swallowing human-authored
+        //   `fix(release):` entries. The website's release-notes surface
+        //   still uses the stricter filter (different audience).
     }
 
     /**
@@ -302,19 +323,6 @@ class ChangelogGenerator
             self::DEPENDABOT_DOCKER_GROUPS,
         ));
         return preg_match("/\\bbump the ($groups) group\\b/", $title) === 1;
-    }
-
-    /**
-     * Lowercased Conventional-Commits scope, or null when the title has
-     * no parseable `type(scope):` prefix.
-     */
-    private static function scopeOf(string $title): ?string
-    {
-        if (preg_match('/^\w+\(([^)]*)\)!?:/', $title, $matches) !== 1) {
-            return null;
-        }
-
-        return strtolower($matches[1]);
     }
 
     /**
@@ -374,9 +382,23 @@ class ChangelogGenerator
      *
      * @param list<string> $shas Commit SHAs in the release range
      * @param list<int> $prNumbers PR numbers in the release
+     * @param ?string $targetVersion Release version (e.g. "8.2.0"); when
+     *                               non-null, an advisory whose
+     *                               `vulnerabilities[].patched_versions`
+     *                               exactly equals this string is treated
+     *                               as a match even if its references
+     *                               don't link a commit/PR in the range.
+     *                               Populating GHSA "Patched versions"
+     *                               with the exact release string is the
+     *                               documented convention (see
+     *                               RELEASE_PROCESS.md); openemr GHSAs
+     *                               don't populate the free-form
+     *                               References field with commit/PR URLs
+     *                               in practice, so the patched-versions
+     *                               path is the primary match signal.
      * @return list<Advisory>
      */
-    private function matchAdvisories(array $shas, array $prNumbers): array
+    private function matchAdvisories(array $shas, array $prNumbers, ?string $targetVersion = null): array
     {
         $allAdvisories = $this->api->publishedAdvisories();
         $shaLookup = array_flip($shas);
@@ -388,7 +410,7 @@ class ChangelogGenerator
         $matched = [];
 
         foreach ($allAdvisories as $advisory) {
-            if (!$this->advisoryMatchesRange($advisory, $shaLookup, $prLookup)) {
+            if (!$this->advisoryMatchesRange($advisory, $shaLookup, $prLookup, $targetVersion)) {
                 continue;
             }
 
@@ -411,14 +433,33 @@ class ChangelogGenerator
     }
 
     /**
-     * Check if an advisory's references overlap with the commit/PR set.
+     * Check if an advisory belongs to this release: either a
+     * `vulnerabilities[].patched_versions` field exactly equals the
+     * target release string, or one of the free-form references URLs a
+     * commit SHA or PR number in the release range.
      *
      * @param array<string, mixed> $advisory
      * @param array<string, int> $shaLookup Flipped SHA array for O(1) lookup
      * @param array<int, int> $prLookup Flipped PR-number array for O(1) lookup
+     * @param ?string $targetVersion Release version; skipped when null
      */
-    private function advisoryMatchesRange(array $advisory, array $shaLookup, array $prLookup): bool
-    {
+    private function advisoryMatchesRange(
+        array $advisory,
+        array $shaLookup,
+        array $prLookup,
+        ?string $targetVersion,
+    ): bool {
+        if ($targetVersion !== null && $targetVersion !== '') {
+            /** @var list<array<string, mixed>> $vulnerabilities */
+            $vulnerabilities = is_array($advisory['vulnerabilities'] ?? null) ? $advisory['vulnerabilities'] : [];
+            foreach ($vulnerabilities as $vulnerability) {
+                $patched = is_string($vulnerability['patched_versions'] ?? null) ? $vulnerability['patched_versions'] : '';
+                if ($patched === $targetVersion) {
+                    return true;
+                }
+            }
+        }
+
         /** @var list<array<string, mixed>> $references */
         $references = is_array($advisory['references'] ?? null) ? $advisory['references'] : [];
 
