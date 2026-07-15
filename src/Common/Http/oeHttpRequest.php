@@ -27,13 +27,10 @@ class oeHttpRequest extends oeHttp
     private string $bodyFormat;
     private array $options;
 
-    private static ClientInterface $client;
-
-    public function __construct(ClientInterface $client)
+    public function __construct(readonly private ClientInterface $client)
     {
         parent::__construct();
 
-        self::$client = $client;
         $this->bodyFormat = "json";
         $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $this->options = [
@@ -173,7 +170,7 @@ class oeHttpRequest extends oeHttp
             ]);
         }
 
-        return new oeHttpResponse(self::$client->request($method, $url, $this->mergeOptions([
+        return new oeHttpResponse($this->client->request($method, $url, $this->mergeOptions([
             'query' => $this->parseQueryParams($url),
         ], $options)));
     }
