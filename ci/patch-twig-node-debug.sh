@@ -1,10 +1,16 @@
 #!/bin/bash
-# ci-run-2
 # TEMPORARY (issue #12423) — patch vendor/twig/twig/src/Node/Node.php so
-# Node::setSourceContext logs the failing child instead of throwing when it
-# hits a non-Node array in $this->nodes. Also log every setSourceContext
-# call so we can diff the fresh-install e2e log (which passes) against the
-# upgrade-e2e log (which fails on relogin.html.twig include).
+# Node::setSourceContext skips non-Node children (logging a diagnostic
+# line) instead of throwing the TypeError.
+#
+# The prior version of this script also added an always-on error_log at
+# the top of setSourceContext to compare fresh vs upgrade traces. Two
+# consecutive passing runs (3fcc0e4, f7ea791) showed the array child
+# scenario never manifested — the extra I/O appeared to widen a race
+# window enough to consistently avoid the failure. This trimmed variant
+# keeps only the skip branch so we can isolate whether the fix is
+# behavioral (skip branch fires and rescues the render) or timing
+# (either the skip branch or extra I/O — dropping I/O tells us which).
 #
 # Remove alongside the other debug hooks once root cause is identified.
 
@@ -33,8 +39,11 @@ needle = """    public function setSourceContext(Source $source): void
 replacement = """    public function setSourceContext(Source $source): void
     {
         $this->sourceContext = $source;
-        // TEMPORARY (issue #12423) debug hook.
-        error_log(sprintf('[TWIG NODE DEBUG] setSourceContext parent=%s source=%s node_count=%d', static::class, $source->getName(), count($this->nodes)));
+        // TEMPORARY (issue #12423) debug hook: skip non-Node children with
+        // a diagnostic log line instead of throwing the TypeError. The
+        // always-on setSourceContext log was dropped to isolate whether the
+        // fix is behavioral (this skip branch) or timing-based (extra I/O
+        // widening the race window).
         foreach ($this->nodes as $key => $node) {
             if (!is_object($node)) {
                 error_log(sprintf(
