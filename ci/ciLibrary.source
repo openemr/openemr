@@ -669,6 +669,20 @@ enable_coredumps() {
     dc exec -T openemr sh -c "mkdir -p '${COREDUMP_DIR}' && chmod 1777 '${COREDUMP_DIR}'"
     sudo sysctl -w "kernel.core_pattern=${COREDUMP_DIR}/core.%e.%p.%t"
     sudo sysctl -w 'fs.suid_dumpable=2'
+    # The two sysctls above are checked at the moment a process changes UID.
+    # Apache started earlier in the compose `up` and its prefork workers
+    # already dropped root -> apache before we ran these sysctls, so those
+    # existing workers still have dumpable=0 — the kernel will silently
+    # discard their cores. This is why #12438's crash-diagnostics artifact
+    # has been reporting "No coredumps found in /var/www/coredumps" on
+    # every apache_82_118* segfault since #12445 landed: enable_coredumps
+    # ran cleanly but the workers that segfaulted were already un-dumpable.
+    #
+    # `httpd -k graceful` sends SIGUSR1 to the parent apache. The parent
+    # forks fresh workers, and those inherit dumpable=1 under
+    # fs.suid_dumpable=2, so subsequent segfaults leave usable cores.
+    dc exec -T openemr sh -c 'httpd -k graceful' \
+        || echo 'enable_coredumps: graceful restart failed; existing workers keep dumpable=0'
 }
 
 ##
