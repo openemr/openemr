@@ -89,7 +89,7 @@ $processError = (static fn(Process $process): string => (string) $process->getEx
 // This merges the tiff files for the selected pages into one tiff file.
 // $images holds the form_images checkboxes to the right of the images.
 //
-$mergeTiffs = static function (array $images) use ($faxcache, $runProcess, $processError): string {
+$mergeTiffs = static function (array $images) use ($faxcache, $filesystem, $runProcess, $processError): string {
     $tiffNames = [];
     foreach ($images as $name) {
         if (is_string($name)) {
@@ -101,6 +101,9 @@ $mergeTiffs = static function (array $images) use ($faxcache, $runProcess, $proc
         die(xlt("Internal error - no pages were selected!"));
     }
 
+    // Remove any merge output from a previous run so a failed tiffcp cannot
+    // leave stale pages behind for the dependent tiff2pdf/sendfax steps.
+    $filesystem->remove($faxcache . '/temp.tif');
     $process = $runProcess(array_merge(['tiffcp'], $tiffNames, ['temp.tif']), $faxcache);
     if (!$process->isSuccessful()) {
         return 'tiffcp returned ' . $processError($process) . ' ';
@@ -157,12 +160,13 @@ if ($request->request->getString('form_save') !== '') {
             // relying on the .tif files for the individual pages to already
             // exist in the faxcache directory.
             //
-            $info_msg .= $mergeTiffs($selectedImages);
-            $tmppdf = tempnam($globalsBag->getString('temporary_files_dir'), 'fax');
+            $mergeMsg = $mergeTiffs($selectedImages);
+            $info_msg .= $mergeMsg;
+            $tmppdf = $mergeMsg === '' ? tempnam($globalsBag->getString('temporary_files_dir'), 'fax') : false;
 
-            if ($tmppdf === false) {
+            if ($mergeMsg === '' && $tmppdf === false) {
                 $info_msg .= xl('Unable to create a temporary file for the document') . ' ';
-            } else {
+            } elseif ($tmppdf !== false) {
                 // The -j option here requires that libtiff is configured with libjpeg.
                 // It could be omitted, but the output PDFs would then be quite large.
                 $process = $runProcess(['tiff2pdf', '-j', '-p', 'letter', '-o', $tmppdf, $faxcache . '/temp.tif']);
@@ -338,19 +342,26 @@ if ($request->request->getString('form_save') !== '') {
             array_merge(explode(' ', OPENEMR_HYLAFAX_ENSCRIPT), ['-o', $tmpfn2, $tmpfn1]),
             $globalsBag->getString('webserver_root') . '/custom'
         );
+        $coverMsg = '';
         if (!$process->isSuccessful()) {
-            $info_msg .= 'enscript returned ' . $processError($process) . ' ';
+            $coverMsg = 'enscript returned ' . $processError($process) . ' ';
+            $info_msg .= $coverMsg;
         }
 
         unlink($tmpfn1);
 
-        // Send the fax as the cover page followed by the selected pages.
-        $info_msg .= $mergeTiffs($selectedImages);
-        $process = $runProcess(
-            ['sendfax', '-A', '-n', $form_finemode, '-d', $form_fax, $tmpfn2, $faxcache . '/temp.tif']
-        );
-        if (!$process->isSuccessful()) {
-            $info_msg .= 'sendfax returned ' . $processError($process) . ' ';
+        // Send the fax as the cover page followed by the selected pages,
+        // but only if both the cover page and the merge succeeded — faxing
+        // after a failed merge could send stale pages from an earlier run.
+        $mergeMsg = $mergeTiffs($selectedImages);
+        $info_msg .= $mergeMsg;
+        if ($coverMsg === '' && $mergeMsg === '') {
+            $process = $runProcess(
+                ['sendfax', '-A', '-n', $form_finemode, '-d', $form_fax, $tmpfn2, $faxcache . '/temp.tif']
+            );
+            if (!$process->isSuccessful()) {
+                $info_msg .= 'sendfax returned ' . $processError($process) . ' ';
+            }
         }
 
         unlink($tmpfn2);
@@ -386,12 +397,14 @@ if ($request->request->getString('form_save') !== '') {
     } // end delete 1
 
     if ($form_cb_delete == '2' && !$info_msg) {
-        // Delete the tiff file, with archiving if desired.
+        // Delete the tiff file, with archiving if desired. The throwing
+        // Filesystem calls guarantee the cache erase below cannot run when
+        // the source file was not actually archived or deleted.
         $archdir = $globalsBag->getString('hylafax_archdir');
         if ($archdir !== '' && $mode == 'fax') {
-            rename($filepath, $archdir . '/' . $filename);
+            $filesystem->rename($filepath, $archdir . '/' . $filename, true);
         } else {
-            unlink($filepath);
+            $filesystem->remove($filepath);
         }
 
         // Erase its cache.
@@ -449,6 +462,13 @@ $using_scanned_notes = is_numeric($scannedNotesCount) && (int) $scannedNotesCoun
 // This will contain a .tif image as well as a .jpg image for each page.
 //
 if (! is_dir($faxcache)) {
+    // Remove the partial cache on any failure so a later request rebuilds it
+    // instead of silently serving an incomplete set of pages.
+    $failCache = static function (string $message) use ($faxcache, $filesystem): never {
+        $filesystem->remove($faxcache);
+        die($message);
+    };
+
     $filesystem->mkdir($faxcache);
 
     if (strtolower($ext) != '.tif') {
@@ -457,19 +477,19 @@ if (! is_dir($faxcache)) {
         // better and faster if the scanner produces TIFFs instead of PDFs.
         $process = $runProcess(['convert', '-density', '203x196', $filepath, $faxcache . '/deleteme.tif']);
         if (!$process->isSuccessful()) {
-            die("convert returned " . text($processError($process)));
+            $failCache("convert returned " . text($processError($process)));
         }
 
         $process = $runProcess(['tiffsplit', 'deleteme.tif'], $faxcache);
         if (!$process->isSuccessful()) {
-            die("tiffsplit returned " . text($processError($process)));
+            $failCache("tiffsplit returned " . text($processError($process)));
         }
 
         $filesystem->remove($faxcache . '/deleteme.tif');
     } else {
         $process = $runProcess(['tiffsplit', $filepath], $faxcache);
         if (!$process->isSuccessful()) {
-            die("tiffsplit returned " . text($processError($process)));
+            $failCache("tiffsplit returned " . text($processError($process)));
         }
     }
 
@@ -484,7 +504,7 @@ if (! is_dir($faxcache)) {
     if (count($pageTiffs) > 0) {
         $process = $runProcess(array_merge(['mogrify', '-resize', '750x970', '-format', 'jpg'], $pageTiffs), $faxcache);
         if (!$process->isSuccessful()) {
-            die("mogrify returned " . text($processError($process)) . "; ext is '" . text($ext) . "'; filepath is '" . text($filepath) . "'");
+            $failCache("mogrify returned " . text($processError($process)) . "; ext is '" . text($ext) . "'; filepath is '" . text($filepath) . "'");
         }
     }
 }
