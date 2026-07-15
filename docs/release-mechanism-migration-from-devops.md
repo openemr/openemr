@@ -1348,48 +1348,150 @@ produced the exact `- **PHP** 8.2+ / - **MariaDB** 10.6+ / - **MySQL**
 5.7+` block that 8.2.0's committed entry has.
 
 **PR 9 — Fixture-based regression regenerating 8.2.0's real CHANGELOG
-entry from frozen inputs.** Deferred from PR 4. Capture the actual
-inputs the mutator would have seen when generating 8.2.0's committed
-CHANGELOG entry: SHAs from `v8_1_0...rel-820`, one PR object per SHA
-(number / title / labels / url / author), the published advisories set
-at tag time. Persist as JSON fixtures at
-`tests/Tests/Isolated/Release/fixtures/8_2_0/`. Add a test that
-constructs `ChangelogGenerator` with a `FakeGitHubApi` returning the
-frozen data + a `FrozenClock` set to 2026-07-08 (the tag date) and
-asserts the rendered output matches a locked expected `CHANGELOG.md`
-section (`fixtures/8_2_0/expected.md`). Regenerates the real 8.2.0
-entry byte-for-byte with the noise filter applied — locks the
-categorization + section ordering + area sub-grouping + dependabot
-filter behavior against realistic input, not just the discrete unit
-cases. If PR 8 (CompatibilityMutator) landed first, the fixture
-covers the compatibility injection too. **Depends on PR 4** (uses
-the ported filter); best to land after PR 8 so the fixture exercises
-the fully consolidated flow. Punts a real risk: our smoke test in PR 4
-only had 2 PRs in the v8_2_0...rel-820 range; the categorization +
-sub-grouping + area-label paths were only exercised by synthetic PRs.
+entry from frozen inputs.** *SHIPPED 2026-07-15 as openemr/openemr#12969
+(paired with openemr/openemr#12995 for the rel-820 sync — auto-sync PR
+openemr/openemr#12992 failed whitespace on new fixture subdirs because
+`.pre-commit-config.yaml` isn't byte-identical-tracked; #12995
+cherry-picked the master commit as a workaround).* Captured live gh
+API state for `v8_1_0...v8_2_0` via new
+`tools/release/bin/capture-changelog-fixture.php` one-shot maintenance
+tool: 653 SHAs, 647 unique PRs, published advisories. Persisted as
+JSON fixtures under `tests/Tests/Isolated/Release/fixtures/8_2_0/`
+with a twin-scenario subdir layout: `release-time/` (empty advisories
+— simulates release-prep merge time before GHSAs are published) and
+`post-ghsa/` (advisories filtered to only those matching this
+release's SHA/PR range OR `vulnerabilities[].patched_versions ==
+targetVersion` — simulates the post-GHSA-publish amendment dispatch).
+Test replays each scenario through `ChangelogGenerator` +
+`FakeGitHubApi` + `FrozenClock` set to 2026-07-08, asserts byte-
+identical rendered output. **Also introduced a matcher change**:
+`ChangelogGenerator::advisoryMatchesRange()` now matches on
+`vulnerabilities[].patched_versions == $targetVersion` as the primary
+signal — openemr's GHSAs don't populate References with commit/PR
+URLs so the pre-existing reference-based matcher never actually
+fired in production. Also added `state === 'published'` post-filter
+in `GitHubApi::publishedAdvisories()` as a belt-and-suspenders guard
+against draft-advisory leakage. New unit tests: 2 for the
+patched_versions match path, 1 mutator idempotence test covering the
+amendment workflow (release-time → post-ghsa → post-ghsa →
+release-time round-trip, wholesale-replace semantics preserved).
+Fixture confirms the real 8.2.0 CHANGELOG shape byte-for-byte.
 
 **PR 10 — Update `docs/RELEASE_PROCESS.md` for the new mutator-driven
-changelog flow.** After the earlier PRs land, the process doc still
-describes the retired paths: devops's `task release:changelog` +
-`task release:compatibility` + the two post-tag `changelog-pr.php`
-PRs against openemr's rel and master branches, Stephen Nielson's
-milestone-driven `openemr:create-release-changelog`. Rewrite those
-sections to describe the actual flow: at release-prep-PR time
-`ChangelogMutator` walks commits (filtered) and prepends the
-`## [X.Y.Z]` section to CHANGELOG.md on the rel branch; on the
-release-finalize partner PR it re-runs with the immutable tag URL
-and appends the same on master; `CompatibilityMutator` injects the
-`### Minimum supported versions` block after each; devops's
-`build-release.yml` extracts that pre-computed section for the
-GitHub Release body + release-notes asset. Also cross-link the new
-mutator classes (`OpenEMR\Release\Mutator\ChangelogMutator`,
-`OpenEMR\Release\Mutator\CompatibilityMutator`) + the byte-identical
-enforcement that keeps them in sync across rel branches (per PR 3's
-manifest). **Depends on PR 7** — hold until every retired path is
-actually gone from the tree so the process doc doesn't describe
-paths that still exist somewhere (`CreateReleaseChangelogCommand`
-in particular). Not blocking any consumer; strictly a documentation
-cleanup.
+changelog flow.** *SHIPPED 2026-07-14 as openemr/openemr#12976 (rel-820
+sync via openemr/openemr#12977 — manual since docs/ isn't on the
+byte-identical manifest). Round 1 CR follow-ups landed with the initial
+merge.* Rewrote intro + Repositories-involved table + Cross-repo mermaid
++ Conductor PR + Docs PR + Runbook Phase 2/3/4 + Phase 5 (build-release
+step 10) + Recovery sections. Deleted the "Changelog PRs" subsection
+entirely (retired with changelog-pr.php in PR 4). Runbook merge-order
+collapsed from 4 PRs to 3 (Conductor / Finalize-on-master / Docs; no
+separate changelog PRs). Runbook step 6 rewritten as "edit CHANGELOG.md
+on release-prep PR" (was "edit release-notes draft on website-openemr
+PR") with an explicit "mutator wholesale-replaces on every rel-branch
+push — hand-edits only survive if made after all release-cycle commits
+land" caveat. Runbook step 10 (build-release-on-tag) rewritten to
+describe the section-extract flow (`extract-changelog-section.php`)
+instead of the removed `base_ref` lookup. Slice plans list gained a
+"Changelog surface migration" pointer (initially added, then removed
+before merge because the migration doc PR #12598 was still draft — will
+be re-added when #12598 lands to avoid a broken doc-link).
+
+**Post-slice follow-ups (all landed 2026-07-15):**
+
+The 10-PR slice above closed the *migration* of changelog generation
+from openemr-devops + website-openemr into openemr core, but surfaced
+a real timing gap during the changelog-related design discussion: the
+mutator-driven flow only fires at release-prep / release-finalize
+time (pre-tag or immediately post-tag). GHSAs for a release are
+typically published *after* the release ships — days or weeks later
+— so the shipped CHANGELOG.md and the tagged Release body miss
+Security sections that document those late-published advisories.
+This wasn't a regression from the migration; devops's old
+`changelog-pr.php` had the same window since it also fired near
+release time. But the migration made it a *fixable* gap because
+everything was now consolidated in openemr core. Follow-ups:
+
+- **openemr/openemr#12993** — RELEASE_PROCESS.md documents the "when
+  publishing a GHSA for a fix that landed in a specific release, set
+  Patched versions to the exact release string" convention. Strict-
+  string-equal is what the matcher checks (see PR 9's matcher
+  change); no ranges, no comma-separated lists.
+- **openemr/openemr#12996** — `.github/workflows/release-amendment.yml`.
+  Manual `workflow_dispatch`-only workflow the release manager runs
+  post-GHSA-publish. Reuses `openemr:release-prep --scope=rel|master`
+  on a post-tag checkout: all mutators except ChangelogMutator +
+  CompatibilityMutator are idempotent no-op against shipped state,
+  so the diff is scoped to CHANGELOG.md's target section (typically
+  the newly-populated `### Security Fixes` block). Opens
+  `release-amendment/<version>-<rel_branch>` +
+  `release-amendment/<version>-master` PRs via peter-evans and re-
+  extracts + `gh release edit`s the GitHub Release body + syncs the
+  `changelog.md` attachment in the same run. Preserves original
+  release date via extract-and-restore. Validates annotated tag
+  exists before amending. Docs updates in the same PR describe the
+  new workflow + a "hand-edits do not survive rerun" caveat.
+- **openemr/openemr#12998** — rel-820 doc sync for the above two.
+- **openemr/openemr#12999** — GH_TOKEN fix. Dry-run of the amendment
+  workflow on 8.2.0/rel-820 failed at the mutator step because
+  ChangelogMutator shells out to `gh api` and needs GH_TOKEN. My
+  workflow set `persist-credentials: false` on the checkouts
+  (hardening) so there was no ambient token in `.git/config` for
+  `gh` to fall back on. Fix: explicit `GH_TOKEN: ${{ steps.app-token.outputs.token }}`
+  in the mutator step env blocks. release-prep.yml has the same
+  latent issue but happens to work today because it uses default
+  `persist-credentials: true`; noted as a separate hardening
+  follow-up.
+- **openemr/openemr#13000** — `.github/workflows/release-mechanism-smoketest.yml`.
+  CI-gated smoke test that runs `openemr:release-prep --scope=rel`
+  end-to-end against rel-820 on every PR touching a release-mechanism
+  workflow YAML or PHP file. Deliberately uses the strictest
+  workflow shape (`persist-credentials: false` + explicit
+  `GH_TOKEN`) so any regression in either release-prep.yml or
+  release-amendment.yml's auth/env plumbing fails CI before merge.
+  The `openemr:release-prep` unit + fixture tests don't exercise the
+  actual `gh api` shellout (they inject FakeGitHubApi), so this is
+  the only place that catches env-plumbing bugs like #12999.
+- **openemr/openemr#13004** — extract-order fix. First real dispatch
+  of the amendment workflow on 8.2.0/rel-820 surfaced a second bug:
+  `peter-evans/create-pull-request@v8` resets the calling checkout's
+  working tree back to base-branch HEAD after committing to the
+  amendment branch. The Extract step (which reads `rel-checkout/CHANGELOG.md`
+  and pipes to `gh release edit --notes-file`) was running AFTER
+  peter-evans, so it saw the pre-amendment content. Release body +
+  attachment got overwritten with byte-identical pre-amendment
+  content — no user-visible damage, but the amendment didn't
+  actually take. Fix: reorder Extract to run BEFORE peter-evans;
+  extracted content lives in `$RUNNER_TEMP/section.md` which
+  survives peter-evans's reset.
+- **openemr/openemr#13002 + #13003** — first real amendment PRs
+  (8.2.0-rel-820 + 8.2.0-master). The commits on the amendment
+  branches contain the correct mutator output (peter-evans captured
+  the diff BEFORE resetting the working tree, so the commit is
+  fine; only the post-peter-evans Extract read stale content). Once
+  #13004 lands and a re-dispatch fires, these get force-updated
+  idempotently (same content, no change).
+
+**End-to-end validation history for the amendment workflow:**
+
+- Dry-run #1 (openemr/openemr actions run 29392343714, 2026-07-15
+  05:46Z): **failed** at "Run release-prep mutators (rel scope)"
+  — missing GH_TOKEN. Prompted #12999.
+- Dry-run #2 (run 29396553059, 07:11Z, post-#12999): **succeeded**.
+  All 28 steps green, PR-open steps correctly SKIPPED via
+  `if: ${{ !inputs.dry_run }}`, mutator diff previewed in step
+  summary. `changed=true` on both scopes (GHSA-vv5j-6gjw-ffx9
+  matched via patched_versions == "8.2.0"). ~14 minutes total.
+- Real dispatch (run 29397657588, 07:31Z, post-#12999): all steps
+  green, amendment PRs #13002 + #13003 opened with correct content,
+  but Release body edit put byte-identical pre-amendment content
+  because of the peter-evans reset. Prompted #13004. Body updated_at
+  timestamp confirms the API call fired; content mismatch confirms
+  the extract read stale data.
+- Re-dispatch after #13004 lands: will re-force-update #13002 +
+  #13003 (idempotent — same content) and correctly write the
+  amended Security section to the Release body + `changelog.md`
+  attachment this time.
 
 **Testing / validation strategy per PR:**
 
