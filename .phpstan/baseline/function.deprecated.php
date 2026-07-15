@@ -59,12 +59,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
 Use FormService\\:\\:addForm\\(\\) instead$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function addForm\\(\\)\\:
-Use FormService\\:\\:addForm\\(\\) instead$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
