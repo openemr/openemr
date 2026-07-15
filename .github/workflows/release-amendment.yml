@@ -81,6 +81,12 @@ jobs:
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
         owner: ${{ github.repository_owner }}
         repositories: openemr
+        # Least-privilege: this workflow only pushes amendment branches
+        # + opens PRs + calls `gh release edit`. contents:write covers
+        # the branch push and the Release-body edit; pull-requests:write
+        # covers the peter-evans PR open/update.
+        permission-contents: write
+        permission-pull-requests: write
 
     - name: Validate inputs
       env:
@@ -165,6 +171,31 @@ jobs:
           --rel-branch="${REL_BRANCH}" \
           --scope=rel
 
+    # Capture whether the mutator produced any diff, and preview it in
+    # the workflow log + step summary. Distinguishes three states in
+    # the final Summary step: dry-run skip, live-run with no diff,
+    # live-run with diff → PR opened. In dry-run mode this preview is
+    # the primary way maintainers see what the amendment would do.
+    - name: Capture rel-scope diff
+      id: rel-diff
+      working-directory: rel-checkout
+      run: |
+        if git diff --quiet; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "Rel scope: no diff (mutators idempotent no-op)."
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          {
+            echo '### Rel-scope diff (`'"${{ inputs.rel_branch }}"'`)'
+            echo ''
+            echo '```diff'
+            git diff --stat
+            echo ''
+            git diff
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
     - name: Open rel-side amendment PR
       if: ${{ !inputs.dry_run }}
       id: rel-pr
@@ -204,6 +235,25 @@ jobs:
           --target-version="${VERSION}" \
           --rel-branch="${REL_BRANCH}" \
           --scope=master
+
+    - name: Capture master-scope diff
+      id: master-diff
+      run: |
+        if git diff --quiet; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "Master scope: no diff (mutators idempotent no-op)."
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          {
+            echo '### Master-scope diff'
+            echo ''
+            echo '```diff'
+            git diff --stat
+            echo ''
+            git diff
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
 
     - name: Open master-side amendment PR
       if: ${{ !inputs.dry_run }}
@@ -278,17 +328,48 @@ jobs:
         echo "Release body for ${TAG} updated from extracted CHANGELOG section"
 
     - name: Summary
+      env:
+        VERSION: ${{ inputs.version }}
+        DRY_RUN: ${{ inputs.dry_run }}
+        TAG: ${{ steps.tag.outputs.tag }}
+        REL_PR_URL: ${{ steps.rel-pr.outputs.pull-request-url }}
+        MASTER_PR_URL: ${{ steps.master-pr.outputs.pull-request-url }}
+        REL_CHANGED: ${{ steps.rel-diff.outputs.changed }}
+        MASTER_CHANGED: ${{ steps.master-diff.outputs.changed }}
       run: |
-        {
-          echo '## Release amendment for ${{ inputs.version }}'
-          echo ''
-          echo "- **Rel-branch PR**: ${{ steps.rel-pr.outputs.pull-request-url || 'no diff (idempotent no-op)' }}"
-          echo "- **Master PR**: ${{ steps.master-pr.outputs.pull-request-url || 'no diff (idempotent no-op)' }}"
-          if [ '${{ inputs.dry_run }}' = 'true' ]; then
-            echo "- **Release body**: dry-run, skipped"
+        # Explicit state resolution per scope so dry-run and no-diff
+        # don't look identical in the summary:
+        #   dry-run + changed=true  -> PR would be opened (diff shown above)
+        #   dry-run + changed=false -> no amendment needed
+        #   live + changed=true     -> PR URL (peter-evans opened/updated)
+        #   live + changed=false    -> no diff (idempotent no-op)
+        format_scope() {
+          local dry_run="$1" changed="$2" pr_url="$3"
+          if [ "${dry_run}" = 'true' ] && [ "${changed}" = 'true' ]; then
+            echo "would open PR (dry run; diff previewed above)"
+          elif [ "${dry_run}" = 'true' ]; then
+            echo "no amendment needed (dry run; mutators produced no diff)"
+          elif [ "${changed}" = 'true' ] && [ -n "${pr_url}" ]; then
+            echo "${pr_url}"
+          elif [ "${changed}" = 'true' ]; then
+            echo "diff present but peter-evans reported no PR change (branch may already be up-to-date)"
           else
-            echo "- **Release body**: updated for \`${{ steps.tag.outputs.tag }}\`"
+            echo "no diff (idempotent no-op)"
           fi
+        }
+        rel_pr=$(format_scope "${DRY_RUN}" "${REL_CHANGED}" "${REL_PR_URL}")
+        master_pr=$(format_scope "${DRY_RUN}" "${MASTER_CHANGED}" "${MASTER_PR_URL}")
+        if [ "${DRY_RUN}" = 'true' ]; then
+          release_body_line="- **Release body**: dry-run, skipped"
+        else
+          release_body_line="- **Release body**: updated for \`${TAG}\`"
+        fi
+        {
+          echo "## Release amendment for ${VERSION}"
           echo ''
-          echo 'If both PR outputs show "no diff", no new advisories matched `patched_versions == "${{ inputs.version }}"` since the last amendment run.'
+          echo "- **Rel-branch PR**: ${rel_pr}"
+          echo "- **Master PR**: ${master_pr}"
+          echo "${release_body_line}"
+          echo ''
+          echo "If both scopes show \"no diff\", no new advisories matched \`patched_versions == \"${VERSION}\"\` since the last amendment run."
         } >> "$GITHUB_STEP_SUMMARY"
