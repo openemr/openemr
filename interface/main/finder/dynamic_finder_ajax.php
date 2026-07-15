@@ -63,7 +63,7 @@ if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
 }
 // Search parameter.  -1 means .
 //
-$searchMethodInPatientList = isset($_GET['searchType' ]) && $_GET['searchType' ] === "true" ?  true : false;
+$searchMethodInPatientList = isset($_GET['searchType' ]) && $_GET['searchType' ] === "true";
 
 // Column sorting parameters.
 //

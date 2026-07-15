@@ -64,7 +64,7 @@ class TreatmentPreferenceViewCard extends CardModel
                 'btnLabel' => "Edit",
                 'btnLink' => "javascript:toggleEditMode(true);",
                 'linkMethod' => 'html',
-                'initiallyCollapsed' => $initiallyCollapsed ? true : false,
+                'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]
         ];

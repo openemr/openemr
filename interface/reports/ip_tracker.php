@@ -30,11 +30,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: IP Tracker", xl("IP Tracker"));
 }
 
-$showOnlyWithCount = !empty($_POST['showOnlyWithCount']) ? true : false;
+$showOnlyWithCount = !empty($_POST['showOnlyWithCount']);
 
-$showOnlyManuallyBlocked = !empty($_POST['showOnlyManuallyBlocked']) ? true : false;
+$showOnlyManuallyBlocked = !empty($_POST['showOnlyManuallyBlocked']);
 
-$showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
+$showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
 
 ?>
 <html>

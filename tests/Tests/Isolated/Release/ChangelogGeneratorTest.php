@@ -4,7 +4,7 @@
  * Isolated tests for OpenEMR\Release\ChangelogGenerator.
  *
  * Focus areas: the ported noise filter (isNoise/isDockerBump/
- * isNoOpVersionBump/scopeOf), section ordering, area sub-grouping,
+ * isNoOpVersionBump), section ordering, area sub-grouping,
  * developer-changes bucket, and the compareLinkOverride behaviour that
  * ChangelogMutator uses at release-prep time (aspirational vNEW URL
  * while the git-range still resolves against the rel branch).
@@ -89,26 +89,39 @@ final class ChangelogGeneratorTest extends TestCase
         self::assertStringNotContainsString('#2', $out);
     }
 
-    public function testBackportInTitleIsDropped(): void
+    public function testBackportInTitleIsKept(): void
     {
+        // Backports on a rel branch ARE the PRs that shipped in that
+        // release. The earlier filter (ported from website's stricter
+        // rules) dropped them, but that swallowed user-visible fixes
+        // like openemr/openemr#12827 / #12832 from the 8.2.0 CHANGELOG.
+        // Now kept.
         $out = $this->generate([
             $this->pr(1, 'feat: real change'),
-            $this->pr(2, 'fix(backport): patch to rel-800'),
+            $this->pr(2, 'fix(sql-upgrade): audit-logging fix (rel-820 backport for 8.2.0)'),
         ]);
         self::assertStringContainsString('#1', $out);
-        self::assertStringNotContainsString('#2', $out);
+        self::assertStringContainsString('#2', $out);
     }
 
-    public function testMachineryScopedCommitsAreDropped(): void
+    public function testReleaseMachineryScopedCommitsAreKept(): void
     {
+        // `fix(release):` / `ci(release-prep):` are internal-tooling PRs
+        // but CHANGELOG readers (devs + release engineers) benefit from
+        // seeing what changed in the release-mechanism during a given
+        // release. Docker auto-bump noise, which is what the earlier
+        // filter was actually intended to remove, is handled specifically
+        // by the DEPENDABOT branch below (isDockerBump + isNoOpVersionBump).
+        // A separately-covered `chore: release X.Y.Z` PR still gets
+        // filtered by the chore-release-cut rule tested below.
         $out = $this->generate([
             $this->pr(1, 'feat: real change'),
-            $this->pr(2, 'chore(release): bump for 8.2.1-dev'),
+            $this->pr(2, 'fix(release): scope App token to dispatch target repos'),
             $this->pr(3, 'ci(release-prep): tweak orchestrator token permissions'),
         ]);
         self::assertStringContainsString('#1', $out);
-        self::assertStringNotContainsString('#2', $out);
-        self::assertStringNotContainsString('#3', $out);
+        self::assertStringContainsString('#2', $out);
+        self::assertStringContainsString('#3', $out);
     }
 
     public function testChoreReleaseAtStartOfTitleIsDropped(): void
@@ -116,9 +129,29 @@ final class ChangelogGeneratorTest extends TestCase
         $out = $this->generate([
             $this->pr(1, 'feat: real change'),
             $this->pr(2, 'chore: release 8.2.1'),
+            $this->pr(3, 'chore(release): release v8_2_2'),
         ]);
         self::assertStringContainsString('#1', $out);
         self::assertStringNotContainsString('#2', $out);
+        self::assertStringNotContainsString('#3', $out);
+    }
+
+    public function testChoreReleaseWithoutVersionIsKept(): void
+    {
+        // The chore-release-cut filter requires a version number after
+        // "release" (see the `\s+v?\d` in the regex). Titles that use
+        // "release" as an English word rather than as the release-cut
+        // marker -- like `chore(docs): release notes update` or
+        // `chore(build): release artifacts to S3` -- must not be
+        // false-matched.
+        $out = $this->generate([
+            $this->pr(1, 'feat: real change'),
+            $this->pr(2, 'chore(docs): release notes update'),
+            $this->pr(3, 'chore(build): release artifacts to S3'),
+        ]);
+        self::assertStringContainsString('#1', $out);
+        self::assertStringContainsString('#2', $out);
+        self::assertStringContainsString('#3', $out);
     }
 
     public function testDependabotNoOpVersionBumpIsDropped(): void
@@ -322,6 +355,50 @@ final class ChangelogGeneratorTest extends TestCase
         self::assertStringContainsString('\\[phish\\](https://evil.example.com)', $out);
         self::assertStringNotContainsString('] nasty [phish](https://evil.example.com)', $out);
         self::assertStringNotContainsString('attacker.example.com', $out);
+    }
+
+    public function testAdvisoryMatchedByPatchedVersionsExactString(): void
+    {
+        $prs = [$this->pr(1, 'feat: baseline PR')];
+        $shas = ['0000000000000000000000000000000000000001'];
+        // No references linking commits/PRs; the only match signal is
+        // the exact patched_versions string. This mirrors how openemr
+        // GHSAs are published in practice (References field left empty,
+        // Patched versions set to the exact release string).
+        $advisories = [[
+            'ghsa_id' => 'GHSA-vv5j-6gjw-ffx9',
+            'severity' => 'high',
+            'summary' => 'staging of decrypted patient documents in webroot',
+            'html_url' => 'https://github.com/openemr/openemr/security/advisories/GHSA-vv5j-6gjw-ffx9',
+            'references' => [],
+            'vulnerabilities' => [['patched_versions' => '8.2.1']],
+        ]];
+        $api = new FakeGitHubApi(shas: $shas, prs: $prs, advisories: $advisories);
+        $out = (new ChangelogGenerator($api))->generate('v8_2_0', 'rel-820', '8.2.1', includeGhsa: true);
+
+        self::assertStringContainsString('### Security Fixes', $out);
+        self::assertStringContainsString('GHSA-vv5j-6gjw-ffx9', $out);
+    }
+
+    public function testAdvisoryNotMatchedWhenPatchedVersionsMismatch(): void
+    {
+        $prs = [$this->pr(1, 'feat: baseline PR')];
+        $shas = ['0000000000000000000000000000000000000001'];
+        // Advisory patches a different release; must not appear in the
+        // 8.2.1 CHANGELOG entry (matches are exact-string, not a range).
+        $advisories = [[
+            'ghsa_id' => 'GHSA-aaaa-bbbb-cccc',
+            'severity' => 'high',
+            'summary' => 'landed on a different release',
+            'html_url' => 'https://github.com/openemr/openemr/security/advisories/GHSA-aaaa-bbbb-cccc',
+            'references' => [],
+            'vulnerabilities' => [['patched_versions' => '8.1.0']],
+        ]];
+        $api = new FakeGitHubApi(shas: $shas, prs: $prs, advisories: $advisories);
+        $out = (new ChangelogGenerator($api))->generate('v8_2_0', 'rel-820', '8.2.1', includeGhsa: true);
+
+        self::assertStringNotContainsString('### Security Fixes', $out);
+        self::assertStringNotContainsString('GHSA-aaaa-bbbb-cccc', $out);
     }
 
     public function testHeadingDateComesFromInjectedClockForRerunIdempotence(): void

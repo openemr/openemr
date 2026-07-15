@@ -85,7 +85,7 @@ class SmartLaunchController
                         'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                         'id' => 'smart',
                         'forceAlwaysOpen' => false,
-                        'initiallyCollapsed' => (getUserSetting('smart') == 0) ? true : false,
+                        'initiallyCollapsed' => getUserSetting('smart') == 0,
                         'linkMethod' => "javascript",
                         'auth' => false,
                         'issuer' => $issuer,

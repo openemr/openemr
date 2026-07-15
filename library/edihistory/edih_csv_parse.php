@@ -1325,8 +1325,8 @@ function edih_271_csv_data($obj270)
                     //
                     $sar = explode($de, (string) $seg);
                     //
-                    $isrqst = (isset($sar[2]) && $sar[2] == '13') ? true : false;
-                    $isrsp = (isset($sar[2]) && $sar[2] == '11') ? true : false;
+                    $isrqst = isset($sar[2]) && $sar[2] == '13';
+                    $isrsp = isset($sar[2]) && $sar[2] == '11';
                     $loopid = 0;
                     $bnfteq = '';
                     $rej_ct = 0;

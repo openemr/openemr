@@ -79,10 +79,10 @@ $default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag:
 
 // form logic fails if not set to boolean
 if (isset($_GET['group'])) {
-    $_GET['group'] = $_GET['group'] == "true" ? true : false;
+    $_GET['group'] = $_GET['group'] == "true";
 }
 if (isset($_GET['prov'])) {
-    $_GET['prov'] = $_GET['prov'] == "true" ? true : false;
+    $_GET['prov'] = $_GET['prov'] == "true";
 }
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
 $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null) ?: null;

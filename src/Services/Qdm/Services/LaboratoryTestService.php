@@ -83,8 +83,8 @@ class LaboratoryTestService extends AbstractQdmService implements QdmServiceInte
                 'high' => new DateTime([
                     'date' => $record['date_end'] ?: null
                 ]),
-                'lowClosed' => $record['date'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false
+                'lowClosed' => (bool) $record['date'],
+                'highClosed' => (bool) $this->validDateOrNull($record['date_end'])
             ]),
             'result' => $result,
             'resultDatetime' => new DateTime([

@@ -83,18 +83,18 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $form_cb_err      = false;
         $form_cb_group_number = false;
     } else {
-        $form_cb_ssn      = (!empty($_POST['form_cb_ssn']))      ? true : false;
-        $form_cb_dob      = (!empty($_POST['form_cb_dob']))      ? true : false;
-        $form_cb_pubpid   = (!empty($_POST['form_cb_pubpid']))   ? true : false;
-        $form_cb_adate    = (!empty($_POST['form_cb_adate']))    ? true : false;
-        $form_cb_policy   = (!empty($_POST['form_cb_policy']))   ? true : false;
-        $form_cb_phone    = (!empty($_POST['form_cb_phone']))    ? true : false;
-        $form_cb_city     = (!empty($_POST['form_cb_city']))     ? true : false;
-        $form_cb_ins1     = (!empty($_POST['form_cb_ins1']))     ? true : false;
-        $form_cb_referrer = (!empty($_POST['form_cb_referrer'])) ? true : false;
-        $form_cb_idays    = (!empty($_POST['form_cb_idays']))    ? true : false;
-        $form_cb_err      = (!empty($_POST['form_cb_err']))      ? true : false;
-        $form_cb_group_number      = (!empty($_POST['form_cb_group_number']))      ? true : false;
+        $form_cb_ssn      = !empty($_POST['form_cb_ssn']);
+        $form_cb_dob      = !empty($_POST['form_cb_dob']);
+        $form_cb_pubpid   = !empty($_POST['form_cb_pubpid']);
+        $form_cb_adate    = !empty($_POST['form_cb_adate']);
+        $form_cb_policy   = !empty($_POST['form_cb_policy']);
+        $form_cb_phone    = !empty($_POST['form_cb_phone']);
+        $form_cb_city     = !empty($_POST['form_cb_city']);
+        $form_cb_ins1     = !empty($_POST['form_cb_ins1']);
+        $form_cb_referrer = !empty($_POST['form_cb_referrer']);
+        $form_cb_idays    = !empty($_POST['form_cb_idays']);
+        $form_cb_err      = !empty($_POST['form_cb_err']);
+        $form_cb_group_number      = !empty($_POST['form_cb_group_number']);
     }
 } else {
     $form_cb_ssn      = false;
@@ -172,7 +172,7 @@ if ($form_payer_id) {
 }
 
 $final_colspan = $form_cb_adate ? 6 : 5;
-$form_cb_with_debt = (!empty($_POST['form_cb_with_debt'])) ? true : false;
+$form_cb_with_debt = !empty($_POST['form_cb_with_debt']);
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
 $grand_total_paid        = 0;

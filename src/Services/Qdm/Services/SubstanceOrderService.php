@@ -42,8 +42,8 @@ class SubstanceOrderService extends AbstractCarePlanService implements QdmServic
             'high' => new DateTime([
                 'date' => $record['date_end']
             ]),
-            'lowClosed' => $record['date'] ? true : false,
-            'highClosed' => $this->validDateOrNull($record['date_end']) ? true : false,
+            'lowClosed' => (bool) $record['date'],
+            'highClosed' => (bool) $this->validDateOrNull($record['date_end']),
         ]);
 
         $model->authorDatetime = new DateTime([
