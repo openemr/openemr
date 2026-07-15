@@ -324,6 +324,50 @@ final class ChangelogGeneratorTest extends TestCase
         self::assertStringNotContainsString('attacker.example.com', $out);
     }
 
+    public function testAdvisoryMatchedByPatchedVersionsExactString(): void
+    {
+        $prs = [$this->pr(1, 'feat: baseline PR')];
+        $shas = ['0000000000000000000000000000000000000001'];
+        // No references linking commits/PRs; the only match signal is
+        // the exact patched_versions string. This mirrors how openemr
+        // GHSAs are published in practice (References field left empty,
+        // Patched versions set to the exact release string).
+        $advisories = [[
+            'ghsa_id' => 'GHSA-vv5j-6gjw-ffx9',
+            'severity' => 'high',
+            'summary' => 'staging of decrypted patient documents in webroot',
+            'html_url' => 'https://github.com/openemr/openemr/security/advisories/GHSA-vv5j-6gjw-ffx9',
+            'references' => [],
+            'vulnerabilities' => [['patched_versions' => '8.2.1']],
+        ]];
+        $api = new FakeGitHubApi(shas: $shas, prs: $prs, advisories: $advisories);
+        $out = (new ChangelogGenerator($api))->generate('v8_2_0', 'rel-820', '8.2.1', includeGhsa: true);
+
+        self::assertStringContainsString('### Security Fixes', $out);
+        self::assertStringContainsString('GHSA-vv5j-6gjw-ffx9', $out);
+    }
+
+    public function testAdvisoryNotMatchedWhenPatchedVersionsMismatch(): void
+    {
+        $prs = [$this->pr(1, 'feat: baseline PR')];
+        $shas = ['0000000000000000000000000000000000000001'];
+        // Advisory patches a different release; must not appear in the
+        // 8.2.1 CHANGELOG entry (matches are exact-string, not a range).
+        $advisories = [[
+            'ghsa_id' => 'GHSA-aaaa-bbbb-cccc',
+            'severity' => 'high',
+            'summary' => 'landed on a different release',
+            'html_url' => 'https://github.com/openemr/openemr/security/advisories/GHSA-aaaa-bbbb-cccc',
+            'references' => [],
+            'vulnerabilities' => [['patched_versions' => '8.1.0']],
+        ]];
+        $api = new FakeGitHubApi(shas: $shas, prs: $prs, advisories: $advisories);
+        $out = (new ChangelogGenerator($api))->generate('v8_2_0', 'rel-820', '8.2.1', includeGhsa: true);
+
+        self::assertStringNotContainsString('### Security Fixes', $out);
+        self::assertStringNotContainsString('GHSA-aaaa-bbbb-cccc', $out);
+    }
+
     public function testHeadingDateComesFromInjectedClockForRerunIdempotence(): void
     {
         $prs = [$this->pr(1, 'feat: something')];
