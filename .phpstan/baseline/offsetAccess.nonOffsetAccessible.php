@@ -8362,11 +8362,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/edit_diagnoses.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'abn\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
