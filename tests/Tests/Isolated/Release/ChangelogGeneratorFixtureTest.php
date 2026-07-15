@@ -2,18 +2,37 @@
 
 /**
  * Fixture-based regression: replay 8.2.0's real inputs
- * (v8_1_0...v8_2_0 range, 653 commits, 648 PRs, published GHSAs)
- * through the current ChangelogGenerator and assert the output
- * matches the locked expected section.
+ * (v8_1_0...v8_2_0 range, 653 commits, 647 PRs) through the
+ * current ChangelogGenerator and assert the output matches the
+ * locked expected section.
+ *
+ * Two scenarios are exercised via twin fixture subdirs:
+ *   * release-time/    -- simulates release-prep merge time, when the
+ *                         release's own GHSAs are still in draft and no
+ *                         published advisory patches this release.
+ *                         Rendered output has no Security section.
+ *   * post-ghsa/       -- simulates the post-GHSA-publish amendment
+ *                         dispatch, when the release's GHSAs have been
+ *                         published (each with `Patched versions` set
+ *                         to the target release string -- see
+ *                         RELEASE_PROCESS.md). Rendered output has a
+ *                         Security Fixes section listing every matching
+ *                         advisory.
+ * Both share commits.json + prs.json in the parent dir; only
+ * advisories.json + expected.md differ.
  *
  * The fixtures are captured via
  * `tools/release/bin/capture-changelog-fixture.php` from live gh
- * api state. When the generator's filter, categorization, section
- * ordering, or area sub-grouping legitimately shifts, rerun the
- * capture script AND regenerate expected.md by running this test
- * with `UPDATE_FIXTURE=1` -- it writes the current output to
- * expected.md instead of asserting. Review the diff, commit both
- * fixtures + expected.md together, done.
+ * api state. Advisories are filtered at capture time to only entries
+ * ChangelogGenerator would render at replay (patched_versions exact
+ * match on --target-version, or SHA/PR reference match). That keeps
+ * the fixture stable as unrelated GHSAs get published upstream. When
+ * the generator's filter, categorization, section ordering, or
+ * advisory rendering legitimately shifts, rerun the capture script
+ * AND regenerate expected.md by running this test with
+ * `UPDATE_FIXTURE=1` -- it writes the current output to expected.md
+ * instead of asserting. Review the diff, commit fixtures +
+ * expected.md together, done.
  *
  * Why this test complements ChangelogGeneratorTest:
  *   ChangelogGeneratorTest exercises each filter/categorization
@@ -44,11 +63,21 @@ final class ChangelogGeneratorFixtureTest extends TestCase
 {
     private const FIXTURE_DIR = __DIR__ . '/fixtures/8_2_0';
 
-    public function testRegeneratesEightPointTwoZeroFromFrozenInputs(): void
+    public function testRegeneratesEightPointTwoZeroAtReleaseTime(): void
+    {
+        $this->assertScenarioRendersExpected('release-time');
+    }
+
+    public function testRegeneratesEightPointTwoZeroPostGhsaAmendment(): void
+    {
+        $this->assertScenarioRendersExpected('post-ghsa');
+    }
+
+    private function assertScenarioRendersExpected(string $scenario): void
     {
         $commits = self::loadJson('commits.json');
         $prs = self::loadJson('prs.json');
-        $advisories = self::loadJson('advisories.json');
+        $advisories = self::loadJson($scenario . '/advisories.json');
 
         /** @var list<string> $commits */
         /** @var list<array{number: int, title: string, labels: list<array{name: string}>, url: string, author: string}> $prs */
@@ -62,20 +91,25 @@ final class ChangelogGeneratorFixtureTest extends TestCase
 
         $actual = $generator->generate('v8_1_0', 'v8_2_0', '8.2.0', includeGhsa: true);
 
+        $expectedPath = self::FIXTURE_DIR . '/' . $scenario . '/expected.md';
+
         // UPDATE_FIXTURE=1 mode: overwrite expected.md instead of
         // asserting. Use this after intentional changes to the
         // generator (filter, categorization, section ordering); review
         // the resulting expected.md diff before committing.
         if (getenv('UPDATE_FIXTURE') === '1') {
-            file_put_contents(self::FIXTURE_DIR . '/expected.md', $actual);
-            self::markTestSkipped('UPDATE_FIXTURE=1 mode: rewrote expected.md; rerun without the env var to assert');
+            file_put_contents($expectedPath, $actual);
+            self::markTestSkipped(
+                'UPDATE_FIXTURE=1 mode: rewrote ' . $scenario . '/expected.md;'
+                . ' rerun without the env var to assert',
+            );
         }
 
-        $expected = (string) file_get_contents(self::FIXTURE_DIR . '/expected.md');
+        $expected = (string) file_get_contents($expectedPath);
         self::assertSame(
             $expected,
             $actual,
-            'ChangelogGenerator output for 8.2.0 drifted from expected.md.'
+            'ChangelogGenerator output for 8.2.0 (' . $scenario . ') drifted from expected.md.'
             . ' If the change is intentional, rerun with UPDATE_FIXTURE=1'
             . ' and commit both the code change and expected.md together.',
         );

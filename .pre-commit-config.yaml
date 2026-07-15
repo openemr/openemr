@@ -35,7 +35,7 @@ exclude: |
     # generator emits a trailing blank line whose exact shape the
     # byte-identical assert relies on, so end-of-file-fixer must not
     # rewrite it. Regenerate via UPDATE_FIXTURE=1 (see the test).
-    tests/Tests/Isolated/Release/fixtures/8_2_0/expected\.md$|
+    tests/Tests/Isolated/Release/fixtures/8_2_0/(release-time|post-ghsa)/expected\.md$|
     # Vendored/generated third-party code (alphabetized)
     Documentation/EHI_Export/|
     gacl/|

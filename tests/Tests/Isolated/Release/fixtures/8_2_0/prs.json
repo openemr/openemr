@@ -7714,17 +7714,6 @@
         "url": "https://github.com/openemr/openemr/pull/12743"
     },
     {
-        "author": "openemr-release-bot[bot]",
-        "labels": [
-            {
-                "name": "auto-sync"
-            }
-        ],
-        "number": 12965,
-        "title": "ci(docker): sync byte-identical files from master to rel-820 (auto)",
-        "url": "https://github.com/openemr/openemr/pull/12965"
-    },
-    {
         "author": "bradymiller",
         "labels": [],
         "number": 12766,

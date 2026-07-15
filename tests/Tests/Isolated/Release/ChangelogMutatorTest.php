@@ -120,6 +120,90 @@ MD);
         self::assertFalse($second->changed(), 'idempotent second run reports no-op');
     }
 
+    /**
+     * The post-GHSA-publish amendment workflow re-runs the mutator
+     * against a CHANGELOG that already contains the release-time
+     * section (no Security block), this time with GHSAs published --
+     * so the mutator's generator dependency now returns a body that
+     * includes `### Security Fixes`. Assert:
+     *  1. the second run replaces the release-time section in place
+     *     (single `## [X.Y.Z]` header, now including Security block);
+     *  2. a third identical run is byte-identical to the second (no
+     *     drift, no duplication of the Security block);
+     *  3. running a fourth time with the release-time generator again
+     *     (e.g. someone accidentally dispatches with a GHSA
+     *     unpublished) cleanly *removes* the Security block --
+     *     wholesale replace, not additive.
+     * This covers the amendment workflow's idempotence in both
+     * directions (empty->populated and populated->empty).
+     */
+    public function testAmendmentReplacesSectionWholesaleAcrossReleaseTimeAndPostGhsa(): void
+    {
+        $this->git(['tag', 'v8_1_0']);
+        $this->git(['tag', 'v8_2_0']);
+        file_put_contents($this->tmpDir . '/CHANGELOG.md', "# CHANGELOG.md\n\n");
+
+        $releaseTimeBody = "## [8.2.1](https://github.com/openemr/openemr/compare/v8_2_0...v8_2_1) - 2026-07-12\n\n"
+            . "### Fixed\n\n  - some bug ([#1](https://github.com/openemr/openemr/pull/1))\n\n";
+        $postGhsaBody = "## [8.2.1](https://github.com/openemr/openemr/compare/v8_2_0...v8_2_1) - 2026-07-12\n\n"
+            . "### Security Fixes\n\n  - [High] some sec fix ([GHSA-xxxx-xxxx-xxxx](https://x))\n\n"
+            . "### Fixed\n\n  - some bug ([#1](https://github.com/openemr/openemr/pull/1))\n\n";
+
+        $gen = new SwitchableChangelogGenerator();
+        $gen->body = $releaseTimeBody;
+
+        // Run 1: release-time (no Security block).
+        $this->apply('8.2.1', relBranch: 'rel-820', generator: $gen);
+        $afterReleaseTime = (string) file_get_contents($this->tmpDir . '/CHANGELOG.md');
+        self::assertStringNotContainsString('### Security Fixes', $afterReleaseTime);
+        self::assertSame(1, substr_count($afterReleaseTime, '## [8.2.1]'));
+
+        // Run 2: post-ghsa amendment adds the Security block.
+        $gen->body = $postGhsaBody;
+        $this->apply('8.2.1', relBranch: 'rel-820', generator: $gen);
+        $afterPostGhsa = (string) file_get_contents($this->tmpDir . '/CHANGELOG.md');
+        self::assertStringContainsString('### Security Fixes', $afterPostGhsa);
+        self::assertStringContainsString('GHSA-xxxx-xxxx-xxxx', $afterPostGhsa);
+        self::assertSame(
+            1,
+            substr_count($afterPostGhsa, '## [8.2.1]'),
+            'wholesale replace: exactly one 8.2.1 section header after amendment',
+        );
+        self::assertSame(
+            1,
+            substr_count($afterPostGhsa, '### Security Fixes'),
+            'wholesale replace: exactly one Security Fixes header after amendment',
+        );
+        self::assertSame(
+            1,
+            substr_count($afterPostGhsa, '### Fixed'),
+            'wholesale replace: exactly one Fixed header after amendment',
+        );
+
+        // Run 3: identical amendment inputs -> byte-identical output.
+        $this->apply('8.2.1', relBranch: 'rel-820', generator: $gen);
+        self::assertSame(
+            $afterPostGhsa,
+            (string) file_get_contents($this->tmpDir . '/CHANGELOG.md'),
+            'rerunning amendment with same inputs is byte-identical (no drift)',
+        );
+
+        // Run 4: revert to release-time body -> Security block gone.
+        $gen->body = $releaseTimeBody;
+        $this->apply('8.2.1', relBranch: 'rel-820', generator: $gen);
+        $afterRevert = (string) file_get_contents($this->tmpDir . '/CHANGELOG.md');
+        self::assertStringNotContainsString(
+            '### Security Fixes',
+            $afterRevert,
+            'wholesale replace cleanly removes Security block when generator no longer emits one',
+        );
+        self::assertSame(
+            $afterReleaseTime,
+            $afterRevert,
+            'reverting to release-time inputs restores byte-identical original release-time output',
+        );
+    }
+
     public function testRangeHeadUsesTargetTagWhenTagExists(): void
     {
         $this->git(['tag', 'v8_1_0']);
@@ -268,6 +352,32 @@ final class StubChangelogGenerator extends ChangelogGenerator
             $base,
             $link,
         );
+    }
+}
+
+/**
+ * Mutable stub whose body can be swapped between calls -- lets tests
+ * simulate the post-GHSA-publish amendment flow (release-time body ->
+ * post-ghsa body -> back again) without spinning up the full
+ * generator machinery.
+ */
+final class SwitchableChangelogGenerator extends ChangelogGenerator
+{
+    public string $body = '';
+
+    public function __construct()
+    {
+        parent::__construct(new GitHubApi('test/test'));
+    }
+
+    public function generate(
+        string $base,
+        string $head,
+        ?string $title = null,
+        bool $includeGhsa = true,
+        ?string $compareLinkOverride = null,
+    ): string {
+        return $this->body;
     }
 }
 
