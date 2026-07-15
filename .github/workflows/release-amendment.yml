@@ -153,6 +153,34 @@ jobs:
       working-directory: rel-checkout
       run: composer install --prefer-dist --no-progress --no-interaction
 
+    # Capture the original release date from the shipped CHANGELOG's
+    # `## [X.Y.Z] - YYYY-MM-DD` heading BEFORE the mutator runs.
+    # ChangelogGenerator uses SystemClock and writes today's date into
+    # that heading on every regen -- fine at release-prep time (today
+    # IS the release date), but wrong for an amendment run weeks
+    # later. The Restore step below rewrites the heading back after
+    # the mutator finishes so the shipped release date is preserved.
+    - name: Capture original release date (rel scope)
+      id: original-date
+      working-directory: rel-checkout
+      env:
+        VERSION: ${{ inputs.version }}
+      run: |
+        escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
+        date=$(awk -v ver="${escaped_version}" '
+          $0 ~ "^## \\[" ver "\\]" {
+            match($0, /- [0-9]{4}-[0-9]{2}-[0-9]{2}$/)
+            if (RSTART > 0) print substr($0, RSTART+2, RLENGTH-2)
+            exit
+          }
+        ' CHANGELOG.md)
+        if [ -z "${date}" ]; then
+          echo "::error::could not extract original release date from ## [${VERSION}] heading in rel-checkout/CHANGELOG.md"
+          exit 1
+        fi
+        echo "date=${date}" >> "$GITHUB_OUTPUT"
+        echo "Original release date for ${VERSION} on ${{ inputs.rel_branch }}: ${date}"
+
     - name: Run release-prep mutators (rel scope)
       working-directory: rel-checkout
       env:
@@ -170,6 +198,17 @@ jobs:
           --target-version="${VERSION}" \
           --rel-branch="${REL_BRANCH}" \
           --scope=rel
+
+    # Restore the shipped release date the mutator overwrote with
+    # today's date. See "Capture original release date" step above.
+    - name: Restore original release date in heading (rel scope)
+      working-directory: rel-checkout
+      env:
+        VERSION: ${{ inputs.version }}
+        ORIGINAL_DATE: ${{ steps.original-date.outputs.date }}
+      run: |
+        escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
+        sed -i -E "s|^(## \\[${escaped_version}\\][^-]*)- [0-9]{4}-[0-9]{2}-[0-9]{2}\$|\\1- ${ORIGINAL_DATE}|" CHANGELOG.md
 
     # Capture whether the mutator produced any diff, and preview it in
     # the workflow log + step summary. Distinguishes three states in
@@ -235,6 +274,19 @@ jobs:
           --target-version="${VERSION}" \
           --rel-branch="${REL_BRANCH}" \
           --scope=master
+
+    # Master's CHANGELOG.md carries the same `## [X.Y.Z]` section as
+    # the rel-branch (written by the finalize-partner PR at ship
+    # time), so the same original release date applies. Restore it
+    # after the mutator's SystemClock overwrite for the same reason
+    # as the rel-scope restore above.
+    - name: Restore original release date in heading (master scope)
+      env:
+        VERSION: ${{ inputs.version }}
+        ORIGINAL_DATE: ${{ steps.original-date.outputs.date }}
+      run: |
+        escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
+        sed -i -E "s|^(## \\[${escaped_version}\\][^-]*)- [0-9]{4}-[0-9]{2}-[0-9]{2}\$|\\1- ${ORIGINAL_DATE}|" CHANGELOG.md
 
     - name: Capture master-scope diff
       id: master-diff
@@ -326,6 +378,37 @@ jobs:
           --repo "${{ github.repository }}" \
           --notes-file "${SECTION_PATH}"
         echo "Release body for ${TAG} updated from extracted CHANGELOG section"
+
+    # Devops's build-release.yml uploads `changelog.md` as a Release
+    # attachment (in addition to writing the same content into the
+    # body). After our amendment, the attachment would still contain
+    # the pre-amendment content -- the body and the attachment would
+    # diverge until devops re-fires. Sync the attachment here so
+    # both surfaces stay in step.
+    #
+    # A subsequent devops re-fire is safe: it uses `gh release view`
+    # before `gh release create`, so it will skip creation (and
+    # therefore not touch the body). But `gh release upload
+    # --clobber` DOES run unconditionally, so if devops re-fires it
+    # would overwrite this changelog.md attachment with the pre-
+    # amendment content extracted from the tagged CHANGELOG. The body
+    # stays amended either way; only the attachment can drift on
+    # re-fire.
+    - name: Sync changelog.md attachment on Release
+      if: ${{ !inputs.dry_run }}
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        TAG: ${{ steps.tag.outputs.tag }}
+        SECTION_PATH: ${{ steps.extract.outputs.section-path }}
+      run: |
+        # Copy to a named `changelog.md` so the attachment file name
+        # matches what devops originally uploaded (`gh release upload`
+        # uses the basename).
+        cp "${SECTION_PATH}" "${RUNNER_TEMP}/changelog.md"
+        gh release upload "${TAG}" \
+          --repo "${{ github.repository }}" \
+          --clobber \
+          "${RUNNER_TEMP}/changelog.md"
 
     - name: Summary
       env:
