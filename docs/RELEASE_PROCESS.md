@@ -115,9 +115,13 @@ Two-phase lifecycle:
 1. **Preview phase (during the `-dev` cycle).** Opened as a **draft** by `release-prep.yml`'s `prep` job on each push to the rel branch while `$v_tag == '-dev'`. Content reflects the *planned* post-ship rotation (`openemr_version_ref` points at the rel-branch tip as a preview since the annotated tag doesn't exist yet). Maintainers can preview and sanity-check the rotation shape here, but the draft state signals "not yet safe to merge."
 2. **Post-tag phase (after conductor PR merge).** The `finalize` job re-runs the master-scope mutators after creating the annotated tag, force-updates the PR body + commit with the actual just-shipped state (`openemr_version_ref` pinned to the real `v_X_Y_Z` tag), then explicitly flips the PR from draft to ready-for-review and posts a maintainer-facing signal comment ("Post-tag update applied ... ready to merge to master"). Only after this flip is the PR safe to merge.
 
+### Release-amendment PRs — `release-amendment/<version>-<rel-branch>` and `release-amendment/<version>-master` in `openemr/openemr`
+
+Opened manually via [`.github/workflows/release-amendment.yml`](../.github/workflows/release-amendment.yml) (`workflow_dispatch`) *after* a release has shipped, to pick up security advisories the maintainer published in the days/weeks after the tag. Re-runs the release-prep mutators against the shipped state on both rel-branch and master; every mutator except `ChangelogMutator` + `CompatibilityMutator` is a no-op on a post-tag checkout, so the diff is scoped to `CHANGELOG.md`'s target `## [X.Y.Z]` section — typically the newly-populated `### Security Fixes` block. The workflow also re-extracts the amended section from `CHANGELOG.md` and updates the GitHub Release body (`gh release edit --notes-file`) in the same run, so the Release notes reflect the amendment without waiting for the CHANGELOG PRs to merge. Idempotent by design (mutators + peter-evans no-op detection + strict-string-equal Release body edit): re-dispatching without new GHSAs produces empty PRs and a no-op Release edit.
+
 ## Workflow topology
 
-Three `openemr/openemr` workflows handle the release automation: two are lifecycle-event one-shots that open ready-for-review scaffolding PRs, and one is the continuous tracking + dispatch workflow that produces the drafts described above.
+Four `openemr/openemr` workflows handle the release automation: two are lifecycle-event one-shots that open ready-for-review scaffolding PRs, one is the continuous tracking + dispatch workflow that produces the drafts described above, and one is a manual-dispatch post-release amendment.
 
 ### Lifecycle-event workflows (siblings)
 
@@ -129,6 +133,10 @@ Both fire on a single event, open **two coordinated ready-for-review PRs** (rel-
 ### Continuous tracking workflow
 
 - **[`release-prep.yml`](../.github/workflows/release-prep.yml)** — fires on **every push** to a `rel-[0-9]*0` branch (also triggered on the `create`-event push and on the `patch-prep`-triggering push, so it runs alongside its siblings on both cut events). Maintains the two **draft** PRs described in "What each PR contains" above (`release-prep/<rel-branch>` + `release-finalize/<rel-branch>`), including a fresh `CHANGELOG.md` regen on every push via `ChangelogMutator` + `CompatibilityMutator`. Also emits the `openemr-rel-cut` / `openemr-rel-update` `repository_dispatch` events to `openemr/website-openemr` so the docs draft PR stays in sync. Gates internally on `version.php`'s `$v_tag == '-dev'` — pushes to a rel branch that already shipped (post-tag, `$v_tag` empty) fire the workflow but exit cleanly without touching the draft PRs, so a `$v_database` bump from a database-migration PR or any other post-ship commit doesn't produce a spurious "prep <next-patch>" PR.
+
+### Manual-dispatch amendment workflow
+
+- **[`release-amendment.yml`](../.github/workflows/release-amendment.yml)** — fires on **`workflow_dispatch` only**, invoked by the release manager after publishing security advisories in the post-ship window. Reuses the release-prep mutator entry point (`openemr:release-prep --scope=rel|master`) on a post-tag checkout: every mutator except `ChangelogMutator` + `CompatibilityMutator` is idempotent no-op against shipped state, so the diff is scoped to `CHANGELOG.md`'s target section (typically the newly-populated `### Security Fixes` block, matching the just-published GHSAs' `patched_versions == "X.Y.Z"`). Opens `release-amendment/<version>-<rel_branch>` + `release-amendment/<version>-master` PRs and re-extracts + `gh release edit`s the GitHub Release body in the same run, so all three surfaces (rel-branch CHANGELOG, master CHANGELOG, Release notes) converge without waiting for the CHANGELOG PRs to merge. Validates that the annotated tag exists before amending — refuses to amend an unshipped release.
 
 ### One-shot vs continuous — where each responsibility lives
 
