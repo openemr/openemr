@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Http;
 
+use LogicException;
 use OpenEMR\Common\Http\RequestTerminator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -21,6 +22,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RequestTerminatorIsolatedTest extends TestCase
 {
+    /**
+     * Terminators must never return, so the test double throws instead of
+     * exiting; the exception code carries the exit code it received.
+     */
+    private static function throwingTerminator(): RequestTerminator
+    {
+        return new RequestTerminator(static function (int $exitCode): never {
+            throw new LogicException('terminated', $exitCode);
+        });
+    }
+
     /**
      * @return array<string, array{int, int}>
      *
@@ -40,41 +52,19 @@ class RequestTerminatorIsolatedTest extends TestCase
     #[DataProvider('statusToExitCodeProvider')]
     public function testRespondPassesExitCodeForStatus(int $statusCode, int $expectedExitCode): void
     {
-        $received = null;
-        $terminator = new RequestTerminator(static function (int $exitCode) use (&$received): void {
-            $received = $exitCode;
-        });
-
         $this->expectOutputString('body');
-        $terminator->respond(new Response('body', $statusCode));
+        $this->expectException(LogicException::class);
+        $this->expectExceptionCode($expectedExitCode);
 
-        $this->assertSame($expectedExitCode, $received);
+        self::throwingTerminator()->respond(new Response('body', $statusCode));
     }
 
     public function testErrorSendsMessageWithStatus(): void
     {
-        $received = null;
-        $terminator = new RequestTerminator(static function (int $exitCode) use (&$received): void {
-            $received = $exitCode;
-        });
-
         $this->expectOutputString('Cannot read the fax cache.');
-        $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Cannot read the fax cache.');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionCode(1);
 
-        $this->assertSame(1, $received);
-    }
-
-    public function testControlReturnsToCallerWithInjectedTerminator(): void
-    {
-        $calls = 0;
-        $terminator = new RequestTerminator(static function (int $exitCode) use (&$calls): void {
-            $calls++;
-        });
-
-        $this->expectOutputString('firstsecond');
-        $terminator->error(Response::HTTP_BAD_REQUEST, 'first');
-        $terminator->error(Response::HTTP_BAD_REQUEST, 'second');
-
-        $this->assertSame(2, $calls);
+        self::throwingTerminator()->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Cannot read the fax cache.');
     }
 }

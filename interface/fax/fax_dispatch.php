@@ -42,16 +42,14 @@ $request = Request::createFromGlobals();
 $filesystem = new Filesystem();
 $userauthorized = $globalsBag->getInt('userauthorized');
 
-// Error paths send a real HTTP status instead of die(), then `return` at the
-// top level — which ends the request like exit() but keeps the script
-// includable (and therefore testable). The default terminator exits nonzero
-// for error statuses; tests can inject a non-exiting one.
+// Error paths send a real HTTP status instead of die(). The default
+// terminator exits nonzero for error statuses; tests can inject a
+// throwing one.
 $terminator = new RequestTerminator();
 
 $site_id = $session->get('site_id');
 if (!is_string($site_id) || $site_id === '') {
     $terminator->error(Response::HTTP_UNAUTHORIZED, "Site ID is missing from the session.");
-    return;
 }
 
 $fileParam = $request->query->getString('file');
@@ -79,7 +77,6 @@ if ($fileParam !== '') {
     $filepath = $globalsBag->getString('scanner_output_directory') . '/' . $filename;
 } else {
     $terminator->error(Response::HTTP_BAD_REQUEST, "No filename was given.");
-    return;
 }
 
 $dotPos = strrpos($filename, '.');
@@ -149,7 +146,6 @@ if ($request->request->getString('form_save') !== '') {
         $patient_id = $request->request->getInt('form_pid');
         if ($patient_id === 0) {
             $terminator->error(Response::HTTP_BAD_REQUEST, xlt('Internal error - patient ID was not provided!'));
-            return;
         }
 
         // If copying to patient documents...
@@ -298,7 +294,6 @@ if ($request->request->getString('form_save') !== '') {
                 $process = $runProcess(['convert', '-resize', '800', '-density', '96', $tmp_name, '-append', $imagepath]);
                 if (!$process->isSuccessful()) {
                     $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, "convert returned " . text($processError($process)));
-                    return;
                 }
             }
 
@@ -400,7 +395,6 @@ if ($request->request->getString('form_save') !== '') {
             $dh = opendir($faxcache);
             if (! $dh) {
                 $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
-                return;
             }
 
             $form_cb_delete = '2';
@@ -430,7 +424,6 @@ if ($request->request->getString('form_save') !== '') {
             $dh = opendir($faxcache);
             if (! $dh) {
                 $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
-                return;
             }
 
             while (($tmp = readdir($dh)) !== false) {
@@ -535,7 +528,6 @@ if (! is_dir($faxcache)) {
     $buildError = $buildFaxcache();
     if ($buildError !== '') {
         $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, $buildError);
-        return;
     }
 }
 
@@ -957,7 +949,6 @@ $userRows = QueryUtils::fetchRecords(
 $dh = opendir($faxcache);
 if (! $dh) {
     $terminator->error(Response::HTTP_INTERNAL_SERVER_ERROR, "Cannot read " . text($faxcache));
-    return;
 }
 
 $jpgarray = [];

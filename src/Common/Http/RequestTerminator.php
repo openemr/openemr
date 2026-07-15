@@ -21,19 +21,24 @@ use Symfony\Component\HttpFoundation\Response;
  * Legacy scripts end error paths with die("message"), which reports HTTP 200
  * and process exit code 0 — invisible to browsers, proxies, monitoring, and
  * anything else that reads status codes. This helper sends a real Response
- * first, then hands control to a terminator.
+ * first, then hands control to a terminator that never returns.
  *
  * The default terminator exits the process: nonzero when the response status
- * is an error (>= 400), zero otherwise. Tests inject their own closure
- * (throw or record) so request-ending code paths remain executable under
- * PHPUnit instead of killing the test runner.
+ * is an error (>= 400), zero otherwise. Tests inject a throwing closure so
+ * request-ending code paths remain executable under PHPUnit instead of
+ * killing the test runner.
+ *
+ * This class exists to retrofit legacy procedural scripts. Do not reach for
+ * it in new code — new endpoints should build and return a Response through
+ * a controller and let the front controller send it.
  */
 final readonly class RequestTerminator
 {
+    /** @var Closure(int): never */
     private Closure $terminator;
 
     /**
-     * @param (Closure(int): void)|null $terminator receives the intended
+     * @param (Closure(int): never)|null $terminator receives the intended
      *        process exit code: 1 when the response status is >= 400, else 0
      */
     public function __construct(?Closure $terminator = null)
@@ -47,12 +52,8 @@ final readonly class RequestTerminator
 
     /**
      * Send the response, then terminate the request.
-     *
-     * With the default terminator this never returns. Top-level script
-     * callers should still follow it with `return;` so control flow also
-     * ends when a test injects a non-exiting terminator.
      */
-    public function respond(Response $response): void
+    public function respond(Response $response): never
     {
         $response->send();
         ($this->terminator)((int) ($response->getStatusCode() >= 400));
@@ -61,7 +62,7 @@ final readonly class RequestTerminator
     /**
      * Convenience wrapper for the common case: an error body with status.
      */
-    public function error(int $statusCode, string $message): void
+    public function error(int $statusCode, string $message): never
     {
         $this->respond(new Response($message, $statusCode));
     }
