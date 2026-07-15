@@ -24,13 +24,48 @@ class RequestTerminatorIsolatedTest extends TestCase
 {
     /**
      * Terminators must never return, so the test double throws instead of
-     * exiting; the exception code carries the exit code it received.
+     * exiting; the exception code carries the status code it received.
      */
     private static function throwingTerminator(): RequestTerminator
     {
-        return new RequestTerminator(static function (int $exitCode): never {
-            throw new LogicException('terminated', $exitCode);
+        return new RequestTerminator(static function (int $statusCode): never {
+            throw new LogicException('terminated', $statusCode);
         });
+    }
+
+    /**
+     * @return array<string, array{int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function statusCodeProvider(): array
+    {
+        return [
+            'success' => [Response::HTTP_OK],
+            'redirect' => [Response::HTTP_FOUND],
+            'client error' => [Response::HTTP_BAD_REQUEST],
+            'unauthorized' => [Response::HTTP_UNAUTHORIZED],
+            'server error' => [Response::HTTP_INTERNAL_SERVER_ERROR],
+        ];
+    }
+
+    #[DataProvider('statusCodeProvider')]
+    public function testRespondPassesStatusCodeToTerminator(int $statusCode): void
+    {
+        $this->expectOutputString('body');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionCode($statusCode);
+
+        self::throwingTerminator()->respond(new Response('body', $statusCode));
+    }
+
+    public function testErrorSendsMessageWithStatus(): void
+    {
+        $this->expectOutputString('Cannot read the fax cache.');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+
+        self::throwingTerminator()->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Cannot read the fax cache.');
     }
 
     /**
@@ -50,21 +85,8 @@ class RequestTerminatorIsolatedTest extends TestCase
     }
 
     #[DataProvider('statusToExitCodeProvider')]
-    public function testRespondPassesExitCodeForStatus(int $statusCode, int $expectedExitCode): void
+    public function testDefaultExitCodeForStatus(int $statusCode, int $expectedExitCode): void
     {
-        $this->expectOutputString('body');
-        $this->expectException(LogicException::class);
-        $this->expectExceptionCode($expectedExitCode);
-
-        self::throwingTerminator()->respond(new Response('body', $statusCode));
-    }
-
-    public function testErrorSendsMessageWithStatus(): void
-    {
-        $this->expectOutputString('Cannot read the fax cache.');
-        $this->expectException(LogicException::class);
-        $this->expectExceptionCode(1);
-
-        self::throwingTerminator()->error(Response::HTTP_INTERNAL_SERVER_ERROR, 'Cannot read the fax cache.');
+        $this->assertSame($expectedExitCode, RequestTerminator::defaultExitCode($statusCode));
     }
 }

@@ -23,10 +23,11 @@ use Symfony\Component\HttpFoundation\Response;
  * anything else that reads status codes. This helper sends a real Response
  * first, then hands control to a terminator that never returns.
  *
- * The default terminator exits the process: nonzero when the response status
- * is a client or server error (4xx/5xx), zero otherwise. Tests inject a throwing closure so
- * request-ending code paths remain executable under PHPUnit instead of
- * killing the test runner.
+ * The terminator receives the HTTP status code of the sent response and
+ * decides how to end the request. The default exits the process: nonzero for
+ * client and server error statuses (4xx/5xx), zero otherwise. Tests inject a
+ * throwing closure so request-ending code paths remain executable under
+ * PHPUnit instead of killing the test runner.
  *
  * This class exists to retrofit legacy procedural scripts. Do not reach for
  * it in new code — new endpoints should build and return a Response through
@@ -38,16 +39,25 @@ final readonly class RequestTerminator
     private Closure $terminator;
 
     /**
-     * @param (Closure(int): never)|null $terminator receives the intended
-     *        process exit code: 1 when the response status is 4xx/5xx, else 0
+     * @param (Closure(int): never)|null $terminator receives the HTTP status
+     *        code of the sent response and must end the request
      */
     public function __construct(?Closure $terminator = null)
     {
-        $this->terminator = $terminator ?? static function (int $exitCode): never {
+        $this->terminator = $terminator ?? static function (int $statusCode): never {
             // @codeCoverageIgnoreStart -- exiting would kill the test runner
-            exit($exitCode);
+            exit(self::defaultExitCode($statusCode));
             // @codeCoverageIgnoreEnd
         };
+    }
+
+    /**
+     * The process exit code the default terminator uses for a status code:
+     * 1 for client and server errors (4xx/5xx), 0 otherwise.
+     */
+    public static function defaultExitCode(int $statusCode): int
+    {
+        return $statusCode >= Response::HTTP_BAD_REQUEST ? 1 : 0;
     }
 
     /**
@@ -56,7 +66,7 @@ final readonly class RequestTerminator
     public function respond(Response $response): never
     {
         $response->send();
-        ($this->terminator)((int) ($response->isClientError() || $response->isServerError()));
+        ($this->terminator)($response->getStatusCode());
     }
 
     /**
