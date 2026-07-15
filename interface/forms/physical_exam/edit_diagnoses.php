@@ -23,7 +23,12 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Forms\PhysicalExam\DiagnosisHelper;
 
-$line_id = $_REQUEST['lineid'];
+$line_id = DiagnosisHelper::normalizeLineId($_REQUEST['lineid'] ?? null);
+if ($line_id === null) {
+    http_response_code(400);
+    die(xlt('Invalid physical exam diagnosis line id'));
+}
+
 $info_msg = "";
 
 if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
@@ -53,7 +58,7 @@ if ($_POST['form_save']) {
     $form_diagnoses = $_POST['form_diagnosis'] ?? [];
     $form_orderings = $_POST['form_ordering'] ?? [];
     DiagnosisHelper::save(
-        is_scalar($line_id) ? (string) $line_id : '',
+        $line_id,
         is_array($form_diagnoses) ? $form_diagnoses : [],
         is_array($form_orderings) ? $form_orderings : []
     );

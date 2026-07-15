@@ -18,6 +18,20 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class DiagnosisHelper
 {
+    public static function normalizeLineId(mixed $lineId): ?string
+    {
+        if (!is_scalar($lineId)) {
+            return null;
+        }
+
+        $lineId = (string) $lineId;
+        if (trim($lineId) === '') {
+            return null;
+        }
+
+        return $lineId;
+    }
+
     /**
      * @param array<array-key, mixed> $formDiagnoses
      * @param array<array-key, mixed> $formOrderings

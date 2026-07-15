@@ -114,6 +114,19 @@ class EditDiagnosesTest extends TestCase
         );
     }
 
+    public function testNormalizeLineIdRejectsMalformedValues(): void
+    {
+        $this->assertSame(self::LINE_ID, DiagnosisHelper::normalizeLineId(self::LINE_ID));
+        $this->assertSame('0', DiagnosisHelper::normalizeLineId('0'));
+        $this->assertSame('42', DiagnosisHelper::normalizeLineId(42));
+
+        $this->assertNull(DiagnosisHelper::normalizeLineId(null));
+        $this->assertNull(DiagnosisHelper::normalizeLineId([]));
+        $this->assertNull(DiagnosisHelper::normalizeLineId(''));
+        $this->assertNull(DiagnosisHelper::normalizeLineId('   '));
+        $this->assertNull(DiagnosisHelper::normalizeLineId(false));
+    }
+
     private function renderEditor(): string
     {
         $_GET['lineid'] = self::LINE_ID;
