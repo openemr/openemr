@@ -165,7 +165,7 @@ class PatientService extends AbstractQdmService implements QdmServiceInterface
                     'date' => $record['payer_eff_date']
                 ]),
                 'high' => null, // TODO We don't have an end-date for insurance?,
-                'lowClosed' => $record['payer_eff_date'] ? true : false,
+                'lowClosed' => (bool) $record['payer_eff_date'],
                 'highClosed' => false
             ]),
             'dataElementCodes' => [

@@ -243,7 +243,7 @@ class AclExtended
 
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
-        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin" ? true : false;
+        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin";
 
         //get array of all available group ID numbers
         $parent_id = $gacl->get_root_group_id();
@@ -574,7 +574,7 @@ class AclExtended
     public static function isGroupIncludeSuperuser($aro_group_name)
     {
         $gacl = self::collectGaclApiObject();
-        return empty($gacl->search_acl('admin', 'super', false, false, $aro_group_name)) ? false : true;
+        return !empty($gacl->search_acl('admin', 'super', false, false, $aro_group_name));
     }
 
     //

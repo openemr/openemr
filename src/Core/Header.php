@@ -151,7 +151,7 @@ class Header
      */
     public static function setupAssets($assets = [], $headerMode = false, $echoOutput = true)
     {
-        self::$isHeader = $headerMode ? true : false;
+        self::$isHeader = $headerMode;
 
         try {
             if ($echoOutput) {

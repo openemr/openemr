@@ -58,7 +58,7 @@ class InsuranceViewCard extends CardModel
                 'btnLabel' => "Edit",
                 'btnLink' => "insurance_edit.php",
                 'linkMethod' => 'html',
-                'initiallyCollapsed' => $initiallyCollapsed ? true : false,
+                'initiallyCollapsed' => $initiallyCollapsed,
                 'enable_eligibility_requests' => OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests'),
                 'auth' => $authCheck
             ]
@@ -133,11 +133,11 @@ class InsuranceViewCard extends CardModel
                 ],
             ];
             $row['policy_type'] = (!empty($row['policy_type'])) ? $policy_types[$row['policy_type']] : false;
-            $row['dispFromDate'] = $row['date'] ? true : false;
+            $row['dispFromDate'] = (bool) $row['date'];
             $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
             $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
         } else {
-            $row['dispFromDate'] = $row['date'] ? true : false;
+            $row['dispFromDate'] = (bool) $row['date'];
             $row['insco'] = [
                 'name' => xl('Self-Pay'),
                 'display_name' => xl('Self-Pay'),

@@ -8,6 +8,7 @@ use OpenEMR\Rector\Rules\CatchExceptionToThrowableRector;
 use OpenEMR\Rector\Rules\OEGlobalsBagTypedGettersRector;
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
+use Rector\CodeQuality\Rector\Ternary\UnnecessaryTernaryExpressionRector;
 use Rector\CodingStyle\Rector\FuncCall\CallUserFuncArrayToVariadicRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
@@ -70,6 +71,7 @@ return RectorConfig::configure()
         CatchExceptionToThrowableRector::class,
         OEGlobalsBagTypedGettersRector::class,
         SimplifyIfElseToTernaryRector::class,
+        UnnecessaryTernaryExpressionRector::class,
     ])
     ->withPhpSets()
     ->withTypeCoverageLevel(5);

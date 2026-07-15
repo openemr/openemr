@@ -498,7 +498,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <?php
 // List the access control groups
 $is_super_user = AclMain::aclCheckCore('admin', 'super');
-$list_acl_groups = AclExtended::aclGetGroupTitleList($is_super_user ? true : false);
+$list_acl_groups = AclExtended::aclGetGroupTitleList($is_super_user);
 $default_acl_group = 'Administrators';
 foreach ($list_acl_groups as $value) {
     if ($is_super_user && $default_acl_group == $value) {
