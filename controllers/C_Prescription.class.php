@@ -120,7 +120,7 @@ class C_Prescription extends Controller
         }
     }
 
-    function default_action(): void
+    function default_action(): string
     {
         $prescription = $this->prescriptions[0];
         $this->assign("prescription", $prescription);
@@ -136,7 +136,7 @@ class C_Prescription extends Controller
             $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
         }
         $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
-        echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
+        return $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
     function edit_action($id = "", $patient_id = "")
@@ -170,7 +170,7 @@ class C_Prescription extends Controller
         $isNewPrescription = empty($this->prescriptions[0]->id);
         $this->assign("isNewPrescription", $isNewPrescription);
 
-        $this->default_action();
+        return $this->default_action();
     }
 
     function list_action($id, $sort = "", $printPrescriptionId = null)

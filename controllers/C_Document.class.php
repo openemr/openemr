@@ -424,7 +424,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $n->get_foreign_id());
     }
 
-    public function default_action()
+    public function default_action(): string
     {
         return $this->list_action();
     }
@@ -1124,7 +1124,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function list_action($patient_id = "")
+    public function list_action($patient_id = ""): string
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->_last_node = null;

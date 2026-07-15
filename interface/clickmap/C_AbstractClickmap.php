@@ -108,7 +108,7 @@ abstract class C_AbstractClickmap extends Controller
      * @brief generate an html document from the 'new form' template
      * @return string
      */
-    function default_action()
+    function default_action(): string
     {
         $model = $this->createModel();
         $this->assign("form", $model);

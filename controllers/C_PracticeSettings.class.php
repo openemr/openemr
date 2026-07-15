@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Practice Settings controller.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    OpenEMR contributors
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) OpenEMR contributors
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 use OpenEMR\Core\OEGlobalsBag;
 
 class C_PracticeSettings extends Controller
@@ -15,11 +27,11 @@ class C_PracticeSettings extends Controller
         $this->direction = (OEGlobalsBag::getInstance()->get('_SESSION')['language_direction'] == 'rtl') ? 'right' : 'left';
     }
 
-    function default_action($display = "")
+    function default_action($display = ""): string
     {
         $this->assign("display", $display);
         $this->assign("direction", $this->direction);
-        $this->display(OEGlobalsBag::getInstance()->get('template_dir') . "practice_settings/" . $this->template_mod . "_list.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "practice_settings/" . $this->template_mod . "_list.html");
     }
 
     function pharmacy_action($arg)
@@ -31,7 +43,7 @@ class C_PracticeSettings extends Controller
         $this->assign("direction", $this->direction);
         $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("Pharmacies"));
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function insurance_company_action($arg)
@@ -43,7 +55,7 @@ class C_PracticeSettings extends Controller
         $display = $c->dispatch($params);
         $this->assign("direction", $this->direction);
         $this->assign("ACTION_NAME", xl("Insurance Companies"));
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function insurance_numbers_action($arg)
@@ -55,7 +67,7 @@ class C_PracticeSettings extends Controller
         $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("Insurance Numbers"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function document_action($arg)
@@ -67,7 +79,7 @@ class C_PracticeSettings extends Controller
         $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("Documents"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function document_category_action($arg)
@@ -79,7 +91,7 @@ class C_PracticeSettings extends Controller
         $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("Documents"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function x12_partner_action($arg)
@@ -91,7 +103,7 @@ class C_PracticeSettings extends Controller
         $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("X12 Partners"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
 
@@ -104,6 +116,6 @@ class C_PracticeSettings extends Controller
         $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("HL7 Viewer"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 }
