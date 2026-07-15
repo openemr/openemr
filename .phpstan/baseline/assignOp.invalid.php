@@ -2097,11 +2097,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/Header.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between \' INSERT INTO lists…\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',

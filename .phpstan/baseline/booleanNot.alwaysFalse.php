@@ -83,16 +83,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Negated boolean expression is always false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_participants_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Negated boolean expression is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
 ];

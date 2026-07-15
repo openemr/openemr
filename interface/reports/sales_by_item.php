@@ -44,7 +44,7 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
 }
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
-    $form_details = (!empty($_POST['form_details'])) ? true : false;
+    $form_details = !empty($_POST['form_details']);
 } else {
     $form_details = false;
 }

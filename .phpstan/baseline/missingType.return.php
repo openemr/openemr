@@ -16027,11 +16027,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_function_assetsTemplate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetsTemplate.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function smarty_function_headerTemplate\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.headerTemplate.php',
@@ -21803,11 +21798,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:getFavIcon\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/Header.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:setupAssets\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/Header.php',
 ];

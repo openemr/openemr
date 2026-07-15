@@ -40,8 +40,8 @@ class AllergyIntoleranceService extends AbstractQdmService implements QdmService
             'prevalencePeriod' => new Interval([
                 'low' => $record['begdate'],
                 'high' => $record['enddate'],
-                'lowClosed' => $record['begdate'] ? true : false,
-                'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
+                'lowClosed' => (bool) $record['begdate'],
+                'highClosed' => (bool) $this->validDateOrNull($record['enddate'])
             ])
         ]);
 

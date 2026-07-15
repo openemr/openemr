@@ -54,11 +54,11 @@ function edih_disp_logfiles()
     if (isset($_GET['loglist'])) {
         // loglist: 'yes'
         $lval = filter_input(INPUT_GET, 'loglist', FILTER_UNSAFE_RAW);
-        $lst = ($lval == 'yes') ? true : false;
+        $lst = $lval == 'yes';
     } elseif (isset($_GET['archivelog'])) {
         // archivelog: 'yes'
         $lval = filter_input(INPUT_GET, 'archivelog', FILTER_UNSAFE_RAW);
-        $lst = ($lval == 'yes') ? false : true;
+        $lst = $lval != 'yes';
     } else {
         csv_edihist_log('edih_disp_logfiles: input parameter error');
         return "input parameter error<br />";
@@ -197,13 +197,13 @@ function edih_disp_file_process()
     if (isset($_GET['process_html'])) {
         // show tables for process results
         $htmval = filter_input(INPUT_GET, 'process_html', FILTER_UNSAFE_RAW);
-        $htm = ($htmval == 'htm') ? true : false;
+        $htm = $htmval == 'htm';
     }
 
     if (isset($_GET['process_err'])) {
         // show only claims with errors (denied, rejected, etc)
         $errval = filter_input(INPUT_GET, 'process_err', FILTER_UNSAFE_RAW);
-        $er = ($errval == 'err') ? true : false;
+        $er = $errval == 'err';
     }
 
     $str_html = "";

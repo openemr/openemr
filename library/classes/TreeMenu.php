@@ -125,7 +125,7 @@ class HTML_TreeMenu
             */
             case 'kriesing':
                 $className = strtolower($params['structure']->dataSourceClass::class);
-                $isXMLStruct = str_contains($className, '_xml') ? true : false;
+                $isXMLStruct = str_contains($className, '_xml');
 
                 // Get the entire tree, the $nodes are sorted like in the tree view
                 // from top to bottom, so we can easily put them in the nodes

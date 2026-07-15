@@ -551,7 +551,7 @@ if ($isModule || $isDashboard || $isPortal) {
     <!-- TODO Temporary dependencies location -->
     <?php require(__DIR__ . "/../../forms/questionnaire_assessments/lform_webcomponents.php") ?>
     <!-- Dependency scopes seem strange using the way we have to implement the necessary web components. -->
-    <?php Header::setupAssets(['select2', 'bootstrap']); ?>
+    <?php echo Header::setupAssets(['select2', 'bootstrap']); ?>
     <script>
         <?php if ($isPortal || $patientPortalOther) { ?>
         $(function () {

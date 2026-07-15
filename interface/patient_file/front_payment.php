@@ -693,7 +693,7 @@ function toencounter(enc, datestr, topframe) {
     document.onclick=HideTheAjaxDivs;
 </script>
 
-    <?php Header::setupAssets('topdialog'); ?>
+    <?php echo Header::setupAssets(['topdialog']); ?>
 
 <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
 
