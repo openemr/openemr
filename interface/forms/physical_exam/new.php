@@ -133,6 +133,11 @@ if ($request->request->getString('bn_save') !== '') {
             QueryUtils::sqlStatementThrowException('UPDATE forms SET form_id = id WHERE id = ? AND form_id = 0', [$formid]);
         }
 
+        $insert = <<<'SQL'
+        INSERT INTO form_physical_exam (forms_id, line_id, wnl, abn, diagnosis, comments)
+        VALUES (?, ?, ?, ?, ?, ?)
+        SQL;
+
         foreach ($request->request->all('form_obs') as $line_id => $line_array) {
             if (!is_array($line_array)) {
                 continue;
@@ -143,13 +148,7 @@ if ($request->request->getString('bn_save') !== '') {
             $diagnosis = scalar_string($line_array['diagnosis'] ?? null);
             $comments = scalar_string($line_array['comments'] ?? null);
             if ($wnl === '1' || $abn === '1' || $diagnosis !== '' || $comments !== '') {
-                QueryUtils::sqlStatementThrowException(
-                    <<<'SQL'
-                    INSERT INTO form_physical_exam (forms_id, line_id, wnl, abn, diagnosis, comments)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    SQL,
-                    [$formid, $line_id, $wnl, $abn, $diagnosis, $comments]
-                );
+                QueryUtils::sqlStatementThrowException($insert, [$formid, $line_id, $wnl, $abn, $diagnosis, $comments]);
             }
         }
     });
