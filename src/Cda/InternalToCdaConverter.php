@@ -1703,9 +1703,13 @@ class InternalToCdaConverter
         $index = 1;
         foreach ($medications as $med) {
             $startDate = $this->xpathValue('start_date_formatted', $med);
+            // Node renders an absent narrative date as the literal moment.js
+            // "Invalid date" string rather than a nullFlavor or blank. We mirror
+            // that certified behavior verbatim; it is a spec variation worth a
+            // follow-up issue rather than a fabricated fallback date.
             $this->appendTableRow(
                 $table,
-                [$this->xpathValue('drug', $med), '0', $startDate !== '' ? $startDate : date('Y-m-d')],
+                [$this->xpathValue('drug', $med), '0', $startDate !== '' ? $startDate : 'Invalid date'],
                 'medinfo' . $index,
             );
             $index++;
