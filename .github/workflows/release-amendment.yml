@@ -1,0 +1,481 @@
+name: Release Amendment (post-GHSA-publish CHANGELOG rerun)
+
+# Manual-dispatch workflow that re-runs the release-prep mutators
+# against a *shipped* release to pick up security advisories published
+# after the release cut. When maintainers publish the release's GHSAs
+# in the days/weeks after ship, ChangelogGenerator's patched_versions
+# matcher now finds them; this workflow re-runs the mutators so both
+# CHANGELOG.md branches (rel-* + master) and the GitHub Release body
+# reflect the newly-published Security section.
+#
+# Every release-prep mutator is idempotent, so a rerun on a post-tag
+# checkout is a no-op EXCEPT for ChangelogMutator (which regenerates
+# the section from the current advisory set). If no new advisories
+# match, peter-evans skips the PR update and the Release-body edit is
+# a byte-identical no-op.
+#
+# Convention: when publishing a GHSA for a fix that landed in a specific
+# release, set Patched versions to the exact release string (e.g.
+# `8.2.0`). ChangelogGenerator's matcher is strict-string-equal against
+# `vulnerabilities[].patched_versions`. See RELEASE_PROCESS.md's
+# Conductor PR section for the full convention.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version, MAJOR.MINOR.PATCH (e.g. 8.2.0)'
+        required: true
+        type: string
+      rel_branch:
+        description: 'Release branch (e.g. rel-820)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Dry run: preview mutations, do not open PRs or edit Release body'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+# Serialise runs for the same version so a fast second dispatch does
+# not race the first run's force-push on the amendment branches.
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  amend:
+    name: Amend CHANGELOG + Release body
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        # Match release-prep.yml: conductor tooling tracks latest stable
+        # PHP (not the application floor), only needs to parse
+        # application code not execute it.
+        php-version:
+        - '8.5'
+    steps:
+    # Root checkout is master -- the master amendment happens here.
+    # The rel-branch amendment happens in a sibling checkout at
+    # rel-checkout/. Using master as the root lets the local action
+    # reference (./.github/actions/setup-php-composer) resolve without
+    # a separate scaffolding checkout, and pins the workflow file the
+    # runner uses to whatever master's copy is at dispatch time.
+    - name: Checkout master
+      uses: actions/checkout@v7
+      with:
+        ref: master
+        fetch-depth: 0
+        persist-credentials: false
+
+    - name: Mint App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+        repositories: openemr
+        # Least-privilege: this workflow only pushes amendment branches
+        # + opens PRs + calls `gh release edit`. contents:write covers
+        # the branch push and the Release-body edit; pull-requests:write
+        # covers the peter-evans PR open/update.
+        permission-contents: write
+        permission-pull-requests: write
+
+    - name: Validate inputs
+      env:
+        VERSION: ${{ inputs.version }}
+        REL_BRANCH: ${{ inputs.rel_branch }}
+      run: |
+        if ! printf '%s' "${VERSION}" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          echo "::error::version must be MAJOR.MINOR.PATCH (got: ${VERSION})"
+          exit 1
+        fi
+        if ! printf '%s' "${REL_BRANCH}" | grep -qE '^rel-[0-9]+$'; then
+          echo "::error::rel_branch must match rel-<digits> (got: ${REL_BRANCH})"
+          exit 1
+        fi
+
+    - name: Compute tag ref
+      id: tag
+      env:
+        VERSION: ${{ inputs.version }}
+      run: |
+        # Convert MAJOR.MINOR.PATCH to v<M>_<m>_<p> annotated tag ref.
+        tag="v${VERSION//./_}"
+        echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    # --- Rel-branch amendment ------------------------------------------
+    - name: Checkout rel branch
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ inputs.rel_branch }}
+        path: rel-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        # Full history needed: ChangelogMutator resolves the prev release
+        # tag via `git tag --sort=version:refname` and walks commits
+        # between prev tag and target.
+        fetch-depth: 0
+        persist-credentials: false
+
+    # Verify the release actually shipped -- amendment only makes sense
+    # once the annotated tag exists. Guards against dispatching against
+    # a rel branch that hasn't been merged/tagged yet.
+    - name: Verify annotated tag exists on rel branch
+      working-directory: rel-checkout
+      env:
+        TAG: ${{ steps.tag.outputs.tag }}
+        REL_BRANCH: ${{ inputs.rel_branch }}
+      run: |
+        if ! git rev-parse --verify --quiet "refs/tags/${TAG}" > /dev/null; then
+          echo "::error::tag ${TAG} does not exist; is the release actually shipped?"
+          exit 1
+        fi
+        # Confirm the tag points at (or is an ancestor of) the rel branch tip.
+        tag_sha=$(git rev-parse "${TAG}^{commit}")
+        if ! git merge-base --is-ancestor "${tag_sha}" "origin/${REL_BRANCH}"; then
+          echo "::error::tag ${TAG} not reachable from ${REL_BRANCH}"
+          exit 1
+        fi
+
+    - name: Install Composer dependencies (rel)
+      working-directory: rel-checkout
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    # Capture the original release date from the shipped CHANGELOG's
+    # `## [X.Y.Z] - YYYY-MM-DD` heading BEFORE the mutator runs.
+    # ChangelogGenerator uses SystemClock and writes today's date into
+    # that heading on every regen -- fine at release-prep time (today
+    # IS the release date), but wrong for an amendment run weeks
+    # later. The Restore step below rewrites the heading back after
+    # the mutator finishes so the shipped release date is preserved.
+    - name: Capture original release date (rel scope)
+      id: original-date
+      working-directory: rel-checkout
+      env:
+        VERSION: ${{ inputs.version }}
+        REL_BRANCH: ${{ inputs.rel_branch }}
+      run: |
+        escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
+        date=$(awk -v ver="${escaped_version}" '
+          $0 ~ "^## \\[" ver "\\]" {
+            match($0, /- [0-9]{4}-[0-9]{2}-[0-9]{2}$/)
+            if (RSTART > 0) print substr($0, RSTART+2, RLENGTH-2)
+            exit
+          }
+        ' CHANGELOG.md)
+        if [ -z "${date}" ]; then
+          echo "::error::could not extract original release date from ## [${VERSION}] heading in rel-checkout/CHANGELOG.md"
+          exit 1
+        fi
+        echo "date=${date}" >> "$GITHUB_OUTPUT"
+        echo "Original release date for ${VERSION} on ${REL_BRANCH}: ${date}"
+
+    - name: Run release-prep mutators (rel scope)
+      working-directory: rel-checkout
+      env:
+        VERSION: ${{ inputs.version }}
+        REL_BRANCH: ${{ inputs.rel_branch }}
+      # All mutators except ChangelogMutator + CompatibilityMutator are
+      # already idempotent no-ops on a shipped release (version.php has
+      # $v_tag='', release-targets.yml is post-rotation, etc.). The two
+      # exceptions regenerate their CHANGELOG.md blocks against the
+      # current advisory set + compatibility state -- which is exactly
+      # the amendment we want.
+      run: |
+        php bin/console openemr:release-prep \
+          --skip-globals \
+          --target-version="${VERSION}" \
+          --rel-branch="${REL_BRANCH}" \
+          --scope=rel
+
+    # Restore the shipped release date the mutator overwrote with
+    # today's date. See "Capture original release date" step above.
+    - name: Restore original release date in heading (rel scope)
+      working-directory: rel-checkout
+      env:
+        VERSION: ${{ inputs.version }}
+        ORIGINAL_DATE: ${{ steps.original-date.outputs.date }}
+      run: |
+        escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
+        # `.*` (greedy) backtracks to satisfy the anchored ` - YYYY-MM-DD`
+        # trailer, so this matches headings with any inline content
+        # between the version tag and the trailing date -- including
+        # the compare-URL Markdown link that ChangelogGenerator emits,
+        # even if that URL ever contains hyphens.
+        sed -i -E "s|^(## \\[${escaped_version}\\].*)- [0-9]{4}-[0-9]{2}-[0-9]{2}\$|\\1- ${ORIGINAL_DATE}|" CHANGELOG.md
+        # sed doesn't error on no-match. Verify the substitution
+        # actually happened; if the heading format drifted enough that
+        # the pattern missed, the heading still holds today's date and
+        # the amendment would silently ship the wrong date.
+        if ! grep -qE "^## \\[${escaped_version}\\].*- ${ORIGINAL_DATE}\$" CHANGELOG.md; then
+          echo "::error::date restore did not apply to rel-checkout/CHANGELOG.md -- heading format may have drifted from the expected shape"
+          exit 1
+        fi
+
+    # Capture whether the mutator produced any diff, and preview it in
+    # the workflow log + step summary. Distinguishes three states in
+    # the final Summary step: dry-run skip, live-run with no diff,
+    # live-run with diff → PR opened. In dry-run mode this preview is
+    # the primary way maintainers see what the amendment would do.
+    - name: Capture rel-scope diff
+      id: rel-diff
+      working-directory: rel-checkout
+      run: |
+        if git diff --quiet; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "Rel scope: no diff (mutators idempotent no-op)."
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          {
+            echo '### Rel-scope diff (`'"${{ inputs.rel_branch }}"'`)'
+            echo ''
+            echo '```diff'
+            git diff --stat
+            echo ''
+            git diff
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Open rel-side amendment PR
+      if: ${{ !inputs.dry_run }}
+      id: rel-pr
+      uses: peter-evans/create-pull-request@v8
+      with:
+        path: rel-checkout
+        token: ${{ steps.app-token.outputs.token }}
+        branch: release-amendment/${{ inputs.version }}-${{ inputs.rel_branch }}
+        base: ${{ inputs.rel_branch }}
+        title: 'chore(release): amend ${{ inputs.version }} CHANGELOG (post-GHSA-publish)'
+        body: |
+          Post-release amendment of `CHANGELOG.md` for **${{ inputs.version }}** on `${{ inputs.rel_branch }}`.
+
+          Re-ran the release-prep mutators against the shipped release; the diff below reflects any Security advisories that were published after the release cut and now match via `vulnerabilities[].patched_versions == "${{ inputs.version }}"`.
+
+          The GitHub Release body for `${{ steps.tag.outputs.tag }}` was also updated in this workflow run to reflect the same content. If this PR is a no-op (no diff detected), the Release body was still re-synced -- safe if the two were already in sync.
+
+          > :warning: **Hand-edits to this PR do not survive a rerun.** `ChangelogMutator` wholesale-replaces the `## [${{ inputs.version }}]` section on every dispatch, so prose edits committed here (or to the amendment branch) will be wiped the next time the workflow runs. If you need tone/wording changes, either land them once and don't re-dispatch, or adjust the generator's input filters / formatter and rerun from clean. Idempotence is a hard requirement so the workflow stays safe to re-run as more GHSAs get published.
+
+          Dispatched via `.github/workflows/release-amendment.yml`. Sibling amendment PR against master is opened in the same run.
+        commit-message: 'chore(release): amend ${{ inputs.version }} CHANGELOG (post-GHSA-publish)'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        delete-branch: false
+
+    # --- Master amendment ----------------------------------------------
+    - name: Install Composer dependencies (master)
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Run release-prep mutators (master scope)
+      env:
+        VERSION: ${{ inputs.version }}
+        REL_BRANCH: ${{ inputs.rel_branch }}
+      run: |
+        php bin/console openemr:release-prep \
+          --skip-globals \
+          --target-version="${VERSION}" \
+          --rel-branch="${REL_BRANCH}" \
+          --scope=master
+
+    # Master's CHANGELOG.md carries the same `## [X.Y.Z]` section as
+    # the rel-branch (written by the finalize-partner PR at ship
+    # time), so the same original release date applies. Restore it
+    # after the mutator's SystemClock overwrite for the same reason
+    # as the rel-scope restore above.
+    - name: Restore original release date in heading (master scope)
+      env:
+        VERSION: ${{ inputs.version }}
+        ORIGINAL_DATE: ${{ steps.original-date.outputs.date }}
+      run: |
+        escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
+        sed -i -E "s|^(## \\[${escaped_version}\\].*)- [0-9]{4}-[0-9]{2}-[0-9]{2}\$|\\1- ${ORIGINAL_DATE}|" CHANGELOG.md
+        if ! grep -qE "^## \\[${escaped_version}\\].*- ${ORIGINAL_DATE}\$" CHANGELOG.md; then
+          echo "::error::date restore did not apply to master CHANGELOG.md -- heading format may have drifted from the expected shape"
+          exit 1
+        fi
+
+    - name: Capture master-scope diff
+      id: master-diff
+      run: |
+        if git diff --quiet; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "Master scope: no diff (mutators idempotent no-op)."
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          {
+            echo '### Master-scope diff'
+            echo ''
+            echo '```diff'
+            git diff --stat
+            echo ''
+            git diff
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Open master-side amendment PR
+      if: ${{ !inputs.dry_run }}
+      id: master-pr
+      uses: peter-evans/create-pull-request@v8
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        branch: release-amendment/${{ inputs.version }}-master
+        base: master
+        title: 'chore(release): amend ${{ inputs.version }} CHANGELOG on master (post-GHSA-publish)'
+        body: |
+          Post-release amendment of `CHANGELOG.md` for **${{ inputs.version }}** on `master`, mirroring the sibling rel-branch amendment PR.
+
+          Re-ran the release-prep mutators (master scope) against the shipped release; the diff reflects any Security advisories that were published after the release cut and now match `patched_versions == "${{ inputs.version }}"`.
+
+          > :warning: **Hand-edits to this PR do not survive a rerun.** Same wholesale-replace behaviour as the rel-branch sibling -- prose edits will be wiped on the next dispatch.
+
+          Dispatched via `.github/workflows/release-amendment.yml`.
+        commit-message: 'chore(release): amend ${{ inputs.version }} CHANGELOG on master (post-GHSA-publish)'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        delete-branch: false
+
+    # --- Release body sync ---------------------------------------------
+    # Extract the `## [X.Y.Z]` section from the freshly-mutated
+    # rel-branch CHANGELOG and update the GitHub Release body. The
+    # extraction runs against the in-workflow checkout -- doesn't wait
+    # for the amendment PRs to merge, so the Release body reflects the
+    # amended state immediately.
+    #
+    # If no advisories matched (rel-checkout/CHANGELOG.md unchanged from
+    # what shipped), the extracted section is byte-identical to the
+    # current Release body and gh release edit is a no-op.
+    - name: Extract amended section from rel-branch CHANGELOG
+      id: extract
+      working-directory: rel-checkout
+      env:
+        VERSION: ${{ inputs.version }}
+      run: |
+        # Match `## [X.Y.Z]` heading (with optional link markup that
+        # ChangelogGenerator emits) and take everything up to the next
+        # `## ` heading or EOF. Escape dots in the version literal so
+        # awk doesn't treat them as regex any-char.
+        escaped_version=$(printf '%s' "${VERSION}" | sed 's/\./\\./g')
+        awk -v ver="${escaped_version}" '
+          BEGIN { in_section = 0 }
+          $0 ~ "^## \\[" ver "\\]" { in_section = 1; print; next }
+          in_section && /^## / { exit }
+          in_section { print }
+        ' CHANGELOG.md > "${RUNNER_TEMP}/section.md"
+        if [ ! -s "${RUNNER_TEMP}/section.md" ]; then
+          echo "::error::extracted section is empty; CHANGELOG.md may not contain a ## [${VERSION}] heading"
+          exit 1
+        fi
+        echo "section-path=${RUNNER_TEMP}/section.md" >> "$GITHUB_OUTPUT"
+        echo "Extracted $(wc -l < "${RUNNER_TEMP}/section.md") lines from CHANGELOG.md"
+
+    - name: Update GitHub Release body
+      if: ${{ !inputs.dry_run }}
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        TAG: ${{ steps.tag.outputs.tag }}
+        SECTION_PATH: ${{ steps.extract.outputs.section-path }}
+      run: |
+        # gh release edit is idempotent -- if the extracted section
+        # matches what's already there, the API call is a no-op from
+        # the user-visible perspective. Emits an updatedAt in the JSON
+        # response either way.
+        gh release edit "${TAG}" \
+          --repo "${{ github.repository }}" \
+          --notes-file "${SECTION_PATH}"
+        echo "Release body for ${TAG} updated from extracted CHANGELOG section"
+
+    # Devops's build-release.yml uploads `changelog.md` as a Release
+    # attachment (in addition to writing the same content into the
+    # body). After our amendment, the attachment would still contain
+    # the pre-amendment content -- the body and the attachment would
+    # diverge until devops re-fires. Sync the attachment here so
+    # both surfaces stay in step.
+    #
+    # A subsequent devops re-fire is safe: it uses `gh release view`
+    # before `gh release create`, so it will skip creation (and
+    # therefore not touch the body). But `gh release upload
+    # --clobber` DOES run unconditionally, so if devops re-fires it
+    # would overwrite this changelog.md attachment with the pre-
+    # amendment content extracted from the tagged CHANGELOG. The body
+    # stays amended either way; only the attachment can drift on
+    # re-fire.
+    - name: Sync changelog.md attachment on Release
+      if: ${{ !inputs.dry_run }}
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        TAG: ${{ steps.tag.outputs.tag }}
+        SECTION_PATH: ${{ steps.extract.outputs.section-path }}
+      run: |
+        # Copy to a named `changelog.md` so the attachment file name
+        # matches what devops originally uploaded (`gh release upload`
+        # uses the basename).
+        cp "${SECTION_PATH}" "${RUNNER_TEMP}/changelog.md"
+        gh release upload "${TAG}" \
+          --repo "${{ github.repository }}" \
+          --clobber \
+          "${RUNNER_TEMP}/changelog.md"
+
+    - name: Summary
+      env:
+        VERSION: ${{ inputs.version }}
+        DRY_RUN: ${{ inputs.dry_run }}
+        TAG: ${{ steps.tag.outputs.tag }}
+        REL_PR_URL: ${{ steps.rel-pr.outputs.pull-request-url }}
+        MASTER_PR_URL: ${{ steps.master-pr.outputs.pull-request-url }}
+        REL_CHANGED: ${{ steps.rel-diff.outputs.changed }}
+        MASTER_CHANGED: ${{ steps.master-diff.outputs.changed }}
+      run: |
+        # Explicit state resolution per scope so dry-run and no-diff
+        # don't look identical in the summary:
+        #   dry-run + changed=true  -> PR would be opened (diff shown above)
+        #   dry-run + changed=false -> no amendment needed
+        #   live + changed=true     -> PR URL (peter-evans opened/updated)
+        #   live + changed=false    -> no diff (idempotent no-op)
+        # Local param names deliberately differ from the env-var names
+        # (is_dry_run vs. DRY_RUN, has_diff vs. *_CHANGED, url vs.
+        # *_PR_URL) so shellcheck's SC2153 case-confusion heuristic
+        # does not flag the env-var references as possible misspellings
+        # of the locals.
+        format_scope() {
+          local is_dry_run="$1" has_diff="$2" url="$3"
+          if [ "${is_dry_run}" = 'true' ] && [ "${has_diff}" = 'true' ]; then
+            echo "would open PR (dry run; diff previewed above)"
+          elif [ "${is_dry_run}" = 'true' ]; then
+            echo "no amendment needed (dry run; mutators produced no diff)"
+          elif [ "${has_diff}" = 'true' ] && [ -n "${url}" ]; then
+            echo "${url}"
+          elif [ "${has_diff}" = 'true' ]; then
+            echo "diff present but peter-evans reported no PR change (branch may already be up-to-date)"
+          else
+            echo "no diff (idempotent no-op)"
+          fi
+        }
+        rel_pr=$(format_scope "${DRY_RUN}" "${REL_CHANGED}" "${REL_PR_URL}")
+        master_pr=$(format_scope "${DRY_RUN}" "${MASTER_CHANGED}" "${MASTER_PR_URL}")
+        if [ "${DRY_RUN}" = 'true' ]; then
+          release_body_line="- **Release body**: dry-run, skipped"
+        else
+          release_body_line="- **Release body**: updated for \`${TAG}\`"
+        fi
+        {
+          echo "## Release amendment for ${VERSION}"
+          echo ''
+          echo "- **Rel-branch PR**: ${rel_pr}"
+          echo "- **Master PR**: ${master_pr}"
+          echo "${release_body_line}"
+          echo ''
+          echo "If both scopes show \"no diff\", no new advisories matched \`patched_versions == \"${VERSION}\"\` since the last amendment run."
+        } >> "$GITHUB_STEP_SUMMARY"
