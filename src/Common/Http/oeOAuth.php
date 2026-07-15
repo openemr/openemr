@@ -14,7 +14,6 @@ namespace OpenEMR\Common\Http;
 
 use GuzzleHttp\{
     Client,
-    ClientInterface,
     HandlerStack,
 };
 use kamermans\OAuth2\GrantType\AuthorizationCode;
