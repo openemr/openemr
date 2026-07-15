@@ -1855,18 +1855,44 @@ class InternalToCdaConverter
     }
 
     /**
-     * Set a date-bearing element to either @value (formatted) or, when the
-     * source date is absent, @nullFlavor="UNK" — matching the node service,
+     * Whether a source date/timestamp carries no usable value. The node service
+     * treats each of these as unknown and renders @nullFlavor rather than
+     * fabricating a value.
+     */
+    private function isBlankDate(string $date): bool
+    {
+        $trimmed = trim($date);
+        return $trimmed === ''
+            || $trimmed === '0000-00-00'
+            || $trimmed === '0000-00-00 00:00:00'
+            || (int) $trimmed === 0;
+    }
+
+    /**
+     * Set a date-bearing element to either @value (formatted YYYYMMDD) or, when
+     * the source date is absent, @nullFlavor="UNK" — matching the node service,
      * which never fabricates a date for unknown values.
      */
     private function setDateAttribute(DOMElement $element, string $date): void
     {
-        $trimmed = trim($date);
-        if ($trimmed === '' || $trimmed === '0000-00-00' || (int) $trimmed === 0) {
+        if ($this->isBlankDate($date)) {
             $element->setAttribute('nullFlavor', 'UNK');
             return;
         }
-        $element->setAttribute('value', $this->formatDateOnly($trimmed));
+        $element->setAttribute('value', $this->formatDateOnly($date));
+    }
+
+    /**
+     * Timestamp counterpart to setDateAttribute for elements carrying a full
+     * HL7 datetime (e.g. author/@time).
+     */
+    private function setTimestampAttribute(DOMElement $element, string $timestamp): void
+    {
+        if ($this->isBlankDate($timestamp)) {
+            $element->setAttribute('nullFlavor', 'UNK');
+            return;
+        }
+        $element->setAttribute('value', $this->formatTimestamp($timestamp));
     }
 
     private function formatDateOnly(string $input): string
@@ -6959,7 +6985,7 @@ class InternalToCdaConverter
 
         $time = $this->xpathValue('time', $sourceAuthor);
         $timeEl = $this->createElement('time');
-        $timeEl->setAttribute('value', $this->formatTimestamp($time));
+        $this->setTimestampAttribute($timeEl, $time);
         $author->appendChild($timeEl);
 
         $assignedAuthor = $this->createElement('assignedAuthor');
