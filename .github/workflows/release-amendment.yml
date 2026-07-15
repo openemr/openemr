@@ -182,6 +182,8 @@ jobs:
 
           The GitHub Release body for `${{ steps.tag.outputs.tag }}` was also updated in this workflow run to reflect the same content. If this PR is a no-op (no diff detected), the Release body was still re-synced -- safe if the two were already in sync.
 
+          > :warning: **Hand-edits to this PR do not survive a rerun.** `ChangelogMutator` wholesale-replaces the `## [${{ inputs.version }}]` section on every dispatch, so prose edits committed here (or to the amendment branch) will be wiped the next time the workflow runs. If you need tone/wording changes, either land them once and don't re-dispatch, or adjust the generator's input filters / formatter and rerun from clean. Idempotence is a hard requirement so the workflow stays safe to re-run as more GHSAs get published.
+
           Dispatched via `.github/workflows/release-amendment.yml`. Sibling amendment PR against master is opened in the same run.
         commit-message: 'chore(release): amend ${{ inputs.version }} CHANGELOG (post-GHSA-publish)'
         author: 'openemr-release-bot <release-bot@openemr.invalid>'
@@ -216,6 +218,8 @@ jobs:
           Post-release amendment of `CHANGELOG.md` for **${{ inputs.version }}** on `master`, mirroring the sibling rel-branch amendment PR.
 
           Re-ran the release-prep mutators (master scope) against the shipped release; the diff reflects any Security advisories that were published after the release cut and now match `patched_versions == "${{ inputs.version }}"`.
+
+          > :warning: **Hand-edits to this PR do not survive a rerun.** Same wholesale-replace behaviour as the rel-branch sibling -- prose edits will be wiped on the next dispatch.
 
           Dispatched via `.github/workflows/release-amendment.yml`.
         commit-message: 'chore(release): amend ${{ inputs.version }} CHANGELOG on master (post-GHSA-publish)'
