@@ -129,7 +129,7 @@ Opened manually via [`.github/workflows/release-amendment.yml`](../.github/workf
 
 ## Workflow topology
 
-Four `openemr/openemr` workflows handle the release automation: two are lifecycle-event one-shots that open ready-for-review scaffolding PRs, one is the continuous tracking + dispatch workflow that produces the drafts described above, and one is a manual-dispatch post-release amendment.
+Five `openemr/openemr` workflows handle the release automation: two are lifecycle-event one-shots that open ready-for-review scaffolding PRs, one is the continuous tracking + dispatch workflow that produces the drafts described above, one is a manual-dispatch post-release amendment, and one is a CI-gate smoke test that guards the whole family against auth/env plumbing regressions.
 
 ### Lifecycle-event workflows (siblings)
 
@@ -145,6 +145,14 @@ Both fire on a single event, open **two coordinated ready-for-review PRs** (rel-
 ### Manual-dispatch amendment workflow
 
 - **[`release-amendment.yml`](../.github/workflows/release-amendment.yml)** — fires on **`workflow_dispatch` only**, invoked by the release manager after publishing security advisories in the post-ship window. Reuses the release-prep mutator entry point (`openemr:release-prep --scope=rel|master`) on a post-tag checkout: every mutator except `ChangelogMutator` + `CompatibilityMutator` is idempotent no-op against shipped state, so the diff is scoped to `CHANGELOG.md`'s target section (typically the newly-populated `### Security Fixes` block, matching the just-published GHSAs' `patched_versions == "X.Y.Z"`). Opens `release-amendment/<version>-<rel_branch>` + `release-amendment/<version>-master` PRs and re-extracts + `gh release edit`s the GitHub Release body in the same run, so all three surfaces (rel-branch CHANGELOG, master CHANGELOG, Release notes) converge without waiting for the CHANGELOG PRs to merge. Validates that the annotated tag exists before amending — refuses to amend an unshipped release.
+
+### CI smoke test
+
+- **[`release-mechanism-smoketest.yml`](../.github/workflows/release-mechanism-smoketest.yml)** — path-gated `pull_request` + `push`-to-master workflow that runs `openemr:release-prep --scope=rel` end-to-end against `rel-820` on every change to a release-mechanism workflow YAML or PHP file. Deliberately checks out with `persist-credentials: false` and requires `GH_TOKEN` in the mutator step's env block — mirrors the strictest workflow shape (`release-amendment.yml`). Any auth/env-plumbing regression (e.g., dropping `GH_TOKEN`, flipping `persist-credentials` without keeping the token) fails the smoke test in CI before landing. Complements the isolated `ChangelogMutatorTest` + `ChangelogGeneratorFixtureTest` unit tests, which exercise the mutator LOGIC via injected fakes and never actually shell out to `gh api`; the smoke test is the only place that catches env-plumbing bugs like [openemr/openemr#12999](https://github.com/openemr/openemr/pull/12999). No side effects — smoke test discards its mutations.
+
+### Post-hardening manual step
+
+Whenever hardening `release-prep.yml`, `release-amendment.yml`, or any other release-mechanism workflow that runs `openemr:release-prep`: **verify the smoke test job (`release-mechanism-smoketest`) passes on the PR before merge.** The smoke test covers most regressions automatically. For behaviour changes that go beyond auth/env plumbing (e.g., logic changes to `finalize` job, tag-cut path, etc.), also do a manual `test: true` dispatch of `release-prep.yml` against `rel-test` — that opens a `release-prep-test/<branch>` PR whose merge produces a throwaway `-test.<sha>` tag, exercising the whole conductor path without cutting a real release.
 
 ### One-shot vs continuous — where each responsibility lives
 
