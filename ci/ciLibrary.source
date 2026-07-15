@@ -681,6 +681,7 @@ enable_coredumps() {
     # `httpd -k graceful` sends SIGUSR1 to the parent apache. The parent
     # forks fresh workers, and those inherit dumpable=1 under
     # fs.suid_dumpable=2, so subsequent segfaults leave usable cores.
+    # shellcheck disable=SC2310  # graceful restart failure is diagnostic, not fatal
     dc exec -T openemr sh -c 'httpd -k graceful' \
         || echo 'enable_coredumps: graceful restart failed; existing workers keep dumpable=0'
 }
