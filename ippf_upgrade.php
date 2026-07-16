@@ -24,7 +24,7 @@ $insert_count = 0;
 // Create a visit form from an abortion issue.  This may be called
 // multiple times for a given issue.
 //
-function do_visit_form($irow, $encounter, $first)
+function do_visit_form($irow, $encounter, $first): void
 {
     global $insert_count, $debug, $verbose;
 
@@ -39,13 +39,13 @@ function do_visit_form($irow, $encounter, $first)
         return;
     }
 
-    $a = array(
+    $a = [
     'client_status' => $irow['client_status'],
     'in_ab_proc'    => $irow['in_ab_proc'],
     'ab_location'   => $irow['ab_location'],
     'complications' => $irow['fol_compl'],
     'contrameth'    => $irow['contrameth'],
-    );
+    ];
 
   // logic that applies only to the first related visit
     if ($first) {
@@ -118,6 +118,7 @@ function do_visit_form($irow, $encounter, $first)
                 $trow = sqlQuery("SHOW CREATE DATABASE $dbase");
                 array_shift($trow);
                 $value = array_shift($trow);
+                $value = is_string($value) ? $value : '';
                 if (!preg_match('/SET utf8/', $value)) {
                     echo "<br />Converting database to UTF-8 encoding...";
                     $tres = sqlStatement("SHOW TABLES");
