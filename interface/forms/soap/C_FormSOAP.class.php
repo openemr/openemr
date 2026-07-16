@@ -32,7 +32,7 @@ class C_FormSOAP extends Controller
      * @throws \Twig\Error\SyntaxError
      * @throws \Twig\Error\LoaderError
      */
-    function default_action()
+    function default_action(): string
     {
         $form = new FormSOAP();
         return $this->twig->getTwig()->render(

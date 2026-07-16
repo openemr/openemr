@@ -39,7 +39,7 @@ class C_FormROS extends Controller
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
     }
 
-    function default_action()
+    function default_action(): string
     {
         $ros = new FormROS();
         $this->assign("form", $ros);
