@@ -54,11 +54,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRouteHandler.php',
 ];
 $ignoreErrors[] = [
