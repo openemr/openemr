@@ -1567,13 +1567,20 @@ class InternalToCdaConverter
 
         $outcome = $this->xpathValue('outcome', $allergy);
         $value = $this->output->createElement('value');
-        $this->setXsiType($value, 'CD');
-        $value->setAttribute('code', $this->cleanCode($outcomeCode));
-        if ($outcome !== '') {
-            $value->setAttribute('displayName', $outcome);
+        $cleanedOutcome = $this->cleanCode($outcomeCode);
+        if ($outcomeCode === '0' || $cleanedOutcome === '') {
+            // Node emits a nullFlavor severity value (no xsi:type) when the
+            // outcome code is the "0" sentinel rather than a real SNOMED code.
+            $value->setAttribute('nullFlavor', 'UNK');
+        } else {
+            $this->setXsiType($value, 'CD');
+            $value->setAttribute('code', $cleanedOutcome);
+            if ($outcome !== '') {
+                $value->setAttribute('displayName', $outcome);
+            }
+            $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            $value->setAttribute('codeSystemName', 'SNOMED CT');
         }
-        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-        $value->setAttribute('codeSystemName', 'SNOMED CT');
         $sevObs->appendChild($value);
 
         $entryRel->appendChild($sevObs);
@@ -1617,13 +1624,20 @@ class InternalToCdaConverter
         $this->appendStatusCode($sevObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
-        $this->setXsiType($value, 'CD');
-        $value->setAttribute('code', $this->cleanCode($outcomeCode));
-        if ($outcome !== '') {
-            $value->setAttribute('displayName', $outcome);
+        $cleanedOutcome = $this->cleanCode($outcomeCode);
+        if ($outcomeCode === '0' || $cleanedOutcome === '') {
+            // Node emits a nullFlavor severity value (no xsi:type) when the
+            // outcome code is the "0" sentinel rather than a real SNOMED code.
+            $value->setAttribute('nullFlavor', 'UNK');
+        } else {
+            $this->setXsiType($value, 'CD');
+            $value->setAttribute('code', $cleanedOutcome);
+            if ($outcome !== '') {
+                $value->setAttribute('displayName', $outcome);
+            }
+            $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            $value->setAttribute('codeSystemName', 'SNOMED CT');
         }
-        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-        $value->setAttribute('codeSystemName', 'SNOMED CT');
         $sevObs->appendChild($value);
 
         $entryRel->appendChild($sevObs);
@@ -2014,7 +2028,8 @@ class InternalToCdaConverter
             $dateOnly = $startDate !== '' ? substr(str_replace(['-', ' ', ':'], '', $startDate), 0, 10) : '';
             $formattedDate = $dateOnly !== '' ? substr($dateOnly, 0, 4) . '-' . substr($dateOnly, 4, 2) . '-' . substr($dateOnly, 6, 2) : '';
             if ($formattedDate === '') {
-                $formattedDate = date('Y-m-d');
+                // Match node's moment.js "Invalid date" narrative for unknown dates.
+                $formattedDate = 'Invalid date';
             }
 
             $tbody = $this->createElement('tbody');
@@ -3810,7 +3825,8 @@ class InternalToCdaConverter
             $date = $this->xpathValue('date', $item);
 
             $descDisplay = $description !== '' ? $description : 'No Data Available';
-            $dateDisplay = $date !== '' ? $this->formatDateForDisplay($date) : date('Y-m-d');
+            // Match node's moment.js "Invalid date" narrative for unknown dates.
+            $dateDisplay = $date !== '' ? $this->formatDateForDisplay($date) : 'Invalid date';
 
             $this->appendTableRow($table, [$element, $descDisplay, $dateDisplay], 'social' . $index);
             $index++;
@@ -4645,7 +4661,8 @@ class InternalToCdaConverter
             $tr->appendChild($this->createElement('td', $groupId));
             $tr->appendChild($this->createElement('td', $memberId));
             $tr->appendChild($this->createElement('td', $startDate));
-            $tr->appendChild($this->createElement('td', $endDate !== '' ? $endDate : date('Y-m-d')));
+            // Match node's moment.js "Invalid date" narrative for unknown dates.
+            $tr->appendChild($this->createElement('td', $endDate !== '' ? $endDate : 'Invalid date'));
             $tbody->appendChild($tr);
         }
         $table->appendChild($tbody);
