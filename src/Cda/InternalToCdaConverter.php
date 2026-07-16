@@ -132,7 +132,7 @@ class InternalToCdaConverter
 
         $createdTime = $this->xpathValue('/CCDA/created_time_timezone');
         $effectiveTime = $this->createElement('effectiveTime');
-        $effectiveTime->setAttribute('value', $this->formatTimestamp($createdTime));
+        $this->setTimestampAttribute($effectiveTime, $createdTime);
         $root->appendChild($effectiveTime);
 
         $confidentiality = $this->createElement('confidentialityCode');
@@ -441,7 +441,7 @@ class InternalToCdaConverter
 
         $createdTime = $this->xpathValue('/CCDA/created_time_timezone');
         $time = $this->createElement('time');
-        $time->setAttribute('value', $this->formatTimestamp($createdTime));
+        $this->setTimestampAttribute($time, $createdTime);
         $author->appendChild($time);
 
         $assignedAuthor = $this->createElement('assignedAuthor');
@@ -623,7 +623,7 @@ class InternalToCdaConverter
 
         $dateTime = $this->xpathValue('date_time', $participantEl);
         $time = $this->createElement('time');
-        $time->setAttribute('value', $this->formatTimestamp($dateTime));
+        $this->setTimestampAttribute($time, $dateTime);
         $participant->appendChild($time);
 
         $associatedEntity = $this->createElement('associatedEntity');
@@ -720,10 +720,10 @@ class InternalToCdaConverter
         $timeStart = $this->xpathValue('/CCDA/time_start');
         $timeEnd = $this->xpathValue('/CCDA/time_end');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatTimestamp($timeStart));
+        $this->setTimestampAttribute($low, $timeStart);
         $effectiveTime->appendChild($low);
         $high = $this->createElement('high');
-        $high->setAttribute('value', $this->formatTimestamp($timeEnd));
+        $this->setTimestampAttribute($high, $timeEnd);
         $effectiveTime->appendChild($high);
         $serviceEvent->appendChild($effectiveTime);
 
@@ -832,10 +832,10 @@ class InternalToCdaConverter
         $encounterEndDate = $this->xpathValue('/CCDA/primary_diagnosis/encounter_end_date');
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatTimestamp($encounterDate));
+        $this->setTimestampAttribute($low, $encounterDate);
         $effectiveTime->appendChild($low);
         $high = $this->createElement('high');
-        $high->setAttribute('value', $this->formatTimestamp($encounterEndDate));
+        $this->setTimestampAttribute($high, $encounterEndDate);
         $effectiveTime->appendChild($high);
         $encompassingEncounter->appendChild($effectiveTime);
 
@@ -1503,10 +1503,10 @@ class InternalToCdaConverter
         $endDate = $this->xpathValue('enddate', $allergy);
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $this->setDateAttribute($low, $startDate);
         $effectiveTime->appendChild($low);
         $high = $this->createElement('high');
-        $high->setAttribute('value', $this->formatDateOnly($endDate !== '' ? $endDate : $startDate));
+        $this->setDateAttribute($high, $endDate !== '' ? $endDate : $startDate);
         $effectiveTime->appendChild($high);
         $reactionObs->appendChild($effectiveTime);
 
@@ -2069,7 +2069,7 @@ class InternalToCdaConverter
         $startDate = $this->xpathValue('start_date', $problem);
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $this->setDateAttribute($low, $startDate);
         $effectiveTime->appendChild($low);
         $act->appendChild($effectiveTime);
 
@@ -2130,7 +2130,7 @@ class InternalToCdaConverter
         $startDate = $this->xpathValue('start_date', $problem);
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $this->setDateAttribute($low, $startDate);
         $effectiveTime->appendChild($low);
         $obs->appendChild($effectiveTime);
 
@@ -2189,7 +2189,7 @@ class InternalToCdaConverter
         $startDate = $this->xpathValue('start_date', $problem);
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $this->setDateAttribute($low, $startDate);
         $effectiveTime->appendChild($low);
         $statusObs->appendChild($effectiveTime);
 
@@ -2832,7 +2832,7 @@ class InternalToCdaConverter
 
         $date = $this->xpathValue('date', $enc);
         $effTime = $this->createElement('effectiveTime');
-        $effTime->setAttribute('value', $this->formatTimestamp($date));
+        $this->setTimestampAttribute($effTime, $date);
         $encounter->appendChild($effTime);
 
         $this->appendEncounterPerformer($encounter, $enc);
@@ -2883,7 +2883,7 @@ class InternalToCdaConverter
             if ($date !== '') {
                 $effTime = $this->createElement('effectiveTime');
                 $low = $this->createElement('low');
-                $low->setAttribute('value', $this->formatDateOnly($date));
+                $this->setDateAttribute($low, $date);
                 $effTime->appendChild($low);
                 $act->appendChild($effTime);
             }
@@ -2939,7 +2939,7 @@ class InternalToCdaConverter
         if ($date !== '') {
             $effTime = $this->createElement('effectiveTime');
             $low = $this->createElement('low');
-            $low->setAttribute('value', $this->formatDateOnly($date));
+            $this->setDateAttribute($low, $date);
             $effTime->appendChild($low);
             $obs->appendChild($effTime);
         }
@@ -3530,7 +3530,7 @@ class InternalToCdaConverter
 
         $date = $this->xpathValue('date', $vital);
         $effectiveTime = $this->createElement('effectiveTime');
-        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $this->setDateAttribute($effectiveTime, $date);
         $organizer->appendChild($effectiveTime);
 
         // Node.js service uses specific entry order matching populateVital vital_list
@@ -3703,7 +3703,7 @@ class InternalToCdaConverter
 
         $date = $this->xpathValue('date', $vital);
         $effectiveTime = $this->createElement('effectiveTime');
-        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $this->setDateAttribute($effectiveTime, $date);
         $obs->appendChild($effectiveTime);
 
         $valueEl = $this->output->createElement('value');
@@ -3857,7 +3857,7 @@ class InternalToCdaConverter
         $date = $this->xpathValue('date', $item);
         if ($date !== '') {
             $effectiveTime = $this->createElement('effectiveTime');
-            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $this->setDateAttribute($effectiveTime, $date);
             $obs->appendChild($effectiveTime);
         }
 
@@ -4138,7 +4138,7 @@ class InternalToCdaConverter
         if ($startDate !== '') {
             $effTime = $this->createElement('effectiveTime');
             $low = $this->createElement('low');
-            $low->setAttribute('value', $this->formatDateOnly($startDate));
+            $this->setDateAttribute($low, $startDate);
             $effTime->appendChild($low);
             $obs->appendChild($effTime);
         }
@@ -4193,7 +4193,7 @@ class InternalToCdaConverter
         if ($industryStartDate !== '') {
             $effTime = $this->createElement('effectiveTime');
             $low = $this->createElement('low');
-            $low->setAttribute('value', $this->formatDateOnly($industryStartDate));
+            $this->setDateAttribute($low, $industryStartDate);
             $effTime->appendChild($low);
             $obs->appendChild($effTime);
         }
@@ -4829,10 +4829,10 @@ class InternalToCdaConverter
         $timeHigh = $this->xpathValue('participant/time_high', $payer);
         $time = $this->createElement('time');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $timeLow !== '' ? $this->formatDateOnly($timeLow) : date('Ymd'));
+        $this->setDateAttribute($low, $timeLow);
         $time->appendChild($low);
         $high = $this->createElement('high');
-        $high->setAttribute('value', $timeHigh !== '' ? $this->formatDateOnly($timeHigh) : date('Ymd'));
+        $this->setDateAttribute($high, $timeHigh);
         $time->appendChild($high);
         $participant->appendChild($time);
 
@@ -4903,7 +4903,7 @@ class InternalToCdaConverter
 
             if ($birthTime !== '') {
                 $bt = $this->output->createElementNS(self::NS_SDTC, 'sdtc:birthTime');
-                $bt->setAttribute('value', $this->formatDateOnly($birthTime));
+                $this->setDateAttribute($bt, $birthTime);
                 $playingEntity->appendChild($bt);
             }
             $participantRole->appendChild($playingEntity);
@@ -5187,7 +5187,7 @@ class InternalToCdaConverter
         $startDate = $this->xpathValue('start_date', $device);
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $this->setDateAttribute($low, $startDate);
         $effectiveTime->appendChild($low);
         $procedure->appendChild($effectiveTime);
 
@@ -5373,7 +5373,7 @@ class InternalToCdaConverter
 
         $date = $this->xpathValue('date', $item);
         $effectiveTime = $this->createElement('effectiveTime');
-        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $this->setDateAttribute($effectiveTime, $date);
         $obs->appendChild($effectiveTime);
 
         // Value
@@ -5437,7 +5437,7 @@ class InternalToCdaConverter
 
         $date = $this->xpathValue('date', $item);
         $effectiveTime = $this->createElement('effectiveTime');
-        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $this->setDateAttribute($effectiveTime, $date);
         $obs->appendChild($effectiveTime);
 
         $value = $this->output->createElement('value');
@@ -5660,7 +5660,7 @@ class InternalToCdaConverter
         $date = $this->xpathValue('date', $note);
         if ($date !== '') {
             $effectiveTime = $this->createElement('effectiveTime');
-            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $this->setDateAttribute($effectiveTime, $date);
             $act->appendChild($effectiveTime);
         }
 
@@ -5741,7 +5741,7 @@ class InternalToCdaConverter
         $date = $this->xpathValue('date', $item);
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatDateOnly($date));
+        $this->setDateAttribute($low, $date);
         $effectiveTime->appendChild($low);
         $obs->appendChild($effectiveTime);
 
@@ -5914,7 +5914,7 @@ class InternalToCdaConverter
         }
         if ($date !== '') {
             $effectiveTime = $this->createElement('effectiveTime');
-            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $this->setDateAttribute($effectiveTime, $date);
             $obs->appendChild($effectiveTime);
         }
 
@@ -5977,7 +5977,7 @@ class InternalToCdaConverter
         }
         if ($date !== '') {
             $effectiveTime = $this->createElement('effectiveTime');
-            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $this->setDateAttribute($effectiveTime, $date);
             $proc->appendChild($effectiveTime);
         }
 
@@ -6027,7 +6027,7 @@ class InternalToCdaConverter
         }
         if ($date !== '') {
             $effectiveTime = $this->createElement('effectiveTime');
-            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $this->setDateAttribute($effectiveTime, $date);
             $enc->appendChild($effectiveTime);
         }
 
@@ -6064,7 +6064,7 @@ class InternalToCdaConverter
         }
         if ($date !== '') {
             $effectiveTime = $this->createElement('effectiveTime');
-            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $this->setDateAttribute($effectiveTime, $date);
             $subAdmin->appendChild($effectiveTime);
         }
 
@@ -6251,7 +6251,7 @@ class InternalToCdaConverter
 
         $date = $this->xpathValue('date', $goal);
         $effectiveTime = $this->createElement('effectiveTime');
-        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $this->setDateAttribute($effectiveTime, $date);
         $obs->appendChild($effectiveTime);
 
         // Value - ST or CD based on sdoh_code presence
@@ -6379,7 +6379,7 @@ class InternalToCdaConverter
         if ($date !== '') {
             $effectiveTime = $this->createElement('effectiveTime');
             $low = $this->createElement('low');
-            $low->setAttribute('value', $this->formatDateOnly($date));
+            $this->setDateAttribute($low, $date);
             $effectiveTime->appendChild($low);
             $act->appendChild($effectiveTime);
         }
@@ -6446,7 +6446,7 @@ class InternalToCdaConverter
         if ($date !== '') {
             $effectiveTime = $this->createElement('effectiveTime');
             $low = $this->createElement('low');
-            $low->setAttribute('value', $this->formatDateOnly($date));
+            $this->setDateAttribute($low, $date);
             $effectiveTime->appendChild($low);
             $obs->appendChild($effectiveTime);
         }
@@ -6597,7 +6597,7 @@ class InternalToCdaConverter
         }
         $effTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
-        $low->setAttribute('value', $this->formatDateOnly($effectiveDate));
+        $this->setDateAttribute($low, $effectiveDate);
         $effTime->appendChild($low);
         $high = $this->createElement('high');
         $high->setAttribute('nullFlavor', 'NA');
