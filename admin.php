@@ -77,10 +77,10 @@ function adminSqlQuery($statement, $link)
                             die("Cannot read directory '$OE_SITES_BASE'.");
                         }
 
-                        $siteslist = array();
+                        $siteslist = [];
 
                         while (false !== ($sfname = readdir($dh))) {
-                            if (substr($sfname, 0, 1) == '.') {
+                            if (str_starts_with($sfname, '.')) {
                                 continue;
                             }
 
@@ -113,6 +113,7 @@ function adminSqlQuery($statement, $link)
 
                         // Access the site's database.
                             include "$sitedir/sqlconf.php";
+                            $dbase = is_string($dbase) ? $dbase : '';
 
                             if ($config) {
                                 $dbh = mysqli_connect("$host", "$login", "$pass", $dbase, $port);
@@ -131,7 +132,7 @@ function adminSqlQuery($statement, $link)
                             } else {
                                 // Get site name for display.
                                 $row = adminSqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
-                                $openemr_name = $row ? $row['gl_value'] : '';
+                                $openemr_name = is_string($row['gl_value'] ?? null) ? $row['gl_value'] : '';
 
                                 // Get version indicators from the database.
                                 $row = adminSqlQuery("SHOW TABLES LIKE 'version'", $dbh);
