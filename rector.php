@@ -74,6 +74,12 @@ return RectorConfig::configure()
         // specify a path that works locally as well as on CI job runners
         cacheDirectory: '/tmp/rector'
     )
+    // Scan non-composer-autoloaded class directories so type inference is
+    // identical whether rector analyzes the full withPaths tree or just the
+    // filenames a pre-commit hook passes. See the comment in the neon file.
+    ->withPHPStanConfigs([
+        __DIR__ . '/.phpstan/rector-scan.neon',
+    ])
     ->withCodeQualityLevel(5)
     ->withConfiguredRule(ClassPropertyAssignToConstructorPromotionRector::class, [
         'allow_model_based_classes' => true,

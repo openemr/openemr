@@ -53,7 +53,7 @@ class Common
      *
      * @param string $glue
      * @param array $pieces
-     * @param array $funcs
+     * @param list<callable> $funcs
      * @return string
      */
     public static function implode_funcs($glue, array $pieces, array $funcs): string
