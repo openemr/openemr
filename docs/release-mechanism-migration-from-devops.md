@@ -1583,6 +1583,177 @@ to `PackageAssembler` + `PreflightChecker`. The `build-release.yml` move
 proceeds as originally sketched but from a smaller starting point in
 devops.
 
+### Announcements early-migration slice (post-changelog-surface pilot)
+
+Runs after the changelog-surface slice lands, in the same pre-Phase-2
+window. Motivated by Brady's timing observation
+(2026-07-15): announcements should fire *after* the website docs PR
+merges, not at `openemr-tag` dispatch time — the download page going
+live is the semantic "now it's really out there" moment, and putting
+the drafter in `website-openemr` makes that trigger natural (no need
+to cross-repo dispatch backwards from website → openemr just to fire
+the announcement drafter). The eventual goal is automated posting to
+each channel; parking the drafter in `website-openemr` now sets up
+the natural home for the post-drafter automation later.
+
+**Motivation vs "just wait for Phase 3 / build-release move":**
+
+The announcements workflow (`release-announcements.yml` in devops)
+consumes `openemr-tag` today and renders per-channel drafts (forum,
+chat, X, Facebook, LinkedIn, mail) into a workflow artifact for a
+maintainer to copy/paste + `oe-sender.js`-mail. Moving it during the
+umbrella `openemr-devops → openemr/openemr` migration (Phase 2+
+proper) would put it in `openemr/openemr` — but that's the wrong
+home per the semantic argument above (fires at tag time, not
+docs-shipped time). Pulling it forward as its own slice lets us
+land the trigger change (`openemr-tag` → `pull_request: closed` on
+release-docs branches) with the location change (devops → website)
+in one atomic move, rather than shipping it to openemr/openemr in
+Phase 2 and then re-locating it later.
+
+**What moves:**
+
+| From `openemr-devops` | To `openemr/website-openemr` | Notes |
+| --- | --- | --- |
+| `.github/workflows/release-announcements.yml` | `.github/workflows/release-announcements.yml` | Trigger changes -- see below |
+| `tools/release/bin/render-announcements.php` | `tools/release-docs/bin/render-announcements.php` (or nearest existing dir) | Same shape as existing `tools/release-docs/bin/` scripts |
+| `tools/release/bin/derive-announcement-inputs.php` | ditto | Adapts to read PR metadata instead of `openemr-tag` dispatch payload -- version + tag + branch come from `release-docs/<version>` head-ref parsing |
+| `tools/release/bin/render-announcement-step-summary.php` | ditto | |
+| `tools/release/src/AnnouncementRenderer.php` | `src/` | ~275-line PHP class; no cross-references to migrate |
+| `tools/release/src/AnnouncementStepSummaryRenderer.php` | `src/` | |
+| `tools/release/templates/announcements/` | `templates/announcements/` | Per-channel Twig templates |
+| `tools/release/tests/AnnouncementRendererTest.php` | `tests/` | |
+| `tools/release/tests/AnnouncementStepSummaryRendererTest.php` | `tests/` | |
+| `tools/release/tests/DeriveAnnouncementInputsCliTest.php` | `tests/` | Update fixtures if payload shape changes for the PR-metadata input path |
+
+Devops's copies retire in the last PR of the slice, once the website-
+side workflow has fired on at least one real release without
+regression.
+
+**Trigger change (the biggest design decision):**
+
+Current: `on: repository_dispatch: types: [openemr-tag]` (dispatched
+from `openemr/openemr` at annotated-tag creation time).
+
+New: `on: pull_request: types: [closed]`, filtered to
+`base_ref == 'master'` + `head_ref` matches `release-docs/*` +
+`merged == true`. The `release-docs/<version>` head-ref pattern
+carries the version natively (no parsing of dispatch payload). The
+tag / branch inputs derive from that:
+- `version` = tail of head-ref after `release-docs/`
+- `tag` = `v<major>_<minor>_<patch>` (canonical mapping)
+- `branch` = `rel-<major><minor>0` (canonical from `version`)
+
+Fallback: retain `workflow_dispatch` with the current three inputs
+(version, tag, branch) so a maintainer can re-render drafts
+manually if the PR-closed path missed or the drafts artifact was
+lost. Same shape as devops's current workflow_dispatch input list.
+
+Advantages of PR-closed trigger:
+- Fires exactly when the download page is live (docs PR merged =
+  website re-deployed by `deploy-pages.yml` = new download page
+  served)
+- Natural website-side event; no cross-repo dispatch loop
+- Idempotent by construction: PR-closed fires once per merge, so
+  the drafts artifact is produced once per shipped release
+
+**PR sequence (~5 PRs):**
+
+Modeled on the changelog-surface slice's copy → parallel-run →
+validate → retire pattern:
+
+- **PR 1** (openemr/website-openemr) — Copy `AnnouncementRenderer` +
+  `AnnouncementStepSummaryRenderer` PHP classes + their tests +
+  the `templates/announcements/` Twig templates into
+  `website-openemr` alongside the existing docs-generator tooling.
+  No workflow, no consumer -- just the source of truth for the
+  renderer. Test suite runs as pure-PHP isolated (matches the
+  existing pattern in `website-openemr/tests/`). Passes on its
+  own; devops still owns the live drafts.
+- **PR 2** (openemr/website-openemr) — Copy the bin scripts
+  (`render-announcements.php`,
+  `derive-announcement-inputs.php`,
+  `render-announcement-step-summary.php`) with the PR-metadata
+  input adaptation. Update `DeriveAnnouncementInputsCliTest`
+  fixtures. Bin scripts are runnable but no workflow invokes
+  them yet.
+- **PR 3** (openemr/website-openemr) — Add
+  `.github/workflows/release-announcements.yml` with the new
+  trigger (`pull_request: closed` on `release-docs/*` merged into
+  master). `workflow_dispatch` retained for manual reruns. First
+  live-fire happens on the next real release-docs PR merge (see
+  Testing below). Devops's workflow still fires on
+  `openemr-tag` -- parallel-run window opens here.
+- **PR 4** (openemr/openemr-devops) — Retire devops's
+  `release-announcements.yml` + the moved PHP + templates + tests.
+  Wired to land only after the website-side workflow has fired
+  cleanly on at least one real release (see Testing below).
+- **PR 5** (openemr/openemr) — Update `RELEASE_PROCESS.md`'s
+  Phase 4 announcement description + the "Runbook step 16"
+  (Announce the release) section to reference the new location +
+  trigger. Cross-link the drafts artifact URL pattern from the
+  new location. Depends on PR 4 for accuracy.
+
+Estimated 3-4 days total, most of which is PR 3's live-fire
+validation window waiting for a real docs PR merge.
+
+**Testing strategy per PR:**
+
+- **PR 1:** existing tests port cleanly (pure-PHP isolated), run
+  in website-openemr's PHPUnit config. `gen-ehi smoke` covers the
+  broader docs-gen path. If any of the copied tests depend on
+  fixtures from devops (`tests/fixtures/`), those move too.
+- **PR 2:** CLI tests validate the new input adaptation (PR-metadata
+  → announcement inputs). Fixture files updated to match the new
+  input shape. Manual smoke: run each bin script against known-
+  good inputs and byte-compare the rendered channel drafts against
+  devops's output for the same version.
+- **PR 3:** `workflow_dispatch` from the Actions tab against a
+  test release (or the next real release-docs PR). Verify the
+  workflow artifact contains the same per-channel files devops's
+  currently produces. Diff the two artifacts to confirm byte-
+  identical (or explicitly-noted divergence). Live-fire on the
+  next real docs PR merge is the acceptance test.
+- **PR 4:** the devops workflow retirement -- CI can't validate
+  the retirement itself (nothing broken by removing an unused
+  workflow), so the gate is the maintainer signal from PR 3's
+  live-fire.
+- **PR 5:** doc-only, review by eyeball against the shipped
+  workflow shape.
+
+**Blast radius (per PR):**
+
+- **PR 1 + 2:** additive on website-openemr; no consumers.
+  Risk = zero (nothing calls this code yet).
+- **PR 3:** parallel-run window. Both devops's + website's
+  workflows fire on the same release event. Risk =
+  double-drafts-produced (harmless; maintainer picks one). No
+  posting until manual copy/paste.
+- **PR 4:** retires devops. Risk = misconfigured
+  website-side workflow means no drafts get produced for the next
+  release. Mitigated by PR 3's parallel-run window catching that
+  before this PR lands.
+- **PR 5:** doc-only.
+
+**What Phase 2 (build-release move) inherits after this slice
+lands:** devops's `tools/release/` shrinks by
+`AnnouncementRenderer` + `AnnouncementStepSummaryRenderer` +
+templates + tests. Phase 2's "supporting PHP classes move with
+their tests" clause is unchanged (announcement classes never
+belonged to that list); the announcements retirement is a
+separate concern that clears devops-side surface area for the
+umbrella migration.
+
+**Deferred to a later slice (not this one):** automated *posting*
+to each channel. The current output is per-channel *drafts* in a
+workflow artifact -- posting is still manual copy/paste + a mailing-
+list sender script (`oe-sender.js` in `openemr-registration`).
+Automating the posting requires per-channel credentials + rate-
+limit handling + retry semantics; substantial scope. This slice
+only moves the drafter and changes its trigger; posting stays
+manual. Placing the drafter in `website-openemr` is the natural
+home for the future auto-post workflow to live alongside.
+
 ### Phase 2+ outlines (sketches; settle details when each phase starts)
 
 **Phase 2** — `build-release.yml` + `build-release-on-tag.yml` + `build-patch.yml`
