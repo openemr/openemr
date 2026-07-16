@@ -6789,36 +6789,6 @@ class InternalToCdaConverter
         return $nodes->length > 0 ? trim((string) $nodes->item(0)?->textContent) : '';
     }
 
-    /**
-     * Set an xsi:type attribute reusing the xsi prefix declared once on the
-     * document root. Using a literal-prefixed attribute (rather than
-     * setAttributeNS with the XSI namespace URI) prevents libxml from
-     * emitting a redundant xmlns:xsi declaration on every element that
-     * carries an xsi:type, which breaks C-CDA IG/Schematron validation.
-     */
-    /**
-     * Populate a coded element (raceCode, ethnicGroupCode, ...) with its
-     * code/displayName/codeSystem attributes, or collapse it to
-     * nullFlavor="UNK" when no code is available. The cs/CD datatypes forbid
-     * empty code/displayName values, and US Realm value-set bindings require a
-     * nullFlavor for unknowns rather than a blank code.
-     */
-    /**
-     * Append an address part element, using nullFlavor="UNK" when the value is
-     * empty. C-CDA Related Person addr requires streetAddressLine and city and,
-     * for US addresses, state and postalCode (nullFlavor when unknown).
-     */
-    private function appendAddrPart(DOMElement $addr, string $tag, string $value): void
-    {
-        if ($value === '') {
-            $part = $this->createElement($tag);
-            $part->setAttribute('nullFlavor', 'UNK');
-            $addr->appendChild($part);
-            return;
-        }
-        $addr->appendChild($this->createElement($tag, $value));
-    }
-
     private function createPersonName(
         string $family,
         string $given,
@@ -6845,6 +6815,13 @@ class InternalToCdaConverter
         return $name;
     }
 
+    /**
+     * Populate a coded element (raceCode, ethnicGroupCode, ...) with its
+     * code/displayName/codeSystem attributes, or collapse it to
+     * nullFlavor="UNK" when no code is available. The cs/CD datatypes forbid
+     * empty code/displayName values, and US Realm value-set bindings require a
+     * nullFlavor for unknowns rather than a blank code.
+     */
     private function applyCodedOrNullFlavor(
         DOMElement $el,
         string $code,
@@ -6864,6 +6841,13 @@ class InternalToCdaConverter
         $el->setAttribute('codeSystemName', $codeSystemName);
     }
 
+    /**
+     * Set an xsi:type attribute reusing the xsi prefix declared once on the
+     * document root. Using a literal-prefixed attribute (rather than
+     * setAttributeNS with the XSI namespace URI) prevents libxml from
+     * emitting a redundant xmlns:xsi declaration on every element that
+     * carries an xsi:type, which breaks C-CDA IG/Schematron validation.
+     */
     private function setXsiType(DOMElement $el, string $type): void
     {
         $el->setAttribute('xsi:type', $type);
