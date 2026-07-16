@@ -58,7 +58,7 @@ class C_FormVitals
         $this->form_id = $form_id;
     }
 
-    public function default_action()
+    public function default_action(): string
     {
         $vitalsService = new VitalsService();
         $vitalsService->setShouldConvertVitalMeasurementsFlag(false);
@@ -387,7 +387,7 @@ class C_FormVitals
         ];
         $twig = (new TwigContainer($this->template_dir, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 
-        echo $twig->render("vitals.html.twig", $data);
+        return $twig->render("vitals.html.twig", $data);
     }
 
     private function get_interpretation_list_options()
