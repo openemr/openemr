@@ -4428,20 +4428,19 @@ $GLOBALS_METADATA = [
                 '2' => xl('At the top of the page and at the foot of the page'),
                 '3' => xl('Do not display the note')
             ],
-            '0' ,                          // default = display at top of form
+            '3' ,                          // default = off
             xl('Configure where LOINC statement should be displayed')
         ],
 
         'questionnaire_display_style' => [
             xl('Questionnaire Form Display Style'),
             [
-                '0' => xl('OpenEMR Auto Select Dark/Light Themed Version'),
-                '1' => xl('LForms Project Maintained Light Version(Original)'),
-                '3' => xl('OpenEMR Light Theme Version Always'),
-                '4' => xl('OpenEMR Dark Theme Version Always'),
+                '0' => xl('OpenEMR Auto Select Dark/Light Theme'),
+                '3' => xl('OpenEMR Light Theme Always'),
+                '4' => xl('OpenEMR Dark Theme Always'),
             ],
-            '0' ,                          // default = display at top of form
-            xl('Choose OpenEMR auto select based on core theme styles(OpenEMR dark theme turns on Questionnaire dark, LForms project maintained light styles(Original) or default to always dark or light regardless of core themes.')
+            '0',
+            xl('Choose automatic theme selection or always use the light or dark Questionnaire theme.')
         ],
 
         'questionnaire_display_fullscreen' => [

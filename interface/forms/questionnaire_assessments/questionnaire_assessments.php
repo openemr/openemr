@@ -373,8 +373,6 @@ $formAction .= '&mode=' . urlencode($mode);
         action="<?php echo attr($formAction); ?>"
     >
         <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-        <input type="hidden" id="lform" name="lform" value="" />
-        <input type="hidden" id="lform_response" name="lform_response" value="" />
         <input type="hidden" id="response_id" name="response_id" value="<?php echo attr($form['response_id'] ?? ''); ?>" />
         <input type="hidden" id="response_meta" name="response_meta" value="<?php echo attr($form['response_meta'] ?? ''); ?>" />
         <input type="hidden" id="copyright" name="copyright" value="<?php echo attr($copyright); ?>" />

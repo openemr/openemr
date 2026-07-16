@@ -37,6 +37,12 @@ Since 2\\.40\\.0\\. This class will be removed in 3\\.0 without replacement\\. L
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiation of deprecated class OpenApi\\\\SourceFinder\\:
+use \\{@see Utils\\\\SourceFinder\\} instead$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Instantiation of deprecated class Ramsey\\\\Uuid\\\\Codec\\\\TimestampFirstCombCodec\\:
 Please migrate to \\{@link https\\://uuid\\.ramsey\\.dev/en/stable/rfc4122/version7\\.html Version 7, Unix Epoch Time UUIDs\\}\\.$#',
     'count' => 1,

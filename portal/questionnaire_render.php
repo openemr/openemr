@@ -116,12 +116,8 @@ $initialQuestionnaireJson = json_encode(
                 const resource = normalizeQuestionnaireJson(content);
                 const normalizedJson = JSON.stringify(resource);
                 const questionnaireField = getOpenerField('questionnaire');
-                const lformField = opener?.document?.getElementById('lform');
 
                 questionnaireField.value = normalizedJson;
-                if (lformField) {
-                    lformField.value = '';
-                }
 
                 questionnaireResource = resource;
                 questionnaireRuntime = OpenEMRQuestionnaire.mount({
