@@ -957,13 +957,21 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     HTML;
 
                 // If the form is locked, it is no longer editable
+                $hasWriteAccess = (
+                    (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
+                    or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)
+                );
                 if ($esign->isLocked()) {
                     echo "<a href='#' class='btn btn-text btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
+                    // View button for locked forms
+                    echo "<a class='btn btn-text btn-sm' " .
+                        "href='#' " .
+                        "title='" . xla('View this form') . "' " .
+                        "onclick=\"return openEncounterForm(" . attr_js($formdir) . ", " .
+                        attr_js($form_name) . ", " . attr_js($iter['form_id']) . ")\">" .
+                        xlt('View') . "</a>";
                 } else {
-                    if (
-                        (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
-                        or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)
-                    ) {
+                    if ($hasWriteAccess) {
                         echo "<a class='btn btn-text btn-sm form-edit-button btn-edit' " .
                             "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
                             "href='#' " .
@@ -971,6 +979,14 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
                             "onclick=\"return openEncounterForm(" . attr_js($formdir) . ", " .
                             attr_js($form_name) . ", " . attr_js($iter['form_id']) . ")\">";
                         echo "" . xlt('Edit') . "</a>";
+                    } else {
+                        // View button for users without write access
+                        echo "<a class='btn btn-text btn-sm' " .
+                            "href='#' " .
+                            "title='" . xla('View this form') . "' " .
+                            "onclick=\"return openEncounterForm(" . attr_js($formdir) . ", " .
+                            attr_js($form_name) . ", " . attr_js($iter['form_id']) . ")\">" .
+                            xlt('View') . "</a>";
                     }
                 }
 
