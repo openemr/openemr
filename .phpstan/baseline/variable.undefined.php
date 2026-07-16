@@ -23,7 +23,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$dbase might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../admin.php',
 ];
 $ignoreErrors[] = [
