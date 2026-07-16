@@ -162,19 +162,16 @@ class Header
      *
      * This is a private function, use Header::setupHeader() instead
      *
-     * @param array|string $assets Asset(s) to include
+     * @param string[] $assets Assets to include
      * @throws ParseException If unable to parse the config file
      * @return string
      */
-    private static function includeAsset($assets = [])
+    private static function includeAsset(array $assets = []): string
     {
-
-        if (is_string($assets)) {
-            $assets = [$assets];
-        }
-
         // Filter out any empty strings in case assets array contains them
-        $assets = array_filter($assets, static fn ($asset): bool => is_string($asset) && trim($asset) !== '');
+        $assets = array_filter($assets, is_string(...));
+        $assets = array_map(trim(...), $assets);
+        $assets = array_filter($assets, fn ($asset): bool => $asset !== '');
 
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
         $projectDir = OEGlobalsBag::getInstance()->getKernel()->getProjectDir();
