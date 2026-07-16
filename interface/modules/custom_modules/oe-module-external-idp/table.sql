@@ -1,0 +1,36 @@
+CREATE TABLE IF NOT EXISTS `module_external_idp_provider` (
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `site_id` varchar(63) NOT NULL DEFAULT 'default',
+    `display_name` varchar(128) NOT NULL DEFAULT 'External Identity Provider',
+    `issuer_url` varchar(2048) NOT NULL,
+    `client_id` varchar(512) NOT NULL,
+    `client_secret` mediumtext DEFAULT NULL,
+    `scopes` varchar(512) NOT NULL DEFAULT 'openid profile email',
+    `discovery_document` mediumtext DEFAULT NULL,
+    `discovery_fetched_at` datetime DEFAULT NULL,
+    `enabled` tinyint(1) NOT NULL DEFAULT 0,
+    `last_started_at` datetime DEFAULT NULL,
+    `last_success_at` datetime DEFAULT NULL,
+    `last_success_user_id` bigint(20) DEFAULT NULL,
+    `last_failure_at` datetime DEFAULT NULL,
+    `last_failure_message` mediumtext DEFAULT NULL,
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `site_id` (`site_id`)
+) ENGINE=InnoDB COMMENT='External OIDC provider configuration';
+
+CREATE TABLE IF NOT EXISTS `module_external_idp_identity` (
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `provider_id` bigint(20) unsigned NOT NULL,
+    `subject` varchar(512) NOT NULL,
+    `user_id` bigint(20) NOT NULL,
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `provider_subject` (`provider_id`, `subject`),
+    UNIQUE KEY `provider_user` (`provider_id`, `user_id`),
+    CONSTRAINT `module_external_idp_identity_provider_fk`
+        FOREIGN KEY (`provider_id`) REFERENCES `module_external_idp_provider` (`id`) ON DELETE CASCADE,
+    KEY `user_id` (`user_id`)
+) ENGINE=InnoDB COMMENT='External OIDC subject to OpenEMR user bindings';

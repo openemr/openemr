@@ -23,6 +23,7 @@ require_once('../globals.php');
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\ExternalAuthenticationService;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
@@ -140,7 +141,14 @@ function generate_html_end()
     return 0;
 }
 
-if (isset($_POST['new_login_session_management'])) {
+function get_login_auth_action(): string
+{
+    $auth = ExternalAuthenticationService::hasPendingAuthentication() ? 'external' : 'login';
+    return 'main_screen.php?auth=' . $auth . '&site=' . attr_url($_GET['site'] ?? '');
+}
+
+$isNewLogin = isset($_POST['new_login_session_management']) || ExternalAuthenticationService::hasPendingAuthentication();
+if ($isNewLogin) {
 ///////////////////////////////////////////////////////////////////////
 // Begin code to support U2F and APP Based TOTP logic.
 ///////////////////////////////////////////////////////////////////////
@@ -319,7 +327,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 echo '<div class="row">';
                 echo '  <div class="col-sm-12">';
-                echo '      <form method="post" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top" name="challenge_form" id="challenge_form">';
+                echo '      <form method="post" action="' . get_login_auth_action() . '" target="_top" name="challenge_form" id="challenge_form">';
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Provide TOTP code') . '</legend>';
                 echo '                  <div class="form-group">';
@@ -360,7 +368,7 @@ if (isset($_POST['new_login_session_management'])) {
                 }
                 echo '<div class="row">';
                 echo '  <div class="col-sm-12">';
-                echo '          <form method="post" name="u2fform" id="u2fform" action="main_screen.php?auth=login&site=' . attr_url($_GET['site']) . '" target="_top">';
+                echo '          <form method="post" name="u2fform" id="u2fform" action="' . get_login_auth_action() . '" target="_top">';
                 echo '              <fieldset>';
                 echo '                  <legend>' . xlt('Insert U2F Key') . '</legend>';
                 echo '                  <div class="form-group">';
@@ -402,10 +410,12 @@ if (isset($_POST['new_login_session_management'])) {
     // This is a new login, so create a new session id and remove the old session
     $session->migrate(true);
     // Also need to delete clearPass from memory
-    if (function_exists('sodium_memzero')) {
-        sodium_memzero($_POST["clearPass"]);
-    } else {
-        $_POST["clearPass"] = '';
+    if (isset($_POST['clearPass'])) {
+        if (function_exists('sodium_memzero')) {
+            sodium_memzero($_POST['clearPass']);
+        } else {
+            $_POST['clearPass'] = '';
+        }
     }
     // Set up the csrf private_key
     //  Note this key always remains private and never leaves server session. It is used to create
@@ -425,7 +435,7 @@ SessionTracker::setupSessionDatabaseTracker();
 $session->set("encounter", '');
 
 if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
-    $facility_id = $_POST['facility'];
+    $facility_id = $_POST['facility'] ?? ExternalAuthenticationService::getLoginOption('facility') ?? 'user_default';
     if ($facility_id === 'user_default') {
         //get the default facility of login user from users table
         $facilityService = new FacilityService();
@@ -498,13 +508,15 @@ if ($is_expired) {
 // Will set Session variables to communicate settings to tab layout
 $session->set('default_open_tabs', $_tabs);
 // mdsupport - Apps processing invoked for valid app selections from list
-if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
-    $session->set('app1', $_POST['appChoice']);
+$appChoice = $_POST['appChoice'] ?? ExternalAuthenticationService::getLoginOption('appChoice');
+if (($appChoice !== null) && ($appChoice !== '*OpenEMR')) {
+    $session->set('app1', $appChoice);
 }
 
 // Pass a unique token, so main.php script can not be run on its own
 $tokenMainPhp = RandomGenUtils::createUniqueToken();
 $session->set('token_main_php', $tokenMainPhp);
+ExternalAuthenticationService::clearPendingAuthentication();
 header('Location: ' . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/main.php?token_main=" . urlencode($tokenMainPhp));
 exit();
 ?>

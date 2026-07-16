@@ -40,11 +40,51 @@ and semantic choices
         document.addEventListener('DOMContentLoaded', function () {
             const passInput = document.getElementById('clearPass');
             const toggle = document.getElementById('password-icon');
-            toggle.addEventListener('click', function () {
-                const isPassword = passInput.getAttribute('type') === 'password';
-                passInput.setAttribute('type', isPassword ? 'text' : 'password');
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
+            if (toggle && passInput) {
+                toggle.addEventListener('click', function () {
+                    const isPassword = passInput.getAttribute('type') === 'password';
+                    passInput.setAttribute('type', isPassword ? 'text' : 'password');
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+
+            document.querySelectorAll('a[data-external-authentication-provider]').forEach(function (anchor) {
+                anchor.addEventListener('click', function (event) {
+                    const loginForm = document.getElementById('login_form');
+                    if (!loginForm) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    const url = new URL(anchor.getAttribute('href'), window.location.href);
+                    const siteId = anchor.getAttribute('data-site-id') || loginForm.dataset.siteId || '';
+                    const languageSelect = loginForm.querySelector('select[name="languageChoice"]');
+                    const languageInput = loginForm.querySelector('input[name="languageChoice"]');
+                    const facilitySelect = loginForm.querySelector('select[name="facility"]');
+                    const appChoiceInput = loginForm.querySelector('input[name="appChoice"], select[name="appChoice"]');
+
+                    if (siteId) {
+                        url.searchParams.set('site', siteId);
+                    }
+                    if (languageSelect && languageSelect.value) {
+                        url.searchParams.set('languageChoice', languageSelect.value);
+                    } else if (languageInput && languageInput.value) {
+                        url.searchParams.set('languageChoice', languageInput.value);
+                    }
+                    if (facilitySelect && facilitySelect.value) {
+                        url.searchParams.set('facility', facilitySelect.value);
+                    }
+                    if (appChoiceInput && appChoiceInput.value) {
+                        url.searchParams.set('appChoice', appChoiceInput.value);
+                    }
+                    if (passInput) {
+                        passInput.value = '';
+                    }
+
+                    window.top.location.href = url.toString();
+                });
             });
         });
     </script>
