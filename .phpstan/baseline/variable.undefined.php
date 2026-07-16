@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$dbase might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$host might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../admin.php',

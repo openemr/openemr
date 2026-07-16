@@ -113,7 +113,7 @@ function adminSqlQuery($statement, $link)
 
                         // Access the site's database.
                             include "$sitedir/sqlconf.php";
-                            $dbase = is_string($dbase) ? $dbase : '';
+                            $dbase = is_string($dbase ?? null) ? $dbase : '';
 
                             if ($config) {
                                 $dbh = mysqli_connect("$host", "$login", "$pass", $dbase, $port);
