@@ -9,6 +9,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use Symfony\Component\HttpFoundation\Request;
+
 $mode = 'update';
-$form_id = $_GET['id'] ?? 0;
+$request = Request::createFromGlobals();
+$form_id = $request->query->getInt('id');
 require("questionnaire_assessments.php");
