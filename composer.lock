@@ -424,16 +424,16 @@
         },
         {
             "name": "claimrevolution/oe-module-claimrev-connect",
-            "version": "v2.1.6",
+            "version": "v2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/claimrevolution/oe-module-claimrev-connect.git",
-                "reference": "978b0dd498e0e166992259926d6fa77bf56266d4"
+                "reference": "e819dd8f89dc43392fe1f78dfd01bf537a01e8e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/claimrevolution/oe-module-claimrev-connect/zipball/978b0dd498e0e166992259926d6fa77bf56266d4",
-                "reference": "978b0dd498e0e166992259926d6fa77bf56266d4",
+                "url": "https://api.github.com/repos/claimrevolution/oe-module-claimrev-connect/zipball/e819dd8f89dc43392fe1f78dfd01bf537a01e8e3",
+                "reference": "e819dd8f89dc43392fe1f78dfd01bf537a01e8e3",
                 "shasum": ""
             },
             "require": {
@@ -468,9 +468,9 @@
             ],
             "support": {
                 "issues": "https://github.com/claimrevolution/oe-module-claimrev-connect/issues",
-                "source": "https://github.com/claimrevolution/oe-module-claimrev-connect/tree/v2.1.6"
+                "source": "https://github.com/claimrevolution/oe-module-claimrev-connect/tree/v2.1.7"
             },
-            "time": "2026-06-23T16:07:14+00:00"
+            "time": "2026-07-08T22:43:03+00:00"
         },
         {
             "name": "clue/stream-filter",
