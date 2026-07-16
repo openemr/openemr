@@ -7111,6 +7111,10 @@ class InternalToCdaConverter
         if ($fname !== '') {
             $name->appendChild($this->createElement('given', $fname));
         }
+        // Node nullFlavors a nameless author rather than emitting an empty <name/>.
+        if ($lname === '' && $fname === '') {
+            $name->setAttribute('nullFlavor', 'UNK');
+        }
         $assignedPerson->appendChild($name);
         $assignedAuthor->appendChild($assignedPerson);
 
