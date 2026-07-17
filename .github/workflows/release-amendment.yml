@@ -295,15 +295,27 @@ jobs:
     # advisories) can exceed that; the changelog.md attachment has no
     # such limit and always carries the full section. When the section
     # is too big for the body, substitute a short pointer that links
-    # back to CHANGELOG.md on the tag + the attachment on this Release.
-    # Otherwise the body carries the full section (unchanged from the
-    # historical single-file behaviour).
+    # back to the rel branch's CHANGELOG.md (live source that keeps
+    # receiving future patch entries) at the version-specific anchor,
+    # plus the attachment on this Release. Otherwise the body carries
+    # the full section (unchanged from the historical single-file
+    # behaviour).
+    #
+    # Anchor construction mirrors GitHub's markdown-heading slug
+    # algorithm on `## [X.Y.Z] - YYYY-MM-DD`: strip brackets + dots
+    # from the version, join to the ISO date with `---`. Example:
+    # `[8.2.0] - 2026-07-08` -> `820---2026-07-08`.
+    #
+    # Rel-branch (not tag) so future patch releases stay linkable
+    # from the same URL — new patch sections land above older ones on
+    # the same file. Tag URLs freeze the pre-patch snapshot.
     - name: Prepare Release body (truncate if over 125K limit)
       id: body
       env:
         SECTION_PATH: ${{ steps.extract.outputs.section-path }}
         VERSION: ${{ inputs.version }}
-        TAG: ${{ steps.tag.outputs.tag }}
+        REL_BRANCH: ${{ inputs.rel_branch }}
+        ORIGINAL_DATE: ${{ steps.original-date.outputs.date }}
         REPO: ${{ github.repository }}
       run: |
         # 124000 not 125000 -- leave a safety margin under the hard cap.
@@ -317,12 +329,16 @@ jobs:
           exit 0
         fi
         echo "Section exceeds Release body limit; substituting pointer body."
+        version_slug=$(printf '%s' "${VERSION}" | tr -d '.')
+        anchor="${version_slug}---${ORIGINAL_DATE}"
+        section_url="https://github.com/${REPO}/blob/${REL_BRANCH}/CHANGELOG.md#${anchor}"
+        echo "Anchor URL: ${section_url}"
         body="${RUNNER_TEMP}/body.md"
         cat > "${body}" <<EOF
         > :warning: **The full changelog for ${VERSION} exceeds GitHub's 125,000-character Release body limit.**
         >
-        > View the complete changelog on the tagged source:
-        > https://github.com/${REPO}/blob/${TAG}/CHANGELOG.md
+        > View the complete ${VERSION} section on the live \`${REL_BRANCH}\` branch:
+        > ${section_url}
         >
         > Or download the \`changelog.md\` attachment on this Release for the full amended section (including all Security advisories and the complete PR list).
 
