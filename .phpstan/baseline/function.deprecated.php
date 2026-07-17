@@ -239,12 +239,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
 Use FormService\\:\\:addForm\\(\\) instead$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function addForm\\(\\)\\:
-Use FormService\\:\\:addForm\\(\\) instead$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/reviewofs/save.php',
 ];
 $ignoreErrors[] = [
