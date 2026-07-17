@@ -997,49 +997,49 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     } elseif ($_POST['form_csvexport']) {
         # CSV headers added conditions if they are checked to display then export them (TLH)
         if (true) {
-            echo csvEscape(xl('Insurance')) . ',';
-            echo csvEscape(xl('Name')) . ',';
+            echo xlc('Insurance') . ',';
+            echo xlc('Name') . ',';
             if ($form_cb_ssn) {
-                echo csvEscape(xl('SSN')) . ',';
+                echo xlc('SSN') . ',';
             }
 
             if ($form_cb_dob) {
-                echo csvEscape(xl('DOB')) . ',';
+                echo xlc('DOB') . ',';
             }
 
             if ($form_cb_pubpid) {
-                echo csvEscape(xl('Pubpid')) . ',';
+                echo xlc('Pubpid') . ',';
             }
 
             if ($form_cb_policy) {
-                echo csvEscape(xl('Policy')) . ',';
+                echo xlc('Policy') . ',';
             }
             if ($form_cb_group_number) {
-                echo csvEscape(xl('Group Number')) . ',';
+                echo xlc('Group Number') . ',';
             }
             if ($form_cb_phone) {
-                echo csvEscape(xl('Phone')) . ',';
+                echo xlc('Phone') . ',';
             }
 
             if ($form_cb_city) {
-                echo csvEscape(xl('City')) . ',';
+                echo xlc('City') . ',';
             }
 
-            echo csvEscape(xl('Invoice')) . ',';
-            echo csvEscape(xl('DOS')) . ',';
-            echo csvEscape(xl('Referrer')) . ',';
-            echo csvEscape(xl('Provider')) . ',';
-            echo csvEscape(xl('Charge')) . ',';
-            echo csvEscape(xl('Adjust')) . ',';
-            echo csvEscape(xl('Paid')) . ',';
-            echo csvEscape(xl('Balance')) . ',';
+            echo xlc('Invoice') . ',';
+            echo xlc('DOS') . ',';
+            echo xlc('Referrer') . ',';
+            echo xlc('Provider') . ',';
+            echo xlc('Charge') . ',';
+            echo xlc('Adjust') . ',';
+            echo xlc('Paid') . ',';
+            echo xlc('Balance') . ',';
 
             if ($form_cb_idays) {
-                echo csvEscape(xl('Aging Days')) . ',';
+                echo xlc('Aging Days') . ',';
             }
 
             if ($form_cb_err) {
-                echo csvEscape(xl('Error')) . "\n";
+                echo xlc('Error') . "\n";
             } else {
                 echo "\n";
             }

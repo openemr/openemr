@@ -184,7 +184,7 @@ function csvEscape($text): string
  */
 function xmlEscape($text): string
 {
-    return htmlspecialchars(($text ?? ''), ENT_XML1 | ENT_QUOTES);
+    return htmlspecialchars($text ?? '', ENT_XML1 | ENT_QUOTES);
 }
 
 /**
@@ -206,11 +206,7 @@ function javascriptStringRemove(?string $text): string
  */
 function javascriptStringCheck(?string $text): bool
 {
-    if (stripos($text ?? '', 'javascript') === false) {
-        return false;
-    } else {
-        return true;
-    }
+    return str_contains($text ?? '', 'javascript');
 }
 
 /**
@@ -233,7 +229,7 @@ function javascriptStringCheck(?string $text): bool
  */
 function text($text): string
 {
-    return htmlspecialchars(($text ?? ''), ENT_NOQUOTES);
+    return htmlspecialchars($text ?? '', ENT_NOQUOTES);
 }
 
 /**
@@ -290,7 +286,7 @@ function textArray(array $arr, $depth = 0)
  */
 function attr($text): string
 {
-    return htmlspecialchars(($text ?? ''), ENT_QUOTES);
+    return htmlspecialchars($text ?? '', ENT_QUOTES);
 }
 
 /**
@@ -307,11 +303,8 @@ function attr($text): string
  */
 function hsc_private_xl_or_warn(?string $key): string
 {
-    if ($key === null) {
-        return '';
-    }
     // @phpstan-ignore argument.type (intentional pass-through wrapper for translation)
-    return xl($key);
+    return $key === null ? '' : xl($key);
 }
 
 /**
@@ -356,4 +349,15 @@ function xlj($key)
 function xlx($key)
 {
     return xmlEscape(hsc_private_xl_or_warn($key));
+}
+
+/**
+ * Translate via xl() and then escape via csvEscape() for use in XML contexts.
+ *
+ * @param literal-string $key The string to translate and escape.
+ * @return string The translated string, escaped for CSV contexts.
+ */
+function xlc($key)
+{
+    return csvEscape(hsc_private_xl_or_warn($key));
 }
