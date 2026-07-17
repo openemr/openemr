@@ -2,9 +2,12 @@
 
 /**
  * Fixture-based regression: replay 8.2.0's real inputs
- * (v8_1_0...v8_2_0 range, 653 commits, 647 PRs) through the
- * current ChangelogGenerator and assert the output matches the
- * locked expected section.
+ * (v8_0_0...v8_2_0 range) through the current ChangelogGenerator
+ * and assert the output matches the locked expected section. Base
+ * is v8_0_0 (the previous shipped release per website-openemr's
+ * data/releases.json manifest) rather than v8_1_0 (cut but never
+ * released) -- matches what ChangelogMutator now derives via
+ * BranchVersionResolver.
  *
  * Two scenarios are exercised via twin fixture subdirs:
  *   * release-time/    -- simulates release-prep merge time, when the
@@ -89,7 +92,7 @@ final class ChangelogGeneratorFixtureTest extends TestCase
         $clock = new FrozenClock(new DateTimeImmutable('2026-07-08T00:00:00+0000', new DateTimeZone('UTC')));
         $generator = new ChangelogGenerator($api, 'openemr/openemr', $clock);
 
-        $actual = $generator->generate('v8_1_0', 'v8_2_0', '8.2.0', includeGhsa: true);
+        $actual = $generator->generate('v8_0_0', 'v8_2_0', '8.2.0', includeGhsa: true);
 
         $expectedPath = self::FIXTURE_DIR . '/' . $scenario . '/expected.md';
 
