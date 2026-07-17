@@ -1498,6 +1498,28 @@ everything was now consolidated in openemr core. Follow-ups:
   that point Extract has saved to `$RUNNER_TEMP` and rel-side
   peter-evans has captured its diff, so nothing downstream reads
   from rel-checkout.
+- **openemr/openemr#13038** *(SHIPPED 2026-07-17)* — Release body
+  125K truncation. Fourth real dispatch (post-#13015 fixture-based
+  changelog regen, which added the missing v8_0_0 → v8_2_0 PRs
+  the skipped-v8_1_0 boundary had suppressed) surfaced the last
+  unrecovered failure mode: the extracted section grew to ~130KB
+  and `gh release edit --notes-file` rejected it with `body is too
+  long (maximum is 125000 characters)`. All upstream steps
+  succeeded, but the Release body itself never updated. Hybrid
+  strategy: body ≤124KB carries the full section unchanged
+  (historical behaviour); body >124KB is substituted with a short
+  link-only pointer referencing the tagged `CHANGELOG.md` on the
+  source + the `changelog.md` Release attachment. Attachment
+  always carries the full section regardless of size (attachments
+  have no such limit) — no content is ever lost. Summary step
+  surfaces which path was taken; dry-runs surface "would truncate"
+  up front. RELEASE_PROCESS.md updated in same PR with a new
+  "Release body truncation at 125K" paragraph, workflow-topology
+  cross-reference + surface count updated to 4 (adding the
+  attachment as its own surface), and the stale "auto-dispatch
+  workflow is a tracked follow-up" line in the GHSA convention
+  section replaced with a pointer to the shipped
+  `release-amendment.yml`.
 - **openemr/openemr#13002 + #13003** *(SHIPPED)* — real amendment
   PRs (8.2.0-rel-820 + 8.2.0-master). CHANGELOG.md diffs land the
   8.2.0 Security section (`GHSA-vv5j-6gjw-ffx9`) + the full PR
@@ -1536,11 +1558,26 @@ everything was now consolidated in openemr core. Follow-ups:
   diff shape). Release body + attachment stayed byte-identical
   (already amended in dispatch #2; content didn't change so no
   visible update). #13002 + #13003 merged shortly after.
+- Real dispatch #4 (2026-07-16, post-#13015 fixture-based
+  changelog regen + #13025 codespell config): first amendment
+  dispatch after the ChangelogMutator now delegates prev-tag
+  derivation to BranchVersionResolver — the resulting section
+  went from ~68KB (v8_1_0 → v8_2_0 range) to ~130KB (v8_0_0 →
+  v8_2_0 range, since v8_1_0 is intentionally missing from the
+  manifest). All upstream steps green (amendment PRs updated,
+  attachment synced), but the final `gh release edit --notes-file`
+  failed with `body is too long (maximum is 125000 characters)`.
+  Prompted #13038 (hybrid truncation).
+- Real dispatch #5 (post-#13038): validates the truncation path
+  end-to-end. **PENDING as of 2026-07-17** — dispatched after
+  #13038 merges to master.
 
 Both amendment PRs landed 2026-07-15 — closes the loop end-to-end.
 All four surfaces (rel-branch CHANGELOG, master CHANGELOG,
 GitHub Release body, `changelog.md` attachment) now carry the
-amended 8.2.0 Security section + full PR list.
+amended 8.2.0 Security section + full PR list. The Release body
+now uses the truncation pointer (section is >124KB post-#13015)
+and points at the `changelog.md` attachment for the full content.
 
 **Testing / validation strategy per PR:**
 
