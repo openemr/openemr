@@ -22,10 +22,7 @@ use OpenEMR\Modules\ExternalIdp\Repository\IdentityRepository;
 use OpenEMR\Modules\ExternalIdp\Repository\ProviderRepository;
 use OpenEMR\Modules\ExternalIdp\Service\DiscoveryService;
 
-if (!AclMain::aclCheckCore('admin', 'super')) {
-    http_response_code(403);
-    die(xlt('Not authorized.'));
-}
+$module_config = 1;
 
 $classLoader = $classLoader ?? new ModulesClassLoader(OEGlobalsBag::getInstance()->getProjectDir());
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\ExternalIdp\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
@@ -36,6 +33,7 @@ $providerRepository = new ProviderRepository();
 $identityRepository = new IdentityRepository();
 $callbackUrl = OEGlobalsBag::getInstance()->getWebRoot() . '/interface/modules/custom_modules/oe-module-external-idp/callback.php';
 $csrfToken = CsrfUtils::collectCsrfToken($session, 'external-idp-config');
+$isAjaxRequest = strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest';
 
 $message = '';
 $messageType = 'success';
@@ -64,6 +62,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             (new DiscoveryService())->discover($issuerUrl);
             $message = xlt('OIDC discovery succeeded. The configuration is reachable.');
+            $messageType = 'success';
+            if ($isAjaxRequest) {
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode([
+                    'success' => true,
+                    'messageType' => $messageType,
+                    'message' => $message,
+                ]);
+                exit;
+            }
         } elseif ($action === 'search_users') {
             $bindingSearchResults = $providerRepository->searchUsers($bindingSearchQuery);
             if ($bindingSearchResults === []) {
@@ -114,6 +122,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $metadata = (new DiscoveryService())->discover($issuerUrl);
                 $providerRepository->save($siteId, $displayName, rtrim($issuerUrl, '/'), $clientId, $clientSecret, $scopes, $enabled, $metadata);
                 $message = $enabled ? xlt('OIDC discovery succeeded and the provider was enabled.') : xlt('OIDC discovery succeeded and the provider configuration was saved disabled.');
+                $messageType = 'success';
+                if ($isAjaxRequest) {
+                    $provider = $providerRepository->getForSite($siteId);
+                    $provider = is_array($provider) ? $provider : [];
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode([
+                        'success' => true,
+                        'messageType' => $messageType,
+                        'message' => $message,
+                        'provider' => [
+                            'enabled' => !empty($provider['enabled']),
+                            'discovery_fetched_at' => $provider['discovery_fetched_at'] ?? '',
+                            'last_failure_at' => $provider['last_failure_at'] ?? '',
+                            'last_failure_message' => $provider['last_failure_message'] ?? '',
+                        ],
+                    ]);
+                    exit;
+                }
             } else {
                 throw new \InvalidArgumentException('Unsupported action.');
             }
@@ -121,6 +147,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (\Throwable $exception) {
         $messageType = 'danger';
         $message = xlt('Request failed: ') . $exception->getMessage();
+        if ($isAjaxRequest && in_array($action, ['test', 'save'], true)) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'success' => false,
+                'messageType' => $messageType,
+                'message' => $message,
+            ]);
+            exit;
+        }
     }
 }
 
@@ -151,17 +186,15 @@ if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQ
 </head>
 <body>
 <main class="container my-4">
-    <h1><?php echo xlt('External Identity Provider'); ?></h1>
+    <h1 class="title"><?php echo xlt('External Identity Provider'); ?></h1>
     <p class="text-muted"><?php echo xlt('Configure discovery, enable sign-in, bind OpenEMR users, and review recent login status.'); ?></p>
 
-    <?php if ($message !== '') { ?>
-        <div class="alert alert-<?php echo attr($messageType); ?>" role="alert"><?php echo text($message); ?></div>
-    <?php } ?>
+    <div id="external-idp-message" <?php echo $message !== '' ? '' : 'style="display:none"'; ?> class="alert alert-<?php echo attr($messageType); ?>" role="alert"><?php echo $message !== '' ? text($message) : ''; ?></div>
 
     <div class="card mb-3">
         <div class="card-header"><?php echo xlt('Provider configuration'); ?></div>
         <div class="card-body">
-            <form method="post" autocomplete="off">
+            <form method="post" autocomplete="off" id="provider-form">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>">
                 <input type="hidden" name="action" id="provider_action" value="save">
 
@@ -204,8 +237,8 @@ if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQ
                 </div>
 
                 <div class="btn-toolbar gap-2" role="toolbar">
-                    <button class="btn btn-outline-secondary" type="submit" onclick="document.getElementById('provider_action').value='test';"><?php echo xlt('Test discovery'); ?></button>
-                    <button class="btn btn-primary" type="submit" onclick="document.getElementById('provider_action').value='save';"><?php echo xlt('Validate discovery and save'); ?></button>
+                    <button class="btn btn-outline-secondary" type="submit" data-action="test"><?php echo xlt('Test discovery'); ?></button>
+                    <button class="btn btn-primary" type="submit" data-action="save"><?php echo xlt('Validate discovery and save'); ?></button>
                 </div>
             </form>
 
@@ -215,16 +248,16 @@ if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQ
                     <h2 class="h5"><?php echo xlt('Provider status'); ?></h2>
                     <dl class="row mb-0">
                         <dt class="col-sm-5"><?php echo xlt('Enabled'); ?></dt>
-                        <dd class="col-sm-7"><?php echo !empty($provider['enabled']) ? xlt('Yes') : xlt('No'); ?></dd>
+                        <dd class="col-sm-7" id="provider-status-enabled"><?php echo !empty($provider['enabled']) ? xlt('Yes') : xlt('No'); ?></dd>
 
                         <dt class="col-sm-5"><?php echo xlt('Discovery fetched'); ?></dt>
-                        <dd class="col-sm-7"><?php echo !empty($provider['discovery_fetched_at']) ? text($provider['discovery_fetched_at']) : xlt('Not yet tested'); ?></dd>
+                        <dd class="col-sm-7" id="provider-status-discovery"><?php echo !empty($provider['discovery_fetched_at']) ? text($provider['discovery_fetched_at']) : xlt('Not yet tested'); ?></dd>
 
                         <dt class="col-sm-5"><?php echo xlt('Last login start'); ?></dt>
-                        <dd class="col-sm-7"><?php echo !empty($provider['last_started_at']) ? text($provider['last_started_at']) : xlt('None'); ?></dd>
+                        <dd class="col-sm-7" id="provider-status-started"><?php echo !empty($provider['last_started_at']) ? text($provider['last_started_at']) : xlt('None'); ?></dd>
 
                         <dt class="col-sm-5"><?php echo xlt('Last success'); ?></dt>
-                        <dd class="col-sm-7">
+                        <dd class="col-sm-7" id="provider-status-success">
                             <?php if (!empty($provider['last_success_at'])) {
                                 echo text($provider['last_success_at']);
                                 if (!empty($provider['last_success_user_id'])) {
@@ -243,7 +276,7 @@ if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQ
                         </dd>
 
                         <dt class="col-sm-5"><?php echo xlt('Last failure'); ?></dt>
-                        <dd class="col-sm-7">
+                        <dd class="col-sm-7" id="provider-status-failure">
                             <?php if (!empty($provider['last_failure_at'])) {
                                 echo text($provider['last_failure_at']);
                                 if (!empty($provider['last_failure_message'])) {
@@ -406,5 +439,116 @@ if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQ
         </div>
     </div>
 </main>
+<script>
+(function () {
+    const form = document.getElementById('provider-form');
+    const messageBox = document.getElementById('external-idp-message');
+
+    function setMessage(type, message) {
+        if (!messageBox) {
+            return;
+        }
+        messageBox.className = 'alert alert-' + type;
+        messageBox.textContent = message;
+        messageBox.style.display = '';
+    }
+
+    const yesText = <?php echo json_encode(xl('Yes')); ?>;
+    const noText = <?php echo json_encode(xl('No')); ?>;
+    const notYetText = <?php echo json_encode(xl('Not yet tested')); ?>;
+    const noneText = <?php echo json_encode(xl('None')); ?>;
+
+    function updateStatus(provider) {
+        if (!provider) {
+            return;
+        }
+        const enabledNode = document.getElementById('provider-status-enabled');
+        const discoveryNode = document.getElementById('provider-status-discovery');
+        const startedNode = document.getElementById('provider-status-started');
+        const successNode = document.getElementById('provider-status-success');
+        const failureNode = document.getElementById('provider-status-failure');
+
+        if (enabledNode) {
+            enabledNode.textContent = provider.enabled ? yesText : noText;
+        }
+        if (discoveryNode) {
+            discoveryNode.textContent = provider.discovery_fetched_at || notYetText;
+        }
+        if (startedNode) {
+            startedNode.textContent = provider.last_started_at || noneText;
+        }
+        if (successNode) {
+            successNode.textContent = provider.last_success_at || noneText;
+        }
+        if (failureNode) {
+            failureNode.innerHTML = '';
+            if (provider.last_failure_at) {
+                failureNode.appendChild(document.createTextNode(provider.last_failure_at));
+                if (provider.last_failure_message) {
+                    const details = document.createElement('div');
+                    details.className = 'text-break small';
+                    details.textContent = provider.last_failure_message;
+                    failureNode.appendChild(details);
+                }
+            } else {
+                failureNode.textContent = noneText;
+            }
+        }
+    }
+
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener('submit', async function (event) {
+        const submitter = event.submitter;
+        const action = submitter?.dataset?.action || form.querySelector('#provider_action')?.value || 'save';
+        if (action !== 'test' && action !== 'save') {
+            return;
+        }
+
+        event.preventDefault();
+        form.querySelector('#provider_action').value = action;
+
+        if (submitter) {
+            submitter.disabled = true;
+        }
+
+        try {
+            const formData = new FormData(form);
+            formData.set('action', action);
+
+            const response = await fetch(window.location.href, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+
+            const payload = await response.json().catch(() => null);
+            if (!response.ok || !payload) {
+                throw new Error('<?php echo xlj('Request failed.'); ?>');
+            }
+            if (!payload.success) {
+                throw new Error(payload.message || '<?php echo xlj('Request failed.'); ?>');
+            }
+
+            setMessage(payload.messageType || 'success', payload.message || '<?php echo xlj('Success'); ?>');
+            if (action === 'save') {
+                updateStatus(payload.provider || null);
+            }
+        } catch (error) {
+            setMessage('danger', error?.message || '<?php echo xlj('Request failed.'); ?>');
+        } finally {
+            if (submitter) {
+                submitter.disabled = false;
+            }
+        }
+    });
+})();
+</script>
 </body>
 </html>

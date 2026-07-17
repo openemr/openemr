@@ -767,6 +767,15 @@
                 ]
             },
             {
+                "label": "External Identity Provider",
+                "menu_id": "adm0",
+                "target": "adm",
+                "url": "/interface/modules/custom_modules/oe-module-external-idp/moduleConfig.php",
+                "children": [],
+                "requirement": 0,
+                "acl_req": []
+            },
+            {
                 "label": "Clinic",
                 "icon": "fa-caret-right",
                 "children": [

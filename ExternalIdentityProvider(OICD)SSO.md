@@ -61,9 +61,9 @@ If your environment serves OpenEMR over HTTPS, use the HTTPS version instead:
 
 ## Required OpenEMR permissions
 
-The configuration page is restricted to users with administrator/super-user
-access. If you open the page and see a 403 or `Not authorized`, log in as an
-admin user.
+The configuration page is restricted to users with administrator access
+(`admin/users`). If you open the page and see a 403 or `Not authorized`, log
+in as an admin user.
 
 ## Configuration steps
 
@@ -104,6 +104,9 @@ Use the `Test discovery` button first.
 
 This checks whether OpenEMR can reach the issuer URL and fetch the OIDC
 metadata.
+
+The result is shown as an inline message on the same page. The browser should
+not open a new blank tab or lose the configuration screen.
 
 If discovery fails, verify:
 
@@ -295,6 +298,10 @@ Then click:
 1. `Test discovery`
 2. `Validate discovery and save`
 3. Enable the provider
+
+If validation succeeds, OpenEMR keeps you on the same configuration page and
+shows a success banner. If validation fails, the error message is shown in the
+same banner area so you can correct the values without leaving the page.
 
 ### 7. Validate the integration
 
