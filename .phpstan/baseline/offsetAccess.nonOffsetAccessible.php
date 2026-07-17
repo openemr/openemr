@@ -28557,6 +28557,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Tree.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'value\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/Tree.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../library/classes/Tree.class.php',
