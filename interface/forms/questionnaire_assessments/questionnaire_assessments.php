@@ -36,6 +36,7 @@ $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 
 require_once($srcdir . '/api.inc.php');
 require_once($srcdir . '/user.inc.php');
+require_once($srcdir . '/registry.inc.php');
 require_once($srcdir . '/options.inc.php');
 
 $questionnaireService = new QuestionnaireService();
@@ -83,11 +84,25 @@ if ($isModule || $isPortal) {
     $questionnaireForm = $_GET['formname'] ?? $questionnaireForm;
 }
 
-$formDirectory = $scalarString($_GET['formname'] ?? null, 'questionnaire_assessments');
-if (!AclMain::aclCheckForm($formDirectory)) {
-    $formLabel = xl_form_title(getRegistryEntryByDirectory($formDirectory, 'name')['name'] ?? '');
-    $formLabel = $formLabel !== '' ? $scalarString($formLabel) : $formDirectory;
-    AccessDeniedHelper::denyWithTemplate('ACL check failed for form: ' . $formLabel, $formLabel);
+// Questionnaires are database registry rows, not filesystem form directories. An
+// authenticated portal session authorizes the patient through the portal mechanism
+// ($ignoreAuth_onsite_portal), so the staff encounter-form ACL is applied only on the
+// staff/EHR path. On that path formname may still carry a specific questionnaire id
+// (dashboard launch), so resolve it to a real registry directory and fall back to
+// questionnaire_assessments; passing a numeric id straight to aclCheckForm() would look up a
+// non-existent directory and dereference the resulting false.
+if (!$isPortal) {
+    $formNameParam = $scalarString($_GET['formname'] ?? null, 'questionnaire_assessments');
+    $formDirectory = (getRegistryEntryByDirectory($formNameParam, 'directory') !== false)
+        ? $formNameParam
+        : 'questionnaire_assessments';
+    if (!AclMain::aclCheckForm($formDirectory)) {
+        $registryEntry = getRegistryEntryByDirectory($formDirectory, 'name');
+        $registryName = is_array($registryEntry) ? ($registryEntry['name'] ?? '') : '';
+        $formLabel = xl_form_title($registryName);
+        $formLabel = $formLabel !== '' ? $scalarString($formLabel) : $formDirectory;
+        AccessDeniedHelper::denyWithTemplate('ACL check failed for form: ' . $formLabel, $formLabel);
+    }
 }
 
 try {

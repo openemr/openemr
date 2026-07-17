@@ -13,10 +13,12 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\FormQuestionnaireAssessment;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
@@ -179,9 +181,34 @@ if ($isRegistering) {
 }
 
 if ($formid === 0) {
-    $newid = formSubmit('form_questionnaire_assessments', $_POST, '', $userauthorized);
-    addForm($encounter, $formName, $newid, 'questionnaire_assessments', $pid, $userauthorized);
-    $formid = $nonNegativeInt($newid) ?? 0;
+    // New encounter form: persist via Stephen's typed BaseForm abstraction
+    // (FormService::saveEncounterForm) instead of the procedural formSubmit() + addForm().
+    // This writes the form_questionnaire_assessments row and the forms registry row in one call.
+    $activityInput = filter_input(INPUT_POST, 'activity', FILTER_VALIDATE_INT);
+    $copyrightInput = $_POST['copyright'] ?? null;
+    $questionnaireIdInput = filter_input(INPUT_POST, 'questionnaire_id', FILTER_VALIDATE_INT);
+
+    $form = new FormQuestionnaireAssessment();
+    $form->setEncounter($encounter);
+    $form->setPid($pid);
+    $form->setAuthorized((int) $userauthorized);
+    $form->setFormName($formName);
+    $form->setResponseId($qrid);
+    $form->setResponseMeta($responseMeta !== '' ? $responseMeta : null);
+    $form->setQuestionnaire(is_string($questionnaireJson) && $questionnaireJson !== '' ? $questionnaireJson : null);
+    $form->setQuestionnaireResponse(is_string($questionnaireResponseJson) && $questionnaireResponseJson !== '' ? $questionnaireResponseJson : null);
+    if (is_int($questionnaireIdInput) && $questionnaireIdInput > 0) {
+        $form->setQuestionnaireId((string) $questionnaireIdInput);
+    }
+    if (is_int($activityInput)) {
+        $form->setActivity($activityInput);
+    }
+    if (is_string($copyrightInput) && $copyrightInput !== '') {
+        $form->setCopyright($copyrightInput);
+    }
+
+    $savedForm = (new FormService())->saveEncounterForm($form);
+    $formid = $nonNegativeInt($savedForm->getFormId()) ?? 0;
 } else {
     CoreFormToPortalUtility::confirmFormBootstrapPatient(
         $isPortal,
