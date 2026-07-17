@@ -430,6 +430,7 @@ class FhirOperationExportRestController
             // if we had an async process we would be able to resume off of the last id that was exported for this
             // resource
             $lastResourceIdExported = null;
+            $exportWriter = null;
             try {
                 $service = $this->getExportServiceForResource($resource);
                 $this->populateServiceWithDependencies($service, $this->request, $this->globalsBag);
@@ -465,10 +466,12 @@ class FhirOperationExportRestController
                     . " occurred during export", ['exception' => $exception->getMessage(),
                     'trace' => $exception->getTraceAsString(), 'job' => $job->getUuidString(), 'resource' => $resource]);
             } finally {
-                $this->logger->debug("FhirExportRestController->processResourceExportForJob() closing resource", [
-                    'resource' => $resource, 'recordsExported' => $exportWriter->getRecordsWritten()
-                ]);
-                $exportWriter->close();
+                if ($exportWriter !== null) {
+                    $this->logger->debug("FhirExportRestController->processResourceExportForJob() closing resource", [
+                        'resource' => $resource, 'recordsExported' => $exportWriter->getRecordsWritten()
+                    ]);
+                    $exportWriter->close();
+                }
             }
 
             if (!empty($output)) {
@@ -720,6 +723,9 @@ class FhirOperationExportRestController
 
     private function getPatientUuidsForGroup($groupId)
     {
+        if (empty($groupId)) {
+            throw new \InvalidArgumentException("Group ID cannot be empty");
+        }
         $patientUuids = [];
         $fhirGroupService = new FhirGroupService();
         $result = $fhirGroupService->getOne($groupId);
@@ -729,7 +735,7 @@ class FhirOperationExportRestController
                     foreach ($group->getMember() as $member) {
                         if (!empty($member->getEntity()) && !empty($member->getEntity()->getReference())) {
                             $uuid = UtilsService::getUuidFromReference($member->getEntity());
-                            if (!empty($uuid)) {
+                            if ($uuid !== '') {
                                 $patientUuids[] = $uuid;
                             }
                         }
