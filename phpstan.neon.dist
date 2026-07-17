@@ -10,14 +10,23 @@ parameters:
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan
   excludePaths:
-  # excluding for easy dev setups since ccdaservice is a path below
-  - ccdaservice/node_modules/*
-  # oe-module-claimrev-connect is a Composer dependency
-  # (claimrevolution/oe-module-claimrev-connect), relocated into this path by the
-  # oe-module-installer-plugin during `composer install`. It is third-party code,
-  # not maintained in this repo, so exclude it from analysis the same way vendor/
-  # is excluded.
-  - interface/modules/custom_modules/oe-module-claimrev-connect/*
+    analyseAndScan:
+    # excluding for easy dev setups since ccdaservice is a path below
+    - ccdaservice/node_modules/*
+    # oe-module-claimrev-connect is a Composer dependency
+    # (claimrevolution/oe-module-claimrev-connect), relocated into this path by the
+    # oe-module-installer-plugin during `composer install`. It is third-party code,
+    # not maintained in this repo, so exclude it from analysis the same way vendor/
+    # is excluded.
+    - interface/modules/custom_modules/oe-module-claimrev-connect/*
+    analyse:
+    # Generated FHIR R4 parser map: a single ~61k-line constant array
+    # (PHPFHIRParserMap::$_bigDumbMap) produced by the php-fhir generator and never
+    # hand-edited. Analysing it costs ~90s and ~1 GB on its own because a constant
+    # array literal with more than 256 keys degrades to a general array via an
+    # expensive value-type union. Keep scanning it so the PHPFHIRParserMap class
+    # stays discoverable for callers, but skip the (pointless) analysis.
+    - src/FHIR/R4/PHPFHIRParserMap.php
   paths:
   - Documentation
   - _rest_routes.inc.php
