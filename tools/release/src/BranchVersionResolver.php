@@ -24,7 +24,11 @@ use Symfony\Component\Process\Process;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final readonly class BranchVersionResolver
+// Non-final so ChangelogMutator's isolated tests can subclass with a
+// stub `previousRelease()` — same pattern used by StubChangelogGenerator
+// against ChangelogGenerator. Production code should always construct
+// this class directly, not subclass it.
+readonly class BranchVersionResolver
 {
     /**
      * Canonical release manifest fetched to distinguish tags that actually

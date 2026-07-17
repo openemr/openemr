@@ -46,8 +46,10 @@ namespace OpenEMR\Release\Mutator;
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
 use OpenEMR\Common\Command\ReleasePrep\MutatorResult;
+use OpenEMR\Release\BranchVersionResolver;
 use OpenEMR\Release\ChangelogGenerator;
 use OpenEMR\Release\GitHubApi;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Process\Process;
 
 final readonly class ChangelogMutator implements MutatorInterface
@@ -57,6 +59,7 @@ final readonly class ChangelogMutator implements MutatorInterface
 
     public function __construct(
         private ?ChangelogGenerator $generator = null,
+        private ?BranchVersionResolver $resolver = null,
     ) {
     }
 
@@ -110,39 +113,60 @@ final readonly class ChangelogMutator implements MutatorInterface
     }
 
     /**
-     * Highest existing `v<M>_<m>_<p>` tag whose version is strictly less
-     * than the target. Sorted by git's version-aware `-v:refname`; ties
-     * do not occur because tags are unique. Throws when no earlier tag
-     * exists — that would indicate a fresh repository, not a real release
-     * scenario, so failing loudly is preferable to guessing.
+     * Previous shipped release's `v<M>_<m>_<p>` tag. Delegates to
+     * `BranchVersionResolver::previousRelease()`, which reads the
+     * canonical shipped-versions manifest at
+     * `openemr/website-openemr/data/releases.json` and correctly skips
+     * cut-but-never-released versions (see: 8.1.0 was cut as v8_1_0 but
+     * never released -- an earlier tag-history walk here selected v8_1_0
+     * as 8.2.0's predecessor and rendered a wrong compare link + missing
+     * ~800 commits' worth of PRs in the 8.2.0 CHANGELOG entry).
+     *
+     * The same resolver drives the `openemr-rel-cut` / `openemr-rel-update`
+     * dispatch envelopes' `prev_release` field via
+     * `tools/release/bin/derive-prev-release.php`; using it here keeps the
+     * CHANGELOG and the dispatch stream aligned on a single answer.
+     *
+     * Manifest-fetch failure falls back to the annotated-tag walk (the
+     * same imperfect-for-skipped-releases behaviour that pre-dated this
+     * fix) -- no worse than the previous code, and only reached on
+     * network failure. Log-worthy but not fail-loud.
      */
     private function resolvePrevTag(MutatorContext $context): string
     {
-        $process = new Process(
-            ['git', 'tag', '--list', 'v[0-9]*_[0-9]*_[0-9]*', '--sort=-v:refname'],
+        $resolver = $this->resolver ?? new BranchVersionResolver(
+            $context->projectDir,
+            HttpClient::create(),
+        );
+        $prevVersion = $resolver->previousRelease($context->versionString());
+        if (preg_match('/^(\d+)\.(\d+)\.(\d+)$/', $prevVersion, $m) !== 1) {
+            throw new \RuntimeException(sprintf(
+                'ChangelogMutator: BranchVersionResolver returned non-canonical version %s for target %s',
+                $prevVersion,
+                $context->versionString(),
+            ));
+        }
+        $prevTag = sprintf('v%d_%d_%d', (int) $m[1], (int) $m[2], (int) $m[3]);
+
+        // Verify the tag exists locally. The resolver's shipped-versions
+        // list should always correspond to an annotated tag in this repo,
+        // but a synthesised fallback (fresh-repo edge case) can produce
+        // a version without a tag -- ChangelogGenerator's git-range walk
+        // would fail later with a less helpful error, so fail loud here.
+        $verify = new Process(
+            ['git', 'rev-parse', '--verify', '--quiet', 'refs/tags/' . $prevTag],
             $context->projectDir,
         );
-        $process->mustRun();
-
-        $target = $context->versionString();
-        foreach (explode("\n", trim($process->getOutput())) as $tag) {
-            if ($tag === '') {
-                continue;
-            }
-            $version = $this->versionFromTag($tag);
-            if ($version === null) {
-                continue;
-            }
-            if (version_compare($version, $target, '<')) {
-                return $tag;
-            }
+        $verify->run();
+        if (!$verify->isSuccessful()) {
+            throw new \RuntimeException(sprintf(
+                'ChangelogMutator: previous release tag %s (from resolver %s) does not exist in %s',
+                $prevTag,
+                $prevVersion,
+                $context->projectDir,
+            ));
         }
-
-        throw new \RuntimeException(sprintf(
-            'ChangelogMutator: no `v<M>_<m>_<p>` tag exists earlier than target %s in %s',
-            $target,
-            $context->projectDir,
-        ));
+        return $prevTag;
     }
 
     /**
@@ -170,14 +194,6 @@ final readonly class ChangelogMutator implements MutatorInterface
             ));
         }
         return $context->relBranch;
-    }
-
-    private function versionFromTag(string $tag): ?string
-    {
-        if (preg_match('/^v(\d+)_(\d+)_(\d+)$/', $tag, $m) !== 1) {
-            return null;
-        }
-        return sprintf('%d.%d.%d', (int) $m[1], (int) $m[2], (int) $m[3]);
     }
 
     /**
