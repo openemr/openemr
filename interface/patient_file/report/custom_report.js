@@ -57,7 +57,7 @@ function find_all(){ // for each report the function mark_hilight() is called
   var match = null;
   match = keys.match(/[\^$.|?+()\\~`!@#%&+={}<>]{1,}/);
   if(match){
-    document.getElementById('alert_msg').innerHTML = jsText(xl('Special characters are not allowed'));
+    document.getElementById('alert_msg').innerHTML = jsXlt('Special characters are not allowed');
     return;
   }
   else{
@@ -81,7 +81,7 @@ function find_all(){ // for each report the function mark_hilight() is called
   }
   if($('.hilite').length <1){
     if(keys != '')
-    document.getElementById('alert_msg').innerHTML = jsText(xl('No results found'));
+    document.getElementById('alert_msg').innerHTML = jsXlt('No results found');
   }
   else{
     document.getElementById('alert_msg').innerHTML='';
@@ -207,7 +207,7 @@ function next_prev(action){
   var match = null;
   match = keys.match(/[\^$.|?+()\\~`!@#%&+={}<>]{1,}/);
   if(match){
-    document.getElementById('alert_msg').innerHTML = jsText(xl('Special characters are not allowed'));
+    document.getElementById('alert_msg').innerHTML = jsXlt('Special characters are not allowed');
     return;
   }
   else{
@@ -232,7 +232,7 @@ function next_prev(action){
   }
   if(w_count <1){
     if(keys != '')
-    document.getElementById('alert_msg').innerHTML = jsText(xl('No results found'));
+    document.getElementById('alert_msg').innerHTML = jsXlt('No results found');
   }
   else{
     document.getElementById('alert_msg').innerHTML='';
@@ -244,7 +244,7 @@ function next_prev(action){
     }
     var tot_res = res_array.length/w_count;
   if(tot_res > 0){
-	document.getElementById('alert_msg').innerHTML = jsText(xl('Showing result')) + ' ' + cur_res + ' ' + jsText(xl('of')) + ' ' + tot_res;
+	document.getElementById('alert_msg').innerHTML = jsXlt('Showing result') + ' ' + cur_res + ' ' + jsXlt('of') + ' ' + tot_res;
   }
   }
 
