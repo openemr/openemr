@@ -9,10 +9,14 @@
 
 declare(strict_types=1);
 
+if (empty($_GET['site']) && empty($_REQUEST['site'])) {
+    $_GET['site'] = 'default';
+    $_REQUEST['site'] = 'default';
+}
+
 $sessionAllowWrite = true;
 require_once(__DIR__ . '/../../../globals.php');
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -22,7 +26,36 @@ use OpenEMR\Modules\ExternalIdp\Repository\IdentityRepository;
 use OpenEMR\Modules\ExternalIdp\Repository\ProviderRepository;
 use OpenEMR\Modules\ExternalIdp\Service\DiscoveryService;
 
+require_once __DIR__ . '/src/Service/DiscoveryService.php';
+
 $module_config = 1;
+$renderPartial = defined('OE_EXTERNAL_IDP_RENDER_PARTIAL') && OE_EXTERNAL_IDP_RENDER_PARTIAL;
+
+/**
+ * Ensure the module tables exist before the page touches repository queries.
+ */
+function externalIdpEnsureSchema(): void
+{
+    $providerTable = sqlQuery("SHOW TABLES LIKE 'module_external_idp_provider'");
+    $identityTable = sqlQuery("SHOW TABLES LIKE 'module_external_idp_identity'");
+    if (!empty($providerTable) && !empty($identityTable)) {
+        return;
+    }
+
+    $sql = file_get_contents(__DIR__ . '/table.sql');
+    if ($sql === false) {
+        throw new \RuntimeException('Unable to read the module schema definition.');
+    }
+
+    $statements = preg_split('/;\s*(?:\r?\n|$)/', trim($sql));
+    foreach ($statements as $statement) {
+        $statement = trim((string) $statement);
+        if ($statement === '') {
+            continue;
+        }
+        sqlStatement($statement);
+    }
+}
 
 $classLoader = $classLoader ?? new ModulesClassLoader(OEGlobalsBag::getInstance()->getProjectDir());
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\ExternalIdp\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
@@ -41,11 +74,22 @@ $bindingSearchQuery = '';
 $bindingSubject = '';
 $bindingUserId = '';
 $bindingSearchResults = [];
+$bootstrapError = '';
 
-$provider = $providerRepository->getForSite($siteId);
-$provider = is_array($provider) ? $provider : [];
+try {
+    externalIdpEnsureSchema();
+    $provider = $providerRepository->getForSite($siteId);
+    $provider = is_array($provider) ? $provider : [];
+    $bindings = $identityRepository->listForSite($siteId);
+} catch (\Throwable $exception) {
+    $provider = [];
+    $bindings = [];
+    $bootstrapError = $exception->getMessage();
+    $messageType = 'danger';
+    $message = xlt('Configuration page failed to initialize: ') . $bootstrapError;
+}
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     CsrfUtils::checkCsrfInput(INPUT_POST, session: $session, subject: 'external-idp-config', dieOnFail: true);
 
     $action = strtolower(trim((string) ($_POST['action'] ?? 'save')));
@@ -126,16 +170,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($isAjaxRequest) {
                     $provider = $providerRepository->getForSite($siteId);
                     $provider = is_array($provider) ? $provider : [];
+                    $enabled = !empty($provider['enabled']);
+                    $discoveryFetchedAt = (string) ($provider['discovery_fetched_at'] ?? '');
+                    $lastFailureAt = (string) ($provider['last_failure_at'] ?? '');
+                    $lastFailureMessage = (string) ($provider['last_failure_message'] ?? '');
                     header('Content-Type: application/json; charset=utf-8');
                     echo json_encode([
                         'success' => true,
                         'messageType' => $messageType,
                         'message' => $message,
                         'provider' => [
-                            'enabled' => !empty($provider['enabled']),
-                            'discovery_fetched_at' => $provider['discovery_fetched_at'] ?? '',
-                            'last_failure_at' => $provider['last_failure_at'] ?? '',
-                            'last_failure_message' => $provider['last_failure_message'] ?? '',
+                            'enabled' => $enabled,
+                            'discovery_fetched_at' => $discoveryFetchedAt,
+                            'last_failure_at' => $lastFailureAt,
+                            'last_failure_message' => $lastFailureMessage,
                         ],
                     ]);
                     exit;
@@ -159,9 +207,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$provider = $providerRepository->getForSite($siteId);
-$provider = is_array($provider) ? $provider : [];
-$bindings = $identityRepository->listForSite($siteId);
+if ($bootstrapError === '') {
+    $provider = $providerRepository->getForSite($siteId);
+    $provider = is_array($provider) ? $provider : [];
+    $bindings = $identityRepository->listForSite($siteId);
+}
 
 $lastSuccessUser = null;
 $lastSuccessUserUsername = '';
@@ -177,6 +227,7 @@ if (!empty($provider['last_success_user_id'])) {
 if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQUEST_METHOD'] !== 'POST' || ($action ?? '') !== 'search_users')) {
     $bindingSearchResults = $providerRepository->searchUsers($bindingSearchQuery);
 }
+if (!$renderPartial) {
 ?>
 <!doctype html>
 <html lang="en">
@@ -185,11 +236,58 @@ if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQ
     <?php Header::setupHeader(); ?>
 </head>
 <body>
+<?php } ?>
 <main class="container my-4">
     <h1 class="title"><?php echo xlt('External Identity Provider'); ?></h1>
     <p class="text-muted"><?php echo xlt('Configure discovery, enable sign-in, bind OpenEMR users, and review recent login status.'); ?></p>
 
     <div id="external-idp-message" <?php echo $message !== '' ? '' : 'style="display:none"'; ?> class="alert alert-<?php echo attr($messageType); ?>" role="alert"><?php echo $message !== '' ? text($message) : ''; ?></div>
+
+    <div class="card mb-3">
+        <div class="card-header"><?php echo xlt('Keycloak setup helper'); ?></div>
+        <div class="card-body">
+            <p class="mb-2"><?php echo xlt('Use this section to map Keycloak values into the OpenEMR OIDC fields below.'); ?></p>
+            <ul class="small text-muted mb-3">
+                <li><?php echo xlt('Realm ID becomes part of the issuer URL.'); ?></li>
+                <li><?php echo xlt('Client ID is the OpenEMR OIDC client identifier.'); ?></li>
+                <li><?php echo xlt('Client secret is the confidential client secret from Keycloak.'); ?></li>
+            </ul>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="keycloak_base_url"><?php echo xlt('Keycloak base URL'); ?></label>
+                    <input class="form-control" id="keycloak_base_url" type="url" placeholder="https://keycloak.example.com">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="keycloak_realm_id"><?php echo xlt('Realm ID'); ?></label>
+                    <input class="form-control" id="keycloak_realm_id" type="text" placeholder="clinic">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="keycloak_client_id"><?php echo xlt('OpenEMR client ID'); ?></label>
+                    <input class="form-control" id="keycloak_client_id" type="text" placeholder="openemr">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="keycloak_client_secret"><?php echo xlt('OpenEMR client secret'); ?></label>
+                    <input class="form-control" id="keycloak_client_secret" type="password" autocomplete="new-password">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="keycloak_issuer_preview"><?php echo xlt('Computed issuer URL'); ?></label>
+                <input class="form-control" id="keycloak_issuer_preview" type="text" readonly>
+                <small class="form-text text-muted"><?php echo xlt('The issuer URL is what OpenEMR uses for discovery. For Keycloak it normally follows the pattern /realms/{realm-id}.'); ?></small>
+            </div>
+
+            <div class="btn-toolbar gap-2" role="toolbar">
+                <button class="btn btn-outline-primary" type="button" id="keycloak_apply"><?php echo xlt('Apply to OIDC fields'); ?></button>
+                <button class="btn btn-outline-secondary" type="button" id="keycloak_copy_issuer"><?php echo xlt('Copy issuer URL'); ?></button>
+                <button class="btn btn-outline-info" type="button" id="keycloak_example"><?php echo xlt('Load example values'); ?></button>
+            </div>
+        </div>
+    </div>
 
     <div class="card mb-3">
         <div class="card-header"><?php echo xlt('Provider configuration'); ?></div>
@@ -443,6 +541,18 @@ if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQ
 (function () {
     const form = document.getElementById('provider-form');
     const messageBox = document.getElementById('external-idp-message');
+    const keycloakBaseUrl = document.getElementById('keycloak_base_url');
+    const keycloakRealmId = document.getElementById('keycloak_realm_id');
+    const keycloakClientId = document.getElementById('keycloak_client_id');
+    const keycloakClientSecret = document.getElementById('keycloak_client_secret');
+    const keycloakIssuerPreview = document.getElementById('keycloak_issuer_preview');
+    const keycloakApply = document.getElementById('keycloak_apply');
+    const keycloakCopyIssuer = document.getElementById('keycloak_copy_issuer');
+    const keycloakExample = document.getElementById('keycloak_example');
+    const issuerField = document.getElementById('issuer_url');
+    const displayNameField = document.getElementById('display_name');
+    const clientIdField = document.getElementById('client_id');
+    const clientSecretField = document.getElementById('client_secret');
 
     function setMessage(type, message) {
         if (!messageBox) {
@@ -457,6 +567,92 @@ if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQ
     const noText = <?php echo json_encode(xl('No')); ?>;
     const notYetText = <?php echo json_encode(xl('Not yet tested')); ?>;
     const noneText = <?php echo json_encode(xl('None')); ?>;
+
+    function computeKeycloakIssuer() {
+        const baseUrl = (keycloakBaseUrl?.value || '').trim().replace(/\/+$/, '');
+        const realmId = (keycloakRealmId?.value || '').trim();
+        if (!baseUrl || !realmId) {
+            return '';
+        }
+        return baseUrl + '/realms/' + encodeURIComponent(realmId);
+    }
+
+    function syncKeycloakPreview() {
+        if (!keycloakIssuerPreview) {
+            return;
+        }
+        keycloakIssuerPreview.value = computeKeycloakIssuer();
+    }
+
+    function applyKeycloakValues() {
+        const issuer = computeKeycloakIssuer();
+        if (issuerField && issuer) {
+            issuerField.value = issuer;
+        }
+        if (clientIdField && keycloakClientId && keycloakClientId.value.trim()) {
+            clientIdField.value = keycloakClientId.value.trim();
+        }
+        if (clientSecretField && keycloakClientSecret && keycloakClientSecret.value) {
+            clientSecretField.value = keycloakClientSecret.value;
+        }
+        if (displayNameField && (!displayNameField.value || displayNameField.value === <?php echo json_encode(xl('External Identity Provider')); ?>)) {
+            displayNameField.value = 'Keycloak SSO';
+        }
+        syncKeycloakPreview();
+    }
+
+    function loadExampleKeycloakValues() {
+        if (keycloakBaseUrl) {
+            keycloakBaseUrl.value = 'https://keycloak.example.com';
+        }
+        if (keycloakRealmId) {
+            keycloakRealmId.value = 'clinic';
+        }
+        if (keycloakClientId) {
+            keycloakClientId.value = 'openemr';
+        }
+        if (keycloakClientSecret) {
+            keycloakClientSecret.value = 'change-me';
+        }
+        if (displayNameField) {
+            displayNameField.value = 'Keycloak SSO';
+        }
+        syncKeycloakPreview();
+        applyKeycloakValues();
+    }
+
+    [keycloakBaseUrl, keycloakRealmId].forEach(function (field) {
+        if (field) {
+            field.addEventListener('input', syncKeycloakPreview);
+            field.addEventListener('change', syncKeycloakPreview);
+        }
+    });
+
+    if (keycloakApply) {
+        keycloakApply.addEventListener('click', applyKeycloakValues);
+    }
+
+    if (keycloakExample) {
+        keycloakExample.addEventListener('click', loadExampleKeycloakValues);
+    }
+
+    if (keycloakCopyIssuer) {
+        keycloakCopyIssuer.addEventListener('click', async function () {
+            const issuer = computeKeycloakIssuer();
+            if (!issuer) {
+                setMessage('warning', '<?php echo xlj('Enter a Keycloak base URL and realm ID first.'); ?>');
+                return;
+            }
+            try {
+                await navigator.clipboard.writeText(issuer);
+                setMessage('success', '<?php echo xlj('Issuer URL copied to clipboard.'); ?>');
+            } catch (error) {
+                setMessage('warning', issuer);
+            }
+        });
+    }
+
+    syncKeycloakPreview();
 
     function updateStatus(provider) {
         if (!provider) {
@@ -550,5 +746,7 @@ if ($bindingSearchQuery !== '' && $bindingSearchResults === [] && ($_SERVER['REQ
     });
 })();
 </script>
+<?php if (!$renderPartial) { ?>
 </body>
 </html>
+<?php } ?>

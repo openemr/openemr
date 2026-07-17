@@ -50,6 +50,10 @@ After the module is enabled, a shortcut is also added under the OpenEMR
 
 That menu item opens the same configuration page.
 
+The configuration screen now includes a dedicated Keycloak helper section at
+the top. It is meant to make the mapping explicit for technical users and to
+reduce mistakes when entering the OIDC values manually.
+
 If you are using the development Docker compose setup, the configuration page
 can also be opened directly at:
 
@@ -187,6 +191,10 @@ In this example:
 - the client ID identifies the OpenEMR application within that tenant;
 - the client secret authenticates the OpenEMR client during token exchange.
 
+The helper section on the OpenEMR configuration page uses the same mapping.
+Enter the Keycloak base URL and realm ID first, then copy or apply the
+computed issuer URL into the main OIDC fields if needed.
+
 ### 1. Create the realm
 
 Create or select the realm that will issue identities for OpenEMR.
@@ -204,6 +212,9 @@ OpenEMR uses the full issuer URL, not just the realm name.
 Enter this exact value into OpenEMR:
 
 `https://keycloak.example.com/realms/clinic`
+
+In the configuration UI this is the value that belongs in the `Issuer URL`
+field. The helper section can generate it from the base URL and realm ID.
 
 ### 2. Create the OpenEMR client
 
@@ -227,6 +238,10 @@ The client name can be anything stable and readable. A common choice is:
 That name becomes the Keycloak client ID and is the value you enter into
 OpenEMR.
 
+In the configuration UI this value belongs in the `Client ID` field. The helper
+section includes a matching `Client ID` input so you can copy it directly into
+the OpenEMR form.
+
 ### 3. Configure the redirect URI
 
 OpenEMR shows the callback URL on the provider configuration page. Copy that
@@ -238,6 +253,9 @@ For the current module, the callback URL is typically:
 
 If you are serving OpenEMR over HTTPS, use the HTTPS variant of the same
 path.
+
+This value belongs in the Keycloak client’s Valid Redirect URIs list. It must
+match the callback URL shown on the OpenEMR configuration page exactly.
 
 In Keycloak, configure:
 

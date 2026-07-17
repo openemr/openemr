@@ -770,7 +770,7 @@
                 "label": "External Identity Provider",
                 "menu_id": "adm0",
                 "target": "adm",
-                "url": "/interface/modules/custom_modules/oe-module-external-idp/moduleConfig.php",
+                "url": "/interface/modules/custom_modules/oe-module-external-idp/moduleConfigShell.php",
                 "children": [],
                 "requirement": 0,
                 "acl_req": []
