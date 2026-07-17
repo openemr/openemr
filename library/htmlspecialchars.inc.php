@@ -206,7 +206,11 @@ function javascriptStringRemove(?string $text): string
  */
 function javascriptStringCheck(?string $text): bool
 {
-    return str_contains($text ?? '', 'javascript');
+    // Must be case-insensitive: browsers execute mixed-case javascript: URIs,
+    // and javascriptStringRemove() strips 'javascript' case-insensitively, so a
+    // case-sensitive check here would abort the recursion early and leave an
+    // executable payload (e.g. 'javasJAVASCRIPTcript' -> 'javascript').
+    return stripos($text ?? '', 'javascript') !== false;
 }
 
 /**

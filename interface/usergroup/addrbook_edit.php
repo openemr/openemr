@@ -311,8 +311,8 @@ function addrbook_invalue(string $name): string
                 <h6>${jsText(name)}</h6>
                 <div class="text-muted">
                     <strong>${jsText('NPI')}: </strong>${jsText(result.number)}<br>
-                    ${jsText(taxonomy) ? `<strong>${jsXlt(Specialty)}: </strong>${jsXlt(taxonomy.desc)}<br>` : ''}
-                    ${jsText(addr)} ? <strong>${jsXlt('Address')}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)}, ${jsText(addr.state)} ${jsText(addr.postal_code)} : ''
+                    ${taxonomy ? `<strong>${jsXlt('Specialty')}: </strong>${jsText(taxonomy.desc)}<br>` : ''}
+                    ${addr ? `<strong>${jsXlt('Address')}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)}, ${jsText(addr.state)} ${jsText(addr.postal_code)}` : ''}
                 </div>
             </div>`;
         });

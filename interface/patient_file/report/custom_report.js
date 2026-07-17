@@ -57,12 +57,10 @@ function find_all(){ // for each report the function mark_hilight() is called
   var match = null;
   match = keys.match(/[\^$.|?+()\\~`!@#%&+={}<>]{1,}/);
   if(match){
-    document.getElementById('alert_msg').innerHTML = jsXlt('Special characters are not allowed');
+    document.getElementById('alert_msg').textContent = xl('Special characters are not allowed');
     return;
   }
-  else{
-    document.getElementById('alert_msg').innerHTML='';
-  }
+  document.getElementById('alert_msg').textContent = '';
 
   forms_arr = document.getElementById('forms_to_search');
   for (var i = 0; i < forms_arr.options.length; i++) {
@@ -79,17 +77,16 @@ function find_all(){ // for each report the function mark_hilight() is called
 
     }
   }
-  if($('.hilite').length <1){
-    if(keys != '')
-    document.getElementById('alert_msg').innerHTML = jsXlt('No results found');
-  }
-  else{
-    document.getElementById('alert_msg').innerHTML='';
+  if ($('.hilite').length < 1) {
+    if (keys != '') {
+      document.getElementById('alert_msg').textContent = xl('No results found');
+    }
+  } else {
+    document.getElementById('alert_msg').textContent = '';
     f_id = $('.hilite:first').attr('id');
     element = document.getElementById(f_id);
     element.scrollIntoView(false);
   }
-
 }
 
 function remove_mark_all(){ // clears previous search results if exists
@@ -207,11 +204,11 @@ function next_prev(action){
   var match = null;
   match = keys.match(/[\^$.|?+()\\~`!@#%&+={}<>]{1,}/);
   if(match){
-    document.getElementById('alert_msg').innerHTML = jsXlt('Special characters are not allowed');
+    document.getElementById('alert_msg').textContent = xl('Special characters are not allowed');
     return;
   }
   else{
-    document.getElementById('alert_msg').innerHTML='';
+    document.getElementById('alert_msg').textContent = '';
   }
   forms_arr = document.getElementById('forms_to_search');
   for (var i = 0; i < forms_arr.options.length; i++) {
@@ -232,10 +229,10 @@ function next_prev(action){
   }
   if(w_count <1){
     if(keys != '')
-    document.getElementById('alert_msg').innerHTML = jsXlt('No results found');
+    document.getElementById('alert_msg').textContent = xl('No results found');
   }
   else{
-    document.getElementById('alert_msg').innerHTML='';
+    document.getElementById('alert_msg').textContent = '';
     if(action == 'next'){
      next(w_count);
     }
@@ -244,7 +241,7 @@ function next_prev(action){
     }
     var tot_res = res_array.length/w_count;
   if(tot_res > 0){
-	document.getElementById('alert_msg').innerHTML = jsXlt('Showing result') + ' ' + cur_res + ' ' + jsXlt('of') + ' ' + tot_res;
+	document.getElementById('alert_msg').textContent = xl('Showing result') + ' ' + cur_res + ' ' + xl('of') + ' ' + tot_res;
   }
   }
 

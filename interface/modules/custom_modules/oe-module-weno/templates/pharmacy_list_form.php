@@ -565,7 +565,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
                     $.each(data, function (i, value) {
                         html += '<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>';
                     });
-                    let msg = jsAttr(data.length) + ' ' + jsXlt('result(s) found.')));
+                    let msg = jsAttr(data.length) + ' ' + jsXlt('result(s) found.');
                     $("#searchResults").text(msg);
                 }
                 $("#weno_pharmacy").html(html); // Write HTML options to the select elementresult(s) found
