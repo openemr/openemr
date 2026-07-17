@@ -105,10 +105,11 @@ jobs:
       run: vendor/bin/phpunit -c phpunit-isolated.xml --log-junit="$RUNNER_TEMP/junit-windows.xml"
 
     - name: Report isolated-suite Windows baseline
-      if: ${{ always() }}
       shell: pwsh
+      env:
+        WINDOWS_TEST_OUTCOME: ${{ steps.windows-tests.outcome }}
       run: |
-        if ('${{ steps.windows-tests.outcome }}' -eq 'failure') {
+        if ($env:WINDOWS_TEST_OUTCOME -eq 'failure') {
           @"
         ## Windows isolated-test baseline
 
@@ -128,7 +129,6 @@ jobs:
         }
 
     - name: Upload Windows PHPUnit results
-      if: ${{ !cancelled() }}
       uses: actions/upload-artifact@v7
       with:
         name: junit-windows
@@ -137,7 +137,6 @@ jobs:
         retention-days: 14
 
     - name: Verify tests left the checkout clean
-      if: ${{ !cancelled() }}
       shell: pwsh
       run: |
         $changes = git status --porcelain
