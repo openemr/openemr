@@ -25,12 +25,12 @@ final class DispatchDataBuilderTest extends TestCase
     public function testRelCutBuildsBranchVersionPrev(): void
     {
         $builder = new DispatchDataBuilder($this->reader([
-            '--branch' => 'rel-810',
-            '--release-version' => '8.1.0',
+            '--branch' => 'rel-820',
+            '--release-version' => '8.2.0',
             '--prev-release' => '8.0.0',
         ]));
         self::assertSame(
-            ['branch' => 'rel-810', 'version' => '8.1.0', 'prev_release' => '8.0.0'],
+            ['branch' => 'rel-820', 'version' => '8.2.0', 'prev_release' => '8.0.0'],
             $builder->build(DispatchRequest::EVENT_REL_CUT),
         );
     }
@@ -38,16 +38,16 @@ final class DispatchDataBuilderTest extends TestCase
     public function testTagBuildsTagBranchVersionPrev(): void
     {
         $builder = new DispatchDataBuilder($this->reader([
-            '--tag' => 'v8_1_0',
-            '--branch' => 'rel-810',
-            '--release-version' => '8.1.0',
+            '--tag' => 'v8_2_0',
+            '--branch' => 'rel-820',
+            '--release-version' => '8.2.0',
             '--prev-release' => '8.0.0',
         ]));
         self::assertSame(
             [
-                'tag' => 'v8_1_0',
-                'branch' => 'rel-810',
-                'version' => '8.1.0',
+                'tag' => 'v8_2_0',
+                'branch' => 'rel-820',
+                'version' => '8.2.0',
                 'prev_release' => '8.0.0',
             ],
             $builder->build(DispatchRequest::EVENT_TAG),

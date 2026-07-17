@@ -138,7 +138,7 @@ form {
 </style>
 
 <?php if ($popup) { ?>
-    <?php Header::setupAssets('topdialog'); ?>
+    <?php echo Header::setupAssets(['topdialog']); ?>
 <?php } ?>
 
 <script>

@@ -3947,31 +3947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/easipro/pro.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'count\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'parent\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on array\\{0\\: int, 1\\: int, 2\\: int, 3\\: int, 4\\: int, 5\\: int, 6\\: int, 7\\: int, \\.\\.\\.\\}\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/fax/faxq.php',
@@ -8360,31 +8335,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'suicide_score\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/edit_diagnoses.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'abn\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'comments\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'diagnosis\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'wnl\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'DOB\' on array\\|false\\.$#',
@@ -38035,46 +37985,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'tags\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'category\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'html_url\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'labels\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'number\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'url\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'uuid\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false\\.$#',

@@ -57,11 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/transmitCCD.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getUuid may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../ccr/uuid.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function outputMessage may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/ccda_import/import_ccda.php',
@@ -797,16 +792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getKittens may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function mergeTiffs may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function addAppt may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
@@ -1390,16 +1375,6 @@ $ignoreErrors[] = [
     'message' => '#^Function phq9_report may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/phq9/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function showExamLine may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function showTreatmentLine may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function physical_exam_report may not be defined in the global namespace\\.$#',

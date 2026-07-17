@@ -413,7 +413,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     // If either check exist, then will skip
                     $firstCheck = $this->tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
                     $secondCheck = $this->tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[6], $matches[7]);
-                    $skipping = $firstCheck || $secondCheck ? true : false;
+                    $skipping = $firstCheck || $secondCheck;
                 } else {
                     // If no such table then the row is deemed not "missing".
                     $skipping = true;
@@ -978,7 +978,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname IS NULL");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -994,7 +994,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -1012,7 +1012,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -1032,7 +1032,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -1054,7 +1054,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3' AND $colname4 LIKE '$value4'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -1068,7 +1068,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     private function tableHasIndex($tblname, $colname)
     {
         $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
-        return (empty($row)) ? false : true;
+        return !empty($row);
     }
 
     /**
@@ -1081,7 +1081,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     private function tableHasEngine($tblname, $engine)
     {
         $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', [$tblname, $engine]);
-        return (empty($row)) ? false : true;
+        return !empty($row);
     }
 
     /**

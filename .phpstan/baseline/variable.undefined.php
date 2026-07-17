@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$dbase might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$host might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../admin.php',
@@ -457,46 +452,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/easipro/pro.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$arr_files_php might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/expand_contract_js.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$catid might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$erow might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$newid might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$tmp_name might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$userauthorized might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$webserver_root might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$date_init might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
@@ -840,11 +795,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$viewmode might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/newGroupEncounter/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$i might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/edit_diagnoses.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$isDorn might not be defined\\.$#',
@@ -2315,11 +2265,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$response might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/MfaUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$issues might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$fhirScopes might not be defined\\.$#',

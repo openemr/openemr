@@ -100,7 +100,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         }
         $practitionerResource->setMeta($meta);
 
-        $practitionerResource->setActive($dataRecord['active'] == "1" ? true : false);
+        $practitionerResource->setActive($dataRecord['active'] == "1");
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);

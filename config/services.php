@@ -13,6 +13,11 @@
 declare(strict_types=1);
 
 use Firehed\Container\TypedContainerInterface as TC;
+use GuzzleHttp\{
+    Client,
+    ClientInterface,
+    RequestOptions,
+};
 use Lcobucci\Clock\SystemClock;
 use League\Flysystem\{
     Filesystem,
@@ -88,6 +93,21 @@ return [
     },
 
     Psr17Factory::class,
+
+    // In addition to raw PSR-18 (in config/psr.php), also expose Guzzle's
+    // ClientInterface for its convenience APIs. At present, these resolve the
+    // same thing, but the PSR-18 could (if for some reason we wanted to)
+    // provide a different implementation in the future.
+    ClientInterface::class => Client::class,
+    Client::class => fn () => new Client([
+        // PSR-18 makes no rule about following redirects either way
+        RequestOptions::ALLOW_REDIRECTS => true,
+        // Establish _some_ baseline timeouts
+        RequestOptions::CONNECT_TIMEOUT => 5,
+        RequestOptions::TIMEOUT => 15,
+        // This is to be strictly compliant with PSR-18.
+        RequestOptions::HTTP_ERRORS => false,
+    ]),
 
     SystemClock::class => fn () => SystemClock::fromSystemTimezone(),
 

@@ -1,11 +1,11 @@
 # Validates that the files which are promised byte-identical across master
 # and every rel-X.Y.Z branch actually stay that way.
 #
-# Source of truth for the file set is .github/docker-byte-identical.yml.
+# Source of truth for the file set is .github/byte-identical.yml.
 # Source of truth for the rel branches is .github/release-targets.yml.
 # Both are read at workflow-run time -- this file holds no hardcoded list.
 #
-# This workflow, its config file (.github/docker-byte-identical.yml),
+# This workflow, its config file (.github/byte-identical.yml),
 # and the diff script (.github/scripts/validate-byte-identical.sh) are
 # all in FILES_ALL, so the auto-sync workflow keeps the trio in step
 # across master and every rel branch. That means the canary fires on

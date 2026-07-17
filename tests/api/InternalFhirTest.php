@@ -39,7 +39,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
-    <?php Header::setupAssets('jquery'); ?>
+    <?php echo Header::setupAssets(['jquery']); ?>
 
     <script>
         function testAjaxApi() {

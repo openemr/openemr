@@ -41,9 +41,9 @@ $disabled = (!empty($resPBE) && count($resPBE) > 0) ? 'disabled' : '';
 
 $args = [
     'collectThis' => (empty($rules)) ? "undefined" : json_sanitize($rules["facility-add"]["rules"]),
-    'forceClose' => (isset($_POST["mode"]) && $_POST["mode"] == "facility") ? true : false,
+    'forceClose' => isset($_POST["mode"]) && $_POST["mode"] == "facility",
     'erxEnabled' => OEGlobalsBag::getInstance()->getBoolean('erx_enable'),
-    'alertMsg' => trim($alertmsg) ? true : false,
+    'alertMsg' => (bool) trim($alertmsg),
     'disablePBE' => $disabled,
     'pos_code' => $pc->get_pos_ref(),
     'organization_types' => $listService->getOptionsByListName('organization-type', ['activity' => '1']),

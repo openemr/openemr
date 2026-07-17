@@ -39,7 +39,7 @@ $rule = $viewBean->rule ?>
                class="action_link" id="edit_summary" onclick="top.restoreSession()">(<?php echo xlt('edit'); ?>)</a>
         </p>
         <p><b><?php echo xlt($rule->title); ?></b>
-        (<?php echo Common::implode_funcs(", ", $rule->getRuleTypeLabels(), array('xlt')); ?>)
+        (<?php echo Common::implode_funcs(", ", $rule->getRuleTypeLabels(), [xlt(...)]); ?>)
         </p>
         <p><b><?php echo xlt('Bibliographic Citation'); ?>:</b>&nbsp;<?php echo text($rule->bibliographic_citation); ?></p>
         <p><b><?php echo xlt('Developer'); ?>:</b>&nbsp;<?php echo text($rule->developer); ?></p>

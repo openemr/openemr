@@ -17,11 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Shell execution function exec\\(\\) is forbidden\\. exec\\(\\) executes a shell command\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Shell execution function passthru\\(\\) is forbidden\\. passthru\\(\\) executes a command and passes raw output\\. Use Symfony\\\\Component\\\\Process\\\\Process with array arguments as a safer alternative\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/fax/fax_view.php',

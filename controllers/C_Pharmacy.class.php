@@ -31,7 +31,7 @@ class C_Pharmacy extends Controller
         $this->pageno = $this->Pharmacy->getPageno();
     }
 
-    function default_action()
+    function default_action(): string
     {
         return $this->list_action();
     }
@@ -51,11 +51,9 @@ class C_Pharmacy extends Controller
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "pharmacies/" . $this->template_mod . "_edit.html");
     }
 
-    function list_action()
+    function list_action(): string
     {
         $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory());
-
-        //print_r(Prescription::prescriptions_factory($id));
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "pharmacies/" . $this->template_mod . "_list.html");
     }
 

@@ -3792,11 +3792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/MiscBillingOptions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Common\\:\\:implode_funcs\\(\\) has parameter \\$funcs with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Common\\:\\:implode_funcs\\(\\) has parameter \\$pieces with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
@@ -4157,11 +4152,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/UuidUserAccount.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Command\\\\CreateReleaseChangelogCommand\\:\\:getNextLink\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Command\\\\GenerateAccessTokenCommand\\:\\:generateRefreshToken\\(\\) has parameter \\$scopeIdentifiers with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',
@@ -4407,6 +4397,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/oeHttp.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:mergeOptions\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:send\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:setOptions\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\oeHttpRequest\\:\\:\\$options type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
@@ -4627,11 +4632,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Core/Header.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:includeAsset\\(\\) has parameter \\$assets with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/Header.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:parseConfigFile\\(\\) has parameter \\$map with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/Header.php',
@@ -4643,16 +4643,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:readConfigFile\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/Header.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:setupAssets\\(\\) has parameter \\$assets with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/Header.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:setupHeader\\(\\) has parameter \\$assets with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/Header.php',
 ];
