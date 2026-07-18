@@ -352,6 +352,44 @@ class InternalToCdaConverterTest extends TestCase
         self::assertSame('2.16.840.1.113883.6.96', $value->getAttribute('codeSystem'), 'SNOMED codeSystem must be preserved');
     }
 
+    /**
+     * The allergen code and allergy status value use Node's leafLevel.code, so a
+     * present code with a missing display name omits the empty displayName
+     * attribute rather than emit displayName="".
+     */
+    public function testAllergyCodesOmitEmptyDisplayName(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <allergies>
+                    <allergy>
+                        <extension>ALG-1</extension>
+                        <rxnorm_code>7980</rxnorm_code>
+                        <rxnorm_code_text>Penicillin</rxnorm_code_text>
+                        <title></title>
+                        <status_code>55561003</status_code>
+                        <status_table></status_table>
+                    </allergy>
+                </allergies>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+
+        $allergenCodes = $xpath->query('//hl7:participant/hl7:participantRole/hl7:playingEntity/hl7:code');
+        self::assertNotFalse($allergenCodes, 'Allergen code query must be valid');
+        $allergenCode = $allergenCodes->item(0);
+        self::assertInstanceOf(\DOMElement::class, $allergenCode, 'Allergen code element must exist');
+        self::assertSame('7980', $allergenCode->getAttribute('code'), 'Allergen code must be preserved');
+        self::assertFalse($allergenCode->hasAttribute('displayName'), 'Empty title must omit allergen displayName');
+
+        $statusValues = $xpath->query("//hl7:value[@code='55561003']");
+        self::assertNotFalse($statusValues, 'Status value query must be valid');
+        $statusValue = $statusValues->item(0);
+        self::assertInstanceOf(\DOMElement::class, $statusValue, 'Status value element must exist');
+        self::assertFalse($statusValue->hasAttribute('displayName'), 'Empty status table must omit displayName');
+    }
+
     private function firstProcedureCode(string $input): \DOMElement
     {
         $xpath = $this->convertToXPath($input);
