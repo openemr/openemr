@@ -1903,10 +1903,7 @@ class InternalToCdaConverter
         $drug = $this->xpathValue('drug', $med);
         $rxnorm = $this->xpathValue('rxnorm', $med);
         $code = $this->createElement('code');
-        $code->setAttribute('code', $this->cleanCode($rxnorm));
-        $code->setAttribute('displayName', $drug);
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.88');
-        $code->setAttribute('codeSystemName', 'RXNORM');
+        $this->applyCodedOrNullFlavor($code, $this->cleanCode($rxnorm), $drug, '2.16.840.1.113883.6.88', 'RXNORM');
         $origText = $this->createElement('originalText');
         $ref = $this->createElement('reference');
         $ref->setAttribute('value', '#medinfo' . $index);
