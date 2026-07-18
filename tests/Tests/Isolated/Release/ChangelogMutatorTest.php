@@ -328,6 +328,14 @@ MD);
             ['git', ...$args],
             $this->tmpDir,
             [
+                // Hermeticity: null the developer's ~/.gitconfig + system
+                // config so options like `tag.gpgsign=true` don't promote
+                // our lightweight tags to signed annotated tags (which
+                // then demand a message and fail with exit 128). CI is
+                // unaffected but local runs bite developers who sign by
+                // default. See openemr/openemr#13018.
+                'GIT_CONFIG_GLOBAL' => '/dev/null',
+                'GIT_CONFIG_SYSTEM' => '/dev/null',
                 'GIT_AUTHOR_NAME' => 'Test',
                 'GIT_AUTHOR_EMAIL' => 'test@example.com',
                 'GIT_COMMITTER_NAME' => 'Test',
