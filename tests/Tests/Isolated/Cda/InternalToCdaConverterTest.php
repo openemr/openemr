@@ -186,6 +186,35 @@ class InternalToCdaConverterTest extends TestCase
         self::assertSame(1, $codes->length, 'Present author type code must emit the code element');
     }
 
+    /**
+     * The medication manufacturedMaterial code uses Node's leafLevel.code
+     * (no existsWhen), so a missing RxNorm code collapses to nullFlavor="UNK"
+     * rather than emitting code="null_flavor" or an empty codeSystemName.
+     */
+    public function testMedicationCodeUsesNullFlavorWhenRxnormEmpty(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <medications>
+                    <medication>
+                        <extension>MED-1</extension>
+                        <drug>Aspirin</drug>
+                        <rxnorm></rxnorm>
+                    </medication>
+                </medications>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $codes = $xpath->query('//hl7:manufacturedMaterial/hl7:code');
+        self::assertNotFalse($codes, 'Material code query must be valid');
+        $code = $codes->item(0);
+        self::assertInstanceOf(\DOMElement::class, $code, 'Material code element must exist');
+        self::assertSame('UNK', $code->getAttribute('nullFlavor'), 'Missing RxNorm must be nullFlavor UNK');
+        self::assertFalse($code->hasAttribute('code'), 'nullFlavor code must not carry the null_flavor sentinel');
+        self::assertFalse($code->hasAttribute('codeSystemName'), 'nullFlavor code must not carry codeSystemName');
+    }
+
     private function firstProcedureCode(string $input): \DOMElement
     {
         $xpath = $this->convertToXPath($input);
