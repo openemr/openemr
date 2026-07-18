@@ -31,7 +31,6 @@ try {
 } catch (\Throwable $exception) {
     EventAuditLogger::getInstance()->newEvent('external_login_failure', '', $providerIdForAudit, 0, 'authorization start failed');
     ServiceContainer::getLogger()->error('External IdP start failed', ['exception' => $exception]);
-    error_log('External IdP start failed: ' . $exception->getMessage());
     $errorMessage = rawurlencode(substr(trim($exception->getMessage()), 0, 512));
     header('Location: ' . OEGlobalsBag::getInstance()->get('login_screen') . '?error=1&site=' . rawurlencode($siteId) . '&external_idp_error=' . $errorMessage);
     exit;

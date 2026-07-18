@@ -1,439 +1,544 @@
 # External Identity Provider (OIDC) SSO
 
-This document explains how to install, configure, and test the OpenEMR
-External Identity Provider module for single sign-on using OpenID Connect
-(OIDC).
+This document explains how to configure and use the OpenEMR External Identity
+Provider module for OpenID Connect (OIDC) single sign-on.
 
-The module lets OpenEMR act as an OIDC client. In practical terms, your users
-sign in with an external identity provider such as Keycloak, and OpenEMR uses
-that identity to complete the login.
+It is written for:
 
-## What this module does
+- OpenEMR administrators
+- technical implementers
+- support staff who need to configure Keycloak or another OIDC provider
 
-- Adds an external login button to the OpenEMR login screen when enabled.
-- Supports OIDC discovery from an HTTPS issuer URL.
-- Uses the authorization code flow with PKCE.
-- Lets an administrator bind an external OIDC user ID to an OpenEMR user.
-- Stores provider status and login history in the module configuration screen.
+## Purpose
 
-## What this module does not do
+The module allows OpenEMR to delegate authentication to an external identity
+provider such as Keycloak.
 
-- It does not replace your existing local OpenEMR users.
-- It does not automatically create OpenEMR users from the identity provider.
-- It does not perform single logout with the external provider.
-- It does not make every user an administrator.
+In the working flow:
+
+1. the user clicks the external login button on the OpenEMR login page
+2. the user authenticates with the identity provider
+3. OpenEMR receives the OIDC callback
+4. OpenEMR logs the user into a local OpenEMR account
+
+The local OpenEMR account can be:
+
+- a manually bound existing user
+- an automatically matched existing user
+- an automatically provisioned shadow user
+
+## Supported behavior
+
+The current implementation supports:
+
+- OIDC discovery
+- authorization code flow with PKCE
+- login through Keycloak and similar OIDC providers
+- manual subject-to-user binding
+- optional auto-bind of an existing local OpenEMR user
+- optional auto-provisioning of a local shadow user
+- admin access from:
+  - `Admin -> External Identity Provider`
+
+## Important concepts
+
+### External identity
+
+The stable identity key is the OIDC `sub` claim.
+
+This is the value OpenEMR uses for the long-term external binding.
+
+### Local OpenEMR user
+
+OpenEMR still requires a local user account for authorization and session
+creation.
+
+External authentication does not remove the need for a local OpenEMR user.
+
+### Shadow user
+
+A shadow user is a local OpenEMR user created automatically after successful
+OIDC authentication.
+
+This is useful when you want users to log in through Keycloak without manually
+creating and binding every OpenEMR user in advance.
 
 ## Prerequisites
 
-Before you configure the module, make sure you have:
+Before configuration, make sure you have:
 
-- An installed and running OpenEMR instance.
-- Access to the Module Manager as an administrator.
-- An OIDC-compatible identity provider, such as Keycloak.
-- The exact issuer URL for the provider.
-- A client ID and client secret from the identity provider.
-- An HTTPS endpoint that OpenEMR and the identity provider can both reach.
+- a working OpenEMR instance
+- administrator access to OpenEMR
+- the External Identity Provider module installed and enabled
+- an OIDC provider, such as Keycloak
+- the issuer URL
+- the client ID
+- the client secret
+- a redirect URI that the user browser can reach
 
-## How to find the module in OpenEMR
+## Where to configure it
 
-The module appears in OpenEMR as:
-
-`External Identity Provider (OIDC) SSO`
-
-In the Module Manager, enable it first. After that, open the configuration
-screen from the module row.
-
-After the module is enabled, a shortcut is also added under the OpenEMR
-`Admin` menu:
+After the module is enabled, open:
 
 - `Admin -> External Identity Provider`
 
-That menu item opens the same configuration page.
+In a local development environment, the page is typically reachable at:
 
-The configuration screen now includes a dedicated Keycloak helper section at
-the top. It is meant to make the mapping explicit for technical users and to
-reduce mistakes when entering the OIDC values manually.
+- `http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/moduleConfigShell.php`
 
-If you are using the development Docker compose setup, the configuration page
-can also be opened directly at:
+## Fields on the OpenEMR configuration page
 
-`http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/moduleConfig.php`
-
-If your environment serves OpenEMR over HTTPS, use the HTTPS version instead:
-
-`https://localhost:9300/interface/modules/custom_modules/oe-module-external-idp/moduleConfig.php`
-
-## Required OpenEMR permissions
-
-The configuration page is restricted to users with administrator access
-(`admin/users`). If you open the page and see a 403 or `Not authorized`, log
-in as an admin user.
-
-## Configuration steps
-
-### 1. Open the module configuration screen
-
-After enabling the module, open the configuration page from Module Manager or
-use the direct URL above.
-
-### 2. Enter the provider details
-
-Fill in the following fields:
+### Provider configuration
 
 - Provider display name
-  - The text shown on the OpenEMR login button.
-  - Example: `Keycloak SSO`
+  - the label shown to users on the login page
 
 - Issuer URL
-  - The exact OIDC issuer URL.
-  - Example:
-    `https://keycloak.example.com/realms/clinic`
+  - the exact OIDC issuer URL
+
+- Callback URL
+  - read-only
+  - this must be copied into the identity provider client configuration
 
 - Client ID
-  - The client ID created in the identity provider.
+  - the OIDC client ID
 
 - Client secret
-  - The secret created with the OIDC client.
-  - If you are updating settings and want to keep the existing secret, leave
-    this blank.
+  - the OIDC client secret
+  - after save, this field is blank by design
+  - blank after save does not mean the secret was lost
 
 - Scopes
-  - Keep the default unless your identity provider requires more or less.
-  - The default is:
-    `openid profile email`
+  - default:
+    - `openid profile email`
 
-### 3. Test discovery
+- Enable sign-in with this provider
+  - enables the login option on the OpenEMR login screen
 
-Use the `Test discovery` button first.
+### Shadow-user provisioning
 
-This checks whether OpenEMR can reach the issuer URL and fetch the OIDC
-metadata.
+- Provisioning mode
+  - `Manual binding only`
+  - `Auto-bind existing local user`
+  - `Auto-provision shadow user`
+  - `Auto-bind or auto-provision`
 
-The result is shown as an inline message on the same page. The browser should
-not open a new blank tab or lose the configuration screen.
+- Match claim
+  - claim used to find an existing OpenEMR user
+  - common value:
+    - `preferred_username`
+  - another possible value:
+    - `email`
 
-If discovery fails, verify:
+- Username claim
+  - claim used when generating a local shadow username
 
-- the issuer URL is exact,
-- the URL uses HTTPS,
-- the server is reachable from the OpenEMR container,
-- the identity provider is healthy,
-- TLS certificates are valid or trusted.
+- Email claim
+  - usually:
+    - `email`
 
-### 4. Save the configuration
+- First name claim
+  - usually:
+    - `given_name`
 
-Click `Validate discovery and save`.
+- Last name claim
+  - usually:
+    - `family_name`
 
-When saved successfully:
+- Local group name
+  - OpenEMR local group membership
 
-- the provider configuration is stored,
-- discovery metadata is cached,
-- the provider may be enabled if the checkbox is selected.
+- ACL group
+  - OpenEMR access control group
 
-### 5. Enable sign-in
+- Username prefix
+  - prefix used for shadow users
+  - common value:
+    - `oidc_`
 
-Make sure `Enable sign-in with this provider` is checked.
+- Default facility
+  - optional
 
-If the provider is saved but disabled, users will not see the external login
-button.
+- Default authorized flag
+  - whether provisioned users are marked authorized
 
-### 6. Configure the redirect URI in your identity provider
+- Provisioned users are active by default
 
-Copy the callback URL shown on the configuration page into the OIDC client
-settings in your identity provider.
+- Sync name/email claims on each login
 
-This URL is the redirect target after the user authenticates at the provider.
+## Provisioning modes
 
-### 7. Bind external users to OpenEMR users
+### 1. Manual binding only
 
-After the provider is configured, use the identity binding section to map an
-external subject to a local OpenEMR user.
+Use this when:
 
-This is the step that makes the external login resolve to the correct OpenEMR
-account.
+- you want maximum control
+- each external subject should be explicitly mapped by an administrator
 
-Recommended practice:
+Behavior:
 
-- keep one local administrator login available,
-- bind and test one account before rolling out to all users,
-- document which external subject belongs to which OpenEMR account.
+- no automatic matching
+- no automatic user creation
 
-## Testing the login flow
+### 2. Auto-bind existing local user
 
-After configuration, test the full path:
+Use this when:
 
-1. Log out of OpenEMR.
-2. Return to the login screen.
-3. Confirm the external login button appears.
-4. Click the external login button.
-5. Complete authentication in the identity provider.
-6. Confirm OpenEMR returns you to the application as the expected user.
+- OpenEMR users already exist
+- the identity provider claim exactly matches local usernames or emails
 
-If the login succeeds, the module records the last successful login and the
-user it was mapped to.
+Behavior:
 
-## Using Keycloak as the IDP
+- if no subject binding exists, OpenEMR searches for one active local user
+- if exactly one match is found, it creates the binding automatically
 
-The recommended pattern is one Keycloak realm per environment or trust domain,
-and one confidential client for OpenEMR inside that realm.
+### 3. Auto-provision shadow user
 
-Concrete example:
+Use this when:
 
-- Keycloak base URL: `https://keycloak.example.com`
-- Realm ID: `clinic`
-- Issuer URL: `https://keycloak.example.com/realms/clinic`
-- OpenEMR client ID: `openemr`
-- OpenEMR client secret: the secret generated for that `openemr` client
+- you want OpenEMR to create local users on first successful external login
 
-In this example:
+Behavior:
 
-- the realm identifies the Keycloak tenant;
-- the client ID identifies the OpenEMR application within that tenant;
-- the client secret authenticates the OpenEMR client during token exchange.
+- if no binding exists, OpenEMR creates a local user
+- OpenEMR stores the subject binding
+- later logins reuse that same local user
 
-The helper section on the OpenEMR configuration page uses the same mapping.
-Enter the Keycloak base URL and realm ID first, then copy or apply the
-computed issuer URL into the main OIDC fields if needed.
+### 4. Auto-bind or auto-provision
 
-### 1. Create the realm
+Use this when:
 
-Create or select the realm that will issue identities for OpenEMR.
+- you want OpenEMR to reuse existing local users when possible
+- but create a shadow user if no match is found
 
-If the Keycloak URL is:
+## Keycloak configuration
 
-`https://keycloak.example.com/realms/clinic`
+This section uses a concrete example.
 
-then the realm ID is:
+Example:
 
-`clinic`
+- OpenEMR URL:
+  - `http://localhost:8300`
+- Keycloak realm:
+  - `ai_gateway`
+- Keycloak client ID:
+  - `openemr-client`
+- OpenEMR callback URL:
+  - `http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/callback.php`
 
-OpenEMR uses the full issuer URL, not just the realm name.
+### Keycloak client settings
 
-Enter this exact value into OpenEMR:
+In Keycloak, configure the client like this:
 
-`https://keycloak.example.com/realms/clinic`
+- Client type:
+  - OpenID Connect
 
-In the configuration UI this is the value that belongs in the `Issuer URL`
-field. The helper section can generate it from the base URL and realm ID.
+- Client ID:
+  - `openemr-client`
 
-### 2. Create the OpenEMR client
+- Client authentication:
+  - `On`
 
-Create a new Keycloak client for OpenEMR and configure it as an OIDC
-application.
+- Standard flow:
+  - `On`
 
-Recommended baseline settings:
+- Direct access grants:
+  - usually `Off`
 
-- Client type: `OpenID Connect`
-- Client authentication: `On` or `confidential`
-- Standard flow: `On`
-- Direct access grants: `Off` unless you have a documented reason to enable it
-- Service accounts: `Off`
-- Root URL: optional
-- Home URL: optional
+- Root URL:
+  - `http://localhost:8300`
 
-The client name can be anything stable and readable. A common choice is:
+- Valid redirect URIs:
+  - `http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/callback.php`
 
-`openemr`
+- Web origins:
+  - `http://localhost:8300`
 
-That name becomes the Keycloak client ID and is the value you enter into
-OpenEMR.
+- Admin URL:
+  - `http://localhost:8300`
 
-In the configuration UI this value belongs in the `Client ID` field. The helper
-section includes a matching `Client ID` input so you can copy it directly into
-the OpenEMR form.
+Then go to:
 
-### 3. Configure the redirect URI
+- `Credentials`
 
-OpenEMR shows the callback URL on the provider configuration page. Copy that
-value into Keycloak.
+Copy the client secret and paste it into OpenEMR.
 
-For the current module, the callback URL is typically:
+## Mapping Keycloak values into OpenEMR
 
-`http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/callback.php`
+For a Keycloak realm such as:
 
-If you are serving OpenEMR over HTTPS, use the HTTPS variant of the same
-path.
+- base URL:
+  - `http://localhost:8002`
+- realm ID:
+  - `ai_gateway`
 
-This value belongs in the Keycloak client’s Valid Redirect URIs list. It must
-match the callback URL shown on the OpenEMR configuration page exactly.
+the OpenEMR values are:
 
-In Keycloak, configure:
-
-- Valid redirect URIs: the exact callback URL, or a controlled pattern if your
-  environment requires it
-- Web origins: the OpenEMR origin if Keycloak requires CORS/origin
-  restrictions
-
-Example origin for local development:
-
-`http://localhost:8300`
-
-### 4. Retrieve and map the client credentials
-
-Keycloak generates a client secret only for confidential clients.
-
-Record the following values from the Keycloak client page:
-
-| Keycloak value | Meaning | OpenEMR field |
-| --- | --- | --- |
-| Realm ID: `clinic` | The Keycloak tenant name | Not entered directly; it is part of the issuer URL |
-| Issuer URL: `https://keycloak.example.com/realms/clinic` | OIDC discovery and token issuer | `Issuer URL` |
-| Client ID: `openemr` | The application identifier inside the realm | `Client ID` |
-| Client secret: generated secret | Secret used for token exchange | `Client secret` |
-
-Important:
-
-- Do not enter the realm ID into the `Client ID` field.
-- Do not enter the client ID into the `Issuer URL` field.
-- Do not enter the client secret anywhere except the `Client secret` field.
-
-### 5. Set scopes
-
-The module expects standard OIDC scopes and requires `openid`.
-
-The default OpenEMR value is:
-
-`openid profile email`
-
-That is the correct starting point for Keycloak in most deployments.
-
-If you remove `openid`, discovery and login will fail.
-
-### 6. Save the values in OpenEMR
-
-On the External Identity Provider page, populate these fields:
-
-| OpenEMR field | Example value |
+| OpenEMR field | Value |
 | --- | --- |
 | Provider display name | `Keycloak SSO` |
-| Issuer URL | `https://keycloak.example.com/realms/clinic` |
-| Client ID | `openemr` |
-| Client secret | the generated Keycloak secret |
+| Issuer URL | `http://host.docker.internal:8002/realms/ai_gateway` or the reachable issuer used by the OpenEMR container |
+| Client ID | `openemr-client` |
+| Client secret | the client secret from Keycloak Credentials tab |
 | Scopes | `openid profile email` |
 
-Then click:
+Important distinction:
 
-1. `Test discovery`
-2. `Validate discovery and save`
-3. Enable the provider
+- browser-facing redirect URI uses the OpenEMR URL the browser sees
+  - example:
+    - `http://localhost:8300/.../callback.php`
 
-If validation succeeds, OpenEMR keeps you on the same configuration page and
-shows a success banner. If validation fails, the error message is shown in the
-same banner area so you can correct the values without leaving the page.
+- server-to-server discovery and token endpoint access must use a host reachable
+  from the OpenEMR container
+  - in Docker-based local testing this may be:
+    - `http://host.docker.internal:8002/...`
 
-### 7. Validate the integration
+## Recommended initial configuration
 
-After the save succeeds:
+For a first working rollout, use:
 
-1. Confirm the provider is enabled.
-2. Log out of OpenEMR.
-3. Return to the login page.
-4. Verify the external login button is visible.
-5. Authenticate through Keycloak.
-6. Bind the returned external subject to the appropriate OpenEMR user.
+- Provisioning mode:
+  - `Auto-provision shadow user`
 
-For production rollout, test one pilot user before enabling the flow for a
-larger group.
+- Match claim:
+  - `preferred_username`
 
-### 6. Update OpenEMR with the Keycloak values
+- Username claim:
+  - `preferred_username`
 
-On the OpenEMR External Identity Provider page, fill in the fields like this:
+- Email claim:
+  - `email`
 
-| OpenEMR field | Keycloak value |
-| --- | --- |
-| Provider display name | Any friendly label, such as `Keycloak SSO` |
-| Issuer URL | Realm issuer URL, for example `https://keycloak.example.com/realms/clinic` |
-| Client ID | Keycloak client ID, for example `openemr` |
-| Client secret | Keycloak client secret generated for that client |
-| Scopes | `openid profile email` |
-| Enable sign-in with this provider | Checked after validation |
+- First name claim:
+  - `given_name`
 
-Then click:
+- Last name claim:
+  - `family_name`
 
-1. `Test discovery`
-2. `Validate discovery and save`
+- Username prefix:
+  - `oidc_`
 
-### 7. Test login
+- Local group name:
+  - use an existing OpenEMR group name
 
-After saving:
+- ACL group:
+  - choose a valid ACL group from the dropdown
 
-1. Enable the provider if it is not already enabled.
-2. Log out of OpenEMR.
-3. Return to the login page.
-4. Use the external login button.
-5. Sign in through Keycloak.
+- Default authorized flag:
+  - choose based on your operational policy
 
-If the login succeeds, bind the Keycloak user subject to the correct OpenEMR
-user from the identity binding section.
+## Step-by-step setup in OpenEMR
+
+### 1. Enable the module
+
+Enable:
+
+- `External Identity Provider (OIDC) SSO`
+
+### 2. Open the configuration page
+
+Go to:
+
+- `Admin -> External Identity Provider`
+
+### 3. Enter provider values
+
+Complete:
+
+- Provider display name
+- Issuer URL
+- Client ID
+- Client secret
+- Scopes
+
+### 4. Configure provisioning mode
+
+Choose the desired provisioning mode.
+
+If you choose either:
+
+- `Auto-provision shadow user`
+- `Auto-bind or auto-provision`
+
+then you must also complete:
+
+- Local group name
+- ACL group
+
+### 5. Test discovery
+
+Click:
+
+- `Test discovery`
+
+Expected result:
+
+- success message on the same page
+
+### 6. Save the configuration
+
+Click:
+
+- `Validate discovery and save`
+
+Expected result:
+
+- success message on the same page
+
+### 7. Confirm the provider is enabled
+
+Make sure:
+
+- `Enable sign-in with this provider` is checked
+
+### 8. Test the login
+
+1. open the OpenEMR login page
+2. click the external login button
+3. authenticate in Keycloak
+4. confirm that OpenEMR logs you in
+
+## How to test shadow-user provisioning
+
+Recommended test order:
+
+### Test 1: existing user logs in again
+
+1. log out
+2. log back in with the same Keycloak user
+3. confirm the same OpenEMR user is reused
+
+Expected result:
+
+- no duplicate user is created
+- the same binding is reused
+
+### Test 2: new Keycloak user
+
+1. create a new normal Keycloak user in the configured realm
+2. log in through the OpenEMR external login button
+3. confirm OpenEMR creates a new local shadow user
+
+Expected result:
+
+- a new local OpenEMR user appears
+- the binding appears in `Current bindings`
+
+## How to verify the result
+
+After a successful login, check:
+
+- Provider status
+  - `Last success`
+
+- Current bindings
+  - verify the `sub` is mapped to the correct local user
+
+- OpenEMR user list
+  - verify the user exists if auto-provisioning was used
 
 ## Troubleshooting
 
-### I do not see the module
+### 1. The login button does not appear
 
-Make sure the module is installed and enabled in Module Manager.
+Check:
 
-The module name should be:
+- the module is enabled
+- the provider is enabled
+- the configuration saved successfully
 
-`External Identity Provider (OIDC) SSO`
-
-If it is present but not shown, refresh the page or re-open Module Manager.
-
-### The module page says Not authorized
-
-You are not logged in with enough privileges.
-
-Use an OpenEMR admin account with super-user rights.
-
-### Discovery fails
+### 2. Discovery fails
 
 Common causes:
 
-- wrong issuer URL,
-- HTTP instead of HTTPS,
-- TLS certificate problems,
-- network access blocked between OpenEMR and the provider,
-- provider does not expose standard OIDC discovery metadata.
+- incorrect issuer URL
+- the OpenEMR container cannot reach the identity provider
+- invalid discovery metadata
+- TLS or local network issues
 
-### Login button does not appear
+### 3. Login returns to the OpenEMR login page
 
-Check that:
+Common causes:
 
-- the provider is enabled,
-- the configuration was saved successfully,
-- the provider record has valid discovery data,
-- you are logging out and returning to the normal OpenEMR login page.
+- token exchange failure
+- no local binding and provisioning disabled
+- local user validation failure
 
-### Login returns to OpenEMR but the wrong user is used
+Check:
 
-Check the identity binding:
+- `Last failure` on the configuration page
+- OpenEMR container logs
 
-- confirm the external subject is mapped to the correct OpenEMR user,
-- confirm the local user is active,
-- update the binding if the identity provider subject changed.
+### 4. Keycloak says `Client not found`
 
-## Safe rollback
+The OpenEMR `Client ID` does not match the actual Keycloak client ID.
 
-If you need to temporarily disable external sign-in:
+### 5. Keycloak says `Invalid parameter: redirect_uri`
 
-1. Open the module configuration page.
-2. Uncheck `Enable sign-in with this provider`.
-3. Save the configuration.
+The redirect URI in the Keycloak client does not exactly match the OpenEMR
+callback URL.
 
-This keeps the provider settings in place but prevents new external logins.
+### 6. Keycloak says `Invalid client or Invalid client credentials`
 
-## Best practices
+Check:
 
-- Keep one local OpenEMR administrator account available.
-- Test with a single pilot user before broad rollout.
-- Use HTTPS only for the issuer URL.
-- Treat the client secret as sensitive information.
-- Document your provider URL, client ID, and redirect URI together.
+- client secret is correct
+- client authentication is enabled
+- OpenEMR configuration was saved successfully
 
-## Support note
+### 7. Provisioning mode appears to revert to manual
 
-If you are sharing this document with end users, you can shorten it to the
-three actions they actually need:
+If save fails, the page now preserves submitted values.
 
-1. Open the module configuration page.
-2. Enter the issuer URL, client ID, and client secret.
-3. Test discovery, save, enable the provider, and then bind users.
+Most common reason for this symptom:
+
+- `Auto-provision shadow user` or `Auto-bind or auto-provision` was selected
+- but `Local group name` or `ACL group` was left blank
+
+### 8. The client secret field is blank after save
+
+This is expected.
+
+The screen intentionally does not redisplay the saved secret.
+
+## OpenEMR log collection
+
+In Docker-based development, collect recent OpenEMR logs with:
+
+```bash
+docker logs development-easy-openemr-1 2>&1 | tail -n 120
+```
+
+This is the first place to look when:
+
+- discovery fails
+- callback fails
+- login returns to the login page
+
+## Operational recommendations
+
+- keep one local OpenEMR admin account available
+- test with one pilot user first
+- use exact claim matching only
+- document the chosen provisioning mode
+- document the callback URL together with the Keycloak client settings
+- treat the client secret as sensitive
+
+## Limitations and current design notes
+
+- OpenEMR authorization is still local
+- external login does not automatically make a user an administrator
+- shadow users depend on local group and ACL assignment
+- the current implementation stores a generated hidden local password hash for
+  shadow users to satisfy the existing OpenEMR session/login flow
+
+## Summary
+
+For most implementations, the working recipe is:
+
+1. configure the Keycloak client correctly
+2. copy issuer URL, client ID, and client secret into OpenEMR
+3. save and enable the provider
+4. choose a provisioning mode
+5. test login with one Keycloak user
+6. verify the local OpenEMR binding or shadow-user creation
