@@ -63,7 +63,7 @@ class MiscBillingOptions
         if (empty($current_value)) {
             echo " selected";
         }
-        echo ">" . text(xl('-- Select --')) . "</option>";
+        echo ">" . xlt('-- Select --') . "</option>";
 
         for ($idx = 0; $idx < count($options); $idx++) {
             echo "<option value='" . attr($options[$idx][1]) . "'";

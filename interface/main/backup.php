@@ -183,16 +183,16 @@ if ($form_step == 102.1) {
         // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
         echo "\xEF\xBB\xBF";
         // CSV headers:
-        echo csvEscape(xl('List')) . ',';
-        echo csvEscape(xl('ID')) . ',';
-        echo csvEscape(xl('Title')) . ',';
-        echo csvEscape(xl('Translated')) . ',';
-        echo csvEscape(xl('Order')) . ',';
-        echo csvEscape(xl('Default')) . ',';
-        echo csvEscape(xl('Active')) . ',';
-        echo csvEscape(xl('Global ID')) . ',';
-        echo csvEscape(xl('Notes')) . ',';
-        echo csvEscape(xl('Codes')) . '';
+        echo xlc('List') . ',';
+        echo xlc('ID') . ',';
+        echo xlc('Title') . ',';
+        echo xlc('Translated') . ',';
+        echo xlc('Order') . ',';
+        echo xlc('Default') . ',';
+        echo xlc('Active') . ',';
+        echo xlc('Global ID') . ',';
+        echo xlc('Notes') . ',';
+        echo xlc('Codes') . '';
         echo "\n";
         foreach ($_POST['form_sel_lists'] as $listid) {
             $res = sqlStatement(
@@ -236,25 +236,25 @@ if ($form_step == 102.2) {
         // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
         echo "\xEF\xBB\xBF";
         // CSV headers:
-        echo csvEscape(xl('Form')) . ',';
-        echo csvEscape(xl('Order')) . ',';
-        echo csvEscape(xl('Source')) . ',';
-        echo csvEscape(xl('Group')) . ',';
-        echo csvEscape(xl('ID')) . ',';
-        echo csvEscape(xl('Label')) . ',';
-        echo csvEscape(xl('Translated')) . ',';
-        echo csvEscape(xl('UOR')) . ',';
-        echo csvEscape(xl('Type')) . ',';
-        echo csvEscape(xl('Width')) . ',';
-        echo csvEscape(xl('Height')) . ',';
-        echo csvEscape(xl('Max')) . ',';
-        echo csvEscape(xl('List')) . ',';
-        echo csvEscape(xl('Label Cols')) . ',';
-        echo csvEscape(xl('Data Cols')) . ',';
-        echo csvEscape(xl('Options')) . ',';
-        echo csvEscape(xl('Description')) . ',';
-        echo csvEscape(xl('Translated')) . ',';
-        echo csvEscape(xl('Conditions')) . '';
+        echo xlc('Form') . ',';
+        echo xlc('Order') . ',';
+        echo xlc('Source') . ',';
+        echo xlc('Group') . ',';
+        echo xlc('ID') . ',';
+        echo xlc('Label') . ',';
+        echo xlc('Translated') . ',';
+        echo xlc('UOR') . ',';
+        echo xlc('Type') . ',';
+        echo xlc('Width') . ',';
+        echo xlc('Height') . ',';
+        echo xlc('Max') . ',';
+        echo xlc('List') . ',';
+        echo xlc('Label Cols') . ',';
+        echo xlc('Data Cols') . ',';
+        echo xlc('Options') . ',';
+        echo xlc('Description') . ',';
+        echo xlc('Translated') . ',';
+        echo xlc('Conditions') . '';
         echo "\n";
         foreach ($_POST['form_sel_layouts'] as $layoutid) {
             $res = sqlStatement(
@@ -322,17 +322,17 @@ if ($form_step == 402) {
         // http://crashcoursing.blogspot.com/2011/05/exporting-csv-with-special-characters.html
         $out = "\xEF\xBB\xBF";
         // CSV headers:
-        $out .= csvEscape(xl('id')) . ',';
-        $out .= csvEscape(xl('date')) . ',';
-        $out .= csvEscape(xl('event')) . ',';
-        $out .= csvEscape(xl('user')) . ',';
-        $out .= csvEscape(xl('groupname')) . ',';
-        $out .= csvEscape(xl('comments')) . ',';
-        $out .= csvEscape(xl('user_notes')) . ',';
-        $out .= csvEscape(xl('patient_id')) . ',';
-        $out .= csvEscape(xl('success')) . ',';
-        $out .= csvEscape(xl('checksum')) . ',';
-        $out .= csvEscape(xl('crt_user')) . '';
+        $out .= xlc('id') . ',';
+        $out .= xlc('date') . ',';
+        $out .= xlc('event') . ',';
+        $out .= xlc('user') . ',';
+        $out .= xlc('groupname') . ',';
+        $out .= xlc('comments') . ',';
+        $out .= xlc('user_notes') . ',';
+        $out .= xlc('patient_id') . ',';
+        $out .= xlc('success') . ',';
+        $out .= xlc('checksum') . ',';
+        $out .= xlc('crt_user') . '';
         $out .= "\n";
         fwrite($hout, $out);
 

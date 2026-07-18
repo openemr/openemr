@@ -167,6 +167,6 @@ final class OneTimeRequestGuard
     {
         \OpenEMR\BC\ServiceContainer::getLogger()->error('api_onetime.php request failed', ['exception' => $e]);
         http_response_code(400);
-        die(text(xlt('Error: the request could not be completed.')));
+        die(xlt('Error: the request could not be completed.'));
     }
 }
