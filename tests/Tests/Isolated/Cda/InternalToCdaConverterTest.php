@@ -390,6 +390,39 @@ class InternalToCdaConverterTest extends TestCase
         self::assertFalse($statusValue->hasAttribute('displayName'), 'Empty status table must omit displayName');
     }
 
+    /**
+     * The encounter diagnosis observation value uses Node's leafLevel.code, so a
+     * diagnosis with a code but no text must omit the empty displayName
+     * attribute rather than emit displayName="".
+     */
+    public function testEncounterDiagnosisValueOmitsEmptyDisplayName(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <encounter_list>
+                    <encounter>
+                        <extension>ENC-1</extension>
+                        <encounter_problems>
+                            <problem>
+                                <code>38341003</code>
+                                <code_type>SNOMED CT</code_type>
+                                <text></text>
+                            </problem>
+                        </encounter_problems>
+                    </encounter>
+                </encounter_list>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $values = $xpath->query("//hl7:value[@code='38341003']");
+        self::assertNotFalse($values, 'Diagnosis value query must be valid');
+        $value = $values->item(0);
+        self::assertInstanceOf(\DOMElement::class, $value, 'Diagnosis value element must exist');
+        self::assertFalse($value->hasAttribute('displayName'), 'Empty diagnosis text must omit displayName');
+        self::assertSame('2.16.840.1.113883.6.96', $value->getAttribute('codeSystem'), 'SNOMED codeSystem must be preserved');
+    }
+
     private function firstProcedureCode(string $input): \DOMElement
     {
         $xpath = $this->convertToXPath($input);

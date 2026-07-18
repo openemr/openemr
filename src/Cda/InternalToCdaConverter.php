@@ -2956,10 +2956,7 @@ class InternalToCdaConverter
 
         $value = $this->createElement('value');
         $this->setXsiType($value, 'CD');
-        $value->setAttribute('code', $code);
-        $value->setAttribute('displayName', $text);
-        $value->setAttribute('codeSystem', $codeSystemInfo['oid']);
-        $value->setAttribute('codeSystemName', $codeSystemInfo['name']);
+        $this->applyCodedOrNullFlavor($value, $code, $text, $codeSystemInfo['oid'], $codeSystemInfo['name']);
         $obs->appendChild($value);
 
         $innerEntryRel->appendChild($obs);
