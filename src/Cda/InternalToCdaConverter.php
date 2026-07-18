@@ -2167,10 +2167,7 @@ class InternalToCdaConverter
         if ($problemCode !== '') {
             $codeSystemInfo = $this->mapCodeTypeToSystem($codeType);
             $normalizedCode = $this->normalizeCodeForSystem($problemCode, $codeType);
-            $value->setAttribute('code', $normalizedCode);
-            $value->setAttribute('codeSystem', $codeSystemInfo['oid']);
-            $value->setAttribute('codeSystemName', $codeSystemInfo['name']);
-            $value->setAttribute('displayName', $title);
+            $this->applyCodedOrNullFlavor($value, $normalizedCode, $title, $codeSystemInfo['oid'], $codeSystemInfo['name']);
         } else {
             $value->setAttribute('nullFlavor', 'UNK');
         }

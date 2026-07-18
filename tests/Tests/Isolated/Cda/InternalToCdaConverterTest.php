@@ -322,6 +322,36 @@ class InternalToCdaConverterTest extends TestCase
         self::assertFalse($present->hasAttribute('displayName'), 'Empty physician type must omit displayName');
     }
 
+    /**
+     * A problem observation value with a code but no title must omit the empty
+     * displayName attribute rather than emit displayName="", matching Node's
+     * leafLevel.code omit-empty behavior.
+     */
+    public function testProblemValueOmitsEmptyDisplayName(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <problem_lists>
+                    <problem>
+                        <extension>PROB-1</extension>
+                        <code>38341003</code>
+                        <code_type>SNOMED CT</code_type>
+                        <title></title>
+                        <start_date>2021-07-23</start_date>
+                    </problem>
+                </problem_lists>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $values = $xpath->query("//hl7:value[@code='38341003']");
+        self::assertNotFalse($values, 'Problem value query must be valid');
+        $value = $values->item(0);
+        self::assertInstanceOf(\DOMElement::class, $value, 'Problem value element must exist');
+        self::assertFalse($value->hasAttribute('displayName'), 'Empty title must omit displayName');
+        self::assertSame('2.16.840.1.113883.6.96', $value->getAttribute('codeSystem'), 'SNOMED codeSystem must be preserved');
+    }
+
     private function firstProcedureCode(string $input): \DOMElement
     {
         $xpath = $this->convertToXPath($input);
