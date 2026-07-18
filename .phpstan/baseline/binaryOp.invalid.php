@@ -9002,11 +9002,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Tree.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\["\' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Tree.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'_seq\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Tree.class.php',
