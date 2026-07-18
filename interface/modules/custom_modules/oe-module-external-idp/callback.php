@@ -9,6 +9,7 @@
 
 declare(strict_types=1);
 
+$ignoreAuth = true;
 $sessionAllowWrite = true;
 require_once(__DIR__ . '/../../../globals.php');
 

@@ -405,7 +405,27 @@ final class OidcAuthenticationService
 
     private function getCallbackUrl(): string
     {
-        return OEGlobalsBag::getInstance()->getWebRoot() . '/interface/modules/custom_modules/oe-module-external-idp/callback.php';
+        $globals = OEGlobalsBag::getInstance();
+        $callbackPath = $globals->getWebRoot() . '/interface/modules/custom_modules/oe-module-external-idp/callback.php';
+        $forwardedProto = trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+        $scheme = ($forwardedProto !== '')
+            ? strtolower(explode(',', $forwardedProto)[0])
+            : ((!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') ? 'https' : 'http');
+        $host = trim((string) ($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'));
+        if (str_contains($host, ',')) {
+            $host = trim(explode(',', $host)[0]);
+        }
+
+        if ($host !== '') {
+            return $scheme . '://' . $host . $callbackPath;
+        }
+
+        $siteBaseUrl = rtrim((string) $globals->get('site_addr_oath'), '/');
+        if ($siteBaseUrl !== '') {
+            return $siteBaseUrl . $callbackPath;
+        }
+
+        return 'http://localhost' . $callbackPath;
     }
 
     private function auditFailure(string $providerId, string $message): void

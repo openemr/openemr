@@ -304,7 +304,7 @@ if (!$renderPartial) {
                 <div class="form-group">
                     <label for="issuer_url"><?php echo xlt('Issuer URL'); ?></label>
                     <input class="form-control" id="issuer_url" name="issuer_url" type="url" maxlength="2048" placeholder="https://idp.example.com/realms/clinic" required value="<?php echo attr($provider['issuer_url'] ?? ''); ?>">
-                    <small class="form-text text-muted"><?php echo xlt('Must be the exact HTTPS issuer URL; discovery is requested from its standard well-known endpoint.'); ?></small>
+                    <small class="form-text text-muted"><?php echo xlt('Must be the exact issuer URL; discovery is requested from its standard well-known endpoint. HTTP is allowed for testing.'); ?></small>
                 </div>
 
                 <div class="form-group">

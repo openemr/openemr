@@ -23,3 +23,24 @@ testing is complete.
   - using Docker logs to diagnose module access issues
 - Do one final code cleanup pass for warnings, redundant imports, and minimal
   structure once behavior is confirmed.
+
+## Testing-only changes to revisit
+
+- `moduleConfigShell.php` is a static HTML shell that wraps the real config page
+  in an iframe for stable tab-title behavior. Revisit whether this should
+  remain in the final implementation.
+- `moduleConfig.php` defaults `site` to `default` when no site parameter is
+  present. Confirm whether this should remain or be replaced with a cleaner
+  OpenEMR-native route path.
+- `moduleConfig.php` attempts to create the module tables from `table.sql` if
+  they are missing. Revisit whether schema creation should happen only through
+  module install/enable instead of page bootstrap.
+- `DiscoveryService.php` allows `http://` issuer and endpoint URLs for local
+  testing. Revert this to HTTPS-only validation for production if required by
+  deployment policy.
+- `DiscoveryService.php` currently bypasses strict issuer equality checking and
+  logs a warning instead. This was added only for local testing where the
+  reachable container hostname differs from the issuer advertised by Keycloak.
+- `DiscoveryService.php` now logs issuer URL, discovery URL, response status,
+  and transport exceptions for debugging. Decide whether this level of logging
+  should remain, be reduced, or be gated behind a debug setting.
