@@ -2401,19 +2401,15 @@ class InternalToCdaConverter
         $code = $this->createElement('code');
         // Normalize code and set attributes based on code type
         if ($codeType === 'CPT4') {
-            $code->setAttribute('code', $codeVal);
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.12');
-            $code->setAttribute('codeSystemName', $codeType);
+            $this->applyCodedOrNullFlavor($code, $codeVal, '', '2.16.840.1.113883.6.12', $codeType);
         } elseif ($codeType === 'ICD9') {
             // ICD9 codes have dots removed and no codeSystem attribute
-            $code->setAttribute('code', str_replace('.', '', $codeVal));
-            $code->setAttribute('displayName', $description);
-            $code->setAttribute('codeSystemName', $codeType);
+            $this->applyCodedOrNullFlavor($code, str_replace('.', '', $codeVal), $description, '', $codeType);
         } else {
-            $code->setAttribute('code', $codeVal);
-            $code->setAttribute('displayName', $description);
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-            $code->setAttribute('codeSystemName', $codeType);
+            // Node derives codeSystem from the code type name, so an empty type
+            // omits both codeSystem and codeSystemName rather than defaulting.
+            $codeSystem = $codeType !== '' ? '2.16.840.1.113883.6.96' : '';
+            $this->applyCodedOrNullFlavor($code, $codeVal, $description, $codeSystem, $codeType);
         }
         $origText = $this->createElement('originalText');
         $ref = $this->createElement('reference');
@@ -6816,11 +6812,17 @@ class InternalToCdaConverter
     }
 
     /**
-     * Populate a coded element (raceCode, ethnicGroupCode, ...) with its
-     * code/displayName/codeSystem attributes, or collapse it to
-     * nullFlavor="UNK" when no code is available. The cs/CD datatypes forbid
-     * empty code/displayName values, and US Realm value-set bindings require a
-     * nullFlavor for unknowns rather than a blank code.
+     * Populate a coded element (raceCode, ethnicGroupCode, procedure code, ...)
+     * with its code/displayName/codeSystem/codeSystemName attributes, or
+     * collapse it to nullFlavor="UNK" when no code is available.
+     *
+     * This mirrors the Node service's shared code renderer
+     * (ccdaservice/oe-blue-button-generate/lib/translate.js `exports.code`,
+     * lines 27-65), which is the authoritative behavior the PHP converter
+     * replaces: an empty code becomes nullFlavor="UNK", and each remaining
+     * attribute is emitted only when its value is non-empty. The cs/CD/st
+     * datatypes forbid empty attribute values, so emitting e.g.
+     * codeSystemName="" produces C-CDA IG validation failures.
      */
     private function applyCodedOrNullFlavor(
         DOMElement $el,
@@ -6829,7 +6831,9 @@ class InternalToCdaConverter
         string $codeSystem,
         string $codeSystemName
     ): void {
-        if ($code === '') {
+        // cleanCode() yields the 'null_flavor' sentinel for blank input; Node
+        // treats both that sentinel and an empty string as an unknown code.
+        if ($code === '' || $code === 'null_flavor') {
             $el->setAttribute('nullFlavor', 'UNK');
             return;
         }
@@ -6837,8 +6841,12 @@ class InternalToCdaConverter
         if ($displayName !== '') {
             $el->setAttribute('displayName', $displayName);
         }
-        $el->setAttribute('codeSystem', $codeSystem);
-        $el->setAttribute('codeSystemName', $codeSystemName);
+        if ($codeSystem !== '') {
+            $el->setAttribute('codeSystem', $codeSystem);
+        }
+        if ($codeSystemName !== '') {
+            $el->setAttribute('codeSystemName', $codeSystemName);
+        }
     }
 
     /**

@@ -85,6 +85,74 @@ class InternalToCdaConverterTest extends TestCase
         self::assertSame(0, $misplaced->length, 'Self Care Activities templateId must not be nested in the Functional Status Observation');
     }
 
+    /**
+     * A procedure with a code but no code type must omit the codeSystemName
+     * attribute rather than emit codeSystemName="", which is an empty st value
+     * the C-CDA IG rejects. Mirrors Node's translate.code omit-empty behavior.
+     */
+    public function testProcedureCodeOmitsEmptyCodeSystemName(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <procedures>
+                    <procedure>
+                        <extension>PROC-1</extension>
+                        <date>2021-07-23</date>
+                        <code>73761001</code>
+                        <description>Colonoscopy</description>
+                        <code_type></code_type>
+                    </procedure>
+                </procedures>
+            </CCDA>
+            XML;
+
+        $code = $this->firstProcedureCode($input);
+        self::assertSame('73761001', $code->getAttribute('code'), 'Code value must be preserved');
+        self::assertFalse($code->hasAttribute('codeSystemName'), 'Empty code type must not emit codeSystemName');
+        self::assertFalse($code->hasAttribute('codeSystem'), 'Empty code type must not emit codeSystem');
+        self::assertFalse($code->hasAttribute('nullFlavor'), 'A present code must not be nullFlavored');
+    }
+
+    /**
+     * A procedure with no code at all must collapse to nullFlavor="UNK" rather
+     * than emit an empty code="" attribute. Mirrors Node's translate.code.
+     */
+    public function testProcedureWithEmptyCodeUsesNullFlavor(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <procedures>
+                    <procedure>
+                        <extension>PROC-1</extension>
+                        <date>2021-07-23</date>
+                        <code></code>
+                        <description>Unknown procedure</description>
+                        <code_type>SNOMED CT</code_type>
+                    </procedure>
+                </procedures>
+            </CCDA>
+            XML;
+
+        $code = $this->firstProcedureCode($input);
+        self::assertSame('UNK', $code->getAttribute('nullFlavor'), 'Missing code must be nullFlavor UNK');
+        self::assertFalse($code->hasAttribute('code'), 'nullFlavor code must not carry an empty code attribute');
+        self::assertFalse($code->hasAttribute('codeSystemName'), 'nullFlavor code must not carry codeSystemName');
+    }
+
+    private function firstProcedureCode(string $input): \DOMElement
+    {
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        $codes = $xpath->query('//hl7:procedure/hl7:code');
+        self::assertNotFalse($codes, 'Procedure code query must be valid');
+        $code = $codes->item(0);
+        self::assertInstanceOf(\DOMElement::class, $code, 'Procedure code element must exist');
+        return $code;
+    }
+
     #[DataProvider('demoFixtureProvider')]
     public function testDemoFixture(string $inputFile, string $expectedFile): void
     {
