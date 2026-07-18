@@ -2559,10 +2559,7 @@ class InternalToCdaConverter
         $testCode = $this->xpathValue('test_code', $firstResult);
         $testName = $this->xpathValue('test_name', $firstResult);
         $code = $this->createElement('code');
-        $code->setAttribute('code', $testCode);
-        $code->setAttribute('displayName', $testName);
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
+        $this->applyCodedOrNullFlavor($code, $testCode, $testName, '2.16.840.1.113883.6.1', 'LOINC');
         $organizer->appendChild($code);
 
         $this->appendStatusCode($organizer, ActStatus::Completed);
@@ -2606,10 +2603,7 @@ class InternalToCdaConverter
         $code = $this->xpathValue('result_code', $subtest);
         $desc = $this->xpathValue('result_desc', $subtest);
         $codeEl = $this->createElement('code');
-        $codeEl->setAttribute('code', $code);
-        $codeEl->setAttribute('displayName', $desc);
-        $codeEl->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $codeEl->setAttribute('codeSystemName', 'LOINC');
+        $this->applyCodedOrNullFlavor($codeEl, $code, $desc, '2.16.840.1.113883.6.1', 'LOINC');
         $obs->appendChild($codeEl);
 
         $text = $this->createElement('text');

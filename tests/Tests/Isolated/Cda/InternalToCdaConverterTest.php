@@ -243,6 +243,45 @@ class InternalToCdaConverterTest extends TestCase
         self::assertFalse($code->hasAttribute('codeSystemName'), 'nullFlavor code must not carry codeSystemName');
     }
 
+    /**
+     * The results organizer code and each result observation code use Node's
+     * leafLevel.code, so missing LOINC codes collapse to nullFlavor="UNK"
+     * rather than emit empty coded attributes.
+     */
+    public function testResultCodesUseNullFlavorWhenCodeEmpty(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <results>
+                    <result>
+                        <extension>RES-1</extension>
+                        <test_code></test_code>
+                        <test_name>Metabolic Panel</test_name>
+                        <subtest>
+                            <result_code></result_code>
+                            <result_desc>Glucose</result_desc>
+                        </subtest>
+                    </result>
+                </results>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+
+        $organizerCodes = $xpath->query('//hl7:organizer/hl7:code');
+        self::assertNotFalse($organizerCodes, 'Organizer code query must be valid');
+        $organizerCode = $organizerCodes->item(0);
+        self::assertInstanceOf(\DOMElement::class, $organizerCode, 'Organizer code element must exist');
+        self::assertSame('UNK', $organizerCode->getAttribute('nullFlavor'), 'Missing organizer code must be nullFlavor UNK');
+        self::assertFalse($organizerCode->hasAttribute('codeSystemName'), 'nullFlavor organizer code must not carry codeSystemName');
+
+        $obsCodes = $xpath->query('//hl7:organizer/hl7:component/hl7:observation/hl7:code');
+        self::assertNotFalse($obsCodes, 'Observation code query must be valid');
+        $obsCode = $obsCodes->item(0);
+        self::assertInstanceOf(\DOMElement::class, $obsCode, 'Observation code element must exist');
+        self::assertSame('UNK', $obsCode->getAttribute('nullFlavor'), 'Missing observation code must be nullFlavor UNK');
+    }
+
     private function firstProcedureCode(string $input): \DOMElement
     {
         $xpath = $this->convertToXPath($input);
