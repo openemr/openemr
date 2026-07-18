@@ -457,12 +457,21 @@ class InternalToCdaConverter
         }
         $assignedAuthor->appendChild($id);
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', $this->xpathValue('/CCDA/author/physician_type_code'));
-        $code->setAttribute('displayName', $this->xpathValue('/CCDA/author/physician_type'));
-        $code->setAttribute('codeSystem', $this->xpathValue('/CCDA/author/physician_type_system'));
-        $code->setAttribute('codeSystemName', $this->xpathValue('/CCDA/author/physician_type_system_name'));
-        $assignedAuthor->appendChild($code);
+        // Node guards the author code element with existsWhen propertyNotEmpty
+        // ('code') (headerLevel.js:372-375), omitting it entirely when the type
+        // code is unknown rather than emitting empty coded attributes.
+        $authorTypeCode = $this->xpathValue('/CCDA/author/physician_type_code');
+        if ($authorTypeCode !== '') {
+            $code = $this->createElement('code');
+            $this->applyCodedOrNullFlavor(
+                $code,
+                $authorTypeCode,
+                $this->xpathValue('/CCDA/author/physician_type'),
+                $this->xpathValue('/CCDA/author/physician_type_system'),
+                $this->xpathValue('/CCDA/author/physician_type_system_name'),
+            );
+            $assignedAuthor->appendChild($code);
+        }
 
         $this->appendWorkAddress(
             $assignedAuthor,
@@ -7086,12 +7095,21 @@ class InternalToCdaConverter
         }
         $assignedAuthor->appendChild($id);
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', $this->xpathValue('physician_type_code', $sourceAuthor));
-        $code->setAttribute('displayName', $this->xpathValue('physician_type', $sourceAuthor));
-        $code->setAttribute('codeSystem', $this->xpathValue('physician_type_system', $sourceAuthor));
-        $code->setAttribute('codeSystemName', $this->xpathValue('physician_type_system_name', $sourceAuthor));
-        $assignedAuthor->appendChild($code);
+        // Node guards the author code element with existsWhen propertyNotEmpty
+        // ('code') (fieldLevel.js:480-483), omitting it entirely when the type
+        // code is unknown rather than emitting empty coded attributes.
+        $authorTypeCode = $this->xpathValue('physician_type_code', $sourceAuthor);
+        if ($authorTypeCode !== '') {
+            $code = $this->createElement('code');
+            $this->applyCodedOrNullFlavor(
+                $code,
+                $authorTypeCode,
+                $this->xpathValue('physician_type', $sourceAuthor),
+                $this->xpathValue('physician_type_system', $sourceAuthor),
+                $this->xpathValue('physician_type_system_name', $sourceAuthor),
+            );
+            $assignedAuthor->appendChild($code);
+        }
 
         $assignedPerson = $this->createElement('assignedPerson');
         $name = $this->createElement('name');
