@@ -215,6 +215,34 @@ class InternalToCdaConverterTest extends TestCase
         self::assertFalse($code->hasAttribute('codeSystemName'), 'nullFlavor code must not carry codeSystemName');
     }
 
+    /**
+     * The immunization manufacturedMaterial code uses Node's leafLevel.code, so
+     * a missing CVX code collapses to nullFlavor="UNK" rather than emit empty
+     * coded attributes.
+     */
+    public function testImmunizationCodeUsesNullFlavorWhenCvxEmpty(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <immunizations>
+                    <immunization>
+                        <extension>IMM-1</extension>
+                        <cvx_code></cvx_code>
+                        <code_text>Influenza</code_text>
+                    </immunization>
+                </immunizations>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $codes = $xpath->query('//hl7:manufacturedMaterial/hl7:code');
+        self::assertNotFalse($codes, 'Material code query must be valid');
+        $code = $codes->item(0);
+        self::assertInstanceOf(\DOMElement::class, $code, 'Material code element must exist');
+        self::assertSame('UNK', $code->getAttribute('nullFlavor'), 'Missing CVX code must be nullFlavor UNK');
+        self::assertFalse($code->hasAttribute('codeSystemName'), 'nullFlavor code must not carry codeSystemName');
+    }
+
     private function firstProcedureCode(string $input): \DOMElement
     {
         $xpath = $this->convertToXPath($input);
