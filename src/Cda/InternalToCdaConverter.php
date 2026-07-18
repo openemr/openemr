@@ -3263,10 +3263,7 @@ class InternalToCdaConverter
         $cvxCode = $this->xpathValue('cvx_code', $imm);
         $codeText = $this->xpathValue('code_text', $imm);
         $code = $this->createElement('code');
-        $code->setAttribute('code', $cvxCode);
-        $code->setAttribute('displayName', $codeText);
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.12.292');
-        $code->setAttribute('codeSystemName', 'CVX');
+        $this->applyCodedOrNullFlavor($code, $cvxCode, $codeText, '2.16.840.1.113883.12.292', 'CVX');
         $origText = $this->createElement('originalText');
         $ref = $this->createElement('reference');
         $ref->setAttribute('value', '#imminfo' . $index);
