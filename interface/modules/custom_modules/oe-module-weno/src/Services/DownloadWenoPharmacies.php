@@ -16,12 +16,14 @@ if (!$GLOBALS ?? null) {
     require_once dirname(__DIR__, 5) . "/globals.php";
 }
 
+use DateTime;
 use Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use Throwable;
 use ZipArchive;
 
 class DownloadWenoPharmacies
@@ -105,11 +107,11 @@ class DownloadWenoPharmacies
                 $rowNumber++;
 
                 $record = array_map(fn($item): string => str_replace(['[', ']'], '', trim($item ?? '')), $record);
-                $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Created']);
+                $dateTime = DateTime::createFromFormat('m/d/Y h:i:s A', $record['Created']);
                 $record['Created'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
-                $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Modified']);
+                $dateTime = DateTime::createFromFormat('m/d/Y h:i:s A', $record['Modified']);
                 $record['Modified'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
-                $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Deleted']);
+                $dateTime = DateTime::createFromFormat('m/d/Y h:i:s A', $record['Deleted']);
                 $record['Deleted'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
 
                 $record['Business_Name'] = ucwords(strtolower((string) $record['Business_Name']));
@@ -143,7 +145,7 @@ class DownloadWenoPharmacies
 
             $connect->commit();
            // $connect->close();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $connect->rollback();
             error_log(text($e->getMessage()));
             return false;
@@ -190,7 +192,7 @@ class DownloadWenoPharmacies
 
         try {
             $zip = new ZipArchive();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('Error extracting zip file: ' . errorLogEscape($e->getMessage()));
             return "PHPError_install_zip_archive";
         }

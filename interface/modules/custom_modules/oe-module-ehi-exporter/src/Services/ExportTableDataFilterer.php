@@ -15,10 +15,11 @@
 namespace OpenEMR\Modules\EhiExporter\Services;
 
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
+use SimpleXMLElement;
 
 class ExportTableDataFilterer
 {
-    public function generateSelectQueryForTableFromMetadata(ExportTableDefinition $tableDef, \SimpleXMLElement $metaNode)
+    public function generateSelectQueryForTableFromMetadata(ExportTableDefinition $tableDef, SimpleXMLElement $metaNode)
     {
         // grab the table node with the attribute name of the table
         // grab all of the column nodes where the element has an attribute of exclude='true'

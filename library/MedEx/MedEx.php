@@ -24,6 +24,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use MedExApi\MedEx;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -55,7 +56,7 @@ if ($callbackKey === '') {
 }
 
 // Process the sync - MedEx validates the callback_key server-side
-$MedEx = new MedExApi\MedEx('MedExBank.com');
+$MedEx = new MedEx('MedExBank.com');
 $response = $MedEx->login('2');
 
 // Return only success/failure status, not sensitive tokens

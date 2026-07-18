@@ -15,6 +15,7 @@
 namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
+use Throwable;
 
 require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ESign.php';
 require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/FactoryIF.php';
@@ -98,7 +99,7 @@ class Api
         try {
             $ret = $signable->sign($userId, $lock, $amendment);
             return $ret;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log(errorLogEscape($e->getMessage()));
             return false;
         }

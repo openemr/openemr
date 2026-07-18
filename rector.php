@@ -87,6 +87,9 @@ return RectorConfig::configure()
         'rename_property' => true,
     ])
     ->withDeadCodeLevel(5)
+    // Import fully-qualified names as use statements, including in docblocks,
+    // and drop imports left unused by the rewrite.
+    // ->withImportNames(removeUnusedImports: true)
     // https://getrector.com/documentation/troubleshooting-parallel
     ->withParallel(
         timeoutSeconds: 120,

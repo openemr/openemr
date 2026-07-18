@@ -29,6 +29,7 @@ use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
+use Throwable;
 
 class CarecoordinationTable
 {
@@ -203,7 +204,7 @@ class CarecoordinationTable
             $this->parseTemplates->conditionedXmlContent = $this->conditionedXmlContent;
             $xml_to_array = new XmlExtended();
             $xml = $xml_to_array->fromString($this->conditionedXmlContent);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new Exception($e->getMessage());
         }
         // Document various sectional components

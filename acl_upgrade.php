@@ -49,9 +49,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Compatibility\Checker;
+
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
-$response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
+$response = Checker::checkPhpVersion();
 if ($response !== true) {
     die(htmlspecialchars($response));
 }
@@ -59,8 +62,6 @@ if ($response !== true) {
 $ignoreAuth = true; // no login required
 
 require_once('interface/globals.php');
-
-use OpenEMR\Common\Acl\AclExtended;
 
 $acl_version = AclExtended::getAclVersion();
 if (empty($acl_version)) {

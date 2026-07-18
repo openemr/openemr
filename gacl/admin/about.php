@@ -50,8 +50,7 @@ function get_system_info(GaclAdminApi $gacl_api): string
 
 /** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
 /** @var \ADOConnection $db */
-/** @var \Smarty $smarty */
-
+/** @var Smarty $smarty */
 $system_info = get_system_info($gacl_api);
 
 //Read credits.

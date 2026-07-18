@@ -51,7 +51,7 @@ try {
         default:
             $response['error'] = 'Invalid action';
     }
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $response['error'] = $e->getMessage();
 }
 
@@ -137,7 +137,7 @@ function deleteSpecimen()
         );
 
         return ['success' => true];
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }

@@ -10,17 +10,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../globals.php");
-
-$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
+require_once("../../globals.php");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $pid = (int)$session->get('pid');
 
@@ -168,7 +169,7 @@ try {
         . "?pid=" . urlencode((string) $pid)
         . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $logger->error("Exception saving sdoh record: " . $e->getMessage(), ['exception' => $e]);
     die(xlt("Error saving SDOH record."));
 }

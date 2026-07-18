@@ -24,7 +24,7 @@ try {
     FallbackRouter::handleRoutingTestIfRequested($request->getRequestUri(), 'oauth2');
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     // TODO: handle exceptions properly
     error_log($e->getMessage());
     // should never get here, but if we do, we can return a generic error response

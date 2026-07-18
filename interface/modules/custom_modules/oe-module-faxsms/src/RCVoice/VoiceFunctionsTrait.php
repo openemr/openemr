@@ -12,7 +12,9 @@
 
 namespace OpenEMR\Modules\FaxSMS\RCVoice;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use Throwable;
 
 trait VoiceFunctionsTrait
 {
@@ -49,8 +51,8 @@ trait VoiceFunctionsTrait
                 'status' => 'SUCCESS',
                 'msg' => xlt('Voice webhook secret provisioned. Event subscription registration is not yet available.'),
             ];
-        } catch (\Throwable $e) {
-            \OpenEMR\BC\ServiceContainer::getLogger()->error('Voice webhook secret provisioning failed', ['exception' => $e]);
+        } catch (Throwable $e) {
+            ServiceContainer::getLogger()->error('Voice webhook secret provisioning failed', ['exception' => $e]);
             $response = ['status' => 'ERROR', 'msg' => xlt('Webhook secret provisioning failed. See server log.')];
         }
         return (string) json_encode($response);

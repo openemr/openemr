@@ -12,6 +12,7 @@
 
 namespace Documents\Plugin;
 
+use C_Document;
 use Documents\Model\DocumentsTable;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use OpenEMR\Common\Database\QueryUtils;
@@ -41,7 +42,7 @@ class Documents extends AbstractPlugin
      */
     public static function getDocument($documentId, $doEncryption = false, $encryption_key = '')
     {
-                $obj = new \C_Document();
+                $obj = new C_Document();
                 $obj->onReturnRetrieveKey();
                 $document = $obj->retrieve_action("", $documentId, true, true, true);
         return $document;

@@ -14,13 +14,15 @@
 
 namespace OpenEMR\Modules\EhiExporter\Models;
 
+use Document;
+use InvalidArgumentException;
 use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 
 class EhiExportJobTask
 {
     public ?EhiExportJob $ehiExportJob;
 
-    public ?\Document $document;
+    public ?Document $document;
 
     public ?int $ehi_task_id = null;
     public ?int $ehi_export_job_id = null;
@@ -70,7 +72,7 @@ class EhiExportJobTask
     public function setStatus(string $status)
     {
         if (!in_array($status, ['pending', 'processing', 'completed', 'failed'])) {
-            throw new \InvalidArgumentException("Invalid status");
+            throw new InvalidArgumentException("Invalid status");
         }
         $this->status = $status;
     }

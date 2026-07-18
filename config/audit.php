@@ -12,6 +12,11 @@
 
 declare(strict_types=1);
 
+use OpenEMR\Common\Logging\Audit\SinkInterface;
+use OpenEMR\Common\Logging\Audit\MultiSink;
+use OpenEMR\Common\Logging\Audit\LogTablesSink;
+use OpenEMR\Common\Logging\Audit\AtnaSink;
+use OpenEMR\Common\Logging\Audit\Atna\TcpWriter;
 use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\Common\Database\{
     ConnectionManager,
@@ -54,30 +59,30 @@ return [
             enabledEventTypes: $enabledCategories,
         );
     },
-    Audit\SinkInterface::class => Audit\MultiSink::class,
-    Audit\MultiSink::class => function (TC $c) {
+    SinkInterface::class => MultiSink::class,
+    MultiSink::class => function (TC $c) {
         $sinks = [];
         $auditConn = $c->get(ConnectionManager::class)
             ->get(ConnectionType::NonAudited);
         // Future: make this configurable
-        $sinks[] = new Audit\LogTablesSink(conn: $auditConn);
+        $sinks[] = new LogTablesSink(conn: $auditConn);
         if ($c->getBool('ATNA_ENABLED')) {
-            $sinks[] = $c->get(Audit\AtnaSink::class);
+            $sinks[] = $c->get(AtnaSink::class);
         }
-        return new Audit\MultiSink($sinks);
+        return new MultiSink($sinks);
     },
 
 
     // ATNA logging config
-    Audit\Atna\TcpWriter::class => fn (TC $c) => new Audit\Atna\TcpWriter(
+    TcpWriter::class => fn (TC $c) => new TcpWriter(
         host: $c->getString('ATNA_AUDIT_HOST'),
         port: $c->getInt('ATNA_AUDIT_PORT'),
         localCert: $c->getString('ATNA_AUDIT_LOCALCERT'),
         caCert: $c->getString('ATNA_AUDIT_CACERT'),
     ),
-    Audit\AtnaSink::class => fn (TC $c) => new Audit\AtnaSink(
+    AtnaSink::class => fn (TC $c) => new AtnaSink(
         clock: $c->get(ClockInterface::class),
-        writer: $c->get(Audit\Atna\TcpWriter::class),
+        writer: $c->get(TcpWriter::class),
         host: $c->getString('ATNA_AUDIT_HOST'),
         serverName: '', // SERVER[SERVER_NAME]
         serverAddress: '', // SERVER[SERVER_ADDRESS]

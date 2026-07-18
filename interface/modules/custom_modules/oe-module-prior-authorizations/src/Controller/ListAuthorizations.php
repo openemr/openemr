@@ -10,6 +10,7 @@
 
 namespace Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller;
 
+use ADORecordSet_mysqli;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class ListAuthorizations
@@ -24,7 +25,7 @@ class ListAuthorizations
         $this->pid = $pid;
     }
 
-    public function getAllAuthorizations(): false|array|\ADORecordSet_mysqli
+    public function getAllAuthorizations(): false|array|ADORecordSet_mysqli
     {
         $sql = "SELECT *
                       FROM module_prior_authorizations

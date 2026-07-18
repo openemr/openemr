@@ -15,12 +15,12 @@ if (!defined('OPENEMR_GLOBALS_LOADED')) {
     exit();
 }
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
-require_once("FormROS.class.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
+require_once("FormROS.class.php");
 
 class C_FormROS extends Controller
 {

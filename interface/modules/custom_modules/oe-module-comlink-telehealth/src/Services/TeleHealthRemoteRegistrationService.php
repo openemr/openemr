@@ -13,12 +13,15 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
+use BadMethodCallException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\UserVideoRegistrationRequest;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
+use DateTime;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\SqlQueryException;
 use Psr\Log\LoggerInterface;
@@ -161,7 +164,7 @@ class TeleHealthRemoteRegistrationService
     public function addNewUser(UserVideoRegistrationRequest $request)
     {
         if (!$request->isValid()) {
-            throw new \InvalidArgumentException("request is missing username, password, or institutionId");
+            throw new InvalidArgumentException("request is missing username, password, or institutionId");
         }
 
         $securePassword = $request->getPassword();
@@ -181,7 +184,7 @@ class TeleHealthRemoteRegistrationService
                 $userSaveRecord->setDbRecordId($request->getDbRecordId());
                 $userSaveRecord->setUsername($request->getUsername());
                 $userSaveRecord->setAuthToken($securePassword);
-                $userSaveRecord->setDateRegistered(new \DateTime());
+                $userSaveRecord->setDateRegistered(new DateTime());
                 $userSaveRecord->setIsActive(true);
                 $userSaveRecord->setRegistrationCode($request->getRegistrationCode());
                 $userId = $this->userRepository->saveUser($userSaveRecord);
@@ -220,13 +223,13 @@ class TeleHealthRemoteRegistrationService
     public function updateUserFromRequest(UserVideoRegistrationRequest $request)
     {
         if (!$request->isValid()) {
-            throw new \InvalidArgumentException("request is missing username, password, or institutionId");
+            throw new InvalidArgumentException("request is missing username, password, or institutionId");
         }
 
         // first make sure we can do the api request
         $dbUserRecord = $this->userRepository->getUser($request->getUsername());
         if (empty($dbUserRecord)) {
-            throw new \BadMethodCallException("user does not exist for username " . $request->getUsername());
+            throw new BadMethodCallException("user does not exist for username " . $request->getUsername());
         }
 
         $securePassword = $request->getPassword();
@@ -254,7 +257,7 @@ class TeleHealthRemoteRegistrationService
         // first make sure we can do the api request
         $dbUserRecord = $this->userRepository->getUser($username);
         if (empty($dbUserRecord)) {
-            throw new \BadMethodCallException("user does not exist for username " . $username);
+            throw new BadMethodCallException("user does not exist for username " . $username);
         }
 
         $decryptedPassword = $this->userRepository->decryptPassword($password);
@@ -280,7 +283,7 @@ class TeleHealthRemoteRegistrationService
         // first make sure we can do the api request
         $dbUserRecord = $this->userRepository->getUser($username);
         if (empty($dbUserRecord)) {
-            throw new \BadMethodCallException("user does not exist for username " . $username);
+            throw new BadMethodCallException("user does not exist for username " . $username);
         }
 
         $passwordString = $this->userRepository->decryptPassword($password);
@@ -305,7 +308,7 @@ class TeleHealthRemoteRegistrationService
         // first make sure we can do the api request
         $dbUserRecord = $this->userRepository->getUser($username);
         if (empty($dbUserRecord)) {
-            throw new \BadMethodCallException("user does not exist for username " . $username);
+            throw new BadMethodCallException("user does not exist for username " . $username);
         }
 
         $httpDataRequest = ['userName' => $username, 'passwordString' => $password];

@@ -118,7 +118,7 @@ if ($action === 'print_labels') {
     // send to display where user decides to print etc...
     try {
         $pdf->Output($label_file, 'I');
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         echo $e->getMessage();
     }
 }

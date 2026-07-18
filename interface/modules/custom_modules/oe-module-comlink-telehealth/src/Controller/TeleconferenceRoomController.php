@@ -17,6 +17,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProviderNotEnro
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TeleHealthProviderSuspendedException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProvisioningServiceRequestException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthValidationException;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\FormattedPatientService;
@@ -28,6 +29,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
+use DateTime;
 use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
@@ -50,6 +52,7 @@ use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Throwable;
 use Twig\Environment;
 
 class TeleconferenceRoomController
@@ -179,7 +182,7 @@ class TeleconferenceRoomController
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(400);
             echo $this->twig->render('error/400.html.twig');
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
@@ -250,7 +253,7 @@ class TeleconferenceRoomController
             } else {
                 $appt = reset($appt); // annoying that its inside an array
             }
-            $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $appt['pc_eventDate']
+            $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $appt['pc_eventDate']
                 . " " . $appt['pc_startTime']);
             if (
                 $dateTime !== false
@@ -287,7 +290,7 @@ class TeleconferenceRoomController
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(400);
             echo $this->twig->render('error/400.html.twig');
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
@@ -345,7 +348,7 @@ class TeleconferenceRoomController
             http_response_code(400);
             header("Content-type: application/json");
             echo json_encode(['error' => xlt("Improperly formatted request")]);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
@@ -423,7 +426,7 @@ class TeleconferenceRoomController
             http_response_code(400);
             header("Content-type: application/json");
             echo json_encode(['error' => xlt("Improperly formatted request")]);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
@@ -482,12 +485,12 @@ class TeleconferenceRoomController
             header("Content-type: application/json");
             echo json_encode(['error' => xlt($exception->getMessage()), 'fields' => $exception->getValidationErrors()]);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             http_response_code(400);
             header("Content-type: application/json");
             echo json_encode(['error' => xlt($exception->getMessage())]);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             http_response_code(500);
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
         }
@@ -530,11 +533,11 @@ class TeleconferenceRoomController
             }
             throw new TelehealthValidationException($result->getValidationMessages(), $message);
         } elseif ($result->hasInternalErrors()) {
-            throw new \RuntimeException(implode(". ", $result->getInternalErrors()));
+            throw new RuntimeException(implode(". ", $result->getInternalErrors()));
         }
         $patientResult = $result->getData() ?? [];
         if (empty($patientResult)) {
-            throw new \RuntimeException("Patient was not created");
+            throw new RuntimeException("Patient was not created");
         }
 
         $pid = $patientResult[0]['pid'];
@@ -655,7 +658,7 @@ class TeleconferenceRoomController
                 'queryVars' => $queryVars]);
             http_response_code(403);
             echo json_encode(['error' => 'Access denied to patient telehealth information.']);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -691,7 +694,7 @@ class TeleconferenceRoomController
             http_response_code(500);
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Telehealth Provisioning Failed', 'code' => $exception->getCode()]);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -720,7 +723,7 @@ class TeleconferenceRoomController
         try {
             if (empty($session)) {
                 // throw error
-                throw new \InvalidArgumentException("Could not find session for appointment id");
+                throw new InvalidArgumentException("Could not find session for appointment id");
             }
             $isProvider = !$this->isPatient;
 
@@ -750,7 +753,7 @@ class TeleconferenceRoomController
             $participants = $this->participantListService->getSparseParticipantListFromSession($session);
             $escapedParticipants = textArray($participants);
             echo json_encode(['status' => 'success', 'participantList' => $escapedParticipants]);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -834,7 +837,7 @@ class TeleconferenceRoomController
                 'queryVars' => $queryVars]);
             http_response_code(401);
             echo json_encode(['error' => 'Access Denied']);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -869,7 +872,7 @@ class TeleconferenceRoomController
                 , 'errorMessage' => xl("User has no active TeleHealth enrollment and registration is skipped")]));
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
             echo $jsonSettings;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -1049,7 +1052,7 @@ class TeleconferenceRoomController
                 'queryVars' => $queryVars]);
             http_response_code(400);
             echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
@@ -1425,7 +1428,7 @@ class TeleconferenceRoomController
 
     /**
      * @param $user - a user as returned from UserService
-     * @return \Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser|null
+     * @return TeleHealthUser|null
      * @throws TelehealthProvisioningServiceRequestException
      */
     private function getOrCreateTelehealthProvider($user)
@@ -1435,7 +1438,7 @@ class TeleconferenceRoomController
 
     /**
      * @param $patient
-     * @return \Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser|null
+     * @return TeleHealthUser|null
      * @throws TelehealthProvisioningServiceRequestException
      */
     private function getOrCreateTelehealthPatient($patient)

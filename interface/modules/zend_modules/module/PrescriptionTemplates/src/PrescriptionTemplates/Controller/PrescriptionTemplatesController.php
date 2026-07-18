@@ -24,6 +24,7 @@ namespace PrescriptionTemplates\Controller;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use Prescription;
 
 class PrescriptionTemplatesController extends AbstractActionController
 {
@@ -36,7 +37,7 @@ class PrescriptionTemplatesController extends AbstractActionController
         $prescriptions = [];
         $p = null;
         foreach ($ids as $id) {
-            $p = new \Prescription($id);
+            $p = new Prescription($id);
 
             if (!isset($prescriptions[$p->provider->id])) {
                 $prescriptions[$p->provider->id] = [];

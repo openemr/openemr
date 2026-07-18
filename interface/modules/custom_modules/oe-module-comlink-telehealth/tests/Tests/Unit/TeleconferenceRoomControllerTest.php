@@ -18,6 +18,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrat
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\ParticipantListService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
+use InvalidArgumentException;
 use OpenEMR\Services\AppointmentService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -73,7 +74,7 @@ class TeleconferenceRoomControllerTest extends TestCase
             ->method('getAppointment')
             ->willReturn($appointment);
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $controller = $this->controller;
         $controller->setAppointmentService($apptService);
         $controller->initalizeAppointmentForTelehealth($appointment['pc_eid']);

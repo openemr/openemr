@@ -9,7 +9,7 @@ use Syndromicsurveillance\Model\SyndromicsurveillanceTable;
 return [
     'controllers' => [
         'factories' => [
-            SyndromicsurveillanceController::class => fn(ContainerInterface $container, $requestedName): \Syndromicsurveillance\Controller\SyndromicsurveillanceController => new SyndromicsurveillanceController($container->get(SyndromicsurveillanceTable::class))
+            SyndromicsurveillanceController::class => fn(ContainerInterface $container, $requestedName): SyndromicsurveillanceController => new SyndromicsurveillanceController($container->get(SyndromicsurveillanceTable::class))
         ]
     ],
 

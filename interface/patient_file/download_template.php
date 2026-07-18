@@ -16,16 +16,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/* 3-feb-21 RM - addition of {CurrentDate} and {CurrentTime} */
-require_once('../globals.php');
-$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . '/appointments.inc.php');
-require_once($srcdir . '/options.inc.php');
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+/* 3-feb-21 RM - addition of {CurrentDate} and {CurrentTime} */
+require_once('../globals.php');
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . '/appointments.inc.php');
+require_once($srcdir . '/options.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
@@ -354,7 +354,7 @@ if ($encounter) {
 }
 
 $form_filename = $_REQUEST['form_filename'];
-$templatedir   = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/doctemplates";
+$templatedir   = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/doctemplates";
 $templatepath  = "$templatedir/" . check_file_dir_name($form_filename);
 
 // Create a temporary file to hold the output.

@@ -13,18 +13,19 @@
  * @copyright Copyright (c) 2013 OEMR
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- **/
+ */
 
 namespace ESign;
-
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Abstract/Controller.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Configuration.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Factory.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Log.php';
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use stdClass;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Abstract/Controller.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Configuration.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Factory.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Log.php';
 
 class Form_Controller extends Abstract_Controller
 {
@@ -34,7 +35,7 @@ class Form_Controller extends Abstract_Controller
     public function esign_form_view()
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $form = new \stdClass();
+        $form = new stdClass();
         $form->table = 'forms';
         $form->formDir = $this->getRequest()->getParam('formdir', '');
         $form->formId = $this->getRequest()->getParam('formid', 0);

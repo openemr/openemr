@@ -13,6 +13,7 @@
 namespace Application\Controller;
 
 use Application\Listener\Listener;
+use Application\Model\SendtoTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -21,7 +22,7 @@ use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 class SendtoController extends AbstractActionController
 {
     /**
-     * @var \Application\Model\SendtoTable
+     * @var SendtoTable
      */
     protected $sendtoTable;
     /**
@@ -29,7 +30,7 @@ class SendtoController extends AbstractActionController
      */
     protected $listenerObject;
 
-    public function __construct(\Application\Model\SendtoTable $sendToTable)
+    public function __construct(SendtoTable $sendToTable)
     {
         $this->listenerObject = new Listener();
         $this->sendtoTable = $sendToTable;
@@ -130,7 +131,7 @@ class SendtoController extends AbstractActionController
     /**
      * Table Gateway
      *
-     * @return \Application\Model\SendtoTable
+     * @return SendtoTable
      */
     public function getSendtoTable()
     {

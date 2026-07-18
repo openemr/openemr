@@ -31,19 +31,21 @@ use Carecoordination\Model\EncounterccdadispatchTable;
 use Carecoordination\Model\EncountermanagerTable;
 use Carecoordination\Model\SetupTable;
 use Documents\Controller\DocumentsController;
+use Documents\Model\DocumentsTable;
+use Documents\Plugin\Documents;
 use Interop\Container\ContainerInterface;
 use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [
         'factories' => [
-            CarecoordinationController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\CarecoordinationController => new CarecoordinationController($container->get(CarecoordinationTable::class), $container->get(DocumentsController::class)),
-            EncountermanagerController::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\EncountermanagerController => new EncountermanagerController($container->get(\Carecoordination\Model\EncountermanagerTable::class)),
+            CarecoordinationController::class => fn(ContainerInterface $container, $requestedName): CarecoordinationController => new CarecoordinationController($container->get(CarecoordinationTable::class), $container->get(DocumentsController::class)),
+            EncountermanagerController::class =>  fn(ContainerInterface $container, $requestedName): EncountermanagerController => new EncountermanagerController($container->get(EncountermanagerTable::class)),
             // we use factories because the controller code is used in two places.  ZF isolates the controller services into
             // their own scope and are not available from outside the module.  The factory let's us share the instantiation code.
             EncounterccdadispatchController::class =>  EncounterccdadispatchControllerFactory::class,
             SetupController::class => SetupControllerFactory::class,
-            CcdController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\CcdController => new CcdController($container->get(CcdTable::class), $container->get(CarecoordinationTable::class), $container->get(\Documents\Model\DocumentsTable::class), $container->get(DocumentsController::class))
+            CcdController::class => fn(ContainerInterface $container, $requestedName): CcdController => new CcdController($container->get(CcdTable::class), $container->get(CarecoordinationTable::class), $container->get(DocumentsTable::class), $container->get(DocumentsController::class))
         ],
     ],
 
@@ -142,18 +144,18 @@ return [
 
     'service_manager' => [
         'factories' => [
-            CarecoordinationTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CarecoordinationTable => new CarecoordinationTable(),
-            EncounterccdadispatchTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\EncounterccdadispatchTable => new EncounterccdadispatchTable(),
-            EncountermanagerTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\EncountermanagerTable => new EncountermanagerTable(),
-            SetupTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\SetupTable => new SetupTable(),
-            CcdTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CcdTable => new CcdTable(),
-            ModuleconfigForm::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Form\ModuleconfigForm => new ModuleconfigForm(),
+            CarecoordinationTable::class =>  fn(ContainerInterface $container, $requestedName): CarecoordinationTable => new CarecoordinationTable(),
+            EncounterccdadispatchTable::class =>  fn(ContainerInterface $container, $requestedName): EncounterccdadispatchTable => new EncounterccdadispatchTable(),
+            EncountermanagerTable::class =>  fn(ContainerInterface $container, $requestedName): EncountermanagerTable => new EncountermanagerTable(),
+            SetupTable::class =>  fn(ContainerInterface $container, $requestedName): SetupTable => new SetupTable(),
+            CcdTable::class =>  fn(ContainerInterface $container, $requestedName): CcdTable => new CcdTable(),
+            ModuleconfigForm::class => fn(ContainerInterface $container, $requestedName): ModuleconfigForm => new ModuleconfigForm(),
             // so this isn't really a 'controller' class used as a route 'controller' but more to reuse component code for other modules...
-            ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\ModuleconfigController => new ModuleconfigController(),
+            ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): ModuleconfigController => new ModuleconfigController(),
             SetupController::class => SetupControllerFactory::class,
             EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class,
-            CCDAEventsSubscriber::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Listener\CCDAEventsSubscriber => new CCDAEventsSubscriber($container->get(CcdaGenerator::class)),
-            CcdaGenerator::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CcdaGenerator => new CcdaGenerator($container->get(EncounterccdadispatchTable::class))
+            CCDAEventsSubscriber::class => fn(ContainerInterface $container, $requestedName): CCDAEventsSubscriber => new CCDAEventsSubscriber($container->get(CcdaGenerator::class)),
+            CcdaGenerator::class => fn(ContainerInterface $container, $requestedName): CcdaGenerator => new CcdaGenerator($container->get(EncounterccdadispatchTable::class))
         ],
     ]
     // These plugins classes get added as methods onto the module controllers.  So you can reference inside a controller
@@ -164,7 +166,7 @@ return [
     // TODO: Note this is a weird dependency used in the CarecoordinationController class that should be revisited
     ,'controller_plugins' => [
         'factories' => [
-            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new \Documents\Plugin\Documents()
+            'Documents' => fn(ContainerInterface $container, $requestedName): Documents => new Documents()
         ]
     ]
     ,'module_dependencies' => [

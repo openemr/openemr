@@ -15,6 +15,7 @@ namespace Carecoordination\Model;
 
 use Application\Plugin\CommonPlugin;
 use CouchDB;
+use Document;
 use DOMDocument;
 use Dompdf\Dompdf;
 use OpenEMR\BC\ServiceContainer;
@@ -22,6 +23,8 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use RuntimeException;
+use Throwable;
 use XSLTProcessor;
 
 // TODO: we need to refactor all of this so it can go into a class for this functionality
@@ -209,7 +212,7 @@ class EncountermanagerTable
         $xml = XmlUtils::loadString($ccda);
         $output = $xml->asXML();
         if ($output === false) {
-            throw new \RuntimeException("Failed to serialize CCDA as XML");
+            throw new RuntimeException("Failed to serialize CCDA as XML");
         }
         return $output;
     }
@@ -223,7 +226,7 @@ class EncountermanagerTable
         $xsl->load(__DIR__ . '/../../../../../public/xsl/cda.xsl');
         $proc = new XSLTProcessor();
         if (!$proc->importStyleSheet($xsl)) { // attach the xsl rules
-            throw new \RuntimeException("CDA Stylesheet could not be found");
+            throw new RuntimeException("CDA Stylesheet could not be found");
         }
         $outputFile = sys_get_temp_dir() . '/out_' . time() . '.html';
         $proc->transformToURI($xml, $outputFile);
@@ -274,9 +277,9 @@ class EncountermanagerTable
 
                     $elec_sent[] = ['pid' => $value, 'map_id' => $trans_id];
 
-                    $documents = \Document::getDocumentsForForeignReferenceId('ccda', $ccda_id);
+                    $documents = Document::getDocumentsForForeignReferenceId('ccda', $ccda_id);
                     if (empty($documents[0])) {
-                        throw new \RuntimeException("Cannot send document as document was not generated for ccda with ccda id " . $ccda_id);
+                        throw new RuntimeException("Cannot send document as document was not generated for ccda with ccda id " . $ccda_id);
                     }
                     $document = $documents[0];
                     $ccda = $document->get_data();
@@ -284,7 +287,7 @@ class EncountermanagerTable
                     $fileName = (string) $document->get_name();
                     $ccdaString = (string) $ccda;
                     if ($ccdaString === '' || $fileName === '') {
-                        throw new \RuntimeException("Cannot send document as document data was empty or filename was empty for document with id "
+                        throw new RuntimeException("Cannot send document as document data was empty or filename was empty for document with id "
                             . $document->get_id());
                     }
 
@@ -292,7 +295,7 @@ class EncountermanagerTable
                         'html' => $this->getCcdaAsHTML($ccdaString),
                         'pdf' => $this->getCcdaAsPdf($ccdaString),
                         'xml' => $this->getCcdaAsXml($ccdaString),
-                        default => throw new \RuntimeException("Unsupported CCDA export type: " . $xml_type),
+                        default => throw new RuntimeException("Unsupported CCDA export type: " . $xml_type),
                     };
                     $replaceExt = "." . $xml_type;
                     $extpos = strrpos($fileName, ".xml");
@@ -308,7 +311,7 @@ class EncountermanagerTable
                     }
                 }
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             ServiceContainer::getLogger()->error("EncountermanagerTable: " . $exception->getMessage(), ['data' => $data, 'exception' => $exception]);
             return ("Delivery failed to send");
         }

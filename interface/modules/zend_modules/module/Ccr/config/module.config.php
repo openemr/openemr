@@ -12,7 +12,7 @@ use Laminas\Router\Http\Segment;
 return [
     'controllers' => [
         'factories' => [
-            CcrController::class => fn(ContainerInterface $container, $requestedName): \Ccr\Controller\CcrController => new CcrController($container->get(CcrTable::class), $container->get(DocumentsController::class))
+            CcrController::class => fn(ContainerInterface $container, $requestedName): CcrController => new CcrController($container->get(CcrTable::class), $container->get(DocumentsController::class))
         ],
     ],
 
@@ -50,7 +50,7 @@ return [
     'service_manager' => [
         'factories' => [
             // TODO: it is odd that this has to be available to the service manager to be dynamically instantiated... but its in the controller namespace.
-            ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): \Ccr\Controller\ModuleconfigController => new ModuleconfigController(),
+            ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): ModuleconfigController => new ModuleconfigController(),
             CcrTable::class => fn (ContainerInterface $container, $requestedName) => new CcrTable(),
         ]
 

@@ -12,6 +12,7 @@
 
 namespace Documents\Model;
 
+use Exception;
 use Laminas\InputFilter\Factory as InputFactory;
 use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterAwareInterface;
@@ -32,7 +33,7 @@ class Documents implements InputFilterAwareInterface
 
     public function setInputFilter(InputFilterInterface $inputFilter)
     {
-        throw new \Exception("Not used");
+        throw new Exception("Not used");
     }
 
     public function getInputFilter()

@@ -13,6 +13,7 @@
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
+use DateTime;
 use OpenEMR\Common\Database\QueryUtils;
 use Psr\Log\LoggerInterface;
 
@@ -106,7 +107,7 @@ class TeleHealthPersonSettingsRepository
         }
 
         if (isset($row['date_created'])) {
-            $date = \DateTime::createFromFormat($dateFormat, $row['date_created']);
+            $date = DateTime::createFromFormat($dateFormat, $row['date_created']);
             if ($date !== false) {
                 $settings->setDateCreated($date);
             } else {
@@ -114,7 +115,7 @@ class TeleHealthPersonSettingsRepository
             }
         }
         if (isset($row['date_updated'])) {
-            $date = \DateTime::createFromFormat($dateFormat, $row['date_updated']);
+            $date = DateTime::createFromFormat($dateFormat, $row['date_updated']);
             if ($date !== false) {
                 $settings->setDateUpdated($date);
             } else {

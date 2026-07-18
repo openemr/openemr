@@ -12,10 +12,12 @@
 
 namespace Application\Helper;
 
+use Laminas\View\Helper\AbstractHelper;
+
 /**
  * Decorates the OpenEMR functions making it so a module can avoid hard coding global functions
  */
-class TranslatorViewHelper extends \Laminas\View\Helper\AbstractHelper
+class TranslatorViewHelper extends AbstractHelper
 {
     /**
      * Translates a string.

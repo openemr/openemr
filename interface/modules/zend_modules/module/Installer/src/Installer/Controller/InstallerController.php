@@ -26,6 +26,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
+use Throwable;
 
 class InstallerController extends AbstractActionController
 {
@@ -298,7 +299,7 @@ class InstallerController extends AbstractActionController
             try {
                 $classLoader = new ModulesClassLoader(OEGlobalsBag::getInstance()->getProjectDir());
                 $classLoader->registerNamespaceIfNotExists($namespace, $modPath . DIRECTORY_SEPARATOR . 'src');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 error_log('Error loading namespace: ' . $e->getMessage());
             }
         }
@@ -312,7 +313,7 @@ class InstallerController extends AbstractActionController
                 // This method is expected to return the current status of the module unless module wishes to override it.
                 // In that case, new text of result will display as alert in UI.
                 return ($instance->moduleManagerAction(...))($methodName, $modId, $currentStatus);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 error_log('Error calling module manager action: ' . $e->getMessage());
                 return $currentStatus;
             }

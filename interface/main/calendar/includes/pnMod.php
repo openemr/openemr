@@ -1,34 +1,36 @@
 <?php
 
-// $Id$
-// ----------------------------------------------------------------------
-// POST-NUKE Content Management System
-// Copyright (C) 2001 by the Post-Nuke Development Team.
-// http://www.postnuke.com/
-// ----------------------------------------------------------------------
-// Based on:
-// PHP-NUKE Web Portal System - http://phpnuke.org/
-// Thatware - http://thatware.org/
-// ----------------------------------------------------------------------
-// LICENSE
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License (GPL)
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// To read the license please visit http://www.gnu.org/copyleft/gpl.html
-// ----------------------------------------------------------------------
-// Original Author of file: Jim McDonald
-// Purpose of file: Module variable handling
-// ----------------------------------------------------------------------
+/**
+ * $Id$
+ * ----------------------------------------------------------------------
+ * POST-NUKE Content Management System
+ * Copyright (C) 2001 by the Post-Nuke Development Team.
+ * http://www.postnuke.com/
+ * ----------------------------------------------------------------------
+ * Based on:
+ * PHP-NUKE Web Portal System - http://phpnuke.org/
+ * Thatware - http://thatware.org/
+ * ----------------------------------------------------------------------
+ * LICENSE
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License (GPL)
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * To read the license please visit http://www.gnu.org/copyleft/gpl.html
+ * ----------------------------------------------------------------------
+ * Original Author of file: Jim McDonald
+ * Purpose of file: Module variable handling
+ * ----------------------------------------------------------------------
+ */
 
-/*
+/**
  * pnModGetVar - get a module variable
  * Takes two parameters:
  * - the name of the module
@@ -56,7 +58,7 @@ function pnModGetVar($modname, $name)
               AND $modulevarscolumn[name] = ?";
     try {
         $value = $conn->fetchOne($query, [$modname, $name]);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Throwable) {
         return;
     }
 
@@ -104,7 +106,7 @@ function pnModSetVar($modname, $name, $value)
                       AND $modulevarscolumn[name] = ?";
             $conn->executeStatement($query, [$value, $modname, $name]);
         }
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Throwable) {
         return;
     }
 
@@ -140,7 +142,7 @@ function pnModGetIDFromName($module)
               WHERE $modulescolumn[name] = ?";
     try {
         $id = $conn->fetchOne($query, [$module]);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Throwable) {
         return;
     }
 
@@ -187,7 +189,7 @@ function pnModGetInfo($modid)
               WHERE $modulescolumn[id] = ?";
     try {
         $row = $conn->fetchNumeric($query, [$modid]);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Throwable) {
         return;
     }
 
@@ -235,7 +237,7 @@ function pnModAPILoad($modname, $type = 'user')
               WHERE $modulescolumn[name] = ?";
     try {
         $row = $conn->fetchNumeric($query, [$modname]);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Throwable $e) {
         return;
     }
 
@@ -293,7 +295,7 @@ function pnModDBInfoLoad($modname, $directory = '')
                 WHERE $modulescolumn[name] = ?";
         try {
             $directory = $conn->fetchOne($sql, [$modname]);
-        } catch (Doctrine\DBAL\Exception) {
+        } catch (Throwable) {
             return false;
         }
         if ($directory === false) {
@@ -348,7 +350,7 @@ function pnModLoad($modname, $type = 'user')
               WHERE $modulescolumn[name] = ?";
     try {
         $row = $conn->fetchNumeric($query, [$modname]);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Throwable $e) {
         return;
     }
 
@@ -539,7 +541,7 @@ function pnModAvailable($modname)
               WHERE $modulescolumn[name] = ?";
     try {
         $state = $conn->fetchOne($query, [$modname]);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Throwable) {
         return;
     }
 

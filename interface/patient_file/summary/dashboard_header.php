@@ -1,6 +1,6 @@
 <?php
 
- /**
+/**
   * Dash Board Header.
   *
   * @package   OpenEMR
@@ -14,11 +14,12 @@
   * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
   */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/display_help_icon_inc.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/display_help_icon_inc.php");
 
 $twigContainer = new TwigContainer();
 $t = $twigContainer->getTwig();

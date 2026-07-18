@@ -16,6 +16,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\CalendarEventCategoryRep
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
+use DateTime;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Events\Appointments\AppointmentJavascriptEventNames;
@@ -97,7 +98,7 @@ class TeleHealthCalendarController
                 // we need to also check and see if the event is an old event (ie less than today's date)
                 if (!empty($this->calendarEventCategoryRepository->getEventCategoryForId($catId))) {
                     $eventViewClasses = ["event_appointment", "event_telehealth"];
-                    $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $eventsByDay[$key][$i]['eventDate']
+                    $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $eventsByDay[$key][$i]['eventDate']
                         . " " . $eventsByDay[$key][$i]['startTime']);
 
                     // if the event belongs to a different user then we need to go get it.
@@ -213,7 +214,7 @@ class TeleHealthCalendarController
             return;
         }
         $eventDateTimeString = $row['pc_eventDate'] . " " . $row['pc_startTime'];
-        $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $eventDateTimeString);
+        $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $eventDateTimeString);
         if ($dateTime === false) {
             ServiceContainer::getLogger()->error("TeleHealthCalendarController: appointment date time string {dateTime} was invalid for pc_eid={pc_eid}", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
             return;

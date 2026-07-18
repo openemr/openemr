@@ -24,6 +24,8 @@ use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
+use stdClass;
+use Throwable;
 
 class EtherFaxActions extends AppDispatch implements FaxChannelInterface
 {
@@ -43,7 +45,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
     public function __construct()
     {
         if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
-            throw new \Exception(xlt("Access denied! Module not enabled"));
+            throw new Exception(xlt("Access denied! Module not enabled"));
         }
 
         $this->crypto = ServiceContainer::getCrypto();
@@ -283,7 +285,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
                 }
                 $this->insertSentFaxQueue($status, $phone, $csid, $tag, $fileName);
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('EtherFaxActions: ' . $e->getMessage());
             return xlt('Error: fax operation failed');
         } finally {
@@ -399,7 +401,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
                         }
                     }
                     $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     error_log('EtherFaxActions: ' . $e->getMessage());
                     return js_escape('Error: ' . xlt('fax operation failed'));
                 }
@@ -579,7 +581,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
 
         try {
             $apiResponse = is_numeric($docId) ? $this->fetchFaxFromQueue(null, $docId) : $this->fetchFaxFromQueue($docId);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('EtherFaxActions: ' . $e->getMessage());
             return 'Error: ' . xlt('Could not retrieve fax');
         }
@@ -843,7 +845,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
                 $pinfo = str_replace("|||", " ", $row['patient_info']);
                 $responseMsgs .= "<tr><td>" . text($row["pc_eid"]) . "</td><td>" . text($row["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($row["message"]) . "</td></tr>";
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('EtherFaxActions: ' . $e->getMessage());
             return 'Error: ' . xlt('fax operation failed') . PHP_EOL;
         }
@@ -924,7 +926,7 @@ SQL;
         $jobId = $faxStatus->JobId;
 
         // Build a details object similar to received faxes but for sent
-        $details = new \stdClass();
+        $details = new stdClass();
         $details->JobId = $jobId;
         $details->TransactionType = 1; // 1 = Sent
         $details->CalledNumber = $dialNumber;
@@ -938,7 +940,7 @@ SQL;
         $details->RemoteId = $faxStatus->RemoteId ?? '';
         $details->FaxImage = $faxStatus->FaxImage ?? '';
         // DocumentParams for consistency
-        $details->DocumentParams = new \stdClass();
+        $details->DocumentParams = new stdClass();
         $details->DocumentParams->Name = $fileName;
         $details->DocumentParams->Type = 'application/pdf';
         $details->DocumentParams->Length = strlen($details->FaxImage);

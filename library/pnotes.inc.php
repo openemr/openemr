@@ -367,7 +367,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $row = getPnoteById($id);
     if (! $row) {
-        throw new \RuntimeException("updatePnote() did not find id '" . text($id) . "'");
+        throw new RuntimeException("updatePnote() did not find id '" . text($id) . "'");
     }
     // IDOR protection: verify note belongs to expected patient
     if ($pid !== null && (int)$row['pid'] !== $pid) {
@@ -447,12 +447,12 @@ function updatePnotePatient($id, int $patient_id): void
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $row = getPnoteById($id);
     if (! $row) {
-        throw new \RuntimeException("updatePnotePatient() did not find id '" . text($id) . "'");
+        throw new RuntimeException("updatePnotePatient() did not find id '" . text($id) . "'");
     }
 
     if ($row['pid'] != 0 || $patient_id < 1) {
         ServiceContainer::getLogger()->error("updatePnotePatient invalid operation for id {id}, patient_id {patient_id}, pid {pid}", ['id' => $id, 'patient_id' => $patient_id, 'pid' => $row['pid']]);
-        throw new \RuntimeException("updatePnotePatient invalid operation");
+        throw new RuntimeException("updatePnotePatient invalid operation");
     }
 
     $newtext = "\n" . date('Y-m-d H:i') . " (patient set by " . $session->get('authUser') . ")";

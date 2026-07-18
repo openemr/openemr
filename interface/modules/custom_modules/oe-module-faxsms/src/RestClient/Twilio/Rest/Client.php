@@ -24,16 +24,19 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\FaxSMS\RestClient\Twilio\Rest;
 
+use DateTimeImmutable;
+use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use Throwable;
 
 /**
  * Thrown when a Twilio REST request fails (transport error or non-2xx).
  */
-class RestException extends \Exception
+class RestException extends Exception
 {
-    public function __construct(string $message, private readonly int $statusCode = 0, ?\Throwable $previous = null)
+    public function __construct(string $message, private readonly int $statusCode = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, 0, $previous);
     }
@@ -156,9 +159,9 @@ final class MessageInstance
     public ?string $errorCode = null;
     public ?string $errorMessage = null;
     public ?int $numSegments = null;
-    public ?\DateTimeImmutable $dateCreated = null;
-    public ?\DateTimeImmutable $dateUpdated = null;
-    public ?\DateTimeImmutable $dateSent = null;
+    public ?DateTimeImmutable $dateCreated = null;
+    public ?DateTimeImmutable $dateUpdated = null;
+    public ?DateTimeImmutable $dateSent = null;
 
     /**
      * @param array<mixed, mixed> $raw
@@ -192,7 +195,7 @@ final class MessageInstance
         return is_scalar($value) ? (int)$value : null;
     }
 
-    private static function toDate(mixed $value): ?\DateTimeImmutable
+    private static function toDate(mixed $value): ?DateTimeImmutable
     {
         if (!is_string($value) || $value === '') {
             return null;
@@ -201,7 +204,7 @@ final class MessageInstance
         // date_create() returns false on a bad string instead of throwing, which
         // avoids catching \Exception (and thus \ErrorException).
         $date = date_create_immutable($value);
-        return $date instanceof \DateTimeImmutable ? $date : null;
+        return $date instanceof DateTimeImmutable ? $date : null;
     }
 }
 

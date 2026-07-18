@@ -13,7 +13,12 @@
 namespace OpenEMR\Modules\FaxSMS\EtherFax;
 
 use DateTime;
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Core\OEGlobalsBag;
+use RuntimeException;
+use stdClass;
 
 class EtherFaxClient
 {
@@ -39,7 +44,7 @@ class EtherFaxClient
         $this->setCredentials($account, $user, $password, $key);
         $this->timeout = EtherFaxClient::DEFAULT_TIMEOUT;
         if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
-            throw new \RuntimeException(xlt("Access denied! Module not enabled"));
+            throw new RuntimeException(xlt("Access denied! Module not enabled"));
         }
     }
 
@@ -126,7 +131,7 @@ class EtherFaxClient
 
         try {
             $httpVerifySsl = (bool)(OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
-            $client = new \GuzzleHttp\Client([
+            $client = new Client([
                 "defaults" => [
                     "allow_redirects" => true,
                     "exceptions" => false
@@ -142,7 +147,7 @@ class EtherFaxClient
                     'Authorization' => $this->auth,
                 ],
             ]);
-        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+        } catch (GuzzleException $e) {
             $this->httpCode = 0;
             return $e->getMessage();
         }
@@ -169,7 +174,7 @@ class EtherFaxClient
      * @param ?bool $isDocument
      * @param null $fileName
      * @return FaxStatus
-     * @throws \Exception
+     * @throws Exception
      */
     public function etherFaxSend($number, $file, $pages, $localId = null, $callerId = null, $tag = null, $isDocument = null, $fileName = null): FaxStatus
     {
@@ -214,7 +219,7 @@ class EtherFaxClient
         if (!is_null($tag)) {
             $post['Tag'] = $tag;
         }
-        $DocumentParams = new \stdClass();
+        $DocumentParams = new stdClass();
         $DocumentParams->Name = $fileName;
         $post['DocumentParams'] = $DocumentParams;
 
@@ -241,7 +246,7 @@ class EtherFaxClient
      * @param            $url
      * @param array|null $post
      * @return bool|string
-     * @throws \Exception
+     * @throws Exception
      */
     private function clientHttpPost($url, ?array $post = null): bool|string
     {
@@ -249,7 +254,7 @@ class EtherFaxClient
         $uri = EtherFaxClient::EFAX_API_URL . $url;
 
         try {
-            $client = new \GuzzleHttp\Client();
+            $client = new Client();
 
             $response = $client->request('POST', $uri, [
                 'allow_redirects' => false,
@@ -262,8 +267,8 @@ class EtherFaxClient
             ]);
             $this->httpCode = $response->getStatusCode();
             $result = $response->getBody();
-        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
-            throw new \Exception($e->getMessage());
+        } catch (GuzzleException $e) {
+            throw new Exception($e->getMessage());
         }
 
         return $result;

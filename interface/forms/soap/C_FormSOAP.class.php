@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * soap form
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -11,12 +11,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
-require_once("FormSOAP.class.php");
-
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
+require_once("FormSOAP.class.php");
 
 class C_FormSOAP extends Controller
 {
@@ -28,9 +31,9 @@ class C_FormSOAP extends Controller
     }
 
     /**
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     * @throws \Twig\Error\LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws LoaderError
      */
     function default_action(): string
     {

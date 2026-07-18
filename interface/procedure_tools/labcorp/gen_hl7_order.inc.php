@@ -3,6 +3,19 @@
 /**
  * Functions to support LabCorp HL7 order generation
  *
+ * A bit of documentation that will need to go into the manual:
+ *
+ * The lab may want a list of your insurances for mapping into their system.
+ * To produce it, go into phpmyadmin and run this query:
+ *
+ * SELECT i.id, i.name, a.line1, a.line2, a.city, a.state, a.zip, p.area_code,
+ * p.prefix, p.number FROM insurance_companies AS i
+ * LEFT JOIN addresses AS a ON a.foreign_id = i.id
+ * LEFT JOIN phone_numbers AS p ON p.type = 2 AND p.foreign_id = i.id
+ * ORDER BY i.name, i.id;
+ *
+ * Then export as a CSV file and read it into your favorite spreadsheet app.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
@@ -14,32 +27,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Orders\Hl7OrderResult;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use phpseclib3\Net\SFTP;
+
 if (!defined('OPENEMR_GLOBALS_LOADED')) {
     http_response_code(404);
     exit();
 }
 
-/*
-* A bit of documentation that will need to go into the manual:
-*
-* The lab may want a list of your insurances for mapping into their system.
-* To produce it, go into phpmyadmin and run this query:
-*
-* SELECT i.id, i.name, a.line1, a.line2, a.city, a.state, a.zip, p.area_code,
-* p.prefix, p.number FROM insurance_companies AS i
-* LEFT JOIN addresses AS a ON a.foreign_id = i.id
-* LEFT JOIN phone_numbers AS p ON p.type = 2 AND p.foreign_id = i.id
-* ORDER BY i.name, i.id;
-*
-* Then export as a CSV file and read it into your favorite spreadsheet app.
-*/
-
 require_once("$webserver_root/custom/code_types.inc.php");
-
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Orders\Hl7OrderGenerationException;
-use OpenEMR\Common\Orders\Hl7OrderResult;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 function hl7Race($s)
 {
@@ -717,7 +716,7 @@ function labcorp_send_hl7_order($ppid, $out)
         }
 
         // Connect to the server and write the file.
-        $sftp = new \phpseclib3\Net\SFTP($remote_host);
+        $sftp = new SFTP($remote_host);
         if (!$sftp->login($pprow['login'], $pprow['password'])) {
             return xl('Login to this remote host failed') . ": '$remote_host'";
         }

@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use Throwable;
 
 class WenoValidate extends ModuleService
 {
@@ -161,7 +162,7 @@ class WenoValidate extends ModuleService
 
             $newKey = $response['Body']['Success']['NewEncryptionKey'] ?? '';
             return ($response !== false && !empty($newKey)) ? trim((string) $newKey) : false;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Handle Exception
             return false;
         }
@@ -202,7 +203,7 @@ class WenoValidate extends ModuleService
                 $valid = (strtolower($valid) === 'true') || ($valid == '1') && !empty($valid);
             }
             return $valid;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }

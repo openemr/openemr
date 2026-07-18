@@ -8,7 +8,7 @@
  */
 
 // The required application modules we need to load all the time are listed here.
-
+use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
 
 $core_modules = [
@@ -27,7 +27,7 @@ $core_modules = [
 // $zendConfigurationPath is loaded using ModulesApplication.php from globals.php
 /** @var ?string $webRootPath */
 /** @var ?string $zendConfigurationPath */
-$plugin_modules = \OpenEMR\Core\ModulesApplication::oemr_zend_load_modules_from_db(
+$plugin_modules = ModulesApplication::oemr_zend_load_modules_from_db(
     $webRootPath ?? '',
     $zendConfigurationPath ?? ''
 );

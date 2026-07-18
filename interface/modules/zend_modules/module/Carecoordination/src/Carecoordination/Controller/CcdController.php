@@ -17,12 +17,16 @@ use Carecoordination\Model\CarecoordinationTable;
 use Carecoordination\Model\CcdTable;
 use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
+use Documents\Plugin\Documents;
+use Laminas\Config\Reader\Xml;
+use Laminas\Http\Request;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
- * @method \Laminas\Http\Request getRequest()
+ * @method Request getRequest()
  */
 class CcdController extends AbstractActionController
 {
@@ -60,7 +64,7 @@ class CcdController extends AbstractActionController
                 $this->importAction();
             }
         } else {
-            $result = \Documents\Plugin\Documents::fetchXmlDocuments();
+            $result = Documents::fetchXmlDocuments();
             foreach ($result as $row) {
                 if ($row['doc_type'] == 'CCD') {
                     $_REQUEST["document_id"] = $row['doc_id'];
@@ -100,20 +104,20 @@ class CcdController extends AbstractActionController
         $document_id                      =    $_REQUEST["document_id"];
         $xml_content                      =    $this->getCarecoordinationTable()->getDocument($document_id);
 
-        $xmltoarray                       =    new \Laminas\Config\Reader\Xml();
+        $xmltoarray                       =    new Xml();
         $array                            =    $xmltoarray->fromString($xml_content);
 
         $this->getCcdTable()->import($array, $document_id);
 
         // we return just empty Json, otherwise it triggers an error if we don't return some kind of HTTP response.
-        $view = new \Laminas\View\Model\JsonModel();
+        $view = new JsonModel();
         $view->setTerminal(true);
         return $view;
     }
     /**
-    * Table gateway
-    * @return \Carecoordination\Model\CcdTable
-    */
+     * Table gateway
+     * @return CcdTable
+     */
     public function getCcdTable()
     {
         return $this->ccdTable;

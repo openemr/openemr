@@ -11,11 +11,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('include_root') . "/globals.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
+require_once(OEGlobalsBag::getInstance()->getString('include_root') . "/globals.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/pnotes.inc.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 

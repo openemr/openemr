@@ -13,6 +13,7 @@
 
 namespace Carecoordination\Model;
 
+use Exception;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -54,7 +55,7 @@ class CcdaGenerator
      * @param $referral_reason
      * @param $date_options has the format of ['date_start' => 'YYYY-MM-DD HH:mm:ss', 'date_end' => 'YYYY-MM-DD HH:mm:ss', 'filter_content' => boolean]
      * @return GeneratedCcdaResult
-     * @throws \Exception
+     * @throws Exception
      */
     public function generate(
         $patient_id,

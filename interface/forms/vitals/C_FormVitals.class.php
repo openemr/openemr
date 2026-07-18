@@ -12,9 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\BmiCategory;
@@ -29,6 +26,9 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\VitalsService;
+
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
 class C_FormVitals
 {
@@ -477,7 +477,7 @@ class C_FormVitals
     public function populate_object(&$obj)
     {
         if (!is_object($obj)) {
-            throw new \InvalidArgumentException("populate_object called with invalid argument");
+            throw new InvalidArgumentException("populate_object called with invalid argument");
         }
 
         // so we can get rid of smarty we are going to bring this from the controller class in here

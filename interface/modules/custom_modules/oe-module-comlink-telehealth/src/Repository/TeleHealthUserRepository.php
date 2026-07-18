@@ -13,6 +13,8 @@
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
+use DateTime;
+use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
@@ -52,10 +54,10 @@ class TeleHealthUserRepository extends BaseService
 
         // grab the user first
         if (empty($user->getUsername())) {
-            throw new \InvalidArgumentException("username cannot be empty");
+            throw new InvalidArgumentException("username cannot be empty");
         }
         if (empty($user->getAuthToken())) {
-            throw new \InvalidArgumentException("authToken cannot be empty");
+            throw new InvalidArgumentException("authToken cannot be empty");
         }
 
         if ($user->getIsPatient()) {
@@ -72,7 +74,7 @@ class TeleHealthUserRepository extends BaseService
             if (!empty($user->getDateRegistered())) {
                 $binds[] = $user->getDateRegistered()->format(DATE_ISO8601);
             } else {
-                $binds[] = (new \DateTime())->format(DATE_ISO8601);
+                $binds[] = (new DateTime())->format(DATE_ISO8601);
             }
         }
 
@@ -101,7 +103,7 @@ class TeleHealthUserRepository extends BaseService
             ->setRegistrationCode($row['app_registration_code'] ?? null);
 
         if (isset($row['date_registered'])) {
-            $date = \DateTime::createFromFormat($dateFormat, $row['date_registered']);
+            $date = DateTime::createFromFormat($dateFormat, $row['date_registered']);
             if ($date !== false) {
                 $user->setDateRegistered($date);
             } else {
@@ -109,7 +111,7 @@ class TeleHealthUserRepository extends BaseService
             }
         }
         if (isset($row['date_created'])) {
-            $date = \DateTime::createFromFormat($dateFormat, $row['date_created']);
+            $date = DateTime::createFromFormat($dateFormat, $row['date_created']);
             if ($date !== false) {
                 $user->setDateCreated($date);
             } else {
@@ -117,7 +119,7 @@ class TeleHealthUserRepository extends BaseService
             }
         }
         if (isset($row['date_updated'])) {
-            $date = \DateTime::createFromFormat($dateFormat, $row['date_updated']);
+            $date = DateTime::createFromFormat($dateFormat, $row['date_updated']);
             if ($date !== false) {
                 $user->setDateUpdated($date);
             } else {

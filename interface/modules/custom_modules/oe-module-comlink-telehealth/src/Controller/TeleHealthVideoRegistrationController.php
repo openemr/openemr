@@ -19,6 +19,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Models\UserVideoRegistrationRequest
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
+use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
@@ -29,6 +30,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 
 class TeleHealthVideoRegistrationController
 {
@@ -75,7 +77,7 @@ class TeleHealthVideoRegistrationController
         try {
             $patient['uuid'] = UuidRegistry::uuidToString($patient['uuid']); // convert uuid to a string value
             $this->createPatientRegistration($patient);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error("Failed to create patient registration. Error: "
                 . $exception->getMessage(), ['exception' => $exception, 'patient' => $patient['uuid']]);
         }
@@ -98,7 +100,7 @@ class TeleHealthVideoRegistrationController
             if (empty($apiUser)) {
                 $this->createPatientRegistration($patient);
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error("Failed to create patient registration. Error: "
                 . $exception->getMessage(), ['exception' => $exception, 'patient' => $patient['uuid'] ?? '']);
         }
@@ -113,7 +115,7 @@ class TeleHealthVideoRegistrationController
             // our event doesn't have the uuid which is what we need
             $userWithUuid = $userService->getUserByUsername($event->getUsername());
             if (empty($userWithUuid)) {
-                throw new \InvalidArgumentException("Could not find user with username " . $event->getUsername());
+                throw new InvalidArgumentException("Could not find user with username " . $event->getUsername());
             }
 
             // we need to find out if we
@@ -131,7 +133,7 @@ class TeleHealthVideoRegistrationController
                     ['username' => $event->getUsername(), 'userWithUuid' => $userWithUuid, 'uuid' => $userWithUuid['uuid'] ?? null]
                 );
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error("Failed to create user registration. Error: "
                 . $exception->getMessage(), ['exception' => $exception, 'user' => $user['uuid']]);
         }
@@ -146,7 +148,7 @@ class TeleHealthVideoRegistrationController
             // our event doesn't have the uuid which is what we need
             $userWithUuid = $userService->getUser($event->getUserId());
             if (empty($userWithUuid)) {
-                throw new \InvalidArgumentException("Could not find user with username " . $event->getUsername());
+                throw new InvalidArgumentException("Could not find user with username " . $event->getUsername());
             }
             $this->logger->debug(self::class . "->onUserUpdatedEvent received for user ", ['uuid' => $userWithUuid['uuid'] ?? null]);
 
@@ -194,7 +196,7 @@ class TeleHealthVideoRegistrationController
                     $this->suspendUser($apiUser->getUsername(), $apiUser->getAuthToken());
                 }
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logger->error("Failed to create user registration. Error: "
                 . $exception->getMessage(), ['exception' => $exception, 'user' => $user]);
         }

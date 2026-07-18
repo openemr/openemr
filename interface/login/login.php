@@ -27,10 +27,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// prevent UI redressing
-Header("X-Frame-Options: DENY");
-Header("Content-Security-Policy: frame-ancestors 'none'");
-
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -38,9 +34,14 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\LogoService;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
+
+// prevent UI redressing
+Header("X-Frame-Options: DENY");
+Header("Content-Security-Policy: frame-ancestors 'none'");
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
 
@@ -265,7 +266,7 @@ $viewArgs = [
 ];
 
 /**
- * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $ed
+ * @var EventDispatcherInterface $ed
  */
 $ed = $globalsBag->getKernel()->getEventDispatcher();
 

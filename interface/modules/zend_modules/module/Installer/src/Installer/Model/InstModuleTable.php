@@ -16,6 +16,7 @@
 
 namespace Installer\Model;
 
+use Application\Listener\Listener;
 use Interop\Container\ContainerInterface;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
@@ -23,6 +24,7 @@ use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
+use Throwable;
 
 class InstModuleTable
 {
@@ -120,7 +122,7 @@ class InstModuleTable
                     if (strlen($query) > 5) {
                         try {
                             QueryUtils::sqlStatementThrowException($query);
-                        } catch (\Throwable) {
+                        } catch (Throwable) {
                             return false;
                         }
                     }
@@ -134,7 +136,7 @@ class InstModuleTable
                     if ($query !== null && strlen($query) > 5) {
                         try {
                             QueryUtils::sqlStatementThrowException($query);
-                        } catch (\Throwable) {
+                        } catch (Throwable) {
                             return false;
                         }
                     }
@@ -163,7 +165,7 @@ class InstModuleTable
                 $sqlUpgradeService->setRenderOutputToScreen(false); // we don't really want to display anything here
                 $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $context = ['exception' => $exception];
                 if ($exception instanceof SqlQueryException) {
                     $context['statement'] = $exception->getSqlStatement();
@@ -406,7 +408,7 @@ class InstModuleTable
             try {
                 QueryUtils::sqlStatementThrowException($sql, [$id]);
                 return 'success';
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 return 'failure';
             }
         }
@@ -680,7 +682,7 @@ class InstModuleTable
         } else {
             $retArray['status'] = "failure";
             $retArray['code'] = "400";
-            $retArray['value'] = \Application\Listener\Listener::z_xlt("Module Directory not found");
+            $retArray['value'] = Listener::z_xlt("Module Directory not found");
         }
 
         return $retArray;
@@ -731,7 +733,7 @@ class InstModuleTable
             $usedModules = implode(",", $usedModArr);
             $retArray['status'] = "failure";
             $retArray['code'] = "200";
-            $retArray['value'] = \Application\Listener\Listener::z_xlt("Dependency Problem") . ': ' . \Application\Listener\Listener::z_xlt("This module is being used by ") . $usedModules . " " . \Application\Listener\Listener::z_xlt($multiple);
+            $retArray['value'] = Listener::z_xlt("Dependency Problem") . ': ' . Listener::z_xlt("This module is being used by ") . $usedModules . " " . Listener::z_xlt($multiple);
         }
 
         return $retArray;

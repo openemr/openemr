@@ -16,10 +16,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/registry.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/amc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/options.inc.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
@@ -31,6 +27,10 @@ use OpenEMR\Rx\RxList;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\PatientIssuesService;
+
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/registry.inc.php");
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/amc.php");
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/options.inc.php");
 
 class C_Prescription extends Controller
 {
@@ -412,7 +412,7 @@ class C_Prescription extends Controller
                 if (!$saleId) {
                     $dispenseError = xl('Inventory is not available for this order');
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $dispenseError = $e->getMessage();
             }
         }

@@ -2,6 +2,10 @@
 
 namespace Carecoordination\Model;
 
+use Application\Listener\Listener;
+use Exception;
+use Laminas\Form\Element\Checkbox;
+use Laminas\Form\Element\Select;
 use Laminas\Form\Form;
 use Laminas\InputFilter\Factory as InputFactory;
 use Laminas\InputFilter\InputFilter;
@@ -27,7 +31,7 @@ class Configuration extends Form implements InputFilterAwareInterface
                     'id'        => 'hie_auto_sign_off_id'
                 ],
             'options' => [
-                    'label'     => \Application\Listener\Listener::z_xlt('Auto Sign-Off [days]'),
+                    'label'     => Listener::z_xlt('Auto Sign-Off [days]'),
                 ],
         ]);
 
@@ -35,13 +39,13 @@ class Configuration extends Form implements InputFilterAwareInterface
     * Automatic Transfer settings
     */
         $this->add([
-        'type' => \Laminas\Form\Element\Checkbox::class,
+        'type' => Checkbox::class,
             'name' => 'hie_auto_send_id',
             'attributes'    => [
                     'id'        => 'hie_auto_send_id'
                 ],
             'options' => [
-                    'label'         => \Application\Listener\Listener::z_xlt('Auto Send'),
+                    'label'         => Listener::z_xlt('Auto Send'),
             'checked_value'     => 'yes',
                     'unchecked_value'   => 'no'
                 ],
@@ -52,7 +56,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_author_id',
-        'type'      => \Laminas\Form\Element\Select::class,
+        'type'      => Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -61,7 +65,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         'id'        => 'hie_author_fname'
             ],
             'options' => [
-                'label'     => \Application\Listener\Listener::z_xlt('Author'),
+                'label'     => Listener::z_xlt('Author'),
             'value_options' => $this->getUsers(),
             ],
         ]);
@@ -71,7 +75,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_data_enterer_id',
-        'type'      => \Laminas\Form\Element\Select::class,
+        'type'      => Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -80,7 +84,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         'id'        => 'hie_data_enterer_id'
             ],
             'options' => [
-                'label'     => \Application\Listener\Listener::z_xlt('Data Enterer'),
+                'label'     => Listener::z_xlt('Data Enterer'),
             'value_options' => $this->getUsers(),
             ],
         ]);
@@ -90,7 +94,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_informant_id',
-        'type'      => \Laminas\Form\Element\Select::class,
+        'type'      => Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -99,7 +103,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         'id'        => 'hie_informant_id'
             ],
             'options' => [
-                'label'     => \Application\Listener\Listener::z_xlt('Informant'),
+                'label'     => Listener::z_xlt('Informant'),
             'value_options' => $this->getUsers(),
             ],
         ]);
@@ -114,7 +118,7 @@ class Configuration extends Form implements InputFilterAwareInterface
                     'id'    => 'hie_personal_informant_id'
                 ],
             'options' => [
-                    'label' => \Application\Listener\Listener::z_xlt('Informant'),
+                    'label' => Listener::z_xlt('Informant'),
                 ],
         ]);
 
@@ -123,7 +127,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_custodian_id',
-        'type'      => \Laminas\Form\Element\Select::class,
+        'type'      => Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -132,7 +136,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         'id'        => 'hie_custodian_id'
             ],
             'options' => [
-                'label'     => \Application\Listener\Listener::z_xlt('Custodian'),
+                'label'     => Listener::z_xlt('Custodian'),
             'value_options' => $this->getUsers(),
             ],
         ]);
@@ -142,7 +146,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_recipient_id',
-        'type'      => \Laminas\Form\Element\Select::class,
+        'type'      => Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -151,7 +155,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         'id'        => 'hie_recipient_id'
             ],
             'options' => [
-                'label'     => \Application\Listener\Listener::z_xlt('Recipient'),
+                'label'     => Listener::z_xlt('Recipient'),
             'value_options' => $this->getUsers(),
             ],
         ]);
@@ -161,7 +165,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_legal_authenticator_id',
-        'type'      => \Laminas\Form\Element\Select::class,
+        'type'      => Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -170,7 +174,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         'id'        => 'hie_legal_authenticator_id'
             ],
             'options' => [
-                'label'     => \Application\Listener\Listener::z_xlt('Legal Authenticator'),
+                'label'     => Listener::z_xlt('Legal Authenticator'),
             'value_options' => $this->getUsers(),
             ],
         ]);
@@ -180,7 +184,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_authenticator_id',
-        'type'      => \Laminas\Form\Element\Select::class,
+        'type'      => Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -189,7 +193,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         'id'        => 'hie_authenticator_id'
             ],
             'options' => [
-                'label'     => \Application\Listener\Listener::z_xlt('Authenticator'),
+                'label'     => Listener::z_xlt('Authenticator'),
             'value_options' => $this->getUsers(),
             ],
         ]);
@@ -199,7 +203,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     */
         $this->add([
             'name'  => 'hie_primary_care_provider_id',
-        'type'      => \Laminas\Form\Element\Select::class,
+        'type'      => Select::class,
             'attributes' => [
         'class'     => '',
         'data-options'  => 'required:true',
@@ -208,7 +212,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         'id'        => 'hie_primary_care_provider_id'
             ],
             'options' => [
-                'label'     => \Application\Listener\Listener::z_xlt('Primary Care Provider'),
+                'label'     => Listener::z_xlt('Primary Care Provider'),
             'value_options' => $this->getUsers(),
             ],
         ]);
@@ -223,7 +227,7 @@ class Configuration extends Form implements InputFilterAwareInterface
     }
     public function setInputFilter(InputFilterInterface $inputFilter)
     {
-        throw new \Exception("Not used");
+        throw new Exception("Not used");
     }
 
     public function getInputFilter()

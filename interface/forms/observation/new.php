@@ -13,6 +13,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
+use OpenEMR\Services\ObservationService;
+use Symfony\Component\HttpFoundation\Request;
+
 require_once(__DIR__ . "/../../globals.php");
 /**
  * @global string $srcdir defined in globals.php
@@ -21,15 +29,7 @@ global $srcdir;
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
-
-use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\FormService;
-use OpenEMR\Services\ObservationService;
-use Symfony\Component\HttpFoundation\Request;
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 $logger = ServiceContainer::getLogger();
 
@@ -49,7 +49,7 @@ try {
         $response = $controller->newAction($request);
     }
     $response->send();
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     // Handle any exceptions that may occur
     $logger->error("Failed to create new observation form", ['exception' => $e]);
     echo xlt("An error occurred while trying to create a new observation form. Please try again later.");

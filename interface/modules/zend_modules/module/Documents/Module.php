@@ -12,6 +12,7 @@
 
 namespace Documents;
 
+use Laminas\Loader\StandardAutoloader;
 use Laminas\ModuleManager\Feature\AutoloaderProviderInterface;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\ModuleRouteListener;
@@ -51,7 +52,7 @@ class Module implements AutoloaderProviderInterface
     public function getAutoloaderConfig()
     {
         return [
-        \Laminas\Loader\StandardAutoloader::class => [
+        StandardAutoloader::class => [
           'namespaces' => [
             __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
           ],
