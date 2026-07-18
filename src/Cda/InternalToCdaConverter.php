@@ -1422,15 +1422,9 @@ class InternalToCdaConverter
 
         $code = $this->createElement('code');
         if ($rxnormText !== '') {
-            $code->setAttribute('code', $this->cleanCode($rxnormCode));
-            $code->setAttribute('displayName', $title);
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.88');
-            $code->setAttribute('codeSystemName', 'RXNORM');
+            $this->applyCodedOrNullFlavor($code, $this->cleanCode($rxnormCode), $title, '2.16.840.1.113883.6.88', 'RXNORM');
         } elseif ($snomedText !== '') {
-            $code->setAttribute('code', $this->cleanCode($snomedCode));
-            $code->setAttribute('displayName', $title);
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-            $code->setAttribute('codeSystemName', 'SNOMED CT');
+            $this->applyCodedOrNullFlavor($code, $this->cleanCode($snomedCode), $title, '2.16.840.1.113883.6.96', 'SNOMED CT');
         } else {
             $code->setAttribute('nullFlavor', 'UNK');
         }
@@ -1470,10 +1464,7 @@ class InternalToCdaConverter
 
         $value = $this->output->createElement('value');
         $this->setXsiType($value, 'CE');
-        $value->setAttribute('code', $this->cleanCode($statusCode));
-        $value->setAttribute('displayName', $statusTable);
-        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-        $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $this->applyCodedOrNullFlavor($value, $this->cleanCode($statusCode), $statusTable, '2.16.840.1.113883.6.96', 'SNOMED CT');
         $statusObs->appendChild($value);
 
         $entryRel->appendChild($statusObs);
@@ -1528,10 +1519,13 @@ class InternalToCdaConverter
         $this->setXsiType($value, 'CD');
         if ($reactionCode !== '' || $reactionText !== '') {
             $codeType = $this->xpathValue('reaction_code_type', $allergy);
-            $value->setAttribute('code', $this->cleanCode($reactionCode));
-            $value->setAttribute('displayName', $reactionText);
-            $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-            $value->setAttribute('codeSystemName', $codeType !== '' ? $codeType : 'SNOMED CT');
+            $this->applyCodedOrNullFlavor(
+                $value,
+                $this->cleanCode($reactionCode),
+                $reactionText,
+                '2.16.840.1.113883.6.96',
+                $codeType !== '' ? $codeType : 'SNOMED CT',
+            );
         } else {
             $value->setAttribute('nullFlavor', 'UNK');
         }
