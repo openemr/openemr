@@ -182,16 +182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\FHIR\\\\R4\\\\PHPFHIRParserMap implements generic interface ArrayAccess but does not specify its types\\: TKey, TValue$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRParserMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\FHIR\\\\R4\\\\PHPFHIRParserMap implements generic interface Iterator but does not specify its types\\: TKey, TValue$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRParserMap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Menu\\\\MenuItems extends generic class ArrayObject but does not specify its types\\: TKey, TValue$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuItems.php',

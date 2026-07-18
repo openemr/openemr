@@ -388,29 +388,29 @@ if ($form_action == 'export') {
     header("Content-Description: File Transfer");
   // CSV headers:
     if ($product_first) {
-        echo csvEscape(xl('Product')) . ',';
-        echo csvEscape(xl('Warehouse')) . ',';
+        echo xlc('Product') . ',';
+        echo xlc('Warehouse') . ',';
     } else {
-        echo csvEscape(xl('Warehouse')) . ',';
-        echo csvEscape(xl('Product')) . ',';
+        echo xlc('Warehouse') . ',';
+        echo xlc('Product') . ',';
     }
 
     if ($_POST['form_details']) {
-        echo csvEscape(xl('Date')) . ',';
-        echo csvEscape(xl('Invoice')) . ',';
-        echo csvEscape(xl('Sales')) . ',';
-        echo csvEscape(xl('Distributions')) . ',';
-        echo csvEscape(xl('Purchases')) . ',';
-        echo csvEscape(xl('Transfers')) . ',';
-        echo csvEscape(xl('Adjustments')) . "\n";
+        echo xlc('Date') . ',';
+        echo xlc('Invoice') . ',';
+        echo xlc('Sales') . ',';
+        echo xlc('Distributions') . ',';
+        echo xlc('Purchases') . ',';
+        echo xlc('Transfers') . ',';
+        echo xlc('Adjustments') . "\n";
     } else {
-        echo csvEscape(xl('Start')) . ',';
-        echo csvEscape(xl('Sales')) . ',';
-        echo csvEscape(xl('Distributions')) . ',';
-        echo csvEscape(xl('Purchases')) . ',';
-        echo csvEscape(xl('Transfers')) . ',';
-        echo csvEscape(xl('Adjustments')) . ',';
-        echo csvEscape(xl('End')) . "\n";
+        echo xlc('Start') . ',';
+        echo xlc('Sales') . ',';
+        echo xlc('Distributions') . ',';
+        echo xlc('Purchases') . ',';
+        echo xlc('Transfers') . ',';
+        echo xlc('Adjustments') . ',';
+        echo xlc('End') . "\n";
     }
 } else { // end export
     ?>
