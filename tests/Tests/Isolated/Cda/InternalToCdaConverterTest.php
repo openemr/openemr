@@ -139,18 +139,70 @@ class InternalToCdaConverterTest extends TestCase
         self::assertFalse($code->hasAttribute('codeSystemName'), 'nullFlavor code must not carry codeSystemName');
     }
 
+    /**
+     * The author code element is guarded by existsWhen propertyNotEmpty('code')
+     * in Node, so an unknown physician type must omit the whole code element
+     * rather than emit empty coded attributes.
+     */
+    public function testDocumentAuthorOmitsCodeWhenTypeEmpty(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <created_time_timezone>20210723</created_time_timezone>
+                <author>
+                    <npi>1234567890</npi>
+                    <physician_type_code></physician_type_code>
+                    <physician_type></physician_type>
+                    <physician_type_system></physician_type_system>
+                    <physician_type_system_name></physician_type_system_name>
+                </author>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $codes = $xpath->query('/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:code');
+        self::assertNotFalse($codes, 'Author code query must be valid');
+        self::assertSame(0, $codes->length, 'Empty author type code must omit the code element');
+    }
+
+    public function testDocumentAuthorEmitsCodeWhenTypePresent(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <created_time_timezone>20210723</created_time_timezone>
+                <author>
+                    <npi>1234567890</npi>
+                    <physician_type_code>207Q00000X</physician_type_code>
+                    <physician_type>Family Medicine</physician_type>
+                    <physician_type_system>2.16.840.1.113883.6.101</physician_type_system>
+                    <physician_type_system_name>NUCC</physician_type_system_name>
+                </author>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $codes = $xpath->query('/hl7:ClinicalDocument/hl7:author/hl7:assignedAuthor/hl7:code');
+        self::assertNotFalse($codes, 'Author code query must be valid');
+        self::assertSame(1, $codes->length, 'Present author type code must emit the code element');
+    }
+
     private function firstProcedureCode(string $input): \DOMElement
     {
-        $converter = new InternalToCdaConverter();
-        $dom = $this->loadDom($converter->convert($input));
-        $xpath = new DOMXPath($dom);
-        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
-
+        $xpath = $this->convertToXPath($input);
         $codes = $xpath->query('//hl7:procedure/hl7:code');
         self::assertNotFalse($codes, 'Procedure code query must be valid');
         $code = $codes->item(0);
         self::assertInstanceOf(\DOMElement::class, $code, 'Procedure code element must exist');
         return $code;
+    }
+
+    private function convertToXPath(string $input): DOMXPath
+    {
+        $converter = new InternalToCdaConverter();
+        $dom = $this->loadDom($converter->convert($input));
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+        return $xpath;
     }
 
     #[DataProvider('demoFixtureProvider')]
