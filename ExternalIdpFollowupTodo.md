@@ -23,6 +23,13 @@ testing is complete.
   - using Docker logs to diagnose module access issues
 - Do one final code cleanup pass for warnings, redundant imports, and minimal
   structure once behavior is confirmed.
+- Review the shadow-user provisioning implementation detail where the OIDC
+  callback creates a local `users_secure` password hash directly. The current
+  reason is that the core password helper expects an admin password prompt,
+  which is not available inside the external-login callback. Decide whether to
+  keep the generated hidden password approach or refactor the core external
+  login/session flow to avoid requiring a stored local password for OIDC-only
+  users.
 
 ## Testing-only changes to revisit
 

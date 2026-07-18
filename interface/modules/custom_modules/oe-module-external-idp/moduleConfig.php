@@ -17,6 +17,7 @@ if (empty($_GET['site']) && empty($_REQUEST['site'])) {
 $sessionAllowWrite = true;
 require_once(__DIR__ . '/../../../globals.php');
 
+use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -38,22 +39,43 @@ function externalIdpEnsureSchema(): void
 {
     $providerTable = sqlQuery("SHOW TABLES LIKE 'module_external_idp_provider'");
     $identityTable = sqlQuery("SHOW TABLES LIKE 'module_external_idp_identity'");
-    if (!empty($providerTable) && !empty($identityTable)) {
-        return;
-    }
-
-    $sql = file_get_contents(__DIR__ . '/table.sql');
-    if ($sql === false) {
-        throw new \RuntimeException('Unable to read the module schema definition.');
-    }
-
-    $statements = preg_split('/;\s*(?:\r?\n|$)/', trim($sql));
-    foreach ($statements as $statement) {
-        $statement = trim((string) $statement);
-        if ($statement === '') {
-            continue;
+    if (empty($providerTable) || empty($identityTable)) {
+        $sql = file_get_contents(__DIR__ . '/table.sql');
+        if ($sql === false) {
+            throw new \RuntimeException('Unable to read the module schema definition.');
         }
-        sqlStatement($statement);
+
+        $statements = preg_split('/;\s*(?:\r?\n|$)/', trim($sql));
+        foreach ($statements as $statement) {
+            $statement = trim((string) $statement);
+            if ($statement === '') {
+                continue;
+            }
+            sqlStatement($statement);
+        }
+    }
+
+    $providerColumns = [
+        'provisioning_mode' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `provisioning_mode` varchar(32) NOT NULL DEFAULT 'manual' AFTER `scopes`",
+        'match_claim' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `match_claim` varchar(64) NOT NULL DEFAULT 'preferred_username' AFTER `provisioning_mode`",
+        'username_claim' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `username_claim` varchar(64) NOT NULL DEFAULT 'preferred_username' AFTER `match_claim`",
+        'email_claim' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `email_claim` varchar(64) NOT NULL DEFAULT 'email' AFTER `username_claim`",
+        'first_name_claim' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `first_name_claim` varchar(64) NOT NULL DEFAULT 'given_name' AFTER `email_claim`",
+        'last_name_claim' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `last_name_claim` varchar(64) NOT NULL DEFAULT 'family_name' AFTER `first_name_claim`",
+        'default_group_name' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `default_group_name` varchar(255) NOT NULL DEFAULT '' AFTER `last_name_claim`",
+        'default_acl_group' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `default_acl_group` varchar(255) NOT NULL DEFAULT '' AFTER `default_group_name`",
+        'username_prefix' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `username_prefix` varchar(32) NOT NULL DEFAULT 'oidc_' AFTER `default_acl_group`",
+        'default_facility_id' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `default_facility_id` bigint(20) NOT NULL DEFAULT 0 AFTER `username_prefix`",
+        'default_authorized' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `default_authorized` tinyint(1) NOT NULL DEFAULT 0 AFTER `default_facility_id`",
+        'default_active' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `default_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `default_authorized`",
+        'sync_claims_on_login' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `sync_claims_on_login` tinyint(1) NOT NULL DEFAULT 1 AFTER `default_active`",
+    ];
+
+    foreach ($providerColumns as $columnName => $alterSql) {
+        $column = sqlQuery("SHOW COLUMNS FROM `module_external_idp_provider` LIKE '" . add_escape_custom($columnName) . "'");
+        if (empty($column)) {
+            sqlStatement($alterSql);
+        }
     }
 }
 
@@ -64,7 +86,18 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $siteId = (string) ($session->get('site_id') ?: 'default');
 $providerRepository = new ProviderRepository();
 $identityRepository = new IdentityRepository();
-$callbackUrl = OEGlobalsBag::getInstance()->getWebRoot() . '/interface/modules/custom_modules/oe-module-external-idp/callback.php';
+$callbackHost = trim((string) ($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'));
+if (str_contains($callbackHost, ',')) {
+    $callbackHost = trim(explode(',', $callbackHost)[0]);
+}
+$callbackScheme = trim((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+if ($callbackScheme !== '' && str_contains($callbackScheme, ',')) {
+    $callbackScheme = trim(explode(',', $callbackScheme)[0]);
+}
+if ($callbackScheme === '') {
+    $callbackScheme = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') ? 'https' : 'http';
+}
+$callbackUrl = $callbackScheme . '://' . ($callbackHost !== '' ? $callbackHost : 'localhost') . OEGlobalsBag::getInstance()->getWebRoot() . '/interface/modules/custom_modules/oe-module-external-idp/callback.php';
 $csrfToken = CsrfUtils::collectCsrfToken($session, 'external-idp-config');
 $isAjaxRequest = strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) === 'xmlhttprequest';
 
@@ -75,6 +108,7 @@ $bindingSubject = '';
 $bindingUserId = '';
 $bindingSearchResults = [];
 $bootstrapError = '';
+$postedProviderDraft = null;
 
 try {
     externalIdpEnsureSchema();
@@ -88,6 +122,26 @@ try {
     $messageType = 'danger';
     $message = xlt('Configuration page failed to initialize: ') . $bootstrapError;
 }
+
+$provisioningModes = [
+    'manual' => xlt('Manual binding only'),
+    'auto_bind' => xlt('Auto-bind existing local user'),
+    'auto_provision' => xlt('Auto-provision shadow user'),
+    'auto_bind_or_provision' => xlt('Auto-bind or auto-provision'),
+];
+$defaultFacilityRows = sqlStatement('SELECT `id`, `name` FROM `facility` ORDER BY `name`');
+$facilityOptions = [];
+while ($row = sqlFetchArray($defaultFacilityRows)) {
+    $facilityOptions[] = $row;
+}
+$groupRows = sqlStatement('SELECT DISTINCT `name` FROM `groups` WHERE `name` IS NOT NULL AND `name` != "" ORDER BY `name`');
+$groupOptions = [];
+while ($row = sqlFetchArray($groupRows)) {
+    if (!empty($row['name'])) {
+        $groupOptions[] = (string) $row['name'];
+    }
+}
+$aclGroupOptions = AclExtended::aclGetGroupTitleList();
 
 if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     CsrfUtils::checkCsrfInput(INPUT_POST, session: $session, subject: 'external-idp-config', dieOnFail: true);
@@ -152,9 +206,48 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $clientSecret = (string) ($_POST['client_secret'] ?? '');
             $scopes = trim((string) ($_POST['scopes'] ?? 'openid profile email'));
             $enabled = !empty($_POST['enabled']);
+            $provisioningMode = trim((string) ($_POST['provisioning_mode'] ?? ProviderRepository::DEFAULT_PROVISIONING_MODE));
+            $matchClaim = trim((string) ($_POST['match_claim'] ?? 'preferred_username'));
+            $usernameClaim = trim((string) ($_POST['username_claim'] ?? 'preferred_username'));
+            $emailClaim = trim((string) ($_POST['email_claim'] ?? 'email'));
+            $firstNameClaim = trim((string) ($_POST['first_name_claim'] ?? 'given_name'));
+            $lastNameClaim = trim((string) ($_POST['last_name_claim'] ?? 'family_name'));
+            $defaultGroupName = trim((string) ($_POST['default_group_name'] ?? ''));
+            $defaultAclGroup = trim((string) ($_POST['default_acl_group'] ?? ''));
+            $usernamePrefix = trim((string) ($_POST['username_prefix'] ?? 'oidc_'));
+            $defaultFacilityId = (int) ($_POST['default_facility_id'] ?? 0);
+            $defaultAuthorized = !empty($_POST['default_authorized']);
+            $defaultActive = !array_key_exists('default_active', $_POST) || !empty($_POST['default_active']);
+            $syncClaimsOnLogin = !array_key_exists('sync_claims_on_login', $_POST) || !empty($_POST['sync_claims_on_login']);
+            $postedProviderDraft = [
+                'display_name' => $displayName,
+                'issuer_url' => $issuerUrl,
+                'client_id' => $clientId,
+                'scopes' => $scopes,
+                'enabled' => $enabled ? 1 : 0,
+                'provisioning_mode' => $provisioningMode,
+                'match_claim' => $matchClaim,
+                'username_claim' => $usernameClaim,
+                'email_claim' => $emailClaim,
+                'first_name_claim' => $firstNameClaim,
+                'last_name_claim' => $lastNameClaim,
+                'default_group_name' => $defaultGroupName,
+                'default_acl_group' => $defaultAclGroup,
+                'username_prefix' => $usernamePrefix,
+                'default_facility_id' => $defaultFacilityId,
+                'default_authorized' => $defaultAuthorized ? 1 : 0,
+                'default_active' => $defaultActive ? 1 : 0,
+                'sync_claims_on_login' => $syncClaimsOnLogin ? 1 : 0,
+            ];
 
             if ($displayName === '' || $clientId === '' || $scopes === '') {
                 throw new \InvalidArgumentException('Display name, client ID, and scopes are required.');
+            }
+            if (!in_array($provisioningMode, ProviderRepository::PROVISIONING_MODES, true)) {
+                throw new \InvalidArgumentException('Provisioning mode is invalid.');
+            }
+            if (($provisioningMode === 'auto_provision' || $provisioningMode === 'auto_bind_or_provision') && ($defaultGroupName === '' || $defaultAclGroup === '')) {
+                throw new \InvalidArgumentException('Shadow-user provisioning requires a local group name and an ACL group.');
             }
 
             $scopeList = preg_split('/\s+/', $scopes, -1, PREG_SPLIT_NO_EMPTY);
@@ -164,7 +257,21 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($action === 'save') {
                 $metadata = (new DiscoveryService())->discover($issuerUrl);
-                $providerRepository->save($siteId, $displayName, rtrim($issuerUrl, '/'), $clientId, $clientSecret, $scopes, $enabled, $metadata);
+                $providerRepository->save($siteId, $displayName, rtrim($issuerUrl, '/'), $clientId, $clientSecret, $scopes, $enabled, $metadata, [
+                    'provisioning_mode' => $provisioningMode,
+                    'match_claim' => $matchClaim,
+                    'username_claim' => $usernameClaim,
+                    'email_claim' => $emailClaim,
+                    'first_name_claim' => $firstNameClaim,
+                    'last_name_claim' => $lastNameClaim,
+                    'default_group_name' => $defaultGroupName,
+                    'default_acl_group' => $defaultAclGroup,
+                    'username_prefix' => $usernamePrefix,
+                    'default_facility_id' => $defaultFacilityId,
+                    'default_authorized' => $defaultAuthorized,
+                    'default_active' => $defaultActive,
+                    'sync_claims_on_login' => $syncClaimsOnLogin,
+                ]);
                 $message = $enabled ? xlt('OIDC discovery succeeded and the provider was enabled.') : xlt('OIDC discovery succeeded and the provider configuration was saved disabled.');
                 $messageType = 'success';
                 if ($isAjaxRequest) {
@@ -210,6 +317,9 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($bootstrapError === '') {
     $provider = $providerRepository->getForSite($siteId);
     $provider = is_array($provider) ? $provider : [];
+    if ($postedProviderDraft !== null && $messageType === 'danger') {
+        $provider = array_merge($provider, $postedProviderDraft);
+    }
     $bindings = $identityRepository->listForSite($siteId);
 }
 
@@ -327,6 +437,105 @@ if (!$renderPartial) {
                 <div class="form-group">
                     <label for="scopes"><?php echo xlt('Scopes'); ?></label>
                     <input class="form-control" id="scopes" name="scopes" maxlength="512" required value="<?php echo attr($provider['scopes'] ?? 'openid profile email'); ?>">
+                </div>
+
+                <h2 class="h5 mt-4"><?php echo xlt('Shadow-user provisioning'); ?></h2>
+
+                <div class="form-group">
+                    <label for="provisioning_mode"><?php echo xlt('Provisioning mode'); ?></label>
+                    <select class="form-control" id="provisioning_mode" name="provisioning_mode">
+                        <?php foreach ($provisioningModes as $modeValue => $modeLabel) { ?>
+                            <option value="<?php echo attr($modeValue); ?>" <?php echo (($provider['provisioning_mode'] ?? ProviderRepository::DEFAULT_PROVISIONING_MODE) === $modeValue) ? 'selected' : ''; ?>>
+                                <?php echo text($modeLabel); ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                    <small class="form-text text-muted"><?php echo xlt('Manual is the default. Automatic modes use exact claim matching and can optionally create local shadow users.'); ?></small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="match_claim"><?php echo xlt('Match claim'); ?></label>
+                        <input class="form-control" id="match_claim" name="match_claim" maxlength="64" value="<?php echo attr($provider['match_claim'] ?? 'preferred_username'); ?>">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="username_claim"><?php echo xlt('Username claim'); ?></label>
+                        <input class="form-control" id="username_claim" name="username_claim" maxlength="64" value="<?php echo attr($provider['username_claim'] ?? 'preferred_username'); ?>">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="email_claim"><?php echo xlt('Email claim'); ?></label>
+                        <input class="form-control" id="email_claim" name="email_claim" maxlength="64" value="<?php echo attr($provider['email_claim'] ?? 'email'); ?>">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="first_name_claim"><?php echo xlt('First name claim'); ?></label>
+                        <input class="form-control" id="first_name_claim" name="first_name_claim" maxlength="64" value="<?php echo attr($provider['first_name_claim'] ?? 'given_name'); ?>">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="last_name_claim"><?php echo xlt('Last name claim'); ?></label>
+                        <input class="form-control" id="last_name_claim" name="last_name_claim" maxlength="64" value="<?php echo attr($provider['last_name_claim'] ?? 'family_name'); ?>">
+                    </div>
+                </div>
+
+                <div class="form-row provisioning-fields">
+                    <div class="form-group col-md-6">
+                        <label for="default_group_name"><?php echo xlt('Local group name'); ?></label>
+                        <input class="form-control" list="default_group_name_options" id="default_group_name" name="default_group_name" maxlength="255" value="<?php echo attr($provider['default_group_name'] ?? ''); ?>">
+                        <datalist id="default_group_name_options">
+                            <?php foreach ($groupOptions as $groupNameOption) { ?>
+                                <option value="<?php echo attr($groupNameOption); ?>"></option>
+                            <?php } ?>
+                        </datalist>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="default_acl_group"><?php echo xlt('ACL group'); ?></label>
+                        <select class="form-control" id="default_acl_group" name="default_acl_group">
+                            <option value=""><?php echo xlt('Select ACL group'); ?></option>
+                            <?php foreach ($aclGroupOptions as $aclGroupOption) { ?>
+                                <option value="<?php echo attr($aclGroupOption); ?>" <?php echo (($provider['default_acl_group'] ?? '') === $aclGroupOption) ? 'selected' : ''; ?>>
+                                    <?php echo text($aclGroupOption); ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row provisioning-fields">
+                    <div class="form-group col-md-4">
+                        <label for="username_prefix"><?php echo xlt('Username prefix'); ?></label>
+                        <input class="form-control" id="username_prefix" name="username_prefix" maxlength="32" value="<?php echo attr($provider['username_prefix'] ?? 'oidc_'); ?>">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="default_facility_id"><?php echo xlt('Default facility'); ?></label>
+                        <select class="form-control" id="default_facility_id" name="default_facility_id">
+                            <option value="0"><?php echo xlt('None'); ?></option>
+                            <?php foreach ($facilityOptions as $facilityOption) { ?>
+                                <option value="<?php echo attr((string) ($facilityOption['id'] ?? 0)); ?>" <?php echo ((int) ($provider['default_facility_id'] ?? 0) === (int) ($facilityOption['id'] ?? 0)) ? 'selected' : ''; ?>>
+                                    <?php echo text((string) ($facilityOption['name'] ?? '')); ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="default_authorized"><?php echo xlt('Default authorized flag'); ?></label>
+                        <select class="form-control" id="default_authorized" name="default_authorized">
+                            <option value="0" <?php echo empty($provider['default_authorized']) ? 'selected' : ''; ?>><?php echo xlt('No'); ?></option>
+                            <option value="1" <?php echo !empty($provider['default_authorized']) ? 'selected' : ''; ?>><?php echo xlt('Yes'); ?></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row provisioning-fields">
+                    <div class="form-group col-md-6 form-check ml-1">
+                        <input class="form-check-input" type="checkbox" id="default_active" name="default_active" value="1" <?php echo !array_key_exists('default_active', $provider) || !empty($provider['default_active']) ? 'checked' : ''; ?>>
+                        <label class="form-check-label" for="default_active"><?php echo xlt('Provisioned users are active by default'); ?></label>
+                    </div>
+                    <div class="form-group col-md-6 form-check ml-1">
+                        <input class="form-check-input" type="checkbox" id="sync_claims_on_login" name="sync_claims_on_login" value="1" <?php echo !array_key_exists('sync_claims_on_login', $provider) || !empty($provider['sync_claims_on_login']) ? 'checked' : ''; ?>>
+                        <label class="form-check-label" for="sync_claims_on_login"><?php echo xlt('Sync name/email claims on each login'); ?></label>
+                    </div>
                 </div>
 
                 <div class="form-group form-check">
@@ -553,6 +762,8 @@ if (!$renderPartial) {
     const displayNameField = document.getElementById('display_name');
     const clientIdField = document.getElementById('client_id');
     const clientSecretField = document.getElementById('client_secret');
+    const provisioningModeField = document.getElementById('provisioning_mode');
+    const provisioningFields = document.querySelectorAll('.provisioning-fields');
 
     function setMessage(type, message) {
         if (!messageBox) {
@@ -653,6 +864,20 @@ if (!$renderPartial) {
     }
 
     syncKeycloakPreview();
+
+    function syncProvisioningVisibility() {
+        const mode = provisioningModeField?.value || 'manual';
+        const visible = mode === 'auto_provision' || mode === 'auto_bind_or_provision';
+        provisioningFields.forEach(function (node) {
+            node.style.display = visible ? '' : 'none';
+        });
+    }
+
+    if (provisioningModeField) {
+        provisioningModeField.addEventListener('change', syncProvisioningVisibility);
+    }
+
+    syncProvisioningVisibility();
 
     function updateStatus(provider) {
         if (!provider) {

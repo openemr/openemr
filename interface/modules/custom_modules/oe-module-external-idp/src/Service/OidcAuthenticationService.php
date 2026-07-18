@@ -15,6 +15,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\JWK;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\ExternalAuthenticationResult;
 use OpenEMR\Common\Auth\ExternalAuthenticationService;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -31,6 +32,7 @@ final class OidcAuthenticationService
         private readonly ProviderRepository $providerRepository = new ProviderRepository(),
         private readonly IdentityRepository $identityRepository = new IdentityRepository(),
         private readonly OidcStateService $stateService = new OidcStateService(),
+        private readonly OidcProvisioningService $provisioningService = new OidcProvisioningService(),
     ) {
     }
 
@@ -90,9 +92,13 @@ final class OidcAuthenticationService
             $claims = $this->validateIdToken($provider, $pending, $tokenResponse['id_token'] ?? '');
             $userId = $this->resolveUserId((int) $provider['id'], (string) $claims->sub);
             if ($userId === null) {
+                $userId = $this->provisioningService->resolveOrProvisionUser($provider, $claims);
+            }
+            if ($userId === null) {
                 $this->auditFailure((string) $provider['id'], 'no OpenEMR binding exists for the external subject');
                 throw new \RuntimeException('No local OpenEMR binding exists for this external identity.');
             }
+            $this->provisioningService->syncMappedUser($provider, $userId, $claims);
 
             $result = new ExternalAuthenticationResult($userId, (string) $provider['id']);
             $completed = (new ExternalAuthenticationService())->complete($result, $pending['login_options']);
@@ -178,7 +184,7 @@ final class OidcAuthenticationService
         ];
         $clientSecret = trim((string) ($provider['client_secret'] ?? ''));
         if ($clientSecret !== '') {
-            $requestOptions['auth'] = [(string) $provider['client_id'], $clientSecret, 'basic'];
+            $requestOptions['form_params']['client_secret'] = $clientSecret;
         }
 
         try {
@@ -190,7 +196,20 @@ final class OidcAuthenticationService
 
         if ($response->getStatusCode() !== 200) {
             $this->auditFailure((string) $provider['id'], 'token exchange returned a non-success status');
-            throw new \RuntimeException('The identity provider token exchange did not return HTTP 200.');
+            $responseBody = trim((string) $response->getBody());
+            ServiceContainer::getLogger()->error('External IdP token exchange returned non-200', [
+                'provider_id' => (string) ($provider['id'] ?? ''),
+                'token_endpoint' => $tokenEndpoint,
+                'status_code' => $response->getStatusCode(),
+                'redirect_uri' => $this->getCallbackUrl(),
+                'client_id' => (string) ($provider['client_id'] ?? ''),
+                'response_body' => substr($responseBody, 0, 2000),
+            ]);
+            throw new \RuntimeException(
+                'The identity provider token exchange did not return HTTP 200. HTTP '
+                . $response->getStatusCode()
+                . ($responseBody !== '' ? ': ' . substr($responseBody, 0, 500) : '')
+            );
         }
 
         try {
