@@ -769,10 +769,13 @@ class InternalToCdaConverter
         $taxonomy = $this->xpathValue('/CCDA/primary_care_provider/provider/taxonomy');
         $taxonomyDesc = $this->xpathValue('/CCDA/primary_care_provider/provider/taxonomy_description');
         $code = $this->createElement('code');
-        $code->setAttribute('code', $taxonomy !== '' ? $taxonomy : $this->xpathValue('/CCDA/author/physician_type_code'));
-        $code->setAttribute('displayName', $taxonomyDesc !== '' ? $taxonomyDesc : $this->xpathValue('/CCDA/author/physician_type'));
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.101');
-        $code->setAttribute('codeSystemName', 'NUCC Health Care Provider Taxonomy');
+        $this->applyCodedOrNullFlavor(
+            $code,
+            $taxonomy !== '' ? $taxonomy : $this->xpathValue('/CCDA/author/physician_type_code'),
+            $taxonomyDesc !== '' ? $taxonomyDesc : $this->xpathValue('/CCDA/author/physician_type'),
+            '2.16.840.1.113883.6.101',
+            'NUCC Health Care Provider Taxonomy',
+        );
         $originalText = $this->createElement('originalText', 'Care Team Member');
         $code->appendChild($originalText);
         $assignedEntity->appendChild($code);
@@ -2986,15 +2989,13 @@ class InternalToCdaConverter
         $assignedEntity->appendChild($id);
 
         $code = $this->createElement('code');
-        $physicianTypeCode = $this->xpathValue('physician_type_code', $enc);
-        if ($physicianTypeCode !== '') {
-            $code->setAttribute('code', $physicianTypeCode);
-            $code->setAttribute('displayName', $this->xpathValue('physician_type', $enc));
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-            $code->setAttribute('codeSystemName', $this->xpathValue('physician_code_type', $enc));
-        } else {
-            $code->setAttribute('nullFlavor', 'UNK');
-        }
+        $this->applyCodedOrNullFlavor(
+            $code,
+            $this->xpathValue('physician_type_code', $enc),
+            $this->xpathValue('physician_type', $enc),
+            '2.16.840.1.113883.6.96',
+            $this->xpathValue('physician_code_type', $enc),
+        );
         $assignedEntity->appendChild($code);
 
         $assignedPerson = $this->createElement('assignedPerson');

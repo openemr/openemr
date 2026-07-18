@@ -282,6 +282,46 @@ class InternalToCdaConverterTest extends TestCase
         self::assertSame('UNK', $obsCode->getAttribute('nullFlavor'), 'Missing observation code must be nullFlavor UNK');
     }
 
+    /**
+     * The encounter performer assignedEntity code uses Node's leafLevel.code:
+     * a missing physician type code collapses to nullFlavor="UNK", and a present
+     * code with an unknown code system omits the empty codeSystemName attribute.
+     */
+    public function testEncounterPerformerCodeMatchesNode(): void
+    {
+        $input = <<<'XML'
+            <CCDA>
+                <encounter_list>
+                    <encounter>
+                        <extension>ENC-1</extension>
+                        <physician_type_code></physician_type_code>
+                    </encounter>
+                    <encounter>
+                        <extension>ENC-2</extension>
+                        <physician_type_code>207Q00000X</physician_type_code>
+                        <physician_type></physician_type>
+                        <physician_code_type></physician_code_type>
+                    </encounter>
+                </encounter_list>
+            </CCDA>
+            XML;
+
+        $xpath = $this->convertToXPath($input);
+        $codes = $xpath->query('//hl7:encounter/hl7:performer/hl7:assignedEntity/hl7:code');
+        self::assertNotFalse($codes, 'Performer code query must be valid');
+        self::assertSame(2, $codes->length, 'Expected one performer code per encounter');
+
+        $missing = $codes->item(0);
+        self::assertInstanceOf(\DOMElement::class, $missing, 'First performer code must exist');
+        self::assertSame('UNK', $missing->getAttribute('nullFlavor'), 'Missing physician type code must be nullFlavor UNK');
+
+        $present = $codes->item(1);
+        self::assertInstanceOf(\DOMElement::class, $present, 'Second performer code must exist');
+        self::assertSame('207Q00000X', $present->getAttribute('code'), 'Present code must be preserved');
+        self::assertFalse($present->hasAttribute('codeSystemName'), 'Empty code system must omit codeSystemName');
+        self::assertFalse($present->hasAttribute('displayName'), 'Empty physician type must omit displayName');
+    }
+
     private function firstProcedureCode(string $input): \DOMElement
     {
         $xpath = $this->convertToXPath($input);
