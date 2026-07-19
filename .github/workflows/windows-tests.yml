@@ -44,7 +44,7 @@ jobs:
     - name: Setup PHP 8.2 and Composer
       uses: ./.github/actions/setup-php-composer
       with:
-          # Linux CI owns PHP-version coverage; Windows is the variable here.
+        # Linux CI owns PHP-version coverage; Windows is the variable here.
         php-version: '8.2'
         coverage: none
 
