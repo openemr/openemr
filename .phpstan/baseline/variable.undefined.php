@@ -2372,11 +2372,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$resource might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$all might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Rx/RxList.php',
