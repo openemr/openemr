@@ -191,7 +191,7 @@ if ($formid === 0) {
     $form = new FormQuestionnaireAssessment();
     $form->setEncounter($encounter);
     $form->setPid($pid);
-    $form->setAuthorized((int) $userauthorized);
+    $form->setAuthorized($userauthorized);
     $form->setFormName($formName);
     $form->setResponseId($qrid);
     $form->setResponseMeta($responseMeta !== '' ? $responseMeta : null);
