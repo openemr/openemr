@@ -43,6 +43,7 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
 
     private ?QuestionnaireService $service;
 
+
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
@@ -68,6 +69,7 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
      */
     public function supportsCode($code): bool
     {
+        // we support pretty much any LOINC code
         return true;
     }
 
@@ -94,12 +96,16 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
     public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRQuestionnaire
     {
         try {
+            // parse the json data in dataRecord questionnaire
             $innerData = json_decode((string) $dataRecord['questionnaire'], true, 512, JSON_THROW_ON_ERROR);
+            // we have to handle the item properties as Questionnaire only adds data arrays instead of
+            // actual object values
             if (!empty($innerData['item'])) {
                 $innerData['item'] = $this->parseQuestionnaireItems($innerData);
             }
         } catch (JsonException $exception) {
-            $innerData = [];
+            // log the error and move on
+            $innerData = []; // nothing we can do here, but skip the questionnaire data as its invalid
             ServiceContainer::getLogger()->error(
                 "Unable to parse questionnaire json",
                 ['exception' => $exception, 'uuid' => $dataRecord['uuid'] ?? '']
@@ -109,9 +115,11 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
 
         $meta = new FHIRMeta();
         $meta->setVersionId($dataRecord['version'] ?? '1');
+        // TODO: @adunsulag use modified_date
         $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         $fhirResource->setMeta($meta);
 
+        // some of our saved OpenEMR db records have an invalid source_url and so we updated this in the database.
         if (!empty($dataRecord['source_url'])) {
             $fhirResource->setUrl($dataRecord['source_url']);
         }
@@ -124,26 +132,21 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
     }
 
     /**
+     * This method returns the FHIR search definition objects that are used to map FHIR search fields to OpenEMR fields.
+     * Since the mapping can be one FHIR search object to many OpenEMR fields, we use the search definition objects.
+     * Search fields can be combined as Composite fields and represent a host of search options.
+     * @see https://www.hl7.org/fhir/search.html to see the types of search operations, and search types that are available
+     * for use.
      * @return array
      */
     protected function loadSearchParameters(): array
     {
         return  [
-            '_id' => new FhirSearchParameterDefinition(
-                '_id',
-                SearchFieldType::TOKEN,
-                [new ServiceField('uuid', ServiceField::TYPE_UUID)]
-            ),
-            'title' => new FhirSearchParameterDefinition(
-                'title',
-                SearchFieldType::STRING,
-                [new ServiceField('name', ServiceField::TYPE_STRING)]
-            ),
-            'questionnaire-code' => new FhirSearchParameterDefinition(
-                'questionnaire-code',
-                SearchFieldType::TOKEN,
-                [new ServiceField('code', ServiceField::TYPE_STRING)]
-            )
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)])
+            // note what we store in the database is the Title of the questionnaire even thought its called 'name'.  The computable name is stored only in the json
+            // TODO: @adunsulag look at adding a database field for the computable name and store it in the database
+            ,'title' => new FhirSearchParameterDefinition('title', SearchFieldType::STRING, [new ServiceField('name', ServiceField::TYPE_STRING)])
+            ,'questionnaire-code' => new FhirSearchParameterDefinition('questionnaire-code', SearchFieldType::TOKEN, [new ServiceField('code', ServiceField::TYPE_STRING)])
         ];
     }
 
@@ -157,16 +160,23 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
     }
 
     /**
-     * @param FHIRDomainResource $dataRecord
-     * @param bool $encode
+     * Healthcare resources often need to provide an AUDIT trail of who last touched a resource and when was it modified.
+     * The ownership and AUDIT trail in FHIR is done via the Provenance record.
+     * @param FHIRDomainResource $dataRecord The record we are generating a provenance from
+     * @param bool $encode Whether to serialize the record or not
      * @return FHIRProvenance|string
      */
     public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string
     {
+        // we don't return any provenance authorship for this custom resource
+        // if we did return it, we would fill out the following record
+//        $provenance = new FHIRProvenance();
         if (!($dataRecord instanceof FHIRQuestionnaire)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
+        // provenance will just be the organization as we don't keep track of the user at the individual FHIR resource level
+        // note we do track this internally in OpenEMR but FHIR R4 doesn't expose this as far as I can tell.
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
         if ($encode) {
             return json_encode($fhirProvenance);
