@@ -26,8 +26,12 @@ acceptance-testing owns the *verification that they work*.
 - **Current branch under release work:** `rel-810` (8.1.0 was cut as
   artifact only — was buggy, removed; next planned release is **8.1.1**).
 - **Conductor (`release-prep.yml`)** lives in `openemr/openemr` already.
-- **Consumers (build / announcements / ship)** still in `openemr-devops`;
-  release-mechanism migration in flight.
+- **Consumers (build / ship)** still in `openemr-devops`;
+  release-mechanism migration in flight. **Announcements consumer**
+  migrated 2026-07-18/19 to `openemr/website-openemr` — fires on
+  docs-PR-merge (`pull_request:closed` on `release-docs/*`) instead
+  of `openemr-tag`; see `openemr/website-openemr#194` for the workflow
+  + `openemr/openemr-devops#861` for the devops-side retirement.
 - **Patch flow (`build-patch.yml`)** intentionally separate from main
   automation — emergent-patch escape hatch only.
 
