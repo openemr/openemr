@@ -1620,7 +1620,28 @@ to `PackageAssembler` + `PreflightChecker`. The `build-release.yml` move
 proceeds as originally sketched but from a smaller starting point in
 devops.
 
-### Announcements early-migration slice (post-changelog-surface pilot)
+### Announcements early-migration slice (post-changelog-surface pilot) — SHIPPED 2026-07-18/19
+
+**STATUS: SHIPPED 2026-07-18 through 2026-07-19.** All 5 PRs landed:
+
+- `openemr/website-openemr#192` — renderer classes + templates + tests
+- `openemr/website-openemr#193` — bin CLI scripts + PR-metadata input adaptation
+- `openemr/website-openemr#194` — `release-announcements.yml` workflow
+- `openemr/website-openemr#198` — sync `forum.md.twig` update from `openemr-devops#853` (post-PR-1 template drift)
+- `openemr/openemr-devops#861` — retire devops's copies
+- `openemr/openemr#13055` — `RELEASE_PROCESS.md` phase 4 + runbook step 16 update to reference the new home + trigger
+
+Manual-dispatch smoke test on 2026-07-19 confirmed all 8 rendered files byte-identical between website's new workflow and devops's July 8 production run (before `#853`), and post-#198 sync confirmed the updated `forum.md.twig` renders identically. Parallel-run window closed with `#861`; website is now the sole canonical announcement drafter.
+
+Follow-ups filed on `openemr/website-openemr` for the future automated-posting phase:
+
+- `openemr/website-openemr#195` — bot-login gate defense-in-depth (blocks human-branch false positives once posting is automated)
+- `openemr/website-openemr#196` — CI smoke test workflow for the task chain end-to-end
+- `openemr/website-openemr#197` — mandatory `--dry-run` + golden fixtures on every future channel poster (design constraint for the post-phase)
+
+The original plan (below) is preserved as-designed for archival reference.
+
+---
 
 Runs after the changelog-surface slice lands, in the same pre-Phase-2
 window. Motivated by Brady's timing observation
