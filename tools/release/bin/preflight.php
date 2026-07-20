@@ -30,18 +30,28 @@ use Symfony\Component\Console\SingleCommandApplication;
     ->addOption('skip-milestone', null, InputOption::VALUE_NONE, 'Skip milestone check')
     ->addOption('skip-ghsa', null, InputOption::VALUE_NONE, 'Skip GHSA check')
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
-        /** @var ?string $milestone */
-        $milestone = $input->getOption('milestone');
-        /** @var string $repo */
-        $repo = $input->getOption('repo');
+        // Parse raw CLI input into narrowed types at the boundary rather
+        // than @var-casting downstream; see PSR-based coding guidelines.
+        $milestoneOption = $input->getOption('milestone');
+        if ($milestoneOption !== null && !is_string($milestoneOption)) {
+            $output->writeln('<error>--milestone must be a string</error>');
+            return 1;
+        }
+        $milestone = $milestoneOption;
+
+        $repoOption = $input->getOption('repo');
+        if (!is_string($repoOption) || $repoOption === '') {
+            $output->writeln('<error>--repo must be a non-empty string</error>');
+            return 1;
+        }
+        $repo = $repoOption;
+
         $api = new GitHubApi($repo);
         $checker = new PreflightChecker($api, $repo);
         $failures = 0;
 
-        /** @var bool $skipMilestone */
-        $skipMilestone = $input->getOption('skip-milestone');
-        /** @var bool $skipGhsa */
-        $skipGhsa = $input->getOption('skip-ghsa');
+        $skipMilestone = (bool) $input->getOption('skip-milestone');
+        $skipGhsa = (bool) $input->getOption('skip-ghsa');
 
         if (!$skipMilestone) {
             if ($milestone === null) {

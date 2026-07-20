@@ -116,7 +116,12 @@ final readonly class PackageAssembler
         mkdir($composerHome, 0755, true);
         $composerEnv = ['COMPOSER_HOME' => $composerHome];
         $this->run(
-            ['composer', 'global', 'require', 'phing/phing', '--no-interaction', '--no-progress'],
+            // Pin to a known-good major version. Unbounded `phing/phing`
+            // would resolve to whatever's latest at build time, so a
+            // future breaking release (renamed targets, changed CLI
+            // flags) would silently break packaging without any code
+            // change here.
+            ['composer', 'global', 'require', 'phing/phing:^3.0', '--no-interaction', '--no-progress'],
             null,
             $composerEnv,
         );

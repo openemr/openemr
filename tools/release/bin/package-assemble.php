@@ -42,6 +42,15 @@ use Symfony\Component\Console\SingleCommandApplication;
             $output->writeln('<error>--release-version is required</error>');
             return 1;
         }
+        // Parse at the boundary: the version string flows into staging
+        // paths and temp-file names inside PackageAssembler (see the
+        // `openemr-<version>` staging dir), so validate the shape here
+        // rather than downstream. OpenEMR release versions are strict
+        // N.N.N — dev/pre-release suffixes never reach this CLI.
+        if (preg_match('/^\d+\.\d+\.\d+$/', $versionOption) !== 1) {
+            $output->writeln("<error>--release-version must be N.N.N (got: {$versionOption})</error>");
+            return 1;
+        }
         if (!is_string($openemrDirOption) || $openemrDirOption === '') {
             $output->writeln('<error>--openemr-dir is required</error>');
             return 1;

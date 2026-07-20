@@ -35,23 +35,42 @@ use Symfony\Component\Process\Process;
     ->addOption('output-dir', null, InputOption::VALUE_REQUIRED, 'Output directory', './release-output')
     ->addOption('copy-styles', null, InputOption::VALUE_NONE, 'Include compiled theme styles')
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
-        /** @var string $startTag */
-        $startTag = $input->getOption('start-tag');
-        /** @var string $branch */
-        $branch = $input->getOption('branch');
-        /** @var string $filename */
-        $filename = $input->getOption('filename');
-        /** @var string $openemrDir */
-        $openemrDir = $input->getOption('openemr-dir');
-        /** @var string $outputDir */
-        $outputDir = $input->getOption('output-dir');
-
-        foreach (['start-tag', 'branch', 'filename', 'openemr-dir'] as $required) {
-            if ($input->getOption($required) === null) {
-                $output->writeln("<error>--{$required} is required</error>");
+        // Parse raw CLI input into narrowed string values at the boundary
+        // rather than @var-casting downstream; PHPStan trusts the runtime
+        // check, and downstream code no longer needs re-validation.
+        $required = [];
+        foreach (['start-tag', 'branch', 'filename', 'openemr-dir'] as $name) {
+            $value = $input->getOption($name);
+            if (!is_string($value) || $value === '') {
+                $output->writeln("<error>--{$name} is required</error>");
                 return 1;
             }
+            $required[$name] = $value;
         }
+        $startTag = $required['start-tag'];
+        $branch = $required['branch'];
+        $filename = $required['filename'];
+        $openemrDir = $required['openemr-dir'];
+
+        $outputDirOption = $input->getOption('output-dir');
+        if (!is_string($outputDirOption) || $outputDirOption === '') {
+            $output->writeln('<error>--output-dir must be a non-empty string</error>');
+            return 1;
+        }
+        // Resolve to absolute before spawning zip: patch-staging is created
+        // under $outputDir and zip runs with cwd=<staging>, so a relative
+        // $outputDir would land the archive in the wrong tree. mkdir first
+        // so realpath resolves.
+        if (!is_dir($outputDirOption) && !mkdir($outputDirOption, 0o755, true) && !is_dir($outputDirOption)) {
+            $output->writeln("<error>Failed to create output directory: {$outputDirOption}</error>");
+            return 1;
+        }
+        $resolved = realpath($outputDirOption);
+        if ($resolved === false) {
+            $output->writeln("<error>Failed to resolve output directory: {$outputDirOption}</error>");
+            return 1;
+        }
+        $outputDir = $resolved;
 
         if (!is_dir($openemrDir)) {
             $output->writeln("<error>OpenEMR directory not found: {$openemrDir}</error>");
@@ -118,14 +137,17 @@ use Symfony\Component\Process\Process;
             ':!README-Isolated-Testing.md',
         ];
 
+        // `-z` gives NUL-delimited, literal (unquoted) filenames; splitting
+        // on `\n` mishandles paths with spaces or non-ASCII bytes (git
+        // otherwise renders them C-style-quoted, which `copy()` can't open).
         $diff = new Process(
-            ['git', 'diff', '--name-only', '--diff-filter=d', "{$startTag}..{$branch}", '--', '.', ...$excludes],
+            ['git', 'diff', '-z', '--name-only', '--diff-filter=d', "{$startTag}..{$branch}", '--', '.', ...$excludes],
             $openemrDir,
         );
         $diff->mustRun();
 
         $changedFiles = array_filter(
-            explode("\n", trim($diff->getOutput())),
+            explode("\0", $diff->getOutput()),
             static fn(string $line): bool => $line !== '',
         );
         file_put_contents("{$outputDir}/changed-files.txt", implode("\n", $changedFiles) . "\n");

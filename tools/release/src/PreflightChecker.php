@@ -32,9 +32,16 @@ class PreflightChecker
      */
     public function checkMilestone(string $milestone, OutputInterface $output): int
     {
+        // URL-encode the search query: `+` as space-substitute only works
+        // for single-word milestones, and a multi-word milestone
+        // ("Fixed in 8.2.0") or one containing `&`/`?` would silently
+        // corrupt the query. Quote the milestone value so GitHub search
+        // treats it as one term.
+        $query = urlencode(sprintf('milestone:"%s" repo:%s state:open', $milestone, $this->repo));
+
         $process = new Process([
             'gh', 'api',
-            "/search/issues?q=milestone:{$milestone}+repo:{$this->repo}+state:open",
+            "/search/issues?q={$query}",
             '--jq', '.total_count',
         ]);
         $process->mustRun();
@@ -47,13 +54,15 @@ class PreflightChecker
 
         $detail = new Process([
             'gh', 'api',
-            "/search/issues?q=milestone:{$milestone}+repo:{$this->repo}+state:open",
+            "/search/issues?q={$query}",
             '--jq', '.items[] | "  - #\(.number) \(.title)"',
         ]);
         $detail->mustRun();
 
         $output->writeln("<error>✗</error> Milestone {$milestone}: {$count} open item(s)");
-        $output->write($detail->getOutput());
+        // OUTPUT_RAW: issue titles are external text and can contain `<`/`>`
+        // that Symfony Console would otherwise try to parse as style tags.
+        $output->write($detail->getOutput(), false, OutputInterface::OUTPUT_RAW);
         return 1;
     }
 
@@ -82,7 +91,9 @@ class PreflightChecker
         foreach ($unpublished as $advisory) {
             $severity = is_string($advisory['severity'] ?? null) ? $advisory['severity'] : 'unknown';
             $summary = is_string($advisory['summary'] ?? null) ? $advisory['summary'] : '';
-            $output->writeln("  - [{$severity}] {$summary}");
+            // OUTPUT_RAW: GHSA summaries are external text and can contain
+            // `<`/`>` chars that Symfony Console would parse as style tags.
+            $output->writeln("  - [{$severity}] {$summary}", OutputInterface::OUTPUT_RAW);
         }
         return 1;
     }
