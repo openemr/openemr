@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Release;
 
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
+use OpenEMR\Release\BranchVersionResolver;
 use OpenEMR\Release\ChangelogGenerator;
 use OpenEMR\Release\GitHubApi;
 use OpenEMR\Release\Mutator\ChangelogMutator;
@@ -238,29 +239,49 @@ MD);
         );
     }
 
-    public function testPrevTagResolutionPicksHighestVersionLessThanTarget(): void
+    public function testPrevTagResolutionDelegatesToResolverAndVerifiesTag(): void
     {
+        // The mutator now delegates prev-release selection to
+        // BranchVersionResolver (which reads the shipped-versions
+        // manifest) rather than walking local tags. This test verifies
+        // the two-step contract: (a) take the resolver's answer, (b)
+        // verify the corresponding tag exists locally.
         $this->git(['tag', 'v7_0_0']);
         $this->git(['tag', 'v8_0_0']);
         $this->git(['tag', 'v8_1_0']);
         $this->git(['tag', 'v8_1_1']);
         $this->git(['tag', 'v8_2_0']);
-        // Note: v8_2_1 does not yet exist.
         file_put_contents($this->tmpDir . '/CHANGELOG.md', "# CHANGELOG.md\n\n");
 
         $capture = $this->captureGeneratorArgs();
-        $this->apply('8.2.1', relBranch: 'rel-820', generator: $capture);
+        // Resolver picks 8.0.0 (e.g., because 8.1.x was skipped in the
+        // manifest even though the tags exist). Mutator uses that,
+        // ignoring the naive "highest tag" answer of v8_1_1.
+        $this->apply(
+            '8.2.1',
+            relBranch: 'rel-820',
+            generator: $capture,
+            resolver: new StubBranchVersionResolver('8.0.0'),
+        );
 
-        self::assertSame('v8_2_0', $capture->base, 'highest tag strictly less than 8.2.1');
+        self::assertSame('v8_0_0', $capture->base, 'mutator uses resolver output verbatim, not local-tag walk');
     }
 
-    public function testPrevTagResolutionThrowsWhenNoPriorTagExists(): void
+    public function testPrevTagResolutionThrowsWhenResolvedTagMissingLocally(): void
     {
+        // Resolver returns 8.0.0, but no v8_0_0 tag was created in this
+        // test's temp repo. The mutator's local-tag verification step
+        // catches this and throws with a clear error naming both the
+        // resolver's version and the derived tag.
         file_put_contents($this->tmpDir . '/CHANGELOG.md', "# CHANGELOG.md\n\n");
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageMatches('/no `v.*` tag exists earlier than/');
-        $this->apply('8.2.1', relBranch: 'rel-820');
+        $this->expectExceptionMessageMatches('/previous release tag v8_0_0 .* does not exist/');
+        $this->apply(
+            '8.2.1',
+            relBranch: 'rel-820',
+            resolver: new StubBranchVersionResolver('8.0.0'),
+        );
     }
 
     public function testMutatorResultReportsChangelogPathAndSummary(): void
@@ -275,10 +296,21 @@ MD);
         self::assertStringContainsString('v8_2_0...v8_2_1', $result->messages[0]);
     }
 
-    private function apply(string $version, ?string $relBranch, ?ChangelogGenerator $generator = null): \OpenEMR\Common\Command\ReleasePrep\MutatorResult
-    {
+    private function apply(
+        string $version,
+        ?string $relBranch,
+        ?ChangelogGenerator $generator = null,
+        ?BranchVersionResolver $resolver = null,
+    ): \OpenEMR\Common\Command\ReleasePrep\MutatorResult {
         $context = MutatorContext::fromVersionString($this->tmpDir, $version, $relBranch);
-        $mutator = new ChangelogMutator($generator ?? new StubChangelogGenerator());
+        // Default stub returns 8.2.0 -- matches every prev-release
+        // assertion in this file (all tests use target 8.2.1). Individual
+        // tests override with StubBranchVersionResolver when they need a
+        // different prev version.
+        $mutator = new ChangelogMutator(
+            $generator ?? new StubChangelogGenerator(),
+            $resolver ?? new StubBranchVersionResolver('8.2.0'),
+        );
         return $mutator->apply($context);
     }
 
@@ -296,6 +328,14 @@ MD);
             ['git', ...$args],
             $this->tmpDir,
             [
+                // Hermeticity: null the developer's ~/.gitconfig + system
+                // config so options like `tag.gpgsign=true` don't promote
+                // our lightweight tags to signed annotated tags (which
+                // then demand a message and fail with exit 128). CI is
+                // unaffected but local runs bite developers who sign by
+                // default. See openemr/openemr#13018.
+                'GIT_CONFIG_GLOBAL' => '/dev/null',
+                'GIT_CONFIG_SYSTEM' => '/dev/null',
                 'GIT_AUTHOR_NAME' => 'Test',
                 'GIT_AUTHOR_EMAIL' => 'test@example.com',
                 'GIT_COMMITTER_NAME' => 'Test',
@@ -323,6 +363,27 @@ MD);
             }
         }
         rmdir($path);
+    }
+}
+
+/**
+ * Stub resolver that returns a fixed previous-release version string,
+ * bypassing the manifest fetch that BranchVersionResolver would make in
+ * production. Tests inject this so they don't need a network round-trip
+ * to openemr/website-openemr/data/releases.json.
+ */
+final readonly class StubBranchVersionResolver extends BranchVersionResolver
+{
+    public function __construct(private string $previousVersion)
+    {
+        // repoDir doesn't matter -- previousRelease() is overridden and
+        // never reaches the parent's git-tag fallback path.
+        parent::__construct('/tmp');
+    }
+
+    public function previousRelease(string $targetVersion): string
+    {
+        return $this->previousVersion;
     }
 }
 

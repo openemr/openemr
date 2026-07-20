@@ -111,7 +111,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       - (Recommend using Ubuntu Desktop 22.04 for above video and other videos in the [OpenEMR Easy Docker Development Environment Video Series](https://www.youtube.com/playlist?list=PLFiWG_dDadgQT7zjqvEqbXm1OiuubOVO8). Easiest way to do this is setting up a [Ubuntu Desktop 22.04 Virtual Machine on VirtualBox](https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox), which recommend configuring with 40GB hard drive, assigning 25% of computer memory, and assigning 25% of cpu cores to the virtual machine.)
 
     - If you haven't already, [install git](https://git-scm.com/downloads) for your system
-	- (optional) If you want to set up the base services(e.g. git, docker, docker compose, openemr-cmd, minkube and kubectl) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
+    - (optional) If you want to set up the base services (e.g. git, docker, docker compose, openemr-cmd, minikube and kubectl) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
     - (optional) It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
 2. Install the development prerequisites:
     - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system.
@@ -227,7 +227,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 
 ---
 
-1. <a name="worktrees"></a>git Worktrees are supported. Developers can work on separate worktrees with docker testing stacks concurrently. This requires use of the `openemr-cmd` command (see above for instructions on installing the `openemr-cmd` command). Recommend running these command in the base directory of the base repo.
+1. <a name="worktrees"></a>git Worktrees are supported. Developers can work on separate worktrees with docker testing stacks concurrently. This requires use of the `openemr-cmd` command (see above for instructions on installing the `openemr-cmd` command). Recommend running these commands in the base directory of the base repo.
 
     - Following will give an overview of the available commands:
       ```sh
@@ -723,7 +723,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```
 21. <a name="dev_tools_webroot"></a>Test webroot value.
     - The default setup of the docker development environments are with a blank webroot, however, it is a good idea to also test with a webroot setting. There is an option to set the webroot to openemr.
-    - Note this dev tool requires the use of the openemr-cmd script, which is discussed above and can find instructions to install and use openemr-cmd script at [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd).
+    - Note this dev tool requires the use of the openemr-cmd script, which is discussed above. You can find instructions to install and use openemr-cmd at [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd).
     - Set webroot to blank:
       ```sh
       openemr-cmd change-webroot-blank

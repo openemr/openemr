@@ -22,7 +22,7 @@ class C_InsuranceCompany extends Controller
         $this->InsuranceCompany = new InsuranceCompany();
     }
 
-    public function default_action()
+    public function default_action(): string
     {
         return $this->list_action();
     }
@@ -40,7 +40,7 @@ class C_InsuranceCompany extends Controller
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "insurance_companies/" . $this->template_mod . "_edit.html");
     }
 
-    public function list_action()
+    public function list_action(): string
     {
         $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 

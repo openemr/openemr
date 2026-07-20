@@ -7972,11 +7972,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResourceContainer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\R4\\\\PHPFHIRParserMap\\:\\:key\\(\\) should return string but returns int\\|string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRParserMap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\R4\\\\PHPFHIRResponseParser\\:\\:_parseJson\\(\\) should return object but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRResponseParser.php',

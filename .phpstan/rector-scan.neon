@@ -1,0 +1,24 @@
+# Symbol discovery for rector runs that receive explicit file paths.
+#
+# Classes in these directories are not registered with the composer
+# autoloader: Laminas modules load via the module manager, and the
+# Phreeze/gacl/rulesets/ClinicalTypes classes are loaded by legacy
+# includes (rulesets is excluded from the composer classmap because it
+# contains duplicate unnamespaced class names). A full `rector process`
+# run discovers them anyway because they sit inside withPaths, but
+# hook-style runs that pass explicit filenames (pre-commit) never parse
+# these directories, so references to their classes degrade to mixed and
+# rules like NullToStrictStringFuncCallArgRector insert spurious casts.
+# Scanning keeps symbol discovery complete for any invocation shape.
+parameters:
+    scanDirectories:
+        - ../controllers
+        - ../custom
+        - ../gacl
+        - ../interface/modules/zend_modules
+        - ../library/classes/ClinicalTypes
+        - ../library/classes/rulesets
+        # Only verysimple: fwk/libs/util declares a lowercase `class thumbnail`
+        # that collides (case-insensitively) with library/classes/thumbnail's
+        # Thumbnail and corrupts type resolution when scanned.
+        - ../portal/patient/fwk/libs/verysimple

@@ -696,26 +696,26 @@ if ($form_action == 'export') {
     echo "\xEF\xBB\xBF";
 
     // CSV headers:
-    echo csvEscape(xl('Name'))              . ',';
-    echo csvEscape(xl('Relates To'))        . ',';
-    echo csvEscape(xl('NDC'))               . ',';
-    echo csvEscape(xl('Active'))            . ',';
-    echo csvEscape(xl('Consumable'))        . ',';
-    echo csvEscape(xl('Form'))              . ',';
+    echo xlc('Name')              . ',';
+    echo xlc('Relates To')        . ',';
+    echo xlc('NDC')               . ',';
+    echo xlc('Active')            . ',';
+    echo xlc('Consumable')        . ',';
+    echo xlc('Form')              . ',';
     if ($form_details) {
-        echo csvEscape(xl('Facility'))      . ',';
+        echo xlc('Facility')      . ',';
         if ($form_details == 2) {
-            echo csvEscape(xl('Warehouse')) . ',';
+            echo xlc('Warehouse') . ',';
         }
         echo csvEscape($mmtype . xl('Min')) . ',';
         echo csvEscape($mmtype . xl('Max')) . ',';
     }
-    echo csvEscape(xl('QOH'))               . ',';
-    echo csvEscape(xl('Zero Stock Days'))   . ',';
-    echo csvEscape(xl('Avg Monthly'))       . ',';
-    echo csvEscape(xl('Stock Months'))      . ',';
-    echo csvEscape(xl('Reorder Qty'))       . ',';
-    echo csvEscape(xl('Warnings'))          . '';
+    echo xlc('QOH')               . ',';
+    echo xlc('Zero Stock Days')   . ',';
+    echo xlc('Avg Monthly')       . ',';
+    echo xlc('Stock Months')      . ',';
+    echo xlc('Reorder Qty')       . ',';
+    echo xlc('Warnings')          . '';
     echo "\n";
 } else { // not exporting
     ?>

@@ -3792,11 +3792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/MiscBillingOptions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Common\\:\\:implode_funcs\\(\\) has parameter \\$funcs with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Common\\:\\:implode_funcs\\(\\) has parameter \\$pieces with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
@@ -4633,11 +4628,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:buildAsset\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/Header.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:includeAsset\\(\\) has parameter \\$assets with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/Header.php',
 ];
@@ -8490,11 +8480,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\PHPFHIRAutoloader\\:\\:\\$_classMap type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRAutoloader.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\PHPFHIRParserMap\\:\\:\\$_bigDumbMap type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRParserMap.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\R4\\\\PHPFHIRResponseParser\\:\\:_parseJsonObject\\(\\) has parameter \\$jsonEntry with no value type specified in iterable type array\\.$#',

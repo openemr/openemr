@@ -29,12 +29,12 @@ class C_DocumentCategory extends Controller
         $this->tree = $t;
     }
 
-    function default_action()
+    function default_action(): string
     {
         return $this->list_action();
     }
 
-    function list_action()
+    function list_action(): string
     {
         //$this->tree->rebuild_tree(1,1);
 
