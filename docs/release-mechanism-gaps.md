@@ -2150,13 +2150,15 @@ warning that appeared on every v2 usage.
   announcements workflow. Tag pushes, manual dispatches, and
   cascades from other workflows.
 
-### G27 — Release announcement templates need content/style review  *(discovered 2026-07-09)*
+### G27 — Release announcement templates need content/style review  *(discovered 2026-07-09; template location updated 2026-07-20)*
 
 - **What:** After G26's rerun of the Release Announcements
   (drafts) workflow succeeded on 2026-07-09, the rendered
   drafts revealed content/style issues across all channel
-  templates. Templates live at
-  `openemr-devops/tools/release/templates/announcements/`:
+  templates. **Templates moved 2026-07-19** with the announcements
+  slice (openemr/website-openemr#192-#200 + devops#861 delete);
+  they now live at
+  `openemr/website-openemr/tools/release-docs/templates/announcements/`:
   - `chat.md.twig` (community/Slack/Discord)
   - `facebook.txt.twig`
   - `forum.md.twig`
@@ -2165,14 +2167,30 @@ warning that appeared on every v2 usage.
   - `x.txt.twig` (Twitter/X)
   - `step-summary.md.twig` (GitHub Actions job summary)
 
+  Only forum.md.twig content received a substantive refresh so far
+  (openemr/openemr-devops#853 landed 2026-07-15 pre-migration, synced
+  post-migration via openemr/website-openemr#198). The other six
+  templates still carry the pre-review content G27 was filed against.
+
 - **Fix:** Per-template review pass. Concrete gaps to enumerate
   as maintainer works through each template — capture the
   actual per-template diffs here once identified so this gap
   can be broken up into per-channel PRs.
 
-- **Related:** G26 (rate-limit fix) is a workflow-plumbing gap;
-  G27 is a content gap. Both surface on the same
-  release-announcements pipeline.
+- **Related:**
+  - G26 (rate-limit fix) is a workflow-plumbing gap; G27 is a content
+    gap. Both surface on the same release-announcements pipeline.
+  - openemr/website-openemr#197 tracks the mandatory `--dry-run` +
+    golden-fixtures design constraint for the future channel-poster
+    automation. G27's per-template freeze produces the golden fixtures
+    that #197 requires — the two gaps compose: land G27's content
+    review first, snapshot the results as golden fixtures, then #197's
+    poster tests byte-compare their dry-run output against those.
+  - openemr/website-openemr#204 sequences #197 behind (a) devops→core
+    migration completion and (b) release-artifact testing pipeline.
+    Brady's stretch goal is to squeeze at least the forum poster into
+    the rel-830 window if prereqs move quickly — G27 is on the
+    critical path for that.
 
 ### G28 — Master-side finalize PR requires a post-tag auto-update before merge; ordering isn't documented or enforced  *(discovered 2026-07-08, captured 2026-07-10, SHIPPED 2026-07-11)*
 
