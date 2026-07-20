@@ -2,16 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Instantiated class Firehed\\\\DbalLogger\\\\ChainLogger not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../config/database.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Instantiated class Firehed\\\\DbalLogger\\\\Middleware not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../config/database.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function load_fee_sheet_options\\(\\) has invalid return type an\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_options_queries.php',
