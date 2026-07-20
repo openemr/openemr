@@ -163,7 +163,7 @@ jobs:
         path: vendor/
 
     - name: Install npm package
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
 
