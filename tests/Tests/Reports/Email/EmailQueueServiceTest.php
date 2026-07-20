@@ -35,68 +35,47 @@ class EmailQueueServiceTest extends TestCase
         $this->service = new EmailQueueService();
     }
 
-    /**
-     * @covers ::getEmailQueue
-     */
     public function testGetEmailQueueWithNoFilters(): void
     {
         $result = $this->service->getEmailQueue();
-        $this->assertIsArray($result);
+        self::assertIsArray($result);
     }
 
-    /**
-     * @covers ::getEmailQueue
-     */
     public function testGetEmailQueueWithSearchFilter(): void
     {
         $filters = ['search' => 'test@example.com'];
         $result = $this->service->getEmailQueue($filters, 50, 0);
-        $this->assertIsArray($result);
+        self::assertIsArray($result);
     }
 
-    /**
-     * @covers ::getEmailQueue
-     */
     public function testGetEmailQueueWithStatusFilterSent(): void
     {
         $filters = ['status' => 'sent'];
         $result = $this->service->getEmailQueue($filters);
-        $this->assertIsArray($result);
+        self::assertIsArray($result);
     }
 
-    /**
-     * @covers ::getEmailQueue
-     */
     public function testGetEmailQueueWithStatusFilterPending(): void
     {
         $filters = ['status' => 'pending'];
         $result = $this->service->getEmailQueue($filters);
-        $this->assertIsArray($result);
+        self::assertIsArray($result);
     }
 
-    /**
-     * @covers ::getEmailQueue
-     */
     public function testGetEmailQueueWithStatusFilterFailed(): void
     {
         $filters = ['status' => 'failed'];
         $result = $this->service->getEmailQueue($filters);
-        $this->assertIsArray($result);
+        self::assertIsArray($result);
     }
 
-    /**
-     * @covers ::getEmailQueue
-     */
     public function testGetEmailQueueWithTemplateFilter(): void
     {
         $filters = ['template_name' => 'appointment_reminder'];
         $result = $this->service->getEmailQueue($filters);
-        $this->assertIsArray($result);
+        self::assertIsArray($result);
     }
 
-    /**
-     * @covers ::getEmailQueue
-     */
     public function testGetEmailQueueWithDateFilters(): void
     {
         $filters = [
@@ -104,12 +83,9 @@ class EmailQueueServiceTest extends TestCase
             'date_to' => '2025-12-31'
         ];
         $result = $this->service->getEmailQueue($filters);
-        $this->assertIsArray($result);
+        self::assertIsArray($result);
     }
 
-    /**
-     * @covers ::getEmailQueue
-     */
     public function testGetEmailQueueWithMultipleFilters(): void
     {
         $filters = [
@@ -120,108 +96,87 @@ class EmailQueueServiceTest extends TestCase
             'date_to' => '2025-12-31'
         ];
         $result = $this->service->getEmailQueue($filters);
-        $this->assertIsArray($result);
+        self::assertIsArray($result);
     }
 
-    /**
-     * @covers ::getEmailQueue
-     */
     public function testGetEmailQueueWithPagination(): void
     {
         $result = $this->service->getEmailQueue([], 10, 5);
-        $this->assertIsArray($result);
-        $this->assertLessThanOrEqual(10, count($result));
+        self::assertIsArray($result);
+        self::assertLessThanOrEqual(10, count($result));
     }
 
-    /**
-     * @covers ::getEmailQueueCount
-     */
     public function testGetEmailQueueCountWithNoFilters(): void
     {
         $count = $this->service->getEmailQueueCount();
-        $this->assertIsInt($count);
-        $this->assertGreaterThanOrEqual(0, $count);
+        self::assertIsInt($count);
+        self::assertGreaterThanOrEqual(0, $count);
     }
 
-    /**
-     * @covers ::getEmailQueueCount
-     */
     public function testGetEmailQueueCountWithFilters(): void
     {
         $filters = ['status' => 'sent'];
         $count = $this->service->getEmailQueueCount($filters);
-        $this->assertIsInt($count);
-        $this->assertGreaterThanOrEqual(0, $count);
+        self::assertIsInt($count);
+        self::assertGreaterThanOrEqual(0, $count);
     }
 
-    /**
-     * @covers ::getStatistics
-     */
     public function testGetStatistics(): void
     {
         $stats = $this->service->getStatistics();
-        $this->assertIsArray($stats);
-        $this->assertArrayHasKey('total', $stats);
-        $this->assertArrayHasKey('sent', $stats);
-        $this->assertArrayHasKey('pending', $stats);
-        $this->assertArrayHasKey('failed', $stats);
+        self::assertIsArray($stats);
+        self::assertArrayHasKey('total', $stats);
+        self::assertArrayHasKey('sent', $stats);
+        self::assertArrayHasKey('pending', $stats);
+        self::assertArrayHasKey('failed', $stats);
 
-        $this->assertIsInt($stats['total']);
-        $this->assertIsInt($stats['sent']);
-        $this->assertIsInt($stats['pending']);
-        $this->assertIsInt($stats['failed']);
+        self::assertIsInt($stats['total']);
+        self::assertIsInt($stats['sent']);
+        self::assertIsInt($stats['pending']);
+        self::assertIsInt($stats['failed']);
 
-        $this->assertGreaterThanOrEqual(0, $stats['total']);
-        $this->assertGreaterThanOrEqual(0, $stats['sent']);
-        $this->assertGreaterThanOrEqual(0, $stats['pending']);
-        $this->assertGreaterThanOrEqual(0, $stats['failed']);
+        self::assertGreaterThanOrEqual(0, $stats['total']);
+        self::assertGreaterThanOrEqual(0, $stats['sent']);
+        self::assertGreaterThanOrEqual(0, $stats['pending']);
+        self::assertGreaterThanOrEqual(0, $stats['failed']);
     }
 
-    /**
-     * @covers ::getTemplateNames
-     */
     public function testGetTemplateNames(): void
     {
         $templates = $this->service->getTemplateNames();
-        $this->assertIsArray($templates);
+        self::assertIsArray($templates);
 
         foreach ($templates as $template) {
-            $this->assertIsString($template);
-            $this->assertNotEmpty($template);
+            self::assertIsString($template);
+            self::assertNotEmpty($template);
         }
     }
 
-    /**
-     * @covers ::getEmailById
-     */
     public function testGetEmailByIdNotFound(): void
     {
         $result = $this->service->getEmailById(999999999);
-        $this->assertNull($result);
+        self::assertNull($result);
     }
 
-    /**
-     * @covers ::getEmailById
-     */
     public function testGetEmailByIdValidId(): void
     {
         // This test requires a valid ID from the database
         // We can't hardcode an ID, so we'll get one from the queue first
         $emails = $this->service->getEmailQueue([], 1, 0);
 
-        if (!empty($emails)) {
+        if ($emails !== []) {
             $firstEmail = $emails[0];
             $result = $this->service->getEmailById((int)$firstEmail['id']);
 
             if ($result !== null) {
-                $this->assertIsArray($result);
-                $this->assertArrayHasKey('id', $result);
-                $this->assertEquals($firstEmail['id'], $result['id']);
+                self::assertIsArray($result);
+                self::assertArrayHasKey('id', $result);
+                self::assertSame($firstEmail['id'], $result['id']);
             } else {
-                $this->markTestSkipped('No valid email found in database');
+                self::markTestSkipped('No valid email found in database');
             }
         } else {
-            $this->markTestSkipped('No emails in queue to test with');
+            self::markTestSkipped('No emails in queue to test with');
         }
     }
 }

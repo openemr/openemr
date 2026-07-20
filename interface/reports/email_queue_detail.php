@@ -17,7 +17,9 @@ ob_start();
 require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Reports\Email\EmailQueueService;
+use Throwable;
 
 // Clear any error output that may have occurred
 $output = ob_get_clean();
@@ -27,7 +29,7 @@ header('Content-Type: application/json');
 
 try {
     // Verify user is authenticated
-    if (empty($_SESSION['authUser'])) {
+    if (!isset($_SESSION['authUser']) || (int) $_SESSION['authUser'] <= 0) {
         throw new Exception("User not authenticated");
     }
 
@@ -38,7 +40,7 @@ try {
 
     // Get email ID from request
     $emailId = (int)($_GET['id'] ?? 0);
-    if (!$emailId) {
+    if ($emailId <= 0) {
         throw new Exception("Email ID is required");
     }
 
@@ -46,7 +48,7 @@ try {
     $service = new EmailQueueService();
     $email = $service->getEmailById($emailId);
 
-    if (!$email) {
+    if ($email === null) {
         throw new Exception("Email not found");
     }
 
@@ -55,11 +57,11 @@ try {
         'success' => true,
         'email' => $email
     ]);
-} catch (Exception $e) {
+} catch (Throwable $e) {
     http_response_code(400);
     echo json_encode([
         'success' => false,
         'error' => $e->getMessage()
     ]);
-    error_log("Email queue detail fetch failed: " . $e->getMessage());
+    (new SystemLogger())->error("Email queue detail fetch failed", ['message' => $e->getMessage()]);
 }

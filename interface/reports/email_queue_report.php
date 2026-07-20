@@ -15,12 +15,17 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Reports\Email\EmailQueueService;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Reports\Email\EmailQueueService;
+
+$globalsBag = OEGlobalsBag::getInstance();
+$kernel = $globalsBag->get('kernel');
+$webroot = $globalsBag->get('webroot');
 
 // ACL check - requires billing or admin access
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl('Email Queue Report')]);
+    echo (new TwigContainer(null, $kernel))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl('Email Queue Report')]);
     exit;
 }
 
@@ -38,7 +43,7 @@ $filters = [
 
 // Pagination
 $perPage = 50;
-$currentPage = (int)($_GET['page'] ?? 1);
+$currentPage = max(1, (int) ($_GET['page'] ?? 1));
 $offset = ($currentPage - 1) * $perPage;
 
 // Get data
@@ -51,8 +56,8 @@ $totalPages = ceil($totalCount / $perPage);
 // Build query string for pagination
 $queryParams = [];
 foreach ($filters as $key => $value) {
-    if (!empty($value)) {
-        $queryParams[] = urlencode($key) . '=' . urlencode($value);
+    if ((string) $value !== '') {
+        $queryParams[] = urlencode($key) . '=' . urlencode((string) $value);
     }
 }
 $queryString = implode('&', $queryParams);
@@ -67,7 +72,7 @@ $templateVars = [
     'currentPage' => $currentPage,
     'totalPages' => $totalPages,
     'queryString' => $queryString,
-    'webroot' => $GLOBALS['webroot'],
+    'webroot' => (string) $webroot,
 ];
 
 // Render page
@@ -81,7 +86,7 @@ $templateVars = [
 <body class="body_top">
     <div class="container-fluid">
         <?php
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        $twig = new TwigContainer(null, $kernel);
         echo $twig->getTwig()->render('reports/email/queue.html.twig', $templateVars);
         ?>
     </div>

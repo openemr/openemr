@@ -16,6 +16,20 @@ use OpenEMR\Common\Database\QueryUtils;
 class EmailQueueService
 {
     /**
+     * Get a normalized non-empty string filter value.
+     *
+     * @param array<string, mixed> $filters
+     */
+    private function getFilterValue(array $filters, string $key): ?string
+    {
+        if (!array_key_exists($key, $filters)) {
+            return null;
+        }
+
+        $value = trim((string) $filters[$key]);
+        return $value !== '' ? $value : null;
+    }
+    /**
      * Get email queue records with optional filtering and pagination
      *
      * @param array $filters Optional filters: search, status (all|sent|pending|failed), template_name, date_from, date_to
@@ -29,8 +43,9 @@ class EmailQueueService
         $params = [];
 
         // Search filter (search in recipient, subject, sender)
-        if (!empty($filters['search'])) {
-            $searchTerm = '%' . $filters['search'] . '%';
+        $searchValue = $this->getFilterValue($filters, 'search');
+        if ($searchValue !== null) {
+            $searchTerm = '%' . $searchValue . '%';
             $where[] = "(recipient LIKE ? OR subject LIKE ? OR sender LIKE ?)";
             $params[] = $searchTerm;
             $params[] = $searchTerm;
@@ -38,8 +53,9 @@ class EmailQueueService
         }
 
         // Status filter
-        if (!empty($filters['status'])) {
-            switch ($filters['status']) {
+        $statusValue = $this->getFilterValue($filters, 'status');
+        if ($statusValue !== null) {
+            switch ($statusValue) {
                 case 'sent':
                     $where[] = "sent = 1 AND error = 0";
                     break;
@@ -53,23 +69,26 @@ class EmailQueueService
         }
 
         // Template name filter
-        if (!empty($filters['template_name'])) {
+        $templateName = $this->getFilterValue($filters, 'template_name');
+        if ($templateName !== null) {
             $where[] = "template_name = ?";
-            $params[] = $filters['template_name'];
+            $params[] = $templateName;
         }
 
         // Date range filters
-        if (!empty($filters['date_from'])) {
+        $dateFrom = $this->getFilterValue($filters, 'date_from');
+        if ($dateFrom !== null) {
             $where[] = "datetime_queued >= ?";
-            $params[] = $filters['date_from'] . ' 00:00:00';
+            $params[] = $dateFrom . ' 00:00:00';
         }
 
-        if (!empty($filters['date_to'])) {
+        $dateTo = $this->getFilterValue($filters, 'date_to');
+        if ($dateTo !== null) {
             $where[] = "datetime_queued <= ?";
-            $params[] = $filters['date_to'] . ' 23:59:59';
+            $params[] = $dateTo . ' 23:59:59';
         }
 
-        $whereClause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+        $whereClause = $where !== [] ? "WHERE " . implode(" AND ", $where) : "";
 
         $sql = "SELECT
                     id,
@@ -108,8 +127,9 @@ class EmailQueueService
         $params = [];
 
         // Search filter
-        if (!empty($filters['search'])) {
-            $searchTerm = '%' . $filters['search'] . '%';
+        $searchValue = $this->getFilterValue($filters, 'search');
+        if ($searchValue !== null) {
+            $searchTerm = '%' . $searchValue . '%';
             $where[] = "(recipient LIKE ? OR subject LIKE ? OR sender LIKE ?)";
             $params[] = $searchTerm;
             $params[] = $searchTerm;
@@ -117,8 +137,9 @@ class EmailQueueService
         }
 
         // Status filter
-        if (!empty($filters['status'])) {
-            switch ($filters['status']) {
+        $statusValue = $this->getFilterValue($filters, 'status');
+        if ($statusValue !== null) {
+            switch ($statusValue) {
                 case 'sent':
                     $where[] = "sent = 1 AND error = 0";
                     break;
@@ -132,23 +153,26 @@ class EmailQueueService
         }
 
         // Template name filter
-        if (!empty($filters['template_name'])) {
+        $templateName = $this->getFilterValue($filters, 'template_name');
+        if ($templateName !== null) {
             $where[] = "template_name = ?";
-            $params[] = $filters['template_name'];
+            $params[] = $templateName;
         }
 
         // Date range filters
-        if (!empty($filters['date_from'])) {
+        $dateFrom = $this->getFilterValue($filters, 'date_from');
+        if ($dateFrom !== null) {
             $where[] = "datetime_queued >= ?";
-            $params[] = $filters['date_from'] . ' 00:00:00';
+            $params[] = $dateFrom . ' 00:00:00';
         }
 
-        if (!empty($filters['date_to'])) {
+        $dateTo = $this->getFilterValue($filters, 'date_to');
+        if ($dateTo !== null) {
             $where[] = "datetime_queued <= ?";
-            $params[] = $filters['date_to'] . ' 23:59:59';
+            $params[] = $dateTo . ' 23:59:59';
         }
 
-        $whereClause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+        $whereClause = $where !== [] ? "WHERE " . implode(" AND ", $where) : "";
 
         $sql = "SELECT COUNT(*) as total FROM email_queue {$whereClause}";
 
@@ -205,7 +229,7 @@ class EmailQueueService
         $templates = [];
 
         foreach ($result as $row) {
-            if (!empty($row['template_name'])) {
+            if (isset($row['template_name']) && (string) $row['template_name'] !== '') {
                 $templates[] = $row['template_name'];
             }
         }
@@ -224,6 +248,10 @@ class EmailQueueService
         $sql = "SELECT * FROM email_queue WHERE id = ?";
         $result = QueryUtils::querySingleRow($sql, [$id]);
 
-        return $result ?: null;
+        if (!is_array($result)) {
+            return null;
+        }
+
+        return $result;
     }
 }
