@@ -53,24 +53,29 @@ acceptance-testing owns the *verification that they work*.
   was added and why.
 - **Status:** Not investigated.
 
-### G2 — Post-release version bump (rel-810 → next "-dev") not visible
+### G2 — Post-release version bump (rel-810 → next "-dev")  *(effectively covered 2026-07-20 — workstreams 2 + 6)*
 
 - **What:** After v8_1_1 is tagged, rel-810's `version.php` needs to
   advance to something like "8.1.2-dev" so subsequent pushes correctly
   enter the 8.1.2 cycle (per the conductor's expected starting state).
-  Not visible in the obvious mutator set.
+  Not visible in the obvious mutator set at the time this gap was
+  filed.
 - **Why I care:** If this isn't automated, it's a manual post-release
   step that has to happen between cycles. Otherwise rel-810 keeps trying
   to re-release 8.1.1.
-- **Possible answers (unverified):**
-  - A separate post-finalize step in `release-prep.yml` (didn't see one)
-  - Part of `build-release-on-tag.yml`'s post-publish cleanup
-  - Genuinely manual (maintainer commits a `version.php → 8.1.2-dev`
-    change after each release)
-- **TODO:** Trace version.php state across a complete release cycle
-  (push → conductor → tag → build → next push). Read the conductor's
-  `VersionPhpMutator` end-state behavior.
-- **Status:** Not investigated.
+- **Effective status (verified 2026-07-20):** covered in code, though
+  never closed here.
+  - Master-side bump handled by `VersionPhpMasterMutator` (workstream
+    2, invoked via branch-cut).
+  - Rel-side patch-cycle bump handled by
+    `PatchPrepReleaseTargetsMutator` (workstream 6 / openemr/openemr#12697,
+    `patch-prep-automation.yml`).
+  - Not fully traced across a complete post-tag → next-push cycle (the
+    original TODO). Coverage is much better than the original "not
+    investigated" framing, but a formal cycle trace hasn't been done.
+- **TODO (optional, low-priority):** trace `version.php` state across a
+  complete cycle to confirm the mutator pair leaves no manual seam
+  between the tag write and the next dev push on the same rel branch.
 
 ### G3 — `SqlUpgradeSkeletonMutator` behavior  *(investigated 2026-06-22 — master-only + unwired)*
 
