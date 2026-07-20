@@ -145,28 +145,26 @@ final class CompatibilityMutatorTest extends TestCase
         $originDir = sys_get_temp_dir() . '/openemr-origin-' . bin2hex(random_bytes(6));
         $checkoutDir = sys_get_temp_dir() . '/openemr-master-co-' . bin2hex(random_bytes(6));
         try {
-            (new Process(['git', 'clone', '--quiet', '--bare', $this->tmpDir, $originDir]))->mustRun();
-            (new Process([
-                'git', 'clone', '--quiet',
+            $this->git(['clone', '--quiet', '--bare', $this->tmpDir, $originDir]);
+            $this->git([
+                'clone', '--quiet',
                 '--branch', 'main', '--single-branch',
                 $originDir, $checkoutDir,
-            ]))->mustRun();
+            ]);
 
             // Verify pre-conditions: rel-820 is NOT a local branch,
             // but origin/rel-820 is a remote-tracking ref. With
             // --single-branch we need an explicit refspec to populate
             // refs/remotes/origin/rel-820 (bare `git fetch origin rel-820`
             // would only update FETCH_HEAD).
-            $fetch = new Process(
-                ['git', 'fetch', '--quiet', 'origin', 'rel-820:refs/remotes/origin/rel-820'],
-                $checkoutDir,
-            );
-            $fetch->mustRun();
-            $probeLocal = new Process(['git', 'rev-parse', '--verify', '--quiet', 'refs/heads/rel-820'], $checkoutDir);
+            $this->git(['fetch', '--quiet', 'origin', 'rel-820:refs/remotes/origin/rel-820'], $checkoutDir);
+            // Inline Process for this one call because it expects failure
+            // (probeLocal->run() != mustRun()); helper is mustRun-only.
+            // Env still hermetic via self::gitEnv().
+            $probeLocal = new Process(['git', 'rev-parse', '--verify', '--quiet', 'refs/heads/rel-820'], $checkoutDir, self::gitEnv());
             $probeLocal->run();
             self::assertFalse($probeLocal->isSuccessful(), 'rel-820 must not be a local branch in the master-style checkout');
-            $probeRemote = new Process(['git', 'rev-parse', '--verify', '--quiet', 'refs/remotes/origin/rel-820'], $checkoutDir);
-            $probeRemote->mustRun();
+            $this->git(['rev-parse', '--verify', '--quiet', 'refs/remotes/origin/rel-820'], $checkoutDir);
 
             file_put_contents($checkoutDir . '/CHANGELOG.md', <<<'MD'
 # CHANGELOG.md
@@ -325,19 +323,37 @@ MD);
     /**
      * @param list<string> $args
      */
-    private function git(array $args): void
+    private function git(array $args, ?string $cwd = null): void
     {
         $process = new Process(
             ['git', ...$args],
-            $this->tmpDir,
-            [
-                'GIT_AUTHOR_NAME' => 'Test',
-                'GIT_AUTHOR_EMAIL' => 'test@example.com',
-                'GIT_COMMITTER_NAME' => 'Test',
-                'GIT_COMMITTER_EMAIL' => 'test@example.com',
-            ],
+            $cwd ?? $this->tmpDir,
+            self::gitEnv(),
         );
         $process->mustRun();
+    }
+
+    /**
+     * Hermetic git env: null the developer's ~/.gitconfig + system config
+     * so options like `tag.gpgsign=true` don't promote our lightweight
+     * tags to signed annotated tags (which then demand a message and fail
+     * with exit 128). CI is unaffected but local runs bite developers who
+     * sign by default. Also blocks any other future ~/.gitconfig drift
+     * (init.defaultBranch, fetch.parallel, core.pager, etc.) from making
+     * this suite non-reproducible. See openemr/openemr#13018.
+     *
+     * @return array<string, string>
+     */
+    private static function gitEnv(): array
+    {
+        return [
+            'GIT_CONFIG_GLOBAL' => '/dev/null',
+            'GIT_CONFIG_SYSTEM' => '/dev/null',
+            'GIT_AUTHOR_NAME' => 'Test',
+            'GIT_AUTHOR_EMAIL' => 'test@example.com',
+            'GIT_COMMITTER_NAME' => 'Test',
+            'GIT_COMMITTER_EMAIL' => 'test@example.com',
+        ];
     }
 
     private function removeRecursive(string $path): void
