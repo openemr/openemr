@@ -170,7 +170,6 @@ class AuthorizationController
         private OEHttpKernel $kernel,
         private bool $providerForm = true
     ) {
-        SessionWrapperFactory::getInstance()->setActiveSession($this->session);
         $globalsBag = $this->kernel->getGlobalsBag();
         $this->webroot = $globalsBag->getWebRoot();
         $this->globalsBag = $globalsBag;
@@ -343,12 +342,33 @@ class AuthorizationController
                         if (is_string($jwks)) {
                             $jwks = json_decode($jwks, true, 512, JSON_THROW_ON_ERROR);
                         }
-                        if (!is_array($jwks) || array_is_list($jwks)) {
+                        if (
+                            !is_array($jwks)
+                            || array_is_list($jwks)
+                            || !isset($jwks['keys'])
+                            || !is_array($jwks['keys'])
+                            || !array_is_list($jwks['keys'])
+                        ) {
                             throw new OAuthServerException(
-                                'jwks must be a JSON object',
+                                'jwks must be a JSON object containing a keys array',
                                 0,
                                 'invalid_client_metadata'
                             );
+                        }
+                        foreach ($jwks['keys'] as $jwk) {
+                            if (
+                                !is_array($jwk)
+                                || array_is_list($jwk)
+                                || !isset($jwk['kty'])
+                                || !is_string($jwk['kty'])
+                                || $jwk['kty'] === ''
+                            ) {
+                                throw new OAuthServerException(
+                                    'jwks contains an invalid JSON Web Key',
+                                    0,
+                                    'invalid_client_metadata'
+                                );
+                            }
                         }
                         $params[$key] = json_encode($jwks, JSON_THROW_ON_ERROR);
                     } else {
@@ -518,12 +538,12 @@ class AuthorizationController
             } catch (CryptoGenException) {
                 throw new OAuthServerException('Client secret decryption failed', 0, 'server_error', Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-            $contacts = $client['contacts'] ?? '';
-            $redirectUri = $client['redirect_uri'] ?? '';
-            $params['contacts'] = explode('|', is_string($contacts) ? $contacts : '');
+            $contacts = is_string($client['contacts'] ?? null) ? $client['contacts'] : '';
+            $redirectUri = is_string($client['redirect_uri'] ?? null) ? $client['redirect_uri'] : '';
+            $params['contacts'] = $contacts === '' ? [] : explode('|', $contacts);
             $params['application_type'] = $client['client_role'];
             $params['client_name'] = $client['client_name'];
-            $params['redirect_uris'] = explode('|', is_string($redirectUri) ? $redirectUri : '');
+            $params['redirect_uris'] = $redirectUri === '' ? [] : explode('|', $redirectUri);
 
             // need to grab dsi information
             $this->addDSIInformation($params, $client);
@@ -582,7 +602,7 @@ class AuthorizationController
         $request = $this->convertHttpRestRequestToServerRequest($httpRequest);
         $session = $this->session;
         if (!empty($httpRequest->getQueryParam('nonce'))) {
-            SessionUtil::setSession('nonce', $httpRequest->getQueryParam('nonce'));
+            $session->set('nonce', $httpRequest->getQueryParam('nonce'));
         }
 
         $logger->debug("AuthorizationController->oauthAuthorizationFlow() request query params ", ["queryParams" => $request->getQueryParams()]);
@@ -595,23 +615,19 @@ class AuthorizationController
             $authRequest = $server->validateAuthorizationRequest($request);
             $logger->debug("AuthorizationController->oauthAuthorizationFlow() auth request validated, csrf,scopes,client_id setup");
 
-            SessionUtil::setSession([
-                'csrf' => $authRequest->getState(),
-                'scopes' => $request->getQueryParams()['scope'],
-                'client_id' => $request->getQueryParams()['client_id'],
-            ]);
+            $session->set('csrf', $authRequest->getState());
+            $session->set('scopes', $request->getQueryParams()['scope']);
+            $session->set('client_id', $request->getQueryParams()['client_id']);
             if ($authRequest->getClient() instanceof ClientEntity) {
-                SessionUtil::setSession('client_role', $authRequest->getClient()->getClientRole());
+                $session->set('client_role', $authRequest->getClient()->getClientRole());
             } else {
                 $this->getSystemLogger()->error(
                     "AuthorizationController->oauthAuthorizationFlow() authRequest client is not a ClientEntity and could not set client role",
                     ['client' => $authRequest->getClient()->getIdentifier()]
                 );
             }
-            SessionUtil::setSession([
-                'launch' => $request->getQueryParams()['launch'] ?? null,
-                'redirect_uri' => $authRequest->getRedirectUri() ?? null,
-            ]);
+            $session->set('launch', $request->getQueryParams()['launch'] ?? null);
+            $session->set('redirect_uri', $authRequest->getRedirectUri() ?? null);
             $logger->debug("AuthorizationController->oauthAuthorizationFlow() session updated", ['session' => $this->session->all()]);
             if (!empty($session->get('launch')) && $this->shouldSkipAuthorizationFlow($authRequest)) {
                 $userUuid = $this->getLoggedInCoreUserUuid($httpRequest);
@@ -623,7 +639,7 @@ class AuthorizationController
             // If needed, serialize into a users session
             if ($this->providerForm) {
                 // used to keep track of the auth flow and avoid the session from being destroyed on login / patient selection
-                SessionUtil::setSession("oauth2_in_progress", true);
+                $session->set("oauth2_in_progress", true);
                 $this->serializeUserSession($authRequest, $session);
                 $logger->debug("AuthorizationController->oauthAuthorizationFlow() redirecting to provider form");
                 $psrFactory = new Psr17Factory();
@@ -813,7 +829,7 @@ class AuthorizationController
         ];
         $result = ['outer' => $outer, 'scopes' => $scoped, 'client' => $client];
         $this->authRequestSerial = json_encode($result, JSON_THROW_ON_ERROR);
-        SessionUtil::setSession('authRequestSerial', $this->authRequestSerial);
+        $session->set('authRequestSerial', $this->authRequestSerial);
     }
 
     /**
@@ -941,9 +957,9 @@ class AuthorizationController
         $request->request->remove('username');
         $request->request->remove('password');
         $request->overrideGlobals(); // override the globals with the cleared out request so we don't have the username/password in the request sequence
-        SessionUtil::setSession('persist_login', $request->request->has('persist_login') ? 1 : 0);
+        $session->set('persist_login', $request->request->has('persist_login') ? 1 : 0);
         $user = $this->getUserRepository()->getUserEntityByIdentifier($session->get('user_id'));
-        SessionUtil::setSession('claims', $user->getClaims());
+        $session->set('claims', $user->getClaims());
         // need to redirect to patient select if we have a launch context && this isn't a patient login
 
         // if we need to authorize any smart context as part of our OAUTH handler we do that here
@@ -1109,7 +1125,7 @@ class AuthorizationController
             if (stripos((string) $scopeString, $key_n[0]) === false) {
                 continue;
             }
-            if ($value === 1) {
+            if (in_array($value, [1, '1', true], true)) {
                 $value = 'True';
             }
             $updatedKey = $key;
@@ -1174,7 +1190,7 @@ class AuthorizationController
         $userId = $auth->getUserId();
         $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() getUserId", ['username' => $username, 'userId' => $userId, 'email' => $email, 'type' => $type]);
         if (isset($userId) && $this->userId = $userId) {
-            SessionUtil::setSession('user_id', $this->getUserUuid($this->userId, 'users'));
+            $this->session->set('user_id', $this->getUserUuid($this->userId, 'users'));
             $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $session->get('user_id'),
                 'username' => $username, 'email' => $email, 'type' => $type]);
             return true;
@@ -1182,13 +1198,11 @@ class AuthorizationController
         if ($id = $auth->getPatientId()) {
             $puuid = $this->getUserUuid($id, 'patient');
             // TODO: @adunsulag check with @sjpadgett on where this user_id is even used as we are assigning it to be a uuid
-            SessionUtil::setSession('user_id', $puuid);
+            $this->session->set('user_id', $puuid);
             $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $session->get('user_id')
                 , 'username' => $username, 'email' => $email, 'type' => $type]);
-            SessionUtil::setSession([
-                'pid' => $id,
-                'puuid' => $puuid,
-            ]);
+            $this->session->set('pid', $id);
+            $this->session->set('puuid', $puuid);
             return true;
         }
 
@@ -1236,11 +1250,12 @@ class AuthorizationController
             $redirect = $result->getHeader('Location')[0];
             $authorization = parse_url($redirect, PHP_URL_QUERY);
             // stash appropriate session for token endpoint.
-            SessionUtil::unsetSession(['authRequestSerial', 'claims']);
+            $this->session->remove('authRequestSerial');
+            $this->session->remove('claims');
             $csrf_private_key = $this->session->get('csrf_private_key'); // switcheroo so this does not end up in the session cache
-            SessionUtil::unsetSession('csrf_private_key');
+            $this->session->remove('csrf_private_key');
             $session_cache = json_encode($this->session->all(), JSON_THROW_ON_ERROR);
-            SessionUtil::setSession('csrf_private_key', $csrf_private_key);
+            $this->session->set('csrf_private_key', $csrf_private_key);
             unset($csrf_private_key);
             $code = [];
             // parse scope as also a query param if needed
@@ -1663,7 +1678,7 @@ class AuthorizationController
         $body->rewind();
         // yep, even password grant gets one. could be useful.
         $code = json_decode($body->getContents(), true, 512, JSON_THROW_ON_ERROR)['id_token'];
-        SessionUtil::unsetSession("csrf_private_key");
+        $this->session->remove("csrf_private_key");
         $session_cache = json_encode($this->session->all(), JSON_THROW_ON_ERROR);
         $requestBody = $request->getParsedBody();
         $this->saveTrustedUser(
