@@ -1852,6 +1852,19 @@ the workflow file + the orchestrator class + all `PullRequest*` classes +
 fakes + tests verbatim. Maintainer-visible change: `--repo openemr/openemr-devops`
 becomes `--repo openemr/openemr`.
 
+**Phase 3 caveat (added 2026-07-20 per openemr/openemr#13056):** decide
+`ship-release.yml`'s status *before* mechanically moving it. The workflow
+hasn't been used since 2026-06-01 (last run failed); 8.2.0 shipped
+entirely via manual click-through. Three options tracked in #13056:
+(A) doc-reality-align (retire ship-release, canonicalize the manual
+click-through path in `RELEASE_PROCESS.md`), (B) debug + reactivate
+(fix whatever's broken and resume automated ship for rel-830), or
+(C) retire outright (delete both the workflow and the
+`ShipReleaseOrchestrator` / `PullRequest*` classes as part of Phase 6
+instead of migrating). Option A or C collapses Phase 3's scope
+substantially; option B keeps it as scoped above. Do not start Phase 3
+until #13056 gets a maintainer decision.
+
 **Phase 4** — `release-announcements.yml` + `AnnouncementRenderer` move with
 templates. The Twig template structure (one per channel + a summary) ports
 verbatim. The dispatch consumer side switches from cross-repo
