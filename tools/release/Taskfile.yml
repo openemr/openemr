@@ -126,3 +126,17 @@ tasks:
       {{if .PATCH_NUMBER}}--patch-number={{shellQuote .PATCH_NUMBER}}{{end}}
       {{if .DRY_RUN}}--dry-run{{end}}
       {{if .COPY_STYLES}}--copy-styles{{end}}
+
+  ship-release:
+    desc: Merge the two release PRs (conductor → docs) in order
+    requires:
+      vars: [VERSION, REL_BRANCH]
+    cmds:
+    - >-
+      php bin/ship-release.php
+      --release-version={{shellQuote .VERSION}}
+      --rel-branch={{shellQuote .REL_BRANCH}}
+      {{if .TIMEOUT_SECONDS}}--timeout-seconds={{shellQuote .TIMEOUT_SECONDS}}{{end}}
+      {{if .STATUS_TARGET_URL}}--status-target-url={{shellQuote .STATUS_TARGET_URL}}{{end}}
+      {{if .SUMMARY_FILE}}--summary-file={{shellQuote .SUMMARY_FILE}}{{end}}
+      {{if eq .DRY_RUN "1"}}--dry-run{{end}}
