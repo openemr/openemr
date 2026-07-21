@@ -20,7 +20,6 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -195,7 +194,7 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
         $meta->setLastUpdated(new FHIRInstant(UtilsService::getDateFormattedAsUTC()));
         $fhirResource->setMeta($meta);
 
-        $id = new FhirId();
+        $id = new FHIRId();
         $id->setValue($dataRecord['questionnaire_response_uuid']);
         $fhirResource->setId($id);
 
@@ -302,14 +301,13 @@ class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IR
      * The ownership and AUDIT trail in FHIR is done via the Provenance record.
      * @param FHIRDomainResource $dataRecord The record we are generating a provenance from
      * @param bool $encode Whether to serialize the record or not
-     * @return FHIRProvenance|string
      */
     public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
     {
         // we don't return any provenance authorship for this custom resource
         // if we did return it, we would fill out the following record
 //        $provenance = new FHIRProvenance();
-        if (!($dataRecord instanceof FHIRQuestionnaire)) {
+        if (!($dataRecord instanceof OpenEMRFhirQuestionnaireResponse)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
         // provenance will just be the organization as we don't keep track of the user at the individual FHIR resource level

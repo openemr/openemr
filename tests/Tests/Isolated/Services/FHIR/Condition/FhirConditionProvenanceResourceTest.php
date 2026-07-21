@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * FhirConditionProvenanceResourceTest.php
  *
@@ -35,6 +37,7 @@ class FhirConditionProvenanceResourceTest extends TestCase
 {
     /**
      * @return array<string, array{ConditionServiceClass}>
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function conditionServiceClassProvider(): array
     {

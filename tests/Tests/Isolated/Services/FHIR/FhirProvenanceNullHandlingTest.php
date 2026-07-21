@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * FhirProvenanceNullHandlingTest.php
  *
@@ -19,6 +21,7 @@
 namespace OpenEMR\Tests\Isolated\Services\FHIR;
 
 use BadMethodCallException;
+use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDiagnosticReport;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
@@ -49,6 +52,7 @@ class FhirProvenanceNullHandlingTest extends TestCase
      * createProvenanceResource() instance guard requires.
      *
      * @return array<string, array{ProvenanceServiceClass, class-string<FHIRDomainResource>}>
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function provenanceServiceProvider(): array
     {
@@ -57,8 +61,7 @@ class FhirProvenanceNullHandlingTest extends TestCase
             'medication-request' => [FhirMedicationRequestService::class, FHIRMedicationRequest::class],
             'questionnaire' => [FhirQuestionnaireService::class, FHIRQuestionnaire::class],
             'questionnaire-form' => [FhirQuestionnaireFormService::class, FHIRQuestionnaire::class],
-            // note the QuestionnaireResponse form service guards on FHIRQuestionnaire in current code
-            'questionnaire-response-form' => [FhirQuestionnaireResponseFormService::class, FHIRQuestionnaire::class],
+            'questionnaire-response-form' => [FhirQuestionnaireResponseFormService::class, OpenEMRFhirQuestionnaireResponse::class],
             'observation-vitals' => [FhirObservationVitalsService::class, FHIRObservation::class],
             'diagnostic-report-laboratory' => [FhirDiagnosticReportLaboratoryService::class, FHIRDiagnosticReport::class],
         ];

@@ -88,12 +88,12 @@ class FhirQuestionnaireService extends FhirServiceBase implements IResourceReada
         }
         return $fhirSearchResult;
     }
+
     /**
      * Healthcare resources often need to provide an AUDIT trail of who last touched a resource and when was it modified.
      * The ownership and AUDIT trail in FHIR is done via the Provenance record.
      * @param FHIRDomainResource $dataRecord The record we are generating a provenance from
      * @param bool $encode Whether to serialize the record or not
-     * @return FHIRProvenance|string
      */
     public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
     {
