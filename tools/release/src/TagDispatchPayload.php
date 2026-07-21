@@ -46,7 +46,15 @@ final readonly class TagDispatchPayload
     public static function fromPayloadFile(string $path): self
     {
         if ($path === '-') {
-            $raw = (string) file_get_contents('php://stdin');
+            // Same false-return check as regular files: stdin can fail to
+            // read (broken pipe, closed fd) and casting the false to '' would
+            // then throw the misleading empty-payload error below instead of
+            // the accurate unreadable-source error.
+            $contents = file_get_contents('php://stdin');
+            if ($contents === false) {
+                throw new \RuntimeException('Payload file unreadable: php://stdin');
+            }
+            $raw = $contents;
         } else {
             if (!is_file($path)) {
                 throw new \RuntimeException(sprintf('Payload file not found: %s', $path));

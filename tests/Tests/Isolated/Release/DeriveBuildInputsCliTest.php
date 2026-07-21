@@ -50,10 +50,10 @@ final class DeriveBuildInputsCliTest extends TestCase
         // The openemr-tag dispatch path: the workflow pipes the
         // client_payload envelope on stdin via --payload-file=-.
         $process = new Process(['php', self::BIN, '--payload-file=-']);
-        $process->setInput((string) json_encode([
+        $process->setInput(json_encode([
             'event' => 'openemr-tag',
             'data' => ['version' => '8.1.0', 'tag' => 'v8_1_0', 'branch' => 'rel-810'],
-        ]));
+        ], JSON_THROW_ON_ERROR));
         $process->run();
 
         self::assertSame(0, $process->getExitCode(), 'expected success exit code');

@@ -37,19 +37,27 @@ use Twig\Loader\FilesystemLoader;
     ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Whether this is a dry run')
     ->addOption('copy-styles', null, InputOption::VALUE_NONE, 'Whether styles were copied')
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
-        /** @var string $type */
-        $type = $input->getOption('type');
-        /** @var string $milestone */
-        $milestone = $input->getOption('milestone');
-        /** @var string $outputDir */
-        $outputDir = $input->getOption('output-dir');
-
-        foreach (['type', 'milestone'] as $required) {
-            if ($input->getOption($required) === null) {
-                $output->writeln("<error>--{$required} is required</error>");
+        // Parse raw CLI input into narrowed string values at the boundary
+        // rather than @var-casting downstream; PHPStan trusts the runtime
+        // check, and downstream code no longer needs re-validation.
+        $required = [];
+        foreach (['type', 'milestone'] as $name) {
+            $value = $input->getOption($name);
+            if (!is_string($value) || $value === '') {
+                $output->writeln("<error>--{$name} is required</error>");
                 return 1;
             }
+            $required[$name] = $value;
         }
+        $type = $required['type'];
+        $milestone = $required['milestone'];
+
+        $outputDirOption = $input->getOption('output-dir');
+        if (!is_string($outputDirOption) || $outputDirOption === '') {
+            $output->writeln('<error>--output-dir must be a non-empty string</error>');
+            return 1;
+        }
+        $outputDir = $outputDirOption;
 
         if (!in_array($type, ['patch', 'full'], true)) {
             $output->writeln('<error>--type must be "patch" or "full"</error>');
@@ -112,11 +120,15 @@ use Twig\Loader\FilesystemLoader;
             'copy_styles' => (bool) $input->getOption('copy-styles'),
         ]);
 
-        // Determine output destination
-        /** @var ?string $outputFile */
-        $outputFile = $input->getOption('output');
+        // Determine output destination. --output is optional; validate the
+        // shape when supplied rather than @var-casting downstream.
+        $outputFileOption = $input->getOption('output');
+        if ($outputFileOption !== null && !is_string($outputFileOption)) {
+            $output->writeln('<error>--output must be a string</error>');
+            return 1;
+        }
         $envSummary = getenv('GITHUB_STEP_SUMMARY');
-        $target = $outputFile ?? ($envSummary !== false ? $envSummary : null);
+        $target = $outputFileOption ?? ($envSummary !== false ? $envSummary : null);
 
         if ($target !== null) {
             file_put_contents($target, $content, FILE_APPEND);
