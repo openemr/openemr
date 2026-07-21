@@ -3,9 +3,17 @@
 /**
  * Operator-selected ship-release execution mode.
  *
- *   DryRun    — Preflight only: probe every PR's readiness and print a report;
- *               merge nothing. Same as the pre-3b `--dry-run` flag; kept
- *               reachable via that flag for muscle memory + script compat.
+ *   DryRun    — Preflight only for this CLI: probe every PR's readiness and
+ *               print a report; merge nothing. The workflow (ship-release.yml)
+ *               layers a dry-run-build job on top of this mode that, when
+ *               preflight succeeds, calls build-release.yml with dry_run=true
+ *               pinned to the Conductor PR head (release-prep/<rel_branch>)
+ *               so the packaged tree carries the pending version bump +
+ *               CHANGELOG entry. Produces the actual tarball + zip +
+ *               changelog + checksums as run artifacts (no git tag, no
+ *               GitHub Release, no downstream dispatches). Same as the
+ *               pre-3b `--dry-run` flag; kept reachable via that flag for
+ *               muscle memory + script compat.
  *
  *   SemiAuto  — Preflight + merge Conductor PR only. Docs and Finalize PRs
  *               stay untouched -- maintainer merges them manually after
