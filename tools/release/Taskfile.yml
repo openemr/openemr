@@ -37,6 +37,19 @@ tasks:
       --changelog={{shellQuote .OPENEMR_DIR}}/CHANGELOG.md
       --output={{shellQuote .OUTPUT_DIR}}/changelog.md
 
+  changelog:
+    desc: Generate a changelog from a commit range (patch-release use case)
+    requires:
+      vars: [BASE, HEAD, TITLE]
+    cmds:
+    - mkdir -p {{shellQuote .OUTPUT_DIR}}
+    - >-
+      php bin/changelog.php
+      --base={{shellQuote .BASE}}
+      --head={{shellQuote .HEAD}}
+      --title={{shellQuote .TITLE}}
+      --output={{shellQuote .OUTPUT_DIR}}/changelog.md
+
   preflight:
     desc: Run pre-release checks (milestone completeness + unpublished GHSAs)
     cmds:
