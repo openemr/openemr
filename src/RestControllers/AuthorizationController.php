@@ -199,16 +199,6 @@ class AuthorizationController implements LoggerAwareInterface
         $this->logger = $logger;
     }
 
-    /**
-     * Compatibility bridge for existing callers.
-     *
-     * @deprecated Inject LoggerInterface through the constructor or use setLogger().
-     */
-    public function setSystemLogger(LoggerInterface $logger): void
-    {
-        $this->setLogger($logger);
-    }
-
     private function getSmartAuthController(): SMARTAuthorizationController
     {
         if (!isset($this->smartAuthController)) {

@@ -56,11 +56,12 @@ class AuthorizationControllerTest extends TestCase
         ], $globalValues);
         $globalsBag = new OEGlobalsBag($globalParams);
         $kernel = $this->createMock(OEHttpKernel::class);
-        $kernel->method("getEventDispatcher")
-            ->willReturn(new EventDispatcher());
-        $kernel->method("getGlobalsBag")->willReturn($globalsBag);
-        $authorizationController = new AuthorizationController($session, $kernel);
-        $authorizationController->setSystemLogger($this->createMock(LoggerInterface::class));
+        $kernel->method("getEventDispatcher")->willReturn(new EventDispatcher());
+        $kernel->method("getGlobalsBag")->willReturn($globalsBag);$authorizationController = new AuthorizationController(
+        session: $session,
+        kernel: $kernel,
+        logger: $this->createMock(LoggerInterface::class)
+        );
         return $authorizationController;
     }
     public function testOauthAuthorizationFlowMissingResponseType(): void
