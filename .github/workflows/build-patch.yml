@@ -15,7 +15,7 @@ run-name: "Build Patch Release ${{ inputs.version }}${{ inputs.dry_run && ' (dry
 # extracts the patch zip on top of an existing install.
 #
 # Migrated from openemr/openemr-devops in workstream 7 Phase 2 (PR 2b).
-# Four devops-side steps dropped at migration time:
+# Three devops-side steps dropped at migration time:
 #
 #   1. `task release:version-bump MODE=patch` (Bump version.php) +
 #   2. Commit and push version bump
@@ -27,17 +27,25 @@ run-name: "Build Patch Release ${{ inputs.version }}${{ inputs.dry_run && ' (dry
 #      This workflow packages the resulting patch; it doesn't own the
 #      version-bump.
 #
-#   3. `task release:changelog` (Generate changelog) +
-#   4. `task release:changelog-pr` (Create CHANGELOG PRs)
-#      Those tasks were retired from devops's Taskfile in
-#      openemr/openemr-devops#857 (2026-07-13) + #858 (2026-07-13)
-#      when ChangelogMutator became authoritative and build-release
-#      switched to section-extract. build-patch invocations were never
-#      updated on the devops side and had been broken since #857
-#      landed. Patch-time changelog generation is a separate design
-#      decision -- patches historically ran their own changelog from
-#      git log because the mutator-driven CHANGELOG.md flow covers
-#      only main-line releases. Not carrying forward broken references.
+#   3. `task release:changelog-pr` (Create CHANGELOG PRs)
+#      Retired from devops's Taskfile in openemr/openemr-devops#857
+#      (2026-07-13) when ChangelogMutator became authoritative for
+#      main-release CHANGELOG.md writes. build-patch's invocation had
+#      been broken since #857 landed. Patches don't rewrite the
+#      canonical CHANGELOG.md (that's mutator territory for main
+#      releases only); the patch-time git-log-derived changelog now
+#      lives in the standalone `changelog.md` artifact produced below.
+#
+# The `Generate changelog` step below reactivates patch-time changelog
+# generation using openemr's `bin/changelog.php` (same PHP CLI that
+# feeds ChangelogMutator for main releases) via the `changelog` task,
+# producing a standalone `changelog.md` alongside the patch zip. The
+# devops-side `task release:changelog` invocation was broken since
+# openemr/openemr-devops#858 retired the task; this replacement wires
+# to the openemr-side CLI directly. changelog.md gets attached to the
+# release + included in the dry-run artifact so the maintainer can
+# paste it into forum/announcement posts without a manual walk of
+# git log.
 #
 # Two devops-side inputs also dropped to fit under GitHub's 10-input
 # workflow_dispatch cap:
@@ -197,6 +205,24 @@ jobs:
         OPENEMR_DIR="$GITHUB_WORKSPACE"
         COPY_STYLES="$COPY_STYLES"
 
+    # Generate a git-log-derived changelog for the patch. Patches don't
+    # rewrite CHANGELOG.md (ChangelogMutator covers main releases only),
+    # so this step produces a standalone changelog.md the maintainer
+    # can paste into the GitHub Release body or the forum announcement.
+    # Uploaded alongside the patch zip so both are in one artifact.
+    - name: Generate changelog
+      working-directory: tools/release
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        VERSION_START: ${{ inputs.version_start }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: >-
+        task changelog
+        BASE="$VERSION_START"
+        HEAD="$VERSION_BRANCH"
+        TITLE="$RELEASE_VERSION"
+
     - name: Generate checksums
       working-directory: tools/release
       env:
@@ -239,6 +265,7 @@ jobs:
           tools/release/release-output/${{ inputs.patch_filename }}.md5
           tools/release/release-output/${{ inputs.patch_filename }}.sha256
           tools/release/release-output/${{ inputs.patch_filename }}.sha512
+          tools/release/release-output/changelog.md
         retention-days: 7
 
     - name: Create annotated tag and GitHub release
@@ -267,6 +294,7 @@ jobs:
           gh release create "$tag" \
             --repo openemr/openemr \
             --title "$tag" \
+            --notes-file "${output_dir}/changelog.md" \
             --verify-tag
         fi
 
@@ -276,4 +304,5 @@ jobs:
           "${output_dir}/${PATCH_FILENAME}.md5" \
           "${output_dir}/${PATCH_FILENAME}.sha256" \
           "${output_dir}/${PATCH_FILENAME}.sha512" \
+          "${output_dir}/changelog.md" \
           --clobber
