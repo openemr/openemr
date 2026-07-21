@@ -491,7 +491,7 @@ For an EHR launch, the registered application must include:
 
 - a valid launch URI
 - the `launch` scope
-- the required `user/*` scopes
+- any `user/*` scopes required by the application
 - a valid OAuth redirect URI
 
 **Step 2: Enable the application**
@@ -518,10 +518,9 @@ OpenEMR redirects to the application's registered launch URI with the SMART EHR 
 ```text
 iss=<FHIR base URL>
 launch=<single-use launch token>
-aud=<FHIR base URL>
 ```
 
-The application then starts the OAuth authorization-code flow and includes the supplied `launch` value in its authorization request.
+The application then starts the OAuth authorization-code flow, includes the supplied `launch` value in its authorization request, and sets `aud=<FHIR base URL>` there.
 
 ##### When the SMART Enabled Apps card does not appear
 
@@ -530,8 +529,13 @@ The card is displayed only when all of the following are true:
 - the OpenEMR FHIR API is enabled
 - at least one SMART client is enabled
 - the client includes the exact `launch` scope
-- the client has a valid launch URI
 - the clinician is viewing a patient Summary or Demographics screen
+
+Card visibility does not depend on the launch URI being valid: the client
+list is filtered only by enabled status and the presence of the `launch`
+scope. A client with a missing or invalid launch URI can still appear in the
+card — the invalid URI fails at launch time rather than preventing the card
+from displaying.
 
 The card may also be collapsed based on the user's saved dashboard preferences.
 
@@ -1415,7 +1419,6 @@ See [Authorization Guide - Revoking Access](AUTHORIZATION.md#revoking-access) fo
 - App is not enabled
 - App is pending approval
 - App does not include the exact `launch` scope
-- App does not have a valid launch URI
 - User is not viewing a patient Summary or Demographics screen
 - The dashboard card is collapsed
 
@@ -1424,9 +1427,9 @@ See [Authorization Guide - Revoking Access](AUTHORIZATION.md#revoking-access) fo
 - ✅ Enable the app in Administration → System → API Clients
 - ✅ Complete administrator approval when required
 - ✅ Confirm the registered scopes include `launch`
-- ✅ Confirm the app has a valid launch URI
 - ✅ Open a patient Summary or Demographics screen
 - ✅ Expand the **SMART Enabled Apps** dashboard card
+- ✅ Confirm the app has a valid launch URI (required for a successful launch, though an invalid URI does not hide the card)
 
 #### Issue: "PKCE verification failed"
 
