@@ -1,0 +1,115 @@
+version: '3'
+
+# Task targets for the release-mechanism build workflows
+# (build-release.yml, build-release-on-tag.yml, build-patch.yml).
+#
+# Invoked from the release-mechanism workflows via `cd tools/release
+# && task <target>`. Task auto-detects this file when cwd = tools/release,
+# so there is no repo-root Taskfile and no `release:` namespace prefix --
+# task names are bare (`task package:assemble`, not `task release:package:assemble`).
+#
+# Local usage:
+#
+#   cd tools/release
+#   task preflight MILESTONE=8.2.0
+#   task package:assemble VERSION=8.2.0 OPENEMR_DIR="$(pwd)/../.."
+#
+# PHP dependencies come from the top-level openemr composer.json and
+# vendor/ (bin scripts load via `dirname(__DIR__, 3) . '/vendor/autoload.php'`).
+# Run `composer install` from the repo root once before invoking any task
+# locally; CI handles it via the setup-php-composer composite action
+# before invoking the workflow's `task` steps.
+
+vars:
+  OUTPUT_DIR: '{{.OUTPUT_DIR | default "./release-output"}}'
+  REPO: '{{.REPO | default "openemr/openemr"}}'
+
+tasks:
+  changelog:extract:
+    desc: Extract a single version's section from openemr's CHANGELOG.md
+    requires:
+      vars: [VERSION, OPENEMR_DIR]
+    cmds:
+    - mkdir -p {{shellQuote .OUTPUT_DIR}}
+    - >-
+      php bin/extract-changelog-section.php
+      --release-version={{shellQuote .VERSION}}
+      --changelog={{shellQuote .OPENEMR_DIR}}/CHANGELOG.md
+      --output={{shellQuote .OUTPUT_DIR}}/changelog.md
+
+  preflight:
+    desc: Run pre-release checks (milestone completeness + unpublished GHSAs)
+    cmds:
+    - >-
+      php bin/preflight.php
+      {{if and .MILESTONE (ne .SKIP_MILESTONE "1")}}--milestone={{shellQuote .MILESTONE}}{{end}}
+      --repo={{shellQuote .REPO}}
+      {{if eq .SKIP_MILESTONE "1"}}--skip-milestone{{end}}
+      {{if eq .SKIP_GHSA "1"}}--skip-ghsa{{end}}
+
+  checksum:
+    desc: Generate md5/sha256/sha512 sidecar files
+    requires:
+      vars: [FILE]
+    # Run from OUTPUT_DIR and checksum the basename FILE so the sidecar records
+    # `openemr-x.tar.gz`, not `release-output/openemr-x.tar.gz`. Otherwise
+    # `sha256sum -c` fails once users download the assets into a flat directory
+    # and the recorded path's `release-output/` prefix is absent.
+    dir: '{{.OUTPUT_DIR}}'
+    cmds:
+    - md5sum {{shellQuote .FILE}} > {{shellQuote .FILE}}.md5
+    - sha256sum {{shellQuote .FILE}} > {{shellQuote .FILE}}.sha256
+    - sha512sum {{shellQuote .FILE}} > {{shellQuote .FILE}}.sha512
+
+  package:assemble:
+    desc: Build the full distribution tarball + zip for an official release
+    requires:
+      vars: [VERSION, OPENEMR_DIR]
+    cmds:
+    - >-
+      php bin/package-assemble.php
+      --release-version={{shellQuote .VERSION}}
+      --openemr-dir={{shellQuote .OPENEMR_DIR}}
+      --output-dir={{shellQuote .OUTPUT_DIR}}
+
+  patch:assemble:
+    desc: Build cumulative patch zip from diff between tags
+    requires:
+      vars: [START_TAG, BRANCH, FILENAME, OPENEMR_DIR]
+    cmds:
+    - >-
+      php bin/patch-assemble.php
+      --start-tag={{shellQuote .START_TAG}}
+      --branch={{shellQuote .BRANCH}}
+      --filename={{shellQuote .FILENAME}}
+      --openemr-dir={{shellQuote .OPENEMR_DIR}}
+      --output-dir={{shellQuote .OUTPUT_DIR}}
+      {{if .COPY_STYLES}}--copy-styles{{end}}
+
+  derive-build-inputs:
+    desc: Emit version/version_branch/release_tag lines for the build-release workflow
+    cmds:
+    - >-
+      php bin/derive-build-inputs.php
+      {{if .PAYLOAD_FILE}}--payload-file={{shellQuote .PAYLOAD_FILE}}{{end}}
+      {{if .VERSION}}--release-version={{shellQuote .VERSION}}{{end}}
+      {{if .TAG}}--release-tag={{shellQuote .TAG}}{{end}}
+      {{if .BRANCH}}--release-branch={{shellQuote .BRANCH}}{{end}}
+
+  summary:
+    desc: Generate release summary for GitHub step summary
+    requires:
+      vars: [TYPE, MILESTONE]
+    cmds:
+    - >-
+      php bin/summary.php
+      --type={{shellQuote .TYPE}}
+      --milestone={{shellQuote .MILESTONE}}
+      --output-dir={{shellQuote .OUTPUT_DIR}}
+      {{if .RELEASE_TAG}}--release-tag={{shellQuote .RELEASE_TAG}}{{end}}
+      {{if .START_TAG}}--start-tag={{shellQuote .START_TAG}}{{end}}
+      {{if .VERSION_BRANCH}}--version-branch={{shellQuote .VERSION_BRANCH}}{{end}}
+      {{if .PATCH_FILENAME}}--patch-filename={{shellQuote .PATCH_FILENAME}}{{end}}
+      {{if .PATCH_NUMBER}}--patch-number={{shellQuote .PATCH_NUMBER}}{{end}}
+      {{if .DRY_RUN}}--dry-run{{end}}
+      {{if .COPY_STYLES}}--copy-styles{{end}}
