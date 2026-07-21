@@ -20,7 +20,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Reports\Email\EmailQueueService;
-use Throwable;
+use Exception;
 
 // Clear any error output that may have occurred
 ob_end_clean();
@@ -30,7 +30,10 @@ header('Content-Type: application/json');
 
 try {
     // Verify user is authenticated
-    if (!isset($_SESSION['authUserID']) || (int) $_SESSION['authUserID'] <= 0) {
+    $authUserId = filter_var($_SESSION['authUserID'] ?? null, FILTER_VALIDATE_INT, [
+        'options' => ['min_range' => 1],
+    ]);
+    if (!is_int($authUserId)) {
         throw new Exception("User not authenticated");
     }
 
@@ -40,8 +43,10 @@ try {
     }
 
     // Get email ID from request
-    $emailId = (int)($_GET['id'] ?? 0);
-    if ($emailId <= 0) {
+    $emailId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, [
+        'options' => ['min_range' => 1],
+    ]);
+    if (!is_int($emailId)) {
         throw new Exception("Email ID is required");
     }
 
@@ -58,7 +63,7 @@ try {
         'success' => true,
         'email' => $email
     ]);
-} catch (Throwable $e) {
+} catch (Exception $e) {
     http_response_code(400);
     echo json_encode([
         'success' => false,

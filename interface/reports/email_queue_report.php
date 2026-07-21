@@ -17,11 +17,16 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\Email\EmailQueueService;
 
 $globalsBag = OEGlobalsBag::getInstance();
-$kernel = $globalsBag->get('kernel');
+/**
+ * @var mixed $kernelValue
+ */
+$kernelValue = $globalsBag->get('kernel');
+$kernel = $kernelValue instanceof Kernel ? $kernelValue : null;
 $webroot = $globalsBag->get('webroot');
 
 // ACL check - requires billing or admin access
@@ -32,19 +37,30 @@ if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('acct', '
 
 // Initialize service
 $service = new EmailQueueService();
+/**
+ * @param string $name
+ * @return string
+ */
+$getStringFilter = static function (string $name): string {
+    $value = filter_input(INPUT_GET, $name, FILTER_UNSAFE_RAW);
+    return is_string($value) ? $value : '';
+};
 
 // Get filters from request
 $filters = [
-    'search' => $_GET['search'] ?? '',
-    'status' => $_GET['status'] ?? '',
-    'template_name' => $_GET['template_name'] ?? '',
-    'date_from' => $_GET['date_from'] ?? '',
-    'date_to' => $_GET['date_to'] ?? '',
+    'search' => $getStringFilter('search'),
+    'status' => $getStringFilter('status'),
+    'template_name' => $getStringFilter('template_name'),
+    'date_from' => $getStringFilter('date_from'),
+    'date_to' => $getStringFilter('date_to'),
 ];
 
 // Pagination
 $perPage = 50;
-$currentPage = max(1, (int) ($_GET['page'] ?? 1));
+$page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, [
+    'options' => ['min_range' => 1],
+]);
+$currentPage = is_int($page) ? $page : 1;
 $offset = ($currentPage - 1) * $perPage;
 
 // Get data
