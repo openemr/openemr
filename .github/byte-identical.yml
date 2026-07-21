@@ -135,6 +135,10 @@ files:
   exclude-branches: [rel-800, rel-704]
 - path: .github/workflows/release-permissions-check.yml
   exclude-branches: [rel-800, rel-704]
+- path: .github/workflows/build-release.yml
+  exclude-branches: [rel-800, rel-704]
+- path: .github/workflows/build-patch.yml
+  exclude-branches: [rel-800, rel-704]
 - path: .github/actions/setup-php-composer/action.yml
   exclude-branches: [rel-800, rel-704]
 - path: .github/PULL_REQUEST_TEMPLATE/release-prep.md
