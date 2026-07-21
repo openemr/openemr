@@ -69,11 +69,25 @@ jobs:
         repositories: |
           openemr
           website-openemr
+        # Explicit permission grants (least-privilege). Ship-release
+        # needs: read PR state (pull-requests:read via metadata), merge
+        # PRs (pull-requests:write), post commit statuses on PR heads
+        # (statuses:write), read repo contents (contents:read). The
+        # App itself may be installed with broader permissions; scoping
+        # the minted token narrows what a compromised runner can do.
+        permission-contents: read
+        permission-metadata: read
+        permission-pull-requests: write
+        permission-statuses: write
 
     - name: Checkout
       uses: actions/checkout@v7
       with:
         token: ${{ steps.app-token.outputs.token }}
+        # ship-release orchestrates via `gh` CLI (which uses GH_TOKEN env);
+        # it never pushes to git. Persisting credentials in the checkout
+        # would leak them to any subsequent step. Defense-in-depth.
+        persist-credentials: false
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer

@@ -36,7 +36,7 @@ class FakePullRequestApi implements PullRequestApi
     /** @var array<string, string> merge SHAs by "repo#number" */
     private array $mergeShas = [];
 
-    /** @var list<array{repo: string, sha: string, context: string, state: string}> */
+    /** @var list<array{repo: string, sha: string, context: string, state: string, description: string, targetUrl: string}> */
     public array $postedStatuses = [];
 
     /** @var list<array{repo: string, number: int, expected: string}> */
@@ -125,6 +125,8 @@ class FakePullRequestApi implements PullRequestApi
             'sha' => $sha,
             'context' => $context,
             'state' => $state,
+            'description' => $description,
+            'targetUrl' => $targetUrl,
         ];
     }
 

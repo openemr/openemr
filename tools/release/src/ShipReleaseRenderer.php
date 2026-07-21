@@ -37,29 +37,28 @@ final readonly class ShipReleaseRenderer
         string $tag,
         string $pr,
     ): void {
-        switch ($step->status) {
-            case ShipReleaseStepStatus::MERGED:
-                $output->writeln(sprintf(
-                    '<info>✓ merged</info>   %s %s → %s',
-                    $tag,
-                    $pr,
-                    $step->mergeSha ?? '?',
-                ));
-                return;
-            case ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED:
-                $output->writeln(sprintf('<comment>↷ skipped</comment> %s %s (already merged)', $tag, $pr));
-                return;
-            case ShipReleaseStepStatus::WOULD_MERGE:
-                $output->writeln(sprintf('<info>✓ ready</info>    %s %s (dry-run: would merge)', $tag, $pr));
-                return;
-            case ShipReleaseStepStatus::BLOCKED:
-                $output->writeln(sprintf('<error>✗ blocked</error>  %s %s', $tag, $pr));
-                foreach ($step->reasons as $reason) {
-                    $output->writeln('    - ' . $reason);
-                }
-                return;
-            case ShipReleaseStepStatus::NOT_REACHED:
-                $output->writeln(sprintf('<comment>· skipped</comment>  %s %s (not reached)', $tag, $pr));
+        // Exhaustive match without default so PHPStan flags new enum
+        // cases at compile time (per CLAUDE.md coding guideline).
+        $lines = match ($step->status) {
+            ShipReleaseStepStatus::MERGED => [
+                sprintf('<info>✓ merged</info>   %s %s → %s', $tag, $pr, $step->mergeSha ?? '?'),
+            ],
+            ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED => [
+                sprintf('<comment>↷ skipped</comment> %s %s (already merged)', $tag, $pr),
+            ],
+            ShipReleaseStepStatus::WOULD_MERGE => [
+                sprintf('<info>✓ ready</info>    %s %s (dry-run: would merge)', $tag, $pr),
+            ],
+            ShipReleaseStepStatus::BLOCKED => array_merge(
+                [sprintf('<error>✗ blocked</error>  %s %s', $tag, $pr)],
+                array_map(static fn (string $reason): string => '    - ' . $reason, $step->reasons),
+            ),
+            ShipReleaseStepStatus::NOT_REACHED => [
+                sprintf('<comment>· skipped</comment>  %s %s (not reached)', $tag, $pr),
+            ],
+        };
+        foreach ($lines as $line) {
+            $output->writeln($line);
         }
     }
 }

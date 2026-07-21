@@ -34,13 +34,17 @@ final readonly class ShipReleaseResult
         if ($this->fatalReason !== null) {
             return false;
         }
-        $successful = [
-            ShipReleaseStepStatus::MERGED,
-            ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED,
-            ShipReleaseStepStatus::WOULD_MERGE,
-        ];
+        // Exhaustive match without default so PHPStan flags new enum
+        // cases at compile time (per CLAUDE.md coding guideline).
         foreach ($this->steps as $step) {
-            if (!in_array($step->status, $successful, true)) {
+            $isSuccess = match ($step->status) {
+                ShipReleaseStepStatus::MERGED,
+                ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED,
+                ShipReleaseStepStatus::WOULD_MERGE => true,
+                ShipReleaseStepStatus::BLOCKED,
+                ShipReleaseStepStatus::NOT_REACHED => false,
+            };
+            if (!$isSuccess) {
                 return false;
             }
         }
