@@ -17,6 +17,7 @@ namespace OpenEMR\Release;
 enum ShipReleaseStepStatus: string
 {
     case SKIPPED_ALREADY_MERGED = 'skipped_already_merged';
+    case SKIPPED_BY_MODE = 'skipped_by_mode';
     case MERGED = 'merged';
     case BLOCKED = 'blocked';
     case WOULD_MERGE = 'would_merge';

@@ -128,7 +128,7 @@ tasks:
       {{if .COPY_STYLES}}--copy-styles{{end}}
 
   ship-release:
-    desc: Merge the two release PRs (conductor → docs) in order
+    desc: Merge the three release PRs (conductor → docs → finalize) in order per selected mode
     requires:
       vars: [VERSION, REL_BRANCH]
     cmds:
@@ -136,6 +136,7 @@ tasks:
       php bin/ship-release.php
       --release-version={{shellQuote .VERSION}}
       --rel-branch={{shellQuote .REL_BRANCH}}
+      {{if .MODE}}--mode={{shellQuote .MODE}}{{end}}
       {{if .TIMEOUT_SECONDS}}--timeout-seconds={{shellQuote .TIMEOUT_SECONDS}}{{end}}
       {{if .STATUS_TARGET_URL}}--status-target-url={{shellQuote .STATUS_TARGET_URL}}{{end}}
       {{if .SUMMARY_FILE}}--summary-file={{shellQuote .SUMMARY_FILE}}{{end}}

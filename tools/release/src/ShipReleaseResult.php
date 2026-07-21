@@ -3,9 +3,15 @@
 /**
  * Aggregated outcome of a ship-release run.
  *
- * Successful when every step is MERGED, SKIPPED_ALREADY_MERGED, or WOULD_MERGE
- * (dry-run) AND no fatal reason was recorded. A BLOCKED, NOT_REACHED, or
- * fatalReason makes the run a failure.
+ * Successful when every step is MERGED, SKIPPED_ALREADY_MERGED, SKIPPED_BY_MODE
+ * (semi-auto intentionally leaving downstream PRs for manual merge), or
+ * WOULD_MERGE (dry-run) AND no fatal reason was recorded. A BLOCKED,
+ * NOT_REACHED, or fatalReason makes the run a failure.
+ *
+ * NOT_REACHED means "downstream step didn't run because an upstream step
+ * failed" — that's a real failure. SKIPPED_BY_MODE means "we intentionally
+ * didn't run this step because the mode says so" — the operator got exactly
+ * what they asked for, so it exits 0.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -40,6 +46,7 @@ final readonly class ShipReleaseResult
             $isSuccess = match ($step->status) {
                 ShipReleaseStepStatus::MERGED,
                 ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED,
+                ShipReleaseStepStatus::SKIPPED_BY_MODE,
                 ShipReleaseStepStatus::WOULD_MERGE => true,
                 ShipReleaseStepStatus::BLOCKED,
                 ShipReleaseStepStatus::NOT_REACHED => false,
