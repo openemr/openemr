@@ -101,6 +101,10 @@ jobs:
   build-patch:
     runs-on: ubuntu-24.04
     name: Build Patch
+    # Cap runtime. Patch assembly + tag/release is under 10 min in
+    # normal runs; the GitHub-default 6h ceiling would let a hung
+    # git/gh/npm step burn runner minutes if something wedged.
+    timeout-minutes: 30
     steps:
     - name: Validate inputs
       if: "!inputs.dry_run && inputs.release_tag == ''"
@@ -136,7 +140,9 @@ jobs:
         fetch-depth: 1
 
     - name: Fetch start tag
-      run: git fetch --filter=blob:none --depth=1 origin tag '${{ inputs.version_start }}'
+      env:
+        VERSION_START: ${{ inputs.version_start }}
+      run: git fetch --filter=blob:none --depth=1 origin tag "$VERSION_START"
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
@@ -153,12 +159,17 @@ jobs:
       if: 'inputs.milestone != '''' || !inputs.skip_ghsa_check'
       working-directory: tools/release
       env:
+        # Route inputs through env so shell-metachars in operator-
+        # provided values can't break out of task-argument quoting.
         GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        MILESTONE: ${{ inputs.milestone }}
+        SKIP_MILESTONE: ${{ inputs.milestone == '' && '1' || '' }}
+        SKIP_GHSA: ${{ inputs.skip_ghsa_check && '1' || '' }}
       run: >-
         task preflight
-        MILESTONE='${{ inputs.milestone }}'
-        SKIP_MILESTONE='${{ inputs.milestone == '' && '1' || '' }}'
-        SKIP_GHSA='${{ inputs.skip_ghsa_check && '1' || '' }}'
+        MILESTONE="$MILESTONE"
+        SKIP_MILESTONE="$SKIP_MILESTONE"
+        SKIP_GHSA="$SKIP_GHSA"
 
     - name: Build theme styles
       if: inputs.copy_styles
@@ -173,33 +184,49 @@ jobs:
 
     - name: Assemble patch
       working-directory: tools/release
+      env:
+        VERSION_START: ${{ inputs.version_start }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        PATCH_FILENAME: ${{ inputs.patch_filename }}
+        COPY_STYLES: ${{ inputs.copy_styles }}
       run: >-
         task patch:assemble
-        START_TAG='${{ inputs.version_start }}'
-        BRANCH='${{ inputs.version_branch }}'
-        FILENAME='${{ inputs.patch_filename }}'
-        OPENEMR_DIR='${{ github.workspace }}'
-        COPY_STYLES='${{ inputs.copy_styles }}'
+        START_TAG="$VERSION_START"
+        BRANCH="$VERSION_BRANCH"
+        FILENAME="$PATCH_FILENAME"
+        OPENEMR_DIR="$GITHUB_WORKSPACE"
+        COPY_STYLES="$COPY_STYLES"
 
     - name: Generate checksums
       working-directory: tools/release
+      env:
+        PATCH_FILENAME: ${{ inputs.patch_filename }}
       run: >-
         task checksum
-        FILE='${{ inputs.patch_filename }}'
+        FILE="$PATCH_FILENAME"
 
     - name: Build summary
       working-directory: tools/release
+      env:
+        MILESTONE: ${{ inputs.milestone }}
+        VERSION_START: ${{ inputs.version_start }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        PATCH_FILENAME: ${{ inputs.patch_filename }}
+        PATCH_NUMBER: ${{ inputs.patch_number }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        DRY_RUN: ${{ inputs.dry_run }}
+        COPY_STYLES: ${{ inputs.copy_styles }}
       run: >-
         task summary
         TYPE=patch
-        MILESTONE='${{ inputs.milestone }}'
-        START_TAG='${{ inputs.version_start }}'
-        VERSION_BRANCH='${{ inputs.version_branch }}'
-        PATCH_FILENAME='${{ inputs.patch_filename }}'
-        PATCH_NUMBER='${{ inputs.patch_number }}'
-        RELEASE_TAG='${{ inputs.release_tag }}'
-        DRY_RUN='${{ inputs.dry_run }}'
-        COPY_STYLES='${{ inputs.copy_styles }}'
+        MILESTONE="$MILESTONE"
+        START_TAG="$VERSION_START"
+        VERSION_BRANCH="$VERSION_BRANCH"
+        PATCH_FILENAME="$PATCH_FILENAME"
+        PATCH_NUMBER="$PATCH_NUMBER"
+        RELEASE_TAG="$RELEASE_TAG"
+        DRY_RUN="$DRY_RUN"
+        COPY_STYLES="$COPY_STYLES"
 
     - name: Upload workflow artifact (dry run)
       if: inputs.dry_run
@@ -218,9 +245,12 @@ jobs:
       if: '!inputs.dry_run'
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        PATCH_FILENAME: ${{ inputs.patch_filename }}
       run: |
-        tag='${{ inputs.release_tag }}'
-        output_dir='${{ github.workspace }}/tools/release/release-output'
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
 
         git config user.name 'github-actions[bot]'
         git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -228,7 +258,7 @@ jobs:
         if git rev-parse "$tag" > /dev/null 2>&1; then
           echo "Tag $tag already exists, skipping tag creation"
         else
-          git tag -a -m "Patch release $tag" "$tag" '${{ inputs.version_branch }}'
+          git tag -a -m "Patch release $tag" "$tag" "$VERSION_BRANCH"
           git push origin "$tag"
         fi
 
@@ -242,8 +272,8 @@ jobs:
 
         gh release upload "$tag" \
           --repo openemr/openemr \
-          "${output_dir}/${{ inputs.patch_filename }}" \
-          "${output_dir}/${{ inputs.patch_filename }}.md5" \
-          "${output_dir}/${{ inputs.patch_filename }}.sha256" \
-          "${output_dir}/${{ inputs.patch_filename }}.sha512" \
+          "${output_dir}/${PATCH_FILENAME}" \
+          "${output_dir}/${PATCH_FILENAME}.md5" \
+          "${output_dir}/${PATCH_FILENAME}.sha256" \
+          "${output_dir}/${PATCH_FILENAME}.sha512" \
           --clobber

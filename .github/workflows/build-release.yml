@@ -110,6 +110,10 @@ jobs:
   build-release:
     runs-on: ubuntu-24.04
     name: Build Release
+    # Cap runtime. Package assembly + tag/release is under 15 min in
+    # normal runs; the GitHub-default 6h ceiling would let a hung
+    # composer/npm/git step burn runner minutes if something wedged.
+    timeout-minutes: 30
     steps:
     - name: Validate inputs
       if: "!inputs.dry_run && inputs.release_tag == ''"
@@ -159,12 +163,19 @@ jobs:
       if: '(!inputs.skip_milestone_check && inputs.milestone != '''') || !inputs.skip_ghsa_check'
       working-directory: tools/release
       env:
+        # Route inputs through env so shell-metachars in operator-
+        # provided values can't break out of task-argument quoting.
+        # Task itself calls shellQuote on the value again; belt +
+        # suspenders.
         GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        MILESTONE: ${{ inputs.milestone }}
+        SKIP_MILESTONE: ${{ (inputs.skip_milestone_check || inputs.milestone == '') && '1' || '' }}
+        SKIP_GHSA: ${{ inputs.skip_ghsa_check && '1' || '' }}
       run: >-
         task preflight
-        MILESTONE='${{ inputs.milestone }}'
-        SKIP_MILESTONE='${{ (inputs.skip_milestone_check || inputs.milestone == '') && '1' || '' }}'
-        SKIP_GHSA='${{ inputs.skip_ghsa_check && '1' || '' }}'
+        MILESTONE="$MILESTONE"
+        SKIP_MILESTONE="$SKIP_MILESTONE"
+        SKIP_GHSA="$SKIP_GHSA"
 
     # Extract the target version's section from CHANGELOG.md for the
     # GitHub Release body + release-notes asset. Content is pre-computed
@@ -195,24 +206,31 @@ jobs:
 
     - name: Build distribution package
       working-directory: tools/release
+      env:
+        RELEASE_VERSION: ${{ inputs.version }}
       run: >-
         task package:assemble
-        VERSION='${{ inputs.version }}'
-        OPENEMR_DIR='${{ github.workspace }}'
+        VERSION="$RELEASE_VERSION"
+        OPENEMR_DIR="$GITHUB_WORKSPACE"
 
     - name: Generate checksums
       working-directory: tools/release
+      env:
+        RELEASE_VERSION: ${{ inputs.version }}
       run: |
-        task checksum FILE="openemr-${{ inputs.version }}.tar.gz"
-        task checksum FILE="openemr-${{ inputs.version }}.zip"
+        task checksum FILE="openemr-${RELEASE_VERSION}.tar.gz"
+        task checksum FILE="openemr-${RELEASE_VERSION}.zip"
 
     - name: Create annotated tag and GitHub release
       if: '!inputs.dry_run'
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        RELEASE_VERSION: ${{ inputs.version }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
       run: |
-        tag='${{ inputs.release_tag }}'
-        output_dir='${{ github.workspace }}/tools/release/release-output'
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
 
         git config user.name 'github-actions[bot]'
         git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -235,7 +253,7 @@ jobs:
             echo "Tag $tag already exists on origin, skipping tag creation"
             ;;
           2)
-            git tag -a -m "Release $tag" "$tag" '${{ inputs.version_branch }}'
+            git tag -a -m "Release $tag" "$tag" "$VERSION_BRANCH"
             git push origin "$tag"
             ;;
           *)
@@ -248,7 +266,7 @@ jobs:
           echo "Creating release $tag"
           gh release create "$tag" \
             --repo openemr/openemr \
-            --title "OpenEMR ${{ inputs.version }}" \
+            --title "OpenEMR $RELEASE_VERSION" \
             --notes-file "${output_dir}/changelog.md" \
             --verify-tag
         fi
@@ -257,15 +275,17 @@ jobs:
       if: '!inputs.dry_run'
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        RELEASE_VERSION: ${{ inputs.version }}
       run: |
-        tag='${{ inputs.release_tag }}'
-        output_dir='${{ github.workspace }}/tools/release/release-output'
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
 
         gh release upload "$tag" \
           --repo openemr/openemr \
           --clobber \
-          "${output_dir}/openemr-${{ inputs.version }}.tar.gz" \
-          "${output_dir}/openemr-${{ inputs.version }}.zip" \
+          "${output_dir}/openemr-${RELEASE_VERSION}.tar.gz" \
+          "${output_dir}/openemr-${RELEASE_VERSION}.zip" \
           "${output_dir}"/*.md5 \
           "${output_dir}"/*.sha256 \
           "${output_dir}"/*.sha512 \
@@ -273,13 +293,18 @@ jobs:
 
     - name: Build summary
       working-directory: tools/release
+      env:
+        MILESTONE: ${{ inputs.milestone }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        DRY_RUN: ${{ inputs.dry_run }}
       run: >-
         task summary
         TYPE=full
-        MILESTONE='${{ inputs.milestone }}'
-        VERSION_BRANCH='${{ inputs.version_branch }}'
-        RELEASE_TAG='${{ inputs.release_tag }}'
-        DRY_RUN='${{ inputs.dry_run }}'
+        MILESTONE="$MILESTONE"
+        VERSION_BRANCH="$VERSION_BRANCH"
+        RELEASE_TAG="$RELEASE_TAG"
+        DRY_RUN="$DRY_RUN"
 
     - name: Upload artifacts (dry run)
       if: inputs.dry_run

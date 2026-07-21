@@ -40,6 +40,10 @@ jobs:
   derive:
     name: Derive build inputs
     runs-on: ubuntu-24.04
+    # Cap runtime. This job just resolves the tag envelope into
+    # version/branch/release_tag lines (composer install + a single
+    # PHP CLI); anything past a few minutes indicates something wedged.
+    timeout-minutes: 10
     outputs:
       version: ${{ steps.inputs.outputs.version }}
       version_branch: ${{ steps.inputs.outputs.version_branch }}
