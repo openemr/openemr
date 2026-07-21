@@ -259,11 +259,29 @@ if git cat-file -e "HEAD:.github/byte-identical.yml" 2>/dev/null; then
     declare -a REL_PATHS_UNDER_REL_CONFIG=()
     expand_patterns_into HEAD REL_FILES_ALL REL_PATHS_UNDER_REL_CONFIG
 
-    # Set difference (rel-managed - master-managed). Both are already
-    # sorted by expand_patterns_into.
+    # Set difference: paths rel's manifest sees that the main loop did NOT
+    # already handle. "Already handled" is anything in FILES_TO_CHECK
+    # (MASTER_PATHS ∪ REL_PATHS_UNDER_MASTER_CONFIG) -- the main loop
+    # processed each of those exactly once. Subtracting just MASTER_PATHS
+    # here would miss the "shared glob catches old-name file on rel"
+    # case: when master's and rel's manifests both list e.g. `tools/**`
+    # and rel's tree still carries an old-name file master's tree dropped,
+    # master's glob expansion against HEAD picks it up via
+    # REL_PATHS_UNDER_MASTER_CONFIG, the main loop deletes it, and the
+    # sweep would then re-encounter the same path (still present at
+    # HEAD's commit, even though the main loop `git rm`'d it from the
+    # index) and try to `git rm` an already-removed file -- exit 128
+    # with "pathspec did not match any files". Concrete trip: Phase 3b
+    # renamed tools/release/src/DocsRefreshResult.php ->
+    # DownstreamRefreshResult.php while both master's and rel-820's
+    # manifests list `tools/release/**`.
+    #
+    # Both operand lists are already sorted (FILES_TO_CHECK by `sort -u`
+    # at construction, REL_PATHS_UNDER_REL_CONFIG by expand_patterns_into's
+    # contract), so comm(1)'s sort precondition is satisfied.
     rel_only=$(comm -23 \
       <(printf '%s\n' "${REL_PATHS_UNDER_REL_CONFIG[@]}") \
-      <(printf '%s\n' "${MASTER_PATHS[@]}"))
+      <(printf '%s\n' "${FILES_TO_CHECK[@]}"))
 
     if [[ -n "${rel_only}" ]]; then
       while IFS= read -r STALE; do
