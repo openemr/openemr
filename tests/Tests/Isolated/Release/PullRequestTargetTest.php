@@ -18,11 +18,11 @@ use PHPUnit\Framework\TestCase;
 
 final class PullRequestTargetTest extends TestCase
 {
-    public function testForReleaseProducesConductorDocsInOrder(): void
+    public function testForReleaseProducesConductorDocsFinalizeInOrder(): void
     {
         $targets = PullRequestTarget::forRelease('8.1.0', 'rel-810');
 
-        self::assertCount(2, $targets);
+        self::assertCount(3, $targets);
         self::assertSame(RoleLabel::Conductor, $targets[0]->roleLabel);
         self::assertSame('openemr/openemr', $targets[0]->repo);
         self::assertSame('release-prep/rel-810', $targets[0]->branch);
@@ -34,5 +34,11 @@ final class PullRequestTargetTest extends TestCase
         self::assertSame('release-docs/8.1.0', $targets[1]->branch);
         self::assertSame('master', $targets[1]->expectedBase);
         self::assertSame(2, $targets[1]->mergeOrder);
+
+        self::assertSame(RoleLabel::Finalize, $targets[2]->roleLabel);
+        self::assertSame('openemr/openemr', $targets[2]->repo);
+        self::assertSame('release-finalize/rel-810', $targets[2]->branch);
+        self::assertSame('master', $targets[2]->expectedBase);
+        self::assertSame(3, $targets[2]->mergeOrder);
     }
 }

@@ -37,8 +37,8 @@ flowchart TB
         docsPR(["release-docs/&lt;version&gt; PR<br/>reviewable"])
     end
 
-    subgraph od["openemr/openemr-devops"]
-        ship{{"ship-release.yml<br/>merges 2 PRs in order"}}
+    subgraph od["openemr/openemr"]
+        ship{{"ship-release.yml<br/>merges 3 PRs in order<br/>(semi-auto | full-auto | dry-run)"}}
     end
 
     subgraph df["openemr/demo_farm_openemr"]
@@ -194,7 +194,7 @@ This document describes the *process*. The *current* state lives in Git and the 
   gh release view vX_Y_Z --repo openemr/openemr   # 404 here after a tag = the historical v8.1.0 failure (step 10/11)
   ```
 
-- **Shipping.** `ship-release.yml` inputs are `version` (e.g. `8.1.0`), `rel_branch` (e.g. `rel-810`), `dry_run` (bool). Validate before merging: `gh workflow run ship-release.yml --repo openemr/openemr-devops -f version=X.Y.Z -f rel_branch=rel-XY0 -f dry_run=true`.
+- **Shipping.** `ship-release.yml` inputs are `version` (e.g. `8.2.0`), `rel_branch` (e.g. `rel-820`), `mode` (choice: `semi-auto` default | `full-auto` | `dry-run`), `dry_run` (bool; legacy alias — wins over `mode` when true). Validate before merging: `gh workflow run ship-release.yml --repo openemr/openemr -f version=X.Y.Z -f rel_branch=rel-XY0 -f mode=dry-run`. Semi-auto merges Conductor and leaves Docs+Finalize for manual review; full-auto merges all three after waiting for the GitHub Release object to exist (proxy for build-release-on-tag completing). See `.github/workflows/ship-release.yml` header for the full mode matrix.
 
 - **When to escalate to a human / org owner.** An automated agent cannot: merge the conductor PR (cuts a public tag — a go/no-go decision), or set/rotate the release-App credentials (`vars.RELEASE_APP_CLIENT_ID` and `secrets.RELEASE_APP_PRIVATE_KEY`). If a consumer's auth fails, run that repo's `release-permissions-check.yml`; if it reports a missing credential or permission, stop and escalate — only an org owner can fix it.
 
@@ -223,15 +223,23 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 
 The conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and fires the `openemr-tag` cascade for the Release object). Announcement drafts fire later — on the docs PR merge itself (runbook step 16), not on `openemr-tag`. The conductor PR creates the tag first; the remaining bot-created PRs land after the tag exists, in the following order:
 
-1. **Conductor PR** (`openemr/openemr` `release-prep/<rel-branch>`) — merges to rel-branch, creates the annotated tag. Includes the finalized `CHANGELOG.md` entry for the rel-branch side. *Merged by ship-release (step 9).*
-2. **Finalize-on-master PR** (`openemr/openemr` `release-finalize/<rel-branch>`) — auto-updated by the `finalize` job post-tag, flipped from draft to ready-for-review with a signal comment; lands the master-side `release-targets.yml` rotation and the matching master-side `CHANGELOG.md` entry (regenerated post-tag against `vNEW` so master and rel-branch land the identical block). Don't merge while it's still in draft state — the draft flag is the "post-tag update hasn't happened yet" indicator. *Merged manually by a maintainer once the draft→ready flip happens — not driven by ship-release.*
-3. **Docs PR** (`openemr/website-openemr` `release-docs/<version>`) — ships the now-FINAL pages on the website. *Merged by ship-release (step 9), which handles items 1 and 3 as the two `repository_dispatch`-coupled sibling PRs.*
+1. **Conductor PR** (`openemr/openemr` `release-prep/<rel-branch>`) — merges to rel-branch, creates the annotated tag. Includes the finalized `CHANGELOG.md` entry for the rel-branch side. *Merged by ship-release (step 9) in every mode except dry-run.*
+2. **Finalize-on-master PR** (`openemr/openemr` `release-finalize/<rel-branch>`) — auto-updated by the `finalize` job post-tag, flipped from draft to ready-for-review with a signal comment; lands the master-side `release-targets.yml` rotation and the matching master-side `CHANGELOG.md` entry (regenerated post-tag against `vNEW` so master and rel-branch land the identical block). Don't merge while it's still in draft state — the draft flag is the "post-tag update hasn't happened yet" indicator. *Merged by ship-release in full-auto mode (after waiting for the GitHub Release object to exist + the finalize PR's post-tag flip); in semi-auto mode, marked SKIPPED_BY_MODE and left for the maintainer to merge manually after review.*
+3. **Docs PR** (`openemr/website-openemr` `release-docs/<version>`) — ships the now-FINAL pages on the website. *Merged by ship-release in full-auto mode; in semi-auto mode, marked SKIPPED_BY_MODE and left for manual merge.*
 
 The demo-farm reconciliation runs on its own track — see step 15.
 
-> **Manual prerequisite before triggering ship-release:** the `release-docs/<version>` PR on `website-openemr` is opened as a GitHub **draft** by its generator workflow. An operator must mark it Ready in the GitHub UI before ship-release.yml's preflight will pass — preflight rejects draft PRs as "not ready" (`PullRequestReadiness` checks `isDraft`). Once the docs PR is Ready, ship-release.yml merges both PRs (conductor → docs) in order. Automating the mark-Ready step on `openemr-tag` is a tracked gap — see [Automation gaps](#automation-gaps).
+> **Manual prerequisite for full-auto mode:** the `release-docs/<version>` PR on `website-openemr` is opened as a GitHub **draft** by its generator workflow. Full-auto ship-release will wait for the docs PR to be Ready (blocking after conductor merge) — currently an operator must flip it manually in the GitHub UI, so full-auto still requires one manual click mid-workflow. Automating the auto-flip on `openemr-tag` is a tracked gap that closes true hands-off full-auto — see [Automation gaps](#automation-gaps) step 9. Semi-auto mode doesn't hit this: it merges Conductor only and leaves the docs PR for full manual review + merge (which includes the maintainer's manual flip).
 
-9. **[Automated]** Run the **ship-release workflow** in `openemr-devops` (`workflow_dispatch` on `.github/workflows/ship-release.yml`, or `task release:ship` locally for a dry-run). One operator action: pick the version + rel-branch and trigger. The workflow locates the two sibling PRs by branch convention, posts a `release/ship-approved` commit status on each, and merges in order (conductor → docs) with mergeability gates between steps. Already-merged PRs are detected and skipped (so the same trigger handles the replayable PR-merge recovery cases — see [Partial merges and recovery](#partial-merges-and-recovery); docs-first and out-of-band-tag states still need manual handling). The docs PR must already be marked Ready (see the prerequisite note above) — preflight blocks otherwise.
+9. **[Automated]** Run the **ship-release workflow** in `openemr/openemr` (`workflow_dispatch` on `.github/workflows/ship-release.yml`, or `task ship-release` locally for a dry-run). One operator action: pick the version + rel-branch + mode and trigger.
+
+   **Modes (`mode` input, default `semi-auto`):**
+
+   - **`semi-auto`** (default): merges Conductor PR only. Docs + Finalize PRs marked SKIPPED_BY_MODE (still success — exit 0), left for maintainer to review + merge manually. Use for the first 1-2 releases after wiring up the automation so surprising mutator/EHI/finalize output can be caught in review before committing to full-auto.
+   - **`full-auto`**: merges all three (Conductor → Docs → Finalize). After Conductor merge, waits for the GitHub Release object to exist (proxy for build-release-on-tag completing package assembly + upload) before proceeding to Docs. Waits for each downstream PR's post-tag HEAD SHA update + readiness (asymmetric approval gate: Conductor requires APPROVED, Docs + Finalize don't since they're bot-authored). True "one command go" once the docs auto-flip (step-9 gap) closes.
+   - **`dry-run`**: preflight only, probe every PR's readiness and print a report, merge nothing. `dry_run: true` still supported as a legacy alias and always wins over `mode` when set.
+
+   The workflow locates the 3 sibling PRs by branch convention, posts a `release/ship-approved` commit status on each PR head before merging it, and enforces merge order Conductor → Docs → Finalize with mergeability gates between steps. Already-merged PRs are detected and skipped (so the same trigger handles the replayable PR-merge recovery cases — see [Partial merges and recovery](#partial-merges-and-recovery); docs-first and out-of-band-tag states still need manual handling). In full-auto mode, the docs PR must be Ready before ship-release can merge it — currently a manual flip (see the prerequisite note above), automating on Phase 3c.
 
    **Manual fallback** (only if the workflow is unavailable): merge in order — conductor PR (creates the annotated tag), then docs PR (flips DRAFT → FINAL). Direct merges should be blocked by branch protection requiring the `release/ship-approved` status the workflow posts; admin-override the protection only if the workflow itself is broken.
 

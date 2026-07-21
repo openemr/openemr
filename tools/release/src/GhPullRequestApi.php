@@ -49,7 +49,7 @@ final readonly class GhPullRequestApi implements PullRequestApi
         );
     }
 
-    public function getReadiness(string $repo, int $number): PullRequestReadiness
+    public function getReadiness(string $repo, int $number, bool $requireApproval = true): PullRequestReadiness
     {
         $process = new Process([
             'gh', 'pr', 'view', (string) $number,
@@ -82,7 +82,7 @@ final readonly class GhPullRequestApi implements PullRequestApi
         if ($data['mergeStateStatus'] !== 'CLEAN') {
             $reasons[] = sprintf('mergeStateStatus=%s (need CLEAN)', $data['mergeStateStatus']);
         }
-        if (($data['reviewDecision'] ?? null) !== 'APPROVED') {
+        if ($requireApproval && ($data['reviewDecision'] ?? null) !== 'APPROVED') {
             $reasons[] = sprintf(
                 'reviewDecision=%s (need APPROVED)',
                 $data['reviewDecision'] ?? 'null',
@@ -146,6 +146,17 @@ final readonly class GhPullRequestApi implements PullRequestApi
         }
         $process = new Process($argv);
         $process->mustRun();
+    }
+
+    public function releaseExists(string $repo, string $tag): bool
+    {
+        $process = new Process([
+            'gh', 'release', 'view', $tag,
+            '--repo', $repo,
+            '--json', 'name',
+        ]);
+        $process->run();
+        return $process->isSuccessful();
     }
 
     public function squashMerge(string $repo, int $number, string $expectedHeadSha): string

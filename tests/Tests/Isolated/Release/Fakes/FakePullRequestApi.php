@@ -48,6 +48,18 @@ class FakePullRequestApi implements PullRequestApi
     /** @var array<string, int> */
     private array $findCalls = [];
 
+    /** @var array<string, bool> release-existence flags by "repo|tag" */
+    private array $releaseExistsByKey = [];
+
+    /** @var array<string, int> "repo|tag" => number of successful checks required before returning true */
+    private array $releaseExistsAfterCalls = [];
+
+    /** @var array<string, int> */
+    private array $releaseExistsCalls = [];
+
+    /** @var list<array{repo: string, number: int, requireApproval: bool}> */
+    public array $readinessCalls = [];
+
     public function setSnapshot(string $repo, string $branch, ?PullRequestSnapshot $snapshot): void
     {
         $this->snapshotsByKey[$this->branchKey($repo, $branch)] = $snapshot;
@@ -87,6 +99,21 @@ class FakePullRequestApi implements PullRequestApi
         $this->mergeShas[$this->prKey($repo, $number)] = $sha;
     }
 
+    public function setReleaseExists(string $repo, string $tag, bool $exists): void
+    {
+        $this->releaseExistsByKey[$this->releaseKey($repo, $tag)] = $exists;
+    }
+
+    /**
+     * Return false for the first $afterNCalls invocations of releaseExists()
+     * on $repo+$tag, then true forever after. Used to simulate the release
+     * object appearing partway through the orchestrator's polling loop.
+     */
+    public function setReleaseExistsAfterCalls(string $repo, string $tag, int $afterNCalls): void
+    {
+        $this->releaseExistsAfterCalls[$this->releaseKey($repo, $tag)] = $afterNCalls;
+    }
+
     public function findByHead(string $repo, string $branch): ?PullRequestSnapshot
     {
         $key = $this->branchKey($repo, $branch);
@@ -98,8 +125,9 @@ class FakePullRequestApi implements PullRequestApi
         return $this->snapshotsByKey[$key] ?? null;
     }
 
-    public function getReadiness(string $repo, int $number): PullRequestReadiness
+    public function getReadiness(string $repo, int $number, bool $requireApproval = true): PullRequestReadiness
     {
+        $this->readinessCalls[] = ['repo' => $repo, 'number' => $number, 'requireApproval' => $requireApproval];
         $key = $this->prKey($repo, $number);
         if (isset($this->readinessQueue[$key]) && $this->readinessQueue[$key] !== []) {
             $next = array_shift($this->readinessQueue[$key]);
@@ -110,6 +138,21 @@ class FakePullRequestApi implements PullRequestApi
             throw new \RuntimeException("No readiness configured for {$key}");
         }
         return $this->readinessByPr[$key];
+    }
+
+    public function releaseExists(string $repo, string $tag): bool
+    {
+        $key = $this->releaseKey($repo, $tag);
+        $this->releaseExistsCalls[$key] = ($this->releaseExistsCalls[$key] ?? 0) + 1;
+        if (isset($this->releaseExistsAfterCalls[$key])) {
+            return $this->releaseExistsCalls[$key] > $this->releaseExistsAfterCalls[$key];
+        }
+        return $this->releaseExistsByKey[$key] ?? false;
+    }
+
+    public function getReleaseExistsCallCount(string $repo, string $tag): int
+    {
+        return $this->releaseExistsCalls[$this->releaseKey($repo, $tag)] ?? 0;
     }
 
     public function postCommitStatus(
@@ -144,5 +187,10 @@ class FakePullRequestApi implements PullRequestApi
     private function prKey(string $repo, int $number): string
     {
         return $repo . '#' . $number;
+    }
+
+    private function releaseKey(string $repo, string $tag): string
+    {
+        return $repo . '|' . $tag;
     }
 }

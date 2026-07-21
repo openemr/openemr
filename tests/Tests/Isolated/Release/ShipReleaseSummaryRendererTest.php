@@ -92,6 +92,43 @@ final class ShipReleaseSummaryRendererTest extends TestCase
         self::assertStringContainsString('| docs | `openemr/website-openemr` | — | · not reached | — |', $md);
     }
 
+    public function testSkippedByModeRendersReasonAndCountsAsSuccess(): void
+    {
+        // SemiAuto: Conductor merged, Docs + Finalize deliberately skipped.
+        // The overall result is a success (operator got exactly what they
+        // asked for) and the skipped rows show the reason so it's visually
+        // distinct from a "not reached" failure.
+        $result = new ShipReleaseResult([
+            $this->step(RoleLabel::Conductor, 'openemr/openemr', ShipReleaseStepStatus::MERGED, 22, 'abc1234'),
+            $this->step(
+                RoleLabel::Docs,
+                'openemr/website-openemr',
+                ShipReleaseStepStatus::SKIPPED_BY_MODE,
+                33,
+                null,
+                ['semi-auto: downstream PR left for manual merge'],
+            ),
+            $this->step(
+                RoleLabel::Finalize,
+                'openemr/openemr',
+                ShipReleaseStepStatus::SKIPPED_BY_MODE,
+                44,
+                null,
+                ['semi-auto: downstream PR left for manual merge'],
+            ),
+        ]);
+
+        $md = ShipReleaseSummaryRenderer::render('8.1.0', 'rel-810', false, $result);
+
+        self::assertStringContainsString('- **Result:** ✅ success', $md);
+        self::assertStringContainsString(
+            '| docs | `openemr/website-openemr` '
+            . '| [#33](https://github.com/openemr/website-openemr/pull/33) '
+            . '| ↷ skipped (by mode) | semi-auto: downstream PR left for manual merge |',
+            $md,
+        );
+    }
+
     /**
      * @param list<string> $reasons
      */
