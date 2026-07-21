@@ -71,6 +71,7 @@ final readonly class ShipReleaseSummaryRenderer
         return match ($status) {
             ShipReleaseStepStatus::MERGED => '✅ merged',
             ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED => '↷ already merged',
+            ShipReleaseStepStatus::SKIPPED_BY_MODE => '↷ skipped (by mode)',
             ShipReleaseStepStatus::WOULD_MERGE => '✅ would merge',
             ShipReleaseStepStatus::BLOCKED => '❌ blocked',
             ShipReleaseStepStatus::NOT_REACHED => '· not reached',
@@ -82,6 +83,7 @@ final readonly class ShipReleaseSummaryRenderer
         return match ($step->status) {
             ShipReleaseStepStatus::MERGED => '`' . ($step->mergeSha ?? '?') . '`',
             ShipReleaseStepStatus::BLOCKED => self::reasons($step),
+            ShipReleaseStepStatus::SKIPPED_BY_MODE => self::reasons($step),
             ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED,
             ShipReleaseStepStatus::WOULD_MERGE,
             ShipReleaseStepStatus::NOT_REACHED => '—',

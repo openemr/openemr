@@ -46,6 +46,14 @@ final readonly class ShipReleaseRenderer
             ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED => [
                 sprintf('<comment>↷ skipped</comment> %s %s (already merged)', $tag, $pr),
             ],
+            ShipReleaseStepStatus::SKIPPED_BY_MODE => [
+                sprintf(
+                    '<comment>↷ skipped</comment> %s %s (%s)',
+                    $tag,
+                    $pr,
+                    $step->reasons[0] ?? 'skipped by mode',
+                ),
+            ],
             ShipReleaseStepStatus::WOULD_MERGE => [
                 sprintf('<info>✓ ready</info>    %s %s (dry-run: would merge)', $tag, $pr),
             ],

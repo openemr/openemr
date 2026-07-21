@@ -27,10 +27,19 @@ final readonly class PullRequestTarget
     }
 
     /**
-     * Build the canonical conductor → docs target list for a release.
+     * Build the canonical conductor → finalize → docs target list for a release.
      *
      * Branch name conventions are defined in openemr-devops#705 and #664.
-     * Conductor merges into the rel-<n> branch, docs into master.
+     * Conductor merges into the rel-<n> branch, finalize into master, docs
+     * into master.
+     *
+     * Docs is intentionally last because it will trigger the future auto-
+     * announce pipeline (release-announcements.yml on pull_request:closed),
+     * and by then packages + dockers should be as-ready-as-possible.
+     * Finalize before Docs so its release-targets.yml update starts the
+     * docker cascade earlier; dockers publish independently on cron so
+     * they'll catch up even if the announce beats them, but starting sooner
+     * is nice-to-have.
      *
      * @return list<self>
      */
@@ -38,7 +47,8 @@ final readonly class PullRequestTarget
     {
         return [
             new self('openemr/openemr', "release-prep/{$relBranch}", $relBranch, RoleLabel::Conductor, 1),
-            new self('openemr/website-openemr', "release-docs/{$version}", 'master', RoleLabel::Docs, 2),
+            new self('openemr/openemr', "release-finalize/{$relBranch}", 'master', RoleLabel::Finalize, 2),
+            new self('openemr/website-openemr', "release-docs/{$version}", 'master', RoleLabel::Docs, 3),
         ];
     }
 }
