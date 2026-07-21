@@ -367,7 +367,7 @@ final readonly class ShipReleaseOrchestrator
             }
             if ($target->roleLabel === RoleLabel::Docs || $target->roleLabel === RoleLabel::Finalize) {
                 $refresh = $this->refreshDownstreamBeforeMerge($target, $snapshot, $snapshots, $mergedThisRun);
-                if ($refresh instanceof DocsRefreshResult) {
+                if ($refresh instanceof DownstreamRefreshResult) {
                     if (!$refresh->isSuccess()) {
                         $steps[] = $this->blockedStep($target, $refresh->snapshot?->number, $refresh->blockingReasons);
                         $stopReason = $refresh->stopReason;
@@ -516,7 +516,7 @@ final readonly class ShipReleaseOrchestrator
         PullRequestSnapshot $current,
         array $snapshots,
         array $mergedThisRun,
-    ): ?DocsRefreshResult {
+    ): ?DownstreamRefreshResult {
         $conductorJustMerged = in_array(RoleLabel::Conductor, $mergedThisRun, true);
         $conductorPreviouslyMerged = ($snapshots[RoleLabel::Conductor->value] ?? null)?->isMerged() ?? false;
         if (!$conductorJustMerged && !$conductorPreviouslyMerged) {
@@ -531,14 +531,14 @@ final readonly class ShipReleaseOrchestrator
                     $target->roleLabel->value,
                     $current->headRefOid,
                 );
-                return DocsRefreshResult::blocked($fresh, $reason, [$reason]);
+                return DownstreamRefreshResult::blocked($fresh, $reason, [$reason]);
             }
         } else {
             $fresh = $this->api->findByHead($target->repo, $target->branch);
         }
         if (!$fresh instanceof PullRequestSnapshot) {
             $disappeared = sprintf('%s PR disappeared before merge', $target->roleLabel->value);
-            return DocsRefreshResult::blocked(null, $disappeared, [$disappeared]);
+            return DownstreamRefreshResult::blocked(null, $disappeared, [$disappeared]);
         }
         $readiness = $this->api->getReadiness(
             $target->repo,
@@ -552,9 +552,9 @@ final readonly class ShipReleaseOrchestrator
                     '%s PR not ready (re-checked after conductor was already merged)',
                     $target->roleLabel->value,
                 );
-            return DocsRefreshResult::blocked($fresh, $stopReason, $readiness->blockingReasons);
+            return DownstreamRefreshResult::blocked($fresh, $stopReason, $readiness->blockingReasons);
         }
-        return DocsRefreshResult::success($fresh, $readiness);
+        return DownstreamRefreshResult::success($fresh, $readiness);
     }
 
     /**
