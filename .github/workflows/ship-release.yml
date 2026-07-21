@@ -1,23 +1,59 @@
 name: Ship Release
 
-# Manually-triggered orchestration for the two-PR release flow (#705):
-# merges conductor → docs in strict order, skipping any already merged
-# (so the same trigger handles partial-merge recovery), and refusing to merge
-# anything if any unmerged PR is not ready. Mints one App token with PR-write
-# on both repos and posts a release/ship-approved commit status on each
-# PR head before merging it (so branch protection can require it later).
+# Manually-triggered orchestration for the three-PR release flow (#705):
+# merges conductor → finalize → docs in strict order, skipping any already
+# merged (so the same trigger handles partial-merge recovery), and refusing
+# to merge anything if any unmerged PR is not ready. Mints one App token
+# with PR-write on the target repos and posts a release/ship-approved
+# commit status on each PR head before merging it (so branch protection can
+# require it later).
 #
-# **Operator convention: dispatch from master.** The workflow orchestrates PR
-# merges via `gh` CLI against branches specified in the inputs (rel_branch +
-# derived docs/finalize branches). It never touches the workflow's own git
-# state, so it doesn't need to be dispatched from a rel branch. Standardizing
-# on master-dispatch keeps the mental model clean (ship-release is an
-# orchestrator, not tied to any specific rel branch) and avoids the need for
-# .github/byte-identical.yml sync — the master copy is authoritative and the
-# only one that ever fires.
+# **Execution modes** (workflow_dispatch `mode` input):
 #
-# Migrated from openemr/openemr-devops in workstream 7 Phase 3 (~2026-07-21).
-# See docs/release-mechanism-migration-from-devops.md.
+#   dry-run    Preflight only. Probe every PR's readiness and print a
+#              report; merge nothing. `dry_run: true` still supported and
+#              always wins over `mode` for muscle memory / script compat.
+#
+#   semi-auto  Preflight + merge Conductor PR only. Docs and Finalize PRs
+#              are marked SKIPPED_BY_MODE (still a success — exit 0);
+#              maintainer merges them manually after eyeballing the
+#              post-tag content. Intended for the first 1-2 releases after
+#              wiring up the automation so any surprising mutator output
+#              can be caught before committing to full-auto. **Default.**
+#
+#   full-auto  Preflight + merge all three. Merges Conductor first, then
+#              waits for the GitHub Release object to exist (proxy for
+#              build-release-on-tag completing package assembly + upload,
+#              per workstream 7 Phase 3 design decision B; blocks both
+#              downstream merges if packaging failed so dockers +
+#              announcements don't fire on top of a broken release),
+#              then merges Finalize (which triggers the docker cascade
+#              via its release-targets.yml update), then Docs last.
+#              Docs merge triggers the future auto-announce pipeline;
+#              by then packages exist and dockers are building. Real
+#              "one command go." Requires the docs-PR auto-flip on
+#              openemr/website-openemr for true hands-off (Phase 3c);
+#              without it, maintainer still has to manually flip the
+#              docs PR to ready-for-review before ship-release can
+#              merge it.
+#
+# **Approval gate is asymmetric.** Conductor requires
+# reviewDecision=APPROVED (the one meaningful human review point in the
+# pipeline). Docs + Finalize are auto-generated bot content; their
+# readiness checks skip the APPROVED requirement while still enforcing
+# not-draft + MERGEABLE + CLEAN + green status checks.
+#
+# **Operator convention: dispatch from master.** The workflow orchestrates
+# PR merges via `gh` CLI against branches specified in the inputs
+# (rel_branch + derived docs/finalize branches). It never touches the
+# workflow's own git state, so it doesn't need to be dispatched from a rel
+# branch. Standardizing on master-dispatch keeps the mental model clean
+# (ship-release is an orchestrator, not tied to any specific rel branch)
+# and avoids .github/byte-identical.yml sync — the master copy is
+# authoritative and the only one that ever fires.
+#
+# Migrated from openemr/openemr-devops in workstream 7 Phase 3 (2026-07-21).
+# See docs/release-mechanism-migration-from-devops.md for the full history.
 
 on:
   workflow_dispatch:
@@ -27,16 +63,25 @@ on:
         required: true
         type: string
       rel_branch:
-        description: 'Release branch (e.g. rel-820) — picks openemr/openemr branch release-prep/<rel_branch>'
+        description: 'Release branch (e.g. rel-820) — picks openemr/openemr branches release-prep/<rel_branch> + release-finalize/<rel_branch>'
         required: true
         type: string
+      mode:
+        description: 'Execution mode (semi-auto default; see workflow header for the mode matrix)'
+        required: false
+        type: choice
+        options:
+        - semi-auto
+        - full-auto
+        - dry-run
+        default: semi-auto
       dry_run:
-        description: 'Check readiness only — do not merge or post statuses'
+        description: 'Legacy: check readiness only, no merges. Overrides mode when true (dry-run wins over any mode choice).'
         required: false
         type: boolean
         default: false
       timeout_seconds:
-        description: 'Max seconds to wait for docs PR to update after conductor merge'
+        description: 'Max seconds to wait for downstream PR update (docs/finalize) after conductor merge, and for GitHub Release object to appear in full-auto'
         required: false
         type: string
         default: '600'
@@ -105,6 +150,7 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
         VERSION: ${{ inputs.version }}
         REL_BRANCH: ${{ inputs.rel_branch }}
+        MODE: ${{ inputs.mode }}
         TIMEOUT_SECONDS: ${{ inputs.timeout_seconds }}
         DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         STATUS_TARGET_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -112,6 +158,7 @@ jobs:
         task ship-release
         VERSION="${VERSION}"
         REL_BRANCH="${REL_BRANCH}"
+        MODE="${MODE}"
         TIMEOUT_SECONDS="${TIMEOUT_SECONDS}"
         STATUS_TARGET_URL="${STATUS_TARGET_URL}"
         SUMMARY_FILE="${GITHUB_STEP_SUMMARY}"

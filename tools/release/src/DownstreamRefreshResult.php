@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Release;
 
-final readonly class DocsRefreshResult
+final readonly class DownstreamRefreshResult
 {
     /**
      * @param list<string> $blockingReasons

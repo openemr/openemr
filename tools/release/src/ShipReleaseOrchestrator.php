@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Merges the two release PRs (conductor → docs) in strict order.
+ * Merges the three release PRs (conductor → finalize → docs) in strict order.
  *
  * Two-phase: a preflight pass evaluates every unmerged target's readiness and
  * refuses to merge anything if any unmerged PR is not ready (issue #705 step
@@ -11,6 +11,22 @@
  *
  * Detects the one unrecoverable case — docs merged before conductor — and
  * refuses to do anything; that recovery is documented in the runbook.
+ *
+ * Execution mode is operator-selected via Mode:
+ *   - DryRun: preflight-only, no merges (probe every PR's readiness)
+ *   - SemiAuto: merge Conductor only; Finalize + Docs left for manual review
+ *   - FullAuto: merge all three; waits on the GitHub Release object before
+ *     any downstream merge (Finalize + Docs) as a proxy for
+ *     build-release-on-tag completing package assembly + upload. If
+ *     packaging failed, ship-release blocks with the underlying error
+ *     rather than propagating half-shipped state to dockers or the
+ *     announcement pipeline.
+ *
+ * Approval gate is asymmetric: Conductor requires reviewDecision=APPROVED
+ * (the one meaningful human review point in the pipeline); Docs and Finalize
+ * are auto-generated bot content with no meaningful "human review" gate, so
+ * their readiness checks skip the APPROVED requirement while still enforcing
+ * not-draft + MERGEABLE + CLEAN + green status checks.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -33,14 +49,15 @@ final readonly class ShipReleaseOrchestrator
     public function __construct(
         private PullRequestApi $api,
         private Clock $clock,
+        private string $version,
         private int $downstreamTimeoutSeconds = 600,
-        private bool $dryRun = false,
+        private Mode $mode = Mode::SemiAuto,
         private string $statusTargetUrl = '',
     ) {
     }
 
     /**
-     * @param list<PullRequestTarget> $targets conductor, docs (any order — sorted internally)
+     * @param list<PullRequestTarget> $targets conductor, finalize, docs (any order — sorted internally)
      */
     public function ship(array $targets): ShipReleaseResult
     {
@@ -59,54 +76,59 @@ final readonly class ShipReleaseOrchestrator
             return new ShipReleaseResult($preflight['steps']);
         }
 
-        if ($this->dryRun) {
-            return new ShipReleaseResult($this->dryRunSteps($targets, $snapshots));
-        }
-
-        return new ShipReleaseResult($this->executeMerges($targets, $snapshots, $preflight['readiness']));
+        return match ($this->mode) {
+            Mode::DryRun => new ShipReleaseResult($this->dryRunSteps($targets, $snapshots)),
+            Mode::SemiAuto,
+            Mode::FullAuto => new ShipReleaseResult(
+                $this->executeMerges($targets, $snapshots, $preflight['readiness']),
+            ),
+        };
     }
 
     /**
-     * Defensive sort + contract check. The 2-PR ship contract requires
-     * exactly the Conductor and Docs targets in any order; this method
-     * fails fast on a stale caller passing the wrong shape (e.g., an
-     * extra target, a missing one, or duplicate mergeOrder values),
-     * since the alternative is a silent half-failure deep in the
-     * downstream merge logic.
+     * Defensive sort + contract check. The 3-PR ship contract requires
+     * exactly the Conductor, Docs, and Finalize targets in any order; this
+     * method fails fast on a stale caller passing the wrong shape (e.g., an
+     * extra target, a missing one, or duplicate mergeOrder values), since
+     * the alternative is a silent half-failure deep in the downstream merge
+     * logic.
      *
      * @param  list<PullRequestTarget> $targets
      * @return list<PullRequestTarget>
      */
     private function sortByMergeOrder(array $targets): array
     {
-        if (count($targets) !== 2) {
+        if (count($targets) !== 3) {
             throw new \LogicException(
-                'ship-release expects exactly 2 targets (Conductor + Docs); got ' . count($targets),
+                'ship-release expects exactly 3 targets (Conductor + Finalize + Docs); got ' . count($targets),
             );
         }
         $roles = array_map(static fn (PullRequestTarget $t): string => $t->roleLabel->value, $targets);
         sort($roles);
-        $expected = [RoleLabel::Conductor->value, RoleLabel::Docs->value];
+        $expected = [RoleLabel::Conductor->value, RoleLabel::Finalize->value, RoleLabel::Docs->value];
         sort($expected);
         if ($roles !== $expected) {
             throw new \LogicException(
-                'ship-release targets must be {Conductor, Docs}; got {' . implode(', ', $roles) . '}',
+                'ship-release targets must be {Conductor, Finalize, Docs}; got {' . implode(', ', $roles) . '}',
             );
         }
         $orders = array_map(static fn (PullRequestTarget $t): int => $t->mergeOrder, $targets);
         if (count(array_unique($orders)) !== count($orders)) {
             throw new \LogicException('ship-release targets have duplicate mergeOrder values');
         }
-        // Enforce Conductor-before-Docs at the mergeOrder level too —
-        // {Conductor, Docs} with Docs.mergeOrder < Conductor.mergeOrder
-        // would pass the role-set + dedup checks above but usort would
-        // then merge Docs first, violating the strict merge sequence.
+        // Enforce Conductor-before-Finalize-before-Docs at the mergeOrder
+        // level too — a role set with wrong mergeOrder ordering would pass
+        // the role-set + dedup checks above but usort would then merge
+        // out-of-sequence, violating the strict merge order. See
+        // RoleLabel docblock for the rationale on why Docs is last.
         $conductor = $this->findRequired($targets, RoleLabel::Conductor);
+        $finalize = $this->findRequired($targets, RoleLabel::Finalize);
         $docs = $this->findRequired($targets, RoleLabel::Docs);
-        if ($conductor->mergeOrder >= $docs->mergeOrder) {
+        if ($conductor->mergeOrder >= $finalize->mergeOrder || $finalize->mergeOrder >= $docs->mergeOrder) {
             throw new \LogicException(
-                'ship-release mergeOrder must put Conductor before Docs; got Conductor='
-                . $conductor->mergeOrder . ' Docs=' . $docs->mergeOrder,
+                'ship-release mergeOrder must put Conductor before Finalize before Docs; got Conductor='
+                . $conductor->mergeOrder . ' Finalize=' . $finalize->mergeOrder
+                . ' Docs=' . $docs->mergeOrder,
             );
         }
         usort(
@@ -170,7 +192,11 @@ final readonly class ShipReleaseOrchestrator
             if ($snapshot->isMerged()) {
                 continue;
             }
-            $check = $this->api->getReadiness($target->repo, $snapshot->number);
+            $check = $this->api->getReadiness(
+                $target->repo,
+                $snapshot->number,
+                $this->requiresApproval($target->roleLabel),
+            );
             $readiness[$key] = $check;
             if (!$check->isReady()) {
                 $blocked[$key] = $check->blockingReasons;
@@ -252,8 +278,25 @@ final readonly class ShipReleaseOrchestrator
 
     /**
      * Real merge pass. Preflight has already validated that every unmerged
-     * target was ready at snapshot time. The docs PR gets a fresh readiness
-     * check after the conductor's downstream effect re-renders it.
+     * target was ready at snapshot time.
+     *
+     * SemiAuto merges Conductor only; Finalize + Docs are marked
+     * SKIPPED_BY_MODE (they were preflight-ready — a maintainer merges
+     * them by hand after eyeballing the post-tag content).
+     *
+     * FullAuto proceeds through all three in order Conductor → Finalize
+     * → Docs. Docs is last because merging it will trigger the future
+     * auto-announce pipeline; putting Finalize (which triggers the docker
+     * cascade via release-targets.yml) before Docs gives dockers a head
+     * start. The orchestrator waits for the GitHub Release object to
+     * exist before merging ANY downstream role (Finalize + Docs) — that
+     * object is created by build-release-on-tag.yml once it finishes
+     * package assembly + upload, so its presence is a proxy for
+     * "packaging succeeded." If packaging failed, both downstream merges
+     * block with the timeout reason; the operator debugs + reruns rather
+     * than triggering dockers or announcements on top of a broken
+     * release. Finalize + Docs each get a refresh pass (poll head SHA
+     * + re-check readiness) before merging.
      *
      * @param  list<PullRequestTarget>             $targets
      * @param  array<string, ?PullRequestSnapshot> $snapshots
@@ -269,6 +312,18 @@ final readonly class ShipReleaseOrchestrator
         foreach ($targets as $target) {
             if ($stopReason !== null) {
                 $steps[] = $this->notReachedStep($target, $stopReason);
+                continue;
+            }
+
+            // SemiAuto stops after Conductor — Finalize + Docs are left for
+            // a maintainer to merge by hand after eyeballing the post-tag
+            // content. Mark them SKIPPED_BY_MODE (not a failure — the
+            // operator asked for exactly this shape).
+            if (
+                !$this->mode->mergesDownstream()
+                && $target->roleLabel !== RoleLabel::Conductor
+            ) {
+                $steps[] = $this->skippedByModeStep($target, 'semi-auto: downstream PR left for manual merge');
                 continue;
             }
 
@@ -291,9 +346,28 @@ final readonly class ShipReleaseOrchestrator
             }
 
             $stepReadiness = $readiness[$target->roleLabel->value] ?? null;
-            if ($target->roleLabel === RoleLabel::Docs) {
-                $refresh = $this->refreshDocsBeforeMerge($target, $snapshot, $snapshots, $mergedThisRun);
-                if ($refresh instanceof DocsRefreshResult) {
+            // Wait for the GitHub Release object to exist before merging
+            // ANY downstream role (Finalize + Docs). Finalize would trigger
+            // the docker cascade via release-targets.yml; no point
+            // dockerizing on top of a broken release. Docs would trigger
+            // the future auto-announce; no point announcing packages
+            // whose download links 404. If packaging broke, ship-release
+            // blocks with the underlying error and the operator debugs +
+            // reruns rather than propagating half-shipped state downstream.
+            // (The wait fires once per downstream role, but re-polls are
+            // O(1) after the release exists — releaseExists() short-
+            // circuits on the first successful poll.)
+            if ($target->roleLabel !== RoleLabel::Conductor) {
+                $releaseWait = $this->awaitReleaseObject($mergedThisRun);
+                if ($releaseWait !== null) {
+                    $steps[] = $this->blockedStep($target, $snapshot->number, [$releaseWait]);
+                    $stopReason = $releaseWait;
+                    continue;
+                }
+            }
+            if ($target->roleLabel === RoleLabel::Docs || $target->roleLabel === RoleLabel::Finalize) {
+                $refresh = $this->refreshDownstreamBeforeMerge($target, $snapshot, $snapshots, $mergedThisRun);
+                if ($refresh instanceof DownstreamRefreshResult) {
                     if (!$refresh->isSuccess()) {
                         $steps[] = $this->blockedStep($target, $refresh->snapshot?->number, $refresh->blockingReasons);
                         $stopReason = $refresh->stopReason;
@@ -388,7 +462,43 @@ final readonly class ShipReleaseOrchestrator
     }
 
     /**
-     * Two cases need a fresh state read before merging docs:
+     * Between Conductor and Docs, wait for the openemr GitHub Release object
+     * to exist. Only fires when Conductor was merged in *this* run — if the
+     * Conductor was merged in a prior run, the release was either already
+     * created or the operator is on manual recovery and we don't burn the
+     * timeout waiting.
+     *
+     * Returns null when the release exists (or when no wait is needed);
+     * returns a blocking-reason string when the wait timed out.
+     *
+     * @param list<RoleLabel> $mergedThisRun
+     */
+    private function awaitReleaseObject(array $mergedThisRun): ?string
+    {
+        if (!in_array(RoleLabel::Conductor, $mergedThisRun, true)) {
+            return null;
+        }
+        $tag = 'v' . str_replace('.', '_', $this->version);
+        $deadline = $this->clock->now()->getTimestamp() + $this->downstreamTimeoutSeconds;
+        while ($this->clock->now()->getTimestamp() < $deadline) {
+            if ($this->api->releaseExists('openemr/openemr', $tag)) {
+                return null;
+            }
+            $this->clock->sleep(self::POLL_INTERVAL_SECONDS);
+        }
+        if ($this->api->releaseExists('openemr/openemr', $tag)) {
+            return null;
+        }
+        return sprintf(
+            'GitHub Release object %s not created after conductor merge (timed out waiting for'
+            . ' build-release-on-tag)',
+            $tag,
+        );
+    }
+
+    /**
+     * Two cases need a fresh state read before merging a downstream PR (Docs
+     * or Finalize):
      *   - conductor merged in *this* run: poll until head SHA flips (or time
      *     out), then re-check readiness against the new SHA.
      *   - conductor was already merged when we started (recovery case): re-check
@@ -401,12 +511,12 @@ final readonly class ShipReleaseOrchestrator
      * @param array<string, ?PullRequestSnapshot> $snapshots
      * @param list<RoleLabel>                     $mergedThisRun
      */
-    private function refreshDocsBeforeMerge(
+    private function refreshDownstreamBeforeMerge(
         PullRequestTarget $target,
         PullRequestSnapshot $current,
         array $snapshots,
         array $mergedThisRun,
-    ): ?DocsRefreshResult {
+    ): ?DownstreamRefreshResult {
         $conductorJustMerged = in_array(RoleLabel::Conductor, $mergedThisRun, true);
         $conductorPreviouslyMerged = ($snapshots[RoleLabel::Conductor->value] ?? null)?->isMerged() ?? false;
         if (!$conductorJustMerged && !$conductorPreviouslyMerged) {
@@ -416,33 +526,41 @@ final readonly class ShipReleaseOrchestrator
             $fresh = $this->awaitDownstreamUpdate($target, $current);
             if ($fresh instanceof PullRequestSnapshot && $fresh->headRefOid === $current->headRefOid) {
                 $reason = sprintf(
-                    'docs PR head SHA did not change after conductor merge (timed out waiting for downstream'
+                    '%s PR head SHA did not change after conductor merge (timed out waiting for downstream'
                     . ' re-render — head still %s)',
+                    $target->roleLabel->value,
                     $current->headRefOid,
                 );
-                return DocsRefreshResult::blocked($fresh, $reason, [$reason]);
+                return DownstreamRefreshResult::blocked($fresh, $reason, [$reason]);
             }
         } else {
             $fresh = $this->api->findByHead($target->repo, $target->branch);
         }
         if (!$fresh instanceof PullRequestSnapshot) {
-            $disappeared = 'docs PR disappeared before merge';
-            return DocsRefreshResult::blocked(null, $disappeared, [$disappeared]);
+            $disappeared = sprintf('%s PR disappeared before merge', $target->roleLabel->value);
+            return DownstreamRefreshResult::blocked(null, $disappeared, [$disappeared]);
         }
-        $readiness = $this->api->getReadiness($target->repo, $fresh->number);
+        $readiness = $this->api->getReadiness(
+            $target->repo,
+            $fresh->number,
+            $this->requiresApproval($target->roleLabel),
+        );
         if (!$readiness->isReady()) {
             $stopReason = $conductorJustMerged
-                ? 'docs PR not ready after conductor downstream update'
-                : 'docs PR not ready (re-checked after conductor was already merged)';
-            return DocsRefreshResult::blocked($fresh, $stopReason, $readiness->blockingReasons);
+                ? sprintf('%s PR not ready after conductor downstream update', $target->roleLabel->value)
+                : sprintf(
+                    '%s PR not ready (re-checked after conductor was already merged)',
+                    $target->roleLabel->value,
+                );
+            return DownstreamRefreshResult::blocked($fresh, $stopReason, $readiness->blockingReasons);
         }
-        return DocsRefreshResult::success($fresh, $readiness);
+        return DownstreamRefreshResult::success($fresh, $readiness);
     }
 
     /**
-     * Poll until the docs PR head SHA differs from the snapshot taken before
-     * the conductor merge, or until the timeout elapses. Either way, return a
-     * fresh snapshot — readiness is re-checked after this.
+     * Poll until the downstream PR head SHA differs from the snapshot taken
+     * before the conductor merge, or until the timeout elapses. Either way,
+     * return a fresh snapshot — readiness is re-checked after this.
      */
     private function awaitDownstreamUpdate(
         PullRequestTarget $target,
@@ -461,6 +579,19 @@ final readonly class ShipReleaseOrchestrator
             $this->clock->sleep(self::POLL_INTERVAL_SECONDS);
         }
         return $current;
+    }
+
+    /**
+     * Conductor is the one meaningful human-review point in the pipeline;
+     * Docs and Finalize are auto-generated bot content, so their readiness
+     * checks skip the APPROVED requirement.
+     */
+    private function requiresApproval(RoleLabel $role): bool
+    {
+        return match ($role) {
+            RoleLabel::Conductor => true,
+            RoleLabel::Docs, RoleLabel::Finalize => false,
+        };
     }
 
     /**
@@ -501,6 +632,17 @@ final readonly class ShipReleaseOrchestrator
         return new ShipReleaseStepResult(
             $target,
             ShipReleaseStepStatus::NOT_REACHED,
+            null,
+            null,
+            [$reason],
+        );
+    }
+
+    private function skippedByModeStep(PullRequestTarget $target, string $reason): ShipReleaseStepResult
+    {
+        return new ShipReleaseStepResult(
+            $target,
+            ShipReleaseStepStatus::SKIPPED_BY_MODE,
             null,
             null,
             [$reason],
