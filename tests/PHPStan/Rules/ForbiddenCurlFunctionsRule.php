@@ -7,7 +7,7 @@
  * to use Guzzle HTTP client for better testability, error handling, and PSR-7 compliance.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright Copyright (c) 2025 OpenEMR Foundation
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -38,7 +38,7 @@ class ForbiddenCurlFunctionsRule implements Rule
 
     /**
      * @param FuncCall $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -49,7 +49,7 @@ class ForbiddenCurlFunctionsRule implements Rule
         $functionName = $node->name->toString();
 
         // Check if it's a curl_* function
-        if (!preg_match(self::CURL_FUNCTION_PATTERN, $functionName)) {
+        if (preg_match(self::CURL_FUNCTION_PATTERN, $functionName) !== 1) {
             return [];
         }
 

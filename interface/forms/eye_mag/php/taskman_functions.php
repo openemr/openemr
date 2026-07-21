@@ -17,9 +17,10 @@
  */
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
-use PHPMailer\PHPMailer\PHPMailer;
 
 $facilityService = new FacilityService();
 
@@ -48,6 +49,7 @@ function make_task($ajax_req): void
     $sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
     $task = sqlQuery($sql, [$from_id,$to_id,$patient_id,$enc]);
 
+    $sent_date = '';
     if (!empty($task['COMPLETED_DATE'])) {
         $dated = new DateTime($task['COMPLETED_DATE']);
         $dated = $dated->format('Y/m/d');
@@ -69,7 +71,7 @@ function make_task($ajax_req): void
     } elseif (($task['ID'] ?? '') && $task['COMPLETED'] >= '1') {
         if ($task['DOC_TYPE'] == 'Fax') {
             $send['DOC_link'] = "<a href=\"JavaScript:void(0);\"
-                                    onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
+                                    onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                     title='" . xla('View the Summary Report sent to') .
                                             text($task['to_name']) . " " . xla('via') . " " . text($task['to_fax']) . " " . xla('on') . " " . text($sent_date) . "'>
 								    <i class='far fa-file-pdf fa-fw'></i>
@@ -128,7 +130,7 @@ function process_tasks($task)
 
     if ($task['DOC_TYPE'] == "Fax") {
         //now return any objects you need to Eye Form
-        $send['DOC_link'] = "<a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
+        $send['DOC_link'] = "<a onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                 href=\"JavaScript:void(0);\"
                                 title='" . xlt('Report was faxed to') . " " . attr($task['to_name']) . " @ " . attr($task['to_fax']) . " on " .
                                 text($task['COMPLETED_DATE']) . ". " . xla('Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
@@ -190,14 +192,14 @@ function deliver_document($task)
         $from_name .= ", " . $from_data['suffix'];
     }
     $from_fax       = preg_replace("/[^0-9]/", "", (string) $facility_data['fax']);
-    $email_sender   = $GLOBALS['patient_reminder_sender_email'];
+    $email_sender   = OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email');
 
     $to_data        = sqlQuery($query, [$task['TO_ID']]);
     $to_fax         = preg_replace("/[^0-9]/", "", (string) $to_data['fax']);
 
     $mail           = new MyMailer();
 
-    $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
+    $to_email       = $to_fax . "@" . OEGlobalsBag::getInstance()->getString('hylafax_server');
     //consider using admin email = Notification Email Address
     //this must be a fax server approved From: address
     $file_to_attach = preg_replace('/^file:\/\//', "", (string) $task['DOC_url']);
@@ -244,7 +246,16 @@ function make_document($task)
     global $providerNAME;
     global $encounter;
     global $facilityService;
-    global $web_root, $webserver_root;
+
+    // Resolve the eye_mag form row for this (patient, encounter). The taskman
+    // entry points (AJAX from js/eye_base.php and CLI cron) do not set $form_id
+    // in any scope make_document() can read, so look it up from the data the
+    // $task row already carries.
+    $form_row = sqlQuery(
+        "SELECT form_id FROM forms WHERE pid = ? AND encounter = ? AND formdir = 'eye_mag' AND deleted != '1' ORDER BY id DESC LIMIT 1",
+        [$task['PATIENT_ID'], $task['ENC_ID']]
+    );
+    $form_id = $form_row['form_id'] ?? null;
 
     /**
      * We want to store the current PDF version of this task.
@@ -277,7 +288,7 @@ function make_document($task)
     $encounter      = $task['ENC_ID'];
 
  //   $mail           = new MyMailer();
-    $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
+    $to_email       = $to_fax . "@" . OEGlobalsBag::getInstance()->getString('hylafax_server');
 
     $query = "select  *,form_encounter.date as encounter_date
 
@@ -307,6 +318,7 @@ function make_document($task)
 
     $encounter_data = sqlQuery($query, [$encounter,$task['PATIENT_ID']]);
     @extract($encounter_data);
+    $encounter_date ??= '';
     $providerID     = getProviderIdOfEncounter($encounter);
     $providerNAME   = getProviderName($providerID);
     $dated          = new DateTime($encounter_date);//encounter_date comes from the @extract above
@@ -314,7 +326,7 @@ function make_document($task)
     $visit_date     = oeFormatShortDate($dated);
     $pid            = $task['PATIENT_ID'];
 
-    $filepath = $GLOBALS['oer_config']['documents']['repository'] . $task['PATIENT_ID'];
+    $filepath = OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'] . $task['PATIENT_ID'];
 
     // So far we make A "Report", one per encounter, and "Faxes", as many as we need per encounter.
     // So delete any prior report if that is what we are doing. and replace it.
@@ -353,7 +365,8 @@ function make_document($task)
 
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
-    if ($_SESSION['language_direction'] == 'rtl') {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    if ($session->get('language_direction') === 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
 
@@ -376,7 +389,7 @@ function make_document($task)
                 padding:10px;
             }
         </style>
-        <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
+        <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getProjectDir(); ?>/interface/themes/style_pdf.css" type="text/css">
     </head>
     <body>
     <?php
@@ -554,7 +567,7 @@ mpdf-->
     $pdf->WriteHTML($header);
     $pdf->writeHTML($content);
 
-    $temp_filename = tempnam($GLOBALS['temporary_files_dir'], "oer");
+    $temp_filename = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
     $pdf->Output($temp_filename, 'F');
 
     $type = "application/pdf";

@@ -5,19 +5,36 @@
  * For DataTables documentation see: http://legacy.datatables.net/
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
+
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
+/** @var array<int, array<int, mixed>> $code_external_tables */
+$code_external_tables = OEGlobalsBag::getInstance()->get('code_external_tables', []);
+
+$codetype = '';
+$sellist = '';
+$source = '';
+$where1 = '';
+$from = '';
+$include_inactive = false;
+$fe_array = [];
 
 // Paging parameters.  -1 means not applicable.
 //
@@ -296,7 +313,8 @@ if ($what == 'fields' && $source == 'V') {
     foreach ($fe_array as $feitem) {
         $arow = ['DT_RowId' => genFieldIdString($feitem)];
         $arow[] = $feitem['field_id'];
-        $arow[] = $feitem['title'];
+        // Escape title to prevent XSS - DataTables renders cells via innerHTML
+        $arow[] = attr((string) $feitem['title']);
         $out['aaData'][] = $arow;
     }
 } elseif ($what == 'codes') {
@@ -347,7 +365,8 @@ if ($what == 'fields' && $source == 'V') {
                 'modifier' => $row['modifier'],
             ])];
             $arow[] = str_replace('|', ':', rtrim((string) $row['code'], '|'));
-            $arow[] = $row['code_text'];
+            // Escape code_text to prevent XSS - DataTables renders cells via innerHTML
+            $arow[] = attr((string) $row['code_text']);
             $arow[] = $row['modifier'];
             $out['aaData'][] = $arow;
             $count += 1;
@@ -355,7 +374,7 @@ if ($what == 'fields' && $source == 'V') {
         while ($count < $maxCount && $row = sqlFetchArray($res)) {
             $count += 1;
         }
-        $out['iTotalHasMoreRecords'] = sqlFetchArray($res) ? true : false;
+        $out['iTotalHasMoreRecords'] = (bool) sqlFetchArray($res);
     }
     $out['iTotalDisplayRecords'] = min($maxCount, $start + $count);
     $out['iTotalRecords'] = min($maxCount, $start + $count);
@@ -366,10 +385,12 @@ if ($what == 'fields' && $source == 'V') {
         $arow = ['DT_RowId' => genFieldIdString($row)];
         if ($what == 'fields') {
             $arow[] = $row['field_id'];
-            $arow[] = $row['title'];
+            // Escape title to prevent XSS - DataTables renders cells via innerHTML
+            $arow[] = attr((string) $row['title']);
         } else {
             $arow[] = str_replace('|', ':', rtrim((string) $row['code'], '|'));
-            $arow[] = $row['description'] ?? "";
+            // Escape description to prevent XSS - DataTables renders cells via innerHTML
+            $arow[] = attr((string) ($row['description'] ?? ''));
             $arow[] = $row['modifier'] ?? "";
         }
         $out['aaData'][] = $arow;

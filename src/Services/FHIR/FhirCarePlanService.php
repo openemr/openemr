@@ -4,7 +4,7 @@
  * FhirCarePlanService.php
  *
  * @package    openemr
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Stephen Nielson <stephen@nielson.org>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -97,7 +97,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
      * Parses an OpenEMR record, returning the equivalent FHIR Resource
      *
      * @param array   $dataRecord The source OpenEMR data record
-     * @param boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCarePlan
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

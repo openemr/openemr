@@ -2,7 +2,7 @@
 
 /**
  *  @package OpenEMR
- *  @link    http://www.open-emr.org
+ *  @link    https://www.open-emr.org
  *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,6 +12,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 
 use DateTime;
 use DateTimeZone;
+use OpenEMR\Core\OEGlobalsBag;
 
 class LogImportBuild
 {
@@ -25,7 +26,7 @@ class LogImportBuild
     public function __construct()
     {
         $this->insertdata = new LogDataInsert();
-        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
+        $this->rxsynclog = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/logsync.csv";
     }
 
     public function getUserIdByWenoId($external_provider_id)
@@ -90,6 +91,7 @@ class LogImportBuild
                 if (!isset($line[1])) {
                     continue;
                 }
+                $is_saved = 0;
                 if (isset($line[4])) {
                     $this->messageid = $line[4];
                     $is_saved = $this->checkMessageId();

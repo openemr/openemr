@@ -18,7 +18,14 @@
  *
  * @package OpenEMR
  * @author  Garden State Health Systems <http://www.gshsys.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
+ */
+
+use OpenEMR\BC\ServiceContainer;
+
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_Actors (created in createCCR.php)
  */
 
 $result = getActorData();
@@ -85,7 +92,7 @@ while ($row = sqlFetchArray($result[0])) {
     $e_SourceActor = $ccr->createElement('Actor');
     $e_Source->appendChild($e_SourceActor);
 
-    $e_ActorID = $ccr->createElement('ActorID', getUuid());
+    $e_ActorID = $ccr->createElement('ActorID', ServiceContainer::getUuidFactory()->uuid4()->toString());
     $e_SourceActor->appendChild($e_ActorID);
 
     // address

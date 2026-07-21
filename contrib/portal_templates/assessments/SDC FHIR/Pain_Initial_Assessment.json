@@ -3,7 +3,7 @@
     "meta": {
         "profile": [
             "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire|2.7",
-            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire",
+            "http://hl7.org/fhir/4.0/StructureDefinition/Questionnaire"
         ],
         "tag": [
             {

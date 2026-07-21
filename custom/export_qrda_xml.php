@@ -19,11 +19,11 @@
  *
  * @package OpenEMR
  * @author  Ensoftek
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once("../interface/globals.php");
-require_once("../ccr/uuid.php");
+use OpenEMR\BC\ServiceContainer;
 require_once("../library/patient.inc.php");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
@@ -31,12 +31,13 @@ require_once "$srcdir/report_database.inc.php";
 require_once "qrda_functions.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $facilityService = new FacilityService();
 
@@ -327,7 +328,7 @@ $xml->self_typeid();
 $tempId = '2.16.840.1.113883.10.20.27.1.1';
 $xml->self_templateid($tempId);
 
-$xml->unique_id = getUuid();
+$xml->unique_id = ServiceContainer::getUuidFactory()->uuid4()->toString();
 $xml->self_id();
 $xml->self_code();
 
@@ -344,7 +345,7 @@ $xml->self_confidentcode();
 //Language
 $xml->self_lang();
 
-$setidVal = getUuid();
+$setidVal = ServiceContainer::getUuidFactory()->uuid4()->toString();
 $xml->self_setid($setidVal);
 
 //Version
@@ -362,7 +363,7 @@ $auth_dtime = date('Ymdhis', strtotime(date('Y-m-d H:i:s')));
 $xml->self_authorTime($auth_dtime);
 //Assigned Author
 $xml->open_assignAuthor();
-$authorsetid = getUuid();
+$authorsetid = ServiceContainer::getUuidFactory()->uuid4()->toString();
 $xml->self_customId($authorsetid);
 if ($form_provider != "") {
     $userRow = sqlQuery("SELECT facility, facility_id, federaltaxid, npi, phone,fname, lname FROM users WHERE id=?", [$form_provider]);
@@ -408,7 +409,7 @@ $xml->self_authorTime($auth_dtime);
 $xml->self_legalSignCode();
 
 $xml->open_assignedEntity();
-$assignedEntityId = getUuid();
+$assignedEntityId = ServiceContainer::getUuidFactory()->uuid4()->toString();
 $xml->self_customId($assignedEntityId);
 
 $xml->open_customTag('assignedPerson');
@@ -562,7 +563,7 @@ $xml->self_templateid($tempID);
 $tempID = '2.16.840.1.113883.10.20.27.3.23';
 $xml->self_templateid($tempID);
 
-$actId = getUuid();
+$actId = ServiceContainer::getUuidFactory()->uuid4()->toString();
 $xml->self_customId($actId);
 
 $arr = ['code' => '252116004', 'codeSystem' => '2.16.840.1.113883.6.96', 'displayName' => 'Observation Parameters'];
@@ -647,7 +648,7 @@ if (count($dataSheet) > 0) {
             $tdTitle .= ", " . xlt($row['concatenated_label']) . " ";
         }
 
-        $tdVersionNeutral = getUuid();
+        $tdVersionNeutral = ServiceContainer::getUuidFactory()->uuid4()->toString();
 
         if ($preDefinedUniqIDRules[$row['cqm_nqf_code']] != "") {
             if (($row['cqm_nqf_code'] == "0421" )) {
@@ -660,7 +661,7 @@ if (count($dataSheet) > 0) {
 
             $uniqIdArr[] = $tdVersionSpecific;
         } else {
-            $tdVersionSpecific = getUuid();
+            $tdVersionSpecific = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $uniqIdArr[] = $tdVersionSpecific;
         }
 
@@ -822,7 +823,7 @@ if (count($dataSheet) > 0) {
 
             //$tempID = "2.16.840.1.113883.10.20.27.3.17";
             //$xml->self_templateid($tempID);
-            $actId = getUuid();
+            $actId = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $xml->self_customId($actId);
 
             $arr = ['code' => 'completed'];
@@ -836,7 +837,7 @@ if (count($dataSheet) > 0) {
             $arr = ['classCode' => 'DOC', 'moodCode' => 'EVN'];
             $xml->open_customTag('externalDocument', $arr);
 
-            //$exDocID = getUuid();
+            //$exDocID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             $exDocID = $uniqIdArr[$innrCnt];
             //$xml->self_customId($exDocID);
             $xml->self_customTag('id', ['root' => '2.16.840.1.113883.4.738', 'extension' => $exDocID]);
@@ -885,7 +886,7 @@ if (count($dataSheet) > 0) {
             $xml->open_customTag('externalObservation', $arr);
 
             //Modified HQMF_ID
-            //$exDocID = getUuid();
+            //$exDocID = ServiceContainer::getUuidFactory()->uuid4()->toString();
 
 
             if (($row['cqm_nqf_code'] == "0421" )) {
@@ -896,7 +897,7 @@ if (count($dataSheet) > 0) {
                 if ($preDefPopIdArr[$row['cqm_nqf_code']]["NUMER"] != "") {
                     $exDocID = $preDefPopIdArr[$row['cqm_nqf_code']]["NUMER"];
                 } else {
-                    $exDocID = getUuid();
+                    $exDocID = ServiceContainer::getUuidFactory()->uuid4()->toString();
                 }
             }
 
@@ -1419,7 +1420,7 @@ if (count($dataSheet) > 0) {
             }
 
             if ($refID == "") {
-                $refID = getUuid();
+                $refID = ServiceContainer::getUuidFactory()->uuid4()->toString();
             }
 
             $xml->self_customId($refID);
@@ -1485,7 +1486,7 @@ $xml->close_clinicaldocument();
 
 //QRDA File Download Folder in site/cqm_qrda folder
 $qrda_fname = "QRDA_III_" . date("YmdHis") . ".xml";
-$qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
+$qrda_file_path = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/cqm_qrda/";
 if (!file_exists($qrda_file_path)) {
     mkdir($qrda_file_path, 0777, true);
 }
@@ -1515,7 +1516,7 @@ fclose($fileQRDAOPen);
 <center>
 <form>
 <p class="text">
-    <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
+    <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
 </p>
 <textarea rows='50' cols='500' style='width:95%' readonly>
 <?php echo trim((string) $xml->getXml()); ?>

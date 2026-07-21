@@ -25,9 +25,12 @@
  * Name:     datetimepickerSupport<br />
  * Purpose:  datetimepickerSupport in OpenEMR - Smarty templates<br />
  *
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param Smarty $smarty
  */
+
+use OpenEMR\Core\OEGlobalsBag;
+
 function smarty_function_datetimepickerSupport($params, &$smarty): void
 {
     if (!empty($params['picker']) && $params['picker'] == 'time') {
@@ -38,11 +41,11 @@ function smarty_function_datetimepickerSupport($params, &$smarty): void
         $datetimepicker_timepicker = false;
     }
 
-    $datetimepicker_showseconds = !empty($params['seconds']) && $params['seconds'] == 'show' ? true : false;
+    $datetimepicker_showseconds = !empty($params['seconds']) && $params['seconds'] == 'show';
 
-    $datetimepicker_formatInput = !empty($params['input']) && $params['input'] == 'format' ? true : false;
+    $datetimepicker_formatInput = !empty($params['input']) && $params['input'] == 'format';
 
-    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+    require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
 
     echo " });";
 

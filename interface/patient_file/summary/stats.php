@@ -4,33 +4,39 @@
  * stats.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/lists.inc.php");
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
+$kernel = OEGlobalsBag::getInstance()->getKernel();
 $twigContainer = new TwigContainer(null, $kernel);
 $t = $twigContainer->getTwig();
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+$need_head = true;
 
 /**
  * Return an array of list data for a given issue type and patient
  *
- * @var $pid string Patient ID
- * @var $type string Issue Type
- * @return
+ * @var string $pid Patient ID
+ * @var string $type Issue Type
+ * @return mixed
  */
 function getListData($pid, $type)
 {
@@ -50,11 +56,11 @@ function getListData($pid, $type)
     }
 
 
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $type == 'medication') {
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && OEGlobalsBag::getInstance()->getBoolean('erx_medication_display') && $type == 'medication') {
         $sqlArr[] = "and erx_uploaded != '1'";
     }
 
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $type == 'allergy') {
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && OEGlobalsBag::getInstance()->getBoolean('erx_allergy_display') && $type == 'allergy') {
         $sqlArr[] = "and erx_uploaded != '1'";
     }
 
@@ -145,10 +151,10 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         continue;
     }
 
-    if ($old_key == "medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
+    if ($old_key == "medication" && OEGlobalsBag::getInstance()->getBoolean('erx_enable') && $erx_upload_complete == 1) {
         $display_current_medications_below = 0;
 
-        if ($GLOBALS['erx_enable']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
             $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id=? AND active='1'", [$pid]);
             $list = [];
             $rxArr = [];
@@ -166,7 +172,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $viewArgs = [
                 'title' => xl('Current Medications'),
                 'id' => $id,
-                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                'initiallyCollapsed' => getUserSetting($id) == 0,
                 'auth' => false,
                 'rxList' => $rxArr,
             ];
@@ -182,7 +188,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     //
     if (count($issues) > 0 || $arr[4] == 1) {
         $old_key = $key;
-        if ($GLOBALS['erx_enable'] && $key == "medication") {
+        if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && $key == "medication") {
             $sqlUploadedArr = [
                 "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND",
                 dateEmptySql('enddate'),
@@ -201,14 +207,14 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         $viewArgs = [
             'title' => xl($arr[0]),
             'id' => $id,
-            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+            'initiallyCollapsed' => getUserSetting($id) == 0,
             'linkMethod' => "javascript",
             'list' => $listData,
             'auth' => AclMain::aclCheckIssue($key, '', ['write', 'addonly'])
         ];
 
-        $btnLinkBase = "return load_location('{$GLOBALS['webroot']}/interface/__page__')";
-        if (in_array($key, ["allergy", "medication"]) && $GLOBALS["erx_enable"]) {
+        $btnLinkBase = "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/__page__')";
+        if (in_array($key, ["allergy", "medication"]) && OEGlobalsBag::getInstance()->getBoolean("erx_enable")) {
             $viewArgs['btnLabel'] = "Add";
             $btnLinkPage = "eRx.php?page=medentry";
         } else {
@@ -218,7 +224,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         $viewArgs['btnLink'] = str_replace("__page__", $btnLinkPage, $btnLinkBase);
 
         if (count($listData) == 0) {
-            $viewArgs['listTouched'] = (getListTouch($pid, $key)) ? true : false;
+            $viewArgs['listTouched'] = (bool) getListTouch($pid, $key);
         }
 
         if ($id == "medication_ps_expand") {
@@ -255,7 +261,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
             echo $t->render('patient/card/tp_il.html.twig', [
                 'title' => xl("Injury Log"),
                 'id' => $id,
-                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                'initiallyCollapsed' => getUserSetting($id) == 0,
                 'formName' => $formname,
                 'formRows' => $formRows,
             ]);
@@ -264,7 +270,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
 }
 
 // Render the Immunizations card if turned on
-if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
+if (!OEGlobalsBag::getInstance()->getBoolean('disable_immunizations') && !OEGlobalsBag::getInstance()->get('weight_loss_clinic')) :
     $sql = "SELECT i1.id AS id, i1.immunization_id AS immunization_id, i1.cvx_code AS cvx_code, c.code_text_short AS cvx_text,
                 IF(i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short),
                 IF(i1.note,substring(i1.note,1,20),c.code_text_short)) AS immunization_data
@@ -281,7 +287,7 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
         $row['immunization_data'] = text($row['immunization_data']);
 
         // Figure out which name to use (ie. from cvx list or from the custom list)
-        if ($GLOBALS['use_custom_immun_list']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
             $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!(empty($row['cvx_text']))) {
@@ -291,14 +297,14 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
             }
         }
 
-        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode((string) $row['id']) . "&csrf_token_form=" . urlencode((string) CsrfUtils::collectCsrfToken()));
+        $row['url'] = attr_js("immunizations.php?mode=edit&id=" . urlencode((string) $row['id']) . "&csrf_token_form=" . urlencode(CsrfUtils::collectCsrfToken(session: $session)));
         $imxList[] = $row;
     }
     $id = "immunizations_ps_expand";
     echo $t->render('patient/card/immunizations.html.twig', [
         'title' => xl('Immunizations'),
         'id' => $id,
-        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+        'initiallyCollapsed' => getUserSetting($id) == 0,
         'btnLabel' => 'Edit',
         'btnLink' => 'immunizations.php',
         'linkMethod' => 'html',
@@ -325,9 +331,9 @@ if ($erx_upload_complete == 1) {
     $viewArgs = [
         'title' => xl('Old Medication'),
         'label' => $id,
-        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+        'initiallyCollapsed' => getUserSetting($id) == 0,
         'btnLabel' => 'Edit',
-        'btnLink' => "return load_location(\"{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
+        'btnLink' => "return load_location(\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
         'linkMethod' => 'javascript',
         'auth' => true,
         'list' => $rxList,

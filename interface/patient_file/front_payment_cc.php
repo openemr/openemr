@@ -4,7 +4,7 @@
  *  Front Payment CC and Terminal Readers support.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,14 +12,15 @@
 
 $ignoreAuth = false;
 require_once(__DIR__ . "/../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
-use OpenEMR\Common\Crypto\CryptoGen;
-use Stripe\Customer;
+use OpenEMR\Core\OEGlobalsBag;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 use Stripe\Terminal\ConnectionToken;
-use Stripe\Terminal\Location;
 
 if ($_POST['mode'] == 'AuthorizeNet') {
     $form_pid = $_POST['form_pid'];
@@ -29,6 +30,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     $transaction['opaqueDataDescriptor'] = $_POST['dataDescriptor'];
     $transaction['opaqueDataValue'] = $_POST['dataValue'];
     try {
+        /** @var \Omnipay\AuthorizeNetApi\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -45,7 +47,8 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         $cc['zip'] = $_POST["zip"];
         $ccaudit = json_encode($cc);
     } catch (\Throwable $ex) {
-        return $ex->getMessage();
+        echo $ex->getMessage();
+        exit();
     }
 
     if (!$response->isSuccessful()) {
@@ -76,6 +79,7 @@ if ($_POST['mode'] == 'Stripe') {
         'Invoice Total' => $transaction['amount']
     ];
     try {
+        /** @var \Omnipay\Stripe\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -89,10 +93,11 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['transId'] = $response->getTransactionReference();
         $cc['cardNumber'] = "******** " . $r['last4'];
         $cc['cc_type'] = $r['brand'];
-        $cc['zip'] = $r->address_zip;
+        $cc['zip'] = $r['address_zip'] ?? null;
         $ccaudit = json_encode($cc);
     } catch (\Throwable $ex) {
         echo $ex->getMessage();
+        exit();
     }
 
     if (!$response->isSuccessful()) {
@@ -105,8 +110,8 @@ if ($_POST['mode'] == 'Stripe') {
 }
 
 if ($_GET['mode'] == 'terminal_token') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -120,8 +125,8 @@ if ($_GET['mode'] == 'terminal_token') {
     }
 }
 if ($_GET['mode'] == 'cancel_intent') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -141,8 +146,8 @@ if ($_GET['mode'] == 'cancel_intent') {
 }
 
 if ($_GET['mode'] == 'terminal_capture') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -163,8 +168,8 @@ if ($_GET['mode'] == 'terminal_capture') {
 }
 
 if ($_GET['mode'] == 'terminal_create') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');

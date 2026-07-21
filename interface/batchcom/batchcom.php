@@ -6,7 +6,7 @@
  * @package OpenEMR
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,17 +14,20 @@
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
-require_once("$srcdir/registry.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/registry.inc.php");
 require_once("batchcom.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+$form_err = '';
 
 if (!AclMain::aclCheckCore('admin', 'batchcom')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("BatchCom")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/batchcom: BatchCom", xl("BatchCom"));
 }
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
@@ -34,10 +37,9 @@ $hipaa_choices = [xl('No'), xl('Yes')];
 $sort_by_choices = [xl('Zip Code') => 'patient_data.postal_code', xl('Last Name') => 'patient_data.lname', xl('Appointment Date') => 'last_appt'];
 
 // process form
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //validation uses the functions in batchcom.inc.php
     //validate dates
@@ -140,7 +142,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
         }
 
         switch ($_POST['process_type']) :
-            case $choices[1]: // Email
+            case $process_choices[1]: // Email
                 $sql .= " and patient_data.email IS NOT NULL ";
                 break;
         endswitch;
@@ -187,7 +189,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
     }
     ?>
     <form name="select_form" method="post" action="">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <div class="row">
             <div class="col-md card p-3 m-1 form-group">
                 <label for="process_type"><?php echo xlt("Process") . ":"; ?></label>
@@ -295,7 +297,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     })();

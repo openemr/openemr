@@ -92,32 +92,16 @@ class DataAdapter implements IObservable
     public function LoadDriver()
     {
         if ($this->_driver == null) {
-            require_once("verysimple/IO/Includer.php");
-
             // the driver was not explicitly provided so we will try to create one from
             // the connection setting based on the database types that we do know about
             switch ($this->ConnectionSetting->Type) {
-                case "mysql":
-                    include_once("verysimple/DB/DataDriver/MySQL.php");
-                    $this->_driver = new DataDriverMySQL();
-                    break;
                 case "mysqli":
+                case "MySQLi":
                     include_once("verysimple/DB/DataDriver/MySQLi.php");
                     $this->_driver = new DataDriverMySQLi();
                     break;
-                case "sqlite":
-                    include_once("verysimple/DB/DataDriver/SQLite.php");
-                    $this->_driver = new DataDriverSQLite();
-                    break;
                 default:
-                    try {
-                        Includer::IncludeFile("verysimple/DB/DataDriver/" . $this->ConnectionSetting->Type . ".php");
-                        $classname = "DataDriver" . $this->ConnectionSetting->Type;
-                        $this->_driver = new $classname();
-                    } catch (IncludeException) {
-                        throw new Exception('Unknown DataDriver "' . $this->ConnectionSetting->Type . '" specified in connection settings');
-                    }
-                    break;
+                    throw new Exception('Unknown DataDriver "' . $this->ConnectionSetting->Type . '" specified in connection settings');
             }
 
             DataAdapter::$DRIVER_INSTANCE = $this->_driver;
@@ -308,7 +292,7 @@ class DataAdapter implements IObservable
     /**
      * Return true if a transaction is in progress
      *
-     * @return boolean
+     * @return bool
      */
     function IsTransactionInProgress()
     {
@@ -373,21 +357,19 @@ class DataAdapter implements IObservable
     /**
      * Return true if the error with the given message is a communication/network error
      *
-     * @param
-     *          variant string or Exception $msg
+     * @param string|\Throwable $error
      * @return bool
      */
     public function IsCommunicationError($error)
     {
-        $msg = is_a($error, 'Exception') ? $error->getMessage() : $error;
+        $msg = $error instanceof \Throwable ? $error->getMessage() : $error;
         return str_contains(strtolower((string) $msg), 'lost connection');
     }
 
     /**
      * Returns an array of all table names in the current database
      *
-     * @param
-     *          bool true to omit tables that are empty (default = false)
+     * @param bool $ommitEmptyTables true to omit tables that are empty (default = false)
      * @return array
      */
     public function GetTableNames($ommitEmptyTables = false)
@@ -537,7 +519,7 @@ class DataAdapter implements IObservable
      * Fires the Observe event on all registered observers
      *
      * @access public
-     * @param variant $obj
+     * @param mixed $obj
      *          the $obj or message that you want to log/listen to, etc.
      * @param int $ltype
      *          the type/level

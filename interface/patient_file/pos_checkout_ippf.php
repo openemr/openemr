@@ -35,7 +35,7 @@
  * </pre>
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -49,19 +49,22 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/checkout_receipt_array.inc.php");
-require_once("$srcdir/appointment_status.inc.php");
+require_once($srcdir . "/checkout_receipt_array.inc.php");
+require_once($srcdir . "/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
@@ -69,12 +72,21 @@ use OpenEMR\Services\FacilityService;
 $facilityService = new FacilityService();
 $recorder = new Recorder();
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+
+// load_taxes() (called via write_form_headers()) sets these as globals.
+// Initialize defaults so PHPStan can verify top-level usage below.
+$num_optional_columns = 0;
+$form_num_type_columns = 2;
+$form_num_method_columns = 1;
+$form_num_ref_columns = 1;
+$form_num_amount_columns = 1;
 
 // Change this to get the old appearance.
 $TAXES_AFTER_ADJUSTMENT = true;
 
-$currdecimals = intval($GLOBALS['currency_decimals'] ?? 2);
+$currdecimals = intval(OEGlobalsBag::getInstance()->get('currency_decimals') ?? 2);
 
 // Details default to yes now.
 $details = (!isset($_GET['details']) || !empty($_GET['details'])) ? 1 : 0;
@@ -91,8 +103,7 @@ if (
     !AclMain::aclCheckCore('acct', 'bill') &&
     !AclMain::aclCheckCore('acct', 'disc')
 ) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Client Receipt")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or acct/bill or acct/disc: Client Receipt", xl("Client Receipt"));
 }
 
 // This will be used for SQL timestamps that we write.
@@ -107,9 +118,14 @@ $aAdjusts = [];
 // Holds possible javascript error messages.
 $alertmsg = '';
 
-// Get a list item's title, translated if appropriate.
-//
-function getListTitle($list, $option)
+/**
+ * Get a list item's title, translated if appropriate.
+ *
+ * @param string $list
+ * @param string $option
+ * @return string
+ */
+function checkout_getListTitle($list, $option)
 {
     $row = sqlQuery(
         "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? AND activity = 1",
@@ -169,7 +185,7 @@ function pull_adjustment($code_type, $code, $billtime, &$memo)
     global $aAdjusts;
     $adjust = 0;
     $memo = '';
-    if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
         for ($i = 0; $i < count($aAdjusts); ++$i) {
             if (
                 $aAdjusts[$i]['code_type'] == $code_type && $aAdjusts[$i]['code'] == $code &&
@@ -221,9 +237,9 @@ function load_taxes($patient_id, $encounter): void
 
     // Knowing the number of tax columns we can now compute the total number of optional
     // columns and from that the colspan values for various things.
-    $num_optional_columns = (empty($GLOBALS['gbl_checkout_charges']) ? 0 : 1) +
-        (empty($GLOBALS['gbl_charge_categories']) ? 0 : 1) +
-        (empty($GLOBALS['gbl_checkout_line_adjustments']) ? 0 : 2) +
+    $num_optional_columns = (empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges')) ? 0 : 1) +
+        (empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories')) ? 0 : 1) +
+        (empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments')) ? 0 : 2) +
         count($aTaxNames);
     // Compute colspans for receipt payment rows.
     // What's in play here are columns for Qty, Price, the optionals, and Total.
@@ -319,7 +335,7 @@ function ippfReceiptDetailLine(
         $charge = 0;
         [$payer, $code_type, $code] = explode('|', $code);
         $memo = $description;
-        $description = $GLOBALS['simplified_demographics'] ? '' : "$payer ";
+        $description = OEGlobalsBag::getInstance()->getBoolean('simplified_demographics') ? '' : "$payer ";
         $description .= $code ? xl('Item Adjustment') : xl('Invoice Adjustment');
         $quantity = '';
     } else {
@@ -365,7 +381,7 @@ function ippfReceiptDetailLine(
     echo "  <td class='text-center'>" . ($isadjust ? '' : $quantity) . "</td>\n";
     echo "  <td class='text-right'>" . text(oeFormatMoney($price, false)) . "</td>\n";
 
-    if (!empty($GLOBALS['gbl_checkout_charges'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges'))) {
         echo "  <td class='text-right'>" . text(oeFormatMoney($charge, false)) . "</td>\n";
     }
 
@@ -377,12 +393,12 @@ function ippfReceiptDetailLine(
     }
 
     // Charge Category
-    if (!empty($GLOBALS['gbl_charge_categories'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories'))) {
         echo "  <td class='text-right'>" . text($chargecat) . "</td>\n";
     }
 
     // Adjustment and its description.
-    if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
         echo "  <td class='text-right'>" . text($memo) . "</td>\n";
         echo "  <td class='text-right'>" . text(oeFormatMoney($adjust, false)) . "</td>\n";
     }
@@ -411,7 +427,7 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     // Resolve the payment method portion of the memo to display properly.
     if (!empty($method)) {
         $tmp = explode(' ', (string) $method, 2);
-        $method = getListTitle('paymethod', $tmp[0]);
+        $method = checkout_getListTitle('paymethod', $tmp[0]);
         if (isset($tmp[1])) {
             // If the description is not interesting then let it hold the check number
             // or similar, otherwise append that to the payment method.
@@ -424,9 +440,10 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     echo " <tr>\n";
     echo "  <td";
-    if (!empty($billtime) && !str_starts_with((string) $billtime, '0000')) {
+    $billtimeStr = (string) $billtime;
+    if ($billtimeStr !== '' && !str_starts_with($billtimeStr, '0000')) {
         echo " title='" . xla('Entered') . ' ' .
-            text(oeFormatShortDate($billtime)) . attr(substr((string) $billtime, 10)) . "'";
+            text(oeFormatShortDate($billtime)) . attr(substr($billtimeStr, 10)) . "'";
     }
     echo ">" . text(oeFormatShortDate($paydate)) . "</td>\n";
     echo "  <td colspan='2'>" . text($refno) . "</td>\n";
@@ -471,12 +488,14 @@ function invoiceChecksum($pid, $encounter)
     return (0 + $row1['checksum']) ^ (0 + $row2['checksum']) ^ (0 + $row3['checksum']) ^ (0 + $row4['checksum']);
 }
 
-//////////////////////////////////////////////////////////////////////
-//
-// Generate a receipt from the last-billed invoice for this patient,
-// or for the encounter specified as a GET parameter.
-//
-function generate_receipt($patient_id, $encounter = 0): void
+/**
+ * Generate a receipt from the last-billed invoice for this patient,
+ * or for the encounter specified as a GET parameter.
+ *
+ * @param int|string $patient_id
+ * @param int|string $encounter
+ */
+function ippf_generate_receipt($patient_id, $encounter = 0): void
 {
     global $details, $rapid_data_entry, $aAdjusts;
     global $web_root, $webserver_root, $code_types;
@@ -485,7 +504,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     global $TAXES_AFTER_ADJUSTMENT;
     global $facilityService, $alertmsg;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     // Get the most recent invoice data or that for the specified encounter.
     if ($encounter) {
@@ -532,7 +551,7 @@ function generate_receipt($patient_id, $encounter = 0): void
 
     <script>
 
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     $(function () {
         var win = top.printLogSetup ? top : opener.top;
@@ -541,7 +560,7 @@ function generate_receipt($patient_id, $encounter = 0): void
 
     // Process click on Print button.
     function printme(checkout_id) {
-    <?php if (!empty($GLOBALS['gbl_custom_receipt'])) { ?>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_custom_receipt'))) { ?>
         // Custom checkout receipt needs to be sent as a PDF in a new window or tab.
         window.open('pos_checkout.php?ptid=' + <?php echo js_url($patient_id); ?>
             + '&enc=' + <?php echo js_url($encounter); ?>
@@ -568,7 +587,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     function deleteme() {
         const params = new URLSearchParams({
             billing: <?php echo js_escape($patient_id . "." . $encounter); ?>,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         });
         dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
         return false;
@@ -753,7 +772,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                         <td class='font-weight-bold'><?php echo xlt('Description'); ?></td>
                         <td class='font-weight-bold text-center'><?php echo $details ? xlt('Qty') : '&nbsp;'; ?></td>
                         <td class='font-weight-bold text-right'><?php echo $details ? xlt('Price') : '&nbsp;'; ?></td>
-        <?php if (!empty($GLOBALS['gbl_checkout_charges'])) { ?>
+        <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges'))) { ?>
                         <td class='font-weight-bold text-right'><?php echo xlt('Charge'); ?></td>
     <?php } ?>
         <?php
@@ -763,10 +782,10 @@ function generate_receipt($patient_id, $encounter = 0): void
             }
         }
         ?>
-        <?php if (!empty($GLOBALS['gbl_charge_categories'])) { ?>
+        <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories'))) { ?>
                         <td class='font-weight-bold text-right'><?php echo xlt('Customer'); ?></td>
 <?php } ?>
-        <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
+        <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) { ?>
                         <td class='font-weight-bold text-right'><?php echo xlt('Adj Type'); ?></td>
                         <td class='font-weight-bold text-right'><?php echo xlt('Adj Amt'); ?></td>
 <?php } ?>
@@ -891,7 +910,7 @@ function generate_receipt($patient_id, $encounter = 0): void
         echo "  <td align='center'>" . text($aTotals[0]) . "</td>\n";
         echo "  <td align='right'>" . text(oeFormatMoney($aTotals[1])) . "</td>\n";
         // Optional charge amount.
-        if (!empty($GLOBALS['gbl_checkout_charges'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges'))) {
             echo "  <td align='right'>" . text(oeFormatMoney($aTotals[2])) . "</td>\n";
         }
         if (!$TAXES_AFTER_ADJUSTMENT) {
@@ -901,11 +920,11 @@ function generate_receipt($patient_id, $encounter = 0): void
             }
         }
         // Optional charge category empty column.
-        if (!empty($GLOBALS['gbl_charge_categories'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories'))) {
             echo "  <td align='right'>&nbsp;</td>\n";
         }
         // Optional adjustment columns.
-        if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
             echo "  <td align='right'>&nbsp;</td>\n";
             echo "  <td align='right'>" . text(oeFormatMoney($aTotals[3])) . "</td>\n";
         }
@@ -1032,10 +1051,10 @@ function generate_receipt($patient_id, $encounter = 0): void
 
     <?php
     // The user-customizable note.
-    if (!empty($GLOBALS['gbl_checkout_receipt_note'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_receipt_note'))) {
         echo "<p>";
         echo str_repeat('*', 80) . '<br />';
-        echo '&nbsp;&nbsp;' . text($GLOBALS['gbl_checkout_receipt_note']) . '<br />';
+        echo '&nbsp;&nbsp;' . text(OEGlobalsBag::getInstance()->get('gbl_checkout_receipt_note')) . '<br />';
         echo str_repeat('*', 80) . '<br />';
         echo "</p>";
     }
@@ -1050,7 +1069,7 @@ function generate_receipt($patient_id, $encounter = 0): void
                         &nbsp;
 
     <?php
-    if (count($checkout_times) > 1 && !empty($GLOBALS['gbl_custom_receipt'])) {
+    if (count($checkout_times) > 1 && !empty(OEGlobalsBag::getInstance()->get('gbl_custom_receipt'))) {
         // Multiple checkouts so allow selection of the one to print.
         // This is only applicable for custom checkout receipts.
         echo "<select onchange='printme(this.value)' >\n";
@@ -1103,7 +1122,7 @@ function generate_receipt($patient_id, $encounter = 0): void
     <?php
 }
 
-// end function generate_receipt()
+// end function ippf_generate_receipt()
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -1155,18 +1174,18 @@ function write_form_headers(): void
 
     <tr>
     <?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
-        <td colspan='<?php echo 4 + (empty($GLOBALS['gbl_checkout_charges']) ? 0 : 1) + count($taxes); ?>' class='bold'>
+        <td colspan='<?php echo 4 + (empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges')) ? 0 : 1) + count($taxes); ?>' class='bold'>
     <?php } else { ?>
-        <td colspan='<?php echo 4 + (empty($GLOBALS['gbl_checkout_charges']) ? 0 : 1); ?>' class='bold'>
+        <td colspan='<?php echo 4 + (empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges')) ? 0 : 1); ?>' class='bold'>
     <?php } ?>
             &nbsp;
         </td>
-    <?php if (!empty($GLOBALS['gbl_charge_categories'])) { ?>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories'))) { ?>
         <td align='right' class='bold' nowrap>
             <?php echo xlt('Default Customer'); ?>
         </td>
     <?php } ?>
-    <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) { ?>
         <td align='right' class='bold' nowrap>
             <?php echo xlt('Default Adjust Type'); ?>
         </td>
@@ -1185,18 +1204,18 @@ function write_form_headers(): void
 
     <tr>
     <?php if (!$TAXES_AFTER_ADJUSTMENT) { ?>
-        <td colspan='<?php echo 4 + (empty($GLOBALS['gbl_checkout_charges']) ? 0 : 1) + count($taxes); ?>' class='title'>
+        <td colspan='<?php echo 4 + (empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges')) ? 0 : 1) + count($taxes); ?>' class='title'>
     <?php } else { ?>
-        <td colspan='<?php echo 4 + (empty($GLOBALS['gbl_checkout_charges']) ? 0 : 1); ?>' class='title'>
+        <td colspan='<?php echo 4 + (empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges')) ? 0 : 1); ?>' class='title'>
     <?php } ?>
             <?php echo xlt('Current Charges'); ?>
         </td>
-    <?php if (!empty($GLOBALS['gbl_charge_categories'])) { // charge category default ?>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories'))) { // charge category default ?>
         <td align='right' class='bold'>
             <?php echo generate_select_list('form_charge_category', 'chargecats', '', '', ' ', '', 'chargeCategoryChanged();'); ?>
         </td>
     <?php } ?>
-    <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { // adjustmenty reason default ?>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) { // adjustmenty reason default ?>
         <td align='right' class='bold'>
             <?php echo generate_select_list('form_discount_type', 'adjreason', '', '', ' ', '', 'discountTypeChanged();billingChanged();'); ?>
         </td>
@@ -1217,7 +1236,7 @@ function write_form_headers(): void
         <td class='bold'><?php echo xlt('Date'); ?></td>
         <td class='bold'><?php echo xlt('Description'); ?></td>
         <td align='right' class='bold'><?php echo xlt('Quantity'); ?></td>
-    <?php if (empty($GLOBALS['gbl_checkout_charges'])) { // if no charges column ?>
+    <?php if (empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges'))) { // if no charges column ?>
         <td align='right' class='bold'><?php echo xlt('Charge'); ?></td>
     <?php } else { // charges column needed ?>
         <td align='right' class='bold'><?php echo xlt('Price'); ?></td>
@@ -1230,10 +1249,10 @@ function write_form_headers(): void
         }
     }
     ?>
-    <?php if (!empty($GLOBALS['gbl_charge_categories'])) { // charge category ?>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories'))) { // charge category ?>
         <td align='right' class='bold'><?php echo xlt('Customer'); ?></td>
     <?php } ?>
-    <?php if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) { ?>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) { ?>
         <td align='right' class='bold'><?php echo xlt('Adjust Type'); ?></td>
         <td align='right' class='bold'><?php echo xlt('Adj'); ?></td>
     <?php } ?>
@@ -1283,7 +1302,7 @@ function write_form_line_ippf(
     $memo = '';
     $adjust = pull_adjustment($code_type, $code, $billtime, $memo);
     $total = formatMoneyNumber($amount - $adjust);
-    if (empty($GLOBALS['discount_by_money'])) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
         // Convert $adjust to a percentage of the amount, up to 4 decimal places.
         $adjust = round(100 * $adjust / $amount, 4);
     }
@@ -1314,7 +1333,7 @@ function write_form_line_ippf(
     echo "  <td class='text'>" . text($description) . "</td>";
     echo "  <td class='text' align='right'>" . text($units) . "</td>";
 
-    if (empty($GLOBALS['gbl_checkout_charges'])) {
+    if (empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges'))) {
         // We show only total charges here.
         echo "  <td class='text' align='right'>";
         echo "<input type='hidden' name='line[$lino][price]' value='" . attr($price) . "'>";
@@ -1354,7 +1373,7 @@ function write_form_line_ippf(
     }
 
     // Optional Charge Category.
-    if (!empty($GLOBALS['gbl_charge_categories'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories'))) {
         echo "  <td class='text' align='right'>";
         echo generate_select_list(
             "line[$lino][chargecat]",
@@ -1370,7 +1389,7 @@ function write_form_line_ippf(
         echo "</td>\n";
     }
 
-    if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
         echo "  <td class='text' align='right'>";
         echo generate_select_list(
             "line[$lino][memo]",
@@ -1385,7 +1404,7 @@ function write_form_line_ippf(
         );
         echo "</td>\n";
         echo "  <td class='text' align='right' nowrap>";
-        echo empty($GLOBALS['discount_by_money']) ? '' : text($GLOBALS['gbl_currency_symbol']);
+        echo !OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? '' : text(OEGlobalsBag::getInstance()->getString('gbl_currency_symbol'));
         echo "<input type='text' name='line[$lino][adjust]' size='6'";
         echo " value='" . attr(formatMoneyNumber($adjust)) . "'";
         // Modifying discount requires the acct/disc permission.
@@ -1395,7 +1414,7 @@ function write_form_line_ippf(
             echo " style='text-align:right' maxlength='8' onkeyup='lineDiscountChanged($lino)'";
         }
         echo " /> ";
-        echo empty($GLOBALS['discount_by_money']) ? '%' : '';
+        echo !OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? '%' : '';
         echo "</td>\n";
     }
 
@@ -1461,7 +1480,7 @@ while ($prow = sqlFetchArray($pres)) {
 // "%d" will be replaced by a payment line number on the client side.
 //
 $aCellHTML = [];
-$aCellHTML[] = "<span id='paytitle_%d'>" . text(xl('New Payment')) . "</span>";
+$aCellHTML[] = "<span id='paytitle_%d'>" . xlt('New Payment') . "</span>";
 $aCellHTML[] = strtr(generate_select_list('payment[%d][method]', 'paymethod', '', '', ''), ["\n" => ""]);
 $aCellHTML[] = "<input type='text' name='payment[%d][refno]' size='10' />";
 $aCellHTML[] = "<input type='text' name='payment[%d][amount]' size='6' style='text-align:right' onkeyup='setComputedValues()' />";
@@ -1495,9 +1514,7 @@ if ($patient_id && $encounter_id) {
 // If the Save button was clicked...
 //
 if (!empty($_POST['form_save']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // On a save, do the following:
     // Flag this form's drug_sales and billing items as billed.
@@ -1585,7 +1602,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
         }
 
         // If there is an adjustment for this line, insert it.
-        if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
             $adjust = 0.00 + trim((string) $line['adjust']);
             $memo = $line['memo'];
             if ($adjust != 0 || $memo !== '') {
@@ -1611,7 +1628,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
             }
         }
 
-        if (!empty($GLOBALS['gbl_charge_categories'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories'))) {
             // Update charge category for this line item.
             if ($code_type == 'PROD') {
                 $query = "UPDATE drug_sales SET chargecat = ? WHERE sale_id = ?";
@@ -1633,10 +1650,11 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
 
     // Post discount.
     if ($_POST['form_discount'] != 0) {
-        if ($GLOBALS['discount_by_money']) {
-            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']));
+        $discount = trim((string) $_POST['form_discount']);
+        if (OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
+            $amount  = formatMoneyNumber($discount);
         } else {
-            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']) * $form_amount / 100);
+            $amount  = formatMoneyNumber($discount * $form_amount / 100);
         }
         $memo = trimPost('form_discount_type');
         $recorder = new Recorder();
@@ -1704,7 +1722,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
     // "Checked out".
     updateAppointmentStatus($patient_id, $dosdate, '>');
 
-    generate_receipt($patient_id, $encounter_id);
+    ippf_generate_receipt($patient_id, $encounter_id);
     exit();
 }
 
@@ -1731,16 +1749,19 @@ if (!$alertmsg && $patient_id && !empty($_GET['regen'])) {
 //
 if ($patient_id && !empty($_GET['enc'])) {
     if (empty($_GET['pdf'])) {
-        generate_receipt($patient_id, $_GET['enc']);
+        ippf_generate_receipt($patient_id, $_GET['enc']);
     } else {
         // PDF receipt is requested. In this case we are probably in a new window.
-        require_once($GLOBALS['OE_SITE_DIR'] . "/" . $GLOBALS['gbl_custom_receipt']);
+        require_once(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/" . OEGlobalsBag::getInstance()->get('gbl_custom_receipt'));
         // $checkout_id is an optional specified checkout timestamp.
         $billtime = $checkout_id;
         if (!$billtime) {
             // No timestamp specified so use the last one.
             $checkout_times = craGetTimestamps($patient_id, $_GET['enc']);
             $billtime = empty($checkout_times) ? '' : $checkout_times[count($checkout_times) - 1];
+        }
+        if (!function_exists('generateCheckoutReceipt')) {
+            throw new \RuntimeException('The custom receipt include does not define generateCheckoutReceipt().');
         }
         generateCheckoutReceipt($patient_id, $_GET['enc'], $billtime);
     }
@@ -1783,14 +1804,13 @@ if (!$encounter_id) {
 // If there are none, just redisplay the last receipt and exit.
 //
 if (!$encounter_id) {
-    generate_receipt($patient_id);
+    ippf_generate_receipt($patient_id);
     exit();
 }
 
 // Form requires billing permission.
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('acct', 'bill')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or acct/bill: Patient Checkout", xl("Patient Checkout"));
 }
 
 // We have $patient_id and $encounter_id. Generate checksum if not already done.
@@ -1831,9 +1851,9 @@ while ($urow = sqlFetchArray($ures)) {
 </style>
 
 <script>
-    var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+    var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     // This clears tax amounts in preparation for recomputing taxes.
     // TBD: Probably don't need this at all.
@@ -1969,7 +1989,7 @@ while ($urow = sqlFetchArray($ures)) {
         if (isNaN(discount)) {
             discount = 0;
         }
-<?php if (!$GLOBALS['discount_by_money']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
         // This site discounts by percentage, so convert it to a money amount.
         if (discount > 100) {
             discount = 100;
@@ -1999,9 +2019,10 @@ while ($urow = sqlFetchArray($ures)) {
         "list_id = 'chargecats' AND activity = 1"
     );
     while ($tmprow = sqlFetchArray($tmpres)) {
+        $notes = (string) $tmprow['notes'];
         if (
-            preg_match('/ADJ=(\w+)/', (string) $tmprow['notes'], $matches) ||
-            preg_match('/ADJ="(.*?)"/', (string) $tmprow['notes'], $matches)
+            preg_match('/ADJ=(\w+)/', $notes, $matches) ||
+            preg_match('/ADJ="(.*?)"/', $notes, $matches)
         ) {
             echo "  if (customer == " . js_escape($tmprow['option_id']) . ") ret = " . js_escape($matches[1]) . ";\n";
         }
@@ -2021,7 +2042,7 @@ while ($urow = sqlFetchArray($ures)) {
         if (isNaN(charge)) {
             charge = 0;
         }
-<?php if (!$GLOBALS['discount_by_money']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
         // This site discounts by percentage, so convert it to a money amount.
         if (discount > 100) {
             discount = 100;
@@ -2057,7 +2078,7 @@ while ($urow = sqlFetchArray($ures)) {
         if (isNaN(discount)) {
             discount = 0;
         }
-<?php if (!$GLOBALS['discount_by_money']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
         // This site discounts by percentage, so convert it to a money amount.
         if (discount > 100) {
             discount = 100;
@@ -2082,7 +2103,7 @@ while ($urow = sqlFetchArray($ures)) {
         var charges = computeDiscountedTotals(0, false);
         var payment = computePaymentTotal();
         var discount = charges - payment;
-<?php if (!$GLOBALS['discount_by_money']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
         // This site discounts by percentage, so convert to that.
         discount = charges ? (100 * discount / charges) : 0;
         f.form_discount.value = discount.toFixed(4);
@@ -2123,7 +2144,7 @@ while ($urow = sqlFetchArray($ures)) {
 
     // This is specific to IPPF and Suriname.
     function check_referrals() {
-<?php if (!empty($GLOBALS['gbl_menu_surinam_insurance'])) { ?>
+<?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_menu_surinam_insurance'))) { ?>
         var msg = '';
         var f = document.forms[0];
         var services_needing_referral = '';
@@ -2143,7 +2164,7 @@ while ($urow = sqlFetchArray($ures)) {
             $.ajax({
                 dataType: "json",
                 async: false, // We cannot continue without an answer.
-                url: "<?php echo $GLOBALS['webroot']; ?>/library/ajax/check_szf_referrals_ajax.php",
+                url: "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/check_szf_referrals_ajax.php",
                 data: {
                     "pid": <?php echo intval($patient_id); ?>,
                     "encounter": <?php echo intval($encounter_id); ?>,
@@ -2163,7 +2184,7 @@ while ($urow = sqlFetchArray($ures)) {
 
     // This is specific to IPPF and the NetSuite project.
     function check_giftcards() {
-<?php if (empty($GLOBALS['gbl_menu_netsuite'])) { ?>
+<?php if (empty(OEGlobalsBag::getInstance()->get('gbl_menu_netsuite'))) { ?>
         return true;
 <?php } else { ?>
         var f = document.forms[0];
@@ -2282,7 +2303,7 @@ if (!empty($_GET['framed'])) {
 echo "' onsubmit='return validate()'>\n";
 echo "<input type='hidden' name='form_pid' value='" . attr($patient_id) . "' />\n";
 ?>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 
@@ -2373,7 +2394,7 @@ while ($brow = sqlFetchArray($bres)) {
     }
 
     // Custom logic for IPPF to determine if a GCAC issue applies.
-    if ($GLOBALS['ippf_specific'] && $related_code) {
+    if (OEGlobalsBag::getInstance()->get('ippf_specific') && $related_code) {
         $relcodes = explode(';', (string) $related_code);
         foreach ($relcodes as $codestring) {
             if ($codestring === '') {
@@ -2383,13 +2404,13 @@ while ($brow = sqlFetchArray($bres)) {
             if ($codetype !== 'IPPF2') {
                 continue;
             }
-            if (preg_match('/^211/', $code)) {
+            if (str_starts_with($code, '211')) {
                 $gcac_related_visit = true;
                 if (
-                    preg_match('/^211313030110/', $code) // Medical
-                    || preg_match('/^211323030230/', $code) // Surgical
-                    || preg_match('/^211403030110/', $code) // Incomplete Medical
-                    || preg_match('/^211403030230/', $code) // Incomplete Surgical
+                    str_starts_with($code, '211313030110') // Medical
+                    || str_starts_with($code, '211323030230') // Surgical
+                    || str_starts_with($code, '211403030110') // Incomplete Medical
+                    || str_starts_with($code, '211403030230') // Incomplete Surgical
                 ) {
                     $gcac_service_provided = true;
                 }
@@ -2447,7 +2468,7 @@ while ($drow = sqlFetchArray($dres)) {
 // Line for total charges.
 $totalchg = formatMoneyNumber($totalchg);
 echo " <tr>\n";
-echo "  <td class='bold' colspan='" . (!empty($GLOBALS['gbl_checkout_charges']) ? 4 : 3) .
+echo "  <td class='bold' colspan='" . (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_charges')) ? 4 : 3) .
      "' align='right'>" . xlt('Total Charges This Visit') . "</td>\n";
 echo "  <td class='text' align='right'><input type='text' name='totalcba' " .
      "value='" . attr($totalchg) . "' size='6' maxlength='8' " .
@@ -2461,10 +2482,10 @@ if (!$TAXES_AFTER_ADJUSTMENT) {
         echo "></td>\n";
     }
 }
-if (!empty($GLOBALS['gbl_charge_categories'])) {
+if (!empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories'))) {
     echo "  <td class='text' align='right'>&nbsp;</td>\n"; // Empty space in charge category column.
 }
-if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
     // Note $totalchg is the total of charges before adjustments, and the following
     // field will be recomputed at onload time and as adjustments are entered.
     echo "  <td class='text' align='right'>&nbsp;</td>\n"; // Empty space in adjustment type column.
@@ -2501,6 +2522,7 @@ echo "   <td class='bold' colspan='$form_num_amount_columns' align='right' nowra
 echo "  </tr>\n";
 
 $lino = 0;
+$thisdate = '';
 
 // Write co-pays.
 foreach ($aCopays as $brow) {
@@ -2578,7 +2600,7 @@ echo "  </tr>\n";
 
 echo " <tr";
 // Hide this if only showing line item adjustments.
-if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
     echo " style='display:none'";
 }
 echo ">\n";
@@ -2602,7 +2624,7 @@ if ($encounter_id) {
 // Line for Discount.
 echo " <tr";
 // Hide this if only showing line item adjustments.
-if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
     echo " style='display:none'";
 }
 echo ">\n";
@@ -2638,7 +2660,7 @@ echo " </tr>\n";
 
     <tr>
         <td class='bold' colspan='<?php echo ($form_num_type_columns + $form_num_method_columns + $form_num_ref_columns) +
-            (empty($GLOBALS['gbl_charge_categories']) ? 0 : 1); ?>' align='right'>
+            (empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories')) ? 0 : 1); ?>' align='right'>
             <label class="control-label" for="form_date"><?php echo xlt('Posting Date'); ?>:</label>
         </td>
         <td class='text' colspan='<?php echo $form_num_amount_columns; ?>' align='right'>
@@ -2665,7 +2687,7 @@ if (!$current_irnumber) {
         ?>
     <tr>
         <td class='bold' colspan='<?php echo ($form_num_type_columns + $form_num_method_columns + $form_num_ref_columns) +
-            (empty($GLOBALS['gbl_charge_categories']) ? 0 : 1); ?>' align='right'>
+            (empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories')) ? 0 : 1); ?>' align='right'>
             <?php echo xlt('Tentative Invoice Ref No'); ?>
         </td>
         <td class='text' align='right' colspan='<?php echo $form_num_amount_columns; ?>'>
@@ -2673,18 +2695,18 @@ if (!$current_irnumber) {
         </td>
     </tr>
         <?php
-    } elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) {
+    } elseif (!empty(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))) {
     // Otherwise if there is an invoice reference number mask, ask for the refno.
         ?>
     <tr>
         <td class='bold' colspan='<?php echo ($form_num_type_columns + $form_num_method_columns + $form_num_ref_columns) +
-            (empty($GLOBALS['gbl_charge_categories']) ? 0 : 1); ?>' align='right'>
+            (empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories')) ? 0 : 1); ?>' align='right'>
             <?php echo xlt('Invoice Reference Number'); ?>
         </td>
         <td class='text' align='right' colspan='<?php echo $form_num_amount_columns; ?>'>
             <input type='text' name='form_irnumber' size='10' value=''
-                onkeyup='maskkeyup(this,"<?php echo addslashes((string) $GLOBALS['gbl_mask_invoice_number']); ?>")'
-                onblur='maskblur(this,"<?php echo addslashes((string) $GLOBALS['gbl_mask_invoice_number']); ?>")'
+                onkeyup='maskkeyup(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))); ?>)'
+                onblur='maskblur(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))); ?>)'
         />
         </td>
     </tr>
@@ -2810,13 +2832,14 @@ if ($gcac_related_visit && !$gcac_service_provided) {
     }
 } // end if ($gcac_related_visit)
 
-if ($GLOBALS['ippf_specific']) {
+if (OEGlobalsBag::getInstance()->get('ippf_specific')) {
     // More validation:
     // o If there is an initial contraceptive consult, make sure a LBFccicon form exists with that method on it.
     // o If a LBFccicon form exists with a new method on it, make sure the TS initial consult exists.
 
-    require_once("$srcdir/contraception_billing_scan.inc.php");
+    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/contraception_billing_scan.inc.php");
     contraception_billing_scan($patient_id, $encounter_id);
+    $contraception_billing_code = OEGlobalsBag::getInstance()->get('contraception_billing_code', '');
 
     $csrow = sqlQuery(
         "SELECT field_value FROM shared_attributes WHERE pid = ? AND encounter = ? AND field_id = 'cgen_MethAdopt'",

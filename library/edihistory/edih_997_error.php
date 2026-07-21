@@ -20,13 +20,14 @@
  *  <http://opensource.org/licenses/gpl-license.php>
  *
  *
- * @author Kevin McCormick
- * @link: https://www.open-emr.org
- * @package OpenEMR
+ * @author     Kevin McCormick
+ * @link       https://www.open-emr.org
+ * @package    OpenEMR
  * @subpackage ediHistory
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // codes used in 997/999 files;
 //require_once './codes/edih_997_codes.php';
@@ -34,8 +35,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 /**
  * Look up file name by control number
  *
- * @param string
- * @param string
+ * @param string $icn
+ * @param string $filetype
  *
  * @return string
  */
@@ -61,7 +62,7 @@ function edih_997_sbmtfile($icn, $filetype)
 /**
  * Extract information on rejected files or transactions
  *
- * @param object
+ * @param mixed $obj997
  * @return array
  */
 function edih_997_errdata($obj997)
@@ -80,6 +81,15 @@ function edih_997_errdata($obj997)
     $iserr = false;
     $batchfile = '';
     $idx = -1;
+    $sub_icn = '';
+    $subdate = '';
+    $subtime = '';
+    $ackcode = '';
+    $acknote = '';
+    $fg_type = '';
+    $fg_id = '';
+    $subtype = '';
+    $substn = '';
     //
     foreach ($segments as $seg) {
         $sar = [];
@@ -214,7 +224,7 @@ function edih_997_errdata($obj997)
  * @uses edih_997_code_text()
  * @uses edih_rsp_st_match()
  *
- * @param object
+ * @param mixed $err_array
  * @return array
  */
 function edih_997_err_report($err_array)
@@ -261,6 +271,7 @@ function edih_997_err_report($err_array)
         $str_html .= "</p>" . PHP_EOL;
     }
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     //
     foreach ($err_array['err'] as $k => $v) {
         //
@@ -286,7 +297,7 @@ function edih_997_err_report($err_array)
                 $clm01 = ($rtp == 'f837') ? $trn_ar[0][2] : $trn_ar[0][4]; // $trn_ar['CLM01'] : $trn_ar['BHT03'];
                 $svcdate = $trn_ar[0][1]; // ($rtp == 'f270') ? $trn_ar['ReqDate'] : $trn_ar['SvcDate'];
                 $btfn = $trn_ar[0][5]; // $trn_ar['FileName'];
-                $str_html .= text($pt_name) . " " . text($svcdate) . " <em>Trace</em> <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr_url($btfn) . "&ftype=" . attr_url($rtp) . "&pid=" . attr_url($clm01) . "&fmt=seg&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "'>" . text($clm01) . "</a> <br />" . PHP_EOL;
+                $str_html .= text($pt_name) . " " . text($svcdate) . " <em>Trace</em> <a class='rpt' href='edih_main.php?gtbl=claim&fname=" . attr_url($btfn) . "&ftype=" . attr_url($rtp) . "&pid=" . attr_url($clm01) . "&fmt=seg&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "'>" . text($clm01) . "</a> <br />" . PHP_EOL;
             } else {
                 $str_html .= "Unable to locate transaction  <em>Trace</em> " . text($trc) . " <br />" . PHP_EOL;
             }
@@ -330,7 +341,7 @@ function edih_997_err_report($err_array)
  * @uses edih_997_errdata()
  * @uses edih_997_err_report()
  *
- * @param string
+ * @param string $filepath
  * @return string
  */
 function edih_997_error($filepath)
@@ -339,7 +350,7 @@ function edih_997_error($filepath)
     $html_str = '';
     //
     $obj997 = csv_check_x12_obj($filepath, 'f997');
-    if ($obj997 && ('edih_x12_file' == $obj997::class)) {
+    if ($obj997 !== false) {
         $data = edih_997_errdata($obj997);
         $html_str .= edih_997_err_report($data);
     } else {

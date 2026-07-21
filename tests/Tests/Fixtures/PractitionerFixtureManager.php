@@ -15,7 +15,7 @@ use Ramsey\Uuid\Uuid;
  * - The "practitioner" related methods provide clear working examples.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -25,25 +25,39 @@ class PractitionerFixtureManager
     // use a prefix so we can easily remove fixtures
     const FIXTURE_PREFIX = "test-fixture";
 
+    /** @var array<string, mixed>[] */
     private $practitionerFixtures;
+    /** @var array<string, mixed>[] */
     private $fhirPractitionerFixtures;
 
     public function __construct()
     {
-        $this->practitionerFixtures = $this->loadJsonFile("practitioners.json");
+        $this->practitionerFixtures = $this->loadPhpFile("practitioners.php");
         $this->fhirPractitionerFixtures = $this->loadJsonFile("FHIR/practitioners.json");
     }
 
     /**
-     * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
-     * @param $fileName The file name to load.
-     * @return array of records.
+     * @return array<string, mixed>[]
      */
-    private function loadJsonFile($fileName)
+    private function loadPhpFile(string $fileName): array
     {
-        $filePath = __DIR__ . "/" . $fileName;
-        $jsonData = file_get_contents($filePath);
-        $parsedRecords = json_decode($jsonData, true);
+        $filePath = realpath(__DIR__ . '/' . $fileName);
+        if ($filePath === false || !str_starts_with($filePath, __DIR__ . '/')) {
+            throw new \RuntimeException('Fixture file not found or outside fixtures directory: ' . $fileName);
+        }
+        /** @var array<string, mixed>[] */
+        return require $filePath;
+    }
+
+    /**
+     * Load a JSON fixture file. Used for FHIR fixtures that stay in JSON format.
+     *
+     * @return array<string, mixed>[]
+     */
+    private function loadJsonFile(string $fileName): array
+    {
+        /** @var array<string, mixed>[] $parsedRecords */
+        $parsedRecords = json_decode((string) file_get_contents(__DIR__ . '/' . $fileName), true);
         return $parsedRecords;
     }
 
@@ -52,7 +66,7 @@ class PractitionerFixtureManager
      * This will return a recorded uuid (recorded in uuid_registry)
      *
      * @param $tableName The target OpenEMR DB table name.
-     * @return uuid.
+     * @return string uuid
      */
     private function getUuid($tableName)
     {
@@ -60,7 +74,7 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return the next available practitioner id/identifier.
+     * @return int the next available practitioner id/identifier.
      */
     private function getNextId()
     {
@@ -75,7 +89,7 @@ class PractitionerFixtureManager
      *
      * @param $tableName The target OpenEMR DB table name.
      * @param $fixtures Array of fixture objects to install.
-     * @return the number of fixtures installed.
+     * @return int the number of fixtures installed.
      */
     private function installFixtures($tableName, $fixtures)
     {
@@ -114,7 +128,7 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return single/random fhir practitioner fixture
+     * @return array<string, mixed> a single random fhir practitioner fixture
      */
     public function getSingleFhirPractitionerFixture()
     {
@@ -130,7 +144,8 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return random single entry from an array.
+     * @param array<string, mixed>[] $array
+     * @return array<string, mixed> Random single entry from the array.
      */
     private function getSingleEntry($array)
     {
@@ -139,7 +154,7 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return a random practitioner fixture.
+     * @return array<string, mixed>
      */
     public function getSinglePractitionerFixture()
     {
@@ -157,7 +172,7 @@ class PractitionerFixtureManager
     /**
      * Installs a single Practitioner Fixtures into the OpenEMR DB.
      * @param $practitionerFixture - The fixture to install.
-     * @return count of records inserted.
+     * @return int the number of records inserted.
      */
     public function installSinglePractitionerFixture($practitionerFixture)
     {
@@ -185,7 +200,7 @@ class PractitionerFixtureManager
 
     /**
      * Returns an unregistered/unlogged UUID for use in testing fixtures
-     * @return uuid4 string value
+     * @return string a uuid4 string value
      */
     public function getUnregisteredUuid()
     {

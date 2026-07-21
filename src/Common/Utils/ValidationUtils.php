@@ -4,14 +4,14 @@
  * ValidationUtils is intended for validation methods that are used in OpenEMR.
  *
  * @package    OpenEMR
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Cassian LUP <cassi.lup@gmail.com>
  * @author     Stephen Nielson <snielson@discoverandchange.com>
  * @author     Michael A. Smith <michael@opencoreemr.com>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
  * @copyright  Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
- * @copyright  Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright  Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @copyright  Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -24,19 +24,9 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 class ValidationUtils
 {
-    public static function isValidEmail($email)
+    public static function isValidEmail(string $email): bool
     {
-        // FILTER_FLAG_EMAIL_UNICODE allows for unicode characters in the local (part before the @) of the email
-        if (filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE)) {
-            // TODO: OpenEMR has used this validator regex for 11+ years... leaving this line in case we need to revert
-            // on January 30th 2023 added the ability to support SMTP label addresses such as myname+label@gmail.com
-            // Fixes #6159 (openemr/openemr/issues/6159)
-
-//        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
-            return true;
-        }
-
-        return false;
+        return filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) !== false;
     }
 
     /**
@@ -202,7 +192,8 @@ class ValidationUtils
         }
 
         if ($requireHttps) {
-            return strtolower(parse_url((string) $url, PHP_URL_SCHEME) ?? '') === 'https';
+            $scheme = parse_url((string)$url, PHP_URL_SCHEME);
+            return is_string($scheme) && strtolower($scheme) === 'https';
         }
 
         return true;
@@ -217,6 +208,20 @@ class ValidationUtils
     public static function isValidUuid(string $uuid): bool
     {
         return UuidRegistry::isValidStringUUID($uuid);
+    }
+
+    /**
+     * Validates a TCP/UDP port number.
+     *
+     * Valid port numbers are 1-65535. Port 0 is reserved and not considered
+     * valid for connection purposes.
+     *
+     * @param string $port The port to validate
+     * @return bool True if valid port number, false otherwise
+     */
+    public static function isValidPort(string $port): bool
+    {
+        return self::validateInt($port, 1, 65535) !== false;
     }
 
     /**

@@ -1,6 +1,6 @@
 /**
  * @package   OpenEMR CCDAServer
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016-2025 Jerry Padgett <sjpadgett@gmail.com>
@@ -208,14 +208,14 @@ function populateAuthorFromAuthorContainer(pd) {
         },
         "date_time": {
             "point": {
-                "date": fDate(author.time) || fDate(""),
+                "date": fDate(author.time, false, true),
                 "precision": "tz"
             }
         },
         "identifiers": [
             {
                 "identifier": author.npi ? "2.16.840.1.113883.4.6" : (author.id || ""),
-                "extension": author.npi ? author.npi : 'NI'
+                "extension": author.npi ? author.npi : undefined
             }
         ],
         "name": [
@@ -229,7 +229,7 @@ function populateAuthorFromAuthorContainer(pd) {
                 "identity": [
                     {
                         "root": author.facility_oid || "2.16.840.1.113883.4.6",
-                        "extension": author.facility_npi || "NI"
+                        "extension": author.facility_npi || undefined
                     }
                 ],
                 "name": [
@@ -328,14 +328,14 @@ function populateMedication(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
                     "identifier": author.npi ? "2.16.840.1.113883.4.6" : (author.id || ""),
-                    "extension": author.npi ? author.npi : 'NI'
+                    "extension": author.npi ? author.npi : undefined
                 }
             ],
             "name": [
@@ -349,7 +349,7 @@ function populateMedication(pd) {
                     "identity": [
                         {
                             "root": author.facility_oid || "2.16.840.1.113883.4.6",
-                            "extension": author.facility_npi || "NI"
+                            "extension": author.facility_npi || undefined
                         }
                     ],
                     "name": [
@@ -392,14 +392,14 @@ function populateMedication(pd) {
                 },
                 "date_time": {
                     "point": {
-                        "date": authorDateTime || fDate(""),
+                        "date": authorDateTime || fDate("", false, true),
                         "precision": "tz"
                     }
                 },
                 "identifiers": [
                     {
                         "identifier": allAuthor.npi ? "2.16.840.1.113883.4.6" : (allAuthor.id || ""),
-                        "extension": allAuthor.npi ? allAuthor.npi : 'NI'
+                        "extension": allAuthor.npi ? allAuthor.npi : undefined
                     }
                 ],
                 "name": [
@@ -587,7 +587,7 @@ function getFinding(pd, problem) {
             },
             "date_time": {
                 "point": {
-                    "date": authorDateTime || fDate(""),
+                    "date": authorDateTime || fDate("", false, true),
                     "precision": "tz"
                 }
             },
@@ -738,14 +738,14 @@ function populateAllergy(pd) {
         },
         "date_time": {
             "point": {
-                "date": fDate(author.time) || fDate(""),
+                "date": fDate(author.time, false, true),
                 "precision": "tz"
             }
         },
         "identifiers": [
             {
                 "identifier": author.npi ? "2.16.840.1.113883.4.6" : (author.id || ""),
-                "extension": author.npi ? author.npi : 'NI'
+                "extension": author.npi ? author.npi : undefined
             }
         ],
         "name": [
@@ -759,7 +759,7 @@ function populateAllergy(pd) {
                 "identity": [
                     {
                         "root": author.facility_oid || "2.16.840.1.113883.4.6",
-                        "extension": author.facility_npi || "NI"
+                        "extension": author.facility_npi || undefined
                     }
                 ],
                 "name": [
@@ -803,7 +803,7 @@ function populateAllergy(pd) {
             "severity": {
                 "code": {
                     "name": pd.outcome || "",
-                    "code": cleanCode(pd.outcome_code) || "",
+                    "code": (pd.outcome_code && pd.outcome_code !== "0") ? cleanCode(pd.outcome_code) : "",
                     "code_system_name": "SNOMED CT"
                 }
             },
@@ -828,7 +828,7 @@ function populateAllergy(pd) {
                 "severity": {
                     "code": {
                         "name": pd.outcome || "",
-                        "code": cleanCode(pd.outcome_code) || "",
+                        "code": (pd.outcome_code && pd.outcome_code !== "0") ? cleanCode(pd.outcome_code) : "",
                         "code_system_name": "SNOMED CT"
                     }
                 }
@@ -881,14 +881,14 @@ function populateProblem(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
                     "identifier": author.npi ? "2.16.840.1.113883.4.6" : (author.id || ""),
-                    "extension": author.npi ? author.npi : 'NI'
+                    "extension": author.npi ? author.npi : undefined
                 }
             ],
             "name": [
@@ -902,7 +902,7 @@ function populateProblem(pd) {
                     "identity": [
                         {
                             "root": author.facility_oid || "2.16.840.1.113883.4.6",
-                            "extension": author.facility_npi || "NI"
+                            "extension": author.facility_npi || undefined
                         }
                     ],
                     "name": [
@@ -1047,14 +1047,14 @@ function populateMedicalDevice(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
                     "identifier": author.npi ? "2.16.840.1.113883.4.6" : (author.id || ""),
-                    "extension": author.npi ? author.npi : 'NI'
+                    "extension": author.npi ? author.npi : undefined
                 }
             ],
             "name": [
@@ -1068,7 +1068,7 @@ function populateMedicalDevice(pd) {
                     "identity": [
                         {
                             "root": author.facility_oid || "2.16.840.1.113883.4.6",
-                            "extension": author.facility_npi || "NI"
+                            "extension": author.facility_npi || undefined
                         }
                     ],
                     "name": [
@@ -1401,14 +1401,14 @@ function getFunctionalStatus(pd) {
         },
         "date_time": {
             "point": {
-                "date": authorDateTime || fDate(""),
+                "date": authorDateTime || fDate("", false, true),
                 "precision": "tz"
             }
         },
         "identifiers": [
             {
                 "identifier": allAuthor.npi ? "2.16.840.1.113883.4.6" : (allAuthor.id || ""),
-                "extension": allAuthor.npi ? allAuthor.npi : 'NI'
+                "extension": allAuthor.npi ? allAuthor.npi : undefined
             }
         ],
         "name": [
@@ -1475,14 +1475,14 @@ function getDisabilityAssessment(pd) {
         },
         "date_time": {
             "point": {
-                "date": authorDateTime || fDate(""),
+                "date": authorDateTime || fDate("", false, true),
                 "precision": "tz"
             }
         },
         "identifiers": [
             {
                 "identifier": allAuthor.npi ? "2.16.840.1.113883.4.6" : (allAuthor.id || ""),
-                "extension": allAuthor.npi ? allAuthor.npi : 'NI'
+                "extension": allAuthor.npi ? allAuthor.npi : undefined
             }
         ],
         "name": [
@@ -1516,7 +1516,7 @@ function getDisabilityAssessment(pd) {
         "disability_questions": pd.disability_questions || "",
         "date_time": {
             "point": {
-                "date": fDate(pd.date || all?.created_time_timezone) || fDate(""),
+                "date": fDate(pd.date || all?.created_time_timezone, false, true),
                 "precision": "day"
             }
         }
@@ -1552,14 +1552,14 @@ function getMentalStatus(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": authorDateTime || fDate(""),
+                    "date": authorDateTime || fDate("", false, true),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
                     "identifier": allAuthor.npi ? "2.16.840.1.113883.4.6" : (allAuthor.id || ""),
-                    "extension": allAuthor.npi ? allAuthor.npi : 'NI'
+                    "extension": allAuthor.npi ? allAuthor.npi : undefined
                 }
             ],
             "name": [
@@ -2121,14 +2121,14 @@ function populateSocialHistory(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
                     "identifier": author.npi ? "2.16.840.1.113883.4.6" : (author.id || ""),
-                    "extension": author.npi ? author.npi : 'NI'
+                    "extension": author.npi ? author.npi : undefined
                 }
             ],
             "name": [
@@ -2142,7 +2142,7 @@ function populateSocialHistory(pd) {
                     "identity": [
                         {
                             "root": author.facility_oid || "2.16.840.1.113883.4.6",
-                            "extension": author.facility_npi || "NI"
+                            "extension": author.facility_npi || undefined
                         }
                     ],
                     "name": [
@@ -2160,14 +2160,14 @@ function populateSocialHistory(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(patient.author?.time) || fDate(""),
+                    "date": fDate(patient.author?.time, false, true),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
                     "identifier": patient.author?.npi ? "2.16.840.1.113883.4.6" : (patient.author?.id || ""),
-                    "extension": patient.author?.npi ? patient.author.npi : 'NI'
+                    "extension": patient.author?.npi ? patient.author.npi : undefined
                 }
             ],
             "name": [
@@ -2181,7 +2181,7 @@ function populateSocialHistory(pd) {
                     "identity": [
                         {
                             "root": patient.author?.facility_oid || "2.16.840.1.113883.4.6",
-                            "extension": patient.author?.facility_npi || "NI"
+                            "extension": patient.author?.facility_npi || undefined
                         }
                     ],
                     "name": [
@@ -2267,14 +2267,14 @@ function populateImmunization(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
                     "identifier": author.npi ? "2.16.840.1.113883.4.6" : (author.id || ""),
-                    "extension": author.npi ? author.npi : 'NI'
+                    "extension": author.npi ? author.npi : undefined
                 }
             ],
             "name": [
@@ -2288,7 +2288,7 @@ function populateImmunization(pd) {
                     "identity": [
                         {
                             "root": author.facility_oid || "2.16.840.1.113883.4.6",
-                            "extension": author.facility_npi || "NI"
+                            "extension": author.facility_npi || undefined
                         }
                     ],
                     "name": [
@@ -2512,7 +2512,7 @@ function populateParticipant(participant) {
         },
         "identifiers": [{
             "identifier": participant.organization_npi ? "2.16.840.1.113883.4.6" : (participant.organization_id || ""),
-            "extension": participant.organization_npi ? participant.organization_npi : (participant.organization_ext || 'NI')
+            "extension": participant.organization_npi ? participant.organization_npi : (participant.organization_ext || undefined)
         }],
         "date_time": {
             "point": {
@@ -2579,14 +2579,14 @@ function populateAdvanceDirective(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": fDate(author.time) || fDate(""),
+                    "date": fDate(author.time, false, true),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
                     "identifier": author.npi ? "2.16.840.1.113883.4.6" : (author.id || ""),
-                    "extension": author.npi ? author.npi : 'NI'
+                    "extension": author.npi ? author.npi : undefined
                 }
             ],
             "name": [
@@ -2600,7 +2600,7 @@ function populateAdvanceDirective(pd) {
                     "identity": [
                         {
                             "root": author.facility_oid || "2.16.840.1.113883.4.6",
-                            "extension": author.facility_npi || "NI"
+                            "extension": author.facility_npi || undefined
                         }
                     ],
                     "name": [
@@ -2655,7 +2655,7 @@ function populateHeader(pd) {
         "title": name,
         "date_time": {
             "point": {
-                "date": fDate(pd.created_time_timezone) || fDate(""),
+                "date": fDate(pd.created_time_timezone, false, true),
                 "precision": "tz"
             }
         },
@@ -2668,14 +2668,14 @@ function populateHeader(pd) {
             },
             "date_time": {
                 "point": {
-                    "date": authorDateTime || fDate(""),
+                    "date": authorDateTime || fDate("", false, true),
                     "precision": "tz"
                 }
             },
             "identifiers": [
                 {
                     "identifier": allAuthor.npi ? "2.16.840.1.113883.4.6" : (allAuthor.id || ""),
-                    "extension": allAuthor.npi ? allAuthor.npi : 'NI'
+                    "extension": allAuthor.npi ? allAuthor.npi : undefined
                 }
             ],
             "name": [
@@ -2915,7 +2915,7 @@ function generateCcda(pd) {
     let theone = {};
     all = pd;
     let primary_care_provider = all?.primary_care_provider || {};
-    npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "NI";
+    npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : undefined;
     oidFacility = all?.encounter_provider?.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
     npiFacility = getNpiFacility(pd, false);
     webRoot = all?.serverRoot || "";
@@ -3277,14 +3277,14 @@ function generateCcda(pd) {
                 },
                 "date_time": {
                     "point": {
-                        "date": authorDateTime || fDate(""),
+                        "date": authorDateTime || fDate("", false, true),
                         "precision": "tz"
                     }
                 },
                 "identifiers": [
                     {
                         "identifier": allAuthor.npi ? "2.16.840.1.113883.4.6" : (allAuthor.id || ""),
-                        "extension": allAuthor.npi ? allAuthor.npi : 'NI'
+                        "extension": allAuthor.npi ? allAuthor.npi : undefined
                     }
                 ],
                 "name": [
@@ -3560,7 +3560,7 @@ function generateUnstructured(pd) {
     pd.doc_type = 'unstructured';
     all = pd;
     let primary_care_provider = all?.primary_care_provider || {};
-    npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "NI";
+    npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : undefined;
     oidFacility = all?.encounter_provider?.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
     npiFacility = getNpiFacility(pd, true);
     webRoot = all?.serverRoot || "";

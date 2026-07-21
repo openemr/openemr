@@ -10,14 +10,14 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
 use Particle\Validator\Validator;
 
@@ -69,7 +69,7 @@ class PhoneNumberService extends BaseService
         $phoneNumbersSql .= "     type=?,";
         $phoneNumbersSql .= "     foreign_id=?";
 
-        $phoneNumbersSqlResults = QueryUtils::sqlInsert(
+        QueryUtils::sqlInsert(
             $phoneNumbersSql,
             [
                 $freshId,
@@ -81,10 +81,6 @@ class PhoneNumberService extends BaseService
                 $this->foreignId
             ]
         );
-
-        if (!$phoneNumbersSqlResults) {
-            return false;
-        }
 
         return $freshId;
     }
@@ -117,7 +113,7 @@ class PhoneNumberService extends BaseService
             return false;
         }
 
-        $phoneNumbersIdSqlResults = sqlQuery("SELECT id FROM phone_numbers WHERE foreign_id=?", $this->foreignId);
+        $phoneNumbersIdSqlResults = sqlQuery("SELECT id FROM phone_numbers WHERE foreign_id=?", [$this->foreignId]);
 
         if (!$phoneNumbersIdSqlResults) {
             $this->insert($data, $foreignId);
@@ -162,7 +158,7 @@ class PhoneNumberService extends BaseService
      *
      * @param array $phoneData Array with 'area_code', 'prefix', and 'number' keys
      * @return string Formatted phone number (XXX-XXX-XXXX) or empty string
-     * @deprecated Use PhoneNumber::formatLocal() instead
+     * @deprecated Use PhoneNumber::formatLocal() instead for locale-aware formatting
      */
     public static function getPhoneDisplay(array $phoneData): string
     {
@@ -205,7 +201,7 @@ class PhoneNumberService extends BaseService
      * @param string $phone The phone number to format
      * @param string $defaultRegion Default region code (default: 'US')
      * @param bool $strict If true, validates against real area codes
-     * @return string Formatted phone number (XXX-XXX-XXXX) or empty string
+     * @return string Locale-aware formatted phone number or empty string
      * @deprecated Use PhoneNumber::tryParse()->formatLocal() instead
      */
     public static function formatPhone(string $phone, string $defaultRegion = 'US', bool $strict = false): string
@@ -238,7 +234,7 @@ class PhoneNumberService extends BaseService
         }
         $formatted = self::formatPhone($phone, $defaultRegion);
         if ($formatted === '') {
-            (new SystemLogger())->warning("Could not format phone number", ['phone' => $phone]);
+            ServiceContainer::getLogger()->warning("Could not format phone number", ['phone' => $phone]);
             return $phone;
         }
         return $formatted;

@@ -3,7 +3,7 @@
 /**
  * TokenSearchValue represents a searchable token value containing the code and system
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -36,7 +36,7 @@ class TokenSearchValue implements \Stringable
     /**
      * Given a FHIR code system string, return the FHIR class value.
      * @param $codeSystemValue
-     * @param @isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary
+     * @param mixed $isUuid @isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary
      * @return TokenSearchValue
      */
     public static function buildFromFHIRString($codeSystemValue, $isUuid = false)

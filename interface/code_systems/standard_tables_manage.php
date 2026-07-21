@@ -20,6 +20,8 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/standard_tables_capture.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 // Ensure script doesn't time out
 set_time_limit(0);
@@ -31,12 +33,18 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $db = $_GET['db'] ?? '0';
+// Restrict $db to the known set of supported standardized tables. The value
+// flows into filesystem paths (contrib/<db>, temporary_files_dir/<db>); an
+// unconstrained value enables directory traversal in temp_dir_cleanup().
+if (!in_array($db, ['ICD9', 'ICD10', 'RXNORM', 'SNOMED', 'CQM_VALUESET'], true)) {
+    throw new BadRequestHttpException('Invalid database type');
+}
 $version = $_GET['version'] ?? '0';
 $rf = $_GET['rf'] ?? '0';
 $file_revision_date = $_GET['file_revision_date'] ?? '0';
 $file_checksum = $_GET['file_checksum'] ?? '0';
 $newInstall =   $_GET['newInstall'] ?? '0';
-$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower((string) $db);
+$mainPATH = OEGlobalsBag::getInstance()->getProjectDir() . "/contrib/" . strtolower((string) $db);
 
 $files_array = scandir($mainPATH);
 array_shift($files_array); // get rid of "."

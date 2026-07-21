@@ -8,7 +8,7 @@
  * modify the contents.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -56,7 +56,7 @@ class PatientDocumentViewCCDAEvent extends Event
     private $format;
 
     /**
-     * @var boolean True if the ccda should ignore the user preferences (trimming, sort order, etc).  Default false
+     * @var bool True if the ccda should ignore the user preferences (trimming, sort order, etc). Default false
      */
     private $ignoreUserPreferences;
 

@@ -4,7 +4,7 @@
  * Exports patient demographics to a custom XML format
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
@@ -15,7 +15,13 @@
  require_once("../interface/globals.php");
  require_once("../library/patient.inc.php");
 
+ use OpenEMR\Common\Acl\AccessDeniedHelper;
+ use OpenEMR\Common\Acl\AclMain;
  use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo: Export Patient Demographics XML", xl("Export Patient Demographics XML"));
+}
 
  $out = "";
  $indent = 0;
@@ -34,16 +40,6 @@ function custom_xml_Add($tag, $text): void
     }
 }
 
- // Translate sex.
-function Sex($field)
-{
-    $sex = strtoupper(substr(trim((string) $field), 0, 1));
-    if ($sex != "M" && $sex != "F") {
-        $sex = "U";
-    }
-
-    return $sex;
-}
 
  // Add an insurance section.
 function addInsurance($row, $seq): void
@@ -167,7 +163,7 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("title", $row['title']);
  custom_xml_Add("ss", Digits($row['ss']));
  custom_xml_Add("dob", fixDate($row['DOB']));
- custom_xml_Add("sex", Sex($row['sex']));
+ custom_xml_Add("sex", hl7Sex($row['sex']));
  custom_xml_Add("street", $row['street']);
  custom_xml_Add("city", $row['city']);
  custom_xml_Add("state", $row['state']);
@@ -185,7 +181,7 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("email", $row['email']);
  custom_xml_Add("language", $row['language']);
  custom_xml_Add("ethnoracial", $row['ethnoracial']);
- custom_xml_Add("interpreter", $row['interpretter']);
+ custom_xml_Add("interpreter", $row['interpreter']);
  custom_xml_Add("migrantseasonal", $row['migrantseasonal']);
  custom_xml_Add("family_size", $row['family_size']);
  custom_xml_Add("monthly_income", $row['monthly_income']);

@@ -4,11 +4,11 @@
  * Functions to support HL7 order generation
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012-2013 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,16 +32,17 @@ require_once("$webserver_root/custom/code_types.inc.php");
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Get array of insurance payers for the specified patient as of the specified
  * date. If no date is passed then the current date is used.
  *
- * @param  integer $pid             Patient ID.
+ * @param int $pid Patient ID.
  * @param  date    $encounter_date  YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
-function loadPayerInfo($pid, $date = '')
+function quest_loadPayerInfo($pid, $date = '')
 {
     if (empty($date)) {
         $date = date('Y-m-d');
@@ -78,7 +79,7 @@ function loadPayerInfo($pid, $date = '')
  * @return Hl7OrderResult  Result object containing HL7 text and optional lab-specific requisition data.
  * @throws Hl7OrderGenerationException On errors with descriptive message.
  */
-function gen_hl7_order(int $orderid): Hl7OrderResult
+function quest_gen_hl7_order(int $orderid): Hl7OrderResult
 {
     $labSample = '';
     $labNote = '';
@@ -200,7 +201,7 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
 
   // Insurance stuff.
     $ins_type = trim((string) $porow['billing_type']);
-    $payers = loadPayerInfo($porow['pid'], $porow['date_ordered']);
+    $payers = quest_loadPayerInfo($porow['pid'], $porow['date_ordered']);
     $setid = 0;
     if ($ins_type == 'T') {
         // only send primary and secondary insurance
@@ -408,11 +409,11 @@ function gen_hl7_order(int $orderid): Hl7OrderResult
 /**
  * Transmit HL7 for the specified lab.
  *
- * @param  integer $ppid  Procedure provider ID.
+ * @param int $ppid Procedure provider ID.
  * @param  string  $out   The HL7 text to be sent.
  * @return string         Error text, or empty if no errors.
  */
-function send_hl7_order($ppid, $out)
+function quest_send_hl7_order($ppid, $out)
 {
     global $srcdir;
 
@@ -477,11 +478,12 @@ function send_hl7_order($ppid, $out)
         return xl('This protocol is not implemented') . ": '$protocol'";
     }
 
-  // Falling through to here indicates success.
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    // Falling through to here indicates success.
     EventAuditLogger::getInstance()->newEvent(
         "proc_order_xmit",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         "ID: $msgid Protocol: $protocol Host: $remote_host"
     );

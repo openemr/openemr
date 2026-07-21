@@ -7,7 +7,7 @@
  * US Core StructureDefinition requirements and constraints
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Claude.AI Assistant
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
@@ -17,11 +17,9 @@
 // AI-generated content begins
 namespace OpenEMR\Tests\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationDispense;
 use OpenEMR\Services\FHIR\FhirMedicationDispenseService;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
-use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseImmunizationService;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationDispense;
-use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Tests\Fixtures\MedicationDispenseFixtureManager;
 use PHPUnit\Framework\TestCase;

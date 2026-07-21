@@ -4,7 +4,7 @@
  * Encounter form report function.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -15,9 +15,14 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/group.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
+require_once("$srcdir/group.inc.php");
 
 function newGroupEncounter_report($group_id, $encounter, $cols, $id): void
 {

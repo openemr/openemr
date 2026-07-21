@@ -4,7 +4,7 @@
  * Common script for the encounter form (new and view) scripts.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -17,33 +17,38 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-/**
- * @global $srcdir  Note all globals come from the globals.php file
- */
+
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\NewPatient\C_EncounterVisitForm;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 
-if ($GLOBALS['enable_group_therapy']) {
+if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
     require_once("$srcdir/group.inc.php");
 }
 // I'd prefer to pull this into src... but it breaks the modularity of this form.  Not sure how to handle that.
 require_once "C_EncounterVisitForm.class.php";
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Forms\NewPatient\C_EncounterVisitForm;
-
 try {
     /**
      * @global $rootdir
      */
-    $controller = new C_EncounterVisitForm(__DIR__, $GLOBALS['kernel'], $GLOBALS['ISSUE_TYPES'], $rootdir, 'newpatient/common.php');
+    $controller = new C_EncounterVisitForm(__DIR__, OEGlobalsBag::getInstance()->getKernel(), OEGlobalsBag::getInstance()->get('ISSUE_TYPES'), $rootdir, 'newpatient/common.php');
     /**
      * @global $pid
      */
     $controller->render($pid);
 } catch (\Throwable $e) {
     // any twig errors or other errors are caught
-    (new SystemLogger())->error($e->getMessage(), ['trace' => $e->getTraceAsString(), 'pid' => $pid]);
+    ServiceContainer::getLogger()->error($e->getMessage(), ['trace' => $e->getTraceAsString(), 'pid' => $pid]);
     echo $e->getMessage();
     die();
 }

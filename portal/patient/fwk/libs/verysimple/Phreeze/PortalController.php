@@ -46,6 +46,7 @@ abstract class PortalController
     protected $Smarty;
     private $_router;
     private $_cu;
+    /** @var string */
     public $GUID;
     public $DebugOutput = "";
     public $UnitTestMode = false;
@@ -60,7 +61,7 @@ abstract class PortalController
     /**
      * search string to look for to determine if this is an API request or not
      */
-    static $ApiIdentifier = "api/";
+    public static string $ApiIdentifier = "api/";
 
     /**
      * the default mode used when calling 'Redirect'
@@ -76,10 +77,8 @@ abstract class PortalController
      *          Object persistence engine
      * @param IRenderEngine $renderEngine
      *          rendering engine
-     * @param
-     *          Context (optional) a context object for persisting the state of the current page
-     * @param
-     *          Router (optional) a custom writer for URL formatting
+     * @param Context $context (optional) a context object for persisting the state of the current page
+     * @param IRouter|null $router (optional) a custom writer for URL formatting
      */
     final function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
     {
@@ -168,14 +167,10 @@ abstract class PortalController
      * If authentication fails, this function
      * terminates with a 401 header. If success, sets CurrentUser and returns null.
      *
-     * @param
-     *          IAuthenticatable any IAuthenticatable object
-     * @param
-     *          string http realm (basically the login message shown to the user)
-     * @param
-     *          string username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
-     * @param
-     *          string password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
+     * @param IAuthenticatable $authenticatable any IAuthenticatable object
+     * @param string $realm http realm (basically the login message shown to the user)
+     * @param string $qs_username_field username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
+     * @param string $qs_password_field password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
      */
     protected function Require401Authentication(IAuthenticatable $authenticatable, $realm = "Login Required", $qs_username_field = "", $qs_password_field = "")
     {
@@ -231,8 +226,7 @@ abstract class PortalController
      * If no exception is thrown then the token
      * is verified.
      *
-     * @param
-     *          string the name of the header variable that contains the token
+     * @param string $headerName the name of the header variable that contains the token
      * @throws Exception if token is not provided or does not match
      */
     protected function VerifyCSRFToken($headerName = 'X-CSRFToken')
@@ -311,12 +305,9 @@ abstract class PortalController
      * - The user was not logged in and valid login credentials were provided = SetCurrentUser is called and IAuthenticatable is returned
      * - The user was not logged in and invalid (or no) credentials were provided = NULL is returned
      *
-     * @param
-     *          IAuthenticatable any IAuthenticatable object
-     * @param
-     *          string username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
-     * @param
-     *          string password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
+     * @param IAuthenticatable $authenticatable any IAuthenticatable object
+     * @param string $qs_username_field username querystring field (optional) if provided, the username can be passed via querystring instead of through the auth headers
+     * @param string $qs_password_field password querystring field (optional) if provided, the password can be passed via querystring instead of through the auth headers
      * @return IAuthenticatable or NULL
      */
     protected function Get401Authentication(IAuthenticatable $authenticatable, $qs_username_field = "", $qs_password_field = "")
@@ -349,7 +340,7 @@ abstract class PortalController
      *
      * This method is used by ValidateInput for automation AJAX server-side validation.
      *
-     * @param variant $pk
+     * @param mixed $pk
      *          the primary key (optional)
      * @return Phreezable a phreezable object
      */
@@ -361,10 +352,8 @@ abstract class PortalController
     /**
      * Use as an alternative to print in order to capture debug output
      *
-     * @param
-     *          string text to print
-     * @param
-     *          mime content type (example text/plain)
+     * @param string $text text to print
+     * @param string|null $contentType content type (example text/plain)
      */
     protected function PrintOut($text, $contentType = null)
     {
@@ -444,8 +433,7 @@ abstract class PortalController
      *          (In the format Array("GetObjName1"=>"PropName","GetObjName2"=>"PropName1,PropName2")
      * @param Array $supressProps
      *          (In the format Array("PropName1","PropName2")
-     * @param
-     *          bool noMap set to true to render this DataPage regardless of whether there is a FieldMap
+     * @param bool $noMap noMap set to true to render this DataPage regardless of whether there is a FieldMap
      */
     protected function RenderXML($page, $additionalProps = null, $supressProps = null, $noMap = false)
     {
@@ -490,7 +478,7 @@ abstract class PortalController
             foreach (get_object_vars($obj) as $var => $val) {
                 if (! in_array($var, $supressProps)) {
                     // depending on what type of field this is, do some special formatting
-                    $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN;
+                    $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN; // @phpstan-ignore offsetAccess.nonOffsetAccessible
 
                     if ($fm == FM_TYPE_DATETIME) {
                         $val = strtotime((string) $val) ? date("m/d/Y h:i A", strtotime((string) $val)) : $val;
@@ -504,9 +492,9 @@ abstract class PortalController
                         $val = serialize($val);
                     }
 
-                    $val = VerySimpleStringUtil::EncodeSpecialCharacters($val, true, true);
+                    $val = VerySimpleStringUtil::EncodeSpecialCharacters((string) $val, true, true);
 
-                    $xml .= "<" . htmlspecialchars($var) . ">" . $val . "</" . htmlspecialchars($var) . ">\r\n";
+                    $xml .= "<" . htmlspecialchars((string) $var) . ">" . $val . "</" . htmlspecialchars((string) $var) . ">\r\n";
                 }
             }
 
@@ -534,51 +522,6 @@ abstract class PortalController
             header('Content-type: text/xml');
             print $xml;
         }
-    }
-
-    /**
-     * Render an array of IRSSFeedItem objects as an RSS feed
-     *
-     * @param array $feedItems
-     *          array of IRSSFeedItem objects
-     * @param string $feedTitle
-     * @param string $feedDescription
-     */
-    protected function RenderRSS(array $feedItems, $feedTitle = "RSS Feed", $feedDescription = "RSS Feed")
-    {
-        require_once('verysimple/RSS/Writer.php');
-        require_once('verysimple/RSS/IRSSFeedItem.php');
-
-        $baseUrl = RequestUtil::GetBaseURL();
-        $rssWriter = new RSS_Writer($feedTitle, $baseUrl, $feedDescription);
-        $rssWriter->setLanguage('us-en');
-        $rssWriter->addCategory("Items");
-
-        if (count($feedItems)) {
-            $count = 0;
-            foreach ($feedItems as $item) {
-                $count++;
-
-                if ($item instanceof IRSSFeedItem) {
-                    $rssWriter->addItem(
-                        $item->GetRSSTitle(), // title
-                        $item->GetRSSLink($baseUrl), // link
-                        $item->GetRSSDescription(), // description
-                        $item->GetRSSAuthor(), // author
-                        date(DATE_RSS, $item->GetRSSPublishDate()), // date
-                        null, // source
-                        $item->GetRSSGUID()
-                    ) // guid
-                    ;
-                } else {
-                    $rssWriter->addItem("Item $count doesn't implement IRSSFeedItem", "about:blank", '', 'Error', date(DATE_RSS));
-                }
-            }
-        } else {
-            $rssWriter->addItem("No Items", "about:blank", '', 'No Author', date(DATE_RSS));
-        }
-
-        $rssWriter->writeOut();
     }
 
     /**
@@ -705,8 +648,7 @@ abstract class PortalController
     /**
      * Sets the given user as the authenticatable user for this session.
      *
-     * @param
-     *          IAuthenticatable The user object that has authenticated
+     * @param IAuthenticatable $user The user object that has authenticated
      */
     protected function SetCurrentUser(IAuthenticatable $user)
     {
@@ -720,7 +662,7 @@ abstract class PortalController
     /**
      * Returns the currently authenticated user, or null if a user has not been authenticated.
      *
-     * @return IAuthenticatable || null
+     * @return IAuthenticatable|null
      */
     protected function GetCurrentUser()
     {
@@ -764,7 +706,7 @@ abstract class PortalController
     public function IsApiRequest()
     {
         $url = RequestUtil::GetCurrentURL();
-        return (str_contains($url, (string) self::$ApiIdentifier));
+        return (str_contains($url, self::$ApiIdentifier));
     }
 
     /**
@@ -808,7 +750,7 @@ abstract class PortalController
      * Assigns a variable to the view
      *
      * @param string $varname
-     * @param variant $varval
+     * @param mixed $varval
      */
     protected function Assign($varname, $varval)
     {
@@ -855,32 +797,27 @@ abstract class PortalController
     /**
      * Renders the given value as JSON
      *
-     * @param
-     *          variant the variable, array, object, etc to be rendered as JSON
-     * @param
-     *          string if a callback is provided, this will be rendered as JSONP
-     * @param
-     *          bool if true then objects will be returned ->GetObject() (only supports ObjectArray or individual Phreezable or Reporter object)
-     * @param
-     *          array (only relevant if useSimpleObject is true) options array passed through to Phreezable->ToString()
-     * @param
-     *          bool set to 0 to leave data untouched. set to 1 to always force value to UTF8. set to 2 to only force UTF8 if an encoding error occurs (WARNING: options 1 or 2 will likely result in unreadable characters. The recommended fix is to set your database charset to utf8)
+     * @param mixed $var the variable, array, object, etc to be rendered as JSON
+     * @param string $callback if a callback is provided, this will be rendered as JSONP
+     * @param bool $useSimpleObject if true then objects will be returned ->GetObject() (only supports ObjectArray or individual Phreezable or Reporter object)
+     * @param array $options (only relevant if useSimpleObject is true) options array passed through to Phreezable->ToString()
+     * @param bool $forceUTF8 set to 0 to leave data untouched. set to 1 to always force value to UTF8. set to 2 to only force UTF8 if an encoding error occurs (WARNING: options 1 or 2 will likely result in unreadable characters. The recommended fix is to set your database charset to utf8)
      */
     protected function RenderJSON($var, $callback = "", $useSimpleObject = false, $options = null, $forceUTF8 = 0)
     {
         $obj = null;
 
-        if (is_a($var, 'DataSet') || is_a($var, 'DataPage')) {
+        if ($var instanceof DataSet || $var instanceof DataPage) {
             // if a dataset or datapage can be converted directly into an array without enumerating twice
             $obj = $var->ToObjectArray($useSimpleObject, $options);
         } elseif ($useSimpleObject) {
             // we need to figure out what type
-            if (is_array($var) || is_a($var, 'SplFixedArray')) {
+            if (is_array($var) || $var instanceof \SplFixedArray) {
                 $obj =  [];
                 foreach ($var as $item) {
                     $obj [] = $item->ToObject($options);
                 }
-            } elseif (is_a($var, 'Phreezable') || is_a($var, 'Reporter')) {
+            } elseif ($var instanceof Phreezable || $var instanceof Reporter) {
                 $obj = $var->ToObject($options);
             } else {
                 throw new Exception('RenderJSON could not determine the type of object to render');
@@ -1000,7 +937,7 @@ abstract class PortalController
      *
      * NOTE: this does not have a return value. value is passed by reference and updated
      *
-     * @param variant $input
+     * @param mixed $input
      */
     private function UTF8Encode(&$input)
     {
@@ -1026,7 +963,7 @@ abstract class PortalController
      *
      * @access public
      * @param string $name
-     * @param variant $vars
+     * @param mixed $vars
      * @throws Exception
      */
     function __call($name, $vars = null)

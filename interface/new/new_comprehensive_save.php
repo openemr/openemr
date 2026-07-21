@@ -4,7 +4,7 @@
  * new_comprehensive_save.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
@@ -12,17 +12,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Set $sessionAllowWrite to true since the new patient pid is written to the session via setpid() below.
+$sessionAllowWrite = true;
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactAddressService;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactService;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // Validation for non-unique external patient identifier.
 $alertmsg = '';
@@ -78,7 +81,7 @@ if (empty($pid)) {
     die("Internal error: setpid(" . text($pid) . ") failed!");
 }
 setpid($pid);
-if (!$GLOBALS['omit_employers']) {
+if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
     updateEmployerData($pid, $newdata['employer_data'], true, $newdata['patient_data']);
 }
 
@@ -97,7 +100,7 @@ if (!empty($addressFieldsToSave)) {
             }
         }
     } catch (\Throwable $e) {
-        (new SystemLogger())->error("Fatal error in address processing", [
+        ServiceContainer::getLogger()->error("Fatal error in address processing", [
             'pid' => $pid,
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
@@ -109,7 +112,7 @@ if (!empty($addressFieldsToSave)) {
  * Parse demographics data to listeners who want data that is not directly available in
  * the patient_data table on update
  */
-$GLOBALS["kernel"]->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE, 10);
+OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE);
 
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
@@ -117,7 +120,7 @@ $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
 
 newHistoryData($pid);
 // no need to save insurance for simple demos
-if (!$GLOBALS['simplified_demographics']) {
+if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
     newInsuranceData(
         $pid,
         "primary",
@@ -150,7 +153,7 @@ if (!$GLOBALS['simplified_demographics']) {
     );
 
     //Dont save more than one insurance since only one is allowed / save space in DB
-    if (!$GLOBALS['insurance_only_one']) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('insurance_only_one')) {
         $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
         $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
 

@@ -19,10 +19,11 @@
 
 namespace OpenEMR\Common\Acl;
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Gacl\GaclApi;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\VersionService;
-use OpenEMR\Common\Acl\AclMain;
 
 class AclExtended
 {
@@ -242,7 +243,7 @@ class AclExtended
 
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
-        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin" ? true : false;
+        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin";
 
         //get array of all available group ID numbers
         $parent_id = $gacl->get_root_group_id();
@@ -526,13 +527,15 @@ class AclExtended
         $acoArray = self::genAcoArray();
         $s = '';
         foreach ($acoArray as $section => $acos_array) {
-            $s .= "<optgroup label='" . xla($section) . "'>\n";
+            $sectionLabel = is_string($section) ? $section : '';
+            $s .= "<optgroup label='" . xla($sectionLabel) . "'>\n";
             foreach ($acos_array as $aco_array) {
                 $s .= "<option value='" . attr($aco_array['value']) . "'";
                 if ($aco_array['value'] == $default) {
                     $s .= ' selected';
                 }
-                $s .= ">" . xlt($aco_array['name']) . "</option>";
+                $acoName = is_string($aco_array['name'] ?? null) ? $aco_array['name'] : '';
+                $s .= ">" . xlt($acoName) . "</option>";
             }
             $s .= "</optgroup>";
         }
@@ -571,7 +574,7 @@ class AclExtended
     public static function isGroupIncludeSuperuser($aro_group_name)
     {
         $gacl = self::collectGaclApiObject();
-        return empty($gacl->search_acl('admin', 'super', false, false, $aro_group_name)) ? false : true;
+        return !empty($gacl->search_acl('admin', 'super', false, false, $aro_group_name));
     }
 
     //
@@ -594,12 +597,14 @@ class AclExtended
                 // Modified 6-2009 by BM - Translate gacl group name if applicable
                 //                         Translate return value
                 //                         Translate description
+                $retLabel = is_string($ret) ? $ret : '';
+                $noteLabel = is_string($note) ? $note : '';
                 $message .= "\t<acl>\n" .
                     "\t\t<value>" . xmlEscape($value) . "</value>\n" .
                     "\t\t<title>" . xmlEscape(xl_gacl_group($value)) . "</title>\n" .
                     "\t\t<returnid>" . xmlEscape($ret)  . "</returnid>\n" .
-                    "\t\t<returntitle>" . xlx($ret)  . "</returntitle>\n" .
-                    "\t\t<note>" . xlx($note)  . "</note>\n" .
+                    "\t\t<returntitle>" . xlx($retLabel)  . "</returntitle>\n" .
+                    "\t\t<note>" . xlx($noteLabel)  . "</note>\n" .
                     "\t</acl>\n";
             }
         }
@@ -646,7 +651,10 @@ class AclExtended
                     if ($counter == 0) {
                         $counter += 1;
                         $aco_section_data = $gacl->get_section_data($key, 'ACO');
-                        $aco_section_title = $aco_section_data[3];
+                        $aco_section_title = '';
+                        if (is_array($aco_section_data) && isset($aco_section_data[3]) && is_string($aco_section_data[3])) {
+                            $aco_section_title = $aco_section_data[3];
+                        }
 
                         // Modified 6-2009 by BM - Translate gacl aco section name
                         $message .= "\t\t<section>\n" .
@@ -655,7 +663,10 @@ class AclExtended
 
                     $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
                     $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-                    $aco_title = $aco_data[0][3];
+                    $aco_title = '';
+                    if (is_array($aco_data) && isset($aco_data[0]) && is_array($aco_data[0]) && isset($aco_data[0][3]) && is_string($aco_data[0][3])) {
+                        $aco_title = $aco_data[0][3];
+                    }
                     $message .= "\t\t\t<aco>\n";
 
                     // Modified 6-2009 by BM - Translate gacl aco name
@@ -675,7 +686,10 @@ class AclExtended
             "\t<active>\n";
         foreach ($active_aco_objects as $key => $value) {
             $aco_section_data = $gacl->get_section_data($key, 'ACO');
-            $aco_section_title = $aco_section_data[3];
+            $aco_section_title = '';
+            if (is_array($aco_section_data) && isset($aco_section_data[3]) && is_string($aco_section_data[3])) {
+                $aco_section_title = $aco_section_data[3];
+            }
 
             // Modified 6-2009 by BM - Translate gacl aco section name
             $message .= "\t\t<section>\n" .
@@ -684,7 +698,10 @@ class AclExtended
             foreach ($active_aco_objects[$key] as $value2) {
                 $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
                 $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-                $aco_title = $aco_data[0][3];
+                $aco_title = '';
+                if (is_array($aco_data) && isset($aco_data[0]) && is_array($aco_data[0]) && isset($aco_data[0][3]) && is_string($aco_data[0][3])) {
+                    $aco_title = $aco_data[0][3];
+                }
                 $message .= "\t\t\t<aco>\n";
 
                 // Modified 6-2009 by BM - Translate gacl aco name
@@ -726,9 +743,10 @@ class AclExtended
                 $ret = $acl["return_value"];
                 if (!in_array($ret, $returns)) {
                     // Modified 6-2009 by BM - Translate return value
+                    $retLabel = is_string($ret) ? $ret : '';
                     $message .= "\t<return>\n";
                     $message .= "\t\t<returnid>" . xmlEscape($ret)  . "</returnid>\n";
-                    $message .= "\t\t<returntitle>" . xlx($ret)  . "</returntitle>\n";
+                    $message .= "\t\t<returntitle>" . xlx($retLabel)  . "</returntitle>\n";
                     $message .= "\t</return>\n";
 
                     array_push($returns, $ret);
@@ -749,7 +767,7 @@ class AclExtended
     /**
      * Returns the current access control version.
      *
-     * @return  integer  The current access control version.
+     * @return int The current access control version.
      */
     public static function getAclVersion()
     {
@@ -761,7 +779,7 @@ class AclExtended
     /**
      * Records the access control version.
      *
-     * @param  integer  $acl_version  access control version
+     * @param int $acl_version access control version
      */
     public static function setAclVersion($acl_version)
     {
@@ -1084,7 +1102,8 @@ class AclExtended
     public static function getUserPermissions($username = '')
     {
         if (!$username) {
-            $username = $_SESSION['authUser'];
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $username = $session->get('authUser');
         }
         $gacl = self::collectGaclApiObject();
         $perms = [];
@@ -1101,7 +1120,7 @@ class AclExtended
      * Test if the logged-in user has all of the permissions of the specified user.
      *
      * @param  string  $username              Name of user
-     * @return boolean
+     * @return bool
      */
     public static function iHavePermissionsOf($username)
     {
@@ -1126,7 +1145,7 @@ class AclExtended
      * Test if the logged-in user has all of the permissions of the specified group.
      *
      * @param  string  $group_name            Name of group
-     * @return boolean
+     * @return bool
      */
     public static function iHaveGroupPermissions($group_name)
     {

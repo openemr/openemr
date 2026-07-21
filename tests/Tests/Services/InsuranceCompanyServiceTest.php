@@ -10,16 +10,17 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\AddressService;
 use OpenEMR\Services\Address\AddressData;
+use OpenEMR\Services\AddressService;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\PhoneType;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -245,5 +246,238 @@ class InsuranceCompanyServiceTest extends TestCase
         );
         $this->assertNotFalse($row);
         $this->assertEquals(9999999, $row['id']);
+    }
+    #[Test]
+    public function testBuildSaveDataFromFormMapsFormFields(): void
+    {
+        $data = $this->service->buildSaveDataFromForm([
+            'form_id' => '4242',
+            'form_name' => 'test-fixture-Mapped Insurance',
+            'form_attn' => 'Claims',
+            'form_cms_id' => '54321',
+            'form_ins_type_code' => '2',
+            'form_partner' => '7',
+            'form_addr1' => '500 Mapping Way',
+            'form_addr2' => 'Suite 9',
+            'form_city' => 'Tampa',
+            'form_state' => 'FL',
+            'form_zip' => '33601',
+            'form_country' => 'USA',
+            'form_phone' => '8135551212',
+            'form_cqm_sop' => '3111',
+        ]);
+
+        $this->assertEquals('test-fixture-Mapped Insurance', $data['name']);
+        $this->assertEquals('Claims', $data['attn']);
+        $this->assertEquals('54321', $data['cms_id']);
+        $this->assertEquals('2', $data['ins_type_code']);
+        $this->assertEquals('7', $data['x12_default_partner_id']);
+        $this->assertEquals('500 Mapping Way', $data['line1']);
+        $this->assertEquals('Suite 9', $data['line2']);
+        $this->assertEquals('Tampa', $data['city']);
+        $this->assertEquals('FL', $data['state']);
+        $this->assertEquals('33601', $data['zip']);
+        $this->assertEquals('USA', $data['country']);
+        $this->assertEquals('8135551212', $data['phone']);
+        $this->assertEquals('3111', $data['cqm_sop']);
+        $this->assertNull($data['alt_cms_id']);
+        // An explicit id with no "Save as New" => update target.
+        $this->assertEquals('4242', $data['foreign_id']);
+    }
+
+    #[Test]
+    public function testBuildSaveDataFromFormTreatsSaveAsNewAsInsert(): void
+    {
+        $data = $this->service->buildSaveDataFromForm([
+            'form_save' => 'Save as New',
+            'form_id' => '4242', // present, but "Save as New" must win
+            'form_name' => 'test-fixture-New Insurance',
+        ]);
+
+        // "Save as New" must clear the foreign id so a fresh row is created.
+        $this->assertEquals('', $data['foreign_id']);
+        $this->assertEquals('test-fixture-New Insurance', $data['name']);
+    }
+
+    #[Test]
+    public function testBuildSaveDataFromFormDefaultsMissingFields(): void
+    {
+        $data = $this->service->buildSaveDataFromForm([]);
+
+        $this->assertEquals('', $data['name']);
+        $this->assertEquals('', $data['foreign_id']); // empty form_id => insert
+        $this->assertNull($data['x12_receiver_id']);
+        $this->assertNull($data['alt_cms_id']);
+    }
+
+    #[Test]
+    public function testSaveFromFormInsertsNewCompany(): void
+    {
+        $result = $this->service->saveFromForm([
+            'form_save' => 'Save as New',
+            'form_name' => 'test-fixture-SaveFromForm Insert',
+            'form_attn' => 'Claims',
+            'form_cms_id' => '12121',
+            'form_ins_type_code' => '1',
+            'form_addr1' => '742 Evergreen Terrace',
+            'form_city' => 'Springfield',
+            'form_state' => 'IL',
+            'form_zip' => '62701',
+            'form_country' => 'USA',
+        ]);
+
+        $id = $result['id'];
+        $this->createdIds[] = $id;
+
+        $this->assertIsInt($id);
+        $this->assertGreaterThan(0, $id);
+        $this->assertIsString($result['name']);
+
+        /** @var array{name: string}|false $row */
+        $row = QueryUtils::querySingleRow(
+            "SELECT name FROM insurance_companies WHERE id = ?",
+            [$id]
+        );
+        $this->assertNotFalse($row);
+        $this->assertEquals('test-fixture-SaveFromForm Insert', $row['name']);
+    }
+
+    #[Test]
+    public function testSaveFromFormUpdatesExistingCompany(): void
+    {
+        $id = $this->insertAndTrack();
+
+        $result = $this->service->saveFromForm([
+            'form_update' => 'Update',
+            'form_id' => (string) $id,
+            'form_name' => 'test-fixture-SaveFromForm Updated',
+            'form_attn' => 'Claims Department',
+            'form_cms_id' => '88888',
+            'form_ins_type_code' => '1',
+            'form_addr1' => '100 Insurance Blvd',
+            'form_city' => 'Springfield',
+            'form_state' => 'IL',
+            'form_zip' => '62701',
+            'form_country' => 'USA',
+        ]);
+
+        $this->assertEquals($id, $result['id']);
+
+        /** @var array{name: string}|false $row */
+        $row = QueryUtils::querySingleRow(
+            "SELECT name FROM insurance_companies WHERE id = ?",
+            [$id]
+        );
+        $this->assertNotFalse($row);
+        $this->assertEquals('test-fixture-SaveFromForm Updated', $row['name']);
+    }
+
+    #[Test]
+    public function testSaveFromFormThrowsWhenUpdateTargetMissing(): void
+    {
+        // Updating a non-existent row triggers BaseService::update() returning
+        // false, which saveFromForm() turns into a RuntimeException so the
+        // caller doesn't have to branch on a stringly-typed error return.
+        $this->expectException(\RuntimeException::class);
+
+        $this->service->saveFromForm([
+            'form_update' => 'Update',
+            'form_id' => '0',
+            'form_name' => 'test-fixture-SaveFromForm Missing',
+            'form_addr1' => '1 Nowhere St',
+            'form_city' => 'Nowhere',
+            'form_state' => 'IL',
+            'form_zip' => '60000',
+            'form_country' => 'USA',
+        ]);
+    }
+
+    #[Test]
+    public function testLegacyPersistSkipsPhoneWithoutTenDigitNationalNumber(): void
+    {
+        // Regression for the TypeError on Practice Settings → Insurance Company
+        // edit when the phone field posts something PhoneNumber::tryParse will
+        // accept but that doesn't yield a 10-digit NANP national number
+        // (e.g. "555-1234"). The legacy InsuranceCompany::persist() forwarded
+        // a null from PhoneNumber::getNationalDigits() into
+        // PhoneNumberService::getPhoneParts(string), throwing:
+        //   TypeError: Argument #1 ($phone_number) must be of type string, null given
+        $co = new \InsuranceCompany();
+        $co->set_name('test-fixture-LegacyPersistShortPhone');
+        $co->set_phone('555-1234');
+
+        $co->persist();
+        $insuranceId = $co->id;
+        $this->assertTrue(is_int($insuranceId) || is_string($insuranceId));
+        $this->createdIds[] = $insuranceId;
+
+        $phoneRows = QueryUtils::fetchRecordsNoLog(
+            "SELECT id FROM phone_numbers WHERE foreign_id = ?",
+            [$insuranceId]
+        );
+        $this->assertSame([], $phoneRows);
+    }
+
+    #[Test]
+    public function testLegacyPersistDoesNotDuplicatePhoneRowsOnResave(): void
+    {
+        // Regression for the duplicate phone_numbers rows that accumulated on
+        // every save before persist() learned to clear by foreign_id first.
+        // PR #10326 swapped the legacy upsert for a bare PhoneNumberService
+        // insert(), so each save added another WORK row + another FAX row;
+        // the list view's two LEFT JOINs on phone_numbers then multiplied the
+        // company across (work_count * fax_count) rows in the UI.
+        $co = new \InsuranceCompany();
+        $co->set_name('test-fixture-LegacyPersistDuplicate');
+        $co->set_phone('5551234567');
+        $co->set_fax('5559876543');
+        $co->persist();
+        $insuranceId = $co->id;
+        $this->assertTrue(is_int($insuranceId) || is_string($insuranceId));
+        $this->createdIds[] = $insuranceId;
+
+        // After first save: one WORK row + one FAX row.
+        $afterCreate = QueryUtils::fetchRecordsNoLog(
+            "SELECT id, type FROM phone_numbers WHERE foreign_id = ?",
+            [$insuranceId]
+        );
+        $this->assertCount(2, $afterCreate);
+
+        // Re-save unchanged. Without the fix this would double to four rows.
+        $co->persist();
+        $afterResave = QueryUtils::fetchRecordsNoLog(
+            "SELECT id, type FROM phone_numbers WHERE foreign_id = ?",
+            [$insuranceId]
+        );
+        $this->assertCount(2, $afterResave);
+
+        // Re-save with a changed phone. The clear-then-insert should leave
+        // exactly one row per type, the WORK row should carry the new number,
+        // and the FAX row should still carry the original (since set_phone
+        // touches only the WORK entry).
+        $co->set_phone('5551112222');
+        $co->persist();
+        $afterEdit = QueryUtils::fetchRecordsNoLog(
+            "SELECT area_code, prefix, number, type FROM phone_numbers"
+            . " WHERE foreign_id = ?",
+            [$insuranceId]
+        );
+        $this->assertCount(2, $afterEdit);
+        $byType = [];
+        foreach ($afterEdit as $row) {
+            $rowType = $row['type'];
+            $this->assertIsInt($rowType);
+            $byType[$rowType] = $row;
+        }
+        $workRow = $byType[PhoneType::WORK->value] ?? null;
+        $this->assertNotNull($workRow);
+        $this->assertSame('555', $workRow['area_code']);
+        $this->assertSame('111', $workRow['prefix']);
+        $this->assertSame('2222', $workRow['number']);
+        $faxRow = $byType[PhoneType::FAX->value] ?? null;
+        $this->assertNotNull($faxRow);
+        $this->assertSame('555', $faxRow['area_code']);
+        $this->assertSame('987', $faxRow['prefix']);
+        $this->assertSame('6543', $faxRow['number']);
     }
 }

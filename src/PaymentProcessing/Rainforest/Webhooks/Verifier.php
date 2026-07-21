@@ -2,7 +2,7 @@
 
 /**
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @link      https://www.open-emr.org
  * @package   OpenEMR
@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\PaymentProcessing\Rainforest\Webhooks;
 
-use SensitiveParameter;
-use UnexpectedValueException;
-use DateTimeInterface;
 use DateTimeImmutable;
+use DateTimeInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use SensitiveParameter;
+use UnexpectedValueException;
 
 use function hash_equals;
 use function json_decode;

@@ -3,7 +3,7 @@
  *
  * @package OpenEMR
  * @subpackage Forms
- * @link   http://www.open-emr.org
+ * @link   https://www.open-emr.org
  * @author Jacob T Paul <jacob@zhservices.com>
  * @author Vinish K <vinish@zhservices.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
@@ -126,7 +126,7 @@
                 const emptyState = emptyTemplate.content.cloneNode(true);
                 const textElement = emptyState.querySelector('.empty-state-text');
                 if (textElement) {
-                    textElement.textContent = jsText(xl('No documents linked'));
+                    textElement.textContent = jsXlt('No documents linked');
                 }
                 documentsContainer.appendChild(emptyState);
             }
@@ -144,7 +144,7 @@
                 const emptyState = emptyTemplate.content.cloneNode(true);
                 const textElement = emptyState.querySelector('.empty-state-text');
                 if (textElement) {
-                    textElement.textContent = jsText(xl('No results linked'));
+                    textElement.textContent = jsXlt('No results linked');
                 }
                 resultsContainer.appendChild(emptyState);
             }
@@ -260,7 +260,7 @@
 
     function openDocumentSearchDialog(noteIndex) {
         if (!patientUuid) {
-            alert(jsText(xl('Patient UUID not available')));
+            alert(jsXlt('Patient UUID not available'));
             return;
         }
 
@@ -268,12 +268,12 @@
         const dialogContent = document.getElementById('document-search-template').content.cloneNode(true);
 
         dlgopen('', 'document-search', 'modal-lg', 600, '',
-            jsText(xl('Search Documents')), {
+            jsXlt('Search Documents'), {
                 type: 'Alert',
                 html: dialogContent,
                 buttons: [
-                    {text: jsText(xl('Add Selected')), id: 'select-documents', style: 'primary', disabled: true},
-                    {text: jsText(xl('Cancel')), close: true, style: 'secondary'}
+                    {text: jsXlt('Add Selected'), id: 'select-documents', style: 'primary', disabled: true},
+                    {text: jsXlt('Cancel'), close: true, style: 'secondary'}
                 ],
                 resolvePromiseOn: 'shown',
                 allowResize: true,
@@ -286,7 +286,7 @@
 
     function openResultsSearchDialog(noteIndex) {
         if (!patientUuid) {
-            alert(jsText(xl('Patient UUID not available')));
+            alert(jsXlt('Patient UUID not available'));
             return;
         }
 
@@ -294,12 +294,12 @@
         const dialogContent = document.getElementById('results-search-template').content.cloneNode(true);
 
         dlgopen('', 'results-search', 'modal-lg', 600, '',
-            jsText(xl('Search Procedure Results')), {
+            jsXlt('Search Procedure Results'), {
                 type: 'Alert',
                 html: dialogContent,
                 buttons: [
-                    {text: jsText(xl('Add Selected')), id: 'select-results', style: 'info', disabled: true},
-                    {text: jsText(xl('Cancel')), close: true, style: 'secondary'}
+                    {text: jsXlt('Add Selected'), id: 'select-results', style: 'info', disabled: true},
+                    {text: jsXlt('Cancel'), close: true, style: 'secondary'}
                 ],
                 resolvePromiseOn: 'shown',
                 allowResize: true,
@@ -414,7 +414,7 @@
                     const emptyState = emptyTemplate.content.cloneNode(true);
                     const textElement = emptyState.querySelector('.empty-state-text');
                     if (textElement) {
-                        textElement.textContent = jsText(xl('No documents linked'));
+                        textElement.textContent = jsXlt('No documents linked');
                     }
                     container.appendChild(emptyState);
                 }
@@ -533,7 +533,7 @@
                     const emptyState = emptyTemplate.content.cloneNode(true);
                     const textElement = emptyState.querySelector('.empty-state-text');
                     if (textElement) {
-                        textElement.textContent = jsText(xl('No results linked'));
+                        textElement.textContent = jsXlt('No results linked');
                     }
                     container.appendChild(emptyState);
                 }
@@ -979,7 +979,7 @@
 
         const errorContainer = document.getElementById('document-error');
         if (errorContainer) {
-            errorContainer.textContent = jsText(xl('Error loading documents. Please try again.'));
+            errorContainer.textContent = jsXlt('Error loading documents. Please try again.');
             errorContainer.classList.remove('d-none');
         }
     }
@@ -990,7 +990,7 @@
 
         const errorContainer = document.getElementById('results-error');
         if (errorContainer) {
-            errorContainer.textContent = jsText(xl('Error loading procedure results. Please try again.'));
+            errorContainer.textContent = jsXlt('Error loading procedure results. Please try again.');
             errorContainer.classList.remove('d-none');
         }
     }
@@ -1113,16 +1113,12 @@
                 datetimepickerTranslated('.datepicker', {
                     timepicker: false
                     , showSeconds: false
-                    , formatInput: false
+                    , formatInput: true
                 });
             });
 
             // initialize
             $(".clinical_notes_type").change(typeChange);
-
-            // init code values by triggering the change in case
-            // there are any default values set in the template
-            $(".clinical_notes_type").trigger("change");
             $(".btn-add").click(duplicateRow);
             $(".btn-delete").click(deleteRow);
             if (typeof config.alertMessage !== 'undefined' && config.alertMessage != '') {

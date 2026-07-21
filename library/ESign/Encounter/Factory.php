@@ -5,7 +5,7 @@
  * components for the Encounter module
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -15,11 +15,13 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/FactoryIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Configuration.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Signable.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Button.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Encounter/Log.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/FactoryIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Configuration.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Signable.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Button.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Log.php';
 
 class Encounter_Factory implements FactoryIF
 {

@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.4
+    image: mariadb:11.8.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
     command:
     - mariadbd
     - --character-set-server=utf8mb4
@@ -21,7 +21,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex-3.22-php-8.4
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:27627b79f2dd57336262c8bb3c59036c14e2b487c9df10323b5642f5171f4ca5
     ports:
     - 8080:80
     - 8523:443
@@ -80,6 +80,8 @@ services:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
       service: redis
+    # Disable persistence - this is ephemeral CI infrastructure
+    command: redis-server --save "" --appendonly no
   hl7_validator_service:
     extends:
       file: onc-certification-g10-test-kit/docker-compose.yml
@@ -98,7 +100,7 @@ services:
       dockerfile: Dockerfile.terminology
   couchdb:
     restart: always
-    image: couchdb
+    image: couchdb:3.5.2@sha256:7feb744b60195233219f3fa801cbc2384efa24b28c76a5d1f3e93efe6557f921
     ports:
     - 5984:5984
     - 6984:6984

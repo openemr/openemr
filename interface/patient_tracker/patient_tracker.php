@@ -8,13 +8,17 @@
  * Will allow the collection of length of time spent in each status
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Terry Hill <terry@lilysystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Ray Magauran <magauran@medexbank.com>
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015-2017 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Ray Magauran <magauran@medexbank.com>
+ * @copyright Copyright (c) 2025 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,13 +29,17 @@ require_once "$srcdir/patient_tracker.inc.php";
 require_once "$srcdir/user.inc.php";
 require_once "$srcdir/MedEx/API.php";
 
+use ESign\SignatureIF;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // These settings are sticky user preferences linked to a given page.
@@ -44,7 +52,7 @@ $setting_selectors = prevSetting($uspfx, 'setting_selectors', 'setting_selectors
 $form_apptcat = prevSetting($uspfx, 'form_apptcat', 'form_apptcat', '');
 $form_apptstatus = prevSetting($uspfx, 'form_apptstatus', 'form_apptstatus', '');
 $facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
-$provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
+$provider = prevSetting($uspfx, 'form_provider', 'form_provider', $session->get('authUserID'));
 
 if (
     ($_POST['setting_new_window'] ?? '') ||
@@ -56,23 +64,24 @@ if (
 }
 
 //set default start date of flow board to value based on globals
-if (!$GLOBALS['ptkr_date_range']) {
+if (!OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
     $from_date = date('Y-m-d');
 } elseif (!is_null($_REQUEST['form_from_date'] ?? null)) {
-    $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
-} elseif (($GLOBALS['ptkr_start_date']) == 'D0') {
+    $rawFromDate = $_REQUEST['form_from_date'];
+    $from_date = DateToYYYYMMDD(is_string($rawFromDate) ? strip_tags($rawFromDate) : '');
+} elseif ((OEGlobalsBag::getInstance()->get('ptkr_start_date')) == 'D0') {
     $from_date = date('Y-m-d');
-} elseif (($GLOBALS['ptkr_start_date']) == 'B0') {
-    if (date('w') == $GLOBALS['first_day_week']) {
+} elseif ((OEGlobalsBag::getInstance()->get('ptkr_start_date')) == 'B0') {
+    if (date('w') == OEGlobalsBag::getInstance()->get('first_day_week')) {
         //today is the first day of the week
         $from_date = date('Y-m-d');
-    } elseif ($GLOBALS['first_day_week'] == 0) {
+    } elseif (OEGlobalsBag::getInstance()->get('first_day_week') == 0) {
         //Sunday
         $from_date = date('Y-m-d', strtotime('previous sunday'));
-    } elseif ($GLOBALS['first_day_week'] == 1) {
+    } elseif (OEGlobalsBag::getInstance()->get('first_day_week') == 1) {
         //Monday
         $from_date = date('Y-m-d', strtotime('previous monday'));
-    } elseif ($GLOBALS['first_day_week'] == 6) {
+    } elseif (OEGlobalsBag::getInstance()->get('first_day_week') == 6) {
         //Saturday
         $from_date = date('Y-m-d', strtotime('previous saturday'));
     }
@@ -82,26 +91,29 @@ if (!$GLOBALS['ptkr_date_range']) {
 }
 
 //set default end date of flow board to value based on globals
-if ($GLOBALS['ptkr_date_range']) {
-    if (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'Y')) {
-        $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
+if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
+    if (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'Y')) {
+        $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-    } elseif (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'M')) {
-        $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
+    } elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'M')) {
+        $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-    } elseif (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'D')) {
-        $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
+    } elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'D')) {
+        $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
     }
 
     $to_date = date('Y-m-d', $ptkr_future_time);
-    $to_date = !is_null($_REQUEST['form_to_date'] ?? null) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+    $rawToDate = $_REQUEST['form_to_date'] ?? null;
+    $to_date = is_string($rawToDate) ? DateToYYYYMMDD(strip_tags($rawToDate)) : $to_date;
 } else {
     $to_date = date('Y-m-d');
 }
 
-$form_patient_name = !is_null($_POST['form_patient_name'] ?? null) ? $_POST['form_patient_name'] : null;
-$form_patient_id = !is_null($_POST['form_patient_id'] ?? null) ? $_POST['form_patient_id'] : null;
+$rawPatientName = $_POST['form_patient_name'] ?? null;
+$form_patient_name = is_string($rawPatientName) ? strip_tags($rawPatientName) : null;
+$rawPatientId = $_POST['form_patient_id'] ?? null;
+$form_patient_id = is_string($rawPatientId) ? strip_tags($rawPatientId) : null;
 
 
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", ['apptstat']);
@@ -117,7 +129,7 @@ while ($lrow = sqlFetchArray($lres)) {
     $statuses_list[$lrow['option_id']] = $title;
 }
 
-if ($GLOBALS['medex_enable'] == '1') {
+if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
     $query2 = "SELECT * FROM medex_icons";
     $iconed = sqlStatement($query2);
     while ($icon = sqlFetchArray($iconed)) {
@@ -145,18 +157,18 @@ if (!($_REQUEST['flb_table'] ?? null)) {
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
-      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_bootstrap_navbar.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+    <?php if ($session->get('language_direction') === "rtl") { ?>
+      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/rtl_bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } else { ?>
-      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/bootstrap_navbar.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+      <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } ?>
 
-    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
 </head>
 
 <body>
     <?php
-    if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu']))) {
+    if ((OEGlobalsBag::getInstance()->getBoolean('medex_enable')) && (empty($_REQUEST['nomenu']))) {
         $logged_in = $MedEx->login();
         $MedEx->display->navigation($logged_in);
     }
@@ -169,7 +181,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
                         <div class="row">
-                          <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                          <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                             <div class="text-center col-4 align-items-center">
                               <!-- Visit Categories Section -->
                               <div class="col-sm">
@@ -229,13 +241,15 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 $query = "SELECT id, lname, fname FROM users WHERE " .
                                   "authorized = 1  AND active = 1 AND username > '' ORDER BY lname, fname"; #(CHEMED) facility filter
                                 $ures = sqlStatement($query);
+                                $sessionUserauthorized = $session->get('userauthorized');
+                                $sessionAuthUserID = $session->get('authUserID');
                                 while ($urow = sqlFetchArray($ures)) {
                                     $provid = $urow['id'];
                                     ($select_provs ?? null) ? $select_provs : $select_provs = '';
                                     $select_provs .= "    <option value='" . attr($provid) . "'";
                                     if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
                                         $select_provs .= " selected";
-                                    } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
+                                    } elseif (!isset($_POST['form_provider']) && $sessionUserauthorized && $provid == $sessionAuthUserID) {
                                         $select_provs .= " selected";
                                     }
                                     $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
@@ -259,7 +273,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                               </div>
                             </div>
                               <?php
-                                if ($GLOBALS['ptkr_date_range'] == '1') {
+                                if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
                                     $type = 'date';
                                     $style = '';
                                 } else {
@@ -294,7 +308,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 <div class="col-sm-12 mx-auto">
                                     <div class="text-center pt-3 mx-auto">
 
-                                        <?php if ($GLOBALS['medex_enable'] == '1') { ?>
+                                        <?php if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) { ?>
                                           <b>MedEx:</b>
                                                 <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
                                                    target="_medex">
@@ -331,10 +345,38 @@ if (!($_REQUEST['flb_table'] ?? null)) {
     //grouping of the count of every status
     $appointments_status = getApptStatus($appointments);
 
+    // Show the lock icon only when the encounter column is visible AND the
+    // esign-lock feature is enabled.
+    $collectLockedEncounters = OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter')
+        && OEGlobalsBag::getInstance()->getBoolean('lock_esign_all');
     $chk_prov = [];  // list of providers with appointments
+    $encounterIds = [];
     // Scan appointments for additional info
     foreach ($appointments as $apt) {
         $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
+        if ($collectLockedEncounters && is_array($apt)) {
+            $encValue = $apt['encounter'] ?? null;
+            if (is_numeric($encValue) && (int)$encValue !== 0) {
+                $encounterIds[(int)$encValue] = true;
+            }
+        }
+    }
+
+    // Batch-load locked encounter ids so the per-row lock-icon check doesn't
+    // issue a query per appointment.
+    $lockedEncounters = [];
+    if ($collectLockedEncounters && count($encounterIds) > 0) {
+        $ids = array_keys($encounterIds);
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $lockQuery = "SELECT DISTINCT tid FROM esign_signatures "
+            . "WHERE `table` = 'form_encounter' AND is_lock = ? AND tid IN ($placeholders)";
+        $lockParams = array_merge([SignatureIF::ESIGN_LOCK], $ids);
+        foreach (QueryUtils::fetchRecords($lockQuery, $lockParams) as $lockRow) {
+            $tid = $lockRow['tid'] ?? null;
+            if (is_numeric($tid)) {
+                $lockedEncounters[(int)$tid] = true;
+            }
+        }
     }
     ?>
                 <div class="col-sm-12 text-center m-1">
@@ -373,7 +415,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <table class="table table-bordered">
                     <thead class="table-primary">
                     <tr class="small font-weight-bold text-center">
-                        <?php if ($GLOBALS['ptkr_show_pid']) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('PID'); ?>
                             </td>
@@ -381,18 +423,18 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <td class="dehead text-center text-ovr-dark" style="max-width: 150px;">
                             <?php echo xlt('Patient'); ?>
                         </td>
-                        <?php if ($GLOBALS['ptkr_visit_reason'] == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Appt Comment'); ?>
                             </td>
                         <?php } ?>
-                        <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Encounter'); ?>
                             </td>
                         <?php } ?>
 
-                        <?php if ($GLOBALS['ptkr_date_range'] == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Appt Date'); ?>
                             </td>
@@ -433,14 +475,14 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             <?php echo xlt('Out Time'); ?>
                         </td>
                         <?php
-                        if ($GLOBALS['ptkr_show_staff']) { ?>
+                        if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Updated By'); ?>
                             </td>
                             <?php
                         }
                         if ($_REQUEST['kiosk'] != '1') {
-                            if ($GLOBALS['drug_screen']) { ?>
+                            if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { ?>
                                 <td class="dehead center text-ovr-dark" name="kiosk_hide">
                                     <?php echo xlt('Random Drug Screen'); ?>
                                 </td>
@@ -469,8 +511,10 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             $icon2_here = '';
                             $appt['stage'] = '';
                             $icon_here = [];
+                            $icon_extra = '';
                             $prog_text = '';
                             $FINAL = '';
+                            $icon_4_CALL = '';
 
                             $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY medex_uid asc";
                             $myMedEx = sqlStatement($query, [$appointment['eid']]);
@@ -492,6 +536,10 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 // If not we need to import it from Medex through medex_preferences.  It should really be in openEMR though.
                                 // Delete when we figure this out.
                                 $other_title = '';
+                                $msg_type = text($row['msg_type']);
+                                /** @var array<string, array{html: string}> $msgTypeIcons */
+                                $msgTypeIcons = $icons[$msg_type] ?? []; // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                                $apptMsgData = $appointment[$msg_type] ?? []; // @phpstan-ignore offsetAccess.nonOffsetAccessible
                                 if (!empty($row['msg_extra_text'])) {
                                     $local = attr($row['msg_extra_text']) . " |";
                                 }
@@ -502,35 +550,35 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                     $icon_extra .= str_replace(
                                         "EXTRA",
                                         attr(oeFormatShortDate($row['msg_date'])) . "\n" . xla('Patient Message') . ":\n" . attr($row['msg_extra_text']) . "\n",
-                                        $icons[$row['msg_type']]['EXTRA']['html']
+                                        $msgTypeIcons['EXTRA']['html']
                                     );
                                     continue;
                                 } elseif ($row['msg_reply'] == 'CANCELLED') {
-                                    $appointment[$row['msg_type']]['stage'] = "CANCELLED";
-                                    $icon_here[$row['msg_type']] = '';
+                                    $appointment[$msg_type]['stage'] = "CANCELLED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                                    $icon_here[$msg_type] = '';
                                 } elseif ($row['msg_reply'] == "FAILED") {
-                                    $appointment[$row['msg_type']]['stage'] = "FAILED";
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['FAILED']['html'];
-                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($appointment[$row['msg_type']]['stage'] == "CONFIRMED")) {
-                                    $appointment[$row['msg_type']]['stage'] = "CONFIRMED";
-                                    $icon_here[$row['msg_type']]  = $icons[$row['msg_type']]['CONFIRMED']['html'];
-                                } elseif (($row['msg_reply'] == "READ") || ($appointment[$row['msg_type']]['stage'] == "READ")) {
-                                    $appointment[$row['msg_type']]['stage'] = "READ";
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['READ']['html'];
-                                } elseif (($row['msg_reply'] == "SENT") || ($appointment[$row['msg_type']]['stage'] == "SENT")) {
-                                    $appointment[$row['msg_type']]['stage'] = "SENT";
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SENT']['html'];
+                                    $appointment[$msg_type]['stage'] = "FAILED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                                    $icon_here[$msg_type] = $msgTypeIcons['FAILED']['html'];
+                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($apptMsgData['stage'] == "CONFIRMED")) {
+                                    $appointment[$msg_type]['stage'] = "CONFIRMED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                                    $icon_here[$msg_type]  = $msgTypeIcons['CONFIRMED']['html'];
+                                } elseif (($row['msg_reply'] == "READ") || ($apptMsgData['stage'] == "READ")) {
+                                    $appointment[$msg_type]['stage'] = "READ"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                                    $icon_here[$msg_type] = $msgTypeIcons['READ']['html'];
+                                } elseif (($row['msg_reply'] == "SENT") || ($apptMsgData['stage'] == "SENT")) {
+                                    $appointment[$msg_type]['stage'] = "SENT"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                                    $icon_here[$msg_type] = $msgTypeIcons['SENT']['html'];
                                 } elseif (($row['msg_reply'] == "To Send") || (empty($appointment['stage']))) {
                                     if (
-                                        !in_array($appointment[$row['msg_type']]['stage'], ["CONFIRMED", "READ", "SENT", "FAILED"])
+                                        !in_array($apptMsgData['stage'], ["CONFIRMED", "READ", "SENT", "FAILED"])
                                     ) {
-                                        $appointment[$row['msg_type']]['stage'] = "QUEUED";
-                                        $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SCHEDULED']['html'];
+                                        $appointment[$msg_type]['stage'] = "QUEUED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
+                                        $icon_here[$msg_type] = $msgTypeIcons['SCHEDULED']['html'];
                                     }
                                 }
                                 //these are additional icons if present
                                 if ($row['msg_reply'] == "CALL") {
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['CALL']['html'];
+                                    $icon_here[$msg_type] = $msgTypeIcons['CALL']['html'];
                                     if (($appointment['allow_sms'] != "NO") && ($appointment['phone_cell'] > '')) {
                                         $icon_4_CALL = "<span class='input-group-addon'
                                                               onclick='SMS_bot(" . attr_js($row['msg_pid']) . ");'>
@@ -538,9 +586,9 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                                         </span>";
                                     }
                                 } elseif ($row['msg_reply'] == "STOP") {
-                                    $icon2_here .= $icons[$row['msg_type']]['STOP']['html'];
+                                    $icon2_here .= $msgTypeIcons['STOP']['html'];
                                 } elseif ($row['msg_reply'] == "Other") {
-                                    $icon2_here .= $icons[$row['msg_type']]['Other']['html'];
+                                    $icon2_here .= $msgTypeIcons['Other']['html'];
                                 }
                             }
                             //if pc_apptstatus == '-', update it now to=status
@@ -567,7 +615,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
                         $tracker_id = $appointment['id'];
                         // reason for visit
-                        if ($GLOBALS['ptkr_visit_reason']) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) {
                             $reason_visit = $appointment['pc_hometext'];
                         }
                         $newarrive = collect_checkin($tracker_id);
@@ -576,11 +624,11 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         $bgcolor = $colorevents['color'];
                         $statalert = $colorevents['time_alert'];
                         // process the time to allow items with a check out status to be displayed
-                        if (is_checkout($status) && (($GLOBALS['checkout_roll_off'] > 0) && strlen($form_apptstatus) != 1)) {
+                        if (is_checkout($status) && ((OEGlobalsBag::getInstance()->getInt('checkout_roll_off') > 0) && strlen($form_apptstatus) != 1)) {
                             $to_time = strtotime((string) $newend);
                             $from_time = strtotime($datetime);
                             $display_check_out = round(abs($from_time - $to_time) / 60, 0);
-                            if ($display_check_out >= $GLOBALS['checkout_roll_off']) {
+                            if ($display_check_out >= OEGlobalsBag::getInstance()->getInt('checkout_roll_off')) {
                                 continue;
                             }
                         }
@@ -594,7 +642,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             class="text-small"
                             style="background-color:#' . attr($bgcolor) . ';" >';
 
-                        if ($GLOBALS['ptkr_show_pid']) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) {
                             ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text($appt_pid); ?>
@@ -614,21 +662,26 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         </td>
 
                         <!-- reason -->
-                        <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text($reason_visit) ?>
                             </td>
                         <?php } ?>
-                        <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter')) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php
                                 if ($appt_enc != 0) {
                                     echo text($appt_enc);
+                                    if (is_numeric($appt_enc) && isset($lockedEncounters[(int)$appt_enc])) {
+                                        echo "<span class='text-success ml-1' title='" . xla('Signed') . "'>"
+                                            . "<i class='fa fa-lock' aria-hidden='true'></i>"
+                                            . "</span>";
+                                    }
                                 }
                                 ?>
                             </td>
                         <?php } ?>
-                        <?php if ($GLOBALS['ptkr_date_range'] == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text(oeFormatShortDate($appointment['pc_eventDate']));
                                 ?>
@@ -725,14 +778,15 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             ?>
                         </td>
                         <?php
-                        if ($GLOBALS['ptkr_show_staff'] == '1') {
+                        if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) {
                             ?>
                                 <td class="detail text-center" name="kiosk_hide">
-                                    <?php echo text($appointment['user']) ?>
+                                    <?php $userVal = $appointment['user'] ?? '';
+                                    echo text(is_string($userVal) ? $userVal : '') ?>
                                 </td>
                             <?php
                         }
-                        if ($GLOBALS['drug_screen']) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) {
                             if (strtotime((string) $newarrive) != '') { ?>
                                 <td class="detail text-center" name="kiosk_hide">
                                     <?php
@@ -781,13 +835,13 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
         </div>
     </div><?php //end container ?>
     <!-- form used to open a new top level window when a patient row is clicked -->
-    <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($session->get('site_id')); ?>'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <input type='hidden' name='patientID' value='0' />
         <input type='hidden' name='encounterID' value='0' />
     </form>
 
-    <?php myLocalJS(); ?>
+    <?php myLocalJS($session); ?>
 </body>
 </html>
     <?php
@@ -795,8 +849,8 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
 
 
 exit;
-
-function myLocalJS(): void
+// TODO @zmilan: Check why we do not totally remove this code under
+function myLocalJS(SessionInterface $session): void
 {
     ?>
     <script>
@@ -813,9 +867,9 @@ function myLocalJS(): void
         function toggleSelectors() {
             top.restoreSession();
             if ($("#flb_selectors").css('display') === 'none') {
-                $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
+                $.post("<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'block',
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -825,9 +879,9 @@ function myLocalJS(): void
                         $("#flb_caret").addClass('text-body');
                 });
             } else {
-                $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
+                $.post("<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'none',
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -868,7 +922,7 @@ function myLocalJS(): void
                 form_apptcat: $("#form_apptcat").val(),
                 kiosk: $("#kiosk").val(),
                 skip_timeout_reset: skip_timeout_reset,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
             }).done(
                 function (data) {
                     //minimum 400 ms of loader (In the first loading or manual loading not by timer)
@@ -939,7 +993,7 @@ function myLocalJS(): void
         // popup for patient tracker status
         function bpopup(tkid) {
             top.restoreSession();
-            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 250);
+            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken($session)); ?>, '_blank', 500, 250);
             return false;
         }
 
@@ -958,10 +1012,10 @@ function myLocalJS(): void
             else {
                 top.restoreSession();
                 if (enc > 0) {
-                    top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
+                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid) + "&set_encounterid=" + encodeURIComponent(enc);
                 }
                 else {
-                    top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+                    top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
                 }
             }
         }
@@ -1050,8 +1104,8 @@ function myLocalJS(): void
                 eventType => document.addEventListener(eventType, KioskUp, false)
             );
 
-            <?php if ($GLOBALS['pat_trkr_timer'] != '0') { ?>
-                var reftime = <?php echo js_escape($GLOBALS['pat_trkr_timer']); ?>;
+            <?php if (OEGlobalsBag::getInstance()->get('pat_trkr_timer') != '0') { ?>
+                var reftime = <?php echo js_escape(OEGlobalsBag::getInstance()->get('pat_trkr_timer')); ?>;
                 var parsetime = reftime.split(":");
                 parsetime = (parsetime[0] * 60) + (parsetime[1] * 1) * 1000;
                 if (auto_refresh) clearInteral(auto_refresh);
@@ -1082,7 +1136,7 @@ function myLocalJS(): void
                 $.post("../../library/ajax/drug_screen_completed.php", {
                     trackerid: this.id,
                     testcomplete: testcomplete_toggle,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 });
             });
 
@@ -1090,9 +1144,9 @@ function myLocalJS(): void
             $('body').on('click', '#setting_new_window', function () {
                 $('#setting_new_window').val(this.checked ? 'checked' : ' ');
                 top.restoreSession();
-                $.post("<?php echo $GLOBALS['webroot'] . "/interface/patient_tracker/patient_tracker.php"; ?>", {
+                $.post("<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_new_window: $('#setting_new_window').val(),
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 }).done(
                     function (data) {
                 });
@@ -1109,7 +1163,7 @@ function myLocalJS(): void
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 

@@ -1,21 +1,21 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Gacl\GaclAdminApi;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ACL Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/acl: ACL Administration", xl("ACL Administration"));
 }
 
 require_once("gacl_admin.inc.php");
 
-function get_system_info() {
-    global $gacl_api;
-
+function get_system_info(GaclAdminApi $gacl_api): string
+{
     //Grab system info
     $system_info = 'PHP Version: '.phpversion()."\n";
     $system_info .= 'Zend Version: '.zend_version()."\n";
@@ -24,14 +24,14 @@ function get_system_info() {
     $system_info .= '  phpGACL Version: '.$gacl_api->get_version()."\n";
     $system_info .= '  phpGACL Schema Version: '.$gacl_api->get_schema_version()."\n";
 
-    $caching = $gacl_api->_caching == TRUE ? 'True' : 'False';
-    $system_info .= '  Caching Enabled: '. $caching ."\n";
+    // $caching = $gacl_api->_caching == TRUE ? 'True' : 'False';
+    // $system_info .= '  Caching Enabled: '. $caching ."\n";
 
-    $force_cache_expire = $gacl_api->_force_cache_expire == TRUE ? 'True' : 'False';
-    $system_info .= '  Force Cache Expire: '.$force_cache_expire."\n";
+    // $force_cache_expire = $gacl_api->_force_cache_expire == TRUE ? 'True' : 'False';
+    // $system_info .= '  Force Cache Expire: '.$force_cache_expire."\n";
 
     $system_info .= '  Database Prefix: \''.$gacl_api->_db_table_prefix."'\n";
-    $system_info .= '  Database Type: '.$gacl_api->_db_type."\n";
+    // $system_info .= '  Database Type: '.$gacl_api->_db_type."\n";
 
     $database_server_info = $gacl_api->db->ServerInfo();
     $system_info .= '  Database Version: '.$database_server_info['version']."\n";
@@ -47,13 +47,18 @@ function get_system_info() {
     return trim($system_info);
 }
 
-$system_info = get_system_info();
+
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
+
+$system_info = get_system_info($gacl_api);
 
 //Read credits.
 $smarty->assign("credits", implode('',file('../CREDITS')) );
 
 $smarty->assign("system_info", $system_info);
-$smarty->assign("system_info_md5", md5((string) $system_info) );
+$smarty->assign("system_info_md5", md5($system_info) );
 
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 

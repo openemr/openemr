@@ -1,125 +1,174 @@
 <?php
 
 /**
- * Email or SMS Cron Notification
+ * Admin popup / argv entry for appointment-reminder scan-and-send.
  *
- * Run by cron every hour, look for appointments in pre-notification period and
- * send an SMS reminder
+ * This file is the UI-facing entry point: admins trigger it from
+ * `messageUI.php` / `setup_email.php` as a popup (dry-run and live
+ * modes) and operators can invoke it from the CLI for one-shot runs
+ * (see README-GUIDE.md for argv usage). Both paths keep the ACL gate
+ * — a front-desk user without "patients/appt" access must not be
+ * able to trigger reminder delivery, whether they land here through
+ * a browser popup or an interactive shell.
  *
- * @author    Unknown
- * @author    Larry Lart
- * @author    Jerry Padgett
- * @author    Robert Down
- * @copyright Unknown
- * @copyright Copyright (c) 2008 Larry Lart
- * @copyright Copyright (c) 2018-2024 Jerry Padgett
- * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * The `bin/console background:services run` entry point lives in
+ * `run_notifications.php` and deliberately does NOT require this
+ * file, because there is no interactive session to ACL-check and
+ * because the HTML chrome below would just be written into the
+ * cron log. See issue #11827 for the silent-success bug that
+ * triggered this split.
+ *
+ * The scan-and-send pipeline is
+ * `OpenEMR\Modules\FaxSMS\Notification\AppointmentNotificationRunner`.
+ * The procedural SQL/formatting helpers used by both entry points
+ * live in `rc_sms_notification_helpers.php`.
+ *
+ * @package            OpenEMR
+ *
+ * @link               https://www.open-emr.org
+ * @author             Unknown
+ * @author             Larry Lart
+ * @author             Jerry Padgett
+ * @author             Robert Down
+ * @author             Michael A. Smith <michael@opencoreemr.com>
+ * @copyright          Unknown
+ * @copyright          Copyright (c) 2008 Larry Lart
+ * @copyright          Copyright (c) 2018-2024 Jerry Padgett
+ * @copyright          Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright          Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * @codeCoverageIgnore Top-level admin popup / argv entry point. Mixes
+ *     globals.php bootstrap, raw `$_GET` writes for site/type, ACL gating
+ *     against the live session, and HTML chrome — none of which is
+ *     reachable from an isolated test. The reusable scan-and-send logic
+ *     lives in `AppointmentNotificationRunner` and is covered there.
  */
 
-//hack add for command line version
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
-use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
-use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
-use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
+use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
+use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
+use OpenEMR\Modules\FaxSMS\Notification\AppointmentNotificationRunner;
 
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
 $_SERVER['SERVER_NAME'] = 'localhost';
-$backpic = "";
-$clientApp = null;
-$emailApp = null;
-// for cron
-$error = '';
-$runtime = [];
 
-// Check for other arguments and perform your script logic
+// Parse CLI argv (key=value pairs) into $runtime.
+$runtime = [];
 $argc ??= 0;
 $argv ??= [];
 if ($argc > 1) {
     foreach ($argv as $k => $v) {
-        if ($k == 0) {
+        if ($k === 0) {
             continue;
         }
         $args = explode('=', $v);
-        if ((count($args ?? [])) > 1) {
+        if (count($args) > 1) {
             $runtime[trim($args[0])] = trim($args[1]);
         }
     }
 }
-$isCli = 0;
+
 if (php_sapi_name() === 'cli') {
-    $isCli = 1;
     $_SERVER["HTTP_HOST"] = "localhost";
     $ignoreAuth = true;
 }
 
-// so service can set some settings if needed on init.
+// So the service can set some settings if needed on init.
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
-require_once($GLOBALS['srcdir'] . "/appointments.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
+require_once(__DIR__ . "/rc_sms_notification_helpers.php");
 
-// Check for help argument
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {
     displayHelp();
     exit(0);
 }
 
-if (empty($runtime['site']) && empty($_SESSION['site_id']) && empty($_GET['site'])) {
-    echo xlt("Missing Site Id using default") . "\n";
-    $_GET['site'] = $runtime['site'] = 'default';
+$runtimeSite = $runtime['site'] ?? '';
+if ($runtimeSite !== '') {
+    $_GET['site'] = $runtimeSite;
 } else {
-    $_GET['site'] = $runtime['site'];
+    $sessionSite = $session->get('site_id');
+    $querySite = $_GET['site'] ?? '';
+    $sessionSiteIsBlank = !is_string($sessionSite) || $sessionSite === '';
+    $querySiteIsBlank = !is_string($querySite) || $querySite === '';
+    if ($sessionSiteIsBlank && $querySiteIsBlank) {
+        echo xlt("Missing Site Id using default") . "\n";
+        $_GET['site'] = $runtime['site'] = 'default';
+    }
 }
 
-$TYPE = '';
-if (!empty($runtime['type'])) {
-    $TYPE = strtoupper($runtime['type']);
+$runtimeType = $runtime['type'] ?? '';
+if ($runtimeType !== '') {
+    $TYPE = strtoupper($runtimeType);
 } elseif (($_GET['type'] ?? '') === 'email') {
     $TYPE = $runtime['type'] = "EMAIL";
 } else {
     $TYPE = $runtime['type'] = "SMS"; // default
 }
 
-$CRON_TIME = 150;
-// use service if needed
-if ($TYPE === "SMS") {
-    $_SESSION['authUser'] = $runtime['user'] ?? $_SESSION['authUser'];
+$channel = NotificationChannel::fromLegacyType($TYPE);
+$taskManager = new NotificationTaskManager();
+$cronIntervalHours = $taskManager->getTaskHours(strtolower($TYPE));
+
+// Resolve the client for this channel. AppDispatch::getApiService()
+// constructs the vendor-specific client, which in turn runs the ACL
+// check against the active session. Keep the die-on-deny behavior
+// here: this path is always invoked by an interactive admin, so a
+// visible "Not Authorised!" page is the expected response.
+if ($channel === NotificationChannel::SMS) {
+    SessionUtil::setSession('authUser', $runtime['user'] ?? $session->get('authUser'));
     $clientApp = AppDispatch::getApiService('sms');
     $cred = $clientApp->getCredentials();
 
     if (!$clientApp->verifyAcl('patients', 'appt', $runtime['user'] ?? '')) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
-}
-if ($TYPE === "EMAIL") {
-    $_SESSION['authUser'] = $runtime['user'] ?? $_SESSION['authUser'];
-    $emailApp = AppDispatch::getApiService('email');
-    $cred = $emailApp->getEmailSetup();
+} else {
+    SessionUtil::setSession('authUser', $runtime['user'] ?? $session->get('authUser'));
+    $clientApp = AppDispatch::getApiService('email');
+    $cred = $clientApp->getEmailSetup();
 
-    if (!$emailApp->verifyAcl('patients', 'appt', $runtime['user'] ?? '')) {
+    if (!$clientApp->verifyAcl('patients', 'appt', $runtime['user'] ?? '')) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
 }
-// close writes
+
+// Close session writes so a long-running scan doesn't block other tabs.
 session_write_close();
 set_time_limit(0);
 
-$SMS_NOTIFICATION_HOUR = $cred['smsHours'] ?? $cred['notification_hours'] ?? 24;
-$MESSAGE = $cred['smsMessage'] ?? $cred['email_message'];
+$credArray = is_array($cred) ? $cred : [];
+$notificationHoursRaw = $credArray['smsHours'] ?? $credArray['notification_hours'] ?? 24;
+$notificationHours = is_numeric($notificationHoursRaw) ? (int)$notificationHoursRaw : 24;
+$messageTemplateRaw = $credArray['smsMessage'] ?? $credArray['email_message'] ?? '';
+$messageTemplate = is_string($messageTemplateRaw) ? $messageTemplateRaw : '';
+$vendor = AppDispatch::getModuleVendor();
+$gatewayType = is_string($vendor) ? $vendor : '';
 
-// check command line for quite option
-$bTestRun = isset($_REQUEST['dryrun']) ? 1 : 0;
-if (!empty($runtime['testrun'])) {
-    $bTestRun = 1;
-}
+$dryRun = isset($_REQUEST['dryrun']) || ($runtime['testrun'] ?? '') !== '';
 
-$curr_date = date("Y-m-d");
-$curr_time = time();
-$check_date = date("Y-m-d", mktime((date("h") + $SMS_NOTIFICATION_HOUR), 0, 0, date("m"), date("d"), date("Y")));
+// Exposed via the globals bag because `rc_sms_notification_cron_update_entry()`
+// in rc_sms_notification_helpers.php still reads `bTestRun` to short-circuit
+// dry-run updates. Removing that dependency is follow-up work.
+OEGlobalsBag::getInstance()->set('bTestRun', $dryRun);
 
-$db_sms_msg['type'] = $TYPE;
-$db_sms_msg['sms_gateway_type'] = AppDispatch::getModuleVendor();
-$db_sms_msg['message'] = $MESSAGE;
+$runner = new AppointmentNotificationRunner(
+    channel: $channel,
+    client: $clientApp,
+    notificationHours: $notificationHours,
+    cronIntervalHours: $cronIntervalHours,
+    dryRun: $dryRun,
+    messageTemplate: $messageTemplate,
+    gatewayType: $gatewayType,
+);
 ?>
     <!DOCTYPE html>
     <html lang="eng">
@@ -139,283 +188,50 @@ $db_sms_msg['message'] = $MESSAGE;
                 <div class="text-center mt-2"><h2><?php echo xlt("Working and may take a few minutes to finish.") ?></h2></div>
             </div>
             <?php
-            if ($bTestRun) {
+            if ($dryRun) {
                 echo xlt("We are in Test Mode and no reminders will be sent. This test will check what reminders will be sent in when running Live Mode.");
             }
-            $db_patient = cron_GetAlertPatientData();
-            echo "\n<br>" . xlt('Total of') . ": " . count($db_patient ?? []) . " " . xlt('Reminders Found') . " " . ($bTestRun ? xlt("and will be sending for reminders") . " " : xlt("and Sending for reminders ")) . ' ' . text($SMS_NOTIFICATION_HOUR) . ' ' . xlt("hrs from now.");
+            $now = new DateTimeImmutable();
+            $hours = $notificationHours;
+            $reportingDate = $now->modify('+' . $hours . ' hours');
+
+            echo "<h4>============== "
+                . text($TYPE)
+                . " | "
+                . text($now->format("Y-m-d H:i:s"))
+                . ": "
+                . text("Reporting Date")
+                . " "
+                . text($reportingDate->format("Y-m-d H:i:s"))
+                . " "
+                . text("(" . $hours . " hours ahead)")
+                . " ==============</h4>";
+
             ob_flush();
             flush();
-            // for every event found
-            $plast = '';
-            echo "<h3>======================== " . text($TYPE) . " | " . text(date("Y-m-d H:i:s")) . " =========================</h3>";
-            for ($p = 0; $p < count($db_patient); $p++) {
-                ob_flush();
-                flush();
-                $prow = $db_patient[$p];
-                $db_sms_msg['message'] = $MESSAGE;
 
-                $app_date = $prow['pc_eventDate'] . " " . $prow['pc_startTime'];
-                $app_time = strtotime($app_date);
-
-                $app_time_hour = round($app_time / 3600);
-                $curr_total_hour = round(time() / 3600);
-
-                $remaining_app_hour = round($app_time_hour - $curr_total_hour);
-                $remain_hour = round($remaining_app_hour - $SMS_NOTIFICATION_HOUR);
-
-                if ($plast != $prow['ulname']) {
-                    echo "<h4>" . xlt("For Provider") . ": " . text($prow['utitle']) . ' ' . text($prow['ufname']) . ' ' . text($prow['ulname']) . "</h4>";
-                    $plast = $prow['ulname'];
-                }
-                $strMsg = "<strong>* " . xlt("SEND NOTIFICATION BEFORE:") . text($SMS_NOTIFICATION_HOUR) . " | " . xlt("CRONJOB RUNS EVERY:") . text($CRON_TIME) . " | " . xlt("APPOINTMENT DATE TIME") . ': ' . $app_date . " | " . xlt("APPOINTMENT REMAINING HOURS") . ": " . text($remaining_app_hour) . " | " . xlt("SEND ALERT AFTER") . ': ' . text($remain_hour) . "</strong>";
-
-                // check in the interval
-                if ($remain_hour >= -($CRON_TIME) && $remain_hour <= $CRON_TIME) {
-                    //set message
-                    $db_sms_msg['message'] = cron_SetMessage($prow, $db_sms_msg);
-                    // send sms to patient - if not in test mode
-                    if ($TYPE == 'SMS' && $clientApp != null) {
-                        $isValid = isValidPhone($prow['phone_cell']);
-                        // send sms to patient - if not in test mode
-                        if ($bTestRun == 0 && $isValid) {
-                            $error = $clientApp->sendSMS(
-                                $prow['phone_cell'] ?? '',
-                                $db_sms_msg['email_subject'] ?? '',
-                                $db_sms_msg['message'] ?? '',
-                                $db_sms_msg['email_sender'] ?? ''
-                            );
-                            if (stripos((string) $error, 'error') !== false) {
-                                $strMsg .= " | " . xlt("Error:") . "<strong>" . text($error) . "</strong>\n";
-                                error_log($strMsg); // text
-                                echo(nl2br($strMsg));
-                                continue;
-                            } else {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
-                            }
-                        }
-                        if (!$isValid) {
-                            $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Mobile Phone#") . text('$prow["phone_cell"]') . " " . xlt("SMS NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
-                            $db_sms_msg['message'] = xlt("Error: INVALID Mobile Phone") . '# ' . text($prow['phone_cell']) . xlt("SMS NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
-                            if ($bTestRun == 0) {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
-                            }
-                        } else {
-                            $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
-                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
-                        }
-                        if ((int)$prow['pc_recurrtype'] > 0) {
-                            $row = fetchRecurrences($prow['pid']);
-                            $strMsg .= "\n<strong>" . xlt("A Recurring") . " " . text($row[0]['pc_catname']) . " " . xlt("Event Occurring") . " " . text($row[0]['pc_recurrspec']) . "</strong>";
-                        }
-                        $strMsg .= "\n" . text($db_sms_msg['message']) . "\n";
-                        echo(nl2br($strMsg));
-                    }
-                    if ($TYPE == 'EMAIL' && $emailApp != null) {
-                        $isValid = $emailApp->validEmail($prow['email']);
-                        if ($bTestRun == 0 && $isValid) {
-                            try {
-                                $emailApp->emailReminder(
-                                    $prow['email'] ?? '',
-                                    $db_sms_msg['message'],
-                                );
-                                // Success - create notification log entry
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
-                            } catch (InvalidEmailAddressException) {
-                                $strMsg .= formatErrorMessage(xlt("Invalid email address"));
-                                echo(nl2br($strMsg));
-                                continue;
-                            } catch (SmtpNotConfiguredException) {
-                                $strMsg .= formatErrorMessage(xlt("SMTP not configured"));
-                                echo(nl2br($strMsg));
-                                continue;
-                            } catch (EmailSendFailedException $e) {
-                                $strMsg .= formatErrorMessage(xlt("Failed to send email") . ": " . text($e->getMessage()));
-                                echo(nl2br($strMsg));
-                                continue;
-                            } catch (\PHPMailer\PHPMailer\Exception $e) {
-                                $strMsg .= formatErrorMessage(xlt("Email error") . ": " . text($e->getMessage()));
-                                echo(nl2br($strMsg));
-                                continue;
-                            }
-                        }
-                        if (!$isValid) {
-                            $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Email") . text('$prow["email"]') . " " . xlt("EMAIL NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
-                            $db_sms_msg['message'] = xlt("Error: INVALID EMAIL") . '# ' . text($prow['email']) . xlt("EMAIL NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
-                            if ($bTestRun == 0) {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
-                            }
-                        } else {
-                            $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
-                            rc_sms_notification_cron_update_entry($TYPE, $prow['pid'], $prow['pc_eid'], $prow['pc_recurrtype']);
-                        }
-                        if ((int)$prow['pc_recurrtype'] > 0) {
-                            $row = fetchRecurrences($prow['pid']);
-                            $strMsg .= "\n<strong>" . xlt("A Recurring") . " " . text($row[0]['pc_catname']) . " " . xlt("Event Occurring") . " " . text($row[0]['pc_recurrspec']) . "</strong>";
-                        }
-                        $strMsg .= "\n" . text($db_sms_msg['message']) . "\n";
-                        echo(nl2br($strMsg));
-                    }
-                }
-            }
-            unset($clientApp);
-            unset($emailApp);
-            echo "<br /><h2>" . xlt("Done!") . "</h2>";
+            $result = $runner->run();
             ?>
+            <ul>
+                <li><?php echo xlt('Candidates scanned'); ?>: <strong><?php echo text((string)$result->scanned); ?></strong></li>
+                <li><?php echo xlt('In send window'); ?>: <strong><?php echo text((string)$result->inWindow); ?></strong></li>
+                <li><?php echo xlt('Sent'); ?>: <strong><?php echo text((string)$result->sent); ?></strong></li>
+                <li><?php echo xlt('Skipped (invalid recipient)'); ?>: <strong><?php echo text((string)$result->skippedInvalid); ?></strong></li>
+                <li><?php echo xlt('Failed'); ?>: <strong><?php echo text((string)$result->failed); ?></strong></li>
+            </ul>
+            <?php if ($result->hasFailures()) : ?>
+                <p class="text-danger"><?php echo xlt('One or more sends failed. Check the PHP error log for details.'); ?></p>
+            <?php endif; ?>
+            <h2><?php echo xlt("Done!"); ?></h2>
         </div>
     </body>
     </html>
-
 <?php
-function isValidPhone($phone): array|bool|string|null
-{
-    $justNums = preg_replace("/[^0-9]/", '', (string) $phone);
-    if (strlen((string) $justNums) === 11) {
-        $justNums = preg_replace("/^1/", '', (string) $justNums);
-    }
-    //if we have 10 digits left, it's probably valid.
-    if (strlen((string) $justNums) === 10) {
-        return $justNums;
-    } else {
-        return false;
-    }
-}
-
-/**
- * Integrate cron functions into this script
- *
- * Borrowed from cron_functions.php. Update status yes if alert send to patient
- *
- * @param string $type
- * @param int    $pid
- * @param int    $pc_eid
- * @param string $recur
- * @return int
- */
-function rc_sms_notification_cron_update_entry($type, $pid, $pc_eid, $recur = '')
-{
-    global $bTestRun;
-
-    if ($bTestRun || (int)trim($recur) > 0) {
-        return 1;
-    }
-
-    $query = "UPDATE openemr_postcalendar_events SET";
-
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES', pc_apptstatus='SMS' ";
-    } elseif ($type == 'EMAIL') {
-        $query .= " pc_sendalertemail='YES', pc_apptstatus='EMAIL' ";
-    } else {
-        $query .= " pc_sendalertsms='NO' ";
-    }
-
-    $query .= " where pc_pid=? and pc_eid=? ";
-
-    return sqlStatement($query, [$pid, $pc_eid]);
-}
-
-/**
- * Cron Get Alert Patient Data
- * *
- *
- * @param $type
- * @return array
- */
-function cron_GetAlertPatientData()
-{
-    global $SMS_NOTIFICATION_HOUR, $TYPE;
-    $where = " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND (e.pc_sendalertsms != 'YES' || e.pc_apptstatus != 'SMS') AND e.pc_apptstatus != 'x')";
-    if ($TYPE == 'EMAIL') {
-        $where = " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND (e.pc_sendalertemail != 'YES' || e.pc_apptstatus != 'EMAIL') AND e.pc_apptstatus != 'x')";
-    }
-    $adj_date = date("h") + $SMS_NOTIFICATION_HOUR;
-    $check_date = date("Y-m-d", mktime($adj_date, 0, 0, date("m"), date("d"), date("Y")));
-    $patient_array = fetchEvents($check_date, $check_date, $where, 'u.lname,pc_startTime,p.lname');
-
-    return $patient_array;
-}
-
-/**
- * Cron Get Notification Data
- *
- * @param string $type
- * @return array|false
- */
-function cron_GetNotificationData($type): bool|array
-{
-    $db_sms_msg['notification_id'] = '';
-    $db_sms_msg['sms_gateway_type'] = '';
-
-    $query = "Select * From automatic_notification Where type = ?";
-    $db_sms_msg = sqlFetchArray(sqlStatement($query, [$type]));
-
-    return $db_sms_msg;
-}
-
-/**
- * Format an error message for display
- *
- * @param string $message The translated error message
- * @return string Formatted error message with HTML
- */
-function formatErrorMessage(string $message): string
-{
-    return " | " . xlt("Error:") . " <strong>" . $message . "</strong>\n";
-}
-
-/**
- * Cron Insert Notification Log Entry
- *
- * @param string $type
- * @param array  $prow
- * @param array  $db_sms_msg
- * @return void
- */
-function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg): void
-{
-    $smsgateway_info = $type == 'SMS' ? "" : $db_sms_msg['email_sender'] . "|||" . $db_sms_msg['email_subject'];
-
-    $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_cell'] . "|||" . $prow['email'];
-    $data_info = $prow['pc_eventDate'] . "|||" . $prow['pc_endDate'] . "|||" . $prow['pc_startTime'] . "|||" . $prow['pc_endTime'];
-    $sdate = date("Y-m-d H:i:s");
-    $sql_loginsert = "INSERT INTO `notification_log` (`iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime`) VALUES (NULL,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-    $safe = [$prow['pid'], $prow['pc_eid'], $db_sms_msg['sms_gateway_type'], $db_sms_msg['message'], $db_sms_msg['type'], $patient_info, $smsgateway_info, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], $sdate];
-
-    sqlStatement($sql_loginsert, $safe);
-}
-
-/**
- * Cron Set Message
- *
- * @param array $prow
- * @param array $db_sms_msg
- * @return string
- */
-function cron_SetMessage($prow, $db_sms_msg): string
-{
-    $NAME = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'];
-    $apptProvider = $prow['utitle'] . ' ' . $prow['ufname'] . ' ' . $prow['ulname'];
-    $PROVIDER = $apptProvider;
-    $ORG = $prow['name'];
-    $dtWrk = strtotime($prow['pc_eventDate'] . ' ' . $prow['pc_startTime']);
-    $DATE = date('l F j, Y', $dtWrk);
-    $STARTTIME = date('g:i A', $dtWrk);
-    $ENDTIME = $prow['pc_endTime'];
-    $find_array = ["***NAME***", "***PROVIDER***", "***DATE***", "***STARTTIME***", "***ENDTIME***", "***ORG***"];
-    $replace_array = [$NAME, $PROVIDER, $DATE, $STARTTIME, $ENDTIME, $ORG];
-    $message = str_replace($find_array, $replace_array, $db_sms_msg['message']);
-    $message = text($message);
-
-    return $message;
-}
+unset($clientApp);
 
 function displayHelp(): void
 {
-    //echo text($helpt);
-    $help =
-        <<<HELP
+    $help = <<<HELP
 
 Usage:   php rc_sms_notification.php [options]
 Example: php rc_sms_notification.php site=default user=admin type=sms testrun=1

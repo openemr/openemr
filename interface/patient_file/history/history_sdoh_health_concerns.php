@@ -3,7 +3,7 @@
 /*
  * history_sdoh_health_concerns.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,36 +14,36 @@
  * Allows provider to select relevant health concerns after SDOH assessment
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    System Architect
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\Services\PatientService;
-use OpenEMR\Services\PatientIssuesService;
-use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientIssuesService;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Services\SDOH\HistorySdohService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $sdoh_id = (int)($_GET['sdoh_id'] ?? 0);
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // TODO: @adunsulag all of this needs to be wrapped into a Response and Controller for better structure
 if (!$pid || !$sdoh_id) {
-    $logger->errorLogCaller("Missing required parameters", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
+    $logger->error("history_sdoh_health_concerns: Missing required parameters pid={pid} sdoh_id={sdoh_id}", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
     die(xlt("Missing required parameters."));
 }
 
@@ -54,7 +54,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
 $sdohService = new HistorySdohService();
 $result = $sdohService->search(['id' => $sdoh_id, 'pid' => $pid]);
 if (!$result->hasData()) {
-    $logger->errorLogCaller("SDOH assessment not found", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
+    $logger->error("history_sdoh_health_concerns: SDOH assessment not found for pid={pid} sdoh_id={sdoh_id}", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
     die("SDOH assessment not found.");
 }
 $assessmentConcerns = HistorySdohService::concernsFromAssessmentV3($result->getFirstDataResult());
@@ -79,9 +79,7 @@ $patientName = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $selectedConcerns = $_POST['health_concerns'] ?? [];
     $userId = $session->get('authUserID') ?? 0;
@@ -130,11 +128,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $committed = true;
         }
         // Redirect to SDOH summary
-        $redirectUrl = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
+        $redirectUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
         header("Location: " . $redirectUrl);
         exit();
     } catch (SqlQueryException $exception) {
-        (new SystemLogger())->errorLogCaller("Failed to save health concerns: " . $exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+        $logger->error("Failed to save health concerns: " . $exception->getMessage(), ['exception' => $exception]);
         die(xlt("An error occurred while saving health concerns."));
     } finally {
         if (!$committed) {
@@ -143,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
+$csrf = CsrfUtils::collectCsrfToken(session: $session);
 ?>
 
 <!DOCTYPE html>
@@ -254,7 +252,7 @@ $csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
                         <?php echo xlt("Add Selected Concerns"); ?>
                     </button>
 
-                    <a href="<?php echo attr($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>"
+                    <a href="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>"
                        class="btn btn-secondary btn-lg">
                         <i class="fa fa-times"></i>
                         <?php echo xlt("Skip - No Concerns"); ?>

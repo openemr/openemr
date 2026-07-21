@@ -4,7 +4,7 @@
  * BillingViewCard - presentation view of a patient's billing information in a card widget.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 
@@ -50,7 +51,7 @@ class BillingViewCard extends CardModel
     {
         $pid = $this->pid;
         $ed = $this->getEventDispatcher();
-        $forceBillingExpandAlways = ($GLOBALS['force_billing_widget_open']) ? true : false;
+        $forceBillingExpandAlways = OEGlobalsBag::getInstance()->getBoolean('force_billing_widget_open');
         $patientbalance = get_patient_balance($pid, false);
         $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
         $totalbalance = $patientbalance + $insurancebalance;
@@ -63,7 +64,7 @@ class BillingViewCard extends CardModel
         $viewArgs = [
             'title' => xl('Billing'),
             'id' => $id,
-            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+            'initiallyCollapsed' => getUserSetting($id) == 0,
             'hideBtn' => true,
             'patientBalance' => $patientbalance,
             'insuranceBalance' => $insurancebalance,

@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,7 +16,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Base;
 
+use Facebook\WebDriver\Exception\Internal\UnexpectedResponseException;
+use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\Exception\UnexpectedAlertOpenException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -25,6 +28,8 @@ use Symfony\Component\Panther\Client;
 
 trait BaseTrait
 {
+    private Client $client;
+
     private function base(): void
     {
         $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
@@ -145,34 +150,53 @@ trait BaseTrait
         $this->crawler = $this->client->refreshCrawler();
     }
 
-    private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false, bool $clearAlert = false): void
+    private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false): void
     {
-        if ($clearAlert) {
-            // Accept an alert if present (e.g., duplicate encounter warning when
-            // creating a visit on the same day as an existing encounter). The alert
-            // may not appear if no encounter exists, so don't fail if none shows.
+        // Retry loop to handle page transitions that can cause the active tab
+        // element to become stale. After accepting a JS alert dialog (e.g.,
+        // "Create Visit" when a visit already exists), the page may reload and
+        // replace the active tab element during waitForElementToNotContain.
+        $maxRetries = 3;
+        $lastException = null;
+
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             try {
-                $this->client->wait(2)->until(function ($driver) {
-                    try {
-                        $alert = $driver->switchTo()->alert();
-                        $alert->accept();
-                        return true;
-                    } catch (\Throwable) {
-                        return false;
-                    }
-                });
-            } catch (TimeoutException) {
-                // No alert appeared within the window, which is fine
+                // Wait for the active tab element to exist (handles page transitions)
+                $this->client->waitFor(XpathsConstants::ACTIVE_TAB);
+
+                // Wait for each loading indicator to disappear from the live DOM
+                foreach (explode('||', $loading) as $loadingText) {
+                    $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loadingText);
+                }
+
+                // Success - exit retry loop
+                $lastException = null;
+                break;
+            } catch (UnexpectedResponseException | StaleElementReferenceException $e) {
+                // Element became stale during the page transition - retry
+                $lastException = $e;
+                if ($attempt < $maxRetries) {
+                    usleep(500_000); // 500ms before retry
+                }
+            } catch (UnexpectedAlertOpenException $e) {
+                // An alert appeared after the goToMainMenuLink() wait window.
+                // Accept it and retry (the page may reload after accepting).
+                try {
+                    $this->client->getWebDriver()->switchTo()->alert()->accept();
+                } catch (\Throwable) {
+                    // Alert already dismissed
+                }
+                $lastException = $e;
+                if ($attempt < $maxRetries) {
+                    usleep(500_000); // 500ms before retry
+                }
             }
         }
-        // Wait for each loading indicator to disappear from the live DOM
-        if (str_contains($loading, '||')) {
-            foreach (explode('||', $loading) as $loadingText) {
-                $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loadingText);
-            }
-        } else {
-            $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loading);
+
+        if ($lastException !== null) {
+            throw $lastException;
         }
+
         $this->crawler = $this->client->refreshCrawler();
         if ($looseTabTitle) {
             $this->assertTrue(str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $text), "[$text] tab load FAILED");
@@ -188,7 +212,7 @@ trait BaseTrait
         $this->assertSame($text, $this->crawler->filterXPath(XpathsConstants::MODAL_TITLE)->text(), "[$text] popup load FAILED");
     }
 
-    private function goToMainMenuLink(string $menuLink): void
+    private function goToMainMenuLink(string $menuLink, bool $acceptAlert = false): void
     {
         // ensure on main page (ie. not in an iframe)
         $this->client->switchTo()->defaultContent();
@@ -228,6 +252,26 @@ trait BaseTrait
             );
             $element->click();
             $counter++;
+        }
+
+        if ($acceptAlert) {
+            // Accept any JavaScript alert/confirm that appears after clicking.
+            // Some menu items (e.g., "Create Visit") show a confirm dialog if
+            // a visit already exists for the patient today. Handle immediately
+            // after clicking to prevent the alert from blocking subsequent
+            // WebDriver operations.
+            try {
+                $this->client->wait(2)->until(function ($driver) {
+                    try {
+                        $driver->switchTo()->alert()->accept();
+                        return true;
+                    } catch (\Throwable) {
+                        return false;
+                    }
+                });
+            } catch (TimeoutException) {
+                // No alert appeared, which is fine
+            }
         }
     }
 

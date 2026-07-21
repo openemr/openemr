@@ -4,7 +4,7 @@
  * Dashboard Context Manager Module Bootstrap Class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,8 @@
 
 namespace OpenEMR\Modules\DashboardContext;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
@@ -20,7 +21,6 @@ use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\DashboardContext\Controller\ContextWidgetController;
 use stdClass;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use OpenEMR\Core\OEGlobalsBag;
 
 class Bootstrap
 {
@@ -41,10 +41,10 @@ class Bootstrap
          */
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->installPath = OEGlobalsBag::getInstance()->get('web_root') . self::MODULE_INSTALLATION_PATH;
+        $this->installPath = OEGlobalsBag::getInstance()->getWebRoot() . self::MODULE_INSTALLATION_PATH;
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
     }
 
     /**

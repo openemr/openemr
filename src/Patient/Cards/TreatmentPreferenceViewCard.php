@@ -12,13 +12,15 @@
 
 namespace OpenEMR\Patient\Cards;
 
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\TreatmentInterventionPreferenceService;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
+use OpenEMR\Services\TreatmentInterventionPreferenceService;
 
 class TreatmentPreferenceViewCard extends CardModel
 {
@@ -62,7 +64,7 @@ class TreatmentPreferenceViewCard extends CardModel
                 'btnLabel' => "Edit",
                 'btnLink' => "javascript:toggleEditMode(true);",
                 'linkMethod' => 'html',
-                'initiallyCollapsed' => $initiallyCollapsed ? true : false,
+                'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]
         ];
@@ -83,7 +85,7 @@ class TreatmentPreferenceViewCard extends CardModel
 
     public function getTemplateVariables(): array
     {
-
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $templateVars = parent::getTemplateVariables();
         $dispatchResult = $this->getEventDispatcher()->dispatch(new RenderEvent(self::CARD_ID), RenderEvent::EVENT_HANDLE);
         $this->handlePost();
@@ -132,8 +134,8 @@ class TreatmentPreferenceViewCard extends CardModel
             'pid'              => $this->pid,
             'auth'             => true,  // TODO ACL
             'can_write'        => true,  // TODO ACL
-            'webroot'          => $GLOBALS['webroot'] ?? '',
-            'csrf_token'       => CsrfUtils::collectCsrfToken(),
+            'webroot'          => OEGlobalsBag::getInstance()->getKernel()->getWebRoot(),
+            'csrf_token'       => CsrfUtils::collectCsrfToken(session: $session),
             'preferences'      => $preferences,
             'loinc_codes'      => $loincCodes,
             'current_datetime' => date('Y-m-d\TH:i'),
@@ -187,39 +189,45 @@ class TreatmentPreferenceViewCard extends CardModel
 
     private function handlePost(): void
     {
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-            return;
-        }
-        if (($_POST['pref_type'] ?? '') !== 'treatment_intervention') {
-            return;
-        }
-        if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
-            CsrfUtils::csrfNotVerified();
-        }
+        $request = HttpRestRequest::createFromGlobals();
 
-        $action = $_POST['action'] ?? '';
-        if ($action === 'save') {
-            $id   = isset($_POST['id']) && $_POST['id'] !== '' ? (int)$_POST['id'] : null;
-            $data = $this->collectPost($_POST);  // note: returns patient_id
-            if ($id) {
-                $this->service->update($id, $data);
-                $this->flashMessage = xl('Preference updated');
-            } else {
-                $this->service->insert($data);   // ← was create()
-                $this->flashMessage = xl('Preference saved');
-            }
-        } elseif ($action === 'delete') {
-            $id = (int)($_POST['id'] ?? 0);
-            if ($id) {
-                $this->service->delete($id);     // method exists
-                $this->flashMessage = xl('Preference deleted');
-            }
+        if ($request->getMethod() !== 'POST') {
+            return;
+        }
+        if ($request->request->getString('pref_type') !== 'treatment_intervention') {
+            return;
+        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', dieOnFail: true);
+
+        switch ($request->request->getString('action')) {
+            case 'save':
+                $idInput = $request->request->getString('id');
+                $id = $idInput !== ''
+                    ? filter_var($idInput, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
+                    : null;
+                $data = $this->collectPost($request->request->all());
+                if ($id) {
+                    $this->service->update($id, $data);
+                    $this->flashMessage = xl('Preference updated');
+                } else {
+                    $this->service->insert($data);
+                    $this->flashMessage = xl('Preference saved');
+                }
+                break;
+            case 'delete':
+                $id = $request->request->getInt('id');
+                if ($id) {
+                    $this->service->delete($id);
+                    $this->flashMessage = xl('Preference deleted');
+                }
+                break;
         }
     }
 
     private function collectPost(array $post): array
     {
-        $uid = $_SESSION['authUserID'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $uid = $session->get('authUserID');
 
         return [
             'patient_id'            => $this->pid,  // ← was 'pid'

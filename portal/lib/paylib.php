@@ -4,7 +4,7 @@
  *  Patient Portal
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
@@ -12,21 +12,29 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\PaymentGateway;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+// Every request writes session state (portal_init, whereto), so keep session writable
+// to avoid repeated reopen-write-close cycles from read_and_close mode.
+$sessionAllowWrite = true;
+SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
@@ -37,38 +45,61 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
 
 require_once("./appsql.class.php");
 
-use OpenEMR\Billing\PaymentGateway;
-use OpenEMR\Common\Crypto\CryptoGen;
-
 if ($session->get('portal_init') !== true) {
-    $session->set('whereto', '#paymentcard');
+    SessionUtil::setSession('whereto', '#paymentcard');
 }
 
-$session->set('portal_init', false);
+SessionUtil::setSession('portal_init', false);
 
-if ($_POST['mode'] == 'Sphere') {
-    $cryptoGen = new CryptoGen();
-    $dataTrans = $cryptoGen->decryptStandard($_POST['enc_data']);
-    $dataTrans = json_decode($dataTrans, true);
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
+}
 
-    $form_pid = $dataTrans['get']['patient_id_cc'];
+if ($_POST['mode'] === 'Sphere') {
+    // Sphere patient portal payments require an authenticated portal session
+    if (!isset($pid) || !is_int($pid)) {
+        http_response_code(403);
+        echo 'Unauthorized';
+        exit;
+    }
 
-    $cc = [];
-    $cc["cardHolderName"] = $dataTrans['post']['name'];
-    $cc['status'] = $dataTrans['post']['status_name'];
-    $cc['authCode'] = $dataTrans['post']['authcode'];
-    $cc['transId'] = $dataTrans['post']['transid'];
-    $cc['cardNumber'] = "******** " . $dataTrans['post']['cc'];
-    $cc['cc_type'] = $dataTrans['post']['ccBrand'];
-    $cc['zip'] = '';
+    $ticket = filter_input(INPUT_POST, 'sphere_ticket') ?? '';
+    $sessionKey = 'sphere_payment_result_' . $ticket;
+
+    $paymentResult = $session->get($sessionKey);
+    SessionUtil::unsetSession($sessionKey);
+
+    if (!is_array($paymentResult)) {
+        http_response_code(400);
+        echo 'Missing or invalid payment data';
+        exit;
+    }
+
+    $form_pid = $paymentResult['patient_id'] ?? 0;
+    if ($form_pid <= 0 || $form_pid !== $pid) {
+        http_response_code(403);
+        echo 'Unauthorized';
+        exit;
+    }
+
+    $cc = [
+        'cardHolderName' => $paymentResult['name'] ?? '',
+        'status' => $paymentResult['status_name'] ?? '',
+        'authCode' => $paymentResult['authcode'] ?? '',
+        'transId' => $paymentResult['transid'] ?? '',
+        'cardNumber' => '******** ' . ($paymentResult['cc'] ?? ''),
+        'cc_type' => $paymentResult['ccBrand'] ?? '',
+        'zip' => '',
+    ];
     $ccaudit = json_encode($cc);
     $invoice = $_POST['invValues'] ?? '';
 
-    $session->set('whereto', '#paymentcard');
+    SessionUtil::setSession('whereto', '#paymentcard');
 
     SaveAudit($form_pid, $invoice, $ccaudit);
 
     echo 'ok';
+    exit;
 }
 
 if ($_POST['mode'] == 'AuthorizeNet') {
@@ -79,6 +110,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     $transaction['opaqueDataDescriptor'] = $_POST['dataDescriptor'];
     $transaction['opaqueDataValue'] = $_POST['dataValue'];
     try {
+        /** @var \Omnipay\AuthorizeNetApi\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -99,7 +131,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         return $ex->getMessage();
     }
 
-    $session->set('whereto', '#paymentcard');
+    SessionUtil::setSession('whereto', '#paymentcard');
     if (!$response->isSuccessful()) {
         echo $response;
         exit();
@@ -116,6 +148,7 @@ if ($_POST['mode'] == 'Stripe') {
     $transaction['currency'] = "USD";
     $transaction['token'] = $_POST['stripeToken'];
     try {
+        /** @var \Omnipay\Stripe\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -129,14 +162,14 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['transId'] = $response->getTransactionReference();
         $cc['cardNumber'] = "******** " . $r['last4'];
         $cc['cc_type'] = $r['brand'];
-        $cc['zip'] = $r->address_zip;
+        $cc['zip'] = $r['address_zip'] ?? null;
         $ccaudit = json_encode($cc);
         $invoice = $_POST['invValues'] ?? '';
     } catch (\Throwable $ex) {
         echo $ex->getMessage();
     }
 
-    $session->set('whereto', '#paymentcard');
+    SessionUtil::setSession('whereto', '#paymentcard');
     if (!$response->isSuccessful()) {
         echo $response;
         exit();
@@ -192,8 +225,8 @@ function SaveAudit($pid, $amts, $cc)
         $audit['table_args'] = $amts;
         $audit['action_user'] = "0";
         $audit['action_taken_time'] = "";
-        $cryptoGen = new CryptoGen();
-        $audit['checksum'] = $cryptoGen->encryptStandard($cc);
+        $cryptoGen = ServiceContainer::getCrypto();
+        $audit['checksum'] = $cryptoGen->encryptForDatabase(is_string($cc) ? $cc : null);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
@@ -211,7 +244,7 @@ function SaveAudit($pid, $amts, $cc)
 
 function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'notify patient')
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $appsql = new ApplicationTable();
     try {
         $audit = [];
@@ -226,8 +259,8 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['table_args'] = $amts;
         $audit['action_user'] = $session->get('authUserID', "0");
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
-        $cryptoGen = new CryptoGen();
-        $audit['checksum'] = $cryptoGen->encryptStandard($cc);
+        $cryptoGen = ServiceContainer::getCrypto();
+        $audit['checksum'] = $cryptoGen->encryptForDatabase(is_string($cc) ? $cc : null);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];

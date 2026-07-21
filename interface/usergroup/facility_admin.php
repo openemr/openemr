@@ -4,32 +4,33 @@
  * facility_admin.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\ListService;
 
 // Ensure authorized
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Facility Admin")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Facility Admin", xl("Facility Admin"));
 }
 
 $facilityService = new FacilityService();
+$listService = new ListService();
 
 $alertmsg = '';
 $use_validate_js = 1;
-require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php");
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $rules = collectValidationPageRules("/interface/usergroup/facilities_add.php");
@@ -41,16 +42,17 @@ $disabled = (!empty($resPBE) && count($resPBE) > 0) ? 'disabled' : '';
 
 $args = [
     'collectThis' => (empty($rules)) ? "undefined" : json_sanitize($rules["facility-add"]["rules"]),
-    'forceClose' => (isset($_POST["mode"]) && $_POST["mode"] == "facility") ? true : false,
-    'erxEnabled' => $GLOBALS['erx_enable'],
-    'alertMsg' => trim($alertmsg) ? true : false,
+    'forceClose' => isset($_POST["mode"]) && $_POST["mode"] == "facility",
+    'erxEnabled' => OEGlobalsBag::getInstance()->getBoolean('erx_enable'),
+    'alertMsg' => (bool) trim($alertmsg),
     'disablePBE' => $disabled,
     'pos_code' => $pc->get_pos_ref(),
     'mode' => 'edit',
     'my_fid' => $my_fid,
+    'organization_types' => $listService->getOptionsByListName('organization-type', ['activity' => '1']),
     'facility' => $facilityService->getById($my_fid),
 ];
 
-$twig = new TwigContainer(null, $GLOBALS["kernel"]);
+$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $t = $twig->getTwig();
 echo $t->render("super/facilities/form.html.twig", $args);

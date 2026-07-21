@@ -1,0 +1,119 @@
+# Source of truth for Docker release builds.
+#
+# Master-authoritative -- read only from master's tree. Future rel
+# branches cut from master inherit a frozen snapshot whose contents
+# drift over time (master adds new rel branches, bumps version refs);
+# the rel-branch copies are never consulted. Every existing consumer
+# enforces this: workflows either filter the trigger to
+# `branches: [master]` (or `schedule:`, which fires only from the
+# default branch), or read master's copy via `git show master:...`
+# instead of the local checkout. The byte-identical canary script
+# (.github/scripts/validate-byte-identical.sh) is the third pattern --
+# its rel-branch context simply does not read this file at all.
+#
+# When adding a new consumer, preserve that property: if the workflow
+# can fire from a rel branch, fetch master's copy explicitly rather
+# than reading from the local checkout (otherwise it'll see the
+# frozen-at-cut-time snapshot, not the current source of truth).
+#
+# Consumed by .github/workflows/docker-release-orchestrator.yml on each
+# scheduled tick (or manual dispatch). The orchestrator reads this file,
+# applies its include/exclude filter, and fans out one
+# docker-build-release.yml dispatch per remaining row -- each one against
+# its own `branch`, with `docker_tags` and `openemr_version_ref` passed in
+# as workflow_dispatch inputs.
+#
+# Per-row fields:
+#
+#   branch
+#     The rel-X.Y.Z (or master) ref the build runs against. The dispatched
+#     docker-build-release.yml workflow runs from this branch's checkout
+#     and uses this branch's docker/release/Dockerfile -- which is byte-
+#     identical across every branch because openemr_version_ref (below)
+#     gets passed in as a --build-arg instead of being baked into the
+#     Dockerfile.
+#
+#   docker_tags
+#     Comma-separated Docker Hub tags to push (e.g. "8.1.0,latest" or
+#     "dev,next"). Version-number tags (digits and dots only, like
+#     "8.1.0") additionally get a "<tag>-YYYY-MM-DD" sibling pushed
+#     alongside; floating tags (dev, next, latest, manual-test) don't.
+#     The build workflow applies this dated-sibling rule, so the data
+#     here stays clean of date strings.
+#
+#   openemr_version_ref
+#     Git ref (branch name, tag, or SHA) to bake into the image as the
+#     OPENEMR_VERSION ARG. Decouples "what we're tagging" from "what
+#     source we're shipping" so a rel branch can stage post-release
+#     patches without affecting the published image until you bump this
+#     field to a new tag like v8_1_0_1.
+#
+#   unreleased (optional, default: false)
+#     Marks the row as "this configuration has never been used to
+#     publish anything." Consumers SKIP these rows -- they don't fan
+#     out a docker build, they don't update the dockerhub readme, they
+#     don't update demo_farm. The validator still applies all per-row
+#     checks (version-ref resolves, docker_tag aligns with version.php),
+#     so dropping the flag (or removing the field) activates a ready-
+#     to-publish entry.
+#
+#     Multi-row use case: a rel branch can carry more than one row
+#     simultaneously. When a rel branch increments its patch version
+#     into dev mode (e.g., rel-810 enters 8.1.2-dev), the existing
+#     rel-810 row retargets at the new dev (docker_tags: 8.1.2,next +
+#     openemr_version_ref: rel-810) and a SECOND row is added for the
+#     prior shipped version (docker_tags: 8.1.1 + openemr_version_ref:
+#     v8_1_1) so daily builds keep republishing the stable image while
+#     the new dev iterates. When the new dev (8.1.2) ships, the prior-
+#     release row gets dropped entirely (back to one rel branch, one
+#     row). During the dev cycle the prior-release row publishes for
+#     real -- `unreleased` is NOT set on it.
+#
+#     `unreleased: true` exists for the narrower case of adding a
+#     placeholder entry whose corresponding release isn't ready to be
+#     published from this configuration yet -- e.g., wiring up the
+#     multi-row mechanism without immediately starting to push an old
+#     version's daily images.
+#
+# Editing:
+#
+# * Branch-cut for rel-X.Y.Z: append a new row. No edit to the new
+#   branch's Dockerfile needed.
+# * Promote rel branch to a version tag: edit the row's
+#   openemr_version_ref (e.g., rel-810 -> v8_1_0).
+# * Rotate `latest`: edit two rows' docker_tags (drop from the outgoing
+#   row, add to the incoming row).
+# * Enter dev for a new patch: add a second row for the prior shipped
+#   version + retarget the existing row at the new dev. Drop the
+#   prior-version row when the new dev ships.
+# * Pre-stage a not-yet-publishing row: add the row with
+#   `unreleased: true`. Drop the flag (or the whole row) to activate.
+#
+# All of these are 1-line YAML edits. Tooling and bots can parse and
+# edit this file with any YAML library; no need to understand workflow
+# YAML structure.
+
+- branch: master
+  # 8.2.0 is the version master is currently developing (see version.php's
+  # $v_major.$v_minor.$v_patch). Bump this when master moves to the next
+  # release cycle (e.g., when version.php switches to 8.3.0-dev).
+  # The docker_tag <-> version.php alignment guard in
+  # docker-validate-release-targets.yml catches drift on PRs.
+  docker_tags: 8.3.0,dev,next
+  openemr_version_ref: master
+
+- branch: rel-820
+  docker_tags: 8.2.0,latest
+  openemr_version_ref: v8_2_0
+
+- branch: rel-800
+  # 8.0.0 is the floating "current latest 8.0.0.x" pointer (always advances
+  # with openemr_version_ref); 8.0.0.3 is the specific-patch pointer (only
+  # advances when this row bumps to 8.0.0.4+). Both tags get an auto-appended
+  # "<tag>-YYYY-MM-DD" sibling for immutable per-build pinning.
+  docker_tags: 8.0.0,8.0.0.3
+  openemr_version_ref: v8_0_0_3
+
+- branch: rel-704
+  docker_tags: 7.0.4
+  openemr_version_ref: v7_0_4

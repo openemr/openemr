@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -81,7 +81,7 @@ class AddressBookAddEdit
         $phonew2        = "";
         $phonecell      = "";
 
-        $sqlArr = [${$userName}, $password, $authorized, $info, $source
+        $sqlArr = [$userName, $password, $authorized, $info, $source
             ,$title, $fname, $lname, $mname, $suffix
             ,$federaltaxid, $federaldrugid,$upin,$facility,$see_auth,$active,$npi,$taxonomy,$cpoe
             ,$specialty,$organization,$valedictory,$assistant,$billname,$email,$email_direct,$url

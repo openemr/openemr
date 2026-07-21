@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -71,8 +71,8 @@ abstract class AbstractMedicationService extends AbstractQdmService implements Q
                 'high' => new DateTime([
                     'date' => $end_date
                 ]),
-                'lowClosed' => $start_date ? true : false,
-                'highClosed' => $this->validDateOrNull($end_date) ? true : false
+                'lowClosed' => (bool) $start_date,
+                'highClosed' => (bool) $this->validDateOrNull($end_date)
             ]),
             'route' => null // In sample files, route was null, probably doesn't matter for eCQM
         ]);

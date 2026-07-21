@@ -22,7 +22,7 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class Therapy_Groups
@@ -74,7 +74,7 @@ class Therapy_Groups
         $sql .= ' WHERE group_id = ?';
         array_push($groupData, $groupData['group_id']);
         $result = sqlStatement($sql, $groupData);
-        return !$result ? false : true;
+        return (bool) $result;
     }
 
     public function existGroup($name, $startDate, $groupId = null)
@@ -91,7 +91,7 @@ class Therapy_Groups
 //        $result = sqlStatement($sql, $conditions);
 //        $count = sqlFetchArray($result);
         $count = sqlQuery($sql, $conditions);
-        return($count['count'] > 0) ? true : false;
+        return$count['count'] > 0;
     }
 
     /**

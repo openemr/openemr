@@ -1,0 +1,286 @@
+# Builds and pushes the production OpenEMR docker image for the current
+# branch (master's "next" build, or any rel-X.Y.Z's release build).
+#
+# This workflow file is BYTE-IDENTICAL across master and every rel-X.Y.Z
+# branch -- the only per-branch differences are the docker/release/Dockerfile
+# contents (which is also byte-identical across branches now that the
+# openemr source ref is passed in as a --build-arg). All release-config
+# decisions live in .github/release-targets.yml on master.
+#
+# Input semantics:
+#
+#   docker_tags
+#     Comma-separated logical docker tags to push (e.g. "8.1.0,latest" or
+#     "dev,next"). Version-number tags (digits and dots only, like "8.1.0")
+#     additionally get a "<tag>-YYYY-MM-DD" sibling pushed alongside them;
+#     floating tags (dev, next, latest, manual-test) don't get dated
+#     variants. Default `manual-test` is a safe sentinel for ad-hoc
+#     dispatches that won't clobber production tags.
+#
+#   openemr_version_ref
+#     Git ref (branch, tag, or SHA) to bake into the image as the
+#     OPENEMR_VERSION ARG. Empty input falls back to the dispatching
+#     branch's ref name -- so a manual dispatch on rel-810 with no
+#     override bakes rel-810 source, which is what a maintainer
+#     testing a branch in isolation typically wants.
+#
+# Triggered by:
+#   * workflow_dispatch -- driven by the master orchestrator on its
+#     scheduled tick (dispatching against this branch's --ref with both
+#     inputs set from release-targets.yml), or by a maintainer in the
+#     Actions UI.
+#
+# Note: a `push: tags: ['v*']` trigger was previously wired here but
+# has been removed. Tag pushes now flow exclusively through the
+# orchestrator's release-targets.yml consumer path -- eliminates a
+# double-build race window (tag-push + orchestrator-fanout hitting
+# the same registry tag concurrently) and gives a single trigger
+# surface for post-release build state to reason about. See gaps doc
+# G17 for the design rationale.
+
+name: Docker build release
+
+on:
+  workflow_dispatch:
+    inputs:
+      docker_tags:
+        description: 'Comma-separated docker tags to push (e.g. "8.1.0,latest"; leave default for an ad-hoc test build that won''t clobber production tags)'
+        required: true
+        type: string
+        default: 'manual-test'
+      openemr_version_ref:
+        description: 'OpenEMR git ref to bake into the image (branch, tag, or SHA). Leave empty to use the dispatching branch name -- e.g. "master" or "rel-810".'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+# Serialize per-(branch, docker_tags) builds. Two dispatches with
+# the same ref AND the same docker_tags input (e.g., release-
+# targets.yml push + daily orchestrator cron landing close
+# together, or two rapid manual dispatches) queue instead of
+# racing on the same registry tag pointer. Different refs (master
+# vs rel-820 vs rel-800) still fan out in parallel; different
+# docker_tags on the same branch (multi-row-per-branch case --
+# a rel-* branch with both a `<version>,latest` stable row and
+# an `unreleased: true` next-version row in release-targets.yml)
+# also fan out in parallel because they push different registry
+# tag pointers with no shared surface to race on. cancel-in-
+# progress: false because builds push to a shared registry --
+# cancelling mid-push could leave orphan manifest entries or
+# partial tag updates. See gaps doc G18.
+concurrency:
+  group: docker-build-release-${{ github.ref }}-${{ inputs.docker_tags }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Only run from the upstream openemr/openemr repository (not downstream forks).
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Compute build date
+      id: build_date
+      run: echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+
+    - name: Resolve docker_tags input
+      id: resolve_docker_tags
+      env:
+        DISPATCH_TAGS: ${{ inputs.docker_tags }}
+      run: |
+        echo "raw=${DISPATCH_TAGS}" >> "$GITHUB_OUTPUT"
+
+    - name: Expand docker_tags list (add dated variant for version-number tags)
+      id: expand_docker_tags
+      env:
+        INPUT_TAGS: ${{ steps.resolve_docker_tags.outputs.raw }}
+        BUILD_DATE: ${{ steps.build_date.outputs.date }}
+      run: |
+        {
+          echo 'list<<EOF'
+          IFS=',' read -ra TAGS <<< "$INPUT_TAGS"
+          for t in "${TAGS[@]}"; do
+            t="${t// /}"   # strip whitespace
+            [ -z "$t" ] && continue
+            echo "openemr/openemr:${t}"
+            # Rule: version-number tags (digits and dots only) also get a dated sibling.
+            # "8.1.0" -> push "8.1.0" + "8.1.0-2026-06-13"
+            # "next" / "dev" / "latest" / "manual-test" -> no dated variant.
+            if [[ "$t" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+              echo "openemr/openemr:${t}-${BUILD_DATE}"
+            fi
+          done
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Resolve openemr_version_ref (input, or fall back to dispatching branch)
+      id: resolve_openemr_version_ref
+      env:
+        INPUT_REF: ${{ inputs.openemr_version_ref }}
+        REF_NAME: ${{ github.ref_name }}
+      run: |
+        if [ -n "$INPUT_REF" ]; then
+          # Orchestrator-driven dispatch (or maintainer explicitly set the input).
+          echo "ref=$INPUT_REF" >> "$GITHUB_OUTPUT"
+        else
+          # Manual dispatch with no override -- use the dispatching branch name
+          # (master, rel-810, etc.). What a maintainer testing a branch in
+          # isolation typically wants.
+          echo "ref=$REF_NAME" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Extract IMAGE_VERSION from openemr version.php at the resolved ref
+      id: image_version
+      env:
+        REF: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Fetch version.php at the resolved ref via the authenticated
+        # GitHub Contents API. Works for branches, tags, and SHAs alike;
+        # no git checkout needed.
+        #
+        # Previously used anonymous raw.githubusercontent.com. On the
+        # 8.2.0 orchestrator fanout that came back with HTTP 429 (shared-
+        # IP anonymous quota exhausted by 4 parallel per-branch dispatches
+        # hitting the same URL family concurrently) and the error path
+        # here misreported the 429 as "ref likely doesn't exist," sending
+        # operators on wild goose chases through release-targets.yml.
+        # gaps doc G19 has the incident detail. Authenticated GH_TOKEN
+        # gets us the per-token 5000/hr budget instead, which even at
+        # 8-branch fanout is comfortably ahead of any rate-limit floor.
+        #
+        # `Accept: application/vnd.github.raw` returns the file body
+        # directly (no base64 wrapping).
+        if ! gh api "/repos/openemr/openemr/contents/version.php?ref=${REF}" \
+             -H 'Accept: application/vnd.github.raw' \
+             > /tmp/version.php 2> /tmp/gh-api-err; then
+          # Distinguish "ref doesn't resolve" (bad release-targets.yml
+          # entry -- actionable) from every other failure (transient --
+          # worth surfacing verbatim so the operator sees the actual
+          # HTTP status / gh error rather than a wrong "ref doesn't
+          # exist" claim). 404 is the only case that means "check
+          # release-targets.yml"; 429 / 5xx / network errors do not.
+          if grep -qE 'HTTP 404|Not Found' /tmp/gh-api-err; then
+            echo "::error::openemr_version_ref '${REF}' does not resolve in openemr/openemr; check release-targets.yml."
+          else
+            echo "::error::Failed to fetch version.php at openemr@${REF} (not a 404 -- check the underlying gh error below rather than release-targets.yml):"
+            cat /tmp/gh-api-err
+          fi
+          exit 1
+        fi
+
+        V_MAJOR=$(awk -F"'" '/^\$v_major[[:space:]]*=/ {print $2}' /tmp/version.php)
+        V_MINOR=$(awk -F"'" '/^\$v_minor[[:space:]]*=/ {print $2}' /tmp/version.php)
+        V_PATCH=$(awk -F"'" '/^\$v_patch[[:space:]]*=/ {print $2}' /tmp/version.php)
+        V_TAG=$(awk -F"'" '/^\$v_tag[[:space:]]*=/ {print $2}' /tmp/version.php)
+        V_REALPATCH=$(awk -F"'" '/^\$v_realpatch[[:space:]]*=/ {print $2}' /tmp/version.php)
+
+        # Compose the human-facing version:
+        #   "8.1.1-dev"  -- in-progress (v_tag non-empty)
+        #   "8.1.0"      -- initial GA   (v_tag='', v_realpatch='0')
+        #   "8.1.0.1"    -- GA + patch   (v_tag='', v_realpatch>='1')
+        VERSION="${V_MAJOR}.${V_MINOR}.${V_PATCH}"
+        if [ -n "$V_TAG" ]; then
+          VERSION="${VERSION}${V_TAG}"
+        elif [ "$V_REALPATCH" != "0" ]; then
+          VERSION="${VERSION}.${V_REALPATCH}"
+        fi
+        echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "✓ Extracted IMAGE_VERSION=$VERSION from openemr@${REF}/version.php"
+
+    - name: Build and push
+      uses: docker/build-push-action@v7
+      with:
+        context: ./docker/release
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.expand_docker_tags.outputs.list }}
+        build-args: |
+          OPENEMR_VERSION=${{ steps.resolve_openemr_version_ref.outputs.ref }}
+          IMAGE_VERSION=${{ steps.image_version.outputs.value }}
+          BUILD_DATE=${{ steps.build_date.outputs.date }}
+
+    - name: Verify pushed image OCI labels
+      env:
+        EXPECTED_REVISION: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
+        EXPECTED_VERSION: ${{ steps.image_version.outputs.value }}
+        EXPECTED_BUILD_DATE: ${{ steps.build_date.outputs.date }}
+        TAGS_LIST: ${{ steps.expand_docker_tags.outputs.list }}
+      run: |
+        # Pull the first pushed tag back and inspect its labels.
+        REF_TAG=$(echo "$TAGS_LIST" | head -1)
+        docker pull "$REF_TAG"
+
+        inspect_label() {
+          # docker's Go-template `index` returns the literal string "<no value>"
+          # when a label key is missing on newer Docker versions, instead of an
+          # empty string. Normalize it back to empty so callers (both the
+          # value-comparison and the presence-checks below) can rely on -z to
+          # mean "label absent."
+          V=$(docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG")
+          if [ "$V" = "<no value>" ]; then
+            echo ""
+          else
+            echo "$V"
+          fi
+        }
+
+        FAIL=0
+
+        # Value checks: the two labels that vary per build and have a
+        # computable expected value.
+        ACTUAL_REVISION=$(inspect_label revision)
+        if [ "$ACTUAL_REVISION" != "$EXPECTED_REVISION" ]; then
+          echo "::error::revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
+          echo "  This means docker/release/Dockerfile either dropped the OPENEMR_VERSION ARG or hardcoded the LABEL value."
+          FAIL=1
+        fi
+
+        ACTUAL_VERSION=$(inspect_label version)
+        if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+          echo "::error::version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION' (parsed from openemr@${EXPECTED_REVISION}/version.php)"
+          echo "  This means docker/release/Dockerfile either dropped the IMAGE_VERSION ARG or hardcoded the LABEL value."
+          FAIL=1
+        fi
+
+        ACTUAL_CREATED=$(inspect_label created)
+        if [ "$ACTUAL_CREATED" != "$EXPECTED_BUILD_DATE" ]; then
+          echo "::error::created label '$ACTUAL_CREATED' doesn't match expected '$EXPECTED_BUILD_DATE'"
+          echo "  This means docker/release/Dockerfile either dropped the BUILD_DATE ARG or hardcoded the LABEL value."
+          FAIL=1
+        fi
+
+        # Presence checks: the four static labels that don't vary per build.
+        # Catches the "someone truncated the Dockerfile and the whole LABEL
+        # block disappeared" failure mode that the value checks above wouldn't
+        # see if those three ARGs were also gone.
+        for STATIC_LABEL in title source url licenses; do
+          VALUE=$(inspect_label "$STATIC_LABEL")
+          if [ -z "$VALUE" ]; then
+            echo "::error::Image is missing org.opencontainers.image.${STATIC_LABEL} label entirely"
+            echo "  Check that docker/release/Dockerfile's LABEL block at the final stage is intact."
+            FAIL=1
+          else
+            echo "✓ ${STATIC_LABEL}=${VALUE}"
+          fi
+        done
+
+        [ "$FAIL" -eq 0 ] || exit 1
+        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"

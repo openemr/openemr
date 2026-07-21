@@ -27,12 +27,15 @@
  *
  * {jsVersionNumber}
  *
- * @param array
- * @param Smarty
+ * @param array $params
+
+use OpenEMR\Core\OEGlobalsBag;
+
+ * @param mixed $smarty
  */
 
 
 function smarty_function_assetVersionNumber($params, &$smarty): void
 {
-    echo $GLOBALS['v_js_includes'] ?? 1; // if for some reason we don't have a version we just return one
+    echo OEGlobalsBag::getInstance()->get('v_js_includes') ?? 1; // if for some reason we don't have a version we just return one
 }

@@ -4,7 +4,7 @@
  * HttpUtils utility class for functions dealing with urls and http.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Discover and Change, Inc. <snielson@discoverandchange.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>

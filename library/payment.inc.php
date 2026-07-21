@@ -14,8 +14,10 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\PaymentProcessing\Recorder;
 
 // Post a payment to the payments table.
@@ -24,7 +26,8 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
 {
 
     if (empty($auth)) {
-        $auth = $_SESSION['authUser'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $auth = $session->get('authUser');
     }
 
     $tmprow = sqlQuery(
@@ -225,14 +228,21 @@ function DistributionInsert(int $CountRow, $created_time, $user_id): void
   // Delete rows, with logging, for the specified table using the
   // specified WHERE clause.  Borrowed from deleter.php.
   //
-function row_delete($table, $where): void
+/**
+ * @param string $table
+ * @param string $where
+ */
+function payment_row_delete($table, $where): void
 {
     $tres = sqlStatement("SELECT * FROM " . escape_table_name($table) . " WHERE $where");
     $count = 0;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUser = $session->get('authUser');
+    $authProvider = $session->get('authProvider');
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (! $value || $value == '0000-00-00 00:00:00') {
+            if (Utilities::isDateEmpty($value)) {
                 continue;
             }
 
@@ -243,7 +253,7 @@ function row_delete($table, $where): void
             $logstring .= $key . "='" . addslashes((string) $value) . "'";
         }
 
-        EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
+        EventAuditLogger::getInstance()->newEvent("delete", $authUser, $authProvider, 1, "$table: $logstring");
         ++$count;
     }
 
@@ -256,13 +266,19 @@ function row_delete($table, $where): void
 // Deactivate rows, with logging, for the specified table using the
 // specified SET and WHERE clauses.  Borrowed from deleter.php.
 //
-function row_modify($table, $set, $where): void
+/**
+ * @param string $table
+ * @param string $set
+ * @param string $where
+ */
+function payment_row_modify($table, $set, $where): void
 {
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         EventAuditLogger::getInstance()->newEvent(
             "deactivate",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             "$table: $where"
         );

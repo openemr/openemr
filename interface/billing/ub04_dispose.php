@@ -4,7 +4,7 @@
  * UB04 Functions
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,7 @@ require_once("../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\PdfCreator;
 
 function ub04_dispose(): void
@@ -119,9 +120,9 @@ function buildTemplate(?string $pid = null, ?string $encounter = null, $htmlin =
 
 function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = "")
 {
-    $top = $_POST["left_ubmargin"] ?? $GLOBALS['left_ubmargin_default'];
-    $side = $_POST["top_ubmargin"] ?? $GLOBALS['top_ubmargin_default'];
-    $form_filename = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/$filename";
+    $top = $_POST["left_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('left_ubmargin_default');
+    $side = $_POST["top_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('top_ubmargin_default');
+    $form_filename = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/$filename";
     // convert points to inches-some tricky calculus here! 72 pts/inch
     $top = round($top / 72.00, 2) . "in";
     $side = round($side / 72.00, 2) . "in";
@@ -247,6 +248,9 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $clm_total_charges = 0;
     $clm_amount_adjusted = 0;
     $clm_amount_paid = $ub04_proc_index ? 0 : $claim->patientPaidAmount();
+    $revcode = [];
+    $revcode2 = [];
+    $revcod = [];
     for ($tlh = 0; $tlh < $proccount; ++$tlh) {
         $tmp = $claim->procs[$tlh]['code_text'];
         $tmpcode = $claim->procs[$tlh]['code_type'] == 'HCPCS' ? '3' : '1';

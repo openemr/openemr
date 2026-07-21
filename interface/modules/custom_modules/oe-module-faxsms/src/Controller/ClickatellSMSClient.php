@@ -4,17 +4,20 @@
  * Clickatell SMS Controller
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-class ClickatellSMSClient extends AppDispatch
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
+
+class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
 {
     public function __construct()
     {
-        if (empty($GLOBALS['oefax_enable_sms'] ?? null)) {
+        if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
         parent::__construct();
@@ -65,22 +68,6 @@ class ClickatellSMSClient extends AppDispatch
         }
 
         return text('Error: ' . $response);
-    }
-
-    /**
-     * @return mixed|string
-     */
-    public function sendFax(): string|bool
-    {
-        return text("Not supported");
-    }
-
-    /**
-     * @return string
-     */
-    public function sendEmail(): string
-    {
-        return text("Not supported");
     }
 
     /**

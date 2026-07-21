@@ -27,6 +27,7 @@
 // +------------------------------------------------------------------------------+
 
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once("../../interface/globals.php");
 
@@ -35,11 +36,13 @@ require_once("../../interface/globals.php");
 $action         = $_POST['action'];
 $updateRecordsArray     = $_POST['clorder'];
 
-if ($action == "updateRecordsListings") {
+if ($action === 'updateRecordsListings') {
     $listingCounter = 1;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     foreach ($updateRecordsArray as $recordIDValue) {
         $query = "UPDATE template_users SET tu_template_order = ? WHERE tu_template_id = ? AND tu_user_id=?";
-        sqlStatement($query, [$listingCounter,$recordIDValue,$_SESSION['authUserID']]);
+        sqlStatement($query, [$listingCounter,$recordIDValue,$authUserID]);
         $listingCounter += 1;
     }
 }

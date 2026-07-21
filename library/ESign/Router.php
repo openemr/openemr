@@ -5,7 +5,7 @@
  * request string
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -15,7 +15,9 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Controller.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Abstract/Controller.php';
 
 class Router
 {
@@ -24,7 +26,7 @@ class Router
         $request = new Request();
         $moduleParam = $request->getParam('module');
         $Module = ucfirst((string) $moduleParam);
-        require_once $GLOBALS['srcdir'] . '/ESign/' . $Module . '/Controller.php';
+        require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/' . $Module . '/Controller.php';
         $controllerClass = "\\ESign\\" . $Module . "_Controller";
         $controller = new $controllerClass($request);
         if ($controller instanceof Abstract_Controller) {

@@ -18,7 +18,6 @@ use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\Patient\PatientOpenTrait;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class DdOpenPatientTest extends PantherTestCase
 {
@@ -26,6 +25,5 @@ class DdOpenPatientTest extends PantherTestCase
     use LoginTrait;
     use PatientOpenTrait;
 
-    private $client;
     private $crawler;
 }

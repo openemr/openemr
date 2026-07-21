@@ -4,7 +4,7 @@
  * types_ajax.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
@@ -31,9 +31,12 @@ $render = '';
 
 $render .= "<table class=\"table\">";
 // Determine indentation level for this container.
-for ($level = 0, $parentid = $id; $parentid; ++$level) {
+$level = 0;
+$parentid = $id;
+while ($parentid) {
     $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = ?", [$parentid]);
     $parentid = $row['parent'] + 0;
+    ++$level;
 }
 
 $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? " .

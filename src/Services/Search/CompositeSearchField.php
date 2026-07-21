@@ -6,7 +6,7 @@
  * search operations up to 10 levels deep of unions or intersections.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -29,7 +29,7 @@ class CompositeSearchField implements ISearchField, \Stringable
     private $children;
 
     /**
-     * @var boolean Whether the composite fields should be treated as a logical AND (intersection)
+     * @var bool Whether the composite fields should be treated as a logical AND (intersection)
      * or a logical OR (UNION)
      */
     private $isAnd;

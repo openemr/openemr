@@ -76,13 +76,15 @@
 //   Uzbek                          // xl('Uzbek')
 //   Vietnamese                     // xl('Vietnamese')
 
+use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
-use OpenEMR\Services\Globals\GlobalsService;
-use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
+use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -282,13 +284,6 @@ $GLOBALS_METADATA = [
             xl('Type of columns displayed for patient search results')
         ],
 
-        'gbl_nav_visit_forms' => [
-            xl('Navigation Area Visit Forms'),
-            'bool',                           // data type
-            '1',                              // default = true
-            xl('Navigation area includes encounter forms')
-        ],
-
         GlobalAppearanceEnum::SIMPLIFIED_PRESCRIPTIONS->value  => [
             xl('Simplified Prescriptions'),
             'bool',                           // data type
@@ -446,18 +441,25 @@ $GLOBALS_METADATA = [
             xl('Application name used throughout the user interface.')
         ],
 
-        'machine_name' => [
-            xl('Application Machine Name'),
-            'text',
-            'openemr',
-            xl('The machine name of the application. Used to identify the EMR in various messaging systems like HL7. Should not contain spaces'),
-        ],
-
         'display_main_menu_logo' => [
             xl('Display main menu logo'),
             'bool',
             '1',
-            xl('Dislay main menu logo'),
+            xl('Display main menu logo'),
+        ],
+
+        'main_menu_logo_link' => [
+            xl('Main menu logo link URL'),
+            'text',
+            'https://www.open-emr.org/',
+            xl('URL the main menu logo links to. Leave blank to make the logo non-clickable.'),
+        ],
+
+        'main_menu_logo_title' => [
+            xl('Main menu logo link title'),
+            'text',
+            '',
+            xl('Tooltip shown when hovering over the main menu logo. Leave blank to use the default (OpenEMR Website).'),
         ],
 
         'online_support_link' => [
@@ -836,11 +838,11 @@ $GLOBALS_METADATA = [
         'weekend_days' => [
             xl('Your weekend days'),
             [
-                '6,0' => xl('Saturday') . ' - ' . xl('Sunday'),
-                '0' => xl('Sunday'),
-                '5' => xl('Friday'),
-                '6' => xl('Saturday'),
-                '5,6' => xl('Friday') . ' - ' . xl('Saturday'),
+                '6,0' => DayOfWeek::Saturday->label() . ' - ' . DayOfWeek::Sunday->label(),
+                '0' => DayOfWeek::Sunday->label(),
+                '5' => DayOfWeek::Friday->label(),
+                '6' => DayOfWeek::Saturday->label(),
+                '5,6' => DayOfWeek::Friday->label() . ' - ' . DayOfWeek::Saturday->label(),
             ],
             '6,0'
             , xl('which days are your weekend days?')
@@ -1023,18 +1025,26 @@ $GLOBALS_METADATA = [
             xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
         ],
 
+        'database_encryption' => [
+            xl('Enable Encryption of Data Stored in the Database (Keep on unless DB server is encrypted)'),
+            'bool',
+            '1',
+            xl('This will enable encryption of certain data stored in the database. This should be left enabled unless the database server itself is encrypted')
+        ],
+
         'drive_encryption' => [
-            xl('Enable Encryption of Items Stored on Drive (Strongly recommend keeping this on)'),
+            xl('Enable Encryption of Items Stored on Drive/CouchDB (Strongly recommend keeping this on)'),
             'bool',                           // data type
             '1',                              // default = true
             xl('This will enable encryption of items that are stored on the drive. Strongly recommend keeping this setting on for security purposes.')
         ],
 
+        // Unused as of #12000. Leaving in UI so people can update
         'couchdb_encryption' => [
-            xl('Enable Encryption of Items Stored on CouchDB'),
+            xl('UNUSED: Enable Encryption of Items Stored on CouchDB'),
             'bool',                           // data type
             '1',                              // default = true
-            xl('This will enable encryption of items that are stored on CouchDB.')
+            xl('This setting has no effect! Use `drive_encryption` instead.'),
         ],
 
         'hide_document_encryption' => [
@@ -1783,9 +1793,9 @@ $GLOBALS_METADATA = [
         'first_day_week' => [
             xl('First day in the week'),
             [
-                '1' => xl('Monday'),
-                '0' => xl('Sunday'),
-                '6' => xl('Saturday')
+                '1' => DayOfWeek::Monday->label(),
+                '0' => DayOfWeek::Sunday->label(),
+                '6' => DayOfWeek::Saturday->label()
             ],
             '1',
             xl('Your first day of the week.')
@@ -2176,10 +2186,10 @@ $GLOBALS_METADATA = [
         ],
 
         'password_expiration_days' => [
-            xl('Default Password Expiration Days'),
+            xl('Password Expiration Days'),
             'num',                            // data type
             '180',                            // default
-            xl('Default password expiration period in days. 0 means this feature is disabled.')
+            xl('Password expiration period in days. 0 means this feature is disabled.')
         ],
 
         'password_grace_time' => [
@@ -2224,34 +2234,6 @@ $GLOBALS_METADATA = [
             xl('Enable facility/warehouse restrictions in the user administration form.')
         ],
 
-        'is_client_ssl_enabled' => [
-            xl('Enable Client SSL'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Enable client SSL certificate authentication.')
-        ],
-
-        'certificate_authority_crt' => [
-            xl('Path to CA Certificate File'),
-            'text',                           // data type
-            '',                               // default
-            xl('Set this to the full absolute path. For creating client SSL certificates for HTTPS.')
-        ],
-
-        'certificate_authority_key' => [
-            xl('Path to CA Key File'),
-            'text',                           // data type
-            '',                               // default
-            xl('Set this to the full absolute path. For creating client SSL certificates for HTTPS.')
-        ],
-
-        'client_certificate_valid_in_days' => [
-            xl('Client Certificate Expiration Days'),
-            'num',                            // data type
-            '365',                            // default
-            xl('Number of days that the client certificate is valid.')
-        ],
-
         'Emergency_Login_email_id' => [
             xl('Emergency Login Email Address'),
             'text',                           // data type
@@ -2264,20 +2246,6 @@ $GLOBALS_METADATA = [
             'bool',
             '1',
             xl('New form validation')
-        ],
-
-        'allow_multiple_databases' => [
-            xl('Allow multiple databases'),
-            'bool',
-            '0',
-            xl('Allow to use with multiple database')
-        ],
-
-        'safe_key_database' => [
-            xl('Safe key database'),
-            'text',                           // data type
-            '',                               // default
-            xl('Key for multiple database credentials encryption')
         ],
 
         'google_signin_enabled' => [
@@ -2713,13 +2681,6 @@ $GLOBALS_METADATA = [
             xl('Enable Prompting For Automated Measure Calculations (AMC) Required Data')
         ],
 
-        'enable_amc_tracking' => [
-            xl('Enable AMC Tracking'),
-            'bool',                           // data type
-            '1',                               // default
-            xl('Enable Reporting of Tracking Date For Automated Measure Calculations (AMC)')
-        ],
-
         'cdr_report_nice' => [
             xl('CDR Reports Processing Priority'),
             [
@@ -2795,16 +2756,23 @@ $GLOBALS_METADATA = [
     //
     'Logging' => [
 
-        'user_debug' => [
-            xl('User Debugging Options'),
+        'user_php_debug' => [
+            xl('User Debug PHP Reporting Options'),
             [
-                '0' => xl('None'),
-                '1' => xl('Display Window Errors Only'),
-                '2' => xl('Display Application Errors Only'),
-                '3' => xl('All'),
+                '0' => xl('Use Server Defaults (Display off)'),
+                '2' => xl('Display Errors Only'),
+                '3' => xl('Display Errors and Warnings Only'),
+                '4' => xl('Display Current Runtime Reporting'),
             ],
-            '0',                               // default
-            xl('User Debugging Mode.')
+            '0',
+            xl('Controls PHP error display/debug behavior without overriding server defaults unless explicitly selected.')
+        ],
+
+        'user_debug' => [
+            xl('Display Window Console Errors'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Console errors')
         ],
 
         'enable_auditlog' => [
@@ -2920,13 +2888,6 @@ $GLOBALS_METADATA = [
             'text',                           // data type
             '',                               // default
             xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
-        ],
-
-        'enable_auditlog_encryption' => [
-            xl('Enable Audit Log Encryption'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Enable Audit Log Encryption')
         ],
 
         'api_log_option' => [
@@ -3206,6 +3167,13 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '1',
             xl('Allow Patient to make and view appointments online.')
+        ],
+
+        'view_only_portal_appointments' => [
+            xl('Allow Online Appointments View Only.'),
+            'bool',                           // data type
+            '0',
+            xl('Allow Patient only to view appointments online. Overrides the above setting to allow only view of appointments.')
         ],
 
         'allow_custom_report' => [
@@ -4479,84 +4447,14 @@ $GLOBALS_METADATA = [
 ];
 
 
-if (!empty($GLOBALS['ippf_specific'])) {
-    $GLOBALS['GLOBALS_METADATA']['IPPF Menu'] = [
-
-        'gbl_menu_stats_ippf' => [
-            xl('IPPF Statistics Reporting'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('IPPF statistical reports.')
-        ],
-
-        'gbl_menu_stats_gcac' => [
-            xl('GCAC Statistics Reporting'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('GCAC statistical reports.')
-        ],
-
-        'gbl_menu_stats_ma' => [
-            xl('MA Statistics Reporting'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('MA statistical reports.')
-        ],
-
-        'gbl_menu_stats_cyp' => [
-            xl('CYP Statistics Reporting'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('CYP statistical reports.')
-        ],
-
-        'gbl_menu_stats_daily' => [
-            xl('Daily Statistics Reporting'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Daily statistical reports.')
-        ],
+if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
+    OEGlobalsBag::getInstance()->get('GLOBALS_METADATA')['IPPF Menu'] = [
 
         'gbl_menu_stats_c3' => [
             xl('C3 Statistics Reporting'),
             'bool',                           // data type
             '0',                              // default
             xl('C3 statistical reports.')
-        ],
-
-        'gbl_menu_stats_cc' => [
-            xl('Cervical Cancer Reporting'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Cervical cancer statistical reports.')
-        ],
-
-        'gbl_menu_stats_sinadi' => [
-            xl('SINADI Report'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Uruguay SINADI statistical report.')
-        ],
-
-        'gbl_menu_visits_by_item' => [
-            xl('Visits by Item Report'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Visits by Item Report')
-        ],
-
-        'gbl_menu_acct_trans' => [
-            xl('Accounting Transactions Export'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Accounting transactions export to CSV')
-        ],
-
-        'gbl_menu_projects' => [
-            xl('Restricted Projects Reporting'),
-            'bool', // data type
-            '0', // default
-            xl('For IPPF Belize and maybe others')
         ],
 
         'gbl_menu_surinam_insurance' => [
@@ -4572,30 +4470,9 @@ if (!empty($GLOBALS['ippf_specific'])) {
             '0', // default
             xl('For NetSuite financial integration')
         ],
-
-        'gbl_menu_ive_clients' => [
-            xl('IVE Client List'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Client List of IVE Activity')
-        ],
-
-        'gbl_menu_shifts' => [
-            xl('Shifts Reporting'),
-            'bool', // data type
-            '0', // default
-            xl('For IPPF Argentina and maybe others')
-        ],
-
-        'gbl_menu_service_and_client_volume' => [
-            xl('Service and Client Volume Report'),
-            'bool', // data type
-            '1', // default
-            xl('Service and Client Volume Report')
-        ],
     ];
 
-    $GLOBALS['GLOBALS_METADATA']['IPPF Features'] = [
+    OEGlobalsBag::getInstance()->get('GLOBALS_METADATA')['IPPF Features'] = [
 
         'gbl_rapid_workflow' => [
             xl('Rapid Workflow Option'),
@@ -4683,31 +4560,11 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Present an additional PDF custom receipt after checkout.')
         ],
 
-        'gbl_ma_ippf_code_restriction' => [
-            xl('Allow More than one MA/IPPF code mapping'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Disable the restriction of only one IPPF code per MA code in superbill')
-        ],
-
-        'gbl_uruguay_asse_url' => [
-            xl('Uruguay ASSE URL'),
-            'text',                           // data type
-            '',
-            xl('URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter "test" for dummy data.')
-        ],
-
-        'gbl_uruguay_asse_token' => [
-            xl('Uruguay ASSE Token'),
-            'text',                           // data type
-            '',
-            xl('Token for connection to ASSE SOAP server')
-        ],
     ];
 } // end if ippf_specific
 
 if (empty($skipGlobalEvent)) {
     $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
-    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE, 10);
+    $globalsInitEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE);
     $globalsService = $globalsInitEvent->getGlobalsService()->save();
 }

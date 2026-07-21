@@ -6,32 +6,37 @@
  * @package OpenEMR
  * @author  cfapress
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @copyright Copyright (c) 2008 cfapress
  * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
-require_once("$srcdir/registry.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/registry.inc.php");
 require_once("batchcom.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 // gacl control
 if (!AclMain::aclCheckCore('admin', 'notification')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("SMS Notification")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/notification: SMS Notification", xl("SMS Notification"));
 }
 
+$form_err = '';
+$notification_id = '';
+$sms_gateway_type = '';
+$provider_name = '';
+$message = '';
+
 // process form
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'save')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if (! is_numeric($_POST['notification_id'])) {  // shouldn't happen
         $form_err .= xl('Missing/invalid notification id') . '<br />';
@@ -114,7 +119,7 @@ $sms_gateway =  ['CLICKATELL','TMB4'];
         }
         ?>
         <form name="select_form" method="post" action="">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="hidden" name="type" value="SMS">
             <input type="hidden" name="notification_id" value="<?php echo attr($notification_id); ?>">
             <div class="row">

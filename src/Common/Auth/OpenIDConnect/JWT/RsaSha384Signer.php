@@ -7,7 +7,7 @@
  * @see https://github.com/jumbojett/OpenID-Connect-PHP
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author  Michael Jett <mjett@mitre.org>
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright  MITRE 2020
@@ -31,7 +31,7 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
 use InvalidArgumentException;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Crypt\RSA;
@@ -52,7 +52,7 @@ class RsaSha384Signer implements Signer
 
     public function __construct()
     {
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
         $this->headers = [];
     }
 
@@ -93,7 +93,7 @@ class RsaSha384Signer implements Signer
      * @param string $payload
      * @param Key|string $key
      *
-     * @return boolean
+     * @return bool
      *
      * @throws InvalidArgumentException When given key is invalid
      */

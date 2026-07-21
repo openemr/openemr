@@ -8,7 +8,7 @@
  *
  * @package   OpenEMR
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,7 +17,6 @@ namespace OpenEMR\PHPStan\Rules;
 use PhpParser\Node;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Identifier;
-use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -43,8 +42,8 @@ class ForbiddenMethodsRule implements Rule
     }
 
     /**
-     * @param FuncCall $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @param MethodCall $node
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -52,7 +51,7 @@ class ForbiddenMethodsRule implements Rule
             return [];
         }
 
-        $functionName = $node->name->toString();
+        $functionName = $node->name->name;
 
         // Only check if it's a forbidden method
         if (!isset(self::FORBIDDEN_METHODS[$functionName])) {

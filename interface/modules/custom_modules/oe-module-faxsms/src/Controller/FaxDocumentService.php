@@ -5,7 +5,7 @@
  * Centralized service for managing fax documents in OpenEMR
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    SignalWire Integration
  * @copyright Copyright (c) 2024
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,25 +14,38 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\Http\oeHttpRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FileUtils;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
+use OpenEMR\Modules\FaxSMS\Utils\SignalWireWebhookValidator;
 use OpenEMR\Services\PhoneNumberService;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 class FaxDocumentService
 {
     private readonly string $siteId;
     private readonly string $sitePath;
     private readonly string $receivedFaxesPath;
+    private readonly CryptoInterface $crypto;
 
     public function __construct(?string $siteId = null)
     {
         $globals = OEGlobalsBag::getInstance();
-        $this->siteId = $siteId ?? $_SESSION['site_id'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->siteId = $siteId ?? $session->get('site_id');
         $this->sitePath = $globals->get('OE_SITE_DIR') ?? ($globals->get('OE_SITES_BASE') . '/' . $this->siteId);
         $this->receivedFaxesPath = $this->sitePath . '/documents/received_faxes';
+        $this->crypto = ServiceContainer::getCrypto();
 
         // Ensure received faxes directory exists
         if (!file_exists($this->receivedFaxesPath)) {
@@ -75,7 +88,8 @@ class FaxDocumentService
                 $categoryId = $categoryResult['id'] ?? 1;
 
                 $formattedFrom = PhoneNumberService::tryFormatPhone($fromNumber);
-                $owner = $_SESSION['authUserID'];
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                $owner = $session->get('authUserID');
 
                 // Create and save document using OpenEMR's standard method
                 $document = new Document();
@@ -110,9 +124,12 @@ class FaxDocumentService
                     'patient_id' => $patientId
                 ];
             } else {
-                // Store in unassigned directory
+                // Store in unassigned directory, honoring the drive_encryption
+                // global the same way Document::createDocument does for the
+                // patient-matched branch above. encryptForFilesystem is a
+                // no-op when drive_encryption is off.
                 $mediaPath = $this->receivedFaxesPath . '/unassigned/' . $filename;
-                file_put_contents($mediaPath, $mediaContent);
+                file_put_contents($mediaPath, $this->crypto->encryptForFilesystem($mediaContent));
 
                 error_log("FaxDocumentService: Stored unassigned fax {$faxSid} at {$mediaPath}");
 
@@ -156,19 +173,32 @@ class FaxDocumentService
             }
 
             // Read the file from unassigned directory
-            $mediaPath = $fax['media_path'];
-            if (empty($mediaPath) || !file_exists($mediaPath)) {
+            $mediaPath = $fax['media_path'] ?? '';
+            if (!is_string($mediaPath) || $mediaPath === '' || !file_exists($mediaPath)) {
                 throw new FaxDocumentException("Fax media file not found: {$mediaPath}");
             }
 
-            $mediaContent = file_get_contents($mediaPath);
+            // decryptFromFilesystem checks for an encryption-version prefix
+            // and returns the value unchanged if absent, so this is safe for
+            // legacy plaintext files left on disk before this change.
+            $raw = file_get_contents($mediaPath);
+            if ($raw === false) {
+                throw new FaxDocumentException("Failed to read fax media file");
+            }
+            try {
+                $mediaContent = $this->crypto->decryptFromFilesystem($raw);
+            } catch (CryptoGenException $e) {
+                throw new FaxDocumentException("Failed to decrypt fax media file", 0, $e);
+            }
             $details = json_decode($fax['details_json'] ?? '{}', true);
             $fromNumber = $details['from'] ?? $fax['calling_number'] ?? 'Unknown';
 
-            // Determine mime type from file
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mimeType = finfo_file($finfo, $mediaPath);
-            finfo_close($finfo);
+            // Determine mime type from the decrypted bytes — finfo on the
+            // file path would inspect the encrypted blob.
+            $mimeType = (new \finfo(FILEINFO_MIME_TYPE))->buffer($mediaContent);
+            if ($mimeType === false) {
+                throw new FaxDocumentException("Failed to detect MIME type for fax media");
+            }
 
             // Store as patient document
             $result = $this->storeFaxDocument($faxSid, $mediaContent, $fromNumber, $patientId, $mimeType);
@@ -181,9 +211,17 @@ class FaxDocumentService
                 [$patientId, $result['document_id'], $result['media_path'], $faxSid, $this->siteId]
             );
 
-            // Delete old unassigned file
-            if (file_exists($mediaPath)) {
-                unlink($mediaPath);
+            // Delete old unassigned file. Symfony Filesystem swallows the
+            // benign race where another process unlinked it first; a real
+            // permission failure still surfaces as IOException, which we log
+            // and continue from since the patient document is already saved.
+            try {
+                (new Filesystem())->remove($mediaPath);
+            } catch (IOException $e) {
+                ServiceContainer::getLogger()->warning(
+                    'Failed to remove unassigned fax file after patient assignment',
+                    ['exception' => $e, 'media_path' => $mediaPath]
+                );
             }
 
             error_log("FaxDocumentService: Assigned fax {$faxSid} to patient {$patientId}");
@@ -312,31 +350,40 @@ class FaxDocumentService
      */
     public function findPatientByPhone(string $fromNumber): int
     {
-        $cleaned = preg_replace('/[^0-9]/', '', $fromNumber);
-
-        if (strlen((string) $cleaned) === 11 && $cleaned[0] === '1') {
-            $cleaned = substr((string) $cleaned, 1);
+        $raw = (string) preg_replace('/\D/', '', $fromNumber);
+        if ($raw === '') {
+            return 0;
         }
 
-        // Try exact match first
-        $patterns = [
-            $cleaned,
-            '+1' . $cleaned,
-            '1' . $cleaned,
-            substr((string) $cleaned, 0, 3) . '-' . substr((string) $cleaned, 3, 3) . '-' . substr((string) $cleaned, 6),
-            '(' . substr((string) $cleaned, 0, 3) . ') ' . substr((string) $cleaned, 3, 3) . '-' . substr((string) $cleaned, 6)
-        ];
+        // Inbound fax numbers arrive in E.164 ("+CC...") and self-describe, so
+        // the US default region only applies to a bare national number. Match
+        // the most specific forms first (E.164, then national digits, then the
+        // raw digits) against separator-stripped columns so stored values like
+        // "(239) 555-0123" still compare cleanly.
+        $parsed = PhoneNumber::tryParse($fromNumber, 'US');
+        $e164 = $parsed?->isPossible() ? $parsed->toE164() : null;
+        $national = $parsed?->isPossible() ? $parsed->getNationalDigits() : null;
 
-        foreach ($patterns as $pattern) {
+        $needles = [];
+        foreach ([$e164, $national, $raw] as $candidate) {
+            $digits = (string) preg_replace('/\D/', '', (string) $candidate);
+            if ($digits !== '' && !in_array($digits, $needles, true)) {
+                $needles[] = $digits;
+            }
+        }
+
+        foreach ($needles as $digits) {
             $result = QueryUtils::querySingleRow(
                 "SELECT pid FROM patient_data
-                 WHERE (phone_cell LIKE ? OR phone_home LIKE ? OR phone_biz LIKE ?)
+                 WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone_cell, '-', ''), '(', ''), ')', ''), ' ', ''), '+', '') LIKE ?
+                    OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone_home, '-', ''), '(', ''), ')', ''), ' ', ''), '+', '') LIKE ?
+                    OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone_biz, '-', ''), '(', ''), ')', ''), ' ', ''), '+', '') LIKE ?
                  LIMIT 1",
-                ["%{$pattern}%", "%{$pattern}%", "%{$pattern}%"]
+                ["%{$digits}", "%{$digits}", "%{$digits}"]
             );
 
             if (!empty($result['pid'])) {
-                return (int)$result['pid'];
+                return (int) $result['pid'];
             }
         }
 
@@ -441,6 +488,116 @@ class FaxDocumentService
         } catch (\Throwable $e) {
             error_log("FaxDocumentService.insertInboundFaxToQueue(): ERROR - " . $e->getMessage());
             throw new FaxDocumentException("Failed to insert inbound fax to queue: " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Download fax media from a provider URL and persist it via storeFaxDocument().
+     *
+     * Single source of truth for the download-and-store behavior shared by the
+     * inbound webhook receiver and the polling path (SignalWireClient::getPending()).
+     * Validates the URL against the SignalWire host whitelist, downloads with the
+     * correct auth (Bearer for files.signalwire.com media URLs, Basic otherwise),
+     * matches a patient by phone when $patientId is 0, and stores through
+     * storeFaxDocument() so the file always lands encrypted in the canonical
+     * received_faxes location (or as a patient Document when matched).
+     *
+     * This method does NOT write to oe_faxsms_queue. The caller owns the queue
+     * row lifecycle and applies the returned patient_id/document_id/media_path,
+     * because the webhook updates an existing row while polling inserts/updates.
+     *
+     * @return array{success: bool, document_id: int|null, media_path: string|null, patient_id: int}
+     */
+    public function downloadAndStoreFromUrl(
+        string $faxSid,
+        string $mediaUrl,
+        string $fromNumber,
+        string $projectId,
+        string $apiToken,
+        int $patientId = 0
+    ): array {
+        $failure = ['success' => false, 'document_id' => null, 'media_path' => null, 'patient_id' => $patientId];
+
+        if (!SignalWireWebhookValidator::isValidSignalWireUrl($mediaUrl)) {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): Invalid or unauthorized media URL for {$faxSid}");
+            return $failure;
+        }
+
+        if ($projectId === '' || $apiToken === '') {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): Missing Project ID or API token for {$faxSid}");
+            return $failure;
+        }
+
+        // files.signalwire.com media downloads authenticate with a Bearer token;
+        // other SignalWire hosts use Basic project/token auth.
+        $useBearer = str_contains($mediaUrl, 'files.signalwire.com');
+
+        $fetched = $this->fetchMediaBytes($mediaUrl, $projectId, $apiToken, $useBearer);
+        if ($fetched === null) {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): HTTP request failed for {$faxSid}");
+            return $failure;
+        }
+
+        $httpCode = $fetched['status'];
+        $mediaContent = $fetched['body'];
+        $contentType = $fetched['contentType'];
+
+        if ($httpCode !== 200 || $mediaContent === '') {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): Failed to download media for {$faxSid}. HTTP status={$httpCode}");
+            return $failure;
+        }
+
+        if ($patientId === 0) {
+            $patientId = $this->findPatientByPhone($fromNumber);
+        }
+
+        try {
+            $result = $this->storeFaxDocument($faxSid, $mediaContent, $fromNumber, $patientId, $contentType);
+        } catch (FaxDocumentException $e) {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): Failed to store media for {$faxSid}: " . $e->getMessage());
+            return $failure;
+        }
+
+        return [
+            'success' => true,
+            'document_id' => $result['document_id'] ?? null,
+            'media_path' => $result['media_path'] ?? null,
+            'patient_id' => (int)($result['patient_id'] ?? $patientId),
+        ];
+    }
+
+    /**
+     * Perform the media HTTP GET and return a normalized result. Isolated as a
+     * protected seam so downloadAndStoreFromUrl() can be unit tested without the
+     * oeHttp transport: tests override this to feed canned responses.
+     *
+     * @return array{status: int, body: string, contentType: string}|null Null on transport failure.
+     */
+    protected function fetchMediaBytes(string $mediaUrl, string $projectId, string $apiToken, bool $useBearer): ?array
+    {
+        try {
+            $httpRequest = new oeHttpRequest(oeHttp::client());
+
+            if ($useBearer) {
+                $httpRequest->usingHeaders(['Authorization' => 'Bearer ' . $apiToken]);
+            } else {
+                $httpRequest->setOptions(['auth' => [$projectId, $apiToken]]);
+            }
+
+            $response = $httpRequest->get($mediaUrl);
+            $body = SignalWireWebhookValidator::scalarString($response->body());
+
+            return [
+                'status' => $response->status(),
+                'body' => $body,
+                'contentType' => SignalWireWebhookValidator::normalizeMimeType(
+                    $response->header('Content-Type'),
+                    $body
+                ),
+            ];
+        } catch (\Throwable $e) {
+            error_log("FaxDocumentService.fetchMediaBytes(): HTTP request failed: " . $e->getMessage());
+            return null;
         }
     }
 }

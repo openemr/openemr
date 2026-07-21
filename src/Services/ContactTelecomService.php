@@ -5,16 +5,16 @@
  * Manages telecom records (phone, email, fax, etc.) for contacts
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactTelecom;
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -213,7 +213,7 @@ class ContactTelecomService extends BaseService
             $sql .= " AND status = 'A'";
         }
 
-        $sql .= " ORDER BY rank ASC, is_primary DESC";
+        $sql .= " ORDER BY `rank` ASC, is_primary DESC";
 
         return QueryUtils::fetchRecords($sql, [$contactId]) ?? [];
     }
@@ -230,7 +230,7 @@ class ContactTelecomService extends BaseService
     {
         $sql = "SELECT * FROM contact_telecom
                 WHERE contact_id = ?
-                AND system = ?
+                AND `system` = ?
                 AND is_primary = 'Y'
                 AND status = 'A'
                 LIMIT 1";
@@ -254,7 +254,7 @@ class ContactTelecomService extends BaseService
             // Unset all other primary telecoms for this contact and system
             $sql = "UPDATE contact_telecom SET is_primary = 'N'
                     WHERE contact_id = ?
-                    AND system = ?";
+                    AND `system` = ?";
             QueryUtils::sqlStatementThrowException($sql, [$contactId, $system]);
 
             // Set the specified telecom as primary
@@ -264,7 +264,7 @@ class ContactTelecomService extends BaseService
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId, $contactId]);
 
             return true;
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error setting primary telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -311,7 +311,7 @@ class ContactTelecomService extends BaseService
             $sql = "DELETE FROM contact_telecom WHERE id = ?";
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId]);
             return true;
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error deleting telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -329,13 +329,13 @@ class ContactTelecomService extends BaseService
     public function getTelecomsBySystem(int $contactId, string $system, bool $includeInactive = false): array
     {
         $sql = "SELECT * FROM contact_telecom
-                WHERE contact_id = ? AND system = ?";
+                WHERE contact_id = ? AND `system` = ?";
 
         if (!$includeInactive) {
             $sql .= " AND status = 'A'";
         }
 
-        $sql .= " ORDER BY rank ASC";
+        $sql .= " ORDER BY `rank` ASC";
 
         return QueryUtils::fetchRecords($sql, [$contactId, $system]) ?? [];
     }
@@ -357,7 +357,7 @@ class ContactTelecomService extends BaseService
             $sql .= " AND status = 'A'";
         }
 
-        $sql .= " ORDER BY rank ASC";
+        $sql .= " ORDER BY `rank` ASC";
 
         return QueryUtils::fetchRecords($sql, [$contactId, $use]) ?? [];
     }

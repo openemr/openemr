@@ -14,7 +14,10 @@
  *      will directly import the new patient data from the ccda. This will also turn off the audit log during
  *      the import.
  *   3, NOTE THAT THIS SCRIPT IS NOT WORKING AT THIS TIME IF THE DEVELOPMENT MODE IS TURNED OFF
- *   4. Note that a log.txt file is created with log/stats of the run.
+ *   4. Note that a log file with run stats is written to /tmp/ccda_import.log.
+ *      An absolute path is used so the script works under su-exec apache
+ *      (which has no writable cwd when invoked via run_php_as_apache from
+ *      docker/<image>/utilities/devtoolsLibrary.source's importRandomPatients).
  *
  * Description of what this script automates (for unlimited number of ccda documents):
  *  1. import ccda document (bypassed in development-mode)
@@ -92,7 +95,11 @@ function outputMessage($message): void
 {
     echo("\n");
     echo $message;
-    file_put_contents("log.txt", $message, FILE_APPEND);
+    // Absolute path so the write works regardless of cwd. The previous
+    // relative 'log.txt' produced "Permission denied" warnings on every
+    // call when this script ran via su-exec apache (apache has no
+    // writable cwd in the openemr container).
+    file_put_contents('/tmp/ccda_import.log', $message, FILE_APPEND);
 }
 
 // collect parameters (need to do before globals)
@@ -126,13 +133,16 @@ if ($seriousOptimizeFlag == "true") {
 $ignoreAuth = 1;
 require_once($openemrPath . "/interface/globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // show parameters (need to do after globals)
 outputMessage("OpenEMR path: " . $openemrPath);
 outputMessage("CCDA Imports Location: " . $args['sourcePath']);
-outputMessage("Site: " . $_SESSION['site_id']);
+outputMessage("Site: " . $session->get('site_id'));
 
 if ($seriousOptimize) {
     outputMessage("Development Mode is ON (performance mode)\n");
@@ -181,7 +191,7 @@ foreach (glob($dir) as $file) {
     if ($seriousOptimize) {
         // development-mode is on (note step 1 and step 2 are bypassed)
         // 3. import as new patient
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient-import --site=" . $_SESSION['site_id'] . " --document=" . $file);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient-import --site=" . $session->get('site_id') . " --document=" . $file);
     } else {
         // development mode is off
         //  1. import ccda document
@@ -191,10 +201,10 @@ foreach (glob($dir) as $file) {
         $document->createDocument('00', 13, basename($file), 'text/xml', $fileContents);
         $documentId = $document->get_id();
         //  2. import to ccda table
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-import --site=" . $_SESSION['site_id'] . " --document_id=" . $documentId . " --auth_name=" . $authName);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-import --site=" . $session->get('site_id') . " --document_id=" . $documentId . " --auth_name=" . $authName);
         $auditId = sqlQueryNoLog("SELECT max(`id`) as `maxid` FROM `audit_master`")['maxid'];
         //  3. import as new patient
-        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId . " --auth_name=" . $authName);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $session->get('site_id') . " --am_id=" . $auditId . " --document_id=" . $documentId . " --auth_name=" . $authName);
     }
     try {
         if ($enableMoves) {

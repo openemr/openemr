@@ -18,17 +18,24 @@
  *
  * @package OpenEMR
  * @author  Garden State Health Systems <http://www.gshsys.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
+
+use OpenEMR\BC\ServiceContainer;
 
     $result = getProcedureData();
     $row = sqlFetchArray($result);
+
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_Procedures (created in createCCR.php)
+ */
 
 do {
     $e_Procedure = $ccr->createElement('Procedure');
     $e_Procedures->appendChild($e_Procedure);
 
-    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', getUuid());
+    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', ServiceContainer::getUuidFactory()->uuid4()->toString());
     $e_Procedure->appendChild($e_CCRDataObjectID);
 
     $e_DateTime = $ccr->createElement('DateTime');

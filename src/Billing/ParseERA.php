@@ -7,12 +7,14 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2006 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Billing;
+
+use OpenEMR\Core\OEGlobalsBag;
 
 class ParseERA
 {
@@ -32,7 +34,7 @@ class ParseERA
             // from poorly reported payment reversals, in which case we may need to
             // create the 'Claim' service type here.
             //
-            if ($GLOBALS['force_claim_balancing']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('force_claim_balancing')) {
                 $chgtotal = floatval($out['amount_charged']);
                 $paytotal = floatval($out['amount_approved']);
                 $pattotal = floatval($out['amount_patient']);
@@ -53,8 +55,8 @@ class ParseERA
                         array_unshift($out['svc'], []);
                         $out['svc'][0]['code'] = 'Claim';
                         $out['svc'][0]['mod'] = '';
-                        $out['svc'][0]['chg'] = '0';
-                        $out['svc'][0]['paid'] = '0';
+                        $out['svc'][0]['chg'] = 0.0;
+                        $out['svc'][0]['paid'] = 0.0;
                         $out['svc'][0]['adj'] = [];
                         $out['warnings'] .= "Procedure 'Claim' is inserted artificially to " .
                             "force claim balancing.\n";
@@ -275,8 +277,8 @@ class ParseERA
                     $out['svc'][$i] = [];
                     $out['svc'][$i]['code'] = 'Claim';
                     $out['svc'][$i]['mod'] = '';
-                    $out['svc'][$i]['chg'] = '0';
-                    $out['svc'][$i]['paid'] = '0';
+                    $out['svc'][$i]['chg'] = 0.0;
+                    $out['svc'][$i]['paid'] = 0.0;
                     $out['svc'][$i]['adj'] = [];
                 }
 
@@ -289,7 +291,7 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
-                    $out['svc'][$i]['adj'][$j]['amount'] = $seg[$k + 1];
+                    $out['svc'][$i]['adj'][$j]['amount'] = (float)($seg[$k + 1] ?? 0);
                 }
             } elseif ($segid == 'NM1' && $seg[1] == 'QC' && $out['loopid'] == '2100') { // QC = Patient
                 $out['patient_lname'] = trim($seg[3]);
@@ -378,8 +380,8 @@ class ParseERA
                     $out['svc'][$i]['mod'] = preg_replace('/:$/', '', $out['svc'][$i]['mod']);
                 }
 
-                $out['svc'][$i]['chg'] = $seg[2];
-                $out['svc'][$i]['paid'] = $seg[3];
+                $out['svc'][$i]['chg'] = (float)$seg[2];
+                $out['svc'][$i]['paid'] = (float)$seg[3];
                 $out['svc'][$i]['adj'] = [];
                 // Note: SVC05, if present, indicates the paid units of service.
                 // It defaults to 1.
@@ -407,7 +409,8 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
-                    $out['svc'][$i]['adj'][$j]['amount'] = $seg[$k + 1];
+                    $raw = $seg[$k + 1] ?? 0;
+                    $out['svc'][$i]['adj'][$j]['amount'] = is_numeric($raw) ? (float)$raw : 0.0;
                     // Note: $seg[$k+2] is "quantity".  A value here indicates a change to
                     // the number of units of service.  We're ignoring that for now.
                 }
@@ -415,7 +418,7 @@ class ParseERA
                 // ignore
             } elseif ($segid == 'AMT' && $seg[1] == 'B6' && $out['loopid'] == '2110') {
                 $i = count($out['svc']) - 1;
-                $out['svc'][$i]['allowed'] = $seg[2]; // report this amount as a note
+                $out['svc'][$i]['allowed'] = (float)$seg[2]; // report this amount as a note
             } elseif ($segid == 'AMT' && $out['loopid'] == '2110') {
                 $out['warnings'] .= "$inline at service level ignored.\n";
             } elseif ($segid == 'LQ' && $seg[1] == 'HE' && $out['loopid'] == '2110') {
@@ -547,7 +550,7 @@ class ParseERA
         }
 
         $out['check_count'] = $check_count;
-        era_callback_check($out);
+        eob_process_era_callback_check($out);
 
         if ($segid != 'IEA') {
             return 'Premature end of ERA file';

@@ -4,7 +4,7 @@
  * Provides manual administration of codes
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -17,36 +17,38 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 require_once("../../../custom/code_types.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\PaginationUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // gacl control
 $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
 $thisauthwrite = AclMain::aclCheckCore('admin', 'superbill', false, 'write');
 
 if (!($thisauthwrite || $thisauthview)) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Codes")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/superbill: Codes", xl("Codes"));
 }
 // For revenue codes
-$institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
+$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support');
 
 // Translation for form fields.
 function ffescape($field)
 {
     $field = add_escape_custom($field);
-    return trim($field);
+    return trim((string) $field);
 }
+
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
 
 $alertmsg = '';
 $pagesize = 100;
@@ -57,11 +59,16 @@ $active = 1;
 $reportable = 0;
 $financial_reporting = 0;
 $revenue_code = '';
+$code = '';
+$code_type = '';
+$code_type_name_external = '';
+$modifier = '';
+$taxrates = '';
+$res = false;
+$filter_key = [];
 
 if (isset($mode) && $thisauthwrite) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $code_id = empty($_POST['code_id']) ? '' : $_POST['code_id'] + 0;
     $code = $_POST['code'];
@@ -181,7 +188,7 @@ if (isset($mode) && $thisauthwrite) {
 
     // If codes history is enabled in the billing globals save data to codes history table
     if (
-        $GLOBALS['save_codes_history'] && $alertmsg == '' &&
+        OEGlobalsBag::getInstance()->getBoolean('save_codes_history') && $alertmsg == '' &&
         (in_array($mode, ["add", "modify_complete", "delete"]))
     ) {
         $action_type = empty($_POST['code_id']) ? 'new' : $mode;
@@ -323,7 +330,7 @@ if ($fend > ($count ?? null)) {
                         response(cache[term]);
                         return;
                     }
-                    $.getJSON("<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
+                    $.getJSON("<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
                         cache[term] = data;
                         response(data);
                     });
@@ -394,7 +401,7 @@ if ($fend > ($count ?? null)) {
                 alert(<?php echo xlj('No code was specified!'); ?>);
                 return false;
             }
-            <?php if ($GLOBALS['ippf_specific']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->get('ippf_specific')) { ?>
             if (f.code_type.value == 12 && !f.related_code.value) {
                 alert(<?php echo xlj('A related IPPF code is required!'); ?>);
                 return false;
@@ -470,7 +477,7 @@ if ($fend > ($count ?? null)) {
 <body class="body_top">
 
 <form method='post' action='superbill_custom_full.php' name='theform'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"/>
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
 
     <input type='hidden' name='mode' value=''/>
 
@@ -593,10 +600,10 @@ if ($fend > ($count ?? null)) {
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty($GLOBALS['ippf_specific'])) {
+            <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 echo 'd-none';
                                                                     } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
-            <div class="col-md <?php if (empty($GLOBALS['ippf_specific'])) {
+            <div class="col-md <?php if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 echo 'd-none';
                                } ?>">
                 <input type='text' class='form-control form-control-sm' size='10' maxlength='20' name="cyp_factor"

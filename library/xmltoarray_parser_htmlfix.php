@@ -90,7 +90,7 @@ class xmltoarray_parser_htmlfix
 
     /**
      * createArray creates and returns the array.
-     * @return The associative XML array.
+     * @return array The associative XML array.
      */
     function createArray()
     {
@@ -103,9 +103,9 @@ class xmltoarray_parser_htmlfix
 
     /**
      * _struct_to_array is a recursive function that takes the values and creates the array.
-     * @param $values - The values of the XML
-     * @param &$i - The index value
-     * @return The child
+     * @param array $values The values of the XML
+     * @param int $i The index value
+     * @return array The child
      */
     function _struct_to_array($values, &$i)
     {
@@ -149,8 +149,8 @@ class xmltoarray_parser_htmlfix
 
     /**
      * fix_html_entities replaces all instances of '%and%' with '&', since the xml_parser can't handle '&'.
-     * @param $string - A string value.
-     * @return A fixed string with & instead of %and%.
+     * @param string $string A string value.
+     * @return string A fixed string with & instead of %and%.
      */
     function fix_html_entities($string)
     {

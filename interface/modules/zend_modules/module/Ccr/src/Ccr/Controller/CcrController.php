@@ -13,13 +13,13 @@
 
 namespace Ccr\Controller;
 
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
+use Ccr\Model\CcrTable;
 use Documents\Controller\DocumentsController;
 use Documents\Plugin\Documents;
-use Ccr\Model\CcrTable;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcrController extends AbstractActionController
 {
@@ -48,8 +48,9 @@ class CcrController extends AbstractActionController
 
         $time_start     = date('Y-m-d H:i:s');
         $docid          = $this->documentsController->uploadAction($request);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $uploaded_documents     = [];
-        $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
+        $uploaded_documents     = $this->getCcrTable()->fetch_uploaded_documents(['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
 
         if (!empty($uploaded_documents[0]['id']) && $uploaded_documents[0]['id'] > 0) {
             $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
@@ -301,7 +302,7 @@ class CcrController extends AbstractActionController
     /**
     * Table Gateway
     *
-    * @return type
+    * @return CcrTable
     */
     public function getCcrTable()
     {

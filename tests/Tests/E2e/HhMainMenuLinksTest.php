@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,7 +29,6 @@ class HhMainMenuLinksTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $client;
     private $crawler;
 
     #[DataProvider('menuLinkProvider')]
@@ -104,7 +103,6 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Admin -> System -> Backup menu link' => ['Admin||System||Backup', 'Backup'],
             'Admin -> System -> Files menu link' => ['Admin||System||Files', 'File management'],
             'Admin -> System -> Language menu link' => ['Admin||System||Language', 'Multi Language Tool'],
-            'Admin -> System -> Certificates menu link' => ['Admin||System||Certificates', 'SSL Certificate Administration'],
             'Admin -> System -> Logs menu link' => ['Admin||System||Logs', 'Logs Viewer'],
             'Admin -> System -> Audit Log Tamper menu link' => ['Admin||System||Audit Log Tamper', 'Audit Log Tamper Report'],
             'Admin -> System -> Diagnostics menu link' => ['Admin||System||Diagnostics', 'Diagnostics'],

@@ -4,13 +4,15 @@
  * The outside frame that holds all of the OpenEMR User Interface.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,16 +20,23 @@
 $sessionAllowWrite = true;
 require_once('../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
-use u2flib_server\U2F;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ///////////////////////////////////////////////////////////////////////
 // Functions to support MFA.
@@ -60,7 +69,7 @@ function generate_html_u2f(): void
 {
     global $appId;
     ?>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js"></script>
     <script>
         function doAuth() {
             var f = document.getElementById("u2fform");
@@ -127,7 +136,7 @@ function generate_html_end()
         }
     }
     echo "</div></body></html>\n";
-    SessionUtil::coreSessionDestroy();
+    SessionWrapperFactory::getInstance()->destroyCoreSession();
     return 0;
 }
 
@@ -141,7 +150,7 @@ if (isset($_POST['new_login_session_management'])) {
     $res1 = sqlStatement(
         "SELECT a.name, a.method, a.var1 FROM login_mfa_registrations AS a " .
         "WHERE a.user_id = ? AND (a.method = 'TOTP' OR a.method = 'U2F') ORDER BY a.name",
-        [$_SESSION['authUserID']]
+        [$session->get('authUserID')]
     );
 
     $registrationAttempt = false;
@@ -149,7 +158,7 @@ if (isset($_POST['new_login_session_management'])) {
     $isTOTP = false;
     while ($row1 = sqlFetchArray($res1)) {
         $registrationAttempt = true;
-        if ($row1['method'] == 'U2F') {
+        if ($row1['method'] === 'U2F') {
             $isU2F = true;
             $regobj = json_decode((string) $row1['var1']);
             $regs[json_encode($regobj->keyHandle)] = $row1['name'];
@@ -169,18 +178,18 @@ if (isset($_POST['new_login_session_management'])) {
             $appId = $scheme . $_SERVER['HTTP_HOST'];
             $u2f = new u2flib_server\U2F($appId);
         }
-        $userid = $_SESSION['authUserID'];
+        $userid = $session->get('authUserID');
         $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
         if ($form_response) {
             // TOTP METHOD enabled if TOTP is visible in post request
-            if (isset($_POST['totp']) && trim($_POST['totp']) != "" && $isTOTP) {
+            if (isset($_POST['totp']) && trim((string) $_POST['totp']) != "" && $isTOTP) {
                 $errormsg = false;
 
                 $form_response = '';
 
                 $res1 = sqlQuery(
                     "SELECT a.var1 FROM login_mfa_registrations AS a WHERE a.user_id = ? AND a.method = 'TOTP'",
-                    [$_SESSION['authUserID']]
+                    [$session->get('authUserID')]
                 );
                 $registrationSecret = false;
                 if (!empty($res1['var1'])) {
@@ -189,8 +198,12 @@ if (isset($_POST['new_login_session_management'])) {
 
                 // Decrypt the secret
                 // First, try standard method that uses standard key
-                $cryptoGen = new CryptoGen();
-                $secret = $cryptoGen->decryptStandard($registrationSecret);
+                $cryptoGen = ServiceContainer::getCrypto();
+                try {
+                    $secret = $cryptoGen->decryptFromDatabase(is_string($registrationSecret) ? $registrationSecret : null);
+                } catch (CryptoGenException) {
+                    $secret = null;
+                }
                 if (empty($secret)) {
                     // Second, try the password hash, which was setup during install and is temporary
                     $passwordResults = privQuery(
@@ -198,11 +211,16 @@ if (isset($_POST['new_login_session_management'])) {
                         [$_POST["authUser"]]
                     );
                     if (!empty($passwordResults["password"])) {
-                        $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
+                        $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                        try {
+                            $secret = $passwordCrypto->decrypt((string) $registrationSecret, (string) $passwordResults["password"]);
+                        } catch (CryptoGenException) {
+                            $secret = null;
+                        }
                         if (!empty($secret)) {
                             error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                             // Re-encrypt with the more secure standard key
-                            $secretEncrypt = $cryptoGen->encryptStandard($secret);
+                            $secretEncrypt = $cryptoGen->encryptForDatabase($secret);
                             privStatement(
                                 "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
                                 [$secretEncrypt, $userid]
@@ -220,9 +238,17 @@ if (isset($_POST['new_login_session_management'])) {
                     // Keep track of when challenges were last answered correctly.
                     privStatement(
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                        [$_SESSION['authUserID']]
+                        [$session->get('authUserID')]
                     );
                 } else {
+                    $mfaUsername = $session->get('authUser');
+                    $mfaAuthGroup = $session->get('authProvider');
+                    EventAuditLogger::getInstance()->logAuthFailure(
+                        AuthEvent::mfa(),
+                        is_string($mfaUsername) ? $mfaUsername : null,
+                        is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
+                        'TOTP code incorrect'
+                    );
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
                 }
@@ -250,11 +276,19 @@ if (isset($_POST['new_login_session_management'])) {
                     // Keep track of when challenges were last answered correctly.
                     sqlStatement(
                         "UPDATE users_secure SET last_challenge_response = NOW() WHERE id = ?",
-                        [$_SESSION['authUserID']]
+                        [$session->get('authUserID')]
                     );
                 } catch (\u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
                     $form_response = '';
+                    $mfaUsername = $session->get('authUser');
+                    $mfaAuthGroup = $session->get('authProvider');
+                    EventAuditLogger::getInstance()->logAuthFailure(
+                        AuthEvent::mfa(),
+                        is_string($mfaUsername) ? $mfaUsername : null,
+                        is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
+                        'U2F authentication error: ' . $e->getMessage()
+                    );
                     $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
                     $errortype = "U2F";
                 }
@@ -366,49 +400,49 @@ if (isset($_POST['new_login_session_management'])) {
     // refreshing or starting a new script.
 
     // This is a new login, so create a new session id and remove the old session
-    session_regenerate_id(true);
+    $session->migrate(true);
     // Also need to delete clearPass from memory
     if (function_exists('sodium_memzero')) {
         sodium_memzero($_POST["clearPass"]);
     } else {
         $_POST["clearPass"] = '';
     }
+    // Set up the csrf private_key
+    //  Note this key always remains private and never leaves server session. It is used to create
+    //  the csrf tokens.
+    //  Generated only on the new-login path. Rotating it on every main_screen.php load
+    //  invalidates CSRF tokens already embedded in long-lived iframes (e.g. dated_reminders,
+    //  which polls every 60s with the token captured at render time).
+    CsrfUtils::setupCsrfKey($session);
 } else {
-    // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
-    session_regenerate_id(false);
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    $session->migrate(false);
 }
-// Set up the csrf private_key
-//  Note this key always remains private and never leaves server session. It is used to create
-//  the csrf tokens.
-CsrfUtils::setupCsrfKey();
 // Set up the session uuid. This will be used for mapping session setting to database.
 //  At this time only used for lastupdate tracking
 SessionTracker::setupSessionDatabaseTracker();
 
-$_SESSION["encounter"] = '';
+$session->set("encounter", '');
 
-if ($GLOBALS['login_into_facility']) {
+if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
     $facility_id = $_POST['facility'];
     if ($facility_id === 'user_default') {
         //get the default facility of login user from users table
         $facilityService = new FacilityService();
-        $facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+        $facility = $facilityService->getFacilityForUser($session->get('authUserID'));
         $facility_id = $facility['id'];
     }
-    $_SESSION['facilityId'] = $facility_id;
-    if ($GLOBALS['set_facility_cookie']) {
+    $session->set('facilityId', $facility_id);
+    if (OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
         // set cookie with facility for the calendar screens
-        setcookie("pc_facility", (string) $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => $GLOBALS['webroot']]);
+        setcookie("pc_facility", (string) $session->get('facilityId'), ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->getWebRoot()]);
     }
 }
 
 // Fetch the password expiration date (note LDAP skips this)
 $is_expired = false;
-if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
-    $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
+if ((!AuthUtils::useActiveDirectory()) && (OEGlobalsBag::getInstance()->getInt('password_expiration_days') != 0) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_expiration_days')))) {
+    $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$session->get('authUserID')]);
     $current_date = date('Y-m-d');
     if (!empty($result['last_update_password'])) {
         $pwd_last_update = $result['last_update_password'];
@@ -418,7 +452,7 @@ if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] 
     }
 
     // Display the password expiration message (will show during the grace time)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . $GLOBALS['password_expiration_days'] . ' days'));
+    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . OEGlobalsBag::getInstance()->getInt('password_expiration_days') . ' days'));
 
     if (empty(strtotime($pwd_alert_date))) {
         error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");
@@ -433,7 +467,7 @@ $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
 if ($is_expired) {
     //display the php file containing the password expiration message.
     array_unshift($_tabs, [
-        'notes' => "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()),
+        'notes' => "interface/main/pwd_expires_alert.php?csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session),
         'id' => "adm",
         "label" => xl("Password Reset"),
     ]);
@@ -462,14 +496,15 @@ if ($is_expired) {
 }
 
 // Will set Session variables to communicate settings to tab layout
-$_SESSION['default_open_tabs'] = $_tabs;
+$session->set('default_open_tabs', $_tabs);
 // mdsupport - Apps processing invoked for valid app selections from list
 if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
-    $_SESSION['app1'] = $_POST['appChoice'];
+    $session->set('app1', $_POST['appChoice']);
 }
 
 // Pass a unique token, so main.php script can not be run on its own
-$_SESSION['token_main_php'] = RandomGenUtils::createUniqueToken();
-header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($_SESSION['token_main_php']));
+$tokenMainPhp = RandomGenUtils::createUniqueToken();
+$session->set('token_main_php', $tokenMainPhp);
+header('Location: ' . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/main.php?token_main=" . urlencode($tokenMainPhp));
 exit();
 ?>

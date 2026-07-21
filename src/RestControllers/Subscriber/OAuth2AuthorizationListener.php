@@ -4,16 +4,16 @@ namespace OpenEMR\RestControllers\Subscriber;
 
 // TODO: Would it be better to call these route guards?
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\Authorization\OAuth2DiscoveryController;
 use OpenEMR\RestControllers\Authorization\OAuth2PublicJsonWebKeyController;
 use OpenEMR\RestControllers\AuthorizationController;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,7 +49,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
     public function getLogger(): LoggerInterface
     {
         if (!isset($this->logger)) {
-            $this->logger = new SystemLogger();
+            $this->logger = ServiceContainer::getLogger();
         }
         return $this->logger;
     }

@@ -4,7 +4,7 @@
  * ModulesApplication class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -15,13 +15,13 @@
 
 namespace OpenEMR\Core;
 
-use Exception;
-use OpenEMR\Common\Acl\AccessDeniedException;
-use OpenEMR\Events\Core\ModuleLoadEvents;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Laminas\Mvc\Application;
 use Laminas\Mvc\Service\ServiceManagerConfig;
 use Laminas\ServiceManager\ServiceManager;
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Core\ModuleLoadEvents;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ModulesApplication
 {
@@ -38,7 +38,7 @@ class ModulesApplication
 
     const CUSTOM_MODULE_BOOSTRAP_NAME = 'openemr.bootstrap.php';
 
-    public function __construct(Kernel $kernel, $webRootPath, $modulePath, $zendModulePath)
+    public function __construct(Kernel $kernel, string $webRootPath, string $modulePath, string $zendModulePath)
     {
         // Beware: default module path ends in a slash. Really should not but have to refactor to change..
         $zendConfigurationPath = $webRootPath . '/' . $modulePath . $zendModulePath;
@@ -78,12 +78,12 @@ class ModulesApplication
      * It relies on the $_SERVER['SCRIPT_NAME'] path which is established by the server not the calling client. It
      * checks against both laminas and custom modules. If the script is not allowed it throws an AccessDeniedException
      *
-     * @param $modType     The type of module this is (laminas or custom)
-     * @param $webRootPath The root filepath for the directory where OpenEMR is installed
-     * @param $modulePath  The path for the module folder location (laminas or custom)
+     * @param self::MODULE_TYPE_* $modType     The type of module this is (laminas or custom)
+     * @param string $webRootPath The root filepath for the directory where OpenEMR is installed
+     * @param string $modulePath  The path for the module folder location (laminas or custom)
      * @throws AccessDeniedException Thrown if this is a file in a module script directory and the module is not enabled.
      */
-    public static function checkModuleScriptPathForEnabledModule($modType, $webRootPath, $modulePath)
+    public static function checkModuleScriptPathForEnabledModule($modType, $webRootPath, $modulePath): void
     {
         // as we do this we are going to do a security check against the current script name
         // if we are in a module
@@ -111,6 +111,10 @@ class ModulesApplication
      * For the list of active modules you can see them from the modules installer tab, or by querying the modules table
      * Otherwise the modules are found inside the modules/zend_modules folder.  The uninstalled script will dynamically find them
      * in the filesystem.
+     *
+     * @param string $webRootPath
+     * @param string $zendConfigurationPath
+     * @return string[]
      */
     public static function oemr_zend_load_modules_from_db($webRootPath, $zendConfigurationPath)
     {
@@ -125,8 +129,12 @@ class ModulesApplication
         return $db_modules;
     }
 
-    private function bootstrapCustomModules(ModulesClassLoader $classLoader, $eventDispatcher, $webRootPath, $customModulePath)
-    {
+    private function bootstrapCustomModules(
+        ModulesClassLoader $classLoader,
+        EventDispatcherInterface $eventDispatcher,
+        string $webRootPath,
+        string $customModulePath,
+    ): void {
         self::checkModuleScriptPathForEnabledModule(self::MODULE_TYPE_CUSTOM, $webRootPath, $customModulePath);
 
         // We skip the audit log as it has no bearing on user activity and is core system related...
@@ -155,7 +163,7 @@ class ModulesApplication
         $eventDispatcher->dispatch(new ModuleLoadEvents($db_modules, $failed_modules), ModuleLoadEvents::MODULES_LOADED);
     }
 
-    private function isFileReadableWithRetry($filePath, $retries = 3, $wait = 100): bool
+    private function isFileReadableWithRetry(string $filePath, int $retries = 3, int $wait = 100): bool
     {
         while ($retries > 0) {
             if (is_readable($filePath)) {
@@ -168,8 +176,11 @@ class ModulesApplication
         return false;
     }
 
-    private function loadCustomModule(ModulesClassLoader $classLoader, $module, $eventDispatcher)
-    {
+    private function loadCustomModule(
+        ModulesClassLoader $classLoader,
+        $module,
+        EventDispatcherInterface $eventDispatcher,
+    ): void {
         try {
             // the only thing in scope here is $module and $eventDispatcher which is ok for our bootstrap piece.
             // do we really want to just include a file??  Should we go all zend and actually force a class instantiation
@@ -180,7 +191,7 @@ class ModulesApplication
         }
     }
 
-    public function run()
+    public function run(): void
     {
         $this->application->run();
     }
@@ -191,15 +202,24 @@ class ModulesApplication
     }
 
     /**
+     * @return string|false The resolved module root path, or false if it cannot be resolved
+     */
+    private static function getModuleRootRealpath(): string|false
+    {
+        // realpath() normalizes directory separators, so forward slashes are platform-agnostic.
+        return realpath(OEGlobalsBag::getInstance()->getProjectDir() . '/interface/modules');
+    }
+
+    /**
      * Checks to make sure the file originates in a module directory and is safe to include.
      *
-     * @param $file
+     * @param string $file
      * @return bool
      */
     public static function isSafeModuleFileForInclude($file)
     {
         $realpath = realpath($file);
-        $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
+        $moduleRootLocation = self::getModuleRootRealpath();
 
         // make sure we haven't left our root path ie interface folder
         if (str_starts_with($realpath, $moduleRootLocation) && file_exists($realpath) && str_contains($realpath, ".php")) {
@@ -221,19 +241,44 @@ class ModulesApplication
     {
         if (is_array($files) && !empty($files)) {
             // for safety we only allow the scripts to be from the local filesystem for now
-            $filteredFiles = array_filter(array_map(function ($scriptSrc) {
+            $globalsBag = OEGlobalsBag::getInstance();
+            $projectDir = $globalsBag->getProjectDir();
+            $webRoot = $globalsBag->getWebRoot();
+            $moduleRootLocation = self::getModuleRootRealpath();
+            // realpath() of the modules directory can fail (missing tree, permissions);
+            // without a module root, nothing can be on the safelist.
+            if ($moduleRootLocation === false) {
+                return [];
+            }
+            $filteredFiles = array_filter(array_map(function ($scriptSrc) use ($projectDir, $webRoot, $moduleRootLocation) {
+                // Callers can pass arbitrary array elements; parse_url would raise TypeError
+                // on a non-string. Fail closed before touching anything else.
+                if (!is_string($scriptSrc)) {
+                    return null;
+                }
                 // scripts that have any kind of parameters in them such as a cache buster mess up finding the real path
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
+                // parse_url returns null/false for malformed inputs (e.g. an absolute URL
+                // with no path); fail closed for those too.
+                if (!is_string($scriptSrcPath) || $scriptSrcPath === '') {
+                    return null;
+                }
                 // need to remove the web root as that is included in the $scriptSrc and also in the fileroot
-                $pos = stripos($scriptSrcPath, (string) $GLOBALS['web_root']);
+                $pos = stripos($scriptSrcPath, $webRoot);
                 if ($pos !== false) {
-                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen((string) $GLOBALS['web_root']));
+                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen($webRoot));
                 } else {
                     $scriptSrcPathWithoutWebroot = $scriptSrcPath;
                 }
-                $realPath = realpath($GLOBALS['fileroot'] . $scriptSrcPathWithoutWebroot);
-                $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
+                $realPath = realpath($projectDir . $scriptSrcPathWithoutWebroot);
+
+                // realpath returns false for non-existent paths (e.g. an attacker-controlled
+                // redirect like /etc/passwd that doesn't resolve under the modules tree);
+                // bail before str_starts_with raises TypeError on the false argument.
+                if ($realPath === false) {
+                    return null;
+                }
 
                 // make sure we haven't left our root path ie interface folder
                 if (str_starts_with($realPath, $moduleRootLocation) && file_exists($realPath)) {

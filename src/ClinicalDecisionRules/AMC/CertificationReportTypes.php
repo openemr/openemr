@@ -6,7 +6,7 @@
  * for each certification of OpenEMR.  The most current report type we run will be contained in the DEFAULT constant.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -44,9 +44,9 @@ class CertificationReportTypes
      * code_col is the column used in the database table for the AMC rule description
      * the array key is the amc_<system_type>_flag in the database
      *
-     * @return array
+     * @return array<string, array{abbr: string, title: string, ruleset_title: string, code_col: string}>
      */
-    public static function getReportTypeRecords()
+    public static function getReportTypeRecords(): array
     {
 
         $amc_report_types = [

@@ -5,7 +5,7 @@
  * namespace OnsitePortal
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -15,27 +15,33 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
+use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
 $v_js_includes = $globalsBag->get('v_js_includes');
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $isPortal = false;
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
     require_once(__DIR__ . "/../interface/globals.php");
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../interface/globals.php");
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
@@ -43,7 +49,10 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
         exit();
     }
 }
-assert(isset($pid)); // Set by globals.php via session; PHPStan can't see through require_once
+// $pid is set by globals.php via session; PHPStan can't see through require_once
+if (!isset($pid)) {
+    throw new \RuntimeException('$pid must be set by globals.php before requiring this script');
+}
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc.php");
@@ -53,16 +62,9 @@ require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
-use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Utils\FormatMoney;
-use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
-
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
 $recorder = new Recorder();
 
@@ -85,13 +87,14 @@ if ($session->get('authUserID', '')) {
     $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
-$edata = $recid ? $appsql->getPortalAuditRec($recid) : $appsql->getPortalAudit($pid, 'review', 'payment');
+$edata = $recid ? $appsql->getPortalAuditRec($recid, $isPortal ? (int)$pid : null) : $appsql->getPortalAudit($pid, 'review', 'payment');
 $ccdata = [];
 $invdata = [];
 if ($edata) {
-    $ccdata = json_decode($cryptoGen->decryptStandard($edata['checksum']), true);
+    $ccdataRaw = $cryptoGen->decryptFromDatabase(is_string($edata['checksum']) ? $edata['checksum'] : null);
+    $ccdata = json_decode($ccdataRaw, true);
     $invdata = json_decode((string) $edata['table_args'], true);
-    echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
+    echo "<script>var jsondata=" . js_escape($edata['table_args']) . ";var ccdata=" . js_escape($edata['checksum']) . "</script>";
 }
 
 $now = time();
@@ -103,6 +106,10 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 
 $alertmsg = ''; // anything here pops up in an alert box
 
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
+}
+
 // If the Save button was clicked...
 if ($_POST['form_save'] ?? '') {
     $form_pid = $isPortal ? $pid : $_POST['form_pid'];
@@ -112,178 +119,168 @@ if ($_POST['form_save'] ?? '') {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
-        $payment_id = sqlInsert(
-            "insert into ar_session set " .
-            "payer_id = ?" .
-            ", patient_id = ?" .
-            ", user_id = ?" .
-            ", closed = ?" .
-            ", reference = ?" .
-            ", check_date =  now() , deposit_date = now() " .
-            ",  pay_total = ?" .
-            ", payment_type = 'patient'" .
-            ", description = ?" .
-            ", adjustment_code = 'pre_payment'" .
-            ", post_to_date = now() " .
-            ", payment_method = ?",
-            [0, $form_pid, $session->get('authUserID'), 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
-        );
+        $prepayment = $_REQUEST['form_prepayment'] ?? null;
+        if (is_numeric($prepayment) && (float) $prepayment > 0) {
+            $payment_id = sqlInsert(
+                "insert into ar_session set " .
+                "payer_id = ?" .
+                ", patient_id = ?" .
+                ", user_id = ?" .
+                ", closed = ?" .
+                ", reference = ?" .
+                ", check_date =  now() , deposit_date = now() " .
+                ",  pay_total = ?" .
+                ", payment_type = 'patient'" .
+                ", description = ?" .
+                ", adjustment_code = 'pre_payment'" .
+                ", post_to_date = now() " .
+                ", payment_method = ?",
+                [0, $form_pid, $session->get('authUserID'), 0, $form_source, (float) $prepayment, $NameNew, $form_method]
+            );
 
-        frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
+            frontPayment($form_pid, 0, $form_method, $form_source, (float) $prepayment, 0, $timestamp);//insertion to 'payments' table.
+        }
     }
 
     if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
-            if ($amount = (float)$payment) {
-                $zero_enc = $enc;
+            if (!is_numeric($payment) || (float) $payment <= 0) {
+                continue;
+            }
+            $amount = (float) $payment;
 
-                //----------------------------------------------------------------------------------------------------
-                //Fetching the existing code and modifier
+            $zero_enc = $enc;
+
+            //----------------------------------------------------------------------------------------------------
+            //Fetching the existing code and modifier
+            $ResultSearchNew = sqlStatement(
+                "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
+                "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
+                [$form_pid, $enc]
+            );
+            if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
+                $Codetype = $RowSearch['code_type'];
+                $Code = $RowSearch['code'];
+                $Modifier = $RowSearch['modifier'];
+            } else {
+                $Codetype = '';
+                $Code = '';
+                $Modifier = '';
+            }
+
+            //----------------------------------------------------------------------------------------------------
+            if ($_REQUEST['radio_type_of_payment'] == 'copay') {//copay saving to ar_session and ar_activity tables
+                $session_id = sqlInsert(
+                    "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
+                    " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
+                    " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
+                    [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
+                );
+
+                $recorder->recordActivity([
+                    'patientId' => $form_pid,
+                    'encounterId' => $enc,
+                    'codeType' => $Codetype,
+                    'code' => $Code,
+                    'modifier' => $Modifier,
+                    'payerType' => '0',
+                    'postUser' => $session->get('authUserID'),
+                    'sessionId' => $session_id,
+                    'payAmount' => $amount,
+                    'adjustmentAmount' => '0.0',
+                    'memo' => '',
+                    'accountCode' => 'PCP',
+                ]);
+
+                frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
+            }
+
+            if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance' || $_REQUEST['radio_type_of_payment'] == 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
+                if ($_REQUEST['radio_type_of_payment'] == 'cash') {
+                    sqlStatement(
+                        "update form_encounter set last_level_closed=? where encounter=? and pid=? ",
+                        [4, $enc, $form_pid]
+                    );
+                    sqlStatement(
+                        "update billing set billed=? where encounter=? and pid=?",
+                        [1, $enc, $form_pid]
+                    );
+                }
+
+                $adjustment_code = 'patient_payment';
+                $payment_id = sqlInsert(
+                    "insert into ar_session set " .
+                    "payer_id = ?" .
+                    ", patient_id = ?" .
+                    ", user_id = ?" .
+                    ", closed = ?" .
+                    ", reference = ?"   .
+                    ", check_date =  now() , deposit_date = now() " .
+                    ",  pay_total = ?" .
+                    ", payment_type = 'patient'" .
+                    ", description = ?" .
+                    ", adjustment_code = ?" .
+                    ", post_to_date = now() " .
+                    ", payment_method = ?",
+                    [0, $form_pid, $session->get('authUserID'), 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
+                );
+
+                //--------------------------------------------------------------------------------------------------------------------
+
+                frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount, $timestamp);//insertion to 'payments' table.
+
+                //--------------------------------------------------------------------------------------------------------------------
+
+                $resMoneyGot = sqlStatement(
+                    "SELECT sum(pay_amount) as PatientPay FROM ar_activity where deleted IS NULL AND pid =? and " .
+                    "encounter =? and payer_type=0 and account_code='PCP'",
+                    [$form_pid, $enc]
+                );//new fees screen copay gives account_code='PCP'
+                $rowMoneyGot = sqlFetchArray($resMoneyGot);
+                $Copay = $rowMoneyGot['PatientPay'];
+
+                //--------------------------------------------------------------------------------------------------------------------
+
+                //Looping the existing code and modifier
                 $ResultSearchNew = sqlStatement(
-                    "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
-                    "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
+                    "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key WHERE code_types.ct_fee=1 " .
+                    "AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
                     [$form_pid, $enc]
                 );
-                if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
+                while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
                     $Code = $RowSearch['code'];
                     $Modifier = $RowSearch['modifier'];
-                } else {
-                    $Codetype = '';
-                    $Code = '';
-                    $Modifier = '';
-                }
-
-                //----------------------------------------------------------------------------------------------------
-                if ($_REQUEST['radio_type_of_payment'] == 'copay') {//copay saving to ar_session and ar_activity tables
-                    $session_id = sqlInsert(
-                        "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
-                        " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
-                        " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
-                        [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
-                    );
-
-                    $recorder->recordActivity([
-                        'patientId' => $form_pid,
-                        'encounterId' => $enc,
-                        'codeType' => $Codetype,
-                        'code' => $Code,
-                        'modifier' => $Modifier,
-                        'payerType' => '0',
-                        'postUser' => $session->get('authUserID'),
-                        'sessionId' => $session_id,
-                        'payAmount' => $amount,
-                        'adjustmentAmount' => '0.0',
-                        'memo' => '',
-                        'accountCode' => 'PCP',
-                    ]);
-
-                    frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
-                }
-
-                if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance' || $_REQUEST['radio_type_of_payment'] == 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
-                    if ($_REQUEST['radio_type_of_payment'] == 'cash') {
-                        sqlStatement(
-                            "update form_encounter set last_level_closed=? where encounter=? and pid=? ",
-                            [4, $enc, $form_pid]
-                        );
-                        sqlStatement(
-                            "update billing set billed=? where encounter=? and pid=?",
-                            [1, $enc, $form_pid]
-                        );
-                    }
-
-                    $adjustment_code = 'patient_payment';
-                    $payment_id = sqlInsert(
-                        "insert into ar_session set " .
-                        "payer_id = ?" .
-                        ", patient_id = ?" .
-                        ", user_id = ?" .
-                        ", closed = ?" .
-                        ", reference = ?"   .
-                        ", check_date =  now() , deposit_date = now() " .
-                        ",  pay_total = ?" .
-                        ", payment_type = 'patient'" .
-                        ", description = ?" .
-                        ", adjustment_code = ?" .
-                        ", post_to_date = now() " .
-                        ", payment_method = ?",
-                        [0, $form_pid, $session->get('authUserID'), 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
-                    );
-
-                    //--------------------------------------------------------------------------------------------------------------------
-
-                    frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount, $timestamp);//insertion to 'payments' table.
-
-                    //--------------------------------------------------------------------------------------------------------------------
+                    $Fee = $RowSearch['fee'];
 
                     $resMoneyGot = sqlStatement(
-                        "SELECT sum(pay_amount) as PatientPay FROM ar_activity where deleted IS NULL AND pid =? and " .
-                        "encounter =? and payer_type=0 and account_code='PCP'",
-                        [$form_pid, $enc]
-                    );//new fees screen copay gives account_code='PCP'
-                    $rowMoneyGot = sqlFetchArray($resMoneyGot);
-                    $Copay = $rowMoneyGot['PatientPay'];
-
-                    //--------------------------------------------------------------------------------------------------------------------
-
-                    //Looping the existing code and modifier
-                    $ResultSearchNew = sqlStatement(
-                        "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key WHERE code_types.ct_fee=1 " .
-                        "AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
-                        [$form_pid, $enc]
+                        "SELECT sum(pay_amount) as MoneyGot FROM ar_activity where deleted IS NULL AND pid = ? " .
+                        "and code_type=? and code=? and modifier=? and encounter =? and !(payer_type=0 and account_code='PCP')",
+                        [$form_pid, $Codetype, $Code, $Modifier, $enc]
                     );
-                    while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                        $Codetype = $RowSearch['code_type'];
-                        $Code = $RowSearch['code'];
-                        $Modifier = $RowSearch['modifier'];
-                        $Fee = $RowSearch['fee'];
+                    //new fees screen copay gives account_code='PCP'
+                    $rowMoneyGot = sqlFetchArray($resMoneyGot);
+                    $MoneyGot = $rowMoneyGot['MoneyGot'];
 
-                        $resMoneyGot = sqlStatement(
-                            "SELECT sum(pay_amount) as MoneyGot FROM ar_activity where deleted IS NULL AND pid = ? " .
-                            "and code_type=? and code=? and modifier=? and encounter =? and !(payer_type=0 and account_code='PCP')",
-                            [$form_pid, $Codetype, $Code, $Modifier, $enc]
-                        );
-                        //new fees screen copay gives account_code='PCP'
-                        $rowMoneyGot = sqlFetchArray($resMoneyGot);
-                        $MoneyGot = $rowMoneyGot['MoneyGot'];
+                    $resMoneyAdjusted = sqlStatement(
+                        "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where deleted IS NULL AND " .
+                        "pid =? and code_type=? and code=? and modifier=? and encounter =?",
+                        [$form_pid, $Codetype, $Code, $Modifier, $enc]
+                    );
+                    $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
+                    $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
 
-                        $resMoneyAdjusted = sqlStatement(
-                            "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where deleted IS NULL AND " .
-                            "pid =? and code_type=? and code=? and modifier=? and encounter =?",
-                            [$form_pid, $Codetype, $Code, $Modifier, $enc]
-                        );
-                        $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
-                        $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
+                    $Remainder = $Fee - $Copay - $MoneyGot - $MoneyAdjusted;
+                    $Copay = 0;
+                    if (round($Remainder, 2) != 0 && $amount != 0) {
+                        if ($amount - $Remainder >= 0) {
+                            $insert_value = $Remainder;
+                            $amount -= $Remainder;
+                        } else {
+                            $insert_value = $amount;
+                            $amount = 0;
+                        }
 
-                        $Remainder = $Fee - $Copay - $MoneyGot - $MoneyAdjusted;
-                        $Copay = 0;
-                        if (round($Remainder, 2) != 0 && $amount != 0) {
-                            if ($amount - $Remainder >= 0) {
-                                $insert_value = $Remainder;
-                                $amount -= $Remainder;
-                            } else {
-                                $insert_value = $amount;
-                                $amount = 0;
-                            }
-
-                            $recorder->recordActivity([
-                                'patientId' => $form_pid,
-                                'encounterId' => $enc,
-                                'codeType' => $Codetype,
-                                'code' => $Code,
-                                'modifier' => $Modifier,
-                                'payerType' => 0,
-                                'postUser' => $session->get('authUserID'),
-                                'sessionId' => $payment_id,
-                                'payAmount' => $insert_value,
-                                'adjustmentAmount' => '0.0',
-                                'memo' => '',
-                                'accountCode' => 'PP',
-                            ]);
-                        }//if
-                    }//while
-                    if ($amount != 0) {//if any excess is there.
                         $recorder->recordActivity([
                             'patientId' => $form_pid,
                             'encounterId' => $enc,
@@ -293,16 +290,32 @@ if ($_POST['form_save'] ?? '') {
                             'payerType' => 0,
                             'postUser' => $session->get('authUserID'),
                             'sessionId' => $payment_id,
-                            'payAmount' => $amount,
+                            'payAmount' => $insert_value,
                             'adjustmentAmount' => '0.0',
                             'memo' => '',
                             'accountCode' => 'PP',
                         ]);
-                    }
+                    }//if
+                }//while
+                if ($amount != 0) {//if any excess is there.
+                    $recorder->recordActivity([
+                        'patientId' => $form_pid,
+                        'encounterId' => $enc,
+                        'codeType' => $Codetype,
+                        'code' => $Code,
+                        'modifier' => $Modifier,
+                        'payerType' => 0,
+                        'postUser' => $session->get('authUserID'),
+                        'sessionId' => $payment_id,
+                        'payAmount' => $amount,
+                        'adjustmentAmount' => '0.0',
+                        'memo' => '',
+                        'accountCode' => 'PP',
+                    ]);
+                }
 
-                    //--------------------------------------------------------------------------------------------------------------------
-                }//invoice_balance
-            }//if ($amount = 0 + $payment)
+                //--------------------------------------------------------------------------------------------------------------------
+            }//invoice_balance
         }//foreach
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
@@ -324,10 +337,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 // "MAX(user) AS user " .
         "MAX(user) AS user, " . "MAX(encounter) as encounter " . "FROM payments WHERE " . "pid = ? AND dtime = ?", [$form_pid, $timestamp
     ]);
-
-// Create key for deleting, just in case.
-    $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
-    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', (string) $timestamp) . '.' . $ref_id;
 
 // get facility from encounter
     $tmprow = sqlQuery("SELECT facility_id FROM form_encounter WHERE encounter = ?", [$payrow['encounter']]);
@@ -357,7 +366,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 url: formURL,
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>,
                     'task': 'add',
                     'pid': pid,
                     'inputBody': note,
@@ -452,7 +461,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_public_key'))); ?>;
+        var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'))); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -625,6 +634,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
           style="text-align: center; margin: auto;">
 
     <form id="invoiceForm" method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/portal_payment.php'>
+        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
         <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>
         <table>
@@ -924,24 +934,24 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 $sum_copay += (float)$inscopay;
                 $sum_balance += $balance;
                 ?>
-<tr id="tr_<?=$idx?>">
+<tr id="tr_<?=attr((string)$idx)?>">
     <td class="detail"><?=text(oeFormatShortDate($dispdate))?></td>
     <td class="detail" id="<?=attr($dispdate)?>" align='left'><?=text($enc)?>: <?=text($reason)?></td>
-    <td class="detail" align="center" id="td_charges_<?=$idx?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
-    <td class="detail" align="center" id="td_inspaid_<?=$idx?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
-    <td class="detail" align="center" id="td_ptpaid_<?=$idx?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
-    <td class="detail" align="center" id="td_patient_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
-    <td class="detail" align="center" id="td_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
-    <td class="detail" align="center" id="balance_<?=$idx?>"><?=text(FormatMoney::getBucks($balance))?></td>
-    <td class="detail" align="center" id="duept_<?=$idx?>"><?=text(FormatMoney::getBucks($duept))?></td>
+    <td class="detail" align="center" id="td_charges_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
+    <td class="detail" align="center" id="td_inspaid_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
+    <td class="detail" align="center" id="td_ptpaid_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
+    <td class="detail" align="center" id="td_patient_copay_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
+    <td class="detail" align="center" id="td_copay_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
+    <td class="detail" align="center" id="balance_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($balance))?></td>
+    <td class="detail" align="center" id="duept_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($duept))?></td>
     <td class="detail" align="center">
         <input
             class="form-control amount_field"
-            data-encounter-id="<?=$enc?>"
+            data-encounter-id="<?=attr($enc)?>"
             data-code="<?=attr($value['code'])?>"
             data-code-type="<?=attr($value['code_type'])?>"
-            name="form_upay[<?=$enc?>]"
-            id="paying_<?=$idx?>"
+            name="form_upay[<?=attr($enc)?>]"
+            id="paying_<?=attr((string)$idx)?>"
             value=""
             onchange="coloring();calctotal()"
             autocomplete="off"
@@ -1047,12 +1057,14 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 <div class="modal-body">
                     <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
+                        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
                         <fieldset>
                             <div class="form-group">
                                 <label label-default="label-default"
                                        class="control-label"><?php echo xlt('Name on Card'); ?></label>
                                 <div class="controls">
-                                    <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
+                                    <?php /** @phpstan-ignore-next-line */ ?>
+                                    <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname'] ?? '') . ' ' . attr($patdata['lname'] ?? '') ?>" />
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1116,11 +1128,13 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     </form>
                     <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
+                            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
                             <fieldset>
                                 <div class="form-group">
                                     <label label-default="label-default"><?php echo xlt('Name on Card'); ?></label>
                                     <div class="controls">
-                                        <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
+                                        <?php /** @phpstan-ignore-next-line */ ?>
+                                        <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname'] ?? '') . ' ' . attr($patdata['lname'] ?? '') ?>" />
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -1204,7 +1218,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_api_key'))); ?>;
+            var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
         </script>
         <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>
@@ -1225,7 +1239,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         }
         echo '<script type="text/javascript">';
         echo $twig->render('payments/rainforest.js', [
-            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+            'csrf' => CsrfUtils::collectCsrfToken($session, 'rainforest'),
             'endpoint' => 'portal_payment.rainforest.php',
         ]);
         echo '</script>';

@@ -4,7 +4,7 @@
  * EncounterService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -21,7 +21,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\{
     DateSearchField,
@@ -35,6 +34,7 @@ use OpenEMR\Services\Traits\ServiceEventTrait;
 use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
+use OpenEMR\BC\ServiceContainer;
 
 require_once __DIR__ . "/../../library/forms.inc.php";
 require_once __DIR__ . "/../../library/encounter.inc.php";
@@ -339,10 +339,10 @@ class EncounterService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
 
@@ -408,10 +408,10 @@ class EncounterService extends BaseService
                 $record = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $data);
                 $processingResult->setData([$record]);
             } else {
-                $processingResult->addProcessingResult("Failed to retrieve record after insert");
+                $processingResult->addInternalError("Failed to retrieve record after insert");
             }
         } else {
-            $processingResult->addProcessingError("error processing SQL Insert");
+            $processingResult->addInternalError("error processing SQL Insert");
         }
 
         return $processingResult;
@@ -479,7 +479,7 @@ class EncounterService extends BaseService
                 $processingResult->setData([$record]);
             }
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
 
         return $processingResult;
@@ -559,13 +559,20 @@ class EncounterService extends BaseService
 
     public function updateVital($pid, $eid, $vid, $data)
     {
+        // Verify the vital belongs to this patient/encounter before updating
+        // to prevent IDOR attacks where an attacker supplies another patient's vid.
+        $vitalsService = new VitalsService();
+        $existingVital = $vitalsService->getVitalsForForm($vid);
+        if (empty($existingVital) || $existingVital['pid'] != $pid || $existingVital['eid'] != $eid) {
+            return null;
+        }
+
         $data['date'] = date("Y-m-d H:i:s");
         $data['activity'] = 1;
         $data['id'] = $vid;
         $data['pid'] = $pid;
         $data['eid'] = $eid;
 
-        $vitalsService = new VitalsService();
         $updatedRecords = $vitalsService->save($data);
         return $updatedRecords;
     }

@@ -4,7 +4,7 @@
  * Basic PHP setup for the fee sheet review features
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -15,22 +15,34 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$web_root = OEGlobalsBag::getInstance()->getWebRoot();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+
+/** @var bool $isBilled (set by including file fee_sheet/new.php) */
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!$isBilled) {
     require_once("code_check.php");
     ?>
 <script>
     var webroot = <?php echo js_escape($web_root); ?>;
-    var pid = <?php echo js_escape($pid); ?>;
-    var enc = <?php echo js_escape($encounter); ?>;
+    var pid = <?php echo $pid; ?>;
+    var enc = <?php echo $encounter; ?>;
     var review_tag = <?php echo xlj('Review'); ?>;
     var justify_click_title = <?php echo xlj('Click to choose diagnoses to justify.'); ?>;
     var fee_sheet_options = [];
     // This is a list of diagnosis code types to present for as options in the justify dialog,
     // for now, only "internal codes" included.
     var diag_code_types = <?php echo diag_code_types('json');?>;
-    var ippf_specific = <?php echo $GLOBALS['ippf_specific'] ? 'true' : 'false'; ?>;
-    var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+    var ippf_specific = <?php echo OEGlobalsBag::getInstance()->get('ippf_specific') ? 'true' : 'false'; ?>;
+    var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
 </script>
 <script>
     function fee_sheet_option(code,code_type,description,fee)
@@ -42,10 +54,10 @@ if (!$isBilled) {
         return this;
     }
 </script>
-<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/initialize_review.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/js/fee_sheet_core.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_review_view_model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_justify_view_model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/initialize_review.js?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/js/fee_sheet_core.js?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_review_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_justify_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>"></script>
 
     <?php
     // knockoutjs template files

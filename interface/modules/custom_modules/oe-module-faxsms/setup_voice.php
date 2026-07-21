@@ -4,7 +4,7 @@
  * Fax SMS Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,7 +14,10 @@ namespace OpenEMR\Modules\FaxSMS\Controllers;
 
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 $serviceType = 'voice';
@@ -25,16 +28,20 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $c = $clientApp->getCredentials();
+$credEnableEvents = is_array($c) ? ($c['enable_events'] ?? null) : null;
+$voiceEnabled = filter_var(OEGlobalsBag::getInstance()->get('oe_enable_voice'), FILTER_VALIDATE_BOOLEAN);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $module_config = $_REQUEST['module_config'] ?? 1;
+$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid') ?? 0;
 echo "<script>var pid=" . js_escape($pid) . "</script>";
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>><?php echo xlt("Setup") ?></title>
+    <title><?php echo xlt("Setup") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
-    echo "<script>let Service=" . js_escape($serviceType) . "</script>";
+    echo "<script>let Service=" . js_escape($serviceType) . ";let csrfToken=" . js_escape(CsrfUtils::collectCsrfToken($session, 'contact-form')) . "</script>";
     ?>
     <script>
         $(function () {
@@ -108,6 +115,24 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                 icon.classList.add("fa-eye");
             }
         }
+
+        // Explicitly register/refresh the RingCentral call-event webhook
+        // subscription. Routes to VoiceClient::install(), which self-gates on
+        // voice-enabled + the enable_events flag and returns a JSON status.
+        function registerVoiceWebhook() {
+            var $status = $('#rc-webhook-status');
+            $status.html('<i class="fa fa-cog fa-spin"></i>');
+            $.post('install?type=voice', {csrf_token_form: csrfToken}, null, 'json')
+                .done(function (data) {
+                    var text = (data && (data.status || data.msg))
+                        ? ((data.status ? data.status + ': ' : '') + (data.msg || ''))
+                        : <?php echo xlj('Done'); ?>;
+                    $status.text(text);
+                })
+                .fail(function () {
+                    $status.text(<?php echo xlj('Webhook registration request failed.'); ?>);
+                });
+        }
     </script>
 </head>
 <body>
@@ -117,6 +142,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
         <?php } ?>
         <form class="form" id="setup-form" role="form">
             <div class="messages"></div>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'contact-form'); ?>" />
             <div class="row">
                 <div class="col-md-12">
                     <div class="checkbox">
@@ -125,6 +151,26 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                             <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
                             <?php echo xlt("Production Check") ?>
                         </label>
+                    </div>
+                    <div class="form-group mt-2 p-2 border rounded">
+                        <label class="d-block font-weight-bold"><?php echo xlt("Call Event Tracking (RingCentral Webhook)"); ?></label>
+                        <div class="checkbox">
+                            <label>
+                                <input id="form_enable_events" type="checkbox" name="enable_events" value="1"
+                                    <?php echo !in_array($credEnableEvents, [null, false, 0, 0.0, '', '0'], true) ? 'checked' : ''; ?>
+                                    <?php echo $voiceEnabled ? '' : 'disabled'; ?> />
+                                <?php echo xlt("Enable call event tracking"); ?>
+                            </label>
+                        </div>
+                        <?php if ($voiceEnabled) { ?>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="registerVoiceWebhook()">
+                                <?php echo xlt("Register / Refresh Webhook Subscription"); ?>
+                            </button>
+                            <span id="rc-webhook-status" class="ml-2 text-muted small"></span>
+                            <div class="small text-muted mt-1"><?php echo xlt("Save settings first, then register. Re-register after changing credentials or the server URL."); ?></div>
+                        <?php } else { ?>
+                            <div class="small text-danger mt-1"><?php echo xlt("Enable Voice (RingCentral) before turning on call event tracking."); ?></div>
+                        <?php } ?>
                     </div>
                     <div class="form-group">
                         <label for="form_extension"><?php echo xlt("Extension") ?> *</label>

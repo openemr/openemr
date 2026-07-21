@@ -12,7 +12,7 @@
  * Transfers
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
@@ -21,17 +21,18 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Specify if product or warehouse is the first column.
@@ -47,41 +48,49 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
     global $form_from_date, $form_to_date, $form_product;
 
     $whidcond = '';
+    $whidbind = [];
     if ($warehouse_id !== '~') {
-        $whidcond = $warehouse_id === '' ?
-        "AND ( di.warehouse_id IS NULL OR di.warehouse_id = '' )" :
-        "AND di.warehouse_id = '" . add_escape_custom($warehouse_id) . "'";
+        if ($warehouse_id === '') {
+            $whidcond = "AND ( di.warehouse_id IS NULL OR di.warehouse_id = '' )";
+        } else {
+            $whidcond = "AND di.warehouse_id = ?";
+            $whidbind[] = $warehouse_id;
+        }
     }
 
     $prodcond = '';
+    $prodbind = [];
     if ($form_product) {
         $product_id = $form_product;
     }
 
     if ($product_id) {
-        $prodcond = "AND di.drug_id = '" . add_escape_custom($product_id) . "'";
+        $prodcond = "AND di.drug_id = ?";
+        $prodbind[] = $product_id;
     }
+
+    $extrabind = array_merge($prodbind, $whidbind);
 
   // Get sum of current inventory quantities + destructions done after the
   // report end date (which is effectively a type of transaction).
     $eirow = sqlQuery("SELECT sum(di.on_hand) AS on_hand " .
     "FROM drug_inventory AS di WHERE " .
     "( di.destroy_date IS NULL OR di.destroy_date > ? ) " .
-    "$prodcond $whidcond", [$form_to_date]);
+    "$prodcond $whidcond", array_merge([$form_to_date], $extrabind));
 
   // Get sum of sales/adjustments/purchases after the report end date.
     $sarow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
     "ds.sale_date > ? AND " .
     "di.inventory_id = ds.inventory_id " .
-    "$prodcond $whidcond", [$form_to_date]);
+    "$prodcond $whidcond", array_merge([$form_to_date], $extrabind));
 
   // Get sum of transfers out after the report end date.
     $xfrow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
     "ds.sale_date > ? AND " .
     "di.inventory_id = ds.xfer_inventory_id " .
-    "$prodcond $whidcond", [$form_to_date]);
+    "$prodcond $whidcond", array_merge([$form_to_date], $extrabind));
 
     return $eirow['on_hand'] + $sarow['quantity'] - $xfrow['quantity'];
 }
@@ -360,8 +369,7 @@ function inventoryActivityLineItem(
 } // end function
 
 if (! AclMain::aclCheckCore('acct', 'rep')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory Activity")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep: Inventory Activity", xl("Inventory Activity"));
 }
 
 // this is "" or "submit" or "export".
@@ -380,29 +388,29 @@ if ($form_action == 'export') {
     header("Content-Description: File Transfer");
   // CSV headers:
     if ($product_first) {
-        echo csvEscape(xl('Product')) . ',';
-        echo csvEscape(xl('Warehouse')) . ',';
+        echo xlc('Product') . ',';
+        echo xlc('Warehouse') . ',';
     } else {
-        echo csvEscape(xl('Warehouse')) . ',';
-        echo csvEscape(xl('Product')) . ',';
+        echo xlc('Warehouse') . ',';
+        echo xlc('Product') . ',';
     }
 
     if ($_POST['form_details']) {
-        echo csvEscape(xl('Date')) . ',';
-        echo csvEscape(xl('Invoice')) . ',';
-        echo csvEscape(xl('Sales')) . ',';
-        echo csvEscape(xl('Distributions')) . ',';
-        echo csvEscape(xl('Purchases')) . ',';
-        echo csvEscape(xl('Transfers')) . ',';
-        echo csvEscape(xl('Adjustments')) . "\n";
+        echo xlc('Date') . ',';
+        echo xlc('Invoice') . ',';
+        echo xlc('Sales') . ',';
+        echo xlc('Distributions') . ',';
+        echo xlc('Purchases') . ',';
+        echo xlc('Transfers') . ',';
+        echo xlc('Adjustments') . "\n";
     } else {
-        echo csvEscape(xl('Start')) . ',';
-        echo csvEscape(xl('Sales')) . ',';
-        echo csvEscape(xl('Distributions')) . ',';
-        echo csvEscape(xl('Purchases')) . ',';
-        echo csvEscape(xl('Transfers')) . ',';
-        echo csvEscape(xl('Adjustments')) . ',';
-        echo csvEscape(xl('End')) . "\n";
+        echo xlc('Start') . ',';
+        echo xlc('Sales') . ',';
+        echo xlc('Distributions') . ',';
+        echo xlc('Purchases') . ',';
+        echo xlc('Transfers') . ',';
+        echo xlc('Adjustments') . ',';
+        echo xlc('End') . "\n";
     }
 } else { // end export
     ?>
@@ -447,7 +455,7 @@ table.mymaintable td, table.mymaintable th {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -470,7 +478,7 @@ table.mymaintable td, table.mymaintable th {
 <h2><?php echo xlt('Inventory Activity'); ?></h2>
 
 <form method='post' action='inventory_activity.php?product=<?php echo attr_url($product_first); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 <!-- form_action is set to "submit" or "export" at form submit time -->

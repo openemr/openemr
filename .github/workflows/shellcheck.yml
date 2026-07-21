@@ -51,9 +51,9 @@ concurrency:
 jobs:
   shellcheck:
     name: ShellCheck
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Get changed shell files
       id: changed-files
       # We run shellcheck on all unique shell files in the repo
@@ -154,7 +154,7 @@ jobs:
         notices-as-warnings: true
     - name: Upload shellcheck results
       if: ${{ failure() && hashFiles('checkstyle-shellcheck.xml') != '' }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: shellcheck-results
         path: checkstyle-shellcheck.xml

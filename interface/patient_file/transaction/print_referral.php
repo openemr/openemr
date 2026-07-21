@@ -4,7 +4,7 @@
  * print_referral.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2017 Rod Roark <rod@sunsetsystems.com>
@@ -14,15 +14,16 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/transactions.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once($srcdir . "/transactions.inc.php");
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/patient.inc.php");
 
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
-$template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
+$template_file = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/referral_template.html";
 
 $TEMPLATE_LABELS = [
   'label_clinic_id'             => xlt('Clinic ID'),
@@ -158,8 +159,8 @@ if (empty($facrow['facility_npi'])) {
 // Generate link to MA logo if it exists.
 $logo = "";
 $ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
-if (is_file("$webserver_root/$ma_logo_path")) {
-    $logo = "$web_root/$ma_logo_path";
+if (is_file(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/$ma_logo_path")) {
+    $logo = \OpenEMR\Core\OEGlobalsBag::getInstance()->getWebRoot() . "/$ma_logo_path";
 }
 
 $s = '';

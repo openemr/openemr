@@ -4,24 +4,27 @@
  * lab_results_messages.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$include_root/globals.php");
-require_once("$srcdir/pnotes.inc.php");
-require_once("$srcdir/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('include_root') . "/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/pnotes.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 function lab_results_messages($set_pid, $rid, $provider_id = ""): void
 {
     global $userauthorized;
 
     $sqlBindArray = [];
+    $where = "";
     if ($provider_id != "") {
         $where = "AND id = ?";
         array_push($sqlBindArray, $provider_id);
@@ -29,6 +32,7 @@ function lab_results_messages($set_pid, $rid, $provider_id = ""): void
 
     // Get all active users.
     $rez = sqlStatement("select id, username from users where username != '' AND active = '1' $where", $sqlBindArray);
+    $result = [];
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $result[$iter] = $row;
     }

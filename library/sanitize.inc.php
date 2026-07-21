@@ -14,15 +14,26 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 
-// Function to collect ip address(es)
-function collectIpAddresses()
+/**
+ * Function to collect ip address(es)
+ *
+ * @return array{
+ *   ip_string: string,
+ *   ip: string,
+ *   forward_ip: string,
+ * }
+ */
+function collectIpAddresses(): array
 {
-    $mainIp = $_SERVER['REMOTE_ADDR'];
+    /** @var string */
+    $mainIp = $_SERVER['REMOTE_ADDR'] ?? ''; // Fallback to blank for CLI, etc
     $stringIp = $mainIp;
 
     if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        /** @var string */
         $forwardIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
         $stringIp .= " (" . $forwardIp . ")";
     }
@@ -110,7 +121,7 @@ function isWhiteFile($file)
         }
         // allow module writers to modify the white list... this only gets executed the first time this function runs
         $event = new IsAcceptedFileFilterEvent($file, $white_list);
-        $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_GET_ACCEPTED_LIST);
+        $resultEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_GET_ACCEPTED_LIST);
         $white_list = $resultEvent->getAcceptedList();
     }
 
@@ -123,13 +134,13 @@ function isWhiteFile($file)
         $categoryType = $splitMimeType[0];
         if (in_array($categoryType . '/*', $white_list)) {
             $isAllowedFile = true;
-        } else if (isset($GLOBALS['kernel'])) {
+        } else if (OEGlobalsBag::getInstance()->hasKernel()) {
             // we can fire off an event
             // allow module writers to modify the isWhiteFile on the fly.
             $event = new IsAcceptedFileFilterEvent($file, $white_list);
             $event->setAllowedFile(false);
             $event->setMimeType($mimetype);
-            $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE);
+            $resultEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE);
             $isAllowedFile = $resultEvent->isAllowedFile();
         }
     }
@@ -154,8 +165,8 @@ function sanitizeNumber($number)
  * Function to get sql statement for empty datetime check.
  *
  * @param  string  $sqlColumn     SQL column/field name
- * @param  boolean  $time         flag used to determine if it's a datetime or a date
- * @param  boolean  $rev          flag used to reverse the condition
+ * @param bool $time flag used to determine if it's a datetime or a date
+ * @param bool $rev flag used to reverse the condition
  * @return string                 SQL statement checking if passed column is empty
  */
 

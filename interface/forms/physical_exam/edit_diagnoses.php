@@ -4,7 +4,7 @@
  * physical_exam edit_diagnoses.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
@@ -19,14 +19,26 @@ require_once(__DIR__ . "/../../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Forms\PhysicalExam\DiagnosisHelper;
 
-$line_id = $_REQUEST['lineid'];
+$line_id = DiagnosisHelper::normalizeLineId($_REQUEST['lineid'] ?? null);
+if ($line_id === null) {
+    http_response_code(400);
+    die(xlt('Invalid physical exam diagnosis line id'));
+}
+
 $info_msg = "";
 
-if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
-    AccessDeniedHelper::deny('Editing physical exam diagnoses is not authorized');
+if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate(
+        'Editing physical exam diagnoses is not authorized',
+        xl('Access Denied'),
+    );
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -41,26 +53,15 @@ if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-    $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = ?";
-    sqlStatement($query, [$line_id]);
-
-    $form_diagnoses = $_POST['form_diagnosis'];
-    $form_orderings = $_POST['form_ordering'];
-    foreach ($form_diagnoses as $i => $diagnosis) {
-        if ($diagnosis) {
-            $ordering = $form_orderings[$i];
-            $query = "INSERT INTO form_physical_exam_diagnoses (
-            line_id, ordering, diagnosis
-            ) VALUES (
-            ?, ?, ?
-            )";
-            sqlStatement($query, [$line_id, $ordering, $diagnosis]);
-        }
-    }
+    $form_diagnoses = $_POST['form_diagnosis'] ?? [];
+    $form_orderings = $_POST['form_ordering'] ?? [];
+    DiagnosisHelper::save(
+        $line_id,
+        is_array($form_diagnoses) ? $form_diagnoses : [],
+        is_array($form_orderings) ? $form_orderings : []
+    );
 
   // Close this window and redisplay the updated encounter form.
   //
@@ -76,15 +77,27 @@ if ($_POST['form_save']) {
     exit();
 }
 
- $dres = sqlStatement(
-     "SELECT * FROM form_physical_exam_diagnoses WHERE " .
-     "line_id = ? ORDER BY ordering, diagnosis",
-     [$line_id]
- );
-    ?>
+$existingDiagnosisRows = [];
+$dres = sqlStatement(
+    "SELECT ordering, diagnosis FROM form_physical_exam_diagnoses WHERE " .
+    "line_id = ? ORDER BY ordering, diagnosis",
+    [$line_id]
+);
+while ($drow = sqlFetchArray($dres)) {
+    /** @var array{ordering: int|string|null, diagnosis: string|null} $drow */
+    $existingDiagnosisRows[] = $drow;
+}
+
+/** @var list<array{ordering: int|string|null, diagnosis: string|null}> $diagnosisRows */
+$diagnosisRows = array_pad(
+    $existingDiagnosisRows,
+    count($existingDiagnosisRows) + 5,
+    ['ordering' => null, 'diagnosis' => '']
+);
+?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php echo attr_url($line_id); ?>'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 
@@ -95,17 +108,15 @@ if ($_POST['form_save']) {
   <td width='95%'><?php echo xlt('Diagnosis'); ?></td>
  </tr>
 
-<?php for ($i = 1; $drow = sqlFetchArray($dres); ++$i) { ?>
+<?php foreach ($diagnosisRows as $idx => $drow) {
+    $i = $idx + 1;
+    // Synthetic blank rows use null ordering so they default to the row number.
+    $ordering = (string) ($drow['ordering'] ?? $i);
+    $diagnosis = (string) ($drow['diagnosis'] ?? '');
+    ?>
  <tr>
-  <td><input type='text' size='3' maxlength='5' name='form_ordering[<?php echo attr($i); ?>]' value='<?php echo attr($i); ?>' /></td>
-  <td><input type='text' size='20' maxlength='250' name='form_diagnosis[<?php echo attr($i); ?>]' value='<?php echo attr($drow['diagnosis']); ?>' style='width:100%' /></td>
- </tr>
-<?php } ?>
-
-<?php for ($j = 0; $j < 5; ++$j, ++$i) { ?>
- <tr>
-  <td><input type='text' size='3' name='form_ordering[<?php echo attr($i); ?>]' value='<?php echo $i?>' /></td>
-  <td><input type='text' size='20' name='form_diagnosis[<?php echo attr($i); ?>]' style='width:100%' /></td>
+  <td><input type='text' size='3' maxlength='5' name='form_ordering[<?php echo $i; ?>]' value='<?php echo attr($ordering); ?>' /></td>
+  <td><input type='text' size='20' maxlength='250' name='form_diagnosis[<?php echo $i; ?>]' value='<?php echo attr($diagnosis); ?>' style='width:100%' /></td>
  </tr>
 <?php } ?>
 

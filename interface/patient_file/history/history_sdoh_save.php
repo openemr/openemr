@@ -4,7 +4,7 @@
  * SDOH (USCDI v3) SDOH list page (all assessments for a patient)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,21 +12,19 @@
 
 require_once("../../globals.php");
 
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\SDOH\HistorySdohService;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $pid = (int)$session->get('pid');
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $session->getSymfonySession())) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH save');
 }
@@ -38,7 +36,7 @@ if (empty($pid)) {
 
 $instrument_score = isset($_POST['instrument_score']) ? (int)$_POST['instrument_score'] : null;
 $declined_flag = !empty($_POST['declined_flag']) ? 1 : 0;
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // --- Functional sub-observations -> JSON (disability_scale)
 $dscale = $_POST['dscale'] ?? [];
@@ -62,7 +60,7 @@ $data['positive_domain_count'] = HistorySdohService::countPositiveDomains($_POST
 
 $rec_id = (int)($_POST['history_sdoh_id'] ?? 0);
 $encounter = isset($_POST['encounter']) ? (int)$_POST['encounter'] : null;
-$uid = $session->get('authUserID') ?? null;
+$uid = $session->get('authUserID');
 
 $clean = fn($k): string => trim($_POST[$k] ?? '');
 $intOrNull = function ($k) {
@@ -146,7 +144,7 @@ try {
         $data['updated_by'] = $uid;
         $result = $sdohService->update($rec_id, $data);
         if (!$result->isValid()) {
-            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+            $logger->error("history_sdoh_save: Failed to update sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
         }
         $id = $rec_id;
     } else {
@@ -155,7 +153,7 @@ try {
         $data['created_by'] = $uid;
         $result = $sdohService->insert($data);
         if (!$result->isValid()) {
-            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+            $logger->error("history_sdoh_save: Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
             throw new Exception("Failed to insert sdoh record.");
         } else {
             $id = $result->getFirstDataResult()['id'];
@@ -166,13 +164,12 @@ try {
     // TODO: there doesn't appear to be any error handling if the save fails... this seems pretty important.
     // Return to demographics (or wherever you prefer)
     // Redirect to health concerns selection page
-    $redirectUrl = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_health_concerns.php"
+    $redirectUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_health_concerns.php"
         . "?pid=" . urlencode((string) $pid)
         . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");
 } catch (\Throwable $e) {
-    $logger->errorLogCaller("Exception saving sdoh record: " . $e->getMessage());
+    $logger->error("Exception saving sdoh record: " . $e->getMessage(), ['exception' => $e]);
     die(xlt("Error saving SDOH record."));
 }
-//header("Location: " . $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid));
 exit;

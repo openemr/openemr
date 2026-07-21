@@ -2,13 +2,12 @@
 
 /**
  * SessionWrapperFactory is a singleton factory for session wrapper. Its purpose is to provide the appropriate session wrapper
- * for part of the application that is requesting. It does it based on the ` App ` cookie value, and it can distinguish between
- * the core and portal application requests. Additionally, it can distinguish if Redis is used for session storage and
- * cache the value for subsequent requests.
+ * for part of the application that is requesting. It does it based on the `App` cookie value, and it can distinguish between
+ * the core and portal application requests.
  * Once when the core is ported to the Symfony Session, we can remove this wrapper and use Symfony Session directly.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
  * @copyright Copyright (c) Milan Zivkovic
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,39 +15,152 @@
 
 namespace OpenEMR\Common\Session;
 
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\HttpSessionFactory;
+use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 class SessionWrapperFactory
 {
     use SingletonTrait;
 
-    private ?SessionWrapperInterface $sessionWrapper = null;
+    private ?SessionInterface $activeSession = null;
 
-    public function getWrapper(array $initData = []): SessionWrapperInterface
-    {
-        if (!$this->sessionWrapper) {
-            $this->sessionWrapper = $this->findSessionWrapper($initData);
-        }
+    private ?SessionStorageInterface $activeStorage = null;
 
-        return $this->sessionWrapper;
+    private bool $readOnly = true;
+
+    /**
+     * @param string $webRoot The deployment root; i.e. the cookie path
+     */
+    public function __construct(
+        private string $webRoot,
+    ) {
     }
 
-    private function findSessionWrapper(array $initData = []): SessionWrapperInterface
+    protected static function createInstance(): static
     {
+        $webRoot = OEGlobalsBag::getInstance()->getString('web_root');
+        return new self(webRoot: $webRoot);
+    }
+
+    public function isSessionActive(): bool
+    {
+        return $this->activeSession !== null;
+    }
+
+    public function setSessionReadOnly(bool $readOnly): void
+    {
+        $this->readOnly = $readOnly;
+    }
+
+    public function getEffectiveReadOnly(): bool
+    {
+        return $this->readOnly;
+    }
+
+    public function setActiveSession(SessionInterface $session, ?SessionStorageInterface $storage = null): void
+    {
+        $this->activeSession = $session;
+        if ($storage !== null) {
+            $this->activeStorage = $storage;
+        }
+    }
+
+    public function getActiveStorage(): ?SessionStorageInterface
+    {
+        return $this->activeStorage;
+    }
+
+    public function getActiveSession(): SessionInterface
+    {
+        if ($this->activeSession !== null) {
+            return $this->activeSession;
+        }
+
         $app = SessionUtil::getAppCookie();
-        // Use PHPSessionWrapper for non-portal requests, or if a session is already active
-        // (e.g., API/OAuth requests where SiteSetupListener has already started a Symfony session)
-        if ($app !== SessionUtil::PORTAL_SESSION_ID || session_status() === PHP_SESSION_ACTIVE) {
-            $session = new PHPSessionWrapper();
-        } else {
-            $session = new SymfonySessionWrapper(SessionUtil::portalSessionStart());
+        if ($app === SessionUtil::PORTAL_SESSION_ID) {
+            return $this->getPortalSession();
         }
-
-        foreach ($initData as $name => $value) {
-            $session->set($name, $value);
-        }
-
-        return $session;
+        return $this->getCoreSession();
     }
 
+    public function getPortalSession(bool $reset = false): SessionInterface
+    {
+        if (!$this->activeSession || $reset) {
+            $this->activeSession = $this->createPortalSession();
+        }
+
+        return $this->activeSession;
+    }
+
+    public function destroyPortalSession(): void
+    {
+        $this->destroySession(SessionUtil::PORTAL_SESSION_ID);
+    }
+
+    public function destroySetupSession(): void
+    {
+        $this->destroySession(SessionUtil::SETUP_SESSION_ID);
+    }
+
+    public function destroyCoreSession(): void
+    {
+        $this->destroySession(SessionUtil::CORE_SESSION_ID);
+    }
+
+    private function destroySession(string $expectedSessionName): void
+    {
+        if ($this->activeSession === null || session_name() !== $expectedSessionName) {
+            return;
+        }
+
+        // If the session was opened with read_and_close, the native session is
+        // already closed (session_status() === PHP_SESSION_NONE). We must reopen
+        // it before we can invalidate.
+        if (
+            $this->activeStorage instanceof ReadAndCloseNativeSessionStorage
+            && $this->activeStorage->isClosedByReadAndClose()
+        ) {
+            $this->activeStorage->reopenForWriting();
+        }
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $this->activeSession->invalidate();
+            session_write_close();
+        }
+
+        $this->activeSession = null;
+        $this->activeStorage = null;
+    }
+
+    public function getCoreSession(bool $reset = false): SessionInterface
+    {
+        if (!$this->activeSession || $reset) {
+            $this->activeSession = $this->createCoreSession();
+        }
+
+        return $this->activeSession;
+    }
+
+    private function createPortalSession(): SessionInterface
+    {
+        $request = HttpRestRequest::createFromGlobals();
+        $sessionFactory = new HttpSessionFactory($request, $this->webRoot, HttpSessionFactory::SESSION_TYPE_PORTAL, $this->getEffectiveReadOnly());
+        $this->activeSession = $sessionFactory->createSession();
+        $this->activeStorage = $sessionFactory->getLastCreatedStorage();
+        return $this->activeSession;
+    }
+
+    private function createCoreSession(): SessionInterface
+    {
+        $request = HttpRestRequest::createFromGlobals();
+        $sessionFactory = new HttpSessionFactory($request, $this->webRoot, HttpSessionFactory::SESSION_TYPE_CORE, $this->getEffectiveReadOnly());
+        $this->activeSession = $sessionFactory->createSession();
+        $this->activeStorage = $sessionFactory->getLastCreatedStorage();
+        return $this->activeSession;
+    }
 }

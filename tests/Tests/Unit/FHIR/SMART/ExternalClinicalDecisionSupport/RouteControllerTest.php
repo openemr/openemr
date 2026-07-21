@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Tests\Unit\FHIR\SMART\ExternalClinicalDecisionSupport;
 
-use Google\Service\Bigquery\SessionInfo;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -11,7 +10,6 @@ use OpenEMR\FHIR\SMART\ActionUrlBuilder;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\PredictiveDSIServiceEntity;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
 use OpenEMR\Services\DecisionSupportInterventionService;
-use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -110,13 +108,12 @@ class RouteControllerTest extends TestCase
     public function testSaveAction(): void
     {
         $id = "1";
-//        CsrfUtils::setupCsrfKey(); // setup the key
         $this->setupDSIServiceForClientEntity($id, "Test Client");
         $this->session->set('authUserID', 1);
         $request = new Request(['action' => 'external-cdr/save/' . $id]);
         $request->request->set("predictive_details_developer", "OpenEMR");
         $request->request->set("predictive_details_funding", "Donations");
-        $request->request->set('_token', CsrfUtils::collectCsrfToken('default', $this->session));
+        $request->request->set('_token', CsrfUtils::collectCsrfToken($this->session));
 
         $this->dsiService->expects($this->once())->method("updatePredictiveDSIAttributes");
 

@@ -1,6 +1,7 @@
 <?php
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\InsuranceCompanyService;
 
 class C_InsuranceCompany extends Controller
@@ -13,15 +14,15 @@ class C_InsuranceCompany extends Controller
         parent::__construct();
         $this->icompanies = [];
         $this->template_dir = __DIR__ . "/templates/insurance_companies/";
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&");
-        $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("SUPPORT_ENCOUNTER_CLAIMS", $GLOBALS['support_encounter_claims']);
-        $this->assign("SUPPORT_ELIGIBILITY_REQUESTS", $GLOBALS['enable_eligibility_requests']);
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&insurance_company&");
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
+        $this->assign("SUPPORT_ENCOUNTER_CLAIMS", OEGlobalsBag::getInstance()->getBoolean('support_encounter_claims'));
+        $this->assign("SUPPORT_ELIGIBILITY_REQUESTS", OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests'));
         $this->InsuranceCompany = new InsuranceCompany();
     }
 
-    public function default_action()
+    public function default_action(): string
     {
         return $this->list_action();
     }
@@ -36,12 +37,12 @@ class C_InsuranceCompany extends Controller
         $this->assign("x12_partners", $x->_utility_array($x->x12_partner_factory()));
 
         $this->assign("insurancecompany", $this->icompanies[0]);
-        return $this->fetch($GLOBALS['template_dir'] . "insurance_companies/" . $this->template_mod . "_edit.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "insurance_companies/" . $this->template_mod . "_edit.html");
     }
 
-    public function list_action()
+    public function list_action(): string
     {
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
         $insuranceCompanyService = new InsuranceCompanyService();
         $results = $insuranceCompanyService->search([]);
@@ -67,7 +68,7 @@ class C_InsuranceCompany extends Controller
             usort($iCompanies, fn($a, $b): int => strcasecmp($a['name'] ?? '', $b['name'] ?? ''));
         }
         $templateVars = [
-            'CURRENT_ACTION' => $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&"
+            'CURRENT_ACTION' => OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&insurance_company&"
             ,'icompanies' => $iCompanies
         ];
 
@@ -89,6 +90,6 @@ class C_InsuranceCompany extends Controller
         $this->icompanies[0]->populate();
 
         $_POST['process'] = "";
-        header('Location:' . $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&action=list");//Z&H
+        header('Location:' . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&insurance_company&action=list");//Z&H
     }
 }

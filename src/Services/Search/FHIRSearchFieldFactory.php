@@ -8,7 +8,7 @@
  * Types of fields constructed are defined in the FhirSearchParameterType class.
  * @see OpenEMR\FHIR\FhirSearchParameterType
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,10 +16,8 @@
 
 namespace OpenEMR\Services\Search;
 
-use Laminas\Mvc\Exception\BadMethodCallException;
 use OpenEMR\Services\FHIR\FhirUrlResolver;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSearchParameter;
 
 class FHIRSearchFieldFactory
 {
@@ -146,7 +144,7 @@ class FHIRSearchFieldFactory
         $isUUID = false;
         if ($field instanceof ServiceField) {
             $fieldName = $field->getField();
-            $isUUID = $field->getType() == ServiceField::TYPE_UUID ? true : false;
+            $isUUID = $field->getType() == ServiceField::TYPE_UUID;
         } else {
             $fieldName = $field;
         }
@@ -199,7 +197,7 @@ class FHIRSearchFieldFactory
     /**
      * Returns the relative url
      * @param $urlToResolve
-     * @throws BadMethodCallException if the FhirUrlResolver is not setup for this class
+     * @throws \BadMethodCallException if the FhirUrlResolver is not setup for this class
      * @throws \InvalidArgumentException if the URL does not match the server base URL
      * @return string
      */

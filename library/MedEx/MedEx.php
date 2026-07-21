@@ -16,7 +16,7 @@
  *              (see MedEx_background.php for configuration examples)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    MedEx <support@MedExBank.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
@@ -39,7 +39,7 @@ header('Content-type: application/json');
 $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
 // Verify MedEx is enabled - return 404 to hide endpoint existence
-if (OEGlobalsBag::getInstance()->get('medex_enable') !== '1') {
+if (!OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
     http_response_code(404);
     echo json_encode(['error' => 'Not found']);
     exit;

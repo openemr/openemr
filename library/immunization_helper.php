@@ -26,8 +26,8 @@
  *
  * @param   string    $pid        person id
  * @param   string    $sortby     sorting field ('vacc' sorts by name, otherwise will sort by date)
- * @param   boolean   $showError  indicator whether to retrieve the records that were added erroneously
- * @return  recordset             listing of immunizations for a patient
+ * @param bool $showError indicator whether to retrieve the records that were added erroneously
+ * @return  ADORecordSet          listing of immunizations for a patient
  */
 function getImmunizationList($pid, $sortby, $showError)
 {

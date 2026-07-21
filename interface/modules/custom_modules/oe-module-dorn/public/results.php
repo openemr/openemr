@@ -3,7 +3,7 @@
 /**
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -14,18 +14,19 @@
 
 require_once __DIR__ . "/../../../../globals.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Modules\Dorn\ConnectorApi;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\Dorn\ConnectorApi;
 
 //this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "results";
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: DORN Pending Results", xl("DORN Pending Results"));
 }
 
 if (!empty($_POST)) {
@@ -37,6 +38,8 @@ if (!empty($_POST)) {
         }
     }
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -50,14 +53,14 @@ if (!empty($_POST)) {
         // will keep
         top.restoreSession();
         let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
-        let scriptTitle = 'get_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let scriptTitle = 'get_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
         dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
     }
 
     function ackResults(resultGuid, isRejected) {
         top.restoreSession();
         let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Results"); ?>;
-        let scriptTitle = 'ack_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) + '&rejectResults=' + encodeURIComponent(isRejected) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let scriptTitle = 'ack_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) + '&rejectResults=' + encodeURIComponent(isRejected) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
         dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
     }
 
@@ -66,7 +69,7 @@ if (!empty($_POST)) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         });
     });
 </script>

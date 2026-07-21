@@ -5,7 +5,7 @@
  * version 1.0.0  July 2020
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ruth Moulton <moulton ruth@muswell.me.uk>
  * @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
  *
@@ -13,6 +13,10 @@
  */
 
  require_once(__DIR__ . "/../../globals.php");
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+
  require_once("$srcdir/api.inc.php");
  require_once("$srcdir/patient.inc.php");
 

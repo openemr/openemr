@@ -4,7 +4,7 @@
  * Implementation of VerificationIF for hashing a signable object
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -14,7 +14,9 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/VerificationIF.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/VerificationIF.php';
 
 class Utils_Verification implements VerificationIF
 {

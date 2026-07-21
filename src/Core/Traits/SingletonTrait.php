@@ -3,11 +3,10 @@
 /**
  * @package   OpenEMR
  *
- * @link      http://www.open-emr.org
- * @link      https://opencoreemr.com
+ * @link      https://www.open-emr.org
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -29,7 +28,7 @@ use LogicException;
 trait SingletonTrait
 {
     /** @var array<class-string<static>, static> */
-    private static array $instances = [];
+    protected static array $instances = [];
 
     final public function __clone()
     {
@@ -42,7 +41,7 @@ trait SingletonTrait
     public static function getInstance(): static
     {
         if (!isset(static::$instances[static::class])) {
-            self::$instances[static::class] = static::createInstance();
+            static::$instances[static::class] = static::createInstance();
         }
 
         return static::$instances[static::class];

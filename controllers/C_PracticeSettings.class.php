@@ -1,7 +1,18 @@
 <?php
 
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+/**
+ * Practice Settings controller.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    OpenEMR contributors
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) OpenEMR contributors
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+use OpenEMR\Core\OEGlobalsBag;
 
 class C_PracticeSettings extends Controller
 {
@@ -10,156 +21,101 @@ class C_PracticeSettings extends Controller
     function __construct(public $template_mod = "general")
     {
         parent::__construct();
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
-        $this->assign("TOP_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings" . "&");
-        $this->assign("STYLE", $GLOBALS['style']);
-        $this->direction = ($GLOBALS['_SESSION']['language_direction'] == 'rtl') ? 'right' : 'left';
-
-        if (!AclMain::aclCheckCore('admin', 'practice')) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
-            exit;
-        }
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("TOP_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings" . "&");
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
+        $this->direction = (OEGlobalsBag::getInstance()->get('_SESSION')['language_direction'] == 'rtl') ? 'right' : 'left';
     }
 
-    function default_action($display = "")
+    function default_action($display = ""): string
     {
         $this->assign("display", $display);
         $this->assign("direction", $this->direction);
-        $this->display($GLOBALS['template_dir'] . "practice_settings/" . $this->template_mod . "_list.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "practice_settings/" . $this->template_mod . "_list.html");
     }
 
     function pharmacy_action($arg)
     {
         $c = new Controller();
-
-        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-        //and value passing
-
         $fga = func_get_args();
-
         $fga = array_slice($fga, 1);
-        $args = array_merge(["pharmacy" => "", $arg => ""], $fga);
+        $params = array_merge(['controller' => 'pharmacy', 'action' => $arg], $fga);
         $this->assign("direction", $this->direction);
-        $display = $c->act($args);
+        $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("Pharmacies"));
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function insurance_company_action($arg)
     {
         $c = new Controller();
-
-        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-        //and value passing
-
         $fga = func_get_args();
-
         $fga = array_slice($fga, 1);
-        $args = array_merge(["insurance_company" => "", $arg => ""], $fga);
-
-        $display = $c->act($args);
+        $params = array_merge(['controller' => 'insurance_company', 'action' => $arg], $fga);
+        $display = $c->dispatch($params);
         $this->assign("direction", $this->direction);
         $this->assign("ACTION_NAME", xl("Insurance Companies"));
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function insurance_numbers_action($arg)
     {
         $c = new Controller();
-
-        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-        //and value passing
-
         $fga = func_get_args();
-
         $fga = array_slice($fga, 1);
-        $args = array_merge(["insurance_numbers" => "", $arg => ""], $fga);
-
-        $display = $c->act($args);
-
+        $params = array_merge(['controller' => 'insurance_numbers', 'action' => $arg], $fga);
+        $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("Insurance Numbers"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function document_action($arg)
     {
         $c = new Controller();
-
-        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-        //and value passing
-
         $fga = func_get_args();
-
         $fga = array_slice($fga, 1);
-        $args = array_merge(["document" => "", $arg => ""], $fga);
-
-        $display = $c->act($args);
-
+        $params = array_merge(['controller' => 'document', 'action' => $arg], $fga);
+        $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("Documents"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function document_category_action($arg)
     {
         $c = new Controller();
-
-        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-        //and value passing
-
         $fga = func_get_args();
-
         $fga = array_slice($fga, 1);
-        $args = array_merge(["document_category" => "", $arg => ""], $fga);
-
-        $display = $c->act($args);
-
+        $params = array_merge(['controller' => 'document_category', 'action' => $arg], $fga);
+        $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("Documents"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
     function x12_partner_action($arg)
     {
         $c = new Controller();
-
-        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-        //and value passing
-
         $fga = func_get_args();
-
         $fga = array_slice($fga, 1);
-        $args = array_merge(["x12_partner" => "", $arg => ""], $fga);
-
-        $display = $c->act($args);
-
+        $params = array_merge(['controller' => 'x12_partner', 'action' => $arg], $fga);
+        $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("X12 Partners"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 
 
     function hl7_action($arg)
     {
         $c = new Controller();
-
-        //this dance is so that the controller system which only cares about the name part of the first two arguments get what it wants
-        //and the rest gets passed as normal argument values, really this all goes back to workarounds for problems with call_user_func
-        //and value passing
-
         $fga = func_get_args();
         $fga = array_slice($fga, 1);
-        $args = array_merge(["hl7" => "", $arg => ""], $fga);
-        $display = $c->act($args);
+        $params = array_merge(['controller' => 'hl7', 'action' => $arg], $fga);
+        $display = $c->dispatch($params);
         $this->assign("ACTION_NAME", xl("HL7 Viewer"));
         $this->assign("direction", $this->direction);
-        $this->default_action($display);
+        return $this->default_action($display);
     }
 }

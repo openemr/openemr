@@ -5,7 +5,7 @@
  * as a string or as a URI.  If a URI is provided it will retrieve the JWKS and store them internally.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,7 +17,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;
 use Lcobucci\JWT\Signer\Key;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
@@ -45,9 +45,9 @@ class JsonWebKeySet implements Key
      */
     private $logger;
 
-    public function __construct(ClientInterface $httpClient, $jwks_uri = null, $jwks = null)
+    public function __construct(ClientInterface $httpClient, $jwks_uri = null, $jwks = null, ?LoggerInterface $logger = null)
     {
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->setHttpClient($httpClient);
 
         $passphrase = '';
@@ -116,7 +116,7 @@ class JsonWebKeySet implements Key
         } catch (RequestException | ConnectException $exception) {
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller("Failed to retrieve jwk contents from jwk_uri and unknown error occurred", ['jwk_uri' => $jwk_uri]);
+            $this->logger->error("Failed to retrieve jwk contents from jwk_uri and unknown error occurred", ['exception' => $exception, 'jwk_uri' => $jwk_uri]);
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
         }
     }

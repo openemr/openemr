@@ -7,32 +7,32 @@
  * located in library/ajax/billing_tracker_ajax.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\{
+    Acl\AccessDeniedHelper,
     Acl\AclMain,
     Csrf\CsrfUtils,
+    Session\SessionWrapperFactory,
     Twig\TwigContainer
 };
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (
-        new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render(
-            'core/unauthorized.html.twig',
-            ['pageTitle' => xl("Billing Manager")]
-        );
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -53,7 +53,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
     </style>
     <script type="text/javascript">
         $(document).ready(function() {
-            const serverUrl = "<?php echo $GLOBALS['webroot']; ?>/library/ajax/billing_tracker_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            const serverUrl = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/billing_tracker_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             const oTable = $('#billing-tracker-table').DataTable({
                 "processing": true,
                 // next 2 lines invoke server side processing
@@ -74,18 +74,16 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
                     {
                         "data": "status",
                         "render": function(data, type, row, meta) {
-                            // Format the status with a nice looking badge
-                            if (type === 'display') {
-                                if (data == 'success') {
-                                    data = '<span class="badge badge-success">' + jsText(data) + '</span>';
-                                } else if (data == 'waiting') {
-                                    data = '<span class="badge badge-info">' + jsText(data) + '</span>';
-                                } else {
-                                    data = '<span class="badge badge-warning">' + jsText(data) + '</span>';
-                                }
+                            // Format the status with a nice looking badge.
+                            // Compare against the raw enum (`row.status`) but
+                            // display the translated label (`row.status_label`).
+                            if (type !== 'display') {
+                                return data;
                             }
-
-                            return data;
+                            const variants = { success: 'success', waiting: 'info' };
+                            const variant = variants[data] || 'warning';
+                            const label = row.status_label || data;
+                            return `<span class="badge badge-${variant}">${jsText(label)}</span>`;
                         }
                     },
                     { "data": "x12_partner_name" },
@@ -95,11 +93,11 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
                             // Build the URL so the user can download the claim batch file
                             if (type === 'display') {
                                 const params = new URLSearchParams({
-                                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                                     key: data,
                                     partner: row.x12_partner_id
                                 });
-                                const url = '<?php echo $GLOBALS['webroot']; ?>/interface/billing/get_claim_file.php?' + params;
+                                const url = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/billing/get_claim_file.php?' + params;
                                 data = '<a href="' + jsAttr(url) + '">' + jsText(data) + '</a>';
                             }
 

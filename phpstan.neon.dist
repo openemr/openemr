@@ -5,9 +5,28 @@ parameters:
   bootstrapFiles:
   - .phpstan/phpstan_panther_alias.php
   - .phpstan/phpstan_include_paths.php
-  level: 1
+  - .phpstan/phpstan_legacy_aliases.php
+  level: 10
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan
+  excludePaths:
+    analyseAndScan:
+    # excluding for easy dev setups since ccdaservice is a path below
+    - ccdaservice/node_modules/*
+    # oe-module-claimrev-connect is a Composer dependency
+    # (claimrevolution/oe-module-claimrev-connect), relocated into this path by the
+    # oe-module-installer-plugin during `composer install`. It is third-party code,
+    # not maintained in this repo, so exclude it from analysis the same way vendor/
+    # is excluded.
+    - interface/modules/custom_modules/oe-module-claimrev-connect/*
+    analyse:
+    # Generated FHIR R4 parser map: a single ~61k-line constant array
+    # (PHPFHIRParserMap::$_bigDumbMap) produced by the php-fhir generator and never
+    # hand-edited. Analysing it costs ~90s and ~1 GB on its own because a constant
+    # array literal with more than 256 keys degrades to a general array via an
+    # expensive value-type union. Keep scanning it so the PHPFHIRParserMap class
+    # stays discoverable for callers, but skip the (pointless) analysis.
+    - src/FHIR/R4/PHPFHIRParserMap.php
   paths:
   - Documentation
   - _rest_routes.inc.php
@@ -16,6 +35,8 @@ parameters:
   - apis
   - ccdaservice
   - ccr
+  - cli
+  - config
   - contrib
   - controller.php
   - controllers
@@ -25,7 +46,6 @@ parameters:
   - interface
   - ippf_upgrade.php
   - library
-  - modules
   - oauth2
   - portal
   - setup.php
@@ -36,7 +56,16 @@ parameters:
   - src
   - templates
   - tests
+  - tools/release/bin
+  - tools/release/src
   - version.php
   scanFiles:
   - library/sql.inc.php
   - interface/modules/custom_modules/oe-module-faxsms/.phpstan/SignalWireStubs.php
+  # Stubs for legacy constants that are defined at runtime but whose define()
+  # calls PHPStan can't follow (dynamic require paths / external PEAR libs).
+  # See each stub file's header for what it covers.
+  - .phpstan/stubs/postcalendar_constants.php
+  - .phpstan/stubs/sasl_constants.php
+  # For reasons I can't sort out, using scanDirectories or stubFiles doesn't work here.
+  - .phpstan/stubs/pdo_mysql.stub

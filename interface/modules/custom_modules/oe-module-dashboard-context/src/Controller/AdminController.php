@@ -6,7 +6,7 @@
  * Handles administrative actions for the Dashboard Context Manager module.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,9 +16,10 @@ namespace OpenEMR\Modules\DashboardContext\Controller;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
-use OpenEMR\Modules\DashboardContext\Services\DashboardContextAdminService;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Modules\DashboardContext\Services\DashboardContextAdminService;
+use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
 
 class AdminController
 {
@@ -30,7 +31,8 @@ class AdminController
     {
         $this->contextService = new DashboardContextService();
         $this->adminService = new DashboardContextAdminService();
-        $this->adminUserId = (int)($_SESSION['authUserID'] ?? 0);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->adminUserId = (int)($session->get('authUserID') ?? 0);
     }
 
     /**
@@ -46,7 +48,8 @@ class AdminController
      */
     public function handleRequest(): void
     {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? $_GET["csrf_token_form"] ?? '')) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? $_GET["csrf_token_form"] ?? '', session: $session)) {
             $this->sendError('CSRF verification failed', 403);
             return;
         }

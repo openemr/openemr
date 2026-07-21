@@ -3,7 +3,6 @@
 namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Tests\Fixtures\BaseFixtureManager;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records.
@@ -15,18 +14,19 @@ use Ramsey\Uuid\Uuid;
  * - The "facility" related methods provide clear working examples.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class FacilityFixtureManager extends BaseFixtureManager
 {
+    /** @var array<string, mixed>[] */
     private $fhirFacilityFixtures;
 
     public function __construct()
     {
-        parent::__construct("facility.json", "facility");
+        parent::__construct("facility.php", "facility");
         $this->fhirFacilityFixtures = $this->loadJsonFile("FHIR/facility.json");
     }
 
@@ -39,7 +39,7 @@ class FacilityFixtureManager extends BaseFixtureManager
     }
 
     /**
-     * @return single/random fhir facility fixture
+     * @return array<string, mixed> a single random fhir facility fixture
      */
     public function getSingleFhirFacilityFixture()
     {
@@ -56,7 +56,7 @@ class FacilityFixtureManager extends BaseFixtureManager
 
 
     /**
-     * @return a random facility fixture.
+     * @return array<string, mixed>
      */
     public function getSingleFacilityFixture()
     {
@@ -67,16 +67,6 @@ class FacilityFixtureManager extends BaseFixtureManager
      * Installs Facility Fixtures into the OpenEMR DB.
      */
     public function installFacilityFixtures()
-    {
-        return $this->installFixtures();
-    }
-
-    /**
-     * Installs a single Facility Fixtures into the OpenEMR DB.
-     * @param $facilityFixture - The fixture to install.
-     * @return count of records inserted.
-     */
-    public function installSingleFacilityFixture($facilityFixture)
     {
         return $this->installFixtures();
     }

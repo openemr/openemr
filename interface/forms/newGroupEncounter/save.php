@@ -4,7 +4,7 @@
  * Encounter form save script.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
@@ -19,23 +19,31 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/encounter.inc.php");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $facilityService = new FacilityService();
 
-$group_id = $_SESSION['therapy_group'];
-$provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
+$group_id = $session->get('therapy_group');
+$provider_id = $userauthorized ? $session->get('authUserID') : 0;
 
 $date             = (isset($_POST['form_date']))            ? DateToYYYYMMDD($_POST['form_date']) : '';
 $onset_date       = (isset($_POST['form_onset_date']))      ? DateToYYYYMMDD($_POST['form_onset_date']) : '';
@@ -54,7 +62,7 @@ $facilityresult = $facilityService->getById($facility_id);
 $facility = $facilityresult['name'];
 
 if ($mode == 'new') {
-    $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
+    $provider_id = $userauthorized ? $session->get('authUserID') : 0;
     $encounter = QueryUtils::generateId();
     addForm(
         $encounter,

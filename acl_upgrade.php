@@ -43,7 +43,7 @@
  * See header in src/Common/Acl/AclMain.php for list of ACOs
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012-2017 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -427,8 +427,6 @@ if ($acl_version < $upgrade_acl) {
 
     //Add new Objects
     echo "<BR/><B>Adding new objects</B><BR/>";
-    // Add 'Multipledb' object (added in 5.0.1)
-    AclExtended::addObjectAcl('admin', 'Administration', 'multipledb', 'Multipledb');
     AclExtended::addObjectAcl('groups', 'Groups', 'gadd', 'View/Add/Update groups');
     AclExtended::addObjectAcl('groups', 'Groups', 'gcalendar', 'View/Create/Update groups appointment in calendar');
     AclExtended::addObjectAcl('groups', 'Groups', 'glog', 'Group encounter log');
@@ -448,8 +446,6 @@ if ($acl_version < $upgrade_acl) {
     AclExtended::updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'glog', 'Group encounter log', 'write');
     AclExtended::updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'gdlog', 'Group detailed log of appointment in patient record', 'write');
     AclExtended::updateAcl($admin_write, 'Administrators', 'groups', 'Groups', 'gm', 'Send message from the permanent group therapist to the personal therapist', 'write');
-    //Insert the 'Multipledb' object from the 'admin' section into the Administrators group write ACL (added in 5.0.1)
-    AclExtended::updateAcl($admin_write, 'Administrators', 'admin', 'Administration', 'multipledb', 'Multipledb', 'write');
     //DONE with upgrading to this version
     $acl_version = $upgrade_acl;
 }
@@ -526,7 +522,6 @@ if ($acl_version < $upgrade_acl) {
 
     AclExtended::updateAcl($back_view, 'Accounting', 'patients', 'Patients', 'alert', 'Clinical Reminders/Alerts (write,addonly optional)', 'view');
 
-    AclExtended::updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'multipledb', 'Multipledb', 'write');
     AclExtended::updateAcl($emergency_write, 'Emergency Login', 'admin', 'Administration', 'menu', 'Menu', 'write');
     AclExtended::updateAcl($emergency_write, 'Emergency Login', 'encounters', 'Encounters', 'auth', 'Authorize - my encounters', 'write');
     AclExtended::updateAcl($emergency_write, 'Emergency Login', 'encounters', 'Encounters', 'coding', 'Coding - my encounters (write,wsome optional)', 'write');
@@ -782,9 +777,43 @@ if ($acl_version < $upgrade_acl) {
     $acl_version = $upgrade_acl;
 }
 
-/* This is a template for a new revision, when needed
 // Upgrade for acl_version 13
 $upgrade_acl = 13;
+if ($acl_version < $upgrade_acl) {
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
+
+    //Collect the ACL ID numbers.
+    echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+    $clin_write = AclExtended::getAclIdNumber('Clinicians', 'write');
+    $clin_addonly = AclExtended::getAclIdNumber('Clinicians', 'addonly');
+
+    //Add new object Sections
+    echo "<BR/><B>Adding new object sections</B><BR/>";
+
+    //Add new Objects
+    echo "<BR/><B>Adding new objects</B><BR/>";
+
+    //Update already existing Objects
+    echo "<BR/><B>Upgrading objects</B><BR/>";
+
+    //Add new ACLs here (will return the ACL ID of newly created or already existing ACL)
+    // (will also place in the appropriate group and CREATE a new group if needed)
+    echo "<BR/><B>Adding ACLs(Access Control Lists) and groups</B><BR/>";
+
+    //Update the ACLs
+    echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+    AclExtended::shiftAcl($clin_addonly, 'Clinicians', 'patients', 'Patients', 'med', 'Medical/History (write,addonly optional)', 'addonly');
+    AclExtended::updateAcl($clin_write, 'Clinicians', 'patients', 'Patients', 'med', 'Medical/History (write,addonly optional)', 'write');
+
+    //DONE with upgrading to this version
+    $acl_version = $upgrade_acl;
+}
+
+
+
+/* This is a template for a new revision, when needed
+// Upgrade for acl_version 14
+$upgrade_acl = 14;
 if ($acl_version < $upgrade_acl) {
     echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 

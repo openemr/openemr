@@ -15,18 +15,17 @@
  *
  * @package        OpenEMR
  * @link           https://www.open-emr.org
- * @link           https://opencoreemr.com
  * @author         Jerry Padgett <sjpadgett@gmail.com>
  * @author         Michael A. Smith <michael@opencoreemr.com>
  * @copyright      Copyright (c) 2025 - 2026 <sjpadgett@gmail.com>
- * @copyright      Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Telemetry;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\ValidationUtils;
-use OpenEMR\Services\Globals\GlobalSetting;
 
 class GeoTelemetry implements GeoTelemetryInterface
 {
@@ -235,20 +234,48 @@ class GeoTelemetry implements GeoTelemetryInterface
 
         $result = @$this->fileGetContents($url, false, $ctx);
 
-        // Check if we got an HTTP error
-        /** @phpstan-ignore-next-line */
-        if ($result === false && isset($http_response_header)) {
-            // Parse status code from headers
-            /** @phpstan-ignore-next-line */
-            if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', (string)$http_response_header[0], $matches)) {
-                $statusCode = (int)$matches[1];
-                if ($statusCode >= 400) {
-                    error_log("GeoTelemetry: HTTP {$statusCode} error fetching {$url}");
-                }
-            }
-        }
+        // With ignore_errors enabled, file_get_contents() returns the
+        // response body even for HTTP 4xx/5xx, so check headers on every
+        // request rather than only when $result === false.
+        $this->logHttpError($url);
 
         return $result ?: '';
+    }
+
+    /**
+     * Log an HTTP error from the most recent file_get_contents() call.
+     *
+     * Uses http_get_last_response_headers() (PHP 8.5+). The previous
+     * implementation used $http_response_header, but that magic variable
+     * is scoped to the function that calls file_get_contents() directly,
+     * so it was never available here (file_get_contents is called inside
+     * the fileGetContents() wrapper method).
+     */
+    private function logHttpError(string $url): void
+    {
+        if (!function_exists('http_get_last_response_headers')) {
+            return;
+        }
+
+        $responseHeaders = http_get_last_response_headers();
+        if (!is_array($responseHeaders) || $responseHeaders === []) {
+            return;
+        }
+
+        $statusLine = $responseHeaders[0];
+        if (!is_string($statusLine)) {
+            return;
+        }
+
+        if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $statusLine, $matches)) {
+            $statusCode = (int)$matches[1];
+            if ($statusCode >= 400) {
+                ServiceContainer::getLogger()->warning('GeoTelemetry: HTTP error', [
+                    'statusCode' => $statusCode,
+                    'url' => $url,
+                ]);
+            }
+        }
     }
 
     /**

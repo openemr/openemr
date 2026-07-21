@@ -4,7 +4,7 @@
  * add and edit lot
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2021 Rod Roark <rod@sunsetsystems.com>
@@ -22,8 +22,9 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorizations.
 $auth_admin = AclMain::aclCheckCore('admin', 'drugs');
@@ -35,9 +36,10 @@ $auth_lots = $auth_admin ||
     AclMain::aclCheckCore('inventory', 'consumption') ||
     AclMain::aclCheckCore('inventory', 'destruction');
 if (!$auth_lots) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for inventory: Edit/Add Lot", xl("Edit/Add Lot"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function checkWarehouseUsed($warehouse_id)
 {
@@ -325,7 +327,7 @@ if (!$drug_id) {
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = false; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -343,9 +345,7 @@ if (!$drug_id) {
     // If we are saving, then save and close the window.
     //
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $form_quantity = is_numeric($_POST['form_quantity']) ? intval($_POST['form_quantity']) : 0;
         $form_cost = sprintf('%0.2f', $_POST['form_cost']);
@@ -547,7 +547,7 @@ if (!$drug_id) {
                     [
                         $drug_id,
                         $lot_id,
-                        $_SESSION['authUser'],
+                        $session->get('authUser'),
                         $form_sale_date,
                         (0 - $form_quantity),
                         (0 - $form_cost),
@@ -586,7 +586,7 @@ if (!$drug_id) {
     ?>
     <h3 class="ml-1"><?php echo text($title); ?></h3>
     <form method='post' name='theform' action='add_edit_lot.php?drug=<?php echo attr_url($drug_id); ?>&lot=<?php echo attr_url($lot_id); ?>' onsubmit='return validate()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
         <table class="table table-borderless w-100">
 
@@ -783,7 +783,7 @@ if (!$drug_id) {
     <script>
         <?php
         if ($info_msg) {
-            echo " alert('" . addslashes($info_msg) . "');\n";
+            echo " alert(" . js_escape($info_msg) . ");\n";
             echo " window.close();\n";
         }
         ?>

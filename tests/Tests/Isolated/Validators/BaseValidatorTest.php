@@ -7,7 +7,7 @@
  * BaseValidator is the abstract base class for all OpenEMR validators.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -196,7 +196,7 @@ class BaseValidatorTestStub extends BaseValidator
         return $this->validator;
     }
 
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
 
@@ -308,7 +308,7 @@ class BaseValidatorCustomStub extends BaseValidator
         return new \OpenEMR\Validators\OpenEMRParticleValidator();
     }
 
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         // Only support insert context, not update
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT);

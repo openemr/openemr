@@ -11,17 +11,20 @@ require_once("../globals.php");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
-use OpenEMR\Common\Logging\SystemLogger;
 
 $facilityService = new FacilityService();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function send_email($subject, $body): void
 {
-    $recipient = $GLOBALS['practice_return_email_path'];
+    $recipient = OEGlobalsBag::getInstance()->getString('practice_return_email_path');
     if (empty($recipient)) {
         return;
     }
@@ -46,12 +49,11 @@ $drug_id         = $_REQUEST['drug_id'];
 $prescription_id = $_REQUEST['prescription'];
 $quantity        = $_REQUEST['quantity'];
 $fee             = $_REQUEST['fee'];
-$user            = $_SESSION['authUser'];
-$encounter       = $_REQUEST['encounter'] ?? $_SESSION['encounter'] ?? 0;
+$user            = $session->get('authUser');
+$encounter       = $_REQUEST['encounter'] ?? $session->get('encounter') ?? 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Dispense Drug")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs: Dispense Drug", xl("Dispense Drug"));
 }
 
 if (!$drug_id) {
@@ -142,7 +144,7 @@ try {
 } catch (\Throwable $e) {
     // TODO: we moved the die statements out of the service into exceptions, but this is still terrible and needs to be
     // revisited.
-    (new SystemLogger())->errorLogCaller("Dispense drug error: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    ServiceContainer::getLogger()->error("Dispense drug error: " . $e->getMessage(), ['exception' => $e]);
     die(text($e->getMessage()));
 }
 
@@ -168,7 +170,7 @@ $row = sqlQuery("SELECT " .
     "p.pid = s.pid AND " .
     "u.id = r.provider_id", [$sale_id]);
 
-$dconfig = $GLOBALS['oer_config']['druglabels'];
+$dconfig = OEGlobalsBag::getInstance()->get('oer_config')['druglabels'];
 
 $header_text = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
 $frow['street'] . "\n" .

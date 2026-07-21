@@ -15,7 +15,7 @@
 * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 */
 
 use OpenEMR\Billing\BillingUtilities;

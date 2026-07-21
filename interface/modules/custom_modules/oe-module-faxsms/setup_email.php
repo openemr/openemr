@@ -4,7 +4,7 @@
  * Patient Reminder Setup
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,12 +12,17 @@
 
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
 
 $emailSetup = new EmailClient();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$site_id = $session->get('site_id');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $credentials = [
         'sender_name' => $_POST['sender_name'],
         'sender_email' => $_POST['sender_email'],
@@ -77,13 +82,14 @@ if (empty($credentials['email_message'] ?? '') || strlen((string) $credentials['
                     <?php echo xlt("Reminder Actions") ?>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr_url($_SESSION['site_id']) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
-                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr_url($_SESSION['site_id']) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
+                    <a class="dropdown-item" href="#" onclick="popNotify('', './library/rc_sms_notification.php?dryrun=1&type=email&site=<?php echo attr_url($site_id) ?>')"><?php echo xlt('Test Email Reminders'); ?></a>
+                    <a class="dropdown-item" href="#" onclick="popNotify('live', './library/rc_sms_notification.php?type=email&site=<?php echo attr_url($site_id) ?>')"><?php echo xlt('Send Email Reminders'); ?></a>
                 </div>
             </div>
         </div>
         <form class="form" id="setup-form" method="POST" role="form">
             <div class="messages"></div>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">

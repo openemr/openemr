@@ -12,10 +12,6 @@
 
 namespace Application\Helper;
 
-use Laminas\EventManager\EventManagerInterface;
-use Laminas\EventManager\ListenerAggregateInterface;
-use Laminas\Mvc\Controller\AbstractActionController;
-
 /**
  * Decorates the OpenEMR functions making it so a module can avoid hard coding global functions
  */
@@ -23,8 +19,10 @@ class TranslatorViewHelper extends \Laminas\View\Helper\AbstractHelper
 {
     /**
      * Translates a string.
+     *
+     * @param literal-string $str
      */
-    public function xl($str)
+    public function xl(string $str): string
     {
         return xl($str);
     }

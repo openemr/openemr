@@ -4,13 +4,23 @@
  * @package MedEx
  * @link    http://www.MedExbank.com
  * @author  MedEx <support@MedExBank.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 var labels = [];
 var postcards = [];
 var show_just;
+
+var translations = {
+    patient_required: jsXlt('Please select a patient'),
+    date_required: jsXlt('Please select a recall date'),
+    provider_required: jsXlt('Please select a provider'),
+    facility_required: jsXlt('Please select a facility'),
+    no_recalls_found: jsXlt('No Recalls Found')
+};
 
 /**
  * Function to find a patient in the DB
@@ -27,7 +37,7 @@ function recall_name_click(field) {
  * Function to insert patient data into addRecall fields
  * pid is sent to server for the data to display
  */
-function setpatient(pid, lname='', fname='', dob='') {
+function setpatient(pid, lname = '', fname = '', dob = '') {
     top.restoreSession();
     $.ajax({
         type: "POST",
@@ -46,7 +56,7 @@ function setpatient(pid, lname='', fname='', dob='') {
             var dolv = moment(obj.DOLV); // another date
             var duration = dolv.diff(now, 'days');
             if (duration > '0') { //it's a future appt dude!
-                alert(xljs_NOTE + ': ' + xljs_PthsApSched + ' ' + obj.DOLV );
+                alert(xljs_NOTE + ': ' + xljs_PthsApSched + ' ' + obj.DOLV);
             }
         }
         $(".news").removeClass('nodisplay');
@@ -95,26 +105,49 @@ function setpatient(pid, lname='', fname='', dob='') {
  *  This function is called with pressing Submit on the Add a Recall page
  */
 function add_this_recall(e) {
-    if ($('#form_recall_date').val() === '') {
-        alert(xljs_PlsDecRecDate);
-        $("#form_recall_date").focus();
-        //e.defaultPrevented();
-        e.preventDefault();
-        return false;
-    } else {
-        var url = "save.php";
-        formData = JSON.stringify($("form#addRecall").serialize());
-        top.restoreSession();
-        $.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-            action: 'add_recall',
-            data: formData
-        }).done(function (result) {
-            goReminderRecall('Recalls');
-        });
+    let isValid = true;
+    let errorMessage = '';
+
+    if ($('#new_recall_name').val() === '' || $('#new_pid').val() === '') {
+        errorMessage += '- ' + translations.patient_required + '\n';
+        isValid = false;
     }
+
+    if ($('#form_recall_date').val() === '') {
+        errorMessage += '- ' + translations.date_required + '\n';
+        isValid = false;
+    }
+
+    if ($('#new_provider').val() === '' || $('#new_provider').val() === null) {
+        errorMessage += '- ' + translations.provider_required + '\n';
+        isValid = false;
+    }
+
+    if ($('#new_facility').val() === '' || $('#new_facility').val() === null) {
+        errorMessage += '- ' + translations.facility_required + '\n';
+        isValid = false;
+    }
+
+    if (!isValid) {
+        alert(errorMessage);
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+        return false;
+    }
+
+    var url = "save.php";
+    formData = JSON.stringify($("form#addRecall").serialize());
+    top.restoreSession();
+    $.ajax({
+        type: 'POST',
+        url: url,
+        dataType: 'json',
+        action: 'add_recall',
+        data: formData
+    }).done(function (result) {
+        goReminderRecall('Recalls');
+    });
 }
 
 /**
@@ -167,7 +200,7 @@ function checkAll(chk, set) {
 /**
  * This function sends a list of checked items to the server for processing.
  */
-function process_this(material, id, eid='') {
+function process_this(material, id, eid = '') {
     var make_this = [];
     var make_that = [];
     var make_all = [];
@@ -208,15 +241,11 @@ function process_this(material, id, eid='') {
             var dateval = $.datepicker.formatDate('mm/dd/yy', new Date());
             if (material !== 'phone') {
                 $(this).parents('.' + material).append(' ' + dateval);
-                $("#remind_" + r_uid).removeClass('whitish')
-                    .removeClass('reddish')
-                    .removeClass('greenish')
-                    .removeClass('yellowish')
-                    .addClass('yellowish');
+                $("#remind_" + r_uid).removeClass('whitish').removeClass('reddish').removeClass('greenish').removeClass('yellowish').addClass('yellowish');
             } else {
                 $("#msg_phone_" + r_uid).append('<br />' + dateval);
             }
-         });
+        });
     });
     //
 
@@ -268,6 +297,7 @@ function newEvt(pid, pc_eid) {
     dlgopen(url, '_blank', 800, 480);
     return false;
 }
+
 // AI-generated code end
 
 function delete_Recall(pid, r_ID) {
@@ -299,12 +329,13 @@ function refresh_me() {
 // Process click to pop up the edit window.
 function doRecallclick_edit(goHere) {
     top.restoreSession();
+    let zone;
     if (window.location.pathname.match(/patient_tracker/)) {
-        zone ='main/';
+        zone = 'main/';
     } else {
         zone = '';
     }
-    dlgopen('../'+zone+'messages/messages.php?nomenu=1&go=' + goHere, '_blank', 900, 400);
+    dlgopen('../' + zone + 'messages/messages.php?nomenu=1&go=' + goHere, '_blank', 900, 400);
 }
 
 function goReminderRecall(choice) {
@@ -324,29 +355,84 @@ function goMedEx() {
 
 /****  END FUNCTIONS RELATED TO NAVIGATION *****/
 
-function show_this(colorish='') {
+/**
+ * Convert a datepicker form value to ISO YYYY-MM-DD using the global date format.
+ *
+ * @param {string} val - Date string from a form field
+ * @return {string|null} ISO date string or null if empty/invalid
+ */
+function toISODate(val) {
+    if (!val) {
+        return null;
+    }
+    var fmt = window.top.jsGlobals.date_display_format || '0';
+    var parts;
+    switch (fmt) {
+        case '1': // MM/DD/YYYY
+            parts = val.split('/');
+            return parts[2] + '-' + parts[0] + '-' + parts[1];
+        case '2': // DD/MM/YYYY
+            parts = val.split('/');
+            return parts[2] + '-' + parts[1] + '-' + parts[0];
+        default: // 0 = YYYY-MM-DD (already ISO)
+            return val;
+    }
+}
+
+function show_this(colorish = '') {
     var facV = $("#form_facility").val();
     var provV = $("#form_provider").val();
     var pidV = $("#form_patient_id").val();
-    var pidRE = new RegExp(pidV, 'i');
+    var pidRE = new RegExp(pidV.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
     var pnameV = $("#form_patient_name").val();
-    var pnameRE = new RegExp(pnameV, 'i');
+    var pnameRE = new RegExp(pnameV.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    var fromISO = toISODate($("#form_from_date").val());
+    var toISO = toISODate($("#form_to_date").val());
 
-    $('.ALL').hide().filter(function () {
+    $('.ALL').hide();
+
+    var visibleRows = $('.ALL').filter(function () {
         var d = $(this).data();
-        meets_fac = (facV === '') || (facV == d.facility);
-        meets_prov = (provV === '') || (provV == d.provider);
-        meets_pid = pidV === '';
-        if ((pidV > '') && pidRE.test(d.pid)) {
-            meets_pid = true;
+        var meets_fac = (facV === '') || (facV == d.facility);
+        var meets_prov = (provV === '') || (provV == d.provider);
+        var meets_pid = (pidV === '') || pidRE.test(d.pid);
+        var meets_pname = (pnameV === '') || pnameRE.test(d.pname);
+        var meets_color = (colorish === '') || (colorish == d.status);
+        var meets_date = true;
+
+        if (fromISO || toISO) {
+            var rowDate = d.date; // ISO YYYY-MM-DD from data-date attribute
+            if (rowDate) {
+                if (fromISO && rowDate < fromISO) {
+                    meets_date = false;
+                }
+                if (toISO && rowDate > toISO) {
+                    meets_date = false;
+                }
+            }
         }
-        meets_pname = pnameV === '';
-        if ((pnameV > '') && pnameRE.test(d.pname)) {
-            meets_pname = true;
+
+        return meets_fac && meets_prov && meets_pid && meets_pname && meets_color && meets_date;
+    });
+
+    visibleRows.show('400', 'linear');
+
+    if (visibleRows.length === 0) {
+        if ($("#no_recalls_message").length > 0) {
+            $("#no_recalls_message").show();
+        } else {
+            $("#show_recalls").prepend(
+                '<div id="no_recalls_message" class="alert alert-info text-center">' +
+                translations.no_recalls_found +
+                '</div>'
+            );
         }
-        meets_color = (colorish === '') || (colorish == d.status );
-        return meets_fac && meets_prov && meets_pid && meets_pname && meets_color;
-    }).show('4000', 'linear');
+
+        $(".table-responsive").hide();
+    } else {
+        $("#no_recalls_message").hide();
+        $(".table-responsive").show();
+    }
 }
 
 //in bootstrap_menu.js
@@ -394,11 +480,11 @@ $(function () {
         var url = "save.php";
         top.restoreSession();
         $.ajax({
-                   type: 'POST',
-                   url: url,
-                   data: formData,
-                   action: 'save_prefs'
-               }).done(function (result) {
+            type: 'POST',
+            url: url,
+            data: formData,
+            action: 'save_prefs'
+        }).done(function (result) {
             $("#div_response").html('<span class="text-danger">' + xljs1 + '.</span>');
             setTimeout(function () {
                 $("#div_response").html('<br />');
@@ -409,20 +495,23 @@ $(function () {
     if (bs_interval < '1') {
         $("#active_sync").hide();
         $("#paused").show();
-    }  else {
+    } else {
         $("#paused").hide();
         $("#active_sync").show();
     }
-    $("#execute_interval").change(function() {
+    $("#execute_interval").change(function () {
         var bs_interval = $("#execute_interval").val();
-        if (bs_interval <'1') {
+        if (bs_interval < '1') {
             $("#active_sync").hide();
             $("#paused").show();
-        }  else {
+        } else {
             $("#display_interval").text(bs_interval);
             $("#paused").hide();
             $("#active_sync").show();
         }
     });
 
+    $("#form_from_date, #form_to_date").on('change', function () {
+        show_this();
+    });
 });

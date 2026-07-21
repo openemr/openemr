@@ -23,7 +23,7 @@ use OpenEMR\Validators\ProcessingResult;
  * FHIR Medication Service
  *
  * @package            OpenEMR
- * @link               http://www.open-emr.org
+ * @link               https://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786gmail.com>
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -68,7 +68,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
      * Parses an OpenEMR medication record, returning the equivalent FHIR Medication Resource
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRMedication
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

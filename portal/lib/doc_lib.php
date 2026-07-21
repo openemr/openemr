@@ -13,22 +13,24 @@
  */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
 
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     // ensure patient is bootstrapped (if sent)
     if (!empty($_POST['cpid'])) {
         if ($_POST['cpid'] != $session->get('pid')) {
             echo "illegal Action";
-            SessionUtil::portalSessionCookieDestroy();
+            SessionWrapperFactory::getInstance()->destroyPortalSession();
             exit;
         }
     }
@@ -39,12 +41,13 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
     if ($_POST['handler'] != 'download' && $_POST['handler'] != 'fetch_pdf') {
         AccessDeniedHelper::deny(
             'Unauthorized handler in patient portal document library',
-            beforeExit: SessionUtil::portalSessionCookieDestroy(...),
+            beforeExit: SessionWrapperFactory::getInstance()->destroyPortalSession(...),
         );
     }
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
@@ -57,10 +60,6 @@ require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
 require_once(__DIR__ . "/appsql.class.php");
 
-use Mpdf\Mpdf;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;
 
 // portal doesn't need to be enabled to chart from documents
 if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
@@ -68,10 +67,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     error_log($msg);
     echo $msg;
 }
-// confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $logit = new ApplicationTable();
 $htmlin = $_POST['content'] ?? null;

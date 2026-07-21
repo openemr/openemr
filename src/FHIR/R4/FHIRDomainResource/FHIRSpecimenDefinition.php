@@ -333,7 +333,7 @@ class FHIRSpecimenDefinition extends FHIRDomainResource implements \JsonSerializ
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

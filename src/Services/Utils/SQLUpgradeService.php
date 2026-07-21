@@ -5,7 +5,7 @@
  * and upgrade their SQL.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Teny <teny@zhservices.com>
@@ -20,7 +20,9 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
 use OpenEMR\Services\VersionService;
@@ -224,9 +226,10 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
         }
 
         $skip_msg = xlt("Skipping section");
@@ -251,8 +254,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         $special = false;
         $trim = true;
         $progress = 0;
-        while (!feof($fd)) {
-            $line = fgets($fd, 2048);
+        while (($line = fgets($fd)) !== false) {
             $line = rtrim($line);
 
             $progress += strlen($line);
@@ -265,7 +267,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 continue;
             }
 
-            if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+            if (empty(OEGlobalsBag::getInstance()->get('force_simple_sql_upgrade'))) {
                 // this is skipped when running sql upgrade from command line
                 $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
                 $progress_stat = $progress_stat > 100 ? 100 : $progress_stat;
@@ -411,7 +413,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     // If either check exist, then will skip
                     $firstCheck = $this->tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[4], $matches[5]);
                     $secondCheck = $this->tableHasRow2D($matches[1], $matches[2], $matches[3], $matches[6], $matches[7]);
-                    $skipping = $firstCheck || $secondCheck ? true : false;
+                    $skipping = $firstCheck || $secondCheck;
                 } else {
                     // If no such table then the row is deemed not "missing".
                     $skipping = true;
@@ -464,7 +466,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotMigrateClickOptions/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotMigrateClickOptions')) {
                 if ($this->tableExists("issue_types")) {
                     $skipping = true;
                 } else {
@@ -476,7 +478,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotListOccupation/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotListOccupation')) {
                 if (($this->listExists("Occupation")) || (!$this->columnExists('patient_data', 'occupation'))) {
                     $skipping = true;
                 } else {
@@ -489,7 +491,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotListReaction/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotListReaction')) {
                 if (($this->listExists("reaction")) || (!$this->columnExists('lists', 'reaction'))) {
                     $skipping = true;
                 } else {
@@ -502,7 +504,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotListImmunizationManufacturer/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotListImmunizationManufacturer')) {
                 if ($this->listExists("Immunization_Manufacturer")) {
                     $skipping = true;
                 } else {
@@ -515,7 +517,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfNotWenoRx/', $line)) {
+            } elseif (str_starts_with($line, '#IfNotWenoRx')) {
                 if ($this->tableHasRow('erx_weno_drugs', "drug_id", '1008') == true) {
                     $skipping = true;
                 } else {
@@ -528,7 +530,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
                 // convert all *text types to use default null setting
-            } elseif (preg_match('/^#IfTextNullFixNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfTextNullFixNeeded')) {
                 $items_to_convert = sqlStatement(
                     "SELECT col.`table_name` AS table_name, col.`column_name` AS column_name,
       col.`data_type` AS data_type, col.`column_comment` AS column_comment
@@ -573,7 +575,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfInnoDBMigrationNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfInnoDBMigrationNeeded')) {
                 // find MyISAM tables and attempt to convert them
                 //tables that need to skip InnoDB migration (stay at MyISAM for now)
                 $tables_skip_migration = ['form_eye_mag'];
@@ -608,7 +610,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#ConvertLayoutProperties/', $line)) {
+            } elseif (str_starts_with($line, '#ConvertLayoutProperties')) {
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 } else {
@@ -616,7 +618,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $this->flush_echo();
                     $this->convertLayoutProperties();
                 }
-            } elseif (preg_match('/^#IfDocumentNamingNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfDocumentNamingNeeded')) {
                 $emptyNames = sqlStatementNoLog("SELECT `id`, `url`, `name`, `couch_docid` FROM `documents` WHERE `name` = '' OR `name` IS NULL");
                 if (sqlNumRows($emptyNames) > 0) {
                     $this->echo("<p>Converting document names.</p>\n");
@@ -642,7 +644,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfVitalsDatesNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfVitalsDatesNeeded')) {
                 $emptyDates = sqlStatementNoLog("SELECT fv.id as vitals_id, f.date as new_date FROM form_vitals fv LEFT JOIN forms f on fv.id = f.form_id WHERE fv.date = '0000-00-00 00:00:00' AND f.form_name = 'Vitals'");
                 if (sqlNumRows($emptyDates) > 0) {
                     $this->echo("<p>Converting empty vital dates.</p>\n");
@@ -659,7 +661,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfMBOEncounterNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfMBOEncounterNeeded')) {
                 $emptyMBOEncounters = sqlStatementNoLog("SELECT `pid` FROM `form_misc_billing_options` WHERE `encounter` IS NULL");
                 if (sqlNumRows($emptyMBOEncounters) > 0) {
                     $this->echo("<p class='text-info'>Linking encounters to misc billing options forms.</p>\n");
@@ -701,7 +703,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfEyeFormLaserCategoriesNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfEyeFormLaserCategoriesNeeded')) {
                 $eyeFormCategoryParent = sqlQueryNoLog("SELECT `id`, `rght` FROM `categories` WHERE `name` = 'Eye Module'");
                 $eyeFormAntSegLaser = sqlQueryNoLog("SELECT `id` FROM `categories` WHERE `name` = 'AntSeg Laser - Eye'");
                 if (!empty($eyeFormCategoryParent) && empty($eyeFormAntSegLaser)) {
@@ -735,8 +737,14 @@ class SQLUpgradeService implements ISQLUpgradeService
                             $eyeFormCategoryParent['rght'] + 5
                         ]
                     );
-                    // update categories_seq
-                    sqlStatementNoLog("UPDATE `categories_seq` SET `id` = (SELECT MAX(`id`) FROM `categories`)");
+                    // Resynchronize categories_seq after manually assigning category ids above.
+                    // categories_seq is a single-row sequence table consumed by ADODB GenID()
+                    // (see Tree.class.php). Historical upgrade data may have left multiple rows,
+                    // so collapse to a single row holding the current max id. DELETE-then-INSERT
+                    // is safe for 0, 1, or N starting rows and avoids the multi-row UPDATE that
+                    // fatals on a duplicate PRIMARY KEY.
+                    QueryUtils::fetchRecordsNoLog("DELETE FROM `categories_seq`");
+                    QueryUtils::fetchRecordsNoLog("INSERT INTO `categories_seq` (`id`) SELECT COALESCE(MAX(`id`), 0) FROM `categories`");
                     $this->echo("<p class='text-success'>Completed conversion of categories for eye form insertion.</p>\n");
                     $this->flush_echo();
                     $skipping = false;
@@ -746,7 +754,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#IfCareTeamsV1MigrationNeeded/', $line)) {
+            } elseif (str_starts_with($line, '#IfCareTeamsV1MigrationNeeded')) {
                 $sql = "SELECT COLUMN_COMMENT = 'Deprecated field, use care_team_member table instead' AS is_migrated
                     FROM INFORMATION_SCHEMA.COLUMNS
                     WHERE TABLE_SCHEMA = DATABASE()
@@ -760,14 +768,14 @@ class SQLUpgradeService implements ISQLUpgradeService
                     $skipping = true;
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
-            } elseif (preg_match('/^#EndIf/', $line)) {
+            } elseif (str_starts_with($line, '#EndIf')) {
                 $skipping = false;
             }
 
-            if (preg_match('/^#SpecialSql/', $line)) {
+            if (str_starts_with($line, '#SpecialSql')) {
                 $special = true;
                 $line = " ";
-            } elseif (preg_match('/^#EndSpecialSql/', $line)) {
+            } elseif (str_starts_with($line, '#EndSpecialSql')) {
                 $special = false;
                 $trim = false;
                 $line = " ";
@@ -784,6 +792,14 @@ class SQLUpgradeService implements ISQLUpgradeService
                 continue;
             }
 
+            // Insert a space separator between concatenated lines so a
+            // continuation line starting at column 0 cannot fuse with the
+            // previous token (same bug class as #10935 in Installer). fgets()
+            // is unbounded, so every call returns a complete logical line
+            // and the separator is always safe to insert.
+            if ($query !== "") {
+                $query .= " ";
+            }
             $query .= $line;
 
             if (str_ends_with(trim($query), ';')) {
@@ -799,13 +815,18 @@ class SQLUpgradeService implements ISQLUpgradeService
                     // structured and we don't want to be backwards compatible.
                     if (!QueryUtils::sqlStatementThrowException($query, [])) {
                         if ($this->isThrowExceptionOnError()) {
-                            throw new SqlQueryException($query, getSqlLastError());
+                            $error = QueryUtils::getLastError();
+                            throw new SqlQueryException(
+                                sqlStatement: $query,
+                                message: $error,
+                                sqlError: $error,
+                            );
                         }
                     }
                 } catch (SqlQueryException $exception) {
                     $this->failureCount++;
                     $this->echo("<p class='text-danger'>The above statement failed: " .
-                        getSqlLastError() . "<br />Upgrading will continue.<br /></p>\n");
+                        $exception->sqlError . "<br />Upgrading will continue.<br /></p>\n");
                     $this->flush_echo();
                     if ($this->isThrowExceptionOnError()) {
                         throw $exception;
@@ -819,9 +840,9 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
-        if (!empty($GLOBALS['kernel'])) {
+        if ($globalsBag->hasKernel()) {
             $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
-            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
+            $globalsBag->getKernel()->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
         }
     } // end function
 
@@ -835,7 +856,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             echo $string;
         }
         // now flush to force browser to pay attention.
-        if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('force_simple_sql_upgrade'))) {
             // this is skipped when running sql upgrade from command line
             echo str_pad('', 4096) . "\n";
         }
@@ -859,7 +880,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * Check if a Sql table exists.
      *
      * @param string $tblname Sql Table Name
-     * @return boolean           returns true if the sql table exists
+     * @return bool returns true if the sql table exists
      */
     private function tableExists($tblname)
     {
@@ -877,7 +898,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
-     * @return boolean           returns true if the sql column exists
+     * @return bool returns true if the sql column exists
      */
     private function columnExists($tblname, $colname)
     {
@@ -896,7 +917,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
      * @param string $coltype Sql Column Type
-     * @return boolean           returns true if the sql column is of the specified type
+     * @return bool returns true if the sql column is of the specified type
      */
     private function columnHasType($tblname, $colname, $coltype)
     {
@@ -916,7 +937,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $colname    Sql Column Name
      * @param string $coltype    Sql Column Type
      * @param string $coldefault Sql Column Default
-     * @return boolean              returns true if the sql column is of the specified type and default
+     * @return bool returns true if the sql column is of the specified type and default
      */
     private function columnHasTypeDefault($tblname, $colname, $coltype, $coldefault)
     {
@@ -951,13 +972,13 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
-     * @return boolean           returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRowNull($tblname, $colname)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname IS NULL");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -967,13 +988,13 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Column Name
      * @param string $value   Sql value
-     * @return boolean           returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow($tblname, $colname, $value)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -985,13 +1006,13 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value    Sql value 1
      * @param string $colname2 Sql Column Name 2
      * @param string $value2   Sql value 2
-     * @return boolean            returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow2D($tblname, $colname, $value, $colname2, $value2)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -1005,13 +1026,13 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value2   Sql value 2
      * @param string $colname3 Sql Column Name 3
      * @param string $value3   Sql value 3
-     * @return boolean            returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow3D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -1027,13 +1048,13 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value3   Sql value 3
      * @param string $colname4 Sql Column Name 4
      * @param string $value4   Sql value 4
-     * @return boolean            returns true if the sql row does exist
+     * @return bool returns true if the sql row does exist
      */
     private function tableHasRow4D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3, $colname4, $value4)
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3' AND $colname4 LIKE '$value4'");
-        return $row['count'] ? true : false;
+        return (bool) $row['count'];
     }
 
 
@@ -1042,12 +1063,12 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $tblname Sql Table Name
      * @param string $colname Sql Index/Key
-     * @return boolean           returns true if the sql tables has the specified index/key
+     * @return bool returns true if the sql tables has the specified index/key
      */
     private function tableHasIndex($tblname, $colname)
     {
         $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
-        return (empty($row)) ? false : true;
+        return !empty($row);
     }
 
     /**
@@ -1055,19 +1076,19 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $tblname database table Name
      * @param string $engine  engine name ( myisam, memory, innodb )...
-     * @return boolean true if the table has been created using specified engine
+     * @return bool true if the table has been created using specified engine
      */
     private function tableHasEngine($tblname, $engine)
     {
         $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', [$tblname, $engine]);
-        return (empty($row)) ? false : true;
+        return !empty($row);
     }
 
     /**
      * Check if a list exists.
      *
      * @param string $option_id Sql List Option ID
-     * @return boolean           returns true if the list exists
+     * @return bool returns true if the list exists
      */
     private function listExists($option_id)
     {
@@ -1087,19 +1108,21 @@ class SQLUpgradeService implements ISQLUpgradeService
      */
     private function clickOptionsMigrate()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = (string) $session->get('site_id');
         // If the clickoptions.txt file exist, then import it.
-        if (file_exists(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt")) {
-            $file_handle = fopen(__DIR__ . "/../sites/" . $_SESSION['site_id'] . "/clickoptions.txt", "rb");
+        if (file_exists(__DIR__ . "/../sites/{$site_id}/clickoptions.txt")) {
+            $file_handle = fopen(__DIR__ . "/../sites/{$site_id}/clickoptions.txt", "rb");
             $seq = 10;
             $prev = '';
             $this->echo("Importing clickoption setting<br />");
             while (!feof($file_handle)) {
                 $line_of_text = fgets($file_handle);
-                if (preg_match('/^#/', $line_of_text)) {
+                if ($line_of_text === false || $line_of_text === "") {
                     continue;
                 }
 
-                if ($line_of_text == "") {
+                if (str_starts_with($line_of_text, '#')) {
                     continue;
                 }
 
@@ -1175,6 +1198,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     private function CreateImmunizationManufacturerList()
     {
         $res = sqlStatement("SELECT DISTINCT manufacturer FROM immunizations WHERE manufacturer <> ''");
+        $records = [];
         while ($row = sqlFetchArray($res)) {
             $records[] = $row['manufacturer'];
         }
@@ -1195,7 +1219,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      */
     private function ImportDrugInformation()
     {
-        if ($GLOBALS['weno_rx_enable'] ?? false) {
+        if (OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? false) {
             $drugs = file_get_contents('contrib/weno/erx_weno_drugs.sql');
             $drugsArray = preg_split('/;\R/', $drugs);
 
@@ -1272,7 +1296,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $res = sqlStatement("SELECT DISTINCT form_id FROM layout_options ORDER BY form_id");
         while ($row = sqlFetchArray($res)) {
-            $form_id = $row['form_id'];
+            $form_id = (string)$row['form_id'];
             $props = [
                 'title' => 'Unknown',
                 'mapping' => 'Core',
@@ -1280,7 +1304,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 'activity' => '1',
                 'option_value' => '0',
             ];
-            if (str_starts_with((string)$form_id, 'LBF')) {
+            if (str_starts_with($form_id, 'LBF')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'lbfnames' AND option_id = ?",
                     [$form_id]
@@ -1291,7 +1315,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 if (empty($props['mapping'])) {
                     $props['mapping'] = 'Clinical';
                 }
-            } elseif (str_starts_with((string)$form_id, 'LBT')) {
+            } elseif (str_starts_with($form_id, 'LBT')) {
                 $props = sqlQuery(
                     "SELECT title, mapping, notes, activity, option_value FROM list_options WHERE list_id = 'transactions' AND option_id = ?",
                     [$form_id]
@@ -1403,7 +1427,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         } // end form
     }
 
-    private function updateLayoutEditOptions($mode, $form_id, $add_option, $values): bool
+    private function updateLayoutEditOptions(string $mode, $form_id, $add_option, $values): bool
     {
         $flag = true;
         $subject = explode(',', str_replace(' ', '', $values));
@@ -1424,9 +1448,9 @@ class SQLUpgradeService implements ISQLUpgradeService
             while ($row = sqlFetchArray($result)) {
                 if (in_array($row['field_id'], $subject)) {
                     $options = (json_decode((string)$row['edit_options'], true)) ?? [];
-                    if (!in_array($add_option, $options) && stripos((string)$mode, 'add') !== false) {
+                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
                         $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos((string)$mode, 'remove') !== false) {
+                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
                         $key = array_search($add_option, $options);
                         unset($options[$key]);
                     } else {
@@ -1446,7 +1470,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         } catch (SqlQueryException $e) {
             $this->failureCount++;
             $this->echo("<p class='text-danger'>The above statement failed: " .
-                text(getSqlLastError()) . "<br />Upgrading will continue.<br /></p>\n");
+                text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
             $this->flush_echo();
             if ($this->isThrowExceptionOnError()) {
                 throw $e;
@@ -1473,7 +1497,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $versionService = new VersionService();
         $versionRecord = $versionService->fetch();
-        return intval($versionRecord['v_database'] ?? 0);
+        return $versionRecord['v_database'];
     }
 
     protected function migrateCareTeamsV1ToV2()

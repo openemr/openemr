@@ -1,4 +1,5 @@
 <?php
+
 /*
 meinhard_jahn@web.de, 20041102: axo implemented
 */
@@ -10,13 +11,12 @@ if (!empty($_GET['debug'])) {
 //First make sure user has access
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ACL Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/acl: ACL Administration", xl("ACL Administration"));
 }
 
 @set_time_limit(600);
@@ -25,6 +25,10 @@ require_once('../profiler.inc.php');
 $profiler = new Profiler(true,true);
 
 require_once("gacl_admin.inc.php");
+
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
 /*
 $query = '
     SELECT      a.value AS a_value, a.name AS a_name,
@@ -55,7 +59,7 @@ $query = '
 
 
 //$rs = $db->Execute($query);
-$rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
+$rs = $db->PageExecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
 $rows = $rs->GetRows();
 
 /*
@@ -66,11 +70,15 @@ echo("</pre>");
 
 $total_rows = count($rows);
 
+$total_acl_check_time = 0;
+$tmp_aco_section_name = '';
+$tmp_aco_name = '';
+
 foreach ($rows as $row) {
     [$aco_section_value, $aco_section_name, $aco_value, $aco_name, $aro_section_value, $aro_section_name, $aro_value, $aro_name, $axo_section_value, $axo_section_name, $axo_value, $axo_name] = $row;
 
     $acl_check_begin_time = $profiler->getMicroTime();
-    $acl_result = $gacl->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value);
+    $acl_result = $gacl_api->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value);
     $acl_check_end_time = $profiler->getMicroTime();
 
     $access = &$acl_result['allow'];

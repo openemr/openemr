@@ -5,7 +5,7 @@
  * controller and method in the ESign/ library directory.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -14,8 +14,9 @@
  */
 
 use ESign\Router;
+use OpenEMR\Core\OEGlobalsBag;
 
 require_once "../globals.php";
-require_once $GLOBALS['srcdir'] . "/ESign/Router.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/ESign/Router.php";
 $router = new Router();
 $router->route();

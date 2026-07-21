@@ -6,7 +6,7 @@
  * table.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,7 +14,8 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\BaseService;
 use phpseclib3\Net\SFTP;
 
@@ -55,7 +56,7 @@ class X12RemoteTracker extends BaseService
     {
         $remoteTracker = new X12RemoteTracker();
         $x12_remotes = $remoteTracker->fetchByStatus(self::STATUS_WAITING);
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         foreach ($x12_remotes as $x12_remote) {
             // Make sure required parameters are filled in on the X12 partner form, otherwise, log a message
             if (false === $remoteTracker->validateSFTPCredentials($x12_remote)) {
@@ -73,7 +74,7 @@ class X12RemoteTracker extends BaseService
             // We try both the SFTP directory and the edi root directory
             $claim_file = $x12_remote['x12_sftp_local_dir'] . $x12_remote['x12_filename'];
             if (!file_exists($claim_file)) {
-                $claim_file = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/" . $x12_remote['x12_filename'];
+                $claim_file = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/" . $x12_remote['x12_filename'];
             }
 
             $claim_file_contents = file_get_contents($claim_file);
@@ -86,8 +87,8 @@ class X12RemoteTracker extends BaseService
 
             // Attempt to login
             $sftp = new SFTP($x12_remote['x12_sftp_host'], $x12_remote['x12_sftp_port']);
-            $decrypted_password = $cryptoGen->decryptStandard($x12_remote['x12_sftp_pass']);
-            if (false === $sftp->login($x12_remote['x12_sftp_login'], $decrypted_password)) {
+            $decrypted_password = $cryptoGen->decryptFromDatabase(is_string($x12_remote['x12_sftp_pass']) ? $x12_remote['x12_sftp_pass'] : null);
+            if ($sftp->login($x12_remote['x12_sftp_login'], $decrypted_password) === false) {
                 $x12_remote['status'] = self::STATUS_LOGIN_ERROR;
                 $x12_remote['messages'][] = "Invalid Username or Password.";
                 $x12_remote['messages'] = array_merge($x12_remote['messages'], $sftp->getSFTPErrors());

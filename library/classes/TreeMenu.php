@@ -125,7 +125,7 @@ class HTML_TreeMenu
             */
             case 'kriesing':
                 $className = strtolower($params['structure']->dataSourceClass::class);
-                $isXMLStruct = str_contains($className, '_xml') ? true : false;
+                $isXMLStruct = str_contains($className, '_xml');
 
                 // Get the entire tree, the $nodes are sorted like in the tree view
                 // from top to bottom, so we can easily put them in the nodes
@@ -196,7 +196,7 @@ class HTML_TreeMenu
                         $recurseParams['nodeOptions'] = $params['nodeOptions'];
                         $recurseParams['structure']   = &$params['structure'];
                         $recurseParams['treeMenu']    = &$parentNode;
-                        HTML_TreeMenu::createFromStructure($recurseParams);
+                        $this->createFromStructure($recurseParams);
                     }
                 }
                 break;
@@ -223,7 +223,7 @@ class HTML_TreeMenu
                         $recurseParams['structure']   = $node;
                         $recurseParams['nodeOptions'] = $params['nodeOptions'];
                         $recurseParams['treeMenu']    = &$parentNode;
-                        HTML_TreeMenu::createFromStructure($recurseParams);
+                        $this->createFromStructure($recurseParams);
                     }
                 }
                 break;
@@ -450,7 +450,7 @@ class HTML_TreeMenu_Presentation
     * class.
     *
     * @access public
-    * @param  array  Options to set. Any options taken by
+    * @param array $options Options to set. Any options taken by
     *                the presentation class can be specified
     *                here.
     */
@@ -669,7 +669,7 @@ class HTML_TreeMenu_Listbox extends HTML_TreeMenu_Presentation
     /**
     * How many of the indent chars to use
     * per indentation level
-    * @var integer
+    * @var int
     */
     public $indentNum;
 

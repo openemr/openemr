@@ -12,17 +12,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 /**
  * Escape a parameter to prepare for a sql query.
  *
  * @param   string $s  Parameter to be escaped.
  * @return  string     Escaped parameter.
  */
+
+use OpenEMR\Core\OEGlobalsBag;
+
 function add_escape_custom($s)
 {
     //prepare for safe mysql insertion
-    $s = mysqli_real_escape_string($GLOBALS['dbh'], ($s ?? ''));
+    $s = mysqli_real_escape_string(OEGlobalsBag::getInstance()->get('dbh'), ($s ?? ''));
     return $s;
 }
 
@@ -91,8 +93,8 @@ function process_cols_escape($s)
  *
  * @param   string|array        $s       sql column name(s) variable to be escaped/sanitized.
  * @param   array         $tables  The table(s) that the sql columns is from (in an array).
- * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
- * @param   boolean       $throwException Whether to throw a SQL exception instead of dying
+ * @param bool $long Use long form (ie. table.colname) vs short form (ie. colname).
+ * @param bool $throwException Whether to throw a SQL exception instead of dying
  * @return  string                 Escaped table name variable.
  */
 function escape_sql_column_name($s, $tables, $long = false, $throwException = false)
@@ -109,6 +111,11 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
             $multiple_columns[] = escape_sql_column_name(trim((string) $column), $tables);
         }
         return implode(", ", $multiple_columns);
+    }
+
+    // Reject column names containing backticks to prevent identifier-context injection
+    if (str_contains($s, '`')) {
+        throw new \OpenEMR\Common\Database\SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
     }
 
     // If the $tables is empty, then process them all
@@ -131,14 +138,22 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     $columns_options = [];
     foreach ($tables_escaped as $table_escaped) {
         $res = sqlStatementNoLog("SHOW COLUMNS FROM " . $table_escaped);
+        // Strip backticks for whitelist comparison; input won't have them
+        $table_for_whitelist = trim($table_escaped, '`');
         while ($row = sqlFetchArray($res)) {
-            $columns_options[] = $long ? $table_escaped . "." . $row['Field'] : $row['Field'];
+            $columns_options[] = $long ? $table_for_whitelist . "." . $row['Field'] : $row['Field'];
         }
     }
 
-    // Now can escape(via whitelisting) the sql column name
+    // Whitelist against actual columns, then backtick-quote to keep in identifier context
     $dieIfNoMatch = !$throwException;
-    return escape_identifier($s, $columns_options, $dieIfNoMatch, true, $throwException);
+    $column = escape_identifier($s, $columns_options, $dieIfNoMatch, true, $throwException);
+    // For table.column format, backtick each part separately
+    if ($long && str_contains($column, '.')) {
+        [$table, $col] = explode('.', $column, 2);
+        return sprintf('`%s`.`%s`', $table, $col);
+    }
+    return sprintf('`%s`', $column);
 }
 
 /**
@@ -154,29 +169,14 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
  * openemr database (should use escape_identifier() function below for that scenario).
  * Another use of this function is to deal with casing issues that arise in tables that
  * contain upper case letter(s) (these tables can be huge issues when transferring databases
- * from Windows to Linux and vice versa); this function can avoid this issues if run the
- * table name through this function (To avoid confusion, there is a wrapper function
- * entitled mitigateSqlTableUpperCase() that is used when just need to mitigate casing
- * for table names that contain any uppercase letters).
+ * from Windows to Linux and vice versa); this function can avoid these issues if the
+ * table name is run through this function.
  * @param   string $s  sql table name variable to be escaped/sanitized.
  * @return  string     Escaped table name variable.
  */
 function escape_table_name($s)
 {
     return \OpenEMR\Common\Database\QueryUtils::escapeTableName($s);
-}
-
-/**
- * Process tables that contain any upper case letters; this is simple a wrapper function of
- * escape_table_name() above when using it for the sole purpose of mitigating sql table names
- * that contain upper case letters.
- *
- * @param   string $s  sql table name variable to be escaped/sanitized.
- * @return  string     Escaped table name variable.
- */
-function mitigateSqlTableUpperCase($s)
-{
-    return escape_table_name($s);
 }
 
 /**
@@ -199,12 +199,12 @@ function mitigateSqlTableUpperCase($s)
  *  may not always be the case.
  *
  * @param   string       $s                Sql identifier variable to be escaped/sanitized.
- * @param   array/string $whitelist_items  Items used in whitelisting method (See function description for details of whitelisting method).
+ * @param array|string $whitelist_items Items used in whitelisting method (See function description for details of whitelisting method).
  *                                          Standard use is to use a array. If use a string, then should be regex expression of allowed
  *                                          characters (for example 'a-zA-Z0-9_').
- * @param   boolean      $die_if_no_match  If there is no match in the whitelist, then die and echo an error to screen and log.
- * @param   boolean      $case_sens_match  Use case sensitive match (this is default).
- * @param   boolean      $throw_exception_if_no_match If there is no match in the whitelist then throw an exception
+ * @param bool $die_if_no_match If there is no match in the whitelist, then die and echo an error to screen and log.
+ * @param bool $case_sens_match Use case sensitive match (this is default).
+ * @param bool $throw_exception_if_no_match If there is no match in the whitelist then throw an exception
  * @return  string                         Escaped/sanitized sql identifier variable.
  */
 function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case_sens_match = true, $throw_exception_if_no_match = false)

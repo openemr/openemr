@@ -4,13 +4,15 @@
  * This processes X12 835 remittances and produces a report.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2026 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,7 +27,9 @@ use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 /** @var int $debug */
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
@@ -213,7 +217,7 @@ function getOldDetail(array &$prev, string $ptname, string $invnumber, string $d
  * @param array $out The ERA output data containing check information
  * @return void
  */
-function era_callback_check(array &$out): void
+function eob_process_era_callback_check(array &$out): void
 {
     // last inserted ID of ar_session table
     global $InsertionId;
@@ -290,7 +294,7 @@ function era_callback_check(array &$out): void
  * @param array $out The ERA output data containing claim information
  * @return void
  */
-function era_callback(array &$out): void
+function eob_process_era_callback(array &$out): void
 {
     global $encount, $debug;
     global $invoice_total, $last_code, $paydate;
@@ -494,7 +498,7 @@ function era_callback(array &$out): void
                 // insert the service item into billing. Then display it (in green if it
                 // was inserted, or in red if we are in error mode).
                 // Check the global to see if this is preferred to be an error.
-                if ($GLOBALS['add_unmatched_code_from_ins_co_era_to_billing'] ?? '') {
+                if (OEGlobalsBag::getInstance()->getBoolean('add_unmatched_code_from_ins_co_era_to_billing')) {
                     $description = "CPT4:$codekey Added by $inslabel $production_date";
                 } else {
                     $error = true;
@@ -588,9 +592,12 @@ function era_callback(array &$out): void
 
             // Post and report adjustments from this ERA.  Posted adjustment reasons
             // must be 25 characters or less in order to fit on patient statements.
+            /** @var array<string, mixed> $adj */
             foreach ($svc['adj'] as $adj) {
                 $description = ($adj['reason_code'] ?? '') . ': ' .
                     BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
+                $isContractualWriteoff = $adj['group_code'] === 'CO'
+                    && in_array($adj['reason_code'], ['45', '59'], true);
                 if ($adj['group_code'] === 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
@@ -624,17 +631,11 @@ function era_callback(array &$out): void
                         );
                     }
 
-                    echo getMessageLine($bgcolor, $class, $description . ' ' .
-                    sprintf("%.2f", $adj['amount']));
+                    $amount = is_numeric($adj['amount']) ? (float)$adj['amount'] : 0.0;
+                    echo getMessageLine($bgcolor, $class, $description . ' ' . sprintf("%.2f", $amount));
                 } elseif (
-                    $svc['paid'] === 0
-                    && !(
-                        $adj['group_code'] === "CO"
-                        && (
-                            $adj['reason_code'] === '45'
-                            || $adj['reason_code'] === '59'
-                        )
-                    )
+                    $svc['paid'] === 0.0
+                    && !$isContractualWriteoff
                 ) {
                     $class = 'errdetail';
                     $error = true;
@@ -731,10 +732,8 @@ function era_callback(array &$out): void
 /////////////////////////// End Functions ////////////////////////////
 
 $info_msg = "";
-
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $eraname = $_REQUEST['eraname'];
 
@@ -747,7 +746,11 @@ if (!$eraname) {
 // report files.  Do not save the report if this is a no-update situation.
 
 // Common path used by parseERAForCheck() calls
-$nameprefix = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname";
+$eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
+if (!is_dir($eraDir) && !mkdir($eraDir, 0755, true) && !is_dir($eraDir)) {
+    die(xlt("Cannot create ERA directory") . " '" . text($eraDir) . "'");
+}
+$nameprefix = "$eraDir/$eraname";
 $eraFilePath = $nameprefix . '.edi';
 
 if (!$debug) {
@@ -806,7 +809,7 @@ if (!$debug) {
 </head>
 <body class='m-0'>
 <form action="sl_eob_process.php" method="get">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <?php
 if (!empty($_GET['original']) && $_GET['original'] === 'original') {
@@ -845,7 +848,7 @@ if (!empty($_GET['original']) && $_GET['original'] === 'original') {
 
     $alertmsg = (
         ParseERA::parseERAForCheck($eraFilePath)
-        . ParseERA::parseERA($eraFilePath, 'era_callback')
+        . ParseERA::parseERA($eraFilePath, 'eob_process_era_callback')
     );
     if (!$debug) {
           $StringIssue = xl("Total Distribution for following check number is not full") . ': ';

@@ -23,25 +23,25 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Collections Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Collections Report", xl("Collections Report"));
 }
 
 $alertmsg = '';
@@ -61,6 +61,7 @@ $is_all         = $form_category == 'All';
 $is_ageby_lad   = str_contains(($_POST['form_ageby'] ?? ''), 'Last');
 $form_facility  = $_POST['form_facility'] ?? null;
 $form_provider  = $_POST['form_provider'] ?? null;
+$provider_name  = '';
 $form_payer_id  = $_POST['form_payer_id'] ?? null;
 // reposition the page after closing invoice variables
 $form_page_y    = $_POST['form_page_y'] ?? '';
@@ -82,18 +83,18 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $form_cb_err      = false;
         $form_cb_group_number = false;
     } else {
-        $form_cb_ssn      = (!empty($_POST['form_cb_ssn']))      ? true : false;
-        $form_cb_dob      = (!empty($_POST['form_cb_dob']))      ? true : false;
-        $form_cb_pubpid   = (!empty($_POST['form_cb_pubpid']))   ? true : false;
-        $form_cb_adate    = (!empty($_POST['form_cb_adate']))    ? true : false;
-        $form_cb_policy   = (!empty($_POST['form_cb_policy']))   ? true : false;
-        $form_cb_phone    = (!empty($_POST['form_cb_phone']))    ? true : false;
-        $form_cb_city     = (!empty($_POST['form_cb_city']))     ? true : false;
-        $form_cb_ins1     = (!empty($_POST['form_cb_ins1']))     ? true : false;
-        $form_cb_referrer = (!empty($_POST['form_cb_referrer'])) ? true : false;
-        $form_cb_idays    = (!empty($_POST['form_cb_idays']))    ? true : false;
-        $form_cb_err      = (!empty($_POST['form_cb_err']))      ? true : false;
-        $form_cb_group_number      = (!empty($_POST['form_cb_group_number']))      ? true : false;
+        $form_cb_ssn      = !empty($_POST['form_cb_ssn']);
+        $form_cb_dob      = !empty($_POST['form_cb_dob']);
+        $form_cb_pubpid   = !empty($_POST['form_cb_pubpid']);
+        $form_cb_adate    = !empty($_POST['form_cb_adate']);
+        $form_cb_policy   = !empty($_POST['form_cb_policy']);
+        $form_cb_phone    = !empty($_POST['form_cb_phone']);
+        $form_cb_city     = !empty($_POST['form_cb_city']);
+        $form_cb_ins1     = !empty($_POST['form_cb_ins1']);
+        $form_cb_referrer = !empty($_POST['form_cb_referrer']);
+        $form_cb_idays    = !empty($_POST['form_cb_idays']);
+        $form_cb_err      = !empty($_POST['form_cb_err']);
+        $form_cb_group_number      = !empty($_POST['form_cb_group_number']);
     }
 } else {
     $form_cb_ssn      = false;
@@ -171,7 +172,7 @@ if ($form_payer_id) {
 }
 
 $final_colspan = $form_cb_adate ? 6 : 5;
-$form_cb_with_debt = (!empty($_POST['form_cb_with_debt'])) ? true : false;
+$form_cb_with_debt = !empty($_POST['form_cb_with_debt']);
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
 $grand_total_paid        = 0;
@@ -416,7 +417,7 @@ if (!empty($_POST['form_csvexport'])) {
                 set_encounterid: enc,
                 set_pid: newpid
             });
-            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
         $(function () {
@@ -433,7 +434,7 @@ if (!empty($_POST['form_csvexport'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -455,7 +456,7 @@ if (!empty($_POST['form_csvexport'])) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Collections'); ?></span>
 
 <form method='post' action='collections_report.php' enctype='multipart/form-data' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -622,6 +623,7 @@ if (!empty($_POST['form_csvexport'])) {
                                echo "   <select name='form_provider' class='form-control'>\n";
                                echo "    <option value=''>-- " . xlt('All') . " --\n";
 
+                               $provider_name = '';
                         while ($urow = sqlFetchArray($ures)) {
                             $provid = $urow['id'];
                             echo "    <option value='" . attr($provid) . "'";
@@ -787,6 +789,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
     $eres = sqlStatement($query, $sqlArray);
 
+    $invlines = [];
+    $ins_id = 0;
+    $insposition = 0;
     while ($erow = sqlFetchArray($eres)) {
         $patient_id = $erow['pid'];
         $encounter_id = $erow['encounter'];
@@ -992,49 +997,49 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     } elseif ($_POST['form_csvexport']) {
         # CSV headers added conditions if they are checked to display then export them (TLH)
         if (true) {
-            echo csvEscape(xl('Insurance')) . ',';
-            echo csvEscape(xl('Name')) . ',';
+            echo xlc('Insurance') . ',';
+            echo xlc('Name') . ',';
             if ($form_cb_ssn) {
-                echo csvEscape(xl('SSN')) . ',';
+                echo xlc('SSN') . ',';
             }
 
             if ($form_cb_dob) {
-                echo csvEscape(xl('DOB')) . ',';
+                echo xlc('DOB') . ',';
             }
 
             if ($form_cb_pubpid) {
-                echo csvEscape(xl('Pubpid')) . ',';
+                echo xlc('Pubpid') . ',';
             }
 
             if ($form_cb_policy) {
-                echo csvEscape(xl('Policy')) . ',';
+                echo xlc('Policy') . ',';
             }
             if ($form_cb_group_number) {
-                echo csvEscape(xl('Group Number')) . ',';
+                echo xlc('Group Number') . ',';
             }
             if ($form_cb_phone) {
-                echo csvEscape(xl('Phone')) . ',';
+                echo xlc('Phone') . ',';
             }
 
             if ($form_cb_city) {
-                echo csvEscape(xl('City')) . ',';
+                echo xlc('City') . ',';
             }
 
-            echo csvEscape(xl('Invoice')) . ',';
-            echo csvEscape(xl('DOS')) . ',';
-            echo csvEscape(xl('Referrer')) . ',';
-            echo csvEscape(xl('Provider')) . ',';
-            echo csvEscape(xl('Charge')) . ',';
-            echo csvEscape(xl('Adjust')) . ',';
-            echo csvEscape(xl('Paid')) . ',';
-            echo csvEscape(xl('Balance')) . ',';
+            echo xlc('Invoice') . ',';
+            echo xlc('DOS') . ',';
+            echo xlc('Referrer') . ',';
+            echo xlc('Provider') . ',';
+            echo xlc('Charge') . ',';
+            echo xlc('Adjust') . ',';
+            echo xlc('Paid') . ',';
+            echo xlc('Balance') . ',';
 
             if ($form_cb_idays) {
-                echo csvEscape(xl('Aging Days')) . ',';
+                echo xlc('Aging Days') . ',';
             }
 
             if ($form_cb_err) {
-                echo csvEscape(xl('Error')) . "\n";
+                echo xlc('Error') . "\n";
             } else {
                 echo "\n";
             }
@@ -1097,7 +1102,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols;) {
                 echo "  <th class='dehead' align='left'>";
-                echo $form_age_inc * $c;
+                echo text((string) ($form_age_inc * $c));
                 if (++$c < $form_age_cols) {
                     echo "-" . text(($form_age_inc * $c - 1));
                 } else {

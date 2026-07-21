@@ -7,7 +7,7 @@
  * Much of this code was refactored from the patient_tracker.inc.php file.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
@@ -17,6 +17,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 
 class PatientTrackerService extends BaseService
@@ -41,6 +42,9 @@ class PatientTrackerService extends BaseService
         $tracker_time_calc = strtotime((string) $tracker_to_time) - strtotime((string) $tracker_from_time);
 
         $tracker_time = "";
+        $days = 0;
+        $hours = 0;
+        $minutes = 0;
         if ($tracker_time_calc > 60 * 60 * 24) {
             $days = floor($tracker_time_calc / 60 / 60 / 24);
             if ($days >= 2) {
@@ -270,7 +274,7 @@ class PatientTrackerService extends BaseService
             sqlStatement("UPDATE `openemr_postcalendar_events` SET `pc_room` = ? WHERE `pc_eid` = ?", [$room,$eid]);
         }
 
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $tracker), ServiceSaveEvent::EVENT_POST_SAVE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new ServiceSaveEvent($this, $tracker), ServiceSaveEvent::EVENT_POST_SAVE);
 
         # Returning the tracker id that has been managed
         return $tracker_id;
@@ -305,6 +309,7 @@ class PatientTrackerService extends BaseService
     public static function collect_Tracker_Elements($trackerid)
     {
         $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", [$trackerid]);
+        $returnval = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $returnval[$iter] = $row;
         }

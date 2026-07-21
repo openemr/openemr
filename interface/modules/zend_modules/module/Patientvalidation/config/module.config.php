@@ -20,20 +20,16 @@
 namespace Patientvalidation;
 
 use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Patientvalidation\Controller\PatientvalidationController;
 use Patientvalidation\Model\PatientDataTable;
-use Patientvalidation\Model\PatientData;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\TableGateway;
 
 return [
 
     /* declare all controllers */
     'controllers' => [
         'factories' => [
-            PatientvalidationController::class =>  fn(ContainerInterface $container, $requestedName): \Patientvalidation\Controller\PatientvalidationController => new PatientvalidationController($container->get(PatientDataTable::class))
+            PatientvalidationController::class =>  fn(ContainerInterface $container, $requestedName): PatientvalidationController => new PatientvalidationController($container->get(PatientDataTable::class))
         ],
     ],
 
@@ -69,14 +65,7 @@ return [
 
     'service_manager' => [
         'factories' => [
-            PatientDataTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $resultSetPrototype = new ResultSet();
-                $resultSetPrototype->setArrayObjectPrototype(new PatientData());
-                $tableGateway = new TableGateway('patient_data', $dbAdapter, null, $resultSetPrototype);
-                $table = new PatientDataTable($tableGateway);
-                return $table;
-            }
+            PatientDataTable::class => fn (ContainerInterface $container, $requestedName) => new PatientDataTable(),
         ],
     ]
 ];

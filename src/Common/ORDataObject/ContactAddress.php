@@ -16,9 +16,10 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
-use OpenEMR\Common\ORDataObject\Contact;
-use OpenEMR\Common\ORDataObject\Address;
 use DateTime;
+use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Common\ORDataObject\Contact;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class ContactAddress extends ORDataObject implements \JsonSerializable
@@ -70,17 +71,17 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     private $isPrimary;
 
     /**
-     * @var Datetime The date this address was created at
+     * @var DateTime The date this address was created at
      */
     private $createdDate;
 
     /**
-     * @var Datetime The start date for this address
+     * @var DateTime The start date for this address
      */
     private $periodStart;
 
     /**
-     * @var Datetime The end date for this address
+     * @var DateTime The end date for this address
      */
     private $periodEnd;
 
@@ -115,9 +116,10 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     public function __construct(private $id = "")
     {
         parent::__construct("contact_address");
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->setThrowExceptionOnError(true);
         $this->priority = 0;
-        $this->author = $_SESSION['authUser'];
+        $this->author = $session->get('authUser');
         $this->status = self::STATUS_ACTIVE;
         $this->use = self::DEFAULT_USE;
         $this->type = self::DEFAULT_TYPE;
@@ -367,18 +369,18 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     }
 
     /**
-     * @return Datetime
+     * @return DateTime
      */
-    public function get_created_date(): Datetime
+    public function get_created_date(): DateTime
     {
         return $this->createdDate;
     }
 
     /**
-     * @param Datetime $createdDate
+     * @param DateTime $createdDate
      * @return ContactAddress
      */
-    public function set_created_date(Datetime $createdDate): ContactAddress
+    public function set_created_date(DateTime $createdDate): ContactAddress
     {
         $this->createdDate = $createdDate;
         $this->setIsObjectModified(true);
@@ -386,18 +388,18 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     }
 
     /**
-     * @return Datetime
+     * @return DateTime
      */
-    public function get_period_start(): Datetime
+    public function get_period_start(): DateTime
     {
         return $this->periodStart;
     }
 
     /**
-     * @param Datetime|null $periodStart
+     * @param ?DateTime $periodStart
      * @return ContactAddress
      */
-    public function set_period_start(Datetime $periodStart): ContactAddress
+    public function set_period_start(DateTime $periodStart): ContactAddress
     {
         $this->periodStart = $periodStart;
         $this->setIsObjectModified(true);
@@ -405,18 +407,18 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     }
 
     /**
-     * @return Datetime|null
+     * @return ?DateTime
      */
-    public function get_period_end(): ?Datetime
+    public function get_period_end(): ?DateTime
     {
         return $this->periodEnd;
     }
 
     /**
-     * @param Datetime|null $periodEnd
+     * @param ?DateTime $periodEnd
      * @return ContactAddress
      */
-    public function set_period_end(?Datetime $periodEnd): ContactAddress
+    public function set_period_end(?DateTime $periodEnd): ContactAddress
     {
         $this->periodEnd = $periodEnd;
         $this->setIsObjectModified(true);

@@ -12,10 +12,15 @@ require_once dirname(__FILE__, 5) . "/globals.php";
 
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
-use OpenEMR\Core\Header;
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$pid = $_SESSION['pid'] ?? null;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+$pid = $session->get('pid');
 function isValid($date, $format = 'Y-m-d'): bool
 {
     $dt = DateTime::createFromFormat($format, $date);
@@ -23,9 +28,7 @@ function isValid($date, $format = 'Y-m-d'): bool
 }
 
 if (!empty($_POST['token'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["token"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, key: 'token', dieOnFail: true);
 
     $postStartDate = DateToYYYYMMDD($_POST['start_date']);
     $startDate = isValid($postStartDate) === true ? $postStartDate : $_POST['start_date'];
@@ -68,7 +71,7 @@ const TABLE_TD = "</td><td>";
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         })
@@ -97,7 +100,7 @@ const TABLE_TD = "</td><td>";
                 <h3><?php echo xlt('Enter new authorization'); ?></h3>
             </div>
             <form id="theform" method="post" action="index.php" onsubmit="top.restoreSession()">
-                <input type="hidden" name="token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+                <input type="hidden" name="token" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
                 <input type="hidden" id="id" name="id" value="">
                 <div class="form-row">
                     <div class="col">
@@ -141,7 +144,7 @@ const TABLE_TD = "</td><td>";
                 <?php
                 if (!empty($authList)) {
                     while ($iter = sqlFetchArray($authList)) {
-                        $editData = json_encode($iter);
+                        $editData = json_encode($iter) ?: '';
                         $used = AuthorizationService::getUnitsUsed($iter['auth_num'], $iter['pid'], $iter['cpt'], $iter['start_date'], $iter['end_date']);
                         $remaining = $iter['init_units'] - $used;
                         print "<tr><td>";
@@ -149,7 +152,7 @@ const TABLE_TD = "</td><td>";
                         print TABLE_TD . text($iter['init_units']);
                         print TABLE_TD . text($remaining);
                         print TABLE_TD . text($iter['start_date']);
-                        if ($iter['end_date'] == '0000-00-00') {
+                        if (Utilities::isDateEmpty($iter['end_date'])) {
                             print TABLE_TD;
                         } else {
                             print TABLE_TD . text($iter['end_date']);
@@ -181,7 +184,7 @@ const TABLE_TD = "</td><td>";
         }
 
         function removeEntry(id) {
-            let url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+            let url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             ;
             dlgopen(url, '_blank', 290, 290, '', 'Delete Entry', {
                 buttons: [

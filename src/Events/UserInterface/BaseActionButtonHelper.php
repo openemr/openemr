@@ -8,7 +8,7 @@
  * rapidly inject a button into the page heading but does not handle ACL or advanced logic.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2023 Providence Healthtech
@@ -49,7 +49,7 @@ class BaseActionButtonHelper implements ActionButtonInterface
      *
      * If any allowed keys are not set they will be set to an empty string.
      *
-     * @param [type] $opts
+     * @param mixed $opts
      */
     public function __construct($opts)
     {

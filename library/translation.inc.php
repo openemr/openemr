@@ -1,7 +1,8 @@
 <?php
 
-use OpenEMR\Common\Translation\TranslationCache;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Translation\TranslationCache;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!(function_exists('xlWarmCache'))) {
     /**
@@ -10,7 +11,7 @@ if (!(function_exists('xlWarmCache'))) {
      */
     function xlWarmCache(): void
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $language_choice = $session->get('language_choice');
         $lang_id = !empty($language_choice) ? (int)$language_choice : 1;
         TranslationCache::warm($lang_id);
@@ -25,15 +26,25 @@ if (!(function_exists('xl'))) {
      * Note: In some installation scenarios this function may already be declared,
      * so we check to ensure it hasn't been declared yet.
      *
-     * @param string $constant The text constant to translate
+     * The parameter is typed `literal-string` on purpose: translatable text is
+     * looked up by exact match against the lang_constants table, so it must be a
+     * source-code literal that the string-extraction tooling can collect. Passing
+     * a dynamic value (a database column, request input, a concatenation) cannot
+     * be translated and signals that the value should have been narrowed to a
+     * known string at the call site instead of handed to xl().
+     *
+     * @param literal-string $constant The text constant to translate
      * @return string The translated string
      */
     function xl($constant)
     {
-        if (!empty($GLOBALS['disable_translation']) || !empty($GLOBALS['temp_skip_translations'])) {
-            return $constant;
+        // Translation engine disabled: skip the cache/DB lookup for performance,
+        // but still run xlCleanup() so {{context}} markers (and newline/quote
+        // normalization) are stripped rather than leaking to the UI.
+        if (OEGlobalsBag::getInstance()->getBoolean('disable_translation') || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))) {
+            return xlCleanup($constant);
         }
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $language_choice = $session->get('language_choice');
         // set language id
         $lang_id = !empty($language_choice) ? $language_choice : 1;
@@ -72,19 +83,31 @@ if (!(function_exists('xl'))) {
         if ($string == '') {
             $string = "$constant";
         }
-        // remove dangerous characters and remove comments
-        if (!empty($GLOBALS['translate_no_safe_apostrophe'])) {
+
+        return xlCleanup((string) $string);
+    }
+}
+
+if (!(function_exists('xlCleanup'))) {
+    /**
+     * Normalize a translated (or untranslated) string for display: collapse
+     * newlines to spaces, drop carriage returns, and strip {{context}}
+     * disambiguation markers. Unless translate_no_safe_apostrophe is set, quotes
+     * and apostrophes are also converted to backticks. Shared by both the
+     * translated and the disable_translation paths of xl().
+     */
+    function xlCleanup(string $string): string
+    {
+        if (OEGlobalsBag::getInstance()->getBoolean('translate_no_safe_apostrophe')) {
             $patterns =  ['/\n/','/\r/','/\{\{.*\}\}/'];
             $replace =  [' ','',''];
-            $string = preg_replace($patterns, $replace, (string) $string);
         } else {
             // convert apostrophes and quotes to safe apostrophe
             $patterns =  ['/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/'];
             $replace =  [' ','','`','`',''];
-            $string = preg_replace($patterns, $replace, (string) $string);
         }
 
-        return $string;
+        return preg_replace($patterns, $replace, $string) ?? $string;
     }
 }
 
@@ -112,7 +135,8 @@ if (!(function_exists('xl'))) {
  */
 function xl_list_label($constant)
 {
-    return $GLOBALS['translate_lists'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_lists') ? xl($constant) : $constant;
 }
 
 /**
@@ -126,7 +150,8 @@ function xl_list_label($constant)
  */
 function xl_layout_label($constant)
 {
-    return $GLOBALS['translate_layout'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_layout') ? xl($constant) : $constant;
 }
 
 /**
@@ -140,7 +165,8 @@ function xl_layout_label($constant)
  */
 function xl_gacl_group($constant)
 {
-    return $GLOBALS['translate_gacl_groups'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_gacl_groups') ? xl($constant) : $constant;
 }
 
 /**
@@ -154,7 +180,8 @@ function xl_gacl_group($constant)
  */
 function xl_form_title($constant)
 {
-    return $GLOBALS['translate_form_titles'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_form_titles') ? xl($constant) : $constant;
 }
 
 /**
@@ -168,7 +195,8 @@ function xl_form_title($constant)
  */
 function xl_document_category($constant)
 {
-    return $GLOBALS['translate_document_categories'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_document_categories') ? xl($constant) : $constant;
 }
 
 /**
@@ -182,7 +210,8 @@ function xl_document_category($constant)
  */
 function xl_appt_category($constant)
 {
-    return $GLOBALS['translate_appt_categories'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_appt_categories') ? xl($constant) : $constant;
 }
 // ---------------------------------------------------------------------------
 

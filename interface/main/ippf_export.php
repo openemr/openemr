@@ -5,7 +5,7 @@
  * browser for download.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2010 Rod Roark <rod@sunsetsystems.com>
@@ -14,17 +14,19 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Backup")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
 }
 
 $facilityService = new FacilityService();
@@ -394,10 +396,9 @@ function endFacility(): void
     CloseTag('IMS_eMRUpload_Point');
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($form_submit)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $beg_year  = $_POST['form_year'];
     $beg_month = $_POST['form_month'];
@@ -457,7 +458,7 @@ if (!empty($form_submit)) {
     "fe.pid, " .
     "p.regdate, p.date AS last_update, p.contrastart, p.DOB, p.sex, " .
     "p.city, p.state, p.occupation, p.status, p.ethnoracial, " .
-    "p.interpretter, p.monthly_income, p.referral_source, p.pricelevel, " .
+    "p.interpreter, p.monthly_income, p.referral_source, p.pricelevel, " .
     "p.userlist1, p.userlist3, p.userlist4, p.userlist5, " .
     "p.usertext11, p.usertext12, p.usertext13, p.usertext14, p.usertext15, " .
     "p.usertext16, p.usertext17, p.usertext18, p.usertext19, p.usertext20, " .
@@ -562,7 +563,7 @@ if (!empty($form_submit)) {
         AddIfPresent('Occupation', mappedOption('occupations', $row['occupation'], ''));
         AddIfPresent('MaritalStatus', mappedOption('marital', $row['status'], ''));
         AddIfPresent('Ethnoracial', mappedOption('ethrace', $row['ethnoracial'], ''));
-        AddIfPresent('Interpreter', $row['interpretter']);
+        AddIfPresent('Interpreter', $row['interpreter']);
         AddIfPresent('MonthlyIncome', $row['monthly_income']);
         AddIfPresent('ReferralSource', mappedOption('refsource', $row['referral_source'], ''));
         AddIfPresent('PriceLevel', mappedOption('pricelevel', $row['pricelevel'], ''));
@@ -646,7 +647,7 @@ if ($selmonth < 1) {
 <center>
 &nbsp;<br />
 <form method='post' action='ippf_export.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table style='width:30em'>
  <tr>

@@ -45,9 +45,11 @@ use MyMailer;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 use SodiumException;
 
@@ -112,7 +114,7 @@ class AuthUtils
 
         $password_expiration_days = (privQuery("SELECT * FROM `globals` WHERE `gl_name` = 'password_expiration_days' AND `gl_index` = 0")['gl_value'] ?? null);
         if ($password_expiration_days === '') {
-            $GLOBALS['password_expiration_days'] = 0;
+            OEGlobalsBag::getInstance()->set('password_expiration_days', 0);
             privStatement("UPDATE `globals` SET `gl_value` = ? WHERE `globals`.`gl_name` = 'password_expiration_days' AND `globals`.`gl_index` = '0'", ['0']);
             error_log("Blank global password_expiration_days updated to 0");
         }
@@ -123,7 +125,7 @@ class AuthUtils
      * @param $username
      * @param $password - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
      * @param $email    - used in case of portal auth when a email address is required
-     * @return boolean  returns true if the password for the given user is correct, false otherwise.
+     * @return bool returns true if the password for the given user is correct, false otherwise.
      */
     public function confirmPassword($username, &$password, $email = '')
     {
@@ -139,7 +141,7 @@ class AuthUtils
      * @param $username
      * @param $password - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
      * @param $email    - used when a email address is required
-     * @return boolean  returns true if the password for the given user is correct, false otherwise.
+     * @return bool returns true if the password for the given user is correct, false otherwise.
      */
     private function confirmPatientPassword($username, &$password, $email = '')
     {
@@ -202,7 +204,7 @@ class AuthUtils
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
-        } elseif ($GLOBALS['enforce_signin_email']) {
+        } elseif (OEGlobalsBag::getInstance()->getBoolean('enforce_signin_email')) {
             // Need to enforce email in credentials
             if (empty($email)) {
                 // Patient email was not included in credentials
@@ -267,7 +269,7 @@ class AuthUtils
      *
      * @param $username
      * @param $password - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
-     * @return boolean  returns true if the password for the given user is correct, false otherwise.
+     * @return bool returns true if the password for the given user is correct, false otherwise.
      * @throws SodiumException
      */
     private function confirmUserPassword($username, &$password)
@@ -506,15 +508,15 @@ class AuthUtils
      * @param $newPwd          the new password for the target user
      *                              - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
      * @param $create          Are we creating a new user or
-     * @param $insert_sql      SQL to run to create the row in "users" (and generate a new id) when needed.
+     * @param array<string, mixed> $userData  Associative array of column => value pairs for the new users row.
      * @param $new_username    The username for a new user
-     * @return boolean              Was the password successfully updated/created? If false, then $this->errorMessage will tell you why it failed.
+     * @return bool Was the password successfully updated/created? If false, then $this->errorMessage will tell you why it failed.
      */
-    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, $insert_sql = "", $new_username = null)
+    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, array $userData = [], $new_username = null)
     {
         // Collect ip address for log
         $ip = collectIpAddresses();
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         if (empty($activeUser) || empty($currentPwd)) {
             $this->errorMessage = xl("Password update error! Empty username or password.");
@@ -632,13 +634,6 @@ class AuthUtils
         if ($create && ($userInfo === false) && (!empty($new_username)) && (self::useActiveDirectory($new_username))) {
             $ldapDummyPassword = true;
             $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-            if (empty($newPwd)) {
-                // Something is seriously wrong with the random generator
-                $this->clearFromMemory($newPwd);
-                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
-                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-            }
         }
 
         // Ensure new password is not blank
@@ -683,18 +678,17 @@ class AuthUtils
                     EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " New user username is empty");
                     return false;
                 }
-                // Collect the new user id from the users table
-                privStatement($insert_sql, []);
-                $getUserID = "SELECT `id`" .
-                    " FROM `users`" .
-                    " WHERE BINARY `username` = ?";
-                $user_id = privQuery($getUserID, [$new_username]);
-                if (empty($user_id) || empty($user_id['id'])) {
+                // Insert the new user row from structured data
+                if ($userData === []) {
                     $this->errorMessage = xl("Password update error!");
                     $this->clearFromMemory($newPwd);
-                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " New user id not found");
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " No user data provided for new user");
                     return false;
                 }
+                $columns = array_map(fn($col) => '`' . $col . '`', array_keys($userData));
+                $placeholders = array_fill(0, count($userData), '?');
+                $insertSql = 'INSERT INTO `users` (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
+                $newUserId = QueryUtils::sqlInsert($insertSql, array_values($userData));
                 // Create the new user password hash
                 $hash = $this->authHashAuth->passwordHash($newPwd);
                 if (empty($hash)) {
@@ -707,7 +701,7 @@ class AuthUtils
                 $passwordSQL = "INSERT INTO `users_secure`" .
                     " (`id`,`username`,`password`,`last_update_password`)" .
                     " VALUES (?,?,?,NOW()) ";
-                privStatement($passwordSQL, [$user_id['id'], $new_username, $hash]);
+                QueryUtils::sqlInsert($passwordSQL, [$newUserId, $new_username, $hash]);
             } else {
                 $this->errorMessage = xl("Missing user credentials") . ":" . $targetUser;
                 $this->clearFromMemory($newPwd);
@@ -729,22 +723,22 @@ class AuthUtils
                 return false;
             }
 
-            if (($GLOBALS['password_history'] != 0) && (check_integer($GLOBALS['password_history']))) {
+            if ((OEGlobalsBag::getInstance()->get('password_history') != 0) && (check_integer(OEGlobalsBag::getInstance()->get('password_history')))) {
                 // password reuse disallowed
                 $pass_reuse_fail = false;
-                if (($GLOBALS['password_history'] > 0) && (AuthHash::passwordVerify($newPwd, $userInfo['password']))) {
+                if ((OEGlobalsBag::getInstance()->get('password_history') > 0) && (AuthHash::passwordVerify($newPwd, $userInfo['password']))) {
                     $pass_reuse_fail = true;
                 }
-                if (($GLOBALS['password_history'] > 1) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history1']))) {
+                if ((OEGlobalsBag::getInstance()->get('password_history') > 1) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history1']))) {
                     $pass_reuse_fail = true;
                 }
-                if (($GLOBALS['password_history'] > 2) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history2']))) {
+                if ((OEGlobalsBag::getInstance()->get('password_history') > 2) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history2']))) {
                     $pass_reuse_fail = true;
                 }
-                if (($GLOBALS['password_history'] > 3) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history3']))) {
+                if ((OEGlobalsBag::getInstance()->get('password_history') > 3) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history3']))) {
                     $pass_reuse_fail = true;
                 }
-                if (($GLOBALS['password_history'] > 4) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history4']))) {
+                if ((OEGlobalsBag::getInstance()->get('password_history') > 4) && (AuthHash::passwordVerify($newPwd, $userInfo['password_history4']))) {
                     $pass_reuse_fail = true;
                 }
                 if ($pass_reuse_fail) {
@@ -773,7 +767,7 @@ class AuthUtils
             $updateSQL .= ", `auto_block_emailed` = 0";
             $updateSQL .= ", `password` = ?";
             array_push($updateParams, $newHash);
-            if ($GLOBALS['password_history'] != 0) {
+            if (OEGlobalsBag::getInstance()->get('password_history') != 0) {
                 $updateSQL .= ", `password_history1` = ?";
                 array_push($updateParams, $userInfo['password']);
                 $updateSQL .= ", `password_history2` = ?";
@@ -832,15 +826,17 @@ class AuthUtils
         return $this->patientId;
     }
 
-    // Ensure user hash remains valid (for example, if user is deactivated or password is changed, then
-    //  this will not allow the same user in another session continue to use OpenEMR)
-    // This function is static since requires no class specific defines
     /**
+     * Ensure user hash remains valid (for example, if user is deactivated or password is changed, then
+     * this will not allow the same user in another session continue to use OpenEMR)
+     *
+     * This function is static since requires no class specific defines
+     *
      * @return bool
      */
     public static function authCheckSession()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ((!empty($session->get('authUserID'))) && (!empty($session->get('authUser'))) && (!empty($session->get('authPass')))) {
             $authDB = privQuery("SELECT `users`.`username`, `users_secure`.`password`" .
                 " FROM `users`, `users_secure`" .
@@ -864,22 +860,24 @@ class AuthUtils
         }
     }
 
-    // Check if the current or a specified user logs in with LDAP.
-    // This function is static since requires no class specific defines
     /**
+     * Check if the current or a specified user logs in with LDAP.
+     *
+     * This function is static since requires no class specific defines
+     *
      * @param $user
      * @return bool
      */
     public static function useActiveDirectory($user = '')
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
-        if (empty($GLOBALS['gbl_ldap_enabled'])) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled')) {
             return false;
         }
         if ($user == '') {
             $user = $session->get('authUser');
         }
-        $exarr = explode(',', (string) $GLOBALS['gbl_ldap_exclusions']);
+        $exarr = explode(',', OEGlobalsBag::getInstance()->getString('gbl_ldap_exclusions'));
         foreach ($exarr as $ex) {
             if ($user == trim($ex)) {
                 return false;
@@ -888,9 +886,11 @@ class AuthUtils
         return true;
     }
 
-    // Validation of user and password using LDAP.
-    // - $pass passed by reference to prevent storage of pass in memory
     /**
+     * Validation of user and password using LDAP.
+     *
+     * $pass passed by reference to prevent storage of pass in memory
+     *
      * @param $user
      * @param $pass
      * @return bool
@@ -906,32 +906,32 @@ class AuthUtils
         // below can be uncommented for detailed debugging
         // ldap_set_option(NULL, LDAP_OPT_DEBUG_LEVEL, 7);
 
-        $ldapconn = ldap_connect($GLOBALS['gbl_ldap_host']);
+        $ldapconn = ldap_connect(OEGlobalsBag::getInstance()->getString('gbl_ldap_host'));
         if ($ldapconn) {
             // block of code to support encryption
             $isTls = false;
             if (
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-ca") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-cert") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-key")
+                file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/ldap-ca") &&
+                file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/ldap-cert") &&
+                file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/ldap-key")
             ) {
                 // set ca cert and client key/cert
-                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-ca")) {
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/ldap-ca")) {
                     error_log("Setting ldap-ca certificate failed");
                 }
-                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CERTFILE, $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-cert")) {
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CERTFILE, OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/ldap-cert")) {
                     error_log("Setting ldap-cert client certificate failed");
                 }
-                if (!ldap_set_option(null, LDAP_OPT_X_TLS_KEYFILE, $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-key")) {
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_KEYFILE, OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/ldap-key")) {
                     error_log("Setting ldap-cert client key failed");
                 }
                 if (!ldap_set_option(null, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_DEMAND)) {
                     error_log("Setting require_cert to demand failed");
                 }
                 $isTls = true;
-            } elseif (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-ca")) {
+            } elseif (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/ldap-ca")) {
                 // set ca cert
-                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, $GLOBALS['OE_SITE_DIR'] . "/documents/certificates/ldap-ca")) {
+                if (!ldap_set_option(null, LDAP_OPT_X_TLS_CACERTFILE, OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/ldap-ca")) {
                     error_log("Setting ldap-ca certificate failed");
                 }
                 if (!ldap_set_option(null, LDAP_OPT_X_TLS_CERTFILE, '')) {
@@ -962,7 +962,7 @@ class AuthUtils
 
             $ldapbind = ldap_bind(
                 $ldapconn,
-                str_replace('{login}', $user, $GLOBALS['gbl_ldap_dn']),
+                str_replace('{login}', $user, OEGlobalsBag::getInstance()->getString('gbl_ldap_dn')),
                 $pass
             );
             if ($ldapbind) {
@@ -975,10 +975,12 @@ class AuthUtils
         return false;
     }
 
-    // Function to centralize the rehash process
-    // It will return the new hash
-    // - $password passed by reference to prevent storage of pass in memory
     /**
+     * Function to centralize the rehash process
+     * It will return the new hash
+     *
+     * $password passed by reference to prevent storage of pass in memory
+     *
      * @param $username
      * @param $password
      * @return \s|string|void
@@ -988,12 +990,6 @@ class AuthUtils
         if (self::useActiveDirectory($username)) {
             // rehash for LDAP
             $newRandomDummyPassword = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-            if (empty($newRandomDummyPassword)) {
-                // Something is seriously wrong with the random generator
-                $this->clearFromMemory($password);
-                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
-                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-            }
             $phash = $this->authHashAuth->passwordHash($newRandomDummyPassword);
             $this->clearFromMemory($newRandomDummyPassword);
         } else {
@@ -1016,13 +1012,13 @@ class AuthUtils
      * Does the new password meet the minimum length requirements?
      *
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
-     * @return boolean      is the password long enough?
+     * @return bool is the password long enough?
      */
     private function testMinimumPasswordLength(&$pwd)
     {
-        if (($GLOBALS['gbl_minimum_password_length'] != 0) && (check_integer($GLOBALS['gbl_minimum_password_length']))) {
-            if (strlen((string) $pwd) < $GLOBALS['gbl_minimum_password_length']) {
-                $this->errorMessage = xl("Password too short. Minimum characters required") . ": " . $GLOBALS['gbl_minimum_password_length'];
+        if ((OEGlobalsBag::getInstance()->get('gbl_minimum_password_length') != 0) && (check_integer(OEGlobalsBag::getInstance()->get('gbl_minimum_password_length')))) {
+            if (strlen((string) $pwd) < OEGlobalsBag::getInstance()->get('gbl_minimum_password_length')) {
+                $this->errorMessage = xl("Password too short. Minimum characters required") . ": " . OEGlobalsBag::getInstance()->get('gbl_minimum_password_length');
                 return false;
             }
         }
@@ -1043,13 +1039,13 @@ class AuthUtils
      *  argon hashing and wish to allow larger passwords).
      *
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
-     * @return boolean      is the password short enough?
+     * @return bool is the password short enough?
      */
     private function testMaximumPasswordLength(&$pwd)
     {
-        if ((!empty($GLOBALS['gbl_maximum_password_length'])) && (check_integer($GLOBALS['gbl_maximum_password_length']))) {
-            if (strlen((string) $pwd) > $GLOBALS['gbl_maximum_password_length']) {
-                $this->errorMessage = xl("Password too long. Maximum characters allowed") . ": " . $GLOBALS['gbl_maximum_password_length'];
+        if ((!empty(OEGlobalsBag::getInstance()->get('gbl_maximum_password_length'))) && (check_integer(OEGlobalsBag::getInstance()->get('gbl_maximum_password_length')))) {
+            if (strlen((string) $pwd) > OEGlobalsBag::getInstance()->get('gbl_maximum_password_length')) {
+                $this->errorMessage = xl("Password too long. Maximum characters allowed") . ": " . OEGlobalsBag::getInstance()->get('gbl_maximum_password_length');
                 return false;
             }
         }
@@ -1061,11 +1057,11 @@ class AuthUtils
      * Does the new password meet the strength requirements?
      *
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
-     * @return boolean      is the password strong enough?
+     * @return bool is the password strong enough?
      */
     private function testPasswordStrength(&$pwd)
     {
-        if ($GLOBALS['secure_password']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('secure_password')) {
             $features = 0;
             $reg_security = ["/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/"];
             foreach ($reg_security as $expr) {
@@ -1089,14 +1085,14 @@ class AuthUtils
      */
     private function checkPasswordNotExpired($user)
     {
-        if (($GLOBALS['password_expiration_days'] == 0) || self::useActiveDirectory($user)) {
+        if ((OEGlobalsBag::getInstance()->getInt('password_expiration_days') === 0) || self::useActiveDirectory($user)) {
             // skip the check if turned off or using active directory for login
             return true;
         }
         $query = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
-        if ((!empty($query)) && (!empty($query['last_update_password'])) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
+        if ((!empty($query)) && (!empty($query['last_update_password'])) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_expiration_days'))) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_grace_time')))) {
             $current_date = date("Y-m-d");
-            $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ((int)$GLOBALS['password_expiration_days'] + (int)$GLOBALS['password_grace_time']) . " days"));
+            $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . (OEGlobalsBag::getInstance()->getInt('password_expiration_days') + OEGlobalsBag::getInstance()->getInt('password_grace_time')) . " days"));
             if (strtotime($current_date) > strtotime($expiredPlusGraceTime)) {
                 error_log("OpenEMR Notice: Password is expired and outside of grace period. User: " . $user);
                 return false;
@@ -1111,7 +1107,7 @@ class AuthUtils
      * @param bool $showOnlyWithCount
      * @param bool $showOnlyManuallyBlocked
      * @param bool $showOnlyAutoBlocked
-     * @return false|\recordset
+     * @return false|\ADORecordSet
      */
     public static function collectIpLoginFailsSql(bool $showOnlyWithCount, bool $showOnlyManuallyBlocked, bool $showOnlyAutoBlocked)
     {
@@ -1124,13 +1120,13 @@ class AuthUtils
             $where[] = ' (`ip_force_block` = 1) ';
         }
         if ($showOnlyAutoBlocked) {
-            if ((int)$GLOBALS['ip_max_failed_logins'] != 0) {
-                if (!empty((int)$GLOBALS['ip_time_reset_password_max_failed_logins']) && (int)$GLOBALS['ip_time_reset_password_max_failed_logins'] > 0) {
+            if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') != 0) {
+                if (!empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) && OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') > 0) {
                     $where[] = ' (ip_login_fail_counter > ? AND TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) < ?) ';
-                    array_push($sqlBind, (int)$GLOBALS['ip_max_failed_logins'], (int)$GLOBALS['ip_time_reset_password_max_failed_logins']);
+                    array_push($sqlBind, OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'), OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins'));
                 } else {
                     $where[] = ' (ip_login_fail_counter > ?) ';
-                    array_push($sqlBind, (int)$GLOBALS['ip_max_failed_logins']);
+                    array_push($sqlBind, OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'));
                 }
             }
         }
@@ -1166,25 +1162,25 @@ class AuthUtils
      */
     private function checkLoginFailedCounter(string $user): array
     {
-        if ((int)$GLOBALS['password_max_failed_logins'] == 0) {
+        if (OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') === 0) {
             // skip the check if turned off
             return ['pass' => true, 'email_notification' => null];
         }
 
         $query = privQuery("SELECT `auto_block_emailed`, `login_fail_counter`, TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
-        if ($query['login_fail_counter'] >= (int)$GLOBALS['password_max_failed_logins']) {
+        if ($query['login_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('password_max_failed_logins')) {
             if (
-                !empty((int)$GLOBALS['time_reset_password_max_failed_logins']) &&
-                (int)$GLOBALS['time_reset_password_max_failed_logins'] > 0 &&
+                !empty(OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) &&
+                OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') > 0 &&
                 !empty($query['seconds_last_login_fail']) &&
-                $query['seconds_last_login_fail'] > (int)$GLOBALS['time_reset_password_max_failed_logins']
+                $query['seconds_last_login_fail'] > OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')
             ) {
                 // the last login fail was longer than the timeout required to reset the failed logins, so will pass
                 //  (also need to reset the counter)
                 self::resetLoginFailedCounter($user);
                 return ['pass' => true, 'email_notification' => null];
             }
-            $emailNotification = empty($query['auto_block_emailed']) ? true : false;
+            $emailNotification = empty($query['auto_block_emailed']);
             return ['pass' => false, 'email_notification' => $emailNotification];
         } else {
             return ['pass' => true, 'email_notification' => null];
@@ -1202,7 +1198,7 @@ class AuthUtils
             $ipString = 'blank';
         }
 
-        if ((int)$GLOBALS['ip_max_failed_logins'] == 0) {
+        if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') === 0) {
             // skip the check if turned off
             return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
         }
@@ -1215,19 +1211,19 @@ class AuthUtils
                 return ['pass' => false, 'force_block' => true, 'skip_timing_attack' => false, 'email_notification' => false];
             }
         }
-        if ($query['ip_login_fail_counter'] >= (int)$GLOBALS['ip_max_failed_logins']) {
+        if ($query['ip_login_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins')) {
             if (
-                !empty((int)$GLOBALS['ip_time_reset_password_max_failed_logins']) &&
-                (int)$GLOBALS['ip_time_reset_password_max_failed_logins'] > 0 &&
+                !empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) &&
+                OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') > 0 &&
                 !empty($query['seconds_last_ip_login_fail']) &&
-                $query['seconds_last_ip_login_fail'] > (int)$GLOBALS['ip_time_reset_password_max_failed_logins']
+                $query['seconds_last_ip_login_fail'] > OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')
             ) {
                 // the last ip login fail was longer than the timeout required to reset the failed logins, so will pass
                 //  (also need to reset the counter)
                 $this->resetIpLoginFailedCounter($ipString);
                 return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
             }
-            $emailNotification = empty($query['ip_auto_block_emailed']) ? true : false;
+            $emailNotification = empty($query['ip_auto_block_emailed']);
             return ['pass' => false, 'force_block' => false, 'skip_timing_attack' => false, 'email_notification' => $emailNotification];
         } else {
             return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
@@ -1265,13 +1261,13 @@ class AuthUtils
     {
         // If there is a timeout set for the autoblock, then need to check it when incrementing the counter
         if (
-            !empty((int)$GLOBALS['time_reset_password_max_failed_logins']) &&
-            (int)$GLOBALS['time_reset_password_max_failed_logins'] > 0
+            !empty(OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) &&
+            OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') > 0
         ) {
             $query = privQuery("SELECT TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
             if (
                 !empty($query['seconds_last_login_fail']) &&
-                $query['seconds_last_login_fail'] > (int)$GLOBALS['time_reset_password_max_failed_logins']
+                $query['seconds_last_login_fail'] > OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')
             ) {
                 // the last login fail was longer than the timeout required to reset the failed logins, so will set the login_fail_counter to 1 (ie. reset the counter to 0 and add the 1 for the most recent fail)
                 privStatement("UPDATE `users_secure` SET `total_login_fail_counter` = total_login_fail_counter+1, `login_fail_counter` = 1, `last_login_fail` = NOW(), `auto_block_emailed` = 0 WHERE BINARY `username` = ?", [$user]);
@@ -1295,13 +1291,13 @@ class AuthUtils
 
         // If there is a timeout set for the autoblock, then need to check it when incrementing the counter
         if (
-            !empty((int)$GLOBALS['ip_time_reset_password_max_failed_logins']) &&
-            (int)$GLOBALS['ip_time_reset_password_max_failed_logins'] > 0
+            !empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) &&
+            OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') > 0
         ) {
             $query = sqlQuery("SELECT TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) as `seconds_last_ip_login_fail` FROM `ip_tracking` WHERE `ip_string` = ?", [$ipString]);
             if (
                 !empty($query['seconds_last_ip_login_fail']) &&
-                $query['seconds_last_ip_login_fail'] > (int)$GLOBALS['ip_time_reset_password_max_failed_logins']
+                $query['seconds_last_ip_login_fail'] > OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')
             ) {
                 // the last login fail was longer than the timeout required to reset the failed logins, so will set the login_fail_counter to 1 (ie. reset the counter to 0 and add the 1 for the most recent fail)
                 sqlStatement("UPDATE `ip_tracking` SET `total_ip_login_fail_counter` = total_ip_login_fail_counter+1, `ip_login_fail_counter` = 1, `ip_last_login_fail` = NOW(), `ip_auto_block_emailed` = 0 WHERE `ip_string` = ?", [$ipString]);
@@ -1365,13 +1361,13 @@ class AuthUtils
     {
         sqlStatement("UPDATE `ip_tracking` SET `ip_auto_block_emailed` = 1 WHERE `ip_string` = ?", [$ip_string]);
 
-        if (!empty($GLOBALS['patient_reminder_sender_email']) && !empty($GLOBALS['practice_return_email_path'])) {
-            if (empty((int)$GLOBALS['ip_time_reset_password_max_failed_logins'])) {
+        if (!empty(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email')) && !empty(OEGlobalsBag::getInstance()->getString('practice_return_email_path'))) {
+            if (empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins'))) {
                 $message = "IP address '" . text($ip_string) . "' has been blocked.";
             } else {
                 $message = "IP address '" . text($ip_string) . "' has been temporarily blocked.";
             }
-            return MyMailer::emailServiceQueue($GLOBALS['patient_reminder_sender_email'], $GLOBALS['practice_return_email_path'], xl('IP Address Block Notification For OpenEMR Admin'), $message);
+            return MyMailer::emailServiceQueue(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email'), OEGlobalsBag::getInstance()->getString('practice_return_email_path'), xl('IP Address Block Notification For OpenEMR Admin'), $message);
         } else {
             error_log("Unable to send OpenEMR admin email notification since either patient_reminder_sender_email or practice_return_email_path global was not set");
             return false;
@@ -1386,29 +1382,31 @@ class AuthUtils
     {
         privStatement("UPDATE `users_secure` SET `auto_block_emailed` = 1 WHERE BINARY `username` = ?", [$username]);
 
-        if (!empty($GLOBALS['patient_reminder_sender_email']) && !empty($GLOBALS['practice_return_email_path'])) {
-            if (empty((int)$GLOBALS['time_reset_password_max_failed_logins'])) {
+        if (!empty(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email')) && !empty(OEGlobalsBag::getInstance()->getString('practice_return_email_path'))) {
+            if (empty(OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins'))) {
                 $message = "Username '" . text($username) . "' has been blocked.";
             } else {
                 $message = "Username '" . text($username) . "' has been temporarily blocked.";
             }
-            return MyMailer::emailServiceQueue($GLOBALS['patient_reminder_sender_email'], $GLOBALS['practice_return_email_path'], xl('Username Block Notification For OpenEMR Admin'), $message);
+            return MyMailer::emailServiceQueue(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email'), OEGlobalsBag::getInstance()->getString('practice_return_email_path'), xl('Username Block Notification For OpenEMR Admin'), $message);
         } else {
             error_log("Unable to send OpenEMR admin email notification since either patient_reminder_sender_email or practice_return_email_path global was not set");
             return false;
         }
     }
 
-    // Function to prevent timing attacks
-    //  For standard authentication, simulating a call to passwordVerify() run using the same hashing algorithm.
-    //  For ldap authentication, simulating a call to ldap server.
     /**
+     * Function to prevent timing attacks
+     *
+     * For standard authentication, simulating a call to passwordVerify() run using the same hashing algorithm.
+     * For ldap authentication, simulating a call to ldap server.
+     *
      * @return void
      */
     private function preventTimingAttack()
     {
         $dummyPassword = "heyheyhey";
-        if ($GLOBALS['gbl_ldap_enabled']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled')) {
             // ldap authentication simulation
             $this->activeDirectoryValidation("dummyCheck", $dummyPassword);
         } else {
@@ -1417,9 +1415,11 @@ class AuthUtils
         }
     }
 
-    // Function to support clearing password from memory
-    // - $password passed by reference to prevent storage of pass in memory
     /**
+     * Function to support clearing password from memory
+     *
+     * $password passed by reference to prevent storage of pass in memory
+     *
      * @param $password
      * @return void
      * @throws SodiumException
@@ -1451,13 +1451,13 @@ class AuthUtils
             return false;
         }
 
-        if (empty($GLOBALS['google_signin_client_id'])) {
+        if (empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id'))) {
             EventAuditLogger::getInstance()->newEvent($event, '', '', 0, $beginLog . ": " . $ip['ip_string'] . " google signin attempt failed because of empty app client id");
             return false;
         }
 
         // Specify the CLIENT_ID of the app that accesses the backend
-        $client = new Google_Client(['client_id' => $GLOBALS['google_signin_client_id']]);
+        $client = new Google_Client(['client_id' => OEGlobalsBag::getInstance()->getString('google_signin_client_id')]);
         $payload = $client->verifyIdToken($token);
 
         // ensure verify id token was successful
@@ -1525,7 +1525,7 @@ class AuthUtils
      */
     public static function setUserSessionVariables($username, $hash, $userInfo, $authGroup)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Set up session environment
         $session->set('authUser', $username); // username
         $session->set('authPass', $hash); // user hash used to confirm session in authCheckSession()

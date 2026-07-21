@@ -25,21 +25,22 @@ use OpenEMR\Core\OEGlobalsBag;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
 
-if ($session->isSymfonySession() && $session->has('pid') && ($session->has('patient_portal_onsite_two') || $session->get('register') === true)) {
+if ($session->has('pid') && ($session->has('patient_portal_onsite_two') || $session->get('register') === true)) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     GlobalConfig::$PORTAL = 1;
     if (!$session->has('portal_init')) {
-        $session->set('portal_init', true);
+        SessionUtil::setSession('portal_init', true);
     }
     require_once(__DIR__ . "/../../interface/globals.php");
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     GlobalConfig::$PORTAL = 0;
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
@@ -60,13 +61,7 @@ GlobalConfig::$CONNECTION_SETTING->DBName = $globalsBag->get('dbase');
 GlobalConfig::$CONNECTION_SETTING->Username = $globalsBag->get('login');
 GlobalConfig::$CONNECTION_SETTING->Password = $globalsBag->get('pass');
 GlobalConfig::$CONNECTION_SETTING->Type = "MySQLi";
-if (!$disable_utf8_flag) {
-    if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-        GlobalConfig::$CONNECTION_SETTING->Charset = "utf8mb4";
-    } else {
-        GlobalConfig::$CONNECTION_SETTING->Charset = "utf8";
-    }
-}
+GlobalConfig::$CONNECTION_SETTING->Charset = "utf8mb4";
 
 GlobalConfig::$CONNECTION_SETTING->Multibyte = true;
 // Turn off STRICT SQL
@@ -78,7 +73,7 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
  * default is relative base address
  */
 GlobalConfig::$WEB_ROOT = $globalsBag->get('qualified_site_addr');
-if ($globalsBag->get('portal_onsite_two_basepath')) {
+if ($globalsBag->getBoolean('portal_onsite_two_basepath')) {
     GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
 } else {
     GlobalConfig::$ROOT_URL = $globalsBag->get('web_root') . '/portal/patient/';

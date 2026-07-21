@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 ?>
 <head>
@@ -28,21 +28,21 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 <!-- category -->
 <?php
 $change_link = '<a href="javascript:;" id="change_category" onclick="top.restoreSession();">(' . xlt('Change') . ')</a>';
-echo RuleTemplateExtension::textfield_row(array("id" => "fld_category_lbl",
+echo RuleTemplateExtension::textfield_row(["id" => "fld_category_lbl",
     "name" => "fld_category_lbl",
     "title" => xl("Category"),
     "value" => $criteria->getCategoryLabel(),
-    "render_link" => $change_link)); ?>
+    "render_link" => $change_link]); ?>
 <input type="hidden" id="fld_category" name="fld_category" value="<?php echo attr($criteria->category); ?>" />
 
 <!-- item -->
 <?php
 $change_link = '<a href="javascript:;" id="change_item" onclick="top.restoreSession();">(' . xlt('Change') . ')</a>';
-echo RuleTemplateExtension::textfield_row(array("id" => "fld_item_lbl",
+echo RuleTemplateExtension::textfield_row(["id" => "fld_item_lbl",
     "name" => "fld_item_lbl",
     "title" => xl("Item"),
     "value" => $criteria->getItemLabel(),
-    "render_link" => $change_link)); ?>
+    "render_link" => $change_link]); ?>
 <input type="hidden" id="fld_item" name="fld_item" value="<?php echo attr($criteria->item); ?>" />
 
 <!-- completed -->
@@ -80,4 +80,4 @@ echo RuleTemplateExtension::textfield_row(array("id" => "fld_item_lbl",
     <br />
 
     <!-- optional/required and inclusion/exclusion fields -->
-    <?php echo RuleTemplateExtension::common_fields(array("criteria" => $criteria)); ?>
+    <?php echo RuleTemplateExtension::common_fields(["criteria" => $criteria]); ?>

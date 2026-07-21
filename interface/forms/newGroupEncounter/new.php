@@ -4,7 +4,7 @@
  * Encounter form new script.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -15,30 +15,17 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/lists.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 
-// todo -include_once("$srcdir/groups.inc");
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 
-
-/*// todo Check permission to create encounters.
-$tmp = getGroupData($pid, "squad");
-if (($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) ||
-     ! (AclMain::aclCheckCore('encounters', 'notes_a' ) ||
-        AclMain::aclCheckCore('encounters', 'notes'   ) ||
-        AclMain::aclCheckCore('encounters', 'coding_a') ||
-        AclMain::aclCheckCore('encounters', 'coding'  ) ||
-        AclMain::aclCheckCore('encounters', 'relaxed' )))
-{
-  echo "<body>\n<html>\n";
-  echo "<p>(" . xlt('New encounters not authorized'). ")</p>\n";
-  echo "</body>\n</html>\n";
-  exit();
-}*/
+require_once("$srcdir/lists.inc.php");
 
 $viewmode = false;
-if (AclMain::aclCheckCore("groups", "glog", false, 'write')) {
+if (AclMain::aclCheckCore("groups", "glog", '', 'write')) {
     require_once("common.php");
 } else {
     echo xlt("access not allowed");

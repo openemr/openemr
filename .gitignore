@@ -7,6 +7,12 @@
 # vendor and assets
 node_modules
 /vendor/*
+
+# oe-module-claimrev-connect is installed as a Composer dependency
+# (claimrevolution/oe-module-claimrev-connect) and relocated into this path by
+# the oe-module-installer-plugin during `composer install`. Never commit the
+# installed copy.
+/interface/modules/custom_modules/oe-module-claimrev-connect/*
 /public/assets/*
 /public/themes/*
 !/public/assets/modified
@@ -28,9 +34,20 @@ ccdaservice/node_modules
 # testing
 .phpunit.result.cache
 
-# phpcs local overrides
+# dev tool local overrides
 phpcs.xml
+phpstan.neon
 coverage/js-unit
 
 # phpstan
 tmp-phpstan/*
+
+# easy dev worktree support
+.worktrees.json
+.worktrees.json.lock
+docker/development-easy/docker-compose.override.yml
+docker/development-easy-light/docker-compose.override.yml
+docker/development-easy-redis/docker-compose.override.yml
+compose.override.yml
+tmp/
+.webpack-cache/

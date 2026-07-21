@@ -1,5 +1,1630 @@
 # CHANGELOG.md
 
+## [8.2.0](https://github.com/openemr/openemr/compare/v8_0_0...v8_2_0) - 2026-07-08
+
+### Minimum supported versions
+
+- **PHP** 8.2+
+- **MariaDB** 10.6+
+- **MySQL** 5.7+
+
+See the [tested CI matrix](https://github.com/openemr/openemr/tree/rel-820/ci) for all tested version combinations.
+
+### Security Fixes
+
+  - [High] OpenEMR FaxSMS module: insecure staging of decrypted patient documents in webroot (CWE-552/CWE-200) ([GHSA-vv5j-6gjw-ffx9](https://github.com/openemr/openemr/security/advisories/GHSA-vv5j-6gjw-ffx9))
+
+### Fixed
+
+  - accept bare image tag in docker-compose mutator ([#12283](https://github.com/openemr/openemr/pull/12283))
+  - add --skip-globals to branch-cut and patch-prep CLI invocations ([#12722](https://github.com/openemr/openemr/pull/12722))
+  - add empty-tree commit before opening probe PR ([#12048](https://github.com/openemr/openemr/pull/12048))
+  - add php-posix to the flex image apk install list ([#12548](https://github.com/openemr/openemr/pull/12548))
+  - add space separator between SQL lines in load_file() (#10935) ([#11003](https://github.com/openemr/openemr/pull/11003))
+  - allow save for timed In/Out of Office events ([#12444](https://github.com/openemr/openemr/pull/12444))
+  - backtick `rank` column in ContactTelecomService for MySQL 8+ compat ([#12329](https://github.com/openemr/openemr/pull/12329))
+  - backtick bare `system` in ContactTelecomService for MySQL 8+ compat ([#12340](https://github.com/openemr/openemr/pull/12340))
+  - bypass max_input_vars truncation in edit_layout and edit_payment ([#12170](https://github.com/openemr/openemr/pull/12170))
+  - CCDA to pass ONC USCDI V3 test scenarios. ([#12815](https://github.com/openemr/openemr/pull/12815))
+  - checkout repo before flex build to dodge submodule recursion ([#12547](https://github.com/openemr/openemr/pull/12547))
+  - clear phone_numbers before re-insert in legacy persist + cleanup migration ([#12538](https://github.com/openemr/openemr/pull/12538))
+  - correct deleteItem target and readMessage issue ([#12144](https://github.com/openemr/openemr/pull/12144))
+  - derive patch version from tags off rel-NNN0 branches ([#12422](https://github.com/openemr/openemr/pull/12422))
+  - dispatch PatientCreatedEvent from legacy new_patient_save.php ([#12083](https://github.com/openemr/openemr/pull/12083))
+  - docker-validate-release-targets reads master version.php from PR checkout ([#12597](https://github.com/openemr/openemr/pull/12597))
+  - don't run sql_upgrade as root in Inferno test ([#12472](https://github.com/openemr/openemr/pull/12472))
+  - drop redundant categories_seq UPDATE in eye form laser migration ([#12011](https://github.com/openemr/openemr/pull/12011))
+  - expired password warning not displaying ([#12473](https://github.com/openemr/openemr/pull/12473))
+  - Fix ethnicity decline setting ([#12189](https://github.com/openemr/openemr/pull/12189))
+  - Fix invalid property access in gacl ([#12653](https://github.com/openemr/openemr/pull/12653))
+  - gate openemr on mysql service_healthy to avoid race ([#11756](https://github.com/openemr/openemr/pull/11756))
+  - handle table-qualified columns in escape_sql_column_name() ([#12019](https://github.com/openemr/openemr/pull/12019))
+  - Harden dependencies by pulling in security meta-package ([#12524](https://github.com/openemr/openemr/pull/12524))
+  - irp imports 0 patients because synthea output is in root-only /root/ ([#12632](https://github.com/openemr/openemr/pull/12632))
+  - make generated Observation value\[x\] PHPDoc nullable ([#12399](https://github.com/openemr/openemr/pull/12399))
+  - Move module loading after OPENEMR_GLOBALS_LOADED ([#12691](https://github.com/openemr/openemr/pull/12691))
+  - normalize categories_seq instead of unsafe multi-row UP… ([#12194](https://github.com/openemr/openemr/pull/12194))
+  - Numerous bug fixes ([#12400](https://github.com/openemr/openemr/pull/12400))
+  - only require release-targets.yml in master context for byte-identical canary ([#12585](https://github.com/openemr/openemr/pull/12585))
+  - other payer claim control number for secondary claims ([#11150](https://github.com/openemr/openemr/pull/11150))
+  - PHP Fatal error: Uncaught TypeError: receiptDetailLine(): Argume… ([#10292](https://github.com/openemr/openemr/pull/10292))
+  - preserve patient context in EHR launch skip-auth flow ([#11115](https://github.com/openemr/openemr/pull/11115))
+  - prevent PHP 8 TypeError in Claim::payerCount() and procCount() ([#12525](https://github.com/openemr/openemr/pull/12525))
+  - prevent {headerTemplate} from rendering the page header twice ([#12821](https://github.com/openemr/openemr/pull/12821))
+  - rename --version CLI option to --release-version ([#12051](https://github.com/openemr/openemr/pull/12051))
+  - repair trailing comma in Pain_Initial_Assessment.json ([#12570](https://github.com/openemr/openemr/pull/12570))
+  - Restore Inferno after docker rearranging ([#12604](https://github.com/openemr/openemr/pull/12604))
+  - Restore windows webserver_root normalization. ([#12140](https://github.com/openemr/openemr/pull/12140))
+  - round-2 mutator fixes discovered in rel-820 cut first exercise ([#12731](https://github.com/openemr/openemr/pull/12731))
+  - round-3 mutator + PR template fixes surfaced by second rel-820 exercise ([#12735](https://github.com/openemr/openemr/pull/12735))
+  - Run additional web workers in API integration tests ([#11959](https://github.com/openemr/openemr/pull/11959))
+  - scope App token to dispatch target repos ([#12057](https://github.com/openemr/openemr/pull/12057))
+  - serialize dispatch envelope data as JSON object, not array ([#12713](https://github.com/openemr/openemr/pull/12713))
+  - server-status polling now terminates reliably (rel-820 backport for 8.2.0) ([#12827](https://github.com/openemr/openemr/pull/12827))
+  - skip audit logging on the status poll endpoint (rel-820 backport for 8.2.0) ([#12832](https://github.com/openemr/openemr/pull/12832))
+  - skip globals bootstrap in release-prep mutator ([#12059](https://github.com/openemr/openemr/pull/12059))
+  - skip phones the legacy parts schema cannot represent (insurance + pharmacy) ([#12529](https://github.com/openemr/openemr/pull/12529))
+  - skip unshipped tags when deriving prev_release (rel-820 backport) ([#12770](https://github.com/openemr/openemr/pull/12770))
+  - stop bumping docker-version files ([#12298](https://github.com/openemr/openemr/pull/12298))
+  - stop forcing E_ALL error reporting and add reporting options ([#12273](https://github.com/openemr/openemr/pull/12273))
+  - sync-byte-identical handles rename + removed-from-config ([#12594](https://github.com/openemr/openemr/pull/12594))
+  - trust manifest over annotated-tag filter for prev_release (rel-820 backport) ([#12772](https://github.com/openemr/openemr/pull/12772))
+  - use conventional-commits prep PR title ([#12065](https://github.com/openemr/openemr/pull/12065))
+  - use docker/* glob so docker/production/ actually ships in tarball (rel-820 backport for 8.2.0) ([#12835](https://github.com/openemr/openemr/pull/12835))
+  - use filesystem-targeted encryption for cached auth ([#12050](https://github.com/openemr/openemr/pull/12050))
+  - use spec-compliant `invalid_request` error code (remove stray space) ([#12327](https://github.com/openemr/openemr/pull/12327))
+  - version-check backup + smart dropdown default (rel-820 backport for 8.2.0) ([#12841](https://github.com/openemr/openemr/pull/12841))
+  - widen dispatch branch pattern to allow rel-test ([#12061](https://github.com/openemr/openemr/pull/12061))
+
+#### ASTP/ONC Certification
+
+  - add NPI to user to qualify as Practitioner in Inferno tests ([#11916](https://github.com/openemr/openemr/pull/11916))
+  - correct Inferno test group IDs for body height/weight ([#11917](https://github.com/openemr/openemr/pull/11917))
+  - Inferno testsuite setup fixes ([#11897](https://github.com/openemr/openemr/pull/11897))
+  - Turn off redis persistence in inferno tests ([#11909](https://github.com/openemr/openemr/pull/11909))
+
+#### Authentication
+
+  - #10436 redis session storage ([#10437](https://github.com/openemr/openemr/pull/10437))
+  - #10481 EHR launch skip login screen ([#10482](https://github.com/openemr/openemr/pull/10482))
+  - breakage when add new patient via new patient UI ([#10530](https://github.com/openemr/openemr/pull/10530))
+  - correct assignment typo in AuthHash SHA512 fallback ([#11019](https://github.com/openemr/openemr/pull/11019))
+  - create certificates directory before writing key files ([#10888](https://github.com/openemr/openemr/pull/10888))
+  - remove unused redirect_token from OneTimeAuth ([#11972](https://github.com/openemr/openemr/pull/11972))
+  - restore brief-lock pattern on long-running pages ([#11953](https://github.com/openemr/openemr/pull/11953))
+  - restore default tab loading after login ([#11947](https://github.com/openemr/openemr/pull/11947))
+  - stop rotating CSRF private key on every main_screen.php load ([#11888](https://github.com/openemr/openemr/pull/11888))
+  - wait for post-login title transition to avoid race ([#11755](https://github.com/openemr/openemr/pull/11755))
+
+#### Backend Modernization Project
+
+  - add order-independent routing via dispatch() method ([#11163](https://github.com/openemr/openemr/pull/11163))
+  - default login_page_layout when globals row is missing ([#11949](https://github.com/openemr/openemr/pull/11949))
+  - drain file-not-found baseline entries ([#11802](https://github.com/openemr/openemr/pull/11802))
+  - drain function-not-found baseline entries ([#11813](https://github.com/openemr/openemr/pull/11813))
+  - drain PHPStan class.notFound baseline for portal/patient ([#11877](https://github.com/openemr/openemr/pull/11877))
+  - drop fgets() length limit and insert line separator ([#11466](https://github.com/openemr/openemr/pull/11466))
+  - fix issue with loading `Juggernaut\OpenEMR\Modules\PriorAuthModule\` ([#10425](https://github.com/openemr/openemr/pull/10425))
+  - Fix returned value of InTransaction ([#10524](https://github.com/openemr/openemr/pull/10524))
+  - isolate run-all-due behind subprocess boundary ([#11801](https://github.com/openemr/openemr/pull/11801))
+  - remove OEGlobalsBag dependency from version.php ([#11053](https://github.com/openemr/openemr/pull/11053))
+  - repair legacy parse errors across the codebase ([#11904](https://github.com/openemr/openemr/pull/11904))
+  - replace die() with exception for missing session site_id ([#11618](https://github.com/openemr/openemr/pull/11618))
+  - restore @throws tag on KeyVersion::fromPrefix() ([#10476](https://github.com/openemr/openemr/pull/10476))
+  - use newline separator in SQL statement concatenation ([#11511](https://github.com/openemr/openemr/pull/11511))
+
+#### CCDA Service
+
+  - 10456 ccda author session fix ([#10470](https://github.com/openemr/openemr/pull/10470))
+  - register-conditional list XPath in CdaTextParser ([#11601](https://github.com/openemr/openemr/pull/11601))
+  - use escaped Mustache variables in XML attribute positions ([#10464](https://github.com/openemr/openemr/pull/10464))
+
+#### Calendar
+
+  - accept #RRGGBB in status color field ([#10984](https://github.com/openemr/openemr/pull/10984))
+  - avoid HTML-encoded status text in demographics widgets ([#10985](https://github.com/openemr/openemr/pull/10985))
+  - dedup recurring appointment notifications via notification_log ([#11588](https://github.com/openemr/openemr/pull/11588))
+  - hide appointments card when user lacks permission ([#10647](https://github.com/openemr/openemr/pull/10647))
+  - remove 0000-00-00 date defaults from postcalendar events ([#11245](https://github.com/openemr/openemr/pull/11245))
+  - Render restoreSession JS inside of script tag ([#11418](https://github.com/openemr/openemr/pull/11418))
+  - restore appointments hidden after 8.0→8.1 upgrade ([#12519](https://github.com/openemr/openemr/pull/12519))
+  - route freq_type 5 to REPEAT_ON branch to prevent infin… ([#11407](https://github.com/openemr/openemr/pull/11407))
+
+#### Clinical Decision Support
+
+  - stop translating DB identifiers in render_select ([#11515](https://github.com/openemr/openemr/pull/11515))
+
+#### Database Layer
+
+  - Ensure legacy DB connection is established ([#11282](https://github.com/openemr/openemr/pull/11282))
+  - Error: Object of class Closure could not be converted to st… ([#10663](https://github.com/openemr/openemr/pull/10663))
+  - qualify column reference in CareTeamService::getCareTeamData() ([#10899](https://github.com/openemr/openemr/pull/10899))
+  - remove dynamically created onsite_activity_view ([#10998](https://github.com/openemr/openemr/pull/10998))
+  - rename misspelled 'declne_to_specfy' value in race ([#10762](https://github.com/openemr/openemr/pull/10762))
+  - resolve PHP 8.5 PDO MySQL attribute deprecations ([#11288](https://github.com/openemr/openemr/pull/11288))
+  - return falsy column values from fetchSingleValue instead of null ([#10813](https://github.com/openemr/openemr/pull/10813))
+  - wrap scalar values in arrays for SQL function params ([#10664](https://github.com/openemr/openemr/pull/10664))
+
+#### Database Migrations & Schema Changes
+
+  - Change OSCONJ column type on form_eye_antseg table ([#11502](https://github.com/openemr/openemr/pull/11502))
+  - convert declne_to_specfy in patient_data language and ethnicity ([#11876](https://github.com/openemr/openemr/pull/11876))
+  - correct empty string in list_options integer columns ([#11211](https://github.com/openemr/openemr/pull/11211))
+  - detect database.sql schema changes missing upgrade SQL (#10854) ([#10908](https://github.com/openemr/openemr/pull/10908))
+  - disable audit logging before globals.php loads ([#11134](https://github.com/openemr/openemr/pull/11134))
+  - fix multiple bugs in ORDataObject::_load_enum ([#11700](https://github.com/openemr/openemr/pull/11700))
+  - Fix SQL upgrade syntax ([#11866](https://github.com/openemr/openemr/pull/11866))
+  - Log all "helpfuldie" sql errors ([#11864](https://github.com/openemr/openemr/pull/11864))
+  - reduce onetime_auth index prefix length ([#11210](https://github.com/openemr/openemr/pull/11210))
+  - remove 0000-00-00 values from document_templates inserts ([#11251](https://github.com/openemr/openemr/pull/11251))
+  - rename misspelled 'interpretter' column to 'interpreter' ([#10846](https://github.com/openemr/openemr/pull/10846))
+  - set uor=0 for deprecated care_team layout fields ([#10849](https://github.com/openemr/openemr/pull/10849))
+  - use CURRENT_TIMESTAMP default for medex_recalls.r_created ([#11212](https://github.com/openemr/openemr/pull/11212))
+  - use tinyint(1) for questionnaire_repository.active boolean ([#11690](https://github.com/openemr/openemr/pull/11690))
+
+#### DevOps
+
+  - add generate_select_list and json_encode as sanitizers ([#10839](https://github.com/openemr/openemr/pull/10839))
+  - add path fixes for Codecov coverage reports ([#10677](https://github.com/openemr/openemr/pull/10677))
+  - add types and fix errors in ClientAdminController ([#11007](https://github.com/openemr/openemr/pull/11007))
+  - Adjust PHPStan to only scan the critical vendor paths ([#10439](https://github.com/openemr/openemr/pull/10439))
+  - Allow sql_upgrade to work on the cli ([#11906](https://github.com/openemr/openemr/pull/11906))
+  - assert $pid is defined in portal_payment.php ([#10447](https://github.com/openemr/openemr/pull/10447))
+  - correct custom rule implementations ([#10791](https://github.com/openemr/openemr/pull/10791))
+  - correct misleading docblock @return/@param types ([#11455](https://github.com/openemr/openemr/pull/11455))
+  - disable coverage for PHP 8.6 in scheduled tests ([#10378](https://github.com/openemr/openemr/pull/10378))
+  - emit ADOdb-accurate types in TableTypes generator ([#11362](https://github.com/openemr/openemr/pull/11362))
+  - exclude PHPStan baseline files from analysis hooks ([#10672](https://github.com/openemr/openemr/pull/10672))
+  - Fail if baseline doesn't match generator ([#10703](https://github.com/openemr/openemr/pull/10703))
+  - fix invalid return type annotations ([#10804](https://github.com/openemr/openemr/pull/10804))
+  - Geo Location and population data placement ([#10429](https://github.com/openemr/openemr/pull/10429))
+  - prevent PHPStan pre-commit hook baseline mismatch (#10868) ([#10905](https://github.com/openemr/openemr/pull/10905))
+  - quote time values in dependabot.yml ([#11246](https://github.com/openemr/openemr/pull/11246))
+  - read commit message content instead of file path ([#11420](https://github.com/openemr/openemr/pull/11420))
+  - rector cache masks violations on unchanged files ([#10871](https://github.com/openemr/openemr/pull/10871))
+  - Remove merge_coverage call from inferno tests ([#10356](https://github.com/openemr/openemr/pull/10356))
+  - run coverage conversion inside container for correct path resolution ([#10443](https://github.com/openemr/openemr/pull/10443))
+  - simplify Codecov flags to fix "Multiple flags detected" error ([#11547](https://github.com/openemr/openemr/pull/11547))
+  - Update path for phpstan baseline artifacts ([#10242](https://github.com/openemr/openemr/pull/10242))
+  - use correct matrix variable for isolated-tests composer cache ([#10469](https://github.com/openemr/openemr/pull/10469))
+  - use files pattern for PHP pre-commit hooks ([#10492](https://github.com/openemr/openemr/pull/10492))
+  - use forward slashes in autoload-dev path ([#11166](https://github.com/openemr/openemr/pull/11166))
+
+#### Documentation
+
+  - correct collate field id attribute and add default value ([#10472](https://github.com/openemr/openemr/pull/10472))
+  - correct spelling errors caught by codespell ([#10999](https://github.com/openemr/openemr/pull/10999))
+  - nginx config doc path fix. ([#10526](https://github.com/openemr/openemr/pull/10526))
+
+#### EHI Export
+
+  - initialize variables in createExportTasksFromJobWith… ([#10830](https://github.com/openemr/openemr/pull/10830))
+
+#### Hardening
+
+  - add input validation for ERA ID parameter ([#10758](https://github.com/openemr/openemr/pull/10758))
+  - clean up callers that re-open read_and_close session ([#11940](https://github.com/openemr/openemr/pull/11940))
+  - guard undefined keys and legacy PHP warnings flagged in production logs ([#11939](https://github.com/openemr/openemr/pull/11939))
+  - recover stuck leases from crashed workers ([#11678](https://github.com/openemr/openemr/pull/11678))
+  - Remove error-suppressing catch block ([#11603](https://github.com/openemr/openemr/pull/11603))
+  - replace addslashes() with RFC 4180 CSV double-quote escaping ([#11363](https://github.com/openemr/openemr/pull/11363))
+  - restrict file permissions for EDI downloads ([#10757](https://github.com/openemr/openemr/pull/10757))
+  - stop suppressing E_USER_WARNING and E_USER_DEPRECATED ([#11430](https://github.com/openemr/openemr/pull/11430))
+
+#### Infrastructure
+
+  - predis 3.4.0 fix ([#10856](https://github.com/openemr/openemr/pull/10856))
+  - remove OEGlobalsBag dependency from sql_upgrade.php ([#11111](https://github.com/openemr/openemr/pull/11111))
+
+#### Internationalization
+
+  - correct "Dislay" typo in main menu logo description ([#10988](https://github.com/openemr/openemr/pull/10988))
+  - Use correct locale-aware formatting for phone number display ([#10772](https://github.com/openemr/openemr/pull/10772))
+
+#### Labs
+
+  - PHP warnings interface/orders ([#10788](https://github.com/openemr/openemr/pull/10788))
+
+#### Module Support
+
+  - lazy-init AppDispatch session to survive static factory path ([#12224](https://github.com/openemr/openemr/pull/12224))
+  - surface notification background-task failures ([#11846](https://github.com/openemr/openemr/pull/11846))
+  - Telehealth fatal error ([#10580](https://github.com/openemr/openemr/pull/10580))
+
+#### Ophthalmology
+
+  - add state license number to prescription popup ([#10894](https://github.com/openemr/openemr/pull/10894))
+  - correct Schirmer field name typos in copy_forward ANTSEG zone ([#10814](https://github.com/openemr/openemr/pull/10814))
+  - Dispense glasses Rx: manifest/dispensed refraction ([#10882](https://github.com/openemr/openemr/pull/10882))
+  - pass encounter/pid in navbar form URLs to prevent stale session ([#10865](https://github.com/openemr/openemr/pull/10865))
+  - use correct PMSFH key for PMH diagnoses in Diagnosis Builder ([#11510](https://github.com/openemr/openemr/pull/11510))
+
+#### PHP
+
+  - #10323 care team upgrade optimization ([#10347](https://github.com/openemr/openemr/pull/10347))
+  - #10332 uuid generation large dataset ([#10346](https://github.com/openemr/openemr/pull/10346))
+  - #10454 webroot session fix ([#10455](https://github.com/openemr/openemr/pull/10455))
+  - add @var annotations to reduce variable.undefined baseline ([#10693](https://github.com/openemr/openemr/pull/10693))
+  - Add missing $form_return variable assignment in eye_mag save.php ([#10651](https://github.com/openemr/openemr/pull/10651))
+  - add missing api.inc.php require ([#8394](https://github.com/openemr/openemr/pull/8394))
+  - checks broken in previous merge ([#10230](https://github.com/openemr/openemr/pull/10230))
+  - clinicians can edit medications ([#8087](https://github.com/openemr/openemr/pull/8087))
+  - Comlink module ([#10511](https://github.com/openemr/openemr/pull/10511))
+  - correct typo 'bootrap' to 'bootstrap' in config.yaml ([#10353](https://github.com/openemr/openemr/pull/10353))
+  - correct typos in CCR/CCDA templates and misc files ([#10333](https://github.com/openemr/openemr/pull/10333))
+  - correct typos in clinical notes and track_anything forms ([#10457](https://github.com/openemr/openemr/pull/10457))
+  - correct typos in contrib, controllers, and misc files ([#10336](https://github.com/openemr/openemr/pull/10336))
+  - correct typos in interface files ([#10370](https://github.com/openemr/openemr/pull/10370))
+  - correct typos in interface/forms ([#10342](https://github.com/openemr/openemr/pull/10342))
+  - correct typos in interface/modules ([#10341](https://github.com/openemr/openemr/pull/10341))
+  - correct typos in library files ([#10339](https://github.com/openemr/openemr/pull/10339))
+  - correct typos in miscellaneous files ([#10345](https://github.com/openemr/openemr/pull/10345))
+  - correct typos in portal files ([#10340](https://github.com/openemr/openemr/pull/10340))
+  - correct typos in sites and templates ([#10337](https://github.com/openemr/openemr/pull/10337))
+  - correct typos in src/ files ([#10343](https://github.com/openemr/openemr/pull/10343))
+  - correct typos in test files ([#10344](https://github.com/openemr/openemr/pull/10344))
+  - Fixes #11142 employer data not saving ([#11156](https://github.com/openemr/openemr/pull/11156))
+  - Improper empty column warnings in layout-based forms ([#7071](https://github.com/openemr/openemr/pull/7071))
+  - include port in PDO DSN for non-default database ports ([#10636](https://github.com/openemr/openemr/pull/10636))
+  - move custom rules into analysed paths to fix result cache warning ([#10622](https://github.com/openemr/openemr/pull/10622))
+  - normalize line endings to LF in 16 files ([#10349](https://github.com/openemr/openemr/pull/10349))
+  - prevent sending blank statement emails ([#10486](https://github.com/openemr/openemr/pull/10486))
+  - Remove accidental override of OEGlobalsBag::getString ([#11008](https://github.com/openemr/openemr/pull/11008))
+  - remove dead code and fix @param false docblocks ([#10624](https://github.com/openemr/openemr/pull/10624))
+  - remove duplicate property in rcfaxclient ([#10254](https://github.com/openemr/openemr/pull/10254))
+  - rename 'uncomplete' mode to 'incomplete' in AMC tracking ([#10698](https://github.com/openemr/openemr/pull/10698))
+  - resolve PHP CLI binary via PhpExecutableFinder ([#11948](https://github.com/openemr/openemr/pull/11948))
+  - resolve PHP deprecation warnings and undefined variable errors ([#11369](https://github.com/openemr/openemr/pull/11369))
+  - Revert prior predis 3.4.0 fix ([#10977](https://github.com/openemr/openemr/pull/10977))
+  - separate password from encryption for C_Document.clas… ([#11155](https://github.com/openemr/openemr/pull/11155))
+  - SingletonTrait ([#10673](https://github.com/openemr/openemr/pull/10673))
+  - SystemLogger PSR-3 compliance and simplification ([#11130](https://github.com/openemr/openemr/pull/11130))
+  - trim leading '#' from color setting in PatientTrackerService ([#9485](https://github.com/openemr/openemr/pull/9485))
+  - update broken CDC VIS link ([#10632](https://github.com/openemr/openemr/pull/10632))
+  - use getBoolean for inhouse_pharmacy check in visit summary ([#11987](https://github.com/openemr/openemr/pull/11987))
+  - use https in @link header tags ([#10869](https://github.com/openemr/openemr/pull/10869))
+
+#### Patient Portal
+
+  - add CSRF protection to payment handler ([#11958](https://github.com/openemr/openemr/pull/11958))
+  - fix leftover issue with _documents.html.twig in portal_patient_report.html.twig ([#10267](https://github.com/openemr/openemr/pull/10267))
+  - Fixed the onetime token notification. ([#10547](https://github.com/openemr/openemr/pull/10547))
+  - pass HttpRestRequest to PatientRestController::getOne() in portal route ([#10823](https://github.com/openemr/openemr/pull/10823))
+  - portal messaging display fix for #11202 ([#11215](https://github.com/openemr/openemr/pull/11215))
+  - remove dead $payment_key code in portal_payment.php ([#11396](https://github.com/openemr/openemr/pull/11396))
+  - Save when using dd/mm/yyyy ([#10229](https://github.com/openemr/openemr/pull/10229))
+  - set portal login username when enabling portal access ([#7667](https://github.com/openemr/openemr/pull/7667))
+
+#### REST API
+
+  - #10358 care team patient compartment ([#10363](https://github.com/openemr/openemr/pull/10363))
+  - align allergy begdate validation with YYYY-MM-DD docs ([#10993](https://github.com/openemr/openemr/pull/10993))
+  - bootstrap missing user UUID to prevent 500 on fresh installs ([#11735](https://github.com/openemr/openemr/pull/11735))
+  - Clinical Notes FHIR mismatched join #10168 ([#10281](https://github.com/openemr/openemr/pull/10281))
+  - correct typos in FHIR resources and services ([#10338](https://github.com/openemr/openemr/pull/10338))
+  - fix per-patient allergy and condition endpoints returning empty (#10827) ([#10901](https://github.com/openemr/openemr/pull/10901))
+  - include provider first/last name in appointment API responses ([#10824](https://github.com/openemr/openemr/pull/10824))
+  - use isPortalRequest() for portal route detection in RoutesExtensionListener ([#10822](https://github.com/openemr/openemr/pull/10822))
+  - wrap DATETIME empty-string comparisons with CAST ([#10891](https://github.com/openemr/openemr/pull/10891))
+
+#### Reports
+
+  - include custom LBF layout forms in patient report ([#11146](https://github.com/openemr/openemr/pull/11146))
+  - prevent inflated totals in Financial Summary by Service Code ([#10438](https://github.com/openemr/openemr/pull/10438))
+
+#### Security
+
+  - add ACL check to claim file tracker endpoint ([#11091](https://github.com/openemr/openemr/pull/11091))
+  - add allowed_classes to unprotected unserialize calls ([#10896](https://github.com/openemr/openemr/pull/10896))
+  - add authorization to dated reminders log ([#11192](https://github.com/openemr/openemr/pull/11192))
+  - add authorization to FaxSMS AppDispatch ([#11193](https://github.com/openemr/openemr/pull/11193))
+  - add CSRF check + tighten input on fee_sheet review/justify ([#12031](https://github.com/openemr/openemr/pull/12031))
+  - add CSRF protection and parameterize SQL in new_payment.php ([#11219](https://github.com/openemr/openemr/pull/11219))
+  - add CSV formula escaping to League\Csv exports (#10415) ([#10903](https://github.com/openemr/openemr/pull/10903))
+  - add guards to prevent direct HTTP access ([#9537](https://github.com/openemr/openemr/pull/9537))
+  - add LIBXML_NONET to all simplexml_load_string calls ([#11388](https://github.com/openemr/openemr/pull/11388))
+  - add OpenEMR sanitizers to Semgrep echoed-request rule ([#10316](https://github.com/openemr/openemr/pull/10316))
+  - add safe_href URL scheme validation for Twig href attributes ([#10897](https://github.com/openemr/openemr/pull/10897))
+  - centralize XML parsing to enforce LIBXML_NONET across all call sites ([#11442](https://github.com/openemr/openemr/pull/11442))
+  - check sensitivity from correct table for group encounters ([#11097](https://github.com/openemr/openemr/pull/11097))
+  - enforce encounter ownership on vitals ([#11189](https://github.com/openemr/openemr/pull/11189))
+  - escape code descriptions in dynamic code picker ([#11096](https://github.com/openemr/openemr/pull/11096))
+  - escape inline script values in portal payment ([#11194](https://github.com/openemr/openemr/pull/11194))
+  - escape patient data in prescription print view ([#11092](https://github.com/openemr/openemr/pull/11092))
+  - escape portal credential print output ([#11191](https://github.com/openemr/openemr/pull/11191))
+  - escape tab label in TabsWrapper to prevent XSS ([#11512](https://github.com/openemr/openemr/pull/11512))
+  - escape Track Anything graph titles and labels ([#11095](https://github.com/openemr/openemr/pull/11095))
+  - escape unescaped URL attributes in Twig templates ([#10474](https://github.com/openemr/openemr/pull/10474))
+  - escape user data in Eye Exam report ([#11186](https://github.com/openemr/openemr/pull/11186))
+  - fix leftovers from porting core session ([#11208](https://github.com/openemr/openemr/pull/11208))
+  - harden escape_sql_column_name() with backtick-quoting ([#11280](https://github.com/openemr/openemr/pull/11280))
+  - harden escape_table_name() with backtick-quoting ([#11297](https://github.com/openemr/openemr/pull/11297))
+  - increase app cookie expire time and better wrapper selection logic ([#10227](https://github.com/openemr/openemr/pull/10227))
+  - negate ACL condition in CDR ControllerRouter ([#11094](https://github.com/openemr/openemr/pull/11094))
+  - parameterize all SQL in deleter.php via root-cause refactor ([#11220](https://github.com/openemr/openemr/pull/11220))
+  - parameterize SQL and filter request inputs in add_edit_event ([#11199](https://github.com/openemr/openemr/pull/11199))
+  - parameterize SQL in patient.inc.php and harden column name escaping ([#11214](https://github.com/openemr/openemr/pull/11214))
+  - parameterize SQL, add CSRF, and fix serialization injection in portal appointment ([#11218](https://github.com/openemr/openemr/pull/11218))
+  - parameterize SQL, remove dead code, and migrate to QueryUtils in pnotes.inc.php ([#11216](https://github.com/openemr/openemr/pull/11216))
+  - physical_exam edit_diagnoses ACL gate is dead code ([#12018](https://github.com/openemr/openemr/pull/12018))
+  - prevent open redirect in portal messaging ([#11217](https://github.com/openemr/openemr/pull/11217))
+  - prevent session conflict for API requests with portal c… ([#10404](https://github.com/openemr/openemr/pull/10404))
+  - prevent XSS in clickmap annotation legend ([#11089](https://github.com/openemr/openemr/pull/11089))
+  - prevent XSS in portal signer modal ([#11090](https://github.com/openemr/openemr/pull/11090))
+  - protect bin/ directory from web access ([#10895](https://github.com/openemr/openemr/pull/10895))
+  - reduce ~111 false positive Semgrep code scanning alerts ([#10462](https://github.com/openemr/openemr/pull/10462))
+  - remove eval() from application JavaScript files (#2010) ([#10902](https://github.com/openemr/openemr/pull/10902))
+  - remove user input from SQL alias in graphs ([#11093](https://github.com/openemr/openemr/pull/11093))
+  - replace addslashes() with js_escape() in JS contexts ([#11347](https://github.com/openemr/openemr/pull/11347))
+  - replace direct $_SESSION writes with SessionUtil::setSession() ([#10939](https://github.com/openemr/openemr/pull/10939))
+  - require check reference number server-side ([#7353](https://github.com/openemr/openemr/pull/7353))
+  - resolve 7 printed-request Semgrep alerts ([#10466](https://github.com/openemr/openemr/pull/10466))
+  - respect explicit ACL denies in zhAclCheck ([#11187](https://github.com/openemr/openemr/pull/11187))
+  - respect sessionAllowWrite global in PHPSessionWrapper (#10931) ([#11072](https://github.com/openemr/openemr/pull/11072))
+  - sanitize backup export command arguments ([#11185](https://github.com/openemr/openemr/pull/11185))
+  - sanitize SearchHighlight input ([#11190](https://github.com/openemr/openemr/pull/11190))
+  - Set cookie secure flag based on install settings ([#10203](https://github.com/openemr/openemr/pull/10203))
+  - set HTTP 403 in csrfNotVerified() ([#10567](https://github.com/openemr/openemr/pull/10567))
+  - skip audit logging for health check endpoints ([#10176](https://github.com/openemr/openemr/pull/10176))
+  - Tighten standard encryption test ([#10452](https://github.com/openemr/openemr/pull/10452))
+  - use DOM construction for iframe in twAddFrameTab ([#11551](https://github.com/openemr/openemr/pull/11551))
+  - validate db parameter in standard_tables_manage ([#11951](https://github.com/openemr/openemr/pull/11951))
+  - validate DICOM zip entry paths ([#11188](https://github.com/openemr/openemr/pull/11188))
+  - validate formdir before using in include paths ([#11597](https://github.com/openemr/openemr/pull/11597))
+  - validate menu role filenames to prevent path traversal ([#11513](https://github.com/openemr/openemr/pull/11513))
+  - validate require_once paths loaded from database ([#11592](https://github.com/openemr/openemr/pull/11592))
+
+#### UI Modernization
+
+  - allow clearing email field in user admin update ([#11198](https://github.com/openemr/openemr/pull/11198))
+
+#### UI/UX
+
+  - detect duplicates when lower-PID patient matches higher-PID ([#10644](https://github.com/openemr/openemr/pull/10644))
+  - disable patient birthday alert in e2e compose stack ([#11983](https://github.com/openemr/openemr/pull/11983))
+  - Fix crash from uncaught class in birthday popup ([#11999](https://github.com/openemr/openemr/pull/11999))
+  - remove pre-escaping of FORM_ACTION to prevent double-escaping ([#10539](https://github.com/openemr/openemr/pull/10539))
+  - respect default value for checkboxes ([#10733](https://github.com/openemr/openemr/pull/10733))
+  - sync Custom.json with standard.json for email send test entry ([#11383](https://github.com/openemr/openemr/pull/11383))
+  - use theme-stable colors for receipt background contrast ([#10851](https://github.com/openemr/openemr/pull/10851))
+  - user dropdown width restricted ([#10206](https://github.com/openemr/openemr/pull/10206))
+
+#### billing & payments
+
+  - add mailto: protocol to email links ([#10760](https://github.com/openemr/openemr/pull/10760))
+  - block negative or zero patient payment amounts ([#10989](https://github.com/openemr/openemr/pull/10989))
+  - cast 835 monetary fields to float for type-strict comparisons ([#11868](https://github.com/openemr/openemr/pull/11868))
+  - create ERA directory and add overwrite confirmation ([#10728](https://github.com/openemr/openemr/pull/10728))
+  - edit payment sql error ([#12353](https://github.com/openemr/openemr/pull/12353))
+  - email statement generation one patient at a time ([#8327](https://github.com/openemr/openemr/pull/8327))
+  - Fix double-escaping and some raw SQL ([#10362](https://github.com/openemr/openemr/pull/10362))
+  - fix saving in collection on auto create encounter ([#11625](https://github.com/openemr/openemr/pull/11625))
+  - move use statement out of docblock ([#12223](https://github.com/openemr/openemr/pull/12223))
+  - post payment from portal in portal dash ([#11450](https://github.com/openemr/openemr/pull/11450))
+  - prevent HTML escaping of ERA file downloads ([#10754](https://github.com/openemr/openemr/pull/10754))
+  - remove dead methods referencing undefined constants ([#10755](https://github.com/openemr/openemr/pull/10755))
+  - replace hardcoded dev URLs with configurable settings ([#10759](https://github.com/openemr/openemr/pull/10759))
+  - save all subscribers in eligibility request ([#10750](https://github.com/openemr/openemr/pull/10750))
+  - session crashes on posting page ([#11691](https://github.com/openemr/openemr/pull/11691))
+  - sql query error modifier can not be null ([#10199](https://github.com/openemr/openemr/pull/10199))
+  - SQL Query Error: Column 'session_id' cannot be null ([#10661](https://github.com/openemr/openemr/pull/10661))
+  - throw exceptions on API failures instead of returning error values ([#10752](https://github.com/openemr/openemr/pull/10752))
+  - use $postData parameter instead of $_POST ([#10763](https://github.com/openemr/openemr/pull/10763))
+  - validate required settings in isConfigured() ([#10756](https://github.com/openemr/openemr/pull/10756))
+  - Widen param types for payment sequence number generation ([#10548](https://github.com/openemr/openemr/pull/10548))
+
+#### code set update
+
+  - skip UPDATE when CPT4 code lookup returns empty ([#11499](https://github.com/openemr/openemr/pull/11499))
+
+#### communications
+
+  - allow SMTP without username/password ([#10280](https://github.com/openemr/openemr/pull/10280))
+  - catch up missed appointment-reminder ticks ([#11907](https://github.com/openemr/openemr/pull/11907))
+  - decouple background service from legacy AJAX entry point ([#11680](https://github.com/openemr/openemr/pull/11680))
+  - drop fgets() length limits in phiMail protocol parsers ([#11470](https://github.com/openemr/openemr/pull/11470))
+  - hardcode UTF-8 CharSet to avoid null from missing global ([#11688](https://github.com/openemr/openemr/pull/11688))
+  - read cron interval from background_services instead of hardcoding 150 ([#11587](https://github.com/openemr/openemr/pull/11587))
+  - remove SMTP_SECURE from isConfigured required keys ([#11381](https://github.com/openemr/openemr/pull/11381))
+  - replace misleading unauthorized template with silent return (#10686) ([#11004](https://github.com/openemr/openemr/pull/11004))
+  - require appointments lib; log background-service errors ([#11922](https://github.com/openemr/openemr/pull/11922))
+  - stop overwriting pc_apptstatus during notification dedup ([#11589](https://github.com/openemr/openemr/pull/11589))
+  - stop resending appointment reminder emails every hour ([#11484](https://github.com/openemr/openemr/pull/11484))
+  - tighten oe_faxsms_queue schema for utf8mb4 compatibility ([#11962](https://github.com/openemr/openemr/pull/11962))
+  - use 24-hour clock for notification window math ([#11509](https://github.com/openemr/openemr/pull/11509))
+
+#### docker
+
+  - add xdebug support to dev-php-fpm images ([#10369](https://github.com/openemr/openemr/pull/10369))
+  - fix OPENEMR__NO_BACKGROUND_TASKS env var reliability and scope ([#11331](https://github.com/openemr/openemr/pull/11331))
+  - remove obsolete --with-pic from dev-php-fpm 8.6 build ([#11767](https://github.com/openemr/openemr/pull/11767))
+  - resolve Dependabot overlapping directory error ([#11543](https://github.com/openemr/openemr/pull/11543))
+  - selenium dependabot updates for development-easy-redis ([#11061](https://github.com/openemr/openemr/pull/11061))
+  - set production docker-compose.yml to use latest tag on master branch ([#11059](https://github.com/openemr/openemr/pull/11059))
+
+#### e-Prescribe
+
+  - add title for eRx tab ([#9130](https://github.com/openemr/openemr/pull/9130))
+  - allow allergy entry without eRx role ([#10680](https://github.com/openemr/openemr/pull/10680))
+  - set linkMethod for Ensora eRx prescription button ([#11882](https://github.com/openemr/openemr/pull/11882))
+
+#### encounter
+
+  - add translation support for BMI status display ([#10406](https://github.com/openemr/openemr/pull/10406))
+  - correct i18formatting asset name typo ([#11937](https://github.com/openemr/openemr/pull/11937))
+  - drop duplicate growth-chart buttons from Vitals History ([#12007](https://github.com/openemr/openemr/pull/12007))
+  - enforce newest-first sort in encounters report ([#10991](https://github.com/openemr/openemr/pull/10991))
+  - Fix clinical notes date formatting (Fixes #11290). ([#11291](https://github.com/openemr/openemr/pull/11291))
+  - Fixes #11161 #11492 encounter nav issues ([#11503](https://github.com/openemr/openemr/pull/11503))
+  - Fixes #11493 observation form report embed fix ([#11504](https://github.com/openemr/openemr/pull/11504))
+  - growth chart fatals on missing patient sex; drain variable.undefined ([#11976](https://github.com/openemr/openemr/pull/11976))
+  - handle missing row and null uuid in encounter view form ([#11883](https://github.com/openemr/openemr/pull/11883))
+  - hide dispensed medications section when inhouse_pharmacy is disabled ([#11144](https://github.com/openemr/openemr/pull/11144))
+  - unify blank-row template through foreach ([#11985](https://github.com/openemr/openemr/pull/11985))
+
+#### installer
+
+  - require igroup field during installation ([#11693](https://github.com/openemr/openemr/pull/11693))
+
+#### javascript
+
+  - Add cache-busting query parameter to payment script ([#10231](https://github.com/openemr/openemr/pull/10231))
+  - sync package-lock.json with xmldom 0.9.10 update ([#11803](https://github.com/openemr/openemr/pull/11803))
+  - uncaught syntax error prevents CDR alert popup ([#10441](https://github.com/openemr/openemr/pull/10441))
+
+#### multi-site
+
+  - add missing site parameter to SDOH assessment URLs ([#10949](https://github.com/openemr/openemr/pull/10949))
+
+#### patient admin
+
+  - improve recall board filtering and form validation ([#10557](https://github.com/openemr/openemr/pull/10557))
+
+#### practice settings
+
+  - save admin practice practice settings ([#11807](https://github.com/openemr/openemr/pull/11807))
+
+#### selenium
+
+  - add diagnostics and retry for modal close timeout in testUserAdd ([#10652](https://github.com/openemr/openemr/pull/10652))
+  - add fresh session retry when JS fails to initialize after login ([#10595](https://github.com/openemr/openemr/pull/10595))
+  - handle optional alert in Create Visit test ([#10619](https://github.com/openemr/openemr/pull/10619))
+  - replace sleep/retry with proper WebDriver wait conditions ([#10500](https://github.com/openemr/openemr/pull/10500))
+
+#### testing
+
+  - add CI full test mode and fix stale element in assertActiveTab ([#10765](https://github.com/openemr/openemr/pull/10765))
+  - Add directory to isolated tests ([#10574](https://github.com/openemr/openemr/pull/10574))
+  - add integration tests to phpunit.xml and CI suite list ([#11372](https://github.com/openemr/openemr/pull/11372))
+  - capture diagnostics for user-add modal timeout flake ([#11858](https://github.com/openemr/openemr/pull/11858))
+  - ccda test breaking in docker build on devops ([#10225](https://github.com/openemr/openemr/pull/10225))
+  - Detect PHPUnit exiting without finishing ([#11615](https://github.com/openemr/openemr/pull/11615))
+  - ensure xdebug.mode=coverage for PHPUnit test file coverage (#10687) ([#10909](https://github.com/openemr/openemr/pull/10909))
+  - Fix flaky testUserAdd by properly waiting for page reload ([#10287](https://github.com/openemr/openemr/pull/10287))
+  - handle duplicate visit alert immediately after menu click ([#10685](https://github.com/openemr/openemr/pull/10685))
+  - handle UnexpectedAlertOpenException in assertActiveTab ([#10799](https://github.com/openemr/openemr/pull/10799))
+  - make dupscore unique-flag test robust against demo data ([#10922](https://github.com/openemr/openemr/pull/10922))
+  - prevent cross-Node-version cache contamination in test workflow ([#11728](https://github.com/openemr/openemr/pull/11728))
+  - replace no-op wait() calls with proper WebDriver waits ([#10400](https://github.com/openemr/openemr/pull/10400))
+  - replace Panther crawler clicks with direct WebDriver clicks ([#10560](https://github.com/openemr/openemr/pull/10560))
+  - resolve deprecations in services test suite ([#11647](https://github.com/openemr/openemr/pull/11647))
+  - resolve flaky User add test under coverage ([#11300](https://github.com/openemr/openemr/pull/11300))
+  - set implicit wait to 0 to fix explicit wait retries ([#10556](https://github.com/openemr/openemr/pull/10556))
+  - stop overriding implicit wait in coverage config ([#10570](https://github.com/openemr/openemr/pull/10570))
+  - verify app initialization after login with refresh recovery ([#10564](https://github.com/openemr/openemr/pull/10564))
+  - wait for active tab element before checking content ([#10749](https://github.com/openemr/openemr/pull/10749))
+  - wait for Knockout.js menu render before navigating ([#10536](https://github.com/openemr/openemr/pull/10536))
+
+#### translation
+
+  - apply xlt filter in patient verify success email templates ([#10983](https://github.com/openemr/openemr/pull/10983))
+  - use unconditional xl() for dynamic strings, not xl_list_label ([#11500](https://github.com/openemr/openemr/pull/11500))
+
+### Added
+
+  - add byte-identical canary + config to FILES_ALL with context-aware diff logic ([#12580](https://github.com/openemr/openemr/pull/12580))
+  - Add DBAL-based key storage and extract loadWithEngines ([#12093](https://github.com/openemr/openemr/pull/12093))
+  - add encryption status check methods and conditional database encryption ([#12096](https://github.com/openemr/openemr/pull/12096))
+  - add fsupgrade-11.sh for 8.1.1 release (master sync) ([#12609](https://github.com/openemr/openemr/pull/12609))
+  - add input validation for numeric fields ([#12163](https://github.com/openemr/openemr/pull/12163))
+  - add release-targets-changed dispatch event + workflow ([#12657](https://github.com/openemr/openemr/pull/12657))
+  - Add REPL tool for dev envs ([#12539](https://github.com/openemr/openemr/pull/12539))
+  - add test mode to release-prep workflow ([#12063](https://github.com/openemr/openemr/pull/12063))
+  - Add view only mode to portal appointments ([#12822](https://github.com/openemr/openemr/pull/12822))
+  - allow multiple rows per branch in release-targets.yml ([#12656](https://github.com/openemr/openemr/pull/12656))
+  - auto-merge dependabot docker-compose updates ([#12035](https://github.com/openemr/openemr/pull/12035))
+  - auto-sync byte-identical files from master to rel branches ([#12577](https://github.com/openemr/openemr/pull/12577))
+  - branch-cut automation — opens rel-side + master-side PRs on cut (workstream 2) ([#12696](https://github.com/openemr/openemr/pull/12696))
+  - client-side phone/fax validation on insurance + pharmacy edit forms ([#12534](https://github.com/openemr/openemr/pull/12534))
+  - declare HOST_UID/HOST_GID env in dev compose files ([#12647](https://github.com/openemr/openemr/pull/12647))
+  - declare HOST_UID/HOST_GID env in insane dev compose ([#12651](https://github.com/openemr/openemr/pull/12651))
+  - dispatch openemr-tag to openemr/demo_farm_openemr ([#12128](https://github.com/openemr/openemr/pull/12128))
+  - encrypt unassigned inbound faxes at rest ([#12484](https://github.com/openemr/openemr/pull/12484))
+  - extract (b)(10) EHI table set to b10-tables.yml ([#12397](https://github.com/openemr/openemr/pull/12397))
+  - honor HOST_UID/HOST_GID for apache uid alignment ([#12642](https://github.com/openemr/openemr/pull/12642))
+  - Modernized DBAL/ORM service path for code type syncing ([#12603](https://github.com/openemr/openemr/pull/12603))
+  - patch-prep automation (workstream 6) ([#12697](https://github.com/openemr/openemr/pull/12697))
+  - refuse to run OpenEMR CLI as root ([#12267](https://github.com/openemr/openemr/pull/12267))
+  - release-finalize partner PR + PostReleaseTargetsMutator (workstream 3 Phase A) ([#12662](https://github.com/openemr/openemr/pull/12662))
+  - SqlReservedWordRule + automated MySQL/MariaDB drift detection ([#12335](https://github.com/openemr/openemr/pull/12335))
+  - Symfony-routing strangler seam for zend_modules ([#12481](https://github.com/openemr/openemr/pull/12481))
+
+#### Authentication
+
+  - add audit logging for failed TOTP, U2F, and OAuth2 MFA attempts ([#11912](https://github.com/openemr/openemr/pull/11912))
+  - porting core and portal apps to HttpSessionFactory ([#10244](https://github.com/openemr/openemr/pull/10244))
+
+#### Backend Modernization Project
+
+  - add CacheDirectory for secure cache paths ([#11797](https://github.com/openemr/openemr/pull/11797))
+  - add CsrfUtils::checkCsrfInput() convenience method ([#11379](https://github.com/openemr/openemr/pull/11379))
+  - add database encryption opt-out setting ([#11973](https://github.com/openemr/openemr/pull/11973))
+  - add encryptForDatabase and decryptFromDatabase methods ([#11946](https://github.com/openemr/openemr/pull/11946))
+  - add event hooks for module content injection ([#10592](https://github.com/openemr/openemr/pull/10592))
+  - add rule to forbid CoversClass/CoversFunction attributes ([#11594](https://github.com/openemr/openemr/pull/11594))
+  - add ServiceContainer for centralized service access ([#10674](https://github.com/openemr/openemr/pull/10674))
+  - add typed getKernel() method to OEGlobalsBag ([#10679](https://github.com/openemr/openemr/pull/10679))
+  - forbid shell execution functions and eval() ([#11650](https://github.com/openemr/openemr/pull/11650))
+  - forbid unsafe catch blocks and exit/die inside them ([#11621](https://github.com/openemr/openemr/pull/11621))
+  - Initial front-controller implementation ([#9943](https://github.com/openemr/openemr/pull/9943))
+  - Migrate ADODB setup in sql.inc to new factory method ([#10777](https://github.com/openemr/openemr/pull/10777))
+  - Refactor filesystem encryption ([#12000](https://github.com/openemr/openemr/pull/12000))
+  - Start to set up PSR-11 DI container ([#11001](https://github.com/openemr/openemr/pull/11001))
+
+#### Calendar
+
+  - add missing appointment fields and auto-set pc_time/pc_informant ([#8932](https://github.com/openemr/openemr/pull/8932))
+
+#### Database Layer
+
+  - Add ConnectionManager for named database connections ([#11138](https://github.com/openemr/openemr/pull/11138))
+  - Introduce DBAL-based wrapper ([#10279](https://github.com/openemr/openemr/pull/10279))
+  - Migrate ADODB setup in Gacl to new factory method ([#10778](https://github.com/openemr/openemr/pull/10778))
+  - Prepare central ADODB setup ([#10776](https://github.com/openemr/openemr/pull/10776))
+
+#### Database Migrations & Schema Changes
+
+  - add structure to connection parsing, prepare reading socket option ([#10719](https://github.com/openemr/openemr/pull/10719))
+  - Base-level ORM installation ([#11742](https://github.com/openemr/openemr/pull/11742))
+  - Support Doctrine migrations for new schema migrations ([#10704](https://github.com/openemr/openemr/pull/10704))
+
+#### DevOps
+
+  - add API enablement flags to install command ([#11830](https://github.com/openemr/openemr/pull/11830))
+  - Add deprecation rules for PHPStan ([#10715](https://github.com/openemr/openemr/pull/10715))
+  - Add doctrine/migrations to cli ([#10943](https://github.com/openemr/openemr/pull/10943))
+  - add generator for database table type aliases ([#10720](https://github.com/openemr/openemr/pull/10720))
+  - add pre-commit workflow to run actionlint on GitHub Actions workflows ([#10212](https://github.com/openemr/openemr/pull/10212))
+  - Add rule for blocking direct instantiation of certain classes ([#10795](https://github.com/openemr/openemr/pull/10795))
+  - add run-all-due REST and CLI entry points ([#11687](https://github.com/openemr/openemr/pull/11687))
+  - Add workflow summaries for PHPStan failures ([#10723](https://github.com/openemr/openemr/pull/10723))
+  - Disallow global keyword ([#10426](https://github.com/openemr/openemr/pull/10426))
+  - Enhance telemetry ([#10302](https://github.com/openemr/openemr/pull/10302))
+  - Expose installer in symfony/console command ([#11631](https://github.com/openemr/openemr/pull/11631))
+  - forbid direct access to request superglobals ([#11250](https://github.com/openemr/openemr/pull/11250))
+  - support worktrees in the easy dev environments ([#11410](https://github.com/openemr/openemr/pull/11410))
+
+#### Documentation
+
+  - add php-fpm web server instructions to Step 5 ([#10478](https://github.com/openemr/openemr/pull/10478))
+
+#### Infrastructure
+
+  - add CLI tooling for listing, running, and crontab generation ([#11335](https://github.com/openemr/openemr/pull/11335))
+  - add REST API endpoints for listing and triggering services ([#11337](https://github.com/openemr/openemr/pull/11337))
+  - Flysystem setup; first example integration ([#11519](https://github.com/openemr/openemr/pull/11519))
+  - support redis session locking and fix redis encryption support over wire ([#11559](https://github.com/openemr/openemr/pull/11559))
+
+#### PHP
+
+  - add rule to forbid empty() in favor of explicit checks ([#10616](https://github.com/openemr/openemr/pull/10616))
+  - add rule to forbid error_log() in favor of SystemLogger ([#10612](https://github.com/openemr/openemr/pull/10612))
+  - enforce literal-string for translation functions ([#10697](https://github.com/openemr/openemr/pull/10697))
+  - Fixes #10233 cqm reporting period and deps updates ([#10234](https://github.com/openemr/openemr/pull/10234))
+
+#### REST API
+
+  - add optional encounter ID to document upload ([#10148](https://github.com/openemr/openemr/pull/10148))
+  - add prescription REST API endpoints with tests ([#10837](https://github.com/openemr/openemr/pull/10837))
+  - Added Bearer token to Swagger UI ([#10295](https://github.com/openemr/openemr/pull/10295))
+  - Fixes #10251 Related Person save existing patient when locale date format is not YYYY-MM-DD. ([#10253](https://github.com/openemr/openemr/pull/10253))
+  - Run API tests through Front Controller ([#11705](https://github.com/openemr/openemr/pull/11705))
+
+#### Reports
+
+  - Create 2026 Real World Testing report ([#10285](https://github.com/openemr/openemr/pull/10285))
+
+#### Security
+
+  - add AccessDeniedHelper for standardized denial responses ([#10568](https://github.com/openemr/openemr/pull/10568))
+  - Add encrypt methods to new ciphers ([#11294](https://github.com/openemr/openemr/pull/11294))
+  - CryptoInterface and modern Encryption compatibility bridge ([#11452](https://github.com/openemr/openemr/pull/11452))
+  - extend Semgrep SAST coverage to JavaScript, Twig, and XSL ([#10467](https://github.com/openemr/openemr/pull/10467))
+  - Key material storage APIs ([#11448](https://github.com/openemr/openemr/pull/11448))
+  - New core API - `CipherSuiteInterface` ([#11475](https://github.com/openemr/openemr/pull/11475))
+  - PHPStan rule to require use of query bindings ([#10288](https://github.com/openemr/openemr/pull/10288))
+  - Separate password encryption (1/2) ([#11135](https://github.com/openemr/openemr/pull/11135))
+  - Separate password encryption (2/2) ([#11139](https://github.com/openemr/openemr/pull/11139))
+
+#### UI/UX
+
+  - add email field to user admin UI ([#11056](https://github.com/openemr/openemr/pull/11056))
+  - add success alert on patient form submission ([#8351](https://github.com/openemr/openemr/pull/8351))
+  - display software version in fixed footer ([#11424](https://github.com/openemr/openemr/pull/11424))
+  - make main menu logo link and title configurable (#10986) ([#11002](https://github.com/openemr/openemr/pull/11002))
+
+#### billing & payments
+
+  - Add support for Rainforest as a payment gateway ([#10445](https://github.com/openemr/openemr/pull/10445))
+  - install ClaimRev Connect module as Composer dependency ([#11265](https://github.com/openemr/openemr/pull/11265))
+  - other payer claim control number for secondary claims ([#11075](https://github.com/openemr/openemr/pull/11075))
+
+#### communications
+
+  - add email send test to admin interface ([#11378](https://github.com/openemr/openemr/pull/11378))
+  - add SignalWire integration ([#10171](https://github.com/openemr/openemr/pull/10171))
+
+#### encounter
+
+  - Additional datapoint collections. ([#10497](https://github.com/openemr/openemr/pull/10497))
+  - show lock icon for signed/locked encounters ([#8220](https://github.com/openemr/openemr/pull/8220))
+
+#### patient admin
+
+  - add email_direct validation and native email input type (#10866) ([#10904](https://github.com/openemr/openemr/pull/10904))
+  - add organization type field ([#10643](https://github.com/openemr/openemr/pull/10643))
+  - add pronouns and fix other layout oddities ([#10202](https://github.com/openemr/openemr/pull/10202))
+  - optionally generate csv file of duplicate patients ([#10806](https://github.com/openemr/openemr/pull/10806))
+
+### Changed
+
+  - add 'Lifecycle: rel-NNN0 cut event' section to release-automation-plan.md ([#12721](https://github.com/openemr/openemr/pull/12721))
+  - add apache_{82,85}_118_upgrade variants exercising 5.0.0→current sql_upgrade chain ([#12210](https://github.com/openemr/openemr/pull/12210))
+  - add ext-redis to composer config.platform ([#12381](https://github.com/openemr/openemr/pull/12381))
+  - add force-dispatch input to release-prep ([#12287](https://github.com/openemr/openemr/pull/12287))
+  - add force-dispatch input to release-prep workflow ([#12290](https://github.com/openemr/openemr/pull/12290))
+  - add integration test for CcdaGenerator::socket_get ([#12471](https://github.com/openemr/openemr/pull/12471))
+  - add isolated tests for Claim::procCount and payerCount ([#12530](https://github.com/openemr/openemr/pull/12530))
+  - Add multi-sink destination ([#12655](https://github.com/openemr/openemr/pull/12655))
+  - add reusable + caller workflow for PR reviews ([#12700](https://github.com/openemr/openemr/pull/12700))
+  - Adopt DTO for settings & tidy cookie path ([#12689](https://github.com/openemr/openemr/pull/12689))
+  - advance master to 8.2.0-dev ([#12596](https://github.com/openemr/openemr/pull/12596))
+  - align site_addr_oath with baseUrl in GroupExportFhirApiTest setUp ([#12259](https://github.com/openemr/openemr/pull/12259))
+  - allow-list GitHub comment tools + surface transcript ([#12704](https://github.com/openemr/openemr/pull/12704))
+  - also ignore codecov/patch in All Checks Passed aggregate ([#12341](https://github.com/openemr/openemr/pull/12341))
+  - apply coderabbit Major fixes missed on PR #12696 ([#12709](https://github.com/openemr/openemr/pull/12709))
+  - apply pretty-format-yaml across repo-owned configs ([#12571](https://github.com/openemr/openemr/pull/12571))
+  - authenticate Composer with GITHUB_TOKEN to dodge API throttle ([#12658](https://github.com/openemr/openemr/pull/12658))
+  - authenticate to Docker Hub before image pulls to lift rate limits ([#12431](https://github.com/openemr/openemr/pull/12431))
+  - broaden workflow to validate every upstream hook on --all-files ([#12574](https://github.com/openemr/openemr/pull/12574))
+  - bump actions/cache from 5 to 6 ([#12663](https://github.com/openemr/openemr/pull/12663))
+  - bump actions/checkout from 6 to 7 ([#12558](https://github.com/openemr/openemr/pull/12558))
+  - bump actions/create-github-app-token from 1 to 3 ([#12040](https://github.com/openemr/openemr/pull/12040))
+  - bump actions/download-artifact from 7 to 8 ([#11833](https://github.com/openemr/openemr/pull/11833))
+  - bump codecov/codecov-action from 5 to 6 ([#11351](https://github.com/openemr/openemr/pull/11351))
+  - bump codecov/codecov-action from 6 to 7 ([#12406](https://github.com/openemr/openemr/pull/12406))
+  - bump https://github.com/codespell-project/codespell from v2.4.1 to 2.4.2 ([#12560](https://github.com/openemr/openemr/pull/12560))
+  - bump https://github.com/macisamuele/language-formatters-pre-commit-hooks from v2.14.0 to 2.16.0 ([#12561](https://github.com/openemr/openemr/pull/12561))
+  - bump https://github.com/pre-commit/pre-commit-hooks from v4.5.0 to 6.0.0 ([#12557](https://github.com/openemr/openemr/pull/12557))
+  - bump lewagon/wait-on-check-action from 1.7.0 to 1.8.0 ([#12446](https://github.com/openemr/openemr/pull/12446))
+  - bump marocchino/sticky-pull-request-comment from 2 to 3 ([#11832](https://github.com/openemr/openemr/pull/11832))
+  - bump master dev version to 8.1.1 ([#11296](https://github.com/openemr/openemr/pull/11296))
+  - bump peter-evans/create-pull-request from 7 to 8 ([#12039](https://github.com/openemr/openemr/pull/12039))
+  - bump rel-810 release-targets row to 8.1.1 / rel-810 ([#12612](https://github.com/openemr/openemr/pull/12612))
+  - Centralize and simplify "should log" logic ([#12698](https://github.com/openemr/openemr/pull/12698))
+  - clean up js_escape() patterns ([#12145](https://github.com/openemr/openemr/pull/12145))
+  - clear arrayValues.list + smaller.invalid PHPStan baseline entries ([#12245](https://github.com/openemr/openemr/pull/12245))
+  - collapse cross-repo release-process docs to 2-PR shape ([#12631](https://github.com/openemr/openemr/pull/12631))
+  - correct credentials, automation gaps, and recovery framing ([#12404](https://github.com/openemr/openemr/pull/12404))
+  - docker migration master-side (phases 1a + 1b + 1c) ([#12482](https://github.com/openemr/openemr/pull/12482))
+  - document Claude Code-driven Selenium debugging ([#12463](https://github.com/openemr/openemr/pull/12463))
+  - document docker-routed pre-commit workflow + isolate PHPStan tmpDir via named volume ([#12147](https://github.com/openemr/openemr/pull/12147))
+  - document new openemr-cmd worktree add -b default and --base flag ([#12613](https://github.com/openemr/openemr/pull/12613))
+  - document new openemr-cmd worktree subcommands and AI-assistant rules ([#12021](https://github.com/openemr/openemr/pull/12021))
+  - document openemr-cmd phpstan-generate-reset and update-layout-field-fixtures ([#12250](https://github.com/openemr/openemr/pull/12250))
+  - document openemr-cmd worktree prune + graceful remove ([#12369](https://github.com/openemr/openemr/pull/12369))
+  - document release-targets.yml as master-authoritative ([#12586](https://github.com/openemr/openemr/pull/12586))
+  - drop demo_farm from openemr-tag dispatch target-repos ([#12661](https://github.com/openemr/openemr/pull/12661))
+  - drop paths-ignore from release-prep push trigger ([#12724](https://github.com/openemr/openemr/pull/12724))
+  - drop show_full_output debug flag ([#12707](https://github.com/openemr/openemr/pull/12707))
+  - drop unused laminas-xmlrpc and confirm 8.5 resolution path ([#12468](https://github.com/openemr/openemr/pull/12468))
+  - drop vestigial Remove Rector step ([#12659](https://github.com/openemr/openemr/pull/12659))
+  - exclude generated EHI schema docs from release archives ([#12317](https://github.com/openemr/openemr/pull/12317))
+  - exclude non-logic dirs from phpunit coverage ([#12268](https://github.com/openemr/openemr/pull/12268))
+  - exclude NotificationCronEmailTest from e2e suite (it lives in email suite) ([#12258](https://github.com/openemr/openemr/pull/12258))
+  - Exit with a nonzero code if bootstrap fails ([#12532](https://github.com/openemr/openemr/pull/12532))
+  - ext-posix in `require-dev` breaks `composer install` on Windows ([#12566](https://github.com/openemr/openemr/pull/12566))
+  - externalize byte-identical FILES_ALL to a dedicated config file ([#12575](https://github.com/openemr/openemr/pull/12575))
+  - extract PatientPortalLoginController, behavior-preserving ([#12231](https://github.com/openemr/openemr/pull/12231))
+  - extract sync-byte-identical bash into a tested script ([#12578](https://github.com/openemr/openemr/pull/12578))
+  - Fix SignalWire fax support in oe-module-faxsms ([#12766](https://github.com/openemr/openemr/pull/12766))
+  - gitignore .worktrees.json.lock/ directory ([#12614](https://github.com/openemr/openemr/pull/12614))
+  - Groundwork for connecting to ORM and migration events ([#12522](https://github.com/openemr/openemr/pull/12522))
+  - include composer.json in vendor cache key ([#11617](https://github.com/openemr/openemr/pull/11617))
+  - include docker/production/ in release tarball (rel-820 backport) ([#12777](https://github.com/openemr/openemr/pull/12777))
+  - Instruct CodeRabbit to not edit the main PR body ([#12531](https://github.com/openemr/openemr/pull/12531))
+  - migrate dependabot-auto-merge to client-id / vars ([#12372](https://github.com/openemr/openemr/pull/12372))
+  - migrate PostCalendar from Smarty to Twig ([#12435](https://github.com/openemr/openemr/pull/12435))
+  - migrate reserved-word bot to client-id / vars ([#12371](https://github.com/openemr/openemr/pull/12371))
+  - Move doctrine/migrations config ([#12633](https://github.com/openemr/openemr/pull/12633))
+  - move isolated-compatible tests to isolated suite ([#12010](https://github.com/openemr/openemr/pull/12010))
+  - normalize YAML indentation in dev-easy-redis compose ([#12464](https://github.com/openemr/openemr/pull/12464))
+  - note HOST_UID auto-export for transparent host-uid alignment ([#12650](https://github.com/openemr/openemr/pull/12650))
+  - phpstan fixes and other unrelated fixes ([#12523](https://github.com/openemr/openemr/pull/12523))
+  - pin express version range in ccdaservice lockfile ([#12465](https://github.com/openemr/openemr/pull/12465))
+  - pin orchestrator to Sonnet, drop the premium Opus default ([#12708](https://github.com/openemr/openemr/pull/12708))
+  - pin runner to ubuntu-24.04 ([#12383](https://github.com/openemr/openemr/pull/12383))
+  - pre-cut release-targets.yml for rel-820 (skip 8.1.x) ([#12712](https://github.com/openemr/openemr/pull/12712))
+  - prep for 8.1.0 and 8.1.1 ([#11310](https://github.com/openemr/openemr/pull/11310))
+  - Prepare BreakglassChecker(Interface) for autowiring ([#12654](https://github.com/openemr/openemr/pull/12654))
+  - rel-820: fix(edihistory): strict types string errors (#12652) ([#12825](https://github.com/openemr/openemr/pull/12825))
+  - relocate docker/compose.yml to .github/docker/ ([#12590](https://github.com/openemr/openemr/pull/12590))
+  - relocate migration doc + refresh post-migration documentation ([#12551](https://github.com/openemr/openemr/pull/12551))
+  - Remove redundant encryption from audit log writes ([#12123](https://github.com/openemr/openemr/pull/12123))
+  - remove redundant encryption from OneTimeAuth tokens ([#12066](https://github.com/openemr/openemr/pull/12066))
+  - remove unimplemented VoiceClient ([#12020](https://github.com/openemr/openemr/pull/12020))
+  - remove unnecessary encryption from one-time tokens ([#12062](https://github.com/openemr/openemr/pull/12062))
+  - Remove unused client SSL certificate auth feature ([#12510](https://github.com/openemr/openemr/pull/12510))
+  - remove unused Laminas\Mvc import in FHIRSearchFieldFactory ([#12405](https://github.com/openemr/openemr/pull/12405))
+  - replace grunt/jshint with eslint+mocha in oe-cda-schematron ([#12453](https://github.com/openemr/openemr/pull/12453))
+  - replace vendored SearchHighlight.js with vanilla TreeWalker helper ([#12146](https://github.com/openemr/openemr/pull/12146))
+  - retry Docker image pulls with backoff to survive registry timeouts ([#12425](https://github.com/openemr/openemr/pull/12425))
+  - revert(faxsms): restore VoiceClient and in-browser RingCentral softphone ([#12229](https://github.com/openemr/openemr/pull/12229))
+  - skip auto-review on bot-authored PRs ([#12706](https://github.com/openemr/openemr/pull/12706))
+  - split pretty-format-json into per-ecosystem 2-space/4-space blocks ([#12573](https://github.com/openemr/openemr/pull/12573))
+  - switch to Anthropic code-review plugin, on-demand only ([#12705](https://github.com/openemr/openemr/pull/12705))
+  - track pre-commit hook revs ([#12553](https://github.com/openemr/openemr/pull/12553))
+  - trigger on rel-* branches (rel-820 backport of #12774) ([#12775](https://github.com/openemr/openemr/pull/12775))
+  - trigger orchestrator on push to release-targets.yml ([#12720](https://github.com/openemr/openemr/pull/12720))
+  - trim docker/.gitignore + docker/COVERAGE.md from byte-identical set ([#12576](https://github.com/openemr/openemr/pull/12576))
+  - update demo_farm flow for auto-derive bot + release-targets-changed event ([#12660](https://github.com/openemr/openemr/pull/12660))
+  - update release-automation-plan.md for landed release automation ([#12710](https://github.com/openemr/openemr/pull/12710))
+  - upgrade Symfony components to 7.x ([#11517](https://github.com/openemr/openemr/pull/11517))
+  - use GitHub App for reserved-word refresh PRs so CI runs ([#12368](https://github.com/openemr/openemr/pull/12368))
+  - use session storage instead of encryption for payment data ([#12069](https://github.com/openemr/openemr/pull/12069))
+  - wall off webpack cache in dev-easy compose envs ([#12466](https://github.com/openemr/openemr/pull/12466))
+  - warn against git fetch --update-head-ok in the primary repo ([#12595](https://github.com/openemr/openemr/pull/12595))
+  - wire hadolint into local hooks ([#12552](https://github.com/openemr/openemr/pull/12552))
+  - wire vendored-contract drift check via devops reusable workflow ([#12619](https://github.com/openemr/openemr/pull/12619))
+
+#### ACL & Permissions
+
+  - Narrow scope and apply correct type to Gacl properties ([#10761](https://github.com/openemr/openemr/pull/10761))
+  - throw exceptions instead of exit() in controller ACL checks ([#11244](https://github.com/openemr/openemr/pull/11244))
+
+#### ASTP/ONC Certification
+
+  - FHIR API documentation minor fixes ([#11104](https://github.com/openemr/openemr/pull/11104))
+  - skip data_absent_reason test in US Core 3.1.1 suite ([#11918](https://github.com/openemr/openemr/pull/11918))
+
+#### Authentication
+
+  - remove obsolete constructor argument from AuthHash calls ([#10410](https://github.com/openemr/openemr/pull/10410))
+  - replace die() with RuntimeException in generatePortal… ([#10942](https://github.com/openemr/openemr/pull/10942))
+  - replace raw SQL parameter in AuthUtils::updatePassword() ([#11229](https://github.com/openemr/openemr/pull/11229))
+
+#### Backend Modernization Project
+
+  - Add and initialize basic fallback exception handler ([#11411](https://github.com/openemr/openemr/pull/11411))
+  - add AppointmentService test coverage ([#10915](https://github.com/openemr/openemr/pull/10915))
+  - add array type to $search parameter ([#11555](https://github.com/openemr/openemr/pull/11555))
+  - add composer phpstan-baseline-reset to wipe and rebuild ([#11816](https://github.com/openemr/openemr/pull/11816))
+  - add isolated tests for MeasurementUtils and StringUtils ([#10825](https://github.com/openemr/openemr/pull/10825))
+  - add LayoutOptionsRow type to TableTypes ([#11556](https://github.com/openemr/openemr/pull/11556))
+  - add native types to Prescription properties ([#11318](https://github.com/openemr/openemr/pull/11318))
+  - add native types to well-covered source files ([#11067](https://github.com/openemr/openemr/pull/11067))
+  - Add type annotations to CCR ([#10692](https://github.com/openemr/openemr/pull/10692))
+  - add type safety to AddressService ([#10421](https://github.com/openemr/openemr/pull/10421))
+  - add typed path accessors to Kernel and migrate src/ ([#11570](https://github.com/openemr/openemr/pull/11570))
+  - Cache service instances in ServiceContainer ([#11520](https://github.com/openemr/openemr/pull/11520))
+  - cap phpDoc.parseError baseline at zero ([#11914](https://github.com/openemr/openemr/pull/11914))
+  - Clean up some issues in Document ([#12001](https://github.com/openemr/openemr/pull/12001))
+  - clean up stale $GLOBALS references in comments ([#11791](https://github.com/openemr/openemr/pull/11791))
+  - consolidate base64url encode/decode to HttpUtils ([#10543](https://github.com/openemr/openemr/pull/10543))
+  - Consolidate duplicate function definitions ([#10402](https://github.com/openemr/openemr/pull/10402))
+  - Consolidate float validation using ValidationUtils ([#10318](https://github.com/openemr/openemr/pull/10318))
+  - Consolidate integer validation using ValidationUtils ([#10317](https://github.com/openemr/openemr/pull/10317))
+  - Consolidate IP address validation using filter_var ([#10306](https://github.com/openemr/openemr/pull/10306))
+  - Consolidate more duplicate functions/symbols ([#10405](https://github.com/openemr/openemr/pull/10405))
+  - Consolidate NPI validation using ValidationUtils ([#10319](https://github.com/openemr/openemr/pull/10319))
+  - Consolidate postal code validation using ValidationUtils ([#10320](https://github.com/openemr/openemr/pull/10320))
+  - Consolidate UUID validation using ValidationUtils ([#10322](https://github.com/openemr/openemr/pull/10322))
+  - Consolidate validations using ValidationUtils ([#10321](https://github.com/openemr/openemr/pull/10321))
+  - Continue global function de-duplication ([#10588](https://github.com/openemr/openemr/pull/10588))
+  - Convert legacy Phreeze to updated connection handling ([#10802](https://github.com/openemr/openemr/pull/10802))
+  - convert remaining $GLOBALS existence checks to OEGlobalsBag ([#11048](https://github.com/openemr/openemr/pull/11048))
+  - Deduplicate more global functions ([#10790](https://github.com/openemr/openemr/pull/10790))
+  - Deduplicate more global functions ([#10729](https://github.com/openemr/openemr/pull/10729))
+  - Doctrine/DBAL initial integration ([#9980](https://github.com/openemr/openemr/pull/9980))
+  - drain Carecoordination module class.notFound + method.notFound ([#11859](https://github.com/openemr/openemr/pull/11859))
+  - drain confident nonObject baselines (21 → 0) ([#11821](https://github.com/openemr/openemr/pull/11821))
+  - drain constant.notFound baseline (123 → 0) ([#11823](https://github.com/openemr/openemr/pull/11823))
+  - drain edihistory baseline (method.notFound, variable.undefined) ([#11878](https://github.com/openemr/openemr/pull/11878))
+  - drain eRx method.notFound entries (253 → 189) ([#11825](https://github.com/openemr/openemr/pull/11825))
+  - drain return.missing baseline (29 → 0) ([#11820](https://github.com/openemr/openemr/pull/11820))
+  - drain variable.undefined across interface/patient_file ([#11902](https://github.com/openemr/openemr/pull/11902))
+  - drain variable.undefined baseline (3064 → 2927) ([#11887](https://github.com/openemr/openemr/pull/11887))
+  - drain variable.undefined baseline for edihistory, modules, reports, services ([#11903](https://github.com/openemr/openemr/pull/11903))
+  - drain variable.undefined baseline for interface/forms/eye_mag (1835 → 800) ([#11920](https://github.com/openemr/openemr/pull/11920))
+  - drain variable.undefined baseline in interface/main ([#11901](https://github.com/openemr/openemr/pull/11901))
+  - drain variable.undefined for canonical-globals form files (800 → 708) ([#11954](https://github.com/openemr/openemr/pull/11954))
+  - drain variable.undefined for interface/forms (708 → 586) ([#11963](https://github.com/openemr/openemr/pull/11963))
+  - drain variable.undefined in gacl/admin (3446 → 3399) ([#11826](https://github.com/openemr/openemr/pull/11826))
+  - drain variable.undefined PHPStan baseline entries ([#11895](https://github.com/openemr/openemr/pull/11895))
+  - drop 1024-byte fgets() buffer in Installer::getLine() ([#11461](https://github.com/openemr/openemr/pull/11461))
+  - enable getInt() and getString() typed getters ([#11257](https://github.com/openemr/openemr/pull/11257))
+  - extract storage path calculation for testability ([#11778](https://github.com/openemr/openemr/pull/11778))
+  - Fix most duplicate class definitions ([#10779](https://github.com/openemr/openemr/pull/10779))
+  - gate fatal-category baseline entries from ever growing ([#11796](https://github.com/openemr/openemr/pull/11796))
+  - Improve handling for Symfony HTTP errors ([#11501](https://github.com/openemr/openemr/pull/11501))
+  - inject PSR Clock into EventAuditLogger ([#11309](https://github.com/openemr/openemr/pull/11309))
+  - inline and remove trivial duplicate functions ([#10589](https://github.com/openemr/openemr/pull/10589))
+  - lift edih_x12_file to OpenEMR\Billing\EdiHistory\X12File ([#11879](https://github.com/openemr/openemr/pull/11879))
+  - make baseline-diff PR lookup tolerant of API failures ([#11847](https://github.com/openemr/openemr/pull/11847))
+  - Make QueryUtils the canonical implementation ([#10516](https://github.com/openemr/openemr/pull/10516))
+  - migrate call sites to encryptForDatabase/decryptFromDatabase helpers ([#11956](https://github.com/openemr/openemr/pull/11956))
+  - migrate deprecated sqlQ() calls to QueryUtils ([#10545](https://github.com/openemr/openemr/pull/10545))
+  - migrate interface/forms path reads to typed Kernel accessors ([#11757](https://github.com/openemr/openemr/pull/11757))
+  - migrate interface/modules path reads to typed Kernel accessors ([#11759](https://github.com/openemr/openemr/pull/11759))
+  - migrate interface/patient_file path reads to typed Kernel accessors ([#11758](https://github.com/openemr/openemr/pull/11758))
+  - migrate interface/reports path reads to typed Kernel accessors ([#11760](https://github.com/openemr/openemr/pull/11760))
+  - migrate library/ path reads to typed Kernel accessors ([#11263](https://github.com/openemr/openemr/pull/11263))
+  - migrate module installers to Registry ([#11682](https://github.com/openemr/openemr/pull/11682))
+  - migrate remaining interface/ subdirs to typed Kernel path accessors ([#11761](https://github.com/openemr/openemr/pull/11761))
+  - migrate sqlBeginTrans call sites to QueryUtils::inTransaction ([#11488](https://github.com/openemr/openemr/pull/11488))
+  - modernize auto_prepend.php ([#11571](https://github.com/openemr/openemr/pull/11571))
+  - modernize CAMOS form code and eliminate PHPStan baseline entries ([#11313](https://github.com/openemr/openemr/pull/11313))
+  - Move function definitions out of globals.php ([#11412](https://github.com/openemr/openemr/pull/11412))
+  - Move more logic from sql.inc to QueryUtils ([#10520](https://github.com/openemr/openemr/pull/10520))
+  - Move Smarty and mPDF temp directories to system temp ([#11779](https://github.com/openemr/openemr/pull/11779))
+  - Move sqlInsert to QueryUtils ([#10621](https://github.com/openemr/openemr/pull/10621))
+  - move to src/ services and fix calendar import + N+1 ([#12195](https://github.com/openemr/openemr/pull/12195))
+  - narrow broad exception catches to specific types ([#11619](https://github.com/openemr/openemr/pull/11619))
+  - parameterize SQL, fix loose comparisons, remove dead code ([#11349](https://github.com/openemr/openemr/pull/11349))
+  - reduce PHPStan baseline — QueryUtils, PSR-3 logging, inTransaction ([#11269](https://github.com/openemr/openemr/pull/11269))
+  - Refactor and add tests for fixDate ([#11417](https://github.com/openemr/openemr/pull/11417))
+  - regenerate baseline for phpstan 2.1.54 ([#11996](https://github.com/openemr/openemr/pull/11996))
+  - remove 19 unused global definitions ([#10929](https://github.com/openemr/openemr/pull/10929))
+  - Remove generic sql functions ([#10519](https://github.com/openemr/openemr/pull/10519))
+  - Remove getSqlLastError() global function, improve types ([#10596](https://github.com/openemr/openemr/pull/10596))
+  - remove js_escape_protected() -- convert literal escapes at source ([#11371](https://github.com/openemr/openemr/pull/11371))
+  - Remove legacy de-identification tooling ([#10534](https://github.com/openemr/openemr/pull/10534))
+  - Remove legacy non-utf8 connection support ([#10789](https://github.com/openemr/openemr/pull/10789))
+  - remove mitigateSqlTableUpperCase() wrapper ([#11299](https://github.com/openemr/openemr/pull/11299))
+  - remove more duplicate function definitions ([#10433](https://github.com/openemr/openemr/pull/10433))
+  - Remove most of ApplicationTable & Laminas DB coupling ([#10930](https://github.com/openemr/openemr/pull/10930))
+  - remove redundant `global $GLOBALS` declarations ([#11266](https://github.com/openemr/openemr/pull/11266))
+  - remove return/store polymorphism from pnHTML ([#8587](https://github.com/openemr/openemr/pull/8587))
+  - remove unused PredisSessionHandler class ([#10528](https://github.com/openemr/openemr/pull/10528))
+  - rename 'Default Password Expiration Days' to 'Password Expiration Days' ([#11817](https://github.com/openemr/openemr/pull/11817))
+  - replace $GLOBALS access with OEGlobalsBag across the codebase ([#11017](https://github.com/openemr/openemr/pull/11017))
+  - replace allow_cronjobs.php with Symfony console commands ([#11707](https://github.com/openemr/openemr/pull/11707))
+  - replace catch (Exception) with catch (Throwable) ([#10620](https://github.com/openemr/openemr/pull/10620))
+  - replace escaped HTML strings in EDI270 with heredoc ([#11583](https://github.com/openemr/openemr/pull/11583))
+  - replace getSearchClass with SearchClass enum ([#11557](https://github.com/openemr/openemr/pull/11557))
+  - replace literal preg_match prefix/suffix checks with native string functions ([#11884](https://github.com/openemr/openemr/pull/11884))
+  - replace repeat-type if/elseif chain with date arithmetic ([#11270](https://github.com/openemr/openemr/pull/11270))
+  - replace VersionService::asString() with SoftwareVersion DTO ([#11428](https://github.com/openemr/openemr/pull/11428))
+  - return booleans instead of string values in connectivity checks ([#10850](https://github.com/openemr/openemr/pull/10850))
+  - reused SingletonTrait at OEGlobalsBag ([#10515](https://github.com/openemr/openemr/pull/10515))
+  - Separate "beta" CLI commands ([#11702](https://github.com/openemr/openemr/pull/11702))
+  - Simplify and speed up the integration test build matrix ([#11701](https://github.com/openemr/openemr/pull/11701))
+  - Sort functions in autoloaded function file ([#11406](https://github.com/openemr/openemr/pull/11406))
+  - stop constructing throwaway Kernel instances ([#11262](https://github.com/openemr/openemr/pull/11262))
+  - Support CipherSuiteInterface in EventAuditLogger ([#11704](https://github.com/openemr/openemr/pull/11704))
+  - Switch from error_log to standard system logger, fix status codes ([#10690](https://github.com/openemr/openemr/pull/10690))
+  - use centralized database connection factory ([#10805](https://github.com/openemr/openemr/pull/10805))
+  - use getBoolean() for boolean OEGlobalsBag settings ([#11050](https://github.com/openemr/openemr/pull/11050))
+  - use getInt() for numeric OEGlobalsBag settings ([#11068](https://github.com/openemr/openemr/pull/11068))
+  - use OEGlobalsBag::getKernel() instead of ->get('kernel') ([#11014](https://github.com/openemr/openemr/pull/11014))
+
+#### CCDA Service
+
+  - add isolated unit tests for CdaTemplateParse ([#10873](https://github.com/openemr/openemr/pull/10873))
+  - rebuild libxmljs2 from source ([#11852](https://github.com/openemr/openemr/pull/11852))
+  - remove dead code and fix undefined variables ([#10689](https://github.com/openemr/openemr/pull/10689))
+  - rename cache key to invalidate stale v127 binaries ([#11862](https://github.com/openemr/openemr/pull/11862))
+  - Revert "ci(ccdaservice): rebuild libxmljs2 from source (#11852)" ([#11861](https://github.com/openemr/openemr/pull/11861))
+
+#### Calendar
+
+  - cover recurring event repeat-type branching ([#11795](https://github.com/openemr/openemr/pull/11795))
+  - replace hardcoded day/month arrays with int-backed enums ([#11427](https://github.com/openemr/openemr/pull/11427))
+  - Update PostNuke internals to DBAL ([#10773](https://github.com/openemr/openemr/pull/10773))
+
+#### Database Layer
+
+  - centralize connection persistence detection ([#10803](https://github.com/openemr/openemr/pull/10803))
+  - change $_db property from public to protected ([#10889](https://github.com/openemr/openemr/pull/10889))
+  - migrate get_db() calls to QueryUtils ([#10884](https://github.com/openemr/openemr/pull/10884))
+  - Move dbal connection into factory ([#11082](https://github.com/openemr/openemr/pull/11082))
+  - Remove charset option ([#10801](https://github.com/openemr/openemr/pull/10801))
+  - Remove multipledb module ([#10927](https://github.com/openemr/openemr/pull/10927))
+  - Remove sqlconfig event ([#10920](https://github.com/openemr/openemr/pull/10920))
+  - Remove support for secure_sqlconf.php ([#10883](https://github.com/openemr/openemr/pull/10883))
+  - rename Audit connection to NonAudited ([#11376](https://github.com/openemr/openemr/pull/11376))
+  - Simplify config file reading ([#10972](https://github.com/openemr/openemr/pull/10972))
+  - Update backup script to central config reads; exclude phpstan info ([#10966](https://github.com/openemr/openemr/pull/10966))
+  - use BC\Utilities::isDateEmpty() for zero-date checks ([#11320](https://github.com/openemr/openemr/pull/11320))
+
+#### Database Migrations & Schema Changes
+
+  - Baseline tooling for doctrine/migrations conversion ([#11653](https://github.com/openemr/openemr/pull/11653))
+  - Fix typo ([#11867](https://github.com/openemr/openemr/pull/11867))
+  - Pre-create Doctrine migrations table ([#11771](https://github.com/openemr/openemr/pull/11771))
+
+#### Dependency Upgrade Broken
+
+  - Remove laminas-db package dependency ([#10965](https://github.com/openemr/openemr/pull/10965))
+
+#### DevOps
+
+  - Add and correct missing type info ([#10967](https://github.com/openemr/openemr/pull/10967))
+  - add Build Patch Release workflow ([#11079](https://github.com/openemr/openemr/pull/11079))
+  - add check for v_database alignment between version.php and database.sql ([#10768](https://github.com/openemr/openemr/pull/10768))
+  - add codespell spell checking for CI and local development ([#10327](https://github.com/openemr/openemr/pull/10327))
+  - add codespell to local development tooling ([#10389](https://github.com/openemr/openemr/pull/10389))
+  - add export-ignore rules to .gitattributes ([#11213](https://github.com/openemr/openemr/pull/11213))
+  - add pcov support for faster code coverage ([#10375](https://github.com/openemr/openemr/pull/10375))
+  - add rector and shipmonk to dependabot development group ([#11239](https://github.com/openemr/openemr/pull/11239))
+  - Add scheduled nightly tests with full coverage ([#10360](https://github.com/openemr/openemr/pull/10360))
+  - add script to analyze flaky test patterns ([#10601](https://github.com/openemr/openemr/pull/10601))
+  - add Semgrep security scanning for PHP code ([#10264](https://github.com/openemr/openemr/pull/10264))
+  - add shell-out CLI integration test ([#11699](https://github.com/openemr/openemr/pull/11699))
+  - Add unused use statement linting ([#10938](https://github.com/openemr/openemr/pull/10938))
+  - Avoid duplicate function definitions ([#10713](https://github.com/openemr/openemr/pull/10713))
+  - bump actions/checkout from 4 to 6 ([#10272](https://github.com/openemr/openemr/pull/10272))
+  - bump actions/checkout from 4 to 6 ([#10391](https://github.com/openemr/openemr/pull/10391))
+  - bump actions/download-artifact from 4 to 8 ([#11062](https://github.com/openemr/openemr/pull/11062))
+  - bump actions/setup-python from 5 to 6 ([#10390](https://github.com/openemr/openemr/pull/10390))
+  - bump actions/upload-artifact from 4 to 6 ([#10271](https://github.com/openemr/openemr/pull/10271))
+  - bump actions/upload-artifact from 4 to 6 ([#10653](https://github.com/openemr/openemr/pull/10653))
+  - bump actions/upload-artifact from 6 to 7 ([#10956](https://github.com/openemr/openemr/pull/10956))
+  - bump docker/build-push-action from 6 to 7 ([#11038](https://github.com/openemr/openemr/pull/11038))
+  - bump docker/login-action from 3 to 4 ([#11040](https://github.com/openemr/openemr/pull/11040))
+  - bump docker/setup-buildx-action from 3 to 4 ([#11037](https://github.com/openemr/openemr/pull/11037))
+  - bump docker/setup-qemu-action from 3 to 4 ([#11039](https://github.com/openemr/openemr/pull/11039))
+  - bump immutable 4.3.7 → 4.3.8 in ccdaservice ([#11033](https://github.com/openemr/openemr/pull/11033))
+  - bump j178/prek-action from 1 to 2 ([#11232](https://github.com/openemr/openemr/pull/11232))
+  - bump mariadb to 12.2 ([#11534](https://github.com/openemr/openemr/pull/11534))
+  - bump minimatch to fix ReDoS (CVE-2026-26996) ([#10932](https://github.com/openemr/openemr/pull/10932))
+  - capture openemr log and apache coredump in e2e failure artifact ([#12445](https://github.com/openemr/openemr/pull/12445))
+  - Conditional directory creation for patch files ([#11170](https://github.com/openemr/openemr/pull/11170))
+  - consolidate PHPCS config into phpcs.xml.dist ([#10593](https://github.com/openemr/openemr/pull/10593))
+  - delegate to composer scripts instead of hard-coding commands ([#10533](https://github.com/openemr/openemr/pull/10533))
+  - delete .github/workflows/build-patch.yml ([#11175](https://github.com/openemr/openemr/pull/11175))
+  - drop direct laminas/laminas-json requirement ([#11133](https://github.com/openemr/openemr/pull/11133))
+  - exclude uncoverable test infrastructure from coverage ([#10641](https://github.com/openemr/openemr/pull/10641))
+  - Group and sort `use` statements ([#10994](https://github.com/openemr/openemr/pull/10994))
+  - normalize config.yaml indentation to 2 spaces ([#10352](https://github.com/openemr/openemr/pull/10352))
+  - parallelize PHP syntax checking with problem matcher ([#10376](https://github.com/openemr/openemr/pull/10376))
+  - parallelize test suites within each configuration ([#11051](https://github.com/openemr/openemr/pull/11051))
+  - pin Docker images by digest and add Dependabot for CI images ([#11518](https://github.com/openemr/openemr/pull/11518))
+  - pin Docker images by digest in docker/* development environments ([#11541](https://github.com/openemr/openemr/pull/11541))
+  - Reduce PR test matrix to PHP 8.2 only ([#10365](https://github.com/openemr/openemr/pull/10365))
+  - Remove PHPUnit `--testdox` format from CI ([#11306](https://github.com/openemr/openemr/pull/11306))
+  - Remove redundant local coverage merge ([#10354](https://github.com/openemr/openemr/pull/10354))
+  - Remove stray legacy PHPStan baseline file ([#10289](https://github.com/openemr/openemr/pull/10289))
+  - remove unused PHP setup and cs2pr tool ([#10625](https://github.com/openemr/openemr/pull/10625))
+  - Replace MySQL sleep 60 with health check ([#10357](https://github.com/openemr/openemr/pull/10357))
+  - report every time ([#10648](https://github.com/openemr/openemr/pull/10648))
+  - Restrict new function additions to global namespace ([#10297](https://github.com/openemr/openemr/pull/10297))
+  - Run PHPStan on 8.5 ([#11292](https://github.com/openemr/openemr/pull/11292))
+  - simplify phpstan workflow using failure() condition ([#10551](https://github.com/openemr/openemr/pull/10551))
+  - support for alpine 3.23 with php 8.5 and nodejs 24 ([#11495](https://github.com/openemr/openemr/pull/11495))
+  - Tell composer phpstan to prefer dist config ([#10916](https://github.com/openemr/openemr/pull/10916))
+  - Update fetch-depth in build-patch.yml ([#11173](https://github.com/openemr/openemr/pull/11173))
+  - Upgrade swagger-php to 6.x with PHP 8 attributes ([#10921](https://github.com/openemr/openemr/pull/10921))
+  - use manual_trigger to prevent partial coverage reports ([#10480](https://github.com/openemr/openemr/pull/10480))
+
+#### Documentation
+
+  - add 8.0.0.3 changelog ([#11276](https://github.com/openemr/openemr/pull/11276))
+  - add CLI testing tip for special characters in passwords ([#10484](https://github.com/openemr/openemr/pull/10484))
+  - add end-to-end RELEASE_PROCESS.md for automated release flow ([#12117](https://github.com/openemr/openemr/pull/12117))
+  - add guidance on proposing changes and repo selection ([#10953](https://github.com/openemr/openemr/pull/10953))
+  - add OpenAPI attributes to BackgroundServiceRestController ([#11595](https://github.com/openemr/openemr/pull/11595))
+  - Adjust changelog so it doesn't trigger spellcheck errors on all PRs ([#11283](https://github.com/openemr/openemr/pull/11283))
+  - changelog 8.0.0.1 ([#11081](https://github.com/openemr/openemr/pull/11081))
+  - clarify register() active-flag policy ([#11681](https://github.com/openemr/openemr/pull/11681))
+  - expand CLAUDE.md with PHP coding standards ([#11342](https://github.com/openemr/openemr/pull/11342))
+  - plan for openemr release-automation conductor (openemr-devops#664) ([#11896](https://github.com/openemr/openemr/pull/11896))
+  - remove 2015 reference ([#11083](https://github.com/openemr/openemr/pull/11083))
+  - update AI guidelines files for commit trailers ([#11301](https://github.com/openemr/openemr/pull/11301))
+  - Update changelog for 8.0.0.2 ([#11176](https://github.com/openemr/openemr/pull/11176))
+  - update CLAUDE.md for recent codebase changes ([#10979](https://github.com/openemr/openemr/pull/10979))
+  - update outdated documentation ([#10582](https://github.com/openemr/openemr/pull/10582))
+  - update PR and contribution guidelines ([#11277](https://github.com/openemr/openemr/pull/11277))
+  - Update swagger schema ([#11703](https://github.com/openemr/openemr/pull/11703))
+
+#### FHIR
+
+  - fix literal-string violations in xl/xlt calls ([#11429](https://github.com/openemr/openemr/pull/11429))
+
+#### Hardening
+
+  - document OEGlobalsBag typed getters from ParameterBag ([#11010](https://github.com/openemr/openemr/pull/11010))
+  - migrate main-tab poll to REST API ([#11727](https://github.com/openemr/openemr/pull/11727))
+  - replace exec(unzip) with ZipArchive for ERA file uploads ([#11422](https://github.com/openemr/openemr/pull/11422))
+  - replace raw assert() calls with real runtime checks ([#12246](https://github.com/openemr/openemr/pull/12246))
+  - route superglobal access through HttpRestRequest in src/ ([#11348](https://github.com/openemr/openemr/pull/11348))
+  - use symfony/process for print command ([#11414](https://github.com/openemr/openemr/pull/11414))
+
+#### Infrastructure
+
+  - add BackgroundServiceRegistry for module registration ([#11336](https://github.com/openemr/openemr/pull/11336))
+  - Adjust phpstan config to improve cache interaction ([#10615](https://github.com/openemr/openemr/pull/10615))
+  - distinguish lock failure reasons in BackgroundServiceRunner ([#11423](https://github.com/openemr/openemr/pull/11423))
+  - extract common PHP/Composer setup into reusable action ([#10576](https://github.com/openemr/openemr/pull/10576))
+  - extract orchestration into BackgroundServiceRunner ([#11334](https://github.com/openemr/openemr/pull/11334))
+  - key phpstan and rector caches on tool version, not composer.lock ([#11724](https://github.com/openemr/openemr/pull/11724))
+  - post baseline diff as a sticky PR comment ([#11828](https://github.com/openemr/openemr/pull/11828))
+  - upload regenerated docs as artifact on failure ([#10630](https://github.com/openemr/openemr/pull/10630))
+
+#### Module Support
+
+  - remove abandoned sms_email_reminder ([#11679](https://github.com/openemr/openemr/pull/11679))
+
+#### PHP
+
+  - Add/fix common type hints ([#10816](https://github.com/openemr/openemr/pull/10816))
+  - Avoid errorLogCaller() where exception context available ([#11100](https://github.com/openemr/openemr/pull/11100))
+  - bug: Fixes #10250 default lists option for new patient save ([#10252](https://github.com/openemr/openemr/pull/10252))
+  - bump bacon/bacon-qr-code from 3.0.3 to 3.0.4 ([#11122](https://github.com/openemr/openemr/pull/11122))
+  - bump bacon/bacon-qr-code from 3.0.4 to 3.1.1 ([#11435](https://github.com/openemr/openemr/pull/11435))
+  - bump claimrevolution/oe-module-claimrev-connect from 2.1.3 to 2.1.4 ([#12415](https://github.com/openemr/openemr/pull/12415))
+  - bump claimrevolution/oe-module-claimrev-connect from 2.1.4 to 2.1.5 ([#12556](https://github.com/openemr/openemr/pull/12556))
+  - bump claimrevolution/oe-module-claimrev-connect from 2.1.5 to 2.1.6 ([#12685](https://github.com/openemr/openemr/pull/12685))
+  - bump digitickets/lalit from 3.4.0 to 3.4.1 ([#11433](https://github.com/openemr/openemr/pull/11433))
+  - bump digitickets/lalit from 3.4.1 to 3.4.2 ([#12417](https://github.com/openemr/openemr/pull/12417))
+  - bump doctrine/dbal from 4.4.1 to 4.4.2 ([#10964](https://github.com/openemr/openemr/pull/10964))
+  - bump doctrine/dbal from 4.4.2 to 4.4.3 ([#11238](https://github.com/openemr/openemr/pull/11238))
+  - bump doctrine/migrations from 3.9.6 to 3.9.7 ([#11839](https://github.com/openemr/openemr/pull/11839))
+  - bump doctrine/orm from 3.6.3 to 3.6.5 ([#12114](https://github.com/openemr/openemr/pull/12114))
+  - bump doctrine/orm from 3.6.5 to 3.6.6 ([#12237](https://github.com/openemr/openemr/pull/12237))
+  - bump doctrine/orm from 3.6.6 to 3.6.7 ([#12359](https://github.com/openemr/openemr/pull/12359))
+  - bump dompdf/dompdf from 3.1.4 to 3.1.5 ([#11042](https://github.com/openemr/openemr/pull/11042))
+  - bump ergebnis/composer-normalize from 2.48.2 to 2.49.0 ([#10505](https://github.com/openemr/openemr/pull/10505))
+  - bump ergebnis/composer-normalize from 2.49.0 to 2.50.0 ([#10781](https://github.com/openemr/openemr/pull/10781))
+  - bump ergebnis/composer-normalize from 2.50.0 to 2.51.0 ([#11715](https://github.com/openemr/openemr/pull/11715))
+  - bump ergebnis/composer-normalize from 2.51.0 to 2.52.0 ([#12158](https://github.com/openemr/openemr/pull/12158))
+  - bump firehed/container from 1.0.0 to 1.1.0 ([#12449](https://github.com/openemr/openemr/pull/12449))
+  - bump giggsey/libphonenumber-for-php from 9.0.22 to 9.0.23 ([#10508](https://github.com/openemr/openemr/pull/10508))
+  - bump giggsey/libphonenumber-for-php from 9.0.23 to 9.0.25 ([#10959](https://github.com/openemr/openemr/pull/10959))
+  - bump giggsey/libphonenumber-for-php from 9.0.25 to 9.0.26 ([#11120](https://github.com/openemr/openemr/pull/11120))
+  - bump giggsey/libphonenumber-for-php from 9.0.26 to 9.0.27 ([#11436](https://github.com/openemr/openemr/pull/11436))
+  - bump giggsey/libphonenumber-for-php from 9.0.27 to 9.0.28 ([#11720](https://github.com/openemr/openemr/pull/11720))
+  - bump giggsey/libphonenumber-for-php from 9.0.28 to 9.0.29 ([#11840](https://github.com/openemr/openemr/pull/11840))
+  - bump giggsey/libphonenumber-for-php from 9.0.29 to 9.0.30 ([#12112](https://github.com/openemr/openemr/pull/12112))
+  - bump giggsey/libphonenumber-for-php from 9.0.30 to 9.0.31 ([#12364](https://github.com/openemr/openemr/pull/12364))
+  - bump giggsey/libphonenumber-for-php from 9.0.31 to 9.0.32 ([#12413](https://github.com/openemr/openemr/pull/12413))
+  - bump giggsey/libphonenumber-for-php from 9.0.32 to 9.0.33 ([#12683](https://github.com/openemr/openemr/pull/12683))
+  - bump google/apiclient from 2.19.0 to 2.19.1 ([#11353](https://github.com/openemr/openemr/pull/11353))
+  - bump google/apiclient from 2.19.1 to 2.19.2 ([#11434](https://github.com/openemr/openemr/pull/11434))
+  - bump google/apiclient from 2.19.2 to 2.19.3 ([#12044](https://github.com/openemr/openemr/pull/12044))
+  - bump guzzlehttp/guzzle from 7.10.0 to 7.10.4 ([#12264](https://github.com/openemr/openemr/pull/12264))
+  - bump guzzlehttp/guzzle from 7.10.4 to 7.10.6 ([#12360](https://github.com/openemr/openemr/pull/12360))
+  - bump guzzlehttp/guzzle from 7.10.6 to 7.11.1 ([#12411](https://github.com/openemr/openemr/pull/12411))
+  - bump guzzlehttp/guzzle from 7.11.1 to 7.12.1 ([#12544](https://github.com/openemr/openemr/pull/12544))
+  - bump guzzlehttp/guzzle from 7.11.1 to 7.12.1 in /interface/modules/custom_modules/oe-module-faxsms ([#12545](https://github.com/openemr/openemr/pull/12545))
+  - bump guzzlehttp/guzzle from 7.12.1 to 7.12.3 ([#12686](https://github.com/openemr/openemr/pull/12686))
+  - bump guzzlehttp/psr7 from 2.10.1 to 2.10.4 ([#12362](https://github.com/openemr/openemr/pull/12362))
+  - bump guzzlehttp/psr7 from 2.10.4 to 2.11.0 ([#12414](https://github.com/openemr/openemr/pull/12414))
+  - bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 ([#12542](https://github.com/openemr/openemr/pull/12542))
+  - bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 in /interface/modules/custom_modules/oe-module-faxsms ([#12543](https://github.com/openemr/openemr/pull/12543))
+  - bump guzzlehttp/psr7 from 2.12.1 to 2.12.3 ([#12684](https://github.com/openemr/openemr/pull/12684))
+  - bump guzzlehttp/psr7 from 2.7.0 to 2.11.0 in /interface/modules/custom_modules/oe-module-faxsms ([#12467](https://github.com/openemr/openemr/pull/12467))
+  - bump guzzlehttp/psr7 from 2.8.0 to 2.9.0 ([#11119](https://github.com/openemr/openemr/pull/11119))
+  - bump guzzlehttp/psr7 from 2.9.0 to 2.10.1 ([#12234](https://github.com/openemr/openemr/pull/12234))
+  - bump justinrainbow/json-schema from 6.8.2 to 6.9.0 ([#12412](https://github.com/openemr/openemr/pull/12412))
+  - bump justinrainbow/json-schema from 6.9.0 to 6.10.0 ([#12554](https://github.com/openemr/openemr/pull/12554))
+  - bump knplabs/knp-snappy from 1.5.1 to 1.6.0 ([#10782](https://github.com/openemr/openemr/pull/10782))
+  - bump knplabs/knp-snappy from 1.6.0 to 1.7.2 ([#12161](https://github.com/openemr/openemr/pull/12161))
+  - bump laminas/laminas-config from 3.10.1 to 3.11.0 in the laminas group ([#10502](https://github.com/openemr/openemr/pull/10502))
+  - bump laminas/laminas-json from 3.7.1 to 3.8.0 in the laminas group ([#10394](https://github.com/openemr/openemr/pull/10394))
+  - bump laminas/laminas-soap from 2.14.0 to 2.15.0 in the laminas group ([#11118](https://github.com/openemr/openemr/pull/11118))
+  - bump league/flysystem from 3.33.0 to 3.34.0 ([#12157](https://github.com/openemr/openemr/pull/12157))
+  - bump league/flysystem from 3.34.0 to 3.35.1 ([#12687](https://github.com/openemr/openemr/pull/12687))
+  - bump moneyphp/money from 4.8.0 to 4.9.0 ([#12042](https://github.com/openemr/openemr/pull/12042))
+  - bump mpdf/mpdf from 8.2.7 to 8.3.1 ([#11124](https://github.com/openemr/openemr/pull/11124))
+  - bump phpoffice/phpspreadsheet from 5.4.0 to 5.5.0 ([#10963](https://github.com/openemr/openemr/pull/10963))
+  - bump phpoffice/phpspreadsheet from 5.5.0 to 5.6.0 ([#11527](https://github.com/openemr/openemr/pull/11527))
+  - bump phpoffice/phpspreadsheet from 5.6.0 to 5.7.0 ([#11714](https://github.com/openemr/openemr/pull/11714))
+  - bump phpoffice/phpspreadsheet from 5.7.0 to 5.8.0 ([#12416](https://github.com/openemr/openemr/pull/12416))
+  - bump phpseclib/phpseclib from 3.0.48 to 3.0.49 ([#10504](https://github.com/openemr/openemr/pull/10504))
+  - bump phpseclib/phpseclib from 3.0.49 to 3.0.50 ([#11195](https://github.com/openemr/openemr/pull/11195))
+  - bump phpseclib/phpseclib from 3.0.50 to 3.0.51 ([#11529](https://github.com/openemr/openemr/pull/11529))
+  - bump phpseclib/phpseclib from 3.0.51 to 3.0.52 ([#11841](https://github.com/openemr/openemr/pull/11841))
+  - bump phpseclib/phpseclib from 3.0.52 to 3.0.53 ([#12448](https://github.com/openemr/openemr/pull/12448))
+  - bump phpseclib/phpseclib from 3.0.53 to 3.0.55 ([#12499](https://github.com/openemr/openemr/pull/12499))
+  - bump phpstan/phpstan from 2.1.37 to 2.1.38 in the development group ([#10503](https://github.com/openemr/openemr/pull/10503))
+  - bump phpstan/phpstan from 2.1.39 to 2.1.40 in the development group ([#10958](https://github.com/openemr/openemr/pull/10958))
+  - bump phpstan/phpstan from 2.1.42 to 2.1.44 in the development group ([#11352](https://github.com/openemr/openemr/pull/11352))
+  - bump phpstan/phpstan from 2.1.50 to 2.1.51 in the development group across 1 directory ([#11838](https://github.com/openemr/openemr/pull/11838))
+  - bump phpunit/phpunit from 11.5.46 to 11.5.48 in the development group ([#10273](https://github.com/openemr/openemr/pull/10273))
+  - bump phpunit/phpunit from 11.5.49 to 11.5.50 ([#10413](https://github.com/openemr/openemr/pull/10413))
+  - bump phpunit/phpunit from 11.5.50 to 11.5.52 in the development group ([#10654](https://github.com/openemr/openemr/pull/10654))
+  - bump phpunit/phpunit from 11.5.53 to 11.5.55 in the development group ([#10874](https://github.com/openemr/openemr/pull/10874))
+  - bump predis/predis from 3.3.0 to 3.4.0 ([#10783](https://github.com/openemr/openemr/pull/10783))
+  - bump predis/predis from 3.4.0 to 3.4.1 ([#10962](https://github.com/openemr/openemr/pull/10962))
+  - bump predis/predis from 3.4.1 to 3.4.2 ([#11064](https://github.com/openemr/openemr/pull/11064))
+  - bump ramsey/conventional-commits from 1.6.0 to 1.7.0 ([#11044](https://github.com/openemr/openemr/pull/11044))
+  - bump ramsey/uuid from 4.9.2 to 4.9.3 ([#12555](https://github.com/openemr/openemr/pull/12555))
+  - bump rector/rector from 2.3.1 to 2.3.4 ([#10397](https://github.com/openemr/openemr/pull/10397))
+  - bump rector/rector from 2.3.4 to 2.3.5 ([#10506](https://github.com/openemr/openemr/pull/10506))
+  - bump rector/rector from 2.3.5 to 2.3.6 ([#10656](https://github.com/openemr/openemr/pull/10656))
+  - bump rector/rector from 2.3.6 to 2.3.8 ([#10876](https://github.com/openemr/openemr/pull/10876))
+  - bump rector/rector from 2.3.8 to 2.3.9 ([#11236](https://github.com/openemr/openemr/pull/11236))
+  - bump rector/rector from 2.4.0 to 2.4.1 in the development group across 1 directory ([#11523](https://github.com/openemr/openemr/pull/11523))
+  - bump setasign/fpdi from 2.6.6 to 2.6.7 ([#12169](https://github.com/openemr/openemr/pull/12169))
+  - bump slevomat/coding-standard from 8.28.0 to 8.28.1 ([#11235](https://github.com/openemr/openemr/pull/11235))
+  - bump slevomat/coding-standard from 8.28.1 to 8.29.0 ([#12113](https://github.com/openemr/openemr/pull/12113))
+  - bump slevomat/coding-standard from 8.29.0 to 8.30.1 ([#12682](https://github.com/openemr/openemr/pull/12682))
+  - bump symfony/dom-crawler from 7.4.8 to 7.4.12 ([#12292](https://github.com/openemr/openemr/pull/12292))
+  - bump symfony/process from 7.4.3 to 7.4.5 ([#10428](https://github.com/openemr/openemr/pull/10428))
+  - bump the development group across 1 directory with 2 updates ([#10398](https://github.com/openemr/openemr/pull/10398))
+  - bump the development group across 1 directory with 2 updates ([#11713](https://github.com/openemr/openemr/pull/11713))
+  - bump the development group across 1 directory with 2 updates ([#12156](https://github.com/openemr/openemr/pull/12156))
+  - bump the development group with 2 updates ([#11432](https://github.com/openemr/openemr/pull/11432))
+  - bump the development group with 2 updates ([#11991](https://github.com/openemr/openemr/pull/11991))
+  - bump the development group with 5 updates ([#10780](https://github.com/openemr/openemr/pull/10780))
+  - bump the symfony group across 1 directory with 4 updates ([#12270](https://github.com/openemr/openemr/pull/12270))
+  - bump the symfony group with 11 updates ([#12679](https://github.com/openemr/openemr/pull/12679))
+  - bump the symfony group with 4 updates ([#10501](https://github.com/openemr/openemr/pull/10501))
+  - bump the symfony group with 4 updates ([#11041](https://github.com/openemr/openemr/pull/11041))
+  - bump the symfony group with 5 updates ([#11431](https://github.com/openemr/openemr/pull/11431))
+  - bump the symfony group with 6 updates ([#12041](https://github.com/openemr/openemr/pull/12041))
+  - bump the symfony group with 7 updates ([#10957](https://github.com/openemr/openemr/pull/10957))
+  - bump the symfony group with 7 updates ([#11990](https://github.com/openemr/openemr/pull/11990))
+  - bump the symfony group with 8 updates ([#12356](https://github.com/openemr/openemr/pull/12356))
+  - bump the symfony group with 9 updates ([#10393](https://github.com/openemr/openemr/pull/10393))
+  - bump twig/twig from 3.22.2 to 3.23.0 ([#10396](https://github.com/openemr/openemr/pull/10396))
+  - bump twig/twig from 3.23.0 to 3.24.0 ([#11237](https://github.com/openemr/openemr/pull/11237))
+  - bump twig/twig from 3.24.0 to 3.25.0 ([#12160](https://github.com/openemr/openemr/pull/12160))
+  - bump twig/twig from 3.25.0 to 3.26.0 ([#12227](https://github.com/openemr/openemr/pull/12227))
+  - bump twig/twig from 3.26.0 to 3.27.1 ([#12363](https://github.com/openemr/openemr/pull/12363))
+  - bump twilio/sdk from 8.10.1 to 8.11.0 ([#10655](https://github.com/openemr/openemr/pull/10655))
+  - bump twilio/sdk from 8.11.0 to 8.11.1 ([#10877](https://github.com/openemr/openemr/pull/10877))
+  - bump twilio/sdk from 8.11.1 to 8.11.2 ([#11121](https://github.com/openemr/openemr/pull/11121))
+  - bump twilio/sdk from 8.11.2 to 8.11.3 ([#11354](https://github.com/openemr/openemr/pull/11354))
+  - bump twilio/sdk from 8.11.3 to 8.11.4 ([#11716](https://github.com/openemr/openemr/pull/11716))
+  - bump twilio/sdk from 8.11.4 to 8.11.5 ([#12043](https://github.com/openemr/openemr/pull/12043))
+  - bump twilio/sdk from 8.11.5 to 8.11.6 ([#12111](https://github.com/openemr/openemr/pull/12111))
+  - bump zircote/swagger-php from 6.0.5 to 6.0.6 ([#10961](https://github.com/openemr/openemr/pull/10961))
+  - bump zircote/swagger-php from 6.0.6 to 6.1.0 ([#11526](https://github.com/openemr/openemr/pull/11526))
+  - bump zircote/swagger-php from 6.1.0 to 6.1.1 ([#11718](https://github.com/openemr/openemr/pull/11718))
+  - bump zircote/swagger-php from 6.1.1 to 6.1.2 ([#11993](https://github.com/openemr/openemr/pull/11993))
+  - bump zircote/swagger-php from 6.1.2 to 6.2.0 ([#12498](https://github.com/openemr/openemr/pull/12498))
+  - consolidate email validation to use ValidationUtils ([#10304](https://github.com/openemr/openemr/pull/10304))
+  - consolidate phone number handling using PhoneNumberService ([#10326](https://github.com/openemr/openemr/pull/10326))
+  - drop unnecessary fgets() length limits ([#11514](https://github.com/openemr/openemr/pull/11514))
+  - Fix a few missing/incorrect types ([#10691](https://github.com/openemr/openemr/pull/10691))
+  - improve isolated test suite and remove error_log output ([#10575](https://github.com/openemr/openemr/pull/10575))
+  - migrate oeFormatDateTime to DateFormatterUtils and add tests ([#10847](https://github.com/openemr/openemr/pull/10847))
+  - Raise PHPStan level to 10; baseline new errors ([#10444](https://github.com/openemr/openemr/pull/10444))
+  - Remove completely empty files ([#10591](https://github.com/openemr/openemr/pull/10591))
+  - remove legacy .inc redirect stubs ([#10495](https://github.com/openemr/openemr/pull/10495))
+  - Remove most remaining coupling to SystemLogger ([#11108](https://github.com/openemr/openemr/pull/11108))
+  - remove parens from require/include and apply PHPCBF fixes ([#10460](https://github.com/openemr/openemr/pull/10460))
+  - Remove remaining dependence on errorLogCaller ([#11106](https://github.com/openemr/openemr/pull/11106))
+  - removed no longer used phpstan-remaining-baseline.neon file ([#10514](https://github.com/openemr/openemr/pull/10514))
+  - resolve composer dependency blockers for PHP 8.4 ([#11204](https://github.com/openemr/openemr/pull/11204))
+  - restore file timestamps to enable PHPStan caching ([#10387](https://github.com/openemr/openemr/pull/10387))
+  - Update many SystemLogger to Psr LoggerInterface ([#11088](https://github.com/openemr/openemr/pull/11088))
+  - use QueryUtils in DatabaseCheck ([#10688](https://github.com/openemr/openemr/pull/10688))
+
+#### Patient Portal
+
+  - remove dead verysimple DB drivers ([#10639](https://github.com/openemr/openemr/pull/10639))
+
+#### REST API
+
+  - add PHPUnit coverage for api test files ([#10634](https://github.com/openemr/openemr/pull/10634))
+  - fix copy-paste errors in OpenAPI annotations ([#10940](https://github.com/openemr/openemr/pull/10940))
+  - Multilined scopes at ApiTestClient ([#10296](https://github.com/openemr/openemr/pull/10296))
+  - replace $_GET with $request->query in REST routes ([#11252](https://github.com/openemr/openemr/pull/11252))
+
+#### Release
+
+  - bump v_database ([#10766](https://github.com/openemr/openemr/pull/10766))
+  - change master dev version to 8.0.1 ([#10222](https://github.com/openemr/openemr/pull/10222))
+  - Move 8.1.1 SQL changes back into 8.1.0 ([#11772](https://github.com/openemr/openemr/pull/11772))
+  - prep changelog for 8.0.0 release ([#10695](https://github.com/openemr/openemr/pull/10695))
+  - prep upgrade mechanism for docker 8.0.0 release ([#10269](https://github.com/openemr/openemr/pull/10269))
+
+#### Security
+
+  - Add and integrate ciphertext wrapper ([#11289](https://github.com/openemr/openemr/pull/11289))
+  - add integration tests for CryptoGen decryption ([#11158](https://github.com/openemr/openemr/pull/11158))
+  - Add keychain component ([#11303](https://github.com/openemr/openemr/pull/11303))
+  - Adjust wrapped values in primitives ([#11447](https://github.com/openemr/openemr/pull/11447))
+  - Encapsulate legacy decryption methods ([#10981](https://github.com/openemr/openemr/pull/10981))
+  - expand isolated tests for unserialize allowed_classes ([#11584](https://github.com/openemr/openemr/pull/11584))
+  - Extract ATNA logging ([#11069](https://github.com/openemr/openemr/pull/11069))
+  - Extract DB loggers from EventAuditLogger ([#11078](https://github.com/openemr/openemr/pull/11078))
+  - Get most global state out of the instance path ([#11113](https://github.com/openemr/openemr/pull/11113))
+  - Have log table and ATNA implement common interface ([#11102](https://github.com/openemr/openemr/pull/11102))
+  - Make audit destinations ("sinks") configurable ([#11105](https://github.com/openemr/openemr/pull/11105))
+  - Message parser and format tooling ([#11302](https://github.com/openemr/openemr/pull/11302))
+  - Migrate CryptoGen to CryptoInterface ([#10982](https://github.com/openemr/openemr/pull/10982))
+  - Modularize cryptographic ciphers ([#11247](https://github.com/openemr/openemr/pull/11247))
+  - Move KeyId primitive up to top namespace ([#11445](https://github.com/openemr/openemr/pull/11445))
+  - Pass enums instead of strings ([#10995](https://github.com/openemr/openemr/pull/10995))
+  - remove QuotedOrNull and convert to prepared statements ([#10573](https://github.com/openemr/openemr/pull/10573))
+  - remove silent failure handling from RandomGenUtils ([#10913](https://github.com/openemr/openemr/pull/10913))
+  - replace encrypted more_secure globals with constants ([#11404](https://github.com/openemr/openemr/pull/11404))
+  - replace mb_substr/mb_strlen with substr/strlen in binary operations ([#11373](https://github.com/openemr/openemr/pull/11373))
+  - scope auth-path UUID bootstrap to single row ([#11736](https://github.com/openemr/openemr/pull/11736))
+  - simplify collectCsrfToken() usage across codebase ([#11240](https://github.com/openemr/openemr/pull/11240))
+  - Simplify the modern key format handling, prepare for explicit key ids ([#11305](https://github.com/openemr/openemr/pull/11305))
+  - Start to add DI support to CryptoGen ([#11131](https://github.com/openemr/openemr/pull/11131))
+  - use AccessDeniedHelper for ACL denial patterns ([#10683](https://github.com/openemr/openemr/pull/10683))
+
+#### Twig Migration
+
+  - add compilation test for all 268 Twig templates ([#10477](https://github.com/openemr/openemr/pull/10477))
+  - add render tests for Twig templates ([#10493](https://github.com/openemr/openemr/pull/10493))
+
+#### UI Modernization
+
+  - remove AngularJS from secure_chat and messages ([#11521](https://github.com/openemr/openemr/pull/11521))
+  - replace gulp with webpack for theme compilation ([#11231](https://github.com/openemr/openemr/pull/11231))
+
+#### UI/UX
+
+  - add isolated tests for MenuItems and BaseMenuItem ([#10831](https://github.com/openemr/openemr/pull/10831))
+  - Relabel everything that is public facing from NewCrop to Ensora. ([#9891](https://github.com/openemr/openemr/pull/9891))
+
+#### billing & payments
+
+  - Centralize some of the data insertion logic ([#10246](https://github.com/openemr/openemr/pull/10246))
+  - extract DaySheetAggregator from print_daysheet_report_num1 ([#11860](https://github.com/openemr/openemr/pull/11860))
+  - Streamline table/form in UIs ([#10420](https://github.com/openemr/openemr/pull/10420))
+  - use OEGlobalsBag and add isolated tests ([#10840](https://github.com/openemr/openemr/pull/10840))
+  - use PSR-18 HTTP client ([#10770](https://github.com/openemr/openemr/pull/10770))
+
+#### communications
+
+  - remove dead variables from notification script ([#11553](https://github.com/openemr/openemr/pull/11553))
+  - replace magic vendor IDs with ServiceType enum ([#10948](https://github.com/openemr/openemr/pull/10948))
+  - Split conflicting class name definitions ([#10408](https://github.com/openemr/openemr/pull/10408))
+  - wrap phiMail socket lifecycle in try/finally ([#11476](https://github.com/openemr/openemr/pull/11476))
+
+#### docker
+
+  - allow patch updates for CI docker images ([#11536](https://github.com/openemr/openemr/pull/11536))
+  - correct duplicate MYSQL_PASS in comments ([#10419](https://github.com/openemr/openemr/pull/10419))
+  - ignore version bumps for CI images pinned to specific versions ([#11535](https://github.com/openemr/openemr/pull/11535))
+  - prep for rel-810 ([#11341](https://github.com/openemr/openemr/pull/11341))
+  - use patch-level tags and refine Dependabot ignore rules ([#11537](https://github.com/openemr/openemr/pull/11537))
+
+#### javascript
+
+  - bump @ckeditor/ckeditor5-html-support and ckeditor5 ([#10980](https://github.com/openemr/openemr/pull/10980))
+  - bump @tootallnate/once and jest-environment-jsdom ([#12164](https://github.com/openemr/openemr/pull/12164))
+  - bump @xmldom/xmldom from 0.9.8 to 0.9.9 in /ccdaservice ([#11356](https://github.com/openemr/openemr/pull/11356))
+  - bump @xmldom/xmldom from 0.9.9 to 0.9.10 in /ccdaservice/packages/oe-cda-schematron ([#11775](https://github.com/openemr/openemr/pull/11775))
+  - bump autoprefixer from 10.4.23 to 10.4.24 ([#10507](https://github.com/openemr/openemr/pull/10507))
+  - bump autoprefixer from 10.4.24 to 10.4.27 ([#10960](https://github.com/openemr/openemr/pull/10960))
+  - bump autoprefixer from 10.4.27 to 10.5.0 ([#11717](https://github.com/openemr/openemr/pull/11717))
+  - bump autoprefixer from 10.5.0 to 10.5.2 ([#12677](https://github.com/openemr/openemr/pull/12677))
+  - bump body-parser from 1.20.4 to 1.20.5 in /ccdaservice ([#11844](https://github.com/openemr/openemr/pull/11844))
+  - bump brace-expansion from 2.0.2 to 2.0.3 in /ccdaservice ([#11322](https://github.com/openemr/openemr/pull/11322))
+  - bump ckeditor5 from 47.6.0 to 47.6.1 ([#11125](https://github.com/openemr/openemr/pull/11125))
+  - bump ckeditor5 from 47.6.1 to 47.6.2 ([#11530](https://github.com/openemr/openemr/pull/11530))
+  - bump dompurify from 3.3.1 to 3.3.2 ([#11000](https://github.com/openemr/openemr/pull/11000))
+  - bump dompurify from 3.3.2 to 3.3.3 ([#11123](https://github.com/openemr/openemr/pull/11123))
+  - bump dompurify from 3.3.3 to 3.4.0 ([#11654](https://github.com/openemr/openemr/pull/11654))
+  - bump dompurify from 3.4.0 to 3.4.1 ([#11842](https://github.com/openemr/openemr/pull/11842))
+  - bump dompurify from 3.4.1 to 3.4.2 ([#11992](https://github.com/openemr/openemr/pull/11992))
+  - bump dompurify from 3.4.10 to 3.4.11 ([#12533](https://github.com/openemr/openemr/pull/12533))
+  - bump dompurify from 3.4.2 to 3.4.5 ([#12159](https://github.com/openemr/openemr/pull/12159))
+  - bump dompurify from 3.4.5 to 3.4.7 ([#12361](https://github.com/openemr/openemr/pull/12361))
+  - bump dompurify from 3.4.7 to 3.4.8 ([#12418](https://github.com/openemr/openemr/pull/12418))
+  - bump dompurify from 3.4.8 to 3.4.9 ([#12451](https://github.com/openemr/openemr/pull/12451))
+  - bump dompurify from 3.4.9 to 3.4.10 ([#12502](https://github.com/openemr/openemr/pull/12502))
+  - bump eslint from 10.4.1 to 10.5.0 in /ccdaservice ([#12500](https://github.com/openemr/openemr/pull/12500))
+  - bump eslint from 9.39.2 to 9.39.3 in the build-tools group ([#10878](https://github.com/openemr/openemr/pull/10878))
+  - bump eslint from 9.39.3 to 9.39.4 in the build-tools group ([#11043](https://github.com/openemr/openemr/pull/11043))
+  - bump express from 4.22.1 to 4.22.2 in /ccdaservice ([#12162](https://github.com/openemr/openemr/pull/12162))
+  - bump fast-uri from 3.0.6 to 3.1.2 ([#12092](https://github.com/openemr/openemr/pull/12092))
+  - bump fast-uri from 3.1.0 to 3.1.2 in /interface/modules/custom_modules/oe-module-comlink-telehealth/public/assets/js ([#12095](https://github.com/openemr/openemr/pull/12095))
+  - bump flatted from 3.3.3 to 3.4.2 ([#11196](https://github.com/openemr/openemr/pull/11196))
+  - bump globals from 17.6.0 to 17.7.0 in /ccdaservice ([#12676](https://github.com/openemr/openemr/pull/12676))
+  - bump grunt from 1.6.1 to 1.6.2 in /ccdaservice ([#11722](https://github.com/openemr/openemr/pull/11722))
+  - bump i18next-browser-languagedetector from 8.2.0 to 8.2.1 ([#10785](https://github.com/openemr/openemr/pull/10785))
+  - bump immutable from 5.1.1 to 5.1.5 ([#10990](https://github.com/openemr/openemr/pull/10990))
+  - bump ip-address from 10.1.0 to 10.2.0 in /ccdaservice ([#12037](https://github.com/openemr/openemr/pull/12037))
+  - bump jquery-validation from 1.21.0 to 1.22.0 in the jquery-bootstrap group ([#10392](https://github.com/openemr/openemr/pull/10392))
+  - bump jquery-validation from 1.22.0 to 1.22.1 in the jquery-bootstrap group ([#10875](https://github.com/openemr/openemr/pull/10875))
+  - bump js-yaml from 4.1.1 to 4.2.0 in /ccdaservice ([#12505](https://github.com/openemr/openemr/pull/12505))
+  - bump jspdf from 4.0.0 to 4.1.0 ([#10521](https://github.com/openemr/openemr/pull/10521))
+  - bump jspdf from 4.1.0 to 4.2.0 ([#10817](https://github.com/openemr/openemr/pull/10817))
+  - bump jspdf from 4.2.0 to 4.2.1 ([#11148](https://github.com/openemr/openemr/pull/11148))
+  - bump knockout from 3.5.1 to 3.5.2 ([#11045](https://github.com/openemr/openemr/pull/11045))
+  - bump knockout from 3.5.2 to 3.5.3 ([#11355](https://github.com/openemr/openemr/pull/11355))
+  - bump lodash from 4.17.21 to 4.17.23 in /ccdaservice ([#10299](https://github.com/openemr/openemr/pull/10299))
+  - bump lodash from 4.17.23 to 4.18.1 in /ccdaservice ([#11415](https://github.com/openemr/openemr/pull/11415))
+  - bump mini-css-extract-plugin from 2.10.1 to 2.10.2 ([#12452](https://github.com/openemr/openemr/pull/12452))
+  - bump minimatch ([#10933](https://github.com/openemr/openemr/pull/10933))
+  - bump mocha from 11.7.5 to 11.7.6 in /ccdaservice ([#12240](https://github.com/openemr/openemr/pull/12240))
+  - bump mongoose from 7.8.8 to 7.8.9 in /ccdaservice ([#12038](https://github.com/openemr/openemr/pull/12038))
+  - bump path-to-regexp from 0.1.12 to 0.1.13 in /ccdaservice ([#11324](https://github.com/openemr/openemr/pull/11324))
+  - bump picomatch from 2.3.1 to 2.3.2 ([#11287](https://github.com/openemr/openemr/pull/11287))
+  - bump picomatch from 4.0.3 to 4.0.4 in /ccdaservice ([#11285](https://github.com/openemr/openemr/pull/11285))
+  - bump postcss from 8.5.10 to 8.5.12 ([#11843](https://github.com/openemr/openemr/pull/11843))
+  - bump postcss from 8.5.12 to 8.5.13 ([#11994](https://github.com/openemr/openemr/pull/11994))
+  - bump postcss from 8.5.13 to 8.5.14 ([#12045](https://github.com/openemr/openemr/pull/12045))
+  - bump postcss from 8.5.14 to 8.5.15 ([#12241](https://github.com/openemr/openemr/pull/12241))
+  - bump postcss from 8.5.15 to 8.5.16 ([#12680](https://github.com/openemr/openemr/pull/12680))
+  - bump postcss from 8.5.6 to 8.5.8 ([#11046](https://github.com/openemr/openemr/pull/11046))
+  - bump postcss from 8.5.8 to 8.5.9 ([#11531](https://github.com/openemr/openemr/pull/11531))
+  - bump postcss from 8.5.9 to 8.5.10 ([#11719](https://github.com/openemr/openemr/pull/11719))
+  - bump qs from 6.14.1 to 6.14.2 in /ccdaservice ([#10732](https://github.com/openemr/openemr/pull/10732))
+  - bump sass from 1.100.0 to 1.101.0 ([#12501](https://github.com/openemr/openemr/pull/12501))
+  - bump sass from 1.86.0 to 1.100.0 ([#12450](https://github.com/openemr/openemr/pull/12450))
+  - bump select2 from 4.0.13 to 4.1.0 in the ui-components group ([#12355](https://github.com/openemr/openemr/pull/12355))
+  - bump serialize-javascript and terser-webpack-plugin in /interface/modules/custom_modules/oe-module-comlink-telehealth/public/assets/js ([#11323](https://github.com/openemr/openemr/pull/11323))
+  - bump sortablejs from 1.15.6 to 1.15.7 ([#10784](https://github.com/openemr/openemr/pull/10784))
+  - bump tar from 7.5.10 to 7.5.11 in /ccdaservice ([#11071](https://github.com/openemr/openemr/pull/11071))
+  - bump tar from 7.5.11 to 7.5.16 in /ccdaservice ([#12504](https://github.com/openemr/openemr/pull/12504))
+  - bump tar from 7.5.2 to 7.5.3 in /ccdaservice ([#10258](https://github.com/openemr/openemr/pull/10258))
+  - bump tar from 7.5.3 to 7.5.6 in /ccdaservice ([#10298](https://github.com/openemr/openemr/pull/10298))
+  - bump tar from 7.5.6 to 7.5.7 in /ccdaservice ([#10430](https://github.com/openemr/openemr/pull/10430))
+  - bump tar from 7.5.7 to 7.5.9 in /ccdaservice ([#10793](https://github.com/openemr/openemr/pull/10793))
+  - bump tar from 7.5.9 to 7.5.10 in /ccdaservice ([#10996](https://github.com/openemr/openemr/pull/10996))
+  - bump underscore from 1.13.7 to 1.13.8 ([#10880](https://github.com/openemr/openemr/pull/10880))
+  - bump uuid from 11.1.0 to 14.0.0 in /ccdaservice ([#11780](https://github.com/openemr/openemr/pull/11780))
+  - bump uuid from 14.0.0 to 14.0.1 in /ccdaservice ([#12600](https://github.com/openemr/openemr/pull/12600))
+  - bump webpack from 5.105.4 to 5.107.2 in the build-tools group ([#12447](https://github.com/openemr/openemr/pull/12447))
+  - bump webpack from 5.107.2 to 5.108.1 in the build-tools group ([#12675](https://github.com/openemr/openemr/pull/12675))
+  - bump webpack from 5.94.0 to 5.105.0 in /interface/modules/custom_modules/oe-module-comlink-telehealth/public/assets/js ([#10590](https://github.com/openemr/openemr/pull/10590))
+  - extract inline JS from add_edit_event.php ([#11077](https://github.com/openemr/openemr/pull/11077))
+  - remove syncAlertMsg and modernize asyncAlertMsg ([#10412](https://github.com/openemr/openemr/pull/10412))
+
+#### licensing
+
+  - standardize OpenCoreEMR copyright headers ([#11569](https://github.com/openemr/openemr/pull/11569))
+
+#### phpstan
+
+  - refresh RESERVED_WORD_SUPPLEMENT ([#12373](https://github.com/openemr/openemr/pull/12373))
+  - refresh RESERVED_WORD_SUPPLEMENT ([#12601](https://github.com/openemr/openemr/pull/12601))
+
+#### testing
+
+  - add @codeCoverageIgnore to data provider methods ([#10498](https://github.com/openemr/openemr/pull/10498))
+  - add composer script for isolated PHPUnit tests ([#10325](https://github.com/openemr/openemr/pull/10325))
+  - add coverage for 7 previously untested classes ([#10974](https://github.com/openemr/openemr/pull/10974))
+  - add CSRF token round-trip tests with Symfony session ([#11028](https://github.com/openemr/openemr/pull/11028))
+  - add EncounterRestController tests ([#10987](https://github.com/openemr/openemr/pull/10987))
+  - add integration tests for BackgroundServiceRegistry ([#11366](https://github.com/openemr/openemr/pull/11366))
+  - add isolated tests for BmiCategory and ScopePermissionObject ([#10832](https://github.com/openemr/openemr/pull/10832))
+  - add isolated tests for EDI270, event DTOs, Metadata, and oeHttpResponse ([#10872](https://github.com/openemr/openemr/pull/10872))
+  - add isolated tests for KeyVersion and PhoneNumber ([#10838](https://github.com/openemr/openemr/pull/10838))
+  - add isolated tests for NetworkUtils, FileUtils, HttpUtils, and DbUtils ([#10852](https://github.com/openemr/openemr/pull/10852))
+  - add isolated tests for PlaceOfServiceEnum and DateHelper ([#10836](https://github.com/openemr/openemr/pull/10836))
+  - add isolated tests for QDM AbstractType ([#10835](https://github.com/openemr/openemr/pull/10835))
+  - add isolated tests for QueryPagination and BoundFilter ([#10828](https://github.com/openemr/openemr/pull/10828))
+  - add isolated tests for search query subsystem ([#10853](https://github.com/openemr/openemr/pull/10853))
+  - add native PHP types to ApiTestClient and BulkAPITestClient ([#11023](https://github.com/openemr/openemr/pull/11023))
+  - add PHPUnit coverage for e2e test files ([#10628](https://github.com/openemr/openemr/pull/10628))
+  - capture diagnostics for InvalidSessionIdException flake ([#11857](https://github.com/openemr/openemr/pull/11857))
+  - convert non-FHIR JSON fixtures to PHP files ([#11025](https://github.com/openemr/openemr/pull/11025))
+  - Default to NullLogger  in tests ([#11107](https://github.com/openemr/openemr/pull/11107))
+  - enable isolated SiteSetupListener tests ([#11030](https://github.com/openemr/openemr/pull/11030))
+  - exclude config/ from test coverage ([#11744](https://github.com/openemr/openemr/pull/11744))
+  - fail on deprecations in all test suites ([#11638](https://github.com/openemr/openemr/pull/11638))
+  - harden e2e test step against rerun cascade failure ([#11986](https://github.com/openemr/openemr/pull/11986))
+  - Improve code coverage reporting for isolated tests ([#11159](https://github.com/openemr/openemr/pull/11159))
+  - migrate @dataProvider annotations to PHP 8 attributes ([#11230](https://github.com/openemr/openemr/pull/11230))
+  - move database-independent tests to isolated suite ([#11637](https://github.com/openemr/openemr/pull/11637))
+  - raise codecov coverage targets (#10571) ([#10900](https://github.com/openemr/openemr/pull/10900))
+  - show PHPUnit deprecation details in test output ([#11181](https://github.com/openemr/openemr/pull/11181))
+  - snapshot rendered HTML for every layout field type ([#12232](https://github.com/openemr/openemr/pull/12232))
+
+#### translation
+
+  - fix literal-string violations in clinical decision rules ([#11444](https://github.com/openemr/openemr/pull/11444))
+  - fix literal-string violations in xl wrappers ([#11454](https://github.com/openemr/openemr/pull/11454))
+  - fix literal-string violations in xl/xlt calls ([#11456](https://github.com/openemr/openemr/pull/11456))
+  - fix literal-string violations in xl/xlt calls ([#11457](https://github.com/openemr/openemr/pull/11457))
+  - fix literal-string violations in xl/xlt/xla calls ([#11443](https://github.com/openemr/openemr/pull/11443))
+  - fix scattered xl literal-string violations (Part 7, final) ([#11460](https://github.com/openemr/openemr/pull/11460))
+
+## [8.0.0.3](https://github.com/openemr/openemr/milestone/28?closed=1) - 2026-03-25
+
+### Fixed
+
+#### Security
+
+- **[High]** [Authenticated Blind Boolean-Based SQL Injection in new_search_popup.php](https://github.com/openemr/openemr/security/advisories/GHSA-2r7h-xm8v-m872)
+- **[High]** [Missing Authorization in Procedure Order AJAX Deletion Handler](https://github.com/openemr/openemr/security/advisories/GHSA-3vvq-pfq6-pw98)
+- **[High]** [Stored XSS in patient encounter Eye Exam form $CHRONIC2 and $CHRONIC3](https://github.com/openemr/openemr/security/advisories/GHSA-6ch2-p26g-x33h)
+- **[High]** [Missing Authorization on Claim File Download Endpoint](https://github.com/openemr/openemr/security/advisories/GHSA-g3p5-5grq-m65m)
+- **[High]** [Stored XSS in CCDA Preview via Unsanitized linkHtml Attributes](https://github.com/openemr/openemr/security/advisories/GHSA-g77x-9p3x-2j8f)
+- **[High]** [IDOR in Patient Notes Web UI allows unauthorized note access/modification](https://github.com/openemr/openemr/security/advisories/GHSA-8gj5-r8vm-mghq)
+- **[High]** [XInclude Injection in CCDA Import Allows Reading Arbitrary Server Files](https://github.com/openemr/openemr/security/advisories/GHSA-9757-3cfj-wc8q)
+- **[High]** [SQL Injection in CAMOS Form](https://github.com/openemr/openemr/security/advisories/GHSA-r6xq-mfwf-wgq8)
+- **[High]** [SQL Injection in PostCalendar Category Delete](https://github.com/openemr/openemr/security/advisories/GHSA-rq3v-38x5-3rm5)
+- **[Medium]** [Improper ACL On Import/Export Popup](https://github.com/openemr/openemr/security/advisories/GHSA-54m8-wpg9-9665)
+- **[Medium]** [SQL Injection via Unsanitized Variables in MedEx Recall/Reminder Processing](https://github.com/openemr/openemr/security/advisories/GHSA-6vx2-w9hw-prqj)
+- **[Medium]** [Reflected XSS via Unescaped contextName Parameter in Custom Template Editor](https://github.com/openemr/openemr/security/advisories/GHSA-9qh7-cfq4-j7c3)
+- **[Medium]** [Reflected XSS in ajax_download.php via reportID parameter](https://github.com/openemr/openemr/security/advisories/GHSA-cpph-949w-w79v)
+- **[Medium]** [IDOR in Portal Payment Page Allows Cross-Patient Record Access](https://github.com/openemr/openemr/security/advisories/GHSA-hf37-5rp9-j27j)
+- **[Medium]** [IDOR in Fee Sheet Product Save](https://github.com/openemr/openemr/security/advisories/GHSA-pvvj-mv7h-7847)
+- **[Medium]** [Missing Authorization in show-signature.php Allows Portal Patients to Read Staff Signatures](https://github.com/openemr/openemr/security/advisories/GHSA-w9w5-7x6h-657q)
+- **[Medium]** [Missing ACL Checks on Insurance Company API Routes](https://github.com/openemr/openemr/security/advisories/GHSA-ww94-26v7-x4gp)
+- **[Medium]** [Reflected XSS in graphs.php via title parameter](https://github.com/openemr/openemr/security/advisories/GHSA-wwhf-6cvc-6766)
+- Missing ACL check on eRx log viewer
+- Parameterize all SQL in deleter.php
+- Add CSRF protection and parameterize SQL in new_payment.php
+- Parameterize SQL, add CSRF, fix serialization injection in portal appointment
+- Parameterize SQL in pnotes.inc.php
+- Prevent open redirect in portal messaging ([#11223](https://github.com/openemr/openemr/pull/11223))
+
+#### Bug Fixes
+
+- Include custom LBF layout forms in patient report ([#11146](https://github.com/openemr/openemr/pull/11146))
+- Hide dispensed medications section when inhouse_pharmacy is disabled ([#11144](https://github.com/openemr/openemr/pull/11144))
+- Correct assignment typo in AuthHash SHA512 fallback ([#11019](https://github.com/openemr/openemr/pull/11019))
+- Align allergy begdate validation with YYYY-MM-DD docs ([#10993](https://github.com/openemr/openemr/pull/10993))
+- Enforce newest-first sort in encounters report ([#10991](https://github.com/openemr/openemr/pull/10991))
+- Correct typo in main menu logo description ([#10988](https://github.com/openemr/openemr/pull/10988))
+- Avoid HTML-encoded status text in demographics widgets ([#10985](https://github.com/openemr/openemr/pull/10985))
+- Accept #RRGGBB in status color field ([#10984](https://github.com/openemr/openemr/pull/10984))
+- Add missing site parameter to SDOH assessment URLs ([#10949](https://github.com/openemr/openemr/pull/10949))
+- Qualify column reference in CareTeamService::getCareTeamData() ([#10899](https://github.com/openemr/openemr/pull/10899))
+- Add state license number to eye prescription popup ([#10894](https://github.com/openemr/openemr/pull/10894))
+- Create certificates directory before writing key files ([#10888](https://github.com/openemr/openemr/pull/10888))
+- Dispense glasses Rx: manifest/dispensed refraction ([#10882](https://github.com/openemr/openemr/pull/10882))
+- Use theme-stable colors for receipt background contrast ([#10851](https://github.com/openemr/openemr/pull/10851))
+
+### Changed
+
+- Add missing GHSA and fix advisory URLs in 8.0.0.2 changelog ([#11180](https://github.com/openemr/openemr/pull/11180))
+
+## [8.0.0.2](https://github.com/openemr/openemr/milestone/27?closed=1) - 2026-03-18
+
+### Fixed
+
+#### Security
+
+- **[Critical]** [RCE in backup.php command injection](https://github.com/openemr/openemr/security/advisories/GHSA-6pmc-3xm7-pm86)
+- **[High]** [Stored XSS in Eye Exam form answers](https://github.com/openemr/openemr/security/advisories/GHSA-pgvq-f22q-2whp)
+- **[High]** [SSRF via PDF generator](https://github.com/openemr/openemr/security/advisories/GHSA-5pc3-2crw-96rv)
+- **[High]** [Arbitrary file read via PDF generator](https://github.com/openemr/openemr/security/advisories/GHSA-v9v3-q973-xp2h)
+- **[High]** [zhAclCheck ignores explicit ACL denies](https://github.com/openemr/openemr/security/advisories/GHSA-v68v-pwc4-8p2m)
+- **[Medium]** [DICOM path traversal](https://github.com/openemr/openemr/security/advisories/GHSA-rppw-f689-6hrm)
+- **[Medium]** [Vitals IDOR (POST + PUT + legacy form)](https://github.com/openemr/openemr/security/advisories/GHSA-mv9m-j65p-g55f)
+- **[Medium]** [DOM XSS via SearchHighlight](https://github.com/openemr/openemr/security/advisories/GHSA-q283-5j7f-r6hp)
+- **[Medium]** [Stored XSS in portal credential print view](https://github.com/openemr/openemr/security/advisories/GHSA-cp37-pmfx-5mhm)
+- **[Medium]** [Authorization bypass in dated reminders log](https://github.com/openemr/openemr/security/advisories/GHSA-66j9-ffq4-h222)
+- **[Medium]** [Authorization bypass in FaxSMS AppDispatch](https://github.com/openemr/openemr/security/advisories/GHSA-r973-h5cq-35rc)
+
+- PHPSessionWrapper constructor bypasses read_and_close session mode, causing lock contention ([#10931](https://github.com/openemr/openemr/issues/10931))
+
+### Changed
+- FHIR API documentation minor fixes ([#11104](https://github.com/openemr/openemr/pull/11104))
+- remove 2015 reference with schemaspy regen for rel-800 ([#11101](https://github.com/openemr/openemr/pull/11101))
+
+## [8.0.0.1](https://github.com/openemr/openemr/milestone/26?closed=1) - 2026-03-11
+
+### Fixed
+- Security fixes
+  - https://github.com/openemr/openemr/security/advisories/GHSA-v8q6-h79f-736x
+  - https://github.com/openemr/openemr/security/advisories/GHSA-752v-x6m4-6cf8
+  - https://github.com/openemr/openemr/security/advisories/GHSA-244w-vxhp-7x99
+  - https://github.com/openemr/openemr/security/advisories/GHSA-9hw7-22mr-qhfc
+  - https://github.com/openemr/openemr/security/advisories/GHSA-j4mm-wg7q-v57q
+  - https://github.com/openemr/openemr/security/advisories/GHSA-rwf9-px3c-3prw
+  - https://github.com/openemr/openemr/security/advisories/GHSA-68fr-xm3v-p4vw
+  - https://github.com/openemr/openemr/security/advisories/GHSA-4gh4-q39r-45wf
+  - https://github.com/openemr/openemr/security/advisories/GHSA-55qj-x8wh-m4rm
+- Backport #10408 (sms class rename) to rel-800 to fix non-deterministic PHPStan baseline ([#11013](https://github.com/openemr/openemr/issues/11013))
+
+### Changed
+-  Unable to edit/add prescriptions after 7.0.4 upgrade ([#10834](https://github.com/openemr/openemr/issues/10834))
+-  Update path for phpstan baseline artifacts ([#10242](https://github.com/openemr/openemr/pull/10242))
+-  pass encounter/pid in navbar form URLs to prevent stale session ([#10865](https://github.com/openemr/openemr/pull/10865))
+-  voice vendor ID 6 breaks UI after upgrade ([#10947](https://github.com/openemr/openemr/issues/10947))
+-  use AccessDeniedHelper for ACL denial patterns ([#10683](https://github.com/openemr/openemr/pull/10683))
+-  Split conflicting class name definitions ([#10408](https://github.com/openemr/openemr/pull/10408))
+
+
+## [8.0.0](https://github.com/openemr/openemr/milestone/23?closed=1) - 2026-02-11
+
+### Added
+-  add HTI-1 pronouns to demographics ([#10201](https://github.com/openemr/openemr/issues/10201))
+
+### Fixed
+-  Fixes #10233 cqm reporting period and deps updates ([#10234](https://github.com/openemr/openemr/pull/10234))
+- Add cache-buster to refactored payment JS scripts ([#10156](https://github.com/openemr/openemr/issues/10156))
+- Break when adding a new patient. (appears secondary to session breakage) ([#10529](https://github.com/openemr/openemr/issues/10529))
+- Catch all for various bug fixes. ([#9995](https://github.com/openemr/openemr/issues/9995))
+- Fax service new vendor add ([#9866](https://github.com/openemr/openemr/issues/9866))
+- FaxSMS Module Requires SMTP Username/Password Even When Not Needed ([#9066](https://github.com/openemr/openemr/issues/9066))
+- FaxSMS service introduction updates ([#10169](https://github.com/openemr/openemr/issues/10169))
+- Flow Board Colors are unset when you set them ([#9401](https://github.com/openemr/openemr/issues/9401))
+- Implement Symfony Sessions for Portal ([#9277](https://github.com/openemr/openemr/issues/9277))
+- Introduce a Module Installer ([#9986](https://github.com/openemr/openemr/issues/9986))
+- Portal Appointment save fails. ([#10228](https://github.com/openemr/openemr/issues/10228))
+- Portal audit fails with PHP error ([#9963](https://github.com/openemr/openemr/issues/9963))
+- Refactor API passed session requirement to access Portal CCDA actions. ([#9949](https://github.com/openemr/openemr/issues/9949))
+- Refactor portal custom Medical Reports ([#10197](https://github.com/openemr/openemr/issues/10197))
+- Relabel NewCrop to Ensora ([#9890](https://github.com/openemr/openemr/issues/9890))
+- Setup random fail with collate exception ([#10235](https://github.com/openemr/openemr/issues/10235))
+- Standardize session timeout mechanics ([#10215](https://github.com/openemr/openemr/issues/10215))
+- Unable to find template "portal/partial/reports/patient_report/_documents.html.twig" ([#10266](https://github.com/openemr/openemr/issues/10266))
+-  Add FHIR Care Team to patient compartment interface ([#10358](https://github.com/openemr/openemr/issues/10358))
+-  Broken edit button for questionnaires ([#8244](https://github.com/openemr/openemr/issues/8244))
+-  Care team upgrade on 7.0.4 times out w/ database of 15K patients and 450K entries in uuid_registry ([#10323](https://github.com/openemr/openemr/issues/10323))
+-  Comlink Telehealth Module throws fatal error on fresh install from Admin -> Config ([#10550](https://github.com/openemr/openemr/issues/10550))
+-  Flow board does not change color ([#8190](https://github.com/openemr/openemr/issues/8190))
+-  New Patient form no longer sets default options for lists where Default is checked ([#10250](https://github.com/openemr/openemr/issues/10250))
+-  Patient Statement Email ([#8321](https://github.com/openemr/openemr/issues/8321))
+-  Prior Authorization Module adding new authorization generates fatal error. ([#10552](https://github.com/openemr/openemr/issues/10552))
+-  Related Person form fails to add relation for existing patient when global date format is not yyyy-mm-dd ([#10251](https://github.com/openemr/openemr/issues/10251))
+-  fax module php fatal error allowed memory size exhausted ([#10150](https://github.com/openemr/openemr/issues/10150))
+- ci testing breaking in the docker build testing ([#10223](https://github.com/openemr/openemr/issues/10223))
+- full support for nginx/php-fpm ([#1696](https://github.com/openemr/openemr/issues/1696))
+- main menu - user dropdown width restricted ([#10205](https://github.com/openemr/openemr/issues/10205))
+
+### Changed
+-  Carry over NDC info from previous encounters in Fee Sheet ([#8557](https://github.com/openemr/openemr/issues/8557))
+-  Major Save Issues ([#10095](https://github.com/openemr/openemr/issues/10095))
+-  Unable to add document category ([#10538](https://github.com/openemr/openemr/issues/10538))
+-  Flaky testUserAdd test fails with TimeoutException ([#10286](https://github.com/openemr/openemr/issues/10286))
+-  sql query error modifier can not be null ([#10198](https://github.com/openemr/openemr/issues/10198))
+-  Exception thrown on Authentication RC service ([#10248](https://github.com/openemr/openemr/issues/10248))
+-  one-time token for portal document notification broken ([#10517](https://github.com/openemr/openemr/issues/10517))
+-   PHP Fatal error:  Uncaught TypeError: receiptDetailLine(): Argument #4 ($quantity) must be of type int ([#10291](https://github.com/openemr/openemr/issues/10291))
+-  undefined global var $_SESSION in patient portal ([#10200](https://github.com/openemr/openemr/issues/10200))
+-  various session and type errors. ([#10553](https://github.com/openemr/openemr/issues/10553))
+-  bump the selenium-updates group across 3 directories with 1 update ([#10367](https://github.com/openemr/openemr/pull/10367))
+-  prep upgrade mechanism for docker 8.0.0 release ([#10268](https://github.com/openemr/openemr/issues/10268))
+-  change dev version to 7.0.5 ([#9513](https://github.com/openemr/openemr/issues/9513))
+-  change next planned version from 7.0.5 to 8.0.0 ([#10029](https://github.com/openemr/openemr/issues/10029))
+-  some release prep for 8.0.0 ([#10558](https://github.com/openemr/openemr/issues/10558))
+-  add pronouns and fix other layout oddities ([#10202](https://github.com/openemr/openemr/pull/10202))
+-  add SignalWire integration ([#10171](https://github.com/openemr/openemr/pull/10171))
+-  symfony sessions ([#9340](https://github.com/openemr/openemr/pull/9340))
+-  Create 2026 Real World Testing report ([#10284](https://github.com/openemr/openemr/issues/10284))
+-  add php-fpm web server instructions to Step 5 ([#10478](https://github.com/openemr/openemr/pull/10478))
+-  Report population capture and environment flag ([#10290](https://github.com/openemr/openemr/issues/10290))
+-  health check endpoints (healthz / livez / ready endpoints) ([#6133](https://github.com/openemr/openemr/issues/6133))
+-  skip audit logging for health check endpoints ([#10176](https://github.com/openemr/openemr/pull/10176))
+-  prevent sending blank statement emails ([#10486](https://github.com/openemr/openemr/pull/10486))
+-  use correct matrix variable for isolated-tests composer cache ([#10469](https://github.com/openemr/openemr/pull/10469))
+-  fix issue with loading `Juggernaut\OpenEMR\Modules\PriorAuthModule\` ([#10425](https://github.com/openemr/openemr/pull/10425))
+-  Fix returned value of InTransaction ([#10524](https://github.com/openemr/openemr/pull/10524))
+-  assert $pid is defined in portal_payment.php ([#10446](https://github.com/openemr/openemr/issues/10446))
+-  uncaught syntax error prevents CDR alert popup ([#10441](https://github.com/openemr/openemr/pull/10441))
+-  prevent inflated totals in Financial Summary by Service Code ([#10438](https://github.com/openemr/openemr/pull/10438))
+-  escape unescaped URL attributes in Twig templates ([#10474](https://github.com/openemr/openemr/pull/10474))
+-  API requests with portal cookies cause session conflict error ([#10416](https://github.com/openemr/openemr/issues/10416))
+-  increase app cookie expire time and better wrapper selection logic ([#10227](https://github.com/openemr/openemr/pull/10227))
+-  correct collate field id attribute and add default value ([#10472](https://github.com/openemr/openemr/pull/10472))
+-  nginx config doc path fix. ([#10526](https://github.com/openemr/openemr/pull/10526))
+-  add title for eRx tab ([#9130](https://github.com/openemr/openemr/pull/9130))
+-  Geo Location and population data placement ([#10429](https://github.com/openemr/openemr/pull/10429))
+-  add translation support for BMI status display ([#10406](https://github.com/openemr/openemr/pull/10406))
+-  #10323 care team upgrade optimization ([#10347](https://github.com/openemr/openemr/pull/10347))
+-  #10332 uuid generation large dataset ([#10346](https://github.com/openemr/openemr/pull/10346))
+-  #10436 redis session storage ([#10437](https://github.com/openemr/openemr/pull/10437))
+-  #10454 webroot session fix ([#10455](https://github.com/openemr/openemr/pull/10455))
+-  #10481 EHR launch skip login screen ([#10482](https://github.com/openemr/openemr/pull/10482))
+-  10456 ccda author session fix ([#10470](https://github.com/openemr/openemr/pull/10470))
+-  FHIR DocumentReference endpoint returns clinical notes associated with the wrong patient ([#10168](https://github.com/openemr/openemr/issues/10168))
+-  correct typos in clinical notes and track_anything forms ([#10457](https://github.com/openemr/openemr/pull/10457))
+-  docker documentation typo ([#10418](https://github.com/openemr/openemr/issues/10418))
+-  remove redundant syncAlertMsg wrapper ([#10411](https://github.com/openemr/openemr/issues/10411))
+-  remove unused PredisSessionHandler class ([#10528](https://github.com/openemr/openemr/pull/10528))
+-  consolidate email validation to use ValidationUtils ([#10304](https://github.com/openemr/openemr/pull/10304))
+-  Consolidate IP address validation using filter_var ([#10305](https://github.com/openemr/openemr/issues/10305))
+-  Consolidate NPI validation in ValidationUtils ([#10310](https://github.com/openemr/openemr/issues/10310))
+
+
 ## [7.0.4](https://github.com/openemr/openemr/milestone/17?closed=1) - 2025-12-23
 
 ### Added

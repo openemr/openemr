@@ -4,7 +4,7 @@
  * CCR Script.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Garden State Health Systems <http://www.gshsys.com/>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010 Garden State Health Systems <http://www.gshsys.com/>
@@ -12,8 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use PHPMailer\PHPMailer\PHPMailer;
 
 // check if using the patient portal
 //(if so, then use the portal authorization)
@@ -24,14 +28,14 @@ if (isset($_GET['portal_auth'])) {
     // Will start the (patient) portal OpenEMR session/cookie.
     //  Need access to classes, so run autoloader now instead of in globals.php.
     require_once(__DIR__ . "/../vendor/autoload.php");
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-    if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
         $pid = $session->get('pid');
         $ignoreAuth = true;
         global $ignoreAuth;
     } else {
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '?w');
         exit;
     }
@@ -42,33 +46,28 @@ if (isset($_GET['portal_auth'])) {
 
 require_once(__DIR__ . "/../interface/globals.php");
 require_once(__DIR__ . "/../library/sql-ccr.inc.php");
-require_once(__DIR__ . "/uuid.php");
 require_once(__DIR__ . "/transmitCCD.php");
 require_once(__DIR__ . "/../custom/code_types.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
-use PHPMailer\PHPMailer\PHPMailer;
 
 if ($notPatientPortal) {
     $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
     if (!$thisauth) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Create CCR", xl("Create CCR"));
     }
 }
 
 function createCCR($action, $raw = "no", $requested_by = ""): void
 {
 
-    $authorID = getUuid();
-    $patientID = getUuid();
-    $sourceID = getUuid();
-    $oemrID = getUuid();
+    $authorID = ServiceContainer::getUuidFactory()->uuid4()->toString();
+    $patientID = ServiceContainer::getUuidFactory()->uuid4()->toString();
+    $sourceID = ServiceContainer::getUuidFactory()->uuid4()->toString();
+    $oemrID = ServiceContainer::getUuidFactory()->uuid4()->toString();
 
     $result = getActorData();
     while ($res = sqlFetchArray($result[2])) {
-        ${"labID{$res['id']}"} = getUuid();
+        ${"labID{$res['id']}"} = ServiceContainer::getUuidFactory()->uuid4()->toString();
     }
 
        $ccr = new DOMDocument('1.0', 'UTF-8');
@@ -165,7 +164,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = ""): void
                     return;
         }
 
-        $tempDir = $GLOBALS['temporary_files_dir'];
+        $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $zipName = $tempDir . "/" . getReportFilename() . "-ccr.zip";
         if (file_exists($zipName)) {
                     unlink($zipName);
@@ -259,7 +258,7 @@ function viewCCD($ccr, $raw = "no", $requested_by = ""): void
             return;
         }
 
-        $tempDir = $GLOBALS['temporary_files_dir'];
+        $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $zipName = $tempDir . "/" . getReportFilename() . "-ccd.zip";
         if (file_exists($zipName)) {
             unlink($zipName);
@@ -339,7 +338,7 @@ function sourceType($ccr, $uuid)
 
 function displayError($message): void
 {
-    echo '<script>alert("' . addslashes((string) $message) . '");</script>';
+    echo '<script>alert(' . js_escape((string) $message) . ');</script>';
 }
 
 

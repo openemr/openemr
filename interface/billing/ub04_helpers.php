@@ -4,7 +4,7 @@
  * Helper for UB04 form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2025 Jerry Padgett <sjpadgett@gmail.com>
@@ -108,8 +108,8 @@ function lookup_codes($group, $term): void
 }
 /**
  * Lookup lists
- * @param lookup group string $group
- * @param search string $term
+ * @param string $group lookup group
+ * @param string $term search
  */
 function get_codes_list($group, $term): void
 {
@@ -117,6 +117,7 @@ function get_codes_list($group, $term): void
     $response = sqlStatement("SELECT CONCAT_WS(': ', isc.code, isc.primary_desc, isc.desc1) as label, isc.code as value, isc.code_group as cg FROM inst_support_codes as isc
 HAVING label LIKE ? And cg = ? ORDER BY code ASC", [$term, $group ]);
 
+    $resultpd = [];
     while ($row = sqlFetchArray($response)) {
         $resultpd[] = $row;
     }

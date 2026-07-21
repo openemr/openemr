@@ -8,7 +8,7 @@
  * run by the user.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -21,6 +21,8 @@ use OpenEMR\Billing\BillingProcessor\BillingProcessor;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 abstract class AbstractGenerator extends AbstractProcessingTask implements GeneratorInterface
 {
@@ -102,11 +104,12 @@ abstract class AbstractGenerator extends AbstractProcessingTask implements Gener
      */
     public function printDownloadClaimFileJS($filename, $location = '', $delete = false)
     {
-        $url = $GLOBALS['webroot'] . '/interface/billing/get_claim_file.php?' .
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $url = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/interface/billing/get_claim_file.php?' .
             'key=' . urlencode((string) $filename) .
             '&location=' . urlencode((string) $location) .
             '&delete=' . urlencode($delete) .
-            '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken());
+            '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session));
         echo "<script type='text/JavaScript'>window.location = " . js_escape($url) . "</script>";
     }
 }

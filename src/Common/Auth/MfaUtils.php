@@ -12,8 +12,10 @@
 
 namespace OpenEMR\Common\Auth;
 
-use OpenEMR\Common\Crypto\CryptoGen;
-use u2flib_server\U2F;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 
 class MfaUtils
 {
@@ -72,7 +74,7 @@ class MfaUtils
      */
     public function isMfaRequired()
     {
-        return !empty($this->types) ? true : false;
+        return !empty($this->types);
     }
 
     public function getType()
@@ -140,8 +142,12 @@ class MfaUtils
 
         // Decrypt the secret
         // First, try standard method that uses standard key
-        $cryptoGen = new CryptoGen();
-        $secret = $cryptoGen->decryptStandard($registrationSecret);
+        $cryptoGen = ServiceContainer::getCrypto();
+        try {
+            $secret = $cryptoGen->decryptFromDatabase(is_string($registrationSecret) ? $registrationSecret : null);
+        } catch (CryptoGenException) {
+            $secret = null;
+        }
         if (empty($secret)) {
             // Second, try the password hash, which was setup during install and is temporary
             $passwordResults = privQuery(
@@ -149,11 +155,16 @@ class MfaUtils
                 [$_POST["authUser"]]
             );
             if (!empty($passwordResults["password"])) {
-                $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
+                $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                try {
+                    $secret = $passwordCrypto->decrypt((string) $registrationSecret, (string) $passwordResults["password"]);
+                } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
+                    $secret = null;
+                }
                 if (!empty($secret)) {
                     error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                     // Re-encrypt with the more secure standard key
-                    $secretEncrypt = $cryptoGen->encryptStandard($secret);
+                    $secretEncrypt = $cryptoGen->encryptForDatabase($secret);
                     privStatement(
                         "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
                         [$secretEncrypt, $this->uid]
@@ -222,7 +233,7 @@ class MfaUtils
     private function validateToken($token, $type)
     {
         return match ($type) {
-            'TOTP' => strlen((string) $token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false,
+            'TOTP' => strlen((string) $token) === self::TOTP_TOKEN_LENGTH && is_numeric($token),
             // todo - USF string validation
             'U2F' => true,
             default => throw new \Exception('MFA type do not supported'),

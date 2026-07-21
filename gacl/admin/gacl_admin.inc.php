@@ -1,4 +1,5 @@
 <?php
+
 /*
  * phpGACL - Generic Access Control List
  * Copyright (C) 2002 Mike Benoit
@@ -33,6 +34,7 @@
 require_once(__DIR__.'/../../vendor/autoload.php');
 
 use OpenEMR\Gacl\GaclAdminApi;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 // phpGACL Configuration file.
 if ( !isset($config_file) ) {
@@ -50,16 +52,15 @@ if ( file_exists($config_file) ) {
     unset($config);
 }
 
-$gacl_api = new GaclAdminApi($gacl_options);
+/** @var array<string, mixed>|null $gacl_options */
+$gacl_api = new GaclAdminApi(is_array($gacl_options ?? null) ? $gacl_options : null);
 
-$gacl = &$gacl_api;
-
-$db = &$gacl->db;
+$db = $gacl_api->db;
 
 $smarty = new Smarty;
 $smarty->setCompileCheck(true);
-$smarty->setTemplateDir($gacl_options['smarty_template_dir']);
-$smarty->setCompileDir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl');
+$smarty->setTemplateDir($gacl_options['smarty_template_dir'] ?? '');
+$smarty->setCompileDir((new CacheDirectory())->for('openemr-smarty'));
 
 /*
  * Email address used in setup.php, please do not change.

@@ -1,6 +1,6 @@
 services:
   selenium:
-    image: selenium/standalone-chromium:4.40.0
+    image: selenium/standalone-chromium:150.0.7871.114@sha256:3400b92f1cddb2dfaaf358654e8f7d83d7be45192fb73c5f28c25faa28d36504
     # Services with profiles don't start by default.
     profiles:
     - selenium
@@ -25,7 +25,7 @@ services:
       timeout: 5s
       retries: 3
   video:
-    image: selenium/video:ffmpeg-7.1-20250707
+    image: selenium/video:ffmpeg-7.1-20250808@sha256:c418f6e20e3496c393ad501a0f599813e08d50dc8b88ffb00fb6727bc7bd8aa3
     # Services with profiles don't start by default.
     profiles:
     - video-recording

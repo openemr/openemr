@@ -2,7 +2,7 @@
 * vitals general_new.html
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,6 +22,9 @@
         ,'bpd_input': window.xl("BP Diastolic")
         ,'validateFailed': window.xl("Please correct the value(s) before proceeding!")
         ,'invalidField': window.xl("The following field has an invalid value")
+        ,'outsideRange': window.xl("Value is outside typical clinical range")
+        ,'invalidNegative': window.xl("Value cannot be negative")
+        ,'invalidRange': window.xl("Value is outside acceptable range")
     };
     if (window.vitalsForm) {
         window.vitalsForm.init({{ FORM_ACTION|js_url }}, vitalsTranslations);
@@ -34,6 +37,19 @@
 <body>
 
  <div class="container mt-3">
+    {% if validationErrors is defined and validationErrors is not empty %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>{{ "Validation errors"|xlt }}:</strong>
+        <ul class="mb-0">
+            {% for error in validationErrors %}
+                <li>{{ error|text }}</li>
+            {% endfor %}
+        </ul>
+        <button type="button" class="close" data-dismiss="alert" aria-label="{{ "Close"|xla }}">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
     <div class="row no-gutters">
         <div class="col-4">
             <h2 class="h2-responsive">

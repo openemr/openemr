@@ -5,7 +5,7 @@
  * object that can be signed, locked and/or amended.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -15,8 +15,10 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/DbRow/Signable.php';
-require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/DbRow/Signable.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
 
 class Form_Signable extends DbRow_Signable implements SignableIF
 {
@@ -61,12 +63,12 @@ class Form_Signable extends DbRow_Signable implements SignableIF
     {
         // Initialize to false and check individual form
         $locked = false;
-        if ($GLOBALS['lock_esign_individual']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('lock_esign_individual')) {
             $locked = parent::isLocked();
         }
 
         // Check the "parent" encounter if signing is allowed at encounter level
-        if (!$locked && $GLOBALS['lock_esign_all']) {
+        if (!$locked && OEGlobalsBag::getInstance()->getBoolean('lock_esign_all')) {
             $statement = "SELECT E.is_lock FROM esign_signatures E ";
             $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
             $statement .= "ORDER BY E.datetime DESC LIMIT 1";

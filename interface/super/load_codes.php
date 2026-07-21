@@ -4,7 +4,7 @@
  * Upload and install a designated code set to the codes table.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Rod Roark <rod@sunsetsystems.com>
@@ -15,16 +15,16 @@
 set_time_limit(0);
 
 require_once '../globals.php';
-require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Install Code Set")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Install Code Set", xl("Install Code Set"));
 }
 
 $form_replace = !empty($_POST['form_replace']);
@@ -56,12 +56,10 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 <body class="body_top">
 
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if (empty($code_types[$code_type])) {
         die(xlt('Code type not yet defined') . ": '" . text($code_type) . "'");
@@ -163,7 +161,7 @@ if (!empty($_POST['bn_upload'])) {
         <form method='post' action='load_codes.php' enctype='multipart/form-data'
         onsubmit='return top.restoreSession()'>
 
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
             <div class="table-responsive">
                 <table class="table table-bordered">

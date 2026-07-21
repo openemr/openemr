@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,8 +19,8 @@ namespace OpenEMR\Tests\E2e;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
-use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use OpenEMR\Tests\E2e\Patient\PatientOpenTrait;
+use OpenEMR\Tests\E2e\Patient\PatientTestData;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
@@ -32,7 +32,6 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
     use LoginTrait;
     use PatientOpenTrait;
 
-    private $client;
     private $crawler;
 
     #[DataProvider('menuLinkProvider')]
@@ -59,11 +58,11 @@ class IiPatientContextMainMenuLinksTest extends PantherTestCase
         try {
             $this->login(LoginTestData::username, LoginTestData::password);
             $this->patientOpenIfExist(PatientTestData::FNAME, PatientTestData::LNAME, PatientTestData::DOB, PatientTestData::SEX, false);
-            $this->goToMainMenuLink($menuLink);
+            $this->goToMainMenuLink($menuLink, $clearAlert);
             if ($popup) {
                 $this->assertActivePopup($expectedTabPopupTitle);
             } else {
-                $this->assertActiveTab($expectedTabPopupTitle, $loading, false, $clearAlert);
+                $this->assertActiveTab($expectedTabPopupTitle, $loading);
             }
         } catch (\Throwable $e) {
             // Close client

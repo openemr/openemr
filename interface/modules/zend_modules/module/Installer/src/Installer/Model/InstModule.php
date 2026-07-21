@@ -13,8 +13,6 @@
 
 namespace Installer\Model;
 
-use Laminas\InputFilter\Factory as InputFactory;
-use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterAwareInterface;
 use Laminas\InputFilter\InputFilterInterface;
 

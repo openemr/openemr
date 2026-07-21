@@ -19,11 +19,10 @@
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Services\UserService;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $incoming_site_id = '';
 // This is the conditional that ensures that the submission has the required parameters to attempt a login
@@ -34,7 +33,7 @@ if (
     && (
         // Either normal login or google sign-in
         (isset($_POST['authUser']) && isset($_POST['clearPass']))
-        || (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id']) && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
+        || (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id')) && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
     )
 ) {
     // Attempt login
@@ -51,8 +50,8 @@ if (
 
     $login_success = false;
     if (
-        !empty($GLOBALS['google_signin_enabled']) &&
-        !empty($GLOBALS['google_signin_client_id']) &&
+        OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
+        !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id')) &&
         !empty($_POST['used_google_signin']) &&
         !empty($_POST['google_signin_token'])
     ) {
@@ -131,9 +130,9 @@ function authCloseSession(): void
   // Before destroying the session, save its site_id so that the next
   // login will default to that same site.
     global $incoming_site_id;
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $incoming_site_id = $session->get('site_id') ?? '';
-    SessionUtil::coreSessionDestroy();
+    SessionWrapperFactory::getInstance()->destroyCoreSession();
 }
 
 function authLoginScreen($timed_out = false): void
@@ -154,7 +153,7 @@ function authLoginScreen($timed_out = false): void
     <?php if ($timed_out) { ?>
  w.top.timed_out = true;
 <?php } ?>
- w.top.location.href = '<?php echo "{$GLOBALS['login_screen']}?error=1&site=$incoming_site_id"; ?>';
+ w.top.location.href = '<?php echo OEGlobalsBag::getInstance()->get('login_screen') . "?error=1&site=" . $incoming_site_id; ?>';
 </script>
     <?php
     exit;

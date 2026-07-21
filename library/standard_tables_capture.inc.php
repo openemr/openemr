@@ -17,6 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 
 // Function to copy a package to temp
@@ -28,13 +29,13 @@ function temp_copy($filename, $type)
         return false;
     }
 
-    if (!file_exists($GLOBALS['temporary_files_dir'] . "/" . $type)) {
-        if (!mkdir($GLOBALS['temporary_files_dir'] . "/" . $type, 0777, true)) {
+    if (!file_exists(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type)) {
+        if (!mkdir(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type, 0777, true)) {
                 return false;
         }
     }
 
-    if (copy($filename, $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename((string) $filename))) {
+    if (copy($filename, OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type . "/" . basename((string) $filename))) {
         return true;
     } else {
         return false;
@@ -45,13 +46,13 @@ function temp_copy($filename, $type)
 // $type (RXNORM, SNOMED etc.)
 function temp_unarchive($filename, $type)
 {
-    $filename = $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename((string) $filename);
+    $filename = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type . "/" . basename((string) $filename);
     if (!file_exists($filename)) {
         return false;
     } elseif ($type == "ICD10") {
         // copy zip file contents to /tmp/ICD10 due to CMS zip file
         $zip = new ZipArchive();
-        $path = $GLOBALS['temporary_files_dir'] . "/" . $type;
+        $path = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type;
         if ($zip->open($filename) === true) {
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 $sub_dir_filename = $zip->getNameIndex($i);
@@ -69,7 +70,7 @@ function temp_unarchive($filename, $type)
         // unzip the file
         $zip = new ZipArchive();
         if ($zip->open($filename) === true) {
-            if (!($zip->extractTo($GLOBALS['temporary_files_dir'] . "/" . $type))) {
+            if (!($zip->extractTo(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type))) {
                 return false;
             }
             $zip->close();
@@ -84,13 +85,13 @@ function rxnorm_import($is_windows_flag)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('RXNORM', ['is_windows_flag' => $is_windows_flag]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
     // set paths
-    $dirScripts = $GLOBALS['temporary_files_dir'] . "/RXNORM/scripts/mysql";
-    $dir = $GLOBALS['temporary_files_dir'] . "/RXNORM/rrf";
+    $dirScripts = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/RXNORM/scripts/mysql";
+    $dir = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/RXNORM/rrf";
     $dir = str_replace('\\', '/', $dir);
 
     $rx_info = [];
@@ -159,9 +160,9 @@ function rxnorm_import($is_windows_flag)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('RXNORM', ['is_windows_flag' => $is_windows_flag]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -172,9 +173,9 @@ function snomed_import($us_extension = false)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', ['us_extension' => $us_extension]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     // set up array
@@ -215,7 +216,7 @@ function snomed_import($us_extension = false)
     ];
 
     // set up paths
-    $dir_snomed = $GLOBALS['temporary_files_dir'] . "/SNOMED/";
+    $dir_snomed = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/SNOMED/";
     $sub_path = "Terminology/Content/";
     $dir = $dir_snomed;
     $dir = str_replace('\\', '/', $dir);
@@ -273,9 +274,9 @@ function snomed_import($us_extension = false)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', ['us_extension' => $us_extension]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -330,9 +331,9 @@ function snomedRF2_import()
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', []);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
     // set up array
@@ -413,7 +414,7 @@ function snomedRF2_import()
     ];
 
     // set up paths
-    $dir_snomed = $GLOBALS['temporary_files_dir'] . "/SNOMED/";
+    $dir_snomed = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/SNOMED/";
     // $sub_path="Terminology/Content/";
     $sub_path = "Full/Terminology/";
     $dir = $dir_snomed;
@@ -476,9 +477,9 @@ function snomedRF2_import()
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('SNOMED', []);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -490,13 +491,13 @@ function icd_import($type)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('ICD', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
     // set up paths
-    $dir_icd = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
+    $dir_icd = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type . "/";
     $dir = str_replace('\\', '/', $dir_icd);
     $db_load = '';
     $db_update = '';
@@ -590,9 +591,9 @@ function icd_import($type)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('ICD', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
 
     return true;
@@ -602,12 +603,12 @@ function valueset_import($type)
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('CQM_VALUESET', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
-    $dir_valueset = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
+    $dir_valueset = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type . "/";
     $dir = str_replace('\\', '/', $dir_valueset);
 
     // Settings to drastically speed up import with InnoDB
@@ -677,9 +678,9 @@ function valueset_import($type)
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
-    if (!empty($GLOBALS['kernel'])) {
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
         $codeTypeInstalledEvent = new CodeTypeInstalledEvent('CQM_VALUESET', ['type' => $type]);
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_POST);
     }
         return true;
 }
@@ -688,9 +689,31 @@ function valueset_import($type)
 // $type (RXNORM etc.)
 function temp_dir_cleanup($type): void
 {
-    if (is_dir($GLOBALS['temporary_files_dir'] . "/" . $type)) {
-        rmdir_recursive($GLOBALS['temporary_files_dir'] . "/" . $type);
+    $tempBase = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
+    $target = $tempBase . "/" . $type;
+    if (!is_dir($target)) {
+        return;
     }
+    // Defense in depth: ensure the resolved target is contained within
+    // $temporary_files_dir to prevent traversal via untrusted $type.
+    // Also refuse to delete a symlinked root, which would let an attacker
+    // who can swap the directory for a symlink between this check and the
+    // recursive delete escape containment via TOCTOU.
+    if (is_link($target)) {
+        return;
+    }
+    $resolvedBase = realpath($tempBase);
+    $resolvedTarget = realpath($target);
+    if ($resolvedBase === false || $resolvedTarget === false) {
+        return;
+    }
+    // Require an immediate subdirectory of the base. This is stricter than
+    // isBasePath() (which allows nesting) and rules out values like '' or '.'
+    // that would otherwise resolve to the base itself and delete it whole.
+    if (dirname($resolvedTarget) !== $resolvedBase) {
+        return;
+    }
+    rmdir_recursive($resolvedTarget);
 }
 
 // Function to update version tracker table if successful
@@ -718,14 +741,32 @@ function update_tracker_table($type, $revision, $version, $file_checksum)
 }
 
 // Function to delete an entire directory
-function rmdir_recursive($dir): void
+function rmdir_recursive(string $dir): void
 {
+    // Refuse a symlinked root: scandir() follows symlinks, so without this
+    // guard a TOCTOU swap of the directory for a symlink could redirect
+    // deletion outside the intended tree. Unlink the link itself instead.
+    if (is_link($dir)) {
+        unlink($dir);
+        return;
+    }
     $files = scandir($dir);
+    if ($files === false) {
+        return;
+    }
     array_shift($files);    // remove '.' from array
     array_shift($files);    // remove '..' from array
 
     foreach ($files as $file) {
         $file = $dir . '/' . $file;
+        // Treat symlinks as leaf nodes — unlink the link itself rather than
+        // recursing through it. is_dir() follows symlinks, so without this
+        // guard a symlink to an external directory would cause the recursion
+        // to delete files outside the intended tree.
+        if (is_link($file)) {
+            unlink($file);
+            continue;
+        }
         if (is_dir($file)) {
             rmdir_recursive($file);
             continue;
