@@ -2,7 +2,7 @@
 <?php
 
 /**
- * Merge the two release PRs (conductor → docs) in order.
+ * Merge the three release PRs (conductor → docs → finalize) in order.
  *
  * Authenticates via the ambient GH_TOKEN env var. The workflow mints a release
  * App token with PR-write on both repos and exports it before invoking.
@@ -19,6 +19,7 @@ declare(strict_types=1);
 require dirname(__DIR__, 3) . '/vendor/autoload.php';
 
 use OpenEMR\Release\GhPullRequestApi;
+use OpenEMR\Release\Mode;
 use OpenEMR\Release\PullRequestTarget;
 use OpenEMR\Release\ShipReleaseOptions;
 use OpenEMR\Release\ShipReleaseOrchestrator;
@@ -33,7 +34,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 (new SingleCommandApplication())
     ->setName('ship-release')
-    ->setDescription('Merge the two release PRs in order (issue #705)')
+    ->setDescription('Merge the three release PRs in order (issue #705)')
     // Option is `--release-version`, not `--version`: Symfony Console reserves
     // `--version`/`-V` as a global flag that prints the app name and exits 0
     // before the command runs, so `--version=8.1.0` would silently no-op.
@@ -41,10 +42,17 @@ use Symfony\Component\Filesystem\Filesystem;
     ->addOption('rel-branch', null, InputOption::VALUE_REQUIRED, 'Release branch name (e.g. rel-810)')
     ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Check readiness without merging or posting status')
     ->addOption(
+        'mode',
+        null,
+        InputOption::VALUE_REQUIRED,
+        'Execution mode: dry-run | semi-auto | full-auto (see OpenEMR\\Release\\Mode)',
+        Mode::SemiAuto->value,
+    )
+    ->addOption(
         'timeout-seconds',
         null,
         InputOption::VALUE_REQUIRED,
-        'Max seconds to wait for docs PR to update after conductor merges',
+        'Max seconds to wait for downstream PRs to update after conductor merges',
         '600',
     )
     ->addOption('status-target-url', null, InputOption::VALUE_REQUIRED, 'target_url for the ship-approved status', '')
@@ -61,12 +69,26 @@ use Symfony\Component\Filesystem\Filesystem;
             $output->writeln('<error>--timeout-seconds must be a positive integer</error>');
             return 1;
         }
+        $modeString = ShipReleaseOptions::asString($input, 'mode');
+        $mode = Mode::tryFrom($modeString);
+        if ($mode === null) {
+            $output->writeln(sprintf(
+                '<error>--mode must be one of: dry-run, semi-auto, full-auto (got %s)</error>',
+                $modeString,
+            ));
+            return 1;
+        }
+        // --dry-run always wins for safety when both flags are provided.
+        if ((bool) $input->getOption('dry-run')) {
+            $mode = Mode::DryRun;
+        }
 
         $orchestrator = new ShipReleaseOrchestrator(
             new GhPullRequestApi(),
             new SystemClock(),
+            $version,
             (int) $timeoutRaw,
-            (bool) $input->getOption('dry-run'),
+            $mode,
             ShipReleaseOptions::asString($input, 'status-target-url'),
         );
         $result = $orchestrator->ship(PullRequestTarget::forRelease($version, $relBranch));
@@ -77,7 +99,7 @@ use Symfony\Component\Filesystem\Filesystem;
             $markdown = ShipReleaseSummaryRenderer::render(
                 $version,
                 $relBranch,
-                (bool) $input->getOption('dry-run'),
+                $mode === Mode::DryRun,
                 $result,
             );
             (new Filesystem())->appendToFile($summaryFile, $markdown);

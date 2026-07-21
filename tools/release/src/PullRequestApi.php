@@ -25,8 +25,21 @@ interface PullRequestApi
 
     /**
      * Compute readiness from GitHub's mergeability + checks + review state.
+     *
+     * When $requireApproval is false, the reviewDecision !== APPROVED check is
+     * skipped -- the not-draft + MERGEABLE + CLEAN + status-check gates still
+     * apply. Docs + Finalize PRs are auto-generated bot content with no
+     * meaningful "human review" gate; Conductor is the one meaningful review
+     * point and defaults to requiring approval for back-compat.
      */
-    public function getReadiness(string $repo, int $number): PullRequestReadiness;
+    public function getReadiness(string $repo, int $number, bool $requireApproval = true): PullRequestReadiness;
+
+    /**
+     * Whether a GitHub Release object exists for $tag in $repo. Used by the
+     * full-auto orchestrator to gate downstream PR merges on
+     * build-release-on-tag having completed package assembly + upload.
+     */
+    public function releaseExists(string $repo, string $tag): bool;
 
     /**
      * POST a commit status to a SHA. Used to publish release/ship-approved
