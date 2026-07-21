@@ -10,9 +10,16 @@ name: Ship Release
 #
 # **Execution modes** (workflow_dispatch `mode` input):
 #
-#   dry-run    Preflight only. Probe every PR's readiness and print a
-#              report; merge nothing. `dry_run: true` still supported and
-#              always wins over `mode` for muscle memory / script compat.
+#   dry-run    Preflight + package-build dress rehearsal. Probes every PR's
+#              readiness and prints a report (merges nothing), and — on
+#              successful preflight — kicks a downstream `dry-run-build`
+#              job that calls the reusable `build-release.yml` with
+#              `dry_run=true`. That produces the actual tarball, zip,
+#              changelog, and checksums and uploads them as workflow-run
+#              artifacts (no git tag, no GitHub Release). Lets the
+#              operator eyeball what will ship before firing a real
+#              ship-release. `dry_run: true` still supported and always
+#              wins over `mode` for muscle memory / script compat.
 #
 #   semi-auto  Preflight + merge Conductor PR only. Docs and Finalize PRs
 #              are marked SKIPPED_BY_MODE (still a success — exit 0);
@@ -163,3 +170,25 @@ jobs:
         STATUS_TARGET_URL="${STATUS_TARGET_URL}"
         SUMMARY_FILE="${GITHUB_STEP_SUMMARY}"
         DRY_RUN="${DRY_RUN}"
+
+  # Dry-run "dress rehearsal" builder. Fires only when the operator picked
+  # dry-run mode (or the legacy dry_run flag) and only after the ship job
+  # succeeded — i.e., preflight passed. Calls build-release.yml as a
+  # reusable workflow with dry_run=true so the run assembles the actual
+  # tarball + zip + changelog + checksums and uploads them as run
+  # artifacts, but skips tag creation, GitHub Release publish, and the
+  # downstream docker/website dispatches. The operator can then download
+  # the artifacts from the run page and eyeball what would ship.
+  dry-run-build:
+    name: Dry-run build (artifacts only, no publish)
+    needs: ship
+    if: ${{ needs.ship.result == 'success' && (inputs.mode == 'dry-run' || inputs.dry_run) }}
+    uses: ./.github/workflows/build-release.yml
+    with:
+      version_branch: ${{ inputs.rel_branch }}
+      version: ${{ inputs.version }}
+      dry_run: true
+    # build-release.yml uses the RELEASE_APP secret only on non-dry-run
+    # branches, but inherit anyway so the reusable workflow's shared
+    # secret expectations stay uniform across callers.
+    secrets: inherit
