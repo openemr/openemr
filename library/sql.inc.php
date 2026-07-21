@@ -44,6 +44,8 @@ require_once(__DIR__ . "/../vendor/adodb/adodb-php/adodb.inc.php");
 require_once(__DIR__ . "/../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
 require_once(__DIR__ . "/ADODB_mysqli_log.php");
 
+$disable_utf8_flag = (bool) ($disable_utf8_flag ?? ($GLOBALS['disable_utf8_flag'] ?? false));
+
 if (!defined('ADODB_FETCH_ASSOC')) {
     define('ADODB_FETCH_ASSOC', 2);
 }

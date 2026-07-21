@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * EmailQueueService class.
@@ -15,6 +16,19 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class EmailQueueService
 {
+    private const EMAIL_QUEUE_COLUMNS = [
+        'id',
+        'sender',
+        'recipient',
+        'subject',
+        'datetime_queued',
+        'sent',
+        'datetime_sent',
+        'error',
+        'error_message',
+        'datetime_error',
+        'template_name',
+    ];
     /**
      * Get a normalized non-empty string filter value.
      *
@@ -30,19 +44,14 @@ class EmailQueueService
         return $value !== '' ? $value : null;
     }
     /**
-     * Get email queue records with optional filtering and pagination
-     *
-     * @param array $filters Optional filters: search, status (all|sent|pending|failed), template_name, date_from, date_to
-     * @param int $limit Number of records to return
-     * @param int $offset Starting offset for pagination
-     * @return array Array of email queue records
+     * @param array<string, mixed> $filters
+     * @return array{0: string, 1: array<int, int|string>}
      */
-    public function getEmailQueue(array $filters = [], int $limit = 100, int $offset = 0): array
+    private function buildFilterClause(array $filters): array
     {
         $where = [];
         $params = [];
 
-        // Search filter (search in recipient, subject, sender)
         $searchValue = $this->getFilterValue($filters, 'search');
         if ($searchValue !== null) {
             $searchTerm = '%' . $searchValue . '%';
@@ -52,7 +61,6 @@ class EmailQueueService
             $params[] = $searchTerm;
         }
 
-        // Status filter
         $statusValue = $this->getFilterValue($filters, 'status');
         if ($statusValue !== null) {
             switch ($statusValue) {
@@ -68,14 +76,12 @@ class EmailQueueService
             }
         }
 
-        // Template name filter
         $templateName = $this->getFilterValue($filters, 'template_name');
         if ($templateName !== null) {
             $where[] = "template_name = ?";
             $params[] = $templateName;
         }
 
-        // Date range filters
         $dateFrom = $this->getFilterValue($filters, 'date_from');
         if ($dateFrom !== null) {
             $where[] = "datetime_queued >= ?";
@@ -90,18 +96,23 @@ class EmailQueueService
 
         $whereClause = $where !== [] ? "WHERE " . implode(" AND ", $where) : "";
 
+        return [$whereClause, $params];
+    }
+
+    /**
+     * Get email queue records with optional filtering and pagination
+     *
+     * @param array $filters Optional filters: search, status (all|sent|pending|failed), template_name, date_from, date_to
+     * @param int $limit Number of records to return
+     * @param int $offset Starting offset for pagination
+     * @return array Array of email queue records
+     */
+    public function getEmailQueue(array $filters = [], int $limit = 100, int $offset = 0): array
+    {
+        [$whereClause, $params] = $this->buildFilterClause($filters);
+        $selectClause = implode(",\n                    ", self::EMAIL_QUEUE_COLUMNS);
         $sql = "SELECT
-                    id,
-                    sender,
-                    recipient,
-                    subject,
-                    datetime_queued,
-                    sent,
-                    datetime_sent,
-                    error,
-                    error_message,
-                    datetime_error,
-                    template_name
+                    {$selectClause}
                 FROM email_queue
                 {$whereClause}
                 ORDER BY datetime_queued DESC
@@ -110,9 +121,7 @@ class EmailQueueService
         $params[] = $limit;
         $params[] = $offset;
 
-        $records = QueryUtils::fetchRecords($sql, $params);
-
-        return $records;
+        return QueryUtils::fetchRecords($sql, $params);
     }
 
     /**
@@ -123,56 +132,7 @@ class EmailQueueService
      */
     public function getEmailQueueCount(array $filters = []): int
     {
-        $where = [];
-        $params = [];
-
-        // Search filter
-        $searchValue = $this->getFilterValue($filters, 'search');
-        if ($searchValue !== null) {
-            $searchTerm = '%' . $searchValue . '%';
-            $where[] = "(recipient LIKE ? OR subject LIKE ? OR sender LIKE ?)";
-            $params[] = $searchTerm;
-            $params[] = $searchTerm;
-            $params[] = $searchTerm;
-        }
-
-        // Status filter
-        $statusValue = $this->getFilterValue($filters, 'status');
-        if ($statusValue !== null) {
-            switch ($statusValue) {
-                case 'sent':
-                    $where[] = "sent = 1 AND error = 0";
-                    break;
-                case 'pending':
-                    $where[] = "sent = 0 AND error = 0";
-                    break;
-                case 'failed':
-                    $where[] = "error = 1";
-                    break;
-            }
-        }
-
-        // Template name filter
-        $templateName = $this->getFilterValue($filters, 'template_name');
-        if ($templateName !== null) {
-            $where[] = "template_name = ?";
-            $params[] = $templateName;
-        }
-
-        // Date range filters
-        $dateFrom = $this->getFilterValue($filters, 'date_from');
-        if ($dateFrom !== null) {
-            $where[] = "datetime_queued >= ?";
-            $params[] = $dateFrom . ' 00:00:00';
-        }
-
-        $dateTo = $this->getFilterValue($filters, 'date_to');
-        if ($dateTo !== null) {
-            $where[] = "datetime_queued <= ?";
-            $params[] = $dateTo . ' 23:59:59';
-        }
-
-        $whereClause = $where !== [] ? "WHERE " . implode(" AND ", $where) : "";
+        [$whereClause, $params] = $this->buildFilterClause($filters);
 
         $sql = "SELECT COUNT(*) as total FROM email_queue {$whereClause}";
 
@@ -245,7 +205,8 @@ class EmailQueueService
      */
     public function getEmailById(int $id): ?array
     {
-        $sql = "SELECT * FROM email_queue WHERE id = ?";
+        $selectClause = implode(", ", self::EMAIL_QUEUE_COLUMNS);
+        $sql = "SELECT {$selectClause} FROM email_queue WHERE id = ?";
         $result = QueryUtils::querySingleRow($sql, [$id]);
 
         if (!is_array($result)) {

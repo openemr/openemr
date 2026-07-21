@@ -1012,8 +1012,14 @@
         "children": [],
         "requirement": 0,
         "acl_req": [
-          "patients",
-          "demo"
+          [
+            "admin",
+            "super"
+          ],
+          [
+            "acct",
+            "bill"
+          ]
         ]
       },
       {

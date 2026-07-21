@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * EmailQueueServiceTest.php
@@ -16,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * EmailQueueService Tests
- * @coversDefaultClass OpenEMR\Reports\Email\EmailQueueService
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

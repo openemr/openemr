@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * Email Queue Detail Endpoint
@@ -22,14 +23,14 @@ use OpenEMR\Reports\Email\EmailQueueService;
 use Throwable;
 
 // Clear any error output that may have occurred
-$output = ob_get_clean();
+ob_end_clean();
 
 // Set JSON header
 header('Content-Type: application/json');
 
 try {
     // Verify user is authenticated
-    if (!isset($_SESSION['authUser']) || (int) $_SESSION['authUser'] <= 0) {
+    if (!isset($_SESSION['authUserID']) || (int) $_SESSION['authUserID'] <= 0) {
         throw new Exception("User not authenticated");
     }
 
@@ -61,7 +62,7 @@ try {
     http_response_code(400);
     echo json_encode([
         'success' => false,
-        'error' => $e->getMessage()
+        'error' => 'Unable to load email details.'
     ]);
     (new SystemLogger())->error("Email queue detail fetch failed", ['message' => $e->getMessage()]);
 }
