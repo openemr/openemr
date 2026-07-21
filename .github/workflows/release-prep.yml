@@ -410,13 +410,18 @@ jobs:
         # Scope the installation token to this repo plus the dispatch
         # targets, otherwise repository_dispatch to the consumer repos
         # returns 403 "Resource not accessible by integration".
-        # demo_farm_openemr dropped (was: ...,demo_farm_openemr) because
-        # the only dispatch in this `finalize` job is openemr-tag, and
-        # demo_farm no longer consumes it (demo_farm_openemr#141 retired
-        # bump-tag.yml; the auto-derive bot subscribes to
-        # release-targets-changed instead).
+        #
+        # After workstream 7 Phase 2 PR 2c (openemr-tag dispatch cutover
+        # from openemr-devops -> openemr), the finalize dispatch fanout
+        # is `openemr/openemr,openemr/website-openemr`. `openemr` needs
+        # to be in the token scope both as the running repo and as the
+        # dispatch target. `openemr-devops` dropped: no dispatch to it
+        # remains from this job. `demo_farm_openemr` never in scope
+        # here: bump-tag.yml was retired in demo_farm_openemr#141 in
+        # favor of the auto-derive bot subscribing to
+        # release-targets-changed instead.
         owner: ${{ github.repository_owner }}
-        repositories: openemr,openemr-devops,website-openemr
+        repositories: openemr,website-openemr
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
@@ -505,14 +510,22 @@ jobs:
         # BranchVersionResolver::previousRelease() the sibling rel-cut/
         # update dispatches use.
         prev_release="$(php tools/release/bin/derive-prev-release.php "${VERSION}")"
-        # Demo_farm_openemr no longer consumes openemr-tag: its bump-tag.yml
-        # was retired in demo_farm_openemr#141 in favor of the auto-derive
-        # bot, which subscribes to release-targets-changed instead. Explicit
-        # --target-repos to drop demo_farm from the default list so the
-        # dispatch doesn't fire into a void.
+        # Explicit --target-repos to shape the fanout differently from
+        # dispatch.php's default list (see Dispatcher::DEFAULT_TARGET_REPOS):
+        #   * `openemr/openemr` -- intra-repo, consumed by openemr's own
+        #     build-release-on-tag.yml (workstream 7 Phase 2 PR 2b landed
+        #     the consumer; PR 2c retargeted this dispatch to it, from the
+        #     historical openemr/openemr-devops build-release-on-tag.yml).
+        #   * `openemr/website-openemr` -- consumed by release-docs.yml
+        #     for acknowledgements + release-notes markdown generation.
+        #   * Demo_farm_openemr dropped from the default list: its
+        #     bump-tag.yml was retired in demo_farm_openemr#141 in favor
+        #     of the auto-derive bot subscribing to
+        #     release-targets-changed instead. Without the explicit
+        #     --target-repos the dispatch would fire into a void there.
         php tools/release/bin/dispatch.php \
           --event=openemr-tag \
-          --target-repos=openemr/openemr-devops,openemr/website-openemr \
+          --target-repos=openemr/openemr,openemr/website-openemr \
           --sha="${MERGE_SHA}" \
           --actor='openemr-release-bot' \
           --branch="${REL_BRANCH}" \

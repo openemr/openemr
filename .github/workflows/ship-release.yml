@@ -1,0 +1,118 @@
+name: Ship Release
+
+# Manually-triggered orchestration for the two-PR release flow (#705):
+# merges conductor → docs in strict order, skipping any already merged
+# (so the same trigger handles partial-merge recovery), and refusing to merge
+# anything if any unmerged PR is not ready. Mints one App token with PR-write
+# on both repos and posts a release/ship-approved commit status on each
+# PR head before merging it (so branch protection can require it later).
+#
+# **Operator convention: dispatch from master.** The workflow orchestrates PR
+# merges via `gh` CLI against branches specified in the inputs (rel_branch +
+# derived docs/finalize branches). It never touches the workflow's own git
+# state, so it doesn't need to be dispatched from a rel branch. Standardizing
+# on master-dispatch keeps the mental model clean (ship-release is an
+# orchestrator, not tied to any specific rel branch) and avoids the need for
+# .github/byte-identical.yml sync — the master copy is authoritative and the
+# only one that ever fires.
+#
+# Migrated from openemr/openemr-devops in workstream 7 Phase 3 (~2026-07-21).
+# See docs/release-mechanism-migration-from-devops.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 8.2.0) — picks website-openemr branch release-docs/<version>'
+        required: true
+        type: string
+      rel_branch:
+        description: 'Release branch (e.g. rel-820) — picks openemr/openemr branch release-prep/<rel_branch>'
+        required: true
+        type: string
+      dry_run:
+        description: 'Check readiness only — do not merge or post statuses'
+        required: false
+        type: boolean
+        default: false
+      timeout_seconds:
+        description: 'Max seconds to wait for docs PR to update after conductor merge'
+        required: false
+        type: string
+        default: '600'
+
+permissions: {}
+
+concurrency:
+  group: ship-release
+  cancel-in-progress: false
+
+jobs:
+  ship:
+    name: Merge release PRs in order
+    runs-on: ubuntu-24.04
+    env:
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+    - name: Mint release App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        # ship-release merges 2 PRs: conductor in openemr, docs in
+        # website-openemr. openemr-devops dropped from token scope in
+        # Phase 3 (was: openemr,openemr-devops,website-openemr) --
+        # devops's ship-release.yml was retired when this workflow
+        # moved here; no dispatch or merge action targets it anymore.
+        owner: openemr
+        repositories: |
+          openemr
+          website-openemr
+        # Explicit permission grants (least-privilege). Ship-release
+        # needs: read PR state (pull-requests:read via metadata), merge
+        # PRs (pull-requests:write), post commit statuses on PR heads
+        # (statuses:write), read repo contents (contents:read). The
+        # App itself may be installed with broader permissions; scoping
+        # the minted token narrows what a compromised runner can do.
+        permission-contents: read
+        permission-metadata: read
+        permission-pull-requests: write
+        permission-statuses: write
+
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        # ship-release orchestrates via `gh` CLI (which uses GH_TOKEN env);
+        # it never pushes to git. Persisting credentials in the checkout
+        # would leak them to any subsequent step. Defense-in-depth.
+        persist-credentials: false
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.5'
+
+    - name: Install Task
+      uses: arduino/setup-task@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Ship release
+      working-directory: tools/release
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        VERSION: ${{ inputs.version }}
+        REL_BRANCH: ${{ inputs.rel_branch }}
+        TIMEOUT_SECONDS: ${{ inputs.timeout_seconds }}
+        DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        STATUS_TARGET_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: >-
+        task ship-release
+        VERSION="${VERSION}"
+        REL_BRANCH="${REL_BRANCH}"
+        TIMEOUT_SECONDS="${TIMEOUT_SECONDS}"
+        STATUS_TARGET_URL="${STATUS_TARGET_URL}"
+        SUMMARY_FILE="${GITHUB_STEP_SUMMARY}"
+        DRY_RUN="${DRY_RUN}"

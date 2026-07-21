@@ -243,11 +243,13 @@ class ExportState
 
     public function createTableDefinition(string $tableName)
     {
-        // need to make sure we sanitize this
-        $safeTableName = QueryUtils::escapeTableName($tableName);
-        // we are going to do our safe escaping here so we don't have to do it in the rest of the code.
-        $tableDef = $this->exportTableDefininitionFactory($safeTableName);
-        $primaryKeys = $this->xmlXPath("//table[@name='" . $safeTableName . "']/primaryKey");
+        // need to make sure we sanitize this. Since core PR #11297, escapeTableName()
+        // returns a backtick-quoted SQL fragment and throws if the input contains a
+        // backtick, so we call it purely to validate against the schema whitelist and
+        // keep using the bare name for lookups, map keys, and the XPath query below.
+        QueryUtils::escapeTableName($tableName);
+        $tableDef = $this->exportTableDefininitionFactory($tableName);
+        $primaryKeys = $this->xmlXPath("//table[@name='" . $tableName . "']/primaryKey");
         $pkBySequence = [];
         foreach ($primaryKeys as $primaryKey) {
             $columnName = (string)($primaryKey->attributes()['column']) ?? "";
@@ -259,10 +261,12 @@ class ExportState
             $tableDef->addPrimaryKey($columnName);
         }
         // this will be used to make sure we don't have any sql injection attacks
-        $safeColumnNames = QueryUtils::listTableFields($safeTableName);
+        // (listTableFields runs the name through escapeTableName internally, so it must
+        // receive the bare, un-backticked name)
+        $safeColumnNames = QueryUtils::listTableFields($tableName);
         $tableDef->setColumnNames($safeColumnNames);
         $this->dataFilterer->generateSelectQueryForTableFromMetadata($tableDef, $this->metaNode);
-        $this->tableDefinitionsMap[$safeTableName] = $tableDef;
+        $this->tableDefinitionsMap[$tableName] = $tableDef;
         return $tableDef;
     }
 
