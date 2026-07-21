@@ -848,7 +848,7 @@ the 3-PR (or post-collapse) ship-release contract throughout.
 | Phase | What | Estimate |
 |---|---|---|
 | **1. Pre-migration cleanup + 2-PR collapse** | ✅ SHIPPED 2026-06-28. Three PRs landed: openemr-devops#835 (rotation deletion + 2-PR collapse), openemr/openemr#12631 (cross-repo docs collapsed), openemr/openemr#12619 (drift-check wiring). See "Phase 1 detail" section below. | ~1 day |
-| **2. Move build-release + build-patch + supporting tooling** | Move `build-release.yml` + `build-release-on-tag.yml` + `build-patch.yml` + `PackageAssembler` + `ChangelogGenerator` + `PreflightChecker` + `CompatibilityDeriver`/`Renderer` + supporting tests/fakes to this repo. Self-dispatch the `openemr-tag` consumer side. Devops copies stay live until phase 6 (parallel-run validation window). | ~1.5 days |
+| **2. Move build-release + build-patch + supporting tooling** | ✅ SHIPPED 2026-07-21 across 4 PRs. PR 1 = openemr/openemr#13062 (PackageAssembler + PreflightChecker + patch-assemble.php + PackageAssemblerTest). PR 2a = openemr/openemr#13079 (tools/release/Taskfile.yml + extract-changelog-section.php + derive-build-inputs.php + summary.php + TagDispatchPayload + 2 Twig templates + 21 tests). PR 2b = openemr/openemr#13087 (build-release.yml + build-release-on-tag.yml + build-patch.yml with intra-repo dispatch shape + byte-identical entries for build-release + build-patch). PR 2c = openemr/openemr#13092 (retarget openemr-tag from openemr-devops → openemr — atomic cutover; next release cycle uses the intra-repo flow). Devops copies stay live until Phase 6 formally deletes them after one clean release cycle validates the new path. Also reactivated patch-time changelog generation (folded into PR 2b) via openemr's `bin/changelog.php`, producing `changelog.md` alongside the patch zip. Actual scope was smaller than the estimate expected (`ChangelogGenerator` / `CompatibilityDeriver` / `CompatibilityNotesRenderer` had already migrated in the changelog-surface slice — see 2026-07-15 pilot). | ~1.5 days |
 | **3. Move ship-release** | Move `ship-release.yml` + `ShipReleaseOrchestrator` + `PullRequest*` classes + fakes + tests. Already in 2-PR shape (locked in Phase 1) so the port is mechanical — no contract change in this phase. Devops copy stays live until phase 6. | ~1 day |
 | **4. Move release-announcements + permissions probe (core-side scope)** | Move `release-announcements.yml` + `AnnouncementRenderer` + templates. Add the openemr-core-specific permission probes to core's `release-permissions-check.yml`. Devops's permissions-check.yml narrows scope. | ~0.5 day |
 | **5. Invert canonical/vendored** | Make this repo canonical for `dispatch.schema.json` + `TagVerifier` + `TagVerificationResult`. Move `VendoredFileChecker` + `check-vendored-contracts.yml` here. Update devops's vendored-copies-of-the-vendored-checker references. If website-openemr or demo_farm_openemr add vendoring later, they pull from here. | ~0.5 day |
@@ -1814,7 +1814,12 @@ home for the future auto-post workflow to live alongside.
 
 ### Phase 2+ outlines (sketches; settle details when each phase starts)
 
-**Phase 2** — `build-release.yml` + `build-release-on-tag.yml` + `build-patch.yml`
+**Phase 2** — ✅ SHIPPED 2026-07-21 across 4 PRs (see phase table row 2 above
+for the per-PR breakdown). Final trigger shape: preserved intra-repo
+`openemr-tag` `repository_dispatch` (Brady's design decision, PR 2c) rather
+than collapsing to `push: tags: ['v*']` or `workflow_run` — the release-me
+PR's mutator output must land before the tag exists, so keep the
+tag-post-merge dispatch invariant. `build-release.yml` + `build-release-on-tag.yml` + `build-patch.yml`
 move to this repo. Each workflow already operates against this repo's git
 state and Docker Hub; the move is mostly relocation + adjusting the
 `repository_dispatch` consumer side (the conductor's `openemr-tag` event no
