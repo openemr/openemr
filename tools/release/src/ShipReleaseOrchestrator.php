@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Merges the three release PRs (conductor → docs → finalize) in strict order.
+ * Merges the three release PRs (conductor → finalize → docs) in strict order.
  *
  * Two-phase: a preflight pass evaluates every unmerged target's readiness and
  * refuses to merge anything if any unmerged PR is not ready (issue #705 step
@@ -14,9 +14,13 @@
  *
  * Execution mode is operator-selected via Mode:
  *   - DryRun: preflight-only, no merges (probe every PR's readiness)
- *   - SemiAuto: merge Conductor only; Docs + Finalize left for manual review
- *   - FullAuto: merge all three, waiting on the GitHub Release object between
- *     Conductor and Docs (proxy for build-release-on-tag completing)
+ *   - SemiAuto: merge Conductor only; Finalize + Docs left for manual review
+ *   - FullAuto: merge all three; waits on the GitHub Release object before
+ *     any downstream merge (Finalize + Docs) as a proxy for
+ *     build-release-on-tag completing package assembly + upload. If
+ *     packaging failed, ship-release blocks with the underlying error
+ *     rather than propagating half-shipped state to dockers or the
+ *     announcement pipeline.
  *
  * Approval gate is asymmetric: Conductor requires reviewDecision=APPROVED
  * (the one meaningful human review point in the pipeline); Docs and Finalize
@@ -53,7 +57,7 @@ final readonly class ShipReleaseOrchestrator
     }
 
     /**
-     * @param list<PullRequestTarget> $targets conductor, docs, finalize (any order — sorted internally)
+     * @param list<PullRequestTarget> $targets conductor, finalize, docs (any order — sorted internally)
      */
     public function ship(array $targets): ShipReleaseResult
     {
@@ -96,34 +100,35 @@ final readonly class ShipReleaseOrchestrator
     {
         if (count($targets) !== 3) {
             throw new \LogicException(
-                'ship-release expects exactly 3 targets (Conductor + Docs + Finalize); got ' . count($targets),
+                'ship-release expects exactly 3 targets (Conductor + Finalize + Docs); got ' . count($targets),
             );
         }
         $roles = array_map(static fn (PullRequestTarget $t): string => $t->roleLabel->value, $targets);
         sort($roles);
-        $expected = [RoleLabel::Conductor->value, RoleLabel::Docs->value, RoleLabel::Finalize->value];
+        $expected = [RoleLabel::Conductor->value, RoleLabel::Finalize->value, RoleLabel::Docs->value];
         sort($expected);
         if ($roles !== $expected) {
             throw new \LogicException(
-                'ship-release targets must be {Conductor, Docs, Finalize}; got {' . implode(', ', $roles) . '}',
+                'ship-release targets must be {Conductor, Finalize, Docs}; got {' . implode(', ', $roles) . '}',
             );
         }
         $orders = array_map(static fn (PullRequestTarget $t): int => $t->mergeOrder, $targets);
         if (count(array_unique($orders)) !== count($orders)) {
             throw new \LogicException('ship-release targets have duplicate mergeOrder values');
         }
-        // Enforce Conductor-before-Docs-before-Finalize at the mergeOrder
+        // Enforce Conductor-before-Finalize-before-Docs at the mergeOrder
         // level too — a role set with wrong mergeOrder ordering would pass
         // the role-set + dedup checks above but usort would then merge
-        // out-of-sequence, violating the strict merge order.
+        // out-of-sequence, violating the strict merge order. See
+        // RoleLabel docblock for the rationale on why Docs is last.
         $conductor = $this->findRequired($targets, RoleLabel::Conductor);
-        $docs = $this->findRequired($targets, RoleLabel::Docs);
         $finalize = $this->findRequired($targets, RoleLabel::Finalize);
-        if ($conductor->mergeOrder >= $docs->mergeOrder || $docs->mergeOrder >= $finalize->mergeOrder) {
+        $docs = $this->findRequired($targets, RoleLabel::Docs);
+        if ($conductor->mergeOrder >= $finalize->mergeOrder || $finalize->mergeOrder >= $docs->mergeOrder) {
             throw new \LogicException(
-                'ship-release mergeOrder must put Conductor before Docs before Finalize; got Conductor='
-                . $conductor->mergeOrder . ' Docs=' . $docs->mergeOrder
-                . ' Finalize=' . $finalize->mergeOrder,
+                'ship-release mergeOrder must put Conductor before Finalize before Docs; got Conductor='
+                . $conductor->mergeOrder . ' Finalize=' . $finalize->mergeOrder
+                . ' Docs=' . $docs->mergeOrder,
             );
         }
         usort(
@@ -275,15 +280,23 @@ final readonly class ShipReleaseOrchestrator
      * Real merge pass. Preflight has already validated that every unmerged
      * target was ready at snapshot time.
      *
-     * SemiAuto merges Conductor only; Docs + Finalize are marked NOT_REACHED
-     * (they were preflight-ready — a maintainer merges them by hand).
+     * SemiAuto merges Conductor only; Finalize + Docs are marked
+     * SKIPPED_BY_MODE (they were preflight-ready — a maintainer merges
+     * them by hand after eyeballing the post-tag content).
      *
-     * FullAuto proceeds through all three. Between Conductor and Docs, the
-     * orchestrator waits for the GitHub Release object to exist as a proxy
-     * for build-release-on-tag having finished; the release page's assets
-     * are what the docs PR points at, and merging Docs before those exist
-     * would ship a page whose download links 404. Docs + Finalize each get
-     * a refresh pass (poll head SHA + re-check readiness) before merging.
+     * FullAuto proceeds through all three in order Conductor → Finalize
+     * → Docs. Docs is last because merging it will trigger the future
+     * auto-announce pipeline; putting Finalize (which triggers the docker
+     * cascade via release-targets.yml) before Docs gives dockers a head
+     * start. The orchestrator waits for the GitHub Release object to
+     * exist before merging ANY downstream role (Finalize + Docs) — that
+     * object is created by build-release-on-tag.yml once it finishes
+     * package assembly + upload, so its presence is a proxy for
+     * "packaging succeeded." If packaging failed, both downstream merges
+     * block with the timeout reason; the operator debugs + reruns rather
+     * than triggering dockers or announcements on top of a broken
+     * release. Finalize + Docs each get a refresh pass (poll head SHA
+     * + re-check readiness) before merging.
      *
      * @param  list<PullRequestTarget>             $targets
      * @param  array<string, ?PullRequestSnapshot> $snapshots
@@ -302,7 +315,7 @@ final readonly class ShipReleaseOrchestrator
                 continue;
             }
 
-            // SemiAuto stops after Conductor — Docs + Finalize are left for
+            // SemiAuto stops after Conductor — Finalize + Docs are left for
             // a maintainer to merge by hand after eyeballing the post-tag
             // content. Mark them SKIPPED_BY_MODE (not a failure — the
             // operator asked for exactly this shape).
@@ -333,7 +346,18 @@ final readonly class ShipReleaseOrchestrator
             }
 
             $stepReadiness = $readiness[$target->roleLabel->value] ?? null;
-            if ($target->roleLabel === RoleLabel::Docs) {
+            // Wait for the GitHub Release object to exist before merging
+            // ANY downstream role (Finalize + Docs). Finalize would trigger
+            // the docker cascade via release-targets.yml; no point
+            // dockerizing on top of a broken release. Docs would trigger
+            // the future auto-announce; no point announcing packages
+            // whose download links 404. If packaging broke, ship-release
+            // blocks with the underlying error and the operator debugs +
+            // reruns rather than propagating half-shipped state downstream.
+            // (The wait fires once per downstream role, but re-polls are
+            // O(1) after the release exists — releaseExists() short-
+            // circuits on the first successful poll.)
+            if ($target->roleLabel !== RoleLabel::Conductor) {
                 $releaseWait = $this->awaitReleaseObject($mergedThisRun);
                 if ($releaseWait !== null) {
                     $steps[] = $this->blockedStep($target, $snapshot->number, [$releaseWait]);

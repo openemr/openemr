@@ -156,7 +156,31 @@ final readonly class GhPullRequestApi implements PullRequestApi
             '--json', 'name',
         ]);
         $process->run();
-        return $process->isSuccessful();
+        if ($process->isSuccessful()) {
+            return true;
+        }
+        // Distinguish the expected "release not found" (return false, keep
+        // polling) from genuine gh failures (auth / network / repo not
+        // found). Without this the polling loop would spin until timeout
+        // on auth-broken runs and surface the misleading "Release object
+        // not created" message instead of the real underlying error.
+        //
+        // gh's stderr for a missing release contains "release not found"
+        // (with the tag interpolated). Auth failures surface as "HTTP 401"
+        // or "authentication required"; network failures surface with
+        // context (host, connection refused). Match the not-found case
+        // narrowly and re-throw everything else.
+        $stderr = $process->getErrorOutput();
+        if (str_contains($stderr, 'release not found')) {
+            return false;
+        }
+        throw new \RuntimeException(sprintf(
+            'gh release view %s --repo %s failed (exit %d): %s',
+            $tag,
+            $repo,
+            $process->getExitCode() ?? -1,
+            trim($stderr),
+        ));
     }
 
     public function squashMerge(string $repo, int $number, string $expectedHeadSha): string

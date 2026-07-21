@@ -1,7 +1,7 @@
 name: Ship Release
 
 # Manually-triggered orchestration for the three-PR release flow (#705):
-# merges conductor → docs → finalize in strict order, skipping any already
+# merges conductor → finalize → docs in strict order, skipping any already
 # merged (so the same trigger handles partial-merge recovery), and refusing
 # to merge anything if any unmerged PR is not ready. Mints one App token
 # with PR-write on the target repos and posts a release/ship-approved
@@ -21,15 +21,21 @@ name: Ship Release
 #              wiring up the automation so any surprising mutator output
 #              can be caught before committing to full-auto. **Default.**
 #
-#   full-auto  Preflight + merge all three. After merging Conductor, wait
-#              for the GitHub Release object to exist (proxy for
+#   full-auto  Preflight + merge all three. Merges Conductor first, then
+#              waits for the GitHub Release object to exist (proxy for
 #              build-release-on-tag completing package assembly + upload,
-#              per workstream 7 Phase 3 design decision B), then merge
-#              Docs, then Finalize. Real "one command go." Requires the
-#              docs-PR auto-flip on openemr/website-openemr for true
-#              hands-off (Phase 3c); without it, maintainer still has to
-#              manually flip the docs PR to ready-for-review before
-#              ship-release can merge it.
+#              per workstream 7 Phase 3 design decision B; blocks both
+#              downstream merges if packaging failed so dockers +
+#              announcements don't fire on top of a broken release),
+#              then merges Finalize (which triggers the docker cascade
+#              via its release-targets.yml update), then Docs last.
+#              Docs merge triggers the future auto-announce pipeline;
+#              by then packages exist and dockers are building. Real
+#              "one command go." Requires the docs-PR auto-flip on
+#              openemr/website-openemr for true hands-off (Phase 3c);
+#              without it, maintainer still has to manually flip the
+#              docs PR to ready-for-review before ship-release can
+#              merge it.
 #
 # **Approval gate is asymmetric.** Conductor requires
 # reviewDecision=APPROVED (the one meaningful human review point in the

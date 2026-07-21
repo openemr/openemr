@@ -159,16 +159,16 @@ final class ShipReleaseOrchestratorTest extends TestCase
         self::assertSame(
             [
                 ['repo' => self::CONDUCTOR_REPO, 'number' => 202, 'expected' => 'sha-conductor'],
-                ['repo' => self::DOCS_REPO, 'number' => 303, 'expected' => 'sha-docs-new'],
                 ['repo' => self::FINALIZE_REPO, 'number' => 404, 'expected' => 'sha-finalize-new'],
+                ['repo' => self::DOCS_REPO, 'number' => 303, 'expected' => 'sha-docs-new'],
             ],
             $api->merges,
         );
         self::assertCount(3, $api->postedStatuses);
         self::assertSame(ShipReleaseOrchestrator::STATUS_CONTEXT, $api->postedStatuses[0]['context']);
         self::assertSame('sha-conductor', $api->postedStatuses[0]['sha']);
-        self::assertSame('sha-docs-new', $api->postedStatuses[1]['sha']);
-        self::assertSame('sha-finalize-new', $api->postedStatuses[2]['sha']);
+        self::assertSame('sha-finalize-new', $api->postedStatuses[1]['sha']);
+        self::assertSame('sha-docs-new', $api->postedStatuses[2]['sha']);
     }
 
     public function testSemiAutoMergesConductorOnly(): void
@@ -183,7 +183,7 @@ final class ShipReleaseOrchestratorTest extends TestCase
 
         $result = $this->semiAuto($api, new FakeClock())->ship($this->targets());
 
-        // Conductor merged, Docs + Finalize SKIPPED_BY_MODE (maintainer merges
+        // Conductor merged, Finalize + Docs SKIPPED_BY_MODE (maintainer merges
         // them). SKIPPED_BY_MODE is a success step — the operator asked for
         // exactly this shape, so the overall run exits 0.
         self::assertTrue($result->wasSuccessful());
@@ -200,8 +200,13 @@ final class ShipReleaseOrchestratorTest extends TestCase
         self::assertStringContainsString('semi-auto', $result->steps[2]->reasons[0]);
     }
 
-    public function testFullAutoWaitsForReleaseObjectBeforeMergingDocs(): void
+    public function testFullAutoWaitsForReleaseObjectBeforeMergingDownstream(): void
     {
+        // Wait fires before *Finalize* (the first downstream role) — merging
+        // Finalize's release-targets.yml update would trigger the docker
+        // cascade, and there's no point cascading dockers on top of a broken
+        // package build. Docs's own wait short-circuits on the first poll
+        // because releaseExists is already true by then.
         $api = new FakePullRequestApi();
         $api->setSnapshot(self::CONDUCTOR_REPO, self::CONDUCTOR_BRANCH, $this->openConductor());
         $api->setSnapshot(self::DOCS_REPO, self::DOCS_BRANCH, $this->open(303, 'sha-docs-old'));
@@ -233,7 +238,7 @@ final class ShipReleaseOrchestratorTest extends TestCase
         self::assertTrue($result->wasSuccessful());
         // All three merged.
         self::assertCount(3, $api->merges);
-        // Polled >= 3 times before proceeding to docs merge.
+        // Polled >= 3 times before proceeding past Finalize's wait.
         self::assertGreaterThanOrEqual(
             3,
             $api->getReleaseExistsCallCount(self::OPENEMR_REPO, self::RELEASE_TAG),
@@ -241,8 +246,14 @@ final class ShipReleaseOrchestratorTest extends TestCase
         self::assertGreaterThan(0, $clock->totalSlept);
     }
 
-    public function testFullAutoBlocksDocsWhenReleaseObjectNeverCreated(): void
+    public function testFullAutoBlocksDownstreamWhenReleaseObjectNeverCreated(): void
     {
+        // Wait fires before Finalize (the first downstream role) — Finalize's
+        // merge triggers the docker cascade via release-targets.yml, and
+        // there's no point cascading if packaging failed. If the release
+        // object never appears, Finalize BLOCKS with the timeout reason and
+        // Docs is NOT_REACHED (stopReason set by Finalize's block). Operator
+        // debugs + reruns rather than shipping half-broken state downstream.
         $api = new FakePullRequestApi();
         $api->setSnapshot(self::CONDUCTOR_REPO, self::CONDUCTOR_BRANCH, $this->openConductor());
         $api->setSnapshot(self::DOCS_REPO, self::DOCS_BRANCH, $this->open(303, 'sha-docs'));
@@ -265,21 +276,25 @@ final class ShipReleaseOrchestratorTest extends TestCase
         $result = $orchestrator->ship($this->targets());
 
         self::assertFalse($result->wasSuccessful());
+        // Conductor merges, then the release-object wait times out before
+        // Finalize can merge. Docs is NOT_REACHED because Finalize's block
+        // sets stopReason.
         self::assertSame(ShipReleaseStepStatus::MERGED, $result->steps[0]->status);
         self::assertSame(ShipReleaseStepStatus::BLOCKED, $result->steps[1]->status);
         self::assertStringContainsString('GitHub Release object', $result->steps[1]->reasons[0]);
         self::assertStringContainsString('build-release-on-tag', $result->steps[1]->reasons[0]);
-        // Finalize is downstream of Docs — must be NOT_REACHED, not merged.
         self::assertSame(ShipReleaseStepStatus::NOT_REACHED, $result->steps[2]->status);
-        // Only conductor merged.
+        // Only Conductor merged; Finalize blocked by the release-object wait.
         self::assertCount(1, $api->merges);
         self::assertGreaterThanOrEqual(30, $clock->totalSlept);
     }
 
-    public function testFinalizeRefreshedAndMergedAfterDocs(): void
+    public function testFinalizeRefreshedAndMergedBeforeDocs(): void
     {
-        // Finalize PR gets an updated head SHA after the docs merge (release-
-        // prep.yml's finalize job re-renders it with post-tag content).
+        // Finalize and Docs each get an updated head SHA after the conductor
+        // merge (release-prep.yml re-renders each with post-tag content). In
+        // the new merge order Conductor → Finalize → Docs, Finalize's refresh
+        // runs before Docs' refresh.
         $api = new FakePullRequestApi();
         $api->setSnapshot(self::CONDUCTOR_REPO, self::CONDUCTOR_BRANCH, $this->openConductor());
         $api->setSnapshot(self::DOCS_REPO, self::DOCS_BRANCH, $this->open(303, 'sha-docs-old'));
@@ -298,9 +313,13 @@ final class ShipReleaseOrchestratorTest extends TestCase
         $result = $this->fullAuto($api, new FakeClock())->ship($this->targets());
 
         self::assertTrue($result->wasSuccessful());
-        // Finalize merge should use the *new* head SHA — proof the refresh
-        // + re-check ran before merge.
-        self::assertSame('sha-finalize-new', $api->merges[2]['expected']);
+        // Merge order: Conductor (index 0), Finalize (index 1), Docs (index 2).
+        // Finalize must merge using the *new* head SHA — proof its refresh
+        // + re-check ran before its merge — and Docs likewise.
+        self::assertSame(self::FINALIZE_REPO, $api->merges[1]['repo']);
+        self::assertSame('sha-finalize-new', $api->merges[1]['expected']);
+        self::assertSame(self::DOCS_REPO, $api->merges[2]['repo']);
+        self::assertSame('sha-docs-new', $api->merges[2]['expected']);
     }
 
     public function testApprovalGateAsymmetricConductorRequiresApprovalDocsAndFinalizeDoNot(): void
@@ -363,9 +382,11 @@ final class ShipReleaseOrchestratorTest extends TestCase
         $result = $this->semiAuto($api, new FakeClock())->ship($this->targets());
 
         self::assertFalse($result->wasSuccessful());
+        // Docs is index 2 in the new order (Conductor, Finalize, Docs);
+        // Conductor + Finalize were ready but preflight blocked on Docs.
         self::assertSame(ShipReleaseStepStatus::NOT_REACHED, $result->steps[0]->status);
-        self::assertSame(ShipReleaseStepStatus::BLOCKED, $result->steps[1]->status);
-        self::assertSame(ShipReleaseStepStatus::NOT_REACHED, $result->steps[2]->status);
+        self::assertSame(ShipReleaseStepStatus::NOT_REACHED, $result->steps[1]->status);
+        self::assertSame(ShipReleaseStepStatus::BLOCKED, $result->steps[2]->status);
         self::assertSame([], $api->merges);
     }
 
@@ -441,7 +462,10 @@ final class ShipReleaseOrchestratorTest extends TestCase
         self::assertSame(ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED, $result->steps[0]->status);
         self::assertSame(ShipReleaseStepStatus::MERGED, $result->steps[1]->status);
         self::assertSame(ShipReleaseStepStatus::MERGED, $result->steps[2]->status);
-        self::assertSame('sha-docs-fresh', $api->merges[0]['expected']);
+        // Merge order is Finalize then Docs; Docs merges against its refreshed head SHA.
+        self::assertSame(self::FINALIZE_REPO, $api->merges[0]['repo']);
+        self::assertSame(self::DOCS_REPO, $api->merges[1]['repo']);
+        self::assertSame('sha-docs-fresh', $api->merges[1]['expected']);
     }
 
     public function testConductorAlreadyMergedBlocksDocsIfDownstreamStillInFlight(): void
@@ -459,19 +483,23 @@ final class ShipReleaseOrchestratorTest extends TestCase
         $result = $this->fullAuto($api, new FakeClock())->ship($this->targets());
 
         self::assertFalse($result->wasSuccessful());
+        // Conductor already-merged; Finalize refreshes + merges; Docs refresh
+        // catches the in-flight check on the second readiness probe and blocks.
         self::assertSame(ShipReleaseStepStatus::SKIPPED_ALREADY_MERGED, $result->steps[0]->status);
-        self::assertSame(ShipReleaseStepStatus::BLOCKED, $result->steps[1]->status);
-        self::assertContains('check core-test status=IN_PROGRESS', $result->steps[1]->reasons);
-        self::assertSame(ShipReleaseStepStatus::NOT_REACHED, $result->steps[2]->status);
-        self::assertSame([], $api->merges);
+        self::assertSame(ShipReleaseStepStatus::MERGED, $result->steps[1]->status);
+        self::assertSame(ShipReleaseStepStatus::BLOCKED, $result->steps[2]->status);
+        self::assertContains('check core-test status=IN_PROGRESS', $result->steps[2]->reasons);
+        self::assertCount(1, $api->merges);
+        self::assertSame(self::FINALIZE_REPO, $api->merges[0]['repo']);
     }
 
     public function testDownstreamWaitTimeoutBlocksDocsMerge(): void
     {
-        // Docs PR head SHA never changes during the wait — simulates the
+        // Finalize PR head SHA never changes during the wait — simulates the
         // conductor's downstream re-render workflow not firing in time.
         // Even if readiness still looks "clean", we must NOT merge stale
-        // docs content (DRAFT→FINAL flip never happened).
+        // content. Finalize is the first downstream in the new merge order,
+        // so it's what blocks here; Docs is NOT_REACHED downstream.
         $api = new FakePullRequestApi();
         $api->setSnapshot(self::CONDUCTOR_REPO, self::CONDUCTOR_BRANCH, $this->openConductor());
         $api->setSnapshot(self::DOCS_REPO, self::DOCS_BRANCH, $this->open(303, 'sha-docs'));
@@ -488,9 +516,9 @@ final class ShipReleaseOrchestratorTest extends TestCase
         self::assertSame(ShipReleaseStepStatus::MERGED, $result->steps[0]->status);
         self::assertSame(ShipReleaseStepStatus::BLOCKED, $result->steps[1]->status);
         self::assertStringContainsString('did not change after conductor merge', $result->steps[1]->reasons[0]);
-        // Finalize downstream of docs — must be NOT_REACHED once docs is blocked.
+        // Docs downstream of Finalize — must be NOT_REACHED once Finalize is blocked.
         self::assertSame(ShipReleaseStepStatus::NOT_REACHED, $result->steps[2]->status);
-        // Only conductor merged; docs + finalize not.
+        // Only conductor merged; finalize + docs not.
         self::assertCount(1, $api->merges);
     }
 
@@ -515,7 +543,7 @@ final class ShipReleaseOrchestratorTest extends TestCase
     public function testTargetsAreSortedByMergeOrderRegardlessOfInputOrder(): void
     {
         // Pass targets in reverse order; the orchestrator must still merge
-        // conductor → docs → finalize.
+        // conductor → finalize → docs.
         $api = new FakePullRequestApi();
         $api->setSnapshot(self::CONDUCTOR_REPO, self::CONDUCTOR_BRANCH, $this->openConductor());
         $api->setSnapshot(self::DOCS_REPO, self::DOCS_BRANCH, $this->open(303, 'sha-docs-old'));
@@ -537,14 +565,14 @@ final class ShipReleaseOrchestratorTest extends TestCase
         $api->setReadiness(self::FINALIZE_REPO, 404, $this->ready('sha-finalize-new'));
 
         $shuffled = $this->targets();
-        // Reverse: finalize, docs, conductor.
+        // Reverse: docs, finalize, conductor.
         $shuffled = [$shuffled[2], $shuffled[1], $shuffled[0]];
 
         $result = $this->fullAuto($api, new FakeClock())->ship($shuffled);
 
         self::assertTrue($result->wasSuccessful());
         self::assertSame(
-            [self::CONDUCTOR_REPO, self::DOCS_REPO, self::FINALIZE_REPO],
+            [self::CONDUCTOR_REPO, self::FINALIZE_REPO, self::DOCS_REPO],
             array_column($api->merges, 'repo'),
         );
     }
@@ -627,7 +655,7 @@ final class ShipReleaseOrchestratorTest extends TestCase
     public function testWrongTargetRoleSetThrowsLogicException(): void
     {
         // Three targets of correct count but wrong roles (e.g., two
-        // Conductors) violates the {Conductor, Docs, Finalize} contract
+        // Conductors) violates the {Conductor, Finalize, Docs} contract
         // and must fail fast.
         $api = new FakePullRequestApi();
         $targets = [
@@ -637,26 +665,26 @@ final class ShipReleaseOrchestratorTest extends TestCase
         ];
 
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('{Conductor, Docs, Finalize}');
+        $this->expectExceptionMessage('{Conductor, Finalize, Docs}');
         $this->semiAuto($api, new FakeClock())->ship($targets);
     }
 
     public function testReversedMergeOrderThrowsLogicException(): void
     {
-        // Correct role set {Conductor, Docs, Finalize} with unique
-        // mergeOrder values, but Docs.mergeOrder < Conductor.mergeOrder.
+        // Correct role set {Conductor, Finalize, Docs} with unique
+        // mergeOrder values, but Docs.mergeOrder < Finalize.mergeOrder.
         // The role-set + dedup checks would pass, but usort would then put
-        // Docs first — silently violating the strict conductor → docs →
-        // finalize merge sequence. Must fail fast.
+        // Docs before Finalize — silently violating the strict
+        // conductor → finalize → docs merge sequence. Must fail fast.
         $api = new FakePullRequestApi();
         $targets = [
-            new PullRequestTarget('a/x', 'b1', 'master', RoleLabel::Conductor, 2),
-            new PullRequestTarget('a/y', 'b2', 'master', RoleLabel::Docs, 1),
+            new PullRequestTarget('a/x', 'b1', 'master', RoleLabel::Conductor, 1),
+            new PullRequestTarget('a/y', 'b2', 'master', RoleLabel::Docs, 2),
             new PullRequestTarget('a/z', 'b3', 'master', RoleLabel::Finalize, 3),
         ];
 
         $this->expectException(\LogicException::class);
-        $this->expectExceptionMessage('Conductor before Docs before Finalize');
+        $this->expectExceptionMessage('Conductor before Finalize before Docs');
         $this->semiAuto($api, new FakeClock())->ship($targets);
     }
 

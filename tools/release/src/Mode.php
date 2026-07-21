@@ -14,14 +14,21 @@
  *               mutator/EHI/finalize output can be caught and fixed before
  *               committing to full-auto. Default until we've built confidence.
  *
- *   FullAuto  — Preflight + merge all three PRs. After merging Conductor,
- *               wait for the GitHub Release object to exist (proxy for
- *               build-release-on-tag completing package assembly + upload),
- *               then merge Docs, then Finalize. Real "one command go."
- *               Requires the docs-PR auto-flip (Phase 3c) on
- *               openemr/website-openemr to be truly hands-off; without it,
- *               the maintainer still has to manually flip the docs PR to
- *               ready-for-review before ship-release can merge it.
+ *   FullAuto  — Preflight + merge all three PRs. Conductor first, then
+ *               waits for the GitHub Release object to exist (proxy for
+ *               build-release-on-tag completing package assembly +
+ *               upload; blocks both downstream merges if packaging
+ *               failed so dockers + announcements don't fire on top of
+ *               a broken release), then merges Finalize (which triggers
+ *               the docker cascade via its release-targets.yml update
+ *               on master), then Docs last. Docs is last because merging
+ *               it will trigger the future auto-announce pipeline; by
+ *               then packages exist (verified) and dockers are building.
+ *               Real "one command go." Requires the docs-PR auto-flip
+ *               (Phase 3c) on openemr/website-openemr to be truly
+ *               hands-off; without it, the maintainer still has to
+ *               manually flip the docs PR to ready-for-review before
+ *               ship-release can merge it.
  *
  * When both `--dry-run` and `--mode=<X>` are provided, dry-run wins (safest
  * behavior for a redundant/conflicting configuration).

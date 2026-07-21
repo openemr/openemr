@@ -94,25 +94,25 @@ final class ShipReleaseSummaryRendererTest extends TestCase
 
     public function testSkippedByModeRendersReasonAndCountsAsSuccess(): void
     {
-        // SemiAuto: Conductor merged, Docs + Finalize deliberately skipped.
+        // SemiAuto: Conductor merged, Finalize + Docs deliberately skipped.
         // The overall result is a success (operator got exactly what they
         // asked for) and the skipped rows show the reason so it's visually
         // distinct from a "not reached" failure.
         $result = new ShipReleaseResult([
             $this->step(RoleLabel::Conductor, 'openemr/openemr', ShipReleaseStepStatus::MERGED, 22, 'abc1234'),
             $this->step(
-                RoleLabel::Docs,
-                'openemr/website-openemr',
-                ShipReleaseStepStatus::SKIPPED_BY_MODE,
-                33,
-                null,
-                ['semi-auto: downstream PR left for manual merge'],
-            ),
-            $this->step(
                 RoleLabel::Finalize,
                 'openemr/openemr',
                 ShipReleaseStepStatus::SKIPPED_BY_MODE,
                 44,
+                null,
+                ['semi-auto: downstream PR left for manual merge'],
+            ),
+            $this->step(
+                RoleLabel::Docs,
+                'openemr/website-openemr',
+                ShipReleaseStepStatus::SKIPPED_BY_MODE,
+                33,
                 null,
                 ['semi-auto: downstream PR left for manual merge'],
             ),
