@@ -1409,29 +1409,6 @@ function csv_singlerecord_test($array)
 }
 
 /*
- * give first and last index keys for an array
- *
- * @param array
- * @return array
- */
-function csv_array_bounds($array)
-{
-    // get the segment array bounds
-    $ret_ar = [];
-    if (is_array($array) && count($array)) {
-        if (reset($array) !== false) {
-            $ret_ar[0] = key($array);
-        }
-
-        if (end($array) !== false) {
-            $ret_ar[1] = key($array);
-        }
-    }
-
-    return $ret_ar;
-}
-
-/*
  * return a csv file as an associative array
  * the first row is the header or array keys for the row
  * array structure:
