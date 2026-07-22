@@ -18,18 +18,6 @@
 //require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
 
 /**
- * callback to round floats to 2 digit precision
- *
- * @param float $v
- * @param string $k
- * @return float
- */
-function edih_round_cb(&$v, $k)
-{
-    $v = round((int)$v, 2);
-    return $v;
-}
-/**
  * Create summary html string for an x12 835 claim payment
  *
  * @param array $trans_array
@@ -1391,11 +1379,13 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $cls = 'pmt';
                 // include our accounting totals
                 if (is_array($acctng) && count($acctng)) {
-                    array_walk($acctng, edih_round_cb(...));
+                    // round floats to 2 digit precision
+                    $acctng = array_map(static fn($v): float => round((int)$v, 2), $acctng);
                     $bal = ($acctng['fee'] == ($acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj']) ) ? "Balanced" : "Not Balanced";
-                    $acct_str = text($bal) . ": <em>Fee</em> " . text($acctng['fee']) . " <em>Pmt</em> " . text($acctng['pmt']) . " ";
-                    $acct_str .= "<em>ClpAdj</em> " . text($acctng['clmadj']) . " <em>SvcAdj</em> " . text($acctng['svcadj']) . " ";
-                    $acct_str .= "<em>PtRsp</em> " . text($acctng['ptrsp']) . " (<em>svcPtRsp</em> " . text($acctng['svcptrsp']) . ") <em>PlbAdj</em> " . text($acctng['plbadj']) . " ";
+                    // accounting totals are rounded floats; numeric, so no escaping needed
+                    $acct_str = text($bal) . ": <em>Fee</em> " . $acctng['fee'] . " <em>Pmt</em> " . $acctng['pmt'] . " ";
+                    $acct_str .= "<em>ClpAdj</em> " . $acctng['clmadj'] . " <em>SvcAdj</em> " . $acctng['svcadj'] . " ";
+                    $acct_str .= "<em>PtRsp</em> " . $acctng['ptrsp'] . " (<em>svcPtRsp</em> " . $acctng['svcptrsp'] . ") <em>PlbAdj</em> " . $acctng['plbadj'] . " ";
                     //
                     $pmt_html .= "<tr class='" . attr($cls) . "'><td colspan=4>$acct_str</td></tr>" . PHP_EOL;
                 }
