@@ -54,8 +54,16 @@ jobs:
     name: vendored contracts
     runs-on: ubuntu-24.04
     steps:
+    # Both checkouts are read-only — the workflow reads consumer + canonical
+    # trees and hands them to check-vendored.php's file comparator. No git
+    # push, no authenticated fetches afterward. Suppress the default token
+    # persistence so the caller's GITHUB_TOKEN doesn't linger in workspace
+    # .git/config where a compromised later step could read it. Same
+    # defense-in-depth pattern used by ship-release.yml.
     - name: Checkout consumer
       uses: actions/checkout@v7
+      with:
+        persist-credentials: false
 
     - name: Checkout canonical openemr
       uses: actions/checkout@v7
@@ -63,6 +71,7 @@ jobs:
         repository: openemr/openemr
         ref: ${{ inputs.canonical_ref }}
         path: _canonical-openemr
+        persist-credentials: false
         # Sparse checkout of just tools/release + composer manifests so we
         # can install the deps check-vendored.php needs (Symfony Console)
         # without pulling openemr's full ~1GB tree.
