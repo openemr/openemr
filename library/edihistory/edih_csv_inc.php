@@ -1474,32 +1474,6 @@ function csv_assoc_array($file_type, $csv_type)
 
 
 /**
- * A multidimensional array will be flattened to a single row.
- *
- * @param array $array array to be flattened
- * @return array
- */
-function csv_array_flatten($array)
-{
-    //
-    if (!is_array($array)) {
-        return false;
-    }
-
-    $result = [];
-    foreach ($array as $key => $value) {
-        if (is_array($value)) {
-            $result = array_merge($result, csv_array_flatten($value));
-        } else {
-            $result[$key] = $value;
-        }
-    }
-
-    return $result;
-}
-
-
-/**
  * Write parsed data from edi x12 files to csv file
  *
  * @uses csv_parameters()
