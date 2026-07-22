@@ -10,8 +10,19 @@ name: Ship Release
 #
 # **Execution modes** (workflow_dispatch `mode` input):
 #
-#   dry-run    Preflight only. Probe every PR's readiness and print a
-#              report; merge nothing. `dry_run: true` still supported and
+#   dry-run    Preflight + package-build dress rehearsal. Probes every PR's
+#              readiness and prints a report (merges nothing), and — on
+#              successful preflight — kicks a downstream `dry-run-build`
+#              job that calls the reusable `build-release.yml` with
+#              `dry_run=true`. That job pins the checkout to the
+#              Conductor PR head (`release-prep/<rel_branch>`), not the
+#              raw rel branch, so the tree carries the pending version
+#              bump + CHANGELOG entry the extract-changelog-section step
+#              needs. Produces the actual tarball, zip, changelog, and
+#              checksums and uploads them as workflow-run artifacts (no
+#              git tag, no GitHub Release, no downstream dispatches).
+#              Lets the operator eyeball what will ship before firing a
+#              real ship-release. `dry_run: true` still supported and
 #              always wins over `mode` for muscle memory / script compat.
 #
 #   semi-auto  Preflight + merge Conductor PR only. Docs and Finalize PRs
@@ -163,3 +174,37 @@ jobs:
         STATUS_TARGET_URL="${STATUS_TARGET_URL}"
         SUMMARY_FILE="${GITHUB_STEP_SUMMARY}"
         DRY_RUN="${DRY_RUN}"
+
+  # Dry-run "dress rehearsal" builder. Fires only when the operator picked
+  # dry-run mode (or the legacy dry_run flag) and only after the ship job
+  # succeeded — i.e., preflight passed. Calls build-release.yml as a
+  # reusable workflow with dry_run=true so the run assembles the actual
+  # tarball + zip + changelog + checksums and uploads them as run
+  # artifacts, but skips tag creation, GitHub Release publish, and the
+  # downstream docker/website dispatches. The operator can then download
+  # the artifacts from the run page and eyeball what would ship.
+  #
+  # `version_branch` points at the Conductor PR head (`release-prep/<rel>`),
+  # not the raw rel branch. The Conductor carries the version bump +
+  # CHANGELOG entry that build-release.yml's changelog:extract step
+  # requires (`## [X.Y.Z]` section lookup errors out otherwise), and it
+  # models the tree the real ship-release would tag — the whole point of
+  # the dress rehearsal. Preflight (the ship job above) already confirmed
+  # the Conductor PR is ready, so the branch is known to exist and be
+  # mergeable when we pin the checkout to it.
+  #
+  # No `secrets:` block: build-release.yml's App-token steps are guarded
+  # by `if: '!inputs.dry_run'`, so nothing in the dry-run path references
+  # `secrets.RELEASE_APP_PRIVATE_KEY`. Auto-provided `GITHUB_TOKEN` is
+  # sufficient for the tooling the reusable workflow needs at dry-run
+  # time (checkout, setup-task); `secrets: inherit` would expose the App
+  # private key unnecessarily.
+  dry-run-build:
+    name: Dry-run build (artifacts only, no publish)
+    needs: ship
+    if: ${{ needs.ship.result == 'success' && (inputs.mode == 'dry-run' || inputs.dry_run) }}
+    uses: ./.github/workflows/build-release.yml
+    with:
+      version_branch: release-prep/${{ inputs.rel_branch }}
+      version: ${{ inputs.version }}
+      dry_run: true
