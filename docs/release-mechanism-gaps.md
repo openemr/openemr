@@ -2288,6 +2288,77 @@ warning that appeared on every v2 usage.
     conductor-vs-maintainer coordination issues in the
     release-prep / release-docs PR lifecycle.
 
+### G29 — Docs PR must be manually marked Ready before `ship-release.yml` can merge it  *(discovered 2026-07-21 during Phase 3b design, SHIPPED 2026-07-22)*
+
+**STATUS: SHIPPED 2026-07-22** as openemr/website-openemr#207
+(release-docs.yml auto-flip step). Delivered as scoped: new
+`Flip docs PR out of draft (openemr-tag only)` step in
+`release-docs.yml` fires after the upsert-pr step on
+`openemr-tag` events (test-mode-guarded via `steps.mode.outputs.test`;
+isDraft-guarded via `gh pr view --json isDraft` probe for
+re-fire idempotence). `workflow:upsert-pr` task also updated to
+drop the `(DRAFT)` suffix from the PR title on `openemr-tag` so
+the visible title tracks the actual draft flag. Signal comment
+posted on the flip so semi-auto operators see "PR is now ready
+for merge."
+
+- **What (pre-close):** The `release-docs/<version>` PR on
+  `website-openemr` was opened as a GitHub **draft** by
+  `release-docs.yml` (draft state = pre-tag content still
+  accumulating), and stayed draft indefinitely. On the post-tag
+  `openemr-tag` dispatch the PR's tree was updated to reflect
+  shipped state, but the draft flag never flipped. Full-auto
+  `ship-release.yml` (per Phase 3b, #13098) polls each downstream
+  PR's readiness via `gh pr view --json isDraft,mergeStateStatus`
+  after conductor merge — the docs PR's stuck-draft state
+  blocked full-auto merge until an operator flipped it manually in
+  the GitHub UI. Semi-auto operators still had to do the same flip
+  before merging manually.
+
+- **Original design constraint (from RELEASE_PROCESS.md automation
+  gaps step 9, tracked at openemr-devops#761):** the ask was
+  originally framed as "auto-mark Ready BEFORE
+  `ship-release.yml` is dispatched" because the pre-Phase-3b
+  ship-release checked readiness at *preflight* (before conductor
+  merge), and `openemr-tag` is emitted only AFTER the conductor
+  merge — so on-`openemr-tag` flip would be too late. Phase 3b's
+  3-PR shape (#13098) moved the docs PR's readiness check from
+  preflight to a *post-conductor* wait, which made on-
+  `openemr-tag` the exact right moment: conductor merge fires
+  `openemr-tag`, docs workflow processes it (updating the PR's
+  tree + flipping to Ready), full-auto ship-release's wait polls
+  and clears.
+
+- **Actual fix (2026-07-22, PR openemr/website-openemr#207):**
+  - New `Flip docs PR out of draft (openemr-tag only)` step in
+    `release-docs.yml` gated on
+    `event == 'openemr-tag' && test != 'true'`. Looks up the PR
+    by branch (`release-docs/<version>`), extracts `number` +
+    `isDraft` in one `gh pr list --json` call, and if
+    `isDraft` is true: calls `gh pr ready`, then posts a signal
+    comment. If `isDraft` is already false (re-fire of
+    `openemr-tag`), skips silently — the step is idempotent.
+  - `workflow:upsert-pr` task updated to vary the title by
+    event: `openemr-tag` → `release-docs: OpenEMR X.Y.Z`;
+    `rel-cut` / `rel-update` → `release-docs: OpenEMR X.Y.Z
+    (DRAFT)`. Keeps the visible title consistent with the draft
+    flag.
+  - No branch-protection change required (matches G28's
+    preferred option 3 pattern: draft-state UX gate, not a
+    required-status-check gate).
+
+- **Related:**
+  - G28 (master-side finalize PR post-tag auto-update + draft-
+    flip). Same underlying pattern: draft state as maintainer-
+    review + automation-wait gate, flipped by an event-gated
+    auto-update step. G28's option-3 design reasoning explicitly
+    referenced "release-docs draft-gate pattern" as an existing
+    UX signal maintainers understand — this gap fills in the
+    other half of that pattern (the auto-flip event).
+  - RELEASE_PROCESS.md automation gaps step 9 — closed as part
+    of this work (see the closure annotation on that table row).
+  - Workstream 7 Phase 3c — this gap is the Phase 3c deliverable.
+
 ## Timing picture: who does what, when
 
 Consolidates "what the conductor handles automatically" vs "what's
@@ -3637,3 +3708,18 @@ checklist + the existing master-bump pattern.
   the object-form filter). Slice now 8 of 10 SHIPPED; remaining:
   PR 9 (fixture regression) and PR 10 (RELEASE_PROCESS.md rewrite,
   now unblocked).
+- **2026-07-22**: G29 SHIPPED as openemr/website-openemr#207.
+  release-docs.yml gained a `Flip docs PR out of draft (openemr-tag
+  only)` step: locates the docs PR by branch, flips it via
+  `gh pr ready`, posts a signal comment. Idempotent on re-fire
+  (isDraft-guarded); skipped in test-mode dispatches. workflow:upsert-pr
+  task also drops the `(DRAFT)` title suffix on `openemr-tag`. Closes
+  RELEASE_PROCESS.md automation gaps step 9 and completes Phase 3c of
+  the release-mechanism migration (see migration doc phase table row
+  3 for the full Phase 3 shipping picture, and openemr/openemr#13108
+  for the RELEASE_PROCESS.md sweep closing the parallel table row).
+  The original design constraint noted at openemr-devops#761 ("must
+  fire BEFORE ship-release dispatch since `openemr-tag` is post-
+  conductor-merge and too late for preflight") no longer applied
+  post-Phase-3b — the wait moved from preflight to a post-conductor
+  readiness check, so on-`openemr-tag` was exactly the right unblock.
