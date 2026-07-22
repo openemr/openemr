@@ -849,7 +849,7 @@ the 3-PR (or post-collapse) ship-release contract throughout.
 |---|---|---|
 | **1. Pre-migration cleanup + 2-PR collapse** | ✅ SHIPPED 2026-06-28. Three PRs landed: openemr-devops#835 (rotation deletion + 2-PR collapse), openemr/openemr#12631 (cross-repo docs collapsed), openemr/openemr#12619 (drift-check wiring). See "Phase 1 detail" section below. | ~1 day |
 | **2. Move build-release + build-patch + supporting tooling** | ✅ SHIPPED 2026-07-21 across 4 PRs. PR 1 = openemr/openemr#13062 (PackageAssembler + PreflightChecker + patch-assemble.php + PackageAssemblerTest). PR 2a = openemr/openemr#13079 (tools/release/Taskfile.yml + extract-changelog-section.php + derive-build-inputs.php + summary.php + TagDispatchPayload + 2 Twig templates + 21 tests). PR 2b = openemr/openemr#13087 (build-release.yml + build-release-on-tag.yml + build-patch.yml with intra-repo dispatch shape + byte-identical entries for build-release + build-patch). PR 2c = openemr/openemr#13092 (retarget openemr-tag from openemr-devops → openemr — atomic cutover; next release cycle uses the intra-repo flow). Devops copies stay live until Phase 6 formally deletes them after one clean release cycle validates the new path. Also reactivated patch-time changelog generation (folded into PR 2b) via openemr's `bin/changelog.php`, producing `changelog.md` alongside the patch zip. Actual scope was smaller than the estimate expected (`ChangelogGenerator` / `CompatibilityDeriver` / `CompatibilityNotesRenderer` had already migrated in the changelog-surface slice — see 2026-07-15 pilot). | ~1.5 days |
-| **3. Move ship-release** | Move `ship-release.yml` + `ShipReleaseOrchestrator` + `PullRequest*` classes + fakes + tests. Already in 2-PR shape (locked in Phase 1) so the port is mechanical — no contract change in this phase. Devops copy stays live until phase 6. | ~1 day |
+| **3. Move ship-release** | ✅ SHIPPED 2026-07-21/22 across 4 PRs — resolves the #13056 "decide before moving" caveat by moving and reactivating rather than debug-reactivate-in-place. Phase 3a = openemr/openemr#13096 (orchestrator + workflow relocated core-side, byte-identical for tools/release/** + ship-release.yml itself is NOT byte-identical: it's a master-authoritative orchestrator). Phase 3b = openemr/openemr#13098 (evolved from 2-PR to 3-PR shape adding release-finalize partner, plus `Mode` enum for dry-run / semi-auto / full-auto, asymmetric approval gate — Conductor requires APPROVED, Docs+Finalize don't since bot-authored — and wait-for-Release-object gate before downstream merges). Phase 3b-2 = openemr/openemr#13099 (dry-run mode calls build-release.yml via `workflow_call` pinned to `release-prep/<rel_branch>` head so the packaged tree carries the pending version bump + `## [X.Y.Z]` CHANGELOG entry, producing real tarball+zip+changelog+checksums as workflow-run artifacts). Phase 3c = openemr/website-openemr#207 (docs PR auto-flips out of draft on post-tag `openemr-tag` dispatch — closes the mark-Ready manual step so full-auto is truly hands-off). Sync-byte-identical script bug found + fixed as openemr/openemr#13100 (rename-sweep was double-`git rm`ing shared-glob renames — specifically failed Phase 3b's `DocsRefreshResult.php → DownstreamRefreshResult.php` rename against rel-820; fixed with BATS regression coverage). Devops copies stay live until Phase 6. | ~1 day |
 | **4. Move release-announcements + permissions probe (core-side scope)** | Move `release-announcements.yml` + `AnnouncementRenderer` + templates. Add the openemr-core-specific permission probes to core's `release-permissions-check.yml`. Devops's permissions-check.yml narrows scope. | ~0.5 day |
 | **5. Invert canonical/vendored** | Make this repo canonical for `dispatch.schema.json` + `TagVerifier` + `TagVerificationResult`. Move `VendoredFileChecker` + `check-vendored-contracts.yml` here. Update devops's vendored-copies-of-the-vendored-checker references. If website-openemr or demo_farm_openemr add vendoring later, they pull from here. | ~0.5 day |
 | **6. Devops cleanup** | Delete the now-duplicate workflows + `tools/release/` (minus `release-permissions-check.yml`) from devops. Update devops README. Close issue #664 family. | ~0.5 day |
@@ -1851,24 +1851,32 @@ Phase 2's PHP-classes move shrinks to `PackageAssembler` +
 `PreflightChecker`; `build-release.yml` moves from a smaller starting
 point.
 
-**Phase 3** — `ship-release.yml` + `ShipReleaseOrchestrator` move. Mechanical
-relocation since the 2-PR shape was already locked in Phase 1. The port moves
-the workflow file + the orchestrator class + all `PullRequest*` classes +
-fakes + tests verbatim. Maintainer-visible change: `--repo openemr/openemr-devops`
-becomes `--repo openemr/openemr`.
+**Phase 3** — **SHIPPED 2026-07-21/22 across 4 PRs** (see Phase table
+row 3). Actual scope grew during execution: the 2-PR shape locked in
+Phase 1 evolved to 3-PR (Conductor + Finalize + Docs) in Phase 3b
+(#13098), Phase 3b-2 (#13099) added dry-run artifact production via
+`build-release.yml` `workflow_call`, and Phase 3c (website-openemr#207)
+added the docs-PR auto-flip on `openemr-tag`. Maintainer-visible
+change: `--repo openemr/openemr-devops` becomes `--repo openemr/openemr`,
+and full-auto mode is now truly hands-off (no manual mark-Ready click
+mid-workflow).
 
-**Phase 3 caveat (added 2026-07-20 per openemr/openemr#13056):** decide
-`ship-release.yml`'s status *before* mechanically moving it. The workflow
-hasn't been used since 2026-06-01 (last run failed); 8.2.0 shipped
-entirely via manual click-through. Three options tracked in #13056:
-(A) doc-reality-align (retire ship-release, canonicalize the manual
-click-through path in `RELEASE_PROCESS.md`), (B) debug + reactivate
-(fix whatever's broken and resume automated ship for rel-830), or
-(C) retire outright (delete both the workflow and the
-`ShipReleaseOrchestrator` / `PullRequest*` classes as part of Phase 6
-instead of migrating). Option A or C collapses Phase 3's scope
-substantially; option B keeps it as scoped above. Do not start Phase 3
-until #13056 gets a maintainer decision.
+**Phase 3 caveat (resolved 2026-07-21/22):** the "decide status before
+moving" caveat (openemr/openemr#13056) was resolved by moving AND
+reactivating in one pass rather than debug-in-devops-then-move. The
+port also evolved the shape from 2-PR to 3-PR (Conductor +
+Finalize + Docs) and added a mode selector (dry-run / semi-auto /
+full-auto) plus the packaging-wait gate that blocks downstream merges
+if `build-release-on-tag` fails. Concrete PR sequence: 3a #13096
+(orchestrator + workflow moved), 3b #13098 (3-PR + mode + gates), 3b-2
+#13099 (dry-run produces real artifacts), 3c
+openemr/website-openemr#207 (docs PR auto-flip on `openemr-tag`).
+Sync-byte-identical script bug surfaced by Phase 3b's rename +
+fixed in openemr/openemr#13100. Historical note on the original three
+options in #13056: option B (debug + reactivate) is effectively what
+shipped, but done on the destination side rather than in-place on
+devops — the reactivation was cleaner as a Phase 3 line item than as a
+separate follow-up.
 
 **Phase 4** — `release-announcements.yml` + `AnnouncementRenderer` move with
 templates. The Twig template structure (one per channel + a summary) ports
