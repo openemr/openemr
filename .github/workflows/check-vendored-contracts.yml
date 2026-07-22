@@ -1,42 +1,91 @@
 name: Check Vendored Contracts
 
-# Drift-check this repo's vendored copies of the cross-repo release
-# contracts against the canonical sources in openemr/openemr-devops.
+# Reusable workflow for consumer repos to drift-check their vendored copies
+# of cross-repo release contracts (dispatch.schema.json, TagVerifier,
+# TagVerificationResult) against the canonical sources here. Fails the
+# calling job on drift.
 #
-# Vendored files (under tools/release/):
-#   - contracts/dispatch.schema.json
-#   - src/TagVerifier.php
-#   - src/TagVerificationResult.php
+# See tools/release/src/VendoredFileChecker.php for the canonical file list.
+# See tools/release/contracts/dispatch.schema.json and
+# tools/release/src/TagVerifier.php for the contracts themselves.
 #
-# Calls the reusable workflow in openemr/openemr-devops which knows the
-# canonical paths and fails this job on any drift. See that workflow's
-# header for the full file list + override semantics.
+# Caller example (in a consumer repo's PR workflow):
 #
-# Trigger: PRs that touch either a vendored file or this workflow itself.
-# A PR touching only unrelated files skips the drift check entirely, since
-# nothing's changed that could introduce drift.
+#   jobs:
+#     drift:
+#       uses: openemr/openemr/.github/workflows/check-vendored-contracts.yml@master
+#       with:
+#         consumer_subpath: tools/release
 #
-# This caller is short-lived in the release-mechanism migration sense:
-# Phase 5 of the migration (docs/release-mechanism-migration-from-devops.md)
-# inverts canonical/vendored ownership — this repo becomes canonical, and
-# this caller either disappears or flips direction. Wiring it now defuses
-# a real silent-drift bug today and gives Phase 5 a clean before/after to
-# swap.
+# website-openemr (which vendored into a non-canonical layout) passes overrides:
+#
+#       with:
+#         consumer_subpath: tools/release-docs
+#         path_overrides: |
+#           src/TagVerifier.php=src/Release/TagVerifier.php
+#           src/TagVerificationResult.php=src/Release/TagVerificationResult.php
 
 on:
-  pull_request:
-    paths:
-    - 'tools/release/contracts/dispatch.schema.json'
-    - 'tools/release/src/TagVerifier.php'
-    - 'tools/release/src/TagVerificationResult.php'
-    - '.github/workflows/check-vendored-contracts.yml'
+  workflow_call:
+    inputs:
+      consumer_subpath:
+        description: 'Path within the caller repo holding the vendored copies (e.g. tools/release).'
+        required: true
+        type: string
+      canonical_ref:
+        description: 'Ref of openemr/openemr to compare against. Defaults to master.'
+        required: false
+        type: string
+        default: master
+      path_overrides:
+        description: |
+          Optional newline-delimited canonical=consumer path overrides for consumers
+          that vendored into a non-canonical layout. Example:
+            src/TagVerifier.php=src/Release/TagVerifier.php
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
 
 jobs:
-  drift:
-    name: Check vendored contracts against canonical
-    uses: openemr/openemr-devops/.github/workflows/check-vendored-contracts.yml@master
-    with:
-      consumer_subpath: tools/release
+  check:
+    name: vendored contracts
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout consumer
+      uses: actions/checkout@v7
+
+    - name: Checkout canonical openemr
+      uses: actions/checkout@v7
+      with:
+        repository: openemr/openemr
+        ref: ${{ inputs.canonical_ref }}
+        path: _canonical-openemr
+        # Sparse checkout of just tools/release + composer manifests so we
+        # can install the deps check-vendored.php needs (Symfony Console)
+        # without pulling openemr's full ~1GB tree.
+        sparse-checkout: |
+          tools/release
+          composer.json
+          composer.lock
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+        tools: composer
+
+    - name: Install canonical dependencies
+      working-directory: _canonical-openemr
+      # --no-dev suffices: bin/check-vendored.php only needs symfony/console +
+      # composer autoload from require (non-dev) entries.
+      run: composer install --no-interaction --no-progress --no-dev
+
+    - name: Check vendored contracts
+      env:
+        CONSUMER_PATH: ${{ github.workspace }}/${{ inputs.consumer_subpath }}
+        PATH_OVERRIDES: ${{ inputs.path_overrides }}
+      working-directory: _canonical-openemr
+      run: php tools/release/bin/check-vendored.php --consumer "$CONSUMER_PATH" --overrides "$PATH_OVERRIDES"
