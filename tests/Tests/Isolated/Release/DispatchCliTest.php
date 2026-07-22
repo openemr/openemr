@@ -100,29 +100,46 @@ final class DispatchCliTest extends TestCase
 
     public function testReleaseAppTokenEnvFallsBackWhenAppTokenMissing(): void
     {
-        // With --app-token omitted, dispatch.php pulls RELEASE_APP_TOKEN
-        // from the environment. If the fallback works, the DTO's
-        // appToken-required check does NOT fire (we get a different
-        // failure downstream — network / schema). Use --probe so schema
-        // validation is bypassed; the failure will come from network.
+        // Prove the RELEASE_APP_TOKEN env fallback runs by triggering a
+        // deterministic *later* local error. Combine --probe (bypasses
+        // schema validation, which is where the next check would fire)
+        // with an empty --target-repos. If the env fallback runs, the
+        // token is populated, the ctor's "appToken is required" check
+        // does NOT fire, and Dispatcher::dispatch() reaches its empty-
+        // target-repos guard (`targetRepos must not be empty`). If the
+        // env fallback did NOT run, we'd get "appToken is required"
+        // instead. Both signals are local + fast + deterministic; no HTTP
+        // is ever attempted.
         $process = new Process(
-            ['php', self::BIN, '--event=release-permissions-probe', '--sha=' . self::VALID_SHA, '--probe'],
+            [
+                'php',
+                self::BIN,
+                '--event=release-permissions-probe',
+                '--sha=' . self::VALID_SHA,
+                '--probe',
+                '--target-repos=',
+            ],
             null,
             ['RELEASE_APP_TOKEN' => 'ghs_fake_token_from_env'],
         );
         $process->run();
 
-        self::assertFalse($process->isSuccessful(), 'network call must still fail; just checking env fallback ran');
-        // Should NOT be the "appToken is required" DTO error — that would
-        // mean the env fallback wasn't consulted.
+        self::assertSame(1, $process->getExitCode());
+        self::assertStringContainsString('targetRepos must not be empty', $process->getOutput());
         self::assertStringNotContainsString('appToken is required', $process->getOutput());
     }
 
     public function testProbeFlagAccepted(): void
     {
-        // --probe is a VALUE_NONE flag; when unrecognized the CLI would
-        // reject with "does not exist" from Symfony Console. Confirm it
-        // parses without triggering that.
+        // Prove --probe parses at the option layer by combining it with a
+        // deterministic downstream failure (empty --target-repos). If
+        // --probe were unregistered, Symfony Console would abort at parse
+        // time with "does not exist"; if it parses correctly, we advance
+        // to Dispatcher's empty-targets guard. --probe also serves its
+        // secondary role here: it bypasses schema validation, letting
+        // the empty-targets check fire first as a clean signal that
+        // --probe was honored (schema validation would fail on a
+        // separate axis and mask the assertion).
         $process = new Process([
             'php',
             self::BIN,
@@ -130,30 +147,40 @@ final class DispatchCliTest extends TestCase
             '--sha=' . self::VALID_SHA,
             '--app-token=t',
             '--probe',
+            '--target-repos=',
         ]);
         $process->run();
 
-        // Will fail on the network call, but not with an option-parse error.
+        self::assertSame(1, $process->getExitCode());
+        self::assertStringContainsString('targetRepos must not be empty', $process->getOutput());
         self::assertStringNotContainsString('does not exist', $process->getOutput());
         self::assertStringNotContainsString('does not exist', $process->getErrorOutput());
     }
 
     public function testTargetReposCommaListAccepted(): void
     {
-        // --target-repos is a comma-separated list. Confirm the option
-        // is accepted at parse time (regression against a future refactor
-        // that might drop the option).
+        // Prove --target-repos parses at the option layer with a non-
+        // trivial comma-list value. Combine with --event=UNKNOWN so
+        // DispatchDataBuilder trips its "Unknown dispatch event" local
+        // exception before Dispatcher::dispatch is ever reached — the
+        // fact that we get the DispatchDataBuilder error (not a Symfony
+        // "does not exist" option-parse error) confirms --target-repos
+        // was accepted at the CLI layer. No HTTP.
         $process = new Process([
             'php',
             self::BIN,
-            '--event=release-permissions-probe',
+            '--event=totally-unknown-event',
             '--sha=' . self::VALID_SHA,
             '--app-token=t',
-            '--probe',
             '--target-repos=owner1/repo1,owner2/repo2',
         ]);
         $process->run();
 
+        self::assertFalse($process->isSuccessful());
+        self::assertStringContainsString(
+            'Unknown dispatch event',
+            $process->getOutput() . $process->getErrorOutput(),
+        );
         self::assertStringNotContainsString('does not exist', $process->getOutput());
         self::assertStringNotContainsString('does not exist', $process->getErrorOutput());
     }

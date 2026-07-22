@@ -115,17 +115,12 @@ final class ShipReleaseCliTest extends TestCase
         self::assertStringContainsString('--timeout-seconds must be a positive integer', $process->getOutput());
     }
 
-    public function testDryRunOverridesModeSemantically(): void
+    public function testInvalidModeRejectedEvenWithDryRunFlag(): void
     {
-        // With --dry-run set, the CLI forces Mode::DryRun regardless of
-        // --mode's value — including for the invalid "turbo" value that
-        // would otherwise abort with the enum error. Confirm the enum
-        // guard fires BEFORE the dry-run override so operators aren't
-        // silently rescued from a typo, then confirm a valid --mode
-        // combined with --dry-run reaches the orchestrator (proven by
-        // the subsequent gh-not-found failure rather than any CLI-level
-        // validation error).
-        $processEnum = new Process([
+        // Confirm the --mode enum guard fires BEFORE the --dry-run
+        // override so operators aren't silently rescued from a --mode
+        // typo. Local + deterministic — no external processes involved.
+        $process = new Process([
             'php',
             self::BIN,
             '--release-version=8.1.0',
@@ -133,42 +128,70 @@ final class ShipReleaseCliTest extends TestCase
             '--dry-run',
             '--mode=turbo',
         ]);
-        $processEnum->run();
+        $process->run();
+
         self::assertStringContainsString(
             '--mode must be one of',
-            $processEnum->getOutput(),
+            $process->getOutput(),
             'invalid --mode must still be rejected even with --dry-run present',
         );
+    }
 
-        $processValid = new Process([
+    public function testValidModeCombinedWithDryRunPassesCliValidation(): void
+    {
+        // Prove valid --mode + --dry-run passes the CLI's option layer by
+        // adding a *later* deterministic local failure (invalid
+        // --timeout-seconds). If --mode were the failing gate, we'd see
+        // "--mode must be one of"; instead we see the timeout-integer
+        // error, which is the next validation step. No external process
+        // ever starts; the orchestrator is never constructed.
+        $process = new Process([
             'php',
             self::BIN,
             '--release-version=8.1.0',
             '--rel-branch=rel-810',
             '--dry-run',
             '--mode=full-auto',
+            '--timeout-seconds=0',
         ]);
-        $processValid->run();
-        // Should NOT be any CLI-level validation error — the orchestrator
-        // takes over and fails on the missing gh binary.
-        $combined = $processValid->getOutput() . $processValid->getErrorOutput();
-        self::assertStringNotContainsString('--mode must be one of', $combined);
-        self::assertStringNotContainsString('--release-version and --rel-branch are required', $combined);
-        self::assertStringNotContainsString('--timeout-seconds must be a positive integer', $combined);
+        $process->run();
+
+        self::assertStringContainsString(
+            '--timeout-seconds must be a positive integer',
+            $process->getOutput(),
+        );
+        self::assertStringNotContainsString('--mode must be one of', $process->getOutput());
+        self::assertStringNotContainsString(
+            '--release-version and --rel-branch are required',
+            $process->getOutput(),
+        );
     }
 
     public function testSummaryFileFlagAcceptedBothSetAndUnset(): void
     {
-        // Regression against removing/renaming the option. Set variant.
+        // Prove --summary-file parses at the option layer (both when
+        // supplied and when omitted) by adding a *later* deterministic
+        // local failure (invalid --timeout-seconds). If --summary-file
+        // were unregistered, Symfony Console would abort at parse time
+        // with "does not exist"; if it parses correctly, we advance to
+        // the timeout check. The orchestrator is never constructed and
+        // no external process runs.
+
+        // Set variant — --summary-file supplied.
         $processSet = new Process([
             'php',
             self::BIN,
             '--release-version=8.1.0',
             '--rel-branch=rel-810',
             '--summary-file=/tmp/summary.md',
+            '--timeout-seconds=0',
         ]);
         $processSet->run();
         $combinedSet = $processSet->getOutput() . $processSet->getErrorOutput();
+        self::assertStringContainsString(
+            '--timeout-seconds must be a positive integer',
+            $processSet->getOutput(),
+        );
         self::assertStringNotContainsString('does not exist', $combinedSet);
 
         // Unset variant — --summary-file has a '' default.
@@ -177,9 +200,14 @@ final class ShipReleaseCliTest extends TestCase
             self::BIN,
             '--release-version=8.1.0',
             '--rel-branch=rel-810',
+            '--timeout-seconds=0',
         ]);
         $processUnset->run();
         $combinedUnset = $processUnset->getOutput() . $processUnset->getErrorOutput();
+        self::assertStringContainsString(
+            '--timeout-seconds must be a positive integer',
+            $processUnset->getOutput(),
+        );
         self::assertStringNotContainsString('does not exist', $combinedUnset);
     }
 }

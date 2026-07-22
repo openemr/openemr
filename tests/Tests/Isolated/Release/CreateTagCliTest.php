@@ -122,10 +122,17 @@ final class CreateTagCliTest extends TestCase
 
     public function testReleaseAppTokenEnvFallbackAccepted(): void
     {
-        // With RELEASE_APP_TOKEN in env and no --app-token flag, the CLI
-        // must fall back to the env value and let the DTO construct
-        // successfully. Failure then comes from the downstream GitHub API
-        // call, not the DTO's "appToken is required".
+        // Prove the RELEASE_APP_TOKEN env fallback runs by triggering a
+        // deterministic *later* DTO validation error. Pass a malformed
+        // --date (fails TagCreationRequest's `date must be ISO YYYY-MM-DD`
+        // check) with the env token supplied but no --app-token flag.
+        // - If env fallback DID run: token is populated, ctor gets past
+        //   the "appToken is required" check, and the malformed --date
+        //   trips the date-format check next → exit 2 with the ISO error.
+        // - If env fallback did NOT run: token stays empty, the ctor's
+        //   "appToken is required" check fires first → different error.
+        // No HTTP client is ever constructed either way; failure is local
+        // + fast + deterministic.
         $process = new Process(
             [
                 'php',
@@ -134,23 +141,25 @@ final class CreateTagCliTest extends TestCase
                 '--release-version=8.1.0',
                 '--commit-sha=' . self::VALID_SHA,
                 '--conductor-pr-url=https://github.com/openemr/openemr/pull/1',
-                '--date=2026-07-21',
+                '--date=BAD',
             ],
             null,
             ['RELEASE_APP_TOKEN' => 'ghs_fake_token_from_env'],
         );
         $process->run();
 
-        // Guaranteed to fail (fake token / no network), but NOT with the
-        // DTO's "appToken is required" message.
-        self::assertFalse($process->isSuccessful());
+        self::assertSame(2, $process->getExitCode());
+        self::assertStringContainsString('date must be ISO YYYY-MM-DD', $process->getOutput());
         self::assertStringNotContainsString('appToken is required', $process->getOutput());
     }
 
     public function testTestFlagAccepted(): void
     {
-        // --test is a VALUE_NONE flag; parse without error even though
-        // the network call downstream will still fail.
+        // Prove --test parses at the option layer by combining it with a
+        // deterministic downstream failure (malformed --date). If --test
+        // were unregistered, Symfony Console would abort at parse time
+        // with "does not exist"; if --test parses correctly, the DTO's
+        // date-format check trips next → predictable exit 2. No HTTP.
         $process = new Process([
             'php',
             self::BIN,
@@ -159,24 +168,26 @@ final class CreateTagCliTest extends TestCase
             '--commit-sha=' . self::VALID_SHA,
             '--conductor-pr-url=https://github.com/openemr/openemr/pull/1',
             '--app-token=t',
-            '--date=2026-07-21',
+            '--date=BAD',
             '--test',
         ]);
         $process->run();
 
-        // Should NOT be an option-parse error.
+        self::assertSame(2, $process->getExitCode());
+        self::assertStringContainsString('date must be ISO YYYY-MM-DD', $process->getOutput());
         self::assertStringNotContainsString('does not exist', $process->getOutput());
         self::assertStringNotContainsString('does not exist', $process->getErrorOutput());
     }
 
     public function testGithubOutputEnvOptional(): void
     {
-        // With GITHUB_OUTPUT unset, the CLI must still parse + attempt
-        // its work without complaint about the missing env var (which
-        // is only used to record step outputs when running under
-        // GitHub Actions). We can't verify the file-write happens
-        // without a real tag being created, but we can verify absence
-        // of the env doesn't itself abort the process.
+        // GITHUB_OUTPUT is only consulted after tag creation succeeds. To
+        // prove its absence doesn't abort the process pre-DTO, combine
+        // unset GITHUB_OUTPUT with a deterministic DTO-level failure
+        // (malformed --date). If unset GITHUB_OUTPUT tripped anything
+        // earlier, we'd see a different failure signature. Confirms the
+        // env variable's absence is quietly tolerated at the boundary
+        // this test cares about.
         $env = getenv('GITHUB_OUTPUT');
         putenv('GITHUB_OUTPUT');
         try {
@@ -188,7 +199,7 @@ final class CreateTagCliTest extends TestCase
                 '--commit-sha=' . self::VALID_SHA,
                 '--conductor-pr-url=https://github.com/openemr/openemr/pull/1',
                 '--app-token=t',
-                '--date=2026-07-21',
+                '--date=BAD',
             ]);
             $process->run();
         } finally {
@@ -197,7 +208,8 @@ final class CreateTagCliTest extends TestCase
             }
         }
 
-        // Failure is expected (network), but not from missing GITHUB_OUTPUT.
+        self::assertSame(2, $process->getExitCode());
+        self::assertStringContainsString('date must be ISO YYYY-MM-DD', $process->getOutput());
         $combined = $process->getOutput() . $process->getErrorOutput();
         self::assertStringNotContainsString('GITHUB_OUTPUT', $combined);
     }

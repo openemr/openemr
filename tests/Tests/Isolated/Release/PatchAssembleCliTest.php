@@ -115,25 +115,30 @@ final class PatchAssembleCliTest extends TestCase
         self::assertStringContainsString('OpenEMR directory not found', $process->getOutput());
     }
 
-    public function testCopyStylesFlagAccepted(): void
+    public function testCopyStylesFlagAcceptedWithNonexistentOpenemrDir(): void
     {
-        // --copy-styles is VALUE_NONE. Confirm it parses without a
-        // Symfony "does not exist" error. Downstream failure (missing
-        // git tag / non-openemr tree) is expected.
-        $bogusOpenemr = $this->tmpDir . '/openemr';
-        mkdir($bogusOpenemr, 0700, true);
+        // Prove --copy-styles parses at the option layer by combining it
+        // with a nonexistent --openemr-dir. If --copy-styles were
+        // unregistered, Symfony Console would abort at parse time with
+        // "does not exist"; if it parses correctly, the CLI's
+        // --openemr-dir existence check trips next with the deterministic
+        // "OpenEMR directory not found" error. No git / zip subprocess
+        // ever runs; failure is local + fast.
+        $nonexistentDir = $this->tmpDir . '/does-not-exist-' . bin2hex(random_bytes(4));
         $process = new Process([
             'php',
             self::BIN,
             '--start-tag=v8_0_0',
             '--branch=rel-810',
             '--filename=patch.zip',
-            '--openemr-dir=' . $bogusOpenemr,
+            '--openemr-dir=' . $nonexistentDir,
             '--output-dir=' . $this->tmpDir . '/out',
             '--copy-styles',
         ]);
         $process->run();
 
+        self::assertFalse($process->isSuccessful());
+        self::assertStringContainsString('OpenEMR directory not found', $process->getOutput());
         $combined = $process->getOutput() . $process->getErrorOutput();
         self::assertStringNotContainsString('does not exist', $combined);
     }
