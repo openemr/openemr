@@ -35,7 +35,7 @@
                 "requirement": 0
             },
             {
-                "label": "FHIR Assessments",
+                "label": "Questionnaires",
                 "menu_id": "fhir_assessments",
                 "target": "main",
                 "on_click": "top.restoreSession()",
