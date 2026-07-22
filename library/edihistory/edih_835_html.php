@@ -989,7 +989,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 }
 
                 $pmt_html .= ($bpr11) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>Pmt No.</em> " . text($bpr11 . " " . $bpr01) . "</td></tr>" . PHP_EOL : "";
-                $acctng['pmt'] = (isset($sar[2]) && $sar[2]) ? (float)$sar[2] : "";
+                $acctng['pmt'] = (isset($sar[2]) && $sar[2]) ? (float)$sar[2] : 0;
                 //
                 continue;
             }
@@ -1380,7 +1380,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 // include our accounting totals
                 if (is_array($acctng) && count($acctng)) {
                     // round floats to 2 digit precision
-                    $acctng = array_map(static fn($v): float => round((int)$v, 2), $acctng);
+                    $acctng = array_map(static fn($v): float => round((float)$v, 2), $acctng);
                     $bal = ($acctng['fee'] == ($acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj']) ) ? "Balanced" : "Not Balanced";
                     // accounting totals are rounded floats; numeric, so no escaping needed
                     $acct_str = text($bal) . ": <em>Fee</em> " . $acctng['fee'] . " <em>Pmt</em> " . $acctng['pmt'] . " ";
