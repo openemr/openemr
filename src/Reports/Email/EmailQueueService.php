@@ -39,9 +39,30 @@ class EmailQueueService
         if (!array_key_exists($key, $filters)) {
             return null;
         }
+        $value = $filters[$key];
+        if (!is_string($value) && !is_int($value) && !is_float($value) && !is_bool($value)) {
+            return null;
+        }
 
-        $value = trim((string) $filters[$key]);
-        return $value !== '' ? $value : null;
+        $normalizedValue = trim((string) $value);
+        return $normalizedValue !== '' ? $normalizedValue : null;
+    }
+
+    private function normalizeIntValue(mixed $value): int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_float($value)) {
+            return (int) $value;
+        }
+
+        if (is_string($value) && is_numeric($value)) {
+            return (int) $value;
+        }
+
+        return 0;
     }
     /**
      * @param array<string, mixed> $filters
@@ -102,10 +123,10 @@ class EmailQueueService
     /**
      * Get email queue records with optional filtering and pagination
      *
-     * @param array $filters Optional filters: search, status (all|sent|pending|failed), template_name, date_from, date_to
+     * @param array<string, mixed> $filters Optional filters: search, status (all|sent|pending|failed), template_name, date_from, date_to
      * @param int $limit Number of records to return
      * @param int $offset Starting offset for pagination
-     * @return array Array of email queue records
+     * @return array<int, array<string, int|string|null>> Array of email queue records
      */
     public function getEmailQueue(array $filters = [], int $limit = 100, int $offset = 0): array
     {
@@ -120,14 +141,15 @@ class EmailQueueService
 
         $params[] = $limit;
         $params[] = $offset;
-
-        return QueryUtils::fetchRecords($sql, $params);
+        /** @var array<int, array<string, int|string|null>> $records */
+        $records = QueryUtils::fetchRecords($sql, $params);
+        return $records;
     }
 
     /**
      * Get total count of email queue records with optional filtering
      *
-     * @param array $filters Optional filters: search, status, template_name, date_from, date_to
+     * @param array<string, mixed> $filters Optional filters: search, status, template_name, date_from, date_to
      * @return int Total count of matching records
      */
     public function getEmailQueueCount(array $filters = []): int
@@ -137,13 +159,13 @@ class EmailQueueService
         $sql = "SELECT COUNT(*) as total FROM email_queue {$whereClause}";
 
         $result = QueryUtils::querySingleRow($sql, $params);
-        return (int)($result['total'] ?? 0);
+        return $this->normalizeIntValue($result['total'] ?? 0);
     }
 
     /**
      * Get email queue statistics
      *
-     * @return array Statistics including total, sent, pending, and failed counts
+     * @return array<string, int> Statistics including total, sent, pending, and failed counts
      */
     public function getStatistics(): array
     {
@@ -163,10 +185,10 @@ class EmailQueueService
 
         if ($result) {
             $stats = [
-                'total' => (int)$result['total'],
-                'sent' => (int)$result['sent'],
-                'pending' => (int)$result['pending'],
-                'failed' => (int)$result['failed'],
+                'total' => $this->normalizeIntValue($result['total'] ?? 0),
+                'sent' => $this->normalizeIntValue($result['sent'] ?? 0),
+                'pending' => $this->normalizeIntValue($result['pending'] ?? 0),
+                'failed' => $this->normalizeIntValue($result['failed'] ?? 0),
             ];
         }
 
@@ -176,7 +198,7 @@ class EmailQueueService
     /**
      * Get unique template names from email queue
      *
-     * @return array List of unique template names
+     * @return array<int, string> List of unique template names
      */
     public function getTemplateNames(): array
     {
@@ -189,9 +211,16 @@ class EmailQueueService
         $templates = [];
 
         foreach ($result as $row) {
-            if (isset($row['template_name']) && (string) $row['template_name'] !== '') {
-                $templates[] = $row['template_name'];
+            if (!array_key_exists('template_name', $row)) {
+                continue;
             }
+
+            $templateName = $row['template_name'];
+            if (!is_string($templateName) || $templateName === '') {
+                continue;
+            }
+
+            $templates[] = $templateName;
         }
 
         return $templates;
@@ -201,7 +230,7 @@ class EmailQueueService
      * Get email details by ID
      *
      * @param int $id Email queue ID
-     * @return array|null Email record or null if not found
+     * @return array<string, int|string|null>|null Email record or null if not found
      */
     public function getEmailById(int $id): ?array
     {
@@ -213,6 +242,22 @@ class EmailQueueService
             return null;
         }
 
-        return $result;
+        $emailRecord = [];
+        foreach (self::EMAIL_QUEUE_COLUMNS as $column) {
+            $value = $result[$column] ?? null;
+            if (is_int($value) || is_string($value) || $value === null) {
+                $emailRecord[$column] = $value;
+                continue;
+            }
+
+            if (is_float($value) || is_bool($value)) {
+                $emailRecord[$column] = (string) $value;
+                continue;
+            }
+
+            $emailRecord[$column] = null;
+        }
+
+        return $emailRecord;
     }
 }

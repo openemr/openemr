@@ -17,10 +17,10 @@ ob_start();
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Reports\Email\EmailQueueService;
-use Exception;
+use RuntimeException;
 
 // Clear any error output that may have occurred
 ob_end_clean();
@@ -34,12 +34,12 @@ try {
         'options' => ['min_range' => 1],
     ]);
     if (!is_int($authUserId)) {
-        throw new Exception("User not authenticated");
+        throw new RuntimeException("User not authenticated");
     }
 
     // ACL check - requires billing or admin access
     if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('acct', 'bill')) {
-        throw new Exception("Access denied: insufficient permissions");
+        throw new RuntimeException("Access denied: insufficient permissions");
     }
 
     // Get email ID from request
@@ -47,7 +47,7 @@ try {
         'options' => ['min_range' => 1],
     ]);
     if (!is_int($emailId)) {
-        throw new Exception("Email ID is required");
+        throw new RuntimeException("Email ID is required");
     }
 
     // Initialize service and get email details
@@ -55,7 +55,7 @@ try {
     $email = $service->getEmailById($emailId);
 
     if ($email === null) {
-        throw new Exception("Email not found");
+        throw new RuntimeException("Email not found");
     }
 
     // Return success response
@@ -63,11 +63,11 @@ try {
         'success' => true,
         'email' => $email
     ]);
-} catch (Exception $e) {
+} catch (RuntimeException $e) {
     http_response_code(400);
     echo json_encode([
         'success' => false,
         'error' => 'Unable to load email details.'
     ]);
-    (new SystemLogger())->error("Email queue detail fetch failed", ['message' => $e->getMessage()]);
+    ServiceContainer::getLogger()->error("Email queue detail fetch failed", ['message' => $e->getMessage()]);
 }

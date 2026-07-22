@@ -27,7 +27,8 @@ $globalsBag = OEGlobalsBag::getInstance();
  */
 $kernelValue = $globalsBag->get('kernel');
 $kernel = $kernelValue instanceof Kernel ? $kernelValue : null;
-$webroot = $globalsBag->get('webroot');
+$webrootValue = $globalsBag->get('webroot');
+$webroot = is_string($webrootValue) ? $webrootValue : '';
 
 // ACL check - requires billing or admin access
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('acct', 'bill')) {
@@ -73,8 +74,8 @@ $totalPages = ceil($totalCount / $perPage);
 // Build query string for pagination
 $queryParams = [];
 foreach ($filters as $key => $value) {
-    if ((string) $value !== '') {
-        $queryParams[] = urlencode($key) . '=' . urlencode((string) $value);
+    if ($value !== '') {
+        $queryParams[] = urlencode($key) . '=' . urlencode($value);
     }
 }
 $queryString = implode('&', $queryParams);
@@ -89,7 +90,7 @@ $templateVars = [
     'currentPage' => $currentPage,
     'totalPages' => $totalPages,
     'queryString' => $queryString,
-    'webroot' => (string) $webroot,
+    'webroot' => $webroot,
 ];
 
 // Render page
