@@ -40,17 +40,26 @@ use Twig\Loader\FilesystemLoader;
         // Parse raw CLI input into narrowed string values at the boundary
         // rather than @var-casting downstream; PHPStan trusts the runtime
         // check, and downstream code no longer needs re-validation.
-        $required = [];
-        foreach (['type', 'milestone'] as $name) {
-            $value = $input->getOption($name);
-            if (!is_string($value) || $value === '') {
-                $output->writeln("<error>--{$name} is required</error>");
-                return 1;
-            }
-            $required[$name] = $value;
+        $typeOption = $input->getOption('type');
+        if (!is_string($typeOption) || $typeOption === '') {
+            $output->writeln('<error>--type is required</error>');
+            return 1;
         }
-        $type = $required['type'];
-        $milestone = $required['milestone'];
+        $type = $typeOption;
+
+        // --milestone is optional. build-release.yml only sets it when the
+        // operator supplied a milestone at dispatch (release-prep already
+        // determined by then whether milestone-gating applies). Treat unset
+        // and empty as equivalent -- the templates render `{{ milestone }}`
+        // as blank in that case, which matches the "no milestone context
+        // available" reality. Rejecting empty forced every dry-run dispatch
+        // to pass a dummy milestone or fail at this step.
+        $milestoneOption = $input->getOption('milestone');
+        if ($milestoneOption !== null && !is_string($milestoneOption)) {
+            $output->writeln('<error>--milestone must be a string</error>');
+            return 1;
+        }
+        $milestone = $milestoneOption ?? '';
 
         $outputDirOption = $input->getOption('output-dir');
         if (!is_string($outputDirOption) || $outputDirOption === '') {
