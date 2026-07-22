@@ -55,15 +55,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/allergy/{auuid}':
     get:
       tags:
@@ -78,30 +78,30 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/appointment:
     get:
       tags:
         - standard
       description: 'Retrieves all appointments'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/appointment/{eid}':
     get:
       tags:
@@ -116,22 +116,22 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/background_service:
     get:
       tags:
         - standard
       description: 'Retrieves all registered background services'
       responses:
-        200:
+        '200':
           description: 'List of registered background services'
           content:
             application/json:
@@ -153,18 +153,18 @@ paths:
                       type: string
                       format: date-time
                   type: object
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/background_service/$run:
     post:
       tags:
         - standard
       description: 'Advances any background services that are due to run. Cannot force-run a specific service and cannot bypass intervals. Returns HTTP 200 with a per-service results array regardless of individual outcomes — the runner is always correct to invoke, and `not_due` / `already_running` / `skipped` are expected states, not errors.'
       responses:
-        200:
+        '200':
           description: 'Per-service results (may be empty if no services were due)'
           content:
             application/json:
@@ -199,11 +199,11 @@ paths:
                   -
                     name: Email_Service
                     status: not_due
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/background_service/{name}':
     get:
       tags:
@@ -218,7 +218,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Background service details'
           content:
             application/json:
@@ -245,9 +245,9 @@ paths:
                     type: string
                     format: date-time
                 type: object
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           description: 'Background service not found'
           content:
             application/json:
@@ -261,7 +261,7 @@ paths:
                 type: object
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/background_service/{name}/run':
     post:
       tags:
@@ -288,7 +288,7 @@ paths:
               example:
                 force: true
       responses:
-        200:
+        '200':
           description: 'Service executed successfully'
           content:
             application/json:
@@ -305,7 +305,7 @@ paths:
               example:
                 service: patient-reminder
                 status: executed
-        400:
+        '400':
           description: 'Invalid JSON payload'
           content:
             application/json:
@@ -318,9 +318,9 @@ paths:
                 type: object
               example:
                 error: 'Invalid JSON payload'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           description: 'Background service not found'
           content:
             application/json:
@@ -333,7 +333,7 @@ paths:
                 type: object
               example:
                 error: 'Service not found'
-        409:
+        '409':
           description: 'Service is already running, not due, or skipped'
           content:
             application/json:
@@ -354,7 +354,7 @@ paths:
               example:
                 service: patient-reminder
                 status: already_running
-        500:
+        '500':
           description: 'Service execution failed'
           content:
             application/json:
@@ -375,22 +375,22 @@ paths:
                 status: error
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/drug:
     get:
       tags:
         - standard
       description: 'Retrieves a list of all drugs'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/drug/{uuid}':
     get:
       tags:
@@ -405,15 +405,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/facility:
     get:
       tags:
@@ -554,15 +554,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -655,15 +655,15 @@ paths:
                 oid: ''
                 service_location: '1'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/facility/{fuuid}':
     get:
       tags:
@@ -678,15 +678,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -784,15 +784,15 @@ paths:
                 oid: ''
                 service_location: '1'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/immunization:
     get:
       tags:
@@ -996,15 +996,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/immunization/{uuid}':
     get:
       tags:
@@ -1019,30 +1019,30 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/insurance_company:
     get:
       tags:
         - standard
       description: 'Retrieves all insurance companies'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -1054,15 +1054,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_insurance_company_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/insurance_company/{iid}':
     get:
       tags:
@@ -1077,15 +1077,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -1105,30 +1105,30 @@ paths:
             schema:
               $ref: '#/components/schemas/api_insurance_company_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/insurance_type:
     get:
       tags:
         - standard
       description: 'Retrieves all insurance types'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/list/{list_name}':
     get:
       tags:
@@ -1143,15 +1143,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/medical_problem:
     get:
       tags:
@@ -1201,15 +1201,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/medical_problem/{muuid}':
     get:
       tags:
@@ -1224,15 +1224,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/patient:
     get:
       tags:
@@ -1370,15 +1370,15 @@ paths:
             maximum: 200
             minimum: 0
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -1390,7 +1390,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_patient_request'
       responses:
-        200:
+        '200':
           description: 'Standard response'
           content:
             application/json:
@@ -1417,15 +1417,15 @@ paths:
                       type: object
                 type: object
                 example:
-                  validationErrors: {  }
-                  error_description: {  }
+                  validationErrors: []
+                  error_description: []
                   data:
                     pid: 1
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/appointment':
     get:
       tags:
@@ -1440,15 +1440,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -1520,15 +1520,15 @@ paths:
                 pc_billing_location: '10'
                 pc_aid: '1'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/appointment/{eid}':
     delete:
       tags:
@@ -1550,15 +1550,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     get:
       tags:
         - standard
@@ -1579,15 +1579,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/dental_issue':
     get:
       tags:
@@ -1602,15 +1602,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -1630,15 +1630,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_dental_issue_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/dental_issue/{did}':
     delete:
       tags:
@@ -1660,15 +1660,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     get:
       tags:
         - standard
@@ -1689,15 +1689,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -1724,15 +1724,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_dental_issue_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/document':
     get:
       tags:
@@ -1761,15 +1761,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -1801,15 +1801,15 @@ paths:
                   format: binary
               type: object
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/document/{did}':
     get:
       tags:
@@ -1831,15 +1831,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/encounter/{eid}/soap_note':
     get:
       tags:
@@ -1861,15 +1861,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -1896,15 +1896,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_soap_note_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/encounter/{eid}/soap_note/{sid}':
     get:
       tags:
@@ -1933,15 +1933,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -1975,15 +1975,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_soap_note_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/encounter/{eid}/vital':
     get:
       tags:
@@ -2005,15 +2005,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -2040,15 +2040,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_vital_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/encounter/{eid}/vital/{vid}':
     get:
       tags:
@@ -2077,15 +2077,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -2119,15 +2119,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_vital_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/medication':
     get:
       tags:
@@ -2142,15 +2142,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -2170,15 +2170,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_medication_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/medication/{mid}':
     delete:
       tags:
@@ -2200,15 +2200,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     get:
       tags:
         - standard
@@ -2229,15 +2229,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -2264,15 +2264,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_medication_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/message':
     post:
       tags:
@@ -2293,15 +2293,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_message_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/message/{mid}':
     delete:
       tags:
@@ -2323,15 +2323,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -2358,15 +2358,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_message_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/surgery':
     get:
       tags:
@@ -2381,15 +2381,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -2409,15 +2409,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_surgery_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/surgery/{sid}':
     delete:
       tags:
@@ -2439,15 +2439,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     get:
       tags:
         - standard
@@ -2468,15 +2468,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -2503,15 +2503,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_surgery_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{pid}/transaction':
     get:
       tags:
@@ -2526,15 +2526,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -2554,15 +2554,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_transaction_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}':
     get:
       tags:
@@ -2577,17 +2577,17 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard response'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/api_patient_response'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -2607,17 +2607,17 @@ paths:
             schema:
               $ref: '#/components/schemas/api_patient_request'
       responses:
-        200:
+        '200':
           description: 'Standard response'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/api_patient_response'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/allergy':
     get:
       tags:
@@ -2632,15 +2632,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -2660,15 +2660,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_allergy_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/allergy/{auuid}':
     delete:
       tags:
@@ -2690,15 +2690,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     get:
       tags:
         - standard
@@ -2719,15 +2719,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -2754,15 +2754,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_allergy_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/employer':
     get:
       tags:
@@ -2777,11 +2777,11 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
@@ -2802,15 +2802,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -2830,7 +2830,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_encounter_request'
       responses:
-        200:
+        '200':
           description: 'Standard response'
           content:
             application/json:
@@ -2860,16 +2860,16 @@ paths:
                       type: object
                 type: object
                 example:
-                  validationErrors: {  }
-                  error_description: {  }
+                  validationErrors: []
+                  error_description: []
                   data:
                     encounter: 1
                     uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/encounter/{euuid}':
     get:
       tags:
@@ -2891,17 +2891,17 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard response'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/api_encounter_response'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -2928,17 +2928,17 @@ paths:
             schema:
               $ref: '#/components/schemas/api_encounter_request'
       responses:
-        200:
+        '200':
           description: 'Standard response'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/api_encounter_response'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/insurance':
     get:
       tags:
@@ -2953,15 +2953,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -2981,15 +2981,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_insurance_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/insurance/$swap-insurance':
     get:
       tags:
@@ -3018,15 +3018,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/insurance/{insuranceUuid}':
     put:
       tags:
@@ -3054,15 +3054,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_insurance_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/insurance/{uuid}':
     get:
       tags:
@@ -3077,15 +3077,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/medical_problem':
     get:
       tags:
@@ -3100,15 +3100,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -3128,15 +3128,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_medical_problem_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/patient/{puuid}/medical_problem/{muuid}':
     delete:
       tags:
@@ -3158,15 +3158,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     get:
       tags:
         - standard
@@ -3187,15 +3187,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -3222,15 +3222,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_medical_problem_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/practitioner:
     get:
       tags:
@@ -3441,15 +3441,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -3580,7 +3580,7 @@ paths:
                 state_license_number: '123456'
                 username: eduardoperez
       responses:
-        200:
+        '200':
           description: 'Standard response'
           content:
             application/json:
@@ -3610,16 +3610,16 @@ paths:
                       type: object
                 type: object
                 example:
-                  validationErrors: {  }
-                  error_description: {  }
+                  validationErrors: []
+                  error_description: []
                   data:
                     id: 7
                     uuid: 90d453fb-0248-4c0d-9575-d99d02b169f5
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/practitioner/{pruuid}':
     get:
       tags:
@@ -3634,15 +3634,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - standard
@@ -3757,7 +3757,7 @@ paths:
                 state: FL
                 phone: 123-456-7890
       responses:
-        200:
+        '200':
           description: 'Standard response'
           content:
             application/json:
@@ -3883,8 +3883,8 @@ paths:
                       type: object
                 type: object
                 example:
-                  validationErrors: {  }
-                  error_description: {  }
+                  validationErrors: []
+                  error_description: []
                   data:
                     id: 7
                     uuid: 90d453fb-0248-4c0d-9575-d99d02b169f5
@@ -3920,26 +3920,26 @@ paths:
                     abook_title: null
                     physician_title: null
                     physician_code: null
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/prescription:
     get:
       tags:
         - standard
       description: 'Retrieves a list of all prescriptions'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - standard
@@ -3967,15 +3967,15 @@ paths:
                   type: integer
               type: object
       responses:
-        201:
+        '201':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/prescription/{uuid}':
     delete:
       tags:
@@ -3990,15 +3990,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     get:
       tags:
         - standard
@@ -4012,30 +4012,30 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/procedure:
     get:
       tags:
         - standard
       description: 'Retrieves a list of all procedures'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/procedure/{uuid}':
     get:
       tags:
@@ -4050,30 +4050,30 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/product:
     get:
       tags:
         - standard
       description: 'Retrieves the OpenEMR product registration information'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/transaction/{tid}':
     put:
       tags:
@@ -4094,15 +4094,15 @@ paths:
             schema:
               $ref: '#/components/schemas/api_transaction_request'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/user:
     get:
       tags:
@@ -4320,15 +4320,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/api/user/{uuid}':
     get:
       tags:
@@ -4343,81 +4343,81 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /api/version:
     get:
       tags:
         - standard
       description: 'Retrieves the OpenEMR version information'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/$bulkdata-status:
     delete:
       tags:
         - fhir
       description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       responses:
-        200:
+        '200':
           description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     get:
       tags:
         - fhir
       description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       responses:
-        200:
+        '200':
           description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/$export:
     get:
       tags:
         - fhir
       description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       responses:
-        200:
+        '200':
           description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/.well-known/smart-configuration:
     get:
       tags:
         - fhir
       description: 'Returns smart configuration of the fhir server.'
       responses:
-        200:
+        '200':
           description: 'Return smart configuration of the fhir server'
   /fhir/AllergyIntolerance:
     get:
@@ -4447,7 +4447,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -4467,13 +4467,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/AllergyIntolerance'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/AllergyIntolerance/{uuid}':
     get:
       tags:
@@ -4488,7 +4488,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -4540,15 +4540,15 @@ paths:
                               code: '422587007'
                               display: Nausea
                           text: Nausea
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Appointment:
     get:
       tags:
@@ -4577,7 +4577,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -4597,13 +4597,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/AllergyIntolerance'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Appointment/{uuid}':
     get:
       tags:
@@ -4618,7 +4618,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -4628,16 +4628,15 @@ paths:
                     description: 'FHIR Json object.'
                     type: object
                 type: object
-                example: {  }
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Binary/{id}':
     get:
       tags:
@@ -4652,15 +4651,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: "The documentation for working with BULK FHIR or $docref document exports can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/CarePlan:
     get:
       tags:
@@ -4696,7 +4695,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -4716,13 +4715,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/CarePlan'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/CarePlan/{uuid}':
     get:
       tags:
@@ -4737,7 +4736,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -4768,15 +4767,15 @@ paths:
                   subject:
                     reference: Patient/94682ef5-b0e3-4289-b19a-11b9592e9c92
                     type: Patient
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/CareTeam:
     get:
       tags:
@@ -4812,7 +4811,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -4832,13 +4831,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/CareTeam'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/CareTeam/{uuid}':
     get:
       tags:
@@ -4860,7 +4859,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -4906,15 +4905,15 @@ paths:
                       member:
                         reference: Organization/94682c62-b801-4498-84a1-13f158bb2a18
                         type: Organization
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Condition:
     get:
       tags:
@@ -4943,7 +4942,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -4963,13 +4962,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Condition'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Condition/{uuid}':
     get:
       tags:
@@ -4984,7 +4983,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5027,15 +5026,15 @@ paths:
                         display: ''
                   subject:
                     reference: Patient/94682c62-d37e-48b5-8018-c5f6f3566609
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Coverage:
     get:
       tags:
@@ -5071,7 +5070,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5091,13 +5090,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Coverage'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Coverage/{uuid}':
     get:
       tags:
@@ -5112,7 +5111,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5136,15 +5135,15 @@ paths:
                       -
                         system: 'http://terminology.hl7.org/CodeSystem/subscriber-relationship'
                         code: ''
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Device:
     get:
       tags:
@@ -5173,7 +5172,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5193,13 +5192,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Device'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Device/{uuid}':
     get:
       tags:
@@ -5214,7 +5213,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5247,15 +5246,15 @@ paths:
                   patient:
                     reference: Patient/946da619-c631-431a-a282-487cd6fb7802
                     type: Patient
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/DiagnosticReport:
     get:
       tags:
@@ -5305,7 +5304,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5325,13 +5324,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/DiagnosticReport'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/DiagnosticReport/{uuid}':
     get:
       tags:
@@ -5346,7 +5345,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5392,15 +5391,15 @@ paths:
                     -
                       contentType: text/plain
                       data: TXMgQWxpY2UgTmV3bWFuIHdhcyB0ZXN0ZWQgZm9yIHRoZSBVcmluYW5hbHlzaXMgbWFjcm8gcGFuZWwgYW5kIHRoZSByZXN1bHRzIGhhdmUgYmVlbiBmb3VuZCB0byBiZSANCm5vcm1hbC4=
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/DocumentReference:
     get:
       tags:
@@ -5450,7 +5449,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5470,13 +5469,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/DocumentReference'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/DocumentReference/$docref:
     post:
       tags:
@@ -5515,15 +5514,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'A search bundle of DocumentReferences is returned'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/DocumentReference/{uuid}':
     get:
       tags:
@@ -5538,7 +5537,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5586,15 +5585,15 @@ paths:
                         system: 'http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem'
                         code: 'urn:ihe:iti:xds:2017:mimeTypeSufficient'
                         display: 'mimeType Sufficient'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Encounter:
     get:
       tags:
@@ -5630,7 +5629,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5650,13 +5649,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Encounter'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Encounter/{uuid}':
     get:
       tags:
@@ -5671,7 +5670,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5722,15 +5721,15 @@ paths:
                         type: Practitioner
                   period:
                     start: '2012-08-13T00:00:00+00:00'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Goal:
     get:
       tags:
@@ -5759,7 +5758,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5779,13 +5778,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Goal'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Goal/{uuid}':
     get:
       tags:
@@ -5800,7 +5799,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5831,15 +5830,15 @@ paths:
                             url: 'http://hl7.org/fhir/StructureDefinition/data-absent-reason'
                       detailString: 'Eating more vegetables.'
                       dueDate: '2021-09-09'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Group:
     get:
       tags:
@@ -5868,7 +5867,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5888,13 +5887,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Group'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Group/{id}/$export':
     get:
       tags:
@@ -5909,15 +5908,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Group/{uuid}':
     get:
       tags:
@@ -5932,17 +5931,17 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Immunization:
     get:
       tags:
@@ -5978,7 +5977,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -5998,13 +5997,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Immunization'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Immunization/{uuid}':
     get:
       tags:
@@ -6019,7 +6018,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6047,15 +6046,15 @@ paths:
                   occurrenceDateTime: '2022-03-26T05:35:00+00:00'
                   recorded: '2022-03-26T05:42:26+00:00'
                   primarySource: false
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Location:
     get:
       tags:
@@ -6077,7 +6076,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6097,13 +6096,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Location'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Location/{uuid}':
     get:
       tags:
@@ -6118,7 +6117,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6143,15 +6142,15 @@ paths:
                     -
                       system: fax
                       value: 000-000-0000
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Media:
     get:
       tags:
@@ -6187,7 +6186,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6207,13 +6206,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Media'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Media/{uuid}':
     get:
       tags:
@@ -6235,7 +6234,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6259,15 +6258,15 @@ paths:
                     contentType: application/dicom
                     url: /fhir/Binary/a037abc5-7ebb-43a1-9e0f-b57586dc6d25
                     title: MR000021.dcm
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Medication:
     get:
       tags:
@@ -6289,7 +6288,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6309,13 +6308,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Medication'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Medication/{uuid}':
     get:
       tags:
@@ -6330,7 +6329,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6355,15 +6354,15 @@ paths:
                   batch:
                     lotNumber: '132'
                     expirationDate: '0000-00-00'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/MedicationDispense:
     get:
       tags:
@@ -6406,7 +6405,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6426,13 +6425,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/MedicationDispense'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/MedicationDispense/{uuid}':
     get:
       tags:
@@ -6447,7 +6446,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6490,15 +6489,15 @@ paths:
                     value: 30
                     unit: tablet
                   whenHandedOver: '2021-09-18T00:00:00+00:00'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/MedicationRequest:
     get:
       tags:
@@ -6541,7 +6540,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6561,13 +6560,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/MedicationRequest'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/MedicationRequest/{uuid}':
     get:
       tags:
@@ -6582,7 +6581,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6621,15 +6620,15 @@ paths:
                   requester:
                     reference: Practitioner/946da61d-ac5f-4fdc-b3f2-7b58dc49976b
                     type: Practitioner
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Observation:
     get:
       tags:
@@ -6680,7 +6679,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6700,13 +6699,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Observation'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Observation/{uuid}':
     get:
       tags:
@@ -6721,7 +6720,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6779,22 +6778,22 @@ paths:
                         unit: 'mm[Hg]'
                         system: 'http://unitsofmeasure.org'
                         code: 'mm[Hg]'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/OperationDefinition:
     get:
       tags:
         - fhir
       description: 'Returns a list of the OperationDefinition resources that are specific to this OpenEMR installation'
       responses:
-        200:
+        '200':
           description: 'Return list of OperationDefinition resources'
   '/fhir/OperationDefinition/{operation}':
     get:
@@ -6810,7 +6809,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6916,7 +6915,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -6936,13 +6935,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Organization'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - fhir
@@ -6988,7 +6987,7 @@ paths:
               address:
                 - null
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -7031,13 +7030,13 @@ paths:
                       use: work
                   address:
                     - null
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Organization/{uuid}':
     get:
       tags:
@@ -7052,7 +7051,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -7095,15 +7094,15 @@ paths:
                       use: work
                   address:
                     - null
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - fhir
@@ -7157,7 +7156,7 @@ paths:
               address:
                 - null
       responses:
-        201:
+        '201':
           description: 'Standard Response'
           content:
             application/json:
@@ -7165,13 +7164,13 @@ paths:
                 example:
                   id: 14
                   uuid: 95f217c1-258c-44ca-bf11-909dce369574
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Patient:
     get:
       tags:
@@ -7286,7 +7285,7 @@ paths:
         -
           $ref: '#/components/parameters/_lastUpdated'
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -7306,13 +7305,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Patient'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - fhir
@@ -7377,7 +7376,7 @@ paths:
                         code: unknown
                         display: Unknown
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -7439,28 +7438,28 @@ paths:
                             system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason'
                             code: unknown
                             display: Unknown
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Patient/$export:
     get:
       tags:
         - fhir
       description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
       responses:
-        200:
+        '200':
           description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Patient/{uuid}':
     get:
       tags:
@@ -7475,7 +7474,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -7552,15 +7551,15 @@ paths:
                             system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason'
                             code: unknown
                             display: Unknown
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - fhir
@@ -7633,7 +7632,7 @@ paths:
                         code: unknown
                         display: Unknown
       responses:
-        201:
+        '201':
           description: 'Standard Response'
           content:
             application/json:
@@ -7641,13 +7640,13 @@ paths:
                 example:
                   id: 2
                   uuid: 95f2ad04-5834-4243-8838-e396a7faadbf
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Person:
     get:
       tags:
@@ -7746,7 +7745,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -7766,13 +7765,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Person'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Person/{uuid}':
     get:
       tags:
@@ -7787,7 +7786,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -7839,15 +7838,15 @@ paths:
                       period:
                         start: '2021-04-13T08:57:32.146+00:00'
                   active: true
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Practitioner:
     get:
       tags:
@@ -7946,7 +7945,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -7966,13 +7965,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Practitioner'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     post:
       tags:
         - fhir
@@ -8005,7 +8004,7 @@ paths:
                   given:
                     - Danny
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8035,13 +8034,13 @@ paths:
                       family: Smith
                       given:
                         - Danny
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Practitioner/{uuid}':
     get:
       tags:
@@ -8056,7 +8055,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8086,15 +8085,15 @@ paths:
                       family: Smith
                       given:
                         - Billy
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
     put:
       tags:
         - fhir
@@ -8135,7 +8134,7 @@ paths:
                   given:
                     - Billy
       responses:
-        201:
+        '201':
           description: 'Standard Response'
           content:
             application/json:
@@ -8143,13 +8142,13 @@ paths:
                 example:
                   id: 5
                   uuid: 95f294d7-e14c-441d-81a6-309fe369ee21
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/PractitionerRole:
     get:
       tags:
@@ -8185,7 +8184,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8205,13 +8204,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/PractitionerRole'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/PractitionerRole/{uuid}':
     get:
       tags:
@@ -8226,7 +8225,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8257,15 +8256,15 @@ paths:
                       coding:
                         - 101Y00000X
                       text: Counselor
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Procedure:
     get:
       tags:
@@ -8301,7 +8300,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8321,13 +8320,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Procedure'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Procedure/{uuid}':
     get:
       tags:
@@ -8342,7 +8341,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8362,15 +8361,15 @@ paths:
                   subject:
                     reference: Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf
                     type: Patient
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Provenance:
     get:
       tags:
@@ -8385,7 +8384,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8405,13 +8404,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Provenance'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Provenance/{uuid}':
     get:
       tags:
@@ -8426,7 +8425,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8445,7 +8444,7 @@ paths:
                       type: AllergyIntolerance
                   recorded: '2022-03-26T22:43:30+00:00'
                   agent:
-                    0:
+                    '0':
                       type:
                         coding:
                           -
@@ -8458,7 +8457,7 @@ paths:
                       onBehalfOf:
                         reference: Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7
                         type: Organization
-                    1:
+                    '1':
                       type:
                         coding:
                           -
@@ -8471,15 +8470,15 @@ paths:
                     onBehalfOf:
                       reference: Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7
                       type: Organization
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Questionnaire:
     get:
       tags:
@@ -8494,7 +8493,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8514,13 +8513,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Questionnaire'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/QuestionnaireResponse:
     get:
       tags:
@@ -8535,7 +8534,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8555,13 +8554,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/QuestionnaireResponse'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/QuestionnaireResponse/{uuid}':
     get:
       tags:
@@ -8576,7 +8575,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8596,13 +8595,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/QuestionnaireResponse'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/RelatedPerson:
     get:
       tags:
@@ -8631,7 +8630,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8651,13 +8650,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/RelatedPerson'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/RelatedPerson/{uuid}':
     get:
       tags:
@@ -8672,7 +8671,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8730,15 +8729,15 @@ paths:
                       state: CA
                       period:
                         start: '2024-10-25T21:15:11.737-04:00'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/ServiceRequest:
     get:
       tags:
@@ -8795,7 +8794,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8815,13 +8814,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/ServiceRequest'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/ServiceRequest/{uuid}':
     get:
       tags:
@@ -8836,7 +8835,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8871,15 +8870,15 @@ paths:
                     reference: Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf
                     type: Patient
                   authoredOn: '2025-03-26T00:00:00+00:00'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/Specimen:
     get:
       tags:
@@ -8929,7 +8928,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -8949,13 +8948,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/Specimen'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/Specimen/{uuid}':
     get:
       tags:
@@ -8970,7 +8969,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -9025,15 +9024,15 @@ paths:
                             system: 'http://snomed.info/sct'
                             code: '702281005'
                             display: 'Evacuated blood collection tube with heparin'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/ValueSet:
     get:
       tags:
@@ -9055,7 +9054,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -9075,13 +9074,13 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/ValueSet'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/fhir/ValueSet/{uuid}':
     get:
       tags:
@@ -9096,7 +9095,7 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           description: 'Standard Response'
           content:
             application/json:
@@ -9134,22 +9133,22 @@ paths:
                           -
                             code: ophthalmological_services
                             display: 'Ophthalmological Services'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
-        404:
+        '404':
           $ref: '#/components/responses/uuidnotfound'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /fhir/metadata:
     get:
       tags:
         - fhir
       description: 'Returns metadata (ie. CapabilityStatement resource) of the fhir server.'
       responses:
-        200:
+        '200':
           description: 'Return CapabilityStatement resource of the fhir server'
   /portal/patient:
     get:
@@ -9157,32 +9156,32 @@ paths:
         - standard-patient
       description: 'Returns the patient.'
       responses:
-        200:
+        '200':
           description: 'Standard response'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/api_patient_response'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /portal/patient/appointment:
     get:
       tags:
         - standard-patient
       description: 'Retrieves all appointments for a patient'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/portal/patient/appointment/{auuid}':
     get:
       tags:
@@ -9197,30 +9196,30 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   /portal/patient/encounter:
     get:
       tags:
         - standard-patient
       description: 'Returns encounters for the patient.'
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
   '/portal/patient/encounter/{euuid}':
     get:
       tags:
@@ -9235,15 +9234,15 @@ paths:
           schema:
             type: string
       responses:
-        200:
+        '200':
           $ref: '#/components/responses/standard'
-        400:
+        '400':
           $ref: '#/components/responses/badrequest'
-        401:
+        '401':
           $ref: '#/components/responses/unauthorized'
       security:
         -
-          openemr_auth: {  }
+          openemr_auth: []
 components:
   parameters:
     _lastUpdated:
@@ -9297,9 +9296,9 @@ components:
                   type: object
             type: object
             example:
-              validationErrors: {  }
-              error_description: {  }
-              data: {  }
+              validationErrors: []
+              internalErrors: []
+              data: []
     unauthorized:
       description: Unauthorized
       content:
@@ -9334,7 +9333,6 @@ components:
                 description: empty
                 type: object
             type: object
-            example: {  }
   schemas:
     api_allergy_request:
       description: 'Schema for the allergy request'
@@ -9541,8 +9539,8 @@ components:
             type: object
       type: object
       example:
-        validationErrors: {  }
-        error_description: {  }
+        validationErrors: []
+        error_description: ''
         data:
           id: '1'
           uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef
@@ -10011,8 +10009,8 @@ components:
             type: object
       type: object
       example:
-        validationErrors: {  }
-        error_description: {  }
+        validationErrors: []
+        error_description: ''
         data:
           id: '193'
           pid: '1'

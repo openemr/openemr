@@ -95,8 +95,8 @@ use Psr\Http\Message\ResponseInterface;
         )),
     ],
     example: [
-        'validationErrors' => new \stdClass(),
-        'error_description' => new \stdClass(),
+        'validationErrors' => [],
+        'error_description' => '',
         'data' => [
             'id' => '193',
             'pid' => '1',

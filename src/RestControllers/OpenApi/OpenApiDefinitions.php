@@ -219,9 +219,9 @@ use OpenApi\Attributes as OA;
                 ),
             ],
             example: [
-                'validationErrors' => new \stdClass(),
-                'error_description' => new \stdClass(),
-                'data' => new \stdClass(),
+                'validationErrors' => [],
+                'internalErrors' => [],
+                'data' => [],
             ]
         )
     )
@@ -297,7 +297,6 @@ use OpenApi\Attributes as OA;
                     type: 'object'
                 ),
             ],
-            example: new \stdClass()
         )
     )
 )]

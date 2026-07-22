@@ -96,8 +96,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
         )),
     ],
     example: [
-        'validationErrors' => new \stdClass(),
-        'error_description' => new \stdClass(),
+        'validationErrors' => [],
+        'error_description' => '',
         'data' => [
             'id' => '1',
             'uuid' => '90c196f2-51cc-4655-8858-3a80aebff3ef',
