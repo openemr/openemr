@@ -928,7 +928,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     $clp_html = "";
     $trl_html = "";
     //
-    $acctng = ['pmt' => 0,'fee' => 0,'clmpmt' => 0,'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0,'svcadj' => 0,'plbadj' => 0];
+    $acctng = ['pmt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0, 'svcpmt' => 0, 'svcadj' => 0, 'plbadj' => 0];
     //
     foreach ($trans_ar as $trans) {
         $clpsegs = [];
@@ -1378,7 +1378,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $loopid = 'trailer';
                 $cls = 'pmt';
                 // include our accounting totals
-                if (is_array($acctng) && count($acctng)) {
+                if (count($acctng)) {
                     // round floats to 2 digit precision
                     $acctng = array_map(static fn($v): float => round((float)$v, 2), $acctng);
                     $bal = ($acctng['fee'] == ($acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj']) ) ? "Balanced" : "Not Balanced";
