@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Tests\Reports\Email;
+namespace OpenEMR\Tests\Services\Email;
 
 use OpenEMR\Reports\Email\EmailQueueService;
 use PHPUnit\Framework\TestCase;
