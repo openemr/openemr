@@ -73,11 +73,44 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
         return true;
     }
 
-    private function parseQuestionnaireItems($dataItem)
+    /**
+     * Repair a raw questionnaire item so the strict generated model constructor
+     * accepts it: decode double-encoded array fields where possible, drop them
+     * with a warning where not. Dropping a field (e.g. enableWhen) degrades to a
+     * less conditional form rather than failing the whole API response.
+     * Shared logic lives in QuestionnaireItemNormalizer; the import path uses
+     * the same class in strict mode so new data can't need this tolerance.
+     *
+     * @param array<mixed> $item
+     * @return array<mixed>
+     */
+    private static function normalizeQuestionnaireItem(array $item): array
+    {
+        [$item, , $unrepairable] = QuestionnaireItemNormalizer::normalizeItem($item);
+        foreach ($unrepairable as $field) {
+            ServiceContainer::getLogger()->warning(
+                "Dropping malformed questionnaire item field",
+                ['field' => $field, 'linkId' => $item['linkId'] ?? '', 'type' => gettype($item[$field])]
+            );
+            unset($item[$field]);
+        }
+        return $item;
+    }
+
+    /**
+     * @param array<mixed> $dataItem
+     * @return list<FHIRQuestionnaireItem>
+     */
+    private function parseQuestionnaireItems(array $dataItem): array
     {
         $objItems = [];
         if (!empty($dataItem['item'])) {
             foreach ($dataItem['item'] as $item) {
+                if (!is_array($item)) {
+                    ServiceContainer::getLogger()->warning("Dropping malformed questionnaire item", ['type' => gettype($item)]);
+                    continue;
+                }
+                $item = self::normalizeQuestionnaireItem($item);
                 if (!empty($item['item'])) {
                     $item['item'] = $this->parseQuestionnaireItems($item);
                 }
@@ -98,20 +131,26 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
         try {
             // parse the json data in dataRecord questionnaire
             $innerData = json_decode((string) $dataRecord['questionnaire'], true, 512, JSON_THROW_ON_ERROR);
+            if (!is_array($innerData)) {
+                throw new \InvalidArgumentException("Stored questionnaire json is not an object");
+            }
             // we have to handle the item properties as Questionnaire only adds data arrays instead of
             // actual object values
-            if (!empty($innerData['item'])) {
+            if (isset($innerData['item']) && is_array($innerData['item']) && $innerData['item'] !== []) {
                 $innerData['item'] = $this->parseQuestionnaireItems($innerData);
             }
-        } catch (JsonException $exception) {
-            // log the error and move on
-            $innerData = []; // nothing we can do here, but skip the questionnaire data as its invalid
+            $fhirResource = new FHIRQuestionnaire($innerData);
+        } catch (JsonException | \InvalidArgumentException $exception) {
+            // log the error and move on with a bare resource; a single malformed
+            // stored questionnaire must not fail the whole collection response.
+            // InvalidArgumentException comes from the strict generated model
+            // constructors when stored data has an unexpected shape.
             ServiceContainer::getLogger()->error(
                 "Unable to parse questionnaire json",
                 ['exception' => $exception, 'uuid' => $dataRecord['uuid'] ?? '']
             );
+            $fhirResource = new FHIRQuestionnaire();
         }
-        $fhirResource = new FHIRQuestionnaire($innerData);
 
         $meta = new FHIRMeta();
         $meta->setVersionId($dataRecord['version'] ?? '1');

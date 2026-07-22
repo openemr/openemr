@@ -80,4 +80,68 @@ class SMARTLaunchTokenTest extends TestCase
             "SMART appContext should be set from deserialization"
         );
     }
+
+    public function testAddFhirContextItemAcceptsCanonicalForm(): void
+    {
+        $token = new SMARTLaunchToken();
+        $item = [
+            'type' => 'Questionnaire',
+            'reference' => 'Questionnaire/questionnaire-uuid',
+            'canonical' => 'https://example.org/Questionnaire/123|v2023-05-03',
+        ];
+        $token->addFhirContextItem($item);
+        $this->assertSame([$item], $token->getFhirContext(), "Canonical fhirContext item should be stored as given");
+    }
+
+    public function testAddFhirContextItemDeduplicates(): void
+    {
+        $token = new SMARTLaunchToken();
+        $token->addFhirContextItem(['reference' => 'Questionnaire/abc']);
+        $token->addFhirContextItem(['reference' => 'Questionnaire/abc']);
+        $this->assertCount(1, $token->getFhirContext(), "Identical items should not duplicate");
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidFhirContextItemProvider')]
+    public function testAddFhirContextItemRejectsInvalidItems(array $item): void
+    {
+        $token = new SMARTLaunchToken();
+        $this->expectException(\InvalidArgumentException::class);
+        $token->addFhirContextItem($item);
+    }
+
+    /**
+     * @return array<string, array{array<mixed>}>
+     */
+    public static function invalidFhirContextItemProvider(): array
+    {
+        return [
+            'empty item' => [[]],
+            'only type' => [['type' => 'Questionnaire']],
+            'unsupported key' => [['reference' => 'Questionnaire/abc', 'display' => 'My Form']],
+            'malformed reference' => [['reference' => 'not-a-reference']],
+            'lowercase resource type' => [['reference' => 'questionnaire/abc']],
+            'patient reference without role' => [['reference' => 'Patient/abc']],
+            'encounter reference without role' => [['reference' => 'Encounter/abc']],
+            'invalid canonical' => [['canonical' => 'not a url']],
+            'empty canonical' => [['canonical' => '']],
+            'empty identifier' => [['identifier' => []]],
+            'non-array identifier' => [['identifier' => 'urn:oid:1.2.3']],
+            'empty role' => [['reference' => 'Questionnaire/abc', 'role' => '']],
+            'relative role uri' => [['reference' => 'Questionnaire/abc', 'role' => 'launch']],
+            'invalid type' => [['reference' => 'Questionnaire/abc', 'type' => 'questionnaire']],
+        ];
+    }
+
+    public function testAddFhirContextItemAllowsPatientWithNonLaunchRole(): void
+    {
+        $token = new SMARTLaunchToken();
+        $token->addFhirContextItem([
+            'reference' => 'Patient/abc',
+            'role' => 'https://example.org/role/related-patient',
+        ]);
+        $this->assertCount(1, $token->getFhirContext(), "Patient with an absolute non-launch role is permitted");
+    }
 }

@@ -48,7 +48,7 @@ class SMARTLaunchToken
     private ?string $appointmentUuid;
 
     /**
-     * @var array<int, array{reference: string}> Additional SMART FHIR launch context references.
+     * @var array<int, array<mixed>> Additional SMART fhirContext items (reference/canonical/identifier form).
      */
     private array $fhirContext = [];
 
@@ -129,15 +129,74 @@ class SMARTLaunchToken
         if (preg_match('/^[A-Za-z0-9\-.]{1,64}$/', $resourceId) !== 1) {
             throw new \InvalidArgumentException("FHIR context resource id is invalid");
         }
+        $this->addFhirContextItem(['reference' => $resourceType . '/' . $resourceId]);
+    }
 
-        $reference = ['reference' => $resourceType . '/' . $resourceId];
-        if (!in_array($reference, $this->fhirContext, true)) {
-            $this->fhirContext[] = $reference;
+    /**
+     * Adds a validated fhirContext item per SMART App Launch 2.2 "fhirContext":
+     * each item SHALL include at least one of reference, canonical, or identifier;
+     * type is RECOMMENDED with canonical/identifier; role, when present, SHALL NOT
+     * be empty and custom roles must be absolute URIs.
+     *
+     * @param array<mixed> $item
+     */
+    public function addFhirContextItem(array $item): void
+    {
+        $allowedKeys = ['reference', 'canonical', 'identifier', 'type', 'role'];
+        foreach (array_keys($item) as $key) {
+            if (!in_array($key, $allowedKeys, true)) {
+                throw new \InvalidArgumentException("FHIR context item contains unsupported key");
+            }
+        }
+
+        $reference = $item['reference'] ?? null;
+        $canonical = $item['canonical'] ?? null;
+        $identifier = $item['identifier'] ?? null;
+        if ($reference === null && $canonical === null && $identifier === null) {
+            throw new \InvalidArgumentException("FHIR context item must include a reference, canonical, or identifier");
+        }
+
+        if ($reference !== null) {
+            if (
+                !is_string($reference)
+                || preg_match('/^[A-Z][A-Za-z0-9]*\/[A-Za-z0-9\-.]{1,64}$/', $reference) !== 1
+            ) {
+                throw new \InvalidArgumentException("FHIR context resource reference is invalid");
+            }
+            $referenceType = explode('/', $reference, 2)[0];
+            $itemRole = $item['role'] ?? null;
+            if (in_array($referenceType, ['Patient', 'Encounter'], true) && (!is_string($itemRole) || $itemRole === '')) {
+                // Patient and Encounter are top-level launch parameters and are not
+                // permitted in fhirContext unless they carry a non-launch role.
+                throw new \InvalidArgumentException("Patient and Encounter references are not permitted in fhirContext");
+            }
+        }
+        if ($canonical !== null) {
+            $canonicalUrl = is_string($canonical) ? explode('|', $canonical, 2)[0] : null;
+            if ($canonicalUrl === null || $canonicalUrl === '' || filter_var($canonicalUrl, FILTER_VALIDATE_URL) === false) {
+                throw new \InvalidArgumentException("FHIR context canonical is invalid");
+            }
+        }
+        if ($identifier !== null && (!is_array($identifier) || $identifier === [])) {
+            throw new \InvalidArgumentException("FHIR context identifier is invalid");
+        }
+        if (array_key_exists('type', $item) && (!is_string($item['type']) || preg_match('/^[A-Z][A-Za-z0-9]*$/', $item['type']) !== 1)) {
+            throw new \InvalidArgumentException("FHIR context type is invalid");
+        }
+        if (array_key_exists('role', $item)) {
+            $role = $item['role'];
+            if (!is_string($role) || $role === '' || filter_var($role, FILTER_VALIDATE_URL) === false) {
+                throw new \InvalidArgumentException("FHIR context role must be a non-empty absolute URI");
+            }
+        }
+
+        if (!in_array($item, $this->fhirContext, true)) {
+            $this->fhirContext[] = $item;
         }
     }
 
     /**
-     * @return array<int, array{reference: string}>
+     * @return array<int, array<mixed>>
      */
     public function getFhirContext(): array
     {
@@ -244,16 +303,13 @@ class SMARTLaunchToken
             if (!is_array($context['fc'])) {
                 throw new \InvalidArgumentException("FHIR launch context must be an array");
             }
-            foreach ($context['fc'] as $fhirContextReference) {
-                $reference = is_array($fhirContextReference) ? ($fhirContextReference['reference'] ?? null) : null;
-                if (!is_string($reference)) {
-                    throw new \InvalidArgumentException("FHIR launch context reference is invalid");
+            foreach ($context['fc'] as $fhirContextItem) {
+                if (!is_array($fhirContextItem)) {
+                    throw new \InvalidArgumentException("FHIR launch context item is invalid");
                 }
-                $referenceParts = explode('/', $reference, 2);
-                if (count($referenceParts) !== 2) {
-                    throw new \InvalidArgumentException("FHIR launch context reference is invalid");
-                }
-                $this->addFhirContextReference($referenceParts[0], $referenceParts[1]);
+                // addFhirContextItem re-validates every key, so a tampered or
+                // malformed token still fails closed here.
+                $this->addFhirContextItem($fhirContextItem);
             }
         }
         if (isset($context['ctx'])) {

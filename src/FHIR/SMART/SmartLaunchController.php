@@ -218,6 +218,10 @@ class SmartLaunchController
         $questionnaireValue = $intentData['questionnaire_id'] ?? null;
         $questionnaireResponseValue = $intentData['questionnaire_response_id'] ?? null;
         if ($questionnaireValue === null && $questionnaireResponseValue === null) {
+            if ($launchCode->getIntent() === SMARTLaunchToken::INTENT_QUESTIONNAIRE_ASSESSMENT) {
+                // An assessment launch with no questionnaire context gives the app nothing to open.
+                throw new \InvalidArgumentException("Questionnaire SMART launch context is invalid");
+            }
             return;
         }
 
@@ -237,7 +241,7 @@ class SmartLaunchController
         }
 
         $questionnaireRecords = QueryUtils::fetchRecordsNoLog(
-            "SELECT uuid FROM questionnaire_repository WHERE id = ? AND active = 1",
+            "SELECT uuid, questionnaire FROM questionnaire_repository WHERE id = ? AND active = 1",
             [$questionnaireId]
         );
         $questionnaireRecord = $questionnaireRecords[0] ?? null;
@@ -247,7 +251,10 @@ class SmartLaunchController
         }
 
         $questionnaireUuid = UuidRegistry::uuidToString($questionnaireUuidBinary);
-        $launchCode->addFhirContextReference('Questionnaire', $questionnaireUuid);
+        $questionnaireJson = is_string($questionnaireRecord['questionnaire'] ?? null)
+            ? $questionnaireRecord['questionnaire']
+            : null;
+        $launchCode->addFhirContextItem($this->buildQuestionnaireContextItem($questionnaireUuid, $questionnaireJson));
 
         $responseStatus = '';
         if ($questionnaireResponseId !== null) {
@@ -278,14 +285,61 @@ class SmartLaunchController
             }
 
             $questionnaireResponseUuid = UuidRegistry::uuidToString($responseUuidBinary);
-            $launchCode->addFhirContextReference('QuestionnaireResponse', $questionnaireResponseUuid);
+            $launchCode->addFhirContextItem([
+                'type' => 'QuestionnaireResponse',
+                'reference' => 'QuestionnaireResponse/' . $questionnaireResponseUuid,
+            ]);
         }
 
+        $launchCode->setAppContext($this->buildQuestionnaireAppContext($questionnaireResponseId, $responseStatus));
+    }
+
+    /**
+     * Build the fhirContext item for the launched Questionnaire following the
+     * SMART App Launch 2.2 canonical-questionnaire example: always a relative
+     * reference and type, plus the canonical URL (with |version suffix) when the
+     * stored FHIR Questionnaire declares one.
+     *
+     * @return array<string, string>
+     */
+    private function buildQuestionnaireContextItem(string $questionnaireUuid, ?string $questionnaireJson): array
+    {
+        $item = [
+            'type' => 'Questionnaire',
+            'reference' => 'Questionnaire/' . $questionnaireUuid,
+        ];
+        if ($questionnaireJson === null || $questionnaireJson === '') {
+            return $item;
+        }
+        $decoded = json_decode($questionnaireJson, true);
+        if (!is_array($decoded)) {
+            return $item;
+        }
+        $canonicalUrl = $decoded['url'] ?? null;
+        if (!is_string($canonicalUrl) || filter_var($canonicalUrl, FILTER_VALIDATE_URL) === false) {
+            return $item;
+        }
+        $version = $decoded['version'] ?? null;
+        $item['canonical'] = is_string($version) && $version !== ''
+            ? $canonicalUrl . '|' . $version
+            : $canonicalUrl;
+        return $item;
+    }
+
+    /**
+     * Resolve the app context JSON for a questionnaire assessment launch.
+     * Legacy rows store 'incomplete'/'active' where FHIR uses 'in-progress'
+     * (see FhirQuestionnaireResponseFormService status mapping), so all three
+     * mean the response is still open for editing.
+     */
+    private function buildQuestionnaireAppContext(?int $questionnaireResponseId, string $responseStatus): string
+    {
         $action = 'start';
         if ($questionnaireResponseId !== null) {
-            $action = $responseStatus === 'in-progress' ? 'continue' : 'review';
+            $openStatuses = ['in-progress', 'incomplete', 'active'];
+            $action = in_array($responseStatus, $openStatuses, true) ? 'continue' : 'review';
         }
-        $appContext = json_encode(
+        return json_encode(
             [
                 'workflow' => 'questionnaire-assessment',
                 'action' => $action,
@@ -293,7 +347,6 @@ class SmartLaunchController
             ],
             JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
         );
-        $launchCode->setAppContext($appContext);
     }
 
     private function getPositiveInteger(mixed $value): ?int
