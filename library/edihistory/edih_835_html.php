@@ -1372,7 +1372,10 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 // include our accounting totals
                 // round floats to 2 digit precision
                 $acctng = array_map(static fn($v): float => round((float)$v, 2), $acctng);
-                $bal = ($acctng['fee'] == ($acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj']) ) ? "Balanced" : "Not Balanced";
+                $accounted = $acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj'];
+                $bal = (int) round($acctng['fee'] * 100) === (int) round($accounted * 100)
+                    ? "Balanced"
+                    : "Not Balanced";
                 // accounting totals are rounded floats; numeric, so no escaping needed
                 $acct_str = text($bal) . ": <em>Fee</em> " . $acctng['fee'] . " <em>Pmt</em> " . $acctng['pmt'] . " ";
                 $acct_str .= "<em>ClpAdj</em> " . $acctng['clmadj'] . " <em>SvcAdj</em> " . $acctng['svcadj'] . " ";
