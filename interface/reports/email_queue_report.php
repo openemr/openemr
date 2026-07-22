@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 /**
  * Email Queue Report
@@ -11,6 +10,8 @@ declare(strict_types=1);
  * @author    Generated for PoppyBilling
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 require_once("../globals.php");
 

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 /**
  * Email Queue Detail Endpoint
@@ -11,6 +10,8 @@ declare(strict_types=1);
  * @author    Generated for PoppyBilling
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 // Start output buffering to catch any errors
 ob_start();

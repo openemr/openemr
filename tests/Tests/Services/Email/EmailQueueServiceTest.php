@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 /**
  * EmailQueueServiceTest.php
@@ -9,6 +8,8 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2025
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\Email;
 
