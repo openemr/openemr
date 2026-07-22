@@ -772,11 +772,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         $str_html .= ($rarc_str) ? "<tr class='svc'><td>&gt;</td><td colspan=3>$rarc_str</td></tr>" . PHP_EOL : "";
         if (count($cas_ar)) {
             foreach ($cas_ar as $key => $cas) {
-                if (!is_array($cas) && !count($cas)) {
-                    continue;
-                }
-
-                if ($key == '2100' && count($cas)) {
+                if ($key == '2100') {
                     $cls = 'remc';
                     $str_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>Claim Level Adjustments</em></td></tr>" . PHP_EOL;
                 } else {
@@ -789,10 +785,6 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                     //echo '==== cas_ar unwind cas as ky trp '.$ky.PHP_EOL;
                     //var_dump ($trp).PHP_EOL;
                     //
-                    if (!is_array($trp) && !count($trp)) {
-                        continue;
-                    }
-
                     $cg = $cd835->get_835_code('CAS_GROUP', $ky);
                     $cd = $cr = $ca = $cq = '';
                     foreach ($trp as $tr) {
@@ -1392,10 +1384,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 // create the html page
                 $str_html .= "<table id=" . attr($tblid) . " class='h835' columns=4><caption>" . text($capstr) . "</caption>" . PHP_EOL;
                 $str_html .= $hdr_html;
-                if ($pmt_html) {
-                    $str_html .= $pmt_html;
-                    $pmt_html = "";
-                }
+                $str_html .= $pmt_html;
+                $pmt_html = "";
 
                 if ($src_html) {
                     $str_html .= $src_html;

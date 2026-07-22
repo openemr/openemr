@@ -49,11 +49,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
