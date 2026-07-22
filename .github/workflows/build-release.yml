@@ -312,6 +312,8 @@ jobs:
       with:
         name: release-${{ inputs.version }}
         path: |
+          tools/release/release-output/openemr-${{ inputs.version }}.tar.gz
+          tools/release/release-output/openemr-${{ inputs.version }}.zip
           tools/release/release-output/changelog.md
           tools/release/release-output/*.md5
           tools/release/release-output/*.sha256
