@@ -4857,11 +4857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_change_loop may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_display_text may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',

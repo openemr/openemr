@@ -22007,16 +22007,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_change_loop\\(\\) has parameter \\$lptest with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_change_loop\\(\\) has parameter \\$lpval with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_ziptoarray\\(\\) has parameter \\$single with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
