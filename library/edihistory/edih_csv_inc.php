@@ -1065,47 +1065,6 @@ function edih_errseg_parse($err_seg, $id = false)
 }
 
 /**
- * Order the csv data array according to the csv table heading row
- * so the data to be added to csv table rows are correctly ordered
- *  the supplied data should be in an array with this structure
- *  array['icn'] ['file'][i]['key']  ['claim'][i]['key']  ['type']['type']
- *
- * @uses csv_table_header()
- *
- * @param array $csvdata data_ar data array from edih_XXX_csv_data()
- * @return array|bool        ordered array or false on error
- */
-function edih_csv_order($csvdata)
-{
-    //
-    $wrcsv = [];
-    $order_ar = [];
-    //
-    foreach ($csvdata as $icn => $data) {
-        // [icn]['type']['file']['claim']
-        $ft = $data['type'];
-        $wrcsv[$icn]['type'] = $ft;
-        //
-        foreach ($data as $key => $val) {
-            if ($key == 'type') {
-                continue;
-            }
-
-            $order_ar[$icn][$key] = csv_table_header($ft, $key);
-            $ct = count($order_ar[$icn][$key]);
-            foreach ($val as $k => $rcrd) {
-                //
-                foreach ($order_ar[$icn][$key] as $ky => $vl) {
-                    $wrcsv[$icn][$key][$k][$ky] = $rcrd[$vl];
-                }
-            }
-        }
-    }
-
-    return $wrcsv;
-}
-
-/**
  * insert dashes in ten-digit telephone numbers
  *
  * @param string $str_val   the telephone number
