@@ -1467,16 +1467,17 @@ class AuthorizationController
             $id_nonce = $id_payload['nonce'] ?? '';
             $trustedUser = $this->trustedUser($client_id, $user);
             if (empty($trustedUser['id'])) {
-                // not logged in so just continue as if were.
                 $message = xlt("You are currently not signed in.");
                 if (!empty($post_logout_url)) {
-                    $this->session->invalidate();
-                    return (new Psr17Factory())->createResponse(Response::HTTP_TEMPORARY_REDIRECT)
-                        ->withHeader('Location', $post_logout_url . "?state=$state");
-                } else {
-                    $this->session->invalidate();
-                    throw new HttpException(Response::HTTP_UNAUTHORIZED, $message);
+                    $client = QueryUtils::querySingleRow("SELECT logout_redirect_uris as valid FROM `oauth_clients` WHERE `client_id` = ? AND `logout_redirect_uris` = ?", [$client_id, $post_logout_url], false);
+                    if (is_array($client) && ($client['valid'] ?? '') !== '') {
+                        $this->session->invalidate();
+                        return (new Psr17Factory())->createResponse(Response::HTTP_TEMPORARY_REDIRECT)
+                            ->withHeader('Location', $post_logout_url . "?state=$state");
+                    }
                 }
+                $this->session->invalidate();
+                throw new HttpException(Response::HTTP_UNAUTHORIZED, $message);
             }
             $session_nonce = (json_decode((string) $trustedUser['session_cache'], true)['nonce']) ?? '';
             // this should be enough to confirm valid id
