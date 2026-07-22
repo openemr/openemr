@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Isolated\RestControllers\Subscriber;
 
 use OpenEMR\Common\Http\HttpRestRequest;
