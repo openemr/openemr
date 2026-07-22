@@ -160,6 +160,9 @@ class EmailQueueService
         $sql = "SELECT COUNT(*) as total FROM email_queue {$whereClause}";
 
         $result = QueryUtils::querySingleRow($sql, $params);
+        if (!is_array($result)) {
+            return 0;
+        }
         return $this->normalizeIntValue($result['total'] ?? 0);
     }
 
