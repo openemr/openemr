@@ -1378,17 +1378,15 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $loopid = 'trailer';
                 $cls = 'pmt';
                 // include our accounting totals
-                if (count($acctng)) {
-                    // round floats to 2 digit precision
-                    $acctng = array_map(static fn($v): float => round((float)$v, 2), $acctng);
-                    $bal = ($acctng['fee'] == ($acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj']) ) ? "Balanced" : "Not Balanced";
-                    // accounting totals are rounded floats; numeric, so no escaping needed
-                    $acct_str = text($bal) . ": <em>Fee</em> " . $acctng['fee'] . " <em>Pmt</em> " . $acctng['pmt'] . " ";
-                    $acct_str .= "<em>ClpAdj</em> " . $acctng['clmadj'] . " <em>SvcAdj</em> " . $acctng['svcadj'] . " ";
-                    $acct_str .= "<em>PtRsp</em> " . $acctng['ptrsp'] . " (<em>svcPtRsp</em> " . $acctng['svcptrsp'] . ") <em>PlbAdj</em> " . $acctng['plbadj'] . " ";
-                    //
-                    $pmt_html .= "<tr class='" . attr($cls) . "'><td colspan=4>$acct_str</td></tr>" . PHP_EOL;
-                }
+                // round floats to 2 digit precision
+                $acctng = array_map(static fn($v): float => round((float)$v, 2), $acctng);
+                $bal = ($acctng['fee'] == ($acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj']) ) ? "Balanced" : "Not Balanced";
+                // accounting totals are rounded floats; numeric, so no escaping needed
+                $acct_str = text($bal) . ": <em>Fee</em> " . $acctng['fee'] . " <em>Pmt</em> " . $acctng['pmt'] . " ";
+                $acct_str .= "<em>ClpAdj</em> " . $acctng['clmadj'] . " <em>SvcAdj</em> " . $acctng['svcadj'] . " ";
+                $acct_str .= "<em>PtRsp</em> " . $acctng['ptrsp'] . " (<em>svcPtRsp</em> " . $acctng['svcptrsp'] . ") <em>PlbAdj</em> " . $acctng['plbadj'] . " ";
+                //
+                $pmt_html .= "<tr class='" . attr($cls) . "'><td colspan=4>$acct_str</td></tr>" . PHP_EOL;
 
                 //
                 // create the html page
