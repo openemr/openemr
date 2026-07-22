@@ -212,8 +212,14 @@
                     </li>
                     {% endif %}
                     {% set paginationWindow = 2 %}
-                    {% set startPage = [2, currentPage - paginationWindow]|max %}
-                    {% set endPage = [totalPages - 1, currentPage + paginationWindow]|min %}
+                    {% set startPage = currentPage - paginationWindow %}
+                    {% if startPage < 2 %}
+                        {% set startPage = 2 %}
+                    {% endif %}
+                    {% set endPage = currentPage + paginationWindow %}
+                    {% if endPage > totalPages - 1 %}
+                        {% set endPage = totalPages - 1 %}
+                    {% endif %}
 
                     <li class="page-item {{ currentPage == 1 ? 'active' : '' }}">
                         {% if currentPage == 1 %}
