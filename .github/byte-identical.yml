@@ -74,6 +74,19 @@
 #                                                  dead weight
 #   .github/scripts/sync-byte-identical.sh         same rationale as the
 #                                                  workflow above
+#   .github/workflows/check-vendored-contracts.yml master-only-firing
+#                                                  (workflow_call reusable
+#                                                  invoked by external
+#                                                  consumers via @master;
+#                                                  rel-branch copies never
+#                                                  execute). Supporting PHP
+#                                                  under tools/release/**
+#                                                  IS synced -- the glob
+#                                                  entry below covers it --
+#                                                  which is harmless on rel
+#                                                  branches (no local caller)
+#                                                  and keeps the sync canary
+#                                                  green.
 #   .github/release-targets.yml                    master-authoritative; see
 #                                                  the file's own header
 #                                                  comment for the rationale
