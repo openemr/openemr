@@ -28,7 +28,7 @@ try {
     FallbackRouter::handleRoutingTestIfRequested($request->getRequestUri(), 'apis');
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     // should never reach here, but if we do, we can log the error and return a generic error response
     // we manually handle it as we don't know if something failed in the symfony component or in our code
     error_log($e->getMessage());

@@ -16,22 +16,22 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../globals.php");
-$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = $session->get('pid', 0);
-require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/patientvalidation.inc.php");
-require_once($srcdir . "/pid.inc.php");
-require_once($srcdir . "/patient.inc.php");
-
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
+require_once("../../globals.php");
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/patientvalidation.inc.php");
+require_once($srcdir . "/pid.inc.php");
+require_once($srcdir . "/patient.inc.php");
 
 // make sure permissions are checked before we allow this page to be accessed.
 if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {

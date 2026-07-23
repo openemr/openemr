@@ -13,18 +13,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
-$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-
-require_once("$srcdir/../custom/code_types.inc.php");
-require_once("$srcdir/../library/lists.inc.php");
-require_once("code_check.php");
-
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
 use OpenEMR\Forms\FeeSheet\Review\EncounterInfo;
 use OpenEMR\Forms\FeeSheet\Review\Procedure;
 use OpenEMR\Services\PatientIssuesService;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
+require_once("$srcdir/../custom/code_types.inc.php");
+require_once("$srcdir/../library/lists.inc.php");
+require_once("code_check.php");
 
 /**
  * update issues from list of diagnosis

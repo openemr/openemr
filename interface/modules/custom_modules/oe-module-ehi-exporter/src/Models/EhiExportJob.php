@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Modules\EhiExporter\Models;
 
+use InvalidArgumentException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class EhiExportJob
@@ -90,7 +91,7 @@ class EhiExportJob
     public function setStatus(string $status)
     {
         if (!in_array($status, ['processing', 'completed', 'failed'])) {
-            throw new \InvalidArgumentException("Invalid status");
+            throw new InvalidArgumentException("Invalid status");
         }
         $this->status = $status;
     }

@@ -12,9 +12,10 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Exception;
 
+use InvalidArgumentException;
 use Throwable;
 
-class TelehealthValidationException extends \InvalidArgumentException
+class TelehealthValidationException extends InvalidArgumentException
 {
     /**
      * @param mixed[] $validationErrors

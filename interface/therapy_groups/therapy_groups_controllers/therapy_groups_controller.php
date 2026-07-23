@@ -25,12 +25,13 @@
  * @link    https://www.open-emr.org
  */
 
-require_once __DIR__ . '/base_controller.php';
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pid.inc.php");
-
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once __DIR__ . '/base_controller.php';
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/pid.inc.php");
 
 class TherapyGroupsController extends BaseController
 {

@@ -13,6 +13,7 @@
 namespace Application;
 
 use Application\Listener\ModuleMenuSubscriber;
+use Laminas\Loader\StandardAutoloader;
 use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -52,7 +53,7 @@ class Module
     public function getAutoloaderConfig()
     {
         return [
-        \Laminas\Loader\StandardAutoloader::class => [
+        StandardAutoloader::class => [
             'namespaces' => [
                 __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
             ],

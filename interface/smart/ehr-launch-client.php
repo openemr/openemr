@@ -34,7 +34,7 @@ try {
 } catch (AccessDeniedException $exception) {
     ServiceContainer::getLogger()->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die();
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     ServiceContainer::getLogger()->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die("Unknown system error occurred");
 }

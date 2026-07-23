@@ -13,6 +13,7 @@
 namespace Carecoordination\Controller;
 
 use Carecoordination\Form\ModuleconfigForm;
+use Exception;
 use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterInterface;
 use Laminas\Mvc\Controller\AbstractActionController;
@@ -42,7 +43,7 @@ class ModuleconfigController extends AbstractActionController
     }
     public function setInputFilter(InputFilterInterface $inputFilter): never
     {
-        throw new \Exception("Not used");
+        throw new Exception("Not used");
     }
 
     public function getInputFilter()

@@ -13,22 +13,24 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
+use Carecoordination\Model\SetupTable;
+use Laminas\Http\Request;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 
 /**
- * @method \Laminas\Http\Request getRequest()
+ * @method Request getRequest()
  */
 class SetupController extends AbstractActionController
 {
     /**
-     * @var \Carecoordination\Model\SetupTable
+     * @var SetupTable
      */
     protected $setupTable;
 
     protected $listenerObject;
 
-    public function __construct(\Carecoordination\Model\SetupTable $setupTable)
+    public function __construct(SetupTable $setupTable)
     {
         $this->setupTable = $setupTable;
         $this->listenerObject   = new Listener();
@@ -128,10 +130,10 @@ class SetupController extends AbstractActionController
     }
 
     /**
-    * Table Gateway
-    *
-    * @return \Carecoordination\Model\SetupTable
-    */
+     * Table Gateway
+     *
+     * @return SetupTable
+     */
     public function getSetupTable()
     {
         return $this->setupTable;

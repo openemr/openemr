@@ -13,6 +13,7 @@
 namespace Application\Controller;
 
 use Application\Listener\Listener;
+use Application\Plugin\CommonPlugin;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
@@ -41,7 +42,7 @@ class IndexController extends AbstractActionController
      * Function ajaxZXL
      * All JS Messages to xl Translation
      *
-     * @return \Laminas\View\Model\JsonModel
+     * @return JsonModel
      */
     public function ajaxZxlAction()
     {
@@ -100,7 +101,7 @@ class IndexController extends AbstractActionController
      */
     private function listAutoSuggest($post, $limit)
     {
-        $limitEnd = \Application\Plugin\CommonPlugin::escapeLimit($limit);
+        $limitEnd = CommonPlugin::escapeLimit($limit);
 
         if (OEGlobalsBag::getInstance()->has('set_autosuggest_options')) {
             $leading = OEGlobalsBag::getInstance()->get('set_autosuggest_options') == 1 ? '%' : $post->leading;
@@ -120,7 +121,7 @@ class IndexController extends AbstractActionController
         $page = $post->page;
         $searchType = $post->searchType;
 
-        $limitStart = $page == '' ? 0 : \Application\Plugin\CommonPlugin::escapeLimit($page);
+        $limitStart = $page == '' ? 0 : CommonPlugin::escapeLimit($page);
 
         $keyword = $leading . $queryString . $trailing;
         $rowCount = 0;

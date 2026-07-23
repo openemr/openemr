@@ -21,8 +21,10 @@
  * @link    https://www.open-emr.org
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/C_Document.class.php");
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/C_Document.class.php");
 
 /**
  * Function to add a document via the C_Document class.

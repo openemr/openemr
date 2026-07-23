@@ -61,7 +61,7 @@ if ($method === 'POST') {
                 ['trace' => $e->getTraceAsString()]
             );
             exit;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Handle any other exceptions
             http_response_code(500);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);

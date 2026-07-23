@@ -27,8 +27,8 @@ use OpenEMR\BC\ServiceContainer;
     $value = sqlFetchArray($result);
 
 /**
- * @var \DOMDocument $ccr (created in createCCR.php)
- * @var \DOMDocument $e_Medications (created in createCCR.php)
+ * @var DOMDocument $ccr (created in createCCR.php)
+ * @var DOMDocument $e_Medications (created in createCCR.php)
  */
 do {
     $e_Medication = $ccr->createElement('Medication');

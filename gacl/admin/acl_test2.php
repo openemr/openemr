@@ -25,8 +25,7 @@ require_once("gacl_admin.inc.php");
 
 /** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
 /** @var \ADOConnection $db */
-/** @var \Smarty $smarty */
-
+/** @var Smarty $smarty */
 $query = '
 	SELECT		a.value AS a_value, a.name AS a_name,
 				b.value AS b_value, b.name AS b_name,

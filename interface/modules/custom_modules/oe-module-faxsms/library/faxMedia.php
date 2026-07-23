@@ -19,6 +19,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Core\OEGlobalsBag;
+
 // Login-less: access is gated entirely by the encrypted token. Locate globals.php
 // by walking up to the interface/ bootstrap so this works regardless of how deep
 // the file sits in the module (module root, library/, etc.).
@@ -40,7 +44,7 @@ if (!is_string($token) || $token === '') {
 }
 
 try {
-    $crypto = new \OpenEMR\Common\Crypto\CryptoGen();
+    $crypto = new CryptoGen();
     $plain = $crypto->decryptStandard($token);
     if (!is_string($plain) || $plain === '') {
         http_response_code(403);
@@ -71,7 +75,7 @@ try {
     // is therefore filesystem-sourced (from glob()), not request-derived - which,
     // together with the authenticated-encrypted token and the strict name shape,
     // leaves no path-injection / SSRF surface.
-    $dir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR')
+    $dir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR')
         . '/documents/logs_and_misc/fax_outbound';
     $path = null;
     foreach ((glob($dir . '/fax_out_*.pdf') ?: []) as $candidate) {
@@ -92,7 +96,7 @@ try {
         fclose($fh);
     }
     if (!str_starts_with($head, '%PDF-')) {
-        \OpenEMR\BC\ServiceContainer::getLogger()->error('faxMedia.php: staged file is not a PDF', ['name' => $name]);
+        ServiceContainer::getLogger()->error('faxMedia.php: staged file is not a PDF', ['name' => $name]);
         http_response_code(415);
         exit;
     }
@@ -118,8 +122,8 @@ try {
     // sweep, not on serve - keeping fetches retry-safe (HEAD+GET, ranges, retries)
     // while the PHI window stays bounded by the short token TTL.
     exit;
-} catch (\Throwable $e) {
-    \OpenEMR\BC\ServiceContainer::getLogger()->error('faxMedia.php request failed', ['exception' => $e]);
+} catch (Throwable $e) {
+    ServiceContainer::getLogger()->error('faxMedia.php request failed', ['exception' => $e]);
     http_response_code(500);
     exit;
 }

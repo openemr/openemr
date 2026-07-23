@@ -13,6 +13,7 @@
 namespace Ccr\Model;
 
 use Application\Model\ApplicationTable;
+use Documents\Plugin\Documents;
 use DOMDocument;
 use DOMXpath;
 use OpenEMR\Common\Database\QueryUtils;
@@ -459,7 +460,7 @@ class CcrTable
   */
     public function getDocument($document_id)
     {
-        $content = \Documents\Plugin\Documents::getDocument($document_id);
+        $content = Documents::getDocument($document_id);
         return $content;
     }
 

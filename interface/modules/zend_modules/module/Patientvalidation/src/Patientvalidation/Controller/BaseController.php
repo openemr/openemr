@@ -21,6 +21,7 @@ namespace Patientvalidation\Controller;
 
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Stdlib\ResponseInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class BaseController extends AbstractActionController
@@ -125,7 +126,7 @@ class BaseController extends AbstractActionController
      * @param $data
      * @param bool $convertToJson
      * @param int $responsecode
-     * @return \Laminas\Stdlib\ResponseInterface
+     * @return ResponseInterface
      * @comment to use this function return this $response in your controller
      */
     public function responseWithNoLayout($data, $convertToJson = true, $responsecode = 200)

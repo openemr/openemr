@@ -13,6 +13,8 @@
 
 namespace OpenEMR\Modules\FaxSMS\Utils;
 
+use finfo;
+
 /**
  * SignalWire webhook input, URL, MIME, and signature validation helpers.
  */
@@ -78,7 +80,7 @@ final class SignalWireWebhookValidator
         }
 
         if ($contentType === '' || $contentType === 'application/octet-stream') {
-            $detected = (new \finfo(FILEINFO_MIME_TYPE))->buffer($mediaContent);
+            $detected = (new finfo(FILEINFO_MIME_TYPE))->buffer($mediaContent);
             if (is_string($detected) && $detected !== '') {
                 $contentType = $detected;
             }

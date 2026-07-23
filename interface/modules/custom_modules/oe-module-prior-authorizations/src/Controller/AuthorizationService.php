@@ -10,7 +10,9 @@
 
 namespace Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller;
 
+use ADORecordSet_mysqli;
 use OpenEMR\Common\Database\QueryUtils;
+use Throwable;
 
 class AuthorizationService
 {
@@ -182,7 +184,7 @@ class AuthorizationService
         $this->remaining_units = $remaining_units;
     }
 
-    public function listPatientAuths(): false|array|\ADORecordSet_mysqli
+    public function listPatientAuths(): false|array|ADORecordSet_mysqli
     {
         $sql = "SELECT DISTINCT pd.pid AS mrn, pd.fname, pd.lname, mpa.pid, mpa.auth_num, mpa.start_date, mpa.end_date, mpa.cpt, mpa.init_units, ins.provider " . "
             FROM `patient_data` pd " . "
@@ -193,7 +195,7 @@ class AuthorizationService
         try {
             $result = sqlStatement($sql);
             return $result;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log("Database error in listPatientAuths: " . $e->getMessage());
             return false;
         }

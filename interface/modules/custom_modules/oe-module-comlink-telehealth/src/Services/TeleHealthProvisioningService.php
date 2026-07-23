@@ -5,6 +5,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProviderNotEnrolledException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TeleHealthProviderSuspendedException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProvisioningServiceRequestException;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 
@@ -23,7 +24,7 @@ class TeleHealthProvisioningService
     }
     /**
      * @param $user - a user as returned from UserService
-     * @return \Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser|null
+     * @return TeleHealthUser|null
      * @throws TelehealthProvisioningServiceRequestException
      */
     public function getOrCreateTelehealthProvider($user)
@@ -49,7 +50,7 @@ class TeleHealthProvisioningService
 
     /**
      * @param $patient
-     * @return \Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser|null
+     * @return TeleHealthUser|null
      * @throws TelehealthProvisioningServiceRequestException
      */
     public function getOrCreateTelehealthPatient($patient)

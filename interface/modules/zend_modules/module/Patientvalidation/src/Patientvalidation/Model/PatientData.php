@@ -20,6 +20,7 @@
 
 namespace Patientvalidation\Model;
 
+use Exception;
 use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterAwareInterface;
 use Laminas\InputFilter\InputFilterInterface;
@@ -188,7 +189,7 @@ class PatientData implements InputFilterAwareInterface
 
     public function setInputFilter(InputFilterInterface $inputFilter)
     {
-        throw new \Exception("Not used");
+        throw new Exception("Not used");
     }
 
     public function getInputFilter()

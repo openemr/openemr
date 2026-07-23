@@ -16,11 +16,12 @@ use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Core\OEGlobalsBag;
+use Syndromicsurveillance\Model\SyndromicsurveillanceTable;
 
 class SyndromicsurveillanceController extends AbstractActionController
 {
     /**
-     * @var \Syndromicsurveillance\Model\SyndromicsurveillanceTable
+     * @var SyndromicsurveillanceTable
      */
     protected $syndromicsurveillanceTable;
 
@@ -28,7 +29,7 @@ class SyndromicsurveillanceController extends AbstractActionController
 
     public $search;
 
-    public function __construct(\Syndromicsurveillance\Model\SyndromicsurveillanceTable $table)
+    public function __construct(SyndromicsurveillanceTable $table)
     {
         $this->listenerObject   = new Listener();
         $this->syndromicsurveillanceTable = $table;
@@ -108,10 +109,10 @@ class SyndromicsurveillanceController extends AbstractActionController
     }
 
     /**
-    * Table Gateway
-    *
-    * @return \Syndromicsurveillance\Model\SyndromicsurveillanceTable
-    */
+     * Table Gateway
+     *
+     * @return SyndromicsurveillanceTable
+     */
     public function getSyndromicsurveillanceTable()
     {
         return $this->syndromicsurveillanceTable;

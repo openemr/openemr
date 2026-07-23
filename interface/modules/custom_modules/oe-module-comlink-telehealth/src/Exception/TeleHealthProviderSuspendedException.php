@@ -13,9 +13,10 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Exception;
 
+use RuntimeException;
 use Throwable;
 
-class TeleHealthProviderSuspendedException extends \RuntimeException
+class TeleHealthProviderSuspendedException extends RuntimeException
 {
     public function __construct($message = "", $code = 0, ?Throwable $previous = null)
     {

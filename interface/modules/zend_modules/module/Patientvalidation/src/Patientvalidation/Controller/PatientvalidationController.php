@@ -20,6 +20,7 @@
 namespace Patientvalidation\Controller;
 
 use Application\Listener\Listener;
+use Laminas\Stdlib\ResponseInterface;
 use Patientvalidation\Model\PatientDataTable;
 
 class PatientvalidationController extends BaseController
@@ -64,9 +65,8 @@ class PatientvalidationController extends BaseController
         }
     }
     /**
-     * @return \Laminas\Stdlib\ResponseInterface the index action
+     * @return ResponseInterface the index action
      */
-
     public function indexAction()
     {
 

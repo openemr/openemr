@@ -19,6 +19,7 @@ use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\VitalsCalculatedService;
 use OpenEMR\Services\VitalsService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Throwable;
 
 class CalculatedObservationEventsSubscriber implements EventSubscriberInterface
 {
@@ -53,7 +54,7 @@ class CalculatedObservationEventsSubscriber implements EventSubscriberInterface
             $vitalRecord['encounter'] = intval($vitalRecord['eid'] ?? 0);
             $vitalCalculations = new VitalsCalculatedService();
             $vitalCalculations->saveCalculatedVitalsForRecord($vitalRecord);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             ServiceContainer::getLogger()->error("Failed to save calculated record ", ['exception' => $exception,
                 'form_vitals.id' => $vitalRecord['id']]);
         }

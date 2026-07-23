@@ -54,7 +54,7 @@ if (OEEnvBag::getInstance()->getBoolean('OPENEMR__ZEND_SYMFONY_SEAM')) {
     try {
         $eventDispatcher = $modulesApplication->getServiceManager()->get(EventDispatcherInterface::class);
         if (!$eventDispatcher instanceof EventDispatcherInterface) {
-            throw new \RuntimeException('Module ServiceManager did not provide an EventDispatcher');
+            throw new RuntimeException('Module ServiceManager did not provide an EventDispatcher');
         }
         $seam = new ZendModuleApplication(
             $modulesApplication->getServiceManager(),
@@ -67,7 +67,7 @@ if (OEEnvBag::getInstance()->getBoolean('OPENEMR__ZEND_SYMFONY_SEAM')) {
             $seam->handle($request)->send();
             return;
         }
-    } catch (\RuntimeException $seamException) {
+    } catch (RuntimeException $seamException) {
         // Recoverable seam failures fall back to the legacy runtime. The seam's
         // own guards plus the Symfony routing / HttpKernel exceptions all extend
         // \RuntimeException; \Error and \ErrorException are intentionally NOT

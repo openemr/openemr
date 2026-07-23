@@ -13,6 +13,7 @@
 namespace Application\Model;
 
 use DateTime;
+use Throwable;
 
 class ApplicationTable
 {
@@ -91,7 +92,7 @@ class ApplicationTable
         } else {
             try {
                 $dateObj = new DateTime($input_date);
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 return false;
             }
         }

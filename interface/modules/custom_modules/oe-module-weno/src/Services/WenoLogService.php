@@ -12,6 +12,10 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
+use DOMDocument;
+use DOMXPath;
+use Throwable;
+
 class WenoLogService
 {
     public function __construct()
@@ -55,7 +59,7 @@ class WenoLogService
         $sql = "INSERT INTO weno_download_log SET value = ?, status = ?, data_in_context = ?";
         try {
             sqlInsert($sql, $bind);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return $e->getMessage();
         }
         return true;
@@ -75,9 +79,9 @@ class WenoLogService
         if (empty($content)) {
             return $error;
         }
-        $doc = new \DOMDocument();
+        $doc = new DOMDocument();
         @$doc->loadHTML($content_html);
-        $xpath = new \DOMXPath($doc);
+        $xpath = new DOMXPath($doc);
         $nodes = $xpath->query('//textarea');
         if ($nodes->length <= 0) {
             return $error;

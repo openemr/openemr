@@ -12,13 +12,14 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
+use RuntimeException;
 
 class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
 {
     public function __construct()
     {
         if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
-            throw new \RuntimeException(xlt("Access denied! Module not enabled"));
+            throw new RuntimeException(xlt("Access denied! Module not enabled"));
         }
         parent::__construct();
     }

@@ -17,6 +17,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJob;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Validators\ProcessingResult;
+use Throwable;
 
 class EhiExportJobService extends BaseService
 {
@@ -53,7 +54,7 @@ class EhiExportJobService extends BaseService
                 QueryUtils::sqlInsert($patientJoinSql, $joinBind);
                 QueryUtils::commitTransaction();
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             QueryUtils::rollbackTransaction();
             // roll it up
             throw $exception;
@@ -73,7 +74,7 @@ class EhiExportJobService extends BaseService
         try {
             QueryUtils::sqlStatementThrowException($sql, $bind);
             QueryUtils::commitTransaction();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             QueryUtils::rollbackTransaction();
             // roll it up
             throw $exception;

@@ -19,6 +19,7 @@
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Command\RootCliGuard;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Installer\InstallerInterface;
@@ -1521,7 +1522,7 @@ $config = 1; /////////////
             //  add this try/catch clause for PHP 8.1).
             try {
                 $checkUserDatabaseConnection = @$this->user_database_connection();
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 $checkUserDatabaseConnection = false;
             }
             if (! $checkUserDatabaseConnection) {
@@ -1676,7 +1677,7 @@ $config = 1; /////////////
                 return false;
             }
         // this exception only occurs if MYSQLI_REPORT_STRICT is enabled (see https://www.php.net/manual/en/mysqli.query.php)
-        } catch (\mysqli_sql_exception $exception) {
+        } catch (mysqli_sql_exception $exception) {
             if ($showError) {
                 $this->error_message = "unable to execute SQL: '$sql' due to: " . $exception->getMessage();
                 $this->logger->error("ERROR IN OPENEMR INSTALL: Unable to execute SQL: {sql} due to: {message}", ['sql' => $sql, 'message' => $exception->getMessage(), 'exception' => $exception]);
@@ -2124,7 +2125,7 @@ SETHLP;
      */
     protected function cryptoGenClassExists(): bool
     {
-        return class_exists(\OpenEMR\Common\Crypto\CryptoGen::class);
+        return class_exists(CryptoGen::class);
     }
 
     /**

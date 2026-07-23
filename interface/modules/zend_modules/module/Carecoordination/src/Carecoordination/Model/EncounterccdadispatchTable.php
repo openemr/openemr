@@ -18,9 +18,13 @@
 namespace Carecoordination\Model;
 
 use Application\Listener\Listener;
+use Application\Model\ApplicationTable;
 use Application\Model\SendtoTable;
 use Carecoordination\Model\CarecoordinationTable;
+use DateTime;
+use Document;
 use Documents\Plugin\Documents;
+use Exception;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Filesystem\SafeIncludeResolver;
@@ -47,6 +51,7 @@ use OpenEMR\Services\Search\SearchQueryFragment;
 use OpenEMR\Validators\ProcessingResult;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Throwable;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
@@ -491,7 +496,7 @@ class EncounterccdadispatchTable
                     $relatedPersons[] = $relatedPerson;
                 }
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             error_log("fail related person");
             return '';
         }
@@ -1190,7 +1195,7 @@ class EncounterccdadispatchTable
         }
 
         // referral date does not follow the global date settings.  It saves off as Y-m-d so we need to format from there
-        $referralDate = \DateTime::createFromFormat("Y-m-d", $refer_date);
+        $referralDate = DateTime::createFromFormat("Y-m-d", $refer_date);
         if ($referralDate === false) {
             $referralDate = date('Y-m-d H:i:sO');
         } else {
@@ -1450,7 +1455,7 @@ class EncounterccdadispatchTable
             if (!empty($teamData['team_status'])) {
                 $careTeamStatus = (string)$teamData['team_status'];
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // If service fails, we gracefully fall back to empty team (primary provider fallback below still works)
             // You may want to log $e->getMessage() via OpenEMR Logger here.
         }
@@ -1687,7 +1692,7 @@ class EncounterccdadispatchTable
             $start_date_formatted = '';
             if ($row['start_date']) {
                 $start_date = str_replace('-', '', $row['start_date']);
-                $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], OEGlobalsBag::getInstance()->get('date_display_format'), 'yyyy-mm-dd');;
+                $start_date_formatted = ApplicationTable::fixDate($row['start_date'], OEGlobalsBag::getInstance()->get('date_display_format'), 'yyyy-mm-dd');;
             }
 
             $medications .= "<medication>" . $provenanceXml . "
@@ -3056,7 +3061,7 @@ class EncounterccdadispatchTable
                     $bp_avg_value = round(($avg_systolic + (2.0 * $avg_diastolic)) / 3.0, 1);
                 }
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // do not fail CCDA generation if calculation service errors
             $bp_avg_value = '';
         }
@@ -3704,7 +3709,7 @@ class EncounterccdadispatchTable
                 $result = QueryUtils::fetchRecords($query, [$formDir, $pid]);
 
                 foreach ($result as $row_folders) {
-                    $r = \Documents\Plugin\Documents::getDocument($row_folders['document_id']);
+                    $r = Documents::getDocument($row_folders['document_id']);
                     $res[0][$count_folder][0] = base64_encode($r);
                     $res[0][$count_folder][1] = $row_folders['mimetype'];
                     $res[0][$count_folder][2] = $row_folders['url'];
@@ -3896,15 +3901,15 @@ class EncounterccdadispatchTable
     }
 
     /*
-    * Store the status of the CCDA sent to HIE
-    *
-    * @param    integer     $pid
-    * @param    integer     $encounter
-    * @param    integer     $content
-    * @param    integer     $time
-    * @param    integer     $status
-    * @return   None
-    */
+     * Store the status of the CCDA sent to HIE
+     *
+     * @param    integer     $pid
+     * @param    integer     $encounter
+     * @param    integer     $content
+     * @param    integer     $time
+     * @param    integer     $status
+     * @return   None
+     */
     /**
      * @param $pid
      * @param $encounter
@@ -3917,12 +3922,12 @@ class EncounterccdadispatchTable
      * @param $transfer
      * @param $emr_transfer
      * @return GeneratedCcdaResult
-     * @throws \Exception
+     * @throws Exception
      */
     public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $document_type, $view = 0, $transfer = 0, $emr_transfer = 0)
     {
         $content = base64_decode((string)$content);
-        $document = new \Document();
+        $document = new Document();
         $document_type ??= '';
 
         // we need to populate the category id based upon the document_type
@@ -3968,7 +3973,7 @@ class EncounterccdadispatchTable
                 $content
             );
             if (!empty($result)) {
-                throw new \RuntimeException("Failed to save document for ccda. Message: " . $result);
+                throw new RuntimeException("Failed to save document for ccda. Message: " . $result);
             }
 
             $file_path = $document->get_url();
@@ -4220,7 +4225,7 @@ class EncounterccdadispatchTable
         try {
             QueryUtils::fetchRecords("Describe `sct_descriptions`");
             return true;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -4491,7 +4496,7 @@ class EncounterccdadispatchTable
                 </item>';
                 }
             }
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // Optional: error_log('CCDA SDOH error: ' . $e->getMessage());
         }
 

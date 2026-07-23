@@ -13,15 +13,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once("../../globals.php");
-$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 require_once($srcdir . "/transactions.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/patient.inc.php");
-
-use OpenEMR\Core\OEGlobalsBag;
-
 
 $template_file = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/referral_template.html";
 
@@ -159,8 +159,8 @@ if (empty($facrow['facility_npi'])) {
 // Generate link to MA logo if it exists.
 $logo = "";
 $ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
-if (is_file(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/$ma_logo_path")) {
-    $logo = \OpenEMR\Core\OEGlobalsBag::getInstance()->getWebRoot() . "/$ma_logo_path";
+if (is_file(OEGlobalsBag::getInstance()->getProjectDir() . "/$ma_logo_path")) {
+    $logo = OEGlobalsBag::getInstance()->getWebRoot() . "/$ma_logo_path";
 }
 
 $s = '';

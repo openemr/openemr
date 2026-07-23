@@ -17,6 +17,9 @@ use Dotenv\Dotenv;
 use OpenEMR\BC\Deprecation;
 use OpenEMR\BC\DeprecationMode;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Command\RootCliGuard;
+use OpenEMR\Common\Compatibility\Checker;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -24,6 +27,8 @@ use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\System\MissingSiteIdException;
+use OpenEMR\Core\ErrorHandler;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
@@ -37,11 +42,11 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 // load globals.php as root aren't tripped — RootCliGuard's own tests
 // invoke the guard directly and bypass this carveout.
 if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
-    OpenEMR\Common\Command\RootCliGuard::assertNotRoot();
+    RootCliGuard::assertNotRoot();
 }
 
 // Checks if the server's PHP version is compatible with OpenEMR:
-$response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
+$response = Checker::checkPhpVersion();
 if ($response !== true) {
     http_response_code(500);
     die(htmlspecialchars($response));
@@ -80,7 +85,7 @@ $logger = ServiceContainer::getLogger();
 
 // Set up exception handling: ensure that any uncaught exceptions have some
 // guaranteed way of reaching the logs, regardless of other settings.
-$handler = new \OpenEMR\Core\ErrorHandler(
+$handler = new ErrorHandler(
     logger: $logger,
     rf: ServiceContainer::getResponseFactory(),
     sf: ServiceContainer::getStreamFactory(),
@@ -289,7 +294,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
                 $globalsBag->set('srcdir', $srcdir);
                 require_once("$srcdir/auth.inc.php");
             }
-            throw new \OpenEMR\Common\System\MissingSiteIdException();
+            throw new MissingSiteIdException();
         }
 
         $tmp = $_SERVER['HTTP_HOST'];
@@ -380,7 +385,7 @@ try {
     // TODO: @adunsulag is there a better way to do this?
     /** @var Kernel */
     $globalsBag->set("kernel", new Kernel($webserver_root, $web_root, $globalsBag->get('eventDispatcher')));
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $logger->error($e->getMessage(), ['exception' => $e]);
     http_response_code(500);
     exit(1);
@@ -854,12 +859,12 @@ if (!empty($checkModulesTableExists)) {
             $globalsBag->getString('baseModDir'),
             $globalsBag->getString('zendModDir')
         ));
-    } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
+    } catch (AccessDeniedException $accessDeniedException) {
         // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
         http_response_code(401);
         $logger->warning($accessDeniedException->getMessage(), ['exception' => $accessDeniedException]);
         exit(1);
-    } catch (\Throwable $ex) {
+    } catch (Throwable $ex) {
         http_response_code(500);
         $logger->error($ex->getMessage(), ['exception' => $ex]);
         exit(1);

@@ -14,6 +14,8 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
+use DateTime;
+use InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\TestCase;
 
@@ -31,7 +33,7 @@ class TeleHealthUserRepositoryTest extends TestCase
 
     public function testSaveUserWithEmptyUsernameThrowsException(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("username cannot be empty");
 
         $user = new TeleHealthUser();
@@ -42,7 +44,7 @@ class TeleHealthUserRepositoryTest extends TestCase
 
     public function testSaveUserWithEmptyAuthTokenThrowsException(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("authToken cannot be empty");
 
         $user = new TeleHealthUser();
@@ -59,7 +61,7 @@ class TeleHealthUserRepositoryTest extends TestCase
         $user->setDbRecordId(1);
         $user->setIsActive(true);
         $user->setIsPatient(false);
-        $user->setDateRegistered(new \DateTime());
+        $user->setDateRegistered(new DateTime());
 
         $repo = new TeleHealthUserRepository();
         $repo->saveUser($user);
@@ -84,7 +86,7 @@ class TeleHealthUserRepositoryTest extends TestCase
         $user->setDbRecordId(1);
         $user->setIsActive(true);
         $user->setIsPatient(false);
-        $user->setDateRegistered(new \DateTime());
+        $user->setDateRegistered(new DateTime());
 
         $repo = new TeleHealthUserRepository();
         $repo->saveUser($user);

@@ -20,7 +20,7 @@
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 /** @var array<string, array<string, mixed>> $code_types */

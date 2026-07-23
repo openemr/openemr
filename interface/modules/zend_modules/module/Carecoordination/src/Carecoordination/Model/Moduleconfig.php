@@ -25,6 +25,7 @@
 // +------------------------------------------------------------------------------+
 namespace Carecoordination\Model;
 
+use Exception;
 use Laminas\InputFilter\Factory as InputFactory;
 use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterInterface;
@@ -42,7 +43,7 @@ class Moduleconfig
     }
     public function setInputFilter(InputFilterInterface $inputFilter): never
     {
-        throw new \Exception("Not used");
+        throw new Exception("Not used");
     }
 
     public function getInputFilter()

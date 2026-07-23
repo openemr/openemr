@@ -11,12 +11,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// need to make sure our autoloader is present.
-/**
- * @var \OpenEMR\Core\OEGlobalsBag $oeGlobals
- */
-$oeGlobals = require_once("../globals.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -24,8 +18,15 @@ use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\ClientAdminController;
 use Symfony\Component\HttpFoundation\Request;
+
+// need to make sure our autoloader is present.
+/**
+ * @var OEGlobalsBag $oeGlobals
+ */
+$oeGlobals = require_once("../globals.php");
 
 try {
     // TODO: @adunsulag at some point we'd like to have a CoreApplication like the ApiApplication that will dispatch controllers, refactor this once we have that
@@ -46,7 +47,7 @@ try {
 } catch (AccessDeniedException $exception) {
     ServiceContainer::getLogger()->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die();
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     ServiceContainer::getLogger()->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die("Unknown system error occurred");
 }

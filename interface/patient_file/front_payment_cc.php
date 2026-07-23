@@ -10,17 +10,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$ignoreAuth = false;
-require_once(__DIR__ . "/../globals.php");
-$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
-$pid = $session->get('pid', 0);
-
+use Omnipay\AuthorizeNetApi\Message\Response;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 use Stripe\Terminal\ConnectionToken;
+
+$ignoreAuth = false;
+require_once(__DIR__ . "/../globals.php");
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 if ($_POST['mode'] == 'AuthorizeNet') {
     $form_pid = $_POST['form_pid'];
@@ -30,7 +32,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     $transaction['opaqueDataDescriptor'] = $_POST['dataDescriptor'];
     $transaction['opaqueDataValue'] = $_POST['dataValue'];
     try {
-        /** @var \Omnipay\AuthorizeNetApi\Message\Response|string $response */
+        /** @var Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -46,7 +48,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         $cc['cc_type'] = $r->transactionResponse->accountType;
         $cc['zip'] = $_POST["zip"];
         $ccaudit = json_encode($cc);
-    } catch (\Throwable $ex) {
+    } catch (Throwable $ex) {
         echo $ex->getMessage();
         exit();
     }
@@ -95,7 +97,7 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['cc_type'] = $r['brand'];
         $cc['zip'] = $r['address_zip'] ?? null;
         $ccaudit = json_encode($cc);
-    } catch (\Throwable $ex) {
+    } catch (Throwable $ex) {
         echo $ex->getMessage();
         exit();
     }
@@ -119,7 +121,7 @@ if ($_GET['mode'] == 'terminal_token') {
     try {
         $connectionToken = ConnectionToken::create();
         echo json_encode(['secret' => $connectionToken->secret], JSON_THROW_ON_ERROR);
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }
@@ -139,7 +141,7 @@ if ($_GET['mode'] == 'cancel_intent') {
         $rtn = $intent->cancel();
 
         echo json_encode(['status' => (string)$rtn->status]);
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     }
@@ -161,7 +163,7 @@ if ($_GET['mode'] == 'terminal_capture') {
         $intent = $intent->capture();
 
         echo json_encode($intent);
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }
@@ -198,7 +200,7 @@ if ($_GET['mode'] == 'terminal_create') {
                 ]
         ]);
         echo json_encode(['client_secret' => $intent->client_secret], JSON_THROW_ON_ERROR);
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()], JSON_THROW_ON_ERROR);
     }

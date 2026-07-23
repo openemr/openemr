@@ -10,15 +10,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
+
+require_once("../globals.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 // Ensure authorized
 if (!AclMain::aclCheckCore('admin', 'users')) {

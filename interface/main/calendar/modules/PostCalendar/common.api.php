@@ -1,35 +1,36 @@
 <?php
 
 /**
- *  $Id$
+ * $Id$
  *
- *  PostCalendar::PostNuke Events Calendar Module
- *  Copyright (C) 2002  The PostCalendar Team
- *  http://postcalendar.tv
+ * PostCalendar::PostNuke Events Calendar Module
+ * Copyright (C) 2002  The PostCalendar Team
+ * http://postcalendar.tv
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- *  To read the license please read the docs/license.txt or visit
- *  http://www.gnu.org/copyleft/gpl.html
- *
+ * To read the license please read the docs/license.txt or visit
+ * http://www.gnu.org/copyleft/gpl.html
  */
+
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //=================================================================
 //  define constants used to make the code more readable
 //=================================================================
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 define('_IS_SUNDAY', 0);
 define('_IS_MONDAY', 1);
@@ -217,7 +218,7 @@ function postcalendar_getDate($format = 'Ymd')
     $y = substr((string) $Date, 0, 4);
     $m = substr((string) $Date, 4, 2);
     $d = substr((string) $Date, 6, 2);
-    OpenEMR\Common\Session\SessionUtil::setSession('lastcaldate', "$y-$m-$d"); // remember the last chosen date
+    SessionUtil::setSession('lastcaldate', "$y-$m-$d"); // remember the last chosen date
     return date($format, mktime(0, 0, 0, $m, $d, $y));
 }
 
@@ -511,7 +512,7 @@ function &postcalendar_userapi_getCategories()
             ORDER BY pc_catname";
     try {
         $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Throwable) {
         $categories = [];
         return $categories;
     }
@@ -562,7 +563,7 @@ function &postcalendar_userapi_getTopics()
             ORDER BY $topics_column[topictext]";
     try {
         $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Throwable) {
         $data = false;
         return $data;
     }

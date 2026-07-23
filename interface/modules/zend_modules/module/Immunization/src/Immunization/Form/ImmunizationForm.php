@@ -13,6 +13,8 @@
 namespace Immunization\Form;
 
 use Application\Listener\Listener;
+use Laminas\Form\Element\Select;
+use Laminas\Form\Element\Text;
 use Laminas\Form\Form;
 
 class ImmunizationForm extends Form
@@ -26,7 +28,7 @@ class ImmunizationForm extends Form
         // Codes
         $this->add([
             'name' => 'codes',
-            'type' => \Laminas\Form\Element\Select::class,
+            'type' => Select::class,
             'attributes' => [
                 'multiple' => 'multiple',
                 'size' => '3',
@@ -43,7 +45,7 @@ class ImmunizationForm extends Form
 
         $this->add([
             'name' => 'from_date',
-            'type' => \Laminas\Form\Element\Text::class,
+            'type' => Text::class,
             'attributes' => [
                 'id' => 'from_date',
                 'placeholder' => 'From Date',

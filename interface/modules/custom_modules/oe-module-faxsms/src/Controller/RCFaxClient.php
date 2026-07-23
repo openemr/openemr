@@ -23,6 +23,7 @@ use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 use RingCentral\SDK\Http\ApiException;
+use Throwable;
 
 class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannelInterface
 {
@@ -133,7 +134,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
         try {
             $response = $this->platform->get($uri);
             return js_escape((string)$response->text());
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $responseMsg = "<tr><td>" . text($e->getMessage()) . "</td></tr>";
             return json_encode(['error' => $responseMsg]);
         }
@@ -218,7 +219,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                             $contentType
                         );
                         $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         return js_escape('Error: ' . text($e->getMessage()));
                     }
                 }
@@ -226,7 +227,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                 $this->uploadStaging->removeStagedArtifacts($stagedPath, $plainPath);
             }
             return js_escape($statusMsg);
-        } catch (ApiException|\Throwable $e) {
+        } catch (ApiException|Throwable $e) {
             return js_escape('Error: ' . text($e->getMessage()));
         }
     }
@@ -367,7 +368,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                 // debug error log
                 error_log($phone . ' ' . $fileName . ' ' . $comments . ' ' . $name);
                 return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 return 'Error: ' . text(js_escape($e->getMessage()));
             }
         } finally {
@@ -447,7 +448,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                     $this->cacheAuthData($this->platform);
                     return 'Fax Successfully Sent';
                 }
-            } catch (\Throwable $ex) {
+            } catch (Throwable $ex) {
                 return "Re-authentication Error: " . text($ex->getMessage());
             }
         }
@@ -596,7 +597,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
             ];
         } catch (ApiException $e) {
             return text(json_encode(['error' => "API Error: " . $e->getMessage()]));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return text(json_encode(['error' => "Error: " . $e->getMessage()]));
         }
     }
@@ -761,7 +762,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
             exit;
         } catch (ApiException $e) {
             return text(json_encode(['error' => "API Error: " . $e->getMessage()]));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return text(json_encode(['error' => "Error: " . $e->getMessage()]));
         }
     }
@@ -835,7 +836,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                 $msg = text($nrow["message"]);
                 $responseMsg .= "<tr><td>" . text($nrow["pc_eid"]) . "</td><td>" . text($nrow["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($msg) . "</td></tr>";
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return 'Error: ' . text($e->getMessage()) . PHP_EOL;
         }
 
@@ -959,7 +960,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                 . xlt('Report to Administration.')
                 . "</td></tr>";
             return json_encode(['error' => $msg]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return json_encode(['error' => text($e->getMessage())]);
         }
 
@@ -1168,7 +1169,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
             ]);
             $json = $response->json();
             return text(count($json->records));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('Error fetching incoming faxes in Reminder tasking: ' . text($e->getMessage()));
             return false;
         }
@@ -1213,7 +1214,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
             return $result ? xlt("Error: Failed to save document. Category Fax") : xlt("Chart Success");
         } catch (ApiException $e) {
             return json_encode(['error' => "Error: Retrieving Fax: " . text($e->getMessage())]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return json_encode(['error' => "Error: " . text($e->getMessage())]);
         }
     }

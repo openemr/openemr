@@ -41,7 +41,7 @@ class AmcItemizedActionData implements JsonSerializable
     {
         // make sure we can serialize the details
         if (is_object($details) && !$details instanceof JsonSerializable) {
-            throw new \InvalidArgumentException("Details must be serializable to a JSON");
+            throw new InvalidArgumentException("Details must be serializable to a JSON");
         }
         $data = ['value' => $value, 'details' => $details];
         if (!empty($label)) {

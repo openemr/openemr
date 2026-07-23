@@ -17,19 +17,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FacilityService;
+
 require_once("../globals.php");
-$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/appointments.inc.php");
 require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/user.inc.php");
-
-use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\FacilityService;
-
 
 $facilityService = new FacilityService();
 $web_root = OEGlobalsBag::getInstance()->getWebRoot();
@@ -360,7 +360,7 @@ if (empty($frow)) {
 
 $logo = '';
 $ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
-$logo = is_file(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/$ma_logo_path") ? "$web_root/$ma_logo_path" : "";
+$logo = is_file(OEGlobalsBag::getInstance()->getProjectDir() . "/$ma_logo_path") ? "$web_root/$ma_logo_path" : "";
 
 // Loop on array of PIDS
 $saved_pages = $pages; //Save calculated page count of a single fee sheet

@@ -12,6 +12,7 @@
 
 namespace Syndromicsurveillance\Model;
 
+use Application\Plugin\CommonPlugin;
 use OpenEMR\Common\Database\QueryUtils;
 
 class SyndromicsurveillanceTable
@@ -148,7 +149,7 @@ class SyndromicsurveillanceTable
             return count($result);
         }
 
-        $query      .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($start) . "," . \Application\Plugin\CommonPlugin::escapeLimit($end);
+        $query      .= " LIMIT " . CommonPlugin::escapeLimit($start) . "," . CommonPlugin::escapeLimit($end);
 
         return QueryUtils::fetchRecords($query, $query_string);
     }

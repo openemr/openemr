@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\MenuEvent;
+use stdClass;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -114,7 +115,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                         continue;
                     }
 
-                    $newEntry = new \stdClass();
+                    $newEntry = new stdClass();
                     $newEntry->label = xlt($mod_nick_name);
                     $newEntry->url = $relative_link;
                     $newEntry->requirement = 0;
@@ -122,7 +123,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     array_push($menu_list->children, $newEntry);
                 } else {
                     // module with hooks in module section
-                    $newEntry = new \stdClass();
+                    $newEntry = new stdClass();
                     $newEntry->requirement = 0;
                     $newEntry->icon = "fa-caret-right";
                     $newEntry->label = xlt($mod_nick_name);
@@ -138,7 +139,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                         $mod_nick_name = $hookrow['menu_name'] ?: 'NoName';
 
                         if ($jid == 0 || ($modid != $hookrow['mod_id'])) {
-                            $subEntry = new \stdClass();
+                            $subEntry = new stdClass();
                             $subEntry->requirement = 0;
                             $subEntry->target = 'mod';
                             $subEntry->menu_id = 'mod0';
@@ -183,7 +184,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
 
                 if ($jid == 0 || ($modid != $hookrow['mod_id'])) {
                     //create new label
-                    $newEntry = new \stdClass();
+                    $newEntry = new stdClass();
                     $newEntry->requirement = 0;
                     $newEntry->icon = "fa-caret-right";
                     $newEntry->label = xlt($hookrow['mod_ui_name']);
@@ -200,7 +201,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                 $relative_link = "/interface/modules/" . $modulePath . "/" . ($hookrow['mod_relative_link'] ?? '') . $hookrow['path'];
                 $mod_nick_name = $hookrow['menu_name'] ?: 'NoName';
 
-                $subEntry = new \stdClass();
+                $subEntry = new stdClass();
                 $subEntry->requirement = 0;
                 $subEntry->target = 'rep';
                 $subEntry->menu_id = 'rep0';

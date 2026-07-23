@@ -14,14 +14,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../globals.php");
-
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+
+require_once("../globals.php");
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Facilities", xl("Facilities"));

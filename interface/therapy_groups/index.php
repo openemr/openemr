@@ -25,6 +25,8 @@
  * @link    https://www.open-emr.org
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 require_once __DIR__ . '/../globals.php';
 require_once __DIR__ . '/therapy_groups_controllers/therapy_groups_controller.php';
 require_once __DIR__ . '/therapy_groups_controllers/participants_controller.php';
@@ -49,7 +51,7 @@ switch ($method) {
 
         $controller = new TherapyGroupsController();
         if ($_GET['group_id'] == 'from_session') {
-            $controller->index(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('therapy_group'));
+            $controller->index(SessionWrapperFactory::getInstance()->getActiveSession()->get('therapy_group'));
         } else {
             $controller->index($_GET['group_id']);
         }

@@ -1,8 +1,14 @@
 <?php
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\UserService;
+
 require_once("../globals.php");
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php";
 // TODO: @adunsulag we need to move ALL this AMC stuff into a namespace.  Any AMC classes should use autoloader not requires.
 require_once("../../library/classes/rulesets/library/RsReportIF.php");
 require_once("../../library/classes/rulesets/library/RsUnimplementedIF.php");
@@ -12,11 +18,6 @@ require_once("../../library/classes/rulesets/library/RsResultIF.php");
 require_once("../../library/classes/rulesets/ReportTypes.php");
 require_once("../../library/classes/rulesets/library/RsReportFactoryAbstract.php");
 require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
-
-use OpenEMR\BC\ServiceContainer;
-use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {
@@ -174,7 +175,7 @@ function getRuleObjectForId($ruleId)
         $rule = ReportTypes::getClassName($ruleId);
         $report = $reportManager->createReport($rule, ['id' => $ruleId], [], [], []);
         return $report;
-    } catch (\Throwable $error) {
+    } catch (Throwable $error) {
         ServiceContainer::getLogger()->error("Failed to instantiate rule class for rule", ['exception' => $error, 'rule_id' => $ruleId]);
     }
     return null;
@@ -203,10 +204,10 @@ if (!empty($report_view)) {
         $subTitle = xl("Group Calculation Method");
     } elseif (is_numeric($report_view['provider'])) {
         // grab the provider
-        $userService = new \OpenEMR\Services\UserService();
+        $userService = new UserService();
         $provider = $userService->getUser($report_view['provider']);
         if ($provider === false) {
-            throw new \RuntimeException("Provider not found: " . json_encode($report_view['provider']));
+            throw new RuntimeException("Provider not found: " . json_encode($report_view['provider']));
         }
         $providerTitle = ($provider['lname'] ?? '') . ',' . ($provider['fname'] ?? '')
             . ' (' . xl('NPI') . ':' . ($provider['npi'] ?? '') . ')';

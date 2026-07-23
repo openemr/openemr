@@ -23,16 +23,20 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest;
 
+use DateTimeImmutable;
+use Exception;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use InvalidArgumentException;
+use Throwable;
 
 /**
  * Thrown when a SignalWire REST request fails (transport error or non-2xx).
  */
-class RestException extends \Exception
+class RestException extends Exception
 {
-    public function __construct(string $message, private readonly int $statusCode = 0, ?\Throwable $previous = null)
+    public function __construct(string $message, private readonly int $statusCode = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, 0, $previous);
     }
@@ -174,7 +178,7 @@ final class FaxInstance
     public ?string $to = null;
     public ?int $numPages = null;
     public ?int $duration = null;
-    public ?\DateTimeImmutable $dateCreated = null;
+    public ?DateTimeImmutable $dateCreated = null;
     public ?string $mediaUrl = null;
 
     /**
@@ -206,7 +210,7 @@ final class FaxInstance
         return is_scalar($value) ? (int)$value : null;
     }
 
-    private static function toDate(mixed $value): ?\DateTimeImmutable
+    private static function toDate(mixed $value): ?DateTimeImmutable
     {
         if (!is_string($value) || $value === '') {
             return null;
@@ -215,7 +219,7 @@ final class FaxInstance
         // returns false on a bad string instead of throwing, which avoids catching
         // \Exception (and thus \ErrorException).
         $date = date_create_immutable($value);
-        return $date instanceof \DateTimeImmutable ? $date : null;
+        return $date instanceof DateTimeImmutable ? $date : null;
     }
 }
 
@@ -408,7 +412,7 @@ class Client
         // instanceof guard below is a real runtime check, not a tautology.
         $http = $options['httpClient'] ?? null;
         if ($http !== null && !$http instanceof ClientInterface) {
-            throw new \InvalidArgumentException("'httpClient' must implement GuzzleHttp\\ClientInterface");
+            throw new InvalidArgumentException("'httpClient' must implement GuzzleHttp\\ClientInterface");
         }
 
         $this->transport = new Transport($projectId, $apiToken, $spaceUrl, $http);

@@ -13,20 +13,22 @@
 
 namespace Acl;
 
+use Acl\Controller\AclController;
+use Acl\Model\AclTable;
 use Interop\Container\ContainerInterface;
 use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [
         'factories' => [
-            Controller\AclController::class => function (ContainerInterface $container, $requestedName) {
+            AclController::class => function (ContainerInterface $container, $requestedName) {
                 /**
                  * @see https://stackoverflow.com/a/49275531/7884612 on tips for getting the view helpers from zf2 to zf3
                  * @see https://github.com/zendframework/zend-view/blob/master/src/Helper/EscapeHtml.php
                  */
                 $escapeHtml = $container->get('ViewHelperManager')->get('escapeHtml');
-                $aclTable = $container->get(Model\AclTable::class);
-                return new Controller\AclController($escapeHtml, $aclTable);
+                $aclTable = $container->get(AclTable::class);
+                return new AclController($escapeHtml, $aclTable);
             },
         ],
     ],
@@ -42,7 +44,7 @@ return [
                         'id'     => '[0-9]+',
                     ],
                     'defaults' => [
-                        'controller' => Controller\AclController::class,
+                        'controller' => AclController::class,
                         'action'     => 'index',
                     ],
                 ],
@@ -64,7 +66,7 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            Model\AclTable::class =>  fn(ContainerInterface $container, $requestedName) => new Model\AclTable(),
+            AclTable::class =>  fn(ContainerInterface $container, $requestedName) => new AclTable(),
         ]
     ]
 ];

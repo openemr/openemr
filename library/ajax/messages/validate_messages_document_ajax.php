@@ -70,7 +70,7 @@ try {
     } else {
         echo xlt("No errors found, Document(s) passed Import Validation");
     }
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
     if (isset($twig)) {
         http_response_code(500);

@@ -88,7 +88,7 @@ function saveAddressesForPatient($pid, $addressData)
                         }
                         break;
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $logger->error("Error processing address", [
                     'action' => $action,
                     'index' => $i,
@@ -102,7 +102,7 @@ function saveAddressesForPatient($pid, $addressData)
             'count' => count($savedAddresses)
         ]);
 
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         $logger->error("Error in saveAddressesForPatient", [
             'pid' => $pid,
             'error' => $e->getMessage()
@@ -266,7 +266,7 @@ function populateContactAddressFromData(ContactAddress $contactAddress, array $d
 
     // Set dates
     if (!empty($data['period_start'])) {
-        $periodStart = \DateTime::createFromFormat('Y-m-d', $data['period_start']);
+        $periodStart = DateTime::createFromFormat('Y-m-d', $data['period_start']);
         if ($periodStart !== false) {
             $contactAddress->set_period_start($periodStart);
         } else {
@@ -275,7 +275,7 @@ function populateContactAddressFromData(ContactAddress $contactAddress, array $d
     }
 
     if (!empty($data['period_end'])) {
-        $periodEnd = \DateTime::createFromFormat('Y-m-d', $data['period_end']);
+        $periodEnd = DateTime::createFromFormat('Y-m-d', $data['period_end']);
         if ($periodEnd !== false) {
             $contactAddress->set_period_end($periodEnd);
         } else {

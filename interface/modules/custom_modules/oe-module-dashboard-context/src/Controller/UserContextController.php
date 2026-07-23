@@ -17,6 +17,7 @@ namespace OpenEMR\Modules\DashboardContext\Controller;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
+use Throwable;
 
 class UserContextController
 {
@@ -63,7 +64,7 @@ class UserContextController
                 'get_full_config' => $this->getFullConfig(),
                 default => $this->sendError('Invalid action'),
             };
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->sendError($e->getMessage());
         }
     }

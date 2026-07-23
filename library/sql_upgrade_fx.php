@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Services\Utils\SQLUpgradeService;
+
 /**
  * Upgrading and patching functions of database.
  *
@@ -139,6 +141,6 @@
  */
 function upgradeFromSqlFile($filename, $path = ''): void
 {
-    $sqlUpgradeService = new \OpenEMR\Services\Utils\SQLUpgradeService();
+    $sqlUpgradeService = new SQLUpgradeService();
     $sqlUpgradeService->upgradeFromSqlFile($filename, $path);
 } // end function

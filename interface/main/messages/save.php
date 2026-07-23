@@ -10,19 +10,19 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once "../../globals.php";
-
+use MedExApi\MedEx;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
+require_once "../../globals.php";
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php";
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php";
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/MedEx/API.php";
 
-$MedEx = new MedExApi\MedEx('MedExBank.com');
+$MedEx = new MedEx('MedExBank.com');
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_REQUEST['go'] == 'sms_search') {
     $param = "%" . $_GET['term'] . "%";

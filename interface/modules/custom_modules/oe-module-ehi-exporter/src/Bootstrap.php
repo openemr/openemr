@@ -13,9 +13,6 @@
 
 namespace OpenEMR\Modules\EhiExporter;
 
-/**
- * Note the below use statements are importing classes from the OpenEMR core codebase
- */
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
@@ -24,7 +21,13 @@ use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\EhiExporter\Services\EhiExporter;
 use Psr\Log\LoggerInterface;
+
+/**
+ * Note the below use statements are importing classes from the OpenEMR core codebase
+ */
+use stdClass;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 
 // we import our own classes here.. although this use statement is unnecessary it forces the autoloader to be tested.
 
@@ -46,7 +49,7 @@ class Bootstrap
     private $moduleDirectoryName;
 
     /**
-     * @var \Twig\Environment The twig rendering environment
+     * @var Environment The twig rendering environment
      */
     private $twig;
 
@@ -125,7 +128,7 @@ class Bootstrap
     {
         $menu = $event->getMenu();
 
-        $menuItem = new \stdClass();
+        $menuItem = new stdClass();
         $menuItem->requirement = 0;
         $menuItem->target = 'msc';
         $menuItem->menu_id = 'ehiExporter0';

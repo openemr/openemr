@@ -12,6 +12,7 @@
 
 namespace Immunization\Model;
 
+use Application\Plugin\CommonPlugin;
 use OpenEMR\Common\Database\QueryUtils;
 
 class ImmunizationTable
@@ -157,7 +158,7 @@ class ImmunizationTable
             return count($result);
         }
 
-        $query .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']) . "," . \Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
+        $query .= " LIMIT " . CommonPlugin::escapeLimit($form_data['limit_start']) . "," . CommonPlugin::escapeLimit($form_data['results']);
         return QueryUtils::fetchRecords($query, $query_data);
     }
 

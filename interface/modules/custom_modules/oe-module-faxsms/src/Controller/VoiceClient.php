@@ -6,6 +6,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
+use RuntimeException;
 
 /**
  * Server-side credential provider for the in-browser RingCentral softphone.
@@ -56,7 +57,7 @@ class VoiceClient extends AppDispatch
     public function __construct()
     {
         if (empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null)) {
-            throw new \RuntimeException(xlt("Access denied! Module not enabled"));
+            throw new RuntimeException(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = ServiceContainer::getCrypto();
         $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');

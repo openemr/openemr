@@ -14,9 +14,6 @@
 
  namespace OpenEMR\Modules\Dorn;
 
-/**
- * Note the below use statements are importing classes from the OpenEMR core codebase
- */
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
@@ -29,7 +26,13 @@ use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\Dorn\EventSubscriber\DornLabSubscriber;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Psr\Log\LoggerInterface;
+
+/**
+ * Note the below use statements are importing classes from the OpenEMR core codebase
+ */
+use stdClass;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
@@ -49,7 +52,7 @@ class Bootstrap
     private $moduleDirectoryName;
 
     /**
-     * @var \Twig\Environment The twig rendering environment
+     * @var Environment The twig rendering environment
      */
     private $twig;
 
@@ -184,7 +187,7 @@ class Bootstrap
     {
         $menu = $event->getMenu();
 
-        $menuItem = new \stdClass();
+        $menuItem = new stdClass();
         $menuItem->requirement = 0;
         $menuItem->target = 'mod';
         $menuItem->menu_id = 'mod0';

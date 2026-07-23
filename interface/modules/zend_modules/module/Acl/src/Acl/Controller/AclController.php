@@ -13,20 +13,22 @@
 
 namespace Acl\Controller;
 
+use Acl\Model\AclTable;
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Helper\HelperInterface;
 use Laminas\View\Model\ViewModel;
 
 class AclController extends AbstractActionController
 {
     /**
-     * @var \Acl\Model\AclTable
+     * @var AclTable
      */
     protected $aclTable;
 
     protected $listenerObject;
 
-    public function __construct(private readonly \Laminas\View\Helper\HelperInterface $htmlEscaper, \Acl\Model\AclTable $aclTable)
+    public function __construct(private readonly HelperInterface $htmlEscaper, AclTable $aclTable)
     {
         // TODO: we should probably inject the Listener object as well so we can mock it in unit tests or at least make the dependency explicit.
         $this->listenerObject = new Listener();
@@ -350,7 +352,7 @@ class AclController extends AbstractActionController
     /**
      * Table Gateway
      *
-     * @return \Acl\Model\AclTable
+     * @return AclTable
      */
     public function getAclTable()
     {
