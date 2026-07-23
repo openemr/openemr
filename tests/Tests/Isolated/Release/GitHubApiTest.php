@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Isolated\Release;
 
 use OpenEMR\Release\GitHubApi;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -139,6 +140,42 @@ final class GitHubApiTest extends TestCase
         $api->prsForCommits(['abc123abc123abc123abc123abc123abc123abc1']);
     }
 
+    public function testTimeoutThrownByProcessRunIsRetriedAsFailure(): void
+    {
+        // Symfony Process's 60s default timeout throws ProcessTimedOutException
+        // rather than returning a failed exit — the retry loop must catch it
+        // and treat it as a retryable attempt.
+        $api = $this->makeApi([
+            ['timeout' => true],
+            ['exit' => 0, 'out' => '[]', 'err' => ''],
+        ]);
+
+        $result = $api->prsForCommits(['abc123abc123abc123abc123abc123abc123abc1']);
+
+        self::assertSame([], $result);
+        self::assertSame(1, $api->backoffCalls, 'timeout counted as retryable failure');
+        self::assertCount(2, $api->capturedCommands);
+    }
+
+    public function testAllTimeoutsExhaustAttemptsAndSurfaceTimeoutInError(): void
+    {
+        $api = $this->makeApi([
+            ['timeout' => true],
+            ['timeout' => true],
+            ['timeout' => true],
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('timeout:');
+
+        try {
+            $api->prsForCommits(['abc123abc123abc123abc123abc123abc123abc1']);
+        } finally {
+            self::assertSame(2, $api->backoffCalls);
+            self::assertCount(3, $api->capturedCommands);
+        }
+    }
+
     public function testConstructorRejectsNonPositiveMaxAttempts(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -148,7 +185,7 @@ final class GitHubApiTest extends TestCase
     }
 
     /**
-     * @param list<array{exit: int, out: string, err: string}> $responses
+     * @param list<array{exit: int, out: string, err: string}|array{timeout: true}> $responses
      */
     private function makeApi(array $responses, int $maxAttempts = 3): GitHubApiTestDouble
     {
@@ -177,7 +214,7 @@ final class GitHubApiTestDouble extends GitHubApi
     public array $capturedCommands = [];
 
     /**
-     * @param list<array{exit: int, out: string, err: string}> $responses
+     * @param list<array{exit: int, out: string, err: string}|array{timeout: true}> $responses
      */
     public function __construct(string $repo, int $maxAttempts, private array $responses)
     {
@@ -196,6 +233,18 @@ final class GitHubApiTestDouble extends GitHubApi
             throw new \LogicException(
                 'GitHubApiTestDouble ran out of pre-configured responses; test setup mismatch',
             );
+        }
+
+        // Timeout scenario — return a Process subclass whose run() throws
+        // ProcessTimedOutException, matching the real behavior when Symfony
+        // Process's timeout (60s default) is hit.
+        if (isset($response['timeout']) && $response['timeout'] === true) {
+            return new class (['gh', 'stub']) extends Process {
+                public function run(?callable $callback = null, array $env = []): int
+                {
+                    throw new ProcessTimedOutException($this, ProcessTimedOutException::TYPE_GENERAL);
+                }
+            };
         }
 
         // Fabricate a Process whose ->run() will exhibit the configured

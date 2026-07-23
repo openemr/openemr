@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Release;
 
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
 class GitHubApi
@@ -217,7 +218,19 @@ class GitHubApi
         $lastError = 'unknown';
         for ($attempt = 1; $attempt <= $this->maxAttempts; $attempt++) {
             $process = $this->createProcess(['gh', ...$args]);
-            $process->run();
+            try {
+                $process->run();
+            } catch (ProcessTimedOutException $e) {
+                // Symfony Process's 60s default timeout throws instead of
+                // returning a failed exit; treat it as a retryable failure
+                // so a stalled `gh api` (upstream 502 that never returns
+                // a body, etc.) doesn't skip the backoff/retry path.
+                $lastError = sprintf('timeout: %s', $e->getMessage());
+                if ($attempt < $this->maxAttempts) {
+                    $this->backoff($attempt);
+                }
+                continue;
+            }
             if ($process->isSuccessful()) {
                 return $process->getOutput();
             }
