@@ -14,7 +14,6 @@ namespace OpenEMR\Tests\Isolated\Release;
 
 use OpenEMR\Release\GitHubApi;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -235,16 +234,15 @@ final class GitHubApiTestDouble extends GitHubApi
             );
         }
 
-        // Timeout scenario — return a Process subclass whose run() throws
-        // ProcessTimedOutException, matching the real behavior when Symfony
-        // Process's timeout (60s default) is hit.
-        if (isset($response['timeout']) && $response['timeout'] === true) {
-            return new class (['gh', 'stub']) extends Process {
-                public function run(?callable $callback = null, array $env = []): int
-                {
-                    throw new ProcessTimedOutException($this, ProcessTimedOutException::TYPE_GENERAL);
-                }
-            };
+        // Timeout scenario — return a real Process configured with an
+        // absurdly small timeout against a sleep, so run() actually throws
+        // ProcessTimedOutException. Not overridable via subclass because
+        // Process::run() is @final. Uses `sleep 60` since a 0.05s timeout
+        // will always trip before sleep completes.
+        if (isset($response['timeout'])) {
+            $timeoutProcess = Process::fromShellCommandline('sleep 60');
+            $timeoutProcess->setTimeout(0.05);
+            return $timeoutProcess;
         }
 
         // Fabricate a Process whose ->run() will exhibit the configured
