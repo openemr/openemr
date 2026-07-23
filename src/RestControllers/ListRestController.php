@@ -201,7 +201,7 @@ class ListRestController
             content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: '#/components/schemas/api_dental_issue_request'))
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/resource'),
+            new OA\Response(response: '201', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -219,7 +219,7 @@ class ListRestController
             content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: '#/components/schemas/api_medication_request'))
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/resource'),
+            new OA\Response(response: '201', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -237,7 +237,7 @@ class ListRestController
             content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: '#/components/schemas/api_surgery_request'))
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/resource'),
+            new OA\Response(response: '201', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],

@@ -655,7 +655,7 @@ paths:
                 oid: ''
                 service_location: '1'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -1054,7 +1054,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_insurance_company_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -1390,7 +1390,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_patient_request'
       responses:
-        '200':
+        '201':
           description: 'Standard response'
           content:
             application/json:
@@ -1634,7 +1634,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_dental_issue_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -1900,7 +1900,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_soap_note_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -2044,7 +2044,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_vital_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -2174,7 +2174,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_medication_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -2297,7 +2297,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_message_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -2413,7 +2413,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_surgery_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -2558,7 +2558,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_transaction_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/standard'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -2664,7 +2664,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_allergy_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -2834,7 +2834,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_encounter_request'
       responses:
-        '200':
+        '201':
           description: 'Standard response'
           content:
             application/json:
@@ -3143,7 +3143,7 @@ paths:
             schema:
               $ref: '#/components/schemas/api_medical_problem_request'
       responses:
-        '200':
+        '201':
           $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
@@ -3595,7 +3595,7 @@ paths:
                 state_license_number: '123456'
                 username: eduardoperez
       responses:
-        '200':
+        '201':
           description: 'Standard response'
           content:
             application/json:
@@ -10119,6 +10119,7 @@ components:
           race: ''
           ethnicity: ''
           status: ''
+        links: []
     api_soap_note_request:
       description: 'Schema for the soap_note request'
       properties:

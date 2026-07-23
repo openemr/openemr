@@ -128,6 +128,7 @@ use Psr\Http\Message\ResponseInterface;
             'ethnicity' => '',
             'status' => '',
         ],
+        'links' => [],
     ]
 )]
 class PatientRestController
@@ -178,7 +179,7 @@ class PatientRestController
         ),
         responses: [
             new OA\Response(
-                response: '200',
+                response: '201',
                 description: 'Standard response',
                 content: new OA\MediaType(
                     mediaType: 'application/json',

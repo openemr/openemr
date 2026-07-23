@@ -408,7 +408,7 @@ class PractitionerRestController
         ),
         responses: [
             new OA\Response(
-                response: '200',
+                response: '201',
                 description: 'Standard response',
                 content: new OA\MediaType(
                     mediaType: 'application/json',

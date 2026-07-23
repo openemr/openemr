@@ -212,7 +212,7 @@ class EncounterRestController
         ),
         responses: [
             new OA\Response(
-                response: '200',
+                response: '201',
                 description: 'Standard response',
                 content: new OA\MediaType(
                     mediaType: 'application/json',
@@ -471,7 +471,7 @@ class EncounterRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/resource'),
+            new OA\Response(response: '201', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -737,7 +737,7 @@ class EncounterRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/resource'),
+            new OA\Response(response: '201', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
