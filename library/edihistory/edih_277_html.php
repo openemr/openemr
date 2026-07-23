@@ -266,8 +266,6 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                             $sc102 = ($scda[1] ?? '') ? $cd27x->get_271_code('HCCSC', $scda[1]) : "";
                             $sc103 = ($scda[2] ?? '') ? $cd27x->get_271_code('NM101', $scda[2]) : "";
                         }
-                    } else {
-                        $stc01 = $sar[1];
                     }
 
                     $stc02 = ($sar[2] ?? '') ? edih_format_date($sar[2]) : "";  // status information date
@@ -383,7 +381,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                     //
                     $elem01 = (isset($sar[1])) ? $cd27x->get_271_code('REF', $sar[1]) : '';
                     $elem02 = $sar[2] ?? '';
-                    $elem03 = (isset($sar[3])) ? $sar[2] : '';
+                    $elem03 = $sar[3] ?? '';
                     //
                     if ($loopid == '2200B') {
                         $rcv_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=2><em>" . text($elem01) . "</em> " . text($elem02) . "</td><td>" . text($elem03) . "</td></tr>" . PHP_EOL;
