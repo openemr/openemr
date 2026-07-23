@@ -2359,6 +2359,87 @@ for merge."
     of this work (see the closure annotation on that table row).
   - Workstream 7 Phase 3c — this gap is the Phase 3c deliverable.
 
+### G30 — Release-prep smoketest / release event burns 100-300+ App API calls; rate-limit exhaustion is a real exposure  *(discovered 2026-07-23 during Workstream 7 close-out)*
+
+- **What:** `changelog.php` (invoked by `openemr:release-prep` and by
+  the `openemr:release-prep smoketest against rel-820` CI job) walks
+  every commit between the previous release tag and the target branch
+  HEAD, and for each commit calls
+  `gh api /repos/openemr/openemr/commits/{sha}/pulls` to resolve the
+  associated PR. A typical rel-branch delta of 100-300+ commits
+  produces one API call per commit, plus paginated milestone/advisory
+  lookups. All calls share the release GitHub App installation's
+  **5000 requests/hour** quota. Discovered when both #13141 (retry
+  fix) and #13144 (author-sweep) smoketest runs failed on the same
+  day with `HTTP 403 API rate limit exceeded for installation` — the
+  retry logic in GitHubApi (see #13141) correctly attempted 3 times
+  and gave up, but retry doesn't help against sustained exhaustion.
+
+  Today's exhaustion is likely a one-time artifact of concurrent
+  test load (multiple PRs, force-pushes, CodeRabbit auto-review,
+  interactive `gh` calls). But the underlying exposure is real: a
+  release event fires a chain
+  (release-prep + ship-release + build-release + downstream dispatches
+  to website-openemr + demo_farm_openemr), all sharing the same
+  installation quota. On a rel branch with a large delta since the
+  last tag, a single event could plausibly consume 60-80% of the
+  hourly budget on its own — and any concurrent activity (dependabot
+  PR wave, rabbit review flurry, another operator's smoketest) tips
+  it over.
+
+- **Retry PR (#13141) helps but doesn't solve this:**
+  Linear backoff on 3 attempts (1s + 2s) absorbs isolated
+  single-request flakes (empty JSON body, brief 5xx, jq parse errors
+  on empty stdin). It's insufficient for sustained 403 responses
+  from GitHub's rate-limiter, which include an
+  `x-ratelimit-reset` header naming the wall-clock second when the
+  budget refills — often minutes away.
+
+- **Two proposed fixes** (both are separate follow-up PRs, and they
+  compose — either one alone helps; together they materially
+  reduce exposure):
+
+  1. **Rate-limit-aware backoff (`runGh()` enhancement).**
+     When `gh` exits non-zero with stderr matching the
+     "API rate limit exceeded" signature, parse the
+     `x-ratelimit-reset` header (via `--include` on the failing
+     call, or a separate `gh api /rate_limit` probe) and sleep
+     until that wall-clock second before the next retry. Fall
+     back to the current linear backoff for non-403 failures.
+     Small, contained change in
+     `tools/release/src/GitHubApi.php::runGh()`; test seams
+     (`createProcess`, `backoff`) already accommodate this — the
+     new logic goes into `runGh` itself and the timeout-aware
+     `sleep` can be another override seam. Adds worst-case
+     minutes of delay but converts guaranteed-fail retries into
+     eventually-succeeding retries.
+
+  2. **Batch commit→PR resolution.**
+     Replace the per-commit
+     `/repos/openemr/openemr/commits/{sha}/pulls` loop in
+     `GitHubApi::prsForCommits()` with fewer larger queries:
+     `gh pr list --state merged --search "sha:A sha:B sha:C ..."`
+     accepts a multi-SHA search filter and returns the associated
+     PRs in a single call (up to some batch size, ~50-100 SHAs
+     per query). A 200-commit delta drops from 200 API calls to
+     ~2-4. Semantics stay identical: same PR objects, same
+     dedup-by-number, same author/label extraction. Bigger refactor
+     than #1 but a bigger win.
+
+- **Related:**
+  - #13141 (GitHubApi retry helper) — the retry loop these two
+    improvements extend. The `runGh` seam design was chosen with
+    exactly these follow-ups in mind (rate-limit-aware backoff
+    lives inside the existing loop; batching changes only the
+    caller shape, not the retry primitive).
+  - Workstream 7 Phase 3b (#13098) — three-PR ship-release
+    orchestration; conductor merge fires `openemr-tag`, which is
+    the event that triggers most of the downstream API-consuming
+    chain.
+  - RELEASE_PROCESS.md — release-event chain documentation
+    (release-prep → ship-release → build-release → dispatches);
+    worth adding a "rate-limit budget" note once these fixes land.
+
 ## Timing picture: who does what, when
 
 Consolidates "what the conductor handles automatically" vs "what's
@@ -3776,3 +3857,11 @@ checklist + the existing master-bump pattern.
   production-ready; first real ship post-Phase-6 will use `semi-auto`
   as training wheels. Next real production event is the rel-830 branch
   cut in ~2 weeks; 8.1.x was skipped intentionally.
+
+- **2026-07-23**: Added G30 — release-prep smoketest / release-event
+  GitHub App rate-limit exposure. Two proposed follow-up fixes on
+  the queue: rate-limit-aware backoff in `runGh()` (parse
+  `x-ratelimit-reset` header, sleep to reset) and batched
+  commit→PR resolution (`gh pr list --search "sha:A sha:B ..."`
+  in place of per-commit `/commits/{sha}/pulls`). Both compose;
+  neither is scoped into #13141's retry PR.
