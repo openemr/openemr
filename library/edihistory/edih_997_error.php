@@ -33,33 +33,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 //require_once './codes/edih_997_codes.php';
 
 /**
- * Look up file name by control number
- *
- * @param string $icn
- * @param string $filetype
- *
- * @return string
- */
-function edih_997_sbmtfile($icn, $filetype)
-{
-    //
-    if (strlen((string) $icn) == 13) {
-        $bticn = substr((string) $icn, 0, 9);
-        $stn = substr((string) $icn, -4);
-    } else {
-        $bticn = $icn;
-    }
-
-    $ftp = is_numeric($filetype) ? 'f' . $filetype : $filetype;
-
-    //
-    $btfn = csv_file_by_controlnum($ftp, $bticn);
-    $bfullpath = ($btfn) ? csv_check_filepath($btfn, $ftp) : '';
-    //
-    return $bfullpath;
-}
-
-/**
  * Extract information on rejected files or transactions
  *
  * @param mixed $obj997
