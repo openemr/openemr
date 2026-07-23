@@ -2449,10 +2449,11 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     }
                 }
             }
+            $plan = is_string($item['plan']) ? $item['plan'] : '';
             $plan = str_replace(
                 ["\v", "\f", "\xC2\x85", "\u{2028}", "\u{2029}"],
                 "\n",
-                (string) $item['plan']
+                $plan
             );
             echo nl2br(text($plan)) . "</div><br />";
         }
