@@ -93,7 +93,7 @@ function edih_271_transaction_html($obj271, $bht03)
             $sar = explode($de, $seg);
             $segid = $sar[0];
             //
-            
+
             if ($segid === 'BHT') {
                 $loopid = 'Heading';
                 $bht01 = ( isset($sar[1]) && $sar[1] == '022') ? "Src, Rcv, Sbr, Dep" : "Order unspecified";
