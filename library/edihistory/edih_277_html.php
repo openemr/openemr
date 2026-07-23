@@ -63,11 +63,16 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
     $str_html = "";
     $hdr_html = "";
     //
-    $hdr_html = "<table id=" . attr($bht03) . " class='h277' columns=4>";
-    $hdr_html .= "<caption>Claim Status</caption>" . PHP_EOL;
-    $hdr_html .= "<thead>" . PHP_EOL;
-    $hdr_html .= "<tr><th>Reference</th><th>Information</th><th colspan=2>" . text($fn) . "</th></tr>" . PHP_EOL; //
-    $hdr_html .= "</thead>" . PHP_EOL . "<tbody>" . PHP_EOL;
+    $bht03Attr = attr($bht03);
+    $fnText = text($fn);
+    $hdr_html = <<<HTML
+        <table id={$bht03Attr} class='h277' columns=4>
+        <caption>Claim Status</caption>
+        <thead>
+        <tr><th>Reference</th><th>Information</th><th colspan=2>{$fnText}</th></tr>
+        </thead>
+        <tbody>
+        HTML;
     //
     $html = [
         'src' => '',
@@ -118,9 +123,15 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                     $elem04 = ($sar[4] ?? '') ? edih_format_date($sar[4]) : "";
                     $elem06 = ($sar[6] ?? '') ? $cd27x->get_271_code('BHT06', $sar[6]) : "";
                 //
-                    $hdr_html .= "<tr><td colspan=2><em>Reference:</em> " . text($elem03) . "</td><td colspan=2><em>Sequence:</em> " . text($elem01) . "</td></tr>" . PHP_EOL;
-                    $hdr_html .= "<tr><td colspan=2><em>Date:</em> " . text($elem04) . "</td><td colspan=2><em>Type:</em> " . text($elem02) . "</td>" . PHP_EOL;
-                    $hdr_html .= ($elem06) ? "<tr><td>&gt;</td><td colspan=3><em>Type:</em> " . text($elem06) . "</td></tr>" . PHP_EOL : "";
+                    $e01Text = text($elem01);
+                    $e02Text = text($elem02);
+                    $e03Text = text($elem03);
+                    $e04Text = text($elem04);
+                    $hdr_html .= <<<HTML
+                        <tr><td colspan=2><em>Reference:</em> {$e03Text}</td><td colspan=2><em>Sequence:</em> {$e01Text}</td></tr>
+                        <tr><td colspan=2><em>Date:</em> {$e04Text}</td><td colspan=2><em>Type:</em> {$e02Text}</td>
+                        HTML;
+                    $hdr_html .= ($elem06) ? "<tr><td>&gt;</td><td colspan=3><em>Type:</em> " . text($elem06) . "</td></tr>" : "";
                 //
                     $bht = $elem03;
                 break;
