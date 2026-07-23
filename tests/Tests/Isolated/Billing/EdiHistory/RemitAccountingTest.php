@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Isolated tests for edih_835_accounting_balanced().
+ * Isolated tests for RemitAccounting::isBalanced().
  *
  * Regression coverage for two historical bugs in the 835 payment html
  * trailer's Balanced/Not Balanced determination:
@@ -56,6 +56,7 @@ class RemitAccountingTest extends TestCase
     }
 
     /**
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      * @return array<string, array{array<string, float>, bool}>
      */
     public static function remitProvider(): array
@@ -129,7 +130,7 @@ class RemitAccountingTest extends TestCase
             fee: 0.1 + 0.2 + 99.7,       // 99.999999999999986 in binary
             pmt: 100.00
         );
-        $acctng = array_map(static fn($v): float => round((float)$v, 2), $acctng);
+        $acctng = array_map(static fn(float $v): float => round($v, 2), $acctng);
 
         $this->assertTrue(RemitAccounting::isBalanced($acctng));
     }
