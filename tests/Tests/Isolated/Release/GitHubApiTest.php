@@ -33,7 +33,7 @@ final class GitHubApiTest extends TestCase
     public function testSuccessfulFirstAttemptReturnsStdoutAndSkipsBackoff(): void
     {
         $api = $this->makeApi([
-            ['exit' => 0, 'out' => '[{"number":42}]', 'err' => ''],
+            ['exit' => 0, 'out' => '[{"number":42,"title":"t","labels":[],"url":"u","author":"x"}]', 'err' => ''],
         ]);
 
         $result = $api->prsForCommits(['abc123abc123abc123abc123abc123abc123abc1']);
@@ -173,6 +173,123 @@ final class GitHubApiTest extends TestCase
             self::assertSame(2, $api->backoffCalls);
             self::assertCount(3, $api->capturedCommands);
         }
+    }
+
+    public function testPrsForCommitsBatchesSHAsIntoOneRequestPerChunk(): void
+    {
+        // 30 SHAs → 2 batches (25 + 5) → 2 gh requests instead of 30.
+        // This is the primary defense against release-App rate-limit
+        // exhaustion; see docs/release-mechanism-gaps.md G30.
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":1,"title":"a","labels":[],"url":"u1","author":"x"}]', 'err' => ''],
+            ['exit' => 0, 'out' => '[{"number":2,"title":"b","labels":[],"url":"u2","author":"y"}]', 'err' => ''],
+        ]);
+
+        $shas = array_fill(0, 30, str_repeat('a', 40));
+        $result = $api->prsForCommits($shas);
+
+        self::assertCount(2, $result, 'both batches contributed one PR each');
+        self::assertCount(2, $api->capturedCommands, '30 SHAs / batch-size 25 → 2 requests');
+    }
+
+    public function testPrsForCommitsSingleBatchWhenUnderChunkSize(): void
+    {
+        // 20 SHAs fits in one batch — verifies chunk boundary.
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":1,"title":"a","labels":[],"url":"u1","author":"x"}]', 'err' => ''],
+        ]);
+
+        $shas = array_fill(0, 20, str_repeat('a', 40));
+        $result = $api->prsForCommits($shas);
+
+        self::assertCount(1, $result);
+        self::assertCount(1, $api->capturedCommands);
+    }
+
+    public function testPrsForCommitsDeduplicatesPRAcrossBatches(): void
+    {
+        // Same PR (#42) appears in both batches (e.g., a PR with commits
+        // spread across the 25-SHA batch boundary). Dedup by PR number
+        // must survive the batch split.
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":42,"title":"t","labels":[],"url":"u","author":"x"}]', 'err' => ''],
+            ['exit' => 0, 'out' => '[{"number":42,"title":"t","labels":[],"url":"u","author":"x"}]', 'err' => ''],
+        ]);
+
+        $shas = array_fill(0, 30, str_repeat('a', 40));
+        $result = $api->prsForCommits($shas);
+
+        self::assertCount(1, $result, 'PR #42 appears once despite being in both batches');
+        self::assertSame(42, $result[0]['number']);
+    }
+
+    public function testPrsForCommitsBatchCommandUsesGhPrListWithShaOrSearch(): void
+    {
+        // Concrete-command assertion: verifies the batch uses
+        // `gh pr list --search` (GraphQL, no 256-char query limit)
+        // rather than `gh api /search/issues` (REST, capped at 4-5
+        // SHAs per batch — see the class-level comment). Also asserts
+        // explicit `sha:X OR sha:Y` syntax rather than relying on
+        // bare-SHA space-implicit-OR, which is not documented as OR
+        // in GitHub's search syntax (search terms are AND by default;
+        // the sha: qualifier's actual multi-value behavior isn't
+        // spec'd).
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[]', 'err' => ''],
+        ]);
+
+        $api->prsForCommits([
+            'abc123abc123abc123abc123abc123abc123abc1',
+            'def456def456def456def456def456def456def4',
+        ]);
+
+        $cmd = $api->capturedCommands[0];
+        self::assertSame(['gh', 'pr', 'list'], array_slice($cmd, 0, 3));
+        self::assertContains('--repo', $cmd);
+        self::assertContains('--state', $cmd);
+        self::assertContains('merged', $cmd);
+        self::assertContains('--search', $cmd);
+        $searchArg = $cmd[array_search('--search', $cmd, true) + 1];
+        self::assertSame(
+            'sha:abc123abc123abc123abc123abc123abc123abc1 OR sha:def456def456def456def456def456def456def4',
+            $searchArg,
+        );
+    }
+
+    public function testPrsForCommitsHandlesMissingAuthorFromDeletedGithubUser(): void
+    {
+        // Deleted-user PRs come back with `.author` = null in gh's
+        // GraphQL response; the `.author.login // ""` jq default
+        // converts that to empty string so PHP normalization doesn't
+        // TypeError. Empty author isn't matched by any noise filter,
+        // so the PR is included in the changelog (correct default —
+        // it's a real merged PR, just orphaned).
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":1,"title":"t","labels":[],"url":"u","author":""}]', 'err' => ''],
+        ]);
+
+        $result = $api->prsForCommits(['abc123abc123abc123abc123abc123abc123abc1']);
+
+        self::assertCount(1, $result);
+        self::assertSame('', $result[0]['author']);
+    }
+
+    public function testPrsForCommitsNormalizesAppSlashBotAuthorFormat(): void
+    {
+        // `gh pr list --json author` returns `app/dependabot` for bot
+        // users, but ChangelogGenerator's noise filter matches on the
+        // REST-shape `dependabot[bot]`. Author strings starting with
+        // `app/` must be normalized so the filter continues to work
+        // without any downstream change.
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":1,"title":"t","labels":[],"url":"u","author":"app/dependabot"},{"number":2,"title":"t2","labels":[],"url":"u2","author":"bradymiller"}]', 'err' => ''],
+        ]);
+
+        $result = $api->prsForCommits(['abc123abc123abc123abc123abc123abc123abc1']);
+
+        self::assertCount(2, $result);
+        self::assertSame('dependabot[bot]', $result[0]['author'], 'app/dependabot normalized to dependabot[bot]');
+        self::assertSame('bradymiller', $result[1]['author'], 'non-app authors untouched');
     }
 
     public function testConstructorRejectsNonPositiveMaxAttempts(): void
