@@ -958,6 +958,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
             <div class='form_header_controls btn-group' role='group'>
     HTML;
 
+                // Check if form has a view.php (e.g. nursing forms)
+                $has_view_php = file_exists(__DIR__ . '/../../forms/' . $formdir . '/view.php');
+
                 // If the form is locked, it is no longer editable
                 if ($esign->isLocked()) {
                     echo "<a href='#' class='btn btn-text btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
@@ -980,6 +983,12 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
                     if (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) {
                         echo $esign->buttonHtml();
                     }
+                }
+
+                // View button — only for forms that provide a view.php
+                if ($has_view_php) {
+                    echo "<a href='" . attr($GLOBALS['webroot'] . '/interface/forms/' . $formdir . '/view.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . $iter['form_id']) .
+                        "' class='btn btn-text btn-sm' title='" . xla('View this form') . "' onclick='top.restoreSession()'><i class='fa fa-eye fa-fw'></i>&nbsp;" . xlt('View') . "</a>";
                 }
 
                 if (str_starts_with((string) $formdir, 'LBF')) {
