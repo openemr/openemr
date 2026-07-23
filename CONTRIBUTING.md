@@ -790,6 +790,16 @@ Review the diff before committing. See `tests/Tests/Isolated/Common/Twig/fixture
 
 If you'd rather not use Docker at all, you can install OpenEMR directly on your local environment. This requires installing additional dependencies for your operating system. For more info see [OpenEMR Development Versions](https://open-emr.org/wiki/index.php/OpenEMR_Installation_Guides#OpenEMR_Development_Versions) on the wiki.
 
+## AI Agent Development Environment
+
+If you contribute with the help of AI coding agents (Claude Code, etc.), you may want a sandboxed environment that lets multiple agents run in parallel against OpenEMR — each in its own git worktree with its own Docker stack — without exposing your host filesystem or host Docker daemon to the agents, while reducing LAN exposure through container isolation.
+
+The reference setup below uses a jailed Ubuntu LXC container connected to the host's git directory via a single bind mount. The container has its own Docker daemon, NAT networking only, and a lean orchestration toolchain (`openemr-cmd`, `git`, `gh`, `docker`, `kubectl`, `kind`, `helm`, `jq`). OpenEMR's PHP/Composer/JS/CSS toolchain stays inside the demo stacks via `openemr-cmd`, so PHP and Composer do **not** live on the appliance; Node.js is installed only to run the agent CLI (Claude Code), not as part of the OpenEMR dev toolchain. NAT prevents inbound LAN hosts from reaching the container, but does **not** by itself stop the container from initiating outbound connections to LAN devices once forwarding is enabled — see the threat-model section in the setup guide if outbound LAN isolation matters to you. `openemr-cmd` handles worktree lifecycle and per-worktree port offsets so multiple agents do not collide.
+
+![Claude Code multi-agent LXC appliance architecture](Documentation/images/claude-appliance-architecture.svg)
+
+For step-by-step setup instructions, see [Documentation/contributors/claude-appliance-setup.md](Documentation/contributors/claude-appliance-setup.md). This is one reference configuration — other sandboxing approaches (devcontainers, full VMs, remote dev hosts) work too. The repository's `CLAUDE.md` documents the universal rules every agent environment must satisfy.
+
 ## Financial contributions
 
 We also welcome financial contributions in full transparency on our [open collective](https://opencollective.com/openemr).
