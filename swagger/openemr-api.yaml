@@ -79,7 +79,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -94,7 +94,7 @@ paths:
       description: 'Retrieves all appointments'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -117,7 +117,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -406,7 +406,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -656,7 +656,7 @@ paths:
                 service_location: '1'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -679,7 +679,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -785,7 +785,7 @@ paths:
                 service_location: '1'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1020,7 +1020,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1035,7 +1035,7 @@ paths:
       description: 'Retrieves all insurance companies'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1055,7 +1055,7 @@ paths:
               $ref: '#/components/schemas/api_insurance_company_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1078,7 +1078,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1106,7 +1106,7 @@ paths:
               $ref: '#/components/schemas/api_insurance_company_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1121,7 +1121,7 @@ paths:
       description: 'Retrieves all insurance types'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1144,7 +1144,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1225,7 +1225,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1408,19 +1408,23 @@ paths:
                       type: object
                   data:
                     description: 'Returned data.'
+                    properties:
+                      pid:
+                        description: 'patient pid'
+                        type: integer
+                    type: object
+                  links:
+                    description: 'Pagination links for a multi-result response.'
                     type: array
                     items:
-                      properties:
-                        pid:
-                          description: 'patient pid'
-                          type: integer
                       type: object
                 type: object
                 example:
                   validationErrors: []
-                  error_description: []
+                  internalErrors: []
                   data:
                     pid: 1
+                  links: []
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -1441,7 +1445,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1521,7 +1525,7 @@ paths:
                 pc_aid: '1'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1551,7 +1555,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1580,7 +1584,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1603,7 +1607,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1631,7 +1635,7 @@ paths:
               $ref: '#/components/schemas/api_dental_issue_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1661,7 +1665,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/booleanResult'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1690,7 +1694,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1725,7 +1729,7 @@ paths:
               $ref: '#/components/schemas/api_dental_issue_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1762,7 +1766,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1802,7 +1806,7 @@ paths:
               type: object
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/booleanResult'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1832,7 +1836,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/filedownload'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1862,7 +1866,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1897,7 +1901,7 @@ paths:
               $ref: '#/components/schemas/api_soap_note_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1934,7 +1938,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -1976,7 +1980,7 @@ paths:
               $ref: '#/components/schemas/api_soap_note_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2006,7 +2010,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2041,7 +2045,7 @@ paths:
               $ref: '#/components/schemas/api_vital_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2078,7 +2082,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2120,7 +2124,7 @@ paths:
               $ref: '#/components/schemas/api_vital_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2143,7 +2147,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2171,7 +2175,7 @@ paths:
               $ref: '#/components/schemas/api_medication_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2201,7 +2205,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/booleanResult'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2230,7 +2234,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2265,7 +2269,7 @@ paths:
               $ref: '#/components/schemas/api_medication_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2294,7 +2298,7 @@ paths:
               $ref: '#/components/schemas/api_message_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2324,7 +2328,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/booleanResult'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2359,7 +2363,7 @@ paths:
               $ref: '#/components/schemas/api_message_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2382,7 +2386,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2410,7 +2414,7 @@ paths:
               $ref: '#/components/schemas/api_surgery_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2440,7 +2444,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/booleanResult'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2469,7 +2473,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2504,7 +2508,7 @@ paths:
               $ref: '#/components/schemas/api_surgery_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2661,7 +2665,7 @@ paths:
               $ref: '#/components/schemas/api_allergy_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2691,7 +2695,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2755,7 +2759,7 @@ paths:
               $ref: '#/components/schemas/api_allergy_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2770,7 +2774,7 @@ paths:
       description: 'Retrieves all the employer data for a patient. Returns an array of the employer data for the patient.'
       parameters:
         -
-          name: pid
+          name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
@@ -2778,7 +2782,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2848,23 +2852,27 @@ paths:
                       type: object
                   data:
                     description: 'Returned data.'
+                    properties:
+                      encounter:
+                        description: 'encounter id'
+                        type: integer
+                      uuid:
+                        description: 'encounter uuid'
+                        type: string
+                    type: object
+                  links:
+                    description: 'Pagination links for a multi-result response.'
                     type: array
                     items:
-                      properties:
-                        encounter:
-                          description: 'encounter id'
-                          type: integer
-                        uuid:
-                          description: 'encounter uuid'
-                          type: string
                       type: object
                 type: object
                 example:
                   validationErrors: []
-                  error_description: []
+                  internalErrors: []
                   data:
                     encounter: 1
                     uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef
+                  links: []
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -2946,7 +2954,7 @@ paths:
       description: 'Retrieves all insurances for a patient'
       parameters:
         -
-          name: pid
+          name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
@@ -2954,7 +2962,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2982,7 +2990,7 @@ paths:
               $ref: '#/components/schemas/api_insurance_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2997,7 +3005,7 @@ paths:
       description: 'Updates the insurance for the passed in uuid to be a policy of type `type` and updates (if one exists) the current or most recent insurance for the passed in `type` for a patient to be the `type` of the insurance for the given `uuid`. Validations on the swap operation are performed to make sure the effective `date` of the src and target policies being swapped can be received in each given policy `type` as a policy `type` and `date` must together be unique per patient.'
       parameters:
         -
-          name: pid
+          name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
@@ -3019,7 +3027,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -3055,7 +3063,7 @@ paths:
               $ref: '#/components/schemas/api_insurance_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -3070,15 +3078,22 @@ paths:
       description: 'Retrieves all insurances for a patient'
       parameters:
         -
-          name: pid
+          name: puuid
           in: path
           description: 'The uuid for the patient.'
           required: true
           schema:
             type: string
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the insurance policy.'
+          required: true
+          schema:
+            type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -3129,7 +3144,7 @@ paths:
               $ref: '#/components/schemas/api_medical_problem_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -3159,7 +3174,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -3223,7 +3238,7 @@ paths:
               $ref: '#/components/schemas/api_medical_problem_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -3598,23 +3613,27 @@ paths:
                       type: object
                   data:
                     description: 'Returned data.'
+                    properties:
+                      id:
+                        description: 'practitioner id'
+                        type: integer
+                      uuid:
+                        description: 'practitioner uuid'
+                        type: string
+                    type: object
+                  links:
+                    description: 'Pagination links for a multi-result response.'
                     type: array
                     items:
-                      properties:
-                        id:
-                          description: 'practitioner id'
-                          type: integer
-                        uuid:
-                          description: 'practitioner uuid'
-                          type: string
                       type: object
                 type: object
                 example:
                   validationErrors: []
-                  error_description: []
+                  internalErrors: []
                   data:
                     id: 7
                     uuid: 90d453fb-0248-4c0d-9575-d99d02b169f5
+                  links: []
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3635,7 +3654,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -3775,118 +3794,121 @@ paths:
                       type: object
                   data:
                     description: 'Returned data.'
+                    properties:
+                      id:
+                        description: 'practitioner id'
+                        type: string
+                      uuid:
+                        description: 'practitioner uuid'
+                        type: string
+                      title:
+                        description: 'practitioner title'
+                        type: string
+                      fname:
+                        description: 'practitioner fname'
+                        type: string
+                      lname:
+                        description: 'practitioner lname'
+                        type: string
+                      mname:
+                        description: 'practitioner mname'
+                        type: string
+                      federaltaxid:
+                        description: 'practitioner federaltaxid'
+                        type: string
+                      federaldrugid:
+                        description: 'practitioner federaldrugid'
+                        type: string
+                      upin:
+                        description: 'practitioner upin'
+                        type: string
+                      facility_id:
+                        description: 'practitioner facility_id'
+                        type: string
+                      facility:
+                        description: 'practitioner facility'
+                        type: string
+                      npi:
+                        description: 'practitioner npi'
+                        type: string
+                      email:
+                        description: 'practitioner email'
+                        type: string
+                      active:
+                        description: 'practitioner active setting'
+                        type: string
+                      specialty:
+                        description: 'practitioner specialty'
+                        type: string
+                      billname:
+                        description: 'practitioner billname'
+                        type: string
+                      url:
+                        description: 'practitioner url'
+                        type: string
+                      assistant:
+                        description: 'practitioner assistant'
+                        type: string
+                      organization:
+                        description: 'practitioner organization'
+                        type: string
+                      valedictory:
+                        description: 'practitioner valedictory'
+                        type: string
+                      street:
+                        description: 'practitioner street'
+                        type: string
+                      streetb:
+                        description: 'practitioner streetb'
+                        type: string
+                      city:
+                        description: 'practitioner city'
+                        type: string
+                      state:
+                        description: 'practitioner state'
+                        type: string
+                      zip:
+                        description: 'practitioner zip'
+                        type: string
+                      phone:
+                        description: 'practitioner phone'
+                        type: string
+                      fax:
+                        description: fax
+                        type: string
+                      phonew1:
+                        description: 'practitioner phonew1'
+                        type: string
+                      phonecell:
+                        description: 'practitioner phonecell'
+                        type: string
+                      notes:
+                        description: 'practitioner notes'
+                        type: string
+                      state_license_number:
+                        description: 'practitioner state license number'
+                        type: string
+                      abook_title:
+                        description: 'practitioner abook title'
+                        type: string
+                      physician_title:
+                        description: 'practitioner physician title'
+                        type: string
+                      physician_code:
+                        description: 'practitioner physician code'
+                        type: string
+                    type: object
+                  links:
+                    description: 'Pagination links for a multi-result response.'
                     type: array
                     items:
-                      properties:
-                        id:
-                          description: 'practitioner id'
-                          type: string
-                        uuid:
-                          description: 'practitioner uuid'
-                          type: string
-                        title:
-                          description: 'practitioner title'
-                          type: string
-                        fname:
-                          description: 'practitioner fname'
-                          type: string
-                        lname:
-                          description: 'practitioner lname'
-                          type: string
-                        mname:
-                          description: 'practitioner mname'
-                          type: string
-                        federaltaxid:
-                          description: 'practitioner federaltaxid'
-                          type: string
-                        federaldrugid:
-                          description: 'practitioner federaldrugid'
-                          type: string
-                        upin:
-                          description: 'practitioner upin'
-                          type: string
-                        facility_id:
-                          description: 'practitioner facility_id'
-                          type: string
-                        facility:
-                          description: 'practitioner facility'
-                          type: string
-                        npi:
-                          description: 'practitioner npi'
-                          type: string
-                        email:
-                          description: 'practitioner email'
-                          type: string
-                        active:
-                          description: 'practitioner active setting'
-                          type: string
-                        specialty:
-                          description: 'practitioner specialty'
-                          type: string
-                        billname:
-                          description: 'practitioner billname'
-                          type: string
-                        url:
-                          description: 'practitioner url'
-                          type: string
-                        assistant:
-                          description: 'practitioner assistant'
-                          type: string
-                        organization:
-                          description: 'practitioner organization'
-                          type: string
-                        valedictory:
-                          description: 'practitioner valedictory'
-                          type: string
-                        street:
-                          description: 'practitioner street'
-                          type: string
-                        streetb:
-                          description: 'practitioner streetb'
-                          type: string
-                        city:
-                          description: 'practitioner city'
-                          type: string
-                        state:
-                          description: 'practitioner state'
-                          type: string
-                        zip:
-                          description: 'practitioner zip'
-                          type: string
-                        phone:
-                          description: 'practitioner phone'
-                          type: string
-                        fax:
-                          description: fax
-                          type: string
-                        phonew1:
-                          description: 'practitioner phonew1'
-                          type: string
-                        phonecell:
-                          description: 'practitioner phonecell'
-                          type: string
-                        notes:
-                          description: 'practitioner notes'
-                          type: string
-                        state_license_number:
-                          description: 'practitioner state license number'
-                          type: string
-                        abook_title:
-                          description: 'practitioner abook title'
-                          type: string
-                        physician_title:
-                          description: 'practitioner physician title'
-                          type: string
-                        physician_code:
-                          description: 'practitioner physician code'
-                          type: string
                       type: object
                 type: object
                 example:
                   validationErrors: []
-                  error_description: []
+                  internalErrors: []
                   data:
-                    id: 7
+                    id: '7'
                     uuid: 90d453fb-0248-4c0d-9575-d99d02b169f5
                     title: Mr
                     fname: Baz
@@ -3920,6 +3942,7 @@ paths:
                     abook_title: null
                     physician_title: null
                     physician_code: null
+                  links: []
         '401':
           $ref: '#/components/responses/unauthorized'
       security:
@@ -3968,7 +3991,7 @@ paths:
               type: object
       responses:
         '201':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -3991,7 +4014,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4013,7 +4036,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4051,7 +4074,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4066,7 +4089,7 @@ paths:
       description: 'Retrieves the OpenEMR product registration information'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4095,7 +4118,7 @@ paths:
               $ref: '#/components/schemas/api_transaction_request'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4344,7 +4367,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4359,7 +4382,7 @@ paths:
       description: 'Retrieves the OpenEMR version information'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5952,13 +5975,6 @@ paths:
           name: _id
           in: query
           description: 'The uuid for the Immunization resource.'
-          required: false
-          schema:
-            type: string
-        -
-          name: _lastUpdated
-          in: query
-          description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)'
           required: false
           schema:
             type: string
@@ -9174,7 +9190,7 @@ paths:
       description: 'Retrieves all appointments for a patient'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resourceList'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -9197,7 +9213,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/resource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -9235,7 +9251,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          $ref: '#/components/responses/standardResource'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -9273,6 +9289,33 @@ components:
             example:
               validationErrors:
                 _id: 'The search field argument was invalid, improperly formatted, or could not be parsed.  Inner message: UUID columns must be a valid UUID string'
+    booleanResult:
+      description: 'A boolean indicating whether the operation succeeded.'
+      content:
+        application/json:
+          schema:
+            type: boolean
+    filedownload:
+      description: 'The requested file streamed as an octet stream.'
+      content:
+        application/octet-stream:
+          schema:
+            type: string
+            format: binary
+    resource:
+      description: 'A single resource returned as the response body.'
+      content:
+        application/json:
+          schema:
+            type: object
+    resourceList:
+      description: 'A list of resources returned as the response body.'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
     standard:
       description: 'Standard Response'
       content:
@@ -9294,11 +9337,42 @@ components:
                 type: array
                 items:
                   type: object
+              links:
+                description: 'Pagination links for a multi-result response.'
+                type: array
+                items:
+                  type: object
             type: object
             example:
               validationErrors: []
               internalErrors: []
               data: []
+              links: []
+    standardResource:
+      description: 'A response wrapping a single returned resource under the data key.'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                description: 'Validation errors.'
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                description: 'Internal errors.'
+                type: array
+                items:
+                  type: object
+              data:
+                description: 'The returned resource.'
+                type: object
+              links:
+                description: 'Pagination links for a multi-result response.'
+                type: array
+                items:
+                  type: object
+            type: object
     unauthorized:
       description: Unauthorized
       content:
@@ -9455,92 +9529,95 @@ components:
             type: object
         data:
           description: 'Returned data.'
+          properties:
+            id:
+              description: 'encounter id'
+              type: string
+            uuid:
+              description: 'encounter uuid'
+              type: string
+            date:
+              description: 'encounter date'
+              type: string
+            reason:
+              description: 'encounter reason'
+              type: string
+            facility:
+              description: 'encounter facility name'
+              type: string
+            facility_id:
+              description: 'encounter facility id name'
+              type: string
+            pid:
+              description: 'encounter for patient pid'
+              type: string
+            onset_date:
+              description: 'encounter onset date'
+              type: string
+            sensitivity:
+              description: 'encounter sensitivity'
+              type: string
+            billing_note:
+              description: 'encounter billing note'
+              type: string
+            pc_catid:
+              description: 'encounter pc_catid'
+              type: string
+            last_level_billed:
+              description: 'encounter last_level_billed'
+              type: string
+            last_level_closed:
+              description: 'encounter last_level_closed'
+              type: string
+            last_stmt_date:
+              description: 'encounter last_stmt_date'
+              type: string
+            stmt_count:
+              description: 'encounter stmt_count'
+              type: string
+            provider_id:
+              description: 'provider id'
+              type: string
+            supervisor_id:
+              description: 'encounter supervisor id'
+              type: string
+            invoice_refno:
+              description: 'encounter invoice_refno'
+              type: string
+            referral_source:
+              description: 'encounter referral source'
+              type: string
+            billing_facility:
+              description: 'encounter billing facility id'
+              type: string
+            external_id:
+              description: 'encounter external id'
+              type: string
+            pos_code:
+              description: 'encounter pos_code'
+              type: string
+            class_code:
+              description: 'encounter class_code'
+              type: string
+            class_title:
+              description: 'encounter class_title'
+              type: string
+            pc_catname:
+              description: 'encounter pc_catname'
+              type: string
+            billing_facility_name:
+              description: 'encounter billing facility name'
+              type: string
+          type: object
+        links:
+          description: 'Pagination links for a multi-result response.'
           type: array
           items:
-            properties:
-              id:
-                description: 'encounter id'
-                type: string
-              uuid:
-                description: 'encounter uuid'
-                type: string
-              date:
-                description: 'encounter date'
-                type: string
-              reason:
-                description: 'encounter reason'
-                type: string
-              facility:
-                description: 'encounter facility name'
-                type: string
-              facility_id:
-                description: 'encounter facility id name'
-                type: string
-              pid:
-                description: 'encounter for patient pid'
-                type: string
-              onset_date:
-                description: 'encounter onset date'
-                type: string
-              sensitivity:
-                description: 'encounter sensitivity'
-                type: string
-              billing_note:
-                description: 'encounter billing note'
-                type: string
-              pc_catid:
-                description: 'encounter pc_catid'
-                type: string
-              last_level_billed:
-                description: 'encounter last_level_billed'
-                type: string
-              last_level_closed:
-                description: 'encounter last_level_closed'
-                type: string
-              last_stmt_date:
-                description: 'encounter last_stmt_date'
-                type: string
-              stmt_count:
-                description: 'encounter stmt_count'
-                type: string
-              provider_id:
-                description: 'provider id'
-                type: string
-              supervisor_id:
-                description: 'encounter supervisor id'
-                type: string
-              invoice_refno:
-                description: 'encounter invoice_refno'
-                type: string
-              referral_source:
-                description: 'encounter referral source'
-                type: string
-              billing_facility:
-                description: 'encounter billing facility id'
-                type: string
-              external_id:
-                description: 'encounter external id'
-                type: string
-              pos_code:
-                description: 'encounter pos_code'
-                type: string
-              class_code:
-                description: 'encounter class_code'
-                type: string
-              class_title:
-                description: 'encounter class_title'
-                type: string
-              pc_catname:
-                description: 'encounter pc_catname'
-                type: string
-              billing_facility_name:
-                description: 'encounter billing facility name'
-                type: string
             type: object
       type: object
       example:
         validationErrors: []
-        error_description: ''
+        internalErrors: []
         data:
           id: '1'
           uuid: 90c196f2-51cc-4655-8858-3a80aebff3ef
@@ -9568,6 +9645,7 @@ components:
           class_title: ambulatory
           pc_catname: 'Office Visit'
           billing_facility_name: 'Owerri General Hospital'
+        links: []
     api_insurance_company_request:
       description: 'Schema for the insurance_company request'
       required:
@@ -9925,92 +10003,95 @@ components:
             type: object
         data:
           description: 'Returned data.'
+          properties:
+            id:
+              description: 'patient id'
+              type: string
+            pid:
+              description: 'patient pid'
+              type: string
+            pubpid:
+              description: 'patient public id'
+              type: string
+            title:
+              description: 'patient title'
+              type: string
+            fname:
+              description: 'patient first name'
+              type: string
+            mname:
+              description: 'patient middle name'
+              type: string
+            lname:
+              description: 'patient last name'
+              type: string
+            ss:
+              description: 'patient social security number'
+              type: string
+            street:
+              description: 'patient street address'
+              type: string
+            postal_code:
+              description: 'patient postal code'
+              type: string
+            city:
+              description: 'patient city'
+              type: string
+            state:
+              description: 'patient state'
+              type: string
+            county:
+              description: 'patient county'
+              type: string
+            country_code:
+              description: 'patient country code'
+              type: string
+            drivers_license:
+              description: 'patient drivers license id'
+              type: string
+            contact_relationship:
+              description: 'patient contact relationship'
+              type: string
+            phone_contact:
+              description: 'patient phone contact'
+              type: string
+            phone_home:
+              description: 'patient home phone'
+              type: string
+            phone_biz:
+              description: 'patient work phone'
+              type: string
+            phone_cell:
+              description: 'patient mobile phone'
+              type: string
+            email:
+              description: 'patient email'
+              type: string
+            DOB:
+              description: 'patient DOB'
+              type: string
+            sex:
+              description: 'patient sex (gender)'
+              type: string
+            race:
+              description: 'patient race'
+              type: string
+            ethnicity:
+              description: 'patient ethnicity'
+              type: string
+            status:
+              description: 'patient status'
+              type: string
+          type: object
+        links:
+          description: 'Pagination links for a multi-result response.'
           type: array
           items:
-            properties:
-              id:
-                description: 'patient id'
-                type: string
-              pid:
-                description: 'patient pid'
-                type: string
-              pubpid:
-                description: 'patient public id'
-                type: string
-              title:
-                description: 'patient title'
-                type: string
-              fname:
-                description: 'patient first name'
-                type: string
-              mname:
-                description: 'patient middle name'
-                type: string
-              lname:
-                description: 'patient last name'
-                type: string
-              ss:
-                description: 'patient social security number'
-                type: string
-              street:
-                description: 'patient street address'
-                type: string
-              postal_code:
-                description: 'patient postal code'
-                type: string
-              city:
-                description: 'patient city'
-                type: string
-              state:
-                description: 'patient state'
-                type: string
-              county:
-                description: 'patient county'
-                type: string
-              country_code:
-                description: 'patient country code'
-                type: string
-              drivers_license:
-                description: 'patient drivers license id'
-                type: string
-              contact_relationship:
-                description: 'patient contact relationship'
-                type: string
-              phone_contact:
-                description: 'patient phone contact'
-                type: string
-              phone_home:
-                description: 'patient home phone'
-                type: string
-              phone_biz:
-                description: 'patient work phone'
-                type: string
-              phone_cell:
-                description: 'patient mobile phone'
-                type: string
-              email:
-                description: 'patient email'
-                type: string
-              DOB:
-                description: 'patient DOB'
-                type: string
-              sex:
-                description: 'patient sex (gender)'
-                type: string
-              race:
-                description: 'patient race'
-                type: string
-              ethnicity:
-                description: 'patient ethnicity'
-                type: string
-              status:
-                description: 'patient status'
-                type: string
             type: object
       type: object
       example:
         validationErrors: []
-        error_description: ''
+        internalErrors: []
         data:
           id: '193'
           pid: '1'
