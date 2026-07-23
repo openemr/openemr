@@ -63,7 +63,10 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
     properties: [
         new OA\Property(property: 'validationErrors', description: 'Validation errors.', type: 'array', items: new OA\Items(type: 'object')),
         new OA\Property(property: 'internalErrors', description: 'Internal errors.', type: 'array', items: new OA\Items(type: 'object')),
-        new OA\Property(property: 'data', description: 'Returned data.', type: 'array', items: new OA\Items(
+        new OA\Property(
+            property: 'data',
+            description: 'Returned data.',
+            type: 'object',
             properties: [
                 new OA\Property(property: 'id', description: 'encounter id', type: 'string'),
                 new OA\Property(property: 'uuid', description: 'encounter uuid', type: 'string'),
@@ -91,13 +94,13 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
                 new OA\Property(property: 'class_title', description: 'encounter class_title', type: 'string'),
                 new OA\Property(property: 'pc_catname', description: 'encounter pc_catname', type: 'string'),
                 new OA\Property(property: 'billing_facility_name', description: 'encounter billing facility name', type: 'string'),
-            ],
-            type: 'object'
-        )),
+            ]
+        ),
+        new OA\Property(property: 'links', description: 'Pagination links for a multi-result response.', type: 'array', items: new OA\Items(type: 'object')),
     ],
     example: [
         'validationErrors' => [],
-        'error_description' => '',
+        'internalErrors' => [],
         'data' => [
             'id' => '1',
             'uuid' => '90c196f2-51cc-4655-8858-3a80aebff3ef',
@@ -126,6 +129,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
             'pc_catname' => 'Office Visit',
             'billing_facility_name' => 'Owerri General Hospital',
         ],
+        'links' => [],
     ]
 )]
 #[OA\Schema(
@@ -229,30 +233,35 @@ class EncounterRestController
                             new OA\Property(
                                 property: 'data',
                                 description: 'Returned data.',
+                                type: 'object',
+                                properties: [
+                                    new OA\Property(
+                                        property: 'encounter',
+                                        description: 'encounter id',
+                                        type: 'integer'
+                                    ),
+                                    new OA\Property(
+                                        property: 'uuid',
+                                        description: 'encounter uuid',
+                                        type: 'string'
+                                    ),
+                                ]
+                            ),
+                            new OA\Property(
+                                property: 'links',
+                                description: 'Pagination links for a multi-result response.',
                                 type: 'array',
-                                items: new OA\Items(
-                                    properties: [
-                                        new OA\Property(
-                                            property: 'encounter',
-                                            description: 'encounter id',
-                                            type: 'integer'
-                                        ),
-                                        new OA\Property(
-                                            property: 'uuid',
-                                            description: 'encounter uuid',
-                                            type: 'string'
-                                        ),
-                                    ]
-                                )
+                                items: new OA\Items(type: 'object')
                             ),
                         ],
                         example: [
                             'validationErrors' => [],
-                            'error_description' => [],
+                            'internalErrors' => [],
                             'data' => [
                                 'encounter' => 1,
                                 'uuid' => '90c196f2-51cc-4655-8858-3a80aebff3ef',
                             ],
+                            'links' => [],
                         ]
                     )
                 )
@@ -368,7 +377,7 @@ class EncounterRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/standardResource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -462,7 +471,7 @@ class EncounterRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -528,7 +537,7 @@ class EncounterRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -571,7 +580,7 @@ class EncounterRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resourceList'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -611,7 +620,7 @@ class EncounterRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -644,7 +653,7 @@ class EncounterRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resourceList'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -684,7 +693,7 @@ class EncounterRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -728,7 +737,7 @@ class EncounterRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -794,7 +803,7 @@ class EncounterRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],

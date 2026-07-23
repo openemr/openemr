@@ -82,7 +82,7 @@ class PractitionerRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/standardResource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -429,22 +429,27 @@ class PractitionerRestController
                             new OA\Property(
                                 property: 'data',
                                 description: 'Returned data.',
+                                type: 'object',
+                                properties: [
+                                    new OA\Property(property: 'id', description: 'practitioner id', type: 'integer'),
+                                    new OA\Property(property: 'uuid', description: 'practitioner uuid', type: 'string'),
+                                ]
+                            ),
+                            new OA\Property(
+                                property: 'links',
+                                description: 'Pagination links for a multi-result response.',
                                 type: 'array',
-                                items: new OA\Items(
-                                    properties: [
-                                        new OA\Property(property: 'id', description: 'practitioner id', type: 'integer'),
-                                        new OA\Property(property: 'uuid', description: 'practitioner uuid', type: 'string'),
-                                    ]
-                                )
+                                items: new OA\Items(type: 'object')
                             ),
                         ],
                         example: [
                             'validationErrors' => [],
-                            'error_description' => [],
+                            'internalErrors' => [],
                             'data' => [
                                 'id' => 7,
                                 'uuid' => '90d453fb-0248-4c0d-9575-d99d02b169f5',
                             ],
+                            'links' => [],
                         ]
                     )
                 )
@@ -551,52 +556,56 @@ class PractitionerRestController
                             new OA\Property(
                                 property: 'data',
                                 description: 'Returned data.',
+                                type: 'object',
+                                properties: [
+                                    new OA\Property(property: 'id', description: 'practitioner id', type: 'string'),
+                                    new OA\Property(property: 'uuid', description: 'practitioner uuid', type: 'string'),
+                                    new OA\Property(property: 'title', description: 'practitioner title', type: 'string'),
+                                    new OA\Property(property: 'fname', description: 'practitioner fname', type: 'string'),
+                                    new OA\Property(property: 'lname', description: 'practitioner lname', type: 'string'),
+                                    new OA\Property(property: 'mname', description: 'practitioner mname', type: 'string'),
+                                    new OA\Property(property: 'federaltaxid', description: 'practitioner federaltaxid', type: 'string'),
+                                    new OA\Property(property: 'federaldrugid', description: 'practitioner federaldrugid', type: 'string'),
+                                    new OA\Property(property: 'upin', description: 'practitioner upin', type: 'string'),
+                                    new OA\Property(property: 'facility_id', description: 'practitioner facility_id', type: 'string'),
+                                    new OA\Property(property: 'facility', description: 'practitioner facility', type: 'string'),
+                                    new OA\Property(property: 'npi', description: 'practitioner npi', type: 'string'),
+                                    new OA\Property(property: 'email', description: 'practitioner email', type: 'string'),
+                                    new OA\Property(property: 'active', description: 'practitioner active setting', type: 'string'),
+                                    new OA\Property(property: 'specialty', description: 'practitioner specialty', type: 'string'),
+                                    new OA\Property(property: 'billname', description: 'practitioner billname', type: 'string'),
+                                    new OA\Property(property: 'url', description: 'practitioner url', type: 'string'),
+                                    new OA\Property(property: 'assistant', description: 'practitioner assistant', type: 'string'),
+                                    new OA\Property(property: 'organization', description: 'practitioner organization', type: 'string'),
+                                    new OA\Property(property: 'valedictory', description: 'practitioner valedictory', type: 'string'),
+                                    new OA\Property(property: 'street', description: 'practitioner street', type: 'string'),
+                                    new OA\Property(property: 'streetb', description: 'practitioner streetb', type: 'string'),
+                                    new OA\Property(property: 'city', description: 'practitioner city', type: 'string'),
+                                    new OA\Property(property: 'state', description: 'practitioner state', type: 'string'),
+                                    new OA\Property(property: 'zip', description: 'practitioner zip', type: 'string'),
+                                    new OA\Property(property: 'phone', description: 'practitioner phone', type: 'string'),
+                                    new OA\Property(property: 'fax', description: 'fax', type: 'string'),
+                                    new OA\Property(property: 'phonew1', description: 'practitioner phonew1', type: 'string'),
+                                    new OA\Property(property: 'phonecell', description: 'practitioner phonecell', type: 'string'),
+                                    new OA\Property(property: 'notes', description: 'practitioner notes', type: 'string'),
+                                    new OA\Property(property: 'state_license_number', description: 'practitioner state license number', type: 'string'),
+                                    new OA\Property(property: 'abook_title', description: 'practitioner abook title', type: 'string'),
+                                    new OA\Property(property: 'physician_title', description: 'practitioner physician title', type: 'string'),
+                                    new OA\Property(property: 'physician_code', description: 'practitioner physician code', type: 'string'),
+                                ]
+                            ),
+                            new OA\Property(
+                                property: 'links',
+                                description: 'Pagination links for a multi-result response.',
                                 type: 'array',
-                                items: new OA\Items(
-                                    properties: [
-                                        new OA\Property(property: 'id', description: 'practitioner id', type: 'string'),
-                                        new OA\Property(property: 'uuid', description: 'practitioner uuid', type: 'string'),
-                                        new OA\Property(property: 'title', description: 'practitioner title', type: 'string'),
-                                        new OA\Property(property: 'fname', description: 'practitioner fname', type: 'string'),
-                                        new OA\Property(property: 'lname', description: 'practitioner lname', type: 'string'),
-                                        new OA\Property(property: 'mname', description: 'practitioner mname', type: 'string'),
-                                        new OA\Property(property: 'federaltaxid', description: 'practitioner federaltaxid', type: 'string'),
-                                        new OA\Property(property: 'federaldrugid', description: 'practitioner federaldrugid', type: 'string'),
-                                        new OA\Property(property: 'upin', description: 'practitioner upin', type: 'string'),
-                                        new OA\Property(property: 'facility_id', description: 'practitioner facility_id', type: 'string'),
-                                        new OA\Property(property: 'facility', description: 'practitioner facility', type: 'string'),
-                                        new OA\Property(property: 'npi', description: 'practitioner npi', type: 'string'),
-                                        new OA\Property(property: 'email', description: 'practitioner email', type: 'string'),
-                                        new OA\Property(property: 'active', description: 'practitioner active setting', type: 'string'),
-                                        new OA\Property(property: 'specialty', description: 'practitioner specialty', type: 'string'),
-                                        new OA\Property(property: 'billname', description: 'practitioner billname', type: 'string'),
-                                        new OA\Property(property: 'url', description: 'practitioner url', type: 'string'),
-                                        new OA\Property(property: 'assistant', description: 'practitioner assistant', type: 'string'),
-                                        new OA\Property(property: 'organization', description: 'practitioner organization', type: 'string'),
-                                        new OA\Property(property: 'valedictory', description: 'practitioner valedictory', type: 'string'),
-                                        new OA\Property(property: 'street', description: 'practitioner street', type: 'string'),
-                                        new OA\Property(property: 'streetb', description: 'practitioner streetb', type: 'string'),
-                                        new OA\Property(property: 'city', description: 'practitioner city', type: 'string'),
-                                        new OA\Property(property: 'state', description: 'practitioner state', type: 'string'),
-                                        new OA\Property(property: 'zip', description: 'practitioner zip', type: 'string'),
-                                        new OA\Property(property: 'phone', description: 'practitioner phone', type: 'string'),
-                                        new OA\Property(property: 'fax', description: 'fax', type: 'string'),
-                                        new OA\Property(property: 'phonew1', description: 'practitioner phonew1', type: 'string'),
-                                        new OA\Property(property: 'phonecell', description: 'practitioner phonecell', type: 'string'),
-                                        new OA\Property(property: 'notes', description: 'practitioner notes', type: 'string'),
-                                        new OA\Property(property: 'state_license_number', description: 'practitioner state license number', type: 'string'),
-                                        new OA\Property(property: 'abook_title', description: 'practitioner abook title', type: 'string'),
-                                        new OA\Property(property: 'physician_title', description: 'practitioner physician title', type: 'string'),
-                                        new OA\Property(property: 'physician_code', description: 'practitioner physician code', type: 'string'),
-                                    ]
-                                )
+                                items: new OA\Items(type: 'object')
                             ),
                         ],
                         example: [
                             'validationErrors' => [],
-                            'error_description' => [],
+                            'internalErrors' => [],
                             'data' => [
-                                'id' => 7,
+                                'id' => '7',
                                 'uuid' => '90d453fb-0248-4c0d-9575-d99d02b169f5',
                                 'title' => 'Mr',
                                 'fname' => 'Baz',
@@ -631,6 +640,7 @@ class PractitionerRestController
                                 'physician_title' => null,
                                 'physician_code' => null,
                             ],
+                            'links' => [],
                         ]
                     )
                 )

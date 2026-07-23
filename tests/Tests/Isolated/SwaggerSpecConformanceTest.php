@@ -69,4 +69,33 @@ class SwaggerSpecConformanceTest extends TestCase
             }
         }
     }
+
+    public function testAllResponseReferencesResolveToDefinedComponents(): void
+    {
+        $spec = Yaml::parseFile($this->specFile);
+        $defined = $spec['components']['responses'] ?? [];
+
+        $refs = [];
+        $collect = function ($node) use (&$collect, &$refs): void {
+            if (!is_array($node)) {
+                return;
+            }
+            foreach ($node as $key => $value) {
+                if ($key === '$ref' && is_string($value) && str_starts_with($value, '#/components/responses/')) {
+                    $refs[] = substr($value, strlen('#/components/responses/'));
+                } else {
+                    $collect($value);
+                }
+            }
+        };
+        $collect($spec);
+
+        foreach (array_unique($refs) as $ref) {
+            $this->assertArrayHasKey(
+                $ref,
+                $defined,
+                sprintf('response component "%s" is referenced but is not defined under components/responses', $ref)
+            );
+        }
+    }
 }
