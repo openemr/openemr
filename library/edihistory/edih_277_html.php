@@ -299,17 +299,25 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
 
                     $stc12 = ($sar[12] ?? '') ?: "";    // message
 
-                    $stc_html = (isset($sc101)) ? "<tr class='" . $cls . "'><td>" . text($stc03) . "</td><td colspan=2>" . text($sc101) . "</td><td>" . text($stc02 . " " . $stc04) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= (isset($sc102)) ? "<tr class='" . $cls . "'><td>&gt;</td><td colspan=3>" . text($sc102) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= ($sc103 ?? '') ? "<tr class='" . $cls . "'><td>&gt;</td><td colspan=3><em>Entity</em> " . text($sc103) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= ($stc05 || $stc06 || $stc08 || $stc09) ? "<tr class='" . $cls . "'><td><em>Payment</em></td><td colspan=3>" . text($stc05 . " " . $stc06 . " " . $stc08 . " " . $stc09) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= (isset($sc201)) ?  "<tr class='" . $cls . "'><td>&gt;</td><td colspan=3>" . text($sc201 . " " . $sc204) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= (isset($sc202)) ?  "<tr class='" . $cls . "'><td>&gt;</td><td colspan=3>" . text($sc202) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= ($sc203 ?? '') ?    "<tr class='" . $cls . "'><td>&gt;</td><td colspan=3><em>Entity</em> " . text($sc203) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= (isset($sc301)) ?  "<tr class='" . $cls . "'><td>&gt;</td><td colspan=3>" . text($sc301 . " " . $sc304) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= (isset($sc302)) ?  "<tr class='" . $cls . "'><td>&gt;</td><td colspan=3>" . text($sc302) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= ($sc303 ?? '') ?    "<tr class='" . $cls . "'><td>&gt;</td><td colspan=3><em>Entity</em> " . text($sc303) . "</td></tr>" . PHP_EOL : "";
-                    $stc_html .= ($stc12) ? "<tr class='" . $cls . "'><td><em>Message</em></td><td colspan=3>" . text($stc12) . "</td></tr>" . PHP_EOL : "";
+                    // repeated STC row templates: a plain detail row, an "Entity" row, and a labeled row
+                    $row = fn(string $inner): string => "<tr class='$cls'><td>&gt;</td><td colspan=3>$inner</td></tr>";
+                    $entity = fn(string $inner): string => "<tr class='$cls'><td>&gt;</td><td colspan=3><em>Entity</em> $inner</td></tr>";
+                    $labeled = fn(string $label, string $inner): string => "<tr class='$cls'><td><em>$label</em></td><td colspan=3>$inner</td></tr>";
+
+                    $stc03Text = text($stc03);
+                    $sc101Text = text($sc101 ?? '');
+                    $stcAmtText = text($stc02 . " " . $stc04);
+                    $stc_html = (isset($sc101)) ? "<tr class='$cls'><td>$stc03Text</td><td colspan=2>$sc101Text</td><td>$stcAmtText</td></tr>" : "";
+                    $stc_html .= (isset($sc102)) ? $row(text($sc102)) : "";
+                    $stc_html .= ($sc103 ?? '') ? $entity(text($sc103)) : "";
+                    $stc_html .= ($stc05 || $stc06 || $stc08 || $stc09) ? $labeled('Payment', text($stc05 . " " . $stc06 . " " . $stc08 . " " . $stc09)) : "";
+                    $stc_html .= (isset($sc201)) ? $row(text($sc201 . " " . $sc204)) : "";
+                    $stc_html .= (isset($sc202)) ? $row(text($sc202)) : "";
+                    $stc_html .= ($sc203 ?? '') ? $entity(text($sc203)) : "";
+                    $stc_html .= (isset($sc301)) ? $row(text($sc301 . " " . $sc304)) : "";
+                    $stc_html .= (isset($sc302)) ? $row(text($sc302)) : "";
+                    $stc_html .= ($sc303 ?? '') ? $entity(text($sc303)) : "";
+                    $stc_html .= ($stc12) ? $labeled('Message', text($stc12)) : "";
 
                     $section = match ($loopid) {
                         '2200B' => 'rcv',
