@@ -658,18 +658,17 @@ function csv_check_filepath($filename, $type = 'ALL')
 /**
  * verify file type parameter
  *
- * @param string $type file type
- * @param bool $gs_code return GS02 code or fXXX
- * @return string   file type or empty
+ * @param string $type    file type
+ * @param bool   $gs_code return GS02 code or fXXX
+ * @return string         canonical file type, or '' when the type is unknown
  */
-function csv_file_type($type, $gs_code = false)
+function csv_file_type(string $type, bool $gs_code = false): string
 {
-    //
-    if (!$type) {
+    // Reject falsy input up front: an empty needle matches every alias string,
+    // and '0' is a substring of 'f270' — neither is a valid file type.
+    if ($type === '' || $type === '0') {
         csv_edihist_log('csv_file_type: invalid or missing type argument ' . $type);
-        return false;
-    } else {
-        $tp_type = (string)$type;
+        return '';
     }
 
     // Alias table (data): each row maps a set of accepted type tokens to its
@@ -691,17 +690,12 @@ function csv_file_type($type, $gs_code = false)
     // Dispatch (logic): first matching row wins; unknown types fall through to ''.
     $tp = '';
     foreach ($type_map as [$aliases, $gs, $file_type]) {
-        if (str_contains($aliases, $tp_type)) {
-            $tp = $gs_code ? $gs : $file_type;
-            break;
+        if (str_contains($aliases, $type)) {
+            return $gs_code ? $gs : $file_type;
         }
     }
 
-    //
-    if (!$tp) {
-        csv_edihist_log('csv_file_type error: incorrect type ' . $tp_type);
-    }
-
+    csv_edihist_log('csv_file_type error: incorrect type ' . $type);
     return $tp;
 }
 
@@ -1205,7 +1199,7 @@ function csv_table_header($file_type, $csv_type)
 
     //
     if ($ct === 'file') {
-        switch ((string)$ft) {
+        switch ($ft) {
             //case 'ack': $hdr = array('Date', 'FileName', 'isa13', 'ta1ctrl', 'Code'); break;
             //case 'ebr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
             //case 'ibr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
@@ -1239,7 +1233,7 @@ function csv_table_header($file_type, $csv_type)
                 break;
         }
     } elseif ($ct === 'claim') {
-        switch ((string)$ft) {
+        switch ($ft) {
             //case 'ebr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
             //case 'ibr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
             //case 'dpr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
@@ -1763,7 +1757,7 @@ function csv_file_by_controlnum($type, $control_num)
 {
     // get the batch file containing the control_num
     //
-    $tp = csv_file_type($type);
+    $tp = is_string($type) ? csv_file_type($type) : '';
     //
     $hdr = csv_table_header($tp, 'file');
     $scol = array_search('Control', $hdr);

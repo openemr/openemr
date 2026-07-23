@@ -223,7 +223,7 @@ function edih_997_err_report($err_array)
         $str_html .= (isset($ackcode)) ? " TA1 $ackcode : " . text(edih_997_ta1_code($ackcode)) . " <br />" : "";
         $str_html .= (isset($acknote)) ? " TA1 $acknote : " . text(edih_997_ta1_code($acknote)) . " <br />" . PHP_EOL : "<br />" . PHP_EOL;
         if (isset($fg_type)) {
-            $fgtp = csv_file_type($fg_type);
+            $fgtp = is_string($fg_type) ? csv_file_type($fg_type) : '';
             $str_html .= " <em>Functional Group Type</em> " . text($fg_type) . " (" . text($fgtp) . ")";
             $str_html .= (isset($fg_id)) ? " <em>GS06</em> " . text($fg_id) . " <br />" . PHP_EOL : "<br />" . PHP_EOL;
         }
