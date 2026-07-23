@@ -41,6 +41,15 @@ class AuthorizationLogoutFullFlowTest extends TestCase
     {
         $this->baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
 
+        $probe = $this->buildClient()->get($this->baseUrl . '/');
+        if ($probe->getHeaderLine('Server') === '') {
+            $this->markTestSkipped(
+                'OAuth flow requires a webserver that carries session cookies with the Secure flag'
+                . ' (Apache/nginx). Server did not respond with a Server header, so this looks like'
+                . ' PHP\'s built-in webserver (php -S) or similar stripped-down setup.'
+            );
+        }
+
         $current = QueryUtils::querySingleRow(
             'SELECT gl_value FROM `globals` WHERE gl_name = ?',
             ['site_addr_oath']
