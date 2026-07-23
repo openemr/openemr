@@ -203,6 +203,16 @@ jobs:
     name: Dry-run build (artifacts only, no publish)
     needs: ship
     if: ${{ needs.ship.result == 'success' && (inputs.mode == 'dry-run' || inputs.dry_run) }}
+    # Per-job override of the workflow-level `permissions: {}`. build-release.yml
+    # (called via workflow_call below) declares `permissions: contents: read`
+    # at its own workflow level. GitHub's startup validation rejects the
+    # dispatch when the caller grants strictly less than what the callee
+    # requests -- the empty workflow-level default would block dry-run-build
+    # from launching at all. Granting the exact `contents: read` the callee
+    # needs (for its actions/checkout step) keeps the `ship` job's default-
+    # deny intact and matches least-privilege.
+    permissions:
+      contents: read
     uses: ./.github/workflows/build-release.yml
     with:
       version_branch: release-prep/${{ inputs.rel_branch }}

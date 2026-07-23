@@ -658,46 +658,44 @@ function csv_check_filepath($filename, $type = 'ALL')
 /**
  * verify file type parameter
  *
- * @param string $type file type
- * @param bool $gs_code return GS02 code or fXXX
- * @return string   file type or empty
+ * @param string $type    file type
+ * @param bool   $gs_code return GS02 code or fXXX
+ * @return string         canonical file type, or '' when the type is unknown
  */
-function csv_file_type($type, $gs_code = false)
+function csv_file_type(string $type, bool $gs_code = false): string
 {
-    //
-    if (!$type) {
+    // Reject falsy input up front: an empty needle matches every alias string,
+    // and '0' is a substring of 'f270' — neither is a valid file type.
+    if ($type === '' || $type === '0') {
         csv_edihist_log('csv_file_type: invalid or missing type argument ' . $type);
-        return false;
-    } else {
-        $tp_type = (string)$type;
+        return '';
     }
 
-    //
-    if (strpos('|f837|batch|HC', $tp_type)) {
-        $tp = ($gs_code) ? 'HC' : 'f837';
-    } elseif (strpos('|f835|era|HP', $tp_type)) {
-        $tp = ($gs_code) ? 'HP' : 'f835';
-    } elseif (strpos('|f999|f997|ack|ta1|FA', $tp_type)) {
-        $tp = ($gs_code) ? 'FA' : 'f997';
-    } elseif (strpos('|f277|HN', $tp_type)) {
-        $tp = ($gs_code) ? 'HN' : 'f277';
-    } elseif (strpos('|f276|HR', $tp_type)) {
-        $tp = ($gs_code) ? 'HR' : 'f276';
-    } elseif (strpos('|f271|HB', $tp_type)) {
-        $tp = ($gs_code) ? 'HB' : 'f271';
-    } elseif (strpos('|f270|HS', $tp_type)) {
-        $tp = ($gs_code) ? 'HS' : 'f270';
-    } elseif (strpos('|f278|HI', $tp_type)) {
-        $tp = ($gs_code) ? 'HI' : 'f278';
-    } else {
-        $tp = '';
+    // Alias table (data): each row maps a set of accepted type tokens to its
+    // GS02 code and canonical fXXX file type. A token is accepted when it
+    // appears as a substring of the '|'-delimited alias string, preserving the
+    // historical match semantics; the leading '|' keeps a real token match off
+    // offset 0.
+    $type_map = [
+        ['|f837|batch|HC', 'HC', 'f837'],
+        ['|f835|era|HP', 'HP', 'f835'],
+        ['|f999|f997|ack|ta1|FA', 'FA', 'f997'],
+        ['|f277|HN', 'HN', 'f277'],
+        ['|f276|HR', 'HR', 'f276'],
+        ['|f271|HB', 'HB', 'f271'],
+        ['|f270|HS', 'HS', 'f270'],
+        ['|f278|HI', 'HI', 'f278'],
+    ];
+
+    // Dispatch (logic): first matching row wins; unknown types fall through to ''.
+    $tp = '';
+    foreach ($type_map as [$aliases, $gs, $file_type]) {
+        if (str_contains($aliases, $type)) {
+            return $gs_code ? $gs : $file_type;
+        }
     }
 
-    //
-    if (!$tp) {
-        csv_edihist_log('csv_file_type error: incorrect type ' . $tp_type);
-    }
-
+    csv_edihist_log('csv_file_type error: incorrect type ' . $type);
     return $tp;
 }
 
@@ -1065,47 +1063,6 @@ function edih_errseg_parse($err_seg, $id = false)
 }
 
 /**
- * Order the csv data array according to the csv table heading row
- * so the data to be added to csv table rows are correctly ordered
- *  the supplied data should be in an array with this structure
- *  array['icn'] ['file'][i]['key']  ['claim'][i]['key']  ['type']['type']
- *
- * @uses csv_table_header()
- *
- * @param array $csvdata data_ar data array from edih_XXX_csv_data()
- * @return array|bool        ordered array or false on error
- */
-function edih_csv_order($csvdata)
-{
-    //
-    $wrcsv = [];
-    $order_ar = [];
-    //
-    foreach ($csvdata as $icn => $data) {
-        // [icn]['type']['file']['claim']
-        $ft = $data['type'];
-        $wrcsv[$icn]['type'] = $ft;
-        //
-        foreach ($data as $key => $val) {
-            if ($key == 'type') {
-                continue;
-            }
-
-            $order_ar[$icn][$key] = csv_table_header($ft, $key);
-            $ct = count($order_ar[$icn][$key]);
-            foreach ($val as $k => $rcrd) {
-                //
-                foreach ($order_ar[$icn][$key] as $ky => $vl) {
-                    $wrcsv[$icn][$key][$k][$ky] = $rcrd[$vl];
-                }
-            }
-        }
-    }
-
-    return $wrcsv;
-}
-
-/**
  * insert dashes in ten-digit telephone numbers
  *
  * @param string $str_val   the telephone number
@@ -1242,7 +1199,7 @@ function csv_table_header($file_type, $csv_type)
 
     //
     if ($ct === 'file') {
-        switch ((string)$ft) {
+        switch ($ft) {
             //case 'ack': $hdr = array('Date', 'FileName', 'isa13', 'ta1ctrl', 'Code'); break;
             //case 'ebr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
             //case 'ibr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
@@ -1276,7 +1233,7 @@ function csv_table_header($file_type, $csv_type)
                 break;
         }
     } elseif ($ct === 'claim') {
-        switch ((string)$ft) {
+        switch ($ft) {
             //case 'ebr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
             //case 'ibr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
             //case 'dpr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
@@ -1409,29 +1366,6 @@ function csv_singlerecord_test($array)
 }
 
 /*
- * give first and last index keys for an array
- *
- * @param array
- * @return array
- */
-function csv_array_bounds($array)
-{
-    // get the segment array bounds
-    $ret_ar = [];
-    if (is_array($array) && count($array)) {
-        if (reset($array) !== false) {
-            $ret_ar[0] = key($array);
-        }
-
-        if (end($array) !== false) {
-            $ret_ar[1] = key($array);
-        }
-    }
-
-    return $ret_ar;
-}
-
-/*
  * return a csv file as an associative array
  * the first row is the header or array keys for the row
  * array structure:
@@ -1493,32 +1427,6 @@ function csv_assoc_array($file_type, $csv_type)
 
     //
     return $csv_ar;
-}
-
-
-/**
- * A multidimensional array will be flattened to a single row.
- *
- * @param array $array array to be flattened
- * @return array
- */
-function csv_array_flatten($array)
-{
-    //
-    if (!is_array($array)) {
-        return false;
-    }
-
-    $result = [];
-    foreach ($array as $key => $value) {
-        if (is_array($value)) {
-            $result = array_merge($result, csv_array_flatten($value));
-        } else {
-            $result[$key] = $value;
-        }
-    }
-
-    return $result;
 }
 
 
@@ -1849,7 +1757,7 @@ function csv_file_by_controlnum($type, $control_num)
 {
     // get the batch file containing the control_num
     //
-    $tp = csv_file_type($type);
+    $tp = is_string($type) ? csv_file_type($type) : '';
     //
     $hdr = csv_table_header($tp, 'file');
     $scol = array_search('Control', $hdr);
