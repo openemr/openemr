@@ -222,6 +222,34 @@ inputs:
   #             changes, build from the PR's docker/release/Dockerfile
   #             instead of pulling from Docker Hub
 
+# Runs three scenarios (matrix jobs, parallel):
+#
+#   1. Fresh install of from_tag -- validates the currently-shipped
+#      installer path. Baseline sanity for the pattern.
+#
+#   2. Fresh install of to_tag -- validates the target-version's
+#      installer code (setup.php / wizard) directly. This is a
+#      DIFFERENT code path than the upgrade path -- new users
+#      installing the target version don't run fsupgrade-<N>.sh
+#      or sql_upgrade.php, they run the full installer.
+#
+#   3. Upgrade from_tag -> to_tag -- validates the auto-upgrade
+#      path (fsupgrade-<N>.sh + sql_upgrade.php) that existing
+#      installations traverse.
+#
+# All three exercise the same InstallTest / UpgradeIntegrityTest
+# classes with different artifact endpoints + test groups.
+
+# Matrix scenario shapes:
+
+# --- scenario: fresh-install (from_tag or to_tag) ---
+steps:
+  - checkout
+  - install composer deps for acceptance harness on the runner
+  - boot docker/production/docker-compose.yml with the scenario's tag
+  - run acceptance harness --group=fresh-install (against the tag)
+
+# --- scenario: upgrade (from_tag -> to_tag) ---
 steps:
   - checkout
   - install composer deps for acceptance harness on the runner
@@ -563,3 +591,11 @@ in acceptance."
   design should treat artifact endpoint as opaque (Docker Hub tag
   vs local build) so Phase 2.5 is workflow-only wiring, not a test
   rewrite.
+
+- **2026-07-23** — Split Phase 2 workflow into 3 matrix
+  scenarios (fresh-install of from_tag, fresh-install of to_tag,
+  upgrade from_tag -> to_tag). Prior sketch only exercised
+  fresh-install of from_tag before the upgrade cycle; the
+  target-version installer code path (setup.php on next) went
+  unvalidated. Splitting scenarios also isolates failure modes
+  and enables parallel matrix jobs.
