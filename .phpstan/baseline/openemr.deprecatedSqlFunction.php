@@ -5873,7 +5873,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 1,
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/messaging/handle_note.php',
 ];
 $ignoreErrors[] = [

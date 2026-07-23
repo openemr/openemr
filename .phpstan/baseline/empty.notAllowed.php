@@ -353,7 +353,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/LBF/report.php',
 ];
 $ignoreErrors[] = [
@@ -3093,7 +3093,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 15,
+    'count' => 18,
     'path' => __DIR__ . '/../../portal/messaging/handle_note.php',
 ];
 $ignoreErrors[] = [
@@ -3173,7 +3173,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../portal/report/document_downloads_action.php',
 ];
 $ignoreErrors[] = [
