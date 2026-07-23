@@ -6,12 +6,14 @@ production artifacts (Docker image + release tarball) end-to-end, without
 requiring test infrastructure inside the artifacts themselves.
 
 Companion to [`release-mechanism-migration-from-devops.md`](release-mechanism-migration-from-devops.md)
-(release-mechanism consolidation) and [`docker-migration-from-devops.md`](docker-migration-from-devops.md)
+(release-mechanism consolidation, completed 2026-07-23) and
+[`docker-migration-from-devops.md`](docker-migration-from-devops.md)
 (docker-pipeline consolidation, completed 2026-06-20). Sits alongside those
 as the next major structural change to how OpenEMR ships. Independent of
 both — no ordering dependency, but naturally follows the release-mechanism
 migration since acceptance tests become the strongest candidate for
-required checks on release-prep PRs.
+required checks on release-prep PRs; now that release-mechanism migration
+has landed, this plan is the next candidate to pick up.
 
 ## Contents
 
@@ -488,10 +490,11 @@ in acceptance."
   signal. Decide during Phase 5.
 - **Migration testing infrastructure to openemr-devops parity.** The
   release-mechanism migration [`release-mechanism-migration-from-devops.md`](release-mechanism-migration-from-devops.md)
-  runs on a similar phasing. Once both are complete, acceptance runs
-  become the natural quality gate on release-prep PRs — but only after
-  release-mechanism migration lands the changes that make PRs the
-  authoritative release-gate surface.
+  **completed 2026-07-23** (Phase 6 wholesale delete of the devops
+  release-mechanism surface, openemr/openemr-devops#863). PRs are now
+  the authoritative release-gate surface — so this plan can proceed
+  with acceptance runs as the target quality gate on release-prep PRs
+  without waiting on further release-mechanism scaffolding.
 
 ## Feedback wanted
 
