@@ -2782,7 +2782,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standardResource'
+          $ref: '#/components/responses/standard'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -2962,7 +2962,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standardResource'
+          $ref: '#/components/responses/standard'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
