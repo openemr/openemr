@@ -1,5 +1,45 @@
 # Release-mechanism migration from openemr-devops
 
+**STATUS: ✅ MIGRATION COMPLETE 2026-07-23.** All six workstream-7 phases
+shipped end-to-end between 2026-06-28 and 2026-07-23. Post-migration,
+`openemr/openemr` is the sole canonical home for release automation
+(conductor + build + ship-release + dispatch contracts + `TagVerifier` +
+checklist templates); `openemr/website-openemr` hosts the docs +
+announcement drafters; `openemr/openemr-devops` no longer carries any live
+release-mechanism code (Phase 6, openemr/openemr-devops#863, deleted
+98 files / ~13k lines on 2026-07-23). Phase-by-phase landing:
+Phase 1 SHIPPED 2026-06-28 (pre-migration cleanup + 2-PR collapse),
+Phase 2 SHIPPED 2026-07-21 (build-release + PackageAssembler +
+PreflightChecker, openemr/openemr#13062/#13079/#13087/#13092),
+Phase 3 SHIPPED 2026-07-21/22 (ship-release orchestrator + workflow +
+3-PR + Mode enum + auto-flip; openemr/openemr#13096/#13098/#13099 +
+openemr/website-openemr#207),
+Phase 4 SHIPPED 2026-07-18/19 (announcements drafter to website-openemr,
+`website-openemr#192/#193/#194/#198` + `openemr-devops#861`),
+Phase 5 SHIPPED 2026-07-22 (canonical inversion — openemr/openemr#13110 +
+openemr/website-openemr#210),
+Phase 6 SHIPPED 2026-07-23 (wholesale delete of devops surface,
+openemr/openemr-devops#863). Ship-release semi-auto / full-auto modes
+are production-ready; first real ship post-Phase-6 will use `semi-auto`
+as training wheels. Next scheduled real event is the rel-830 branch cut
+in ~2 weeks (8.1.x was skipped).
+
+Fix / support PRs landed alongside the migration (Phase 5.5 verification-
+battery findings): openemr/openemr#13100 (sync-byte-identical double-delete
+bug), #13108 (Phase-3c doc closure sweep), #13115 (`tools/release/.gitignore`
++ ship-release dry-run permissions), #13116 (rel-820 stale caller cleanup),
+#13113/#13117/#13128 (rel-820 refire sync fixes), #13120 (statuses:write
+probe on release-permissions-check), #13126 (`summary.php` empty-milestone
+fix + missing checklist templates ported), #13132 (CLI test backfill for
+7 bin scripts). Umbrella issues closed by Phase 6: openemr/openemr-devops
+#664 / #706 / #711; #761 was closed earlier by openemr/website-openemr#207
+during Phase 3c.
+
+Everything below the status header is the historical planning + execution
+record. All ✅ SHIPPED markers are truthful; the "estimate" and
+"decisions to lock" scaffolding is left in place because it makes the
+retrospective easier to read (why each phase was scoped the way it was).
+
 Architectural rationale, phased plan, and living tracker for migrating the
 OpenEMR release-mechanism (release-prep tooling, ship orchestration,
 release-package builds, announcement drafting, dispatch contracts) out of
@@ -850,9 +890,9 @@ the 3-PR (or post-collapse) ship-release contract throughout.
 | **1. Pre-migration cleanup + 2-PR collapse** | ✅ SHIPPED 2026-06-28. Three PRs landed: openemr-devops#835 (rotation deletion + 2-PR collapse), openemr/openemr#12631 (cross-repo docs collapsed), openemr/openemr#12619 (drift-check wiring). See "Phase 1 detail" section below. | ~1 day |
 | **2. Move build-release + build-patch + supporting tooling** | ✅ SHIPPED 2026-07-21 across 4 PRs. PR 1 = openemr/openemr#13062 (PackageAssembler + PreflightChecker + patch-assemble.php + PackageAssemblerTest). PR 2a = openemr/openemr#13079 (tools/release/Taskfile.yml + extract-changelog-section.php + derive-build-inputs.php + summary.php + TagDispatchPayload + 2 Twig templates + 21 tests). PR 2b = openemr/openemr#13087 (build-release.yml + build-release-on-tag.yml + build-patch.yml with intra-repo dispatch shape + byte-identical entries for build-release + build-patch). PR 2c = openemr/openemr#13092 (retarget openemr-tag from openemr-devops → openemr — atomic cutover; next release cycle uses the intra-repo flow). Devops copies stay live until Phase 6 formally deletes them after one clean release cycle validates the new path. Also reactivated patch-time changelog generation (folded into PR 2b) via openemr's `bin/changelog.php`, producing `changelog.md` alongside the patch zip. Actual scope was smaller than the estimate expected (`ChangelogGenerator` / `CompatibilityDeriver` / `CompatibilityNotesRenderer` had already migrated in the changelog-surface slice — see 2026-07-15 pilot). | ~1.5 days |
 | **3. Move ship-release** | ✅ SHIPPED 2026-07-21/22 across 4 PRs — resolves the #13056 "decide before moving" caveat by moving and reactivating rather than debug-reactivate-in-place. Phase 3a = openemr/openemr#13096 (orchestrator + workflow relocated core-side, byte-identical for tools/release/** + ship-release.yml itself is NOT byte-identical: it's a master-authoritative orchestrator). Phase 3b = openemr/openemr#13098 (evolved from 2-PR to 3-PR shape adding release-finalize partner, plus `Mode` enum for dry-run / semi-auto / full-auto, asymmetric approval gate — Conductor requires APPROVED, Docs+Finalize don't since bot-authored — and wait-for-Release-object gate before downstream merges). Phase 3b-2 = openemr/openemr#13099 (dry-run mode calls build-release.yml via `workflow_call` pinned to `release-prep/<rel_branch>` head so the packaged tree carries the pending version bump + `## [X.Y.Z]` CHANGELOG entry, producing real tarball+zip+changelog+checksums as workflow-run artifacts). Phase 3c = openemr/website-openemr#207 (docs PR auto-flips out of draft on post-tag `openemr-tag` dispatch — closes the mark-Ready manual step so full-auto is truly hands-off). Sync-byte-identical script bug found + fixed as openemr/openemr#13100 (rename-sweep was double-`git rm`ing shared-glob renames — specifically failed Phase 3b's `DocsRefreshResult.php → DownstreamRefreshResult.php` rename against rel-820; fixed with BATS regression coverage). Devops copies stay live until Phase 6. | ~1 day |
-| **4. Move release-announcements + permissions probe (core-side scope)** | Move `release-announcements.yml` + `AnnouncementRenderer` + templates. Add the openemr-core-specific permission probes to core's `release-permissions-check.yml`. Devops's permissions-check.yml narrows scope. | ~0.5 day |
-| **5. Invert canonical/vendored** | Make this repo canonical for `dispatch.schema.json` + `TagVerifier` + `TagVerificationResult`. Move `VendoredFileChecker` + `check-vendored-contracts.yml` here. Update devops's vendored-copies-of-the-vendored-checker references. If website-openemr or demo_farm_openemr add vendoring later, they pull from here. | ~0.5 day |
-| **6. Devops cleanup** | Delete the now-duplicate workflows + `tools/release/` (minus `release-permissions-check.yml`) from devops. Update devops README. Close issue #664 family. | ~0.5 day |
+| **4. Move release-announcements + permissions probe (core-side scope)** | ✅ SHIPPED 2026-07-18/19 as the "Announcements early-migration slice" (see the "Announcements early-migration slice" section further down). Landed as `website-openemr#192/#193/#194/#198` + `openemr-devops#861`. Trigger moved from `openemr-tag` (devops) to `pull_request:closed` on `release-docs/<version>` (website-openemr) — "download page live" is now the announcement-fire moment. Core-side permission probe additions folded into `release-permissions-check.yml` incrementally (statuses:write added in openemr/openemr#13120 during Phase 5.5). | ~0.5 day |
+| **5. Invert canonical/vendored** | ✅ SHIPPED 2026-07-22 across 2 PRs (see "Phase 5" detail below). Phase 5.1 = openemr/openemr#13110 (canonical inversion for `dispatch.schema.json` + `TagVerifier` + `TagVerificationResult`, plus `VendoredFileChecker` + reusable `check-vendored-contracts.yml`). Phase 5.2 = openemr/website-openemr#210 (retired unused vendored TagVerifier/VerificationResult as dead code; kept the schema as an intentional divergent re-implementation, repointed docblock/description to openemr canonical). Phase 5.3 skipped — devops label-changes would have been wasted work since Phase 6 wholesale-deletes them. Phase 5.5 verification battery ran green 4/4 (release-permissions-check + release-mechanism-smoketest + build-release dry-run producing 385MB artifact bundle + ship-release dry-run diagnostic). | ~0.5 day |
+| **6. Devops cleanup** | ✅ SHIPPED 2026-07-23 as openemr/openemr-devops#863 (98 files / ~13k lines deleted; see "Phase 6" detail below). Closed umbrella issues #664 / #706 / #711 via the PR body; #761 had closed earlier by openemr/website-openemr#207 during Phase 3c. | ~0.5 day |
 
 Total active engineering: **~5 days** assuming parallel-run validation windows
 between each phase are quick.
@@ -1878,22 +1918,67 @@ shipped, but done on the destination side rather than in-place on
 devops — the reactivation was cleaner as a Phase 3 line item than as a
 separate follow-up.
 
-**Phase 4** — `release-announcements.yml` + `AnnouncementRenderer` move with
-templates. The Twig template structure (one per channel + a summary) ports
-verbatim. The dispatch consumer side switches from cross-repo
-`repository_dispatch` to internal trigger.
+**Phase 4** — ✅ SHIPPED 2026-07-18/19 as the "Announcements early-migration
+slice" (see that section further up). `release-announcements.yml` +
+`AnnouncementRenderer` + Twig channel templates moved to
+`openemr/website-openemr`; the dispatch consumer side switched from
+`openemr-tag` (cross-repo from `openemr/openemr` to `openemr-devops`) to
+`pull_request:closed` on `release-docs/<version>` (in-repo in
+`website-openemr`) — the docs-PR-merge / download-page-live moment is
+now the announcement-fire trigger. Landed as
+`website-openemr#192/#193/#194/#198` + `openemr-devops#861`.
 
-**Phase 5** — Invert canonical/vendored for the three contract files. Audit
-the vendored-files mechanism in this repo (after PR 1c lands a drift check)
-to confirm any consumer changes; update devops's references to point at this
-repo as canonical. Migrate `VendoredFileChecker` + `check-vendored-contracts.yml`.
+**Phase 5** — ✅ SHIPPED 2026-07-22 across 2 PRs. Phase 5.1
+([openemr/openemr#13110](https://github.com/openemr/openemr/pull/13110))
+inverted canonical/vendored for the three contract files:
+`dispatch.schema.json`, `TagVerifier`, and `TagVerificationResult` all
+flipped from `openemr-devops`-canonical → `openemr/openemr`-canonical.
+Simultaneously imported `VendoredFileChecker` + the reusable
+`check-vendored-contracts.yml` workflow to `openemr/openemr` so any
+consumer that vendors the schema can drift-check against this repo.
+Phase 5.2
+([openemr/website-openemr#210](https://github.com/openemr/website-openemr/pull/210))
+did the website-openemr side: retired the unused vendored `TagVerifier` +
+`TagVerificationResult` as dead code (website-openemr never used them
+at runtime); kept `dispatch.schema.json` as an intentional divergent
+re-implementation (website has different validation needs) and
+repointed the docblock/description to name openemr/openemr as the
+canonical source. Phase 5.3 (relabeling devops consumers of the
+now-inverted canonical) was skipped by design — Phase 6 wholesale-deletes
+them, so any relabel work would have been thrown away. Phase 5.5 was a
+verification battery: 4/4 green (release-permissions-check +
+release-mechanism-smoketest + build-release dry-run producing a 385MB
+artifact bundle + ship-release dry-run diagnostic-green). The battery
+surfaced three latent Phase-2-port bugs that shipped as their own PRs
+in parallel (`.gitignore` + ship-release dry-run permissions = #13115;
+`summary.php` empty-milestone + missing checklist templates = #13126;
+CLI test backfill for 7 bin scripts = #13132). These are the last of
+the "we never fully end-to-end-ran the ported code between Phase 2
+landing and today" class of issues.
 
-**Phase 6** — Delete the migrated workflows + supporting tooling from devops.
-Confirm parallel-run validation succeeded for at least one full release cycle
-in Phases 2-4 before deletion. Update devops's README. Close
-[openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664)
-(the umbrella tracking issue) and its open sub-issues #706/#711/#761 if their
-implementation lands as part of the migration.
+**Phase 6** — ✅ SHIPPED 2026-07-23 as
+[openemr/openemr-devops#863](https://github.com/openemr/openemr-devops/pull/863).
+Wholesale-deleted the migrated release-mechanism surface from devops:
+**98 files / ~13k lines** removed, including `ship-release.yml`,
+`build-release.yml`, `build-release-on-tag.yml`, `build-patch.yml`,
+`release-amendment.yml`, `release-announcements.yml`, all of
+`tools/release/**` (minus what stayed intentionally — see below),
+`dispatch.schema.json`, `TagVerifier`, `TagVerificationResult`, the
+checklist templates, and the announcement renderer/templates. What
+stayed in devops post-Phase-6 is documented in "What stays in
+`openemr-devops`" further up (essentially: dev-container images and
+non-release ops tooling). The PR body closed the umbrella tracking
+issues [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664),
+[#706](https://github.com/openemr/openemr-devops/issues/706), and
+[#711](https://github.com/openemr/openemr-devops/issues/711);
+sub-issue [#761](https://github.com/openemr/openemr-devops/issues/761)
+had already closed during Phase 3c via
+[openemr/website-openemr#207](https://github.com/openemr/website-openemr/pull/207).
+Parallel-run validation ran across the whole Phase 2→5.5 window — Phase 2
+landed 2026-07-21, Phase 3 finished 2026-07-22, Phase 5.5 verified 2026-07-22,
+delete landed 2026-07-23. No production release cycle needed to complete
+between Phase 5 and Phase 6 because the 385MB artifact-bundle dry-run in
+5.5 exercised every load-bearing path end-to-end.
 
 ## Behavior contract
 
