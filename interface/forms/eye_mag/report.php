@@ -2449,7 +2449,12 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     }
                 }
             }
-            echo nl2br(text($item['plan'])) . "</div><br />";
+            $plan = str_replace(
+                ["\v", "\f", "\xC2\x85", "\u{2028}", "\u{2029}"],
+                "\n",
+                (string) $item['plan']
+            );
+            echo nl2br(text($plan)) . "</div><br />";
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
             $PLAN_results = sqlStatement($query, [$form_id, $pid]);
