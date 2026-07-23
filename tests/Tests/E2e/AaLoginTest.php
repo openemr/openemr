@@ -110,9 +110,10 @@ class AaLoginTest extends PantherTestCase
     #[Test]
     public function testAdminPageEnabledWithEnvVar(): void
     {
+        $openemrRoot = dirname(__DIR__, 3);
         $process = new Process(
-            ['php', 'admin.php'],
-            '/var/www/localhost/htdocs/openemr',
+            ['php', $openemrRoot . '/admin.php'],
+            null,
             ['OPENEMR_ADMIN_PHP_ENABLED' => '1']
         );
         $process->run();
