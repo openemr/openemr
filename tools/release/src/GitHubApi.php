@@ -135,11 +135,27 @@ class GitHubApi
     }
 
     /**
+     * Batch size for `/search/issues` multi-SHA queries. 25 SHAs per batch
+     * keeps the URL query string ~275 chars, well under any practical
+     * limit, and reduces a typical 200-commit changelog build from ~200
+     * requests to ~8 — the primary defense against release-App-installation
+     * rate-limit exhaustion (see docs/release-mechanism-gaps.md G30).
+     */
+    private const PRS_FOR_COMMITS_BATCH_SIZE = 25;
+
+    /**
      * Resolve commit SHAs to their associated pull requests.
      *
      * Deduplicates by PR number. `author` is the PR user's login (e.g.
      * `dependabot[bot]`), needed by ChangelogGenerator's noise filter to
      * distinguish dependabot/release-bot PRs.
+     *
+     * Batches the underlying calls via GitHub's `/search/issues` API using
+     * OR-joined `sha:` qualifiers, so a typical 200-commit changelog build
+     * makes ~8 API requests instead of ~200. Preserves the raw
+     * `.user.login` format (with `[bot]` suffix for bot users) that the
+     * REST commits-pulls endpoint returned — matches
+     * ChangelogGenerator's noise-filter constants.
      *
      * @param list<string> $shas
      * @return list<array{number: int, title: string, labels: list<array{name: string}>, url: string, author: string}>
@@ -149,11 +165,16 @@ class GitHubApi
         /** @var array<int, array{number: int, title: string, labels: list<array{name: string}>, url: string, author: string}> $seen */
         $seen = [];
 
-        foreach ($shas as $sha) {
+        foreach (array_chunk($shas, self::PRS_FOR_COMMITS_BATCH_SIZE) as $batch) {
+            $shaQualifiers = implode('+', array_map(
+                static fn(string $sha): string => "sha:{$sha}",
+                $batch,
+            ));
+            $query = "repo:{$this->repo}+type:pr+is:merged+{$shaQualifiers}";
             $output = $this->runGh([
                 'api',
-                "/repos/{$this->repo}/commits/{$sha}/pulls",
-                '--jq', '[.[] | {number, title, labels: [.labels[] | {name}], url: .html_url, author: .user.login}]',
+                "/search/issues?q={$query}&per_page=100",
+                '--jq', '[.items[] | {number, title, labels: [.labels[] | {name}], url: .html_url, author: .user.login}]',
             ]);
 
             /** @var list<array{number: int, title: string, labels: list<array{name: string}>, url: string, author: string}> $prs */

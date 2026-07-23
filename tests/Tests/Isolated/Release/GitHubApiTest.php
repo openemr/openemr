@@ -175,6 +175,80 @@ final class GitHubApiTest extends TestCase
         }
     }
 
+    public function testPrsForCommitsBatchesSHAsIntoOneRequestPerChunk(): void
+    {
+        // 30 SHAs → 2 batches (25 + 5) → 2 gh requests instead of 30.
+        // This is the primary defense against release-App rate-limit
+        // exhaustion; see docs/release-mechanism-gaps.md G30.
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":1,"title":"a","labels":[],"url":"u1","author":"x"}]', 'err' => ''],
+            ['exit' => 0, 'out' => '[{"number":2,"title":"b","labels":[],"url":"u2","author":"y"}]', 'err' => ''],
+        ]);
+
+        $shas = array_fill(0, 30, str_repeat('a', 40));
+        $result = $api->prsForCommits($shas);
+
+        self::assertCount(2, $result, 'both batches contributed one PR each');
+        self::assertCount(2, $api->capturedCommands, '30 SHAs / batch-size 25 → 2 requests');
+    }
+
+    public function testPrsForCommitsSingleBatchWhenUnderChunkSize(): void
+    {
+        // 20 SHAs fits in one batch — verifies chunk boundary.
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":1,"title":"a","labels":[],"url":"u1","author":"x"}]', 'err' => ''],
+        ]);
+
+        $shas = array_fill(0, 20, str_repeat('a', 40));
+        $result = $api->prsForCommits($shas);
+
+        self::assertCount(1, $result);
+        self::assertCount(1, $api->capturedCommands);
+    }
+
+    public function testPrsForCommitsDeduplicatesPRAcrossBatches(): void
+    {
+        // Same PR (#42) appears in both batches (e.g., a PR with commits
+        // spread across the 25-SHA batch boundary). Dedup by PR number
+        // must survive the batch split.
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":42,"title":"t","labels":[],"url":"u","author":"x"}]', 'err' => ''],
+            ['exit' => 0, 'out' => '[{"number":42,"title":"t","labels":[],"url":"u","author":"x"}]', 'err' => ''],
+        ]);
+
+        $shas = array_fill(0, 30, str_repeat('a', 40));
+        $result = $api->prsForCommits($shas);
+
+        self::assertCount(1, $result, 'PR #42 appears once despite being in both batches');
+        self::assertSame(42, $result[0]['number']);
+    }
+
+    public function testPrsForCommitsBatchCommandTargetsSearchIssuesWithShaQualifiers(): void
+    {
+        // Concrete-command assertion: verifies the batch call actually
+        // targets /search/issues and includes sha: qualifiers joined by
+        // '+' (URL-encoded search-query separator).
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[]', 'err' => ''],
+        ]);
+
+        $api->prsForCommits([
+            'abc123abc123abc123abc123abc123abc123abc1',
+            'def456def456def456def456def456def456def4',
+        ]);
+
+        $cmd = $api->capturedCommands[0];
+        self::assertContains('api', $cmd);
+        // Find the URL argument (position after 'api')
+        $urlArg = $cmd[array_search('api', $cmd, true) + 1];
+        self::assertStringContainsString('/search/issues?q=', $urlArg);
+        self::assertStringContainsString('repo:openemr/openemr', $urlArg);
+        self::assertStringContainsString('type:pr', $urlArg);
+        self::assertStringContainsString('is:merged', $urlArg);
+        self::assertStringContainsString('sha:abc123abc123abc123abc123abc123abc123abc1', $urlArg);
+        self::assertStringContainsString('sha:def456def456def456def456def456def456def4', $urlArg);
+    }
+
     public function testConstructorRejectsNonPositiveMaxAttempts(): void
     {
         $this->expectException(\InvalidArgumentException::class);
