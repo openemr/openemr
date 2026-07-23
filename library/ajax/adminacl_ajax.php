@@ -49,7 +49,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 //Display red alert if Emergency Login ACL is activated for a user.
 if ($_POST["action"] === "add") {
     if (!empty($_POST["selection"]) && is_array($_POST["selection"]) && in_array("Emergency Login", $_POST["selection"])) {
-        $error[] = (xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.'));
+        $error[] = xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.');
     }
 }
 

@@ -25,7 +25,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:latest@sha256:be652ca6e1e9f1947c1e1ac99382d6aa5c2a62af6cc3fc125c22a8703c18cac2
+    image: openemr/openemr:latest@sha256:95c918cbb7a0208bb73daea9c5d757f0fda6224c60a6d6f665e19f2dcfc26960
     ports:
     - 80:80
     - 443:443

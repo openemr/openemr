@@ -106,9 +106,9 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
             let failCounterElement = document.getElementById('fail-counter-' + ipId);
             failCounterElement.innerHTML = "0";
             let lastFailElement = document.getElementById('last-fail-' + ipId);
-            lastFailElement.innerHTML = jsText(xl("Not Applicable"));
+            lastFailElement.innerHTML = jsXlt("Not Applicable");
             let autoblockElement = document.getElementById('autoblock-' + ipId);
-            autoblockElement.innerHTML = jsText(xl("No"));
+            autoblockElement.innerHTML = jsXlt("No");
         }
 
     </script>

@@ -152,7 +152,7 @@ jobs:
         } >> "$GITHUB_OUTPUT"
 
     - name: Install npm package
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ steps.parse.outputs.node_version }}
 
@@ -488,7 +488,7 @@ jobs:
 
     - name: Install npm package
       if: ${{ matrix.suite == 'e2e' }}
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ needs.setup.outputs.node_version }}
 

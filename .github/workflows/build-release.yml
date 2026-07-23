@@ -1,0 +1,321 @@
+name: Build Release
+run-name: "Build Release ${{ inputs.version }}${{ inputs.dry_run && ' (dry run)' || '' }}"
+
+# Distribution package build + GitHub Release publish for an official
+# OpenEMR release. Two entry paths:
+#
+#   1. `workflow_dispatch` — manual invocation for one-off rebuilds
+#      (or dry-run testing) by a maintainer.
+#   2. `workflow_call` — called by build-release-on-tag.yml after the
+#      release-prep conductor fans out the `openemr-tag`
+#      repository_dispatch on release-me PR merge.
+#
+# The workflow assumes CHANGELOG.md is already populated for the target
+# version — ChangelogMutator + CompatibilityMutator write it during the
+# release-prep + release-finalize partner PRs, so the section is in
+# place by the time this workflow fires post-tag. See
+# openemr/openemr#12925 + openemr/openemr#12928 for the mutator
+# framework, and RELEASE_PROCESS.md for the ship runbook.
+#
+# Migrated from openemr/openemr-devops in workstream 7 Phase 2 (PR 2b).
+# Dropped from the devops shape:
+#
+#   * `version-bump MODE=full` fallback (Detect existing prep + Version
+#     bump + Commit + Push steps). The conductor's `VersionPhpMutator`
+#     (rel-scope) already clears -dev before the tag exists; by the
+#     time this workflow consumes the openemr-tag dispatch, `$v_tag`
+#     is clean. Manual mid-cycle dry-run niche is available via
+#     release-prep or a temporarily-mutated local checkout.
+#
+#   * `validate_token` input + the "even during dry_run, generate +
+#     verify the app token" gate it drove. `release-permissions-check.yml`
+#     is the tool for testing token permissions; validate_token was a
+#     duplicative safety net that predated it.
+#
+#   * `upload_sourceforge` + `docker_prep` + `update_website` inputs
+#     and their "not yet implemented" no-op steps. Dead scope for
+#     months. Also gets total workflow_dispatch inputs under GitHub's
+#     10-input cap (was 11).
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_branch:
+        description: Release branch (e.g., rel-820)
+        required: true
+        type: string
+      version:
+        description: Human-readable version (e.g., 8.2.0)
+        required: true
+        type: string
+      release_tag:
+        description: Git tag (e.g., v8_2_0). Required unless dry run.
+        required: false
+        type: string
+      milestone:
+        description: GitHub milestone name for preflight check (e.g., 8.2.0)
+        required: false
+        type: string
+      dry_run:
+        description: Dry run — build only, skip release
+        type: boolean
+        default: true
+      skip_milestone_check:
+        description: Skip milestone open-items check
+        type: boolean
+        default: false
+      skip_ghsa_check:
+        description: Skip unpublished GHSA check
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      version_branch:
+        description: Release branch (e.g., rel-820)
+        required: true
+        type: string
+      version:
+        description: Human-readable version (e.g., 8.2.0)
+        required: true
+        type: string
+      release_tag:
+        description: Git tag (e.g., v8_2_0). Required unless dry run.
+        required: false
+        type: string
+      milestone:
+        description: GitHub milestone name for preflight check (e.g., 8.2.0)
+        required: false
+        type: string
+      dry_run:
+        description: Dry run — build only, skip release
+        type: boolean
+        default: true
+      skip_milestone_check:
+        description: Skip milestone open-items check
+        type: boolean
+        default: false
+      skip_ghsa_check:
+        description: Skip unpublished GHSA check
+        type: boolean
+        default: false
+
+concurrency:
+  group: build-release-${{ inputs.release_tag || inputs.version }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-release:
+    runs-on: ubuntu-24.04
+    name: Build Release
+    # Cap runtime. Package assembly + tag/release is under 15 min in
+    # normal runs; the GitHub-default 6h ceiling would let a hung
+    # composer/npm/git step burn runner minutes if something wedged.
+    timeout-minutes: 30
+    steps:
+    - name: Validate inputs
+      if: "!inputs.dry_run && inputs.release_tag == ''"
+      run: |
+        printf '::error::release_tag is required when dry_run is false\n'
+        exit 1
+
+    - name: Generate app token
+      if: '!inputs.dry_run'
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+        repositories: openemr
+
+    - name: Verify app token
+      if: '!inputs.dry_run'
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: |
+        echo "Checking app token can access openemr/openemr milestones..."
+        gh api repos/openemr/openemr/milestones --jq '.[].title' | head -5
+        echo 'App token verified.'
+
+    - name: Checkout openemr release branch
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ inputs.version_branch }}
+        token: ${{ steps.app-token.outputs.token || github.token }}
+        filter: blob:none
+        fetch-depth: 1
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.5'
+
+    - name: Install Taskfile
+      uses: arduino/setup-task@v3
+      with:
+        version: 3.x
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Preflight checks
+      if: '(!inputs.skip_milestone_check && inputs.milestone != '''') || !inputs.skip_ghsa_check'
+      working-directory: tools/release
+      env:
+        # Route inputs through env so shell-metachars in operator-
+        # provided values can't break out of task-argument quoting.
+        # Task itself calls shellQuote on the value again; belt +
+        # suspenders.
+        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        MILESTONE: ${{ inputs.milestone }}
+        SKIP_MILESTONE: ${{ (inputs.skip_milestone_check || inputs.milestone == '') && '1' || '' }}
+        SKIP_GHSA: ${{ inputs.skip_ghsa_check && '1' || '' }}
+      run: >-
+        task preflight
+        MILESTONE="$MILESTONE"
+        SKIP_MILESTONE="$SKIP_MILESTONE"
+        SKIP_GHSA="$SKIP_GHSA"
+
+    # Extract the target version's section from CHANGELOG.md for the
+    # GitHub Release body + release-notes asset. Content is pre-computed
+    # by ChangelogMutator + CompatibilityMutator during the release-prep
+    # + release-finalize partner PRs (openemr/openemr#12925 +
+    # openemr/openemr#12928) — both the noise-filtered PR list and the
+    # Minimum-supported-versions block are already in place on the rel
+    # branch's CHANGELOG.md by the time this workflow runs post-tag.
+    - name: Extract CHANGELOG section
+      working-directory: tools/release
+      env:
+        # Route through env so a shell-metachar in inputs.version cannot
+        # break out of the task-argument quoting. Task itself calls
+        # shellQuote on the value again; belt + suspenders.
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: >-
+        task changelog:extract
+        VERSION="$RELEASE_VERSION"
+        OPENEMR_DIR='${{ github.workspace }}'
+
+    # Build and checksum the package before creating the tag/release. If
+    # any build step fails, the job aborts before a release exists —
+    # never publish a release that has no distribution assets attached.
+    - name: Setup Node
+      uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+
+    - name: Build distribution package
+      working-directory: tools/release
+      env:
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: >-
+        task package:assemble
+        VERSION="$RELEASE_VERSION"
+        OPENEMR_DIR="$GITHUB_WORKSPACE"
+
+    - name: Generate checksums
+      working-directory: tools/release
+      env:
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: |
+        task checksum FILE="openemr-${RELEASE_VERSION}.tar.gz"
+        task checksum FILE="openemr-${RELEASE_VERSION}.zip"
+
+    - name: Create annotated tag and GitHub release
+      if: '!inputs.dry_run'
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        RELEASE_VERSION: ${{ inputs.version }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+      run: |
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
+
+        git config user.name 'github-actions[bot]'
+        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+        # Check the remote, not the local checkout: the checkout step
+        # uses fetch-depth: 1 and does not fetch tags, so a local
+        # rev-parse always misses an already-published tag. That made
+        # `git push origin "$tag"` fail with "tag already exists in the
+        # remote" when re-firing after the openemr/openemr conductor
+        # had already tagged via its finalize job.
+        #
+        # `git ls-remote --exit-code` returns 0 when the tag exists and 2
+        # when it does not. Any other status is a real lookup failure
+        # (auth, transport) and must abort rather than fall through to a
+        # tag push that would mask the underlying error.
+        tag_lookup_status=0
+        git ls-remote --tags --exit-code origin "refs/tags/$tag" > /dev/null 2>&1 || tag_lookup_status=$?
+        case "$tag_lookup_status" in
+          0)
+            echo "Tag $tag already exists on origin, skipping tag creation"
+            ;;
+          2)
+            git tag -a -m "Release $tag" "$tag" "$VERSION_BRANCH"
+            git push origin "$tag"
+            ;;
+          *)
+            echo "::error::Failed to query origin for tag $tag (git ls-remote exit $tag_lookup_status)" >&2
+            exit "$tag_lookup_status"
+            ;;
+        esac
+
+        if ! gh release view "$tag" --repo openemr/openemr > /dev/null 2>&1; then
+          echo "Creating release $tag"
+          gh release create "$tag" \
+            --repo openemr/openemr \
+            --title "OpenEMR $RELEASE_VERSION" \
+            --notes-file "${output_dir}/changelog.md" \
+            --verify-tag
+        fi
+
+    - name: Upload package and checksums to release
+      if: '!inputs.dry_run'
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: |
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
+
+        gh release upload "$tag" \
+          --repo openemr/openemr \
+          --clobber \
+          "${output_dir}/openemr-${RELEASE_VERSION}.tar.gz" \
+          "${output_dir}/openemr-${RELEASE_VERSION}.zip" \
+          "${output_dir}"/*.md5 \
+          "${output_dir}"/*.sha256 \
+          "${output_dir}"/*.sha512 \
+          "${output_dir}/changelog.md"
+
+    - name: Build summary
+      working-directory: tools/release
+      env:
+        MILESTONE: ${{ inputs.milestone }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        DRY_RUN: ${{ inputs.dry_run }}
+      run: >-
+        task summary
+        TYPE=full
+        MILESTONE="$MILESTONE"
+        VERSION_BRANCH="$VERSION_BRANCH"
+        RELEASE_TAG="$RELEASE_TAG"
+        DRY_RUN="$DRY_RUN"
+
+    - name: Upload artifacts (dry run)
+      if: inputs.dry_run
+      uses: actions/upload-artifact@v7
+      with:
+        name: release-${{ inputs.version }}
+        path: |
+          tools/release/release-output/openemr-${{ inputs.version }}.tar.gz
+          tools/release/release-output/openemr-${{ inputs.version }}.zip
+          tools/release/release-output/changelog.md
+          tools/release/release-output/*.md5
+          tools/release/release-output/*.sha256
+          tools/release/release-output/*.sha512
+        retention-days: 7

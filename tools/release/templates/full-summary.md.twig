@@ -1,0 +1,38 @@
+## Release Build Results
+
+### Inputs
+| Parameter | Value |
+|-----------|-------|
+| Release branch | `{{ version_branch }}` |
+| Version | `{{ milestone }}` |
+| Release tag | `{{ release_tag ?? '(dry run)' }}` |
+| Milestone | `{{ milestone }}` |
+| Dry run | `{{ dry_run ? 'true' : 'false' }}` |
+
+{% if checksums is not empty %}
+### Checksums
+```
+{% for checksum in checksums %}
+{{ checksum }}
+{% endfor %}
+```
+
+{% endif %}
+{% if changelog is not empty %}
+### Changelog
+{{ changelog }}
+
+{% endif %}
+---
+
+### Announcement template
+
+> **OpenEMR {{ milestone }} Released**
+>
+> OpenEMR {{ milestone }} has been released!
+>
+> Download: https://github.com/openemr/openemr/releases/tag/{{ release_tag ?? '(tag)' }}
+
+---
+
+{% include 'full-checklist.md' %}

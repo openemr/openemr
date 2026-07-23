@@ -1,0 +1,308 @@
+name: Build Patch Release
+run-name: "Build Patch Release ${{ inputs.version }}${{ inputs.dry_run && ' (dry run)' || '' }}"
+
+# Manual workflow_dispatch — emergent-patch escape hatch for zero-day-
+# style hotfixes that ship without a full release-cycle prep. Maintainer
+# picks the rel branch + patch parameters, workflow assembles a
+# cumulative patch zip from the diff between the previous tag and the
+# rel branch tip, then (optionally) creates the tag + GitHub Release +
+# uploads the patch as an asset.
+#
+# Intentionally parallel to the automated release flow (no
+# openemr-tag dispatch consumer, no cascade). Patch release cadence is
+# irregular and maintainer-driven, so this path is expected to be run
+# by hand when the situation calls for it. Distribution model: user
+# extracts the patch zip on top of an existing install.
+#
+# Migrated from openemr/openemr-devops in workstream 7 Phase 2 (PR 2b).
+# Three devops-side steps dropped at migration time:
+#
+#   1. `task release:version-bump MODE=patch` (Bump version.php) +
+#   2. Commit and push version bump
+#      Prereq: maintainer bumps `$v_realpatch` in `version.php` and
+#      pushes to the rel branch before invoking this workflow. That
+#      push fires the workstream-6 `patch-prep-automation.yml`, which
+#      handles the mutator-side release-targets + docker-scaffolding
+#      updates via a coordinated 2-PR flow (openemr/openemr#12697).
+#      This workflow packages the resulting patch; it doesn't own the
+#      version-bump.
+#
+#   3. `task release:changelog-pr` (Create CHANGELOG PRs)
+#      Retired from devops's Taskfile in openemr/openemr-devops#857
+#      (2026-07-13) when ChangelogMutator became authoritative for
+#      main-release CHANGELOG.md writes. build-patch's invocation had
+#      been broken since #857 landed. Patches don't rewrite the
+#      canonical CHANGELOG.md (that's mutator territory for main
+#      releases only); the patch-time git-log-derived changelog now
+#      lives in the standalone `changelog.md` artifact produced below.
+#
+# The `Generate changelog` step below reactivates patch-time changelog
+# generation using openemr's `bin/changelog.php` (same PHP CLI that
+# feeds ChangelogMutator for main releases) via the `changelog` task,
+# producing a standalone `changelog.md` alongside the patch zip. The
+# devops-side `task release:changelog` invocation was broken since
+# openemr/openemr-devops#858 retired the task; this replacement wires
+# to the openemr-side CLI directly. changelog.md gets attached to the
+# release + included in the dry-run artifact so the maintainer can
+# paste it into forum/announcement posts without a manual walk of
+# git log.
+#
+# Two devops-side inputs also dropped to fit under GitHub's 10-input
+# workflow_dispatch cap:
+#
+#   * `validate_token` -- release-permissions-check.yml is the tool
+#     for testing token permissions; validate_token was a duplicative
+#     safety net that predated it.
+#   * `skip_milestone_check` -- the existing preflight-check gate
+#     already skips the milestone check when milestone is empty. The
+#     explicit skip switch was rarely used when set with a non-empty
+#     milestone.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_start:
+        description: Start tag (e.g., v8_2_0)
+        required: true
+        type: string
+      version_branch:
+        description: Release branch (e.g., rel-820)
+        required: true
+        type: string
+      patch_filename:
+        description: Patch zip filename (e.g., 8-2-0-Patch-1.zip)
+        required: true
+        type: string
+      version:
+        description: Human-readable version (e.g., 8.2.0.1)
+        required: true
+        type: string
+      milestone:
+        description: GitHub milestone name for preflight check (e.g., 8.2.0.1)
+        required: false
+        type: string
+      patch_number:
+        description: Patch number to set in version.php $v_realpatch (e.g., 1)
+        required: true
+        type: string
+      release_tag:
+        description: GitHub release tag to upload to (e.g., v8_2_0_1). Required unless dry run.
+        required: false
+        type: string
+      dry_run:
+        description: Dry run — build and upload as workflow artifact only, skip GitHub release
+        type: boolean
+        default: true
+      copy_styles:
+        description: Build and include compiled theme styles
+        type: boolean
+        default: false
+      skip_ghsa_check:
+        description: Skip unpublished GHSA check
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build-patch:
+    runs-on: ubuntu-24.04
+    name: Build Patch
+    # Cap runtime. Patch assembly + tag/release is under 10 min in
+    # normal runs; the GitHub-default 6h ceiling would let a hung
+    # git/gh/npm step burn runner minutes if something wedged.
+    timeout-minutes: 30
+    steps:
+    - name: Validate inputs
+      if: "!inputs.dry_run && inputs.release_tag == ''"
+      run: |
+        printf '::error::release_tag is required when dry_run is false\n'
+        exit 1
+
+    - name: Generate app token
+      if: '!inputs.dry_run'
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+        repositories: openemr
+
+    - name: Verify app token
+      if: '!inputs.dry_run'
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: |
+        echo "Checking app token can access openemr/openemr milestones..."
+        gh api repos/openemr/openemr/milestones --jq '.[].title' | head -5
+        echo 'App token verified.'
+
+    - name: Checkout openemr release branch
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ inputs.version_branch }}
+        token: ${{ steps.app-token.outputs.token || github.token }}
+        filter: blob:none
+        fetch-depth: 1
+
+    - name: Fetch start tag
+      env:
+        VERSION_START: ${{ inputs.version_start }}
+      run: git fetch --filter=blob:none --depth=1 origin tag "$VERSION_START"
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.5'
+
+    - name: Install Taskfile
+      uses: arduino/setup-task@v3
+      with:
+        version: 3.x
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Preflight checks
+      if: 'inputs.milestone != '''' || !inputs.skip_ghsa_check'
+      working-directory: tools/release
+      env:
+        # Route inputs through env so shell-metachars in operator-
+        # provided values can't break out of task-argument quoting.
+        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        MILESTONE: ${{ inputs.milestone }}
+        SKIP_MILESTONE: ${{ inputs.milestone == '' && '1' || '' }}
+        SKIP_GHSA: ${{ inputs.skip_ghsa_check && '1' || '' }}
+      run: >-
+        task preflight
+        MILESTONE="$MILESTONE"
+        SKIP_MILESTONE="$SKIP_MILESTONE"
+        SKIP_GHSA="$SKIP_GHSA"
+
+    - name: Build theme styles
+      if: inputs.copy_styles
+      uses: actions/setup-node@v6
+      with:
+        node-version: '22'
+    - name: Install npm and build styles
+      if: inputs.copy_styles
+      run: |
+        npm ci
+        npm run build
+
+    - name: Assemble patch
+      working-directory: tools/release
+      env:
+        VERSION_START: ${{ inputs.version_start }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        PATCH_FILENAME: ${{ inputs.patch_filename }}
+        COPY_STYLES: ${{ inputs.copy_styles }}
+      run: >-
+        task patch:assemble
+        START_TAG="$VERSION_START"
+        BRANCH="$VERSION_BRANCH"
+        FILENAME="$PATCH_FILENAME"
+        OPENEMR_DIR="$GITHUB_WORKSPACE"
+        COPY_STYLES="$COPY_STYLES"
+
+    # Generate a git-log-derived changelog for the patch. Patches don't
+    # rewrite CHANGELOG.md (ChangelogMutator covers main releases only),
+    # so this step produces a standalone changelog.md the maintainer
+    # can paste into the GitHub Release body or the forum announcement.
+    # Uploaded alongside the patch zip so both are in one artifact.
+    - name: Generate changelog
+      working-directory: tools/release
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        VERSION_START: ${{ inputs.version_start }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: >-
+        task changelog
+        BASE="$VERSION_START"
+        HEAD="$VERSION_BRANCH"
+        TITLE="$RELEASE_VERSION"
+
+    - name: Generate checksums
+      working-directory: tools/release
+      env:
+        PATCH_FILENAME: ${{ inputs.patch_filename }}
+      run: >-
+        task checksum
+        FILE="$PATCH_FILENAME"
+
+    - name: Build summary
+      working-directory: tools/release
+      env:
+        MILESTONE: ${{ inputs.milestone }}
+        VERSION_START: ${{ inputs.version_start }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        PATCH_FILENAME: ${{ inputs.patch_filename }}
+        PATCH_NUMBER: ${{ inputs.patch_number }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        DRY_RUN: ${{ inputs.dry_run }}
+        COPY_STYLES: ${{ inputs.copy_styles }}
+      run: >-
+        task summary
+        TYPE=patch
+        MILESTONE="$MILESTONE"
+        START_TAG="$VERSION_START"
+        VERSION_BRANCH="$VERSION_BRANCH"
+        PATCH_FILENAME="$PATCH_FILENAME"
+        PATCH_NUMBER="$PATCH_NUMBER"
+        RELEASE_TAG="$RELEASE_TAG"
+        DRY_RUN="$DRY_RUN"
+        COPY_STYLES="$COPY_STYLES"
+
+    - name: Upload workflow artifact (dry run)
+      if: inputs.dry_run
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ inputs.patch_filename }}
+        compression-level: 0
+        path: |
+          tools/release/release-output/${{ inputs.patch_filename }}
+          tools/release/release-output/${{ inputs.patch_filename }}.md5
+          tools/release/release-output/${{ inputs.patch_filename }}.sha256
+          tools/release/release-output/${{ inputs.patch_filename }}.sha512
+          tools/release/release-output/changelog.md
+        retention-days: 7
+
+    - name: Create annotated tag and GitHub release
+      if: '!inputs.dry_run'
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        PATCH_FILENAME: ${{ inputs.patch_filename }}
+      run: |
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
+
+        git config user.name 'github-actions[bot]'
+        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+        if git rev-parse "$tag" > /dev/null 2>&1; then
+          echo "Tag $tag already exists, skipping tag creation"
+        else
+          git tag -a -m "Patch release $tag" "$tag" "$VERSION_BRANCH"
+          git push origin "$tag"
+        fi
+
+        if ! gh release view "$tag" --repo openemr/openemr > /dev/null 2>&1; then
+          echo "Creating release $tag"
+          gh release create "$tag" \
+            --repo openemr/openemr \
+            --title "$tag" \
+            --notes-file "${output_dir}/changelog.md" \
+            --verify-tag
+        fi
+
+        gh release upload "$tag" \
+          --repo openemr/openemr \
+          "${output_dir}/${PATCH_FILENAME}" \
+          "${output_dir}/${PATCH_FILENAME}.md5" \
+          "${output_dir}/${PATCH_FILENAME}.sha256" \
+          "${output_dir}/${PATCH_FILENAME}.sha512" \
+          "${output_dir}/changelog.md" \
+          --clobber
