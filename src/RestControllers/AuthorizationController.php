@@ -1474,6 +1474,16 @@ class AuthorizationController
             $logoutRedirectUris = $client['logout_redirect_uris'] ?? '';
             $registeredLogoutRedirectUris = explode('|', is_string($logoutRedirectUris) ? $logoutRedirectUris : '');
             $isRegisteredLogoutRedirect = !empty($post_logout_url) && in_array($post_logout_url, $registeredLogoutRedirectUris, true);
+            // Leave a breadcrumb for admins: the request asked to be sent to a post_logout_url
+            // that isn't in the client's registered logout_redirect_uris, so we drop the redirect
+            // and show the local sign-out page instead. Almost always this is a client whose exact
+            // post-logout URL was never registered, which is the one thing an admin needs to fix.
+            if ($post_logout_url !== '' && !$isRegisteredLogoutRedirect) {
+                $this->getSystemLogger()->warning(
+                    "OIDC logout: post_logout_redirect_uri is not registered for client {client_id}; ignoring the redirect. Add the exact URL to that client's logout_redirect_uris to allow it.",
+                    ['client_id' => $client_id, 'post_logout_redirect_uri' => $post_logout_url]
+                );
+            }
             $trustedUser = $this->trustedUser($client_id, $user);
             if (empty($trustedUser['id'])) {
                 // not logged in so just continue as if were.
