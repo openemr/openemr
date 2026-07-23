@@ -223,12 +223,17 @@ final class GitHubApiTest extends TestCase
         self::assertSame(42, $result[0]['number']);
     }
 
-    public function testPrsForCommitsBatchCommandUsesGhPrListWithSearch(): void
+    public function testPrsForCommitsBatchCommandUsesGhPrListWithShaOrSearch(): void
     {
         // Concrete-command assertion: verifies the batch uses
         // `gh pr list --search` (GraphQL, no 256-char query limit)
         // rather than `gh api /search/issues` (REST, capped at 4-5
-        // SHAs per batch — see the class-level comment).
+        // SHAs per batch — see the class-level comment). Also asserts
+        // explicit `sha:X OR sha:Y` syntax rather than relying on
+        // bare-SHA space-implicit-OR, which is not documented as OR
+        // in GitHub's search syntax (search terms are AND by default;
+        // the sha: qualifier's actual multi-value behavior isn't
+        // spec'd).
         $api = $this->makeApi([
             ['exit' => 0, 'out' => '[]', 'err' => ''],
         ]);
@@ -245,8 +250,28 @@ final class GitHubApiTest extends TestCase
         self::assertContains('merged', $cmd);
         self::assertContains('--search', $cmd);
         $searchArg = $cmd[array_search('--search', $cmd, true) + 1];
-        self::assertStringContainsString('abc123abc123abc123abc123abc123abc123abc1', $searchArg);
-        self::assertStringContainsString('def456def456def456def456def456def456def4', $searchArg);
+        self::assertSame(
+            'sha:abc123abc123abc123abc123abc123abc123abc1 OR sha:def456def456def456def456def456def456def4',
+            $searchArg,
+        );
+    }
+
+    public function testPrsForCommitsHandlesMissingAuthorFromDeletedGithubUser(): void
+    {
+        // Deleted-user PRs come back with `.author` = null in gh's
+        // GraphQL response; the `.author.login // ""` jq default
+        // converts that to empty string so PHP normalization doesn't
+        // TypeError. Empty author isn't matched by any noise filter,
+        // so the PR is included in the changelog (correct default —
+        // it's a real merged PR, just orphaned).
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":1,"title":"t","labels":[],"url":"u","author":""}]', 'err' => ''],
+        ]);
+
+        $result = $api->prsForCommits(['abc123abc123abc123abc123abc123abc123abc1']);
+
+        self::assertCount(1, $result);
+        self::assertSame('', $result[0]['author']);
     }
 
     public function testPrsForCommitsNormalizesAppSlashBotAuthorFormat(): void

@@ -173,7 +173,16 @@ class GitHubApi
         $seen = [];
 
         foreach (array_chunk($shas, self::PRS_FOR_COMMITS_BATCH_SIZE) as $batch) {
-            $searchTerm = implode(' ', $batch);
+            $searchTerm = implode(' OR ', array_map(
+                static fn(string $sha): string => "sha:{$sha}",
+                $batch,
+            ));
+            // `.author.login // ""` defaults to empty string when the PR
+            // author is null (deleted GitHub user) — otherwise jq would
+            // return literal null and the normalization below would
+            // TypeError. Empty string won't match any noise-filter
+            // constant, so a deleted-author PR would be included in the
+            // changelog rather than dropped as noise (correct default).
             $output = $this->runGh([
                 'pr', 'list',
                 '--repo', $this->repo,
@@ -181,7 +190,7 @@ class GitHubApi
                 '--search', $searchTerm,
                 '--json', 'number,title,labels,url,author',
                 '--limit', '100',
-                '--jq', '[.[] | {number, title, labels: [.labels[] | {name}], url, author: .author.login}]',
+                '--jq', '[.[] | {number, title, labels: [.labels[] | {name}], url, author: (.author.login // "")}]',
             ]);
 
             /** @var list<array{number: int, title: string, labels: list<array{name: string}>, url: string, author: string}> $prs */
