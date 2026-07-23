@@ -1,0 +1,46 @@
+# Compose override for artifact acceptance testing against a Docker Hub
+# openemr image (or a locally-built image, for PR validation — Phase 2.5).
+#
+# Layers on top of docker/production/docker-compose.yml — same production
+# stack shape end users deploy, with three overrides:
+#
+#   1. `image:` — replaces the sha-pinned prod ref with an env-driven
+#      tag. Defaults to `latest` for laptop convenience.
+#
+#   2. Ports rebound to high numbers so multiple stacks (dev + prod +
+#      acceptance) can coexist on one host without root or collisions.
+#
+#   3. `healthcheck:` — swapped to hit `/` instead of `/meta/health/readyz`
+#      so older images (pre-8.0 didn't have readyz) still pass. Same
+#      overall startup budget.
+#
+# Usage:
+#   OPENEMR_TAG=latest docker compose \
+#     -f docker/production/docker-compose.yml \
+#     -f .github/docker/acceptance-docker-compose.yml \
+#     -p openemr-acceptance \
+#     up --detach --wait --wait-timeout 900
+#
+# ACCEPTANCE_ARTIFACT_URL for the test suite: http://localhost:8580
+services:
+  openemr:
+    image: openemr/openemr:${OPENEMR_TAG:-latest}
+    ports:
+    - '8580:80'
+    - '8543:443'
+    healthcheck:
+      test:
+      - CMD
+      - /usr/bin/curl
+      - --fail
+      - --insecure
+      - --location
+      - --silent
+      - --output
+      - /dev/null
+      - http://localhost/
+      start_period: 3m
+      start_interval: 10s
+      interval: 30s
+      timeout: 5s
+      retries: 3
