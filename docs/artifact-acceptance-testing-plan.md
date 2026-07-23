@@ -319,6 +319,38 @@ login works. Roughly 3-5 days of work.
 Exit criterion: workflow succeeds on `latest` → `next` upgrade path, run
 manually 3 consecutive days without flake. Roughly 1 week.
 
+### Phase 2.5 — Build-from-codebase for PR validation *(extension of Phase 2)*
+
+Once the Docker Hub tag path from Phase 2 is stable, wire the
+optional `build_locally: bool` workflow input already sketched in the
+"Workflows" section. Purpose is to answer "will this PR ship a broken
+image?" *pre-merge* rather than catching it only in
+`docker-test-release` (which builds but doesn't run the auto-upgrade
+path or exercise the installer against real assertions).
+
+Two useful invocation shapes, both exercise the same InstallTest +
+UpgradeIntegrityTest classes with different artifact sources:
+
+- **Fresh install of PR-built** — build from the PR's
+  `docker/release/Dockerfile`, boot fresh, run
+  `--group=fresh-install`. Fastest PR feedback for installer/
+  Dockerfile changes.
+- **latest → PR-built upgrade** — boot Docker Hub `latest`, seed,
+  `down --preserve-volumes`, swap to PR-built image, boot,
+  `--group=post-upgrade`. Higher-value: validates that existing users
+  will get a working upgrade when this ships.
+
+The Phase 2 InstallTest + Support harness is designed with this
+extension in mind — the "artifact endpoint" abstraction is agnostic to
+whether the endpoint is a Docker Hub tag or a locally-built image.
+Adding this phase should be workflow-only (+ maybe a small
+`ArtifactSource` helper); no source-side changes to the tests.
+
+Exit criterion: workflow succeeds with `build_locally: true` on a
+scratch PR that intentionally touches the Dockerfile (e.g. adds a
+no-op comment), demonstrating pre-merge PR-image validation works.
+Roughly 2-3 days once Phase 2's shape is settled.
+
 ### Phase 3 — Package acceptance workflow
 
 - Design the generic-stack compose file for tarball testing
@@ -519,3 +551,15 @@ in acceptance."
   exploration surfaced that testing-in-image is the tail wagging the
   dog. Both PRs closed pending this plan; branches kept alive as
   reference material for phases 2 + 5.
+
+- **2026-07-23** — Added Phase 2.5 (build-from-codebase for PR
+  validation). Was already hinted as a workflow input option in the
+  "Workflows" section but not scheduled; splitting out as its own
+  slice makes the sequencing explicit: land Phase 2 against Docker
+  Hub tags first, then layer PR-image validation on top once the
+  harness pattern is proven. Two invocation shapes captured
+  (fresh install of PR-built; latest -> PR-built upgrade), each
+  answering a distinct pre-merge question. Phase 1 InstallTest
+  design should treat artifact endpoint as opaque (Docker Hub tag
+  vs local build) so Phase 2.5 is workflow-only wiring, not a test
+  rewrite.
