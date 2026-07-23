@@ -73,7 +73,7 @@ class FhirOperationExportRestController
     /**
      * @var IFhirExportableResourceService[] hashmap of resources to service classes that can be exported
      */
-    private $resourceRegistry;
+    private array $resourceRegistry = [];
 
     /**
      * @var bool
@@ -124,28 +124,29 @@ class FhirOperationExportRestController
     #[OA\Get(
         path: '/fhir/$export',
         description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        security: [['openemr_auth' => []]],
         tags: ['fhir'],
         responses: [
             new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
-        ],
-        security: [['openemr_auth' => []]]
+        ]
     )]
     #[OA\Get(
         path: '/fhir/Patient/$export',
         description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        security: [['openemr_auth' => []]],
         tags: ['fhir'],
         responses: [
             new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
-        ],
-        security: [['openemr_auth' => []]]
+        ]
     )]
     #[OA\Get(
         path: '/fhir/Group/{id}/$export',
         description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        security: [['openemr_auth' => []]],
         tags: ['fhir'],
         parameters: [
             new OA\Parameter(
@@ -160,8 +161,7 @@ class FhirOperationExportRestController
             new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
-        ],
-        security: [['openemr_auth' => []]]
+        ]
     )]
     public function processExport($exportParams, $exportType, $acceptHeader, $preferHeader)
     {
@@ -170,14 +170,15 @@ class FhirOperationExportRestController
         }
 
         $outputFormat = $exportParams['_outputFormat'] ?? ExportJob::OUTPUT_FORMAT_FHIR_NDJSON;
-        if (!empty($exportParams['_since'])) {
-            $since = $this->parseFHIRInstant($exportParams['_since']);
+        $sinceParam = $exportParams['_since'] ?? null;
+        if (is_string($sinceParam) && $sinceParam !== '' && $sinceParam !== '0') {
+            $since = $this->parseFHIRInstant($sinceParam);
         } else {
             $since = new \DateTime(date(\DateTimeInterface::ATOM, 0)); // since epoch time
         }
         $type = $exportParams['type'] ?? '';
         $groupId = $exportParams['groupId'] ?? null;
-        $resources = !empty($type) ? explode(",", (string) $type) : [];
+        $resources = is_string($type) && $type !== '' && $type !== '0' ? explode(",", $type) : [];
 
         $this->logger->debug(self::class . " Patient export call made", [
             '_outputFormat' => $outputFormat,
@@ -256,13 +257,13 @@ class FhirOperationExportRestController
     #[OA\Get(
         path: '/fhir/$bulkdata-status',
         description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        security: [['openemr_auth' => []]],
         tags: ['fhir'],
         responses: [
             new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
-        ],
-        security: [['openemr_auth' => []]]
+        ]
     )]
     public function processExportStatusRequestForJob($jobUuidString)
     {
@@ -330,13 +331,13 @@ class FhirOperationExportRestController
     #[OA\Delete(
         path: '/fhir/$bulkdata-status',
         description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        security: [['openemr_auth' => []]],
         tags: ['fhir'],
         responses: [
             new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
-        ],
-        security: [['openemr_auth' => []]]
+        ]
     )]
     public function processDeleteExportForJob($jobUuidString)
     {
@@ -349,7 +350,7 @@ class FhirOperationExportRestController
             $job = $this->fhirExportJobService->getJobForUuid($jobUuidString, $this->request->getClientId(), $this->request->getRequestUserUUIDString());
 
             $documents = \Document::getDocumentsForForeignReferenceId(ExportJob::TABLE_NAME, $job->getId());
-            if (!empty($documents)) {
+            if ($documents !== []) {
                 foreach ($documents as $document) {
                     $this->logger->debug(
                         "FhirExportRestController->processDeleteExportForJob deleting document",
@@ -430,6 +431,7 @@ class FhirOperationExportRestController
             // if we had an async process we would be able to resume off of the last id that was exported for this
             // resource
             $lastResourceIdExported = null;
+            $exportWriter = null;
             try {
                 $service = $this->getExportServiceForResource($resource);
                 $this->populateServiceWithDependencies($service, $this->request, $this->globalsBag);
@@ -465,13 +467,15 @@ class FhirOperationExportRestController
                     . " occurred during export", ['exception' => $exception->getMessage(),
                     'trace' => $exception->getTraceAsString(), 'job' => $job->getUuidString(), 'resource' => $resource]);
             } finally {
-                $this->logger->debug("FhirExportRestController->processResourceExportForJob() closing resource", [
-                    'resource' => $resource, 'recordsExported' => $exportWriter->getRecordsWritten()
-                ]);
-                $exportWriter->close();
+                if ($exportWriter !== null) {
+                    $this->logger->debug("FhirExportRestController->processResourceExportForJob() closing resource", [
+                        'resource' => $resource, 'recordsExported' => $exportWriter->getRecordsWritten()
+                    ]);
+                    $exportWriter->close();
+                }
             }
 
-            if (!empty($output)) {
+            if ($output !== null) {
                 $outputResult[] = $output;
             } else {
                 $errorResult[] = $error;
@@ -545,7 +549,7 @@ class FhirOperationExportRestController
             $job->getId(),
             'ExportJob'
         );
-        if (!empty($result)) {
+        if ($result !== '') {
             throw new \RuntimeException("Failed to save document for job. Message: " . $result);
         }
         return $document;
@@ -612,10 +616,10 @@ class FhirOperationExportRestController
     /**
      * Return's the list of resources to be exported for the given request.  If the initial resources are empty it
      * returns all the resources possible for the system.
-     * @param array $resources
-     * @return array
+     * @param list<string> $resources
+     * @return list<string>
      */
-    private function getResourcesForRequest($resources = [])
+    private function getResourcesForRequest(array $resources = []): array
     {
         // TODO: if we start adding a bunch more FHIR resources and need to filter for just the patient compartment we could do that here
         $approvedResources = [];
@@ -623,8 +627,9 @@ class FhirOperationExportRestController
         $validResources = array_keys($registry);
         // if no resources are sent we are supposed to return the resources that the client has access to in their
         // access token
-        if (empty($resources)) {
+        if ($resources === []) {
             foreach ($validResources as $resource) {
+                $resource = (string) $resource;
                 if ($this->hasAccessToResource($resource)) {
                     $approvedResources[] = $resource;
                 }
@@ -633,13 +638,14 @@ class FhirOperationExportRestController
             $approvedResources = $resources;
             // if they requested specifically a resource they do not have access to we will deny the request
             foreach ($resources as $resource) {
+                $resource = (string) $resource;
                 if (!$this->hasAccessToResource($resource)) {
                     throw new AccessDeniedException('system', $resource . '.read', 'AccessToken does not grant access to resource ' . $resource);
                 }
             }
         }
-        if (empty($approvedResources)) {
-            throw new AccessDeniedException('system', $resource . '.read', 'AccessToken does not grant access to any supported system resources');
+        if ($approvedResources === []) {
+            throw new AccessDeniedException('system', '', 'AccessToken does not grant access to any supported system resources');
         }
         return $approvedResources;
     }
@@ -650,7 +656,7 @@ class FhirOperationExportRestController
      * @param $resource The resource being checked
      * @return bool true if the user agent has access, false otherwise
      */
-    private function hasAccessToResource($resource)
+    private function hasAccessToResource(string $resource): bool
     {
 
         $permission = 'system/' . $resource . '.read';
@@ -668,7 +674,7 @@ class FhirOperationExportRestController
      */
     private function getExportServiceRegistry()
     {
-        if (!empty($this->resourceRegistry)) {
+        if ($this->resourceRegistry !== []) {
             return $this->resourceRegistry;
         }
         $serviceLocator = new FhirExportServiceLocator($this->fhirServiceLocator);
@@ -720,19 +726,27 @@ class FhirOperationExportRestController
 
     private function getPatientUuidsForGroup($groupId)
     {
+        if ($groupId === null || $groupId === '') {
+            throw new \InvalidArgumentException("Group ID cannot be empty");
+        }
         $patientUuids = [];
         $fhirGroupService = new FhirGroupService();
         $result = $fhirGroupService->getOne($groupId);
         if ($result->hasData()) {
             foreach ($result->getData() as $group) {
-                if ($group instanceof FHIRGroup && !empty($group->getMember())) {
-                    foreach ($group->getMember() as $member) {
-                        if (!empty($member->getEntity()) && !empty($member->getEntity()->getReference())) {
-                            $uuid = UtilsService::getUuidFromReference($member->getEntity());
-                            if (!empty($uuid)) {
-                                $patientUuids[] = $uuid;
-                            }
-                        }
+                if (!$group instanceof FHIRGroup) {
+                    continue;
+                }
+                $members = $group->getMember();
+                if ($members === []) {
+                    continue;
+                }
+                foreach ($members as $member) {
+                    // getEntity() can be null despite its @var; getUuidFromReference() now
+                    // tolerates null and skips absent references, so no guard is needed here.
+                    $uuid = UtilsService::getUuidFromReference($member->getEntity()) ?? '';
+                    if ($uuid !== '') {
+                        $patientUuids[] = $uuid;
                     }
                 }
             }

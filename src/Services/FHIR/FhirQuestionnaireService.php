@@ -88,14 +88,14 @@ class FhirQuestionnaireService extends FhirServiceBase implements IResourceReada
         }
         return $fhirSearchResult;
     }
+
     /**
      * Healthcare resources often need to provide an AUDIT trail of who last touched a resource and when was it modified.
      * The ownership and AUDIT trail in FHIR is done via the Provenance record.
      * @param FHIRDomainResource $dataRecord The record we are generating a provenance from
      * @param bool $encode Whether to serialize the record or not
-     * @return FHIRProvenance|string
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string
+    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
     {
         // we don't return any provenance authorship for this custom resource
         // if we did return it, we would fill out the following record
@@ -103,14 +103,23 @@ class FhirQuestionnaireService extends FhirServiceBase implements IResourceReada
         if (!($dataRecord instanceof FHIRQuestionnaire)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenanceService = new FhirProvenanceService();
         // provenance will just be the organization as we don't keep track of the user at the individual FHIR resource level
         // note we do track this internally in OpenEMR but FHIR R4 doesn't expose this as far as I can tell.
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
+        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
+        if ($fhirProvenance === null) {
+            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
+            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
+            // available" and continues (see issue #13054).
+            return false;
         }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
     }
 }
