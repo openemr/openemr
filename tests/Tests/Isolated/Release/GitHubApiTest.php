@@ -33,7 +33,7 @@ final class GitHubApiTest extends TestCase
     public function testSuccessfulFirstAttemptReturnsStdoutAndSkipsBackoff(): void
     {
         $api = $this->makeApi([
-            ['exit' => 0, 'out' => '[{"number":42}]', 'err' => ''],
+            ['exit' => 0, 'out' => '[{"number":42,"title":"t","labels":[],"url":"u","author":"x"}]', 'err' => ''],
         ]);
 
         $result = $api->prsForCommits(['abc123abc123abc123abc123abc123abc123abc1']);
@@ -223,11 +223,12 @@ final class GitHubApiTest extends TestCase
         self::assertSame(42, $result[0]['number']);
     }
 
-    public function testPrsForCommitsBatchCommandTargetsSearchIssuesWithShaQualifiers(): void
+    public function testPrsForCommitsBatchCommandUsesGhPrListWithSearch(): void
     {
-        // Concrete-command assertion: verifies the batch call actually
-        // targets /search/issues and includes sha: qualifiers joined by
-        // '+' (URL-encoded search-query separator).
+        // Concrete-command assertion: verifies the batch uses
+        // `gh pr list --search` (GraphQL, no 256-char query limit)
+        // rather than `gh api /search/issues` (REST, capped at 4-5
+        // SHAs per batch — see the class-level comment).
         $api = $this->makeApi([
             ['exit' => 0, 'out' => '[]', 'err' => ''],
         ]);
@@ -238,15 +239,32 @@ final class GitHubApiTest extends TestCase
         ]);
 
         $cmd = $api->capturedCommands[0];
-        self::assertContains('api', $cmd);
-        // Find the URL argument (position after 'api')
-        $urlArg = $cmd[array_search('api', $cmd, true) + 1];
-        self::assertStringContainsString('/search/issues?q=', $urlArg);
-        self::assertStringContainsString('repo:openemr/openemr', $urlArg);
-        self::assertStringContainsString('type:pr', $urlArg);
-        self::assertStringContainsString('is:merged', $urlArg);
-        self::assertStringContainsString('sha:abc123abc123abc123abc123abc123abc123abc1', $urlArg);
-        self::assertStringContainsString('sha:def456def456def456def456def456def456def4', $urlArg);
+        self::assertSame(['gh', 'pr', 'list'], array_slice($cmd, 0, 3));
+        self::assertContains('--repo', $cmd);
+        self::assertContains('--state', $cmd);
+        self::assertContains('merged', $cmd);
+        self::assertContains('--search', $cmd);
+        $searchArg = $cmd[array_search('--search', $cmd, true) + 1];
+        self::assertStringContainsString('abc123abc123abc123abc123abc123abc123abc1', $searchArg);
+        self::assertStringContainsString('def456def456def456def456def456def456def4', $searchArg);
+    }
+
+    public function testPrsForCommitsNormalizesAppSlashBotAuthorFormat(): void
+    {
+        // `gh pr list --json author` returns `app/dependabot` for bot
+        // users, but ChangelogGenerator's noise filter matches on the
+        // REST-shape `dependabot[bot]`. Author strings starting with
+        // `app/` must be normalized so the filter continues to work
+        // without any downstream change.
+        $api = $this->makeApi([
+            ['exit' => 0, 'out' => '[{"number":1,"title":"t","labels":[],"url":"u","author":"app/dependabot"},{"number":2,"title":"t2","labels":[],"url":"u2","author":"bradymiller"}]', 'err' => ''],
+        ]);
+
+        $result = $api->prsForCommits(['abc123abc123abc123abc123abc123abc123abc1']);
+
+        self::assertCount(2, $result);
+        self::assertSame('dependabot[bot]', $result[0]['author'], 'app/dependabot normalized to dependabot[bot]');
+        self::assertSame('bradymiller', $result[1]['author'], 'non-app authors untouched');
     }
 
     public function testConstructorRejectsNonPositiveMaxAttempts(): void

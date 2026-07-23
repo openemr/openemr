@@ -135,11 +135,15 @@ class GitHubApi
     }
 
     /**
-     * Batch size for `/search/issues` multi-SHA queries. 25 SHAs per batch
-     * keeps the URL query string ~275 chars, well under any practical
-     * limit, and reduces a typical 200-commit changelog build from ~200
+     * Batch size for `gh pr list --search` multi-SHA queries. 25 SHAs per
+     * batch reduces a typical 200-commit changelog build from ~200
      * requests to ~8 — the primary defense against release-App-installation
      * rate-limit exhaustion (see docs/release-mechanism-gaps.md G30).
+     *
+     * NOTE on why this uses `gh pr list --search` (GraphQL under the hood)
+     * rather than the REST `/search/issues` endpoint: `/search/issues` has
+     * a 256-char query limit, which caps at 4-5 SHAs per batch — 5x worse
+     * throughput. `gh pr list --search` uses GraphQL, no such limit.
      */
     private const PRS_FOR_COMMITS_BATCH_SIZE = 25;
 
@@ -150,12 +154,15 @@ class GitHubApi
      * `dependabot[bot]`), needed by ChangelogGenerator's noise filter to
      * distinguish dependabot/release-bot PRs.
      *
-     * Batches the underlying calls via GitHub's `/search/issues` API using
-     * OR-joined `sha:` qualifiers, so a typical 200-commit changelog build
-     * makes ~8 API requests instead of ~200. Preserves the raw
-     * `.user.login` format (with `[bot]` suffix for bot users) that the
-     * REST commits-pulls endpoint returned — matches
-     * ChangelogGenerator's noise-filter constants.
+     * Batches SHAs into `gh pr list --search` queries so a typical
+     * 200-commit changelog build makes ~8 requests instead of ~200.
+     *
+     * Author-format translation: `gh pr list --json author` returns
+     * `app/dependabot` for bot users, but the REST commits-pulls endpoint
+     * (and thus ChangelogGenerator's `DEPENDABOT` / `RELEASE_BOT`
+     * constants) uses the `dependabot[bot]` shape. Any login starting
+     * with `app/` is normalized here so the noise filter continues to
+     * match without any downstream changes.
      *
      * @param list<string> $shas
      * @return list<array{number: int, title: string, labels: list<array{name: string}>, url: string, author: string}>
@@ -166,20 +173,23 @@ class GitHubApi
         $seen = [];
 
         foreach (array_chunk($shas, self::PRS_FOR_COMMITS_BATCH_SIZE) as $batch) {
-            $shaQualifiers = implode('+', array_map(
-                static fn(string $sha): string => "sha:{$sha}",
-                $batch,
-            ));
-            $query = "repo:{$this->repo}+type:pr+is:merged+{$shaQualifiers}";
+            $searchTerm = implode(' ', $batch);
             $output = $this->runGh([
-                'api',
-                "/search/issues?q={$query}&per_page=100",
-                '--jq', '[.items[] | {number, title, labels: [.labels[] | {name}], url: .html_url, author: .user.login}]',
+                'pr', 'list',
+                '--repo', $this->repo,
+                '--state', 'merged',
+                '--search', $searchTerm,
+                '--json', 'number,title,labels,url,author',
+                '--limit', '100',
+                '--jq', '[.[] | {number, title, labels: [.labels[] | {name}], url, author: .author.login}]',
             ]);
 
             /** @var list<array{number: int, title: string, labels: list<array{name: string}>, url: string, author: string}> $prs */
             $prs = json_decode($output, true) ?? [];
             foreach ($prs as $pr) {
+                if (str_starts_with($pr['author'], 'app/')) {
+                    $pr['author'] = substr($pr['author'], 4) . '[bot]';
+                }
                 if (!isset($seen[$pr['number']])) {
                     $seen[$pr['number']] = $pr;
                 }
