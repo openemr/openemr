@@ -18,18 +18,6 @@
 //require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
 
 /**
- * callback to round floats to 2 digit precision
- *
- * @param float $v
- * @param string $k
- * @return float
- */
-function edih_round_cb(&$v, $k)
-{
-    $v = round((int)$v, 2);
-    return $v;
-}
-/**
  * Create summary html string for an x12 835 claim payment
  *
  * @param array $trans_array
@@ -784,11 +772,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         $str_html .= ($rarc_str) ? "<tr class='svc'><td>&gt;</td><td colspan=3>$rarc_str</td></tr>" . PHP_EOL : "";
         if (count($cas_ar)) {
             foreach ($cas_ar as $key => $cas) {
-                if (!is_array($cas) && !count($cas)) {
-                    continue;
-                }
-
-                if ($key == '2100' && count($cas)) {
+                if ($key == '2100') {
                     $cls = 'remc';
                     $str_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>Claim Level Adjustments</em></td></tr>" . PHP_EOL;
                 } else {
@@ -801,10 +785,6 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                     //echo '==== cas_ar unwind cas as ky trp '.$ky.PHP_EOL;
                     //var_dump ($trp).PHP_EOL;
                     //
-                    if (!is_array($trp) && !count($trp)) {
-                        continue;
-                    }
-
                     $cg = $cd835->get_835_code('CAS_GROUP', $ky);
                     $cd = $cr = $ca = $cq = '';
                     foreach ($trp as $tr) {
@@ -940,7 +920,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     $clp_html = "";
     $trl_html = "";
     //
-    $acctng = ['pmt' => 0,'fee' => 0,'clmpmt' => 0,'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0,'svcadj' => 0,'plbadj' => 0];
+    $acctng = ['pmt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0, 'svcpmt' => 0, 'svcadj' => 0, 'plbadj' => 0];
     //
     foreach ($trans_ar as $trans) {
         $clpsegs = [];
@@ -1001,7 +981,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 }
 
                 $pmt_html .= ($bpr11) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>Pmt No.</em> " . text($bpr11 . " " . $bpr01) . "</td></tr>" . PHP_EOL : "";
-                $acctng['pmt'] = (isset($sar[2]) && $sar[2]) ? (float)$sar[2] : "";
+                $acctng['pmt'] = (isset($sar[2]) && $sar[2]) ? (float)$sar[2] : 0;
                 //
                 continue;
             }
@@ -1390,24 +1370,22 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $loopid = 'trailer';
                 $cls = 'pmt';
                 // include our accounting totals
-                if (is_array($acctng) && count($acctng)) {
-                    array_walk($acctng, edih_round_cb(...));
-                    $bal = ($acctng['fee'] == ($acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj']) ) ? "Balanced" : "Not Balanced";
-                    $acct_str = text($bal) . ": <em>Fee</em> " . text($acctng['fee']) . " <em>Pmt</em> " . text($acctng['pmt']) . " ";
-                    $acct_str .= "<em>ClpAdj</em> " . text($acctng['clmadj']) . " <em>SvcAdj</em> " . text($acctng['svcadj']) . " ";
-                    $acct_str .= "<em>PtRsp</em> " . text($acctng['ptrsp']) . " (<em>svcPtRsp</em> " . text($acctng['svcptrsp']) . ") <em>PlbAdj</em> " . text($acctng['plbadj']) . " ";
-                    //
-                    $pmt_html .= "<tr class='" . attr($cls) . "'><td colspan=4>$acct_str</td></tr>" . PHP_EOL;
-                }
+                // round floats to 2 digit precision
+                $acctng = array_map(static fn($v): float => round((float)$v, 2), $acctng);
+                $bal = \OpenEMR\Billing\EdiHistory\RemitAccounting::isBalanced($acctng) ? "Balanced" : "Not Balanced";
+                // accounting totals are rounded floats; numeric, so no escaping needed
+                $acct_str = text($bal) . ": <em>Fee</em> " . $acctng['fee'] . " <em>Pmt</em> " . $acctng['pmt'] . " ";
+                $acct_str .= "<em>ClpAdj</em> " . $acctng['clmadj'] . " <em>SvcAdj</em> " . $acctng['svcadj'] . " ";
+                $acct_str .= "<em>PtRsp</em> " . $acctng['ptrsp'] . " (<em>svcPtRsp</em> " . $acctng['svcptrsp'] . ") <em>PlbAdj</em> " . $acctng['plbadj'] . " ";
+                //
+                $pmt_html .= "<tr class='" . attr($cls) . "'><td colspan=4>$acct_str</td></tr>" . PHP_EOL;
 
                 //
                 // create the html page
                 $str_html .= "<table id=" . attr($tblid) . " class='h835' columns=4><caption>" . text($capstr) . "</caption>" . PHP_EOL;
                 $str_html .= $hdr_html;
-                if ($pmt_html) {
-                    $str_html .= $pmt_html;
-                    $pmt_html = "";
-                }
+                $str_html .= $pmt_html;
+                $pmt_html = "";
 
                 if ($src_html) {
                     $str_html .= $src_html;

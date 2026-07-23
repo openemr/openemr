@@ -1,0 +1,220 @@
+name: Ship Release
+
+# Manually-triggered orchestration for the three-PR release flow (#705):
+# merges conductor → finalize → docs in strict order, skipping any already
+# merged (so the same trigger handles partial-merge recovery), and refusing
+# to merge anything if any unmerged PR is not ready. Mints one App token
+# with PR-write on the target repos and posts a release/ship-approved
+# commit status on each PR head before merging it (so branch protection can
+# require it later).
+#
+# **Execution modes** (workflow_dispatch `mode` input):
+#
+#   dry-run    Preflight + package-build dress rehearsal. Probes every PR's
+#              readiness and prints a report (merges nothing), and — on
+#              successful preflight — kicks a downstream `dry-run-build`
+#              job that calls the reusable `build-release.yml` with
+#              `dry_run=true`. That job pins the checkout to the
+#              Conductor PR head (`release-prep/<rel_branch>`), not the
+#              raw rel branch, so the tree carries the pending version
+#              bump + CHANGELOG entry the extract-changelog-section step
+#              needs. Produces the actual tarball, zip, changelog, and
+#              checksums and uploads them as workflow-run artifacts (no
+#              git tag, no GitHub Release, no downstream dispatches).
+#              Lets the operator eyeball what will ship before firing a
+#              real ship-release. `dry_run: true` still supported and
+#              always wins over `mode` for muscle memory / script compat.
+#
+#   semi-auto  Preflight + merge Conductor PR only. Docs and Finalize PRs
+#              are marked SKIPPED_BY_MODE (still a success — exit 0);
+#              maintainer merges them manually after eyeballing the
+#              post-tag content. Intended for the first 1-2 releases after
+#              wiring up the automation so any surprising mutator output
+#              can be caught before committing to full-auto. **Default.**
+#
+#   full-auto  Preflight + merge all three. Merges Conductor first, then
+#              waits for the GitHub Release object to exist (proxy for
+#              build-release-on-tag completing package assembly + upload,
+#              per workstream 7 Phase 3 design decision B; blocks both
+#              downstream merges if packaging failed so dockers +
+#              announcements don't fire on top of a broken release),
+#              then merges Finalize (which triggers the docker cascade
+#              via its release-targets.yml update), then Docs last.
+#              Docs merge triggers the future auto-announce pipeline;
+#              by then packages exist and dockers are building. Real
+#              "one command go." Requires the docs-PR auto-flip on
+#              openemr/website-openemr for true hands-off (Phase 3c);
+#              without it, maintainer still has to manually flip the
+#              docs PR to ready-for-review before ship-release can
+#              merge it.
+#
+# **Approval gate is asymmetric.** Conductor requires
+# reviewDecision=APPROVED (the one meaningful human review point in the
+# pipeline). Docs + Finalize are auto-generated bot content; their
+# readiness checks skip the APPROVED requirement while still enforcing
+# not-draft + MERGEABLE + CLEAN + green status checks.
+#
+# **Operator convention: dispatch from master.** The workflow orchestrates
+# PR merges via `gh` CLI against branches specified in the inputs
+# (rel_branch + derived docs/finalize branches). It never touches the
+# workflow's own git state, so it doesn't need to be dispatched from a rel
+# branch. Standardizing on master-dispatch keeps the mental model clean
+# (ship-release is an orchestrator, not tied to any specific rel branch)
+# and avoids .github/byte-identical.yml sync — the master copy is
+# authoritative and the only one that ever fires.
+#
+# Migrated from openemr/openemr-devops in workstream 7 Phase 3 (2026-07-21).
+# See docs/release-mechanism-migration-from-devops.md for the full history.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 8.2.0) — picks website-openemr branch release-docs/<version>'
+        required: true
+        type: string
+      rel_branch:
+        description: 'Release branch (e.g. rel-820) — picks openemr/openemr branches release-prep/<rel_branch> + release-finalize/<rel_branch>'
+        required: true
+        type: string
+      mode:
+        description: 'Execution mode (semi-auto default; see workflow header for the mode matrix)'
+        required: false
+        type: choice
+        options:
+        - semi-auto
+        - full-auto
+        - dry-run
+        default: semi-auto
+      dry_run:
+        description: 'Legacy: check readiness only, no merges. Overrides mode when true (dry-run wins over any mode choice).'
+        required: false
+        type: boolean
+        default: false
+      timeout_seconds:
+        description: 'Max seconds to wait for downstream PR update (docs/finalize) after conductor merge, and for GitHub Release object to appear in full-auto'
+        required: false
+        type: string
+        default: '600'
+
+permissions: {}
+
+concurrency:
+  group: ship-release
+  cancel-in-progress: false
+
+jobs:
+  ship:
+    name: Merge release PRs in order
+    runs-on: ubuntu-24.04
+    env:
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+    - name: Mint release App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        # ship-release merges 2 PRs: conductor in openemr, docs in
+        # website-openemr. openemr-devops dropped from token scope in
+        # Phase 3 (was: openemr,openemr-devops,website-openemr) --
+        # devops's ship-release.yml was retired when this workflow
+        # moved here; no dispatch or merge action targets it anymore.
+        owner: openemr
+        repositories: |
+          openemr
+          website-openemr
+        # Explicit permission grants (least-privilege). Ship-release
+        # needs: read PR state (pull-requests:read via metadata), merge
+        # PRs (pull-requests:write), post commit statuses on PR heads
+        # (statuses:write), read repo contents (contents:read). The
+        # App itself may be installed with broader permissions; scoping
+        # the minted token narrows what a compromised runner can do.
+        permission-contents: read
+        permission-metadata: read
+        permission-pull-requests: write
+        permission-statuses: write
+
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        # ship-release orchestrates via `gh` CLI (which uses GH_TOKEN env);
+        # it never pushes to git. Persisting credentials in the checkout
+        # would leak them to any subsequent step. Defense-in-depth.
+        persist-credentials: false
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.5'
+
+    - name: Install Task
+      uses: arduino/setup-task@v3
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Ship release
+      working-directory: tools/release
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        VERSION: ${{ inputs.version }}
+        REL_BRANCH: ${{ inputs.rel_branch }}
+        MODE: ${{ inputs.mode }}
+        TIMEOUT_SECONDS: ${{ inputs.timeout_seconds }}
+        DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        STATUS_TARGET_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      run: >-
+        task ship-release
+        VERSION="${VERSION}"
+        REL_BRANCH="${REL_BRANCH}"
+        MODE="${MODE}"
+        TIMEOUT_SECONDS="${TIMEOUT_SECONDS}"
+        STATUS_TARGET_URL="${STATUS_TARGET_URL}"
+        SUMMARY_FILE="${GITHUB_STEP_SUMMARY}"
+        DRY_RUN="${DRY_RUN}"
+
+  # Dry-run "dress rehearsal" builder. Fires only when the operator picked
+  # dry-run mode (or the legacy dry_run flag) and only after the ship job
+  # succeeded — i.e., preflight passed. Calls build-release.yml as a
+  # reusable workflow with dry_run=true so the run assembles the actual
+  # tarball + zip + changelog + checksums and uploads them as run
+  # artifacts, but skips tag creation, GitHub Release publish, and the
+  # downstream docker/website dispatches. The operator can then download
+  # the artifacts from the run page and eyeball what would ship.
+  #
+  # `version_branch` points at the Conductor PR head (`release-prep/<rel>`),
+  # not the raw rel branch. The Conductor carries the version bump +
+  # CHANGELOG entry that build-release.yml's changelog:extract step
+  # requires (`## [X.Y.Z]` section lookup errors out otherwise), and it
+  # models the tree the real ship-release would tag — the whole point of
+  # the dress rehearsal. Preflight (the ship job above) already confirmed
+  # the Conductor PR is ready, so the branch is known to exist and be
+  # mergeable when we pin the checkout to it.
+  #
+  # No `secrets:` block: build-release.yml's App-token steps are guarded
+  # by `if: '!inputs.dry_run'`, so nothing in the dry-run path references
+  # `secrets.RELEASE_APP_PRIVATE_KEY`. Auto-provided `GITHUB_TOKEN` is
+  # sufficient for the tooling the reusable workflow needs at dry-run
+  # time (checkout, setup-task); `secrets: inherit` would expose the App
+  # private key unnecessarily.
+  dry-run-build:
+    name: Dry-run build (artifacts only, no publish)
+    needs: ship
+    if: ${{ needs.ship.result == 'success' && (inputs.mode == 'dry-run' || inputs.dry_run) }}
+    # Per-job override of the workflow-level `permissions: {}`. build-release.yml
+    # (called via workflow_call below) declares `permissions: contents: read`
+    # at its own workflow level. GitHub's startup validation rejects the
+    # dispatch when the caller grants strictly less than what the callee
+    # requests -- the empty workflow-level default would block dry-run-build
+    # from launching at all. Granting the exact `contents: read` the callee
+    # needs (for its actions/checkout step) keeps the `ship` job's default-
+    # deny intact and matches least-privilege.
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-release.yml
+    with:
+      version_branch: release-prep/${{ inputs.rel_branch }}
+      version: ${{ inputs.version }}
+      dry_run: true

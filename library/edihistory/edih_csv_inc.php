@@ -1065,47 +1065,6 @@ function edih_errseg_parse($err_seg, $id = false)
 }
 
 /**
- * Order the csv data array according to the csv table heading row
- * so the data to be added to csv table rows are correctly ordered
- *  the supplied data should be in an array with this structure
- *  array['icn'] ['file'][i]['key']  ['claim'][i]['key']  ['type']['type']
- *
- * @uses csv_table_header()
- *
- * @param array $csvdata data_ar data array from edih_XXX_csv_data()
- * @return array|bool        ordered array or false on error
- */
-function edih_csv_order($csvdata)
-{
-    //
-    $wrcsv = [];
-    $order_ar = [];
-    //
-    foreach ($csvdata as $icn => $data) {
-        // [icn]['type']['file']['claim']
-        $ft = $data['type'];
-        $wrcsv[$icn]['type'] = $ft;
-        //
-        foreach ($data as $key => $val) {
-            if ($key == 'type') {
-                continue;
-            }
-
-            $order_ar[$icn][$key] = csv_table_header($ft, $key);
-            $ct = count($order_ar[$icn][$key]);
-            foreach ($val as $k => $rcrd) {
-                //
-                foreach ($order_ar[$icn][$key] as $ky => $vl) {
-                    $wrcsv[$icn][$key][$k][$ky] = $rcrd[$vl];
-                }
-            }
-        }
-    }
-
-    return $wrcsv;
-}
-
-/**
  * insert dashes in ten-digit telephone numbers
  *
  * @param string $str_val   the telephone number
@@ -1409,29 +1368,6 @@ function csv_singlerecord_test($array)
 }
 
 /*
- * give first and last index keys for an array
- *
- * @param array
- * @return array
- */
-function csv_array_bounds($array)
-{
-    // get the segment array bounds
-    $ret_ar = [];
-    if (is_array($array) && count($array)) {
-        if (reset($array) !== false) {
-            $ret_ar[0] = key($array);
-        }
-
-        if (end($array) !== false) {
-            $ret_ar[1] = key($array);
-        }
-    }
-
-    return $ret_ar;
-}
-
-/*
  * return a csv file as an associative array
  * the first row is the header or array keys for the row
  * array structure:
@@ -1493,32 +1429,6 @@ function csv_assoc_array($file_type, $csv_type)
 
     //
     return $csv_ar;
-}
-
-
-/**
- * A multidimensional array will be flattened to a single row.
- *
- * @param array $array array to be flattened
- * @return array
- */
-function csv_array_flatten($array)
-{
-    //
-    if (!is_array($array)) {
-        return false;
-    }
-
-    $result = [];
-    foreach ($array as $key => $value) {
-        if (is_array($value)) {
-            $result = array_merge($result, csv_array_flatten($value));
-        } else {
-            $result[$key] = $value;
-        }
-    }
-
-    return $result;
 }
 
 

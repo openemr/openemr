@@ -81,14 +81,14 @@ if (!empty($_POST['form_csvexport'])) {
     header("Content-Disposition: attachment; filename=pending_orders.csv");
     header("Content-Description: File Transfer");
   // CSV headers:
-    echo csvEscape(xl('Patient')) . ',';
-    echo csvEscape(xl('ID')) . ',';
-    echo csvEscape(xl('Ordered')) . ',';
-    echo csvEscape(xl('From')) . ',';
-    echo csvEscape(xl('Procedure')) . ',';
-    echo csvEscape(xl('Provider')) . ',';
-    echo csvEscape(xl('Priority')) . ',';
-    echo csvEscape(xl('Status')) . "\n";
+    echo xlc('Patient') . ',';
+    echo xlc('ID') . ',';
+    echo xlc('Ordered') . ',';
+    echo xlc('From') . ',';
+    echo xlc('Procedure') . ',';
+    echo xlc('Provider') . ',';
+    echo xlc('Priority') . ',';
+    echo xlc('Status') . "\n";
 } else { // not export
     ?>
 <html>

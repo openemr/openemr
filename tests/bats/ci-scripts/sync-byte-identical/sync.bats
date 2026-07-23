@@ -478,3 +478,41 @@ teardown() {
     [[ $status -eq 0 ]]
     [[ ! -f src/only-for-820.txt ]]
 }
+
+@test "shared-glob rename: master + rel both list the same glob and rel tree has an old-name file master dropped -> single delete, no double-processing" {
+    # Regression for the sync-byte-identical failure that hit rel-820 after
+    # Phase 3b renamed tools/release/src/DocsRefreshResult.php ->
+    # DownstreamRefreshResult.php. Both master and rel-820 carried
+    # `tools/release/**` in their manifests; the old name still existed on
+    # rel-820, so master's pattern-against-HEAD expansion picked it up via
+    # REL_PATHS_UNDER_MASTER_CONFIG and the main loop deleted it. The
+    # rel-only sweep then re-encountered the same path and tried a second
+    # `git rm`, which fails with "pathspec did not match any files"
+    # because the path is already staged for deletion.
+    write_on_branch master  src/new.txt "shared-content"
+    write_on_branch rel-810 src/new.txt "shared-content"
+    write_on_branch rel-810 src/old.txt "shared-content"
+
+    # Both manifests list the same glob.
+    write_files_all_raw 'files:
+- src/**
+'
+    git checkout -q rel-810
+    mkdir -p .github
+    printf 'files:\n- src/**\n' > .github/byte-identical.yml
+    git add .github/byte-identical.yml
+    git commit -q -m "rel manifest"
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ ! -f src/old.txt ]]                                         # deleted (once)
+    [[ -f src/new.txt ]]                                           # kept (identical to master)
+    grep -qxF "delete: src/old.txt" "$OUTPUT_DIR/changes.txt"
+    # Delete recorded exactly once, not twice.
+    delete_count=$(grep -cxF "delete: src/old.txt" "$OUTPUT_DIR/changes.txt")
+    [[ "$delete_count" -eq 1 ]]
+    # And no rename-sweep re-delete attempt printed.
+    ! grep -qF "delete: master removed this path entirely" <(echo "${output}")
+}

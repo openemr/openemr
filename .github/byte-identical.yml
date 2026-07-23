@@ -74,6 +74,19 @@
 #                                                  dead weight
 #   .github/scripts/sync-byte-identical.sh         same rationale as the
 #                                                  workflow above
+#   .github/workflows/check-vendored-contracts.yml master-only-firing
+#                                                  (workflow_call reusable
+#                                                  invoked by external
+#                                                  consumers via @master;
+#                                                  rel-branch copies never
+#                                                  execute). Supporting PHP
+#                                                  under tools/release/**
+#                                                  IS synced -- the glob
+#                                                  entry below covers it --
+#                                                  which is harmless on rel
+#                                                  branches (no local caller)
+#                                                  and keeps the sync canary
+#                                                  green.
 #   .github/release-targets.yml                    master-authoritative; see
 #                                                  the file's own header
 #                                                  comment for the rationale
@@ -134,6 +147,10 @@ files:
 - path: .github/workflows/patch-prep-automation.yml
   exclude-branches: [rel-800, rel-704]
 - path: .github/workflows/release-permissions-check.yml
+  exclude-branches: [rel-800, rel-704]
+- path: .github/workflows/build-release.yml
+  exclude-branches: [rel-800, rel-704]
+- path: .github/workflows/build-patch.yml
   exclude-branches: [rel-800, rel-704]
 - path: .github/actions/setup-php-composer/action.yml
   exclude-branches: [rel-800, rel-704]

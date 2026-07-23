@@ -75,6 +75,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
                            intl \
                            ldap \
                            mysqli \
+                           pcov \
                            pdo_mysql \
                            soap \
                            sockets \

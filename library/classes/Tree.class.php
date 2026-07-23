@@ -115,30 +115,31 @@ class Tree
             $parent = $row['parent'];
             $loop = 0;
 
-            //this is a string that gets evaled below to create the array representing the tree
-            $ar_string = "[\"" . ($row['id']) . "\"] = \$row[\"value\"]";
+            // Collect the chain of ancestor ids from the root down to this node. The
+            // node's own id is the innermost key; each parent is prepended as we walk
+            // up the hierarchy via the id -> parent lookup table.
+            $keys = [$row['id']];
 
             //if parent is 0 then the node has no parents, the number of nodes in the id_name lookup always includes any nodes
             //that could be the parent of any future node in the record set, the order is deterministic because of the algorithm
             while ($parent != 0 && $loop < count($this->_id_name)) {
-                $ar_string = "[\"" . ($this->_id_name[$parent]['id']) . "\"]" . $ar_string;
+                array_unshift($keys, $this->_id_name[$parent]['id']);
                 $loop++;
                 $parent = $this->_id_name[$parent]['parent'];
             }
 
-            $ar_string = '$ar' . $ar_string . ";";
-            //echo $ar_string;
-
-            //now eval the string to create the tree array
-            //there must be a more efficient way to do this than eval?
-            // TODO: refactor this eval out... there's tons of ways to construct trees w/o needing to do eval code.
-            // not sure how many nodes they needed to account for, but our category hierarchy has to be less than a few
-            // thousand records. An n-ary tree w/ pointers would accomplish this very quickly w/o the potential of sneaking a eval
-            // code execution into our category database names.
-            // There could be tens of thousands of documents,  However, leaf nodes which are documents will not have any
-            // sub-chilsren and so we don't have to deal with this whole left/right nonsense and only need a parent node
-            // which we sort by document name order.
-            eval($ar_string);
+            // Build the nested array $ar[rootId]...[nodeId] = $row['value'] by walking a
+            // reference down the key chain. This replaces an eval() of a constructed
+            // assignment string, which allowed node names/ids from the database to be
+            // executed as PHP code.
+            $ar = [];
+            $ref = &$ar;
+            foreach ($keys as $key) {
+                $ref[$key] = [];
+                $ref = &$ref[$key];
+            }
+            $ref = $row['value'];
+            unset($ref);
 
             //merge the evaled array with all of the already existing tree elements,
             //merge recursive is used so that no keys are replaced in other words a key

@@ -186,17 +186,17 @@ $(function () {
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     if ($_POST['form_csvexport']) {
         // CSV headers:
-        echo csvEscape(xl('Last Visit')) . ',';
-        echo csvEscape(xl('First{{Name}}')) . ',';
-        echo csvEscape(xl('Last{{Name}}')) . ',';
-        echo csvEscape(xl('Middle{{Name}}')) . ',';
-        echo csvEscape(xl('ID')) . ',';
-        echo csvEscape(xl('Street')) . ',';
-        echo csvEscape(xl('City')) . ',';
-        echo csvEscape(xl('State')) . ',';
-        echo csvEscape(xl('Zip')) . ',';
-        echo csvEscape(xl('Home Phone')) . ',';
-        echo csvEscape(xl('Work Phone')) . "\n";
+        echo xlc('Last Visit') . ',';
+        echo xlc('First{{Name}}') . ',';
+        echo xlc('Last{{Name}}') . ',';
+        echo xlc('Middle{{Name}}') . ',';
+        echo xlc('ID') . ',';
+        echo xlc('Street') . ',';
+        echo xlc('City') . ',';
+        echo xlc('State') . ',';
+        echo xlc('Zip') . ',';
+        echo xlc('Home Phone') . ',';
+        echo xlc('Work Phone') . "\n";
     } else {
         ?>
 

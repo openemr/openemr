@@ -123,6 +123,32 @@ jobs:
         fi
         echo "OK: opened and closed draft PR #${pr_number}"
 
+    - name: Probe statuses:write (post commit status on throwaway commit)
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        REPO: ${{ github.repository }}
+        BRANCH: ${{ steps.probe-contents.outputs.branch }}
+        RUN_ID: ${{ github.run_id }}
+      # ship-release.yml writes a `release/ship-approved` commit status
+      # on each PR head before merging (so branch-protection can require
+      # it later). If the release App installation doesn't have
+      # statuses:write, ship-release fails at gh-app-token mint time with
+      # a generic "permissions not granted" error and no clue which scope
+      # is missing. Probe it explicitly here so the gap fails loud with
+      # the scope name. Discovered 2026-07-22 when Phase 5.5's
+      # ship-release dry-run tripped on this exact gap after every other
+      # probe in this workflow had passed.
+      run: |
+        sha=$(gh api "repos/${REPO}/git/ref/heads/${BRANCH}" --jq '.object.sha')
+        if ! gh api -X POST "repos/${REPO}/statuses/${sha}" \
+          -f 'state=success' \
+          -f "context=release-permissions-check/${RUN_ID}" \
+          -f 'description=Permissions probe — safe to ignore.' >/dev/null; then
+          echo "FAIL: statuses:write missing (cannot post commit status)" >&2
+          exit 1
+        fi
+        echo "OK: posted throwaway commit status on ${sha}"
+
     - name: Probe annotated tag creation
       id: probe-tag
       env:

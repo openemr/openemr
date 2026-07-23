@@ -789,7 +789,7 @@ final readonly class CalendarViewModel
     public static function eventTimeAnchorHtml(string $displayTime): string
     {
         return "<a class='event_time' onclick='event_time_click(this)' title='"
-            . attr(xl('Click to edit')) . "'>" . text($displayTime) . "</a>";
+            . xla('Click to edit') . "'>" . text($displayTime) . "</a>";
     }
 
     /**

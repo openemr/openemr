@@ -1480,7 +1480,7 @@ while ($prow = sqlFetchArray($pres)) {
 // "%d" will be replaced by a payment line number on the client side.
 //
 $aCellHTML = [];
-$aCellHTML[] = "<span id='paytitle_%d'>" . text(xl('New Payment')) . "</span>";
+$aCellHTML[] = "<span id='paytitle_%d'>" . xlt('New Payment') . "</span>";
 $aCellHTML[] = strtr(generate_select_list('payment[%d][method]', 'paymethod', '', '', ''), ["\n" => ""]);
 $aCellHTML[] = "<input type='text' name='payment[%d][refno]' size='10' />";
 $aCellHTML[] = "<input type='text' name='payment[%d][amount]' size='6' style='text-align:right' onkeyup='setComputedValues()' />";

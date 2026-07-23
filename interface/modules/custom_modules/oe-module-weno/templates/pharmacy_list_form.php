@@ -553,19 +553,19 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
                 let html = '';
                 data = JSON.parse(data);
                 if (data === null || data.length === 0) { // Check for no data or empty array
-                    html += '<option value="">' + jsText(xl("No Pharmacy Found")) + '</option>';
-                    let msg = jsText(xl('No results found.'));
+                    html += '<option value="">' + jsXlt("No Pharmacy Found") + '</option>';
+                    let msg = jsXlt('No results found.');
                     $("#searchResults").text(msg);
                 } else {
                     if (testPharmacies) {
-                        html += '<option value="' + '">' + jsText(xl("Select a Test Pharmacy Here")) + '</option>';
+                        html += '<option value="' + '">' + jsXlt("Select a Test Pharmacy Here") + '</option>';
                     } else {
-                        html += '<option value="' + '">' + jsText(xl("Select a Pharmacy Here")) + '</option>';
+                        html += '<option value="' + '">' + jsXlt("Select a Pharmacy Here") + '</option>';
                     }
                     $.each(data, function (i, value) {
                         html += '<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>';
                     });
-                    let msg = jsAttr(data.length) + ' ' + jsText(xl('result(s) found.'));
+                    let msg = jsAttr(data.length) + ' ' + jsXlt('result(s) found.');
                     $("#searchResults").text(msg);
                 }
                 $("#weno_pharmacy").html(html); // Write HTML options to the select elementresult(s) found
