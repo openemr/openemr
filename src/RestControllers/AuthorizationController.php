@@ -1516,10 +1516,14 @@ class AuthorizationController
         if (!in_array($post_logout_url, $registeredUris, true)) {
             return null;
         }
-        $stateQuery = http_build_query(['state' => $state], '', '&', PHP_QUERY_RFC3986);
-        $separator = str_contains($post_logout_url, '?') ? '&' : '?';
+        $location = $post_logout_url;
+        if ($state !== '') {
+            $stateQuery = http_build_query(['state' => $state], '', '&', PHP_QUERY_RFC3986);
+            $separator = str_contains($post_logout_url, '?') ? '&' : '?';
+            $location .= $separator . $stateQuery;
+        }
         return (new Psr17Factory())->createResponse(Response::HTTP_TEMPORARY_REDIRECT)
-            ->withHeader('Location', $post_logout_url . $separator . $stateQuery);
+            ->withHeader('Location', $location);
     }
 
     public function tokenIntrospection(HttpRestRequest $request): ResponseInterface

@@ -142,6 +142,22 @@ class AuthorizationLogoutTest extends TestCase
         );
     }
 
+    #[Test]
+    public function testLogoutOmitsStateWhenNotProvided(): void
+    {
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt(),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+            ],
+        ]);
+        $this->assertSame(307, $response->getStatusCode());
+        $this->assertSame(
+            self::LOGOUT_URI_ONE,
+            $response->getHeaderLine('Location')
+        );
+    }
+
     private function makeUnsignedJwt(): string
     {
         $header = $this->b64url('{"alg":"none","typ":"JWT"}');
