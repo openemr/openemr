@@ -35,6 +35,7 @@ class AuthorizationLogoutFullFlowTest extends TestCase
 
     private string $baseUrl;
     private ?string $originalSiteAddrOath = null;
+    private bool $siteAddrOathWasInserted = false;
     private ?string $clientId = null;
 
     protected function setUp(): void
@@ -54,14 +55,21 @@ class AuthorizationLogoutFullFlowTest extends TestCase
             'SELECT gl_value FROM `globals` WHERE gl_name = ?',
             ['site_addr_oath']
         );
-        $glValue = is_array($current) ? ($current['gl_value'] ?? null) : null;
-        $this->originalSiteAddrOath = is_string($glValue) ? $glValue : null;
-
-        if ($this->originalSiteAddrOath !== $this->baseUrl) {
+        if (is_array($current)) {
+            $glValue = $current['gl_value'] ?? null;
+            $this->originalSiteAddrOath = is_string($glValue) ? $glValue : null;
+            if ($this->originalSiteAddrOath !== $this->baseUrl) {
+                QueryUtils::sqlStatementThrowException(
+                    'UPDATE `globals` SET gl_value = ? WHERE gl_name = ?',
+                    [$this->baseUrl, 'site_addr_oath']
+                );
+            }
+        } else {
             QueryUtils::sqlStatementThrowException(
-                'UPDATE `globals` SET gl_value = ? WHERE gl_name = ?',
-                [$this->baseUrl, 'site_addr_oath']
+                'INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`) VALUES (?, 0, ?)',
+                ['site_addr_oath', $this->baseUrl]
             );
+            $this->siteAddrOathWasInserted = true;
         }
     }
 
@@ -79,7 +87,12 @@ class AuthorizationLogoutFullFlowTest extends TestCase
                 );
             }
         } finally {
-            if ($this->originalSiteAddrOath !== null && $this->originalSiteAddrOath !== $this->baseUrl) {
+            if ($this->siteAddrOathWasInserted) {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `globals` WHERE gl_name = ?',
+                    ['site_addr_oath']
+                );
+            } elseif ($this->originalSiteAddrOath !== null && $this->originalSiteAddrOath !== $this->baseUrl) {
                 QueryUtils::sqlStatementThrowException(
                     'UPDATE `globals` SET gl_value = ? WHERE gl_name = ?',
                     [$this->originalSiteAddrOath, 'site_addr_oath']
