@@ -672,25 +672,29 @@ function csv_file_type($type, $gs_code = false)
         $tp_type = (string)$type;
     }
 
-    //
-    if (strpos('|f837|batch|HC', $tp_type)) {
-        $tp = ($gs_code) ? 'HC' : 'f837';
-    } elseif (strpos('|f835|era|HP', $tp_type)) {
-        $tp = ($gs_code) ? 'HP' : 'f835';
-    } elseif (strpos('|f999|f997|ack|ta1|FA', $tp_type)) {
-        $tp = ($gs_code) ? 'FA' : 'f997';
-    } elseif (strpos('|f277|HN', $tp_type)) {
-        $tp = ($gs_code) ? 'HN' : 'f277';
-    } elseif (strpos('|f276|HR', $tp_type)) {
-        $tp = ($gs_code) ? 'HR' : 'f276';
-    } elseif (strpos('|f271|HB', $tp_type)) {
-        $tp = ($gs_code) ? 'HB' : 'f271';
-    } elseif (strpos('|f270|HS', $tp_type)) {
-        $tp = ($gs_code) ? 'HS' : 'f270';
-    } elseif (strpos('|f278|HI', $tp_type)) {
-        $tp = ($gs_code) ? 'HI' : 'f278';
-    } else {
-        $tp = '';
+    // Alias table (data): each row maps a set of accepted type tokens to its
+    // GS02 code and canonical fXXX file type. A token is accepted when it
+    // appears as a substring of the '|'-delimited alias string, preserving the
+    // historical match semantics; the leading '|' keeps a real token match off
+    // offset 0.
+    $type_map = [
+        ['|f837|batch|HC', 'HC', 'f837'],
+        ['|f835|era|HP', 'HP', 'f835'],
+        ['|f999|f997|ack|ta1|FA', 'FA', 'f997'],
+        ['|f277|HN', 'HN', 'f277'],
+        ['|f276|HR', 'HR', 'f276'],
+        ['|f271|HB', 'HB', 'f271'],
+        ['|f270|HS', 'HS', 'f270'],
+        ['|f278|HI', 'HI', 'f278'],
+    ];
+
+    // Dispatch (logic): first matching row wins; unknown types fall through to ''.
+    $tp = '';
+    foreach ($type_map as [$aliases, $gs, $file_type]) {
+        if (str_contains($aliases, $tp_type)) {
+            $tp = $gs_code ? $gs : $file_type;
+            break;
+        }
     }
 
     //
