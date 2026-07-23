@@ -1,0 +1,109 @@
+### OpenEMR External IdP / Keycloak OIDC Login Test
+#
+# This file tests the OIDC login flow implemented by:
+# - /interface/modules/custom_modules/oe-module-external-idp/start.php
+# - /interface/modules/custom_modules/oe-module-external-idp/callback.php
+#
+# Flow summary:
+# 1. OpenEMR start endpoint creates state + nonce + PKCE in the OpenEMR session.
+# 2. Browser is redirected to Keycloak for interactive login.
+# 3. Keycloak redirects back to OpenEMR callback.php with code + state.
+# 4. OpenEMR callback.php exchanges the code server-side, validates id_token,
+#    resolves/binds the local user, and completes the normal OpenEMR login.
+#
+# Important:
+# - The callback step must use the SAME OpenEMR session created by start.php.
+# - The Keycloak login itself is interactive, so there is one manual browser step.
+# - Provider must already be configured and enabled in the External IdP module.
+
+### Step 0: OIDC discovery preflight
+# Confirms the issuer OpenEMR is expected to use is reachable.
+# Expected: 200 OK and JSON with authorization_endpoint, token_endpoint, jwks_uri.
+GET http://localhost:8002/realms/ai_gateway/.well-known/openid-configuration
+Accept: application/json
+
+?? status == 200
+
+
+### Step 0b: Optional direct Keycloak credential smoke test
+# This is NOT the OpenEMR login flow.
+# It only verifies the realm/client/user credentials can get a token when
+# direct access grants are enabled in Keycloak.
+# Skip this if your Keycloak client has Direct Access Grants disabled.
+# @name getKeycloakTokenOptional
+POST http://localhost:8002/realms/ai_gateway/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=openemr-client&client_secret=jeWL35sYIxELA6YD7O3ncInZkQYVynpa&username=aaa&password=aaa&scope=openid profile email
+
+?? status == 200
+
+
+### Step 1: Start the OpenEMR OIDC login flow
+# Expected:
+# - HTTP 302
+# - Location header points to Keycloak authorization_endpoint
+# - OpenEMR creates a pre-auth session containing state/nonce/PKCE
+# Keep the session cookie from this response for Step 3.
+#
+# If your HTTP client preserves cookies automatically, Step 3 can reuse them.
+# Otherwise copy the OpenEMR session cookie into @openemrSessionCookie below.
+#
+# @name startOidcLogin
+GET http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/start.php?site=default&provider_id=1
+Accept: text/html
+
+?? status == 302
+
+
+### Step 2: Browser handoff (manual)
+#
+# Open the Location header from Step 1 in a browser.
+# Sign in at Keycloak.
+# After success, Keycloak will redirect to:
+#   /interface/modules/custom_modules/oe-module-external-idp/callback.php?code=...&state=...
+#
+# Copy the `code` and `state` values from that callback URL into:
+# - @callback_code
+# - @callback_state
+#
+# If you want to inspect the authorization endpoint shape directly, use this:
+GET http://localhost:8002/realms/ai_gateway/protocol/openid-connect/auth?response_type=code&client_id=openemr-client&redirect_uri=http%3A%2F%2Flocalhost%3A8300%2Finterface%2Fmodules%2Fcustom_modules%2Foe-module-external-idp%2Fcallback.php&scope=openid%20profile%20email&state=PASTE_STATE_FROM_STEP_1&nonce=GENERATED_BY_OPENEMR&code_challenge=GENERATED_BY_OPENEMR&code_challenge_method=S256
+
+
+### Step 3: Replay the OpenEMR callback with the same session
+# Expected:
+# - HTTP 302
+# - OpenEMR performs the server-side token exchange with Keycloak
+# - OpenEMR validates the id_token
+# - OpenEMR maps/provisions the local user
+# - OpenEMR redirects to main_screen.php?auth=external&site=...
+#
+# If Step 1 and Step 3 run in the same client session, you may not need Cookie.
+# If not, uncomment and set the Cookie header.
+#
+# @name finishOidcLogin
+GET http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/callback.php?code=PASTE_CODE_FROM_KEYCLOAK_CALLBACK&state=PASTE_STATE_FROM_KEYCLOAK_CALLBACK&site=default&provider_id=1
+Accept: text/html
+Cookie: OpenEMR=PASTE_OPENEMR_SESSION_COOKIE_IF_NEEDED
+
+?? status == 302
+
+
+### Step 4: Follow the final redirect target
+# This confirms the callback completed and OpenEMR redirected into the normal app flow.
+GET http://localhost:8300/interface/main/main_screen.php?auth=external&site=default
+Accept: text/html
+Cookie: OpenEMR=PASTE_OPENEMR_SESSION_COOKIE_IF_NEEDED
+
+
+### Notes
+#
+# Common failures:
+# - start.php returns login_screen with error:
+#   provider disabled, wrong site, missing discovery metadata, wrong provider_id
+# - callback.php returns login_screen with error:
+#   state mismatch, state expired, wrong session cookie, wrong callback URL,
+#   token exchange failure, issuer/audience/nonce validation failure, no local binding
+# - Keycloak login works in browser but callback fails:
+#   OpenEMR container cannot reach the issuer/token/jwks URLs, or redirect URI mismatch
