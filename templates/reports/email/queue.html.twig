@@ -1,9 +1,4 @@
 {# Built with Warp-Terminal #}
-{% extends "reports/email/base.html.twig" %}
-
-{% block title %}{{ "Email Queue Report"|xlt }}{% endblock %}
-
-{% block content %}
 <div class="container-fluid mt-3">
     <div class="row mb-4">
         <div class="col-12">
@@ -64,7 +59,7 @@
                     <div class="col-md-3 mb-2">
                         <label for="search">{{ "Search"|xlt }}</label>
                         <input type="text" class="form-control" id="search" name="search"
-                               value="{{ filters.search|default('') }}"
+                               value="{{ filters.search|default('')|attr }}"
                                placeholder="{{ 'Email, Subject, or Sender'|xlt }}">
                     </div>
                     <div class="col-md-2 mb-2">
@@ -90,12 +85,12 @@
                     <div class="col-md-2 mb-2">
                         <label for="date_from">{{ "From Date"|xlt }}</label>
                         <input type="date" class="form-control" id="date_from" name="date_from"
-                               value="{{ filters.date_from|default('') }}">
+                               value="{{ filters.date_from|default('')|attr }}">
                     </div>
                     <div class="col-md-2 mb-2">
                         <label for="date_to">{{ "To Date"|xlt }}</label>
                         <input type="date" class="form-control" id="date_to" name="date_to"
-                               value="{{ filters.date_to|default('') }}">
+                               value="{{ filters.date_to|default('')|attr }}">
                     </div>
                 </div>
                 <div class="row mt-2">
@@ -103,7 +98,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search"></i> {{ "Apply Filters"|xlt }}
                         </button>
-                        <a href="{{ webroot }}/interface/reports/email_queue_report.php" class="btn btn-secondary">
+                        <a href="{{ webroot|attr }}/interface/reports/email_queue_report.php" class="btn btn-secondary">
                             <i class="fas fa-redo"></i> {{ "Reset"|xlt }}
                         </a>
                     </div>
@@ -171,13 +166,17 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <small>{{ email.datetime_queued|date('m/d/Y h:i A') }}</small>
+                                {% if email.datetime_queued %}
+                                    <small>{{ email.datetime_queued|date }}</small>
+                                {% else %}
+                                    <small class="text-muted">—</small>
+                                {% endif %}
                             </td>
                             <td>
                                 {% if email.datetime_sent %}
-                                    <small class="text-success">{{ email.datetime_sent|date('m/d/Y h:i A') }}</small>
+                                    <small class="text-success">{{ email.datetime_sent|date }}</small>
                                 {% elseif email.datetime_error %}
-                                    <small class="text-danger">{{ email.datetime_error|date('m/d/Y h:i A') }}</small>
+                                    <small class="text-danger">{{ email.datetime_error|date }}</small>
                                 {% else %}
                                     <small class="text-muted">—</small>
                                 {% endif %}
@@ -307,13 +306,14 @@ function viewEmailDetails(emailId) {
     modal.modal('show');
     content.html('<div class="text-center py-5"><i class="fas fa-spinner fa-spin fa-3x text-primary"></i></div>');
 
-    const webroot = '{{ webroot|raw }}';
-    fetch(webroot + '/interface/reports/email_queue_detail.php?id=' + emailId)
+    const webroot = {{ webroot|json_encode|raw }};
+    const escapeHtml = (value) => $('<div/>').text(value === null || value === undefined ? '' : String(value)).html();
+
+    fetch(webroot + '/interface/reports/email_queue_detail.php?id=' + encodeURIComponent(String(emailId)))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const email = data.email;
-                const escValue = (value) => esc(value === null || value === undefined ? '' : String(value));
                 let statusBadge = '';
                 if (String(email.error) === '1') {
                     statusBadge = '<span class="badge badge-danger"><i class="fas fa-times-circle"></i> {{ "Failed"|xlt }}</span>';
@@ -324,21 +324,21 @@ function viewEmailDetails(emailId) {
                 }
 
                 let html = '<table class="table table-bordered">';
-                html += '<tr><th width="30%">{{ "ID"|xlt }}</th><td>#' + escValue(email.id) + '</td></tr>';
+                html += '<tr><th width="30%">{{ "ID"|xlt }}</th><td>#' + escapeHtml(email.id) + '</td></tr>';
                 html += '<tr><th>{{ "Status"|xlt }}</th><td>' + statusBadge + '</td></tr>';
-                html += '<tr><th>{{ "Sender"|xlt }}</th><td>' + escValue(email.sender) + '</td></tr>';
-                html += '<tr><th>{{ "Recipient"|xlt }}</th><td>' + escValue(email.recipient) + '</td></tr>';
-                html += '<tr><th>{{ "Subject"|xlt }}</th><td>' + escValue(email.subject) + '</td></tr>';
-                html += '<tr><th>{{ "Template"|xlt }}</th><td>' + escValue(email.template_name || '{{ "None"|xlt }}') + '</td></tr>';
-                html += '<tr><th>{{ "Queued Date"|xlt }}</th><td>' + escValue(email.datetime_queued) + '</td></tr>';
+                html += '<tr><th>{{ "Sender"|xlt }}</th><td>' + escapeHtml(email.sender) + '</td></tr>';
+                html += '<tr><th>{{ "Recipient"|xlt }}</th><td>' + escapeHtml(email.recipient) + '</td></tr>';
+                html += '<tr><th>{{ "Subject"|xlt }}</th><td>' + escapeHtml(email.subject) + '</td></tr>';
+                html += '<tr><th>{{ "Template"|xlt }}</th><td>' + escapeHtml(email.template_name || '{{ "None"|xlt }}') + '</td></tr>';
+                html += '<tr><th>{{ "Queued Date"|xlt }}</th><td>' + escapeHtml(email.datetime_queued) + '</td></tr>';
 
                 if (email.datetime_sent) {
-                    html += '<tr><th>{{ "Sent Date"|xlt }}</th><td class="text-success">' + escValue(email.datetime_sent) + '</td></tr>';
+                    html += '<tr><th>{{ "Sent Date"|xlt }}</th><td class="text-success">' + escapeHtml(email.datetime_sent) + '</td></tr>';
                 }
 
                 if (String(email.error) === '1' && email.error_message) {
-                    html += '<tr><th>{{ "Error Message"|xlt }}</th><td class="text-danger">' + escValue(email.error_message) + '</td></tr>';
-                    html += '<tr><th>{{ "Error Date"|xlt }}</th><td>' + escValue(email.datetime_error) + '</td></tr>';
+                    html += '<tr><th>{{ "Error Message"|xlt }}</th><td class="text-danger">' + escapeHtml(email.error_message) + '</td></tr>';
+                    html += '<tr><th>{{ "Error Date"|xlt }}</th><td>' + escapeHtml(email.datetime_error) + '</td></tr>';
                 }
 
                 html += '</table>';
@@ -353,4 +353,3 @@ function viewEmailDetails(emailId) {
         });
 }
 </script>
-{% endblock %}

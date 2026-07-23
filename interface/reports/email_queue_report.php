@@ -70,7 +70,7 @@ $statistics = $service->getStatistics();
 $templateNames = $service->getTemplateNames();
 $emails = $service->getEmailQueue($filters, $perPage, $offset);
 $totalCount = $service->getEmailQueueCount($filters);
-$totalPages = ceil($totalCount / $perPage);
+$totalPages = (int) ceil($totalCount / $perPage);
 
 // Build query string for pagination
 $queryParams = [];
