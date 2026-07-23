@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `module_external_idp_provider` (
     `display_name` varchar(128) NOT NULL DEFAULT 'External Identity Provider',
     `issuer_url` varchar(2048) NOT NULL,
     `client_id` varchar(512) NOT NULL,
+    `bearer_audiences` text DEFAULT NULL,
     `client_secret` mediumtext DEFAULT NULL,
     `scopes` varchar(512) NOT NULL DEFAULT 'openid profile email',
     `provisioning_mode` varchar(32) NOT NULL DEFAULT 'manual',

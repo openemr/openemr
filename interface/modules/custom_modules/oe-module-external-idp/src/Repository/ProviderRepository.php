@@ -140,6 +140,8 @@ final class ProviderRepository
     {
         $encryptedSecret = $clientSecret === '' ? null : ServiceContainer::getCrypto()->encryptForDatabase($clientSecret);
         $metadataJson = json_encode($metadata, JSON_THROW_ON_ERROR);
+        $bearerAudiences = trim((string) ($settings['bearer_audiences'] ?? ''));
+        $bearerAudiences = $bearerAudiences !== '' ? $bearerAudiences : null;
         $provisioningMode = (string) ($settings['provisioning_mode'] ?? self::DEFAULT_PROVISIONING_MODE);
         if (!in_array($provisioningMode, self::PROVISIONING_MODES, true)) {
             $provisioningMode = self::DEFAULT_PROVISIONING_MODE;
@@ -158,15 +160,16 @@ final class ProviderRepository
         $syncClaimsOnLogin = !array_key_exists('sync_claims_on_login', $settings) || !empty($settings['sync_claims_on_login']) ? 1 : 0;
         sqlStatement(
             'INSERT INTO `module_external_idp_provider`
-                (`site_id`, `display_name`, `issuer_url`, `client_id`, `client_secret`, `scopes`,
+                (`site_id`, `display_name`, `issuer_url`, `client_id`, `bearer_audiences`, `client_secret`, `scopes`,
                  `provisioning_mode`, `match_claim`, `username_claim`, `email_claim`, `first_name_claim`, `last_name_claim`,
                  `default_group_name`, `default_acl_group`, `username_prefix`, `default_facility_id`, `default_authorized`, `default_active`, `sync_claims_on_login`,
                  `discovery_document`, `discovery_fetched_at`, `enabled`)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
              ON DUPLICATE KEY UPDATE
                 `display_name` = VALUES(`display_name`),
                 `issuer_url` = VALUES(`issuer_url`),
                 `client_id` = VALUES(`client_id`),
+                `bearer_audiences` = VALUES(`bearer_audiences`),
                 `client_secret` = COALESCE(VALUES(`client_secret`), `client_secret`),
                 `scopes` = VALUES(`scopes`),
                 `provisioning_mode` = VALUES(`provisioning_mode`),
@@ -186,7 +189,7 @@ final class ProviderRepository
                 `discovery_fetched_at` = NOW(),
                 `enabled` = VALUES(`enabled`)',
             [
-                $siteId, $displayName, $issuerUrl, $clientId, $encryptedSecret, $scopes,
+                $siteId, $displayName, $issuerUrl, $clientId, $bearerAudiences, $encryptedSecret, $scopes,
                 $provisioningMode, $matchClaim, $usernameClaim, $emailClaim, $firstNameClaim, $lastNameClaim,
                 $defaultGroupName, $defaultAclGroup, $usernamePrefix, $defaultFacilityId, $defaultAuthorized, $defaultActive, $syncClaimsOnLogin,
                 $metadataJson, $enabled ? 1 : 0

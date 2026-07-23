@@ -16,6 +16,23 @@ stores one-time state, nonce, and PKCE verifier in the pre-auth session;
 callback verifies the id_token signature and claims, then hands control back to
 the normal OpenEMR login completion flow.
 
+For environments that already obtain a valid Keycloak/OIDC identity token
+outside the browser redirect flow, the module also exposes
+`token_login.php`. That endpoint accepts a direct JWT through either
+`Authorization: Bearer <jwt>` or an `id_token`/`jwt` request parameter,
+validates signature, issuer, audience, subject, and token times against the
+configured provider, and then continues through the normal OpenEMR local login
+flow. Because this is not the authorization-code callback flow, it does not
+require or validate an OIDC `nonce`.
+
+For stateless API calls, the REST bearer-token authorization layer also falls
+back to the external IdP validator when an OpenEMR OAuth2 token is not
+recognized. By default the external bearer token must use the configured
+provider `client_id` as its audience. If forwarded tokens are minted for other
+trusted Keycloak clients, add those values to `Accepted bearer audiences` in
+the module configuration so API requests can present them directly in the
+`Authorization: Bearer` header without creating an OpenEMR login session.
+
 Phase 4 adds the operational controls around that flow:
 
 - administrator-only binding of an external `sub` to an existing active OpenEMR

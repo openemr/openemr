@@ -56,6 +56,7 @@ function externalIdpEnsureSchema(): void
     }
 
     $providerColumns = [
+        'bearer_audiences' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `bearer_audiences` text DEFAULT NULL AFTER `client_id`",
         'provisioning_mode' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `provisioning_mode` varchar(32) NOT NULL DEFAULT 'manual' AFTER `scopes`",
         'match_claim' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `match_claim` varchar(64) NOT NULL DEFAULT 'preferred_username' AFTER `provisioning_mode`",
         'username_claim' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `username_claim` varchar(64) NOT NULL DEFAULT 'preferred_username' AFTER `match_claim`",
@@ -203,6 +204,7 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $displayName = trim((string) ($_POST['display_name'] ?? ''));
             $issuerUrl = trim((string) ($_POST['issuer_url'] ?? ''));
             $clientId = trim((string) ($_POST['client_id'] ?? ''));
+            $bearerAudiences = trim((string) ($_POST['bearer_audiences'] ?? ''));
             $clientSecret = (string) ($_POST['client_secret'] ?? '');
             $scopes = trim((string) ($_POST['scopes'] ?? 'openid profile email'));
             $enabled = !empty($_POST['enabled']);
@@ -223,6 +225,7 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 'display_name' => $displayName,
                 'issuer_url' => $issuerUrl,
                 'client_id' => $clientId,
+                'bearer_audiences' => $bearerAudiences,
                 'scopes' => $scopes,
                 'enabled' => $enabled ? 1 : 0,
                 'provisioning_mode' => $provisioningMode,
@@ -258,6 +261,7 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($action === 'save') {
                 $metadata = (new DiscoveryService())->discover($issuerUrl);
                 $providerRepository->save($siteId, $displayName, rtrim($issuerUrl, '/'), $clientId, $clientSecret, $scopes, $enabled, $metadata, [
+                    'bearer_audiences' => $bearerAudiences,
                     'provisioning_mode' => $provisioningMode,
                     'match_claim' => $matchClaim,
                     'username_claim' => $usernameClaim,
@@ -426,6 +430,13 @@ if (!$renderPartial) {
                 <div class="form-group">
                     <label for="client_id"><?php echo xlt('Client ID'); ?></label>
                     <input class="form-control" id="client_id" name="client_id" maxlength="512" required value="<?php echo attr($provider['client_id'] ?? ''); ?>">
+                    <small class="form-text text-muted"><?php echo xlt('Used for the browser OIDC login flow and as the default accepted audience for direct bearer-token API validation.'); ?></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="bearer_audiences"><?php echo xlt('Accepted bearer audiences'); ?></label>
+                    <textarea class="form-control" id="bearer_audiences" name="bearer_audiences" rows="3" placeholder="ai_gateway_client&#10;other-trusted-client"><?php echo attr((string) ($provider['bearer_audiences'] ?? '')); ?></textarea>
+                    <small class="form-text text-muted"><?php echo xlt('Optional. Add one audience or client ID per line, or separate with spaces or commas. API bearer tokens from this issuer are accepted when aud or azp matches the configured Client ID or one of these values.'); ?></small>
                 </div>
 
                 <div class="form-group">

@@ -116,6 +116,57 @@ final class OidcAuthenticationService
     }
 
     /**
+     * Completes a local OpenEMR login using a directly supplied OIDC JWT.
+     *
+     * This path is intended for trusted clients that already possess a valid
+     * Keycloak/OpenID Connect identity token and need to start an OpenEMR
+     * session without the browser authorization-code redirect flow.
+     *
+     * @param array<string, scalar|null> $request
+     */
+    public function finishDirectTokenLogin(array $request): string
+    {
+        $siteId = OidcStateService::normalizeSiteId($request['site'] ?? SessionWrapperFactory::getInstance()->getActiveSession()->get('site_id') ?? 'default');
+        SessionWrapperFactory::getInstance()->getActiveSession()->set('site_id', $siteId);
+
+        $providerId = $this->resolveProviderId($request, $siteId);
+        $provider = ['id' => $providerId];
+
+        try {
+            $provider = $this->loadProvider($providerId, $siteId, true);
+            $idToken = $this->extractDirectJwt($request);
+            if ($idToken === '') {
+                $this->auditFailure((string) $provider['id'], 'direct jwt login missing token');
+                throw new \RuntimeException('A direct OIDC JWT is required.');
+            }
+
+            $claims = $this->validateDirectIdToken($provider, $idToken);
+            $userId = $this->resolveUserId((int) $provider['id'], (string) $claims->sub);
+            if ($userId === null) {
+                $userId = $this->provisioningService->resolveOrProvisionUser($provider, $claims);
+            }
+            if ($userId === null) {
+                $this->auditFailure((string) $provider['id'], 'no OpenEMR binding exists for the external subject');
+                throw new \RuntimeException('No local OpenEMR binding exists for this external identity.');
+            }
+            $this->provisioningService->syncMappedUser($provider, $userId, $claims);
+
+            $result = new ExternalAuthenticationResult($userId, (string) $provider['id']);
+            $completed = (new ExternalAuthenticationService())->complete($result, $request);
+            if (!$completed) {
+                $this->auditFailure((string) $provider['id'], 'local user validation failed');
+                throw new \RuntimeException('The mapped OpenEMR user could not be validated.');
+            }
+
+            $this->providerRepository->markSuccess((int) $provider['id'], $userId);
+            return OidcStateService::buildReturnTarget($siteId);
+        } catch (\Throwable $exception) {
+            $this->recordFailure((int) ($provider['id'] ?? 0), 'direct jwt login failed', $exception->getMessage());
+            throw $exception;
+        }
+    }
+
+    /**
      * @param array<string, mixed> $provider
      * @param array<string, mixed> $pending
      */
@@ -236,6 +287,27 @@ final class OidcAuthenticationService
             throw new \RuntimeException('OIDC id_token is missing.');
         }
 
+        $claims = $this->decodeAndValidateTokenClaims($provider, $idToken);
+        if (!isset($claims->nonce) || !is_string($claims->nonce) || !hash_equals((string) $pending['nonce'], $claims->nonce)) {
+            throw new \RuntimeException('OIDC id_token nonce did not match.');
+        }
+
+        return $claims;
+    }
+
+    /**
+     * @param array<string, mixed> $provider
+     */
+    private function validateDirectIdToken(array $provider, string $idToken): object
+    {
+        return $this->decodeAndValidateTokenClaims($provider, $idToken);
+    }
+
+    /**
+     * @param array<string, mixed> $provider
+     */
+    private function decodeAndValidateTokenClaims(array $provider, string $idToken): object
+    {
         $metadata = $this->getDiscoveryMetadata($provider);
         $issuer = (string) ($metadata['issuer'] ?? '');
         if ($issuer === '') {
@@ -299,9 +371,7 @@ final class OidcAuthenticationService
         if (!isset($claims->sub) || !is_string($claims->sub) || trim($claims->sub) === '') {
             throw new \RuntimeException('OIDC id_token subject is missing.');
         }
-        if (!isset($claims->nonce) || !is_string($claims->nonce) || !hash_equals((string) $pending['nonce'], $claims->nonce)) {
-            throw new \RuntimeException('OIDC id_token nonce did not match.');
-        }
+
         $exp = $this->toTimestamp($claims->exp ?? null);
         if ($exp === null || $exp < time()) {
             throw new \RuntimeException('OIDC id_token is expired.');
@@ -502,5 +572,25 @@ final class OidcAuthenticationService
         }
 
         return trim((string) $value);
+    }
+
+    /**
+     * @param array<string, scalar|null> $request
+     */
+    private function extractDirectJwt(array $request): string
+    {
+        foreach (['id_token', 'jwt', 'token'] as $field) {
+            $token = $this->requestString($request, $field);
+            if ($token !== '') {
+                return $token;
+            }
+        }
+
+        $authorizationHeader = trim((string) ($_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? ''));
+        if (preg_match('/^Bearer\s+(.+)$/i', $authorizationHeader, $matches)) {
+            return trim($matches[1]);
+        }
+
+        return '';
     }
 }
