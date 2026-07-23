@@ -18,11 +18,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset 0 on non\\-empty\\-list\\<string\\> in isset\\(\\) always exists and is not nullable\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 0 on non\\-empty\\-list\\<string\\> in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/edihistory/edih_278_html.php',
 ];
