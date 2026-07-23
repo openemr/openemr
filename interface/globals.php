@@ -207,6 +207,26 @@ if (preg_match("/^[^\/]/", $web_root)) {
 //   $webserver_root = "/var/www/openemr";
 //   $web_root =  "/openemr";
 
+// Running OpenEMR outside of the root path is deprecated, and support will be
+// removed in the future. Install it to an entire domain or subdomain.
+//
+// See https://github.com/openemr/openemr/issues/12690
+//
+// Acceptable examples:
+// - example.com
+// - openemr.example.com
+// - practicename.sharedhost.com
+// - emr.my.practice.org
+//
+// Deprecated:
+// - example.com/openemr
+// - sharedhost.com/practicename
+// - my.practice.org/emr
+
+if ($web_root !== '' && $web_root !== '/') {
+    \OpenEMR\BC\Deprecation::emit('Running OpenEMR outside of the web root will no longer be supported. See https://github.com/openemr/openemr/issues/12690 for more information.');
+}
+
 $ResolveServerHost = static function () {
     $scheme = ($_SERVER['REQUEST_SCHEME'] ?? 'https') . "://";
     $possibleHostSources = ['HTTP_X_FORWARDED_HOST', 'HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR'];
