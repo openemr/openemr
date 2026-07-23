@@ -23,6 +23,7 @@ use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
+use Symfony\Component\Process\Process;
 
 class AaLoginTest extends PantherTestCase
 {
@@ -82,18 +83,54 @@ class AaLoginTest extends PantherTestCase
     }
 
     #[Test]
-    public function testAdminPageLoads(): void
+    public function testAdminPageDisabledByDefault(): void
     {
         $this->base();
         try {
-            $this->crawler = $this->client->request('GET', '/admin.php');
+            $this->client->request('GET', '/admin.php');
+            $source = $this->client->getPageSource();
+            $this->assertStringContainsString(
+                'admin.php is disabled by default',
+                $source,
+                'admin.php should return the disabled-by-default message when no env var is set'
+            );
             $title = $this->client->getTitle();
-            $this->assertSame('OpenEMR Site Administration', $title, 'FAILED to load admin.php');
+            $this->assertNotSame(
+                'OpenEMR Site Administration',
+                $title,
+                'admin.php dashboard should NOT render without the enable env var'
+            );
         } catch (\Throwable $e) {
             $this->client->quit();
             throw $e;
         }
         $this->client->quit();
+    }
+
+    #[Test]
+    public function testAdminPageEnabledWithEnvVar(): void
+    {
+        $process = new Process(
+            ['php', 'admin.php'],
+            '/var/www/localhost/htdocs/openemr',
+            ['OPENEMR_ADMIN_PHP_ENABLED' => '1']
+        );
+        $process->run();
+        $this->assertTrue(
+            $process->isSuccessful(),
+            'php admin.php CLI invocation should succeed'
+        );
+        $output = $process->getOutput();
+        $this->assertStringContainsString(
+            'OpenEMR Site Administration',
+            $output,
+            'admin.php dashboard should render when OPENEMR_ADMIN_PHP_ENABLED=1 is set'
+        );
+        $this->assertStringNotContainsString(
+            'disabled by default',
+            $output,
+            'admin.php should not emit the disabled-by-default message when env var is set'
+        );
     }
 
     private function loginPage(): void

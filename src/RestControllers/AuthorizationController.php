@@ -1462,19 +1462,16 @@ class AuthorizationController
             $token_parts = explode('.', $id_token);
             $id_payload = $this->decodeToken($token_parts[1]);
 
-            $client_id = $id_payload['aud'];
+            $client_id = is_string($id_payload['aud'] ?? null) ? $id_payload['aud'] : '';
             $user = $id_payload['sub'];
             $id_nonce = $id_payload['nonce'] ?? '';
             $trustedUser = $this->trustedUser($client_id, $user);
             if (empty($trustedUser['id'])) {
                 $message = xlt("You are currently not signed in.");
-                if (!empty($post_logout_url)) {
-                    $client = QueryUtils::querySingleRow("SELECT logout_redirect_uris as valid FROM `oauth_clients` WHERE `client_id` = ? AND `logout_redirect_uris` = ?", [$client_id, $post_logout_url], false);
-                    if (is_array($client) && ($client['valid'] ?? '') !== '') {
-                        $this->session->invalidate();
-                        return (new Psr17Factory())->createResponse(Response::HTTP_TEMPORARY_REDIRECT)
-                            ->withHeader('Location', $post_logout_url . "?state=$state");
-                    }
+                $redirectResponse = $this->buildLogoutRedirectIfAllowlisted($client_id, $post_logout_url, $state);
+                if ($redirectResponse !== null) {
+                    $this->session->invalidate();
+                    return $redirectResponse;
                 }
                 $this->session->invalidate();
                 throw new HttpException(Response::HTTP_UNAUTHORIZED, $message);
@@ -1486,24 +1483,43 @@ class AuthorizationController
             }
             // clear the users session
             $this->trustedUserService->deleteTrustedUserById($trustedUser['id']);
-            $client = sqlQueryNoLog("SELECT logout_redirect_uris as valid FROM `oauth_clients` WHERE `client_id` = ? AND `logout_redirect_uris` = ?", [$client_id, $post_logout_url]);
-            if (!empty($post_logout_url) && !empty($client['valid'])) {
+            $redirectResponse = $this->buildLogoutRedirectIfAllowlisted($client_id, $post_logout_url, $state);
+            if ($redirectResponse !== null) {
                 $this->session->invalidate();
-                return (new Psr17Factory())->createResponse(Response::HTTP_TEMPORARY_REDIRECT)
-                    ->withHeader('Location', $post_logout_url . "?state=$state");
-            } else {
-                $message = xlt("You have been signed out. Thank you.");
-                $this->session->invalidate();
-                $factory = new Psr17Factory();
-                return $factory->createResponse(Response::HTTP_OK)
-                    ->withHeader("Content-Type", "text/plain; charset=UTF-8")
-                    ->withBody($factory->createStream($message));
+                return $redirectResponse;
             }
+            $message = xlt("You have been signed out. Thank you.");
+            $this->session->invalidate();
+            $factory = new Psr17Factory();
+            return $factory->createResponse(Response::HTTP_OK)
+                ->withHeader("Content-Type", "text/plain; charset=UTF-8")
+                ->withBody($factory->createStream($message));
         } catch (OAuthServerException $exception) {
             $this->getSystemLogger()->error("OAuth error for client {client_id}: " . $exception->getMessage(), ['client_id' => $client_id]);
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
         }
+    }
+
+    private function buildLogoutRedirectIfAllowlisted(string $client_id, string $post_logout_url, string $state): ?ResponseInterface
+    {
+        if ($post_logout_url === '') {
+            return null;
+        }
+        $client = QueryUtils::querySingleRow(
+            "SELECT logout_redirect_uris FROM `oauth_clients` WHERE `client_id` = ?",
+            [$client_id],
+            false
+        );
+        $stored = is_array($client) ? ($client['logout_redirect_uris'] ?? '') : '';
+        $registeredUris = is_string($stored) ? explode('|', $stored) : [];
+        if (!in_array($post_logout_url, $registeredUris, true)) {
+            return null;
+        }
+        $stateQuery = http_build_query(['state' => $state], '', '&', PHP_QUERY_RFC3986);
+        $separator = str_contains($post_logout_url, '?') ? '&' : '?';
+        return (new Psr17Factory())->createResponse(Response::HTTP_TEMPORARY_REDIRECT)
+            ->withHeader('Location', $post_logout_url . $separator . $stateQuery);
     }
 
     public function tokenIntrospection(HttpRestRequest $request): ResponseInterface
