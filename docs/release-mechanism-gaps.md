@@ -2359,7 +2359,34 @@ for merge."
     of this work (see the closure annotation on that table row).
   - Workstream 7 Phase 3c — this gap is the Phase 3c deliverable.
 
-### G30 — Release-prep smoketest / release event burns 100-300+ App API calls; rate-limit exhaustion is a real exposure  *(discovered 2026-07-23 during Workstream 7 close-out)*
+### G30 — Release-prep smoketest / release event burns 100-300+ App API calls; rate-limit exhaustion is a real exposure  *(discovered 2026-07-23 during Workstream 7 close-out, SHIPPED 2026-07-23)*
+
+**STATUS: SHIPPED 2026-07-23** as
+[openemr/openemr#13146](https://github.com/openemr/openemr/pull/13146)
+(structural batching half only; rate-limit-aware-backoff half
+explicitly skipped as obsoleted by the ~96% API-call reduction —
+see the two-fix framing below). `GitHubApi::prsForCommits()` now
+batches 25 SHAs per query via `gh pr list --search` (GraphQL, not
+REST — REST `/search/issues` has a 256-char query cap that limits
+to 4-5 SHAs/batch). A 200-commit release-prep changelog build
+drops from ~200 API requests to ~8. Combined with #13141's retry
+loop (still in place as belt-and-suspenders for isolated flakes),
+the release App installation is now well-defended against both
+single-request flakes and sustained rate-limit exhaustion.
+
+Implementation notes worth capturing (not obvious from the code):
+- `gh pr list --json author` returns `app/dependabot` for bot users
+  where REST returns `dependabot[bot]`. Normalized inside
+  `prsForCommits()` so `ChangelogGenerator::DEPENDABOT` /
+  `RELEASE_BOT` constants continue to match without any
+  downstream change.
+- Explicit `sha:X OR sha:Y` search syntax used rather than
+  bare-SHA space-separated terms; empirically both worked but
+  GitHub's search docs don't spec `sha:` qualifier multi-value
+  behavior, and generic search terms are AND by default.
+- `.author.login // ""` jq default handles deleted-GitHub-user
+  PRs (`author: null` in the response) — orphaned merged PRs
+  still surface in the changelog.
 
 - **What:** `changelog.php` (invoked by `openemr:release-prep` and by
   the `openemr:release-prep smoketest against rel-820` CI job) walks
@@ -3865,3 +3892,12 @@ checklist + the existing master-bump pattern.
   commit→PR resolution (`gh pr list --search "sha:A sha:B ..."`
   in place of per-commit `/commits/{sha}/pulls`). Both compose;
   neither is scoped into #13141's retry PR.
+
+- **2026-07-23**: G30 SHIPPED as openemr/openemr#13146 (structural
+  batching half — 25 SHAs per `gh pr list --search` query,
+  ~200 API calls per changelog build → ~8, 96% reduction).
+  Rate-limit-aware-backoff half explicitly skipped as obsoleted
+  by the call-count reduction. Combined with #13141's retry
+  loop (still in place), release App installation is now
+  well-defended against both isolated flakes and sustained
+  rate-limit exhaustion.
