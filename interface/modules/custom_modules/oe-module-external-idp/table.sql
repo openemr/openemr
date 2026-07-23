@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `module_external_idp_provider` (
     `default_authorized` tinyint(1) NOT NULL DEFAULT 0,
     `default_active` tinyint(1) NOT NULL DEFAULT 1,
     `sync_claims_on_login` tinyint(1) NOT NULL DEFAULT 1,
+    `enable_internal_scope_exchange` tinyint(1) NOT NULL DEFAULT 0,
     `discovery_document` mediumtext DEFAULT NULL,
     `discovery_fetched_at` datetime DEFAULT NULL,
     `enabled` tinyint(1) NOT NULL DEFAULT 0,

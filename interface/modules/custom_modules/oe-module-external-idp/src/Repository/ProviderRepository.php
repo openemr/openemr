@@ -158,13 +158,14 @@ final class ProviderRepository
         $defaultAuthorized = !empty($settings['default_authorized']) ? 1 : 0;
         $defaultActive = !empty($settings['default_active']) ? 1 : 0;
         $syncClaimsOnLogin = !array_key_exists('sync_claims_on_login', $settings) || !empty($settings['sync_claims_on_login']) ? 1 : 0;
+        $enableInternalScopeExchange = !empty($settings['enable_internal_scope_exchange']) ? 1 : 0;
         sqlStatement(
             'INSERT INTO `module_external_idp_provider`
                 (`site_id`, `display_name`, `issuer_url`, `client_id`, `bearer_audiences`, `client_secret`, `scopes`,
                  `provisioning_mode`, `match_claim`, `username_claim`, `email_claim`, `first_name_claim`, `last_name_claim`,
-                 `default_group_name`, `default_acl_group`, `username_prefix`, `default_facility_id`, `default_authorized`, `default_active`, `sync_claims_on_login`,
+                 `default_group_name`, `default_acl_group`, `username_prefix`, `default_facility_id`, `default_authorized`, `default_active`, `sync_claims_on_login`, `enable_internal_scope_exchange`,
                  `discovery_document`, `discovery_fetched_at`, `enabled`)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
              ON DUPLICATE KEY UPDATE
                 `display_name` = VALUES(`display_name`),
                 `issuer_url` = VALUES(`issuer_url`),
@@ -185,13 +186,14 @@ final class ProviderRepository
                 `default_authorized` = VALUES(`default_authorized`),
                 `default_active` = VALUES(`default_active`),
                 `sync_claims_on_login` = VALUES(`sync_claims_on_login`),
+                `enable_internal_scope_exchange` = VALUES(`enable_internal_scope_exchange`),
                 `discovery_document` = VALUES(`discovery_document`),
                 `discovery_fetched_at` = NOW(),
                 `enabled` = VALUES(`enabled`)',
             [
                 $siteId, $displayName, $issuerUrl, $clientId, $bearerAudiences, $encryptedSecret, $scopes,
                 $provisioningMode, $matchClaim, $usernameClaim, $emailClaim, $firstNameClaim, $lastNameClaim,
-                $defaultGroupName, $defaultAclGroup, $usernamePrefix, $defaultFacilityId, $defaultAuthorized, $defaultActive, $syncClaimsOnLogin,
+                $defaultGroupName, $defaultAclGroup, $usernamePrefix, $defaultFacilityId, $defaultAuthorized, $defaultActive, $syncClaimsOnLogin, $enableInternalScopeExchange,
                 $metadataJson, $enabled ? 1 : 0
             ]
         );

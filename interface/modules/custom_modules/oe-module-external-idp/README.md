@@ -33,6 +33,13 @@ trusted Keycloak clients, add those values to `Accepted bearer audiences` in
 the module configuration so API requests can present them directly in the
 `Authorization: Bearer` header without creating an OpenEMR login session.
 
+If those external bearer tokens do not carry OpenEMR FHIR/API scopes, enable
+`Enable internal scope exchange for external bearer tokens` in the provider
+configuration. When enabled, OpenEMR validates the external JWT, maps it to a
+local user, and synthesizes request-specific internal scopes for the current
+API call. Leave this disabled if you want OpenEMR to enforce upstream token
+scopes strictly.
+
 Phase 4 adds the operational controls around that flow:
 
 - administrator-only binding of an external `sub` to an existing active OpenEMR

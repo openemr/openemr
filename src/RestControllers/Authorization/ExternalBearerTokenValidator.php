@@ -71,6 +71,7 @@ class ExternalBearerTokenValidator implements ExternalBearerTokenValidatorInterf
                 'oauth_external_provider_id' => (int) $provider['id'],
                 'oauth_external_subject' => (string) $claims->sub,
                 'oauth_external_patient' => $this->extractOptionalStringClaim($claims, 'patient'),
+                'oauth_external_internal_scope_exchange' => !empty($provider['enable_internal_scope_exchange']),
             ];
         } catch (\Throwable $exception) {
             $this->logger->warning('External bearer token validation failed', [
@@ -89,7 +90,7 @@ class ExternalBearerTokenValidator implements ExternalBearerTokenValidatorInterf
     {
         try {
             $provider = sqlQuery(
-                'SELECT `id`, `issuer_url`, `client_id`, `bearer_audiences`, `discovery_document`, `enabled`
+                'SELECT *
                  FROM `module_external_idp_provider`
                  WHERE `site_id` = ? AND `enabled` = 1',
                 [$siteId]

@@ -221,6 +221,10 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             throw new HttpException(403, "User role does not have permission to access this resource.");
         }
 
+        if ($isExternalToken && !empty($attributes['oauth_external_internal_scope_exchange'])) {
+            $attributes['oauth_scopes'] = $this->exchangeExternalTokenScopes($request, $attributes['oauth_scopes'], $userRole);
+        }
+
         // setup our scopes and other attributes needed before we setup the session as those are needed for session setup
         $scopeValidatorFactory = new ScopeValidatorFactory();
         $scopeValidatorArray = $scopeValidatorFactory->buildScopeValidatorArray($attributes['oauth_scopes']);
@@ -399,6 +403,86 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
         $token = trim($matches[1]);
         return $token !== '' ? $token : null;
+    }
+
+    /**
+     * Converts a validated external bearer token into request-scoped OpenEMR authorization attributes.
+     *
+     * @param list<string> $existingScopes
+     * @return list<string>
+     */
+    private function exchangeExternalTokenScopes(HttpRestRequest $request, array $existingScopes, string $userRole): array
+    {
+        $scopes = [];
+        foreach ($existingScopes as $scope) {
+            $scope = trim((string) $scope);
+            if ($scope !== '') {
+                $scopes[$scope] = $scope;
+            }
+        }
+
+        $scopeContext = match ($userRole) {
+            'patient' => 'patient',
+            'system' => 'system',
+            default => 'user',
+        };
+
+        if ($request->isFhir()) {
+            $scopes['api:fhir'] = 'api:fhir';
+        } elseif ($request->isStandardApiRequest()) {
+            $scopes['api:oemr'] = 'api:oemr';
+        } elseif ($request->isPortalRequest()) {
+            $scopes['api:port'] = 'api:port';
+        }
+
+        $resource = $this->extractRequestResourceName($request);
+        if ($resource !== null) {
+            $permission = $this->mapMethodToScopeSuffix($request->getMethod());
+            $scopes[$scopeContext . '/' . $resource . '.' . $permission] = $scopeContext . '/' . $resource . '.' . $permission;
+        }
+
+        return array_values($scopes);
+    }
+
+    private function extractRequestResourceName(HttpRestRequest $request): ?string
+    {
+        $path = (string) $request->getPathInfo();
+
+        if ($request->isFhir()) {
+            if (preg_match('#/fhir/([^/?]+)#', $path, $matches) === 1) {
+                $resource = trim($matches[1]);
+                if ($resource !== '' && $resource[0] !== '$') {
+                    return $resource;
+                }
+            }
+            return null;
+        }
+
+        if ($request->isStandardApiRequest()) {
+            if (preg_match('#/api/([^/?]+)#', $path, $matches) === 1) {
+                return trim($matches[1]) !== '' ? trim($matches[1]) : null;
+            }
+            return null;
+        }
+
+        if ($request->isPortalRequest()) {
+            if (preg_match('#/portal/([^/?]+)#', $path, $matches) === 1) {
+                return trim($matches[1]) !== '' ? trim($matches[1]) : null;
+            }
+        }
+
+        return null;
+    }
+
+    private function mapMethodToScopeSuffix(string $method): string
+    {
+        return match (strtoupper($method)) {
+            'GET', 'HEAD' => 'rs',
+            'POST' => 'cruds',
+            'PUT', 'PATCH' => 'cruds',
+            'DELETE' => 'cruds',
+            default => 'rs',
+        };
     }
 
 

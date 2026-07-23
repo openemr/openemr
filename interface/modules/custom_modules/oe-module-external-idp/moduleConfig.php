@@ -70,6 +70,7 @@ function externalIdpEnsureSchema(): void
         'default_authorized' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `default_authorized` tinyint(1) NOT NULL DEFAULT 0 AFTER `default_facility_id`",
         'default_active' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `default_active` tinyint(1) NOT NULL DEFAULT 1 AFTER `default_authorized`",
         'sync_claims_on_login' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `sync_claims_on_login` tinyint(1) NOT NULL DEFAULT 1 AFTER `default_active`",
+        'enable_internal_scope_exchange' => "ALTER TABLE `module_external_idp_provider` ADD COLUMN `enable_internal_scope_exchange` tinyint(1) NOT NULL DEFAULT 0 AFTER `sync_claims_on_login`",
     ];
 
     foreach ($providerColumns as $columnName => $alterSql) {
@@ -221,6 +222,7 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $defaultAuthorized = !empty($_POST['default_authorized']);
             $defaultActive = !array_key_exists('default_active', $_POST) || !empty($_POST['default_active']);
             $syncClaimsOnLogin = !array_key_exists('sync_claims_on_login', $_POST) || !empty($_POST['sync_claims_on_login']);
+            $enableInternalScopeExchange = !empty($_POST['enable_internal_scope_exchange']);
             $postedProviderDraft = [
                 'display_name' => $displayName,
                 'issuer_url' => $issuerUrl,
@@ -241,6 +243,7 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 'default_authorized' => $defaultAuthorized ? 1 : 0,
                 'default_active' => $defaultActive ? 1 : 0,
                 'sync_claims_on_login' => $syncClaimsOnLogin ? 1 : 0,
+                'enable_internal_scope_exchange' => $enableInternalScopeExchange ? 1 : 0,
             ];
 
             if ($displayName === '' || $clientId === '' || $scopes === '') {
@@ -275,6 +278,7 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     'default_authorized' => $defaultAuthorized,
                     'default_active' => $defaultActive,
                     'sync_claims_on_login' => $syncClaimsOnLogin,
+                    'enable_internal_scope_exchange' => $enableInternalScopeExchange,
                 ]);
                 $message = $enabled ? xlt('OIDC discovery succeeded and the provider was enabled.') : xlt('OIDC discovery succeeded and the provider configuration was saved disabled.');
                 $messageType = 'success';
@@ -547,6 +551,12 @@ if (!$renderPartial) {
                         <input class="form-check-input" type="checkbox" id="sync_claims_on_login" name="sync_claims_on_login" value="1" <?php echo !array_key_exists('sync_claims_on_login', $provider) || !empty($provider['sync_claims_on_login']) ? 'checked' : ''; ?>>
                         <label class="form-check-label" for="sync_claims_on_login"><?php echo xlt('Sync name/email claims on each login'); ?></label>
                     </div>
+                </div>
+
+                <div class="form-group form-check">
+                    <input class="form-check-input" type="checkbox" id="enable_internal_scope_exchange" name="enable_internal_scope_exchange" value="1" <?php echo !empty($provider['enable_internal_scope_exchange']) ? 'checked' : ''; ?>>
+                    <label class="form-check-label" for="enable_internal_scope_exchange"><?php echo xlt('Enable internal scope exchange for external bearer tokens'); ?></label>
+                    <small class="form-text text-muted"><?php echo xlt('When enabled, OpenEMR synthesizes request-specific API/FHIR scopes after validating a trusted external bearer token and mapping it to a local user. This keeps the caller stateless but weakens strict upstream scope enforcement.'); ?></small>
                 </div>
 
                 <div class="form-group form-check">
