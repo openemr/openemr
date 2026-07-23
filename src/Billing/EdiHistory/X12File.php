@@ -84,7 +84,7 @@ class X12File
     // properties
     private $filepath = '';
     private $filename = '';
-    private $type = '';
+    private string $type = '';
     private $version = '';
     private $text = '';
     private $length = 0;
@@ -126,13 +126,13 @@ class X12File
                         $this->segments = $this->edih_x12_segments($f_text);
                         if (is_array($this->segments) && count($this->segments)) {
                             $this->envelopes = $this->edih_x12_envelopes();
-                            $this->type = $this->edih_x12_type();
+                            $this->type = $this->edih_x12_type() ?: '';
                         } else {
                             $this->message[] = 'edih_x12_file: error in creating segment array ' . \text($this->filename) . PHP_EOL;
                         }
                     } else {
                         // read file contents to try and determine x12 type
-                        $this->type = $this->edih_x12_type($f_text);
+                        $this->type = $this->edih_x12_type($f_text) ?: '';
                     }
                 }
             }
@@ -196,7 +196,7 @@ class X12File
     {
         return $this->filename;
     }
-    public function edih_type()
+    public function edih_type(): string
     {
         return $this->type;
     }
