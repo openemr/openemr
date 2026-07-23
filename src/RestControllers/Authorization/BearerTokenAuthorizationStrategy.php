@@ -43,6 +43,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
 
     private UserService $userService;
 
+    private ExternalBearerTokenValidatorInterface $externalBearerTokenValidator;
+
     public function __construct(private OEGlobalsBag $globalsBag, private EventAuditLogger $auditLogger, ?LoggerInterface $logger = null)
     {
         if ($logger) {
@@ -85,6 +87,19 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         // This method is intended to set the access token repository for the authorization strategy.
         // Implementation details would depend on the specific requirements of the application.
         $this->accessTokenRepository = $accessTokenRepository;
+    }
+
+    public function setExternalBearerTokenValidator(ExternalBearerTokenValidatorInterface $externalBearerTokenValidator): void
+    {
+        $this->externalBearerTokenValidator = $externalBearerTokenValidator;
+    }
+
+    public function getExternalBearerTokenValidator(): ExternalBearerTokenValidatorInterface
+    {
+        if (!isset($this->externalBearerTokenValidator)) {
+            $this->externalBearerTokenValidator = new ExternalBearerTokenValidator($this->getSystemLogger());
+        }
+        return $this->externalBearerTokenValidator;
     }
 
     /**
@@ -143,9 +158,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $session = $request->getSession();
         // verify the access token
         $repository = $this->getAccessTokenRepositoryForSession($session);
-        $tokenRaw = $this->verifyAccessToken($repository, $request);
-        // collect token attributes
-        $attributes = $tokenRaw->getAttributes();
+        $attributes = $this->resolveTokenAttributes($repository, $request);
+        $isExternalToken = !empty($attributes['oauth_is_external']);
         // collect openemr user uuid
         $userId = $attributes['oauth_user_id'];
         // collect client id (will be empty for PKCE)
@@ -157,31 +171,33 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             $this->getSystemLogger()->error("OpenEMR Error - userid or tokenid not available, so forced exit", ['attributes' => $attributes]);
             throw new HttpException(400, "OpenEMR Error: userid or tokenid not available, so forced exit. Please ensure that the access token is valid and contains the necessary attributes.");
         }
-        // now verify the token has not been revoked in the database
-        if ($repository->isAccessTokenRevokedInDatabase($tokenId)) {
-            throw OAuthServerException::accessDenied('Access token has been revoked');
-        }
-        $this->getSystemLogger()->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
+        if (!$isExternalToken) {
+            // now verify the token has not been revoked in the database
+            if ($repository->isAccessTokenRevokedInDatabase($tokenId)) {
+                throw OAuthServerException::accessDenied('Access token has been revoked');
+            }
+            $this->getSystemLogger()->debug("BearerTokenAuthorizationStrategy->authorizeRequest() - Access token verified, authenticating user");
 
-        // verify that user tokens haven't been revoked
-        // this is done by verifying the user is trusted with active auth session.
-        $trustedUserService = $this->getTrustedUserService();
-        if (!$trustedUserService->isTrustedUser($clientId, $userId)) {
-            // TODO: @adunsulag need to verify this logic
-            // user is not logged on to server with an active session.
-            // too me this is easier than revoking tokens or using phantom tokens.
-            $this->getSystemLogger()->debug(
-                "invalid Trusted User.  Refresh Token revoked or logged out",
-                ['clientId' => $clientId, 'userId' => $userId]
-            );
-            throw new OAuthServerException('Refresh Token revoked or logged out', 0, 'invalid_request', 400);
-        }
+            // verify that user tokens haven't been revoked
+            // this is done by verifying the user is trusted with active auth session.
+            $trustedUserService = $this->getTrustedUserService();
+            if (!$trustedUserService->isTrustedUser($clientId, $userId)) {
+                // TODO: @adunsulag need to verify this logic
+                // user is not logged on to server with an active session.
+                // too me this is easier than revoking tokens or using phantom tokens.
+                $this->getSystemLogger()->debug(
+                    "invalid Trusted User.  Refresh Token revoked or logged out",
+                    ['clientId' => $clientId, 'userId' => $userId]
+                );
+                throw new OAuthServerException('Refresh Token revoked or logged out', 0, 'invalid_request', 400);
+            }
 
-        // TODO: @adunsulag this seems redundant since the access token should already be verified on the expiration date
-        // we should look at removing this and see if it causes any issues
-        if (!$this->authenticateUserToken($request, $repository, $tokenId, $clientId, $userId)) {
-            $this->getSystemLogger()->error("dispatch.php api call with invalid token");
-            throw new UnauthorizedHttpException("Bearer", "OpenEMR Error: API call failed due to invalid token or expired token.");
+            // TODO: @adunsulag this seems redundant since the access token should already be verified on the expiration date
+            // we should look at removing this and see if it causes any issues
+            if (!$this->authenticateUserToken($request, $repository, $tokenId, $clientId, $userId)) {
+                $this->getSystemLogger()->error("dispatch.php api call with invalid token");
+                throw new UnauthorizedHttpException("Bearer", "OpenEMR Error: API call failed due to invalid token or expired token.");
+            }
         }
         $uuidToUser = $this->getUuidUserAccountFactory()($userId);
         $user = $uuidToUser->getUserAccount();
@@ -205,6 +221,10 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             throw new HttpException(403, "User role does not have permission to access this resource.");
         }
 
+        if ($isExternalToken && !empty($attributes['oauth_external_internal_scope_exchange'])) {
+            $attributes['oauth_scopes'] = $this->exchangeExternalTokenScopes($request, $attributes['oauth_scopes'], $userRole);
+        }
+
         // setup our scopes and other attributes needed before we setup the session as those are needed for session setup
         $scopeValidatorFactory = new ScopeValidatorFactory();
         $scopeValidatorArray = $scopeValidatorFactory->buildScopeValidatorArray($attributes['oauth_scopes']);
@@ -218,6 +238,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         $request->attributes->set('user', $user);
         $request->attributes->set('userRole', $userRole);
         $request->attributes->set('clientId', $clientId);
+        $request->attributes->set('externalBearerToken', $isExternalToken);
 
         $this->setupSessionForUserRole($userRole, $userId, $user, $request);
 
@@ -229,6 +250,8 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 $this->getSystemLogger()->error("OpenEMR Error - api patient user role but no patient id found");
                 throw new HttpException(401, "OpenEMR Error: API call failed due to invalid patient user id.");
             }
+        } elseif ($isExternalToken && !empty($attributes['oauth_external_patient'])) {
+            $request->setPatientUuidString($attributes['oauth_external_patient']);
         }
         $request->setClientId($clientId);
         return true;
@@ -260,8 +283,12 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 $request->requestHasScopeEntity(ScopeEntity::createFromString(SmartLaunchController::CLIENT_APP_STANDALONE_LAUNCH_SCOPE))
                 || $request->requestHasScopeEntity(ScopeEntity::createFromString(SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE))
             ) {
-                $this->getSystemLogger()->debug("BearerTokenAuthorizationStrategy::setupSessionForUserRole api is userRole populating token context for request due to smart launch scope");
-                $this->populateTokenContextForRequest($request);
+                if ($request->attributes->get('externalBearerToken') === true) {
+                    $this->getSystemLogger()->debug("BearerTokenAuthorizationStrategy::setupSessionForUserRole skipping SMART token context lookup for external bearer token");
+                } else {
+                    $this->getSystemLogger()->debug("BearerTokenAuthorizationStrategy::setupSessionForUserRole api is userRole populating token context for request due to smart launch scope");
+                    $this->populateTokenContextForRequest($request);
+                }
             }
         } elseif ($userRole == 'patient') {
             $session->set('pid', $user['pid'] ?? null);
@@ -320,6 +347,142 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             'ip' => $ip['ip_string']
         ]);
         return true;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function resolveTokenAttributes(AccessTokenRepository $accessTokenRepository, HttpRestRequest $request): array
+    {
+        try {
+            $tokenRaw = $this->verifyAccessToken($accessTokenRepository, $request);
+            return $tokenRaw->getAttributes();
+        } catch (HttpException $exception) {
+            if ($exception->getStatusCode() !== 401) {
+                throw $exception;
+            }
+
+            $rawToken = $this->extractBearerToken($request);
+            if ($rawToken === null) {
+                $this->getSystemLogger()->debug('BearerTokenAuthorizationStrategy native token validation failed and no bearer token could be extracted for external fallback', [
+                    'statusCode' => $exception->getStatusCode(),
+                    'path' => $request->getPathInfo(),
+                ]);
+                throw $exception;
+            }
+
+            $siteId = (string) ($request->getSession()->get('site_id') ?: 'default');
+            $this->getSystemLogger()->info('BearerTokenAuthorizationStrategy native token validation failed, attempting external bearer token fallback', [
+                'siteId' => $siteId,
+                'path' => $request->getPathInfo(),
+                'statusCode' => $exception->getStatusCode(),
+            ]);
+            $externalAttributes = $this->getExternalBearerTokenValidator()->validateBearerToken($rawToken, $siteId);
+            if ($externalAttributes === null) {
+                $this->getSystemLogger()->warning('BearerTokenAuthorizationStrategy external bearer token fallback failed', [
+                    'siteId' => $siteId,
+                    'path' => $request->getPathInfo(),
+                ]);
+                throw $exception;
+            }
+
+            $this->getSystemLogger()->debug('BearerTokenAuthorizationStrategy authorized request with external bearer token', [
+                'siteId' => $siteId,
+                'providerId' => $externalAttributes['oauth_external_provider_id'] ?? null,
+            ]);
+            return $externalAttributes;
+        }
+    }
+
+    private function extractBearerToken(HttpRestRequest $request): ?string
+    {
+        $authorizationHeader = (string) $request->headers->get('Authorization', '');
+        if (preg_match('/^\s*Bearer\s+(.+)\s*$/i', $authorizationHeader, $matches) !== 1) {
+            return null;
+        }
+
+        $token = trim($matches[1]);
+        return $token !== '' ? $token : null;
+    }
+
+    /**
+     * Converts a validated external bearer token into request-scoped OpenEMR authorization attributes.
+     *
+     * @param list<string> $existingScopes
+     * @return list<string>
+     */
+    private function exchangeExternalTokenScopes(HttpRestRequest $request, array $existingScopes, string $userRole): array
+    {
+        $scopes = [];
+        foreach ($existingScopes as $scope) {
+            $scope = trim((string) $scope);
+            if ($scope !== '') {
+                $scopes[$scope] = $scope;
+            }
+        }
+
+        $scopeContext = match ($userRole) {
+            'patient' => 'patient',
+            'system' => 'system',
+            default => 'user',
+        };
+
+        if ($request->isFhir()) {
+            $scopes['api:fhir'] = 'api:fhir';
+        } elseif ($request->isStandardApiRequest()) {
+            $scopes['api:oemr'] = 'api:oemr';
+        } elseif ($request->isPortalRequest()) {
+            $scopes['api:port'] = 'api:port';
+        }
+
+        $resource = $this->extractRequestResourceName($request);
+        if ($resource !== null) {
+            $permission = $this->mapMethodToScopeSuffix($request->getMethod());
+            $scopes[$scopeContext . '/' . $resource . '.' . $permission] = $scopeContext . '/' . $resource . '.' . $permission;
+        }
+
+        return array_values($scopes);
+    }
+
+    private function extractRequestResourceName(HttpRestRequest $request): ?string
+    {
+        $path = (string) $request->getPathInfo();
+
+        if ($request->isFhir()) {
+            if (preg_match('#/fhir/([^/?]+)#', $path, $matches) === 1) {
+                $resource = trim($matches[1]);
+                if ($resource !== '' && $resource[0] !== '$') {
+                    return $resource;
+                }
+            }
+            return null;
+        }
+
+        if ($request->isStandardApiRequest()) {
+            if (preg_match('#/api/([^/?]+)#', $path, $matches) === 1) {
+                return trim($matches[1]) !== '' ? trim($matches[1]) : null;
+            }
+            return null;
+        }
+
+        if ($request->isPortalRequest()) {
+            if (preg_match('#/portal/([^/?]+)#', $path, $matches) === 1) {
+                return trim($matches[1]) !== '' ? trim($matches[1]) : null;
+            }
+        }
+
+        return null;
+    }
+
+    private function mapMethodToScopeSuffix(string $method): string
+    {
+        return match (strtoupper($method)) {
+            'GET', 'HEAD' => 'rs',
+            'POST' => 'cruds',
+            'PUT', 'PATCH' => 'cruds',
+            'DELETE' => 'cruds',
+            default => 'rs',
+        };
     }
 
 

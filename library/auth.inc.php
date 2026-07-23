@@ -17,6 +17,7 @@
  */
 
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\ExternalAuthenticationService;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -25,8 +26,23 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $incoming_site_id = '';
+$externalLogin = isset($_GET['auth']) && $_GET['auth'] === 'external';
 // This is the conditional that ensures that the submission has the required parameters to attempt a login
-if (
+if ($externalLogin) {
+    if (!ExternalAuthenticationService::hasPendingAuthentication()) {
+        authCloseSession();
+        authLoginScreen();
+    }
+    // The external provider has already validated and established the normal
+    // OpenEMR session. main_screen.php will perform the existing MFA and new
+    // session setup sequence.
+    $externalLanguageChoice = ExternalAuthenticationService::getLoginOption('languageChoice');
+    if ($externalLanguageChoice !== null) {
+        $session->set('language_choice', $externalLanguageChoice);
+        $session->set('language_direction', getLanguageDir($externalLanguageChoice));
+    }
+    $skipSessionExpirationCheck = true;
+} elseif (
     isset($_GET['auth'])
     && ($_GET['auth'] == "login")
     && isset($_POST['new_login_session_management'])

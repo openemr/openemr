@@ -35,6 +35,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Core\ExternalAuthenticationProviderEvent;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\LogoService;
@@ -268,6 +269,10 @@ $viewArgs = [
  * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $ed
  */
 $ed = $globalsBag->getKernel()->getEventDispatcher();
+
+$externalAuthenticationProviderEvent = new ExternalAuthenticationProviderEvent();
+$ed->dispatch($externalAuthenticationProviderEvent, ExternalAuthenticationProviderEvent::EVENT_NAME);
+$viewArgs['externalAuthenticationProviders'] = $externalAuthenticationProviderEvent->getProviders();
 
 $templatePageEvent = new TemplatePageEvent('login/login.php', [], $layout, $viewArgs);
 $event = $ed->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);

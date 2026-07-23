@@ -12,6 +12,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
+use OpenEMR\RestControllers\Authorization\ExternalBearerTokenValidatorInterface;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
@@ -223,5 +224,59 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
         $strategy = $this->getBearerTokenAuthorizationStrategy($request);
         $uuidUserAccountClass = $strategy->getUuidUserAccountFactory()(1);
         $this->assertInstanceOf(UuidUserAccount::class, $uuidUserAccountClass, "Expected UuidUserAccount instance");
+    }
+
+    public function testAuthorizeRequestFallsBackToExternalBearerTokenValidator(): void
+    {
+        $user = [
+            'id' => 1,
+            'username' => 'testuser',
+            'role' => 'users',
+        ];
+        $userUuid = '123e4567-e89b-12d3-a456-426614174000';
+        $request = new HttpRestRequest([], [], [], [], [], [
+            'HTTP_AUTHORIZATION' => 'Bearer external-token',
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_CONTENT_TYPE' => 'application/json',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_URI' => '/apis/default/api/patient',
+            'SERVER_NAME' => 'example.com',
+        ]);
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+
+        $strategy = $this->getBearerTokenAuthorizationStrategy($request);
+        $accessTokenRepository = $this->createMock(AccessTokenRepository::class);
+        $strategy->setAccessTokenRepository($accessTokenRepository);
+        $strategy->setPublicKey(new CryptKey(self::KEY_PATH_PUBLIC, null, false));
+
+        $trustedUserService = $this->createMock(TrustedUserService::class);
+        $trustedUserService->expects($this->never())->method('isTrustedUser');
+        $strategy->setTrustedUserService($trustedUserService);
+
+        $externalValidator = $this->createMock(ExternalBearerTokenValidatorInterface::class);
+        $externalValidator->expects($this->once())
+            ->method('validateBearerToken')
+            ->with('external-token', 'default')
+            ->willReturn([
+                'oauth_user_id' => $userUuid,
+                'oauth_client_id' => self::TEST_CLIENT_ID,
+                'oauth_access_token_id' => 'external-jti',
+                'oauth_scopes' => ['api:oemr'],
+                'oauth_is_external' => true,
+            ]);
+        $strategy->setExternalBearerTokenValidator($externalValidator);
+
+        $strategy->setUuidUserAccountFactory(function () use ($user) {
+            $mock = $this->createMock(UuidUserAccount::class);
+            $mock->method('getUserAccount')->willReturn($user);
+            $mock->method('getUserRole')->willReturn('users');
+            return $mock;
+        });
+        $strategy->setUserService($this->getMockUserServiceForUser($user));
+
+        $this->assertTrue($strategy->authorizeRequest($request));
+        $this->assertEquals($userUuid, $request->getSession()->get('userId'));
+        $this->assertTrue($request->attributes->get('externalBearerToken'));
     }
 }
