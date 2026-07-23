@@ -305,7 +305,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                         $sc201 = ( isset($scda[0]) && $scda[0]) ? $cd27x->get_271_code('HCCSCC', $scda[0]) : "";
                         $sc202 = ( isset($scda[1]) && $scda[1]) ? $cd27x->get_271_code('HCCSC', $scda[1]) : "";
                         $sc203 = ( isset($scda[2]) && $scda[2]) ? $cd27x->get_271_code('NM101', $scda[2]) : "";
-                        $sc204 = ( isset($scda[3]) && $scda[3] = 'RA') ? "Rx Reject/Payment Codes" : "";
+                        $sc204 = ( isset($scda[3]) && $scda[3] === 'RA') ? "Rx Reject/Payment Codes" : "";
                     } else {
                         $stc10 = $sar[10];
                     }
@@ -319,7 +319,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                         $sc301 = ( isset($scda[0]) && $scda[0]) ? $cd27x->get_271_code('HCCSCC', $scda[0]) : "";
                         $sc302 = ( isset($scda[1]) && $scda[1]) ? $cd27x->get_271_code('HCCSC', $scda[1]) : "";
                         $sc303 = ( isset($scda[2]) && $scda[2]) ? $cd27x->get_271_code('NM101', $scda[2]) : "";
-                        $sc304 = ( isset($scda[3]) && $scda[3] = 'RA') ? "Rx Reject/Payment Codes" : "";
+                        $sc304 = ( isset($scda[3]) && $scda[3] === 'RA') ? "Rx Reject/Payment Codes" : "";
                     } else {
                         $stc11 = $sar[10];
                     }
