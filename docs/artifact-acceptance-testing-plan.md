@@ -471,6 +471,21 @@ fetch from GitHub — Phase 2.5's PR-built images still contain
 master source, not PR source. That's Phase 6's scope; the two
 changes are orthogonal.
 
+**Rel-branch invocation model (important context for both Phase 5
+and Phase 6):** the `ARG OPENEMR_VERSION=...` default in the
+Dockerfile is fallback-only. The correct invocation path always
+goes through `docker-build-release.yml` (orchestrated from master's
+`docker-release-orchestrator.yml`), which reads
+`.github/release-targets.yml` as source of truth and passes
+`--build-arg OPENEMR_VERSION=<value>` — overriding the Dockerfile
+default per-branch. `DockerfileOpenemrVersionMutator` (which sets
+the ARG default to `rel-820` on branch cut) is cosmetic
+self-documentation for anyone running `docker build docker/release/`
+directly — an "if you invoke this the wrong way" safety net, not
+the production path. **Direct `docker build` on a rel branch is
+out-of-scope** — if it produces a hybrid or breaks, that's
+acceptable because nobody does that in production.
+
 **Risks (validated + acceptable):**
 1. Runtime dependencies on now-stripped export-ignored files — Phase
    2's acceptance suite + `docker-test-release` catch install + login
@@ -480,7 +495,9 @@ changes are orthogonal.
    restructure or retire" — it will fail otherwise).
 3. Local `docker build` behavior shift — users who ran the release
    Dockerfile locally previously got `tests/` inside the image;
-   unlikely to affect anyone real.
+   per the "rel-branch invocation model" note above, direct
+   `docker build` isn't the correct invocation anyway, so any
+   behavior shift there is bounded to already-out-of-scope usage.
 
 Exit criterion: `docker-test-release.yml` passes with the stripped
 image; kcov either moved to source-side (dev stack) or dropped.
@@ -568,10 +585,25 @@ starts.
 
 **Also needs**: `DockerfileOpenemrVersionMutator` (which bumps
 `ARG OPENEMR_VERSION=master` → `ARG OPENEMR_VERSION=rel-820` on
-branch cut) keeps working as-is. Its purpose shifts from
-source-fetch-critical to OCI-label-only if Phase 6's chosen option
-decouples source-fetch from that ARG — but the mutator itself
-doesn't need changes.
+branch cut) keeps working as-is. Its purpose was already cosmetic
+self-documentation — the correct invocation path
+(`docker-build-release.yml` → `--build-arg OPENEMR_VERSION=<value
+from release-targets.yml>`) always overrides the Dockerfile
+default. Post-Phase-6 nothing changes about that — the mutator
+stays because the safety-net cosmetic value is real, and any new
+source-mode ARG introduced by Phase 6 (Option A/B) follows the
+same "release orchestrator always overrides" pattern.
+
+**Rel-branch invocation model reminder** (same nuance called out
+in Phase 5): whatever Phase 6 picks, direct `docker build
+docker/release/` on a rel branch is out-of-scope. The correct
+invocation is always through `docker-build-release.yml` which
+reads `release-targets.yml` as source of truth and passes
+overrides via `--build-arg`. Phase 6's new source-mode ARG (if
+Options A/B) follows the same pattern: default in Dockerfile is
+fallback for direct invocations, real value comes from
+`--build-arg` in `docker-build-release.yml` (or Phase 2.5's
+build-image job for the PR-image path).
 
 Exit criterion: a source-only PR (no Dockerfile change) can be
 manually workflow-dispatched with `build_locally: true` and the
