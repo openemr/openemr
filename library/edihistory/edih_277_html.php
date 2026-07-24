@@ -263,6 +263,13 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             //
             if (strncmp('STC' . $de, (string) $seg, 4) === 0) {
                 $sar = explode($de, (string) $seg);
+                // reset composite-derived status codes so a prior STC's codes do
+                // not leak into a segment that omits its own STC01/STC10/STC11
+                // composite elements (the rows below are gated on isset()/truthiness)
+                $sc101 = $sc102 = $sc103 = null;
+                $sc201 = $sc202 = $sc203 = null;
+                $sc301 = $sc302 = $sc303 = null;
+                $sc204 = $sc304 = "";
                 //
                 if (isset($sar[1])) {
                     if (strpos($sar[1], (string) $ds)) {       // claim status category : claim status : entity identifier
