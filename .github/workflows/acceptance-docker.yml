@@ -292,21 +292,36 @@ jobs:
       # upgrade scenario's post-swap boot. The fresh-install-from
       # scenario always uses the real Docker Hub from_tag (the whole
       # point is testing "install the currently-shipped image").
+      #
+      # matrix.* + env.* + needs.* values are routed through env: not
+      # spliced into the run: text — matrix.image_tag / TO_TAG originate
+      # from workflow_dispatch string inputs and could otherwise be a
+      # template-injection surface (zizmor template-injection rule).
       id: tags
+      env:
+        MATRIX_SCENARIO: ${{ matrix.scenario }}
+        MATRIX_IMAGE_TAG: ${{ matrix.image_tag }}
+        BUILD_IMAGE_RESULT: ${{ needs.build-image.result }}
+        # TO_TAG is already a job-level env, but hoisted here for the
+        # zero-splice-in-run: convention.
       run: |
         LOCAL_TAG="openemr/openemr:pr-built"
-        BUILT="${{ needs.build-image.result == 'success' && 'true' || 'false' }}"
+        if [[ "$BUILD_IMAGE_RESULT" == "success" ]]; then
+          BUILT="true"
+        else
+          BUILT="false"
+        fi
 
-        case "${{ matrix.scenario }}" in
+        case "$MATRIX_SCENARIO" in
           fresh-install-from|upgrade)
             # Initial boot for these scenarios is always the real from_tag
-            echo "boot_tag=${{ matrix.image_tag }}" >> "$GITHUB_OUTPUT"
+            echo "boot_tag=${MATRIX_IMAGE_TAG}" >> "$GITHUB_OUTPUT"
             ;;
           fresh-install-to)
             if [[ "$BUILT" == "true" ]]; then
               echo "boot_tag=${LOCAL_TAG}" >> "$GITHUB_OUTPUT"
             else
-              echo "boot_tag=${{ matrix.image_tag }}" >> "$GITHUB_OUTPUT"
+              echo "boot_tag=${MATRIX_IMAGE_TAG}" >> "$GITHUB_OUTPUT"
             fi
             ;;
         esac
@@ -317,7 +332,7 @@ jobs:
         if [[ "$BUILT" == "true" ]]; then
           echo "upgrade_target_tag=${LOCAL_TAG}" >> "$GITHUB_OUTPUT"
         else
-          echo "upgrade_target_tag=${{ env.TO_TAG }}" >> "$GITHUB_OUTPUT"
+          echo "upgrade_target_tag=${TO_TAG}" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Set up PHP + composer for the acceptance harness
