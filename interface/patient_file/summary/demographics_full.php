@@ -293,7 +293,7 @@ $CPR = 4; // cells per row
                 const el = resolveAddressField(addressVerifyFields[key]);
                 return el ? el.value : '';
             };
-            const postal = val('postal');
+            const postal = val('postal').replace(/\D/g, '');
 
             const params = new URLSearchParams({
                 address1: val('address1'),
