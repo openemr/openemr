@@ -18,7 +18,7 @@
     $sites_dirs = glob('sites/*', GLOB_ONLYDIR) ?: [];
     $valid_site_ids = array_map(
         basename(...),
-        array_filter($sites_dirs, fn($d) => is_file("{$d}/sqlconf.php"))
+        array_filter($sites_dirs, fn($d): bool => is_file("{$d}/sqlconf.php"))
     );
 
     switch(count($valid_site_ids)) {

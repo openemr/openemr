@@ -372,8 +372,8 @@ class Events extends Base
 
                 if (!empty($prefs['ME_facilities'])) {
                     $facilityIds = array_filter(
-                        array_map(fn($id) => filter_var($id, FILTER_VALIDATE_INT), explode('|', (string) $prefs['ME_facilities'])),
-                        fn($id) => $id !== false
+                        array_map(fn($id): int|false => filter_var($id, FILTER_VALIDATE_INT), explode('|', (string) $prefs['ME_facilities'])),
+                        fn($id): bool => $id !== false
                     );
                     if ($facilityIds === []) {
                         continue;

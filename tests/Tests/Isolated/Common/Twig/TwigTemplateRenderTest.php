@@ -391,7 +391,7 @@ class TwigTemplateRenderTest extends TestCase
         // show exactly where the real function's output would appear.
         $twig->addFunction(new TwigFunction(
             'setupHeader',
-            fn () => '<!-- setupHeader stub -->',
+            fn (): string => '<!-- setupHeader stub -->',
             ['is_safe' => ['html']]
         ));
 

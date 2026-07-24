@@ -48,7 +48,7 @@ use Psr\Http\Message\{
 
 return [
     // Error handling
-    ErrorHandler::class => fn (TC $c) => new ErrorHandler(
+    ErrorHandler::class => fn (TC $c): ErrorHandler => new ErrorHandler(
         logger: $c->get(LoggerInterface::class),
         rf: $c->get(ResponseFactoryInterface::class),
         sf: $c->get(StreamFactoryInterface::class),
@@ -71,15 +71,15 @@ return [
     },
 
     // Logging
-    FallbackRouter::class => fn (TC $c) => new FallbackRouter(
+    FallbackRouter::class => fn (TC $c): FallbackRouter => new FallbackRouter(
         installRoot: $c->getString('installRoot'),
         logger: $c->get(LoggerInterface::class),
     ),
 
     InstallerInterface::class => Installer::class,
-    Installer::class => fn (TC $c) => new Installer([], $c->get(LoggerInterface::class)),
+    Installer::class => fn (TC $c): Installer => new Installer([], $c->get(LoggerInterface::class)),
 
-    Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
+    Level::class => fn (TC $c): Level => Level::fromName($c->get('LOG_LEVEL')),
     Logger::class => function (TC $c) {
         // Duplicated from setup in SystemLogger (for now)
         $logger = new Logger('OpenEMR');
@@ -99,7 +99,7 @@ return [
     // same thing, but the PSR-18 could (if for some reason we wanted to)
     // provide a different implementation in the future.
     ClientInterface::class => Client::class,
-    Client::class => fn () => new Client([
+    Client::class => fn (): Client => new Client([
         // PSR-18 makes no rule about following redirects either way
         RequestOptions::ALLOW_REDIRECTS => true,
         // Establish _some_ baseline timeouts
@@ -109,7 +109,7 @@ return [
         RequestOptions::HTTP_ERRORS => false,
     ]),
 
-    SystemClock::class => fn () => SystemClock::fromSystemTimezone(),
+    SystemClock::class => fn (): SystemClock => SystemClock::fromSystemTimezone(),
 
     // General services
     Services\CodeTypes\CodeTypeMappingUpdater::class,
