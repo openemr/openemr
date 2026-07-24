@@ -698,7 +698,11 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
             $response['url'] = $where;
         }
 
-        return json_encode($response);
+        try {
+            return json_encode($response, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return '{"success":false,"message":"Encoding error","url":""}';
+        }
     }
 
     /**
