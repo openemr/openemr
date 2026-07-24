@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance;
 
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
+use OpenEMR\Tests\Acceptance\Support\ResponseHeaders;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -51,7 +52,7 @@ final class InstallTest extends TestCase
         $response = $browser->getResponse();
 
         self::assertSame(302, $response->getStatusCode(), 'GET / should redirect (302) on an installed artifact');
-        $location = $this->locationHeader($response);
+        $location = ResponseHeaders::location($response);
         // openemr's redirect target is relative ("interface/login/login.php?..."),
         // no leading slash. Assert on the trailing path fragment.
         self::assertStringContainsString(
@@ -88,7 +89,7 @@ final class InstallTest extends TestCase
             'Login POST should return 302 with the authenticated-landing redirect; 200 with the login form re-rendered = credentials rejected',
         );
 
-        $location = $this->locationHeader($response);
+        $location = ResponseHeaders::location($response);
         self::assertStringContainsString(
             '/interface/main/tabs/main.php',
             $location,
@@ -116,21 +117,5 @@ final class InstallTest extends TestCase
             $landingResponse->getStatusCode(),
             'GET on the authenticated landing URL must return 200; 401/403 would indicate the session was rejected despite the login redirect',
         );
-    }
-
-    /**
-     * Symfony BrowserKit's Response::getHeader() returns array|string|null
-     * depending on the header's arity and presence. Normalize to a plain
-     * string here (empty when absent) so assertions can operate on it
-     * without narrowing dance at every call site.
-     */
-    private function locationHeader(\Symfony\Component\BrowserKit\Response $response): string
-    {
-        /** @var array<int, string>|string|null $value */
-        $value = $response->getHeader('Location');
-        if (is_array($value)) {
-            return $value[0] ?? '';
-        }
-        return $value ?? '';
     }
 }
