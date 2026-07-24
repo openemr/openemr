@@ -1029,32 +1029,9 @@ function edih_errseg_parse($err_seg): array
     //'|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*segID*segPos*loopLS*elemPos:compositePos:repPos
     // revised: 123456789004*IK3*segID*segpos[*segID*segpos*segID*segpos]
     $ik = explode('*', (string) $err_seg);
-    foreach ($ik as $i => $k) {
-        switch ($i) {
-            case 0:
-                $ret_ar['trace'] = $k;
-                break;
-            case 1:
-                break;  // IK3
-            case 2:
-                $ret_ar['id'][] = $k;
-                break;   // segment ID
-            case 3:
-                $ret_ar['err'][] = $k;
-                break;  // segment position
-            case 4:
-                $ret_ar['id'][] = $k;
-                break;
-            case 5:
-                $ret_ar['err'][] = $k;
-                break;
-            case 6:
-                $ret_ar['id'][] = $k;
-                break;
-            case 7:
-                $ret_ar['err'][] = $k;
-                break;
-        }
+    $ret_ar['trace'] = $ik[0];
+    foreach (array_slice($ik, 2) as $i => $k) {
+        $ret_ar[$i & 1 ? 'err' : 'id'][] = $k;
     }
 
     //
