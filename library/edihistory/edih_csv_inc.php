@@ -1011,10 +1011,9 @@ function csv_newfile_list($type)
  * Simple analysis, but the idea is just to identify the bad segment
  *
  * @param string $err_seg error segment from edih_997_csv_data()
- * @param bool $id true if only the 1st segmentID is wanted
- * return array|string
+ * @return array{trace?: string, id?: list<string>, err?: list<string>}
  */
-function edih_errseg_parse($err_seg, $id = false)
+function edih_errseg_parse($err_seg): array
 {
     // ['err_seg'] = '|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*transID*segID*segpos*elempos
     //                |IK4*elempos*errcode*elem*|CTX-IK4*segID*segpos*elempos

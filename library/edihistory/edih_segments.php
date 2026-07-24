@@ -360,7 +360,7 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     //
     if ($err_seg) {
         $er = edih_errseg_parse($err_seg);
-        if (is_array($er) && count($er)) {
+        if (count($er) > 0) {
             $err_ar = $er;
         }
     }
