@@ -1,0 +1,175 @@
+# Artifact acceptance testing against the openemr release tarball.
+#
+# Black-box validation of the two production-critical entry points end
+# users experience with the tarball artifact:
+#
+#   1. Fresh install of the target version  — the installer path most
+#      new tarball users traverse (setup.php wizard walkthrough is
+#      Phase 4's wizard-UI coverage; this exercises the underlying
+#      Installer class via install-helper.php, matching what real
+#      users hit at the end of the wizard)
+#   2. Upgrade from prior version — the migration path existing users
+#      traverse when moving from an older tarball install. Runs
+#      sql_upgrade.php in CLI mode with --from=<prior> (equivalent
+#      to selecting the prior version in the sql_upgrade.php web form)
+#
+# All scenarios exercise the same test classes in tests/Acceptance/ as
+# the docker workflow — the "artifact endpoint" abstraction
+# (ACCEPTANCE_ARTIFACT_URL env var) is agnostic to whether the artifact
+# is a Docker image (Phase 2) or a tarball-mounted stack (this one).
+#
+# Docker vs tarball distinction:
+#   - Docker artifact = openemr/openemr:<tag> image; ships own PHP+Apache
+#   - Tarball artifact = openemr-<version>.tar.gz; user provides own stack
+# Tarball testing uses a generic PHP+Apache stack (flex image with
+# EMPTY=yes) that mirrors what a real user would set up per the wiki
+# install instructions.
+#
+# Triggers:
+#
+#   1. schedule daily at 10:00 UTC — catches GitHub release page
+#      availability drift (rare but possible if a release asset gets
+#      unpublished or the release page 404s) and any downstream
+#      infrastructure regressions in the flex image or MariaDB base.
+#
+#   2. workflow_dispatch — manual dispatch to test arbitrary
+#      from/to version pairs (e.g. 7.0.4 → 8.2.0 for a large-jump
+#      upgrade test).
+#
+#   3. push / pull_request on the acceptance-package surface itself
+#      (workflow, compose override, install-helper, boot/upgrade/down
+#      scripts, tests/Acceptance/**, composer.json / composer.lock).
+#
+# No branches: filter on push/PR — same rationale as acceptance-docker.yml.
+
+name: Acceptance test (package)
+
+on:
+  workflow_dispatch:
+    inputs:
+      from_version:
+        description: 'Prior openemr version for the upgrade scenario (release tag suffix, e.g. 8.1.0)'
+        required: true
+        type: string
+        default: '8.1.0'
+      to_version:
+        description: 'Target openemr version (release tag suffix, e.g. 8.2.0)'
+        required: true
+        type: string
+        default: '8.2.0'
+  push:
+    paths:
+    - '.github/workflows/acceptance-package.yml'
+    - '.github/docker/acceptance-package-compose.yml'
+    - 'tests/Acceptance/**'
+    - 'composer.json'
+    - 'composer.lock'
+  pull_request:
+    paths:
+    - '.github/workflows/acceptance-package.yml'
+    - '.github/docker/acceptance-package-compose.yml'
+    - 'tests/Acceptance/**'
+    - 'composer.json'
+    - 'composer.lock'
+  schedule:
+  - cron: '0 10 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  # Same split-by-trigger-type rationale as acceptance-docker.yml:
+  # schedule runs shouldn't get cancelled by push/PR runs on the
+  # same ref (they'd share group otherwise).
+  group: acceptance-package-${{ github.ref }}-${{ github.event_name == 'schedule' && 'schedule' || 'ondemand' }}
+  cancel-in-progress: ${{ github.event_name != 'schedule' }}
+
+jobs:
+  acceptance:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    strategy:
+      # Don't fail-fast: distinguish "target-version installer broken"
+      # from "upgrade path broken" (different code paths).
+      fail-fast: false
+      matrix:
+        include:
+        - scenario: fresh-install
+          description: 'Fresh install of to_version'
+          test_group: fresh-install
+        - scenario: upgrade
+          description: 'Upgrade from_version -> to_version'
+          test_group: fresh-install
+          # (upgrade scenario runs fresh-install first against from_version,
+          # then swaps to to_version and runs --group=post-upgrade)
+    env:
+      FROM_VERSION: ${{ inputs.from_version || '8.1.0' }}
+      TO_VERSION: ${{ inputs.to_version || '8.2.0' }}
+      ACCEPTANCE_ARTIFACT_URL: http://localhost:8680
+    name: ${{ matrix.description }}
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Set up PHP + composer for the acceptance harness
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+        tools: composer:v2
+        extensions: curl, dom, mbstring, tokenizer, xml
+
+    - name: Install acceptance-suite composer dependencies
+      run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
+
+    # ==== fresh-install scenario ====
+    - name: Boot tarball artifact (to_version)
+      if: matrix.scenario == 'fresh-install'
+      run: tests/Acceptance/bin/boot-package.sh "${TO_VERSION}"
+
+    - name: Run acceptance suite (fresh-install of to_version)
+      if: matrix.scenario == 'fresh-install'
+      run: composer acceptance -- --group=${{ matrix.test_group }}
+
+    # ==== upgrade scenario ====
+    - name: Boot tarball artifact (from_version)
+      if: matrix.scenario == 'upgrade'
+      run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
+
+    - name: Run acceptance suite (fresh-install of from_version)
+      if: matrix.scenario == 'upgrade'
+      run: composer acceptance -- --group=${{ matrix.test_group }}
+
+    - name: Upgrade from_version -> to_version
+      if: matrix.scenario == 'upgrade'
+      run: tests/Acceptance/bin/upgrade-package.sh "${FROM_VERSION}" "${TO_VERSION}"
+
+    - name: Run post-upgrade suite against to_version
+      if: matrix.scenario == 'upgrade'
+      run: composer acceptance -- --group=post-upgrade
+
+    # ==== debug + teardown (all scenarios) ====
+    - name: Capture container state (on failure)
+      if: failure()
+      env:
+        TARBALL_DIR: /dev/null
+      run: |
+        echo "=== docker compose ps ==="
+        docker compose \
+          -f .github/docker/acceptance-package-compose.yml \
+          -p openemr-acceptance-package \
+          ps || true
+
+    - name: Capture openemr container logs (on failure)
+      if: failure()
+      env:
+        TARBALL_DIR: /dev/null
+      run: |
+        docker compose \
+          -f .github/docker/acceptance-package-compose.yml \
+          -p openemr-acceptance-package \
+          logs openemr || true
+
+    - name: Teardown
+      if: always()
+      run: tests/Acceptance/bin/down-package.sh || true
