@@ -32,11 +32,12 @@ use OpenEMR\Billing\EdiHistory\Claim277Renderer;
  * @uses edih_format_date()
  * @uses edih_format_percent()
  *
- * @param mixed $obj277 edih_x12_file type 271
+ * @param edih_x12_file $obj277 the parsed 277 / 277CA x12 file object
  * @param string $bht03 bht03 or clm01 reference for transaction
+ * @param bool $accordion wrap each transaction in its own accordion section
  * @return string
  */
-function edih_277_transaction_html($obj277, $bht03, $accordion = false)
+function edih_277_transaction_html($obj277, string $bht03, bool $accordion = false)
 {
     // segment dispatch maps, defined once up front so each case below is a
     // declarative lookup rather than an inline match
@@ -70,8 +71,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
     $svcSection = ['2200B' => 'rcv', '2200D' => 'sbr_stc', '2220D' => 'sbr_stc', '2200E' => 'dep_stc', '2220E' => 'dep_stc'];
 
     // keep only the transaction rows that are arrays of segments
-    $transRaw = $obj277->edih_x12_transaction($bht03);
-    $trans = is_array($transRaw) ? array_filter($transRaw, is_array(...)) : [];
+    $trans = array_filter($obj277->edih_x12_transaction($bht03), is_array(...));
 
     // narrow the x12 delimiters to strings at the source so the renderers
     // receive honestly-typed values
@@ -130,7 +130,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
         $segments = array_filter($transaction, is_string(...));
         foreach ($segments as $seg) {
             // dispatch on the segment id: the token before the first element delimiter
-            $sar = explode($de, $seg);
+            $sar = explode($de, (string) $seg);
             $segid = $sar[0];
             // the row class is fixed by the current loop, derived from its id
             $cls = Claim277Renderer::rowClass($loopid);
@@ -239,7 +239,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
             $str_html .= "<div id='ac_{$bhtAttr}'>";
         }
 
-        $str_html .= $hdr_html ?: "";
+        $str_html .= $hdr_html;
         $str_html .= $html['src'] ?: "";
         $str_html .= $html['rcv'] ?: "";
         $str_html .= $html['prv'] ?: "";
@@ -264,58 +264,44 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
  * @uses csv_check_x12_obj()
  * @uses edih_277_transaction_html()
  *
- * @param string  $filename the filename
- * @param string  $clm01 identifier from 837 CLM of BHT segment
+ * @param string $filename the filename
  *
  * @return string  either an error message or a table with the information from the response
  */
 function edih_277_html($filename, $bht03 = '')
 {
     // create a display for an individual 277 response
-    $html_str = '';
-
-    if ($filename) {
-        $fn = $filename;
-    } else {
+    if ($filename === '') {
         csv_edihist_log("edih_277_html: called with no file arguments");
-        $html_str .= "Error, no file given<br />" . PHP_EOL;
-        return $html_str;
+        return "Error, no file given<br />" . PHP_EOL;
     }
 
-    if ($fn) {
-        $obj277 = csv_check_x12_obj($fn, 'f277');
-        if ($obj277 !== false) {
-            if ($bht03) {
-                // particular transaction
-                $html_str .= edih_277_transaction_html($obj277, $bht03);
-            } else {
-                // file contents
-                $env_ar = $obj277->edih_envelopes();
-                if (!isset($env_ar['ST'])) {
-                    $html_str .= "<p>edih_277_html: file parse error, envelope error</p>" . PHP_EOL;
-                    $html_str .= text($obj277->edih_message());
-                    return $html_str;
-                }
+    $obj277 = csv_check_x12_obj($filename, 'f277');
+    if ($obj277 === false) {
+        return "<p>" . text($filename) . " : file parse error</p>" . PHP_EOL;
+    }
 
-                $html_str .= "<div id='accordion'>" . PHP_EOL;
+    // a specific bht03/clm01 reference renders just that transaction
+    if (is_string($bht03) && $bht03 !== '') {
+        return edih_277_transaction_html($obj277, $bht03);
+    }
 
-                foreach ($env_ar['ST'] as $st) {
-                    // get each transaction
-                    foreach ($st['bht03'] as $bht) {
-                        $html_str .= edih_277_transaction_html($obj277, $bht, true);
-                    }
-                }
+    // otherwise render every transaction in the file
+    $env_ar = $obj277->edih_envelopes();
+    if (!is_array($env_ar) || !isset($env_ar['ST']) || !is_array($env_ar['ST'])) {
+        return "<p>edih_277_html: file parse error, envelope error</p>" . PHP_EOL . text($obj277->edih_message());
+    }
 
-                $html_str .= "</div>" . PHP_EOL;
+    $html_str = "<div id='accordion'>" . PHP_EOL;
+    foreach ($env_ar['ST'] as $st) {
+        $bht03_list = (is_array($st) && isset($st['bht03']) && is_array($st['bht03'])) ? $st['bht03'] : [];
+        foreach ($bht03_list as $bht) {
+            if (is_string($bht)) {
+                $html_str .= edih_277_transaction_html($obj277, $bht, true);
             }
-        } else {
-            $html_str .= "<p>" . text($filename) . " : file parse error</p>" . PHP_EOL;
         }
-    } else {
-        $html_str .= "Error with file name or file parsing <br />" . PHP_EOL;
-        csv_edihist_log("edih_277_html: error in retrieving file object");
-        return $html_str;
     }
+    $html_str .= "</div>" . PHP_EOL;
 
     return $html_str;
 }
