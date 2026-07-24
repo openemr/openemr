@@ -154,6 +154,9 @@ class ApiTestClient
         'user/soap_note.write',
         'user/surgery.read',
         'user/surgery.write',
+        'user/user.read',
+        'user/users.read',
+        'user/users.write',
         'user/vital.read',
         'user/vital.write',
     ];
