@@ -99,6 +99,23 @@ final class InstallTest extends TestCase
             $location,
             'The post-login redirect must carry a per-session token_main anti-CSRF token — its presence proves the session was minted',
         );
+
+        // Actually FOLLOW the redirect on the same BrowserKit instance
+        // (session cookie carried automatically) and verify the landing
+        // page actually loads. A 401/403 here would mean tabs/main.php
+        // rejected the session for some reason (token_main mismatch,
+        // session storage broken) — the location-header assertions alone
+        // wouldn't catch that.
+        $landingUrl = str_starts_with($location, 'http')
+            ? $location
+            : ArtifactBrowser::baseUrl() . '/' . ltrim($location, '/');
+        $browser->request('GET', $landingUrl);
+        $landingResponse = $browser->getResponse();
+        self::assertSame(
+            200,
+            $landingResponse->getStatusCode(),
+            'GET on the authenticated landing URL must return 200; 401/403 would indicate the session was rejected despite the login redirect',
+        );
     }
 
     /**

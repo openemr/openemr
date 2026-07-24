@@ -28,17 +28,22 @@ services:
     ports:
     - '8580:80'
     - '8543:443'
+    # Healthcheck asserts the specific redirect target `interface/login/login.php`
+    # rather than just following redirects — otherwise `curl --fail --location`
+    # would succeed both when the auto-install completed (302 → login.php) AND
+    # when the container is still serving the pre-install setup wizard (302 →
+    # setup.php). Acceptance tests should fire only after the installer has
+    # actually finished; require the login-page redirect target as proof.
+    #
+    # Uses BusyBox-compatible short-option grep (`-iq`) since the openemr
+    # image is Alpine-based and its grep doesn't support GNU long options.
     healthcheck:
       test:
-      - CMD
-      - /usr/bin/curl
-      - --fail
-      - --insecure
-      - --location
-      - --silent
-      - --output
-      - /dev/null
-      - http://localhost/
+      - CMD-SHELL
+      - >-
+        /usr/bin/curl --silent --dump-header - --output /dev/null
+        http://localhost/ |
+        grep -iq '^location: .*interface/login/login\.php'
       start_period: 3m
       start_interval: 10s
       interval: 30s

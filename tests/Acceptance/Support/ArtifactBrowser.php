@@ -32,13 +32,22 @@ final class ArtifactBrowser
 {
     public static function create(): HttpBrowser
     {
-        $client = HttpClient::create([
-            // Accept the self-signed cert that the openemr image serves
-            // when we hit https. Redirect-following is toggled at the
-            // BrowserKit layer (below), not the HTTP-client layer.
-            'verify_peer' => false,
-            'verify_host' => false,
-        ]);
+        // TLS verification stays ENABLED by default — acceptance tests
+        // submit admin credentials, and disabling verification against
+        // an arbitrary ACCEPTANCE_ARTIFACT_URL would be MITM-vulnerable
+        // over any non-loopback network. Only disable verification when
+        // the endpoint is provably local (loopback host, host-gateway
+        // container-runtime alias, or explicit ACCEPTANCE_TRUST_SELF_SIGNED=1
+        // opt-in). The Docker artifact under test serves a self-signed
+        // cert on https, so a local acceptance run needs the trust
+        // scoping to be automatic when hitting localhost.
+        $options = ['verify_peer' => true, 'verify_host' => true];
+        if (self::isLocalArtifact()) {
+            $options['verify_peer'] = false;
+            $options['verify_host'] = false;
+        }
+        $client = HttpClient::create($options);
+
         $browser = new HttpBrowser($client);
         // Don't auto-follow redirects: the login flow's 302 IS the
         // success signal we want to assert on, and GET / is a 302 to
@@ -46,6 +55,16 @@ final class ArtifactBrowser
         // than follow through.
         $browser->followRedirects(false);
         return $browser;
+    }
+
+    private static function isLocalArtifact(): bool
+    {
+        $optIn = getenv('ACCEPTANCE_TRUST_SELF_SIGNED');
+        if ($optIn === '1' || $optIn === 'true') {
+            return true;
+        }
+        $host = parse_url(self::baseUrl(), PHP_URL_HOST);
+        return in_array($host, ['localhost', '127.0.0.1', '::1', 'host.docker.internal'], true);
     }
 
     public static function baseUrl(): string
