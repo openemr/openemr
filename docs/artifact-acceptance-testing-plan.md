@@ -326,12 +326,12 @@ Shared harness compose files under `.github/docker/`:
 
 ## Phased plan
 
-**Rollout order** (2026-07-24 update): `1 → 2 → 2.5 → 5 → 3 → 4`.
-Phase 5 (Dockerfile `git clone` → `git archive HEAD`) was originally
-scheduled last but is promoted to run right after Phase 2.5 — see
-Phase 5's section below for the rationale. Phase numbers are stable
-labels, not sequence positions; sections below are ordered by
-execution, not numerically.
+**Rollout order**: `1 → 2 → 2.5 → 3 → 4 → 5 → 6`. Phases execute in
+numeric order. Phase 6 was added 2026-07-24 as a scoped-out follow-up
+to Phase 5 — Phase 5 alone doesn't unlock full-fidelity PR-image
+validation (see [Phase 5](#phase-5--retire-the-tests-in-image-dependency)
+and [Phase 6](#phase-6--full-fidelity-pr-image-testing-source-mode-indirection)
+for the misread-and-correction thread that generated Phase 6).
 
 ### Phase 1 — Planning + one representative test  *(SHIPPED 2026-07-24)*
 
@@ -402,56 +402,20 @@ Two invocation shapes fire from a single workflow run:
   UpgradeIntegrityTest. Higher-value: validates existing-user
   upgrade path.
 
-**Known limitation (unblocked by Phase 5):** the current Dockerfile
-does `git clone https://github.com/openemr/openemr.git --branch
-${OPENEMR_VERSION}` at build time (defaults to `master`), so the
-PR-built image reflects PR's Dockerfile applied to *master* source —
-NOT the PR's source. Full-fidelity artifact testing (PR Dockerfile +
-PR source) requires Phase 5's Dockerfile refactor, which is why 5 is
-now promoted.
+**Known limitation (addressed by Phase 6, NOT Phase 5):** the
+current Dockerfile does `git clone
+https://github.com/openemr/openemr.git --branch ${OPENEMR_VERSION}`
+at build time (defaults to `master`), so the PR-built image reflects
+PR's Dockerfile applied to *master* source — NOT the PR's source.
+Full-fidelity artifact testing (PR Dockerfile + PR source) needs
+source-mode indirection in the Dockerfile — that's Phase 6, a
+scoped-out follow-up. Phase 5 does NOT close this gap; it only
+delivers content parity (see Phase 5's section).
 
 Exit criterion: workflow succeeds with `build_locally: true` on a
 scratch PR that intentionally touches the Dockerfile (e.g. adds a
-no-op comment), demonstrating pre-merge PR-image validation works.
-
-### Phase 5 — Retire the tests-in-image dependency + unlock full-fidelity artifact testing *(promoted 2026-07-24 to run after Phase 2.5, before Phase 3)*
-
-- Land the Dockerfile `git clone` → `git archive HEAD` switch
-  (equivalent to parked openemr/openemr#12790). Source no longer
-  fetched from GitHub at build time; the Dockerfile builds from
-  whatever's in the local checkout, honoring `.gitattributes`
-  `export-ignore` rules (strips `tests/`, `.github/`, `ci/`,
-  `docker/`, `tools/`, etc. — matches the tarball content exactly).
-- Restructure or retire `docker-test-core.yml`'s `kcov` profile
-  (currently runs PHPUnit inside the built container against
-  `tests/`; can't survive the strip. Required co-change with the
-  Dockerfile switch — not optional).
-- Docker image content aligns with tarball content (SBOM / provenance
-  parity across the two artifacts).
-
-**Why promoted from last-to-now:** end goal is testing the actual
-PR-derived artifacts, not a hybrid. Phase 2.5 today validates
-PR-Dockerfile + master-source; full-fidelity needs the Dockerfile
-to consume local checkout. Once Phase 5 lands, Phase 2.5's
-`build_locally=true` runs produce the ACTUAL PR artifact with
-zero workflow changes.
-
-**Risks (validated + acceptable):**
-1. Runtime dependencies on now-stripped export-ignored files — Phase
-   2's acceptance suite + docker-test-release catch install + login
-   regressions; hidden runtime paths (admin panel referencing dev
-   files) can't be proven absent without exercising them.
-2. kcov profile break — MUST be handled in same PR (not "optional
-   restructure or retire" — it will fail otherwise).
-3. Local `docker build` behavior shift — users who ran the release
-   Dockerfile locally previously got `tests/` inside the image;
-   unlikely to affect anyone real.
-
-Exit criterion: `docker-test-release.yml` passes with the stripped
-image; kcov either moved to source-side (dev stack) or dropped;
-Phase 2.5's `build_locally=true` run on a source-touching PR shows
-the PR's actual source in the shipped image (spot-check via
-`docker exec`). Roughly 1 week.
+no-op comment), demonstrating pre-merge PR-image validation works
+against the current (hybrid) shape.
 
 ### Phase 3 — Package acceptance workflow
 
@@ -462,10 +426,10 @@ the PR's actual source in the shipped image (spot-check via
 - Adapt InstallTest + UpgradeIntegrityTest to work against a tarball-
   mounted stack (mostly by making the artifact endpoint configurable)
 
-Naturally full-fidelity: the tarball artifact IS `git archive HEAD`
-from the checkout, so pointing the workflow at the PR's checkout
-produces the exact tarball that would ship. No Phase 5-style
-Dockerfile refactor needed for the tarball path.
+Naturally full-fidelity for the tarball path: the tarball artifact
+IS `git archive HEAD` from the checkout, so pointing the workflow
+at the PR's checkout produces the exact tarball that would ship.
+(This is the property Phase 6 aims to replicate for the docker path.)
 
 Exit criterion: workflow succeeds against an 8.0.0 → 8.2.0 tarball
 upgrade path. Roughly 1 week.
@@ -484,10 +448,141 @@ Exit criterion: ~30 min total acceptance runtime per artifact,
 meaningful coverage of API + FHIR + one critical E2E flow. Roughly 2
 weeks.
 
-**Total remaining calendar (from 2026-07-24 baseline):** ~4-5 weeks
-focused work through Phase 4. No hard deadline. rel-830 (~2 weeks
-out) gets the Phase 1+2+2.5 baseline once 2.5 lands; Phases 5+3+4
-land into a rel-830-shipped codebase.
+### Phase 5 — Retire the tests-in-image dependency
+
+- Land the Dockerfile `git clone` → `git clone + git archive HEAD
+  | tar -x` change (equivalent to parked openemr/openemr#12790).
+  The clone stays — source is still fetched from GitHub via
+  `${OPENEMR_VERSION}` — but the cloned content is piped through
+  `git archive HEAD` to honor `.gitattributes` `export-ignore`
+  rules. Result: image content matches tarball content (strips
+  `tests/`, `.github/`, `ci/`, `docker/`, `tools/`, most of
+  `Documentation/EHI_Export/`, etc.).
+- Restructure or retire `docker-test-core.yml`'s `kcov` profile
+  (currently runs PHPUnit inside the built container against
+  `tests/`; can't survive the strip. **Required co-change** — it
+  will fail otherwise, not optional).
+- Docker image content aligns with tarball content (SBOM /
+  provenance parity across the two artifacts).
+
+**What Phase 5 does NOT do:** it does not enable full-fidelity
+PR-image validation. `${OPENEMR_VERSION}` still drives the source
+fetch from GitHub — Phase 2.5's PR-built images still contain
+master source, not PR source. That's Phase 6's scope; the two
+changes are orthogonal.
+
+**Risks (validated + acceptable):**
+1. Runtime dependencies on now-stripped export-ignored files — Phase
+   2's acceptance suite + `docker-test-release` catch install + login
+   regressions; hidden runtime paths (admin panel referencing dev
+   files) can't be proven absent without exercising them.
+2. kcov profile break — MUST be handled in same PR (not "optional
+   restructure or retire" — it will fail otherwise).
+3. Local `docker build` behavior shift — users who ran the release
+   Dockerfile locally previously got `tests/` inside the image;
+   unlikely to affect anyone real.
+
+Exit criterion: `docker-test-release.yml` passes with the stripped
+image; kcov either moved to source-side (dev stack) or dropped.
+Roughly 1 week.
+
+### Phase 6 — Full-fidelity PR-image testing (source-mode indirection)
+
+Closes the gap Phase 2.5 leaves open: today Phase 2.5's
+`build_locally=true` runs produce a PR-Dockerfile-plus-master-source
+hybrid, because the Dockerfile hardcodes `git clone
+https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION}"`.
+Phase 6 lets the docker build consume the PR's local checkout as
+source (matching what Phase 3 gets for free with tarballs).
+
+**Non-trivial constraint** — the release pipeline currently
+depends on the "checkout ref vs source ref are different"
+decoupling: `docker-release-orchestrator.yml` dispatches
+`docker-build-release.yml --ref rel-820 -f openemr_version_ref=v8_2_0`,
+so the workflow file + Dockerfile come from `rel-820` but the
+source that goes INTO the image comes from `v8_2_0` (via
+`git clone --branch v8_2_0`). Any Phase 6 design MUST preserve
+that separation — a naive "just use local checkout" breaks
+release builds because the runner is checked out on rel-820,
+which drifts past v8_2_0 as more commits land.
+
+**Feasibility survey** (2026-07-24, before design phase — pick one at
+implementation time, no fundamental blockers on any of these):
+
+- **Option A — Source-mode build-arg with conditional stage selection**
+  ```dockerfile
+  ARG OPENEMR_SOURCE_MODE=github   # or "context"
+  ARG OPENEMR_VERSION=master
+  FROM base AS openemr-source-github
+  RUN git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION}" ...
+  FROM base AS openemr-source-context
+  COPY openemr-src/ /openemr/
+  FROM openemr-source-${OPENEMR_SOURCE_MODE} AS openemr-source
+  ```
+  Well-known BuildKit pattern (ARG-templated stage FROM). Release
+  builds keep `github` default and existing workflow, so no ship-
+  pipeline coordination change. Phase 2.5's build-image job passes
+  `context` + prepares an `openemr-src/` from the PR checkout
+  (probably via `git archive HEAD | tar -x` locally).
+
+- **Option B — Named build contexts (BuildKit `--build-context`)**
+  ```bash
+  docker build \
+    --build-context openemr-source=/tmp/prepared-src \
+    --file docker/release/Dockerfile \
+    docker/release
+  ```
+  Dockerfile references the named context via
+  `COPY --from=openemr-source ...`. Workflow prepares
+  `/tmp/prepared-src` from either `git clone` (release path) or PR
+  checkout (Phase 2.5 build-image path). Semantically cleaner than
+  Option A (separation between docker/release/ build context vs
+  openemr source context) but requires the ship pipeline to prepare
+  the source context too — coordination change with existing
+  release-build workflow.
+
+- **Option C — Workflow pushes PR ref to openemr/openemr as temp branch**
+  ```bash
+  git push origin HEAD:refs/heads/tmp-pr-<PR#>-<sha>
+  # docker build with OPENEMR_VERSION=tmp-pr-<PR#>-<sha>
+  git push origin :refs/heads/tmp-pr-<PR#>-<sha>   # cleanup
+  ```
+  Zero Dockerfile change; zero release-pipeline coordination change.
+  BUT works only for internal branches on `openemr/openemr` — fork
+  PRs (most contributor PRs) don't have push access to the parent
+  repo. Would need to scope auto-fire to internal-only.
+
+**Lean toward Option A** at design time: single Dockerfile change,
+release pipeline unchanged, both modes coexist. Option B is arguably
+cleaner semantically but requires more workflow coordination. Option
+C is scope-limited to internal PRs and creates temp-branch cleanup
+choreography. Coin flip between A and B; final pick when Phase 6
+starts.
+
+**Not-blockers** for any option:
+- Docker Buildx / BuildKit already used in `docker-build-release.yml`
+  (Options A + B rely on it)
+- No external service or new permission model (Options A + B)
+- Existing release-build flow stays intact — new modes are opt-in
+  per invocation (Options A + B)
+
+**Also needs**: `DockerfileOpenemrVersionMutator` (which bumps
+`ARG OPENEMR_VERSION=master` → `ARG OPENEMR_VERSION=rel-820` on
+branch cut) keeps working as-is. Its purpose shifts from
+source-fetch-critical to OCI-label-only if Phase 6's chosen option
+decouples source-fetch from that ARG — but the mutator itself
+doesn't need changes.
+
+Exit criterion: a source-only PR (no Dockerfile change) can be
+manually workflow-dispatched with `build_locally: true` and the
+resulting image contains the PR's source (spot-check via
+`docker exec ... cat interface/<file-touched-in-PR>`). Roughly 1
+week including design + integration.
+
+**Total remaining calendar (from 2026-07-24 baseline):** ~5-6
+weeks focused work through Phase 6. No hard deadline. rel-830 (~2
+weeks out) gets the Phase 1+2+2.5 baseline once 2.5 lands;
+Phases 3+4+5+6 land into a rel-830-shipped codebase.
 
 ## Test-coverage philosophy
 
@@ -714,3 +809,36 @@ in acceptance."
   workflow changes. Also delivers docker/tarball content parity
   for SBOM/provenance. Reordered sections in-place; Phase numbers
   remain stable as labels.
+
+- **2026-07-24 (revision)** — Retracted the earlier same-day Phase 5
+  promotion. Careful re-read of parked openemr/openemr#12790 showed
+  that Phase 5 (git clone -> git clone + git archive HEAD | tar -x)
+  does NOT switch to local-checkout source — it keeps cloning from
+  GitHub via OPENEMR_VERSION and just filters the cloned content
+  through export-ignore. So Phase 5 delivers content parity + image
+  size reduction (real value), but does NOT unlock full-fidelity
+  PR-image validation as I had claimed.
+
+  Additionally, a naive "build from local checkout" approach would
+  BREAK release builds: the pipeline currently dispatches
+  docker-build-release.yml on rel-820 with openemr_version_ref=v8_2_0,
+  and the Dockerfile clones v8_2_0 (a frozen tag) as source — that
+  decoupling of "workflow checkout ref" vs "source-baked-into-image
+  ref" would be lost if the docker build just used whatever was
+  checked out on the runner.
+
+  Corrections:
+  * Reverted plan doc back to original phase order (`1 -> 2 -> 2.5
+    -> 3 -> 4 -> 5`).
+  * Fixed Phase 2.5's "Known limitation" text — points to Phase 6,
+    not Phase 5.
+  * Rewrote Phase 5 section to accurately scope: content parity +
+    kcov restructure only. Explicit "what Phase 5 does NOT do"
+    callout for the misread avoidance.
+  * Added Phase 6 — full-fidelity PR-image testing via source-mode
+    indirection. Includes feasibility survey (Options A/B/C:
+    source-mode build-arg, named build contexts, temp-branch push)
+    with tradeoffs and preferred-option lean. Preserves the ship-
+    pipeline decoupling constraint that Phase 5 confusion surfaced.
+
+  Total remaining calendar updated: ~5-6 weeks through Phase 6.
