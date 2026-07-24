@@ -630,7 +630,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-${{ matrix.suite }}.xml
-        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upgrade' || '' }}
+        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
         report_type: test_results
 
     ##
@@ -644,7 +644,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}.clover.xml
-        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upgrade' || '' }}
+        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
 
     # API/E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
     # Verifies the test code itself is executing, separate from server-side coverage.
@@ -654,7 +654,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}-tests.clover.xml
-        flags: ${{ matrix.suite }}-tests-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upgrade' || '' }}
+        flags: ${{ matrix.suite }}-tests-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
 
     ##
     # Upload JUnit results to GitHub
