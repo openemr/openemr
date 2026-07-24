@@ -1,0 +1,113 @@
+# Compose stack for artifact acceptance testing against the openemr
+# release tarball (Phase 3 of the plan in
+# docs/artifact-acceptance-testing-plan.md).
+#
+# Generic PHP+Apache+MariaDB shape that mirrors what a real user gets
+# when installing openemr from a tarball on their own server:
+#
+#   1. Apache + PHP with the extension set openemr requires (openemr's
+#      own `flex` image provides this — same base openemr uses for its
+#      ci/ test rigs, and same base openemr-cmd targets for local dev).
+#
+#   2. MariaDB (version-matched to what the production docker stack
+#      uses, so we're not testing against a different DB engine than
+#      what ships).
+#
+#   3. Volume mount for the extracted tarball at
+#      /var/www/localhost/htdocs/openemr — this is where the tarball's
+#      openemr-<version>/ tree gets placed by boot-package.sh.
+#
+# `EMPTY=yes` tells the flex image "don't install openemr — host manages
+# the source via the bind mount." Install is driven separately after
+# boot via `docker compose exec openemr /root/devtools dev-install`
+# (see tests/Acceptance/bin/boot-package.sh), which uses the flex image's
+# baked-in /root/auto_configure.php to run the OpenEMR Installer against
+# the mounted source. Same code path as the openemr-cmd `dev-install`
+# alias uses for local dev.
+#
+# Env vars consumed by `/root/devtools dev-install` (via
+# devtoolsLibrary.source::prepareVariables()):
+#   MYSQL_HOST, MYSQL_ROOT_PASS, MYSQL_USER, MYSQL_PASS,
+#   MYSQL_DATABASE, MYSQL_PORT, OE_USER, OE_PASS
+#
+# Usage:
+#   TARBALL_DIR=/tmp/openemr-8.2.0 docker compose \
+#     -f .github/docker/acceptance-package-compose.yml \
+#     -p openemr-acceptance-package \
+#     up --detach
+#
+# ACCEPTANCE_ARTIFACT_URL for the test suite: http://localhost:8680
+services:
+  mysql:
+    image: mariadb:11.8.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
+    command: ['mariadbd', '--character-set-server=utf8mb4']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+    - databasevolume:/var/lib/mysql
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+
+  openemr:
+    image: openemr/openemr:flex-3.23-php-8.5
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # EMPTY=yes: flex image starts Apache but doesn't run its own
+      # install path (no FLEX_REPOSITORY clone, no auto_configure).
+      # boot-package.sh runs `/root/devtools dev-install` explicitly
+      # after mysql is healthy.
+      EMPTY: 'yes'
+      FORCE_NO_BUILD_MODE: 'yes'
+      # Consumed by `/root/devtools dev-install` (prepareVariables reads
+      # these into the CONFIGURATION arg passed to auto_configure.php).
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      MYSQL_DATABASE: openemr
+      MYSQL_PORT: '3306'
+      OE_USER: admin
+      OE_PASS: pass
+    ports:
+    - '8680:80'
+    - '8643:443'
+    volumes:
+    # ${TARBALL_DIR} is set by boot-package.sh to the extracted tarball
+    # root (containing composer.json, index.php, interface/, src/, etc.).
+    - ${TARBALL_DIR}:/var/www/localhost/htdocs/openemr
+    # Healthcheck asserts the specific login-page redirect target so
+    # `up --wait` returns only after install completes — matching the
+    # acceptance-docker-compose.yml pattern from Phase 1. Pre-install
+    # / uninstall the redirect goes to setup.php (or the request 404s);
+    # only a successfully-installed openemr redirects to
+    # interface/login/login.php.
+    #
+    # Uses BusyBox-compatible short-option grep (-iq) since flex is
+    # Alpine-based.
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - >-
+        /usr/bin/curl --silent --dump-header - --output /dev/null
+        http://localhost/ |
+        grep -iq '^location: .*interface/login/login\.php'
+      start_period: 5m
+      start_interval: 10s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  databasevolume:
