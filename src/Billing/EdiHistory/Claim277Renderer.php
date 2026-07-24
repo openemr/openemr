@@ -121,8 +121,11 @@ final class Claim277Renderer
         $nm108 = ($sar[8] ?? '') ? self::code($cd,'NM108', $sar[8]) : "";
 
         $descrAttr = attr($descr);
-        $html  = "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$descrAttr'>" . text($name) . "</td></tr>";
-        $html .= "<tr class='$cls'><td>&gt;</td><td colspan=3 title='$descrAttr'><em>" . text($nm108) . "</em> " . text($nm109) . "</td></tr>";
+        $nameText = text($name);
+        $nm108Text = text($nm108);
+        $nm109Text = text($nm109);
+        $html  = "<tr class='{$cls}'><td>&gt;</td><td colspan=3 title='{$descrAttr}'>{$nameText}</td></tr>";
+        $html .= "<tr class='{$cls}'><td>&gt;</td><td colspan=3 title='{$descrAttr}'><em>{$nm108Text}</em> {$nm109Text}</td></tr>";
 
         return ['html' => $html, 'name' => $name];
     }
@@ -142,7 +145,11 @@ final class Claim277Renderer
         $elem07 = (isset($sar[7])) ? self::code($cd,'PER03', $sar[7]) : "";
         $elem08 = $sar[8] ?? '';
 
-        return "<tr class='$cls'><td colspan=2>" . text($elem02) . "</td><td colspan=2 title='" . attr($elem03 . " " . $elem05 . " " . $elem07) . "'>" . text($elem04 . " " . $elem06 . " " . $elem08) . "</td></tr>";
+        $elem02Text = text($elem02);
+        $titleAttr = attr($elem03 . ' ' . $elem05 . ' ' . $elem07);
+        $contactText = text($elem04 . ' ' . $elem06 . ' ' . $elem08);
+
+        return "<tr class='{$cls}'><td colspan=2>{$elem02Text}</td><td colspan=2 title='{$titleAttr}'>{$contactText}</td></tr>";
     }
 
     /**
@@ -155,7 +162,9 @@ final class Claim277Renderer
     {
         $elem01 = ($sar[1] ?? '') == "1" ? "Transaction Ref" : "Trace";
         $elem02 = $sar[2] ?? '';
-        $html = "<tr class='$cls'><td>&gt;</td><td colspan=3><em>" . text($elem01) . "</em> " . text($elem02) . "</td></tr>";
+        $elem01Text = text($elem01);
+        $elem02Text = text($elem02);
+        $html = "<tr class='{$cls}'><td>&gt;</td><td colspan=3><em>{$elem01Text}</em> {$elem02Text}</td></tr>";
 
         return ['html' => $html, 'ref' => $elem02];
     }
@@ -226,7 +235,10 @@ final class Claim277Renderer
         $entity = fn(string $inner): string => "<tr class='$cls'><td>&gt;</td><td colspan=3><em>Entity</em> $inner</td></tr>";
         $labeled = fn(string $label, string $inner): string => "<tr class='$cls'><td><em>$label</em></td><td colspan=3>$inner</td></tr>";
 
-        $html  = ($sc101 !== null) ? "<tr class='$cls'><td>" . text($stc03) . "</td><td colspan=2>" . text($sc101) . "</td><td>" . text($stc02 . " " . $stc04) . "</td></tr>" : "";
+        $stc03Text = text($stc03);
+        $sc101Text = text($sc101 ?? '');
+        $stcHeadText = text($stc02 . ' ' . $stc04);
+        $html  = ($sc101 !== null) ? "<tr class='{$cls}'><td>{$stc03Text}</td><td colspan=2>{$sc101Text}</td><td>{$stcHeadText}</td></tr>" : "";
         $html .= ($sc102 !== null) ? $row(text($sc102)) : "";
         $html .= ($sc103) ? $entity(text($sc103)) : "";
         $html .= ($stc05 || $stc06 || $stc08 || $stc09) ? $labeled('Payment', text($stc05 . " " . $stc06 . " " . $stc08 . " " . $stc09)) : "";
@@ -271,8 +283,9 @@ final class Claim277Renderer
     {
         $amtstr = ($sar[1] ?? '') == 'YU' ? "Amt " : "Amt Rej ";
         $amtstr .= ($sar[2] ?? '') ? EdiFormat::money($sar[2]) : "";
+        $amtText = text($qtystr . ' ' . $amtstr);
 
-        return "<tr class='$cls'><td>&gt;</td><td colspan=3>" . text($qtystr . " " . $amtstr) . "</td></tr>";
+        return "<tr class='{$cls}'><td>&gt;</td><td colspan=3>{$amtText}</td></tr>";
     }
 
     /**
@@ -285,8 +298,11 @@ final class Claim277Renderer
         $elem01 = (isset($sar[1])) ? self::code($cd,'REF', $sar[1]) : '';
         $elem02 = $sar[2] ?? '';
         $elem03 = $sar[3] ?? '';
+        $elem01Text = text($elem01);
+        $elem02Text = text($elem02);
+        $elem03Text = text($elem03);
 
-        return "<tr class='$cls'><td>&gt;</td><td colspan=2><em>" . text($elem01) . "</em> " . text($elem02) . "</td><td>" . text($elem03) . "</td></tr>";
+        return "<tr class='{$cls}'><td>&gt;</td><td colspan=2><em>{$elem01Text}</em> {$elem02Text}</td><td>{$elem03Text}</td></tr>";
     }
 
     /**
@@ -304,8 +320,10 @@ final class Claim277Renderer
             $elem02 == 'RD8' && $elem03 => EdiFormat::date(substr($elem03, 0, 8)) . ' - ' . EdiFormat::date(substr($elem03, -8)),
             default => '',
         };
+        $elem01Text = text($elem01);
+        $varText = text($var);
 
-        return "<tr class='$cls'><td>&gt;</td><td>" . text($elem01) . "</td><td colspan=2>" . text($var) . "</td></tr>";
+        return "<tr class='{$cls}'><td>&gt;</td><td>{$elem01Text}</td><td colspan=2>{$varText}</td></tr>";
     }
 
     /**
@@ -340,10 +358,15 @@ final class Claim277Renderer
         $elem04 = ($sar[4] ?? '') ?: "";                              // revenue code
         // $elem05, $elem06 and $elem07 are not used
 
+        $elem01Text = text($elem01);
+        $elem02Text = text($elem02);
+        $elem04Text = text($elem04);
+        $svcText = text($elem02 . ' ' . $elem04);
         $html = $isRcv
-            ? "<tr class='$cls'><td><em>Service</em></td><td>" . text($elem01) . "</td><td>" . text($elem02) . "</td><td>" . text($elem04) . "</td></tr>"
-            : "<tr class='$cls'><td><em>Service</em></td><td>" . text($elem01) . "</td><td colspan=2>" . text($elem02 . " " . $elem04) . "</td></tr>";
-        $html .= ($elem03 || $elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>" . text($elem03 . " " . $elem04) . "</td></tr>" : "";
+            ? "<tr class='{$cls}'><td><em>Service</em></td><td>{$elem01Text}</td><td>{$elem02Text}</td><td>{$elem04Text}</td></tr>"
+            : "<tr class='{$cls}'><td><em>Service</em></td><td>{$elem01Text}</td><td colspan=2>{$svcText}</td></tr>";
+        $paidText = text($elem03 . ' ' . $elem04);
+        $html .= ($elem03 || $elem04) ? "<tr class='{$cls}'><td>&gt;</td><td colspan=3>{$paidText}</td></tr>" : "";
 
         return $html;
     }

@@ -38,24 +38,59 @@ use OpenEMR\Billing\EdiHistory\Claim277Renderer;
  */
 function edih_277_transaction_html($obj277, $bht03, $accordion = false)
 {
-    // get the transaction segments
-    $trans = $obj277->edih_x12_transaction($bht03);
+    // segment dispatch maps, defined once up front so each case below is a
+    // declarative lookup rather than an inline match
+    // HL level code => [loopid, section accumulator, section heading]
+    $hlMap = [
+        '20' => ['2000A', 'src', 'Information Source'],
+        '21' => ['2000B', 'rcv', 'Information Receiver'],
+        '19' => ['2000C', 'prv', 'Provider'],
+        '22' => ['2000D', 'sbr_nm1', 'Subscriber'],
+        'PT' => ['2000D', 'sbr_nm1', 'Patient'],  // patient in 277CA
+        '23' => ['2000E', 'dep_nm1', 'Dependent'],
+    ];
+    // NM1/TRN loopid => [section accumulator, next loopid, whether to set the h3 label]
+    $nm1Map = [
+        '2000A' => ['src', '2100A', false],
+        '2000B' => ['rcv', '2100B', false],
+        '2000C' => ['prv', '2100C', false],
+        '2000D' => ['sbr_nm1', '2100D', true],
+        '2000E' => ['dep_nm1', '2100E', true],
+    ];
+    $trnMap = [
+        '2100B' => ['rcv', '2200B', false],
+        '2100C' => ['prv', '2200C', false],
+        '2100D' => ['sbr_stc', '2200D', true],
+        '2100E' => ['dep_stc', '2200E', true],
+    ];
+    // loopid => section accumulator, for the claim-status detail segments
+    $stcSection = ['2200B' => 'rcv', '2200C' => 'prv', '2200D' => 'sbr_stc', '2200E' => 'dep_stc'];
+    $refSection = ['2200B' => 'rcv', '2200C' => 'prv', '2200D' => 'sbr_stc', '2220D' => 'sbr_stc', '2200E' => 'dep_stc', '2220E' => 'dep_stc'];
+    $dtpSection = ['2200D' => 'sbr_stc', '2220D' => 'sbr_stc', '2200E' => 'dep_stc', '2220E' => 'dep_stc'];
+    $svcSection = ['2200B' => 'rcv', '2200D' => 'sbr_stc', '2220D' => 'sbr_stc', '2200E' => 'dep_stc', '2220E' => 'dep_stc'];
 
-    // get other necessary items: narrow the delimiters to non-empty strings at
-    // the source so the segment renderers receive honestly-typed values
+    // keep only the transaction rows that are arrays of segments
+    $transRaw = $obj277->edih_x12_transaction($bht03);
+    $trans = is_array($transRaw) ? array_filter($transRaw, is_array(...)) : [];
+
+    // narrow the x12 delimiters to strings at the source so the renderers
+    // receive honestly-typed values
     $delimiters = $obj277->edih_delimiters();
-    $de = is_array($delimiters) ? ($delimiters['e'] ?? '') : '';
-    $ds = is_array($delimiters) ? ($delimiters['s'] ?? '') : '';
-    $dr = is_array($delimiters) ? ($delimiters['r'] ?? '') : '';
+    $delimiters = is_array($delimiters) ? $delimiters : [];
+    $de = isset($delimiters['e']) && is_string($delimiters['e']) ? $delimiters['e'] : '';
+    $ds = isset($delimiters['s']) && is_string($delimiters['s']) ? $delimiters['s'] : '';
+    $dr = isset($delimiters['r']) && is_string($delimiters['r']) ? $delimiters['r'] : '';
     $fnRaw = $obj277->edih_filename();
     $fn = is_string($fnRaw) ? $fnRaw : '';
 
-    if (!is_array($trans) || !count($trans)) {
-        return "<p>Did not find transaction " . text($bht03) . " in " . attr($fn) . "</p>" . PHP_EOL;
+    $bht03Text = text($bht03);
+    $fnAttr = attr($fn);
+    if (count($trans) === 0) {
+        return "<p>Did not find transaction {$bht03Text} in {$fnAttr}</p>";
     }
-    if (!is_string($de) || $de === '' || !is_string($ds) || $ds === '') {
+    if ($de === '' || $ds === '') {
         csv_edihist_log("edih_277_transaction_html: invalid x12 delimiters $fn");
-        return "<p>Did not find transaction " . text($bht03) . " in " . attr($fn) . "</p>" . PHP_EOL;
+        return "<p>Did not find transaction {$bht03Text} in {$fnAttr}</p>";
     }
 
     $cd27x = new edih_271_codes($ds, $dr);
@@ -92,7 +127,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
     $qtystr = '';
 
     foreach ($trans as $transaction) {
-        $segments = is_array($transaction) ? array_filter($transaction, is_string(...)) : [];
+        $segments = array_filter($transaction, is_string(...));
         foreach ($segments as $seg) {
             // dispatch on the segment id: the token before the first element delimiter
             $sar = explode($de, $seg);
@@ -109,36 +144,20 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                     break;
 
                 case 'HL':
-                    // HL level code => [loopid, section accumulator, section heading]
-                    $hl = match ($sar[3] ?? '') {
-                        '20' => ['2000A', 'src', 'Information Source'],
-                        '21' => ['2000B', 'rcv', 'Information Receiver'],
-                        '19' => ['2000C', 'prv', 'Provider'],
-                        '22' => ['2000D', 'sbr_nm1', 'Subscriber'],
-                        'PT' => ['2000D', 'sbr_nm1', 'Patient'],  // patient in 277CA
-                        '23' => ['2000E', 'dep_nm1', 'Dependent'],
-                        default => null,
-                    };
-                    if ($hl === null) {
-                        csv_edihist_log("edih_277_transaction_html: HL segment error $fn");
-                    } else {
+                    $hl = $hlMap[$sar[3] ?? ''] ?? null;
+                    if ($hl !== null) {
                         [$loopid, $section, $heading] = $hl;
                         $cls = Claim277Renderer::rowClass($loopid);
-                        $html[$section] .= "<tr class='$cls'><td colspan=4><b>$heading</b></td></tr>";
+                        $html[$section] .= "<tr class='{$cls}'><td colspan=4><b>{$heading}</b></td></tr>";
+                    } else {
+                        csv_edihist_log("edih_277_transaction_html: HL segment error $fn");
                     }
 
                     $qtystr = '';  // reset for QTY and AMT segments in 277CA
                     break;
 
                 case 'NM1':
-                    $nm1 = match ($loopid) {
-                        '2000A' => ['src', '2100A', false],
-                        '2000B' => ['rcv', '2100B', false],
-                        '2000C' => ['prv', '2100C', false],
-                        '2000D' => ['sbr_nm1', '2100D', true],
-                        '2000E' => ['dep_nm1', '2100E', true],
-                        default => null,
-                    };
+                    $nm1 = $nm1Map[$loopid] ?? null;
                     if ($nm1 !== null) {
                         [$section, $loopid, $setLabel] = $nm1;
                         $nm1Row = Claim277Renderer::nm1($sar, $cls, $cd27x);
@@ -150,7 +169,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                     break;
 
                 case 'PER':
-                    if ($loopid == '2100A') {
+                    if ($loopid === '2100A') {
                         $html['src'] .= Claim277Renderer::per($sar, $cls, $cd27x);
                     } else {
                         csv_edihist_log('edih_277_html: PER segment not in 2100A loop ' . $fn);
@@ -158,13 +177,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                     break;
 
                 case 'TRN':
-                    $trn = match ($loopid) {
-                        '2100B' => ['rcv', '2200B', false],
-                        '2100C' => ['prv', '2200C', false],
-                        '2100D' => ['sbr_stc', '2200D', true],
-                        '2100E' => ['dep_stc', '2200E', true],
-                        default => null,
-                    };
+                    $trn = $trnMap[$loopid] ?? null;
                     if ($trn !== null) {
                         [$section, $loopid, $appendLabel] = $trn;
                         $trnRow = Claim277Renderer::trn($sar, $cls);
@@ -176,13 +189,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                     break;
 
                 case 'STC':
-                    $section = match ($loopid) {
-                        '2200B' => 'rcv',
-                        '2200C' => 'prv',
-                        '2200D' => 'sbr_stc',
-                        '2200E' => 'dep_stc',
-                        default => null,
-                    };
+                    $section = $stcSection[$loopid] ?? null;
                     if ($section !== null) {
                         $html[$section] .= Claim277Renderer::stc($sar, $ds, $cls, $cd27x);
                     }
@@ -195,13 +202,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                     break;
 
                 case 'AMT':
-                    $section = match ($loopid) {
-                        '2200B' => 'rcv',
-                        '2200C' => 'prv',
-                        '2200D' => 'sbr_stc',
-                        '2200E' => 'dep_stc',
-                        default => null,
-                    };
+                    $section = $stcSection[$loopid] ?? null;
                     if ($section !== null) {
                         $html[$section] .= Claim277Renderer::amt($sar, $cls, $qtystr);
                     }
@@ -209,36 +210,21 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                     break;
 
                 case 'REF':
-                    $section = match ($loopid) {
-                        '2200B' => 'rcv',
-                        '2200C' => 'prv',
-                        '2200D', '2220D' => 'sbr_stc',
-                        '2200E', '2220E' => 'dep_stc',
-                        default => null,
-                    };
+                    $section = $refSection[$loopid] ?? null;
                     if ($section !== null) {
                         $html[$section] .= Claim277Renderer::ref($sar, $cls, $cd27x);
                     }
                     break;
 
                 case 'DTP':
-                    $section = match ($loopid) {
-                        '2200D', '2220D' => 'sbr_stc',
-                        '2200E', '2220E' => 'dep_stc',
-                        default => null,
-                    };
+                    $section = $dtpSection[$loopid] ?? null;
                     if ($section !== null) {
                         $html[$section] .= Claim277Renderer::dtp($sar, $cls, $cd27x);
                     }
                     break;
 
                 case 'SVC':
-                    $section = match ($loopid) {
-                        '2200B' => 'rcv',
-                        '2200D', '2220D' => 'sbr_stc',
-                        '2200E', '2220E' => 'dep_stc',
-                        default => null,
-                    };
+                    $section = $svcSection[$loopid] ?? null;
                     if ($section !== null) {
                         $html[$section] .= Claim277Renderer::svc($sar, $ds, $cls, $section === 'rcv', $cd27x);
                     }
@@ -247,8 +233,10 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
         }
 
         if ($accordion) {
-            $str_html .= "<h3>" . text($bht . " " . $h3_lbl) . "</h3>";
-            $str_html .= "<div id='ac_" . attr($bht) . "'>";
+            $h3Text = text($bht . ' ' . $h3_lbl);
+            $bhtAttr = attr($bht);
+            $str_html .= "<h3>{$h3Text}</h3>";
+            $str_html .= "<div id='ac_{$bhtAttr}'>";
         }
 
         $str_html .= $hdr_html ?: "";
@@ -260,7 +248,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
         $str_html .= $html['dep_nm1'] ?: "";
         $str_html .= $html['dep_stc'] ?: "";
         $str_html .= "<tr><td colspan=4>&nbsp;</td></tr>";
-        $str_html .= "</tbody>" . "</table>";
+        $str_html .= "</tbody></table>";
 
         if ($accordion) {
             $str_html .= "</div>";
