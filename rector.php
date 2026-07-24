@@ -80,16 +80,14 @@ return RectorConfig::configure()
     ->withPHPStanConfigs([
         __DIR__ . '/.phpstan/rector-scan.neon',
     ])
-    ->withCodeQualityLevel(5)
     ->withConfiguredRule(ClassPropertyAssignToConstructorPromotionRector::class, [
         'allow_model_based_classes' => true,
         'inline_public' => false,
         'rename_property' => true,
     ])
-    ->withDeadCodeLevel(5)
     // https://getrector.com/documentation/troubleshooting-parallel
     ->withParallel(
-        timeoutSeconds: 120,
+        timeoutSeconds: 1200,
         maxNumberOfProcess: 12,
         jobSize: 12
     )
@@ -104,4 +102,6 @@ return RectorConfig::configure()
         UnnecessaryTernaryExpressionRector::class,
     ])
     ->withPhpSets()
+    ->withDeadCodeLevel(5)
+    ->withCodeQualityLevel(5)
     ->withTypeCoverageLevel(5);
