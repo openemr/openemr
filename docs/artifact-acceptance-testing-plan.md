@@ -494,6 +494,26 @@ in acceptance."
   release-mechanism migration's ~20-25 file addition since acceptance
   has fewer moving parts).
 
+  **rel-820 exception (2026-07-24):** Phase 1 (openemr/openemr#13149,
+  landed 2026-07-24) added `symfony/mime` to `require-dev` for
+  BrowserKit's POST-body path. rel-820 was cut before this dependency
+  was added, so byte-identically syncing `tests/Acceptance/**` onto
+  rel-820 would produce a branch where the acceptance suite can't
+  actually run. Deliberately SKIP rel-820 from the byte-identical
+  sync for these acceptance paths — enforcement kicks in from
+  **rel-830 onward** (not yet cut; will be cut from a master that
+  already has `symfony/mime` in composer.json). Two ways this can
+  be implemented in Phase 2 depending on how the byte-identical
+  tooling handles per-branch exclusions:
+    1. Per-file `exclude:` list in `docker-byte-identical.yml` that
+       names rel-820 for the acceptance-specific entries only, OR
+    2. A blanket "acceptance byte-identical is rel-830+" gate in
+       the sync workflow itself.
+
+  Not a permanent exception — once rel-820 is EOL (post-8.2.1 or
+  whenever the next-next release ships), the exclusion can be
+  removed.
+
 ## Risks and wrinkles
 
 - **Docker Hub image availability.** Acceptance runs against
@@ -599,3 +619,11 @@ in acceptance."
   target-version installer code path (setup.php on next) went
   unvalidated. Splitting scenarios also isolates failure modes
   and enables parallel matrix jobs.
+
+- **2026-07-24** — Captured rel-820 byte-identical exception:
+  Phase 1 (#13149) added `symfony/mime` require-dev for BrowserKit
+  POST-body support; rel-820 was cut before this dep landed, so
+  syncing `tests/Acceptance/**` onto rel-820 would produce a
+  branch where the suite cannot run. Byte-identical enforcement
+  for the acceptance paths starts at rel-830 (not yet cut; will
+  be cut from master that already has the dep).
