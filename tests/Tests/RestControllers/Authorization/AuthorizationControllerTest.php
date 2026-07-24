@@ -4,7 +4,9 @@ namespace OpenEMR\Tests\RestControllers\Authorization;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
@@ -16,13 +18,48 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class AuthorizationControllerTest extends TestCase
 {
+    private const LOGOUT_TEST_CLIENT_ID = 'test-logout-client-id';
+
+    protected function tearDown(): void
+    {
+        QueryUtils::sqlStatementThrowException("DELETE FROM `oauth_clients` WHERE `client_id` = ?", [self::LOGOUT_TEST_CLIENT_ID], true);
+    }
+
     private function getMockRequest(): HttpRestRequest
     {
         return HttpRestRequest::create('/test');
     }
+
+    /**
+     * Registers an oauth_clients row with the given pipe-delimited logout_redirect_uris
+     * so userSessionLogout() has something to look up.
+     */
+    private function insertLogoutTestClient(string $logoutRedirectUris): void
+    {
+        QueryUtils::sqlInsert(
+            "INSERT INTO `oauth_clients` (`client_id`, `client_name`, `logout_redirect_uris`) VALUES (?, ?, ?)",
+            [self::LOGOUT_TEST_CLIENT_ID, 'Logout Test Client', $logoutRedirectUris]
+        );
+    }
+
+    /**
+     * Builds an id_token_hint shaped like a real JWT (header.payload.signature). The controller
+     * never verifies the signature, it only reads the payload segment, so the header and
+     * signature segments just need to be present.
+     */
+    private function getIdTokenHint(string $subject): string
+    {
+        $payload = HttpUtils::base64url_encode(json_encode([
+            'aud' => self::LOGOUT_TEST_CLIENT_ID,
+            'sub' => $subject,
+        ], JSON_THROW_ON_ERROR));
+        return "header.$payload.signature";
+    }
+
     private function getMockSessionForRequest(HttpRestRequest $request): SessionInterface
     {
         $sessionFactory = new MockFileSessionStorageFactory();
@@ -141,5 +178,38 @@ class AuthorizationControllerTest extends TestCase
         $authorizationController->setClientRepository($clientRepository);
         $response = $authorizationController->oauthAuthorizationFlow($request);
         $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $response->getStatusCode(), "Expected 407 location redirect");
+    }
+
+    public function testUserSessionLogoutRedirectsToRegisteredLogoutUri(): void
+    {
+        $this->insertLogoutTestClient('https://example.com/logged-out|https://example.com/other-logout');
+        $request = $this->getMockRequest();
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+        $request->query->set('id_token_hint', $this->getIdTokenHint('test-subject'));
+        $request->query->set('post_logout_redirect_uri', 'https://example.com/logged-out');
+        $request->query->set('state', 'xyz');
+        $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
+        $response = $authorizationController->userSessionLogout($request);
+        $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $response->getStatusCode(), "Expected redirect for a registered logout uri");
+        $this->assertEquals('https://example.com/logged-out?state=xyz', $response->getHeaderLine('Location'));
+    }
+
+    public function testUserSessionLogoutRejectsUnregisteredLogoutUri(): void
+    {
+        $this->insertLogoutTestClient('https://example.com/logged-out');
+        $request = $this->getMockRequest();
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+        $request->query->set('id_token_hint', $this->getIdTokenHint('test-subject'));
+        $request->query->set('post_logout_redirect_uri', 'https://attacker.example/phish');
+        $request->query->set('state', 'xyz');
+        $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
+        try {
+            $authorizationController->userSessionLogout($request);
+            $this->fail('Expected an HttpException for an unregistered logout uri');
+        } catch (HttpException $e) {
+            $this->assertEquals(Response::HTTP_UNAUTHORIZED, $e->getStatusCode(), "Expected 401, not a redirect, for an unregistered logout uri");
+        }
     }
 }

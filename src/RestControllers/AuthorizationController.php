@@ -1520,11 +1520,30 @@ class AuthorizationController implements LoggerAwareInterface
             $client_id = $id_payload['aud'];
             $user = $id_payload['sub'];
             $id_nonce = $id_payload['nonce'] ?? '';
+            // id_token_hint is not signature-verified above, so client_id/post_logout_url
+            // must never be trusted for a redirect until we confirm it is one of the
+            // client's registered logout redirect uris. logout_redirect_uris is stored
+            // as a pipe-delimited list (see ClientRepository::hydrateClientEntityFromArray()),
+            // so we must explode and check membership rather than compare the whole column.
+            $client = sqlQueryNoLog("SELECT logout_redirect_uris FROM `oauth_clients` WHERE `client_id` = ?", [$client_id]);
+            $logoutRedirectUris = $client['logout_redirect_uris'] ?? '';
+            $registeredLogoutRedirectUris = explode('|', is_string($logoutRedirectUris) ? $logoutRedirectUris : '');
+            $isRegisteredLogoutRedirect = !empty($post_logout_url) && in_array($post_logout_url, $registeredLogoutRedirectUris, true);
+            // Leave a breadcrumb for admins: the request asked to be sent to a post_logout_url
+            // that isn't in the client's registered logout_redirect_uris, so we drop the redirect
+            // and show the local sign-out page instead. Almost always this is a client whose exact
+            // post-logout URL was never registered, which is the one thing an admin needs to fix.
+            if ($post_logout_url !== '' && !$isRegisteredLogoutRedirect) {
+                $this->getSystemLogger()->warning(
+                    "OIDC logout: post_logout_redirect_uri is not registered for client {client_id}; ignoring the redirect. Add the exact URL to that client's logout_redirect_uris to allow it.",
+                    ['client_id' => $client_id, 'post_logout_redirect_uri' => $post_logout_url]
+                );
+            }
             $trustedUser = $this->trustedUser($client_id, $user);
             if (empty($trustedUser['id'])) {
                 // not logged in so just continue as if were.
                 $message = xlt("You are currently not signed in.");
-                if (!empty($post_logout_url)) {
+                if ($isRegisteredLogoutRedirect) {
                     $this->session->invalidate();
                     return (new Psr17Factory())->createResponse(Response::HTTP_TEMPORARY_REDIRECT)
                         ->withHeader('Location', $post_logout_url . "?state=$state");
@@ -1541,8 +1560,7 @@ class AuthorizationController implements LoggerAwareInterface
             }
             // clear the users session
             $this->trustedUserService->deleteTrustedUserById($trustedUser['id']);
-            $client = sqlQueryNoLog("SELECT logout_redirect_uris as valid FROM `oauth_clients` WHERE `client_id` = ? AND `logout_redirect_uris` = ?", [$client_id, $post_logout_url]);
-            if (!empty($post_logout_url) && !empty($client['valid'])) {
+            if ($isRegisteredLogoutRedirect) {
                 $this->session->invalidate();
                 return (new Psr17Factory())->createResponse(Response::HTTP_TEMPORARY_REDIRECT)
                     ->withHeader('Location', $post_logout_url . "?state=$state");
