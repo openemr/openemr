@@ -166,3 +166,31 @@ files:
   exclude-branches: [rel-800, rel-704]
 - path: tests/Tests/Isolated/Release/**
   exclude-branches: [rel-800, rel-704]
+
+# Artifact acceptance surface (added 2026-07-24 -- see
+# docs/artifact-acceptance-testing-plan.md for the full architecture
+# and phased plan. This block is Phase 2's byte-identical wiring).
+#
+# Files below fire from rel branches (acceptance-docker.yml runs on
+# push/PR against its paths + a daily schedule) OR are read by other
+# rel-branch-executing code (the compose override + tests/Acceptance/**
+# are consumed by the workflow).
+#
+# All entries in this block exclude rel-820 in addition to rel-800 +
+# rel-704: rel-820 was cut BEFORE Phase 1 (openemr/openemr#13149,
+# landed 2026-07-24) added `symfony/mime` to require-dev for
+# BrowserKit's POST-body path. Syncing tests/Acceptance/** onto
+# rel-820 would produce a branch where the acceptance suite can't
+# actually run (the login-form POST throws LogicException about
+# symfony/mime missing). Enforcement starts effectively at rel-830+
+# (not yet cut; will be cut from a master that already has the
+# dep in composer.json).
+#
+# Not permanent: once rel-820 is EOL (post-next-next release),
+# remove rel-820 from these exclude-branches lists.
+- path: .github/workflows/acceptance-docker.yml
+  exclude-branches: [rel-820, rel-800, rel-704]
+- path: .github/docker/acceptance-docker-compose.yml
+  exclude-branches: [rel-820, rel-800, rel-704]
+- path: tests/Acceptance/**
+  exclude-branches: [rel-820, rel-800, rel-704]
