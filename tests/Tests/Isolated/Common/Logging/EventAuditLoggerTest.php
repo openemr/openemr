@@ -196,7 +196,7 @@ class EventAuditLoggerTest extends TestCase
             ->method('record');
 
         $this->session->method('get')
-            ->willReturnCallback(fn (string $key) => match ($key) {
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
                 'authUser' => 'testuser',
                 'authProvider' => 'default',
                 default => null,

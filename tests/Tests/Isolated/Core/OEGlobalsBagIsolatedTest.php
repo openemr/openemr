@@ -65,7 +65,7 @@ class OEGlobalsBagIsolatedTest extends TestCase
             'unit_test_placeholder',
         ];
         // Format to DataProvider
-        return array_combine($keys, array_map(fn($k) => [$k], $keys));
+        return array_combine($keys, array_map(fn($k): array => [$k], $keys));
     }
 
     #[DataProvider('deprecatedKeysProvider')]

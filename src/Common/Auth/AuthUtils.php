@@ -685,7 +685,7 @@ class AuthUtils
                     EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " No user data provided for new user");
                     return false;
                 }
-                $columns = array_map(fn($col) => '`' . $col . '`', array_keys($userData));
+                $columns = array_map(fn($col): string => '`' . $col . '`', array_keys($userData));
                 $placeholders = array_fill(0, count($userData), '?');
                 $insertSql = 'INSERT INTO `users` (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
                 $newUserId = QueryUtils::sqlInsert($insertSql, array_values($userData));

@@ -46,6 +46,7 @@ use OpenEMR\RestControllers\TransactionRestController;
 use OpenEMR\RestControllers\UserRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\Services\Search\SearchQueryConfig;
+use Symfony\Component\HttpFoundation\Response;
 
 return [
     "GET /api/facility" => function (HttpRestRequest $request) {
@@ -713,5 +714,5 @@ return [
     // segment, so OAuth2 scope checks resolve to `<scope>/background_service.c`
     // rather than `<scope>/run.c`.
     'POST /api/background_service/$run'
-        => fn(HttpRestRequest $request) => (new BackgroundServiceRestController())->runAllDue(),
+        => fn(HttpRestRequest $request): Response => (new BackgroundServiceRestController())->runAllDue(),
 ];

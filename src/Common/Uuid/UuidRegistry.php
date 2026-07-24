@@ -476,7 +476,7 @@ class UuidRegistry
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
                 implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
             while ($row = QueryUtils::fetchArrayFromResultSet($groupsWithoutUuid)) {
-                $mappedValues = array_map(fn($col) => $row[$col], $this->table_vertical);
+                $mappedValues = array_map(fn($col): mixed => $row[$col], $this->table_vertical);
                 $bindValues = array_merge([$batchUUids[$counter]], $mappedValues);
                 QueryUtils::sqlStatementThrowException($sqlUpdate, $bindValues, noLog: true);
                 $counter++;
@@ -521,7 +521,7 @@ class UuidRegistry
             $sqlUpdate = "UPDATE `" . $this->table_name . "` SET `uuid` = ? WHERE " .
                 implode(" AND ", array_map(fn($col): string => "`$col` = ? ", $this->table_vertical));
             while ($row = QueryUtils::fetchArrayFromResultSet($groupsWithoutUuid)) {
-                $mappedValues = array_map(fn($col) => $row[$col], array_merge(['uuid'], $this->table_vertical));
+                $mappedValues = array_map(fn($col): mixed => $row[$col], array_merge(['uuid'], $this->table_vertical));
                 QueryUtils::sqlStatementThrowException($sqlUpdate, $mappedValues, noLog: true);
                 $counter++;
             }

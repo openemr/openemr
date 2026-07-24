@@ -35,7 +35,7 @@ return [
 
     'service_manager' => [
         'factories' => [
-            ImmunizationTable::class => fn (ContainerInterface $container, $requestedName) => new ImmunizationTable(),
+            ImmunizationTable::class => fn (ContainerInterface $container, $requestedName): ImmunizationTable => new ImmunizationTable(),
         ],
     ],
 

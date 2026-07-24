@@ -493,7 +493,7 @@ if (str_starts_with($hidden_mode, 'clone')) {
             // Backtick prefix resets subcategory/item conditions
             $clone_conditions = array_values(array_filter(
                 $clone_conditions,
-                fn (string $c) => str_starts_with($c, "category"),
+                fn (string $c): bool => str_starts_with($c, "category"),
             ));
             $clone_params = $clone_category !== '' ? [$clone_category] : [];
             $clone_search = substr((string) $clone_search, 1);

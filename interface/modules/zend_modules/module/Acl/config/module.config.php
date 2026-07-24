@@ -64,7 +64,7 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            Model\AclTable::class =>  fn(ContainerInterface $container, $requestedName) => new Model\AclTable(),
+            Model\AclTable::class =>  fn(ContainerInterface $container, $requestedName): Model\AclTable => new Model\AclTable(),
         ]
     ]
 ];

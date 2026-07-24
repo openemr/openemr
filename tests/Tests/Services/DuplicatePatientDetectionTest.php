@@ -81,7 +81,7 @@ class DuplicatePatientDetectionTest extends TestCase
         $placeholders = array_fill(0, count($columns), '?');
         $sql = sprintf(
             "INSERT INTO patient_data (%s) VALUES (%s)",
-            implode(', ', array_map(fn($c) => "`$c`", $columns)),
+            implode(', ', array_map(fn($c): string => "`$c`", $columns)),
             implode(', ', $placeholders)
         );
         QueryUtils::sqlStatementThrowException($sql, array_values($patientData));

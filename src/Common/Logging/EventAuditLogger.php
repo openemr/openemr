@@ -455,7 +455,7 @@ class EventAuditLogger implements AuditLoggerInterface
 
         if (is_array($binds) && $binds !== []) {
             // Include the bound variable elements in the logging
-            $quoted = array_map(fn ($v) => "'" . (string) $v . "'", $binds);
+            $quoted = array_map(fn ($v): string => "'" . (string) $v . "'", $binds);
             $comments .= " (" . implode(",", $quoted) . ")";
         }
 

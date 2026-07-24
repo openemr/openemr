@@ -65,14 +65,14 @@ switch ($task) {
         $json_diags = is_string($diags_raw) ? json_decode($diags_raw) : [];
         $json_diags = is_array($json_diags) ? $json_diags : [];
         $diags = array_map(
-            fn($diag) => new CodeInfo($diag->code, $diag->code_type, $diag->description),
+            fn($diag): CodeInfo => new CodeInfo($diag->code, $diag->code_type, $diag->description),
             $json_diags
         );
 
         $json_procs = is_string($procs_raw) ? json_decode($procs_raw) : [];
         $json_procs = is_array($json_procs) ? $json_procs : [];
         $procs = array_map(
-            fn($proc) => new Procedure(
+            fn($proc): Procedure => new Procedure(
                 $proc->code,
                 $proc->code_type,
                 $proc->description,

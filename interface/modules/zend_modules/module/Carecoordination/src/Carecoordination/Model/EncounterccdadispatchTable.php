@@ -3674,7 +3674,7 @@ class EncounterccdadispatchTable
                 }
 
                 $field_ids = explode(',', (string)$formTables_details[3]);
-                $fields_str = implode(',', array_map(fn($v) => "'$v'", $field_ids));
+                $fields_str = implode(',', array_map(fn($v): string => "'$v'", $field_ids));
 
                 $query = <<<SQL
                     SELECT *

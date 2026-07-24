@@ -211,7 +211,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'csrfTokenRaw',
-                fn(string $subject = 'default') => CsrfUtils::collectCsrfToken($session, $subject)
+                fn(string $subject = 'default'): string => CsrfUtils::collectCsrfToken($session, $subject)
             ),
             new TwigFunction(
                 'jqueryDateTimePicker',
@@ -311,7 +311,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('shortDate', oeFormatShortDate(...)),
             new TwigFilter(
                 'oeFormatDateTime',
-                fn($string, $formatTime = "global", bool $seconds = false) => DateFormatterUtils::oeFormatDateTime($string, $formatTime, $seconds)
+                fn($string, $formatTime = "global", bool $seconds = false): string => DateFormatterUtils::oeFormatDateTime($string, $formatTime, $seconds)
             ),
             new TwigFilter('xlLayoutLabel', xl_layout_label(...)),
             new TwigFilter('xlListLabel', xl_list_label(...)),

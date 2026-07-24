@@ -65,7 +65,7 @@ return [
 
     'service_manager' => [
         'factories' => [
-            PatientDataTable::class => fn (ContainerInterface $container, $requestedName) => new PatientDataTable(),
+            PatientDataTable::class => fn (ContainerInterface $container, $requestedName): PatientDataTable => new PatientDataTable(),
         ],
     ]
 ];

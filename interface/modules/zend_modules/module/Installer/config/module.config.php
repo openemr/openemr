@@ -25,7 +25,7 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            Installer\Model\InstModuleTable::class => fn(ContainerInterface $container, $requestedName) => new Installer\Model\InstModuleTable($container),
+            Installer\Model\InstModuleTable::class => fn(ContainerInterface $container, $requestedName): Installer\Model\InstModuleTable => new Installer\Model\InstModuleTable($container),
         ]
     ],
     'router' => [

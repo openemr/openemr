@@ -127,7 +127,7 @@ class ServiceContainer
         return self::resolveOrCreate(
             ClockInterface::class,
             // @phpstan-ignore openemr.deprecatedSqlFunction
-            static fn() => SystemClock::fromSystemTimezone(),
+            static fn(): SystemClock => SystemClock::fromSystemTimezone(),
         );
     }
 
@@ -135,7 +135,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             Crypto\CryptoInterface::class,
-            static fn() => new Crypto\CryptoGen(),
+            static fn(): Crypto\CryptoGen => new Crypto\CryptoGen(),
         );
     }
 
@@ -152,7 +152,7 @@ class ServiceContainer
     {
         $client = self::resolveOrCreate(
             GuzzleClientInterface::class,
-            static fn() => new Client([
+            static fn(): Client => new Client([
                 // See config/services.php for details
                 RequestOptions::ALLOW_REDIRECTS => true,
                 RequestOptions::CONNECT_TIMEOUT => 5,
@@ -173,7 +173,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             ClientInterface::class,
-            static fn() => self::getGuzzle(),
+            static fn(): GuzzleClientInterface & ClientInterface => self::getGuzzle(),
         );
     }
 
@@ -194,7 +194,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             RequestFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -202,7 +202,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             ResponseFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -210,7 +210,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             ServerRequestFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -218,7 +218,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             StreamFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -245,7 +245,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             UploadedFileFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -253,7 +253,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             UriFactoryInterface::class,
-            static fn() => new Psr17Factory(),
+            static fn(): Psr17Factory => new Psr17Factory(),
         );
     }
 
@@ -261,7 +261,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             UuidFactoryInterface::class,
-            static fn() => new UuidFactory(),
+            static fn(): UuidFactory => new UuidFactory(),
         );
     }
 }

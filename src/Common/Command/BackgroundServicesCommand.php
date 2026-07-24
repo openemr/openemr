@@ -83,7 +83,7 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
 
         $io->table(
             ['Name', 'Title', 'Active', 'Running', 'Interval', 'Next Run'],
-            array_map(fn(array $s) => [
+            array_map(fn(array $s): array => [
                 $s['name'],
                 $s['title'],
                 (int) $s['active'] !== 0 ? 'yes' : 'no',
