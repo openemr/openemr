@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
@@ -64,7 +65,7 @@ class PortalCard extends CardModel
     // used in twigs
     private function setOpts()
     {
-        global $pid;
+        $pid = PatientSessionUtil::getPid();
         // RM get name for 'choices' group, i.e. group 4 in 'layout_gropu_properties' table in db
         $sql = "SELECT grp_title FROM layout_group_properties WHERE grp_group_id = 4 AND grp_form_id = 'DEM'";
         $res = sqlStatement($sql);

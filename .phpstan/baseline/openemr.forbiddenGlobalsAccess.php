@@ -3,7 +3,7 @@
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [

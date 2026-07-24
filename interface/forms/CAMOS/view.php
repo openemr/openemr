@@ -29,6 +29,7 @@ require_once("../../../library/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -95,7 +96,7 @@ echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "'>
 <?php
 //experimental code start
 
-$pid = OEGlobalsBag::getInstance()->get('pid');
+$pid = PatientSessionUtil::getPid();
 $encounter = OEGlobalsBag::getInstance()->get('encounter');
 
 // escape_table_name() on a literal handles case-insensitive table name matching.

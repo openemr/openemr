@@ -23,6 +23,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
@@ -37,7 +38,7 @@ $logger = ServiceContainer::getLogger();
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-global $pid;
+$pid = PatientSessionUtil::getPid();
 
 // Check authorization
 if ($pid) {

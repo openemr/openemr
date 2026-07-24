@@ -36,6 +36,7 @@ require_once(__DIR__ . "/forms.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
@@ -100,7 +101,7 @@ class FeeSheet
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (empty($pid)) {
-            $pid = OEGlobalsBag::getInstance()->get('pid');
+            $pid = PatientSessionUtil::getPid();
         }
 
         if (empty($encounter)) {

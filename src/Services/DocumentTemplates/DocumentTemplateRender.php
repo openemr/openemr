@@ -22,6 +22,7 @@ namespace OpenEMR\Services\DocumentTemplates;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
@@ -606,7 +607,7 @@ class DocumentTemplateRender
     {
         $tmp = '';
         $lres = sqlStatement("SELECT title, comments FROM lists WHERE " . "pid = ? AND type = ? AND enddate IS NULL " . "ORDER BY begdate", [
-            OEGlobalsBag::getInstance()->get('pid'),
+            PatientSessionUtil::getPid(),
             $type
         ]);
         while ($lrow = sqlFetchArray($lres)) {

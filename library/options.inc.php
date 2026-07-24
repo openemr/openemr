@@ -69,6 +69,7 @@ use OpenEMR\Common\Forms\Types\BillingCodeType;
 use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
@@ -119,7 +120,7 @@ function optionalAge($frow, $date, &$asof, $description = '')
         $tmp = sqlQuery(
             "SELECT date FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
-            [OEGlobalsBag::getInstance()->get('pid'), OEGlobalsBag::getInstance()->get('encounter')]
+            [PatientSessionUtil::getPid(), OEGlobalsBag::getInstance()->get('encounter')]
         );
         if (!empty($tmp['date'])) {
             $asof = substr((string) $tmp['date'], 0, 10);
@@ -1202,7 +1203,7 @@ function generate_form_field($frow, $currvalue): void
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
+        $lres = sqlStatement($query, [PatientSessionUtil::getPid()]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -1550,7 +1551,7 @@ function generate_form_field($frow, $currvalue): void
         $date_init .= " lbfCanvasSetup('form_$field_id_esc', $canWidth, $canHeight);\n";
     } elseif ($data_type == 41 || $data_type == 42) {
         $datatype = 'patient-signature';
-        $cpid = OEGlobalsBag::getInstance()->get('pid');
+        $cpid = PatientSessionUtil::getPid();
         $cuser = $session->get('authUserID');
         if ($data_type == 42) {
             $datatype = 'admin-signature';
@@ -1630,8 +1631,7 @@ function generate_form_field($frow, $currvalue): void
         echo "</div>";
     // Previous Patient Names with add. Somewhat mirrors data types 44,45.
     } elseif ($data_type == 52) {
-        global $pid;
-        $pid = ($frow['blank_form'] ?? null) ? null : $pid;
+        $pid = ($frow['blank_form'] ?? null) ? null : PatientSessionUtil::getPid();
         $patientNameService = new PatientNameHistoryService();
         $res = $patientNameService->getPatientNameHistory($pid);
         echo "<div class='input-group w-75'>";
@@ -1647,8 +1647,7 @@ function generate_form_field($frow, $currvalue): void
 
     // Patient Encounter List Field
     } elseif ($data_type == 53) {
-        global $pid;
-        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : PatientSessionUtil::getPid();
         $encounterService = new EncounterService();
         $res = $encounterService->getEncountersForPatientByPid($pid);
         echo "<div class='input-group w-75'>";
@@ -1668,8 +1667,7 @@ function generate_form_field($frow, $currvalue): void
 
     // Address List Field - Input
     } elseif ($data_type == 54) {
-        global $pid;
-        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : PatientSessionUtil::getPid();
         $foreign_table = 'patient_data';
         $foreign_id = $pid;
 
@@ -1677,8 +1675,7 @@ function generate_form_field($frow, $currvalue): void
 
     // Telecom Field - Input
     } elseif ($data_type == 55) {
-        global $pid;
-        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : PatientSessionUtil::getPid();
         $foreign_table = 'patient_data';
         $foreign_id = $pid;
 
@@ -1686,8 +1683,7 @@ function generate_form_field($frow, $currvalue): void
 
     // Related List Field - Input
     } elseif ($data_type == 56) {
-        global $pid;
-        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+        $pid = ($frow['blank_form'] ?? null) ? 0 : PatientSessionUtil::getPid();
         $foreign_table = 'patient_data';
         $foreign_id = $pid;
 
@@ -2057,7 +2053,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
+        $lres = sqlStatement($query, [PatientSessionUtil::getPid()]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -2598,7 +2594,7 @@ function generate_display_field($frow, $currvalue)
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
+        $lres = sqlStatement($query, [PatientSessionUtil::getPid()]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -2813,9 +2809,8 @@ function generate_display_field($frow, $currvalue)
             $s .= text(getPatientDescription($currvalue));
         }
     } elseif ($data_type == 52) {
-        global $pid;
         $patientNameService = new PatientNameHistoryService();
-        $rows = $patientNameService->getPatientNameHistory($pid);
+        $rows = $patientNameService->getPatientNameHistory(PatientSessionUtil::getPid());
         $i = 0;
         foreach ($rows as $row) {
             // name escaped in fetch
@@ -3047,7 +3042,7 @@ function generate_plaintext_field($frow, $currvalue)
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
+        $lres = sqlStatement($query, [PatientSessionUtil::getPid()]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -4694,7 +4689,7 @@ function getSmokeCodes()
 //
 function lbf_current_value($frow, $formid, $encounter)
 {
-    global $pid;
+    $pid = PatientSessionUtil::getPid();
     $formname = $frow['form_id'];
     $field_id = $frow['field_id'];
     $source   = $frow['source'];

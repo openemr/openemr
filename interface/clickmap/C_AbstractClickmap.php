@@ -17,6 +17,7 @@
  * to lock the path to this script (so if called from different scripts) use the dirname(FILE) variable
 */
 
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -169,7 +170,7 @@ abstract class C_AbstractClickmap extends Controller
                 $model->getTitle(),
                 $model->id,
                 $model->getCode(),
-                OEGlobalsBag::getInstance()->get('pid'),
+                PatientSessionUtil::getPid(),
                 $session->get('userauthorized')
             );
             $_POST['process'] = "";

@@ -37,6 +37,7 @@ if (php_sapi_name() === 'cli') {
 }
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
@@ -78,7 +79,7 @@ require_once("report.php");
  *
  */
 global $encounter;
-global $pid;
+$pid = PatientSessionUtil::getPid();
 global $visit_date;
 global $PDF_OUTPUT;
 global $form_id;

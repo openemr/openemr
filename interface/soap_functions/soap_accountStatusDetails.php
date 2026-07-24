@@ -33,9 +33,9 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/amc.php'
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxSOAP.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRx_xml.php');
 
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 set_time_limit(0);
 $GLOBALS_REF = $GLOBALS;
@@ -47,8 +47,8 @@ $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
 
 if (array_key_exists('patient', $_REQUEST)) {
     $eRxSOAP->setPatientId($_REQUEST['patient']);
-} elseif (OEGlobalsBag::getInstance()->has('pid')) {
-    $eRxSOAP->setPatientId(OEGlobalsBag::getInstance()->get('pid'));
+} elseif (PatientSessionUtil::getPid() !== 0) {
+    $eRxSOAP->setPatientId(PatientSessionUtil::getPid());
 }
 
 $accountStatus = $eRxSOAP->getAccountStatus()

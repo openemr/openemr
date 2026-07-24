@@ -22,8 +22,9 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\PatientSessionUtil;
 
-global $pid;
+$pid = PatientSessionUtil::getPid();
 
 /**
  * @var \DOMDocument $ccr (created in createCCR.php)

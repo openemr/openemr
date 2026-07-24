@@ -16,6 +16,7 @@
  require_once("../interface/globals.php");
  require_once("../library/patient.inc.php");
 
+ use OpenEMR\Common\Session\PatientSessionUtil;
  use OpenEMR\Core\Header;
 
  // FTP parameters that you must customize.  If you are not sending
@@ -34,7 +35,7 @@
  $out = "";
 
  // Add a string to output with some basic sanitizing.
-function custom_labworks_Add($field)
+function custom_labworks_Add($field): string
 {
     return "^" . trim(str_replace(["\r", "\n", "\t"], " ", $field));
 }
@@ -78,7 +79,7 @@ function mydie($msg): void
  // This mess gets all the info for the patient.
  //
  $insrow = [];
- global $pid; // defined in globals.php
+ $pid = PatientSessionUtil::getPid();
 foreach (['primary','secondary'] as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
     "pid = ? AND type = ? ORDER BY date DESC LIMIT 1", [$pid, $value]);
@@ -130,7 +131,7 @@ if ($row['providerID']) {
 
  // Patient Section.
  //
- $out .= $pid;                     // patient id
+ $out .= (string)$pid;                     // patient id
  $out .= custom_labworks_Add($row['pubpid']);              // chart number
  $out .= custom_labworks_Add($row['lname']);               // last name
  $out .= custom_labworks_Add($row['fname']);               // first name

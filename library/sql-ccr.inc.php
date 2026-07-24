@@ -21,6 +21,7 @@
  * @link    https://www.open-emr.org
  */
 
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 if ($_POST['ccrAction'] == 'generate') {
@@ -41,7 +42,8 @@ function getHeaderData(): void
 
 function getMedicationData()
 {
-    global $pid,$set,$start,$end;
+    $pid = PatientSessionUtil::getPid();
+    global $set,$start,$end;
     if ($set == "on") {
         $sql = "
       SELECT prescriptions.date_added ,
@@ -141,7 +143,8 @@ function getMedicationData()
 
 function getImmunizationData()
 {
-    global $pid,$set,$start,$end;
+    $pid = PatientSessionUtil::getPid();
+    global $set,$start,$end;
     if ($set == "on") {
         $sql = "SELECT
       immunizations.administered_date,
@@ -180,7 +183,8 @@ function getImmunizationData()
 function getProcedureData()
 {
 
-    global $pid,$set,$start,$end;
+    $pid = PatientSessionUtil::getPid();
+    global $set,$start,$end;
     if ($set == "on") {
         $sql = "
     SELECT
@@ -316,7 +320,8 @@ function getProblemData()
   #  problems with one diagnostic code set in order to maintain previous behavior
   #  (this will likely need to be dealt with at some point; ie. support multiple dx codes per problem).
 
-    global $pid,$set,$start,$end;
+    $pid = PatientSessionUtil::getPid();
+    global $set,$start,$end;
     if ($set == "on") {
         $sql = "
     SELECT fe.encounter, fe.reason, fe.provider_id, u.title, u.fname, u.lname,
@@ -353,7 +358,8 @@ function getProblemData()
 function getAlertData()
 {
 
-    global $pid,$set,$start,$end;
+    $pid = PatientSessionUtil::getPid();
+    global $set,$start,$end;
     if ($set == "on") {
         $sql = "
     select fe.reason, fe.provider_id, fe.facility_id, fe.encounter,
@@ -406,7 +412,8 @@ function getAlertData()
 function getResultData()
 {
 
-    global $pid,$set,$start,$end;
+    $pid = PatientSessionUtil::getPid();
+    global $set,$start,$end;
     if ($set == "on") {
         $sql = "
       SELECT
@@ -482,7 +489,7 @@ function getResultData()
 
 function getActorData()
 {
-    global $pid;
+    $pid = PatientSessionUtil::getPid();
 
     $sql = "
 	select fname, lname, DOB, sex, pid, street, city, state, postal_code, phone_contact
@@ -522,7 +529,7 @@ function getActorData()
 
 function getReportFilename()
 {
-    global $pid;
+    $pid = PatientSessionUtil::getPid();
 
     $sql = "
     select fname, lname, pid

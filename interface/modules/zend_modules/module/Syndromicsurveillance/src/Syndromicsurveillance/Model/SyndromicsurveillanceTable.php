@@ -13,6 +13,7 @@
 namespace Syndromicsurveillance\Model;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 
 class SyndromicsurveillanceTable
 {
@@ -35,7 +36,7 @@ class SyndromicsurveillanceTable
     function getProviderList()
     {
         global $encounter;
-        global $pid;
+        $pid = PatientSessionUtil::getPid();
 
         $sqlSelctProvider = "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";
         $resultSelctProvider = QueryUtils::fetchRecords($sqlSelctProvider, [$encounter, $pid]);

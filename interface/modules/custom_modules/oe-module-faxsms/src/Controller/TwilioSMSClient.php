@@ -237,14 +237,6 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
      */
     protected function index()
     {
-        global $pid;
-        if (!$this->getSession('pid', '')) {
-            $pid_s = $this->getRequest('patient_id');
-            $this->setSession('pid', $pid ?: $pid_s);
-        }
-        if (empty($pid)) {
-            $pid = $this->getSession('pid', '');
-        }
         return null;
     }
 

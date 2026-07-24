@@ -14,6 +14,7 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
@@ -80,7 +81,7 @@ class C_FormSOAP extends Controller
                 "SOAP",
                 $this->form->id,
                 "soap",
-                OEGlobalsBag::getInstance()->get('pid'),
+                PatientSessionUtil::getPid(),
                 $session->get('userauthorized')
             );
             $_POST['process'] = "";

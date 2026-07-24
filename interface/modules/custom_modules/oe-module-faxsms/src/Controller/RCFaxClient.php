@@ -14,6 +14,7 @@ use Document;
 use Exception;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
@@ -317,7 +318,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
             // Build $content (plaintext bytes for the vendor).
             if ($isContent) {
                 $content = $file;
-                $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
+                $file = 'report-' . PatientSessionUtil::getPid() . '.pdf';
             } else {
                 if ($isDocuments) {
                     // Enforce patients/docs ACL and patient ownership before

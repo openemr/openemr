@@ -26,6 +26,7 @@ use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
@@ -119,7 +120,7 @@ class C_Document extends Controller
         $this->assign("TEMPLATES_LIST", $templates_options);
 
         // will call as module or individual template.
-        $templates_list = $this->templateService->renderPortalTemplateMenu($patient_id, '-patient-', false) ?? [];
+        $templates_list = $this->templateService->renderPortalTemplateMenu($patient_id, '-patient-', false);
         $this->assign("TEMPLATES_LIST_PATIENT", $templates_list);
 
         $activity = $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "documents/" . $this->template_mod . "_upload.html");
@@ -646,7 +647,7 @@ class C_Document extends Controller
         // For patient_picture context, non-portal users may only request the session's active patient.
         if ($context === 'patient_picture') {
             if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
-                $allowed_pid = OEGlobalsBag::getInstance()->get('pid') ?? 0;
+                $allowed_pid = PatientSessionUtil::getPid() ?? 0;
                 if ($allowed_pid === 0 || $patient_id === null || $patient_id !== (string)$allowed_pid) {
                     AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
                 }

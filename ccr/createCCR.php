@@ -15,6 +15,7 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -31,7 +32,7 @@ if (isset($_GET['portal_auth'])) {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
-        $pid = $session->get('pid');
+        $pid = PatientSessionUtil::getPid();
         $ignoreAuth = true;
         global $ignoreAuth;
     } else {
@@ -143,7 +144,7 @@ function createCCR($action, $raw = "no", $requested_by = ""): void
 
 function gnrtCCR($ccr, $raw = "no", $requested_by = ""): void
 {
-    global $pid;
+    $pid = PatientSessionUtil::getPid();
 
     $ccr->preserveWhiteSpace = false;
     $ccr->formatOutput = true;
@@ -215,7 +216,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = ""): void
 
 function viewCCD($ccr, $raw = "no", $requested_by = ""): void
 {
-    global $pid;
+    $pid = PatientSessionUtil::getPid();
 
     $ccr->preserveWhiteSpace = false;
     $ccr->formatOutput = true;

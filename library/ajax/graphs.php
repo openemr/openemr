@@ -16,6 +16,7 @@ require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -68,7 +69,8 @@ function getIdealYSteps($a)
 
 function graphsGetValues($name)
 {
-    global $is_lbf, $pid, $table;
+    $pid = PatientSessionUtil::getPid();
+    global $is_lbf, $table;
     if ($is_lbf) {
         // Like below, but for LBF data.
         // Use a fixed alias to keep user input out of the SQL structure.

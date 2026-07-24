@@ -44,6 +44,7 @@ require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -70,9 +71,7 @@ use OpenEMR\Services\PatientService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!isset($pid)) {
-    $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
-}
+$pid = PatientSessionUtil::getPid() ?: ($_GET['pid'] ?? null);
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
@@ -310,7 +309,8 @@ $deceased = is_patient_deceased($pid);
 // Display image in 'widget style'
 function image_widget($doc_id, $doc_catg): void
 {
-    global $pid, $web_root;
+    $pid = PatientSessionUtil::getPid();
+    global $web_root;
     $docobj = new Document($doc_id);
     $image_file = $docobj->get_url_file();
     $image_file_name = $docobj->get_name();
@@ -319,15 +319,15 @@ function image_widget($doc_id, $doc_catg): void
     $viewable_types = ['.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP'];
     if (in_array($extension, $viewable_types)) { // extension matches list
         $to_url = "<td> <a href = '$web_root" .
-            "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'" .
+            "/controller.php?document&retrieve&patient_id=$pid&document_id=" . attr_url($doc_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'" .
             " onclick='top.restoreSession();' class='image_modal'>" .
             " <img src = '$web_root" .
-            "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "&as_file=false'" .
+            "/controller.php?document&retrieve&patient_id=$pid&document_id=" . attr_url($doc_id) . "&as_file=false'" .
             " $image_width alt='" . attr($doc_catg) . ":" . attr($image_file_name) . "'>  </a> </td> <td class='align-middle'>" .
             text($doc_catg) . '<br />&nbsp;' . text($image_file_name) . "</td>";
     } else {
         $to_url = "<td> <a href='" . $web_root . "/controller.php?document&retrieve" .
-            "&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_id) . "'" .
+            "&patient_id=$pid&document_id=" . attr_url($doc_id) . "'" .
             " onclick='top.restoreSession()' class='btn btn-primary btn-sm'>" .
             "<span>" .
             xlt("View") . "</a> &nbsp;" .

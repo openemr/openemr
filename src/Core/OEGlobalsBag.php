@@ -47,7 +47,7 @@ class OEGlobalsBag extends ParameterBag
      * @see \OpenEMR\Tests\Isolated\Core\OEGlobalsBagIsolatedTest::deprecatedKeysProvider
      */
     private const DEPRECATED_KEYS = [
-        'unit_test_placeholder' => '(placeholder)',
+        'pid' => 'Use PatientSessionUtil::getPid() instead.',
     ];
 
     protected static function createInstance(): static

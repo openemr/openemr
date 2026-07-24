@@ -57,16 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \'\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_labworks.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between string and mixed results in an error\\.$#',
-    'count' => 62,
-    'path' => __DIR__ . '/../../custom/export_labworks.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../custom/export_qrda_xml.php',

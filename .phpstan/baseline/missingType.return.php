@@ -422,11 +422,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_labworks.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function custom_labworks_Add\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_labworks.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getLabelNumber\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_registry_xml.php',

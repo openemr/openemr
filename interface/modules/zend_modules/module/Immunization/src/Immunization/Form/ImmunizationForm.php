@@ -14,12 +14,14 @@ namespace Immunization\Form;
 
 use Application\Listener\Listener;
 use Laminas\Form\Form;
+use OpenEMR\Common\Session\PatientSessionUtil;
 
 class ImmunizationForm extends Form
 {
     public function __construct()
     {
-        global $pid, $encounter;
+        $pid = PatientSessionUtil::getPid();
+        global $encounter;
         parent::__construct('immunization');
         $this->setAttribute('method', 'post');
 

@@ -19,6 +19,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/libr
 require_once("FormROS.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -72,7 +73,7 @@ class C_FormROS extends Controller
 
         if (empty($_POST['id'])) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            addForm(OEGlobalsBag::getInstance()->get('encounter'), "Review Of Systems", $this->form->id, "ros", OEGlobalsBag::getInstance()->get('pid'), $session->get('userauthorized'));
+            addForm(OEGlobalsBag::getInstance()->get('encounter'), "Review Of Systems", $this->form->id, "ros", PatientSessionUtil::getPid(), $session->get('userauthorized'));
             $_POST['process'] = "";
         }
 
