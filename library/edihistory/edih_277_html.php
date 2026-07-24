@@ -182,8 +182,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                         [$section, $loopid, $appendLabel] = $trn;
                         $trnRow = Claim277Renderer::trn($sar, $cls);
                         $html[$section] .= $trnRow['html'];
-                        if ($appendLabel) {
-                            $h3_lbl = ($h3_lbl) ? $h3_lbl . ' ' . $trnRow['ref'] : $h3_lbl;
+                        if ($appendLabel && $h3_lbl) {
+                            $h3_lbl .= " {$trnRow['ref']}";
                         }
                     }
                     break;
@@ -313,12 +313,7 @@ function edih_277_html($filename, $bht03 = '')
 
                     // get each transaction
                     foreach ($st['bht03'] as $bht) {
-                        //$html_str .= "<h3>$bht Claim Status <em>Date</em> $gs_date <em>Source</em> $gs_sender</h3>".PHP_EOL;
-                        //$html_str .= "<div id='ac_$bht'>".PHP_EOL;
-
                         $html_str .= edih_277_transaction_html($obj277, $bht, true);
-
-                        //$html_str .= "</div>".PHP_EOL;
                     }
                 }
 
