@@ -1,0 +1,21 @@
+DO NOT MERGE — Temporary fixture for the ScanCode PoC (PR #11739).
+
+The workflow disallows `proprietary-license` and `commercial-license` so
+this file should trip the policy check, emit a GitHub annotation, and
+fail the job. Revert the commit that introduced this file before merge.
+
+---
+
+Copyright (c) 2026 Acme Widgets Inc. All rights reserved.
+
+This source code is proprietary and confidential. Unauthorized copying
+of this file, via any medium, is strictly prohibited. No part of this
+work may be reproduced, distributed, or transmitted in any form or by
+any means, including photocopying, recording, or other electronic or
+mechanical methods, without the prior written permission of Acme
+Widgets Inc.
+
+This software is licensed only to licensees who have executed a written
+Commercial License Agreement with Acme Widgets Inc. Use of this
+software without a valid Commercial License Agreement is strictly
+prohibited.

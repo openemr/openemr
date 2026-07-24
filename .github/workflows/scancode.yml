@@ -1,0 +1,311 @@
+name: License Scan (ScanCode)
+
+on:
+  pull_request:
+    branches:
+    - master
+    - rel-*
+  workflow_dispatch:
+    inputs:
+      scan_mode:
+        description: Scan scope
+        type: choice
+        options:
+        - full
+        - diff
+        default: full
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Pinned so runs are reproducible; bumped manually for now. The official
+  # aboutcode-org/scancode-action is still tagged @beta (no stable release)
+  # and runs ScanCode.io pipelines, which produce a different output schema
+  # from the CLI — migrating would require rewriting the summary step.
+  # Revisit once the action stabilizes so Dependabot can maintain the version.
+  SCANCODE_VERSION: '32.5.0'
+
+jobs:
+  mode:
+    name: Determine scan mode
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.m.outputs.mode }}
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 2
+    - name: Resolve mode
+      id: m
+      env:
+        EVENT: ${{ github.event_name }}
+        DISPATCH_MODE: ${{ github.event.inputs.scan_mode }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      # Resolution rules:
+      #   workflow_dispatch → whatever the user picked (default: full)
+      #   pull_request     → 'full' if the HEAD commit carries trailer
+      #                      `Scancode-Full-Scan: true`, otherwise 'diff'
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        case "$EVENT" in
+          workflow_dispatch)
+            mode="${DISPATCH_MODE:-full}"
+            ;;
+          pull_request)
+            trailer=$(
+              git log -1 --format='%(trailers:key=Scancode-Full-Scan,valueonly)' "$HEAD_SHA" \
+                | tr -d '[:space:]'
+            )
+            if [[ $trailer = 'true' ]]; then
+              mode='full'
+            else
+              mode='diff'
+            fi
+            ;;
+          *)
+            mode='diff'
+            ;;
+        esac
+        printf 'Scan mode: %s\n' "$mode"
+        echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
+  diff:
+    name: ScanCode License Scan (diff)
+    needs: mode
+    if: needs.mode.outputs.mode == 'diff'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+
+    - name: Install ScanCode Toolkit
+      run: pipx install "scancode-toolkit==${SCANCODE_VERSION}"
+
+    - name: Stage changed files
+      id: stage
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      # Only scan files added or modified in the PR so the check stays fast.
+      # git-diff already excludes untracked/ignored paths (vendor/,
+      # node_modules/, etc.); only Documentation/ needs an explicit pathspec
+      # since it is tracked.
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        mkdir -p scancode-input
+        mapfile -t changed < <(
+          git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" \
+            -- ':!Documentation'
+        )
+        if (( ${#changed[@]} == 0 )); then
+          echo 'No files to scan.'
+          echo 'has_changes=false' >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        echo 'has_changes=true' >> "$GITHUB_OUTPUT"
+        for f in "${changed[@]}"; do
+          if [[ -f $f ]]; then
+            # Parameter expansion; fall back to '.' for top-level files.
+            d="${f%/*}"
+            [[ $d = "$f" ]] && d='.'
+            mkdir -p "scancode-input/$d"
+            cp "$f" "scancode-input/$f"
+          fi
+        done
+        printf 'Staged %d files for scan.\n' "${#changed[@]}"
+
+    - name: Run ScanCode
+      if: steps.stage.outputs.has_changes == 'true'
+      # ScanCode exits 1 when individual files fail (timeouts, parser
+      # crashes) but still completes the overall scan and writes its
+      # reports. Treat that as non-fatal so the summary + upload steps run.
+      # Any exit code > 1 is a real failure.
+      run: |
+        rc=0
+        scancode \
+          --license \
+          --copyright \
+          --package \
+          --only-findings \
+          --processes "$(nproc)" \
+          --json-pp scancode-results.json \
+          --html scancode-results.html \
+          scancode-input \
+          || rc=$?
+        if (( rc > 1 )); then
+          exit "$rc"
+        fi
+
+    - name: Summarize findings
+      if: steps.stage.outputs.has_changes == 'true'
+      env:
+        SCAN_MODE: diff
+        # Fail the job (and emit per-file annotations) when ScanCode detects
+        # any of these license expressions. Leave empty to run in
+        # report-only mode.
+        SCANCODE_DISALLOWED_LICENSES: 'proprietary-license,commercial-license'
+      run: python3 tools/ci/scancode-summary.py scancode-results.json
+
+    - name: Upload artifact
+      if: steps.stage.outputs.has_changes == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: scancode-results-diff
+        path: |
+          scancode-results.json
+          scancode-results.html
+        retention-days: 30
+
+  shard:
+    # Full-repo scans fan out across 8 runners. hash(path) % 8 partitions the
+    # tracked-file set so every file lands on exactly one shard. ScanCode's
+    # license matcher is CPU-bound, so the speedup scales nearly linearly with
+    # the shard count; 8 shards is a balance between wall-clock time and
+    # aggregate-minutes budget.
+    name: ScanCode License Scan (shard ${{ matrix.shard }}/8)
+    needs: mode
+    if: needs.mode.outputs.mode == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    env:
+      SHARDS: '8'
+      SHARD: ${{ matrix.shard }}
+    steps:
+    - uses: actions/checkout@v6
+
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+
+    - name: Install ScanCode Toolkit
+      run: pipx install "scancode-toolkit==${SCANCODE_VERSION}"
+
+    - name: Stage shard files
+      # Enumerate every tracked file (excluding .scancode-ignore patterns),
+      # hash the path, and stage the files whose hash bucket matches this
+      # shard. Sharding on the path rather than on git's file order keeps the
+      # partition stable across runs — reruns of shard N scan the same files.
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        excludes=()
+        while IFS= read -r line; do
+          line="${line%%#*}"
+          line="${line#"${line%%[![:space:]]*}"}"
+          line="${line%"${line##*[![:space:]]}"}"
+          [[ -z $line ]] && continue
+          # Strip trailing /* for git pathspec (exclude the whole tree).
+          clean="${line%/\*}"
+          excludes+=(":(exclude)${clean}")
+        done < .scancode-ignore
+        mkdir -p scancode-shard-input
+        mapfile -t files < <(git ls-files -- . "${excludes[@]}")
+        count=0
+        for f in "${files[@]}"; do
+          hash_hex=$(printf '%s' "$f" | md5sum | cut -c1-8)
+          idx=$(( 0x$hash_hex % SHARDS ))
+          (( idx == SHARD )) || continue
+          [[ -f $f ]] || continue
+          d="${f%/*}"
+          [[ $d = "$f" ]] && d='.'
+          mkdir -p "scancode-shard-input/$d"
+          cp "$f" "scancode-shard-input/$f"
+          count=$(( count + 1 ))
+        done
+        printf 'Shard %d/%d staged %d files (of %d total tracked).\n' \
+          "$SHARD" "$SHARDS" "$count" "${#files[@]}"
+
+    - name: Run ScanCode
+      # Per-file scan errors (exit 1) are non-fatal; see the diff job's
+      # comment on the same pattern.
+      run: |
+        rc=0
+        scancode \
+          --license \
+          --copyright \
+          --package \
+          --only-findings \
+          --processes "$(nproc)" \
+          --json-pp "scancode-shard-${SHARD}.json" \
+          scancode-shard-input \
+          || rc=$?
+        if (( rc > 1 )); then
+          exit "$rc"
+        fi
+
+    - name: Upload shard artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: scancode-shard-${{ matrix.shard }}
+        path: scancode-shard-${{ matrix.shard }}.json
+        retention-days: 7
+
+  aggregate:
+    name: ScanCode License Scan (aggregate)
+    needs: [mode, shard]
+    if: needs.mode.outputs.mode == 'full'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 1
+
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+
+    - name: Download shard artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: shards
+        pattern: scancode-shard-*
+        merge-multiple: true
+
+    - name: Merge shard results
+      # ScanCode JSON top-level is {headers:[...], files:[...]}; the files
+      # arrays are disjoint across shards so concatenation is sufficient.
+      shell: python
+      run: |
+        import glob
+        import json
+
+        merged: dict = {'headers': [], 'files': []}
+        for path in sorted(glob.glob('shards/scancode-shard-*.json')):
+            with open(path) as fh:
+                data = json.load(fh)
+            merged['headers'].extend(data.get('headers', []))
+            merged['files'].extend(data.get('files', []))
+
+        with open('scancode-results.json', 'w') as fh:
+            json.dump(merged, fh)
+
+        print(f'Merged {len(merged["files"])} file entries from '
+              f'{len(merged["headers"])} shard headers.')
+
+    - name: Summarize findings
+      env:
+        SCAN_MODE: full
+        SCANCODE_DISALLOWED_LICENSES: 'proprietary-license,commercial-license'
+      run: python3 tools/ci/scancode-summary.py scancode-results.json
+
+    - name: Upload final artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: scancode-results-full
+        path: scancode-results.json
+        retention-days: 30
