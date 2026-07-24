@@ -85,10 +85,14 @@ permissions:
   contents: read
 
 concurrency:
-  # Cancel in-flight runs for the same ref on push/PR; keep scheduled
-  # runs queued so drift-detection cycles aren't stomped by feature-branch
-  # activity.
-  group: acceptance-docker-${{ github.ref }}
+  # Split the concurrency group by trigger type: a scheduled run on
+  # master shouldn't share a group with push/PR runs on master, or a
+  # push landing during the scheduled run would cancel it (the
+  # push's cancel-in-progress=true wins over the schedule's
+  # cancel-in-progress=false when they share a group). Separate keys
+  # mean push/PR still cancels its own in-flight runs, but never
+  # kills a schedule run.
+  group: acceptance-docker-${{ github.ref }}-${{ github.event_name == 'schedule' && 'schedule' || 'ondemand' }}
   cancel-in-progress: ${{ github.event_name != 'schedule' }}
 
 jobs:
@@ -128,6 +132,12 @@ jobs:
     name: ${{ matrix.description }}
     steps:
     - uses: actions/checkout@v7
+      with:
+        # No git operations after checkout (composer install + docker
+        # compose only), so no reason to persist the GITHUB_TOKEN as
+        # a git credential in the local checkout. Reduces incidental
+        # credential exposure surface.
+        persist-credentials: false
 
     - name: Set up PHP + composer for the acceptance harness
       uses: shivammathur/setup-php@v2
