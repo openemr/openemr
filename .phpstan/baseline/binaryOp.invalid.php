@@ -10272,21 +10272,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'edih_277_html\\: PER…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'AAA\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_278_html.php',

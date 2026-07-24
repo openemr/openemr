@@ -3313,7 +3313,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method edih_delimiters\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
 ];
 $ignoreErrors[] = [

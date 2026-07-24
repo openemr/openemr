@@ -30382,23 +30382,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'e\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'icn\' on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'r\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'s\' on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
 ];
 $ignoreErrors[] = [

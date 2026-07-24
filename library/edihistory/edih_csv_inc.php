@@ -1093,27 +1093,9 @@ function edih_format_telephone($str_val)
  */
 function edih_format_date($str_val, $pref = "Y-m-d")
 {
-    $strdt = (string)$str_val;
-    $strdt = preg_replace('/\D/', '', $strdt);
-    $dt = '';
-    if (strlen((string) $strdt) == 6) {
-        $tdy = date('Ymd');
-        if ($pref == "US") {
-            // assume mmddyy
-            $strdt = substr($tdy, 0, 2) . substr((string) $strdt, -2) . substr((string) $strdt, 0, 4);
-        } else {
-            // assume yymmdd
-            $strdt = substr($tdy, 0, 2) . $strdt;
-        }
-    }
-
-    if ($pref == "US") {
-        $dt = substr($strdt, 4, 2) . "/" . substr($strdt, 6) . "/" . substr($strdt, 0, 4);
-    } else {
-        $dt = substr($strdt, 0, 4) . "-" . substr($strdt, 4, 2) . "-" . substr($strdt, 6);
-    }
-
-    return $dt;
+    // Backfill: the canonical implementation lives in the autoloadable
+    // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
+    return \OpenEMR\Billing\EdiHistory\EdiFormat::date((string) $str_val, (string) $pref);
 }
 
 /**
@@ -1125,10 +1107,9 @@ function edih_format_date($str_val, $pref = "Y-m-d")
  */
 function edih_format_money($str_val)
 {
-    //
-    $mny = $str_val || $str_val === '0' ? sprintf("$%01.2f", $str_val) : $str_val;
-
-    return $mny;
+    // Backfill: the canonical implementation lives in the autoloadable
+    // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
+    return \OpenEMR\Billing\EdiHistory\EdiFormat::money((string) $str_val);
 }
 
 /**
