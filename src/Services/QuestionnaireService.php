@@ -20,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\Services\FHIR\Questionnaire\QuestionnaireItemNormalizer;
 
 class QuestionnaireService extends BaseService
 {
@@ -104,6 +105,16 @@ class QuestionnaireService extends BaseService
             $is_json = json_last_error() === JSON_ERROR_NONE;
             if (!$is_json) {
                 throw new Exception(xlt("Questionnaire json is invalid"));
+            }
+        }
+        if (is_array($q)) {
+            // Repair double-encoded array fields (e.g. enableWhen saved as a JSON
+            // string by some LForms conversions) and reject anything unrepairable,
+            // so malformed item shapes can no longer enter questionnaire_repository.
+            try {
+                [$q] = QuestionnaireItemNormalizer::normalizeQuestionnaire($q, true);
+            } catch (\InvalidArgumentException $exception) {
+                throw new Exception(xlt("Questionnaire json is invalid") . " - " . text($exception->getMessage()));
             }
         }
         $fhir_ob = new FHIRQuestionnaire($q);

@@ -6,7 +6,9 @@
  * @package openemr
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +25,8 @@ $controller = new SmartLaunchController();
 $intentData = [];
 try {
     $intentData['appointment_id'] = $_REQUEST['appointment_id'] ?? null;
+    $intentData['questionnaire_id'] = filter_input(INPUT_GET, 'questionnaire_id', FILTER_UNSAFE_RAW);
+    $intentData['questionnaire_response_id'] = filter_input(INPUT_GET, 'questionnaire_response_id', FILTER_UNSAFE_RAW);
     $controller->redirectAndLaunchSmartApp(
         $_REQUEST['intent'] ?? null,
         $_REQUEST['client_id'] ?? null,

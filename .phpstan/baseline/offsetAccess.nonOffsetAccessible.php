@@ -8718,37 +8718,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'category\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'copyright\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'form_name\' on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lform\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lform_response\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
 ];
 $ignoreErrors[] = [
@@ -8758,7 +8738,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'questionnaire_response\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
 ];
 $ignoreErrors[] = [
@@ -8775,21 +8755,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'questionnaire_response\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'new\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'response_id\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 1\\|int\\<3, max\\> on mixed\\.$#',
@@ -39062,26 +39027,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/RouteController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'apt\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'e\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'i\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'p\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_uuid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
@@ -45055,11 +45000,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureOEProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'item\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Questionnaire/FhirQuestionnaireFormService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'_questionnaire\' on mixed\\.$#',
