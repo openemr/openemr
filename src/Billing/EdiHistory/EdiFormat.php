@@ -63,6 +63,6 @@ final class EdiFormat
      */
     public static function money(string $str_val): string
     {
-        return ($str_val !== '') ? sprintf('$%01.2f', (float) $str_val) : $str_val;
+        return ($str_val !== '') ? sprintf('$%01.2f', $str_val) : $str_val;
     }
 }

@@ -295,22 +295,11 @@ function edih_277_html($filename, $bht03 = '')
                     $html_str .= "<p>edih_277_html: file parse error, envelope error</p>" . PHP_EOL;
                     $html_str .= text($obj277->edih_message());
                     return $html_str;
-                } else {
-                    $html_str .= "<div id='accordion'>" . PHP_EOL;
                 }
 
+                $html_str .= "<div id='accordion'>" . PHP_EOL;
+
                 foreach ($env_ar['ST'] as $st) {
-                    foreach ($env_ar['GS'] as $gs) {
-                        if ($gs['icn'] != $st['icn']) {
-                            continue;
-                        } else {
-                            $gs_date = edih_format_date($gs['date']);
-                            $gs_sender = $gs['sender'];
-                            break;
-                        }
-                    }
-
-
                     // get each transaction
                     foreach ($st['bht03'] as $bht) {
                         $html_str .= edih_277_transaction_html($obj277, $bht, true);
