@@ -326,93 +326,168 @@ Shared harness compose files under `.github/docker/`:
 
 ## Phased plan
 
-### Phase 1 — Planning + one representative test (this doc + follow-up PR)
+**Rollout order** (2026-07-24 update): `1 → 2 → 2.5 → 5 → 3 → 4`.
+Phase 5 (Dockerfile `git clone` → `git archive HEAD`) was originally
+scheduled last but is promoted to run right after Phase 2.5 — see
+Phase 5's section below for the rationale. Phase numbers are stable
+labels, not sequence positions; sections below are ordered by
+execution, not numerically.
 
-- Land this planning doc for community discussion
-- Prototype `tests/Acceptance/InstallTest.php` + minimal harness
-- Prove the harness pattern works against master's current Docker image
-  (no workflow yet, just local runs)
+### Phase 1 — Planning + one representative test  *(SHIPPED 2026-07-24)*
 
-Exit criterion: an `InstallTest` that runs from a developer laptop
-against `openemr/openemr:latest` and verifies install completes + admin
-login works. Roughly 3-5 days of work.
+**STATUS: SHIPPED 2026-07-24** as
+[openemr/openemr#13149](https://github.com/openemr/openemr/pull/13149).
+Delivered:
+- Planning doc landed for community discussion (this doc, draft PR #12811)
+- `tests/Acceptance/InstallTest.php` + `Support/ArtifactBrowser.php`
+  + `phpunit.acceptance.xml` + `bootstrap.php`
+- `.github/docker/acceptance-docker-compose.yml` compose override
+- `tests/Acceptance/bin/boot-docker.sh` + `down-docker.sh` laptop helpers
+- Symfony BrowserKit (`HttpBrowser`) — no Selenium needed for the
+  login flow (form POST, no JS). Panther+Selenium deferred to Phase 4.
 
-### Phase 2 — Docker acceptance workflow + upgrade coverage
+Exit criterion met: `InstallTest` runs from a developer laptop against
+`openemr/openemr:latest`, verifies install completes + admin login works
+(302 → `interface/main/tabs/main.php?token_main=<hex>` + 200 on follow).
 
-- Draft `acceptance-docker.yml` (evolving from the parked
-  openemr/openemr#12791 scaffolding)
-- Wire the InstallTest + a new UpgradeIntegrityTest into the workflow
-- Fire on `workflow_dispatch` + daily schedule initially
+### Phase 2 — Docker acceptance workflow + upgrade coverage  *(SHIPPED 2026-07-24)*
 
-Exit criterion: workflow succeeds on `latest` → `next` upgrade path, run
-manually 3 consecutive days without flake. Roughly 1 week.
+**STATUS: SHIPPED 2026-07-24** as
+[openemr/openemr#13159](https://github.com/openemr/openemr/pull/13159).
+Delivered:
+- `.github/workflows/acceptance-docker.yml` — 3-scenario parallel
+  matrix (fail-fast disabled): `fresh-install-from` (default
+  `latest`), `fresh-install-to` (default `next`), `upgrade`
+  (`from_tag` → `to_tag` with volume-preserving swap).
+- `tests/Acceptance/UpgradeIntegrityTest.php` — post-upgrade admin
+  login validation (session storage survived, users table intact,
+  `token_main` machinery functional).
+- `tests/Acceptance/Support/ResponseHeaders.php` — shared BrowserKit
+  header-narrowing helper (extracted from InstallTest, reused in
+  UpgradeIntegrityTest).
+- Byte-identical enforcement in `.github/byte-identical.yml` covering
+  the three acceptance surface entries. rel-820 excluded (predates
+  Phase 1's `symfony/mime` require-dev addition; enforcement starts
+  effectively at rel-830+).
+- Triggers: workflow_dispatch (any tag pair), daily 09:00 UTC schedule
+  (Docker Hub drift detection), push/PR on acceptance surface files.
 
-### Phase 2.5 — Build-from-codebase for PR validation *(extension of Phase 2)*
+Exit criterion met: workflow succeeds on `latest` → `next` upgrade
+(first CI run passed all 3 matrix scenarios: 2m19s, 2m34s, 4m1s).
 
-Once the Docker Hub tag path from Phase 2 is stable, wire the
-optional `build_locally: bool` workflow input already sketched in the
-"Workflows" section. Purpose is to answer "will this PR ship a broken
-image?" *pre-merge* rather than catching it only in
-`docker-test-release` (which builds but doesn't run the auto-upgrade
-path or exercise the installer against real assertions).
+### Phase 2.5 — Build-from-codebase for PR validation *(extension of Phase 2, IN FLIGHT)*
 
-Two useful invocation shapes, both exercise the same InstallTest +
-UpgradeIntegrityTest classes with different artifact sources:
+**STATUS: IN FLIGHT** as
+[openemr/openemr#13163](https://github.com/openemr/openemr/pull/13163).
 
-- **Fresh install of PR-built** — build from the PR's
-  `docker/release/Dockerfile`, boot fresh, run
-  `--group=fresh-install`. Fastest PR feedback for installer/
-  Dockerfile changes.
-- **latest → PR-built upgrade** — boot Docker Hub `latest`, seed,
-  `down --preserve-volumes`, swap to PR-built image, boot,
-  `--group=post-upgrade`. Higher-value: validates that existing users
-  will get a working upgrade when this ships.
+Adds `build_locally: bool` workflow_dispatch input + auto-fire on
+any PR/push touching `docker/release/**` (detected via `git diff`).
+When enabled, a `build-image` job runs `docker build docker/release/`
+against the PR's Dockerfile and hands the resulting `openemr/openemr:pr-built`
+image to the acceptance matrix via a workflow artifact
+(`docker save | zstd | upload-artifact` → `download-artifact | zstd -d
+| docker load`, no registry needed).
 
-The Phase 2 InstallTest + Support harness is designed with this
-extension in mind — the "artifact endpoint" abstraction is agnostic to
-whether the endpoint is a Docker Hub tag or a locally-built image.
-Adding this phase should be workflow-only (+ maybe a small
-`ArtifactSource` helper); no source-side changes to the tests.
+Purpose is to answer "will this PR ship a broken image?" *pre-merge*
+rather than catching it only in `docker-test-release` (which builds
+but doesn't run the auto-upgrade path or exercise the installer against
+real assertions).
+
+Two invocation shapes fire from a single workflow run:
+
+- **Fresh install of PR-built** (`fresh-install-to` scenario) —
+  boots the built image, runs InstallTest.
+- **`latest` → PR-built upgrade** (`upgrade` scenario) — boots real
+  Docker Hub `latest`, then swaps to the PR-built image, runs
+  UpgradeIntegrityTest. Higher-value: validates existing-user
+  upgrade path.
+
+**Known limitation (unblocked by Phase 5):** the current Dockerfile
+does `git clone https://github.com/openemr/openemr.git --branch
+${OPENEMR_VERSION}` at build time (defaults to `master`), so the
+PR-built image reflects PR's Dockerfile applied to *master* source —
+NOT the PR's source. Full-fidelity artifact testing (PR Dockerfile +
+PR source) requires Phase 5's Dockerfile refactor, which is why 5 is
+now promoted.
 
 Exit criterion: workflow succeeds with `build_locally: true` on a
 scratch PR that intentionally touches the Dockerfile (e.g. adds a
 no-op comment), demonstrating pre-merge PR-image validation works.
-Roughly 2-3 days once Phase 2's shape is settled.
+
+### Phase 5 — Retire the tests-in-image dependency + unlock full-fidelity artifact testing *(promoted 2026-07-24 to run after Phase 2.5, before Phase 3)*
+
+- Land the Dockerfile `git clone` → `git archive HEAD` switch
+  (equivalent to parked openemr/openemr#12790). Source no longer
+  fetched from GitHub at build time; the Dockerfile builds from
+  whatever's in the local checkout, honoring `.gitattributes`
+  `export-ignore` rules (strips `tests/`, `.github/`, `ci/`,
+  `docker/`, `tools/`, etc. — matches the tarball content exactly).
+- Restructure or retire `docker-test-core.yml`'s `kcov` profile
+  (currently runs PHPUnit inside the built container against
+  `tests/`; can't survive the strip. Required co-change with the
+  Dockerfile switch — not optional).
+- Docker image content aligns with tarball content (SBOM / provenance
+  parity across the two artifacts).
+
+**Why promoted from last-to-now:** end goal is testing the actual
+PR-derived artifacts, not a hybrid. Phase 2.5 today validates
+PR-Dockerfile + master-source; full-fidelity needs the Dockerfile
+to consume local checkout. Once Phase 5 lands, Phase 2.5's
+`build_locally=true` runs produce the ACTUAL PR artifact with
+zero workflow changes.
+
+**Risks (validated + acceptable):**
+1. Runtime dependencies on now-stripped export-ignored files — Phase
+   2's acceptance suite + docker-test-release catch install + login
+   regressions; hidden runtime paths (admin panel referencing dev
+   files) can't be proven absent without exercising them.
+2. kcov profile break — MUST be handled in same PR (not "optional
+   restructure or retire" — it will fail otherwise).
+3. Local `docker build` behavior shift — users who ran the release
+   Dockerfile locally previously got `tests/` inside the image;
+   unlikely to affect anyone real.
+
+Exit criterion: `docker-test-release.yml` passes with the stripped
+image; kcov either moved to source-side (dev stack) or dropped;
+Phase 2.5's `build_locally=true` run on a source-touching PR shows
+the PR's actual source in the shipped image (spot-check via
+`docker exec`). Roughly 1 week.
 
 ### Phase 3 — Package acceptance workflow
 
 - Design the generic-stack compose file for tarball testing
+  (`.github/docker/acceptance-package-compose.yml` — mariadb +
+  php-apache with tarball mount)
 - Draft `acceptance-package.yml`
 - Adapt InstallTest + UpgradeIntegrityTest to work against a tarball-
   mounted stack (mostly by making the artifact endpoint configurable)
+
+Naturally full-fidelity: the tarball artifact IS `git archive HEAD`
+from the checkout, so pointing the workflow at the PR's checkout
+produces the exact tarball that would ship. No Phase 5-style
+Dockerfile refactor needed for the tarball path.
 
 Exit criterion: workflow succeeds against an 8.0.0 → 8.2.0 tarball
 upgrade path. Roughly 1 week.
 
 ### Phase 4 — Broaden test coverage
 
-- Add ApiSmokeTest, FhirSmokeTest, E2eCriticalPathTest
+- Add ApiSmokeTest, FhirSmokeTest, E2eCriticalPathTest (last one
+  needs Panther+Selenium — first introduction of a headless
+  browser to acceptance)
 - Extract common seeders + assertions into `tests/Acceptance/Support/`
+  (`DataSeed/PatientSeeder.php`, `Assertions/InstallWizardAssertions.php`,
+  etc.)
 - Consider making acceptance runs required checks on release-prep PRs
 
 Exit criterion: ~30 min total acceptance runtime per artifact,
 meaningful coverage of API + FHIR + one critical E2E flow. Roughly 2
 weeks.
 
-### Phase 5 — Retire the tests-in-image dependency
-
-- Land the Dockerfile `git clone` → `git archive` switch (equivalent to
-  the parked openemr/openemr#12790)
-- Restructure or retire `docker-test-core.yml`'s `kcov` profile
-- Docker image content aligns with tarball content
-- SBOM / provenance parity across the two artifacts
-
-Exit criterion: `docker-test-release.yml` passes with the stripped
-image; kcov either moved to source-side (dev stack) or dropped.
-Roughly 1 week.
-
-**Total elapsed calendar: 5-6 weeks focused work, longer with regular
-release cadence. No hard deadline. Not blocking any specific release.**
+**Total remaining calendar (from 2026-07-24 baseline):** ~4-5 weeks
+focused work through Phase 4. No hard deadline. rel-830 (~2 weeks
+out) gets the Phase 1+2+2.5 baseline once 2.5 lands; Phases 5+3+4
+land into a rel-830-shipped codebase.
 
 ## Test-coverage philosophy
 
@@ -627,3 +702,15 @@ in acceptance."
   branch where the suite cannot run. Byte-identical enforcement
   for the acceptance paths starts at rel-830 (not yet cut; will
   be cut from master that already has the dep).
+
+- **2026-07-24** — Phase 1 SHIPPED as #13149. Phase 2 SHIPPED as
+  #13159. Phase 2.5 IN FLIGHT as #13163. Reordered plan: Phase 5
+  (Dockerfile git-clone -> git-archive) promoted from last to
+  execute right after Phase 2.5, before Phase 3. Rationale: current
+  Phase 2.5 validates PR-Dockerfile + master-source (hybrid). End
+  goal is testing the actual PR-derived artifact. Phase 5 removes
+  the Dockerfile git-clone so the build consumes local checkout,
+  which makes Phase 2.5 automatically full-fidelity with zero
+  workflow changes. Also delivers docker/tarball content parity
+  for SBOM/provenance. Reordered sections in-place; Phase numbers
+  remain stable as labels.
