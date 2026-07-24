@@ -64,6 +64,10 @@ on:
         required: true
         type: string
         default: 'next'
+      build_locally:
+        description: 'Build target image from the PR docker/release/Dockerfile instead of pulling to_tag from Docker Hub (Phase 2.5 PR-image validation)'
+        type: boolean
+        default: false
   push:
     paths:
     - '.github/workflows/acceptance-docker.yml'
@@ -96,8 +100,67 @@ concurrency:
   cancel-in-progress: ${{ github.event_name != 'schedule' }}
 
 jobs:
+  # Phase 2.5: optionally build the target image from the PR's
+  # docker/release/Dockerfile instead of pulling from Docker Hub.
+  # Runs only on manual dispatch with build_locally=true (MVP scope;
+  # auto-fire on docker/release/** paths is a future follow-up if
+  # useful in practice).
+  #
+  # Output: openemr/openemr:pr-built loaded from a workflow-artifact
+  # tarball. Each acceptance matrix job downloads + loads the image
+  # locally, so nothing is pushed to Docker Hub (or GHCR) -- the
+  # build is self-contained to this workflow run.
+  build-image:
+    if: >-
+      github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+      && github.event_name == 'workflow_dispatch'
+      && inputs.build_locally
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        # No git ops after checkout (docker build only).
+        persist-credentials: false
+
+    - name: Build target image from PR Dockerfile
+      # Uses the Dockerfile's default OPENEMR_VERSION=master, so the
+      # built image reflects PR's Dockerfile changes layered over
+      # current master's source. That's the validated shape:
+      # "does this PR's Dockerfile still boot cleanly against current
+      # master source?" -- the auto-upgrade path from `latest` to
+      # this PR-built image is the higher-value assertion.
+      run: |
+        docker build \
+          --file docker/release/Dockerfile \
+          --tag openemr/openemr:pr-built \
+          docker/release
+
+    - name: Save image to artifact
+      # Save as tarball for the acceptance matrix jobs to consume.
+      # `docker save` output is deterministic enough for this use
+      # (not for supply-chain provenance) and zstd-compresses
+      # ~50-60% of the raw image size.
+      run: |
+        docker save openemr/openemr:pr-built \
+          | zstd -T0 -3 -o /tmp/openemr-pr-built.tar.zst
+        ls -lh /tmp/openemr-pr-built.tar.zst
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: openemr-pr-built-image
+        path: /tmp/openemr-pr-built.tar.zst
+        retention-days: 1
+        compression-level: 0  # Already zstd-compressed; skip re-compress
+
   acceptance:
-    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    needs: [build-image]
+    # Run whether build-image succeeded OR was skipped. Skip acceptance
+    # only if build-image itself failed (no point running the fresh-install-to
+    # / upgrade scenarios if their target image failed to build).
+    if: >-
+      always()
+      && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+      && (needs.build-image.result == 'success' || needs.build-image.result == 'skipped')
     runs-on: ubuntu-24.04
     strategy:
       # Don't fail-fast: if fresh-install on `next` breaks, we still
@@ -139,6 +202,55 @@ jobs:
         # credential exposure surface.
         persist-credentials: false
 
+    # ==== Phase 2.5: load PR-built image + resolve effective tags ====
+    - name: Download PR-built image (if build-image ran)
+      if: needs.build-image.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: openemr-pr-built-image
+        path: /tmp
+
+    - name: Load PR-built image into docker (if downloaded)
+      if: needs.build-image.result == 'success'
+      run: |
+        zstd -d -c /tmp/openemr-pr-built.tar.zst | docker load
+        docker image inspect openemr/openemr:pr-built --format 'loaded: {{.Id}}'
+
+    - name: Resolve effective image tags
+      # Matrix.image_tag holds the Docker Hub default. When
+      # build-image ran, the PR-built local image supersedes to_tag
+      # for the fresh-install-to scenario's initial boot AND for the
+      # upgrade scenario's post-swap boot. The fresh-install-from
+      # scenario always uses the real Docker Hub from_tag (the whole
+      # point is testing "install the currently-shipped image").
+      id: tags
+      run: |
+        LOCAL_TAG="openemr/openemr:pr-built"
+        BUILT="${{ needs.build-image.result == 'success' && 'true' || 'false' }}"
+
+        case "${{ matrix.scenario }}" in
+          fresh-install-from|upgrade)
+            # Initial boot for these scenarios is always the real from_tag
+            echo "boot_tag=${{ matrix.image_tag }}" >> "$GITHUB_OUTPUT"
+            ;;
+          fresh-install-to)
+            if [[ "$BUILT" == "true" ]]; then
+              echo "boot_tag=${LOCAL_TAG}" >> "$GITHUB_OUTPUT"
+            else
+              echo "boot_tag=${{ matrix.image_tag }}" >> "$GITHUB_OUTPUT"
+            fi
+            ;;
+        esac
+
+        # upgrade_target_tag: only consumed by the upgrade scenario's
+        # second boot. When building locally, that's the PR-built image;
+        # otherwise the real to_tag from Docker Hub.
+        if [[ "$BUILT" == "true" ]]; then
+          echo "upgrade_target_tag=${LOCAL_TAG}" >> "$GITHUB_OUTPUT"
+        else
+          echo "upgrade_target_tag=${{ env.TO_TAG }}" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Set up PHP + composer for the acceptance harness
       uses: shivammathur/setup-php@v2
       with:
@@ -155,17 +267,20 @@ jobs:
       # Cache-friendly via composer.lock hash.
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
-    - name: Boot artifact (${{ matrix.image_tag }})
+    - name: Boot artifact (${{ steps.tags.outputs.boot_tag }})
       env:
-        OPENEMR_TAG: ${{ matrix.image_tag }}
+        # boot_tag holds the effective image ref: either the matrix's
+        # Docker Hub default OR openemr/openemr:pr-built when
+        # build-image ran and this scenario targets the "to" side.
+        OPENEMR_TAG: ${{ steps.tags.outputs.boot_tag }}
       run: |
-        echo "==> Booting openemr/openemr:${OPENEMR_TAG} for scenario '${{ matrix.scenario }}'"
+        echo "==> Booting ${OPENEMR_TAG} for scenario '${{ matrix.scenario }}'"
         docker compose \
           -f docker/production/docker-compose.yml \
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 900
 
-    - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ matrix.image_tag }}
+    - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
       run: composer acceptance -- --group=${{ matrix.test_group }}
 
     # ==== Upgrade-scenario-only steps (image swap + post-upgrade suite) ====
@@ -189,10 +304,12 @@ jobs:
           exit 1
         }
 
-    - name: Boot target artifact (${{ env.TO_TAG }}) -- auto-upgrade path runs
+    - name: Boot target artifact (${{ steps.tags.outputs.upgrade_target_tag }}) -- auto-upgrade path runs
       if: matrix.scenario == 'upgrade'
       env:
-        OPENEMR_TAG: ${{ env.TO_TAG }}
+        # upgrade_target_tag = TO_TAG in the default path, or
+        # openemr/openemr:pr-built when build-image ran
+        OPENEMR_TAG: ${{ steps.tags.outputs.upgrade_target_tag }}
       run: |
         # `up --wait` blocks until healthy. The acceptance healthcheck
         # asserts the specific `interface/login/login.php` redirect
@@ -206,7 +323,7 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 1200
 
-    - name: Run post-upgrade suite (--group=post-upgrade) against ${{ env.TO_TAG }}
+    - name: Run post-upgrade suite (--group=post-upgrade) against ${{ steps.tags.outputs.upgrade_target_tag }}
       if: matrix.scenario == 'upgrade'
       run: composer acceptance -- --group=post-upgrade
 
