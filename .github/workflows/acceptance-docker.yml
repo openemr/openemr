@@ -1,0 +1,231 @@
+# Artifact acceptance testing against the openemr Docker image.
+#
+# Black-box validation of the two production-critical entry points end
+# users experience with the Docker artifact:
+#
+#   1. Fresh install (of `latest`) -- the currently-shipped installer path
+#   2. Fresh install (of `next`)   -- the target-version installer path
+#      (a different code path than the auto-upgrade one -- new users
+#      installing the target version run setup.php, not fsupgrade-<N>.sh)
+#   3. Upgrade (from_tag -> to_tag) -- the auto-upgrade path that existing
+#      installations traverse (fsupgrade-<N>.sh + sql_upgrade.php)
+#
+# All three scenarios exercise the same test classes in tests/Acceptance/
+# with different artifact endpoints + PHPUnit `--group` filters:
+#
+#   fresh-install of X   -> boot X, run --group=fresh-install (InstallTest)
+#   upgrade from_tag ->
+#     to_tag             -> boot from_tag, run --group=fresh-install,
+#                           down --preserve-volumes, boot to_tag (auto-upgrade
+#                           fires), run --group=post-upgrade
+#                           (UpgradeIntegrityTest)
+#
+# Scenarios run as parallel matrix jobs so failure modes are isolated
+# (a fresh-install failure on `next` doesn't obscure whether the upgrade
+# path is also broken).
+#
+# The InstallTest / UpgradeIntegrityTest classes are tag-agnostic: they
+# don't know which openemr version they're testing. ACCEPTANCE_ARTIFACT_URL
+# decides. Same classes work against Docker Hub tags, locally-built PR
+# images (Phase 2.5, coming), and tarball-mounted stacks (Phase 3, coming).
+#
+# Triggers:
+#
+#   1. schedule daily at 09:00 UTC -- catches Docker Hub tag drift
+#      independent of this repo (e.g. base-image regression breaking
+#      `latest`, orchestrator misfires publishing a broken `next`).
+#
+#   2. workflow_dispatch -- manual dispatch to test arbitrary tag pairs
+#      (e.g. 7.0.4 -> 8.0.0.3 for a two-release skip test).
+#
+#   3. push / pull_request on the acceptance surface itself -- workflow,
+#      compose override, tests/Acceptance/**, and the acceptance-suite
+#      dep changes in composer.json. Validates that changes to the
+#      harness itself don't break the pattern.
+#
+# No branches: filter on push/PR triggers. Branch scoping is implicit --
+# the workflow file lives on master + every rel-* (via byte-identical
+# enforcement, once wired). Push/PR events use the workflow at the pushed
+# ref, so each branch's copy fires only for events on its own branch.
+# Same pattern as docker-test-release.yml.
+
+name: Acceptance test (docker)
+
+on:
+  workflow_dispatch:
+    inputs:
+      from_tag:
+        description: 'Prior openemr Docker Hub tag (fresh + upgrade source)'
+        required: true
+        type: string
+        default: 'latest'
+      to_tag:
+        description: 'Target openemr Docker Hub tag (fresh + upgrade target)'
+        required: true
+        type: string
+        default: 'next'
+  push:
+    paths:
+    - '.github/workflows/acceptance-docker.yml'
+    - '.github/docker/acceptance-docker-compose.yml'
+    - 'tests/Acceptance/**'
+    - 'composer.json'
+    - 'composer.lock'
+  pull_request:
+    paths:
+    - '.github/workflows/acceptance-docker.yml'
+    - '.github/docker/acceptance-docker-compose.yml'
+    - 'tests/Acceptance/**'
+    - 'composer.json'
+    - 'composer.lock'
+  schedule:
+  - cron: '0 9 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  # Cancel in-flight runs for the same ref on push/PR; keep scheduled
+  # runs queued so drift-detection cycles aren't stomped by feature-branch
+  # activity.
+  group: acceptance-docker-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'schedule' }}
+
+jobs:
+  acceptance:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    strategy:
+      # Don't fail-fast: if fresh-install on `next` breaks, we still
+      # want the upgrade scenario's result to distinguish "target
+      # installer broken" from "upgrade path broken" (different code).
+      fail-fast: false
+      matrix:
+        include:
+        - scenario: fresh-install-from
+          description: 'Fresh install of from_tag'
+          image_tag: ${{ inputs.from_tag || 'latest' }}
+          test_group: fresh-install
+        - scenario: fresh-install-to
+          description: 'Fresh install of to_tag'
+          image_tag: ${{ inputs.to_tag || 'next' }}
+          test_group: fresh-install
+        - scenario: upgrade
+          description: 'Upgrade from_tag -> to_tag'
+          image_tag: ${{ inputs.from_tag || 'latest' }}
+          # test_group runs first against from_tag, then repeats
+          # against to_tag with the post-upgrade group after the
+          # image swap.
+          test_group: fresh-install
+    env:
+      FROM_TAG: ${{ inputs.from_tag || 'latest' }}
+      TO_TAG: ${{ inputs.to_tag || 'next' }}
+      # Pin project name so `docker compose down` preserves named
+      # volumes reliably across the from_tag -> to_tag swap in the
+      # upgrade scenario.
+      COMPOSE_PROJECT_NAME: openemr-acceptance
+      ACCEPTANCE_ARTIFACT_URL: http://localhost:8580
+    name: ${{ matrix.description }}
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Set up PHP + composer for the acceptance harness
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+        tools: composer:v2
+        # Extensions the acceptance harness needs (BrowserKit +
+        # http-client + symfony/mime pull most of these transitively,
+        # but naming them keeps failure modes obvious).
+        extensions: curl, dom, mbstring, tokenizer, xml
+
+    - name: Install acceptance-suite composer dependencies
+      # `--no-scripts` skips OpenEMR's post-install scripts (they assume
+      # the full app runtime context; acceptance only needs vendor/).
+      # Cache-friendly via composer.lock hash.
+      run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
+
+    - name: Boot artifact (${{ matrix.image_tag }})
+      env:
+        OPENEMR_TAG: ${{ matrix.image_tag }}
+      run: |
+        echo "==> Booting openemr/openemr:${OPENEMR_TAG} for scenario '${{ matrix.scenario }}'"
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f .github/docker/acceptance-docker-compose.yml \
+          up --detach --wait --wait-timeout 900
+
+    - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ matrix.image_tag }}
+      run: composer acceptance -- --group=${{ matrix.test_group }}
+
+    # ==== Upgrade-scenario-only steps (image swap + post-upgrade suite) ====
+    - name: Stop containers (preserve named volumes)
+      if: matrix.scenario == 'upgrade'
+      run: |
+        # `down` without --volumes preserves databasevolume + sitevolume
+        # + logvolume01 -- the target artifact needs to see the existing
+        # installation on boot so its entrypoint runs the auto-upgrade
+        # path (fsupgrade-<N>.sh + sql_upgrade.php).
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f .github/docker/acceptance-docker-compose.yml \
+          down
+
+    - name: Confirm volumes persist post-down
+      if: matrix.scenario == 'upgrade'
+      run: |
+        docker volume ls | grep "${COMPOSE_PROJECT_NAME}" || {
+          echo "::error::Named volumes were unexpectedly removed by docker compose down"
+          exit 1
+        }
+
+    - name: Boot target artifact (${{ env.TO_TAG }}) -- auto-upgrade path runs
+      if: matrix.scenario == 'upgrade'
+      env:
+        OPENEMR_TAG: ${{ env.TO_TAG }}
+      run: |
+        # `up --wait` blocks until healthy. The acceptance healthcheck
+        # asserts the specific `interface/login/login.php` redirect
+        # target, so it only passes after auto-upgrade completed --
+        # if fsupgrade-<N>.sh or sql_upgrade.php fail, the container
+        # stays unhealthy and --wait times out.
+        # Extended timeout (1200s vs 900s) because upgrade includes
+        # both the boot + the migration passes.
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f .github/docker/acceptance-docker-compose.yml \
+          up --detach --wait --wait-timeout 1200
+
+    - name: Run post-upgrade suite (--group=post-upgrade) against ${{ env.TO_TAG }}
+      if: matrix.scenario == 'upgrade'
+      run: composer acceptance -- --group=post-upgrade
+
+    # ==== Debug capture on failure (all scenarios) ====
+    - name: Capture container state (on failure)
+      if: failure()
+      run: |
+        echo "=== docker compose ps ==="
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f .github/docker/acceptance-docker-compose.yml \
+          ps || true
+        echo ""
+        echo "=== openemr container image ID ==="
+        docker inspect --format '{{ .Image }}' \
+          "$(docker compose -f docker/production/docker-compose.yml -f .github/docker/acceptance-docker-compose.yml ps -q openemr)" || true
+
+    - name: Capture openemr container logs (on failure)
+      if: failure()
+      run: |
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f .github/docker/acceptance-docker-compose.yml \
+          logs openemr || true
+
+    - name: Teardown
+      if: always()
+      run: |
+        docker compose \
+          -f docker/production/docker-compose.yml \
+          -f .github/docker/acceptance-docker-compose.yml \
+          down --volumes --remove-orphans || true
