@@ -439,14 +439,30 @@ upgrade path. Roughly 1 week.
 - Add ApiSmokeTest, FhirSmokeTest, E2eCriticalPathTest (last one
   needs Panther+Selenium — first introduction of a headless
   browser to acceptance)
+- Add **wizard-UI coverage for the tarball path**:
+  `InstallWizardUiTest` (browser-driven walkthrough of setup.php's
+  multi-step state machine — form validation, step transitions,
+  UI-rendered errors) and `UpgradeWizardUiTest` (browser interaction
+  with sql_upgrade.php's version-selector form + "Upgrade Database"
+  button). Phase 3's CLI install/upgrade paths bypass these
+  completely — `Installer::quick_install()` and `sql_upgrade.php`'s
+  CLI mode share the underlying logic but skip the wizard's own
+  state machine, form fields, and HTML rendering. Real tarball
+  users see the wizards; a setup.php state-machine bug would slip
+  past CLI-only tests. Docker artifact skips these tests entirely
+  (auto-install via env vars means Docker users never see the
+  wizard). Uses the same Panther+Selenium plumbing that
+  `E2eCriticalPathTest` introduces; runs only against the tarball
+  acceptance workflow.
 - Extract common seeders + assertions into `tests/Acceptance/Support/`
   (`DataSeed/PatientSeeder.php`, `Assertions/InstallWizardAssertions.php`,
   etc.)
 - Consider making acceptance runs required checks on release-prep PRs
 
 Exit criterion: ~30 min total acceptance runtime per artifact,
-meaningful coverage of API + FHIR + one critical E2E flow. Roughly 2
-weeks.
+meaningful coverage of API + FHIR + one critical E2E flow, plus
+tarball-path wizard walkthroughs (install + upgrade) covered.
+Roughly 2 weeks.
 
 ### Phase 5 — Retire the tests-in-image dependency
 
@@ -874,3 +890,15 @@ in acceptance."
     pipeline decoupling constraint that Phase 5 confusion surfaced.
 
   Total remaining calendar updated: ~5-6 weeks through Phase 6.
+
+- **2026-07-24** — Added wizard-UI coverage for tarball path to
+  Phase 4 (InstallWizardUiTest + UpgradeWizardUiTest). Phase 3 as
+  currently scoped uses CLI install/upgrade paths
+  (Installer::quick_install() + sql_upgrade.php CLI mode) — same
+  underlying logic as the wizard but bypasses the setup.php state
+  machine, form fields, and HTML rendering that real tarball users
+  see. Wizard UI tests fill that coverage gap. Reuses the
+  Panther+Selenium plumbing that E2eCriticalPathTest introduces.
+  Docker artifact skips these tests (auto-install via env vars
+  means Docker users never see the wizard). Runs only against the
+  tarball acceptance workflow.
