@@ -64,6 +64,10 @@ on:
         required: true
         type: string
         default: 'next'
+      build_locally:
+        description: 'Build target image from the PR docker/release/Dockerfile instead of pulling to_tag from Docker Hub (Phase 2.5 PR-image validation)'
+        type: boolean
+        default: false
   push:
     paths:
     - '.github/workflows/acceptance-docker.yml'
@@ -71,6 +75,10 @@ on:
     - 'tests/Acceptance/**'
     - 'composer.json'
     - 'composer.lock'
+    # docker/release/** triggers the workflow AND auto-enables the
+    # build_locally path (see detect-mode job) — pre-merge answer
+    # to "will this PR ship a broken image?"
+    - 'docker/release/**'
   pull_request:
     paths:
     - '.github/workflows/acceptance-docker.yml'
@@ -78,6 +86,7 @@ on:
     - 'tests/Acceptance/**'
     - 'composer.json'
     - 'composer.lock'
+    - 'docker/release/**'
   schedule:
   - cron: '0 9 * * *'
 
@@ -96,8 +105,131 @@ concurrency:
   cancel-in-progress: ${{ github.event_name != 'schedule' }}
 
 jobs:
-  acceptance:
+  # Phase 2.5: decide whether to build the target image from the PR's
+  # docker/release/Dockerfile instead of pulling to_tag from Docker
+  # Hub. Two triggers:
+  #
+  #   1. workflow_dispatch with `build_locally: true` -- explicit
+  #      opt-in for maintainer-driven validation runs
+  #
+  #   2. push/pull_request that touched `docker/release/**` -- auto-
+  #      enable so any PR modifying the Dockerfile gets its actual
+  #      image validated pre-merge. Detected via `git diff` against
+  #      the event's base ref (branch's before-SHA for push; PR's
+  #      base sha for pull_request). Skips gracefully on
+  #      branch-creation events where `before` is all-zeros.
+  #
+  # Otherwise defaults to false, and the acceptance matrix uses the
+  # Docker Hub tags (Phase 2 behavior — unchanged for scheduled
+  # runs and acceptance-surface-only PRs).
+  detect-mode:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    outputs:
+      build_locally: ${{ steps.decide.outputs.build_locally }}
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - id: decide
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        DISPATCH_BUILD_LOCALLY: ${{ inputs.build_locally }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PUSH_BEFORE_SHA: ${{ github.event.before }}
+        PUSH_HEAD_SHA: ${{ github.sha }}
+      run: |
+        set -euo pipefail
+        # Manual dispatch always wins — honor the input.
+        if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          echo "build_locally=${DISPATCH_BUILD_LOCALLY}" >> "$GITHUB_OUTPUT"
+          echo "==> dispatch mode: build_locally=${DISPATCH_BUILD_LOCALLY}"
+          exit 0
+        fi
+        # Resolve the diff range for push/pull_request.
+        case "$EVENT_NAME" in
+          pull_request) BASE="$PR_BASE_SHA"; HEAD="$PR_HEAD_SHA" ;;
+          push)         BASE="$PUSH_BEFORE_SHA"; HEAD="$PUSH_HEAD_SHA" ;;
+          *)
+            echo "==> ${EVENT_NAME} event: defaulting build_locally=false"
+            echo "build_locally=false" >> "$GITHUB_OUTPUT"
+            exit 0
+            ;;
+        esac
+        # Branch creation on push emits before=000...; can't diff.
+        if [[ -z "$BASE" || "$BASE" == "0000000000000000000000000000000000000000" ]]; then
+          echo "==> branch-creation event (no base ref): defaulting build_locally=false"
+          echo "build_locally=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        if git diff --name-only "$BASE".."$HEAD" | grep -q '^docker/release/'; then
+          echo "==> docker/release/** changed between $BASE and $HEAD: build_locally=true"
+          echo "build_locally=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "==> docker/release/** unchanged between $BASE and $HEAD: build_locally=false"
+          echo "build_locally=false" >> "$GITHUB_OUTPUT"
+        fi
+
+  # Build the target image from the PR's docker/release/Dockerfile.
+  # Runs only when detect-mode resolved build_locally=true.
+  #
+  # Output: openemr/openemr:pr-built loaded from a workflow-artifact
+  # tarball. Each acceptance matrix job downloads + loads the image
+  # locally, so nothing is pushed to Docker Hub (or GHCR) — the
+  # build is self-contained to this workflow run.
+  build-image:
+    needs: [detect-mode]
+    if: needs.detect-mode.outputs.build_locally == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        # No git ops after checkout (docker build only).
+        persist-credentials: false
+
+    - name: Build target image from PR Dockerfile
+      # Uses the Dockerfile's default OPENEMR_VERSION=master, so the
+      # built image reflects PR's Dockerfile changes layered over
+      # current master's source. That's the validated shape:
+      # "does this PR's Dockerfile still boot cleanly against current
+      # master source?" -- the auto-upgrade path from `latest` to
+      # this PR-built image is the higher-value assertion.
+      run: |
+        docker build \
+          --file docker/release/Dockerfile \
+          --tag openemr/openemr:pr-built \
+          docker/release
+
+    - name: Save image to artifact
+      # Save as tarball for the acceptance matrix jobs to consume.
+      # `docker save` output is deterministic enough for this use
+      # (not for supply-chain provenance) and zstd-compresses
+      # ~50-60% of the raw image size.
+      run: |
+        docker save openemr/openemr:pr-built \
+          | zstd -T0 -3 -o /tmp/openemr-pr-built.tar.zst
+        ls -lh /tmp/openemr-pr-built.tar.zst
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: openemr-pr-built-image
+        path: /tmp/openemr-pr-built.tar.zst
+        retention-days: 1
+        compression-level: 0  # Already zstd-compressed; skip re-compress
+
+  acceptance:
+    needs: [detect-mode, build-image]
+    # Run whether build-image succeeded OR was skipped. Skip acceptance
+    # only if build-image itself failed (no point running the fresh-install-to
+    # / upgrade scenarios if their target image failed to build) or if
+    # detect-mode failed (shouldn't happen — trivial job).
+    if: >-
+      always()
+      && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+      && needs.detect-mode.result == 'success'
+      && (needs.build-image.result == 'success' || needs.build-image.result == 'skipped')
     runs-on: ubuntu-24.04
     strategy:
       # Don't fail-fast: if fresh-install on `next` breaks, we still
@@ -139,6 +271,70 @@ jobs:
         # credential exposure surface.
         persist-credentials: false
 
+    # ==== Phase 2.5: load PR-built image + resolve effective tags ====
+    - name: Download PR-built image (if build-image ran)
+      if: needs.build-image.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: openemr-pr-built-image
+        path: /tmp
+
+    - name: Load PR-built image into docker (if downloaded)
+      if: needs.build-image.result == 'success'
+      run: |
+        zstd -d -c /tmp/openemr-pr-built.tar.zst | docker load
+        docker image inspect openemr/openemr:pr-built --format 'loaded: {{.Id}}'
+
+    - name: Resolve effective image tags
+      # Matrix.image_tag holds the Docker Hub default. When
+      # build-image ran, the PR-built local image supersedes to_tag
+      # for the fresh-install-to scenario's initial boot AND for the
+      # upgrade scenario's post-swap boot. The fresh-install-from
+      # scenario always uses the real Docker Hub from_tag (the whole
+      # point is testing "install the currently-shipped image").
+      #
+      # matrix.* + env.* + needs.* values are routed through env: not
+      # spliced into the run: text — matrix.image_tag / TO_TAG originate
+      # from workflow_dispatch string inputs and could otherwise be a
+      # template-injection surface (zizmor template-injection rule).
+      id: tags
+      env:
+        MATRIX_SCENARIO: ${{ matrix.scenario }}
+        MATRIX_IMAGE_TAG: ${{ matrix.image_tag }}
+        BUILD_IMAGE_RESULT: ${{ needs.build-image.result }}
+        # TO_TAG is already a job-level env, but hoisted here for the
+        # zero-splice-in-run: convention.
+      run: |
+        LOCAL_TAG="openemr/openemr:pr-built"
+        if [[ "$BUILD_IMAGE_RESULT" == "success" ]]; then
+          BUILT="true"
+        else
+          BUILT="false"
+        fi
+
+        case "$MATRIX_SCENARIO" in
+          fresh-install-from|upgrade)
+            # Initial boot for these scenarios is always the real from_tag
+            echo "boot_tag=${MATRIX_IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+            ;;
+          fresh-install-to)
+            if [[ "$BUILT" == "true" ]]; then
+              echo "boot_tag=${LOCAL_TAG}" >> "$GITHUB_OUTPUT"
+            else
+              echo "boot_tag=${MATRIX_IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+            fi
+            ;;
+        esac
+
+        # upgrade_target_tag: only consumed by the upgrade scenario's
+        # second boot. When building locally, that's the PR-built image;
+        # otherwise the real to_tag from Docker Hub.
+        if [[ "$BUILT" == "true" ]]; then
+          echo "upgrade_target_tag=${LOCAL_TAG}" >> "$GITHUB_OUTPUT"
+        else
+          echo "upgrade_target_tag=${TO_TAG}" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Set up PHP + composer for the acceptance harness
       uses: shivammathur/setup-php@v2
       with:
@@ -155,17 +351,20 @@ jobs:
       # Cache-friendly via composer.lock hash.
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
-    - name: Boot artifact (${{ matrix.image_tag }})
+    - name: Boot artifact (${{ steps.tags.outputs.boot_tag }})
       env:
-        OPENEMR_TAG: ${{ matrix.image_tag }}
+        # boot_tag holds the effective image ref: either the matrix's
+        # Docker Hub default OR openemr/openemr:pr-built when
+        # build-image ran and this scenario targets the "to" side.
+        OPENEMR_TAG: ${{ steps.tags.outputs.boot_tag }}
       run: |
-        echo "==> Booting openemr/openemr:${OPENEMR_TAG} for scenario '${{ matrix.scenario }}'"
+        echo "==> Booting ${OPENEMR_TAG} for scenario '${{ matrix.scenario }}'"
         docker compose \
           -f docker/production/docker-compose.yml \
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 900
 
-    - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ matrix.image_tag }}
+    - name: Run acceptance suite (--group=${{ matrix.test_group }}) against ${{ steps.tags.outputs.boot_tag }}
       run: composer acceptance -- --group=${{ matrix.test_group }}
 
     # ==== Upgrade-scenario-only steps (image swap + post-upgrade suite) ====
@@ -189,10 +388,12 @@ jobs:
           exit 1
         }
 
-    - name: Boot target artifact (${{ env.TO_TAG }}) -- auto-upgrade path runs
+    - name: Boot target artifact (${{ steps.tags.outputs.upgrade_target_tag }}) -- auto-upgrade path runs
       if: matrix.scenario == 'upgrade'
       env:
-        OPENEMR_TAG: ${{ env.TO_TAG }}
+        # upgrade_target_tag = TO_TAG in the default path, or
+        # openemr/openemr:pr-built when build-image ran
+        OPENEMR_TAG: ${{ steps.tags.outputs.upgrade_target_tag }}
       run: |
         # `up --wait` blocks until healthy. The acceptance healthcheck
         # asserts the specific `interface/login/login.php` redirect
@@ -206,7 +407,7 @@ jobs:
           -f .github/docker/acceptance-docker-compose.yml \
           up --detach --wait --wait-timeout 1200
 
-    - name: Run post-upgrade suite (--group=post-upgrade) against ${{ env.TO_TAG }}
+    - name: Run post-upgrade suite (--group=post-upgrade) against ${{ steps.tags.outputs.upgrade_target_tag }}
       if: matrix.scenario == 'upgrade'
       run: composer acceptance -- --group=post-upgrade
 
