@@ -62,7 +62,10 @@ use Psr\Http\Message\ResponseInterface;
     properties: [
         new OA\Property(property: 'validationErrors', description: 'Validation errors.', type: 'array', items: new OA\Items(type: 'object')),
         new OA\Property(property: 'internalErrors', description: 'Internal errors.', type: 'array', items: new OA\Items(type: 'object')),
-        new OA\Property(property: 'data', description: 'Returned data.', type: 'array', items: new OA\Items(
+        new OA\Property(
+            property: 'data',
+            description: 'Returned data.',
+            type: 'object',
             properties: [
                 new OA\Property(property: 'id', description: 'patient id', type: 'string'),
                 new OA\Property(property: 'pid', description: 'patient pid', type: 'string'),
@@ -90,13 +93,13 @@ use Psr\Http\Message\ResponseInterface;
                 new OA\Property(property: 'race', description: 'patient race', type: 'string'),
                 new OA\Property(property: 'ethnicity', description: 'patient ethnicity', type: 'string'),
                 new OA\Property(property: 'status', description: 'patient status', type: 'string'),
-            ],
-            type: 'object'
-        )),
+            ]
+        ),
+        new OA\Property(property: 'links', description: 'Pagination links for a multi-result response.', type: 'array', items: new OA\Items(type: 'object')),
     ],
     example: [
-        'validationErrors' => new \stdClass(),
-        'error_description' => new \stdClass(),
+        'validationErrors' => [],
+        'internalErrors' => [],
         'data' => [
             'id' => '193',
             'pid' => '1',
@@ -125,6 +128,7 @@ use Psr\Http\Message\ResponseInterface;
             'ethnicity' => '',
             'status' => '',
         ],
+        'links' => [],
     ]
 )]
 class PatientRestController
@@ -175,7 +179,7 @@ class PatientRestController
         ),
         responses: [
             new OA\Response(
-                response: '200',
+                response: '201',
                 description: 'Standard response',
                 content: new OA\MediaType(
                     mediaType: 'application/json',
@@ -196,24 +200,29 @@ class PatientRestController
                             new OA\Property(
                                 property: 'data',
                                 description: 'Returned data.',
+                                type: 'object',
+                                properties: [
+                                    new OA\Property(
+                                        property: 'pid',
+                                        description: 'patient pid',
+                                        type: 'integer'
+                                    ),
+                                ]
+                            ),
+                            new OA\Property(
+                                property: 'links',
+                                description: 'Pagination links for a multi-result response.',
                                 type: 'array',
-                                items: new OA\Items(
-                                    properties: [
-                                        new OA\Property(
-                                            property: 'pid',
-                                            description: 'patient pid',
-                                            type: 'integer'
-                                        ),
-                                    ]
-                                )
+                                items: new OA\Items(type: 'object')
                             ),
                         ],
                         example: [
                             'validationErrors' => [],
-                            'error_description' => [],
+                            'internalErrors' => [],
                             'data' => [
                                 'pid' => 1,
                             ],
+                            'links' => [],
                         ]
                     )
                 )

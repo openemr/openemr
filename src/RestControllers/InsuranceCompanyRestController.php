@@ -69,7 +69,7 @@ class InsuranceCompanyRestController
         description: 'Retrieves all insurance companies',
         tags: ['standard'],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resourceList'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -95,7 +95,7 @@ class InsuranceCompanyRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -112,7 +112,7 @@ class InsuranceCompanyRestController
         description: 'Retrieves all insurance types',
         tags: ['standard'],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resourceList'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -136,7 +136,7 @@ class InsuranceCompanyRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '201', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -181,7 +181,7 @@ class InsuranceCompanyRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],

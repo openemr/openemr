@@ -44,7 +44,7 @@ class ProcedureRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/standardResource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],

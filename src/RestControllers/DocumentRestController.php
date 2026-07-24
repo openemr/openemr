@@ -59,7 +59,7 @@ class DocumentRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resourceList'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -111,7 +111,7 @@ class DocumentRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/booleanResult'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -147,7 +147,7 @@ class DocumentRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/filedownload'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
