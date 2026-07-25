@@ -53,7 +53,7 @@ services:
       retries: 3
 
   openemr:
-    image: openemr/openemr:flex-3.23-php-8.5
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:4bb05f052584c30e84e495e161dcd559659e953a5c435fea76dbe74931d571e5
     depends_on:
       mysql:
         condition: service_healthy
