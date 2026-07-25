@@ -19,6 +19,13 @@ parameters:
     # not maintained in this repo, so exclude it from analysis the same way vendor/
     # is excluded.
     - interface/modules/custom_modules/oe-module-claimrev-connect/*
+    # Acceptance-harness bootstrap scripts — runtime-only. install-helper.php
+    # is copied into a running container's mount point at execution time
+    # and depends on container-absolute paths (autoload.php under
+    # /var/www/localhost/htdocs/openemr) that don't exist on the runner
+    # where phpstan runs. Nothing else references these files at build
+    # time, so excluding from analysis is appropriate.
+    - tests/Acceptance/bin/*.php
     analyse:
     # Generated FHIR R4 parser map: a single ~61k-line constant array
     # (PHPFHIRParserMap::$_bigDumbMap) produced by the php-fhir generator and never

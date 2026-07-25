@@ -1,0 +1,105 @@
+# Compose stack for artifact acceptance testing against the openemr
+# release tarball (Phase 3 of the plan in
+# docs/artifact-acceptance-testing-plan.md).
+#
+# Generic PHP+Apache+MariaDB shape that mirrors what a real user gets
+# when installing openemr from a tarball on their own server:
+#
+#   1. Apache + PHP with the extension set openemr requires (openemr's
+#      own `flex` image provides this — same base openemr uses for its
+#      ci/ test rigs, and same base openemr-cmd targets for local dev).
+#
+#   2. MariaDB (version-matched to what the production docker stack
+#      uses, so we're not testing against a different DB engine than
+#      what ships).
+#
+#   3. Volume mount for the extracted tarball at
+#      /var/www/localhost/htdocs/openemr — this is where the tarball's
+#      openemr-<version>/ tree gets placed by boot-package.sh.
+#
+# `EMPTY=yes` tells the flex image "don't install openemr — host manages
+# the source via the bind mount." Install is driven separately after
+# boot by tests/Acceptance/bin/boot-package.sh, which runs
+# install-helper.php via `docker compose exec` — see the file header of
+# install-helper.php for why we don't use `/root/devtools dev-install`
+# here (auto_configure.php path mismatch on the flex image).
+#
+# Usage:
+#   TARBALL_DIR=/tmp/openemr-8.2.0 docker compose \
+#     -f .github/docker/acceptance-package-compose.yml \
+#     -p openemr-acceptance-package \
+#     up --detach
+#
+# ACCEPTANCE_ARTIFACT_URL for the test suite: http://localhost:8680
+services:
+  mysql:
+    image: mariadb:11.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
+    command: ['mariadbd', '--character-set-server=utf8mb4']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+    - databasevolume:/var/lib/mysql
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+
+  openemr:
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:4bb05f052584c30e84e495e161dcd559659e953a5c435fea76dbe74931d571e5
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # EMPTY=yes: flex image starts Apache but doesn't run its own
+      # install path (no FLEX_REPOSITORY clone, no auto_configure).
+      # boot-package.sh runs `/root/devtools dev-install` explicitly
+      # after mysql is healthy.
+      EMPTY: 'yes'
+      FORCE_NO_BUILD_MODE: 'yes'
+    ports:
+    - '8680:80'
+    - '8643:443'
+    volumes:
+    # ${TARBALL_DIR} is set by boot-package.sh to the extracted tarball
+    # root (containing composer.json, index.php, interface/, src/, etc.).
+    - ${TARBALL_DIR}:/var/www/localhost/htdocs/openemr
+    # install-helper.php mounted OUTSIDE the Apache document root at
+    # /opt/openemr-acceptance-helper.php (read-only). This prevents
+    # the helper from ever being served by Apache — an accidental
+    # `curl http://localhost:8680/install-helper.php` would reinstall
+    # openemr with default credentials and expose DB config in the
+    # error path. boot-package.sh sets HELPER_PATH to point at
+    # tests/Acceptance/bin/install-helper.php on the host.
+    - ${HELPER_PATH}:/opt/openemr-acceptance-helper.php:ro
+    # Healthcheck asserts the specific login-page redirect target so
+    # `up --wait` returns only after install completes — matching the
+    # acceptance-docker-compose.yml pattern from Phase 1. Pre-install
+    # / uninstall the redirect goes to setup.php (or the request 404s);
+    # only a successfully-installed openemr redirects to
+    # interface/login/login.php.
+    #
+    # Uses BusyBox-compatible short-option grep (-iq) since flex is
+    # Alpine-based.
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - >-
+        /usr/bin/curl --silent --dump-header - --output /dev/null
+        http://localhost/ |
+        grep -iq '^location: .*interface/login/login\.php'
+      start_period: 5m
+      start_interval: 10s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  databasevolume:
