@@ -59,8 +59,12 @@ if (!getenv('OPENEMR_ENABLE_ACCEPTANCE_HELPER')) {
 }
 
 // Autoload from the mounted openemr tree (release tarballs include
-// vendor/ pre-built by PackageAssembler at release time).
-require_once '/var/www/localhost/htdocs/openemr/vendor/autoload.php';
+// vendor/ pre-built by PackageAssembler at release time). Path is
+// container-absolute and only exists inside the flex container at
+// execution time — assign through a variable so phpstan's static
+// file-existence check doesn't flag the include on the runner.
+$autoloadPath = '/var/www/localhost/htdocs/openemr/vendor/autoload.php';
+require_once $autoloadPath;
 
 // Installer lives at the root namespace in library/classes/Installer.class.php,
 // autoloaded via composer's classmap. Same class docker/release/auto_configure.php
