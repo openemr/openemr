@@ -1011,10 +1011,9 @@ function csv_newfile_list($type)
  * Simple analysis, but the idea is just to identify the bad segment
  *
  * @param string $err_seg error segment from edih_997_csv_data()
- * @param bool $id true if only the 1st segmentID is wanted
- * return array|string
+ * @return array{trace?: string, id?: list<string>, err?: list<string>}
  */
-function edih_errseg_parse($err_seg, $id = false)
+function edih_errseg_parse($err_seg): array
 {
     // ['err_seg'] = '|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*transID*segID*segpos*elempos
     //                |IK4*elempos*errcode*elem*|CTX-IK4*segID*segpos*elempos
@@ -1030,32 +1029,9 @@ function edih_errseg_parse($err_seg, $id = false)
     //'|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*segID*segPos*loopLS*elemPos:compositePos:repPos
     // revised: 123456789004*IK3*segID*segpos[*segID*segpos*segID*segpos]
     $ik = explode('*', (string) $err_seg);
-    foreach ($ik as $i => $k) {
-        switch ($i) {
-            case 0:
-                $ret_ar['trace'] = $k;
-                break;
-            case 1:
-                break;  // IK3
-            case 2:
-                $ret_ar['id'][] = $k;
-                break;   // segment ID
-            case 3:
-                $ret_ar['err'][] = $k;
-                break;  // segment position
-            case 4:
-                $ret_ar['id'][] = $k;
-                break;
-            case 5:
-                $ret_ar['err'][] = $k;
-                break;
-            case 6:
-                $ret_ar['id'][] = $k;
-                break;
-            case 7:
-                $ret_ar['err'][] = $k;
-                break;
-        }
+    $ret_ar['trace'] = $ik[0];
+    foreach (array_slice($ik, 2) as $i => $k) {
+        $ret_ar[$i & 1 ? 'err' : 'id'][] = $k;
     }
 
     //
