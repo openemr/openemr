@@ -452,6 +452,31 @@ upgrade path. Roughly 1 week.
 
 ### Phase 4 — Broaden test coverage
 
+Sliced for reviewability. Rollout order: 4a → 4a-2 → 4b → 4c.
+
+**4a — SHIPPED 2026-07-25 (#13193)**. `FhirSmokeTest` (unauth
+`/apis/default/fhir/metadata` + `/apis/default/fhir/.well-known/smart-configuration`
+per FHIR + SMART spec) tagged for both `fresh-install` and
+`post-upgrade` groups. `Support/LoginFlow` extracted from the
+duplicated admin-login flow in InstallTest + UpgradeIntegrityTest.
+
+**4a-2 — pending**. `ApiSmokeTest` with authenticated `/apis/default/api/version`
+via `Support/OAuth2/DcrClient` — port the DCR + authorization-code
+flow pattern from `AuthorizationLogoutFullFlowTest` (#13175) into a
+reusable helper. Foundation for every future authenticated
+acceptance test.
+
+**4b — pending**. Panther + Selenium plumbing (headless browser
+first-introduction to acceptance) + `E2eCriticalPathTest` (one
+critical flow — admin login → patient add → encounter start).
+Decision: bundled ChromeDriver on runner (simpler) vs selenium
+service in compose files (matches dev-stack pattern).
+
+**4c — pending**. Wizard-UI tests (tarball-only): `InstallWizardUiTest`
++ `UpgradeWizardUiTest`. Depends on 4b's Panther plumbing.
+
+Original Phase 4 scope preserved below for reference:
+
 - Add ApiSmokeTest, FhirSmokeTest, E2eCriticalPathTest (last one
   needs Panther+Selenium — first introduction of a headless
   browser to acceptance)
