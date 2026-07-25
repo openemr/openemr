@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tests for the EDI history date/money formatting helper.
+ * Tests for the EDI history date/money/percent formatting helper.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -84,6 +84,29 @@ final class EdiFormatTest extends TestCase
             'integer amount' => ['42', '$42.00'],
             'rounds to two places' => ['1234.567', '$1234.57'],
             'negative amount' => ['-5', '$-5.00'],
+        ];
+    }
+
+    #[DataProvider('percentProvider')]
+    public function testPercent(string $input, string $expected): void
+    {
+        self::assertSame($expected, EdiFormat::percent($input));
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function percentProvider(): array
+    {
+        return [
+            'decimal fraction' => ['.50', '50%'],
+            'leading zero' => ['0.8', '80%'],
+            'whole' => ['1', '100%'],
+            'fractional percent' => ['.125', '12.5%'],
+            'zero' => ['0', '0%'],
+            'empty string' => ['', '0%'],
         ];
     }
 

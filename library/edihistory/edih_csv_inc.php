@@ -1095,12 +1095,11 @@ function edih_format_money($str_val)
  * @param string $str_val   the amount string
  * @return string           the value as a percentage
  */
-function edih_format_percent($str_val)
+function edih_format_percent($str_val): string
 {
-    $val = (float)$str_val;
-    $pct = is_float($val) ? $val * 100 . '%' : $str_val . '%';
-
-    return $pct;
+    // Backfill: the canonical implementation lives in the autoloadable
+    // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
+    return \OpenEMR\Billing\EdiHistory\EdiFormat::percent((string) $str_val);
 }
 
 /**
