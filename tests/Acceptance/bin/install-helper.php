@@ -47,6 +47,17 @@ if (PHP_SAPI !== 'cli') {
     exit("install-helper.php is a CLI-only bootstrap; refusing non-CLI invocation\n");
 }
 
+// Opt-in env guard. Mirrors the pattern in
+// contrib/util/installScripts/InstallerAuto.php — refuses to run under
+// CLI unless the caller explicitly sets the enable variable, so a stray
+// `php install-helper.php` from an unrelated shell can't reinstall an
+// already-installed openemr and wipe its DB. boot-package.sh sets this
+// before invoking `docker compose exec`.
+if (!getenv('OPENEMR_ENABLE_ACCEPTANCE_HELPER')) {
+    fwrite(STDERR, "install-helper.php: refusing to run without OPENEMR_ENABLE_ACCEPTANCE_HELPER=1\n");
+    exit(1);
+}
+
 // Autoload from the mounted openemr tree (release tarballs include
 // vendor/ pre-built by PackageAssembler at release time). Path is
 // container-absolute, so this file has no meaningful static analysis

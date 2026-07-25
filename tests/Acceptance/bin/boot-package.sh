@@ -102,9 +102,12 @@ echo "==> Running install-helper.php via docker compose exec (as apache user)"
 # install-helper.php is mounted READ-ONLY at /opt/openemr-acceptance-helper.php
 # by the compose file (OUTSIDE the openemr webroot, so Apache never
 # serves it). RootCliGuard rejects UID 0 → wrap in `su -s /bin/sh apache`.
+# OPENEMR_ENABLE_ACCEPTANCE_HELPER is the helper's opt-in env guard
+# (same pattern InstallerAuto.php uses). su clears the environment, so
+# the var is set inside the su-launched shell as a `VAR=x prog` prefix.
 docker compose exec -T openemr \
     su -s /bin/sh apache -c \
-    'php /opt/openemr-acceptance-helper.php'
+    'OPENEMR_ENABLE_ACCEPTANCE_HELPER=1 php /opt/openemr-acceptance-helper.php'
 
 echo "==> Waiting for openemr container to become healthy"
 for attempt in $(seq 1 60); do

@@ -22,6 +22,12 @@
 
 set -euo pipefail
 
+if [[ $# -gt 1 ]]; then
+    echo "Usage: $0 [version]" >&2
+    echo "  version — optional; if omitted, removes ALL /tmp/openemr-acceptance-*/ scratch dirs" >&2
+    exit 2
+fi
+
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../../.." &>/dev/null && pwd)"
 
@@ -56,14 +62,20 @@ if [[ $# -eq 1 ]]; then
     fi
     SCRATCH="/tmp/openemr-acceptance-${VERSION}"
     echo "==> Removing scratch dir ${SCRATCH}"
-    rm -rf "${SCRATCH}" || status=$?
+    rm -rf -- "${SCRATCH}" || status=$?
 else
-    echo "==> Removing all /tmp/openemr-acceptance-*/ scratch dirs"
+    echo "==> Removing all /tmp/openemr-acceptance-* scratch dirs"
     # Only match our specifically-prefixed dirs — don't touch
     # /tmp/openemr-*.tar.gz (which would risk deleting unrelated files
     # on shared runners). Downloaded tarballs live at mktemp-generated
     # paths and are cleaned by boot/upgrade's EXIT trap.
-    rm -rf /tmp/openemr-acceptance-*/ || status=$?
+    #
+    # No trailing slash on the glob: a trailing slash makes rm dereference
+    # a matching symlink and walk into its target (so a stale
+    # `/tmp/openemr-acceptance-x -> /some/other/dir` symlink would let
+    # this delete /some/other/dir/*). `rm -rf --` on the plain glob
+    # removes the symlink itself, not its target.
+    rm -rf -- /tmp/openemr-acceptance-* || status=$?
 fi
 
 if [[ ${status} -ne 0 ]]; then
