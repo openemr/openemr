@@ -1097,7 +1097,9 @@ function edih_format_money($str_val)
  */
 function edih_format_percent($str_val): string
 {
-    return (float)$str_val * 100 . '%';
+    // Backfill: the canonical implementation lives in the autoloadable
+    // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
+    return \OpenEMR\Billing\EdiHistory\EdiFormat::percent((string) $str_val);
 }
 
 /**

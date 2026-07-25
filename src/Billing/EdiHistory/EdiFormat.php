@@ -6,9 +6,9 @@
  * Holds the canonical implementations of the edih_format_* routines as
  * autoloadable static methods, so namespaced code such as Claim277Renderer
  * can call them without depending on the non-autoloaded procedural include
- * library/edihistory/edih_csv_inc.php. The global edih_format_date() and
- * edih_format_money() functions delegate here as a backfill until every
- * legacy call site is migrated to the class.
+ * library/edihistory/edih_csv_inc.php. The global edih_format_date(),
+ * edih_format_money(), and edih_format_percent() functions delegate here
+ * as a backfill until every legacy call site is migrated to the class.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -64,5 +64,18 @@ final class EdiFormat
     public static function money(string $str_val): string
     {
         return ($str_val !== '') ? sprintf('$%01.2f', $str_val) : $str_val;
+    }
+
+    /**
+     * Format an X12 percentage-as-decimal value with a % sign.
+     *
+     * Every call site passes X12 data element 954 (EB08 in 271, CLP13 and
+     * MOA01 in 835), defined as a decimal fraction — '.50' means 50%.
+     *
+     * @param string $str_val the decimal fraction, e.g. '.50'
+     */
+    public static function percent(string $str_val): string
+    {
+        return (float)$str_val * 100 . '%';
     }
 }
