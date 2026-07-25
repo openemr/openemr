@@ -87,7 +87,7 @@ class eRxXMLBuilder
         return $this->store;
     }
 
-    protected function trimData($string, $length)
+    protected function trimData($string, $length): string
     {
         return substr((string) $string, 0, $length - 1);
     }
@@ -534,7 +534,10 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getStaffElements($authUserId, $destination)
+    /**
+     * @return list
+     */
+    public function getStaffElements($authUserId, $destination): array
     {
         $userRole = $this->getStore()->getUserById($authUserId);
         $userRole = preg_replace('/erx/', '', (string) $userRole['newcrop_user_role']);
@@ -657,7 +660,10 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getPatientFreeformHealthplans($patientId)
+    /**
+     * @return mixed[]
+     */
+    public function getPatientFreeformHealthplans($patientId): array
     {
         $healthplans = $this->getStore()
             ->getPatientHealthplansByPatientId($patientId);
@@ -674,7 +680,10 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientFreeformAllergy($patientId)
+    /**
+     * @return mixed[]
+     */
+    public function getPatientFreeformAllergy($patientId): array
     {
         $allergyData = $this->getStore()
             ->getPatientAllergiesByPatientId($patientId);
@@ -705,7 +714,10 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientDiagnosis($patientId)
+    /**
+     * @return mixed[]
+     */
+    public function getPatientDiagnosis($patientId): array
     {
         $diagnosisData = $this->getStore()
             ->getPatientDiagnosisByPatientId($patientId);
@@ -786,7 +798,10 @@ class eRxXMLBuilder
         return $element;
     }
 
-    public function getPatientPrescriptions($prescriptionIds)
+    /**
+     * @return mixed[]
+     */
+    public function getPatientPrescriptions($prescriptionIds): array
     {
         $elements = [];
 
@@ -815,7 +830,10 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientMedication($patientId, $uploadActive, $count)
+    /**
+     * @return mixed[]
+     */
+    public function getPatientMedication($patientId, $uploadActive, $count): array
     {
         $medications = $this->getStore()
             ->selectMedicationsNotUploadedByPatientId($patientId, $uploadActive, $count);
@@ -840,7 +858,10 @@ class eRxXMLBuilder
         return $elements;
     }
 
-    public function getPatientElements($patientId, $totalCount, $requestedPrescriptionIds)
+    /**
+     * @return mixed[]
+     */
+    public function getPatientElements($patientId, $totalCount, $requestedPrescriptionIds): array
     {
         $elements = [];
 

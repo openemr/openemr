@@ -141,7 +141,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
      *
      * @return string
      */
-    private function convertScopesArrayToQueryString(array $scopes)
+    private function convertScopesArrayToQueryString(array $scopes): string
     {
         return implode(' ', $scopes);
     }

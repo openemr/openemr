@@ -482,7 +482,7 @@ class SyndromicsurveillanceTable
     /*
     * date format conversion
     */
-    public function convert_to_yyyymmdd($date)
+    public function convert_to_yyyymmdd($date): string
     {
         $date   = str_replace('/', '-', $date);
         $arr    = explode('-', $date);

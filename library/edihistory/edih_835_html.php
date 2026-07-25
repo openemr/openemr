@@ -28,7 +28,7 @@
  *
  * @return string
  */
-function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $fname = '')
+function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $fname = ''): string
 {
     // NM1 CPL
     $str_html = "";
@@ -289,7 +289,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
  *
  * @return string
  */
-function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimiters, $fname = '')
+function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimiters, $fname = ''): string
 {
     //
     $str_html = "";
@@ -860,7 +860,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
  *
  * @return string     HTML table
  */
-function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fname = '')
+function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fname = ''): string
 {
     //
     $str_html = '';
@@ -1559,7 +1559,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
  *
  * @return string  error message or a table with file information
  */
-function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
+function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false): string
 {
     //
     $html_str = '';

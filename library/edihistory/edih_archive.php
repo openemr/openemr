@@ -33,7 +33,7 @@
  *
  * @return array   array[i] = filename
  */
-function edih_archive_report($period = '')
+function edih_archive_report($period = ''): string
 {
     //
     $str_html = '';
@@ -575,7 +575,7 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
  *
  * @return string
  */
-function edih_archive_csv_combine($filetype, $csvtype)
+function edih_archive_csv_combine($filetype, $csvtype): int
 {
     //
     $str_out = '';
@@ -728,7 +728,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
  *
  * @return string
  */
-function edih_archive_restore($archive_name)
+function edih_archive_restore($archive_name): string
 {
     //
     $str_out = '';
@@ -872,7 +872,7 @@ function edih_archive_restore($archive_name)
  *
  * @return string
  */
-function edih_archive_undo()
+function edih_archive_undo(): string
 {
     //
     // archive process creates files in /history/tmp
@@ -956,7 +956,7 @@ function edih_archive_undo()
  *
  * @return int count the rows written
  */
-function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array)
+function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array): int
 {
     // @param string $csv_path -- the tmp csv file path is expected
     // @param array $heading_ar -- the column heading for the csv file
@@ -1015,7 +1015,7 @@ function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array)
  *
  * @return string
  */
-function edih_archive_cleanup($archivename, $types_ar)
+function edih_archive_cleanup($archivename, $types_ar): string
 {
     //
     $str_out = '';
@@ -1087,7 +1087,7 @@ function edih_archive_cleanup($archivename, $types_ar)
  *
  * @return string       descriptive message in html format
  */
-function edih_archive_main($period)
+function edih_archive_main($period): string
 {
     //
     $out_html = '';

@@ -44,12 +44,15 @@ class SendtoTable
     }
 
     /*
-    * CCDA component list
-    *
-    * @param    $type
-    * @return   $components     Array of CCDA components
-    **/
-    public function getCCDAComponents($type)
+     * CCDA component list
+     *
+     * @param    $type
+     * @return   $components     Array of CCDA components
+     **/
+    /**
+     * @return 'Advance Directives'[]|'Allergies'[]|'Consultation Note'[]|'Continuity Care Document'[]|'Diagnostic Image Reporting'[]|'Discharge Summary'[]|'Encounters'[]|'Functional Status'[]|'Goals'[]|'Health Insurance Providers'[]|'History and Physical Note'[]|'Immunizations'[]|'Instructions'[]|'Medical Devices'[]|'Medications'[]|'Operative Note'[]|'Plan Of Care'[]|'Problems'[]|'Procedure Note'[]|'Procedures'[]|'Progress Notes'[]|'Reason for Referral'[]|'Results'[]|'Social History'[]|'Unstructured Document'[]|'Vitals'[]
+     */
+    public function getCCDAComponents($type): array
     {
         $components = [];
         // removed dependency on the ccda_table_mapping table sjp 07/25/25

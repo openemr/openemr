@@ -98,7 +98,7 @@ function sellDrug(
 }
 
 // Determine if facility and warehouse restrictions are applicable for this user.
-function isUserRestricted($userid = 0)
+function isUserRestricted($userid = 0): bool
 {
     if (!$userid) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -165,7 +165,7 @@ function isWarehouseAllowed($facid, $whid, $userid = 0)
 
 // Determine if this product is one that we have on hand and that the user has permission for.
 //
-function isProductSelectable($drug_id)
+function isProductSelectable($drug_id): bool
 {
     $is_user_restricted = isUserRestricted();
     $wfres = sqlStatement(

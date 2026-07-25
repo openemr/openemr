@@ -572,7 +572,7 @@ class RestControllerHelper
      * @param  string $resource
      * @return string
      */
-    private static function getResourceTypeForResource(string $resource)
+    private static function getResourceTypeForResource(string $resource): string
     {
         $firstChar = $resource[0] ?? '';
         if ($firstChar == '$') {

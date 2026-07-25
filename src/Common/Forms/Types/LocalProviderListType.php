@@ -82,7 +82,7 @@ class LocalProviderListType implements IOptionFormType
         echo $tmp;
     }
 
-    public function buildPlaintextView($frow, $currvalue)
+    public function buildPlaintextView($frow, $currvalue): string
     {
         $urow = $this->getProviderFromId($currvalue);
         $s = ucwords($urow['fname'] . " " . $urow['lname']);

@@ -29,21 +29,21 @@ $celltypes = [
 ];
 
 // encode a string from a form field for database writing.
-function form2db($fldval)
+function form2db($fldval): string
 {
     $fldval = trim((string) $fldval);
     return $fldval;
 }
 
 // Get the actual string from a form field.
-function form2real($fldval)
+function form2real($fldval): string
 {
     $fldval = trim((string) $fldval);
     return $fldval;
 }
 
 // encode a plain string for html display.
-function real2form($fldval)
+function real2form($fldval): string
 {
     return attr($fldval);
 }

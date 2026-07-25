@@ -33,7 +33,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         $this->itemLbl = $this->getLabel($this->item, 'rule_action');
     }
 
-    function getRequirements()
+    function getRequirements(): string
     {
         $requirements = xl("Completed") . ": ";
         $requirements .= $this->completed ? xl("Yes") : xl("No");
@@ -44,7 +44,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         return $requirements;
     }
 
-    function getTitle()
+    function getTitle(): string
     {
         return $this->getCategoryLabel() . " - " . $this->getItemLabel();
     }
@@ -59,7 +59,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         return $this->itemLbl;
     }
 
-    function getView()
+    function getView(): string
     {
         return "bucket.php";
     }

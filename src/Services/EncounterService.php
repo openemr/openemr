@@ -612,7 +612,10 @@ class EncounterService extends BaseService
         return null;
     }
 
-    public function getSoapNotes($pid, $eid)
+    /**
+     * @return mixed[]
+     */
+    public function getSoapNotes($pid, $eid): array
     {
         $sql = "  SELECT fs.*";
         $sql .= "  FROM forms fo";
@@ -690,7 +693,7 @@ class EncounterService extends BaseService
      * @param $pid
      * @return array
      */
-    public function getPatientEncounterListWithCategories($pid)
+    public function getPatientEncounterListWithCategories($pid): array
     {
         $encounters = $this->getEncountersForPatientByPid($pid);
 

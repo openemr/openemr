@@ -22,7 +22,7 @@ class ExportPersonTableDefinition extends ExportTableDefinition
 {
     const TABLE_NAME = 'person';
 
-    public function getRecords()
+    public function getRecords(): array
     {
         $selectQuery = $this->getSelectClause(); // make sure we only grab the clauses we allow
 
@@ -40,7 +40,10 @@ class ExportPersonTableDefinition extends ExportTableDefinition
         return $records;
     }
 
-    private function getContactIds() {
+    /**
+     * @return mixed[]
+     */
+    private function getContactIds(): array {
         // instead of hunting down to figure where this is at, for now will just leverage
         //$this->getHashmapForKey('contact_id');
         $patientPids = $this->getHashmapForKey('pid');

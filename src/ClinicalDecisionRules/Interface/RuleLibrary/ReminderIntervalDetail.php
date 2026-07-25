@@ -31,7 +31,7 @@ class ReminderIntervalDetail
     {
     }
 
-    function display()
+    function display(): string
     {
         $display = $this->intervalRange->lbl . ": "
             . $this->amount . " " . $this->timeUnit->lbl;

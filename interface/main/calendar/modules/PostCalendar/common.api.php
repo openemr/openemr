@@ -158,7 +158,7 @@ function &pcVarPrepHTMLDisplay($s)
     $postcalendarRemoveScriptTags = pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($s));
     return $postcalendarRemoveScriptTags;
 }
-function pcGetTopicName($topicid)
+function pcGetTopicName($topicid): string
 {
     // not using topics in OpenEMR, so just return nothing
     return '';
@@ -181,7 +181,7 @@ function postcalendar_removeScriptTags($in)
     return preg_replace("/<script.*?>(.*?)<\/script>/", "", ($in ?? ''));
 }
 
-function postcalendar_getDate($format = 'Ymd')
+function postcalendar_getDate($format = 'Ymd'): string
 {
     [$Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate] =
         pnVarCleanFromInput('Date', 'jumpday', 'jumpmonth', 'jumpyear', 'jumpdate');
@@ -221,7 +221,7 @@ function postcalendar_getDate($format = 'Ymd')
     return date($format, mktime(0, 0, 0, $m, $d, $y));
 }
 
-function &postcalendar_today($format = 'Ymd')
+function &postcalendar_today($format = 'Ymd'): string
 {
     $time = time();
     $date = date($format, $time);
@@ -235,7 +235,7 @@ function &postcalendar_today($format = 'Ymd')
  * sets up any necessary javascript for the page
  * @return string javascript to insert into the page
  */
-function postcalendar_userapi_pageSetup()
+function postcalendar_userapi_pageSetup(): string
 {
     $output = '';
     // load the DHTML JavaScript code and insert it into the page
@@ -395,8 +395,9 @@ function postcalendar_userapi_getmonthname($args)
 
 /**
  *  Returns an array of form data for FormSelectMultiple
+ * @return mixed[]
  */
-function postcalendar_userapi_buildMonthSelect($args)
+function postcalendar_userapi_buildMonthSelect($args): array
 {
     extract($args);
     unset($args);
@@ -429,8 +430,9 @@ function postcalendar_userapi_buildMonthSelect($args)
 
 /**
  *  Returns an array of form data for FormSelectMultiple
+ * @return mixed[]
  */
-function postcalendar_userapi_buildDaySelect($args)
+function postcalendar_userapi_buildDaySelect($args): array
 {
     extract($args);
     unset($args);
@@ -463,8 +465,9 @@ function postcalendar_userapi_buildDaySelect($args)
 
 /**
  *  Returns an array of form data for FormSelectMultiple
+ * @return array{id: numeric-string, selected: bool, name: string}[]
  */
-function postcalendar_userapi_buildYearSelect($args)
+function postcalendar_userapi_buildYearSelect($args): array
 {
     extract($args);
     unset($args);
@@ -499,7 +502,10 @@ function postcalendar_userapi_buildYearSelect($args)
     return $output;
 }
 
-function &postcalendar_userapi_getCategories()
+/**
+ * @return array{dailylimit: mixed}[]|array{id: mixed, name: mixed, constantid: mixed, color: mixed, desc: mixed, value_cat_type: mixed, active: mixed, sequence: mixed, event_repeat: mixed, event_repeat_freq: mixed, event_repeat_freq_type: mixed, event_repeat_on_num: mixed, event_repeat_on_day: mixed, event_repeat_on_freq: mixed, event_recurrspec: mixed, event_duration: mixed, event_durationh: int, event_durationm: (float | int<-59, 59>), end_date_flag: mixed, end_date_type: mixed, end_date_freq: mixed, end_all_day: mixed, aco: mixed, dailylimit?: mixed}[]
+ */
+function &postcalendar_userapi_getCategories(): array
 {
     $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -576,7 +582,10 @@ function &postcalendar_userapi_getTopics()
     return $data;
 }
 
-function findFirstAvailable($period)
+/**
+ * @return non-empty-list[]
+ */
+function findFirstAvailable($period): array
 {
     //print_r($period);
 
@@ -597,7 +606,10 @@ function findFirstAvailable($period)
     return $available_times;
 }
 
-function findFirstInDay($day, $date)
+/**
+ * @return array{startTime: mixed, endTime: (float | int)}[]
+ */
+function findFirstInDay($day, $date): array
 {
     $stack = [];
     $lastcat = 3;
@@ -698,7 +710,7 @@ function findFirstInDay($day, $date)
     return $times;
 }
 
-function dtSec($date, $time)
+function dtSec($date, $time): string
 {
     return date("U", strtotime($date . " " . $time));
 }
@@ -709,7 +721,7 @@ function dtSecDur($date, $time, $dur)
     return $time_sec + $dur;
 }
 
-function postcalendar_footer()
+function postcalendar_footer(): string
 {
     // lets get the module's information
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -771,7 +783,7 @@ function sort_byTimeD($a, $b)
  *    @param mixed $s string text to clean
  *    @return string cleaned up text
  */
-function pc_clean($s)
+function pc_clean($s): string
 {
     $display_type = substr((string) $s, 0, 6);
     if ($display_type == ':text:') {

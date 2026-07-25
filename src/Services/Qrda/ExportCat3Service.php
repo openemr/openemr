@@ -120,7 +120,7 @@ class ExportCat3Service
      * @param array $measures Array of measure paths
      * @return string Consolidated QRDA III XML
      */
-    public function exportConsolidated($measures)
+    public function exportConsolidated($measures): string
     {
         // Use your existing measure building logic
         $measureObjs = [];
@@ -160,7 +160,7 @@ class ExportCat3Service
      * @param array $patients    Array of Patient objects
      * @return string Complete QRDA III XML
      */
-    private function generateConsolidatedXml($measureObjs, $results, $patients)
+    private function generateConsolidatedXml($measureObjs, $results, $patients): string
     {
         $organizationInfo = $this->getOrganizationInfo();
         $documentId = $this->generateUuid();
@@ -244,7 +244,7 @@ XML;
     /**
      * Generate the measure section containing all measures
      */
-    private function generateConsolidatedMeasureSection($measureObjs, $results, $patients)
+    private function generateConsolidatedMeasureSection($measureObjs, $results, $patients): string
     {
         $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');
 
@@ -315,7 +315,7 @@ XML;
     /**
      * Generate individual measure entry for consolidated report
      */
-    private function generateConsolidatedMeasureEntry($measure, $measureResults)
+    private function generateConsolidatedMeasureEntry($measure, $measureResults): string
     {
         $entryId = $this->generateUuid();
 
@@ -357,7 +357,7 @@ XML;
     /**
      * Generate population components for a measure
      */
-    private function generatePopulationComponents($measure, $results)
+    private function generatePopulationComponents($measure, $results): string
     {
         $xml = '';
         $populationKeys = $measure->population_keys();
@@ -400,7 +400,7 @@ XML;
     /**
      * Generate reporting parameters
      */
-    private function generateReportingParameters()
+    private function generateReportingParameters(): string
     {
         $parametersId = $this->generateUuid();
         $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');
@@ -456,7 +456,7 @@ XML;
         return $codes[$popKey] ?? $popKey;
     }
 
-    private function generateUuid()
+    private function generateUuid(): string
     {
         return sprintf(
             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
@@ -471,7 +471,7 @@ XML;
         );
     }
 
-    private function escapeXml($content)
+    private function escapeXml($content): string
     {
         return htmlspecialchars((string) $content, ENT_XML1 | ENT_COMPAT, 'UTF-8');
     }
@@ -487,7 +487,10 @@ XML;
          */
     }
 
-    private function CqmExecutionCalcExecute($patients, $measures)
+    /**
+     * @return mixed[]
+     */
+    private function CqmExecutionCalcExecute($patients, $measures): array
     {
         $finalResults = [];
         foreach ($measures as $measure) {
@@ -515,7 +518,10 @@ XML;
          */
     }
 
-    private function request_for($patients, Measure $measure)
+    /**
+     * @return mixed[]
+     */
+    private function request_for($patients, Measure $measure): array
     {
 
         $results = $this->calculator->calculateMeasure($patients, $measure, $this->effectiveDate, $this->effectiveDateEnd);
@@ -563,7 +569,10 @@ XML;
          */
     }
 
-    private function aggregate_population_results_from_individual_results($individual_results, $patient_id, Measure $measure)
+    /**
+     * @return \OpenEMR\Services\Qdm\IndividualResult[]
+     */
+    private function aggregate_population_results_from_individual_results($individual_results, $patient_id, Measure $measure): array
     {
         $results = [];
         foreach ($individual_results as $population_set_key => $individual_result) {

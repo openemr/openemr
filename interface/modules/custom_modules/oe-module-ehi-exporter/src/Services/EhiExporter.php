@@ -240,7 +240,7 @@ class EhiExporter
      * @return array
      * @throws \Exception
      */
-    private function createExportTasksFromJob(EhiExportJob $job)
+    private function createExportTasksFromJob(EhiExportJob $job): array
     {
         $hasMorePatients = true;
         $iterations = -1;
@@ -537,7 +537,7 @@ class EhiExporter
         }
     }
 
-    private function getCsvFileContents(ExportState $state, string $tableName)
+    private function getCsvFileContents(ExportState $state, string $tableName): string
     {
         // now we need to decrypt the contents and add them to the export.
         $filePath = $state->getTempSysDir() . DIRECTORY_SEPARATOR . $tableName . '.csv';
@@ -624,7 +624,7 @@ class EhiExporter
         }
     }
 
-    private function shouldExportAdditionalAssets($tableName)
+    private function shouldExportAdditionalAssets($tableName): bool
     {
         $additionalAssets = ['form_painmap'];
         return in_array($tableName, $additionalAssets);
@@ -648,7 +648,7 @@ class EhiExporter
         }
     }
 
-    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = [])
+    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = []): int
     {
         $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($tableName);
         $convertUuid = !empty($uuidDefinition);
@@ -754,7 +754,10 @@ class EhiExporter
         }
     }
 
-    private function createExportTasksFromJobWithoutDocuments(EhiExportJob $job, array &$jobPatientIds, int $jobPatientIdsCount)
+    /**
+     * @return mixed[]
+     */
+    private function createExportTasksFromJobWithoutDocuments(EhiExportJob $job, array &$jobPatientIds, int $jobPatientIdsCount): array
     {
         $tasks = [];
         $currentDocumentSize = 0;

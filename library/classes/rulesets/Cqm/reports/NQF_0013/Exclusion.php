@@ -27,12 +27,12 @@ class NQF_0013_Exclusion implements CqmFilterIF
     // inlining this as there are two duplicate Procedure classes, originally came from library/classes/ClinicalTypes/Procedure.php
     const DIALYSIS_SERVICE = 'pro_dialysis_service';
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Exclusion";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         //Also exclude patients with a diagnosis of pregnancy during the measurement period.
         if (Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::PREGNANCY, $patient, $beginDate, $beginDate)  || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::END_STAGE_RENAL_DISEASE, $patient, $beginDate, $beginDate) || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::CHRONIC_KIDNEY_DISEASE, $patient, $beginDate, $beginDate)) {

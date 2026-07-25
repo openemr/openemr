@@ -146,7 +146,7 @@ function getHiddenDashboardCards(): array
     return $hiddenList;
 }
 
-function print_as_money($money)
+function print_as_money($money): string
 {
     preg_match("/(\d*)\.?(\d*)/", (string) $money, $moneymatches);
     $tmp = wordwrap(strrev($moneymatches[1]), 3, ",", 1);
@@ -163,7 +163,10 @@ function print_as_money($money)
 }
 
 // get an array from Photos category
-function pic_array($pid, $picture_directory)
+/**
+ * @return mixed[]
+ */
+function pic_array($pid, $picture_directory): array
 {
     $pics = [];
     $sql_query = "select documents.id from documents join categories_to_documents " .
@@ -279,7 +282,7 @@ function isEnforceSigninEmailPortal(): bool
     return false;
 }
 
-function deceasedDays($days_deceased)
+function deceasedDays($days_deceased): string
 {
     $deceased_days = intval($days_deceased['days_deceased'] ?? '');
     if ($deceased_days == 0) {

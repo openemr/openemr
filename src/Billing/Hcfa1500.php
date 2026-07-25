@@ -143,7 +143,7 @@ class Hcfa1500
         $hcfa_entries[] = new HCFAInfo($row_pos, $col_pos, 8, $diag);
     }
 
-    public function genHcfa1500($pid, $encounter, &$log)
+    public function genHcfa1500($pid, $encounter, &$log): string
     {
         $this->hcfa_data = '';
         $this->hcfa_proc_index = 0;

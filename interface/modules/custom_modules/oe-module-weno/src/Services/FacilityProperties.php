@@ -22,7 +22,7 @@ class FacilityProperties
     /**
      * @return array
      */
-    public function getFacilities()
+    public function getFacilities(): array
     {
         $sql = "select id, name, street, city, weno_id from facility";
         $list = sqlStatement($sql);

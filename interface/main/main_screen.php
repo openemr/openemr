@@ -125,7 +125,7 @@ function generate_html_middle(): void
     posted_to_hidden('clearPass');
 }
 
-function generate_html_end()
+function generate_html_end(): int
 {
     // to be safe, remove clearPass from memory now (if it is not empty yet)
     if (!empty($_POST["clearPass"])) {

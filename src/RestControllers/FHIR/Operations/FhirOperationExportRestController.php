@@ -724,7 +724,10 @@ class FhirOperationExportRestController
         return $operationOutcome;
     }
 
-    private function getPatientUuidsForGroup($groupId)
+    /**
+     * @return mixed[]
+     */
+    private function getPatientUuidsForGroup($groupId): array
     {
         if ($groupId === null || $groupId === '') {
             throw new \InvalidArgumentException("Group ID cannot be empty");

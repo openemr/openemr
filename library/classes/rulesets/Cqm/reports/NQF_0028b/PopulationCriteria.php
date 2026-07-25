@@ -9,7 +9,7 @@
 //
 class NQF_0028b_PopulationCriteria implements CqmPopulationCrtiteriaFactory
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Population Criteria";
     }

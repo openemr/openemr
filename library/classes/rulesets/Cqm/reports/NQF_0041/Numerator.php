@@ -12,12 +12,12 @@ class NQF_0041_Numerator implements CqmFilterIF
     // inlining this as there are two duplicate Procedure classes, originally came from library/classes/ClinicalTypes/Procedure.php
     const INFLU_VACCINE = 'pro_influenza_vaccine';
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $periodPlus89Days   = date('Y-m-d 00:00:00', strtotime('+89 day', strtotime((string) $beginDate)));
         $periodMinus153Days = date('Y-m-d 00:00:00', strtotime('-153 day', strtotime((string) $beginDate)));

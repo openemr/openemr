@@ -108,7 +108,7 @@ class Cat3 extends \Mustache_Engine
         return json_decode(json_encode($measure_results));
     }
 
-    public function cpcplus()
+    public function cpcplus(): bool
     {
         return $this->submission_program == 'CPCPLUS';
         /**

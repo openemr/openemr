@@ -10,12 +10,12 @@
 
 class AMC_304g_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304g Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // All unique patients seen by the EP or admitted to the eligible
         // hospital’s or CAH’s inpatient or emergency department (POS 21 or 23)

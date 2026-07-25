@@ -113,7 +113,7 @@ function csv_edihist_log($msg_str)
  *
  * @return string
  */
-function csv_log_html($logname = '')
+function csv_log_html($logname = ''): string
 {
     check_file_dir_name($logname);
     $html_str = "<div class='filetext'>" . PHP_EOL . "<ol class='logview'>" . PHP_EOL;
@@ -263,7 +263,7 @@ function csv_log_manage($list = true)
  * @param bool $open
  * @return string
  */
-function csv_notes_file($content = '', $open = true)
+function csv_notes_file($content = '', $open = true): string
 {
     //
     $str_html = '';
@@ -529,7 +529,7 @@ function csv_setup()
  * @uses csv_edih_tmpdir()
  * @return bool
  */
-function csv_clear_tmpdir()
+function csv_clear_tmpdir(): bool
 {
     //
     $tmpdir = csv_edih_tmpdir();
@@ -715,7 +715,7 @@ function csv_file_type(string $type, bool $gs_code = false): string
  * @param string $type -- default = ALL or one of batch, ibr, ebr, dpr, f997, f277, era, ack, text
  * @return array
  */
-function csv_parameters($type = 'ALL')
+function csv_parameters($type = 'ALL'): array
 {
     //
     // This will need the OpenEMR 'oe_site_dir' to replace global
@@ -1067,7 +1067,7 @@ function edih_format_telephone($str_val)
  * @param string $pref      if 'US' (default) anything else means YYYY-MM-DD
  * @return string           the date with slashes
  */
-function edih_format_date($str_val, $pref = "Y-m-d")
+function edih_format_date($str_val, $pref = "Y-m-d"): string
 {
     // Backfill: the canonical implementation lives in the autoloadable
     // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
@@ -1239,7 +1239,7 @@ function csv_table_header($file_type, $csv_type)
  *
  * @return string
  */
-function csv_convert_bytes($bytes)
+function csv_convert_bytes($bytes): string
 {
     $sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     if ($bytes == 0) {
@@ -1787,7 +1787,7 @@ function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
  *
  * @return array
  */
-function csv_denied_by_file($filetype, $filename, $trace = '')
+function csv_denied_by_file($filetype, $filename, $trace = ''): array
 {
     //
     $ret_ar = [];

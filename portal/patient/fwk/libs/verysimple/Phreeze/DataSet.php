@@ -178,7 +178,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *
      * @return bool
      */
-    function CountIsKnown()
+    function CountIsKnown(): bool
     {
         return $this->_totalcount > - 1;
     }
@@ -492,7 +492,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      *
      * @param $cachekey
      */
-    private function IsLocked($cachekey)
+    private function IsLocked($cachekey): bool
     {
         return $this->_phreezer->LockFilePath && file_exists($this->_phreezer->LockFilePath . md5((string) $cachekey) . ".lock");
     }

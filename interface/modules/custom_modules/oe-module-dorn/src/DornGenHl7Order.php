@@ -21,7 +21,7 @@ class DornGenHl7Order extends GenHl7OrderBase
     {
     }
 
-    public static function isDornLab($ppid)
+    public static function isDornLab($ppid): bool
     {
         $sql = "SHOW TABLES LIKE 'mod_dorn_routes'";
         $result = sqlQuery($sql);
@@ -44,7 +44,7 @@ class DornGenHl7Order extends GenHl7OrderBase
      * @param string  &$out     Container for target HL7 text.
      * @return string            Error text, or empty if no errors.
      */
-    public function genHl7Order($orderid, &$out)
+    public function genHl7Order($orderid, &$out): string
     {
         // Delimiters
         $d0 = "\r";
@@ -272,7 +272,7 @@ class DornGenHl7Order extends GenHl7OrderBase
     an individual OBX segment nested beneath the OBR segment of the corresponding
     ordered test or imaging service.
     */
-    private function createObx($setId, $valueType, $observationIdent, $observationValue, $units, $interpretationCodes, $observationResultStatus, $producersReference, $observationType, $observationValueAbsentReason)
+    private function createObx($setId, $valueType, $observationIdent, $observationValue, $units, $interpretationCodes, $observationResultStatus, $producersReference, $observationType, $observationValueAbsentReason): string
     {
         $fields = [
             $this->buildHL7Field($setId),
@@ -321,7 +321,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         The DG1 segment is required and may appear one or more times for each OBR
         segment.
     */
-    private function createDg1($setId, $diagCode, $diagDesc, $diagType)
+    private function createDg1($setId, $diagCode, $diagDesc, $diagType): string
     {
         $diagDesc = $this->replaceNewLine($diagDesc);
         $fields = [

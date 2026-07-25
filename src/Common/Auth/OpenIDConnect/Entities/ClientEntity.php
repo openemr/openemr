@@ -160,7 +160,7 @@ class ClientEntity implements ClientEntityInterface
      * @param $scope
      * @return bool
      */
-    public function hasScope($scope)
+    public function hasScope($scope): bool
     {
         return in_array($scope, $this->scopes);
     }
@@ -171,7 +171,7 @@ class ClientEntity implements ClientEntityInterface
      * @params $launchParams string A URL query string params to append to the launch uri.
      * @return string
      */
-    public function getLaunchUri($launchParams = '')
+    public function getLaunchUri($launchParams = ''): string
     {
         $launchParams ??= '';
         return $this->launchUri . $launchParams;
@@ -283,17 +283,17 @@ class ClientEntity implements ClientEntityInterface
         $this->skipEHRLaunchAuthorizationFlow = $shouldSkip;
     }
 
-    public function hasDSI()
+    public function hasDSI(): bool
     {
         return $this->dsiType != self::DSI_TYPE_NONE;
     }
 
-    public function hasPredictiveDSI()
+    public function hasPredictiveDSI(): bool
     {
         return self::DSI_TYPE_PREDICTIVE == $this->dsiType;
     }
 
-    public function hasEvidenceDSI()
+    public function hasEvidenceDSI(): bool
     {
         return self::DSI_TYPE_EVIDENCE == $this->dsiType;
     }

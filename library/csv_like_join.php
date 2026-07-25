@@ -1,6 +1,6 @@
 <?php
 
-function csv_like_join($array, $quote_all = false)
+function csv_like_join($array, $quote_all = false): string
 {
     $result = '';
     $first = true;
@@ -22,7 +22,7 @@ function csv_like_join($array, $quote_all = false)
     return $result;
 }
 
-function csv_quote($string)
+function csv_quote($string): string
 {
     return '"' . str_replace($string, '"', '""') . '"';
 }
@@ -36,7 +36,7 @@ function maybe_csv_quote($string)
     return $string;
 }
 
-function need_csv_quote($string)
+function need_csv_quote($string): bool
 {
     if (
         !str_contains((string) $string, ',')

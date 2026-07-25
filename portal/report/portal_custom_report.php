@@ -107,7 +107,7 @@ $logger = ServiceContainer::getLogger();
 $formLocator = new FormLocator($logger);
 $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
-function postToGet($arin)
+function postToGet($arin): string
 {
     $getstring = "";
     foreach ($arin as $key => $val) {

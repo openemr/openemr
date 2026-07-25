@@ -380,7 +380,7 @@ class BarcodeEAN
 
     static private $first = ['000000','001011','001101','001110','010011','011001','011100','010101','010110','011010'];
 
-    public static function getDigit($code, $type)
+    public static function getDigit($code, $type): string
     {
         // Check len (12 for ean13, 7 for ean8)
         $len = $type == 'ean8' ? 7 : 12;
@@ -430,7 +430,7 @@ class BarcodeEAN
         return($result);
     }
 
-    public static function compute($code, $type)
+    public static function compute($code, $type): string
     {
         $len = $type == 'ean13' ? 12 : 7;
         $code = substr((string) $code, 0, $len);
@@ -451,7 +451,7 @@ class BarcodeEAN
 
 class BarcodeUPC
 {
-    public static function getDigit($code)
+    public static function getDigit($code): string
     {
         if (strlen((string) $code) < 12) {
             $code = '0' . $code;
@@ -460,13 +460,13 @@ class BarcodeUPC
         return BarcodeEAN::getDigit($code, 'ean13');
     }
 
-    public static function compute($code)
+    public static function compute($code): string
     {
         if (strlen((string) $code) < 12) {
             $code = '0' . $code;
         }
 
-        return substr((string) BarcodeEAN::compute($code, 'ean13'), 1);
+        return substr(BarcodeEAN::compute($code, 'ean13'), 1);
     }
 }
 
@@ -498,7 +498,7 @@ class BarcodeMSI
         return($code);
     }
 
-    private static function computeMod10($code)
+    private static function computeMod10($code): string
     {
         $len = strlen((string) $code);
         $toPart1 = $len % 2;
@@ -523,7 +523,7 @@ class BarcodeMSI
         return($code . ( (string) (10 - $sum % 10) % 10));
     }
 
-    private static function computeMod11($code)
+    private static function computeMod11($code): string
     {
         $sum = 0;
         $weight = 2;
@@ -535,7 +535,7 @@ class BarcodeMSI
         return($code . ( (string) (11 - $sum % 11) % 11) );
     }
 
-    public static function getDigit($code, $crc)
+    public static function getDigit($code, $crc): string
     {
         if (preg_match('`[^0-9]`', (string) $code)) {
             return '';
@@ -569,7 +569,7 @@ class Barcode11
         '1011011', '1101101', '1001101', '1010011',
         '1101001', '110101', '101101'];
 
-    public static function getDigit($code)
+    public static function getDigit($code): string
     {
         if (preg_match('`[^0-9\-]`', (string) $code)) {
             return '';
@@ -634,7 +634,7 @@ class Barcode39
         '110011010101', '100101101011', '110010110101', '100110110101',
         '100101011011', '110010101101', '100110101101', '100100100101',
         '100100101001', '100101001001', '101001001001', '100101101101'];
-    public static function getDigit($code)
+    public static function getDigit($code): string
     {
         $table = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*';
         $result = '';
@@ -681,7 +681,7 @@ class Barcode93
         '101101110', '101110110', '110101110', '100100110',
         '111011010', '111010110', '100110010', '101011110'];
 
-    public static function getDigit($code, $crc)
+    public static function getDigit($code, $crc): string
     {
         $table = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%____*'; // _ => ($), (%), (/) et (+)
         $result = '';
@@ -770,7 +770,7 @@ class Barcode128
         '10111100010', '11110101000', '11110100010', '10111011110',
         '10111101110', '11101011110', '11110101110', '11010000100',
         '11010010000', '11010011100', '11000111010'];
-    public static function getDigit($code)
+    public static function getDigit($code): string
     {
         $tableB = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         $result = "";
@@ -858,7 +858,7 @@ class BarcodeCodabar
         '1101011011', '1101101011', '1101101101', '1011011011',
         '1011001001', '1010010011', '1001001011', '1010011001'];
 
-    public static function getDigit($code)
+    public static function getDigit($code): string
     {
         $table = '0123456789-$:/.+';
         $result = '';
@@ -986,7 +986,7 @@ class BarcodeDatamatrix
  // SUM IN GALOIS FIELD GF(2^8)
         return $a ^ $b;
     }
-    private static function selectIndex($dataCodeWordsCount, $rectangular)
+    private static function selectIndex($dataCodeWordsCount, $rectangular): int
     {
  // CHOOSE THE GOOD INDEX FOR TABLES
         if (($dataCodeWordsCount < 1 || $dataCodeWordsCount > 1558) && !$rectangular) {
@@ -1005,7 +1005,10 @@ class BarcodeDatamatrix
 
         return $n;
     }
-    private static function encodeDataCodeWordsASCII($text)
+    /**
+     * @return int[]
+     */
+    private static function encodeDataCodeWordsASCII($text): array
     {
         $dataCodeWords = [];
         $n = 0;
@@ -1042,7 +1045,10 @@ class BarcodeDatamatrix
             $tab[$i] = (129 + $r) % 254;
         }
     }
-    private static function calculSolFactorTable($solomonCWCount)
+    /**
+     * @return mixed[]
+     */
+    private static function calculSolFactorTable($solomonCWCount): array
     {
  // CALCULATE THE REED SOLOMON FACTORS
         $g = array_fill(0, $solomonCWCount + 1, 1);
@@ -1089,7 +1095,10 @@ class BarcodeDatamatrix
 
         return $dataTab;
     }
-    private static function getBits($entier)
+    /**
+     * @return mixed[]
+     */
+    private static function getBits($entier): array
     {
  // Transform integer to tab of bits
         $bits = [];
@@ -1223,7 +1232,10 @@ class BarcodeDatamatrix
             $assigned[$row][$col] = 1;
         }
     }
-    private static function addFinderPattern($datamatrix, $rowsRegion, $colsRegion, $rowsRegionCW, $colsRegionCW)
+    /**
+     * @return mixed[]
+     */
+    private static function addFinderPattern($datamatrix, $rowsRegion, $colsRegion, $rowsRegionCW, $colsRegionCW): array
     {
  // Add the finder pattern
         $totalRowsCW = ($rowsRegionCW + 2) * $rowsRegion;
@@ -1259,7 +1271,10 @@ class BarcodeDatamatrix
 
         return $datamatrixTemp;
     }
-    public static function getDigit($text, $rectangular)
+    /**
+     * @return mixed[]
+     */
+    public static function getDigit($text, $rectangular): array
     {
         $dataCodeWords = self::encodeDataCodeWordsASCII($text); // Code the text in the ASCII mode
         $dataCWCount = count($dataCodeWords);

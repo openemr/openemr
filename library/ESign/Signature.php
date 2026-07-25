@@ -56,7 +56,7 @@ class Signature implements SignatureIF
         $this->_verification = new Utils_Verification();
     }
 
-    public function getClass()
+    public function getClass(): string
     {
         $class = "";
         if ($this->isLock() === true) {
@@ -106,7 +106,7 @@ class Signature implements SignatureIF
         return $this->datetime;
     }
 
-    public function isLock()
+    public function isLock(): bool
     {
         if ($this->isLock > 0) {
             return true;
@@ -120,7 +120,7 @@ class Signature implements SignatureIF
         return $this->amendment;
     }
 
-    public function getData()
+    public function getData(): array
     {
         $data = [ $this->tid, $this->table, $this->uid, $this->isLock, $this->hash, $this->amendment ];
         return $data;

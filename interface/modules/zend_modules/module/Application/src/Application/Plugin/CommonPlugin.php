@@ -58,7 +58,7 @@ class CommonPlugin extends AbstractPlugin
         return ApplicationTable::fixDate($date, $output_format, $input_format);
     }
 
-    public static function escapeLimit($val)
+    public static function escapeLimit($val): int
     {
         return escape_limit($val);
     }
@@ -120,7 +120,10 @@ class CommonPlugin extends AbstractPlugin
         return $audit_master_id;
     }
 
-    public function getList($list_id, $selected = '', $opt = '')
+    /**
+     * @return array{value: '', label: mixed, disabled: false}[]|array{value: string, label: mixed, selected: bool}[]
+     */
+    public function getList($list_id, $selected = '', $opt = ''): array
     {
         $this->listenerObject = new Listener();
         $res = QueryUtils::fetchRecords("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", [$list_id]);
@@ -159,7 +162,7 @@ class CommonPlugin extends AbstractPlugin
     * $this->escapeHtml() cannot be used in any files other than view.
     * This function will enable a user to use escapeHtml in any files like controller model etc.
     */
-    public static function escape($string)
+    public static function escape($string): string
     {
         return htmlspecialchars((string) $string, ENT_QUOTES);
     }

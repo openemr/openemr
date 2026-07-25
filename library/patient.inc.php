@@ -79,7 +79,10 @@ function getInsuranceProvider($ins_id)
     return $row['name'] ?? '';
 }
 
-function getInsuranceProviders()
+/**
+ * @return mixed[]
+ */
+function getInsuranceProviders(): array
 {
     $returnval = [];
 
@@ -110,7 +113,10 @@ function getInsuranceProviders()
     return $returnval;
 }
 
-function getInsuranceProvidersExtra()
+/**
+ * @return string[]
+ */
+function getInsuranceProvidersExtra(): array
 {
     $returnval = [];
     // add a global and if for where to allow inactive inscompanies
@@ -166,7 +172,7 @@ function getFacility($facid = 0)
 // Generate a report title including report name and facility name, address
 // and phone.
 //
-function genFacilityTitle($repname = '', $facid = 0, $logo = "")
+function genFacilityTitle($repname = '', $facid = 0, $logo = ""): string
 {
     $s = '';
     $s .= "<table class='ftitletable' width='100%'>\n";
@@ -299,7 +305,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     return ($returnval ?? null);
 }
 
-function getProviderName($providerID, $provider_only = 'any')
+function getProviderName($providerID, $provider_only = 'any'): string
 {
     $pi = getProviderInfo($providerID, $provider_only);
     if (!empty($pi[0]["lname"]) && (strlen((string) $pi[0]["lname"]) > 0)) {
@@ -401,7 +407,7 @@ function getInsuranceDataByDate(
     return sqlQuery($sql, [$pid, $date, $date, $type]);
 }
 
-function get_unallocated_patient_balance($pid)
+function get_unallocated_patient_balance($pid): string
 {
     $unallocated = 0.0;
     $query = "SELECT a.session_id, a.pay_total, a.global_amount " .
@@ -453,7 +459,7 @@ function getEmployerData($pid, $given = "*")
 }
 
 // Generate a consistent header and footer, used for printed patient reports
-function genPatientHeaderFooter($pid, $DOS = null)
+function genPatientHeaderFooter($pid, $DOS = null): string
 {
     $patient_dob = getPatientData($pid, "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
     $patient_name = getPatientName($pid);
@@ -512,7 +518,7 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray = []): v
  */
 // To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
 // it needs to be escaped via whitelisting prior to using this function.
-function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
+function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0"): array
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $names = getPatientNameSplit($term);
@@ -639,7 +645,10 @@ function getPatientNameSplit($term)
 
 // To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
 // it needs to be escaped via whitelisting prior to using this function.
-function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
+/**
+ * @return mixed[]
+ */
+function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0"): array
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sqlBindArray = [];
@@ -837,7 +846,7 @@ function getPatientPID($args)
 }
 
 /* return a patient's name in the format LAST [SUFFIX], FIRST [MIDDLE] */
-function getPatientName($pid)
+function getPatientName($pid): string
 {
     if (empty($pid)) {
         return "";
@@ -893,7 +902,7 @@ function getPatientFullNameAsString($pid): string
 }
 
 /* return a patient's name in the format FIRST LAST */
-function getPatientNameFirstLast($pid)
+function getPatientNameFirstLast($pid): string
 {
     if (empty($pid)) {
         return "";
@@ -1114,7 +1123,7 @@ function newPatientData(
     return $foo['pid'];
 }
 
-function pdValueOrNull($key, $value)
+function pdValueOrNull($key, $value): string
 {
     if (
         (in_array($key, ['DOB', 'regdate', 'contrastart']) ||
@@ -1457,7 +1466,7 @@ function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
     $service = new PatientService();
     return $service->getPatientAgeDisplay($dobYMD, $asOfYMD);
 }
-function dateToDB($date)
+function dateToDB($date): string
 {
     $date = substr((string) $date, 6, 4) . "-" . substr((string) $date, 3, 2) . "-" . substr((string) $date, 0, 2);
     return $date;
@@ -1471,7 +1480,7 @@ function dateToDB($date)
  * @param string $encdate Date in yyyy-mm-dd format.
  * @return array  Array of 0-3 insurance_data rows.
  */
-function getEffectiveInsurances($patient_id, $encdate)
+function getEffectiveInsurances($patient_id, $encdate): array
 {
     $insarr = [];
     foreach (['primary','secondary','tertiary'] as $instype) {
@@ -1495,9 +1504,9 @@ function getEffectiveInsurances($patient_id, $encdate)
  * Get all requisition insurance companies
  *
  *
+ * @return mixed[]
  */
-
-function getAllinsurances($pid)
+function getAllinsurances($pid): array
 {
     $insarr = [];
     $sql = "SELECT a.type, a.provider, a.plan_name, a.policy_number, a.group_number,
@@ -1527,7 +1536,7 @@ function getAllinsurances($pid)
  * @param int $eid Optional encounter id. If value is passed, will fetch only bills from specified encounter.
  * @return number The balance.
  */
-function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_collection = false)
+function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_collection = false): string
 {
     $balance = 0;
     $bindarray = [$pid];
@@ -1598,7 +1607,7 @@ function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_co
     return sprintf('%01.2f', $balance);
 }
 
-function get_patient_balance_excluding($pid, $excluded = -1)
+function get_patient_balance_excluding($pid, $excluded = -1): string
 {
     // We join form_encounter here to make sure we only count amounts for
     // encounters that exist.  We've had some trouble before with encounters

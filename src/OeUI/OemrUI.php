@@ -207,7 +207,7 @@ class OemrUI
      *
      * @return string $container that will reflect the current state of the page i.e. expanded = 'container-fluid' or centered = 'container'
      */
-    public function oeContainer()
+    public function oeContainer(): string
     {
         $container = ($this->current_state) ? 'container-fluid' : 'container';
         return $container;

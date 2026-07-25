@@ -21,14 +21,14 @@ use PHPUnit\Framework\TestCase;
 
 // Define stub helper functions if they don't exist
 if (!function_exists('text')) {
-    function text($text)
+    function text($text): string
     {
         return htmlspecialchars(($text ?? ''), ENT_NOQUOTES);
     }
 }
 
 if (!function_exists('attr')) {
-    function attr($text)
+    function attr($text): string
     {
         return htmlspecialchars(($text ?? ''), ENT_QUOTES);
     }

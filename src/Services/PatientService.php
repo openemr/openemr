@@ -148,7 +148,7 @@ class PatientService extends BaseService
         return sqlStatement($sql);
     }
 
-    public function getFreshPid()
+    public function getFreshPid(): int
     {
         $pid = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
         /** @var int|string|null $pidValue */
@@ -578,7 +578,7 @@ class PatientService extends BaseService
         return $processingResult;
     }
 
-    private function hydratePatientAdditionalAddressInformation(&$record)
+    private function hydratePatientAdditionalAddressInformation(&$record): array
     {
         $address = [
             'id' => $record['contact_address_address_id'] ?? null
@@ -600,7 +600,7 @@ class PatientService extends BaseService
         return $address;
     }
 
-    private function hydratedPatientInitialAddressInformation(&$patient)
+    private function hydratedPatientInitialAddressInformation(&$patient): array
     {
         // we need to setup our initial address from the patient records if we have one
         $address = [
@@ -703,7 +703,7 @@ class PatientService extends BaseService
         return self::getIdByUuid($uuid, self::TABLE_NAME, 'pid');
     }
 
-    public function formatPreviousName($item)
+    public function formatPreviousName($item): string
     {
         return PatientNameHistoryService::formatPreviousName($item);
     }
@@ -862,7 +862,10 @@ class PatientService extends BaseService
         return compact('age', 'age_in_months', 'ageinYMD');
     }
 
-    public function getProviderIDsForPatientPids(array $patientPids)
+    /**
+     * @return mixed[]
+     */
+    public function getProviderIDsForPatientPids(array $patientPids): array
     {
         // get integer only filtered pids for sql safety
         $pids = array_map(intval(...), $patientPids);
@@ -880,7 +883,10 @@ class PatientService extends BaseService
         return $mappedPids;
     }
 
-    public function getProviderIDsForPatientUuids(array $patientUuids)
+    /**
+     * @return mixed[]
+     */
+    public function getProviderIDsForPatientUuids(array $patientUuids): array
     {
         // get integer only filtered pids for sql safety
         $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";

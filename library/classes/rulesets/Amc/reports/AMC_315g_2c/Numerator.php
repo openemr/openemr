@@ -44,12 +44,12 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         $this->lastTestActionData = new AmcItemizedActionData();
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_2c Numerator";
     }
 
-    public function isValidPatient($date_created, $prevent_portal_access, $beginDate, $endDate)
+    public function isValidPatient($date_created, $prevent_portal_access, $beginDate, $endDate): bool
     {
         if (!empty($date_created)) {
             $creationDate = strtotime((string) $date_created);
@@ -151,7 +151,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
     /*
      * This function lets us have language translation as well as interpreting any specific rule item data that is needed.
      */
-    private function parseDetailsToString($details)
+    private function parseDetailsToString($details): string
     {
         $newDetails = '';
         $type = $details['type'] ?? '';

@@ -123,7 +123,7 @@ class smtp_class
         }
     }
 
-    Function PutLine($line)
+    Function PutLine($line): int
     {
         if($this->debug)
             $this->OutputDebug("C $line");
@@ -135,7 +135,7 @@ class smtp_class
         return(1);
     }
 
-    Function PutData(&$data)
+    Function PutData(&$data): int
     {
         if(strlen((string) $data))
         {
@@ -150,7 +150,7 @@ class smtp_class
         return(1);
     }
 
-    Function VerifyResultLines($code,&$responses)
+    Function VerifyResultLines($code,&$responses): int
     {
         $responses=[];
         Unset($this->result_code);
@@ -192,7 +192,7 @@ class smtp_class
         return(-1);
     }
 
-    Function FlushRecipients()
+    Function FlushRecipients(): int
     {
         if($this->pending_sender)
         {
@@ -208,7 +208,7 @@ class smtp_class
         return(1);
     }
 
-    Function ConnectToHost($domain, $port, $resolve_message)
+    Function ConnectToHost($domain, $port, $resolve_message): string
     {
         if($this->ssl)
         {
@@ -248,7 +248,7 @@ class smtp_class
         };
     }
 
-    Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism)
+    Function SASLAuthenticate($mechanisms, $credentials, &$authenticated, &$mechanism): int
     {
         $authenticated=0;
         if(!function_exists("class_exists")
@@ -350,7 +350,7 @@ class smtp_class
 
     /* Public methods */
 
-    Function Connect($domain="")
+    Function Connect($domain=""): int
     {
         if(strcmp((string) $this->state,"Disconnected"))
         {
@@ -437,12 +437,12 @@ class smtp_class
             $this->error="could not determine the SMTP to connect";
             return(0);
         }
-        for($host=0, $error="not connected";strlen((string) $error) && $host<count($hosts);$host++)
+        for($host=0, $error="not connected";strlen($error) && $host<count($hosts);$host++)
         {
             $domain=$hosts[$host];
             $error=$this->ConnectToHost($domain, $this->host_port, "Resolving SMTP server domain \"$domain\"...");
         }
-        if(strlen((string) $error))
+        if(strlen($error))
         {
             $this->error=$error;
             return(0);
@@ -589,7 +589,7 @@ class smtp_class
         return($success);
     }
 
-    Function MailFrom($sender)
+    Function MailFrom($sender): int
     {
         if($this->direct_delivery)
         {
@@ -693,7 +693,7 @@ class smtp_class
         return(1);
     }
 
-    Function StartData()
+    Function StartData(): int
     {
         if(strcmp((string) $this->state,"RecipientSet"))
         {
@@ -723,7 +723,7 @@ class smtp_class
             $output=preg_replace("#(^|\n)\\.#m","\\1..",(string) preg_replace("#\r([^\n]|\$)#m","\r\n\\1",(string) preg_replace("#(^|[^\r])\n#m","\\1\r\n",(string) preg_replace("#\n\n|\r\r#m","\r\n\r\n",(string) $data))));
     }
 
-    Function SendData($data)
+    Function SendData($data): int
     {
         if(strcmp((string) $this->state,"SendingData"))
         {
@@ -734,7 +734,7 @@ class smtp_class
         return($this->PutData($data));
     }
 
-    Function EndSendingData()
+    Function EndSendingData(): int
     {
         if(strcmp((string) $this->state,"SendingData"))
         {
@@ -749,7 +749,7 @@ class smtp_class
         return(1);
     }
 
-    Function ResetConnection()
+    Function ResetConnection(): int
     {
         switch($this->state)
         {
@@ -770,7 +770,7 @@ class smtp_class
         return(1);
     }
 
-    Function Disconnect($quit=1)
+    Function Disconnect($quit=1): int
     {
         if(!strcmp((string) $this->state,"Disconnected"))
         {

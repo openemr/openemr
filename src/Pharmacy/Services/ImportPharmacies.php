@@ -31,7 +31,7 @@ class ImportPharmacies
      * @param $state
      * @return string
      */
-    public function importPharmacies($city, $state)
+    public function importPharmacies($city, $state): int
     {
         $address = new Address();
 
@@ -129,7 +129,7 @@ class ImportPharmacies
      * @return bool
      *
      */
-    private function entryCheck($npi)
+    private function entryCheck($npi): bool
     {
         $sql = "SELECT count(*) AS num FROM pharmacies WHERE npi = ?";
         $query = sqlQuery($sql, [$npi]);

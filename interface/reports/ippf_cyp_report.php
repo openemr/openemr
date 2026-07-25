@@ -27,7 +27,7 @@ if (!empty($_POST)) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
-function formatcyp($amount)
+function formatcyp($amount): string
 {
     if ($amount) {
         return sprintf("%.2f", $amount);

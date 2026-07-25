@@ -47,7 +47,7 @@ class EDI270
     {
     }
 
-    public static function createISA($row, $X12info, $segTer, $compEleSep)
+    public static function createISA($row, $X12info, $segTer, $compEleSep): string
     {
         $ISA = [];
         $ISA[0] = "ISA"; // Interchange Control Header Segment ID
@@ -78,7 +78,7 @@ class EDI270
     }
 
 // GS Segment  - EDI-270 format
-    public static function createGS($row, $X12info, $segTer, $compEleSep)
+    public static function createGS($row, $X12info, $segTer, $compEleSep): string
     {
         $GS = [];
         $GS[0] = "GS";                      // Functional Group Header Segment ID
@@ -96,7 +96,7 @@ class EDI270
     }
 
 // ST Segment  - EDI-270 format
-    public static function createST($row, $X12info, $segTer, $compEleSep)
+    public static function createST($row, $X12info, $segTer, $compEleSep): string
     {
         $ST = [];
         $ST[0] = "ST";                              // Transaction Set Header Segment ID
@@ -109,7 +109,7 @@ class EDI270
     }
 
 // BHT Segment  - EDI-270 format
-    public static function createBHT($row, $X12info, $segTer, $compEleSep)
+    public static function createBHT($row, $X12info, $segTer, $compEleSep): string
     {
         $BHT = [];
         $BHT[0] = "BHT";                        // Beginning of Hierarchical Transaction Segment ID
@@ -126,7 +126,7 @@ class EDI270
     }
 
 // HL Segment  - EDI-270 format
-    public static function createHL($row, $nHlCounter, $X12info, $segTer, $compEleSep)
+    public static function createHL($row, $nHlCounter, $X12info, $segTer, $compEleSep): string
     {
         $HL = [];
         $HL[0] = "HL";             // Hierarchical Level Segment ID
@@ -151,7 +151,7 @@ class EDI270
     }
 
 // NM1 Segment  - EDI-270 format
-    public static function createNM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
+    public static function createNM1($row, $nm1Cast, $X12info, $segTer, $compEleSep): string
     {
         $NM1 = [];
         $NM1[0] = "NM1";                    // Subscriber Name Segment ID
@@ -203,7 +203,7 @@ class EDI270
     }
 
 // REF Segment  - EDI-270 format
-    public static function createREF($row, $ref, $X12info, $segTer, $compEleSep)
+    public static function createREF($row, $ref, $X12info, $segTer, $compEleSep): string
     {
         $REF = [];
         $REF[0] = "REF";                            // Subscriber Additional Identification    does not want this for anything
@@ -220,7 +220,7 @@ class EDI270
     }
 
 // TRN Segment - EDI-270 format
-    public function createTRN($row, $tracno, $refiden, $X12info, $segTer, $compEleSep)
+    public function createTRN($row, $tracno, $refiden, $X12info, $segTer, $compEleSep): string
     {
         $TRN = [];
         $TRN[0] = "TRN";                        // Subscriber Trace Number Segment ID
@@ -234,7 +234,7 @@ class EDI270
     }
 
 // DMG Segment - EDI-270 format
-    public static function createDMG($row, $X12info, $segTer, $compEleSep)
+    public static function createDMG($row, $X12info, $segTer, $compEleSep): string
     {
         $DMG = [];
         $DMG[0] = "DMG";                            // Date or Time or Period Segment ID
@@ -247,7 +247,7 @@ class EDI270
     }
 
 // DTP Segment - EDI-270 format
-    public static function createDTP($row, $qual, $X12info, $segTer, $compEleSep)
+    public static function createDTP($row, $qual, $X12info, $segTer, $compEleSep): string
     {
         $DTP = [];
         $DTP[0] = "DTP";                            // Date or Time or Period Segment ID
@@ -269,7 +269,7 @@ class EDI270
     }
 
 // EQ Segment - EDI-270 format
-    public static function createEQ($row, $X12info, $segTer, $compEleSep)
+    public static function createEQ($row, $X12info, $segTer, $compEleSep): string
     {
         $EQ = [];
         $EQ[0] = "EQ";                                     // Subscriber Eligibility or Benefit Inquiry Information
@@ -280,7 +280,7 @@ class EDI270
     }
 
 // SE Segment - EDI-270 format
-    public static function createSE($row, $segmentcount, $X12info, $segTer, $compEleSep)
+    public static function createSE($row, $segmentcount, $X12info, $segTer, $compEleSep): string
     {
         $SE = [];
         $SE[0] = "SE";                              // Transaction Set Trailer Segment ID
@@ -292,7 +292,7 @@ class EDI270
     }
 
 // GE Segment - EDI-270 format
-    public static function createGE($row, $X12info, $segTer, $compEleSep)
+    public static function createGE($row, $X12info, $segTer, $compEleSep): string
     {
         $GE = [];
         $GE[0] = "GE";                          // Functional Group Trailer Segment ID
@@ -304,7 +304,7 @@ class EDI270
     }
 
 // IEA Segment - EDI-270 format
-    public static function createIEA($row, $X12info, $segTer, $compEleSep)
+    public static function createIEA($row, $X12info, $segTer, $compEleSep): string
     {
         $IEA = [];
         $IEA[0] = "IEA";                        // Interchange Control Trailer Segment ID
@@ -315,7 +315,7 @@ class EDI270
         return trim($IEA['Created']);
     }
 
-    public static function translateRelationship($relationship)
+    public static function translateRelationship($relationship): string
     {
         return match ($relationship) {
             "spouse" => "01",
@@ -875,7 +875,10 @@ HTML;
         return $formData['Payload'];
     }
 
-    public static function mimeParse(string $formBody, $contentType)
+    /**
+     * @return \non-empty-list<string>[]|string[]
+     */
+    public static function mimeParse(string $formBody, $contentType): array
     {
         // Normalize
         $mimeBody = preg_replace('~\r\n?~', "\r\n", $formBody);
@@ -924,7 +927,7 @@ HTML;
         return $rtn['pid'] ?: 0;
     }
 
-    public static function parseEdi271($content)
+    public static function parseEdi271($content): string
     {
 
         $codes = new edih_271_codes('*', '^');
@@ -1133,7 +1136,7 @@ HTML;
         return $log;
     }
 
-    public static function makeEligibilityReport($subscribers = [])
+    public static function makeEligibilityReport($subscribers = []): string
     {
         $binfo = '';
         foreach ($subscribers as $subscriber) {

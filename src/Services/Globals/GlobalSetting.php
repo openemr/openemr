@@ -110,7 +110,7 @@ class GlobalSetting
     ) {
     }
 
-    public function format()
+    public function format(): array
     {
         $result = [
             $this->label,
@@ -150,7 +150,7 @@ class GlobalSetting
         $this->fieldOptions[$key] = $option;
     }
 
-    public function dataTypeSupportsOptions($datatype)
+    public function dataTypeSupportsOptions($datatype): bool
     {
         return in_array($datatype, self::DATA_TYPES_WITH_OPTIONS);
     }

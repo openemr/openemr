@@ -23,12 +23,12 @@ class AMC_315g_7_Denominator implements AmcFilterIF, IAmcItemizedReport
         $this->actionData = new AmcItemizedActionData();
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_7 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // this filtering is done in AbstractAmcReport::collectObjects().  See the transitions-out option
 

@@ -16,7 +16,7 @@ class Range
     {
     }
 
-    public function test($val)
+    public function test($val): bool
     {
         if (
             $val > $this->lowerBound &&

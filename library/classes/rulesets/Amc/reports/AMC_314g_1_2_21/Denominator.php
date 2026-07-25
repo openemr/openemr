@@ -25,12 +25,12 @@
  */
 class AMC_314g_1_2_21_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_314g_1_2_21 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Seen by the EP
         //  (basically needs an encounter within the report dates)

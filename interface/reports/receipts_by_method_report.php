@@ -241,7 +241,7 @@ function showLineItem(
 
 // This is called by usort() when reporting by payer with details.
 // Sorts by payer/date/patient/encounter/memo.
-function payerCmp($a, $b)
+function payerCmp($a, $b): int
 {
     foreach ([4,3,0,1,2,7] as $i) {
         if ($a[$i] < $b[$i]) {

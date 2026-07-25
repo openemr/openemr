@@ -48,24 +48,24 @@ class ModuleconfigController extends AbstractActionController
         return $this->inputFilter;
     }
 
-    public function getHookConfig()
+    public function getHookConfig(): array
     {
         $hooks  =  [];
         return $hooks;
     }
-    public function getAclConfig()
+    public function getAclConfig(): array
     {
         $acl = [];
         return $acl;
     }
 
-    public function configSettings()
+    public function configSettings(): array
     {
         $settings = [];
         return $settings;
     }
 
-    public function getDependedModulesConfig()
+    public function getDependedModulesConfig(): array
     {
         $dependedModules = [];
         return $dependedModules;

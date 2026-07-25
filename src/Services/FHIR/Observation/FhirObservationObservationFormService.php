@@ -169,7 +169,7 @@ class FhirObservationObservationFormService extends FhirServiceBase implements I
         return new FhirSearchParameterDefinition('patient', SearchFieldType::REFERENCE, [new ServiceField('puuid', ServiceField::TYPE_UUID)]);
     }
 
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return self::PROFILE_VERSIONS_V2;
     }

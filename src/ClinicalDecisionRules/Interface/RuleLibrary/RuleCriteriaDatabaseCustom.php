@@ -34,7 +34,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
     ) {
     }
 
-    function getRequirements()
+    function getRequirements(): string
     {
         $requirements = "";
         if ($this->value) {
@@ -49,17 +49,20 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         return $requirements;
     }
 
-    function getTitle()
+    function getTitle(): string
     {
         return $this->table . "." . $this->column;
     }
 
-    function getView()
+    function getView(): string
     {
         return "custom.php";
     }
 
-    function getTableNameOptions()
+    /**
+     * @return array{id: mixed, label: mixed}[]
+     */
+    function getTableNameOptions(): array
     {
         $options = [];
         $stmts = sqlStatement("SHOW TABLES");

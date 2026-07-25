@@ -215,7 +215,7 @@ class Pharmacy extends ORDataObject
         }
     }
 
-    function persist()
+    function persist(): mixed
     {
         // Wrap the whole logical save (parent row, address row, phone_numbers
         // delete + re-insert) in a single transaction. See the matching note
@@ -223,8 +223,9 @@ class Pharmacy extends ORDataObject
         // what stops the duplicate-phone-row accumulation, and the
         // transaction keeps a mid-loop failure from leaving the record with
         // partial or no phone data instead of just the buggy duplicates.
-        QueryUtils::inTransaction(function (): void {
-            parent::persist();
+        $result = null;
+        QueryUtils::inTransaction(function () use (&$result): void {
+            $result = parent::persist();
             $this->address->persist($this->id);
             $phoneService = new PhoneNumberService();
             QueryUtils::sqlStatementThrowException(
@@ -245,9 +246,14 @@ class Pharmacy extends ORDataObject
                 $phoneService->insert($phoneData, $this->id);
             }
         });
+
+        return $result;
     }
 
-    function utility_pharmacy_array()
+    /**
+     * @return array<string, non-falsy-string>
+     */
+    function utility_pharmacy_array(): array
     {
         $pharmacy_array = [];
         $sql = "SELECT p.id, p.name, a.city, a.state " .
@@ -265,7 +271,10 @@ class Pharmacy extends ORDataObject
         return ($pharmacy_array);
     }
 
-    function pharmacies_factory()
+    /**
+     * @return \Pharmacy[]
+     */
+    function pharmacies_factory(): array
     {
         $p = new Pharmacy();
         $pharmacies = [];
@@ -292,7 +301,7 @@ class Pharmacy extends ORDataObject
         return $res['state'];
     }
 
-    function toString($html = false)
+    function toString($html = false): string
     {
         $phoneDisplay = ($this->phone_numbers[0] ?? null)?->formatLocal() ?? '';
         $string = "\n"
@@ -312,7 +321,7 @@ class Pharmacy extends ORDataObject
         return $count['numberof'];
     }
 
-    function getPageno()
+    function getPageno(): int
     {
         return $this->pageno = 1;
     }

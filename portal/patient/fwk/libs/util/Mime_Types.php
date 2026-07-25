@@ -337,7 +337,7 @@ class Mime_Types
      * @param string $ext
      * @return bool
      */
-    function has_extension($ext)
+    function has_extension($ext): bool
     {
         return (isset($this->mime_types [strtolower($ext)]));
     }
@@ -350,7 +350,7 @@ class Mime_Types
      * @param string $type
      * @return bool
      */
-    function has_type($type)
+    function has_type($type): bool
     {
         return (in_array(strtolower($type), $this->mime_types));
     }
@@ -467,7 +467,7 @@ class Mime_Types
      * @param string $file
      * @return bool
      */
-    function load_file($file)
+    function load_file($file): bool
     {
         if (! file_exists($file) || ! is_readable($file)) {
             return false;
@@ -511,7 +511,7 @@ class Mime_Types
      * @return bool
      * @access private
      */
-    function _remove_type_callback(&$mime, $ext_type, $type_info)
+    function _remove_type_callback(&$mime, $ext_type, $type_info): bool
     {
         // temporarily we'll put match to false
         $matched = false;

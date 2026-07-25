@@ -314,7 +314,7 @@ class SearchFieldStatementResolver
      * @param $dateType
      * @return string
      */
-    public static function getDateFieldFormatForDateType($dateType)
+    public static function getDateFieldFormatForDateType($dateType): string
     {
         $format = "Y-m-d H:i:s.u"; // default format is datetime
         if ($dateType == DateSearchField::DATE_TYPE_DATE) {

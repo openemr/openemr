@@ -34,7 +34,7 @@ if (!empty(OEGlobalsBag::getInstance()->get('cdr_report_nice'))) {
     proc_nice(OEGlobalsBag::getInstance()->get('cdr_report_nice'));
 }
 
-function getLabelNumber($label)
+function getLabelNumber($label): string
 {
 
     if (strlen((string) $label) == 0) {

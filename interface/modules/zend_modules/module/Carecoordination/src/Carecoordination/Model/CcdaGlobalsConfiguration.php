@@ -107,7 +107,7 @@ class CcdaGlobalsConfiguration
      * @param string $key
      * @return array
      */
-    private function getSectionDisplayOrderForType($key = self::GLOBAL_KEY_CCDA_CCD_SORT_ORDER)
+    private function getSectionDisplayOrderForType($key = self::GLOBAL_KEY_CCDA_CCD_SORT_ORDER): array
     {
         $codeService = new CodeTypesService();
         $sortOrder = [];

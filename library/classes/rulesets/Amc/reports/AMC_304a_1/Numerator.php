@@ -24,12 +24,12 @@
 
 class AMC_304a_1_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304a_1 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // MEASURE STAGE2: Radiology Order(s) Created CPOE
         if (isset($patient->object['history_order']) && $patient->object['history_order'] == '0') {

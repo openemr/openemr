@@ -24,12 +24,12 @@
 
 class AMC_302f_1_STG1_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302f_1_STG1 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         //Number of unique patients 2 years of age or older seen by the EP during the EHR reporting period (Effective through 2013 only)
         $options = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];

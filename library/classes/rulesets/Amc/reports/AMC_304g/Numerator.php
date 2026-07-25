@@ -11,12 +11,12 @@
 
 class AMC_304g_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304g Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Simply need to have the patient portal allowed.
         // TO DO: THIS ASSUMES THAT THERE IS A FUNCTIONING PATIENT PORTAL

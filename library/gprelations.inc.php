@@ -26,7 +26,7 @@
 // used. However expansion is anticipated, as well as the opportunity to
 // obsolete the issue_encounter table.
 
-function isGpRelation($type1, $id1, $type2, $id2)
+function isGpRelation($type1, $id1, $type2, $id2): bool
 {
     $tmp = sqlQuery("SELECT count(*) AS count FROM gprelations WHERE " .
     "type1 = ? AND id1 = ? AND " .

@@ -43,7 +43,7 @@ if ($viewmode) {
 }
 
 // Sort comparison for sensitivities by their order attribute.
-function sensitivity_compare($a, $b)
+function sensitivity_compare($a, $b): int
 {
     return ($a[2] < $b[2]) ? -1 : 1;
 }

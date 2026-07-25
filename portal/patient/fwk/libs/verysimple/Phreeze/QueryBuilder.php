@@ -116,7 +116,7 @@ class QueryBuilder
      *
      * @return string comma-separated list of escaped DB column names
      */
-    public function GetColumnNames()
+    public function GetColumnNames(): string
     {
         return implode(", ", array_values($this->Columns));
     }
@@ -128,7 +128,7 @@ class QueryBuilder
      * @param Criteria $criteria
      * @return string "from" sql
      */
-    private function GetTableJoinSQL($criteria)
+    private function GetTableJoinSQL($criteria): string
     {
         $sql = "";
 
@@ -191,7 +191,7 @@ class QueryBuilder
      * @param Criteria $criteria
      * @return String "where" part of the sql query
      */
-    private function GetWhereSQL($criteria)
+    private function GetWhereSQL($criteria): string
     {
         $ands = $criteria->GetAnds();
         $ors = $criteria->GetOrs();
@@ -241,7 +241,7 @@ class QueryBuilder
      * @param Criteria $criteria
      * @return string fully formed SQL statement
      */
-    public function GetSQL($criteria)
+    public function GetSQL($criteria): string
     {
         // start building the sql statement
         $sql = "select " . $this->GetColumnNames() . "";
@@ -265,7 +265,7 @@ class QueryBuilder
      * @param Criteria $criteria
      * @return string fully formed SQL statement
      */
-    public function GetCountSQL($criteria)
+    public function GetCountSQL($criteria): string
     {
         $sql = "select count(1) as counter ";
 

@@ -164,7 +164,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * @param array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
-    public function parseFhirResource($fhirResource = [])
+    public function parseFhirResource($fhirResource = []): array
     {
         $data = [];
 

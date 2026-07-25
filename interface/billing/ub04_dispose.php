@@ -118,7 +118,7 @@ function buildTemplate(?string $pid = null, ?string $encounter = null, $htmlin =
     return $htmlin;
 }
 
-function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = "")
+function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = ""): bool
 {
     $top = $_POST["left_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('left_ubmargin_default');
     $side = $_POST["top_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('top_ubmargin_default');
@@ -217,14 +217,14 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $ub04id[4] = $claim->billingFacilityStreet();
     $ub04id[8] = $claim->billingFacilityCity() . ', ' . $claim->billingFacilityState() . ', ' . $claim->billingFacilityZip(); /* 1. BILLING PROVIDER CITY, STATE, ZIP */
     $tmp = $claim->billingContactPhone();
-    $ub04id[10] = substr((string) $tmp, 0, 3) . '-' . substr((string) $tmp, 3, 3) . '-' . substr((string) $tmp, 6);
+    $ub04id[10] = substr($tmp, 0, 3) . '-' . substr($tmp, 3, 3) . '-' . substr($tmp, 6);
     $ub04id[3] = $pid . ' ' . $encounter; /* 3a. PATIENT CONTROL NUMBER */
     $ub04id[6] = $pid; /* 3b. MEDICAL/HEALTH RECORD NUMBER */
     $ub04id[7] = ! empty($ub04id[7]) ? $ub04id[7] : '831'; /* 4. TYPE OF BILL */
     $ub04id[12] = $claim->facilityETIN(); /* 5. FEDERAL TAX NUMBER */
 
     $tmp = $claim->serviceDate();
-    $ub04id[13] = substr((string) $tmp, 4, 2) . substr((string) $tmp, 6, 2) . substr((string) $tmp, 2, 2); /* 6. STATEMENT COVERS PERIOD FROM DATE */
+    $ub04id[13] = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2); /* 6. STATEMENT COVERS PERIOD FROM DATE */
     $ub04id[14] = ''; /* 6. STATEMENT COVERS PERIOD TO DATE */
     // $ub04id[16] = ''; /* 8a. PATIENT IDENTIFIER */
     $tmp = $claim->patientLastName() . ', ' . $claim->patientFirstName();
@@ -309,7 +309,7 @@ function get_ub04_array($pid, $encounter, &$log = "")
         }
         // @todo Deal with code modifiers $revcode2[$mcnt][modifier]
         $tmp = $claim->serviceDate();
-        $sdate = substr((string) $tmp, 4, 2) . substr((string) $tmp, 6, 2) . substr((string) $tmp, 2, 2);
+        $sdate = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2);
         $ub04id[$os] = $claim->procs[$mcnt]['revenue_code']; // 42. REVENUE CODE, Line 1-23 */
         $ub04id[++$os] = strtoupper((string) $revcode2[$mcnt]['code_text']); /* 43. REVENUE DESCRIPTION, Line 1-23 */
         $ub04id[++$os] = trim($revcode2[$mcnt]['code'] . ' ' . $revcode2[$mcnt]['modifier']); /* 44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1-23 */

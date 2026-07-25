@@ -26,7 +26,10 @@ class ExportOnsiteMessagesTableDefinition extends ExportTableDefinition
 {
     const TABLE_NAME = 'onsite_messages';
 
-    public function getRecords()
+    /**
+     * @return mixed[]
+     */
+    public function getRecords(): array
     {
         $selectQuery = $this->getSelectClause(); // make sure we only grab the clauses we allow
 

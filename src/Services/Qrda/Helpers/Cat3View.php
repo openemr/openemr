@@ -21,7 +21,7 @@ trait Cat3View
          */
     }
 
-    public function population_value(\Mustache_Context $context)
+    public function population_value(\Mustache_Context $context): float
     {
         $value = $context->find('value');
         return round($value);
@@ -32,7 +32,7 @@ trait Cat3View
          */
     }
 
-    public function msrpopl(\Mustache_Context $context)
+    public function msrpopl(\Mustache_Context $context): bool
     {
         $type = $context->find('type');
         return $type == 'MSRPOPL';
@@ -43,7 +43,7 @@ trait Cat3View
          */
     }
 
-    public function not_observ(\Mustache_Context $context)
+    public function not_observ(\Mustache_Context $context): bool
     {
         $type = $context->find('type');
         return $type != 'OBSERV';
@@ -220,7 +220,10 @@ trait Cat3View
         return $this->reformat_supplemental_data($supplemental_data);
     }
 
-    protected function reformat_supplemental_data($supplemental_data)
+    /**
+     * @return array{code: mixed, value: mixed, type: mixed}[]
+     */
+    protected function reformat_supplemental_data($supplemental_data): array
     {
         $supplemental_data_array = [];
         foreach ($supplemental_data as $supplemental_data_key => $counts) {

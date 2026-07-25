@@ -67,7 +67,7 @@ function hl7Race($s)
     return $s;
 }
 
-function hl7Workman($s)
+function hl7Workman($s): string
 {
     // $tmp = strtolower($s);
     if ($s == 15) {
@@ -85,7 +85,7 @@ function hl7Workman($s)
  * @param  date $encounter_date YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
-function labcorp_loadPayerInfo($pid, $date = '')
+function labcorp_loadPayerInfo($pid, $date = ''): array
 {
     if (empty($date)) {
         $date = date('Y-m-d');
@@ -121,7 +121,10 @@ function labcorp_loadPayerInfo($pid, $date = '')
     return $payers;
 }
 
-function loadGuarantorInfo($pid, $date = '')
+/**
+ * @return array{data: mixed}[]
+ */
+function loadGuarantorInfo($pid, $date = ''): array
 {
     if (empty($date)) {
         $date = date('Y-m-d');
@@ -678,7 +681,7 @@ function labcorp_gen_hl7_order(int $orderid): Hl7OrderResult
  * @param  string  $out   The HL7 text to be sent.
  * @return string         Error text, or empty if no errors.
  */
-function labcorp_send_hl7_order($ppid, $out)
+function labcorp_send_hl7_order($ppid, $out): string
 {
     global $srcdir;
 

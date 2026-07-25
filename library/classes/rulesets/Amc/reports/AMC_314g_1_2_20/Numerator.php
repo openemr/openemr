@@ -29,7 +29,7 @@ class AMC_314g_1_2_20_Numerator implements AmcFilterIF
     // 1. Remove the $patArr stuff.
     //
     public $patArr = [];
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_314g_1_2_20 Numerator";
     }

@@ -201,7 +201,10 @@ class AppointmentService extends BaseService
         return $processingResult;
     }
 
-    public function getAppointmentsForPatient($pid)
+    /**
+     * @return mixed[]
+     */
+    public function getAppointmentsForPatient($pid): array
     {
         $sqlBindArray = [];
 
@@ -256,7 +259,10 @@ class AppointmentService extends BaseService
         return $finalRecords;
     }
 
-    public function getAppointment($eid)
+    /**
+     * @return mixed[]
+     */
+    public function getAppointment($eid): array
     {
         $sql = "SELECT pce.pc_eid,
                        pce.uuid AS pc_uuid,
@@ -507,7 +513,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public static function isCheckInStatus($option)
+    public static function isCheckInStatus($option): bool
     {
         $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", [$option]);
@@ -523,7 +529,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public static function isCheckOutStatus($option)
+    public static function isCheckOutStatus($option): bool
     {
         $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", [$option]);
@@ -534,7 +540,7 @@ class AppointmentService extends BaseService
         return(true);
     }
 
-    public function isPendingStatus($option)
+    public function isPendingStatus($option): bool
     {
         // TODO: @adunsulag is there ANY way to track this in the database of what statii are pending?
         if ($option == '^') {
@@ -547,7 +553,7 @@ class AppointmentService extends BaseService
      * Returns a list of appointment statuses (also used with encounters).
      * @return array
      */
-    public function getAppointmentStatuses()
+    public function getAppointmentStatuses(): array
     {
         $listService = new ListService();
         $options = $listService->getOptionsByListName('apptstat', ['activity' => 1]);
@@ -559,7 +565,7 @@ class AppointmentService extends BaseService
      * @param $status_option_id The status to check if its a valid appointment status
      * @return bool True if its valid, false otherwise
      */
-    public function isValidAppointmentStatus($status_option_id)
+    public function isValidAppointmentStatus($status_option_id): bool
     {
         $listService = new ListService();
         $option = $listService->getListOption('apptstat', $status_option_id);

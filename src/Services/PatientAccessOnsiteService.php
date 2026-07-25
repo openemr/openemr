@@ -146,7 +146,10 @@ class PatientAccessOnsiteService
         ];
     }
 
-    public function sendCredentialsEmail($pid, $pwd, $username, $loginUsername, $emailDirect)
+    /**
+     * @return mixed[]
+     */
+    public function sendCredentialsEmail($pid, $pwd, $username, $loginUsername, $emailDirect): array
     {
         // Create the message
         $fhirServerConfig = new ServerConfig();
@@ -248,12 +251,12 @@ class PatientAccessOnsiteService
         return $trustedEmail;
     }
 
-    public function getRandomPortalPassword()
+    public function getRandomPortalPassword(): string
     {
         return RandomGenUtils::generatePortalPassword();
     }
 
-    private function emailLogin($patient_id, $htmlMsg, $plainMsg, Environment $twig)
+    private function emailLogin($patient_id, $htmlMsg, $plainMsg, Environment $twig): bool
     {
         $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
         if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email'))) {

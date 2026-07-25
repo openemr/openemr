@@ -21,17 +21,17 @@ use OpenEMR\Services\VersionService;
 
 $facilityService = new FacilityService();
 
-function getErxPath()
+function getErxPath(): string
 {
     return OEGlobalsBag::getInstance()->getString('erx_newcrop_path');
 }
 
-function getErxSoapPath()
+function getErxSoapPath(): string
 {
     return OEGlobalsBag::getInstance()->getString('erx_newcrop_path_soap');
 }
 
-function getErxCredentials()
+function getErxCredentials(): array
 {
     $cred = [];
     $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_partner_name');
@@ -69,7 +69,7 @@ function stripPhoneSlashes($str)
     return $str;
 }
 
-function trimData($str, $length)
+function trimData($str, $length): string
 {
     $str = substr((string) $str, 0, ($length - 1));
     return $str;
@@ -594,7 +594,10 @@ function MidlevelPrescriber($doc, $r): void
     $r->appendChild($b);
 }
 
-function Patient($doc, $r, $pid)
+/**
+ * @return mixed[]
+ */
+function Patient($doc, $r, $pid): array
 {
     global $msg,$warning_msg,$dem_check;
     $patient_data = sqlQuery("select *, DATE_FORMAT(DOB,'%Y%m%d') AS date_of_birth from patient_data where pid=?", [$pid]);
@@ -637,7 +640,7 @@ function Patient($doc, $r, $pid)
         $patient_data['street'] = stripSpecialCharacter($patient_data['street']);
         $patient_data['street'] = trimData($patient_data['street'], 35);
         $msg = validation(xl('Patient Address'), $patient_data['street'], $msg);
-    if (trim((string) $patient_data['street']) == '') {
+    if (trim($patient_data['street']) == '') {
         $warning_msg .= "<br />" . xlt("Patient Address is missing");
     }
 
@@ -793,7 +796,10 @@ function OutsidePrescription($doc, $r, $pid, $prescid): void
     }
 }
 
-function PatientMedication($doc, $r, $pid, $med_limit)
+/**
+ * @return mixed[]
+ */
+function PatientMedication($doc, $r, $pid, $med_limit): array
 {
     global $msg;
     $active = '';
@@ -854,7 +860,10 @@ function PatientMedication($doc, $r, $pid, $med_limit)
     return $uploaded_med_arr;
 }
 
-function PatientFreeformAllergy($doc, $r, $pid)
+/**
+ * @return mixed[]
+ */
+function PatientFreeformAllergy($doc, $r, $pid): array
 {
     $res = sqlStatement("SELECT id,l.title as title1,lo.title as title2,comments FROM lists AS l
     LEFT JOIN list_options AS lo ON l.outcome = lo.option_id AND lo.list_id = 'outcome' AND lo.activity = 1
@@ -948,7 +957,7 @@ function PrescriptionRenewalResponse($doc, $r, $pid): void
     $r->appendChild($b);
 }
 
-function checkError($xml)
+function checkError($xml): string
 {
     $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
     $ch = curl_init($xml);

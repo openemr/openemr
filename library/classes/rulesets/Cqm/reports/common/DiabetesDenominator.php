@@ -9,12 +9,12 @@
 //
 class DiabetesDenominator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Denominator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         // TODO how to check for these medication types?
         $beginMinus2Years = strtotime('-2 year', strtotime((string) $beginDate));

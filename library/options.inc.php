@@ -97,7 +97,7 @@ function get_pharmacies()
     "ORDER BY a.state, a.city, d.name, p.area_code, p.prefix, p.number");
 }
 
-function optionalAge($frow, $date, &$asof, $description = '')
+function optionalAge($frow, $date, &$asof, $description = ''): string
 {
     $asof = '';
     if (empty($date)) {
@@ -150,7 +150,7 @@ function generate_select_list(
     $ignore_default = false,
     $include_inactive = false,
     $tabIndex = false
-) {
+): string {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $attributes = [];
     $_options = [];
@@ -441,7 +441,7 @@ function parse_static_text($frow, $value_allowed = true)
     return $s;
 }
 
-function genLabResultsTextItem($name, $value, $outtype, $size, $maxlength, $disabled = '')
+function genLabResultsTextItem($name, $value, $outtype, $size, $maxlength, $disabled = ''): string
 {
     $string_maxlength = $maxlength ? ("maxlength='" . attr($maxlength) . "'") : '';
     $s = "<td align='center'>";
@@ -461,7 +461,7 @@ function genLabResultsTextItem($name, $value, $outtype, $size, $maxlength, $disa
 }
 
 // $outtype = 0 for form, 1 for print, 2 for display, 3 for plain text.
-function genLabResults($frow, $currvalue, $outtype = 0, $disabled = '')
+function genLabResults($frow, $currvalue, $outtype = 0, $disabled = ''): string
 {
     $field_id = $frow['field_id'];
     $list_id  = $frow['list_id'];
@@ -2346,7 +2346,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
  *
  * Use the translate flag to run the title element through the translator
  */
-function generate_list_map($list_id, $translate = false)
+function generate_list_map($list_id, $translate = false): array
 {
     $result = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ?", [$list_id]);
     $map = [];
@@ -2358,7 +2358,7 @@ function generate_list_map($list_id, $translate = false)
     return $map;
 }
 
-function generate_display_field($frow, $currvalue)
+function generate_display_field($frow, $currvalue): string
 {
     global $ISSUE_TYPES, $facilityService;
 
@@ -3267,7 +3267,7 @@ function bs_disp_end_group(): void
 
 //
 
-function getPatientDescription($pid)
+function getPatientDescription($pid): string
 {
     $prow = sqlQuery("SELECT lname, fname FROM patient_data WHERE pid = ?", [$pid]);
     if ($prow) {
@@ -4676,7 +4676,10 @@ function getLayoutTitle($list, $option)
     return xl_list_label($row['grp_title']);
 }
 //Added on 5-jun-2k14 (regarding get the smoking code descriptions)
-function getSmokeCodes()
+/**
+ * @return mixed[]
+ */
+function getSmokeCodes(): array
 {
     $smoking_codes_arr = [];
     $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
@@ -4801,7 +4804,7 @@ function lbf_current_value($frow, $formid, $encounter)
     return $currvalue;
 }
 
-function signer_head()
+function signer_head(): string
 {
     return "<link href=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/css/signer_modal.css?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\" rel=\"stylesheet\"/>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signature_pad.umd.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signer_api.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>";
 }
@@ -4810,7 +4813,7 @@ function signer_head()
 // the drawable image field type in a form.
 // A TRUE argument makes the widget controls smaller.
 //
-function lbf_canvas_head($small = true)
+function lbf_canvas_head($small = true): string
 {
     $s = "<link  href=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/css/literallycanvas.css\" rel=\"stylesheet\" />\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-with-addons.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-dom.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/js/literallycanvas.min.js\"></script>";
     if ($small) {

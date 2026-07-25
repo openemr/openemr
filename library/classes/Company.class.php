@@ -67,7 +67,7 @@ class Company extends ORDataObject
         return $a;
     }
 
-    function toString($html = false)
+    function toString($html = false): string
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"
@@ -159,12 +159,12 @@ class Company extends ORDataObject
     {
         return $this->country;
     }
-    function persist($fid = "")
+    function persist($fid = ""): mixed
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
 
-        parent::persist();
+        return parent::persist();
     }
 } // end of Company

@@ -24,19 +24,19 @@ function check_date_format($date)
     return (count($ymd) == 3) && ($ymd[0] > 1900) && checkdate($ymd[1], $ymd[2], $ymd[0]);
 }
 
-function check_age($age)
+function check_age($age): bool
 {
     $age = trim((string) $age);
     $pat = "/^([0-9]+)$/";
     return preg_match($pat, $age) or $age == '';
 }
 
-function check_select($select, $array)
+function check_select($select, $array): bool
 {
     return array_search($select, $array) or 0 === array_search($select, $array);
 }
 
-function where_or_and($and)
+function where_or_and($and): string
 {
     if ($and == '') {
         $and = 'WHERE ';

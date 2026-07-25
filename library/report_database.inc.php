@@ -204,7 +204,7 @@ function finishReportDatabase($report_id, $data): void
  * @param int $report_id Report id
  * @return  array                Array of id/values for a report
  */
-function collectReportDatabase($report_id)
+function collectReportDatabase($report_id): array
 {
 
   // Collect the rows of data
@@ -225,7 +225,7 @@ function collectReportDatabase($report_id)
  * @param int $report_id Report id
  * @return  string               Status report (PENDING, COMPLETE, or return a string with progress)
  */
-function getStatusReportDatabase($report_id)
+function getStatusReportDatabase($report_id): string
 {
 
   // Collect the pertinent rows of data
@@ -467,7 +467,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
  * @param $amc_report_types If an AMC report, the specific AMC report type
  * @return array A formatted array of record rows to be used for displaying a CQM/AMC/Standard report.
  */
-function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = [])
+function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $amc_report_types = []): array
 {
     $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];

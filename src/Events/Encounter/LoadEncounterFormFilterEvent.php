@@ -70,7 +70,7 @@ class LoadEncounterFormFilterEvent extends Event
     /**
      * @return mixed
      */
-    public function getDir()
+    public function getDir(): string
     {
         return $this->dir;
     }
@@ -119,7 +119,7 @@ class LoadEncounterFormFilterEvent extends Event
         $this->dir = $dir;
     }
 
-    public function getFormIncludePath()
+    public function getFormIncludePath(): string
     {
         return $this->dir . $this->pageName;
     }

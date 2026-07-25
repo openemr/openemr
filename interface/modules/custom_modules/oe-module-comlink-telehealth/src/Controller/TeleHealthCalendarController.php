@@ -230,18 +230,18 @@ class TeleHealthCalendarController
         }
     }
 
-    private function isAppointmentPageInclude($pageName, $scriptPath)
+    private function isAppointmentPageInclude($pageName, $scriptPath): bool
     {
         // make sure our script path is in calendar
         return $pageName == "add_edit_event.php" && basename(dirname((string) $scriptPath)) == 'calendar';
     }
 
-    private function isCalendarPageInclude($pageName)
+    private function isCalendarPageInclude($pageName): bool
     {
         return $pageName == 'pnuserapi.php' || $pageName == 'pnadmin.php';
     }
 
-    private function getAssetPath()
+    private function getAssetPath(): string
     {
         return $this->assetPath;
     }

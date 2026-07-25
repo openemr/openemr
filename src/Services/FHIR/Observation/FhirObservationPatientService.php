@@ -64,7 +64,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
     {
         return isset(self::COLUMN_MAPPINGS[$code]);
     }
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return $category === self::CATEGORY_SOCIAL_HISTORY;
     }
@@ -297,7 +297,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
         }
     }
 
-    public function getSupportedVersions()
+    public function getSupportedVersions(): array
     {
         return self::PROFILE_VERSIONS_V2;
     }

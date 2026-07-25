@@ -497,7 +497,7 @@ class eRxSOAP
      * Trigger Allergy History SOAP call to NewCrop for current patient and update local cached data
      * @return int Count of newly cached records
      */
-    public function insertUpdateAllergies()
+    public function insertUpdateAllergies(): int
     {
         $store = $this->getStore();
 
@@ -592,7 +592,7 @@ class eRxSOAP
      * Update eRx uploaded status for current patient allergies
      * @return bool True on success, false on failure
      */
-    public function updateUploadedErx()
+    public function updateUploadedErx(): bool
     {
         $patientFreeFormAllergyHistory = $this
             ->getPatientFreeFormAllergyHistory()
@@ -620,7 +620,7 @@ class eRxSOAP
      * Insert or update medications for current patient
      * @return int Count of newly cached records
      */
-    public function insertUpdateMedications()
+    public function insertUpdateMedications(): int
     {
         $store = $this->getStore();
 

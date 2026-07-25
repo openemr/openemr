@@ -66,13 +66,13 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
     }
 
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return !in_array(DocumentReferenceCategoryEnum::tryFrom($category), DocumentReferenceCategoryEnum::cases());
     }
 
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
         // exclude advanced directive codes as those are handled by another service
         return !in_array(DocumentReferenceAdvancedDirectiveCodeEnum::tryFrom($code), DocumentReferenceAdvancedDirectiveCodeEnum::cases());

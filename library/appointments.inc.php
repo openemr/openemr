@@ -80,7 +80,7 @@ $REPEAT_ON_DAY = array_map(
     DayOfWeek::cases(),
 );
 
-function checkEvent($recurrtype, $recurrspec)
+function checkEvent($recurrtype, $recurrspec): int
 {
 
     $eFlag = 0;
@@ -103,7 +103,10 @@ function checkEvent($recurrtype, $recurrspec)
     return $eFlag;
 }
 
-function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null)
+/**
+ * @return mixed[]
+ */
+function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null): array
 {
     $sqlBindArray = [];
 
@@ -345,7 +348,10 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 ////////////////////// End of code inserted by epsdky
 }
 
-function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id = null)
+/**
+ * @return mixed[]
+ */
+function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id = null): array
 {
     $sqlBindArray = [];
 
@@ -367,7 +373,10 @@ function fetchAllEvents($from_date, $to_date, $provider_id = null, $facility_id 
 }
 
 //Support for therapy group appointments added by shachar z.
-function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null, $patient_name = null)
+/**
+ * @return mixed[]
+ */
+function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_id = null, $facility_id = null, $pc_appstatus = null, $with_out_provider = null, $with_out_facility = null, $pc_catid = null, $tracker_board = false, $nextX = 0, $group_id = null, $patient_name = null): array
 {
     $sqlBindArray = [];
 
@@ -440,7 +449,10 @@ function fetchAppointments($from_date, $to_date, $patient_id = null, $provider_i
 }
 
 //Support for therapy group appointments added by shachar z.
-function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null)
+/**
+ * @return mixed[]
+ */
+function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null): array
 {
 
     $appts = [];
@@ -454,7 +466,10 @@ function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null)
     return $nextXAppts;
 }
 
-function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1')
+/**
+ * @return mixed[]
+ */
+function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1'): array
 {
 
     $currentDate = date("Y-m-d");
@@ -504,7 +519,10 @@ function getSlotSize()
     return 15 * 60;
 }
 
-function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_id = null)
+/**
+ * @return mixed[]
+ */
+function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_id = null): array
 {
     $appointments = fetchAllEvents($from_date, $to_date, $provider_id, $facility_id);
     $appointments = sortAppointments($appointments, "date");
@@ -590,7 +608,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
     return $availableSlots;
 }
 
-function createAvailableSlot($event_date, $start_time, $provider_fname, $provider_lname, $provider_mname = "", $cat_name = "Available")
+function createAvailableSlot($event_date, $start_time, $provider_fname, $provider_lname, $provider_mname = "", $cat_name = "Available"): array
 {
     $newSlot = [];
     $newSlot['ulname'] = $provider_lname;
@@ -642,7 +660,7 @@ function compareAppointments($appointment1, $appointment2)
     return 0;
 }
 
-function compareBasic($e1, $e2)
+function compareBasic($e1, $e2): int
 {
     if ($e1 < $e2) {
         return -1;
@@ -653,7 +671,7 @@ function compareBasic($e1, $e2)
     return 0;
 }
 
-function compareAppointmentsByDate($appointment1, $appointment2)
+function compareAppointmentsByDate($appointment1, $appointment2): int
 {
     $date1 = strtotime((string) $appointment1['pc_eventDate']);
     $date2 = strtotime((string) $appointment2['pc_eventDate']);
@@ -661,7 +679,7 @@ function compareAppointmentsByDate($appointment1, $appointment2)
     return compareBasic($date1, $date2);
 }
 
-function compareAppointmentsByTime($appointment1, $appointment2)
+function compareAppointmentsByTime($appointment1, $appointment2): int
 {
     $time1 = strtotime((string) $appointment1['pc_startTime']);
     $time2 = strtotime((string) $appointment2['pc_startTime']);
@@ -669,7 +687,7 @@ function compareAppointmentsByTime($appointment1, $appointment2)
     return compareBasic($time1, $time2);
 }
 
-function compareAppointmentsByDoctorName($appointment1, $appointment2)
+function compareAppointmentsByDoctorName($appointment1, $appointment2): int
 {
     $name1 = $appointment1['ulname'];
     $name2 = $appointment2['ulname'];
@@ -683,7 +701,7 @@ function compareAppointmentsByDoctorName($appointment1, $appointment2)
     return $cmp;
 }
 
-function compareAppointmentsByPatientName($appointment1, $appointment2)
+function compareAppointmentsByPatientName($appointment1, $appointment2): int
 {
     $name1 = $appointment1['lname'];
     $name2 = $appointment2['lname'];
@@ -697,42 +715,42 @@ function compareAppointmentsByPatientName($appointment1, $appointment2)
     return $cmp;
 }
 
-function compareAppointmentsByType($appointment1, $appointment2)
+function compareAppointmentsByType($appointment1, $appointment2): int
 {
     $type1 = $appointment1['pc_catid'];
     $type2 = $appointment2['pc_catid'];
     return compareBasic($type1, $type2);
 }
 
-function compareAppointmentsByPatientId($appointment1, $appointment2)
+function compareAppointmentsByPatientId($appointment1, $appointment2): int
 {
     $id1 = $appointment1['pubpid'];
     $id2 = $appointment2['pubpid'];
     return compareBasic($id1, $id2);
 }
 
-function compareAppointmentsByComment($appointment1, $appointment2)
+function compareAppointmentsByComment($appointment1, $appointment2): int
 {
     $comment1 = $appointment1['pc_hometext'];
     $comment2 = $appointment2['pc_hometext'];
     return compareBasic($comment1, $comment2);
 }
 
-function compareAppointmentsByStatus($appointment1, $appointment2)
+function compareAppointmentsByStatus($appointment1, $appointment2): int
 {
     $status1 = $appointment1['pc_apptstatus'];
     $status2 = $appointment2['pc_apptstatus'];
     return compareBasic($status1, $status2);
 }
 
-function compareAppointmentsByTrackerStatus($appointment1, $appointment2)
+function compareAppointmentsByTrackerStatus($appointment1, $appointment2): int
 {
     $trackerstatus1 = $appointment1['status'];
     $trackerstatus2 = $appointment2['status'];
     return compareBasic($trackerstatus1, $trackerstatus2);
 }
 
-function compareAppointmentsByCompletedDrugScreen($appointment1, $appointment2)
+function compareAppointmentsByCompletedDrugScreen($appointment1, $appointment2): int
 {
     $completed1 = $appointment1['drug_screen_completed'];
     $completed2 = $appointment2['drug_screen_completed'];
@@ -751,7 +769,7 @@ function fetchAppointmentCategories()
      return sqlStatement($catSQL);
 }
 
-function interpretRecurrence($recurr_freq, $recurr_type)
+function interpretRecurrence($recurr_freq, $recurr_type): string
 {
     global $REPEAT_FREQ, $REPEAT_FREQ_TYPE, $REPEAT_ON_NUM, $REPEAT_ON_DAY;
     $interpreted = "";
@@ -776,7 +794,10 @@ function interpretRecurrence($recurr_freq, $recurr_type)
     return $interpreted;
 }
 
-function fetchRecurrences($pid)
+/**
+ * @return mixed[]
+ */
+function fetchRecurrences($pid): array
 {
     $query = "SELECT pe.pc_title, pe.pc_endDate, pe.pc_recurrtype, pe.pc_recurrspec, pc.pc_catname FROM openemr_postcalendar_events AS pe "
                     . "JOIN openemr_postcalendar_categories AS pc ON pe.pc_catid=pc.pc_catid "
@@ -795,7 +816,7 @@ function fetchRecurrences($pid)
     return $result_data;
 }
 
-function ends_in_a_week($end_date)
+function ends_in_a_week($end_date): bool
 {
     $timestamp_in_a_week = strtotime('+7 day');
     $timestamp_end_date = strtotime((string) $end_date);
@@ -807,7 +828,7 @@ function ends_in_a_week($end_date)
 }
 
 //Checks if recurrence is current (didn't end yet).
-function recurrence_is_current($end_date)
+function recurrence_is_current($end_date): bool
 {
     $end_date_timestamp = strtotime((string) $end_date);
     $current_timestamp = time();

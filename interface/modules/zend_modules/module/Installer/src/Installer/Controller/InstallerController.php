@@ -358,7 +358,7 @@ class InstallerController extends AbstractActionController
      * @param unknown_type $data
      * @return string
      */
-    private function getContent($data)
+    private function getContent($data): string
     {
         $string = "";
         foreach ($data as $key => $value) {
@@ -683,7 +683,7 @@ class InstallerController extends AbstractActionController
     /**
      * @return bool
      */
-    public function InstallModuleSQL(int $modId)
+    public function InstallModuleSQL(int $modId): bool
     {
         $registryEntry = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
         $dirModule = $registryEntry->modDirectory;
@@ -706,7 +706,7 @@ class InstallerController extends AbstractActionController
     /**
      * @return array
      */
-    public function UpgradeModuleSQL(int $modId)
+    public function UpgradeModuleSQL(int $modId): array
     {
         $Module = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
         $modType = $Module->type;

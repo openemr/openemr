@@ -42,7 +42,10 @@ use OpenEMR\Billing\SLEOB;
 //
 class InvoiceSummary
 {
-    public static function arGetInvoiceSummary($patient_id, $encounter_id, $with_detail = false)
+    /**
+     * @return array{chg: (float | int), bal: mixed, adj?: (float | int), ins?: (int<min, -1> | int<1, max>), dtl?: non-empty-array<('          1000' | '          1001'), (array{chg: (float | int), pmt: mixed, pmt_method: mixed, msp: mixed, rsn: (array | string), src: mixed, insurance_company: string, ins: (int<min, -1> | int<1, max>), plv: mixed, arseq: mixed} | array{chg: (float | int), pmt: mixed, pmt_method: mixed, rsn: (array | string), src: mixed, insurance_company: string, plv: mixed, arseq: mixed} | array{chg: numeric-string, pmt: mixed, pmt_method: mixed, msp: mixed, src: mixed, insurance_company: string, ins: (int<min, -1> | int<1, max>), plv: mixed, arseq: mixed} | array{chg: numeric-string, pmt: mixed, pmt_method: mixed, src: mixed, insurance_company: string, plv: mixed, arseq: mixed})>}[]|array{chg: (float | int), bal: mixed, code_type: mixed, code_value: mixed, modifier: mixed, code_text: mixed, dtl?: non-empty-array<('          1000' | '          1001'), (array{chg: (float | int), pmt: mixed, pmt_method: mixed, msp: mixed, rsn: (array | string), src: mixed, insurance_company: string, ins: (int<min, -1> | int<1, max>), plv: mixed, arseq: mixed} | array{chg: (float | int), pmt: mixed, pmt_method: mixed, rsn: (array | string), src: mixed, insurance_company: string, plv: mixed, arseq: mixed} | array{chg: numeric-string, pmt: mixed, pmt_method: mixed, msp: mixed, src: mixed, insurance_company: string, ins: (int<min, -1> | int<1, max>), plv: mixed, arseq: mixed} | array{chg: numeric-string, pmt: mixed, pmt_method: mixed, src: mixed, insurance_company: string, plv: mixed, arseq: mixed} | array{chg: string})>, adj?: (float | int), ins?: (int<min, -1> | int<1, max>)}[]
+     */
+    public static function arGetInvoiceSummary($patient_id, $encounter_id, $with_detail = false): array
     {
         $codes = [];
         $keysuff1 = 1000;

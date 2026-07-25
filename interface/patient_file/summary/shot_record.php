@@ -45,7 +45,10 @@ if ($_GET['output'] == "html") {
 }
 
 
-function convertToDataArray($data_array)
+/**
+ * @return array<int, non-empty-array<\non-falsy-string, mixed>>
+ */
+function convertToDataArray($data_array): array
 {
     $current = 0;
     $data = [];

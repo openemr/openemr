@@ -37,7 +37,7 @@ class TelehealthRegistrationCodeService
         return $registrationCode;
     }
 
-    public function generateRegistrationCode()
+    public function generateRegistrationCode(): string
     {
         // generate a unique character string that will identify the patient with this installation
         return RandomGenUtils::createUniqueToken($this->globalConfig->getAppRegistrationCodeLength());

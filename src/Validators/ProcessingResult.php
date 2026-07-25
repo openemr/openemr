@@ -93,7 +93,7 @@ class ProcessingResult
         array_push($this->internalErrors, $internalError);
     }
 
-    public function hasData()
+    public function hasData(): bool
     {
         return !empty($this->data);
     }
@@ -181,7 +181,7 @@ class ProcessingResult
     /**
      * @return bool True if the instance contains either validation or internal errors.
      */
-    public function hasErrors()
+    public function hasErrors(): bool
     {
         return !$this->isValid() || $this->hasInternalErrors();
     }

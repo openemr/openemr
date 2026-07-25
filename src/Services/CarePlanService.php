@@ -329,7 +329,7 @@ class CarePlanService extends BaseService
      * @param array $record An array containing a 'form_id' and 'euuid' element.
      * @return string The surrogate key.
      */
-    public function getSurrogateKeyForRecord(array $record)
+    public function getSurrogateKeyForRecord(array $record): string
     {
         // Only form_id + encounter = ONE CarePlan
         $form_id = $record['form_id'] ?? '';
@@ -349,7 +349,7 @@ class CarePlanService extends BaseService
      * @param $key string the key to parse
      * @return array The broken up key parts.
      */
-    public function splitSurrogateKeyIntoParts($key)
+    public function splitSurrogateKeyIntoParts($key): array
     {
         $delimiter = self::SURROGATE_KEY_SEPARATOR_V2;
         if (str_contains((string)$key, self::SURROGATE_KEY_SEPARATOR_V1)) {

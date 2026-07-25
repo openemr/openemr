@@ -337,13 +337,16 @@ class Claim
 
 
   // Return an array of adjustments from the designated prior payer for the
-  // designated procedure key (might be procedure:modifier), or for the claim
-  // level.  For each adjustment give date, group code, reason code, amount.
-  // Note this will include "patient responsibility" adjustments which are
-  // not adjustments to OUR invoice, but they reduce the amount that the
-  // insurance company pays.
-  //
-    public function payerAdjustments($ins, $code = 'Claim')
+    // designated procedure key (might be procedure:modifier), or for the claim
+    // level.  For each adjustment give date, group code, reason code, amount.
+    // Note this will include "patient responsibility" adjustments which are
+    // not adjustments to OUR invoice, but they reduce the amount that the
+    // insurance company pays.
+    //
+    /**
+     * @return array{(non-empty-array | non-falsy-string), 'PR', ('1' | '2'), string, mixed}[]|array{(non-empty-array | string), 'CO', non-empty-string, string}[]
+     */
+    public function payerAdjustments($ins, $code = 'Claim'): array
     {
         $aadj = [];
 
@@ -594,7 +597,7 @@ class Claim
 
   // Return invoice total, including adjustments but not payments.
   //
-    public function invoiceTotal()
+    public function invoiceTotal(): string
     {
         $amount = 0;
         foreach ($this->invoice as $codeval) {
@@ -605,18 +608,18 @@ class Claim
     }
 
   // Number of procedures in this claim.
-    public function procCount()
+    public function procCount(): int
     {
         return is_array($this->procs) ? count($this->procs) : 0;
     }
 
   // Number of payers for this claim. Ranges from 1 to 3.
-    public function payerCount()
+    public function payerCount(): int
     {
         return is_array($this->payers) ? count($this->payers) : 0;
     }
 
-    public function x12gsversionstring()
+    public function x12gsversionstring(): string
     {
         return Claim::X12_VERSION;
     }
@@ -829,7 +832,7 @@ class Claim
         }
     }
 
-    public function billingContactPhone()
+    public function billingContactPhone(): string
     {
         if (!$this->x12_submitter_name()) {
             $tmp_phone = $this->x12Clean(trim((string) $this->billing_facility['phone']));
@@ -936,7 +939,7 @@ class Claim
     /**
      * @return string
      */
-    public function facilityPOS()
+    public function facilityPOS(): string
     {
         if ($this->encounter['pos_code']) {
             return sprintf('%02d', trim((string) $this->encounter['pos_code']));
@@ -1001,14 +1004,14 @@ class Claim
 
   // Returns 'P', 'S' or 'T'.
   //
-    public function payerSequence($ins = 0)
+    public function payerSequence($ins = 0): string
     {
         return strtoupper(substr(($this->payers[$ins]['data']['type'] ?? ''), 0, 1));
     }
 
   // Returns the HIPAA code of the patient-to-subscriber relationship.
   //
-    public function insuredRelationship($ins = 0)
+    public function insuredRelationship($ins = 0): string
     {
         $tmp = strtolower(($this->payers[$ins]['data']['subscriber_relationship'] ?? ''));
         if (strcmp($tmp, 'self') == 0) {
@@ -1041,7 +1044,7 @@ class Claim
 
   // Is the patient also the subscriber?
   //
-    public function isSelfOfInsured($ins = 0)
+    public function isSelfOfInsured($ins = 0): bool
     {
         $tmp = strtolower($this->payers[$ins]['data']['subscriber_relationship'] ?? '');
         return (strcmp($tmp, 'self') == 0);
@@ -1182,7 +1185,7 @@ class Claim
         return $this->x12Zip($this->payers[$ins]['data']['subscriber_postal_code'] ?? '');
     }
 
-    public function insuredPhone($ins = 0)
+    public function insuredPhone($ins = 0): string
     {
         if (
             preg_match(
@@ -1202,7 +1205,7 @@ class Claim
         return str_replace('-', '', ($this->payers[$ins]['data']['subscriber_DOB'] ?? ''));
     }
 
-    public function insuredSex($ins = 0)
+    public function insuredSex($ins = 0): string
     {
         return strtoupper(substr(($this->payers[$ins]['data']['subscriber_sex'] ?? ''), 0, 1));
     }
@@ -1351,7 +1354,7 @@ class Claim
         return $this->x12Zip($this->patient_data['postal_code']);
     }
 
-    public function patientPhone()
+    public function patientPhone(): string
     {
         $ptphone = $this->patient_data['phone_home'];
         if (!$ptphone) {
@@ -1370,13 +1373,13 @@ class Claim
         return str_replace('-', '', $this->patient_data['DOB']);
     }
 
-    public function patientSex()
+    public function patientSex(): string
     {
         return strtoupper(substr((string) $this->patient_data['sex'], 0, 1));
     }
 
   // Patient Marital Status: M = Married, S = Single, or something else.
-    public function patientStatus()
+    public function patientStatus(): string
     {
         return strtoupper(substr((string) $this->patient_data['status'], 0, 1));
     }
@@ -1387,7 +1390,7 @@ class Claim
      *
      * @return string
      */
-    public function patientOccupation()
+    public function patientOccupation(): string
     {
         return strtoupper((string) $this->x12Clean(trim((string) $this->patient_data['occupation'])));
     }
@@ -1403,7 +1406,7 @@ class Claim
     /**
      * @return string
      */
-    public function cptModifier($prockey)
+    public function cptModifier($prockey): string
     {
         // Split on the colon or space and clean each modifier
         $mods = [];
@@ -1429,7 +1432,7 @@ class Claim
      *
      * @return string
      */
-    public function cptKey($prockey)
+    public function cptKey($prockey): string
     {
         $tmp = $this->cptModifier($prockey);
         return $this->cptCode($prockey) . ($tmp ? ":$tmp" : "");
@@ -1506,7 +1509,7 @@ class Claim
     }
 
     // Not Otherwise Classified codes require a description on the SV1 line after the modifiers
-    public function cptNOC($prockey)
+    public function cptNOC($prockey): bool
     {
         return in_array($this->cptCode($prockey), Claim::NOC_CODES);
     }
@@ -1527,7 +1530,7 @@ class Claim
         return $this->cleanDate($this->encounter['onset_date']);
     }
 
-    public function onsetDateValid()
+    public function onsetDateValid(): bool
     {
         return $this->onsetDate() !== '';
     }
@@ -1535,7 +1538,7 @@ class Claim
     /**
      * @return string
      */
-    public function serviceDate()
+    public function serviceDate(): string
     {
         return str_replace('-', '', substr((string) $this->encounter['date'], 0, 10));
     }
@@ -1548,17 +1551,17 @@ class Claim
         return $this->x12Clean(trim($this->billing_options['prior_auth_number'] ?? ''));
     }
 
-    public function isRelatedEmployment()
+    public function isRelatedEmployment(): bool
     {
         return !empty($this->billing_options['employment_related']);
     }
 
-    public function isRelatedAuto()
+    public function isRelatedAuto(): bool
     {
         return !empty($this->billing_options['auto_accident']);
     }
 
-    public function isRelatedOther()
+    public function isRelatedOther(): bool
     {
         return !empty($this->billing_options['other_accident']);
     }
@@ -1571,7 +1574,7 @@ class Claim
         return $this->x12Clean(trim((string) $this->billing_options['accident_state']));
     }
 
-    public function isUnableToWork()
+    public function isUnableToWork(): bool
     {
         return !empty($this->billing_options['is_unable_to_work']);
     }
@@ -1592,7 +1595,7 @@ class Claim
         return $this->cleanDate($this->billing_options['off_work_to']);
     }
 
-    public function isHospitalized()
+    public function isHospitalized(): bool
     {
         return !empty($this->billing_options['is_hospitalized']);
     }
@@ -1605,7 +1608,7 @@ class Claim
         return $this->cleanDate($this->billing_options['hospitalization_date_from']);
     }
 
-    public function hospitalizedFromDateValid()
+    public function hospitalizedFromDateValid(): bool
     {
         return $this->hospitalizedFrom() !== '';
     }
@@ -1617,17 +1620,17 @@ class Claim
     {
         return $this->cleanDate($this->billing_options['hospitalization_date_to']);
     }
-    public function hospitalizedToDateValid()
+    public function hospitalizedToDateValid(): bool
     {
         return $this->hospitalizedTo() !== '';
     }
 
-    public function isOutsideLab()
+    public function isOutsideLab(): bool
     {
         return !empty($this->billing_options['outside_lab']);
     }
 
-    public function outsideLabAmount()
+    public function outsideLabAmount(): string
     {
         return sprintf('%.2f', 0 + $this->billing_options['lab_amount']);
     }
@@ -1664,7 +1667,7 @@ class Claim
         return $this->x12Clean(trim($this->billing_options['medicaid_original_reference'] ?? ''));
     }
 
-    public function frequencyTypeCode()
+    public function frequencyTypeCode(): string
     {
         if (!empty($this->billing_options['replacement_claim'])) {
             if ($this->billing_options['replacement_claim'] == 1) {
@@ -1703,7 +1706,7 @@ class Claim
         return $this->cleanDate($this->billing_options['onset_date'] ?? '');
     }
 
-    public function miscOnsetDateValid()
+    public function miscOnsetDateValid(): bool
     {
         return $this->miscOnsetDate() !== '';
     }
@@ -1716,7 +1719,7 @@ class Claim
         return $this->cleanDate($this->billing_options['date_initial_treatment'] ?? '');
     }
 
-    public function dateInitialTreatmentValid()
+    public function dateInitialTreatmentValid(): bool
     {
         return $this->dateInitialTreatment() !== '';
     }
@@ -1744,8 +1747,11 @@ class Claim
     }
 
   // Returns an array of unique diagnoses.  Periods are stripped by default
-  // Option to keep periods is to support HCFA 1500 02/12 version
-    public function diagArray($strip_periods = true)
+    // Option to keep periods is to support HCFA 1500 02/12 version
+    /**
+     * @return string[]
+     */
+    public function diagArray($strip_periods = true): array
     {
         $da = [];
         foreach ($this->procs as $row) {
@@ -1801,7 +1807,10 @@ class Claim
     }
 
   // Compute array of 1-relative diagArray indices for the given procedure.
-    public function diagIndexArray($prockey)
+    /**
+     * @return int[]
+     */
+    public function diagIndexArray($prockey): array
     {
         $dia = [];
         $da = $this->diagArray();

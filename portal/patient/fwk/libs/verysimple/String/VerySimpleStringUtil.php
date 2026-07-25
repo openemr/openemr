@@ -36,7 +36,7 @@ class VerySimpleStringUtil
      * @param string $r replacement
      * @param string $str haystack
      */
-    static function ReplaceFirst($s, $r, $str)
+    static function ReplaceFirst($s, $r, $str): string
     {
         $l = strlen($str);
         $a = strpos($str, $s);
@@ -177,7 +177,7 @@ class VerySimpleStringUtil
      * @param string $text
      * @return string
      */
-    static function Sanitize($text)
+    static function Sanitize($text): string
     {
         return htmlspecialchars($text);
     }
@@ -209,7 +209,7 @@ class VerySimpleStringUtil
      * @param string $string
      * @param string $charset destination character set (default = $DEFAULT_CHARACTER_SET (UTF-8))
      */
-    static function DecodeFromHTML($string, $charset = null)
+    static function DecodeFromHTML($string, $charset = null): string
     {
         // this only gets named characters
         // return html_entity_decode($string);
@@ -281,7 +281,7 @@ class VerySimpleStringUtil
      * @param string $string
      * @return string
      */
-    static function ReplaceXMLSpecialChars($string)
+    static function ReplaceXMLSpecialChars($string): string
     {
         return strtr($string, self::$XML_SPECIAL_CHARS);
     }
@@ -292,7 +292,7 @@ class VerySimpleStringUtil
      * @param string $string
      * @return string
      */
-    static function ReplaceSmartQuotes($string)
+    static function ReplaceSmartQuotes($string): string
     {
         return strtr($string, self::$SMART_QUOTE_CHARS);
     }
@@ -303,7 +303,7 @@ class VerySimpleStringUtil
      * @param string $string
      * @return string
      */
-    static function ReplaceControlCodeChars($string)
+    static function ReplaceControlCodeChars($string): string
     {
         return strtr($string, self::$CONTROL_CODE_CHARS);
     }
@@ -314,7 +314,7 @@ class VerySimpleStringUtil
      * @param string $string
      * @return string
      */
-    static function ReplaceNonNumericEntities($string)
+    static function ReplaceNonNumericEntities($string): string
     {
         return strtr($string, self::$HTML_ENTITIES_TABLE);
     }
@@ -325,7 +325,7 @@ class VerySimpleStringUtil
      * @param string $string
      * @return string
      */
-    static function ReplaceInvalidCodeChars($string)
+    static function ReplaceInvalidCodeChars($string): string
     {
         return strtr($string, self::$INVALID_CODE_CHARS);
     }
@@ -392,7 +392,7 @@ class VerySimpleStringUtil
      * @link http://www.php.net/manual/en/function.htmlentities.php#92105
      * @param string $content
      */
-    static function UTF8ToHTML($content = "")
+    static function UTF8ToHTML($content = ""): string
     {
         $contents = self::unicode_string_to_array($content);
         $swap = "";
@@ -413,7 +413,7 @@ class VerySimpleStringUtil
      * @param string $string
      * @return array
      */
-    static function unicode_string_to_array($string)
+    static function unicode_string_to_array($string): array
     {
         $array =  [];
         $strlen = mb_strlen($string);

@@ -100,7 +100,7 @@ class InstModuleTable
         return null;
     }
 
-    private function installSQLWithLineSplitter($installScript)
+    private function installSQLWithLineSplitter($installScript): bool
     {
         if (file_exists($installScript)) {
             if ($sqlarray = @file($installScript)) {
@@ -150,7 +150,7 @@ class InstModuleTable
         return false;
     }
 
-    private function installSQLWithUpgradeService($installScript)
+    private function installSQLWithUpgradeService($installScript): bool
     {
         if (file_exists($installScript)) {
             try {
@@ -315,7 +315,7 @@ class InstModuleTable
      *
      * @return array
      */
-    public function getInstalledModules()
+    public function getInstalledModules(): array
     {
         $all = [];
         $sql = "select * from modules where mod_active = 1 order by mod_ui_order asc";
@@ -399,7 +399,7 @@ class InstModuleTable
      * @param int    $id  Module PK
      * @param string $mod Status
      */
-    public function unRegister($id)
+    public function unRegister($id): string
     {
         if ($id) {
             $sql = "DELETE FROM modules WHERE mod_id = ?";
@@ -417,8 +417,9 @@ class InstModuleTable
      * Function to get ACL objects for module
      *
      * @param int $mod_id Module PK
+     * @return \Installer\Model\InstModule[]
      */
-    public function getSettings($type, $mod_id)
+    public function getSettings($type, $mod_id): array
     {
         if ($type == 'ACL') {
             $type = 1;
@@ -446,8 +447,9 @@ class InstModuleTable
 
     /**
      * Function to get Oemr User Group
+     * @return \Installer\Model\InstModule[]
      */
-    public function getOemrUserGroup()
+    public function getOemrUserGroup(): array
     {
         $all = [];
         $sql = "SELECT * FROM gacl_aro_groups AS gag
@@ -468,8 +470,9 @@ class InstModuleTable
 
     /**
      * Function to get Oemr User Group and Aro Map
+     * @return non-empty-array<mixed>[]
      */
-    public function getOemrUserGroupAroMap()
+    public function getOemrUserGroupAroMap(): array
     {
         $all = [];
         $sql = "SELECT group_id,u.id AS id,CONCAT_WS(' ',CONCAT_WS(',',u.lname,u.fname),u.mname) AS user,u.username
@@ -492,8 +495,9 @@ class InstModuleTable
 
     /**
      * Function to get Active Users
+     * @return mixed[]
      */
-    public function getActiveUsers()
+    public function getActiveUsers(): array
     {
         $all = [];
         $sql = "SELECT id,username,CONCAT_WS(' ',fname,mname,lname) AS USER
@@ -509,7 +513,10 @@ class InstModuleTable
         return $all;
     }
 
-    public function getTabSettings($mod_id)
+    /**
+     * @return mixed[]
+     */
+    public function getTabSettings($mod_id): array
     {
         $all = [];
         $sql = "SELECT fld_type,COUNT(*) AS cnt
@@ -527,8 +534,9 @@ class InstModuleTable
 
     /**
      *Function To Get Active ACL for this Module
+     * @return non-empty-array<int<0, max>, array{acl_id: mixed, value: mixed, user: mixed}>[]
      */
-    public function getActiveACL($mod_id)
+    public function getActiveACL($mod_id): array
     {
         $arr = [];
 
@@ -560,8 +568,9 @@ class InstModuleTable
 
     /**
      *Function To Get Saved Hooks For this Module
+     * @return \Installer\Model\InstModule[]
      */
-    public function getActiveHooks($mod_id)
+    public function getActiveHooks($mod_id): array
     {
         $all = [];
         $sql = "SELECT msh.*,ms.menu_name FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
@@ -649,7 +658,10 @@ class InstModuleTable
         }
     }
 
-    public function checkDependencyOnEnable($mod_id)
+    /**
+     * @return mixed[]
+     */
+    public function checkDependencyOnEnable($mod_id): array
     {
         $retArray = [];
         $modDirectory = $this->getModuleDirectory($mod_id);
@@ -687,7 +699,10 @@ class InstModuleTable
     }
 
 
-    public function checkDependencyOnDisable($mod_id)
+    /**
+     * @return string[]
+     */
+    public function checkDependencyOnDisable($mod_id): array
     {
         $retArray = [];
         $depFlag = "0";
@@ -737,7 +752,7 @@ class InstModuleTable
         return $retArray;
     }
 
-    public function getDependencyModules($mod_id)
+    public function getDependencyModules($mod_id): string
     {
         $modDirname = $this->getModuleDirectory($mod_id);
         $ret_str = "";
@@ -773,7 +788,7 @@ class InstModuleTable
         return $depModulesArr;
     }
 
-    public function getModuleStatusByDirectoryName($moduleDir)
+    public function getModuleStatusByDirectoryName($moduleDir): string
     {
         $sql = "SELECT mod_active,mod_directory FROM modules WHERE mod_directory = ? ";
         $res = QueryUtils::fetchRecords($sql, [trim((string) $moduleDir)]);
@@ -815,7 +830,7 @@ class InstModuleTable
         }
     }
 
-    public function checkModuleHookExists($mod_id, $hookId)
+    public function checkModuleHookExists($mod_id, $hookId): string
     {
         $sql = "SELECT obj_name FROM modules_settings WHERE mod_id = ? AND fld_type = '3' AND obj_name = ? ";
         $res = QueryUtils::fetchRecords($sql, [$mod_id, $hookId]);
@@ -969,7 +984,10 @@ class InstModuleTable
         return $obj;
     }
 
-    public function getSetupObject($moduleDirectory)
+    /**
+     * @return mixed[]
+     */
+    public function getSetupObject($moduleDirectory): array
     {
         $className = str_replace('[module_name]', $moduleDirectory, '[module_name]\Controller\SetupController');
         $setup = [];
@@ -1019,7 +1037,7 @@ class InstModuleTable
      * @param String $name nickname
      * @return bool Nickname available or not.
      **/
-    public function validateNickName($name)
+    public function validateNickName($name): int
     {
         $sql = "SELECT * FROM `modules` WHERE mod_nick_name = ? ";
         $result = QueryUtils::fetchRecords($sql, [$name]);
@@ -1032,7 +1050,7 @@ class InstModuleTable
      * @param  $moduleDirectory The directory path of the module
      * @return bool
      */
-    private function existsModuleConfigFile($moduleDirectory)
+    private function existsModuleConfigFile($moduleDirectory): bool
     {
         $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
         return file_exists($filePath ?? '');

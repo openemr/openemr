@@ -39,7 +39,7 @@ class TherapyGroupsController extends BaseController
     /* Note: Created functions to return arrays so that xl method can be used in array rendering. */
 
     //list of group statuses
-    public static function prepareStatusesList()
+    public static function prepareStatusesList(): array
     {
         $statuses = [
             '10' => xl('Active'),
@@ -50,7 +50,7 @@ class TherapyGroupsController extends BaseController
     }
 
     //list of participant statuses
-    public static function prepareParticipantStatusesList()
+    public static function prepareParticipantStatusesList(): array
     {
         $participant_statuses = [
                 '10' => xl('Active'),
@@ -60,7 +60,7 @@ class TherapyGroupsController extends BaseController
     }
 
     //list of group types
-    public static function prepareGroupTypesList()
+    public static function prepareGroupTypesList(): array
     {
         $group_types = [
             '1' => xl('Closed'),
@@ -71,7 +71,7 @@ class TherapyGroupsController extends BaseController
     }
 
     //list of participation types
-    public static function prepareGroupParticipationList()
+    public static function prepareGroupParticipationList(): array
     {
         $group_participation = [
             '1' => xl('Mandatory'),
@@ -265,7 +265,7 @@ class TherapyGroupsController extends BaseController
      * @param $counselors
      * @return array
      */
-    private function prepareGroups($therapy_groups, $counselors)
+    private function prepareGroups($therapy_groups, $counselors): array
     {
 
         $new_array = [];
@@ -308,7 +308,7 @@ class TherapyGroupsController extends BaseController
      * @param $counselors
      * @return array
      */
-    private function prepareCounselorsList($counselors)
+    private function prepareCounselorsList($counselors): array
     {
 
         $new_array = [];
@@ -328,7 +328,7 @@ class TherapyGroupsController extends BaseController
      * @param $group_id
      * @return array
      */
-    private function deleteGroup($group_id)
+    private function deleteGroup($group_id): array
     {
 
         $response = [];
@@ -353,7 +353,7 @@ class TherapyGroupsController extends BaseController
      * @param $group_id
      * @return bool
      */
-    private function checkIfHasApptOrEncounter($group_id)
+    private function checkIfHasApptOrEncounter($group_id): bool
     {
         $therapy_groups_events_model = $this->loadModel('Therapy_Groups_Events');
         $therapy_groups_encounters_model = $this->loadModel('Therapy_Groups_Encounters');

@@ -86,7 +86,7 @@ class Module
      *
      * Load the list of patients that this user cannot access from our blacklist file
      */
-    public function getBlacklist($username)
+    public function getBlacklist($username): array
     {
         $blacklist = include __DIR__ . "/config/blacklist.php";
         $pids = [];

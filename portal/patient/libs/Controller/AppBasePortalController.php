@@ -50,7 +50,7 @@ class AppBasePortalController extends PortalController
     /**
      * Returns the name of the JSONP callback function (if allowed)
      */
-    protected function JSONPCallback()
+    protected function JSONPCallback(): string
     {
         // TODO: uncomment to allow JSONP
         // return RequestUtil::Get('callback','');

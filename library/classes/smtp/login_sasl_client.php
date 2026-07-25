@@ -17,7 +17,7 @@ class login_sasl_client_class
     public $credentials=[];
     public $state=SASL_LOGIN_STATE_START;
 
-    Function Initialize(&$client)
+    Function Initialize(&$client): int
     {
         return(1);
     }
@@ -44,7 +44,7 @@ class login_sasl_client_class
         return($status);
     }
 
-    Function Step(&$client, $response, &$message, &$interactions)
+    Function Step(&$client, $response, &$message, &$interactions): int
     {
         switch($this->state)
         {

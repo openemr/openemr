@@ -24,12 +24,12 @@
 
 class NQF_0028_2014_Denominator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "NQF 0028b Denominator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         return true;
     }

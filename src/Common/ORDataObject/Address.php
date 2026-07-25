@@ -75,7 +75,7 @@ class Address extends ORDataObject implements \JsonSerializable
         return $a;
     }
 
-    function toString($html = false)
+    function toString($html = false): string
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"
@@ -119,7 +119,7 @@ class Address extends ORDataObject implements \JsonSerializable
     {
         return $this->line2;
     }
-    function get_lines_display()
+    function get_lines_display(): string
     {
         $string = $this->get_line1();
         $string .= " " . $this->get_line2();
@@ -195,13 +195,13 @@ class Address extends ORDataObject implements \JsonSerializable
     {
         return $this->country;
     }
-    function persist($fid = "")
+    function persist($fid = ""): mixed
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
 
-        parent::persist();
+        return parent::persist();
     }
 
     public function toArray(): array

@@ -2585,7 +2585,7 @@ function display_draw_image($zone, $encounter, $pid): void
     return;
 }
 
-function report_ACT($term)
+function report_ACT($term): string
 {
     $term = nl2br(htmlspecialchars((string) $term, ENT_NOQUOTES));
     return $term . "&nbsp;";

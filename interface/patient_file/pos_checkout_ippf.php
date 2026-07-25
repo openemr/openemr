@@ -455,7 +455,7 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
 
 // Compute a current checksum of this encounter's invoice-related data from the database.
 //
-function invoiceChecksum($pid, $encounter)
+function invoiceChecksum($pid, $encounter): int
 {
     $row1 = sqlQuery(
         "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
@@ -1292,7 +1292,7 @@ function write_form_line_ippf(
         $units = 1;
     }
     $price = formatMoneyNumber($amount / $units, 2); // should be even cents, but...
-    if (str_ends_with((string) $price, '00')) {
+    if (str_ends_with($price, '00')) {
         $price = formatMoneyNumber($price);
     }
 

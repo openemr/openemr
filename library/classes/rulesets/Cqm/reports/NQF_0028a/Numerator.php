@@ -9,12 +9,12 @@
 //
 class NQF_0028a_Numerator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         // See if user has been a tobacco user before or simultaneously to the encounter within two years (24 months)
         foreach ($this->getApplicableEncounters() as $encType) {

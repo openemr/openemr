@@ -16,12 +16,12 @@ class LabResult extends ClinicalType
     const HB1AC_TEST = 'lab_hb1ac_test';
     const LDL_TEST = 'lab_ldl_test';
     const STREPTOCOCCUS_TEST = 'lab_streptococcus_test';
-    public function getListId()
+    public function getListId(): string
     {
         return 'Clinical_Rules_Lab_Res_Types';
     }
 
-    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null): bool
     {
         $data = Codes::lookup($this->getOptionId());
 

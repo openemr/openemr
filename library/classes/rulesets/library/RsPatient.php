@@ -22,7 +22,7 @@ class RsPatient
      * @param $patient_id
      * @return (string) containing date of birth in the format "YYYY mm dd"
      */
-    private function get_DOB($patient_id)
+    private function get_DOB($patient_id): string
     {
         $dob = getPatientData($patient_id, "DOB as TS_DOB");
         $dob = $dob['TS_DOB'];

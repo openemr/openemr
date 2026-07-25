@@ -34,7 +34,7 @@ class MedicalDevice
         return $this->udi_data['standard_elements']['deviceName'];
     }
 
-    public function fullOutputHtml($showUdi = true)
+    public function fullOutputHtml($showUdi = true): string
     {
         $html = '';
         if (!empty($this->udi_data['standard_elements']['deviceName'])) {
@@ -94,7 +94,7 @@ class MedicalDevice
         return $html;
     }
 
-    public static function fullOutputJavascript($jsVar, $jsVal, $showUdi = true)
+    public static function fullOutputJavascript($jsVar, $jsVal, $showUdi = true): string
     {
         $js = '';
         $js .= 'if (' . $jsVal . '.standard_elements.deviceName) {' . $jsVar . ' += \'<span class="font-weight-bold">\' + jsXlt("Name (GMDN PT Name)") + \': </span>\' + jsText(' . $jsVal . '.standard_elements.deviceName) + \'<br>\';}';

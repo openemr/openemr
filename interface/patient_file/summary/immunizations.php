@@ -271,7 +271,10 @@ function getImmunizationObservationLists($k)
     }
 }
 
-function getImmunizationObservationResults()
+/**
+ * @return mixed[]
+ */
+function getImmunizationObservationResults(): array
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $obs_res_q = "SELECT

@@ -24,12 +24,12 @@
 
 class NQF_0028_2014_DenominatorException implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "DenominatorException";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
 
         // Diagnosis Limited Life Expectancy

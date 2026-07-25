@@ -19,7 +19,7 @@ class OFX
         $this->config = OEGlobalsBag::getInstance()->get('oer_config')['ofx'];
     }
 
-    function get_OFX()
+    function get_OFX(): string
     {
         $string = $this->_ofx_header() . "\n";
         $trns = [];
@@ -69,7 +69,7 @@ class OFX
         return $string;
     }
 
-    function _ofx_header()
+    function _ofx_header(): string
     {
         $string .= "OFXHEADER:100\n";
         $string .= "DATA:OFXSGML\n";
@@ -123,7 +123,7 @@ class OFX
         return $string;
     }
 
-    function _ofx_footer($sum)
+    function _ofx_footer($sum): string
     {
         $string = "</BANKTRANLIST>\n";
         $string .= "<LEDGERBAL>\n";

@@ -86,7 +86,7 @@ class PatientNameHistoryService extends BaseService
     }
 
 
-    public static function formatPreviousName($item)
+    public static function formatPreviousName($item): string
     {
         if (Utilities::isDateEmpty($item['previous_name_enddate'])) {
             $item['previous_name_enddate'] = '';
@@ -103,7 +103,10 @@ class PatientNameHistoryService extends BaseService
     }
 
 
-    public function getPatientNameHistory($pid)
+    /**
+     * @return mixed[]
+     */
+    public function getPatientNameHistory($pid): array
     {
         $sql = "SELECT pid,
             id,

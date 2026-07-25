@@ -51,7 +51,7 @@ class Savant3_Filter_trimwhitespace extends Savant3_Filter
      * @return string The filtered text.
      *
      */
-    public static function filter($buffer)
+    public static function filter($buffer): string
     {
         // Pull out the script blocks
         preg_match_all("!<script[^>]+>.*?</script>!is", $buffer, $match);

@@ -271,7 +271,7 @@ class PHPFHIRResponseParser
      * @param string $propertyName
      * @return bool
      */
-    private function _triggerPropertyNotFoundError($fhirElementName, $propertyName)
+    private function _triggerPropertyNotFoundError($fhirElementName, $propertyName): bool
     {
         return trigger_error(sprintf(
             'Could not find mapped property called "%s" on object "%s".  This could indicate malformed response or bug in class generator.',

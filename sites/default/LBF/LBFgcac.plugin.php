@@ -13,7 +13,7 @@
 // Private function.  Constructs a query to find a given lbf_data field's
 // values from visits within the past 2 weeks.
 //
-function _LBFgcac_query_recent($more)
+function _LBFgcac_query_recent($more): string
 {
     global $pid, $encounter, $formname, $formid;
 
@@ -63,7 +63,7 @@ function _LBFgcac_recent_default($name)
 
 // Private function.  Query services within 2 weeks of this encounter.
 //
-function _LBFgcac_query_recent_services()
+function _LBFgcac_query_recent_services(): string
 {
     global $pid, $encounter;
 
@@ -87,7 +87,7 @@ function _LBFgcac_query_recent_services()
 
 // Private function.  Query services from this encounter.
 //
-function _LBFgcac_query_current_services()
+function _LBFgcac_query_current_services(): string
 {
     global $pid, $encounter;
 

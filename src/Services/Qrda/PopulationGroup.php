@@ -30,7 +30,7 @@ class PopulationGroup
         // denominator_count - denominator_exclusions_count - denominator_exceptions_count
     }
 
-    public function is_cv()
+    public function is_cv(): bool
     {
         foreach ($this->populations as $population) {
             if ($population->type == 'MSRPOPL') {

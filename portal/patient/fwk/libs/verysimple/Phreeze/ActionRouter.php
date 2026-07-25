@@ -35,7 +35,7 @@ class ActionRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetUri()
+    public function GetUri(): string
     {
         return implode('/', RequestUtil::GetUrlParts($this->_appRoot));
     }
@@ -60,7 +60,7 @@ class ActionRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetUrl($controller, $method, $params = '', $requestMethod = '')
+    public function GetUrl($controller, $method, $params = '', $requestMethod = ''): string
     {
         $format = str_replace("{delim}", $this->delim, self::$_format);
 
@@ -140,7 +140,7 @@ class ActionRouter implements IRouter
      *          mode to check against the current mode
      * @return bool TRUE if arg passed in is the current mode
      */
-    public function ModeIs($value)
+    public function ModeIs($value): bool
     {
         if (strcmp((string) $this->_mode, (string) $value) == 0) {
             return true;

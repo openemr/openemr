@@ -139,7 +139,7 @@ class C_Prescription extends Controller
         return $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
-    function edit_action($id = "", $patient_id = "")
+    function edit_action($id = "", $patient_id = ""): string
     {
         if (!(($this->prescriptions[0] ?? null) instanceof Prescription)) {
             $this->prescriptions[0] = new Prescription($id);
@@ -712,7 +712,7 @@ class C_Prescription extends Controller
         return $this->multiprint_footer($pdf);
     }
 
-    function current_user_has_signature()
+    function current_user_has_signature(): bool
     {
         if (!empty($this->pconfig['signature'])) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -776,7 +776,7 @@ class C_Prescription extends Controller
         echo("</html>\n");
     }
 
-    function get_prescription_body_text($p)
+    function get_prescription_body_text($p): string
     {
         $body = '<b>' . xlt('Rx') . ': ' . text($p->get_drug()) . ' ' . text($p->get_size()) . ' ' . text($p->get_unit_display());
         if ($p->get_form()) {
@@ -851,7 +851,7 @@ class C_Prescription extends Controller
         $d = $this->get_prescription_body_text($p);
         $patterns =  ['/\n/','/     /'];
         $replace =  ['<br />','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'];
-        $d = preg_replace($patterns, $replace, (string) $d);
+        $d = preg_replace($patterns, $replace, $d);
         echo ("<div class='scriptdiv'>\n" . $d . "</div>\n");
     }
 
@@ -1007,7 +1007,7 @@ class C_Prescription extends Controller
             }
 
             // we don't want any html in the plain text rendering
-            echo strip_tags((string) $this->get_prescription_body_text($p));
+            echo strip_tags($this->get_prescription_body_text($p));
         }
 
         $this->multiprintplain_footer();
@@ -1273,7 +1273,10 @@ class C_Prescription extends Controller
         return [$html, $prescription->patient];
     }
 
-    private function getDiagnosisCodesList(Prescription $prescription)
+    /**
+     * @return array{value: mixed, text: non-falsy-string, selected: bool}[]
+     */
+    private function getDiagnosisCodesList(Prescription $prescription): array
     {
         $codeTypesService = $this->getCodeTypesService();
         $listsService = new PatientIssuesService();

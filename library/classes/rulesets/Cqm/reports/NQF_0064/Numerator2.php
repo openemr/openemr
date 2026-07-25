@@ -9,12 +9,12 @@
 //
 class NQF_0064_Numerator2 implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator 2";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $range = new Range(Range::NEG_INF, 100);
         $options = [ LabResult::OPTION_RANGE => $range ];

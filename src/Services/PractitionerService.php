@@ -71,7 +71,7 @@ class PractitionerService extends BaseService
         return ['uuid'];
     }
 
-    public function isValidPractitionerUuid($uuid)
+    public function isValidPractitionerUuid($uuid): bool
     {
         $result = $this->getOne($uuid);
         return !empty($result->getData());

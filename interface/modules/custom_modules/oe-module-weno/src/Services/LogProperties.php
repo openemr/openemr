@@ -151,7 +151,7 @@ class LogProperties
     /**
      * @return string
      */
-    public function logReview()
+    public function logReview(): string
     {
         $email = $this->getProviderEmail();
         $prov_pass = $this->getProviderPassword();
@@ -172,7 +172,7 @@ class LogProperties
     /**
      * @throws Exception
      */
-    public function logSync($tasked = 'background')
+    public function logSync($tasked = 'background'): bool
     {
         $wenoLog = new WenoLogService();
         $provider_info['email'] = $this->weno_admin_email;

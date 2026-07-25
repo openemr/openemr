@@ -520,7 +520,7 @@ function getActorData()
 }
 
 
-function getReportFilename()
+function getReportFilename(): string
 {
     global $pid;
 

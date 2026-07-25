@@ -62,7 +62,7 @@ class EhiExportJob
      */
     private int $document_limit_size;
 
-    public function getDocumentLimitSize()
+    public function getDocumentLimitSize(): int
     {
         return $this->document_limit_size;
     }
@@ -82,7 +82,7 @@ class EhiExportJob
         return $this->ehi_export_job_id;
     }
 
-    public function isCompleted()
+    public function isCompleted(): bool
     {
         return $this->status == 'completed';
     }
@@ -126,7 +126,7 @@ class EhiExportJob
         return $this->pids;
     }
 
-    public function hasPatientIds()
+    public function hasPatientIds(): bool
     {
         return !empty($this->pids);
     }

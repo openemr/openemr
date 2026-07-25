@@ -219,7 +219,7 @@ class Rule
         $this->feedback = $feedback;
     }
 
-    function getTitle()
+    function getTitle(): string
     {
         return $this->title;
     }
@@ -269,7 +269,7 @@ class Rule
      * @param RuleType $ruleType
      * @return bool
      */
-    function hasRuleType($ruleType)
+    function hasRuleType($ruleType): bool
     {
         foreach ($this->ruleTypes as $type) {
             if ($type == $ruleType->code) {
@@ -344,12 +344,15 @@ class Rule
         $this->actions = $actions;
     }
 
-    function isEditable()
+    function isEditable(): bool
     {
         return true;
     }
 
-    function getRuleTypeLabels()
+    /**
+     * @return mixed[]
+     */
+    function getRuleTypeLabels(): array
     {
         $labels = [];
         foreach ($this->ruleTypes as $ruleType) {

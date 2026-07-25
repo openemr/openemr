@@ -56,7 +56,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         $this->service = new ClinicalNotesService();
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return $category == self::CATEGORY;
     }

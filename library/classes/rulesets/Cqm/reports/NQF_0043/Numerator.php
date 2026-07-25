@@ -12,12 +12,12 @@ class NQF_0043_Numerator implements CqmFilterIF
     // inlining this as there are two duplicate Procedure classes, originally came from library/classes/ClinicalTypes/Procedure.php
     const PNEUMOCOCCAL_VACCINE = 'pro_pneumococcal_vaccine';
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $vac_medication     = implode(',', Codes::lookup(Medication::PNEUMOCOCCAL_VAC, 'CVX'));
         $vac_procedure      = implode(',', Codes::lookup(self::PNEUMOCOCCAL_VACCINE, 'SNOMED'));

@@ -293,7 +293,7 @@ class ApplicationTable
         $logMsg .= "\n $trace";
         error_log("ERROR: " . htmlspecialchars($logMsg, ENT_QUOTES), 0);
     }
-    public function escapeHtml($string)
+    public function escapeHtml($string): string
     {
         return htmlspecialchars((string) $string, ENT_QUOTES);
     }

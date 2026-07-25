@@ -35,7 +35,7 @@ use phpseclib3\Net\SFTP;
 
 $rhl7_return = [];
 
-function parseZPS($segment)
+function parseZPS($segment): string
 {
     $composites = $segment; //explode('|', $segment);
 
@@ -146,7 +146,7 @@ function rhl7FlushMain(&$amain, $commentdelim = "\n"): void
 
 // Write the MDM document if appropriate.
 //
-function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider)
+function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id, $provider): string
 {
     if ($patient_id) {
         if (!empty($mdm_docname)) {
@@ -186,7 +186,7 @@ function rhl7Text($s, $allow_newlines = false)
     return $s;
 }
 
-function rhl7DateTime($s)
+function rhl7DateTime($s): string
 {
     // Remove UTC offset if present.
     if (preg_match('/^([0-9.]+)[+-]/', (string) $s, $tmp)) {
@@ -211,7 +211,7 @@ function rhl7DateTime($s)
     return $ret;
 }
 
-function rhl7DateTimeZone($s)
+function rhl7DateTimeZone($s): string
 {
     // UTC offset if present always begins with "+" or "-".
     if (preg_match('/^[0-9.]+([+-].*)$/', (string) $s, $tmp)) {
@@ -221,9 +221,9 @@ function rhl7DateTimeZone($s)
     return '';
 }
 
-function rhl7Date($s)
+function rhl7Date($s): string
 {
-    return substr((string) rhl7DateTime($s), 0, 10);
+    return substr(rhl7DateTime($s), 0, 10);
 }
 
 function rhl7Abnormal($s)
@@ -289,7 +289,7 @@ function rhl7ReportStatus($s)
  * @param string $fileext The lower case extension.
  * @return string            MIME type.
  */
-function rhl7MimeType($fileext)
+function rhl7MimeType($fileext): string
 {
     if ($fileext == 'pdf') {
         return 'application/pdf';
@@ -343,7 +343,7 @@ function rhl7DecodeData($enctype, &$src)
     return false;
 }
 
-function rhl7CWE($s, $componentdelimiter)
+function rhl7CWE($s, $componentdelimiter): string
 {
     $out = '';
     if ($s === '') {
@@ -445,7 +445,7 @@ function getPerformingOrganizationDetails($obx23, $obx24, $obx25, $componentdeli
  *   0  No patient is close to a match.
  *  -1  It's not clear if there is a match.
  */
-function match_patient($ptarr)
+function match_patient($ptarr): int
 {
     $in_ss = str_replace('-', '', $ptarr['ss']);
     $in_fname = $ptarr['fname'];
@@ -499,7 +499,7 @@ function match_patient($ptarr)
  * @param array $seg MSH seg identifying a provider.
  * @return mixed        TRUE, or FALSE if no match.
  */
-function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = '')
+function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = ''): bool
 {
     if (empty($hl7)) {
         return false;
@@ -684,7 +684,7 @@ function match_provider($arr)
 /**
  * Create a patient using whatever patient_data attributes are provided.
  */
-function create_skeleton_patient($patient_data)
+function create_skeleton_patient($patient_data): int
 {
     global $orphanLog;
     $employer_data = [];
@@ -913,7 +913,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     'fname' => ucname($in_fname),
                     'lname' => ucname($in_lname),
                     'mname' => ucname($in_mname),
-                    'DOB' => strtoupper((string) $in_dob),
+                    'DOB' => strtoupper($in_dob),
                     'sex' => $in_sex,
                     'street' => $in_street,
                     'city' => $in_city,
@@ -1513,7 +1513,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
  *
  * @return string  Error text, or empty if no errors.
  */
-function poll_hl7_results(&$info, $labs = 0)
+function poll_hl7_results(&$info, $labs = 0): string
 {
     global $srcdir, $orphanLog, $lab_npi;
     $labs = (int)$labs + 0;
@@ -1946,7 +1946,7 @@ function poll_hl7_results(&$info, $labs = 0)
  * @param string $content The unencrypted content of the hl7.
  * @return string         The encrypted content of the hl7 if the global is set.
  */
-function hl7Crypt($content)
+function hl7Crypt($content): string
 {
     return ServiceContainer::getCrypto()->encryptForFilesystem($content);
 }

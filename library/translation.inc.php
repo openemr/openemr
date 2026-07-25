@@ -36,7 +36,7 @@ if (!(function_exists('xl'))) {
      * @param literal-string $constant The text constant to translate
      * @return string The translated string
      */
-    function xl($constant)
+    function xl($constant): string
     {
         // Translation engine disabled: skip the cache/DB lookup for performance,
         // but still run xlCleanup() so {{context}} markers (and newline/quote
@@ -245,7 +245,7 @@ function getLanguageTitle($val)
  * @return string 'ltr' 'rtl'
  * @author Amiel <amielel@matrix.co.il>
  */
-function getLanguageDir($lang_id)
+function getLanguageDir($lang_id): string
 {
     // validate language id
     $lang_id = empty($lang_id) ? 1 : $lang_id;

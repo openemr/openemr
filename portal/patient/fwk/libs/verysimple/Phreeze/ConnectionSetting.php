@@ -85,7 +85,7 @@ class ConnectionSetting
     /**
      * Serialize to string
      */
-    function Serialize()
+    function Serialize(): string
     {
         return base64_encode(serialize($this));
     }

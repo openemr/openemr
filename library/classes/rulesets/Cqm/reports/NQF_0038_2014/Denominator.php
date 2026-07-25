@@ -24,12 +24,12 @@
 
 class NQF_0038_2014_Denominator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Denominator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $oneEncounter = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
         if (Helper::check(ClinicalType::ENCOUNTER, Encounter::ENC_OUT_PCP_OBGYN, $patient, $beginDate, $endDate, $oneEncounter)) {

@@ -86,7 +86,7 @@ class FhirDiagnosticReportClinicalNotesService extends FhirServiceBase implement
         return new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_updated']);
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         $loincCategory = "LOINC:" . $category;
         $listService = new ListService();

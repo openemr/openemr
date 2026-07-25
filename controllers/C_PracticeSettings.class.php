@@ -34,7 +34,7 @@ class C_PracticeSettings extends Controller
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "practice_settings/" . $this->template_mod . "_list.html");
     }
 
-    function pharmacy_action($arg)
+    function pharmacy_action($arg): string
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -46,7 +46,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function insurance_company_action($arg)
+    function insurance_company_action($arg): string
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -58,7 +58,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function insurance_numbers_action($arg)
+    function insurance_numbers_action($arg): string
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -70,7 +70,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function document_action($arg)
+    function document_action($arg): string
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -82,7 +82,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function document_category_action($arg)
+    function document_category_action($arg): string
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -94,7 +94,7 @@ class C_PracticeSettings extends Controller
         return $this->default_action($display);
     }
 
-    function x12_partner_action($arg)
+    function x12_partner_action($arg): string
     {
         $c = new Controller();
         $fga = func_get_args();
@@ -107,7 +107,7 @@ class C_PracticeSettings extends Controller
     }
 
 
-    function hl7_action($arg)
+    function hl7_action($arg): string
     {
         $c = new Controller();
         $fga = func_get_args();

@@ -337,7 +337,7 @@ class ClinicalNotesService extends BaseService
      * @param $code string
      * @return bool true if the code is valid, false otherwise
      */
-    public function isValidClinicalNoteCode($code)
+    public function isValidClinicalNoteCode($code): bool
     {
         // make it a LOINC code
         if (!str_contains((string) $code, ":")) {
@@ -364,7 +364,10 @@ class ClinicalNotesService extends BaseService
         return $this->getListAsSelectList($options);
     }
 
-    private function getListAsSelectList($optionsList)
+    /**
+     * @return array{value: mixed, code: mixed, title: mixed, xlTitle: mixed, selected: bool}[]
+     */
+    private function getListAsSelectList($optionsList): array
     {
         if (empty($optionsList)) {
             return [];

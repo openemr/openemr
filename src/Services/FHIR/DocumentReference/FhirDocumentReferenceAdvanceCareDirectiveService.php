@@ -68,13 +68,13 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase
     }
 
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return DocumentReferenceCategoryEnum::tryFrom($category) == DocumentReferenceCategoryEnum::ADVANCE_CARE_DIRECTIVE;
     }
 
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
 
         return false;

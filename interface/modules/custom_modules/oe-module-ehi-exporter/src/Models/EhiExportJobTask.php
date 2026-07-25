@@ -62,7 +62,7 @@ class EhiExportJobTask
         return $this->ehi_task_id;
     }
 
-    public function isCompleted()
+    public function isCompleted(): bool
     {
         return $this->status == 'completed';
     }
@@ -92,12 +92,15 @@ class EhiExportJobTask
     {
         return $this->pids;
     }
-    public function hasPatientIds()
+    public function hasPatientIds(): bool
     {
         return !empty($this->pids);
     }
 
-    public function getJSON()
+    /**
+     * @return mixed[]
+     */
+    public function getJSON(): array
     {
         $data = [
             'status' => $this->status

@@ -18,7 +18,6 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
-use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\TestCase;
 
@@ -29,13 +28,20 @@ use PHPUnit\Framework\TestCase;
  * the US Core Condition Profile version 3.1.1 requirements as defined in:
  * http://hl7.org/fhir/us/core/STU3.1.1/StructureDefinition-us-core-condition.html
  * This class was generated with the assistance of Claude.AI and Microsoft Copilot
+ *
+ * PHPStan reports the assertNotNull() calls below as `method.alreadyNarrowedType`
+ * ("will always evaluate to true") and they are baselined rather than removed.
+ * That report is wrong: the generated FHIR classes under src/FHIR/R4 declare
+ * properties like `public $clinicalStatus = null;` with a non-nullable
+ * `@var FHIRCodeableConcept` docblock and no native return type on the getter.
+ * PHPStan trusts the docblock; at runtime the getters return null whenever the
+ * service did not populate the element. Verifying those elements are populated
+ * is precisely what US Core Must Support conformance requires, so these
+ * assertions are the substance of the test and must not be deleted.
  */
 class FhirConditionService3_1_1Test extends TestCase
 {
-    /**
-     * @var FhirConditionService
-     */
-    private $fhirConditionService;
+    private FhirConditionProblemListItemService $fhirConditionService;
 
     /**
      * @var ConditionFixtureManager

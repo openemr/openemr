@@ -36,7 +36,7 @@ class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
    * @author  Basil PT <basil@zhservices.com>
    **/
 
-    public function __invoke($layoutName, array $required_buttons, $send_via, $download_format = null)
+    public function __invoke($layoutName, array $required_buttons, $send_via, $download_format = null): string
     {
         $viewModel = $this->sendController->sendAction();
         $arr = $viewModel->getVariables();

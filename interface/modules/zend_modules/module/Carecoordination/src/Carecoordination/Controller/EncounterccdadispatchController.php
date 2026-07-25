@@ -360,7 +360,7 @@ class EncounterccdadispatchController extends AbstractActionController
      * Get consolidated QRDA III content (for API or internal use)
      *
      */
-    public function getConsolidatedQrda3Content($pids = null, $measures = [])
+    public function getConsolidatedQrda3Content($pids = null, $measures = []): string
     {
         try {
             $xmlController = new QrdaReportController();
@@ -398,7 +398,7 @@ class EncounterccdadispatchController extends AbstractActionController
      * @param $dir_source
      * @return string
      */
-    public function get_file_name($dir_source)
+    public function get_file_name($dir_source): string
     {
         $tmpfile = '';
         if (is_dir($dir_source)) {

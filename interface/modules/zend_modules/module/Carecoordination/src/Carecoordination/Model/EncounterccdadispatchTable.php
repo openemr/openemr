@@ -248,7 +248,7 @@ class EncounterccdadispatchTable
         return $nameService->getPatientNameHistory($pid) ?? [];
     }
 
-    public function getSdohData($pid, $encounter)
+    public function getSdohData($pid, $encounter): string
     {
         // Pull latest assessment row and (optionally) the mapped code from list_options
         $sql = "
@@ -363,7 +363,7 @@ class EncounterccdadispatchTable
         return $xml;
     }
 
-    public function getPatientOccupation($pid)
+    public function getPatientOccupation($pid): string
     {
         $sql = "SELECT
             p.pid,
@@ -841,7 +841,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProviderDetails($pid, $encounter)
+    public function getProviderDetails($pid, $encounter): string
     {
         $provider_details = '';
         if (!$encounter) {
@@ -931,7 +931,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getAuthorXmlForRecord($recordAuthor, $pid, $encounter)
+    public function getAuthorXmlForRecord($recordAuthor, $pid, $encounter): string
     {
         $provenanceRecord = $this->getProvenanceForRecord($recordAuthor, $pid, $encounter);
         if (empty($provenanceRecord)) {
@@ -1073,7 +1073,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getAuthorDate($pid, $encounter)
+    public function getAuthorDate($pid, $encounter): string
     {
         // we allow providers to use the latest encounter date if they have the force flag set.
         $time = null;
@@ -1101,7 +1101,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDataEnterer($pid, $encounter)
+    public function getDataEnterer($pid, $encounter): string
     {
         $data_enterer = '';
         $details = $this->getDetails('hie_data_enterer_id');
@@ -1126,7 +1126,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getInformant($pid, $encounter)
+    public function getInformant($pid, $encounter): string
     {
         $informant = '';
         $details = $this->getDetails('hie_informant_id');
@@ -1152,7 +1152,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDocumentParticipants($pid, $encounter)
+    public function getDocumentParticipants($pid, $encounter): string
     {
 
         $participants = "<document_participants>";
@@ -1167,7 +1167,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDocumentReferralParticipant($pid, $encounter)
+    public function getDocumentReferralParticipant($pid, $encounter): string
     {
         $participant = '';
         $records = $this->getReferralRecords($pid);
@@ -1223,7 +1223,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getOfficeContact($pid, $encounter)
+    public function getOfficeContact($pid, $encounter): string
     {
         $details = $this->getDetails('hie_office_contact');
         if (empty($details)) {
@@ -1269,7 +1269,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getCustodian($pid, $encounter)
+    public function getCustodian($pid, $encounter): string
     {
         $custodian = '';
         $details = $this->getDetails('hie_custodian_id');
@@ -1295,7 +1295,7 @@ class EncounterccdadispatchTable
      * @param $params
      * @return string
      */
-    public function getInformationRecipient($pid, $encounter, $recipients, $params)
+    public function getInformationRecipient($pid, $encounter, $recipients, $params): string
     {
         $information_recipient = '';
         $field_name = [];
@@ -1355,7 +1355,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getLegalAuthenticator($pid, $encounter)
+    public function getLegalAuthenticator($pid, $encounter): string
     {
         $legal_authenticator = '';
         $details = $this->getDetails('hie_legal_authenticator_id');
@@ -1379,7 +1379,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getAuthenticator($pid, $encounter)
+    public function getAuthenticator($pid, $encounter): string
     {
         $authenticator = '';
         $details = $this->getDetails('hie_authenticator_id');
@@ -1551,7 +1551,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getAllergies($pid)
+    public function getAllergies($pid): string
     {
         $allergies = '';
         $query = "SELECT l.id, l.title, l.begdate, l.enddate, lo.title AS observation,
@@ -1646,7 +1646,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getMedications($pid)
+    public function getMedications($pid): string
     {
         $medications = '';
         $query = "select l.id, l.date_added, l.start_date, l.drug, l.dosage, l.quantity, l.size, l.substitute, l.drug_info_erx, l.active, SUBSTRING(l3.codes, LOCATE(':',l3.codes)+1, LENGTH(l3.codes)) AS route_code,
@@ -1739,7 +1739,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getProblemList($pid)
+    public function getProblemList($pid): string
     {
         UuidRegistry::createMissingUuidsForTables(['lists']);
         $problem_lists = '';
@@ -1838,7 +1838,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getMedicalDeviceList($pid)
+    public function getMedicalDeviceList($pid): string
     {
         $medical_devices = '';
         $query = "select l.*, author.id AS provenance_updated_by, lo.title as observation, lo.codes as observation_code, l.diagnosis AS code
@@ -1915,7 +1915,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getImmunization($pid)
+    public function getImmunization($pid): string
     {
         $immunizations = '';
         $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
@@ -1980,7 +1980,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedures($pid, $encounter)
+    public function getProcedures($pid, $encounter): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -2102,7 +2102,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getResults($pid, $encounter)
+    public function getResults($pid, $encounter): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -2218,7 +2218,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getEncounterHistory($pid)
+    public function getEncounterHistory($pid): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -2432,7 +2432,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProgressNotes($pid, $encounter)
+    public function getProgressNotes($pid, $encounter): string
     {
         $progress_notes = '';
         $formTables_details = $this->fetchFields('progress_note', 'assessment_plan', 1);
@@ -2462,7 +2462,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getHospitalCourse($pid, $encounter)
+    public function getHospitalCourse($pid, $encounter): string
     {
         $hospital_course = '';
         $formTables_details = $this->fetchFields('discharge_summary', 'hospital_course', 1);
@@ -2484,7 +2484,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDischargeDiagnosis($pid, $encounter)
+    public function getDischargeDiagnosis($pid, $encounter): string
     {
         $discharge_diagnosis = '';
         $formTables_details = $this->fetchFields('discharge_summary', 'hospital_discharge_diagnosis', 1);
@@ -2506,7 +2506,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getDischargeMedications($pid, $encounter)
+    public function getDischargeMedications($pid, $encounter): string
     {
         $discharge_medications = '';
         $formTables_details = $this->fetchFields('discharge_summary', 'hospital_discharge_medications', 1);
@@ -2539,7 +2539,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getComplications($pid, $encounter)
+    public function getComplications($pid, $encounter): string
     {
         $complications = '';
         $formTables_details = $this->fetchFields('procedure_note', 'complications', 1);
@@ -2570,7 +2570,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getPostProcedureDiag($pid, $encounter)
+    public function getPostProcedureDiag($pid, $encounter): string
     {
         $procedure_diag = '';
         $formTables_details = $this->fetchFields('procedure_note', 'postprocedure_diagnosis', 1);
@@ -2601,7 +2601,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedureDescription($pid, $encounter)
+    public function getProcedureDescription($pid, $encounter): string
     {
         $procedure_description = '';
         $formTables_details = $this->fetchFields('procedure_note', 'procedure_description', 1);
@@ -2631,7 +2631,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedureIndications($pid, $encounter)
+    public function getProcedureIndications($pid, $encounter): string
     {
         $procedure_indications = '';
         $formTables_details = $this->fetchFields('procedure_note', 'procedure_indications', 1);
@@ -2664,7 +2664,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getAnesthesia($pid, $encounter)
+    public function getAnesthesia($pid, $encounter): string
     {
         $anesthesia = '';
         $formTables_details = $this->fetchFields('operative_note', 'anesthesia', 1);
@@ -2693,7 +2693,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getPostoperativeDiag($pid, $encounter)
+    public function getPostoperativeDiag($pid, $encounter): string
     {
         $post_operative_diag = '';
         $formTables_details = $this->fetchFields('operative_note', 'post_operative_diagnosis', 1);
@@ -2722,7 +2722,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getPreOperativeDiag($pid, $encounter)
+    public function getPreOperativeDiag($pid, $encounter): string
     {
         $pre_operative_diag = '';
         $formTables_details = $this->fetchFields('operative_note', 'pre_operative_diagnosis', 1);
@@ -2751,7 +2751,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getEstimatedBloodLoss($pid, $encounter)
+    public function getEstimatedBloodLoss($pid, $encounter): string
     {
         $estimated_blood_loss = '';
         $formTables_details = $this->fetchFields('operative_note', 'procedure_estimated_blood_loss', 1);
@@ -2780,7 +2780,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedureFindings($pid, $encounter)
+    public function getProcedureFindings($pid, $encounter): string
     {
         $procedure_findings = '';
         $formTables_details = $this->fetchFields('operative_note', 'procedure_findings', 1);
@@ -2809,7 +2809,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getProcedureSpecimensTaken($pid, $encounter)
+    public function getProcedureSpecimensTaken($pid, $encounter): string
     {
         $procedure_specimens = '';
         $formTables_details = $this->fetchFields('operative_note', 'procedure_specimens_taken', 1);
@@ -2841,7 +2841,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getHP($pid, $encounter)
+    public function getHP($pid, $encounter): string
     {
         $hp = '';
         $formTables_details = $this->fetchFields('consultation_note', 'history_of_present_illness', 1);
@@ -2870,7 +2870,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getPhysicalExam($pid, $encounter)
+    public function getPhysicalExam($pid, $encounter): string
     {
         $physical_exam = '';
         $formTables_details = $this->fetchFields('consultation_note', 'physical_exam', 1);
@@ -2902,7 +2902,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getChiefComplaint($pid, $encounter)
+    public function getChiefComplaint($pid, $encounter): string
     {
         $chief_complaint = '';
         $formTables_details = $this->fetchFields('history_physical_note', 'chief_complaint', 1);
@@ -2931,7 +2931,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getGeneralStatus($pid, $encounter)
+    public function getGeneralStatus($pid, $encounter): string
     {
         $general_status = '';
         $formTables_details = $this->fetchFields('history_physical_note', 'general_status', 1);
@@ -2960,7 +2960,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getHistoryOfPastIllness($pid, $encounter)
+    public function getHistoryOfPastIllness($pid, $encounter): string
     {
         $history_past_illness = '';
         $formTables_details = $this->fetchFields('history_physical_note', 'hpi_past_med', 1);
@@ -2989,7 +2989,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getReviewOfSystems($pid, $encounter)
+    public function getReviewOfSystems($pid, $encounter): string
     {
         $review_of_systems = '';
         $formTables_details = $this->fetchFields('history_physical_note', 'review_of_systems', 1);
@@ -3018,7 +3018,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getVitals($pid)
+    public function getVitals($pid): string
     {
         $wherCon = '';
         $first_encounter = null;
@@ -3093,7 +3093,7 @@ class EncounterccdadispatchTable
                 // these value sets have to come from urn:oid:2.16.840.1.113883.1.11.12839 which is codes here: http://unitsofmeasure.org/
                 // nice website with these values are https://build.fhir.org/ig/HL7/UTG/ValueSet-v3-UnitsOfMeasureCaseSensitive.html
                 $temp = US_weight($row['weight'], 1);
-                $tempArr = explode(" ", (string)$temp);
+                $tempArr = explode(" ", $temp);
                 $weight_value = (float)$tempArr[0];
                 $weight_unit = '[lb_av]'; // pounds US, British
                 $height_value = (float)$row['height'];
@@ -3208,7 +3208,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getSocialHistory($pid)
+    public function getSocialHistory($pid): string
     {
         $social_history = '';
         $arr = [
@@ -3370,7 +3370,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getUnstructuredDocuments($pid, $encounter)
+    public function getUnstructuredDocuments($pid, $encounter): string
     {
         $image = '';
         $formTables_details = $this->fetchFields('unstructured_document', 'unstructured_doc', 1);
@@ -3535,7 +3535,7 @@ class EncounterccdadispatchTable
      * @param $user_id
      * @return array
      */
-    public function fetchFields($ccda_component, $ccda_section, $user_id)
+    public function fetchFields($ccda_component, $ccda_section, $user_id): array
     {
         $form_type = $table_name = $field_names = '';
         $query = "select * from ccda_table_mapping
@@ -3749,7 +3749,7 @@ class EncounterccdadispatchTable
      * @param $date
      * @return array
      */
-    public function getEncounterDate($date)
+    public function getEncounterDate($date): array
     {
         $date_list = [];
         $query = "select pid, encounter from form_encounter where date between ? and ?";
@@ -3777,7 +3777,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return array
      */
-    public function signOff($pid, $encounter)
+    public function signOff($pid, $encounter): array
     {
         /*Saving Demographics to locked data*/
         $query_patient_data = "SELECT * FROM patient_data WHERE pid = ?";
@@ -3887,7 +3887,7 @@ class EncounterccdadispatchTable
      * @param $type
      * @return array
      */
-    public function getCCDAComponents($type)
+    public function getCCDAComponents($type): array
     {
         $get = new SendtoTable();
         $components = $get->getCcdaComponents($type);
@@ -4231,7 +4231,7 @@ class EncounterccdadispatchTable
      * @param $pid string  Internal Identifier.
      * @return string $planofcare  XML which contains the details collected from the patient.
      */
-    public function getPlanOfCare($pid, $encounter)
+    public function getPlanOfCare($pid, $encounter): string
     {
         $wherCon = '';
         $sqlBindArray = ['Plan_of_Care_Type', $pid, 'care_plan', 0];
@@ -4502,7 +4502,7 @@ class EncounterccdadispatchTable
         return $planofcare . $goals . $concerns . $sdoh_social;
     }
 
-    public function getSocialHistorySDOH($pid)
+    public function getSocialHistorySDOH($pid): string
     {
         $sql = "
         SELECT
@@ -4584,7 +4584,7 @@ class EncounterccdadispatchTable
         return $xml;
     }
 
-    private function getHungerAnswerDisplay($code)
+    private function getHungerAnswerDisplay($code): string
     {
         $map = [
             'LA28397-0' => 'Often true',
@@ -4605,7 +4605,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getFunctionalCognitiveStatus($pid)
+    public function getFunctionalCognitiveStatus($pid): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -4662,7 +4662,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return string
      */
-    public function getClinicalNotes($pid, $encounter)
+    public function getClinicalNotes($pid, $encounter): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -4745,7 +4745,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getClinicalInstructions($pid)
+    public function getClinicalInstructions($pid): string
     {
         $wherCon = '';
         $sqlBindArray = [];
@@ -4775,7 +4775,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return array
      */
-    private function getReferralRecords($pid)
+    private function getReferralRecords($pid): array
     {
         $wherCon = '';
         $sqlBindArray = [$pid];
@@ -4822,7 +4822,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return string
      */
-    public function getReferrals($pid)
+    public function getReferrals($pid): string
     {
         $referrals = '';
         $result = $this->getReferralRecords($pid);
@@ -4863,7 +4863,7 @@ class EncounterccdadispatchTable
      * @param $str
      * @return string
      */
-    public function formatUid($str)
+    public function formatUid($str): string
     {
         $sha = sha1((string)$str);
         return substr((string)preg_replace('/^.{8}|.{4}/', '\0-', $sha, 4), 0, 36);
@@ -4874,7 +4874,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return array
      */
-    private function getEncounterListForDateRange($pid, $encounter)
+    private function getEncounterListForDateRange($pid, $encounter): array
     {
         $encounter = '';
         $boundParams = [$pid];

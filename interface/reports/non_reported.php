@@ -52,7 +52,7 @@ function getLoggedInUserFacility()
 }
 
 // Ensoftek: Jul-2015: Map codes to confirm to HL7.
-function mapCodeType($incode)
+function mapCodeType($incode): string
 {
     $outcode = null;
     $code = explode(":", (string) $incode);

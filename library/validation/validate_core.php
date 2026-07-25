@@ -18,7 +18,10 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 
-function collectValidationPageRules($title, $active = true)
+/**
+ * @return array{page_name: string, rules: mixed}[]
+ */
+function collectValidationPageRules($title, $active = true): array
 {
 
     // Note from Rod: Not sure what the purpose is of $active because nothing calls it with a false value.

@@ -62,7 +62,7 @@ class C_FormPainMap extends C_AbstractClickmap
     /**
      * @brief return the path to the backing image relative to the webroot.
      */
-    function getImage()
+    function getImage(): string
     {
         return OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . C_FormPainMap::$FORM_CODE . "/templates/painmap.png";
     }
@@ -88,7 +88,7 @@ class C_FormPainMap extends C_AbstractClickmap
     /**
      * @brief return a label for the dropdown boxes on the form, as a string.
      */
-    function getOptionsLabel()
+    function getOptionsLabel(): string
     {
         return "Pain Scale";
     }

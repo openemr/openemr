@@ -76,7 +76,7 @@ class PractitionerFixtureManager
     /**
      * @return int the next available practitioner id/identifier.
      */
-    private function getNextId()
+    private function getNextId(): int
     {
         $idQuery = "SELECT IFNULL(MAX(id), 0) + 1 FROM users";
         $idResult = sqlQueryNoLog($idQuery);
@@ -91,7 +91,7 @@ class PractitionerFixtureManager
      * @param $fixtures Array of fixture objects to install.
      * @return int the number of fixtures installed.
      */
-    private function installFixtures($tableName, $fixtures)
+    private function installFixtures($tableName, $fixtures): int
     {
         $insertCount = 0;
         $sqlInsert = "INSERT INTO " . escape_table_name($tableName) . " SET ";
@@ -164,7 +164,7 @@ class PractitionerFixtureManager
     /**
      * Installs Practitioner Fixtures into the OpenEMR DB.
      */
-    public function installPractitionerFixtures()
+    public function installPractitionerFixtures(): int
     {
         return $this->installFixtures("users", $this->getPractitionerFixtures());
     }
@@ -174,7 +174,7 @@ class PractitionerFixtureManager
      * @param $practitionerFixture - The fixture to install.
      * @return int the number of records inserted.
      */
-    public function installSinglePractitionerFixture($practitionerFixture)
+    public function installSinglePractitionerFixture($practitionerFixture): int
     {
         return $this->installFixtures("users", [$practitionerFixture]);
     }
@@ -202,7 +202,7 @@ class PractitionerFixtureManager
      * Returns an unregistered/unlogged UUID for use in testing fixtures
      * @return string a uuid4 string value
      */
-    public function getUnregisteredUuid()
+    public function getUnregisteredUuid(): string
     {
         $uuid4 = Uuid::uuid4();
         return $uuid4->toString();

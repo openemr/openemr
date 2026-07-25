@@ -41,7 +41,7 @@ class RouteController
         $this->twig = $twig;
     }
 
-    public function supportsRequest($request)
+    public function supportsRequest($request): bool
     {
         // make sure the request matches the EXTERNAL_CDR_ACTION route either standalone or as a prefix
         $action = $request->get('action', '');

@@ -65,7 +65,7 @@ class ExportState
         $this->keyFilterer = new ExportKeyDefinitionFilterer();
     }
 
-    public function getTempSysDir()
+    public function getTempSysDir(): string
     {
         if (!isset($this->tempDir)) {
             $this->tempDir = tempnam(sys_get_temp_dir(), 'ehi-export-');
@@ -127,7 +127,7 @@ class ExportState
         throw new \RuntimeException("Invalid item in queue");
     }
 
-    public function hasTableDefinitions()
+    public function hasTableDefinitions(): bool
     {
         return !$this->queue->isEmpty();
     }
@@ -147,7 +147,7 @@ class ExportState
         }
     }
 
-    public function getKeyDataForTable(ExportTableDefinition $tableDefinition)
+    public function getKeyDataForTable(ExportTableDefinition $tableDefinition): array
     {
         $keyData = [
             'tables' => []

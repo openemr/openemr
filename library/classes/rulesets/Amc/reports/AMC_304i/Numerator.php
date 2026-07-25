@@ -11,12 +11,12 @@
 
 class AMC_304i_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304i Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Needs a summary send to place of referral.
         //  (so basically an amc element needs to exist)

@@ -12,14 +12,14 @@ class Handler_HL7v2
         $this->parser = &$parser;
     }
 
-    function Type()
+    function Type(): bool
     {
         return false;
     }
 
     //----- Internal methods
 
-    function _StripToNumeric($string)
+    function _StripToNumeric($string): string
     {
         $target = '';
         for ($pos = 0; $pos < strlen((string) $string); $pos++) {

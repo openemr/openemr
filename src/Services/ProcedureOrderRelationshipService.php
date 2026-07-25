@@ -66,7 +66,7 @@ class ProcedureOrderRelationshipService
      * @param int $procedureOrderId The procedure_order.procedure_order_id
      * @return array Array of relationship records with UUIDs as strings
      */
-    public function getRelationshipsByOrderId($procedureOrderId)
+    public function getRelationshipsByOrderId($procedureOrderId): array
     {
         $sql = "SELECT id, procedure_order_id, resource_type, resource_uuid,
                        relationship, created_at, created_by
@@ -93,7 +93,7 @@ class ProcedureOrderRelationshipService
      * @param string $resourceType (e.g., 'Observation', 'Condition')
      * @return array
      */
-    public function getRelationshipsByType($procedureOrderId, $resourceType)
+    public function getRelationshipsByType($procedureOrderId, $resourceType): array
     {
         $sql = "SELECT id, procedure_order_id, resource_type, resource_uuid,
                        relationship, created_at, created_by
@@ -118,7 +118,7 @@ class ProcedureOrderRelationshipService
      * @param int $id The procedure_order_relationships.id
      * @return bool Success status
      */
-    public function deleteRelationship($id)
+    public function deleteRelationship($id): bool
     {
         $sql = "DELETE FROM procedure_order_relationships WHERE id = ?";
         return sqlStatement($sql, [$id]) !== false;
@@ -131,7 +131,7 @@ class ProcedureOrderRelationshipService
      * @param int $procedureOrderId The procedure_order.procedure_order_id
      * @return bool Success status
      */
-    public function deleteRelationshipsByOrderId($procedureOrderId)
+    public function deleteRelationshipsByOrderId($procedureOrderId): bool
     {
         $sql = "DELETE FROM procedure_order_relationships WHERE procedure_order_id = ?";
         return sqlStatement($sql, [$procedureOrderId]) !== false;
@@ -144,7 +144,7 @@ class ProcedureOrderRelationshipService
      * @param string $resourceType
      * @return bool Success status
      */
-    public function deleteRelationshipsByType($procedureOrderId, $resourceType)
+    public function deleteRelationshipsByType($procedureOrderId, $resourceType): bool
     {
         $sql = "DELETE FROM procedure_order_relationships
                 WHERE procedure_order_id = ? AND resource_type = ?";
@@ -183,7 +183,7 @@ class ProcedureOrderRelationshipService
      * @param int $procedureOrderId
      * @return bool
      */
-    private function procedureOrderExists($procedureOrderId)
+    private function procedureOrderExists($procedureOrderId): bool
     {
         $sql = "SELECT COUNT(*) as count
                 FROM procedure_order
@@ -199,7 +199,7 @@ class ProcedureOrderRelationshipService
      * @param int $procedureOrderId
      * @return array Array of ['resource_type' => string, 'uuid' => string, 'relationship' => string]
      */
-    public function getRelationshipsForFhir($procedureOrderId)
+    public function getRelationshipsForFhir($procedureOrderId): array
     {
         $relationships = $this->getRelationshipsByOrderId($procedureOrderId);
 
@@ -279,7 +279,7 @@ class ProcedureOrderRelationshipService
      *
      * @return array Statistics
      */
-    public function getStatistics()
+    public function getStatistics(): array
     {
         $stats = [];
 
@@ -336,7 +336,7 @@ class ProcedureOrderRelationshipService
      * @param string $resourceUuid UUID of the resource
      * @return array Array of procedure_order_id values
      */
-    public function getOrdersReferencingResource($resourceType, $resourceUuid)
+    public function getOrdersReferencingResource($resourceType, $resourceUuid): array
     {
         $uuidBinary = UuidRegistry::uuidToBytes($resourceUuid);
         if ($uuidBinary === false) {
@@ -366,7 +366,7 @@ class ProcedureOrderRelationshipService
      * @param int   $userId
      * @return int Number of relationships added
      */
-    public function batchAddRelationships($procedureOrderId, $relationshipsArray, $userId = null)
+    public function batchAddRelationships($procedureOrderId, $relationshipsArray, $userId = null): int
     {
         if (empty($relationshipsArray)) {
             return 0;

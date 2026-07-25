@@ -45,7 +45,7 @@ pnModAPILoad(__POSTCALENDAR__, 'user');
  * This is a standard function to provide an overview of all of the items
  * available from the module.
  */
-function postcalendar_user_view()
+function postcalendar_user_view(): string
 {
     // get the vars that were passed in
     [$Date, $print, $viewtype, $jumpday, $jumpmonth, $jumpyear] = pnVarCleanFromInput(
@@ -126,7 +126,7 @@ function postcalendar_user_display($args)
 /**
  * search events
  */
-function postcalendar_user_search()
+function postcalendar_user_search(): string
 {
     $tpl = CalendarRenderer::create();
     $k = pnVarCleanFromInput('pc_keywords') ?? '';

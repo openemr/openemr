@@ -112,7 +112,7 @@ class FormVitals extends ORDataObject
         //$this->temp_methods = parent::_load_enum("temp_locations",false);
     }
 
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $string = "\n" . "ID: " . $this->id . "\n";
         return $html ? nl2br($string) : $string;
@@ -217,7 +217,7 @@ class FormVitals extends ORDataObject
         return $this->weight;
     }
 
-    public function get_weight_metric()
+    public function get_weight_metric(): string
     {
         return MeasurementUtils::lbToKg($this->get_weight());
     }
@@ -242,7 +242,7 @@ class FormVitals extends ORDataObject
     {
         return $this->height;
     }
-    public function get_height_metric()
+    public function get_height_metric(): string
     {
         return MeasurementUtils::inchesToCm($this->get_height());
     }
@@ -256,7 +256,7 @@ class FormVitals extends ORDataObject
     {
         return $this->temperature;
     }
-    public function get_temperature_metric()
+    public function get_temperature_metric(): string
     {
         return MeasurementUtils::fhToCelsius($this->get_temperature());
     }
@@ -339,7 +339,7 @@ class FormVitals extends ORDataObject
     {
         return $this->waist_circ;
     }
-    public function get_waist_circ_metric()
+    public function get_waist_circ_metric(): string
     {
         return MeasurementUtils::inchesToCm($this->get_waist_circ());
     }
@@ -353,7 +353,7 @@ class FormVitals extends ORDataObject
     {
         return $this->head_circ;
     }
-    public function get_head_circ_metric()
+    public function get_head_circ_metric(): string
     {
         return MeasurementUtils::inchesToCm($this->get_head_circ());
     }
@@ -440,7 +440,7 @@ class FormVitals extends ORDataObject
         }
     }
 
-    public function get_uuid_string()
+    public function get_uuid_string(): string
     {
         if (empty($this->uuid)) {
             return "";
@@ -510,17 +510,19 @@ class FormVitals extends ORDataObject
         return ['errors' => $errors, 'warnings' => $warnings];
     }
 
-    public function persist()
+    public function persist(): mixed
     {
         if (empty($this->uuid)) {
             $this->uuid = (new UuidRegistry(['table_name' => self::TABLE_NAME]))->createUuid();
         }
-        parent::persist();
+        $result = parent::persist();
 
         foreach ($this->_vitals_details as $item) {
             $item->set_form_id($this->get_id());
             $item->persist();
         }
+
+        return $result;
     }
 
     public function populate_array($results)

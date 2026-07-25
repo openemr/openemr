@@ -34,7 +34,7 @@ class Therapy_Groups_Encounters
       * @param $gid
       * @return ADORecordSet_mysqli
       */
-    public function getGroupEncounters($gid)
+    public function getGroupEncounters($gid): array
     {
         $sql = "SELECT * FROM " . self::TABLE . " WHERE group_id = ? AND date >= CURDATE();";
         $result = sqlStatement($sql, [$gid]);

@@ -39,7 +39,7 @@ class Form_Button implements ButtonIF
         return OEGlobalsBag::getInstance()->getBoolean('esign_individual');
     }
 
-    public function getViewScript()
+    public function getViewScript(): string
     {
         return OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/views/form/esign_button.php';
     }

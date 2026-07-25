@@ -88,7 +88,10 @@ class InsuranceNumbers extends ORDataObject
             $ic = null;
         }
 
-        function insurance_numbers_factory($provider_id)
+        /**
+         * @return \InsuranceNumbers[]
+         */
+        function insurance_numbers_factory($provider_id): array
         {
             $ins = [];
             $sql = "SELECT id FROM "  . escape_table_name($this->_table) .

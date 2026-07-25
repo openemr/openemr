@@ -52,7 +52,7 @@ class SiteSetupListener implements EventSubscriberInterface
         return $siteId;
     }
 
-    public static function getWebroot()
+    public static function getWebroot(): string
     {
 
         // TODO: this is copied from globals.php, we need to figure out how to share this code even though we don't have the autoload defined yet...

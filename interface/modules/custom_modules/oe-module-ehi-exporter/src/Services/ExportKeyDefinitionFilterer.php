@@ -174,7 +174,7 @@ class ExportKeyDefinitionFilterer
         return $key;
     }
 
-    public function hasMultipleKeysForColumn(ExportKeyDefinition $key)
+    public function hasMultipleKeysForColumn(ExportKeyDefinition $key): bool
     {
         if ($key->localTable == 'lists' && $key->localColumn == 'list_option_id') {
             return true;
@@ -182,7 +182,10 @@ class ExportKeyDefinitionFilterer
         return false;
     }
 
-    public function filterMultipleKeys(ExportKeyDefinition $key)
+    /**
+     * @return \OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition[]
+     */
+    public function filterMultipleKeys(ExportKeyDefinition $key): array
     {
         $keys = [];
         if ($key->localTable == 'lists') {

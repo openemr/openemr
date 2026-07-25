@@ -137,7 +137,7 @@ class TeleHealthUserRepository extends BaseService
      * good idea either.  Since the business requirement is that users can't see their password we will generate the
      * password and use our standard encrypt method just in case the DB is taken.
      */
-    public function createUniquePassword()
+    public function createUniquePassword(): string
     {
         $factory = new UuidFactory();
         $uuidString = $factory->uuid4()->toString();
@@ -147,7 +147,7 @@ class TeleHealthUserRepository extends BaseService
         return $cryptoGen->encryptForDatabase($uuidString);
     }
 
-    public function decryptPassword($password)
+    public function decryptPassword($password): string
     {
         $cryptoGen = ServiceContainer::getCrypto();
         return $cryptoGen->decryptFromDatabase(is_string($password) ? $password : null);

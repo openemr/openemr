@@ -49,7 +49,7 @@ if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-function is_clinic($code)
+function is_clinic($code): bool
 {
     global $bcodes;
     $i = strpos((string) $code, ':');

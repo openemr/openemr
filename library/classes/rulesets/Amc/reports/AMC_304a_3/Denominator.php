@@ -24,12 +24,12 @@
 
 class AMC_304a_3_Denominator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304a_3 Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // MEASURE STAGE2: Medication Order(s) Check
         $options = [ ];

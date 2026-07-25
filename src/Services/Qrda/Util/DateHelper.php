@@ -34,7 +34,7 @@ class DateHelper
         return !empty($datetime) ? date('YmdHis', strtotime((string) $datetime)) : null;
     }
 
-    public static function format_date($date)
+    public static function format_date($date): string
     {
         return date('Ymd', strtotime((string) $date));
     }

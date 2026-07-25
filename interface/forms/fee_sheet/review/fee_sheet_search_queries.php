@@ -27,7 +27,7 @@ use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
  * @param string $search_query The text to search on.
  * @return array
  */
-function diagnosis_search($search_type_id, $search_type, $search_query)
+function diagnosis_search($search_type_id, $search_type, $search_query): array
 {
     $retval = [];
     $search = main_code_set_search($search_type, $search_query, 20);

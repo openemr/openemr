@@ -89,7 +89,7 @@ class FixtureManager
     /**
      * @return int the next available patient pid/identifier.
      */
-    private function getNextPid()
+    private function getNextPid(): int
     {
         $pidQuery = "SELECT IFNULL(MAX(pid), 0) + 1 FROM patient_data";
         $pidResult = sqlQueryNoLog($pidQuery);
@@ -104,7 +104,7 @@ class FixtureManager
      * @param $fixtures Array of fixture objects to install.
      * @return int the number of fixtures installed.
      */
-    private function installFixtures($tableName, $fixtures)
+    private function installFixtures($tableName, $fixtures): int
     {
         $insertCount = 0;
         $sqlInsert = "INSERT INTO " . escape_table_name($tableName) . " SET ";
@@ -215,7 +215,7 @@ class FixtureManager
     /**
      * Installs Patient Fixtures into the OpenEMR DB.
      */
-    public function installPatientFixtures()
+    public function installPatientFixtures(): int
     {
         return $this->installFixtures("patient_data", $this->getPatientFixtures());
     }
@@ -225,7 +225,7 @@ class FixtureManager
      * @param $patientFixture - The fixture to install.
      * @return int the number of records inserted.
      */
-    public function installSinglePatientFixture($patientFixture)
+    public function installSinglePatientFixture($patientFixture): int
     {
         return $this->installFixtures("patient_data", [$patientFixture]);
     }
@@ -311,7 +311,7 @@ class FixtureManager
      * Returns an unregistered/unlogged UUID for use in testing fixtures
      * @return string a uuid4 string value
      */
-    public function getUnregisteredUuid()
+    public function getUnregisteredUuid(): string
     {
         $uuid4 = Uuid::uuid4();
         return $uuid4->toString();

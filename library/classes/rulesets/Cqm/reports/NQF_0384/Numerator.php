@@ -24,12 +24,12 @@
 
 class NQF_0384_Numerator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         //Patient visits in which pain intensity is quantified
         $riskCatAssessQry = "SELECT count(*) as cnt FROM form_encounter fe " .

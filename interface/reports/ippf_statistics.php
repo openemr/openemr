@@ -226,7 +226,7 @@ function ippf_stats_genNumCell($num, $cnum): void
 // Translate an IPPF code to the corresponding descriptive name of its
 // contraceptive method, or to an empty string if none applies.
 //
-function getContraceptiveMethod(string $code)
+function getContraceptiveMethod(string $code): string
 {
     $key = '';
     if (str_starts_with($code, '111101')) {
@@ -265,7 +265,7 @@ function getContraceptiveMethod(string $code)
 // Helper function to find a contraception-related IPPF code from
 // the related_code element of the given array.
 //
-function getRelatedContraceptiveCode($row)
+function getRelatedContraceptiveCode($row): string
 {
     if (!empty($row['related_code'])) {
         $relcodes = explode(';', (string) $row['related_code']);
@@ -293,7 +293,7 @@ function getRelatedContraceptiveCode($row)
 // Helper function to find an abortion-method IPPF code from
 // the related_code element of the given array.
 //
-function getRelatedAbortionMethod($row)
+function getRelatedAbortionMethod($row): string
 {
     if (!empty($row['related_code'])) {
         $relcodes = explode(';', (string) $row['related_code']);
@@ -321,7 +321,7 @@ function getRelatedAbortionMethod($row)
 // Translate an IPPF code to the corresponding descriptive name of its
 // abortion method, or to an empty string if none applies.
 //
-function getAbortionMethod(string $code)
+function getAbortionMethod(string $code): string
 {
     $key = '';
     if (preg_match('/^25222[34]/', $code)) {
@@ -385,7 +385,7 @@ function getGcacClientStatus($row) {
 
 // Determine if a recent gcac service was performed.
 //
-function hadRecentAbService($pid, $encdate)
+function hadRecentAbService($pid, $encdate): bool
 {
     $query = "SELECT COUNT(*) AS count " .
     "FROM form_encounter AS fe, billing AS b, codes AS c WHERE " .
@@ -971,7 +971,7 @@ function process_referral($row): void
     }
 }
 
-function uses_description($form_by)
+function uses_description($form_by): bool
 {
     return (in_array($form_by, ['4', '102', '9', '10', '20', '104'], true));
 }

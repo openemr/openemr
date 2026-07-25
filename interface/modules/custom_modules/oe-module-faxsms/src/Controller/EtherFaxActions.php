@@ -416,7 +416,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
      *
      * @return string|void
      */
-    public function getPending()
+    public function getPending(): string
     {
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
@@ -487,7 +487,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
         exit();
     }
 
-    private function getTransactionTypeWord($transactionType)
+    private function getTransactionTypeWord($transactionType): string
     {
         $transactionTypes = [
             '0' => xlt('Received'),
@@ -512,7 +512,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
         return 'No';
     }
 
-    private function generateFaxForm($id, $recognized)
+    private function generateFaxForm($id, $recognized): string
     {
         if (empty($recognized)) {
             return '';
@@ -535,7 +535,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
         return $form;
     }
 
-    private function generateActionLinks($id, $record_id, $pid_assumed)
+    private function generateActionLinks($id, $record_id, $pid_assumed): string
     {
         return "<a role='button' href='#' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode([])) . ")\">
                 <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i>
@@ -557,7 +557,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
             </a>";
     }
 
-    private function generateDetailLink($id, $recognized)
+    private function generateDetailLink($id, $recognized): string
     {
         $showFlag = count($recognized);
         return $showFlag ? "<a role='button' href='#' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#" . text($id) . "\")'></a>" . text($showFlag) . ' ' . xlt("Items") : '';
@@ -854,7 +854,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
     /**
      * @return string
      */
-    public function getCallLogs()
+    public function getCallLogs(): string
     {
         return xlt('Not Implemented');
     }

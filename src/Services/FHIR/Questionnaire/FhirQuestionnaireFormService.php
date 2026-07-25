@@ -71,7 +71,10 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
         return true;
     }
 
-    private function parseQuestionnaireItems($dataItem)
+    /**
+     * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaire\FHIRQuestionnaireItem[]
+     */
+    private function parseQuestionnaireItems($dataItem): array
     {
         $objItems = [];
         if (!empty($dataItem['item'])) {

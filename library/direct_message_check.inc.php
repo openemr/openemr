@@ -566,7 +566,7 @@ function phimail_read_blob($fp, $len): string|false
  * Return a suitable filename extension based on MIME-type
  * (very limited, default is .dat)
  */
-function phimail_extension($mime)
+function phimail_extension($mime): string
 {
     $m = explode("/", (string) $mime);
     switch ($mime) {

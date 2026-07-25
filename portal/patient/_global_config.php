@@ -156,7 +156,7 @@ class GlobalConfig
      * Returns the requested action requested by the user
     * @return string
     */
-    function GetAction()
+    function GetAction(): string
     {
         [$controller, $method] = $this->GetRouter()->GetRoute();
         return $controller . '.' . $method;

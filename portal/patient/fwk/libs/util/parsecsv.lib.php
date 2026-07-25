@@ -200,7 +200,7 @@ class parseCSV
      * @param string|null $input CSV file or string
      * @return bool
      */
-    function parse($input = null, $offset = null, $limit = null, $conditions = null)
+    function parse($input = null, $offset = null, $limit = null, $conditions = null): bool
     {
         if ($input === null) {
             $input = $this->file;
@@ -263,7 +263,7 @@ class parseCSV
      * @param mixed $delimiter delimiter used to separate data
      * @return CSV data using delimiter of choice, or default
      */
-    function output($filename = null, $data = [], $fields = [], $delimiter = null)
+    function output($filename = null, $data = [], $fields = [], $delimiter = null): string
     {
         if (empty($filename)) {
             $filename = $this->output_filename;
@@ -597,7 +597,7 @@ class parseCSV
      * @param mixed $delimiter field delimiter to use
      * @return CSV data (text string)
      */
-    function unparse($data = [], $fields = [], $append = false, $is_php = false, $delimiter = null)
+    function unparse($data = [], $fields = [], $append = false, $is_php = false, $delimiter = null): string
     {
         if (! is_array($data) || empty($data)) {
             $data = &$this->data;
@@ -643,7 +643,7 @@ class parseCSV
      * @param mixed $input local CSV file
      * @return true or false
      */
-    function load_data($input = null)
+    function load_data($input = null): bool
     {
         $data = null;
         $file = null;
@@ -728,7 +728,7 @@ class parseCSV
      * @param mixed $condition specified condition that the row must match
      * @return true of false
      */
-    function _validate_row_condition($row, $condition)
+    function _validate_row_condition($row, $condition): string
     {
         $operators =  [
                 '=',
@@ -799,7 +799,7 @@ class parseCSV
      * @param mixed $current_row the current row number being processed
      * @return true of false
      */
-    function _validate_offset($current_row)
+    function _validate_offset($current_row): bool
     {
         if ($this->sort_by === null && $this->offset !== null && $current_row < $this->offset) {
             return false;
@@ -916,7 +916,7 @@ class parseCSV
      * @param mixed $lock flock() mode
      * @return true or false
      */
-    function _wfile($file, $string = '', $mode = 'wb', $lock = 2)
+    function _wfile($file, $string = '', $mode = 'wb', $lock = 2): bool
     {
         if ($fp = fopen($file, $mode)) {
             flock($fp, $lock);

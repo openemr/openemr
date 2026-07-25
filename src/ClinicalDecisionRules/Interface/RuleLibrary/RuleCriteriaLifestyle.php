@@ -22,7 +22,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
     {
     }
 
-    function getRequirements()
+    function getRequirements(): string
     {
         $requirements = xl("Value") . ": ";
         if (is_null($this->matchValue)) {
@@ -34,18 +34,21 @@ class RuleCriteriaLifestyle extends RuleCriteria
         return $requirements;
     }
 
-    function getTitle()
+    function getTitle(): string
     {
         $label = xl_layout_label($this->getLayoutLabel($this->type, "HIS"));
         return xl("Lifestyle") . " - " . $label;
     }
 
-    function getView()
+    function getView(): string
     {
         return "lifestyle.php";
     }
 
-    function getOptions()
+    /**
+     * @return array{id: mixed, label: mixed}[]
+     */
+    function getOptions(): array
     {
         $stmt = sqlStatement(
             "SELECT lo.field_id, lo.title FROM layout_options AS lo, layout_group_properties AS lp "

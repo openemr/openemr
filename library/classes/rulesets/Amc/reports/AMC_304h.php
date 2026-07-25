@@ -11,12 +11,12 @@
 
 class AMC_304h extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304h";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "encounters_office_visit";
     }

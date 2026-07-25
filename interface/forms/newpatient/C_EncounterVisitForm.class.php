@@ -111,7 +111,10 @@ class C_EncounterVisitForm
 
 
 // Get providers list
-    function getProvidersForTemplate(UserService $userService, $encounter)
+    /**
+     * @return array{id: mixed, name: non-falsy-string, selected: bool}[]
+     */
+    function getProvidersForTemplate(UserService $userService, $encounter): array
     {
         $users = $userService->getActiveUsers();
         $provider_id = (int)$encounter['provider_id'];
@@ -167,7 +170,10 @@ class C_EncounterVisitForm
     }
 
 // START AI GENERATED CODE
-    function getBillingFacilityForTemplate(FacilityService $facilityService, $default_bill_fac = null)
+    /**
+     * @return array{id: mixed, name: mixed, selected: bool}[]
+     */
+    function getBillingFacilityForTemplate(FacilityService $facilityService, $default_bill_fac = null): array
     {
         // Determine default billing facility
         if (empty($default_bill_fac)) {
@@ -199,10 +205,11 @@ class C_EncounterVisitForm
         return $billingFacilities;
     }
 // END AI GENERATED CODE
-
-
-// Get visit categories
-    function getVisitCategoriesForTemplate($viewmode, $encounter, $default_visit_category)
+    // Get visit categories
+    /**
+     * @return array{id: mixed, name: mixed, selected: bool}[]
+     */
+    function getVisitCategoriesForTemplate($viewmode, $encounter, $default_visit_category): array
     {
         $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
                  FROM openemr_postcalendar_categories
@@ -241,13 +248,16 @@ class C_EncounterVisitForm
 
         return $categories;
     }
-    function sensitivity_compare($a, $b)
+    function sensitivity_compare($a, $b): int
     {
         return ($a[2] < $b[2]) ? -1 : 1;
     }
 
 // Get sensitivity options
-    function getSensitivitiesForTemplate($encounter)
+    /**
+     * @return mixed[]
+     */
+    function getSensitivitiesForTemplate($encounter): array
     {
         $viewmode = $this->viewmode;
 
@@ -282,7 +292,10 @@ class C_EncounterVisitForm
     }
 
 // Get issues for linking
-    function getIssuesForTemplate($pid, $viewmode, $encounter_id, $selectedIssue = null)
+    /**
+     * @return array{id: mixed, type: mixed, title: mixed, date: mixed, selected: bool}[]
+     */
+    function getIssuesForTemplate($pid, $viewmode, $encounter_id, $selectedIssue = null): array
     {
 
         $issues = [];
@@ -339,7 +352,7 @@ class C_EncounterVisitForm
         return $encounter_type_option;
     }
 
-    function getInCollectionOptionsForTemplate($encounter = null)
+    function getInCollectionOptionsForTemplate($encounter = null): array
     {
         $options = [
             ['value' => '0', 'title' => xl('No')],
@@ -355,7 +368,10 @@ class C_EncounterVisitForm
         return $options;
     }
 
-    function getDischargeDispositionsForTemplate($encounter = null)
+    /**
+     * @return mixed[]
+     */
+    function getDischargeDispositionsForTemplate($encounter = null): array
     {
         $dispositions = [];
 
@@ -382,7 +398,10 @@ class C_EncounterVisitForm
         return $dispositions;
     }
 
-    function getTherapyGroupCategoriesForTemplate()
+    /**
+     * @return mixed[]
+     */
+    function getTherapyGroupCategoriesForTemplate(): array
     {
         $categories = [];
         $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype
@@ -398,7 +417,10 @@ class C_EncounterVisitForm
         return $categories;
     }
 
-    function getGroupDataForTemplate($encounter = null)
+    /**
+     * @return mixed[]
+     */
+    function getGroupDataForTemplate($encounter = null): array
     {
         $groupData = [
             'name' => '',
@@ -429,7 +451,10 @@ class C_EncounterVisitForm
         return $groupData;
     }
 
-    function getPosOptionsForTemplate($facilityPosCode = null)
+    /**
+     * @return array{code: mixed, title: mixed, selected: bool}[]
+     */
+    function getPosOptionsForTemplate($facilityPosCode = null): array
     {
         $pc = new \POSRef();
         $options = [];
@@ -444,7 +469,10 @@ class C_EncounterVisitForm
         return $options;
     }
 
-    function getDuplicateEncounterRecords($viewmode, $pid)
+    /**
+     * @return mixed[]
+     */
+    function getDuplicateEncounterRecords($viewmode, $pid): array
     {
         $duplicate = ['isDuplicate' => false];
         if (!$viewmode) {

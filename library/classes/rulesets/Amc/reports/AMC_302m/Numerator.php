@@ -11,12 +11,12 @@
 
 class AMC_302m_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302m Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Is patient provided patient specific education during the report period.
 

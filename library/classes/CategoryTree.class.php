@@ -16,7 +16,7 @@ class CategoryTree extends Tree
         parent::__construct($root, $root_type);
     }
 
-    public function should_translate_name()
+    public function should_translate_name(): bool
     {
         return true;
     }
@@ -26,7 +26,10 @@ class CategoryTree extends Tree
         return xl_document_category($name);
     }
 
-    function _get_categories_array($patient_id, $user = '')
+    /**
+     * @return non-empty-array[]
+     */
+    function _get_categories_array($patient_id, $user = ''): array
     {
         $categories = [];
         $sqlArray = [];

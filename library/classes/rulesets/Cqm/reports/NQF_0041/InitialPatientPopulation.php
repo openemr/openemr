@@ -9,12 +9,12 @@
 //
 class NQF_0041_InitialPatientPopulation implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "NQF 0041 Initial Patient Population";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $oneEncounter = [ Encounter::OPTION_ENCOUNTER_COUNT => 1 ];
         $twoEncounters = [ Encounter::OPTION_ENCOUNTER_COUNT => 2 ];

@@ -164,7 +164,7 @@ class InsuranceCompany extends ORDataObject
         return $this->name;
     }
 
-    public function get_display_name()
+    public function get_display_name(): string
     {
         return InsuranceCompanyService::getDisplayNameForInsuranceRecord([
             'name' => $this->name,
@@ -335,7 +335,7 @@ class InsuranceCompany extends ORDataObject
         }
     }
 
-    public function persist()
+    public function persist(): mixed
     {
         // Wrap the whole logical save (parent row, address row, phone_numbers
         // delete + re-insert) in a single transaction. The delete-then-insert
@@ -343,8 +343,9 @@ class InsuranceCompany extends ORDataObject
         // #10326 introduced; without the transaction, a connection drop
         // between the DELETE and the final INSERT would leave the record
         // with partial or no phone data instead of just the buggy duplicates.
-        QueryUtils::inTransaction(function (): void {
-            parent::persist();
+        $result = null;
+        QueryUtils::inTransaction(function () use (&$result): void {
+            $result = parent::persist();
             $this->address->persist($this->id);
             $phoneService = new PhoneNumberService();
             // Reset phone_numbers rows for this company so the table mirrors
@@ -372,9 +373,14 @@ class InsuranceCompany extends ORDataObject
                 $phoneService->insert($phoneData, $this->id);
             }
         });
+
+        return $result;
     }
 
-    public function insurance_companies_factory()
+    /**
+     * @return \InsuranceCompany[]
+     */
+    public function insurance_companies_factory(): array
     {
         $insuranceCompanyService = new InsuranceCompanyService();
         $icompanies = [];
@@ -401,7 +407,7 @@ class InsuranceCompany extends ORDataObject
         return $icompanies;
     }
 
-    public function toString($html = false)
+    public function toString($html = false): string
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"

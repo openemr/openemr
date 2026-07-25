@@ -29,7 +29,7 @@ class GlobalConfig
      * Returns true if all of the settings have been configured.  Otherwise it returns false.
      * @return bool
      */
-    public function isConfigured()
+    public function isConfigured(): bool
     {
         $keys = [];
         foreach ($keys as $key) {
@@ -45,7 +45,7 @@ class GlobalConfig
         return $this->globalsArray[$settingKey] ?? null;
     }
 
-    public function getGlobalSettingSectionConfiguration()
+    public function getGlobalSettingSectionConfiguration(): array
     {
         $settings = [
         ];

@@ -77,7 +77,7 @@ class ObserveToFile implements IObserver
             }
         }
     }
-    private function FormatTrace($tb, $join = " :: ", $show_lines = false)
+    private function FormatTrace($tb, $join = " :: ", $show_lines = false): string
     {
         $msg = "";
         $delim = "";

@@ -275,7 +275,7 @@ class PatientDocumentCreateCCDAEvent extends Event
         return $this->getCcdaStringFormat($this->components ?? []);
     }
 
-    private function getCcdaStringFormat(array $arr)
+    private function getCcdaStringFormat(array $arr): string
     {
         return implode("|", $arr);
     }

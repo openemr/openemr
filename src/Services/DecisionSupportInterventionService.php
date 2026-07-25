@@ -132,7 +132,7 @@ class DecisionSupportInterventionService extends BaseService
     {
         $this->updateDSIAttributes($dsiServiceId, self::LIST_ID_EVIDENCE_DSI, $userId, $attributes);
     }
-    private function updateDSIAttributes($dsiServiceId, $listId, $userId, $attributes)
+    private function updateDSIAttributes($dsiServiceId, $listId, $userId, $attributes): bool
     {
         $inTransaction = false;
         try {
@@ -195,7 +195,7 @@ class DecisionSupportInterventionService extends BaseService
      * @param $dsiServiceId
      * @return array
      */
-    private function getAttributes($listId, ?string $dsiServiceId)
+    private function getAttributes($listId, ?string $dsiServiceId): array
     {
         if (empty($dsiServiceId)) {
             $query =  "SELECT "
@@ -239,7 +239,7 @@ class DecisionSupportInterventionService extends BaseService
         return null;
     }
 
-    public function getDsiTypeForStringName(string $dsiTypeName)
+    public function getDsiTypeForStringName(string $dsiTypeName): int
     {
         if (!array_key_exists($dsiTypeName, self::DSI_TYPES_BY_STRING_NAME)) {
             throw new \InvalidArgumentException("Invalid DSI type name");
@@ -247,7 +247,7 @@ class DecisionSupportInterventionService extends BaseService
         return self::DSI_TYPES_BY_STRING_NAME[$dsiTypeName];
     }
 
-    public function getDsiTypeStringName(int $dsiType)
+    public function getDsiTypeStringName(int $dsiType): string
     {
         if (!array_key_exists($dsiType, self::DSI_TYPES)) {
             throw new \InvalidArgumentException("Invalid DSI type");

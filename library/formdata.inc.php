@@ -21,7 +21,7 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 
-function add_escape_custom($s)
+function add_escape_custom($s): string
 {
     //prepare for safe mysql insertion
     $s = mysqli_real_escape_string(OEGlobalsBag::getInstance()->get('dbh'), ($s ?? ''));
@@ -40,7 +40,7 @@ function add_escape_custom($s)
  * @param   string $s  Limit variable to be escaped.
  * @return  string     Escaped limit variable.
  */
-function escape_limit($s)
+function escape_limit($s): int
 {
     //prepare for safe mysql insertion
     $s = (int)$s;
@@ -97,7 +97,7 @@ function process_cols_escape($s)
  * @param bool $throwException Whether to throw a SQL exception instead of dying
  * @return  string                 Escaped table name variable.
  */
-function escape_sql_column_name($s, $tables, $long = false, $throwException = false)
+function escape_sql_column_name($s, $tables, $long = false, $throwException = false): string
 {
     // If $s is asterisk return asterisk to select all columns
     if ($s === "*") {
@@ -174,7 +174,7 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
  * @param   string $s  sql table name variable to be escaped/sanitized.
  * @return  string     Escaped table name variable.
  */
-function escape_table_name($s)
+function escape_table_name($s): string
 {
     return \OpenEMR\Common\Database\QueryUtils::escapeTableName($s);
 }
@@ -266,7 +266,7 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
  * @param bool $istrim whether to use trim() on the data.
  * @return string variable requested, or empty string
  */
-function formData($name, $type = 'P', $isTrim = false)
+function formData($name, $type = 'P', $isTrim = false): string
 {
     if ($type == 'P') {
         $s = $_POST[$name] ?? '';
@@ -290,7 +290,7 @@ function formData($name, $type = 'P', $isTrim = false)
  * @param bool $istrim whether to use trim() on the data.
  * @return string
  */
-function formDataCore($s, $isTrim = false)
+function formDataCore($s, $isTrim = false): string
 {
     //trim if selected
     if ($isTrim) {

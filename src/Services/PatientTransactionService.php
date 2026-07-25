@@ -29,7 +29,7 @@ class PatientTransactionService extends BaseService
         parent::__construct(self::TABLE_NAME);
     }
 
-    public function getSelectStatement($predicateColumnName)
+    public function getSelectStatement($predicateColumnName): string
     {
 
         $criteriaItemsWhitelist = [
@@ -101,7 +101,10 @@ class PatientTransactionService extends BaseService
         ";
     }
 
-    private function getOneFromDb($tid)
+    /**
+     * @return mixed[]
+     */
+    private function getOneFromDb($tid): array
     {
 
         $sqlBindArray = [];

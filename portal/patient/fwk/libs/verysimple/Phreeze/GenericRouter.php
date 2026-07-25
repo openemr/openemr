@@ -215,7 +215,7 @@ class GenericRouter implements IRouter
     /**
      * @inheritdocs
      */
-    public function GetUrl($controller, $method, $params = '', $requestMethod = "")
+    public function GetUrl($controller, $method, $params = '', $requestMethod = ""): string
     {
         $found = false;
 

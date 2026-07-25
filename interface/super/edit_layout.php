@@ -76,7 +76,7 @@ while ($lrow = sqlFetchArray($lres)) {
     $validations[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
 
-function nextGroupOrder($order)
+function nextGroupOrder($order): string
 {
     if ($order == '9') {
         $order = 'A';
@@ -96,7 +96,7 @@ function nextGroupOrder($order)
 /**
  * @param literal-string $name
  */
-function genGroupSelector(string $name, $layout_id, $default = '')
+function genGroupSelector(string $name, $layout_id, $default = ''): string
 {
     $res = sqlStatement(
         "SELECT grp_group_id, grp_title " .
@@ -143,7 +143,7 @@ function genGroupSelector(string $name, $layout_id, $default = '')
 // If there is a nonempty $parent then its ID will be the prefix for the
 // new ID and the sequence prefix will be computed within the parent.
 //
-function genGroupId($parent)
+function genGroupId($parent): string
 {
     global $layout_id;
     $results = sqlStatement(
@@ -203,7 +203,7 @@ function swapGroups($id1, $id2): void
     }
 }
 
-function tableNameFromLayout($layout_id)
+function tableNameFromLayout($layout_id): string
 {
     // Skip layouts that store data in vertical tables.
     if (str_starts_with((string) $layout_id, 'LBF') || str_starts_with((string) $layout_id, 'LBT') || $layout_id == "FACUSR") {
@@ -227,7 +227,7 @@ function tableNameFromLayout($layout_id)
 
 // This tells you if a column name is required in code and therefore must not
 // be deleted or renamed.
-function isColumnReserved($tablename, $field_id)
+function isColumnReserved($tablename, $field_id): bool
 {
     if ($tablename == 'patient_data') {
         if (
@@ -363,7 +363,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
 //   3 = There is already a column having the new name.
 //   4 = Old name is needed internally and cannot be changed.
 //
-function renameColumn($layout_id, $old_field_id, $new_field_id)
+function renameColumn($layout_id, $old_field_id, $new_field_id): int
 {
     $tablename = tableNameFromLayout($layout_id);
     if (!$tablename) {
@@ -746,7 +746,7 @@ $extra_html = '';
 // This is called to generate a select option list for fields within this form.
 // Used for selecting a field for testing in a skip condition.
 //
-function genFieldOptionList($current = '')
+function genFieldOptionList($current = ''): string
 {
     global $layout_id;
     $option_list = "<option value=''>-- " . xlt('Please Select') . " --</option>";
@@ -1150,7 +1150,7 @@ function writeFieldLine($linedata): void
 
 // Generates <optgroup> and <option> tags for all layouts.
 //
-function genLayoutOptions($title = '?', $default = '')
+function genLayoutOptions($title = '?', $default = ''): string
 {
     global $layouts;
     $s = "  <option value=''>" . text($title) . "</option>\n";

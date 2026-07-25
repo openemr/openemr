@@ -19,7 +19,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 // Generates a Javascript section to activate the specified tab.
-function activate_lang_tab($linkid)
+function activate_lang_tab($linkid): string
 {
     $s = "<script>\n";
     foreach (

@@ -1419,7 +1419,10 @@ class BillingUtilities
         'N885' => 'Alert: This claim was not processed in accordance with the No Surprises Act cost-sharing or out-of-network payment requirements. The payer disagrees with your determination that those requirements apply. You may contact the payer to find out why it disagrees. You may appeal this adverse determination on behalf of the patient through the payer’s internal appeals and external review processes.',
     ];
 
-    public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
+    /**
+     * @return mixed[]
+     */
+    public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text"): array
     {
         $res = sqlStatement("select " . escape_sql_column_name(process_cols_escape($cols), ['billing']) . " from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", [$encounter, $pid]);
 
@@ -1532,7 +1535,7 @@ class BillingUtilities
         $partner_id = -1,
         $crossover = 0,
         $submitted_claim = ''
-    ) {
+    ): int {
 
         $sqlBindArray = [];
         if (!$newversion) {
@@ -1731,7 +1734,7 @@ class BillingUtilities
     // Determine if the encounter is billed.  It is considered billed if it
     // has at least one chargeable item, and all of them are billed.
     //
-    public static function isEncounterBilled($pid, $encounter)
+    public static function isEncounterBilled($pid, $encounter): bool
     {
         $billed = -1; // no chargeable services yet
 

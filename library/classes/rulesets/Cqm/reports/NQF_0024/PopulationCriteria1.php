@@ -9,7 +9,7 @@
 //
 class NQF_0024_PopulationCriteria1 implements CqmPopulationCrtiteriaFactory
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Population Criteria 1";
     }
@@ -19,7 +19,7 @@ class NQF_0024_PopulationCriteria1 implements CqmPopulationCrtiteriaFactory
         return new NQF_0024_InitialPatientPopulation1();
     }
 
-    public function createNumerators()
+    public function createNumerators(): array
     {
         $nums = [];
         $nums[] = new NQF_0024_Numerator1();

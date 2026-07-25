@@ -20,18 +20,18 @@ class FormActionBarSettings
         ];
     }
 
-    public static function getDefaultSetting()
+    public static function getDefaultSetting(): string
     {
         return self::ACTION_BAR_DISPLAY_FORM_TOP;
     }
 
-    public static function shouldDisplayTopActionBar()
+    public static function shouldDisplayTopActionBar(): bool
     {
         // probably could make this more efficient by doing integer position comparisons, but the global values are stored as strings...
         return OEGlobalsBag::getInstance()->get('form_actionbar_position') == self::ACTION_BAR_DISPLAY_FORM_TOP
             || OEGlobalsBag::getInstance()->get('form_actionbar_position') == self::ACTION_BAR_DISPLAY_FORM_TOP_AND_BOTTOM;
     }
-    public static function shouldDisplayBottomActionBar()
+    public static function shouldDisplayBottomActionBar(): bool
     {
         return OEGlobalsBag::getInstance()->get('form_actionbar_position') == self::ACTION_BAR_DISPLAY_FORM_BOTTOM
             || OEGlobalsBag::getInstance()->get('form_actionbar_position') == self::ACTION_BAR_DISPLAY_FORM_TOP_AND_BOTTOM;

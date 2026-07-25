@@ -95,7 +95,7 @@ class Controller extends Smarty implements ControllerInterface
          echo $this->default_action();
     }
 
-    public function populate_object(&$obj)
+    public function populate_object(&$obj): bool
     {
         if (!is_object($obj)) {
             $this->function_argument_error();
@@ -286,7 +286,7 @@ class Controller extends Smarty implements ControllerInterface
         return '';
     }
 
-    public function _link($action = "default", $inlining = false)
+    public function _link($action = "default", $inlining = false): string
     {
          $url_parts = explode("&", (string) $_SERVER['REQUEST_URI']);
          $link = array_shift($url_parts);

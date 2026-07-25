@@ -42,7 +42,7 @@ class TabsWrapper
 
     // Generate styling. Call once for each tab set.
     //
-    public function genCss()
+    public function genCss(): string
     {
         global $web_root;
         $s = '';
@@ -109,7 +109,7 @@ EOD;
 
     // Generate JavaScript.
     //
-    public static function genJavaScript()
+    public static function genJavaScript(): string
     {
         global $web_root;
         $s = '';
@@ -238,7 +238,7 @@ EOD;
 
     // Generate HTML for the initial state of this tab set.
     // Be sure to first call declareInitialTab() for each initial tab desired, if any.
-    public function genHtml()
+    public function genHtml(): string
     {
         $s = '';
         $s .= "<div class='tabs'>\n";

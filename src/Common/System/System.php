@@ -83,7 +83,7 @@ class System
      * @param string $command a command or command string that needs to be sanitized.
      * @return string The cleaned up string.
      */
-    public function escapeshellcmd($command)
+    public function escapeshellcmd($command): string
     {
         // for now we just pass through to the php cleanup, any specifics we can add after
         return escapeshellcmd($command);

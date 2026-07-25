@@ -95,7 +95,7 @@ class TelehealthConfigurationVerifier
         }
     }
 
-    private function getVerifyBridgeSettings(TeleHealthUser $user)
+    private function getVerifyBridgeSettings(TeleHealthUser $user): array
     {
         $password = $this->userRepository->decryptPassword($user->getAuthToken());
         $hashedPassword = TelehealthAuthUtils::getFormattedPassword($password);

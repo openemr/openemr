@@ -882,7 +882,7 @@ class TeleconferenceRoomController
      * @param $userId
      * @return bool
      */
-    public function shouldChangeProvider($appt, $userId)
+    public function shouldChangeProvider($appt, $userId): bool
     {
         if ($appt['pc_aid'] != $userId) {
             return true;
@@ -1092,7 +1092,7 @@ class TeleconferenceRoomController
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    public function renderWaitingRoom($queryVars)
+    public function renderWaitingRoom($queryVars): string
     {
         if ($this->isPatient) {
             $this->initalizeAppointmentForTelehealth($queryVars['eid']);
@@ -1206,7 +1206,7 @@ class TeleconferenceRoomController
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    public function renderConferenceRoom($queryVars)
+    public function renderConferenceRoom($queryVars): string
     {
         $data = $this->isPatient ? $this->getPatientSettings($queryVars) : $this->getProviderSettings($queryVars);
 //        $apptRepo = new AppointmentService();
@@ -1245,7 +1245,7 @@ class TeleconferenceRoomController
      * @throws AccessDeniedException
      * @throws TelehealthProvisioningServiceRequestException
      */
-    private function getProviderSettings($queryVars)
+    private function getProviderSettings($queryVars): array
     {
         $pid = $queryVars['pid'];
         if (empty($pid)) {
@@ -1329,7 +1329,7 @@ class TeleconferenceRoomController
      * @return array
      * @throws TelehealthProvisioningServiceRequestException
      */
-    private function getPatientSettings($queryVars)
+    private function getPatientSettings($queryVars): array
     {
         $pid = $queryVars['pid'];
         if (empty($pid)) {
@@ -1401,7 +1401,7 @@ class TeleconferenceRoomController
      * @param $session
      * @return bool
      */
-    private function isPatientPidAuthorizedForSession($pid, $session)
+    private function isPatientPidAuthorizedForSession($pid, $session): bool
     {
         $convertedPid = intval($pid);
         $related_session_pid = intval($session['pid_related'] ?? 0);
@@ -1447,7 +1447,7 @@ class TeleconferenceRoomController
      * @param $password
      * @return string
      */
-    private function getApiKeyForPassword($password)
+    private function getApiKeyForPassword($password): string
     {
         $decrypted = $this->telehealthUserRepo->decryptPassword($password);
         return TelehealthAuthUtils::getFormattedPassword($decrypted);

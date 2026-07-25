@@ -24,7 +24,7 @@ class CcdaServiceDocumentRequestor
     /**
      * @throws CcdaServiceConnectionException
      */
-    public function socket_get($data)
+    public function socket_get($data): string
     {
         $this->getSystemLogger()->debug("Calling CcdaServiceDocumentRequestor::socket_get");
         // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0

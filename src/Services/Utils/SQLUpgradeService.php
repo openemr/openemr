@@ -882,7 +882,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $tblname Sql Table Name
      * @return bool returns true if the sql table exists
      */
-    private function tableExists($tblname)
+    private function tableExists($tblname): bool
     {
         $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
         if (empty($row)) {
@@ -900,7 +900,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $colname Sql Column Name
      * @return bool returns true if the sql column exists
      */
-    private function columnExists($tblname, $colname)
+    private function columnExists($tblname, $colname): bool
     {
         $row = sqlQuery("SHOW COLUMNS FROM $tblname LIKE '$colname'");
         if (empty($row)) {
@@ -974,7 +974,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $colname Sql Column Name
      * @return bool returns true if the sql row does exist
      */
-    private function tableHasRowNull($tblname, $colname)
+    private function tableHasRowNull($tblname, $colname): bool
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname IS NULL");
@@ -990,7 +990,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value   Sql value
      * @return bool returns true if the sql row does exist
      */
-    private function tableHasRow($tblname, $colname, $value)
+    private function tableHasRow($tblname, $colname, $value): bool
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value'");
@@ -1008,7 +1008,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value2   Sql value 2
      * @return bool returns true if the sql row does exist
      */
-    private function tableHasRow2D($tblname, $colname, $value, $colname2, $value2)
+    private function tableHasRow2D($tblname, $colname, $value, $colname2, $value2): bool
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2'");
@@ -1028,7 +1028,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value3   Sql value 3
      * @return bool returns true if the sql row does exist
      */
-    private function tableHasRow3D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3)
+    private function tableHasRow3D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3): bool
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3'");
@@ -1050,7 +1050,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $value4   Sql value 4
      * @return bool returns true if the sql row does exist
      */
-    private function tableHasRow4D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3, $colname4, $value4)
+    private function tableHasRow4D($tblname, $colname, $value, $colname2, $value2, $colname3, $value3, $colname4, $value4): bool
     {
         $row = sqlQuery("SELECT COUNT(*) AS count FROM $tblname WHERE " .
             "$colname LIKE '$value' AND $colname2 LIKE '$value2' AND $colname3 LIKE '$value3' AND $colname4 LIKE '$value4'");
@@ -1065,7 +1065,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $colname Sql Index/Key
      * @return bool returns true if the sql tables has the specified index/key
      */
-    private function tableHasIndex($tblname, $colname)
+    private function tableHasIndex($tblname, $colname): bool
     {
         $row = sqlQuery("SHOW INDEX FROM `$tblname` WHERE `Key_name` = '$colname'");
         return !empty($row);
@@ -1078,7 +1078,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $engine  engine name ( myisam, memory, innodb )...
      * @return bool true if the table has been created using specified engine
      */
-    private function tableHasEngine($tblname, $engine)
+    private function tableHasEngine($tblname, $engine): bool
     {
         $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', [$tblname, $engine]);
         return !empty($row);
@@ -1090,7 +1090,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $option_id Sql List Option ID
      * @return bool returns true if the list exists
      */
-    private function listExists($option_id)
+    private function listExists($option_id): bool
     {
         $row = sqlQuery("SELECT * FROM list_options WHERE list_id = 'lists' AND option_id = ?", [$option_id]);
         if (empty($row)) {
@@ -1247,7 +1247,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param array $arg possible arguments: engine, table_name
      * @return SQLStatement
      */
-    private function getTablesList($arg = [])
+    private function getTablesList($arg = []): array
     {
         $binds = [$this->databaseName()];
         $sql = 'SELECT TABLE_NAME AS table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = "BASE TABLE"';
@@ -1280,7 +1280,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param string $engine has to be set to InnoDB 8-7-24
      *                       ADODB will fail if there was an error during conversion
      */
-    private function MigrateTableEngine($table, $engine)
+    private function MigrateTableEngine($table, $engine): bool
     {
         if ($engine != "InnoDB") {
             return false;

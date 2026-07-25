@@ -18,7 +18,10 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class PortalPatientReportController
 {
-    public function getDocuments($pid)
+    /**
+     * @return array{id: mixed, url: string, name: mixed, category: mixed}[]
+     */
+    public function getDocuments($pid): array
     {
 
         // show available documents
@@ -42,7 +45,10 @@ class PortalPatientReportController
         }
         return $documents;
     }
-    public function getProcedureOrders($pid)
+    /**
+     * @return array{id?: mixed, date_ordered?: mixed, date?: mixed, procedures: list<array{code: mixed, name: mixed}>}[]
+     */
+    public function getProcedureOrders($pid): array
     {
         $res = sqlStatement(
             "SELECT po.procedure_order_id, po.date_ordered, fe.date " .
@@ -85,7 +91,10 @@ class PortalPatientReportController
         return $procedures;
     }
 
-    public function getIssues(array $ISSUE_TYPES, int $pid)
+    /**
+     * @return array{type?: mixed, display?: mixed, issues: non-empty-array<int<0, max>, array{encounters: list, id?: mixed, title?: mixed, begdate?: mixed, enddate?: mixed, status?: ('active' | 'inactive')}>}[]
+     */
+    public function getIssues(array $ISSUE_TYPES, int $pid): array
     {
         $issuesByType = [];
         // get issues
@@ -135,7 +144,10 @@ class PortalPatientReportController
         }
         return $issuesByType;
     }
-    public function getEncounters($pid)
+    /**
+     * @return mixed[]
+     */
+    public function getEncounters($pid): array
     {
 
         $isfirst = 1;

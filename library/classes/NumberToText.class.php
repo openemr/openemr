@@ -52,7 +52,7 @@ class NumberToText
     * @return string The textual description of the number.
     * @package NumberToText
     */
-    function convert()
+    function convert(): string
     {
         $number = $this->number;
         $currency = $this->currency;
@@ -174,7 +174,7 @@ class NumberToText
         // capitalize words
         if ($capitalize) {
             // easier to capitalize all words then un-capitalize "and"
-            $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords((string) $text));
+            $text = str_replace(ucwords(N2T_AND), N2T_AND, ucwords($text));
         }
 
         return trim((string) $text);
@@ -190,7 +190,7 @@ class NumberToText
     * @return string The textual description of the number.
     * @package NumberToText
     */
-    function n2t_convertthree($number, $and, $preceding)
+    function n2t_convertthree($number, $and, $preceding): string
     {
         $small = unserialize(N2T_SMALL, ['allowed_classes' => false]);
         $medium = unserialize(N2T_MEDIUM, ['allowed_classes' => false]);
@@ -222,7 +222,7 @@ class NumberToText
         return $text;
     }
 
-    function getmicrotime()
+    function getmicrotime(): float
     {
         [$usec, $sec] = explode(" ", microtime());
         return ((float)$usec + (float)$sec);

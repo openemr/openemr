@@ -355,7 +355,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         return $patientFacilityType;
     }
 
-    private function hasAccessToUserLocationData()
+    private function hasAccessToUserLocationData(): bool
     {
         return AclMain::aclCheckCore('admin', 'users', $this->getSession()->get("authUser")) !== false;
     }

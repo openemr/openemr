@@ -53,7 +53,7 @@ class OnsitePortalActivityReporter extends Reporter
     * @param Criteria $criteria
     * @return string SQL statement
     */
-    static function GetCustomQuery($criteria)
+    static function GetCustomQuery($criteria): string
     {
         $sql = "select
 			'custom value here...' as CustomFieldExample
@@ -90,7 +90,7 @@ class OnsitePortalActivityReporter extends Reporter
     * @param Criteria $criteria
     * @return string SQL statement
     */
-    static function GetCustomCountQuery($criteria)
+    static function GetCustomCountQuery($criteria): string
     {
         $sql = "select count(1) as counter from `onsite_portal_activity`";
 

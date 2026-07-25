@@ -43,7 +43,7 @@ class FormQuestionnaireAssessment extends BaseForm
         $this->lform_response = null;
     }
 
-    public function getFormTableDataForSave()
+    public function getFormTableDataForSave(): array
     {
         $data = [
             'date' => $this->getDate()->format("Y-m-d H:i:s")
@@ -65,7 +65,7 @@ class FormQuestionnaireAssessment extends BaseForm
         return $data;
     }
 
-    public function getFormTableName()
+    public function getFormTableName(): string
     {
         return "form_questionnaire_assessments";
     }
@@ -91,7 +91,7 @@ class FormQuestionnaireAssessment extends BaseForm
     /**
      * @return mixed
      */
-    public function getActivity()
+    public function getActivity(): int
     {
         return $this->activity;
     }

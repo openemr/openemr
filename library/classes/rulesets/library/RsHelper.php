@@ -9,7 +9,10 @@
 //
 class RsHelper
 {
-    public static function formatClinicalRules(array $results)
+    /**
+     * @return mixed[]
+     */
+    public static function formatClinicalRules(array $results): array
     {
         $formattedResults = [];
         foreach ($results as $result) {

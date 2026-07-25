@@ -16,7 +16,7 @@ class ActionUrlBuilder
         if (\is_array($action)) {
             $action = implode("/", $action);
         }
-        $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode((string) $this->getCSRFToken());
+        $url = $this->actionURL . "?action=" . urlencode($action) . "&csrf_token=" . urlencode($this->getCSRFToken());
         if (!empty($options['queryParams'])) {
             foreach ($options['queryParams'] as $key => $param) {
                 $url .= "&" . urlencode((string) $key) . "=" . urlencode((string) $param);
@@ -29,7 +29,7 @@ class ActionUrlBuilder
 
         return $url;
     }
-    private function getCSRFToken()
+    private function getCSRFToken(): string
     {
         return CsrfUtils::collectCsrfToken($this->session, $this->csrfTokenName);
     }

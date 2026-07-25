@@ -55,7 +55,7 @@ abstract class BaseValidator
     /**
      * @return true if the requested context is supported by the validator instance.
      */
-    private function isValidContext($context)
+    private function isValidContext($context): bool
     {
         return in_array($context, $this->supportedContexts);
     }

@@ -135,12 +135,12 @@ class TelehealthGlobalConfig
         }
     }
 
-    public function isThirdPartyInvitationsEnabled()
+    public function isThirdPartyInvitationsEnabled(): bool
     {
         return $this->getGlobalSetting(self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS) == '1';
     }
 
-    public function getFHIRPath()
+    public function getFHIRPath(): string
     {
         // this is the internal fhir path not the one accessible from the globals config
         $webroot = $this->getGlobalSetting('webroot');
@@ -151,7 +151,7 @@ class TelehealthGlobalConfig
     /**
      * @return string
      */
-    public function getAppTitle()
+    public function getAppTitle(): string
     {
         return self::COMLINK_MOBILE_APP_TITLE;
     }
@@ -161,7 +161,7 @@ class TelehealthGlobalConfig
      *
      * @return bool
      */
-    public function isTelehealthCoreSettingsConfigured()
+    public function isTelehealthCoreSettingsConfigured(): bool
     {
         $config = $this->getGlobalSettingSectionConfiguration();
         $keys = array_keys($config);
@@ -202,7 +202,7 @@ class TelehealthGlobalConfig
      *
      * @return bool
      */
-    public function isEmailNotificationsConfigured()
+    public function isEmailNotificationsConfigured(): bool
     {
         $myMailerSetup = MyMailer::isConfigured();
         if ($myMailerSetup & !empty($this->getPatientReminderName())) {
@@ -237,7 +237,7 @@ class TelehealthGlobalConfig
         return true;
     }
 
-    public function isDebugModeEnabled()
+    public function isDebugModeEnabled(): bool
     {
         $setting = $this->getGlobalSetting(self::DEBUG_MODE_FLAG);
         return $setting !== "";
@@ -282,7 +282,7 @@ class TelehealthGlobalConfig
         return $setting;
     }
 
-    public function getRegistrationAPIPassword()
+    public function getRegistrationAPIPassword(): string
     {
         $encryptedValue = $this->getGlobalSetting(self::COMLINK_VIDEO_API_USER_PASSWORD);
         return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
@@ -305,12 +305,12 @@ class TelehealthGlobalConfig
         return OEGlobalsBag::getInstance()->get($settingKey) ?? '';
     }
 
-    public function getAppRegistrationCodeLength()
+    public function getAppRegistrationCodeLength(): int
     {
         return self::APP_REGISTRATION_CODE_LENGTH;
     }
 
-    public function getGlobalSettingSectionConfiguration()
+    public function getGlobalSettingSectionConfiguration(): array
     {
         $settings = [
             self::COMLINK_VIDEO_REGISTRATION_API => [
@@ -413,7 +413,7 @@ class TelehealthGlobalConfig
         return $settings;
     }
 
-    public function renderFooterBox($fldid, $fldarray)
+    public function renderFooterBox($fldid, $fldarray): string
     {
         $emailNotificationsConfigured = $this->isEmailNotificationsConfigured();
         $isThirdPartyConfigurationSetup = $this->isThirdPartyConfigurationSetup();
@@ -445,7 +445,7 @@ class TelehealthGlobalConfig
         return $this->twig->render("comlink/admin/telehealth_footer_box.html.twig", $dataArray);
     }
 
-    private function isLocaleConfigured()
+    private function isLocaleConfigured(): bool
     {
         // timezone is not set in the $GLOBALS array oddly, not sure why, check against the database
         $record = QueryUtils::fetchRecords("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name=?", [self::LOCALE_TIMEZONE]);
@@ -489,7 +489,7 @@ class TelehealthGlobalConfig
         }
     }
 
-    private function isOptionalSetting($key)
+    private function isOptionalSetting($key): bool
     {
         return in_array($key, [self::COMLINK_AUTO_PROVISION_PROVIDER, self::VERIFY_SETTINGS_BUTTON, self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS, self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT, self::DEBUG_MODE_FLAG, self::COMLINK_SECTION_FOOTER_BOX, self::COMLINK_ONETIME_PASSWORD_LOGIN, self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT, self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID]); // we don't require the payment subscription id
     }
@@ -500,7 +500,7 @@ class TelehealthGlobalConfig
      *
      * @return string
      */
-    public function getOneTimePasswordTimeoutSetting()
+    public function getOneTimePasswordTimeoutSetting(): string
     {
         $setting = intval($this->getGlobalSetting(self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT));
         if ($setting > self::MAX_LOGIN_LIMIT_TIME) {

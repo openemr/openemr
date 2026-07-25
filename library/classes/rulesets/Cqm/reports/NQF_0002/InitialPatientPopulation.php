@@ -24,12 +24,12 @@
 
 class NQF_0002_InitialPatientPopulation implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Initial Patient Population";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $age = $patient->calculateAgeOnDate($beginDate);
         if ($age >= 2 && $age < 18) {

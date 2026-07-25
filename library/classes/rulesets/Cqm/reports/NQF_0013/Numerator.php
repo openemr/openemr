@@ -24,12 +24,12 @@
 
 class NQF_0013_Numerator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         // See if BP has been done within the measurement period (on a day of a specified encounter)
         $query = "SELECT form_vitals.bps, form_vitals.bpd " .

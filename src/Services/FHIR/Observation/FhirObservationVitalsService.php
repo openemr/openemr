@@ -737,7 +737,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
         return [];
     }
 
-    private function getDescriptionForCode($code)
+    private function getDescriptionForCode($code): string
     {
         $codeMapping = self::COLUMN_MAPPINGS[$code] ?? null;
         if (isset($codeMapping)) {

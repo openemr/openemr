@@ -45,7 +45,7 @@ class C_FormSOAP extends Controller
         );
     }
 
-    function view_action($form_id)
+    function view_action($form_id): string
     {
         $form = is_numeric($form_id) ? new FormSOAP($form_id) : new FormSOAP();
 

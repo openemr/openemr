@@ -36,7 +36,7 @@ class GenHl7OrderBase
         }
     }
 
-    public function buildHl7Segment($segmentName, $fields)
+    public function buildHl7Segment($segmentName, $fields): string
     {
         $segment = '';
         foreach ($fields as $field) {
@@ -73,7 +73,7 @@ class GenHl7OrderBase
         return $this->hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
     }
 
-    public function hl7DateTime($s)
+    public function hl7DateTime($s): string
     {
         // Attempt to create a DateTime object from the input value
         $date = date_create($s);
@@ -86,7 +86,7 @@ class GenHl7OrderBase
         }
     }
 
-    public function formatTime($t)
+    public function formatTime($t): string
     {
         // Attempt to create a DateTime object from the input value
         $time = date_create($t);
@@ -99,7 +99,7 @@ class GenHl7OrderBase
         }
     }
 
-    public function formatDate($d)
+    public function formatDate($d): string
     {
         // Attempt to create a DateTime object from the input value
         $date = date_create($d);
@@ -117,7 +117,7 @@ class GenHl7OrderBase
         return preg_replace('/[^\d]/', '', (string) $s);
     }
 
-    public function hl7Time($s)
+    public function hl7Time($s): string
     {
         if (empty($s)) {
             return '';
@@ -125,7 +125,7 @@ class GenHl7OrderBase
         return date('YmdHi', strtotime((string) $s));
     }
 
-    public function hl7Sex($s)
+    public function hl7Sex($s): string
     {
         $s = strtoupper(substr((string) $s, 0, 1));
         if ($s !== 'M' && $s !== 'F') {
@@ -134,7 +134,7 @@ class GenHl7OrderBase
         return $s;
     }
 
-    public function hl7Phone($s)
+    public function hl7Phone($s): string
     {
         if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
             return $tmp[1] . $tmp[2] . $tmp[3];
@@ -145,7 +145,7 @@ class GenHl7OrderBase
         return '';
     }
 
-    public function hl7SSN($s)
+    public function hl7SSN($s): string
     {
         if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
             return $tmp[1] . $tmp[2] . $tmp[3];
@@ -153,7 +153,7 @@ class GenHl7OrderBase
         return '';
     }
 
-    public function hl7Priority($s)
+    public function hl7Priority($s): string
     {
         return strtoupper(substr((string) $s, 0, 1)) === 'H' ? 'S' : 'R';
     }
@@ -206,7 +206,7 @@ class GenHl7OrderBase
         return $s;
     }
 
-    public function hl7Workman($s)
+    public function hl7Workman($s): string
     {
         // $tmp = strtolower($s);
         if ($s == 15) {
@@ -224,7 +224,7 @@ class GenHl7OrderBase
      * @param string  $date
      * @return array   Array containing an array of data for each payer.
      */
-    public function loadPayerInfo($pid, $date = '')
+    public function loadPayerInfo($pid, $date = ''): array
     {
         if (empty($date)) {
             $date = date('Y-m-d');
@@ -258,7 +258,10 @@ class GenHl7OrderBase
         return $payers;
     }
 
-    public function loadGuarantorInfo($pid, $date = '')
+    /**
+     * @return array{data: mixed}[]
+     */
+    public function loadGuarantorInfo($pid, $date = ''): array
     {
         if (empty($date)) {
             $date = date('Y-m-d');

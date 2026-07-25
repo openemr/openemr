@@ -39,7 +39,7 @@ class DocumentService extends BaseService
      * OpenEMR session
      * @return string The absolute path download link to retrieve a document
      */
-    public function getDownloadLink($documentId, $pid = null)
+    public function getDownloadLink($documentId, $pid = null): string
     {
         $queryParams = ['document' => '', 'retrieve' => '','patient_id' => '', 'document_id' => $documentId];
         if (isset($pid)) {
@@ -124,7 +124,7 @@ class DocumentService extends BaseService
     /**
      * @param array{tmp_name: string, name: string} $fileData
      */
-    public function insertAtPath($pid, $path, $fileData, $eid)
+    public function insertAtPath($pid, $path, $fileData, $eid): bool
     {
         // Ensure filetype is allowed
         if (OEGlobalsBag::getInstance()->getBoolean('secure_upload') && !isWhiteFile($fileData["tmp_name"])) {

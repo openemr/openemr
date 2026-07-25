@@ -27,12 +27,12 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
         $this->lastTestActionData = new AmcItemizedActionData();
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_315g_2c Denominator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // dates are already filtered so we don't have to worry about that, but we do need to filter by our denom
         // criteria
@@ -97,7 +97,7 @@ class AMC_315g_2c_Denominator implements AmcFilterIF, IAmcItemizedReport
     /*
      * This function lets us have language translation as well as interpreting any specific rule item data that is needed.
      */
-    private function parseDetailsToString($details)
+    private function parseDetailsToString($details): string
     {
         $newDetails = '';
         $type = $details['type'] ?? '';

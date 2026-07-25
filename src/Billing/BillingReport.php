@@ -122,10 +122,13 @@ class BillingReport
     }
 
     //date must be in nice format (e.g. 2002-07-11)
+    /**
+     * @return mixed[]
+     */
     public static function getBillsBetween(
         $code_type,
         $cols = "id,date,pid,code_type,code,user,authorized,x12_partner_id"
-    ) {
+    ): array {
         self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // Selecting by the date in the billing table is wrong, because that is
@@ -195,10 +198,13 @@ class BillingReport
         return $all;
     }
 
+    /**
+     * @return mixed[]
+     */
     public static function getBillsListBetween(
         $code_type,
         $cols = "billing.id, form_encounter.date, billing.pid, billing.code_type, billing.code, billing.user"
-    ) {
+    ): array {
         self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
         // See above comment in self::getBillsBetween().
@@ -239,7 +245,7 @@ class BillingReport
         return;
     }
 
-    public static function returnOFXSql()
+    public static function returnOFXSql(): string
     {
         self::generateTheQueryPart();
         global $query_part, $billstring, $auth;
@@ -260,7 +266,10 @@ class BillingReport
     }
 
     //Parses the database value and prepares for display.
-    public static function buildArrayForReport($Query)
+    /**
+     * @return string[]
+     */
+    public static function buildArrayForReport($Query): array
     {
         $array_data = [];
         $res = sqlStatement($Query);

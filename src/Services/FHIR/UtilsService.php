@@ -67,7 +67,10 @@ class UtilsService
         return $canonical;
     }
 
-    public static function parseCanonicalUrl(?string $url)
+    /**
+     * @return mixed[]
+     */
+    public static function parseCanonicalUrl(?string $url): array
     {
         $parsed_url = [
             'localResource' => false
@@ -447,7 +450,10 @@ class UtilsService
         return $resource;
     }
 
-    public static function parseReference(?FHIRReference $reference)
+    /**
+     * @return mixed[]
+     */
+    public static function parseReference(?FHIRReference $reference): array
     {
         $parsed_reference = [
             'localResource' => false

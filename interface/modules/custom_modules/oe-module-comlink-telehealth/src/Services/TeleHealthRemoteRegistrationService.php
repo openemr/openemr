@@ -84,7 +84,7 @@ class TeleHealthRemoteRegistrationService
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
-    public function createPatientRegistration($patient)
+    public function createPatientRegistration($patient): bool
     {
         $registrationRequest = new UserVideoRegistrationRequest();
         $registrationRequest->setDbRecordId($patient['id']);
@@ -101,7 +101,7 @@ class TeleHealthRemoteRegistrationService
         return !empty($userId);
     }
 
-    public function createUserRegistration($user)
+    public function createUserRegistration($user): bool
     {
         $registrationRequest = new UserVideoRegistrationRequest();
         $registrationRequest->setDbRecordId($user['id']);
@@ -194,7 +194,7 @@ class TeleHealthRemoteRegistrationService
         }
     }
 
-    private function getEndpointUrl($endpoint)
+    private function getEndpointUrl($endpoint): string
     {
         return $this->apiURL . $endpoint;
     }
@@ -300,7 +300,7 @@ class TeleHealthRemoteRegistrationService
         return true;
     }
 
-    public function deactivateUser(string $username, string $password)
+    public function deactivateUser(string $username, string $password): bool
     {
         // first make sure we can do the api request
         $dbUserRecord = $this->userRepository->getUser($username);

@@ -124,7 +124,7 @@ class EncountermanagerTable
         return QueryUtils::fetchRecords($query, [$pid]);
     }
 
-    public function convert_to_yyyymmdd($date)
+    public function convert_to_yyyymmdd($date): string
     {
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
@@ -240,7 +240,7 @@ class EncountermanagerTable
      * @param string requested_by user | patient
      * @return string result of operation
      */
-    public function transmitCcdToRecipients($data = [])
+    public function transmitCcdToRecipients($data = []): string
     {
         $ccda_combination = $data['ccda_combination'];
         $recipients = $data['recipients'];

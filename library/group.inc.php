@@ -43,7 +43,10 @@ function getGroup($gid)
 }
 
 //Fetches groups data by given search parameter (used in popup search when in add_edit_event for groups)
-function getGroupData($search_params, $result_columns, $column)
+/**
+ * @return mixed[]
+ */
+function getGroupData($search_params, $result_columns, $column): array
 {
     $model = new Therapy_Groups();
     $result = $model->getGroupData($search_params, $result_columns, $column);
@@ -51,7 +54,10 @@ function getGroupData($search_params, $result_columns, $column)
 }
 
 //Fetches group statuses from 'groupstat' list
-function getGroupStatuses()
+/**
+ * @return mixed[]
+ */
+function getGroupStatuses(): array
 {
     $model = new Group_Statuses();
     $result = $model->getGroupStatuses();
@@ -59,7 +65,10 @@ function getGroupStatuses()
 }
 
 //Fetches group attendance statuses from 'attendstat' list
-function getGroupAttendanceStatuses()
+/**
+ * @return mixed[]
+ */
+function getGroupAttendanceStatuses(): array
 {
     $model = new Group_Statuses();
     $result = $model->getGroupAttendanceStatuses();
@@ -67,7 +76,10 @@ function getGroupAttendanceStatuses()
 }
 
 //Fetches counselors for specific group
-function getCounselors($gid)
+/**
+ * @return mixed[]
+ */
+function getCounselors($gid): array
 {
     $model = new Therapy_Groups_Counselors();
     $result = $model->getCounselors($gid);
@@ -75,7 +87,10 @@ function getCounselors($gid)
 }
 
 //Fetches participants of group
-function getParticipants($gid, $onlyActive = false)
+/**
+ * @return mixed[]
+ */
+function getParticipants($gid, $onlyActive = false): array
 {
     $model = new Therapy_groups_participants();
     $result = $model->getParticipants($gid, $onlyActive);
@@ -91,7 +106,10 @@ function getTypeName($key)
 }
 
 //Fetches providers for a specific group event
-function getProvidersOfEvent($eid)
+/**
+ * @return mixed[]
+ */
+function getProvidersOfEvent($eid): array
 {
     $model = new Users();
     $result = $model->getProvidersOfEvent($eid);
@@ -99,14 +117,17 @@ function getProvidersOfEvent($eid)
 }
 
 //Fetches name of user by his id
-function getUserNameById($uid)
+function getUserNameById($uid): string
 {
     $model = new Users();
     $result = $model->getUserNameById($uid);
     return $result;
 }
 
-function getGroupCounselorsNames($gid)
+/**
+ * @return mixed[]
+ */
+function getGroupCounselorsNames($gid): array
 {
 
     $model = new Therapy_Groups_Counselors();

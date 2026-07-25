@@ -76,7 +76,7 @@ unset($pcModInfo, $pcDir);
  *  @return string generated html output
  *  @access public
  */
-function postcalendar_userapi_buildView($args)
+function postcalendar_userapi_buildView($args): string
 {
     $print = pnVarCleanFromInput('print');
     $show_days = pnVarCleanFromInput('show_days');
@@ -171,9 +171,9 @@ function postcalendar_userapi_buildView($args)
         //=================================================================
         //  Let's just finish setting things up
         //=================================================================
-        $the_year   = substr((string) $Date, 0, 4);
-        $the_month  = substr((string) $Date, 4, 2);
-        $the_day    = substr((string) $Date, 6, 2);
+        $the_year   = substr($Date, 0, 4);
+        $the_month  = substr($Date, 4, 2);
+        $the_day    = substr($Date, 6, 2);
         $last_day = Date_Calc::daysInMonth($the_month, $the_year);
 
         //=================================================================
@@ -604,7 +604,7 @@ function postcalendar_userapi_buildView($args)
 
             // monthSelector.php is the legacy jump-to-month dropdown.
             // The Twig template renders it via {{ monthSelectorHtml|raw }}.
-            $caldate = strtotime((string) $Date);
+            $caldate = strtotime($Date);
             $cMonth = $caldate !== false ? date('m', $caldate) : '';
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
@@ -620,7 +620,7 @@ function postcalendar_userapi_buildView($args)
 
             // Month-screen page header — month name via Month::label() (translated +
             // statically-extractable), year via text(date('Y')).
-            $currentMonthLabelTs = strtotime((string) $Date);
+            $currentMonthLabelTs = strtotime($Date);
             $currentMonthLabel = $currentMonthLabelTs !== false
                 ? text(Month::from((int) date('n', $currentMonthLabelTs))->label())
                     . ' ' . text(date('Y', $currentMonthLabelTs))
@@ -653,7 +653,7 @@ function postcalendar_userapi_buildView($args)
             $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
             $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
-            $caldate = strtotime((string) $Date);
+            $caldate = strtotime($Date);
             $cMonth = $caldate !== false ? date('m', $caldate) : '';
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
@@ -669,7 +669,7 @@ function postcalendar_userapi_buildView($args)
 
             // Day-screen page header — legacy used dateformat(strtotime($atmp[0]), true)
             // which respects user language for day/month names and date ordering.
-            $dayHeaderTs = strtotime((string) $Date);
+            $dayHeaderTs = strtotime($Date);
             $dayHeaderLabel = $dayHeaderTs !== false ? dateformat($dayHeaderTs, true) : '';
 
             $intervalInt = LegacyInputNarrowing::intValue(
@@ -707,7 +707,7 @@ function postcalendar_userapi_buildView($args)
             $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
             $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
-            $caldate = strtotime((string) $Date);
+            $caldate = strtotime($Date);
             $cMonth = $caldate !== false ? date('m', $caldate) : '';
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
@@ -816,7 +816,7 @@ function postcalendar_userapi_buildView($args)
  *  @params int value -1 == hidden ; 0 == queued ; 1 == approved
  *  @return array $events[][]
  */
-function &postcalendar_userapi_pcQueryEventsFA($args)
+function &postcalendar_userapi_pcQueryEventsFA($args): array
 {
 
     $end = '0000-00-00';
@@ -1054,7 +1054,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
  *  @params int value -1 == hidden ; 0 == queued ; 1 == approved
  *  @return array $events[][]
  */
-function &postcalendar_userapi_pcQueryEvents($args)
+function &postcalendar_userapi_pcQueryEvents($args): array
 {
     $end = '0000-00-00';
     extract($args);
@@ -1412,7 +1412,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 }
 
 
-function getBlockTime($time)
+function getBlockTime($time): string
 {
 
     if ($time == 0 || strlen((string) $time) == 0) {
@@ -1451,9 +1451,9 @@ function &postcalendar_userapi_pcGetEvents($args)
     $patient_id ??= 0;
 
     $date = postcalendar_getDate();
-    $cy = substr((string) $date, 0, 4);
-    $cm = substr((string) $date, 4, 2);
-    $cd = substr((string) $date, 6, 2);
+    $cy = substr($date, 0, 4);
+    $cm = substr($date, 4, 2);
+    $cd = substr($date, 6, 2);
     if (isset($start) && isset($end)) {
         // parse start date
         [$sm, $sd, $sy] = explode('/', $start);
@@ -1539,9 +1539,9 @@ function calculateEvents($days, $events, $viewtype)
 {
   //
     $date = postcalendar_getDate();
-    $cy = substr((string) $date, 0, 4);
-    $cm = substr((string) $date, 4, 2);
-    $cd = substr((string) $date, 6, 2);
+    $cy = substr($date, 0, 4);
+    $cm = substr($date, 4, 2);
+    $cd = substr($date, 6, 2);
 
   // here the start_date value is set to whatever comes in
   // on postcalendar_getDate() which is not always the first

@@ -19,12 +19,12 @@ use OpenEMR\Services\Qdm\QdmRecord;
 
 class SubstanceOrderService extends AbstractCarePlanService implements QdmServiceInterface
 {
-    public function getCarePlanType()
+    public function getCarePlanType(): string
     {
         return AbstractCarePlanService::CARE_PLAN_TYPE_PLANNED_MED_ACTIVITY;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return SubstanceOrder::class;
     }

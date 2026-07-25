@@ -54,7 +54,7 @@ class C_DocumentCategory extends Controller
         return $twig->getTwig()->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->getTemplateVars());
     }
 
-    function add_node_action($parent_is)
+    function add_node_action($parent_is): string
     {
         //echo $parent_is ."<br />";
         //echo $this->tree->get_node_name($parent_is);
@@ -87,7 +87,7 @@ class C_DocumentCategory extends Controller
         return $this->list_action();
     }
 
-    function edit_node_action($parent_is)
+    function edit_node_action($parent_is): string
     {
         $info = $this->tree->get_node_info($parent_is);
         $this->assign("parent_is", $parent_is);

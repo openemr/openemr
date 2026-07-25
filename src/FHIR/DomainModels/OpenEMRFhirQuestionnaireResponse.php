@@ -92,7 +92,10 @@ class OpenEMRFhirQuestionnaireResponse extends FHIRQuestionnaireResponse
         return $sxe->saveXML();
     }
 
-    protected function parseQuestionnaireResponseItems(array $dataItem)
+    /**
+     * @return \OpenEMR\FHIR\R4\FHIRResource\FHIRQuestionnaireResponse\FHIRQuestionnaireResponseItem[]
+     */
+    protected function parseQuestionnaireResponseItems(array $dataItem): array
     {
         $objItems = [];
         if (!empty($dataItem['item'])) {

@@ -16,17 +16,17 @@ class PhysicalExam extends ClinicalType
     const NOT_DONE_SYSTEM = 'phys_exm_not_done_system';
     const FINDING_BMI_PERC = 'phys_exm_finding_bmi_perc';
 
-    public function getListId()
+    public function getListId(): string
     {
         return 'Clinical_Rules_Phys_Exm_Type';
     }
 
-    public function getListType()
+    public function getListType(): string
     {
         return "medical_problem"; // TODO this may not be the correct type for BMI icd9 codes
     }
 
-    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null): bool
     {
         $data = Codes::lookup($this->getOptionId());
         $type = $this->getListType();

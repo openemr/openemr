@@ -79,7 +79,7 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $this->service = $service;
     }
 
-    public function getResourcePathForCode($code)
+    public function getResourcePathForCode($code): string
     {
         return "category=" . self::CATEGORY . "&code=" . $code;
     }
@@ -91,12 +91,12 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         return $query_vars['code'] ?? null;
     }
 
-    public function supportsCategory($category)
+    public function supportsCategory($category): bool
     {
         return ($category === self::CATEGORY);
     }
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
         // we support pretty much any LOINC code, we could hit procedure_order_code and procedure_results to be
         // specific but we'll just let the query execute.

@@ -11,12 +11,12 @@
 
 class AMC_302f_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302f Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Record and chart changes in vital signs
         //  Need height,weight,BP, and BMI.

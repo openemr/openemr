@@ -35,8 +35,9 @@ class Encounter_Signable extends DbRow_Signable implements SignableIF
      * from the individual form tables.
      *
      * @see \ESign\SignableIF::getData()
+     * @return mixed[]
      */
-    public function getData()
+    public function getData(): array
     {
         $encStatement = "SELECT F.id, F.date, F.encounter, F.form_name, F.form_id, F.pid, F.user, F.formdir FROM forms F ";
         $encStatement .= "WHERE F.encounter = ? ";

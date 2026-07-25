@@ -52,7 +52,7 @@ class PatientContextSearchController
      * @return array
      * @throws AccessDeniedException
      */
-    public function searchPatients($searchParams, $userUUID)
+    public function searchPatients($searchParams, $userUUID): array
     {
 
         // our ACL's rely on a username which seems silly, but we'll convert from UUID to username here so we can

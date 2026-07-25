@@ -11,12 +11,12 @@
 
 class AMC_304b extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304b";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "prescriptions";
     }

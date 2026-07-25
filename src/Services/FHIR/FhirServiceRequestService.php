@@ -146,7 +146,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * - patient + status
      * - patient + authored
      */
-    protected function loadSearchParameters()
+    protected function loadSearchParameters(): array
     {
         $return = [
             'patient' => $this->getPatientContextSearchField(),
@@ -584,7 +584,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * @param int    $activity    OpenEMR activity flag (0=deleted, 1=active)
      * @return string FHIR status code
      */
-    private function mapOrderStatus($orderStatus, $activity = 1)
+    private function mapOrderStatus($orderStatus, $activity = 1): string
     {
         // If activity = 0, it's deleted
         if ($activity == 0) {
@@ -614,7 +614,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * @param string $orderPriority OpenEMR order_priority value
      * @return string FHIR priority code (routine | urgent | asap | stat)
      */
-    private function mapOrderPriority($orderPriority)
+    private function mapOrderPriority($orderPriority): string
     {
         $priorityMap = [
             'routine' => 'routine',
@@ -753,8 +753,9 @@ class FhirServiceRequestService extends FhirServiceBase implements
      * Build reason codes from diagnosis string
      * Format in OpenEMR: "ICD10:E11.9;ICD10:I10" or similar
      * Can be from order_diagnosis (procedure_order) or diagnoses (procedure_order_code)
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept[]
      */
-    private function buildReasonCodes($diagnosisString)
+    private function buildReasonCodes($diagnosisString): array
     {
         $reasonCodes = [];
         $codesService = new CodeTypesService();

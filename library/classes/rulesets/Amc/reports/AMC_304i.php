@@ -11,12 +11,12 @@
 
 class AMC_304i extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_304i";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "transitions-out";
     }

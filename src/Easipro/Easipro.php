@@ -28,7 +28,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 class Easipro
 {
     // Package authentication
-    private static function packageAuth()
+    private static function packageAuth(): string
     {
         return base64_encode(OEGlobalsBag::getInstance()->getString('easipro_name') . ":" . (ServiceContainer::getCrypto())->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('easipro_pass')));
     }
@@ -86,7 +86,7 @@ class Easipro
     }
 
     // Request assessment and send notification
-    public static function requestAssessment($patient_id, $user_id, $form_oid, $form_name, $expiration, $assessment_oid, $status)
+    public static function requestAssessment($patient_id, $user_id, $form_oid, $form_name, $expiration, $assessment_oid, $status): bool
     {
         // store request
         sqlStatement(
@@ -133,7 +133,7 @@ class Easipro
     }
 
     // Record assessment result and send notification
-    public static function recordResult($patient_id, $score, $assessment_oid, $std_err)
+    public static function recordResult($patient_id, $score, $assessment_oid, $std_err): bool
     {
         // process score
         $score = ((float) $score) * 10 + 50;

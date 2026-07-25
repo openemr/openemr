@@ -51,7 +51,7 @@ class CdaValidateDocuments
      * @return array|bool|null
      * @throws Exception
      */
-    public function validateDocument($document, $type)
+    public function validateDocument($document, $type): array
     {
         // always validate schema XSD
         $xsd = $this->validateXmlXsd($document, $type);
@@ -68,9 +68,9 @@ class CdaValidateDocuments
 
     /**
      * @param $xml
-     * @return array|mixed
+     * @return mixed[]
      */
-    public function ettValidateCcda($xml)
+    public function ettValidateCcda($xml): array
     {
         try {
             $result = $this->ettValidateDocumentRequest($xml);
@@ -323,7 +323,7 @@ class CdaValidateDocuments
      * @param $amid
      * @return string
      */
-    public function createSchematronHtml($amid)
+    public function createSchematronHtml($amid): string
     {
         $errors = $this->fetchValidationLog($amid);
 

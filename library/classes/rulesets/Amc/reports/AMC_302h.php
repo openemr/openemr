@@ -11,12 +11,12 @@
 
 class AMC_302h extends AbstractAmcReport
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302h";
     }
 
-    public function getObjectToCount()
+    public function getObjectToCount(): string
     {
         return "lab_orders";
     }

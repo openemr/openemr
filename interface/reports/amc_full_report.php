@@ -18,7 +18,10 @@ use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
-function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
+/**
+ * @return mixed[]
+ */
+function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = []): array
 {
     $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];

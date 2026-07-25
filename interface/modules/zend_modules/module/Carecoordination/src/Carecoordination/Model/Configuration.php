@@ -239,7 +239,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         return $this->inputFilter;
     }
 
-    public function getHookConfig()
+    /**
+     * @return list<array{name: 'send_to_hie', title: 'Send To HIE', path: 'encountermanager'}>
+     */
+    public function getHookConfig(): array
     {
     //SOECIFY HOOKS DETAILS OF A MODULE IN AN ARRAY, WITH MODULE NAME AS KEY
     //SHOULD SPECIFY THE CONTROLLER AND ITS ACTION IN THE PATH, INCLUDING INDEX ACTION
@@ -254,7 +257,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         return $hooks;
     }
 
-    public function getUsers()
+    /**
+     * @return mixed[]
+     */
+    public function getUsers(): array
     {
         $users = ['0' => ''];
         $res = sqlStatement("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'");
@@ -269,7 +275,10 @@ class Configuration extends Form implements InputFilterAwareInterface
     {
     }
 
-    public function getAclConfig()
+    /**
+     * @return list<array{section_id: 'send_to_hie', section_name: 'Send To HIE', parent_section: 'carecoordination'}>
+     */
+    public function getAclConfig(): array
     {
         $acl = [
         [

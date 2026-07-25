@@ -15,12 +15,12 @@ use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 
 class LaboratoryTestOrderedService extends AbstractCarePlanService implements QdmServiceInterface
 {
-    public function getCarePlanType()
+    public function getCarePlanType(): string
     {
         return AbstractCarePlanService::CARE_PLAN_TYPE_TEST_OR_ORDER;
     }
 
-    public function getModelClass()
+    public function getModelClass(): string
     {
         return LaboratoryTestOrder::class;
     }

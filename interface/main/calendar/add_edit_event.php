@@ -1401,7 +1401,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
  </div> <!-- Done with providers now scheduling -->
 <?php
     //Check if repeat is using the new 'days every week' mechanism.
-function isDaysEveryWeek($repeat)
+function isDaysEveryWeek($repeat): bool
 {
     if ($repeat == 3) {
         return true;
@@ -1410,7 +1410,7 @@ function isDaysEveryWeek($repeat)
     }
 }
     //Check if using the regular repeat mechanism.
-function isRegularRepeat($repeat)
+function isRegularRepeat($repeat): bool
 {
     if ($repeat == 1 || $repeat == 2) {
         return true;

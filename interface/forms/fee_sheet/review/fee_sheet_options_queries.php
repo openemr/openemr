@@ -32,7 +32,7 @@ class fee_sheet_option
  * @param string $pricelevel which pricing level to retrieve
  * @return an array containing the options
  */
-function load_fee_sheet_options($pricelevel)
+function load_fee_sheet_options($pricelevel): array
 {
     $clFSO_code_type = 'substring_index(fso.fs_codes,"|",1)';
     $clFSO_code = 'replace(substring_index(fso.fs_codes,"|",-2),"|","")';

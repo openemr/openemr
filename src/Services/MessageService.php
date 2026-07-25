@@ -38,7 +38,7 @@ class MessageService
         return $validator->validate($message);
     }
 
-    public function getFormattedMessageBody($from, $to, $body)
+    public function getFormattedMessageBody($from, $to, $body): string
     {
         return "\n" . date("Y-m-d H:i") . " (" . $from . " to " . $to . ") " . $body;
     }

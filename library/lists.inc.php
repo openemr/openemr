@@ -70,7 +70,7 @@ $ISSUE_TYPE_STYLES = [
  * Will return the current issue type category that is being used.
  * @return  string  The current issue type category that is being used.
  */
-function collect_issue_type_category()
+function collect_issue_type_category(): string
 {
     if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) { // IPPF version
         return "ippf_specific";
@@ -115,13 +115,13 @@ function addList($pid, $type, $title, $comments, $activity = "1")
     return sqlInsert("insert into lists (date, pid, type, title, activity, comments, user, groupname) values (NOW(), ?, ?, ?, ?, ?, ?, ?)", [$pid, $type, $title, $activity, $comments, $session->get('authUser'), $session->get('authProvider')]);
 }
 
-function disappearList($id)
+function disappearList($id): bool
 {
     sqlStatement("update lists set activity = '0' where id=?", [$id]);
     return true;
 }
 
-function reappearList($id)
+function reappearList($id): bool
 {
     sqlStatement("update lists set activity = '1' where id=?", [$id]);
     return true;

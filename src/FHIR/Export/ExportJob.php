@@ -214,7 +214,7 @@ class ExportJob
         return $this->resourceIncludeTime;
     }
 
-    public function getResourceIncludeSearchParamValue()
+    public function getResourceIncludeSearchParamValue(): string
     {
         return SearchComparator::GREATER_THAN_OR_EQUAL_TO . $this->getResourceIncludeISO8601Date();
     }
@@ -273,7 +273,7 @@ class ExportJob
         }
     }
 
-    public function getResourcesString()
+    public function getResourcesString(): string
     {
         return implode(",", $this->resources);
     }
@@ -406,13 +406,13 @@ class ExportJob
     /**
      * @return string
      */
-    public function getStatusReportURL()
+    public function getStatusReportURL(): string
     {
         $baseUrl = $this->getApiBaseUrl() ?? "";
         return $baseUrl . self::STATUS_REPORT_PREFIX . $this->getUuidString();
     }
 
-    public function isComplete()
+    public function isComplete(): bool
     {
         return $this->getStatus() === self::STATUS_COMPLETED;
     }

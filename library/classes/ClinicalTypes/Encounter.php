@@ -32,7 +32,10 @@ class Encounter extends ClinicalType
     const ENC_INFLUENZA = 'enc_influenza';
     const ENC_OPHTHAL = 'enc_ophthal_serv';
 
-    public static function getEncounterTypes()
+    /**
+     * @return mixed[]
+     */
+    public static function getEncounterTypes(): array
     {
         $oClass = new ReflectionClass('Encounter');
         $constants = $oClass->getConstants();
@@ -46,7 +49,7 @@ class Encounter extends ClinicalType
         return $encounters;
     }
 
-    public function getListId()
+    public function getListId(): string
     {
         return "rule_enc_types";
     }
@@ -58,7 +61,10 @@ class Encounter extends ClinicalType
      *  @param $beginDate beginning of date range to search in, if specified
      *  @param $endDate end of date range to search in, if specified
      */
-    public function fetchDates(RsPatient $patient, $beginDate = null, $endDate = null)
+    /**
+     * @return mixed[]
+     */
+    public function fetchDates(RsPatient $patient, $beginDate = null, $endDate = null): array
     {
         $encounters = getEncounters($patient->id, $beginDate, $endDate, $this->getOptionId());
         $dates = [];
@@ -70,7 +76,7 @@ class Encounter extends ClinicalType
         return $dates;
     }
 
-    public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null): bool
     {
         $encounters = getEncounters($patient->id, $beginMeasurement, $endMeasurement, $this->getOptionId());
         ( empty($encounters) ) ? $totalNumberAppt = 0 : $totalNumberAppt = count($encounters);

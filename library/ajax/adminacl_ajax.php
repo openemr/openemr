@@ -249,7 +249,7 @@ if ($_POST["control"] === "aco") {
 // to a group yet
 //   $err = error strings (array)
 //
-function username_listings_xml($err)
+function username_listings_xml($err): string
 {
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n";
@@ -292,7 +292,7 @@ function username_listings_xml($err)
 //   $username = username
 //   $err = error strings (array)
 //
-function user_group_listings_xml($username, $err)
+function user_group_listings_xml($username, $err): string
 {
     $list_acl_groups = AclExtended::aclGetGroupTitleList();
     $username_acl_groups = AclExtended::aclGetGroupTitles($username);
@@ -342,7 +342,7 @@ function user_group_listings_xml($username, $err)
 // Returns error string(s) via xml
 //   $err = error (string or array)
 //
-function error_xml($err)
+function error_xml($err): string
 {
     $message = "<?xml version=\"1.0\"?>\n" .
     "<response>\n";

@@ -11,12 +11,12 @@
 
 class AMC_302j_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302j Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Need a medication reconciliation completed.
         //  (so basically the completed element of the object can't be empty

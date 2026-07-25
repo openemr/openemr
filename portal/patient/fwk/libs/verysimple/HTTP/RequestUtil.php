@@ -71,7 +71,7 @@ class RequestUtil
     /**
      * Returns true if the current session is running in SSL
      */
-    static function IsSSL()
+    static function IsSSL(): bool
     {
         return isset($_SERVER ['HTTPS']) && $_SERVER ['HTTPS'] != "" && $_SERVER ['HTTPS'] != "off";
     }
@@ -105,7 +105,7 @@ class RequestUtil
      *
      * @return string URL path with trailing slash
      */
-    public static function GetServerRootUrl()
+    public static function GetServerRootUrl(): string
     {
         $url = self::GetCurrentURL(false);
         $parts = explode('/', $url);
@@ -123,7 +123,7 @@ class RequestUtil
      *
      * @return string URL path with trailing slash
      */
-    public static function GetBaseURL()
+    public static function GetBaseURL(): string
     {
         $url = self::GetCurrentURL(false);
         $slash = strripos($url, "/");
@@ -137,7 +137,7 @@ class RequestUtil
      * @param string $appRoot root folder for the app (ex. 'myapp' or 'myapp/subdir1')
      * @return array
      */
-    public static function GetUrlParts($appRoot = '')
+    public static function GetUrlParts($appRoot = ''): array
     {
         $urlqs = explode("?", self::GetCurrentURL(), 2);
         $url = $urlqs [0];
@@ -194,7 +194,7 @@ class RequestUtil
      *
      * @return array
      */
-    public static function GetRequestHeaders()
+    public static function GetRequestHeaders(): array
     {
         if (function_exists('getallheaders')) {
             return getallheaders();
@@ -287,7 +287,7 @@ class RequestUtil
      *          true to append post variables to the querystring as GET parameters Default is false
      * @return string URL
      */
-    public static function GetCurrentURL($include_querystring = true, $append_post_vars = false)
+    public static function GetCurrentURL($include_querystring = true, $append_post_vars = false): string
     {
         if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
             $server_protocol = $_SERVER['HTTP_X_FORWARDED_PROTO'];
@@ -516,7 +516,7 @@ class RequestUtil
      * @param string $fieldname
      * @return bool
      */
-    public static function HasNonAsciiChars($fieldname)
+    public static function HasNonAsciiChars($fieldname): bool
     {
         require_once("verysimple/String/VerySimpleStringUtil.php");
 
@@ -562,7 +562,7 @@ class RequestUtil
      *          whether to include the time in addition to date
      * @return string
      */
-    public static function GetAsDate($fieldname, $default = "date('Y-m-d')", $includetime = false)
+    public static function GetAsDate($fieldname, $default = "date('Y-m-d')", $includetime = false): string
     {
         $returnVal = self::Get($fieldname, $default);
 
@@ -605,7 +605,7 @@ class RequestUtil
      *          default value = today
      * @return string
      */
-    public static function GetAsDateTime($fieldname, $default = "date('Y-m-d H:i:s')")
+    public static function GetAsDateTime($fieldname, $default = "date('Y-m-d H:i:s')"): string
     {
         return self::GetAsDate($fieldname, $default, true);
     }

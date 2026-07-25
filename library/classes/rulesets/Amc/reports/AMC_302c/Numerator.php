@@ -11,12 +11,12 @@
 
 class AMC_302c_Numerator implements AmcFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "AMC_302c Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         // Have at least one entry or an indication that no problems are known for the
         // patient recorded as structured data.

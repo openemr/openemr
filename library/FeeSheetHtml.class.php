@@ -34,7 +34,7 @@ class FeeSheetHtml extends FeeSheet
   // field, so that we can define providers (for billing purposes)
   // who do not appear in the calendar.
   //
-    public static function genProviderOptionList($toptext, $default = 0, $inactive = false)
+    public static function genProviderOptionList($toptext, $default = 0, $inactive = false): string
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $s = '';
@@ -79,7 +79,7 @@ class FeeSheetHtml extends FeeSheet
 
   // Does the above but including <select> ... </select>.
   //
-    public static function genProviderSelect($tagname, $toptext, $default = 0, $disabled = false, $tooltip = '')
+    public static function genProviderSelect($tagname, $toptext, $default = 0, $disabled = false, $tooltip = ''): string
     {
         $s = "   <span><select class='form-control' name='" . attr($tagname) . "'";
         if ($disabled) {
@@ -96,7 +96,7 @@ class FeeSheetHtml extends FeeSheet
 
   // Build a drop-down list of warehouses.
   //
-    public function genWarehouseSelect($tagname, $toptext, $default = '', $disabled = false, $drug_id = 0, $is_sold = 0)
+    public function genWarehouseSelect($tagname, $toptext, $default = '', $disabled = false, $drug_id = 0, $is_sold = 0): string
     {
         $s = '';
         if ($this->got_warehouses) {
@@ -158,7 +158,7 @@ class FeeSheetHtml extends FeeSheet
   // Build a drop-down list of price levels.
   // Includes the specified item's price in the "id" of each option.
   //
-    public function genPriceLevelSelect($tagname, $toptext, $pr_id, $pr_selector = '', $default = '', $disabled = false)
+    public function genPriceLevelSelect($tagname, $toptext, $pr_id, $pr_selector = '', $default = '', $disabled = false): string
     {
         // echo "<!-- pr_id = '$pr_id', pr_selector = '$pr_selector' -->\n"; // debugging
         $s = "<span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'";
@@ -221,7 +221,7 @@ class FeeSheetHtml extends FeeSheet
   // If Contraception forms can be auto-created by the Fee Sheet we might need
   // to ask about the client's prior contraceptive use.
   //
-    public function generateContraceptionSelector($tagname = 'newmauser')
+    public function generateContraceptionSelector($tagname = 'newmauser'): string
     {
         $s = '';
         if (OEGlobalsBag::getInstance()->get('gbl_new_acceptor_policy') == '1') {
@@ -272,7 +272,7 @@ class FeeSheetHtml extends FeeSheet
 
   // Generate a price level drop-down defaulting to the patient's current price level.
   //
-    public function generatePriceLevelSelector($tagname = 'pricelevel', $disabled = false)
+    public function generatePriceLevelSelector($tagname = 'pricelevel', $disabled = false): string
     {
         $s = "<span class='form-inline'><select class='form-control' name='" . attr($tagname) . "'";
         if ($disabled) {
@@ -305,7 +305,7 @@ class FeeSheetHtml extends FeeSheet
   // Do not call this javascript function if you are just refreshing the form.
   // The arguments are the names of the form arrays for services and products.
   //
-    public function jsLineItemValidation($bill = 'bill', $prod = 'prod')
+    public function jsLineItemValidation($bill = 'bill', $prod = 'prod'): string
     {
         $s = "
 function jsLineItemValidation(f) {

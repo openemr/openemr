@@ -62,7 +62,10 @@ function authorizeForm($id, $authorized = "1"): void
     sqlQuery("UPDATE forms SET authorized = ? WHERE id = ? AND deleted = 0", [$authorized, $id]);
 }
 
-function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType = '')
+/**
+ * @return mixed[]
+ */
+function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType = ''): array
 {
     $arraySqlBind = [];
 

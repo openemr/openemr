@@ -25,7 +25,10 @@ class MeasureService
         ];
     }
 
-    public static function fetchMeasureOptions()
+    /**
+     * @return string[]
+     */
+    public static function fetchMeasureOptions(): array
     {
         $measureSources = self::fetchMeasureSourceOptions();
         $measureSourcePath = $measureSources['openemr/oe-cqm-parsers'];
@@ -39,7 +42,7 @@ class MeasureService
         return $options;
     }
 
-    public static function fetchMeasuresPath()
+    public static function fetchMeasuresPath(): string
     {
         $measureSources = self::fetchMeasureSourceOptions();
         $measureSourcePath = $measureSources['openemr/oe-cqm-parsers'];
@@ -61,7 +64,10 @@ class MeasureService
         ];
     }
 
-    public static function fetchAllMeasuresArray($measures = [])
+    /**
+     * @return mixed[]
+     */
+    public static function fetchAllMeasuresArray($measures = []): array
     {
         $measureObjects = [];
         foreach ($measures as $measure) {
@@ -85,7 +91,7 @@ class MeasureService
      *
      * @return string
      */
-    public static function getCurrentReportingYear()
+    public static function getCurrentReportingYear(): string
     {
         return OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023';
     }
@@ -96,7 +102,7 @@ class MeasureService
      * @param string $year
      * @return bool
      */
-    public static function validateReportingYear($year = null)
+    public static function validateReportingYear($year = null): bool
     {
         if ($year === null) {
             $year = self::getCurrentReportingYear();

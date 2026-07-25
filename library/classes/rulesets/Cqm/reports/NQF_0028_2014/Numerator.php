@@ -24,12 +24,12 @@
 
 class NQF_0028_2014_Numerator implements CqmFilterIF
 {
-    public function getTitle()
+    public function getTitle(): string
     {
         return "Numerator";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         // See if user has been counseled to stop smoking or been prescribed a smoking cessations medication within last 24 months
         foreach ($this->getApplicableEncounters() as $encType) {

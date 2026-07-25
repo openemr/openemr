@@ -256,7 +256,7 @@ function text($text): string
  * @param int $depth The current recursive depth of the escaping function.  Defaults to 0 for initial call
  * @return array The array that has each key and property escaped.
  */
-function textArray(array $arr, $depth = 0)
+function textArray(array $arr, $depth = 0): array
 {
     if ($depth > 50) {
         throw new \InvalidArgumentException("array was nested too deep for escaping.  Max limit reached");
@@ -317,7 +317,7 @@ function hsc_private_xl_or_warn(?string $key): string
  * @param literal-string $key The string to translate and escape.
  * @return string The translated string, with "&", "<", and ">" escaped.
  */
-function xlt($key)
+function xlt($key): string
 {
     return text(hsc_private_xl_or_warn($key));
 }
@@ -328,7 +328,7 @@ function xlt($key)
  * @param literal-string $key The string to translate and escape.
  * @return string The translated string, with (&), (<), (>), ("), and (') escaped.
  */
-function xla($key)
+function xla($key): string
 {
     return attr(hsc_private_xl_or_warn($key));
 }
@@ -350,7 +350,7 @@ function xlj($key)
  * @param literal-string $key The string to translate and escape.
  * @return string The translated string, escaped for XML contexts.
  */
-function xlx($key)
+function xlx($key): string
 {
     return xmlEscape(hsc_private_xl_or_warn($key));
 }
@@ -361,7 +361,7 @@ function xlx($key)
  * @param literal-string $key The string to translate and escape.
  * @return string The translated string, escaped for CSV contexts.
  */
-function xlc($key)
+function xlc($key): string
 {
     return csvEscape(hsc_private_xl_or_warn($key));
 }

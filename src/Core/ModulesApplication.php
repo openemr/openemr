@@ -116,7 +116,7 @@ class ModulesApplication
      * @param string $zendConfigurationPath
      * @return string[]
      */
-    public static function oemr_zend_load_modules_from_db($webRootPath, $zendConfigurationPath)
+    public static function oemr_zend_load_modules_from_db($webRootPath, $zendConfigurationPath): array
     {
         $zendConfigurationPathCheck = $zendConfigurationPath . DIRECTORY_SEPARATOR . "module";
         self::checkModuleScriptPathForEnabledModule(self::MODULE_TYPE_LAMINAS, $webRootPath, $zendConfigurationPathCheck);
@@ -216,7 +216,7 @@ class ModulesApplication
      * @param string $file
      * @return bool
      */
-    public static function isSafeModuleFileForInclude($file)
+    public static function isSafeModuleFileForInclude($file): bool
     {
         $realpath = realpath($file);
         $moduleRootLocation = self::getModuleRootRealpath();

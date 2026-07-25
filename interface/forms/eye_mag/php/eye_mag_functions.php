@@ -3132,7 +3132,7 @@ function display_QP($zone, $provider_id)
         return $QP_panel;
 }
 
-function canvas_select($zone, $encounter, $pid)
+function canvas_select($zone, $encounter, $pid): string
 {
     /* This will provide a way to scroll back through prior VISIT images, to copy forward to today's visit,
      * just like we do in the text fields.
@@ -4878,7 +4878,7 @@ function coding_engine($term, $code_found, $location, $side = '')
  *  This is a function to sort an array of dates/times etc
  *  Anything strtotime() can recognize at least.
  */
-function cmp($a, $b)
+function cmp($a, $b): int
 {
     if ($a == $b) {
         return 0;
@@ -6792,7 +6792,7 @@ function display_refractive_data($encounter_data): void
  * @param bool $strict
  * @return bool
  */
-function in_array_r($needle, $haystack, $strict = false)
+function in_array_r($needle, $haystack, $strict = false): bool
 {
     if (empty($haystack)) {
         return false;

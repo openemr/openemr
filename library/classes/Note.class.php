@@ -63,8 +63,9 @@ class Note extends ORDataObject
      * Convenience function to get an array of many document objects
      * For really large numbers of documents there is a way more efficient way to do this by overwriting the populate method
      * @param int $foreign_id optional id use to limit array on to a specific relation, otherwise every document object is returned
+     * @return \Note[]
      */
-    public static function notes_factory($foreign_id = "")
+    public static function notes_factory($foreign_id = ""): array
     {
         $notes = [];
 
@@ -103,7 +104,7 @@ class Note extends ORDataObject
     /**
      * Convenience function to generate string debug data about the object
      */
-    function toString($html = false)
+    function toString($html = false): string
     {
         $string = "\n"
         . "ID: " . $this->id . "\n"
@@ -175,12 +176,12 @@ class Note extends ORDataObject
     *   @param int $fid foreign id that should be used so that this note can be related (joined) on it later
     */
 
-    function persist($fid = "")
+    function persist($fid = ""): mixed
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
 
-        parent::persist();
+        return parent::persist();
     }
 } // end of Note

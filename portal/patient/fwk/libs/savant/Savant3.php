@@ -223,7 +223,7 @@ class Savant3 implements \Stringable
      * @return string A PHP-standard version number.
      *
      */
-    public function apiVersion()
+    public function apiVersion(): string
     {
         return '@package_version@';
     }
@@ -815,7 +815,7 @@ class Savant3 implements \Stringable
      * @return bool True on success, false on failure.
      *
      */
-    public function assign()
+    public function assign(): bool
     {
         // get the arguments; there may be 1 or 2.
         $arg0 = @func_get_arg(0);
@@ -878,7 +878,7 @@ class Savant3 implements \Stringable
      * @return bool True on success, false on failure.
      *
      */
-    public function assignRef($key, &$val)
+    public function assignRef($key, &$val): bool
     {
         // assign by name and reference (can't assign to __config).
         if ($key != '__config') {
