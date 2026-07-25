@@ -419,19 +419,9 @@ if (!empty($glrow)) {
     // Collect user specific settings from user_settings table.
     //
     $gl_user = [];
-    // Collect the user id first
     $temp_authuserid = '';
     if (!empty($session->get('authUserID'))) {
-        //Set the user id from the session variable
         $temp_authuserid = $session->get('authUserID');
-    } else {
-        if (!empty($_POST['authUser'])) {
-            $temp_sql_ret = sqlQueryNoLog("SELECT `id` FROM `users` WHERE BINARY `username` = ?", [$_POST['authUser']]);
-            if (!empty($temp_sql_ret['id'])) {
-                //Set the user id from the login variable
-                $temp_authuserid = $temp_sql_ret['id'];
-            }
-        }
     }
 
     if (!empty($temp_authuserid)) {

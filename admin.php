@@ -13,6 +13,33 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/**
+ * DISABLED BY DEFAULT — set OPENEMR_ADMIN_PHP_ENABLED=1 as an environment
+ * variable to enable.
+ *
+ *   Apache (vhost or .htaccess):
+ *     SetEnv OPENEMR_ADMIN_PHP_ENABLED 1
+ *
+ *   PHP-FPM (pool config):
+ *     env[OPENEMR_ADMIN_PHP_ENABLED] = 1
+ *
+ *   Shell:
+ *     export OPENEMR_ADMIN_PHP_ENABLED=1
+ *
+ * When enabled, restrict access via network controls — this script performs
+ * no user authentication.
+ */
+
+if (
+    filter_input(INPUT_SERVER, 'OPENEMR_ADMIN_PHP_ENABLED') !== '1'
+    && (getenv('OPENEMR_ADMIN_PHP_ENABLED') ?: '') !== '1'
+) {
+    http_response_code(403);
+    header('Content-Type: text/plain');
+    echo "admin.php is disabled by default. See the header comment in this file to enable.\n";
+    exit;
+}
+
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
