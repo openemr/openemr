@@ -102,7 +102,10 @@ final class FhirSmokeTest extends TestCase
         );
         // authorization_endpoint + token_endpoint are the minimum
         // signals a SMART client uses to bootstrap the auth flow. If
-        // either is missing, no SMART client can proceed.
+        // either is missing OR is not a usable URL, no SMART client
+        // can proceed. Per the SMART conformance spec both fields are
+        // string values that MUST be absolute URLs — assert not just
+        // "present" but "valid enough for a client to actually hit."
         self::assertArrayHasKey(
             'authorization_endpoint',
             $body,
@@ -114,6 +117,14 @@ final class FhirSmokeTest extends TestCase
             'SMART config must expose token_endpoint — clients cannot exchange codes for tokens without it',
         );
         self::assertIsString($body['authorization_endpoint']);
+        self::assertNotFalse(
+            filter_var($body['authorization_endpoint'], FILTER_VALIDATE_URL),
+            'authorization_endpoint must be a valid absolute URL per SMART spec — empty string or malformed value means clients cannot start the auth flow',
+        );
         self::assertIsString($body['token_endpoint']);
+        self::assertNotFalse(
+            filter_var($body['token_endpoint'], FILTER_VALIDATE_URL),
+            'token_endpoint must be a valid absolute URL per SMART spec — empty string or malformed value means clients cannot exchange codes for tokens',
+        );
     }
 }
