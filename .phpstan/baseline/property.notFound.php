@@ -322,6 +322,46 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:\\$DENEXCEP\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:\\$DENEX\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:\\$DENOM\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:\\$IPP\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:\\$MSRPOPLEX\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:\\$MSRPOPL\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:\\$NUMER\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Services\\\\Qdm\\\\IndividualResult\\:\\:\\$NUMEX\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$negationRationale\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/Services/AbstractCarePlanService.php',

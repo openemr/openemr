@@ -27,9 +27,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$tmpadj on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Variable \\$resultCategories on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
+    'path' => __DIR__ . '/../../interface/forms/clinical_notes/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$BPDD on left side of \\?\\? is never defined\\.$#',
