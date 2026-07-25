@@ -76,6 +76,8 @@ final class EdiFormat
      */
     public static function percent(string $str_val): string
     {
-        return (float)$str_val * 100 . '%';
+        // %.14g matches the rendering of a bare float-to-string conversion
+        // at the default precision ini setting, without depending on it.
+        return sprintf('%.14g%%', (float)$str_val * 100);
     }
 }
