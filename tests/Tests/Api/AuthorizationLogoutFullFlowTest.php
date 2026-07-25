@@ -42,13 +42,31 @@ class AuthorizationLogoutFullFlowTest extends TestCase
     {
         $this->baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
 
+        // Two-part env check: a workflow that knows its runner cannot handle
+        // the OAuth Secure-cookie flow sets OPENEMR_ALLOW_OAUTH_HTTPS_SKIP=1
+        // explicitly (see .github/workflows/test-frontcontroller.yml). On any
+        // other runner we probe the Server header — if it's missing there,
+        // it means a runner we thought could handle the flow has silently
+        // dropped its webserver identity, and we hard-fail rather than let
+        // that regression turn into a green skipped test.
+        if (getenv('OPENEMR_ALLOW_OAUTH_HTTPS_SKIP') === '1') {
+            $this->markTestSkipped(
+                'Skipping per OPENEMR_ALLOW_OAUTH_HTTPS_SKIP=1 — this runner is known to be'
+                . ' unable to serve OpenEMR\'s Secure-cookie OAuth session (typically php -S over HTTP).'
+            );
+        }
         $probe = $this->buildClient()->get($this->baseUrl . '/');
         if ($probe->getHeaderLine('Server') === '') {
-            $this->markTestSkipped(
-                'OAuth flow requires a webserver that carries session cookies with the Secure flag'
+            $message = 'OAuth flow requires a webserver that carries session cookies with the Secure flag'
                 . ' (Apache/nginx). Server did not respond with a Server header, so this looks like'
-                . ' PHP\'s built-in webserver (php -S) or similar stripped-down setup.'
-            );
+                . ' PHP\'s built-in webserver (php -S) or similar stripped-down setup.';
+            if (getenv('CI') !== false) {
+                self::fail($message . ' In CI this is a hard failure — a real webserver runner unexpectedly'
+                    . ' stopped emitting the Server header, which would silently disable this test if we only'
+                    . ' skipped. If this runner is intentionally limited, set OPENEMR_ALLOW_OAUTH_HTTPS_SKIP=1'
+                    . ' in its workflow to opt out explicitly.');
+            }
+            $this->markTestSkipped($message);
         }
 
         $current = QueryUtils::querySingleRow(
@@ -115,7 +133,7 @@ class AuthorizationLogoutFullFlowTest extends TestCase
                 'client_name' => 'AuthorizationLogoutFullFlowTest',
                 'token_endpoint_auth_method' => 'client_secret_post',
                 'contacts' => ['e2e@test.example'],
-                'scope' => 'openid fhirUser',
+                'scope' => 'openid fhirUser offline_access',
             ],
         ]);
         $this->assertSame(200, $reg->getStatusCode(), 'DCR registration should succeed');
@@ -132,7 +150,7 @@ class AuthorizationLogoutFullFlowTest extends TestCase
             'client_id' => $this->clientId,
             'redirect_uri' => self::REDIRECT_URI,
             'response_type' => 'code',
-            'scope' => 'openid fhirUser',
+            'scope' => 'openid fhirUser offline_access',
             'state' => self::STATE,
             'nonce' => self::NONCE,
         ]);
@@ -140,7 +158,8 @@ class AuthorizationLogoutFullFlowTest extends TestCase
         $this->assertSame(200, $loginPage->getStatusCode(), 'Authorize should redirect to login page');
         [$loginCsrf, $loginAction] = $this->parseLoginForm(
             new Crawler((string) $loginPage->getBody()),
-            'login page'
+            'login page',
+            ['csrf_token_form', 'username', 'password', 'email', 'persist_login', 'user_role']
         );
 
         $postLogin = $http->post($this->baseUrl . $loginAction, [
@@ -160,13 +179,21 @@ class AuthorizationLogoutFullFlowTest extends TestCase
             $consentCrawler->filterXPath('//*[@name="proceed"]')->count(),
             'After login, the consent page (with proceed button) should render'
         );
-        [$consentCsrf, $consentAction] = $this->parseLoginForm($consentCrawler, 'consent page');
+        [$consentCsrf, $consentAction] = $this->parseLoginForm(
+            $consentCrawler,
+            'consent page',
+            ['csrf_token_form', 'proceed', 'scope[openid]', 'scope[fhirUser]', 'scope[offline_access]']
+        );
 
         $postConsent = $http->post($this->baseUrl . $consentAction, [
             'form_params' => [
                 'csrf_token_form' => $consentCsrf,
                 'proceed' => '1',
-                'scope' => ['openid' => 'openid', 'fhirUser' => 'fhirUser'],
+                'scope' => [
+                    'openid' => 'openid',
+                    'fhirUser' => 'fhirUser',
+                    'offline_access' => 'offline_access',
+                ],
             ],
             'allow_redirects' => false,
         ]);
@@ -217,6 +244,54 @@ class AuthorizationLogoutFullFlowTest extends TestCase
             $logoutResp->getHeaderLine('Location'),
             'Logout Location should be the registered post_logout_redirect_uri with state preserved'
         );
+
+        // Session-actually-dead property: re-hit /authorize with the same cookie jar.
+        // If the logout genuinely invalidated the session, the OAuth server should
+        // render the login page (not skip straight to the callback via a still-live
+        // consent). The 307 assertion above only proves the plumbing of the redirect;
+        // this proves the security property the redirect exists for.
+        $postLogoutAuthPage = $http->get($this->baseUrl . $authUrl);
+        $this->assertSame(200, $postLogoutAuthPage->getStatusCode(), 'Post-logout /authorize should render');
+        $postLogoutCrawler = new Crawler((string) $postLogoutAuthPage->getBody());
+        $this->assertGreaterThan(
+            0,
+            $postLogoutCrawler->filterXPath('//input[@name="csrf_token_form"]')->count(),
+            'Post-logout /authorize should render the login form (session was not actually invalidated)'
+        );
+        $this->assertCount(
+            0,
+            $postLogoutCrawler->filterXPath('//*[@name="proceed"]'),
+            'Post-logout /authorize should NOT render the consent page (server still trusts the killed session)'
+        );
+
+        // Refresh-token-still-usable property: attempt to use the refresh_token
+        // issued alongside the id_token. If the logout actually revoked the trusted
+        // user record for this (client_id, sub) pair, the refresh_token — which is
+        // scoped to that trust record — should be rejected. If it still works, the
+        // logout leaves a live credential in the wild that survives session teardown.
+        if (isset($tokens['refresh_token']) && is_string($tokens['refresh_token']) && $tokens['refresh_token'] !== '') {
+            $refreshResp = $this->buildClient()->post($this->baseUrl . '/oauth2/default/token', [
+                'form_params' => [
+                    'grant_type' => 'refresh_token',
+                    'refresh_token' => $tokens['refresh_token'],
+                    'client_id' => $this->clientId,
+                    'client_secret' => $clientSecret,
+                ],
+            ]);
+            $this->assertNotSame(
+                200,
+                $refreshResp->getStatusCode(),
+                'Refresh token should be unusable after RP-initiated logout — it survives session teardown'
+                . ' and hands the caller a fresh access_token for the just-logged-out user.'
+            );
+        } else {
+            // If the OAuth server didn't issue a refresh_token for offline_access,
+            // the property is untestable here — flag it so the gap is visible.
+            self::fail(
+                'Token response did not include a refresh_token even though offline_access was requested.'
+                . ' Verify the OAuth server\'s offline_access support or drop the refresh_token assertion.'
+            );
+        }
     }
 
     private function buildClient(): Client
@@ -236,9 +311,17 @@ class AuthorizationLogoutFullFlowTest extends TestCase
     }
 
     /**
+     * Parse `<form id="userLogin">` and return its CSRF token + action URL.
+     *
+     * @param list<string> $expectedFields  named form-control fields (input, button,
+     *        select, textarea) the caller is about to POST. Asserting each is actually
+     *        declared as a submittable control turns silent template drift (e.g. consent
+     *        moving to JS-populated fields, or a field becoming a non-submittable
+     *        `<div>` with the same name) into a clear failure instead of a POST that
+     *        quietly succeeds against fields the server no longer reads.
      * @return array{string, string} [csrf_token_form value, form action URL]
      */
-    private function parseLoginForm(Crawler $crawler, string $where): array
+    private function parseLoginForm(Crawler $crawler, string $where, array $expectedFields = []): array
     {
         $csrfInputs = $crawler->filterXPath('//input[@name="csrf_token_form"]');
         $this->assertGreaterThan(0, $csrfInputs->count(), "No csrf_token_form input found on $where");
@@ -249,6 +332,23 @@ class AuthorizationLogoutFullFlowTest extends TestCase
         $this->assertGreaterThan(0, $forms->count(), "No <form id=\"userLogin\"> on $where");
         $action = (string) $forms->first()->attr('action');
         $this->assertNotSame('', $action, "Empty form action on $where");
+
+        foreach ($expectedFields as $field) {
+            $matches = $forms->first()->filterXPath(
+                './/input[@name="' . $field . '"]'
+                . ' | .//button[@name="' . $field . '"]'
+                . ' | .//select[@name="' . $field . '"]'
+                . ' | .//textarea[@name="' . $field . '"]'
+            );
+            $this->assertGreaterThan(
+                0,
+                $matches->count(),
+                "Form on $where does not declare a submittable control named '$field' — the test is"
+                . ' about to POST it, but the server-side template no longer renders it as an input,'
+                . ' button, select, or textarea. Update the test to match the new form shape,'
+                . ' or fix the template.'
+            );
+        }
 
         return [$csrf, $action];
     }

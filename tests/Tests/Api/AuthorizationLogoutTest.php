@@ -55,6 +55,10 @@ class AuthorizationLogoutTest extends TestCase
     protected function tearDown(): void
     {
         QueryUtils::sqlStatementThrowException(
+            'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
+            [self::TEST_CLIENT_ID]
+        );
+        QueryUtils::sqlStatementThrowException(
             'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
             [self::TEST_CLIENT_ID]
         );
@@ -158,13 +162,179 @@ class AuthorizationLogoutTest extends TestCase
         );
     }
 
-    private function makeUnsignedJwt(): string
+    #[Test]
+    public function testLogoutWithoutRedirectUriNotLoggedInReturns401(): void
+    {
+        // No post_logout_redirect_uri at all, not-logged-in branch.
+        // Covers a common RP shape (id_token_hint only, no redirect target).
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt(),
+            ],
+        ]);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutRejectsAudMismatch(): void
+    {
+        // Token claims aud = a client that isn't TEST_CLIENT_ID. The controller
+        // looks up oauth_clients WHERE client_id = <aud from token>; the request
+        // must not resolve LOGOUT_URI_ONE against TEST_CLIENT_ID's allowlist just
+        // because the RP asks for it — the allowlist is scoped to the token's aud.
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt('nobody', '', 'a_different_client_that_does_not_exist'),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+    }
+
+    #[Test]
+    public function testLogoutResolvesBothUrisWhenDcrRegistersMultiple(): void
+    {
+        // Verifies that a client whose `logout_redirect_uris` was set via the
+        // real DCR flow (not a hand-crafted DB row like TEST_CLIENT_ID) still
+        // resolves against both registered URIs. This is the coverage gap:
+        // pipe-delimited storage encoding is only tested against a manually
+        // inserted row above, so a mismatch between the DCR write path and the
+        // logout read path would otherwise slip through.
+        $uriA = 'https://dcr-multi-a.example';
+        $uriB = 'https://dcr-multi-b.example';
+
+        $dcrClientId = null;
+        try {
+            $reg = $this->http->post('/oauth2/default/registration', [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body' => (string) json_encode([
+                    'application_type' => 'private',
+                    'redirect_uris' => ['https://dcr-multi.example/cb'],
+                    'post_logout_redirect_uris' => [$uriA, $uriB],
+                    'client_name' => 'DCR multi-URI logout test',
+                    'token_endpoint_auth_method' => 'client_secret_post',
+                    'contacts' => ['multi@test.example'],
+                    'scope' => 'openid',
+                ]),
+            ]);
+            // Capture the client_id best-effort before any assertion, so the
+            // finally cleanup runs even if a response-shape assertion below fails.
+            $clientData = json_decode((string) $reg->getBody(), true);
+            if (is_array($clientData) && isset($clientData['client_id']) && is_string($clientData['client_id'])) {
+                $dcrClientId = $clientData['client_id'];
+            }
+
+            $this->assertSame(200, $reg->getStatusCode(), 'DCR registration should succeed');
+            $this->assertIsArray($clientData);
+            $this->assertArrayHasKey('client_id', $clientData);
+            $this->assertIsString($clientData['client_id']);
+            $verifiedClientId = $clientData['client_id'];
+
+            foreach ([$uriA, $uriB] as $uri) {
+                $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+                    'query' => [
+                        'id_token_hint' => $this->makeUnsignedJwt('nobody', '', $verifiedClientId),
+                        'post_logout_redirect_uri' => $uri,
+                        'state' => 'abc',
+                    ],
+                ]);
+                $this->assertSame(307, $response->getStatusCode(), "URI '$uri' should be accepted");
+                $this->assertSame(
+                    $uri . '?state=abc',
+                    $response->getHeaderLine('Location'),
+                    "URI '$uri' should redirect back with state preserved"
+                );
+            }
+        } finally {
+            if ($dcrClientId !== null) {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
+                    [$dcrClientId]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+                    [$dcrClientId]
+                );
+            }
+        }
+    }
+
+    /**
+     * All the "not-logged-in branch" tests above use `sub = nobody`, so no
+     * matching `oauth_trusted_user` row is found and the controller takes the
+     * not-logged-in branch. The tests below seed a matching trust row so the
+     * controller enters the trusted-user branch — the branch that actually
+     * calls `deleteTrustedUserById`.
+     *
+     * Not covered here: signature-verified `id_token_hint` (expired token,
+     * tampered signature). `AuthorizationController::decodeToken()` currently
+     * does no signature verification, so a bad-signature token behaves
+     * identically to a good one. That gap tracks separately.
+     */
+    #[Test]
+    public function testLogoutTrustedUserBranchDeletesTrustRowAndRedirects(): void
+    {
+        $userId = 'test-logout-user-' . bin2hex(random_bytes(4));
+        $this->seedTrustedUser($userId);
+        $this->assertSame(1, $this->countTrustedUsersForTestClient($userId), 'Seeding should succeed');
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt($userId),
+                'post_logout_redirect_uri' => self::LOGOUT_URI_ONE,
+                'state' => 'abc',
+            ],
+        ]);
+        $this->assertSame(307, $response->getStatusCode());
+        $this->assertSame(
+            self::LOGOUT_URI_ONE . '?state=abc',
+            $response->getHeaderLine('Location')
+        );
+        $this->assertSame(
+            0,
+            $this->countTrustedUsersForTestClient($userId),
+            'Trust row must be deleted after successful logout in the trusted-user branch'
+        );
+    }
+
+    #[Test]
+    public function testLogoutTrustedUserBranchWithoutRedirectUriReturns200AndDeletesTrustRow(): void
+    {
+        // Trusted-user branch when the RP omits post_logout_redirect_uri: server
+        // must still tear down the trust record (the actual security property)
+        // and return a 200 with the signed-out message, not a redirect.
+        $userId = 'test-logout-user-' . bin2hex(random_bytes(4));
+        $this->seedTrustedUser($userId);
+
+        $response = $this->http->get(self::LOGOUT_ENDPOINT, [
+            'query' => [
+                'id_token_hint' => $this->makeUnsignedJwt($userId),
+            ],
+        ]);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+        $this->assertStringContainsStringIgnoringCase(
+            'signed out',
+            (string) $response->getBody(),
+            'Response body should carry the "signed out" confirmation'
+        );
+        $this->assertSame(
+            0,
+            $this->countTrustedUsersForTestClient($userId),
+            'Trust row must be deleted even when no redirect URI is provided'
+        );
+    }
+
+    private function makeUnsignedJwt(string $sub = 'nobody', string $nonce = '', string $aud = self::TEST_CLIENT_ID): string
     {
         $header = $this->b64url('{"alg":"none","typ":"JWT"}');
         $payload = $this->b64url((string) json_encode([
-            'aud' => self::TEST_CLIENT_ID,
-            'sub' => 'nobody',
-            'nonce' => '',
+            'aud' => $aud,
+            'sub' => $sub,
+            'nonce' => $nonce,
         ]));
         return $header . '.' . $payload . '.sig';
     }
@@ -172,5 +342,35 @@ class AuthorizationLogoutTest extends TestCase
     private function b64url(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+    private function seedTrustedUser(string $userId, string $nonce = ''): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `oauth_trusted_user` '
+            . '(`user_id`, `client_id`, `scope`, `persist_login`, `time`, `code`, `session_cache`, `grant_type`) '
+            . 'VALUES (?, ?, ?, 0, NOW(), ?, ?, ?)',
+            [
+                $userId,
+                self::TEST_CLIENT_ID,
+                'openid',
+                'test-code-' . bin2hex(random_bytes(4)),
+                (string) json_encode(['nonce' => $nonce]),
+                'authorization_code',
+            ]
+        );
+    }
+
+    private function countTrustedUsersForTestClient(string $userId): int
+    {
+        $row = QueryUtils::querySingleRow(
+            'SELECT COUNT(*) AS n FROM `oauth_trusted_user` WHERE `client_id` = ? AND `user_id` = ?',
+            [self::TEST_CLIENT_ID, $userId]
+        );
+        if (!is_array($row) || !isset($row['n'])) {
+            return 0;
+        }
+        $n = $row['n'];
+        return is_int($n) ? $n : (is_string($n) && ctype_digit($n) ? (int) $n : 0);
     }
 }

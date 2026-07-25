@@ -76,6 +76,12 @@ jobs:
       working-directory: .
       env:
         OPENEMR_BASE_URL_API: http://localhost:8080
+        # PHP's built-in webserver serves plain HTTP and cannot carry
+        # session cookies with the Secure flag, so tests that depend on
+        # OpenEMR's Secure-cookie OAuth session (e.g. the interactive
+        # login/consent leg of AuthorizationLogoutFullFlowTest) opt out
+        # of this runner explicitly rather than being auto-skipped.
+        OPENEMR_ALLOW_OAUTH_HTTPS_SKIP: '1'
       run: vendor/bin/phpunit --testsuite ${{ matrix.suite }} --log-junit junit-${{ matrix.suite }}.xml
 
     - name: Show server stdout
