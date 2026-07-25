@@ -320,7 +320,9 @@ abstract class FhirServiceBase implements
      *
      * @param mixed $dataRecord The source OpenEMR data record
      * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
-     * @return FHIRProvenance the FHIR Resource. Returned format is defined using $encode parameter.
+     * @return FHIRProvenance|string|false|null the FHIR Resource (or its encoding, per $encode). A falsy
+     *         return (false/null) indicates no Provenance could be constructed for the resource;
+     *         getAll() treats this as "no provenance available" and continues.
      */
     abstract public function createProvenanceResource($dataRecord, $encode = false);
 

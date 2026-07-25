@@ -658,46 +658,44 @@ function csv_check_filepath($filename, $type = 'ALL')
 /**
  * verify file type parameter
  *
- * @param string $type file type
- * @param bool $gs_code return GS02 code or fXXX
- * @return string   file type or empty
+ * @param string $type    file type
+ * @param bool   $gs_code return GS02 code or fXXX
+ * @return string         canonical file type, or '' when the type is unknown
  */
-function csv_file_type($type, $gs_code = false)
+function csv_file_type(string $type, bool $gs_code = false): string
 {
-    //
-    if (!$type) {
+    // Reject falsy input up front: an empty needle matches every alias string,
+    // and '0' is a substring of 'f270' — neither is a valid file type.
+    if ($type === '' || $type === '0') {
         csv_edihist_log('csv_file_type: invalid or missing type argument ' . $type);
-        return false;
-    } else {
-        $tp_type = (string)$type;
+        return '';
     }
 
-    //
-    if (strpos('|f837|batch|HC', $tp_type)) {
-        $tp = ($gs_code) ? 'HC' : 'f837';
-    } elseif (strpos('|f835|era|HP', $tp_type)) {
-        $tp = ($gs_code) ? 'HP' : 'f835';
-    } elseif (strpos('|f999|f997|ack|ta1|FA', $tp_type)) {
-        $tp = ($gs_code) ? 'FA' : 'f997';
-    } elseif (strpos('|f277|HN', $tp_type)) {
-        $tp = ($gs_code) ? 'HN' : 'f277';
-    } elseif (strpos('|f276|HR', $tp_type)) {
-        $tp = ($gs_code) ? 'HR' : 'f276';
-    } elseif (strpos('|f271|HB', $tp_type)) {
-        $tp = ($gs_code) ? 'HB' : 'f271';
-    } elseif (strpos('|f270|HS', $tp_type)) {
-        $tp = ($gs_code) ? 'HS' : 'f270';
-    } elseif (strpos('|f278|HI', $tp_type)) {
-        $tp = ($gs_code) ? 'HI' : 'f278';
-    } else {
-        $tp = '';
+    // Alias table (data): each row maps a set of accepted type tokens to its
+    // GS02 code and canonical fXXX file type. A token is accepted when it
+    // appears as a substring of the '|'-delimited alias string, preserving the
+    // historical match semantics; the leading '|' keeps a real token match off
+    // offset 0.
+    $type_map = [
+        ['|f837|batch|HC', 'HC', 'f837'],
+        ['|f835|era|HP', 'HP', 'f835'],
+        ['|f999|f997|ack|ta1|FA', 'FA', 'f997'],
+        ['|f277|HN', 'HN', 'f277'],
+        ['|f276|HR', 'HR', 'f276'],
+        ['|f271|HB', 'HB', 'f271'],
+        ['|f270|HS', 'HS', 'f270'],
+        ['|f278|HI', 'HI', 'f278'],
+    ];
+
+    // Dispatch (logic): first matching row wins; unknown types fall through to ''.
+    $tp = '';
+    foreach ($type_map as [$aliases, $gs, $file_type]) {
+        if (str_contains($aliases, $type)) {
+            return $gs_code ? $gs : $file_type;
+        }
     }
 
-    //
-    if (!$tp) {
-        csv_edihist_log('csv_file_type error: incorrect type ' . $tp_type);
-    }
-
+    csv_edihist_log('csv_file_type error: incorrect type ' . $type);
     return $tp;
 }
 
@@ -1013,10 +1011,9 @@ function csv_newfile_list($type)
  * Simple analysis, but the idea is just to identify the bad segment
  *
  * @param string $err_seg error segment from edih_997_csv_data()
- * @param bool $id true if only the 1st segmentID is wanted
- * return array|string
+ * @return array{trace?: string, id?: list<string>, err?: list<string>}
  */
-function edih_errseg_parse($err_seg, $id = false)
+function edih_errseg_parse($err_seg): array
 {
     // ['err_seg'] = '|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*transID*segID*segpos*elempos
     //                |IK4*elempos*errcode*elem*|CTX-IK4*segID*segpos*elempos
@@ -1032,32 +1029,9 @@ function edih_errseg_parse($err_seg, $id = false)
     //'|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*segID*segPos*loopLS*elemPos:compositePos:repPos
     // revised: 123456789004*IK3*segID*segpos[*segID*segpos*segID*segpos]
     $ik = explode('*', (string) $err_seg);
-    foreach ($ik as $i => $k) {
-        switch ($i) {
-            case 0:
-                $ret_ar['trace'] = $k;
-                break;
-            case 1:
-                break;  // IK3
-            case 2:
-                $ret_ar['id'][] = $k;
-                break;   // segment ID
-            case 3:
-                $ret_ar['err'][] = $k;
-                break;  // segment position
-            case 4:
-                $ret_ar['id'][] = $k;
-                break;
-            case 5:
-                $ret_ar['err'][] = $k;
-                break;
-            case 6:
-                $ret_ar['id'][] = $k;
-                break;
-            case 7:
-                $ret_ar['err'][] = $k;
-                break;
-        }
+    $ret_ar['trace'] = $ik[0];
+    foreach (array_slice($ik, 2) as $i => $k) {
+        $ret_ar[$i & 1 ? 'err' : 'id'][] = $k;
     }
 
     //
@@ -1095,27 +1069,9 @@ function edih_format_telephone($str_val)
  */
 function edih_format_date($str_val, $pref = "Y-m-d")
 {
-    $strdt = (string)$str_val;
-    $strdt = preg_replace('/\D/', '', $strdt);
-    $dt = '';
-    if (strlen((string) $strdt) == 6) {
-        $tdy = date('Ymd');
-        if ($pref == "US") {
-            // assume mmddyy
-            $strdt = substr($tdy, 0, 2) . substr((string) $strdt, -2) . substr((string) $strdt, 0, 4);
-        } else {
-            // assume yymmdd
-            $strdt = substr($tdy, 0, 2) . $strdt;
-        }
-    }
-
-    if ($pref == "US") {
-        $dt = substr($strdt, 4, 2) . "/" . substr($strdt, 6) . "/" . substr($strdt, 0, 4);
-    } else {
-        $dt = substr($strdt, 0, 4) . "-" . substr($strdt, 4, 2) . "-" . substr($strdt, 6);
-    }
-
-    return $dt;
+    // Backfill: the canonical implementation lives in the autoloadable
+    // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
+    return \OpenEMR\Billing\EdiHistory\EdiFormat::date((string) $str_val, (string) $pref);
 }
 
 /**
@@ -1127,10 +1083,9 @@ function edih_format_date($str_val, $pref = "Y-m-d")
  */
 function edih_format_money($str_val)
 {
-    //
-    $mny = $str_val || $str_val === '0' ? sprintf("$%01.2f", $str_val) : $str_val;
-
-    return $mny;
+    // Backfill: the canonical implementation lives in the autoloadable
+    // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
+    return \OpenEMR\Billing\EdiHistory\EdiFormat::money((string) $str_val);
 }
 
 /**
@@ -1140,12 +1095,11 @@ function edih_format_money($str_val)
  * @param string $str_val   the amount string
  * @return string           the value as a percentage
  */
-function edih_format_percent($str_val)
+function edih_format_percent($str_val): string
 {
-    $val = (float)$str_val;
-    $pct = is_float($val) ? $val * 100 . '%' : $str_val . '%';
-
-    return $pct;
+    // Backfill: the canonical implementation lives in the autoloadable
+    // OpenEMR\Billing\EdiHistory\EdiFormat so namespaced code can reuse it.
+    return \OpenEMR\Billing\EdiHistory\EdiFormat::percent((string) $str_val);
 }
 
 /**
@@ -1201,7 +1155,7 @@ function csv_table_header($file_type, $csv_type)
 
     //
     if ($ct === 'file') {
-        switch ((string)$ft) {
+        switch ($ft) {
             //case 'ack': $hdr = array('Date', 'FileName', 'isa13', 'ta1ctrl', 'Code'); break;
             //case 'ebr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
             //case 'ibr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
@@ -1235,7 +1189,7 @@ function csv_table_header($file_type, $csv_type)
                 break;
         }
     } elseif ($ct === 'claim') {
-        switch ((string)$ft) {
+        switch ($ft) {
             //case 'ebr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
             //case 'ibr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
             //case 'dpr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
@@ -1277,56 +1231,6 @@ function csv_table_header($file_type, $csv_type)
         return false;
     }
 }
-
-/*
-function csv_files_header($file_type, $csv_type) {
-    //
-    $tp = csv_file_type($type);
-    if (!$tp) {
-        csv_edihist_log('csv_files_header: incorrect type '.$file_type);
-        return false;
-    }
-    if (!strpos('|file|claim', $csv_type) ) {
-        csv_edihist_log('csv_files_header error: incorrect csv type '.$csv_type);
-        return false;
-    }
-    //
-    $ft = strpos('|277', $file_type) ? 'f277' : $file_type;
-    $ft = strpos('|835', $file_type) ? 'era' : $ft;
-    $ft = strpos('|837', $file_type) ? 'batch' : $ft;
-    $ft = strpos('|999|997|ack|ta1', $file_type) ? 'f997' : $ft;
-    //
-    $csv_hd_ar = array();
-    // dataTables: | 'date' | 'file_name (link)' | 'file_text (link fmt)' | 'claim_ct' | 'reject_ct' |
-    $csv_hd_ar['ack']['file'] = array('Date', 'FileName', 'isa13', 'ta1ctrl', 'Code');
-    $csv_hd_ar['ebr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
-    $csv_hd_ar['ibr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
-    //
-    // dataTables: | 'date' | 'file_name (link)' | 'file_text (link fmt)' | 'claim_ct' | 'partner' |
-    $csv_hd_ar['batch']['file'] = array('Date', 'FileName', 'Ctn_837', 'claim_ct', 'x12_partner');
-    $csv_hd_ar['ta1']['file'] =   array('Date', 'FileName', 'Ctn_ta1', 'ta1ctrl', 'Code');
-    $csv_hd_ar['f997']['file'] =  array('Date', 'FileName', 'Ctn_999', 'ta1ctrl', 'RejCt');
-    $csv_hd_ar['f277']['file'] =  array('Date', 'FileName', 'Ctn_277', 'Accept', 'AccAmt', 'Reject', 'RejAmt');
-    $csv_hd_ar['f270']['file'] =  array('Date', 'FileName', 'Ctn_270', 'claim_ct', 'x12_partner');
-    $csv_hd_ar['f271']['file'] =  array('Date', 'FileName', 'Ctn_271', 'claim_ct', 'Denied', 'Payer');
-    $csv_hd_ar['era']['file'] =   array('Date', 'FileName', 'Trace', 'claim_ct', 'Denied', 'Payer');
-    //
-    // dataTables: | 'pt_name' | 'svc_date' | 'clm01 (link clm)' | 'status (mouseover)' | b f t (links to files) | message (mouseover) |
-    $csv_hd_ar['ebr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
-    $csv_hd_ar['ibr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
-    $csv_hd_ar['dpr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
-    //
-    // dataTables: | 'pt_name' | 'svc_date' | 'clm01 (link clm)' | 'status (mouseover)' | 'bht03_837 (link rsp)' | message (mouseover) |
-    $csv_hd_ar['batch']['claim'] = array('PtName', 'SvcDate', 'clm01', 'InsLevel', 'Ctn_837', 'File_837', 'Fee', 'PtPaid', 'Provider' );
-    $csv_hd_ar['f997']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'ak_num', 'File_997', 'Ctn_837', 'err_seg');
-    $csv_hd_ar['f277']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_277', 'File_277', 'payer_name', 'claim_id', 'bht03_837');
-    $csv_hd_ar['f270']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'InsLevel', 'st_270', 'File_270', 'payer_name', 'bht03_270');
-    $csv_hd_ar['f271']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_271', 'File_271', 'payer_name', 'bht03_270');
-    $csv_hd_ar['era']['claim'] =   array('PtName', 'SvcDate', 'clm01', 'Status', 'trace', 'File_835', 'claimID', 'Pmt', 'PtResp', 'Payer');
-    //
-    return $csv_hd_ar[$ft][$csv_type];
-}
-*/
 
 /**
  * adapted from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/
@@ -1759,7 +1663,7 @@ function csv_file_by_controlnum($type, $control_num)
 {
     // get the batch file containing the control_num
     //
-    $tp = csv_file_type($type);
+    $tp = is_string($type) ? csv_file_type($type) : '';
     //
     $hdr = csv_table_header($tp, 'file');
     $scol = array_search('Control', $hdr);

@@ -2415,9 +2415,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     $query = "select * from form_" . $form_folder . "_impplan where form_id=? and pid=? order by IMPPLAN_order ASC";
     $result = sqlStatement($query, [$form_id, $pid]);
     $i = '0';
-    $order = ["\r\n", "\n", "\r", "\v", "\f", "\x85", "\u2028", "\u2029"];
-    $replace = "<br />";
-    // echo '<ol>';
     while ($ip_list = sqlFetchArray($result)) {
         $newdata = [
             'form_id' => $ip_list['form_id'],
@@ -2426,7 +2423,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             'code' => $ip_list['code'],
             'codetype' => $ip_list['codetype'],
             'codetext' => $ip_list['codetext'],
-            'plan' => str_replace($order, $replace, $ip_list['plan']),
+            'plan' => $ip_list['plan'],
             'IMPPLAN_order' => $ip_list['IMPPLAN_order']
         ];
         $IMPPLAN_items[$i] = $newdata;
@@ -2452,7 +2449,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     }
                 }
             }
-            echo text($item['plan']) . "</div><br />";
+            $plan = is_string($item['plan']) ? $item['plan'] : '';
+            $plan = str_replace(
+                ["\v", "\f", "\xC2\x85", "\u{2028}", "\u{2029}"],
+                "\n",
+                $plan
+            );
+            echo nl2br(text($plan)) . "</div><br />";
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
             $PLAN_results = sqlStatement($query, [$form_id, $pid]);

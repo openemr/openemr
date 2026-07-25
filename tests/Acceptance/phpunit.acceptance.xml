@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+OpenEMR acceptance tests.
+
+Runs from a GitHub Actions runner (or a developer laptop) against a
+BOOTED openemr artifact — Docker image booted from docker/production/
+docker-compose.yml + .github/docker/acceptance-docker-compose.yml
+override, or a tarball extracted into a generic PHP+Apache+MySQL stack
+(Phase 3 — not yet). Tests are BLACK-BOX: they exercise the artifact
+through its public HTTP interface (and later API + DB + browser); they
+do NOT execute any code inside the artifact.
+
+Distinct from tests/Tests/Isolated/** (pure-PHP logic, no boot) and
+tests/Tests/Unit/**+Api/**+E2e/** (source-tree white-box in the dev
+stack). Acceptance is the artifact-side layer — see
+docs/artifact-acceptance-testing-plan.md for full architecture.
+
+Prereq: an openemr artifact is booted and reachable at
+ACCEPTANCE_ARTIFACT_URL (env var; defaults to http://localhost:8580).
+Boot helper: tests/Acceptance/bin/boot-docker.sh <tag>.
+-->
+
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         backupGlobals="false"
+         colors="true"
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnRisky="false"
+         stopOnSkipped="false"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnPhpunitDeprecations="true"
+         failOnDeprecation="true"
+         failOnPhpunitDeprecation="true"
+         failOnPhpunitWarning="true"
+         testdox="false">
+
+  <php>
+    <env name="ENV" value="acceptance" />
+    <ini name="error_reporting" value="-1"/>
+  </php>
+
+  <testsuites>
+    <testsuite name="acceptance">
+      <directory>.</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

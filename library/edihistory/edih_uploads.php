@@ -106,7 +106,8 @@ function edih_upload_match_file($param_ar, $fidx)
     $x12obj = new edih_x12_file($ftmp, false);
     //
     if ($x12obj->edih_hasGS()) {
-        $ftype = csv_file_type($x12obj->edih_type());
+        $x12type = $x12obj->edih_type();
+        $ftype = csv_file_type($x12type);
     } elseif ($x12obj->edih_valid()) {
         if (is_array($param_ar) && count($param_ar)) {
             // csv_parameters("ALL");

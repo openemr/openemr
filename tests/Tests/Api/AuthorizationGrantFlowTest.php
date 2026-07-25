@@ -253,8 +253,12 @@ class AuthorizationGrantFlowTest extends TestCase
 
     private function getAuthorizationController(Session $session, OEHttpKernel $kernel): AuthorizationController
     {
-        $authController = new AuthorizationController($session, $kernel, true);
-        $authController->setSystemLogger($this->createMock(LoggerInterface::class));
+        $authController = new AuthorizationController(
+            session: $session,
+            kernel: $kernel,
+            providerForm: true,
+            logger: $this->createMock(LoggerInterface::class)
+        );
         return $authController;
     }
 

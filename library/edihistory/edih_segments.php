@@ -58,7 +58,6 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
 {
     //
     $str_html = '';
-    $err_ar = [];
     //
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         // debug
@@ -355,14 +354,6 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     } else {
         $erstn = '';
         $erseg = [];
-    }
-
-    //
-    if ($err_seg) {
-        $er = edih_errseg_parse($err_seg);
-        if (is_array($er) && count($er)) {
-            $err_ar = $er;
-        }
     }
 
     //
@@ -832,7 +823,6 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     $loopid = "0";
     $lx_ct = 0;
     $hasst = false;
-    $err_ar = [];
     $idx = 0;
     $stsegct = 0;
     $stn = '';

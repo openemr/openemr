@@ -157,6 +157,7 @@
         "shipmonk/phpstan-baseline-per-identifier": "^2.3",
         "slevomat/coding-standard": "^8.28",
         "squizlabs/php_codesniffer": "^4.0",
+        "symfony/mime": "^7.3",
         "symfony/panther": "^2.0"
     },
     "repositories": [
@@ -196,7 +197,8 @@
     "autoload-dev": {
         "psr-4": {
             "OpenEMR\\": "tests",
-            "OpenEMR\\Release\\": "tools/release/src"
+            "OpenEMR\\Release\\": "tools/release/src",
+            "OpenEMR\\Tests\\Acceptance\\": "tests/Acceptance"
         }
     },
     "config": {
@@ -277,6 +279,7 @@
         }
     },
     "scripts": {
+        "acceptance": "phpunit -c tests/Acceptance/phpunit.acceptance.xml",
         "checks": [
             "composer validate --strict",
             "composer normalize --dry-run"
