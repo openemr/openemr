@@ -1232,56 +1232,6 @@ function csv_table_header($file_type, $csv_type)
     }
 }
 
-/*
-function csv_files_header($file_type, $csv_type) {
-    //
-    $tp = csv_file_type($type);
-    if (!$tp) {
-        csv_edihist_log('csv_files_header: incorrect type '.$file_type);
-        return false;
-    }
-    if (!strpos('|file|claim', $csv_type) ) {
-        csv_edihist_log('csv_files_header error: incorrect csv type '.$csv_type);
-        return false;
-    }
-    //
-    $ft = strpos('|277', $file_type) ? 'f277' : $file_type;
-    $ft = strpos('|835', $file_type) ? 'era' : $ft;
-    $ft = strpos('|837', $file_type) ? 'batch' : $ft;
-    $ft = strpos('|999|997|ack|ta1', $file_type) ? 'f997' : $ft;
-    //
-    $csv_hd_ar = array();
-    // dataTables: | 'date' | 'file_name (link)' | 'file_text (link fmt)' | 'claim_ct' | 'reject_ct' |
-    $csv_hd_ar['ack']['file'] = array('Date', 'FileName', 'isa13', 'ta1ctrl', 'Code');
-    $csv_hd_ar['ebr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
-    $csv_hd_ar['ibr']['file'] = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch');
-    //
-    // dataTables: | 'date' | 'file_name (link)' | 'file_text (link fmt)' | 'claim_ct' | 'partner' |
-    $csv_hd_ar['batch']['file'] = array('Date', 'FileName', 'Ctn_837', 'claim_ct', 'x12_partner');
-    $csv_hd_ar['ta1']['file'] =   array('Date', 'FileName', 'Ctn_ta1', 'ta1ctrl', 'Code');
-    $csv_hd_ar['f997']['file'] =  array('Date', 'FileName', 'Ctn_999', 'ta1ctrl', 'RejCt');
-    $csv_hd_ar['f277']['file'] =  array('Date', 'FileName', 'Ctn_277', 'Accept', 'AccAmt', 'Reject', 'RejAmt');
-    $csv_hd_ar['f270']['file'] =  array('Date', 'FileName', 'Ctn_270', 'claim_ct', 'x12_partner');
-    $csv_hd_ar['f271']['file'] =  array('Date', 'FileName', 'Ctn_271', 'claim_ct', 'Denied', 'Payer');
-    $csv_hd_ar['era']['file'] =   array('Date', 'FileName', 'Trace', 'claim_ct', 'Denied', 'Payer');
-    //
-    // dataTables: | 'pt_name' | 'svc_date' | 'clm01 (link clm)' | 'status (mouseover)' | b f t (links to files) | message (mouseover) |
-    $csv_hd_ar['ebr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
-    $csv_hd_ar['ibr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
-    $csv_hd_ar['dpr']['claim'] = array('PtName','SvcDate', 'clm01', 'Status', 'Batch', 'FileName', 'Payer');
-    //
-    // dataTables: | 'pt_name' | 'svc_date' | 'clm01 (link clm)' | 'status (mouseover)' | 'bht03_837 (link rsp)' | message (mouseover) |
-    $csv_hd_ar['batch']['claim'] = array('PtName', 'SvcDate', 'clm01', 'InsLevel', 'Ctn_837', 'File_837', 'Fee', 'PtPaid', 'Provider' );
-    $csv_hd_ar['f997']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'ak_num', 'File_997', 'Ctn_837', 'err_seg');
-    $csv_hd_ar['f277']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_277', 'File_277', 'payer_name', 'claim_id', 'bht03_837');
-    $csv_hd_ar['f270']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'InsLevel', 'st_270', 'File_270', 'payer_name', 'bht03_270');
-    $csv_hd_ar['f271']['claim'] =  array('PtName', 'SvcDate', 'clm01', 'Status', 'st_271', 'File_271', 'payer_name', 'bht03_270');
-    $csv_hd_ar['era']['claim'] =   array('PtName', 'SvcDate', 'clm01', 'Status', 'trace', 'File_835', 'claimID', 'Pmt', 'PtResp', 'Payer');
-    //
-    return $csv_hd_ar[$ft][$csv_type];
-}
-*/
-
 /**
  * adapted from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/
  *
