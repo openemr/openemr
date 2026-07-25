@@ -206,30 +206,37 @@ class AuthorizationLogoutTest extends TestCase
         $uriA = 'https://dcr-multi-a.example';
         $uriB = 'https://dcr-multi-b.example';
 
-        $reg = $this->http->post('/oauth2/default/registration', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'body' => (string) json_encode([
-                'application_type' => 'private',
-                'redirect_uris' => ['https://dcr-multi.example/cb'],
-                'post_logout_redirect_uris' => [$uriA, $uriB],
-                'client_name' => 'DCR multi-URI logout test',
-                'token_endpoint_auth_method' => 'client_secret_post',
-                'contacts' => ['multi@test.example'],
-                'scope' => 'openid',
-            ]),
-        ]);
-        $this->assertSame(200, $reg->getStatusCode(), 'DCR registration should succeed');
-        $clientData = json_decode((string) $reg->getBody(), true);
-        $this->assertIsArray($clientData);
-        $this->assertArrayHasKey('client_id', $clientData);
-        $this->assertIsString($clientData['client_id']);
-        $dcrClientId = $clientData['client_id'];
-
+        $dcrClientId = null;
         try {
+            $reg = $this->http->post('/oauth2/default/registration', [
+                'headers' => ['Content-Type' => 'application/json'],
+                'body' => (string) json_encode([
+                    'application_type' => 'private',
+                    'redirect_uris' => ['https://dcr-multi.example/cb'],
+                    'post_logout_redirect_uris' => [$uriA, $uriB],
+                    'client_name' => 'DCR multi-URI logout test',
+                    'token_endpoint_auth_method' => 'client_secret_post',
+                    'contacts' => ['multi@test.example'],
+                    'scope' => 'openid',
+                ]),
+            ]);
+            // Capture the client_id best-effort before any assertion, so the
+            // finally cleanup runs even if a response-shape assertion below fails.
+            $clientData = json_decode((string) $reg->getBody(), true);
+            if (is_array($clientData) && isset($clientData['client_id']) && is_string($clientData['client_id'])) {
+                $dcrClientId = $clientData['client_id'];
+            }
+
+            $this->assertSame(200, $reg->getStatusCode(), 'DCR registration should succeed');
+            $this->assertIsArray($clientData);
+            $this->assertArrayHasKey('client_id', $clientData);
+            $this->assertIsString($clientData['client_id']);
+            $verifiedClientId = $clientData['client_id'];
+
             foreach ([$uriA, $uriB] as $uri) {
                 $response = $this->http->get(self::LOGOUT_ENDPOINT, [
                     'query' => [
-                        'id_token_hint' => $this->makeUnsignedJwt('nobody', '', $dcrClientId),
+                        'id_token_hint' => $this->makeUnsignedJwt('nobody', '', $verifiedClientId),
                         'post_logout_redirect_uri' => $uri,
                         'state' => 'abc',
                     ],
@@ -242,14 +249,16 @@ class AuthorizationLogoutTest extends TestCase
                 );
             }
         } finally {
-            QueryUtils::sqlStatementThrowException(
-                'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
-                [$dcrClientId]
-            );
-            QueryUtils::sqlStatementThrowException(
-                'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
-                [$dcrClientId]
-            );
+            if ($dcrClientId !== null) {
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `oauth_trusted_user` WHERE `client_id` = ?',
+                    [$dcrClientId]
+                );
+                QueryUtils::sqlStatementThrowException(
+                    'DELETE FROM `oauth_clients` WHERE `client_id` = ?',
+                    [$dcrClientId]
+                );
+            }
         }
     }
 

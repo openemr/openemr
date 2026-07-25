@@ -159,7 +159,7 @@ class AuthorizationLogoutFullFlowTest extends TestCase
         [$loginCsrf, $loginAction] = $this->parseLoginForm(
             new Crawler((string) $loginPage->getBody()),
             'login page',
-            ['csrf_token_form', 'username', 'password', 'user_role']
+            ['csrf_token_form', 'username', 'password', 'email', 'persist_login', 'user_role']
         );
 
         $postLogin = $http->post($this->baseUrl . $loginAction, [
@@ -269,7 +269,7 @@ class AuthorizationLogoutFullFlowTest extends TestCase
         // user record for this (client_id, sub) pair, the refresh_token — which is
         // scoped to that trust record — should be rejected. If it still works, the
         // logout leaves a live credential in the wild that survives session teardown.
-        if (isset($tokens['refresh_token']) && is_string($tokens['refresh_token'])) {
+        if (isset($tokens['refresh_token']) && is_string($tokens['refresh_token']) && $tokens['refresh_token'] !== '') {
             $refreshResp = $this->buildClient()->post($this->baseUrl . '/oauth2/default/token', [
                 'form_params' => [
                     'grant_type' => 'refresh_token',
@@ -313,10 +313,12 @@ class AuthorizationLogoutFullFlowTest extends TestCase
     /**
      * Parse `<form id="userLogin">` and return its CSRF token + action URL.
      *
-     * @param list<string> $expectedFields  input `name` attributes the caller is about to POST.
-     *        Asserting these are actually declared on the form turns silent template drift
-     *        (e.g. consent moving to JS-populated fields) into a clear failure instead of
-     *        a POST that quietly succeeds against fields the server no longer reads.
+     * @param list<string> $expectedFields  named form-control fields (input, button,
+     *        select, textarea) the caller is about to POST. Asserting each is actually
+     *        declared as a submittable control turns silent template drift (e.g. consent
+     *        moving to JS-populated fields, or a field becoming a non-submittable
+     *        `<div>` with the same name) into a clear failure instead of a POST that
+     *        quietly succeeds against fields the server no longer reads.
      * @return array{string, string} [csrf_token_form value, form action URL]
      */
     private function parseLoginForm(Crawler $crawler, string $where, array $expectedFields = []): array
@@ -332,13 +334,19 @@ class AuthorizationLogoutFullFlowTest extends TestCase
         $this->assertNotSame('', $action, "Empty form action on $where");
 
         foreach ($expectedFields as $field) {
-            $matches = $forms->first()->filterXPath('.//*[@name="' . $field . '"]');
+            $matches = $forms->first()->filterXPath(
+                './/input[@name="' . $field . '"]'
+                . ' | .//button[@name="' . $field . '"]'
+                . ' | .//select[@name="' . $field . '"]'
+                . ' | .//textarea[@name="' . $field . '"]'
+            );
             $this->assertGreaterThan(
                 0,
                 $matches->count(),
-                "Form on $where does not declare an input named '$field' — the test is about to POST it,"
-                . ' but the server-side template no longer renders it. Update the test to match'
-                . ' the new form shape, or fix the template.'
+                "Form on $where does not declare a submittable control named '$field' — the test is"
+                . ' about to POST it, but the server-side template no longer renders it as an input,'
+                . ' button, select, or textarea. Update the test to match the new form shape,'
+                . ' or fix the template.'
             );
         }
 
