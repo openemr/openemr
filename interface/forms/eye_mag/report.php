@@ -1440,7 +1440,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                 <td><?php echo text($ODLT); ?></td>
                                 <td><?php echo text($ODW2W); ?></td>
                                 <td><?php echo text($ODECL); ?></td>
-                                <!-- <td><input type=text id="pend" name="pend"  value="<?php echo text($pend); ?>"></td> -->
+                                <!-- <td><input type=text id="pend" name="pend"  value="<?php echo attr($pend); ?>"></td> -->
                             </tr>
                             <tr>
                                 <td><b><?php echo xlt('OS{{left eye}}'); ?>:</b></td>
@@ -1450,7 +1450,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                 <td><?php echo text($OSLT); ?></td>
                                 <td><?php echo text($OSW2W); ?></td>
                                 <td><?php echo text($OSECL); ?></td>
-                                <!--  <td><input type=text id="pend" name="pend" value="<?php echo text($pend); ?>"></td> -->
+                                <!--  <td><input type=text id="pend" name="pend" value="<?php echo attr($pend); ?>"></td> -->
                             </tr>
                         </table>
                     </td>

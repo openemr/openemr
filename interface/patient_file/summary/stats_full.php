@@ -380,7 +380,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <button type="button" class="btn btn-outline-text btn-sm collapsed" data-toggle="collapse" data-target="#details_<?php echo attr($row['id']); ?>" aria-expanded="false" aria-controls="details_<?php echo attr($row['id']); ?>"><span aria-hidden="true" class="fa fa-fw fa-chevron-right"></span></button>
                                         <button type="button" class="btn btn-outline-text btn-sm editenc" data-issue-id="<?php echo attr($row['id']); ?>"><span aria-hidden="true" class="fa fa-fw fa-link"></span></button>
                                     </div>
-                                    <a href="#" data-issue-id="<?php echo attr($row['id']); ?>" class="font-weight-bold issue_title" data-toggle="tooltip" data-placement="right" title="<?php echo text(($diag ?? '') . ": " . ($codedesc ?? '')); ?>">
+                                    <a href="#" data-issue-id="<?php echo attr($row['id']); ?>" class="font-weight-bold issue_title" data-toggle="tooltip" data-placement="right" title="<?php echo attr(($diag ?? '') . ": " . ($codedesc ?? '')); ?>">
                                         <?php echo text($disptitle); ?>
                                     </a>&nbsp;(<?php echo $statusCompute; ?><?php echo (!$resolved && $outcome) ? ", $outcome" : ""; ?>)
                                     <?php
@@ -413,7 +413,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php if ($row['begdate']) : ?>
                                             <div class="pr-3">
                                                 <div class="font-weight-bold "><?php echo xlt("Start Date"); ?></div>
-                                                <div class="" title="<?php echo text($fullBegDate); ?>"><?php echo text($shortBegDate); ?></div>
+                                                <div class="" title="<?php echo attr($fullBegDate); ?>"><?php echo text($shortBegDate); ?></div>
                                             </div>
                                         <?php endif; ?>
                                         <?php if ($row['enddate']) : ?>
