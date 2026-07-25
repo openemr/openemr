@@ -190,7 +190,11 @@ files:
 # remove rel-820 from these exclude-branches lists.
 - path: .github/workflows/acceptance-docker.yml
   exclude-branches: [rel-820, rel-800, rel-704]
+- path: .github/workflows/acceptance-package.yml
+  exclude-branches: [rel-820, rel-800, rel-704]
 - path: .github/docker/acceptance-docker-compose.yml
+  exclude-branches: [rel-820, rel-800, rel-704]
+- path: .github/docker/acceptance-package-compose.yml
   exclude-branches: [rel-820, rel-800, rel-704]
 - path: tests/Acceptance/**
   exclude-branches: [rel-820, rel-800, rel-704]
