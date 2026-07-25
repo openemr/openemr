@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance;
 
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
+use OpenEMR\Tests\Acceptance\Support\LoginFlow;
 use OpenEMR\Tests\Acceptance\Support\ResponseHeaders;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -64,58 +65,17 @@ final class InstallTest extends TestCase
 
     public function testAdminCanLogInAndReachAuthenticatedLandingPage(): void
     {
-        // Full happy-path login: POST admin/pass to the login endpoint,
-        // assert we get the post-login redirect (302 → /interface/main/
-        // tabs/main.php?token_main=...). token_main is a per-session
-        // anti-CSRF token; its presence in the redirect URL is the
-        // definitive signal that the credentials were accepted and a
-        // session was minted.
-        $browser = ArtifactBrowser::create();
-        $browser->request(
-            'POST',
-            ArtifactBrowser::baseUrl() . '/interface/main/main_screen.php?auth=login&site=default',
-            [
-                'authUser' => 'admin',
-                'clearPass' => 'pass',
-                'languageChoice' => '1',
-                'new_login_session_management' => '1',
-            ],
-        );
-        $response = $browser->getResponse();
-
-        self::assertSame(
-            302,
-            $response->getStatusCode(),
-            'Login POST should return 302 with the authenticated-landing redirect; 200 with the login form re-rendered = credentials rejected',
-        );
-
-        $location = ResponseHeaders::location($response);
-        self::assertStringContainsString(
-            '/interface/main/tabs/main.php',
-            $location,
-            'Login should redirect to the authenticated landing page',
-        );
-        self::assertMatchesRegularExpression(
-            '/token_main=[A-Za-z0-9]+/',
-            $location,
-            'The post-login redirect must carry a per-session token_main anti-CSRF token — its presence proves the session was minted',
-        );
-
-        // Actually FOLLOW the redirect on the same BrowserKit instance
-        // (session cookie carried automatically) and verify the landing
-        // page actually loads. A 401/403 here would mean tabs/main.php
-        // rejected the session for some reason (token_main mismatch,
-        // session storage broken) — the location-header assertions alone
-        // wouldn't catch that.
-        $landingUrl = str_starts_with($location, 'http')
-            ? $location
-            : ArtifactBrowser::baseUrl() . '/' . ltrim($location, '/');
-        $browser->request('GET', $landingUrl);
-        $landingResponse = $browser->getResponse();
-        self::assertSame(
-            200,
-            $landingResponse->getStatusCode(),
-            'GET on the authenticated landing URL must return 200; 401/403 would indicate the session was rejected despite the login redirect',
+        // Full happy-path login: POST admin/pass, assert the 302 has
+        // token_main in the Location, follow the redirect, assert 200.
+        // Implementation lives in Support/LoginFlow — shared with
+        // UpgradeIntegrityTest and any future authenticated tests so
+        // the exact-form-field-shape (authUser + clearPass +
+        // languageChoice + new_login_session_management) stays in one
+        // place.
+        LoginFlow::loginAsAdmin(
+            ArtifactBrowser::create(),
+            ArtifactBrowser::baseUrl(),
+            'fresh-install',
         );
     }
 }
