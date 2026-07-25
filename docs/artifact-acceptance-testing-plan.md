@@ -326,7 +326,7 @@ Shared harness compose files under `.github/docker/`:
 
 ## Phased plan
 
-**Rollout order**: `1 → 2 → 2.5 → 3 → 4 → 5 → 6`. Phases execute in
+**Rollout order**: `1 → 2 → 2.5 → 3 → 4 → 5 → 6 → 7`. Phases execute in
 numeric order. Phase 6 was added 2026-07-24 as a scoped-out follow-up
 to Phase 5 — Phase 5 alone doesn't unlock full-fidelity PR-image
 validation (see [Phase 5](#phase-5--retire-the-tests-in-image-dependency)
@@ -627,10 +627,74 @@ resulting image contains the PR's source (spot-check via
 `docker exec ... cat interface/<file-touched-in-PR>`). Roughly 1
 week including design + integration.
 
-**Total remaining calendar (from 2026-07-24 baseline):** ~5-6
-weeks focused work through Phase 6. No hard deadline. rel-830 (~2
-weeks out) gets the Phase 1+2+2.5 baseline once 2.5 lands;
-Phases 3+4+5+6 land into a rel-830-shipped codebase.
+### Phase 7 — Release-lifecycle trigger integration
+
+Phases 1-6 build the acceptance harness + wire the "always-on"
+triggers (workflow_dispatch + daily schedule + push/PR on the
+acceptance surface + PR-Dockerfile auto-fire). That trigger set
+already catches most issues during ongoing development — no
+release-specific integration is *required* for the harness to be
+useful.
+
+Phase 7 layers on the two release-lifecycle-specific trigger
+points that give the end goal ("validate the artifact that will
+actually ship, right when it's about to ship or has just shipped"):
+
+**7a. Release-prep PR triggers.** The release-prep conductor
+opens 2 PRs per release event (release-prep PR on `rel-*` +
+finalize PR on master). Wire acceptance to fire on those PRs'
+push events, validating the artifacts the release will ship:
+
+- Docker path: extend Phase 2.5's `build_locally` auto-fire to
+  match release-prep-PR changes (version.php bump; the conductor
+  rarely touches Dockerfile), so `fresh-install-to` + `upgrade`
+  scenarios run against the PR-built image (which represents the
+  about-to-ship image).
+- Tarball path: build a tarball from the PR's checkout via
+  `git archive HEAD` and validate it. Analogous to Phase 2.5 for
+  docker; may end up as its own "Phase 3.5" scope. Phase 3's
+  workflow can accept a `local_tarball: bool` input mirroring
+  Phase 2.5's shape.
+
+The Phase 4 sub-item "Consider making acceptance runs required
+checks on release-prep PRs" folds into this: once 7a fires on
+release-prep PRs and proves stable, promoting to required check
+is a small branch-protection change.
+
+**7b. Release-event triggers.** Fire acceptance against the
+just-shipped artifact within minutes of publish, catching
+"artifact published broken, users hit it before daily schedule
+fires":
+
+- Add `repository_dispatch` listener for `openemr-tag` events
+  to both `acceptance-docker.yml` and `acceptance-package.yml`
+- Dispatch payload includes the version number → workflows
+  pull that Docker Hub tag / GitHub release tarball and run
+  the full matrix against it
+- Difference from daily schedule: latency (minutes vs 24h),
+  targeting (specific just-shipped version vs floating `latest`),
+  guaranteed fire (schedule can miss if runner capacity is
+  short)
+
+**Why defer to last:** the harness's existing trigger set
+(daily schedule + push/PR on acceptance surface + PR-Dockerfile
+auto-fire) already catches most issues during ongoing
+development. Release-lifecycle integration is a *latency* +
+*targeting* improvement, not a coverage improvement — worth
+adding once the underlying harness is proven stable, not before.
+Also naturally builds on Phase 6 (full-fidelity PR-image
+validation) if that changes how the release-prep PR image is
+constructed.
+
+Exit criterion: release-prep PRs auto-fire the acceptance
+matrix against the PR's artifacts; `openemr-tag` events
+trigger a fresh acceptance run against the just-published
+Docker Hub tag + GitHub release tarball. Roughly 1 week.
+
+**Total remaining calendar (from 2026-07-25 baseline, Phases 1+2+2.5
++3 all in flight or landed):** ~5-6 weeks focused work through Phase
+7. No hard deadline. rel-830 (~2 weeks out) gets the Phase 1+2+2.5+3
+baseline; Phases 4+5+6+7 land into a rel-830-shipped codebase.
 
 ## Test-coverage philosophy
 
@@ -902,3 +966,15 @@ in acceptance."
   Docker artifact skips these tests (auto-install via env vars
   means Docker users never see the wizard). Runs only against the
   tarball acceptance workflow.
+
+- **2026-07-25** — Added Phase 7 for release-lifecycle trigger
+  integration. Two hookup points: (a) release-prep-PR triggers
+  fire acceptance against the artifacts the release will ship,
+  and (b) release-event triggers on `openemr-tag` fire acceptance
+  against the just-published Docker Hub tag + GitHub release
+  tarball. Deferred to last per Brady: the harness's existing
+  always-on triggers (daily schedule + push/PR on acceptance
+  surface + PR-Dockerfile auto-fire) already catch most issues
+  during ongoing development — Phase 7 is a latency + targeting
+  improvement, not a coverage improvement, worth adding once the
+  underlying harness is proven stable.
