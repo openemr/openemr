@@ -417,7 +417,7 @@ scratch PR that intentionally touches the Dockerfile (e.g. adds a
 no-op comment), demonstrating pre-merge PR-image validation works
 against the current (hybrid) shape.
 
-### Phase 3 — Package acceptance workflow
+### Phase 3 — Package acceptance workflow — **SHIPPED 2026-07-25 (#13165)**
 
 - Design the generic-stack compose file for tarball testing
   (`.github/docker/acceptance-package-compose.yml` — mariadb +
@@ -433,6 +433,22 @@ at the PR's checkout produces the exact tarball that would ship.
 
 Exit criterion: workflow succeeds against an 8.0.0 → 8.2.0 tarball
 upgrade path. Roughly 1 week.
+
+**Shipped scope notes:**
+- Fresh-install scenario runs on every push/PR/schedule against
+  `TO_VERSION` (default 8.2.0).
+- Upgrade scenario gated on `workflow_dispatch` until 8.3.0 releases —
+  no earlier version has a shipped `.tar.gz` asset (v8_1_0 was cut but
+  never shipped; patch releases only shipped `.zip`).
+- Install choreography uses a standalone `install-helper.php` invoked
+  via `docker compose exec` (not `/root/devtools dev-install` — that
+  path depends on `/root/auto_configure.php` which the flex image's
+  `openemr.sh` removes at boot with `EMPTY=yes`).
+- Three guard layers on the helper: outside-webroot mount +
+  `PHP_SAPI !== 'cli'` + `OPENEMR_ENABLE_ACCEPTANCE_HELPER=1` env
+  opt-in (matches `contrib/util/installScripts/InstallerAuto.php`).
+- `.github/docker/` added to dependabot; mariadb + flex images
+  sha-pinned.
 
 ### Phase 4 — Broaden test coverage
 
