@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance;
 
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
-use OpenEMR\Tests\Acceptance\Support\ResponseHeaders;
+use OpenEMR\Tests\Acceptance\Support\LoginFlow;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -53,55 +53,16 @@ final class UpgradeIntegrityTest extends TestCase
 {
     public function testAdminLoginStillWorksAfterUpgrade(): void
     {
-        // Reuses the exact login flow InstallTest exercises against
-        // a fresh artifact. Success signal is identical: 302 to
-        // `/interface/main/tabs/main.php?token_main=<hex>`, then a
-        // GET on the landing page returns 200. If sql_upgrade.php
-        // broke the users table, sessions, or the token_main
-        // machinery, the assertions fail here.
-        $browser = ArtifactBrowser::create();
-        $browser->request(
-            'POST',
-            ArtifactBrowser::baseUrl() . '/interface/main/main_screen.php?auth=login&site=default',
-            [
-                'authUser' => 'admin',
-                'clearPass' => 'pass',
-                'languageChoice' => '1',
-                'new_login_session_management' => '1',
-            ],
-        );
-        $response = $browser->getResponse();
-
-        self::assertSame(
-            302,
-            $response->getStatusCode(),
-            'Login POST should return 302 after upgrade; 200 with login form re-rendered = users table or auth-token machinery broken by the upgrade',
-        );
-
-        $location = ResponseHeaders::location($response);
-        self::assertStringContainsString(
-            '/interface/main/tabs/main.php',
-            $location,
-            'Post-upgrade login should redirect to the authenticated landing page',
-        );
-        self::assertMatchesRegularExpression(
-            '/token_main=[A-Za-z0-9]+/',
-            $location,
-            'Post-upgrade token_main must still be minted -- absence indicates the session machinery regressed',
-        );
-
-        // Follow through: guards against the case where the redirect
-        // looks valid but the actual landing page 401s/403s due to
-        // a session-state regression the header alone wouldn't catch.
-        $landingUrl = str_starts_with($location, 'http')
-            ? $location
-            : ArtifactBrowser::baseUrl() . '/' . ltrim($location, '/');
-        $browser->request('GET', $landingUrl);
-        $landingResponse = $browser->getResponse();
-        self::assertSame(
-            200,
-            $landingResponse->getStatusCode(),
-            'GET on the authenticated landing URL must return 200 after upgrade; 401/403 = session accepted by login endpoint but rejected by main.php',
+        // Same happy-path login as InstallTest — shared implementation
+        // in Support/LoginFlow keeps both scenarios in lockstep on the
+        // exact login form contract. The failure-context prefix routes
+        // any assertion failure back at the post-upgrade scenario so
+        // it's clear this is an upgrade regression, not a fresh-install
+        // regression.
+        LoginFlow::loginAsAdmin(
+            ArtifactBrowser::create(),
+            ArtifactBrowser::baseUrl(),
+            'post-upgrade',
         );
     }
 }
