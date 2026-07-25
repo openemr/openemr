@@ -20,15 +20,9 @@
 /**
  * Create summary html string for an x12 835 claim payment
  *
- * @param array $trans_array
- * @param edih_271_codes $codes27x
- * @param edih_835_codes $codes835
  * @param array{e: string, s: string, r?: string} $delimiters
- * @param string $fname
- *
- * @return string
  */
-function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $fname = '')
+function edih_835_clp_summary(array $trans_array, edih_271_codes $codes27x, edih_835_codes $codes835, array $delimiters, string $fname = ''): string
 {
     // NM1 CPL
     $str_html = "";
@@ -56,7 +50,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     }
 
     //
-    $fn = ($fname) ? trim((string) $fname) : "";
+    $fn = ($fname) ? trim($fname) : "";
     //
     $cd27x = $codes27x;
     $cd835 = $codes835;
@@ -263,15 +257,9 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
 /**
  * Create html string for an x12 835 claim payment
  *
- * @param array $trans_array
- * @param edih_271_codes $codes27x
- * @param edih_835_codes $codes835
  * @param array{e: string, s: string, r?: string} $delimiters
- * @param string $fname
- *
- * @return string
  */
-function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimiters, $fname = '')
+function edih_835_transaction_html(array $trans_array, edih_271_codes $codes27x, edih_835_codes $codes835, array $delimiters, string $fname = ''): string
 {
     //
     $str_html = "";
@@ -299,7 +287,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     }
 
     //
-    $fn = ($fname) ? trim((string) $fname) : "";
+    $fn = ($fname) ? trim($fname) : "";
     //
     $cd27x = $codes27x;
     $cd835 = $codes835;
@@ -815,16 +803,11 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
 /**
  * Create an HTML rendition of the 835 check payment transaction.
  *
- *
- * @param array $segments
- * @param edih_271_codes $codes27x
- * @param edih_835_codes $codes835
  * @param array{e: string, s: string, r?: string} $delimiters
- * @param string $fname
  *
  * @return string     HTML table
  */
-function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fname = '')
+function edih_835_payment_html(array $segments, edih_271_codes $codes27x, edih_835_codes $codes835, array $delimiters, string $fname = ''): string
 {
     //
     $str_html = '';
@@ -834,7 +817,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     $ds = $delimiters['s'];
     $dr = $delimiters['r'] ?? '';
     //
-    $fn = ($fname) ? trim((string) $fname) : "";
+    $fn = ($fname) ? trim($fname) : "";
     //
     $cd27x = $codes27x;
     $cd835 = $codes835;
