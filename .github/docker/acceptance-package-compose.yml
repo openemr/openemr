@@ -33,7 +33,7 @@
 # ACCEPTANCE_ARTIFACT_URL for the test suite: http://localhost:8680
 services:
   mysql:
-    image: mariadb:11.8.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
+    image: mariadb:11.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
     command: ['mariadbd', '--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
