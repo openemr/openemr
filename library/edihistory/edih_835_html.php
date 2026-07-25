@@ -21,9 +21,9 @@
  * Create summary html string for an x12 835 claim payment
  *
  * @param array $trans_array
- * @param mixed $codes27x
- * @param mixed $codes835
- * @param array $delimiters
+ * @param edih_271_codes $codes27x
+ * @param edih_835_codes $codes835
+ * @param array{e: string, s: string, r?: string} $delimiters
  * @param string $fname
  *
  * @return string
@@ -32,7 +32,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
 {
     // NM1 CPL
     $str_html = "";
-    if (is_array($trans_array) && count($trans_array)) {
+    if (count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
             $clp_ar = [];
             $clp_ar[] = $trans_array;
@@ -45,8 +45,8 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
         return $str_html;
     }
 
-    $de = $delimiters['e'] ?? "";
-    $ds = $delimiters['s'] ?? "";
+    $de = $delimiters['e'];
+    $ds = $delimiters['s'];
     $dr = $delimiters['r'] ?? "";
     //
     if (!$de || !$ds) {
@@ -58,26 +58,8 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     //
     $fn = ($fname) ? trim((string) $fname) : "";
     //
-    // get the code objects right
-    $cd835 = $cd27x = '';
-    if ('edih_835_codes' == $codes835::class) {
-        $cd835 = $codes835;
-    } elseif ('edih_835_codes' == $codes27x::class) {
-        $cd835 = $codes27x;
-    }
-
-    if ('edih_271_codes' == $codes27x::class) {
-        $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == $codes835::class) {
-        $cd27x = $codes835;
-    }
-
-    if (!$cd835 || !$cd27x) {
-        csv_edihist_log('edih_835_payment_html: invalid code class argument');
-        $str_html .= "<p>invalid code class argument</p>" . PHP_EOL;
-        return $str_html;
-    }
-
+    $cd27x = $codes27x;
+    $cd835 = $codes835;
     //
     $tblid = "";
     $capstr = "";
@@ -282,9 +264,9 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
  * Create html string for an x12 835 claim payment
  *
  * @param array $trans_array
- * @param mixed $codes27x
- * @param mixed $codes835
- * @param array $delimiters
+ * @param edih_271_codes $codes27x
+ * @param edih_835_codes $codes835
+ * @param array{e: string, s: string, r?: string} $delimiters
  * @param string $fname
  *
  * @return string
@@ -293,7 +275,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
 {
     //
     $str_html = "";
-    if (is_array($trans_array) && count($trans_array)) {
+    if (count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
             $clp_ar = [];
             $clp_ar[] = $trans_array;
@@ -306,8 +288,8 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         return $str_html;
     }
 
-    $de = $delimiters['e'] ?? "";
-    $ds = $delimiters['s'] ?? "";
+    $de = $delimiters['e'];
+    $ds = $delimiters['s'];
     $dr = $delimiters['r'] ?? "";
     //
     if (!$de || !$ds) {
@@ -319,26 +301,8 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     //
     $fn = ($fname) ? trim((string) $fname) : "";
     //
-    // get the code objects right
-    $cd835 = $cd27x = '';
-    if ('edih_835_codes' == $codes835::class) {
-        $cd835 = $codes835;
-    } elseif ('edih_835_codes' == $codes27x::class) {
-        $cd835 = $codes27x;
-    }
-
-    if ('edih_271_codes' == $codes27x::class) {
-        $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == $codes835::class) {
-        $cd27x = $codes835;
-    }
-
-    if (!$cd835 || !$cd27x) {
-        csv_edihist_log('edih_835_payment_html: invalid code class argument');
-        $str_html .= "<p>invalid code class argument</p>" . PHP_EOL;
-        return $str_html;
-    }
-
+    $cd27x = $codes27x;
+    $cd835 = $codes835;
     //
     $str_html = "";
     //
@@ -853,9 +817,9 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
  *
  *
  * @param array $segments
- * @param mixed $codes27x
- * @param mixed $codes835
- * @param array $delimiters
+ * @param edih_271_codes $codes27x
+ * @param edih_835_codes $codes835
+ * @param array{e: string, s: string, r?: string} $delimiters
  * @param string $fname
  *
  * @return string     HTML table
@@ -865,46 +829,15 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     //
     $str_html = '';
     $pid = $chk = '';
-    if (is_array($segments) && count($segments)) {
-        $trans_ar = $segments;
-    } else {
-        csv_edihist_log("edih_835_payment_html: invalid segments argument");
-        $str_html .= "<p>invalid segments argument</p>" . PHP_EOL;
-        return $str_html;
-    }
-
-    if (is_array($delimiters) && count($delimiters)) {
-        $de = $delimiters['e'];
-        $ds = $delimiters['s'];
-        $dr = $delimiters['r'];
-    } else {
-        csv_edihist_log("edih_835_payment_html: invalid delimiters argument");
-        $str_html .= "<p>invalid delimiters argument</p>" . PHP_EOL;
-        return $str_html;
-    }
-
+    $trans_ar = $segments;
+    $de = $delimiters['e'];
+    $ds = $delimiters['s'];
+    $dr = $delimiters['r'] ?? '';
     //
     $fn = ($fname) ? trim((string) $fname) : "";
     //
-    // get the code objects right
-    $cd835 = $cd27x = '';
-    if ('edih_835_codes' == $codes835::class) {
-        $cd835 = $codes835;
-    } elseif ('edih_835_codes' == $codes27x::class) {
-        $cd835 = $codes27x;
-    }
-
-    if ('edih_271_codes' == $codes27x::class) {
-        $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == $codes835::class) {
-        $cd27x = $codes835;
-    }
-
-    if (!$cd835 || !$cd27x) {
-        csv_edihist_log('edih_835_payment_html: invalid code class argument');
-        $str_html .= "<p>invalid code class argument</p>" . PHP_EOL;
-        return $str_html;
-    }
+    $cd27x = $codes27x;
+    $cd835 = $codes835;
 
     //
     // collect all strings into this variable
