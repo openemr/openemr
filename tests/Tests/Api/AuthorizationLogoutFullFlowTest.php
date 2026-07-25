@@ -42,6 +42,19 @@ class AuthorizationLogoutFullFlowTest extends TestCase
     {
         $this->baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
 
+        // Two-part env check: a workflow that knows its runner cannot handle
+        // the OAuth Secure-cookie flow sets OPENEMR_ALLOW_OAUTH_HTTPS_SKIP=1
+        // explicitly (see .github/workflows/test-frontcontroller.yml). On any
+        // other runner we probe the Server header — if it's missing there,
+        // it means a runner we thought could handle the flow has silently
+        // dropped its webserver identity, and we hard-fail rather than let
+        // that regression turn into a green skipped test.
+        if (getenv('OPENEMR_ALLOW_OAUTH_HTTPS_SKIP') === '1') {
+            $this->markTestSkipped(
+                'Skipping per OPENEMR_ALLOW_OAUTH_HTTPS_SKIP=1 — this runner is known to be'
+                . ' unable to serve OpenEMR\'s Secure-cookie OAuth session (typically php -S over HTTP).'
+            );
+        }
         $probe = $this->buildClient()->get($this->baseUrl . '/');
         if ($probe->getHeaderLine('Server') === '') {
             $message = 'OAuth flow requires a webserver that carries session cookies with the Secure flag'
@@ -49,7 +62,9 @@ class AuthorizationLogoutFullFlowTest extends TestCase
                 . ' PHP\'s built-in webserver (php -S) or similar stripped-down setup.';
             if (getenv('CI') !== false) {
                 self::fail($message . ' In CI this is a hard failure — a real webserver runner unexpectedly'
-                    . ' stopped emitting the Server header, which would silently disable this test if we only skipped.');
+                    . ' stopped emitting the Server header, which would silently disable this test if we only'
+                    . ' skipped. If this runner is intentionally limited, set OPENEMR_ALLOW_OAUTH_HTTPS_SKIP=1'
+                    . ' in its workflow to opt out explicitly.');
             }
             $this->markTestSkipped($message);
         }
