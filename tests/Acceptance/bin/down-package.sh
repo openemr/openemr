@@ -8,8 +8,17 @@
 #
 # Usage:
 #   tests/Acceptance/bin/down-package.sh [version]
-#     version — optional; if given, removes only /tmp/openemr-acceptance-<version>/
-#               if omitted, removes ALL /tmp/openemr-acceptance-*/ scratch dirs
+#     version — optional; if given, must match ^[0-9]+\.[0-9]+\.[0-9]+$
+#               and only /tmp/openemr-acceptance-<version>/ is removed.
+#               If omitted, ALL /tmp/openemr-acceptance-*/ scratch dirs
+#               are removed. Downloaded tarballs are cleaned via
+#               boot/upgrade's EXIT trap already; this script does not
+#               touch broader /tmp/openemr-*.tar.gz globs (could delete
+#               unrelated files).
+#
+# Exit status: reflects the underlying compose down / rm status —
+# doesn't hide failures behind `|| true`. A non-zero exit means the
+# stack didn't tear down cleanly and might have leaked resources.
 
 set -euo pipefail
 
@@ -20,25 +29,46 @@ cd "${REPO_ROOT}"
 
 echo "==> Tearing down openemr acceptance-package stack"
 
-# TARBALL_DIR must be defined (even to a dummy value) or compose warns
-# and fails to parse the file — the compose file references it in the
-# openemr service's volumes: block. Actual value doesn't matter at
-# teardown time; the containers already exist with their mount baked in.
+# TARBALL_DIR / HELPER_PATH must be defined (even to dummy values) or
+# compose warns and fails to parse the file — the compose file
+# references them in the openemr service's volumes: block. Actual
+# values don't matter at teardown time; containers already exist with
+# mounts baked in.
 export TARBALL_DIR="/dev/null"
+export HELPER_PATH="/dev/null"
+
+# Track the exit status through cleanup steps rather than masking with
+# `|| true`. If compose down or rm fail, propagate to the caller so
+# leaked resources are visible.
+status=0
 
 docker compose \
     -f .github/docker/acceptance-package-compose.yml \
     -p openemr-acceptance-package \
-    down --volumes --remove-orphans || true
+    down --volumes --remove-orphans \
+    || status=$?
 
 if [[ $# -eq 1 ]]; then
-    SCRATCH="/tmp/openemr-acceptance-$1"
+    VERSION="$1"
+    if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "::error::version '${VERSION}' does not match expected format X.Y.Z" >&2
+        exit 2
+    fi
+    SCRATCH="/tmp/openemr-acceptance-${VERSION}"
     echo "==> Removing scratch dir ${SCRATCH}"
-    rm -rf "${SCRATCH}" "/tmp/openemr-$1.tar.gz"
+    rm -rf "${SCRATCH}" || status=$?
 else
     echo "==> Removing all /tmp/openemr-acceptance-*/ scratch dirs"
-    rm -rf /tmp/openemr-acceptance-*/
-    rm -f /tmp/openemr-*.tar.gz
+    # Only match our specifically-prefixed dirs — don't touch
+    # /tmp/openemr-*.tar.gz (which would risk deleting unrelated files
+    # on shared runners). Downloaded tarballs live at mktemp-generated
+    # paths and are cleaned by boot/upgrade's EXIT trap.
+    rm -rf /tmp/openemr-acceptance-*/ || status=$?
+fi
+
+if [[ ${status} -ne 0 ]]; then
+    echo "::error::Teardown encountered errors (exit ${status}); check for leaked containers, volumes, or scratch dirs" >&2
+    exit "${status}"
 fi
 
 echo "==> Teardown complete."

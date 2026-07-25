@@ -15,6 +15,21 @@
  *      expects a /root/auto_configure.php that the flex image's
  *      openemr.sh removes at boot for security when EMPTY=yes)
  *
+ * SECURITY: this file is mounted OUTSIDE the Apache document root by
+ * acceptance-package-compose.yml (at /opt/openemr-acceptance-helper.php,
+ * not inside /var/www/localhost/htdocs/openemr/). Apache cannot serve
+ * it. The CLI guard below is defense-in-depth: even if someone drops
+ * this file into a document root by accident, it refuses to execute
+ * over HTTP.
+ *
+ * Approved DI exception (per CodeRabbit rule
+ * openemr.forbiddenInstantiation): this is a standalone acceptance-
+ * harness bootstrap. Directly constructs the Installer service +
+ * resolves the logger via ServiceContainer::getLogger() because
+ * there's no framework container in scope here — the script is
+ * invoked as `php install-helper.php` under CLI, not through the
+ * app's normal request lifecycle.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -24,17 +39,23 @@
 
 declare(strict_types=1);
 
+// CLI-only guard. Non-CLI invocations (via web server, if the file
+// somehow ends up in a document root) are refused. Matches the
+// defense-in-depth pattern openemr's auto_configure.php uses.
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit("install-helper.php is a CLI-only bootstrap; refusing non-CLI invocation\n");
+}
+
 // Autoload from the mounted openemr tree (release tarballs include
-// vendor/ pre-built by PackageAssembler at release time).
+// vendor/ pre-built by PackageAssembler at release time). Path is
+// container-absolute, so this file has no meaningful static analysis
+// surface — phpstan excludes it via excludePaths.analyseAndScan.
 require_once '/var/www/localhost/htdocs/openemr/vendor/autoload.php';
 
-// The Installer class lives at the root namespace in
-// library/classes/Installer.class.php, autoloaded via composer's
-// classmap. Same class docker/release/auto_configure.php uses.
-//
-// Logger obtained via ServiceContainer::getLogger() (project
-// convention — a custom PHPStan rule
-// `openemr.forbiddenInstantiation` rejects `new SystemLogger()`).
+// Installer lives at the root namespace in library/classes/Installer.class.php,
+// autoloaded via composer's classmap. Same class docker/release/auto_configure.php
+// uses.
 use OpenEMR\BC\ServiceContainer;
 
 $installSettings = [
@@ -45,9 +66,9 @@ $installSettings = [
     'igroup' => 'Default',
     // Database — the compose stack's `mysql` service is the host
     'server' => 'mysql',
-    // loginhost = '%' (wildcard) so the openemr user can connect from
-    // any host — including the openemr container's IP, which isn't
-    // localhost from mysql's perspective. Matches what flex image's
+    // loginhost='%' (wildcard) so the openemr user can connect from
+    // any host — the openemr container's IP isn't localhost from
+    // mysql's perspective. Matches what flex image's
     // devtoolsLibrary.source::prepareVariables() sets.
     'loginhost' => '%',
     'port' => '3306',
@@ -58,10 +79,8 @@ $installSettings = [
     'dbname' => 'openemr',
     'collate' => 'utf8mb4_general_ci',
     'site' => 'default',
-    // Advanced options unused for standard installs. Passed as empty
-    // strings (not 'BLANK' as auto_configure.php uses — that's a sentinel
-    // auto_configure.php converts to '' before calling Installer; here
-    // we skip the sentinel and pass '' directly).
+    // Empty string (not 'BLANK' — auto_configure.php's sentinel that
+    // it converts to '' before calling Installer).
     'source_site_id' => '',
     'clone_database' => '',
     'no_root_db_access' => '',

@@ -48,10 +48,10 @@ on:
   workflow_dispatch:
     inputs:
       from_version:
-        description: 'Prior openemr version for the upgrade scenario (release tag suffix, e.g. 8.1.0)'
+        description: 'Prior openemr version for the upgrade scenario (release tag suffix, e.g. 8.2.0)'
         required: true
         type: string
-        default: '8.1.0'
+        default: '8.2.0'
       to_version:
         description: 'Target openemr version (release tag suffix, e.g. 8.2.0)'
         required: true
@@ -93,20 +93,20 @@ jobs:
       # from "upgrade path broken" (different code paths).
       fail-fast: false
       matrix:
-        include:
-        - scenario: fresh-install
-          description: 'Fresh install of to_version'
-          test_group: fresh-install
-        - scenario: upgrade
-          description: 'Upgrade from_version -> to_version'
-          test_group: fresh-install
-          # (upgrade scenario runs fresh-install first against from_version,
-          # then swaps to to_version and runs --group=post-upgrade)
+        # Upgrade scenario is only included on workflow_dispatch (where
+        # the caller supplies from_version + to_version explicitly). On
+        # push/PR/schedule the from_version default would need to point
+        # at a shipped tarball, and right now the most recent tarball is
+        # 8.2.0 itself — no earlier tarball asset exists on the release
+        # page (patch releases only shipped .zip patches). Once 8.3.0
+        # releases and the from_version default becomes 8.2.0 → 8.3.0,
+        # the upgrade scenario can move back into the default matrix.
+        scenario: ${{ github.event_name == 'workflow_dispatch' && fromJson('["fresh-install","upgrade"]') || fromJson('["fresh-install"]') }}
     env:
-      FROM_VERSION: ${{ inputs.from_version || '8.1.0' }}
+      FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}
       TO_VERSION: ${{ inputs.to_version || '8.2.0' }}
       ACCEPTANCE_ARTIFACT_URL: http://localhost:8680
-    name: ${{ matrix.description }}
+    name: ${{ matrix.scenario }}
     steps:
     - uses: actions/checkout@v7
       with:
@@ -129,7 +129,7 @@ jobs:
 
     - name: Run acceptance suite (fresh-install of to_version)
       if: matrix.scenario == 'fresh-install'
-      run: composer acceptance -- --group=${{ matrix.test_group }}
+      run: composer acceptance -- --group=fresh-install
 
     # ==== upgrade scenario ====
     - name: Boot tarball artifact (from_version)
@@ -138,7 +138,7 @@ jobs:
 
     - name: Run acceptance suite (fresh-install of from_version)
       if: matrix.scenario == 'upgrade'
-      run: composer acceptance -- --group=${{ matrix.test_group }}
+      run: composer acceptance -- --group=fresh-install
 
     - name: Upgrade from_version -> to_version
       if: matrix.scenario == 'upgrade'
@@ -153,6 +153,7 @@ jobs:
       if: failure()
       env:
         TARBALL_DIR: /dev/null
+        HELPER_PATH: /dev/null
       run: |
         echo "=== docker compose ps ==="
         docker compose \
@@ -164,6 +165,7 @@ jobs:
       if: failure()
       env:
         TARBALL_DIR: /dev/null
+        HELPER_PATH: /dev/null
       run: |
         docker compose \
           -f .github/docker/acceptance-package-compose.yml \
