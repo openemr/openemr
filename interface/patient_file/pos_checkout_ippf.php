@@ -967,11 +967,11 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
                     <tr>
                         <td><b><?php echo xlt('Date'); ?></b></td>
                         <td colspan='2'><b><?php echo xlt('Checkout Receipt Ref'); ?></b></td>
-                        <td colspan="<?php echo text($rcpt_num_method_columns); ?>"
+                        <td colspan="<?php echo attr($rcpt_num_method_columns); ?>"
                         align='left'><b><?php echo xlt('Payment Method'); ?></b></td>
-                        <td colspan="<?php echo text($rcpt_num_ref_columns); ?>"
+                        <td colspan="<?php echo attr($rcpt_num_ref_columns); ?>"
                         align='left'><b><?php echo xlt('Ref No'); ?></b></td>
-                        <td colspan='<?php echo text($rcpt_num_amount_columns); ?>'
+                        <td colspan='<?php echo attr($rcpt_num_amount_columns); ?>'
                         align='right'><b><?php echo xlt('Amount'); ?></b></td>
                     </tr>
 
