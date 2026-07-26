@@ -110,7 +110,12 @@ if [[ -n "${local_tarball}" ]]; then
         echo "::error::--local-tarball path does not exist or is not a regular file: ${local_tarball}" >&2
         exit 2
     fi
-    TARBALL_PATH="${local_tarball}"
+    # Absolute-ize before the `cd "${REPO_ROOT}"` below — a caller who
+    # passes a relative path (e.g. `--local-tarball=openemr-8.2.0.tar.gz`
+    # from their own cwd) would otherwise see `tar` look for it under
+    # REPO_ROOT and either extract the wrong file or fail. realpath
+    # handles both leading-`./` and no-leading-`./` shapes uniformly.
+    TARBALL_PATH="$(realpath "${local_tarball}")"
     # No trap cleanup — the caller owns this file.
 else
     # Random tarball path via mktemp — a predictable path like

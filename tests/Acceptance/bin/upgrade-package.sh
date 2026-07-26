@@ -121,7 +121,9 @@ if [[ -n "${to_local_tarball}" ]]; then
         echo "::error::--to-local-tarball path does not exist or is not a regular file: ${to_local_tarball}" >&2
         exit 2
     fi
-    TARBALL_PATH="${to_local_tarball}"
+    # Absolute-ize before the `cd "${REPO_ROOT}"` below — same
+    # rationale as boot-package.sh's --local-tarball normalization.
+    TARBALL_PATH="$(realpath "${to_local_tarball}")"
     # No trap cleanup — the caller owns this file.
 else
     # mktemp for the download path (same rationale as boot-package.sh).
