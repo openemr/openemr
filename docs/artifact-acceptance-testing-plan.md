@@ -452,7 +452,7 @@ upgrade path. Roughly 1 week.
 
 ### Phase 4 — Broaden test coverage
 
-Sliced for reviewability. Rollout order: 4a → 4a-2 → 4b → 4c.
+Sliced for reviewability. Rollout order: 4a → 4a-2 → 4a-3 → 4b → 4c.
 
 **4a — SHIPPED 2026-07-25 (#13193)**. `FhirSmokeTest` (unauth
 `/apis/default/fhir/metadata` + `/apis/default/fhir/.well-known/smart-configuration`
@@ -460,11 +460,29 @@ per FHIR + SMART spec) tagged for both `fresh-install` and
 `post-upgrade` groups. `Support/LoginFlow` extracted from the
 duplicated admin-login flow in InstallTest + UpgradeIntegrityTest.
 
-**4a-2 — pending**. `ApiSmokeTest` with authenticated `/apis/default/api/version`
-via `Support/OAuth2/DcrClient` — port the DCR + authorization-code
-flow pattern from `AuthorizationLogoutFullFlowTest` (#13175) into a
-reusable helper. Foundation for every future authenticated
-acceptance test.
+**4a-2 — SHIPPED 2026-07-26 (#13194)**. `OAuth2SmokeTest` asserting
+the API-disabled 404 gate on `/oauth2/default/*` — production docker
+ships with rest_api/rest_fhir_api/rest_portal_api all `0` by default,
+and `OAuth2AuthorizationListener` returns 404 with `"API is disabled"`
+for all `/oauth2/*` paths in that state. Two tests: OIDC discovery
+gate + DCR gate, both asserting 404 + `Content-Type: application/json`
++ `message` containing "API is disabled". Complements 4a's
+FhirSmokeTest (which proves FHIR discovery BYPASSES the auth gate
+via `SkipAuthorizationStrategy`) by proving OAuth2 does NOT bypass
+it. Original plan for this slice was successful DCR + authenticated
+`/api/version` — cut back after local repro on `openemr/openemr:latest`
+showed OAuth2 endpoints are 404-gated on any default install.
+
+**4a-3 — pending**. Authenticated Bearer-token access —
+`GET /apis/default/api/version` with a real access token. Blocked on
+the `site_addr_oath` install-time configuration story: openemr's
+token endpoint stamps `iss` from `globals.site_addr_oath`, and the
+artifact detects its own base URL from `HTTP_HOST` at install time,
+but the acceptance runner hits it at a DIFFERENT URL — so minted
+tokens have an `iss` claim that doesn't match the acceptance URL.
+Preflight change to `install-helper.php` + `docker/production/openemr.sh`
+(env-var override for `site_addr_oath`) needed before authenticated
+tests can land.
 
 **4b — pending**. Panther + Selenium plumbing (headless browser
 first-introduction to acceptance) + `E2eCriticalPathTest` (one
@@ -473,7 +491,11 @@ Decision: bundled ChromeDriver on runner (simpler) vs selenium
 service in compose files (matches dev-stack pattern).
 
 **4c — pending**. Wizard-UI tests (tarball-only): `InstallWizardUiTest`
-+ `UpgradeWizardUiTest`. Depends on 4b's Panther plumbing.
++ `UpgradeWizardUiTest`. Depends on 4b's Panther plumbing. Once
+Phase 4c can drive the admin panel to flip API-enable toggles,
+successful-flow assertions can also land here (OIDC discovery
+returning provider metadata, DCR minting client credentials) as
+follow-ups to 4a-2's safety-net gate tests.
 
 Original Phase 4 scope preserved below for reference:
 
