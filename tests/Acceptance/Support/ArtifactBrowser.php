@@ -67,9 +67,18 @@ final class ArtifactBrowser
         return in_array($host, ['localhost', '127.0.0.1', '::1', 'host.docker.internal'], true);
     }
 
+    /**
+     * @return non-empty-string
+     */
     public static function baseUrl(): string
     {
         $url = getenv('ACCEPTANCE_ARTIFACT_URL');
-        return $url !== false && $url !== '' ? rtrim($url, '/') : 'http://localhost:8580';
+        if ($url !== false && $url !== '') {
+            $trimmed = rtrim($url, '/');
+            if ($trimmed !== '') {
+                return $trimmed;
+            }
+        }
+        return 'http://localhost:8580';
     }
 }

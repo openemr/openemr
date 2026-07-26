@@ -149,6 +149,21 @@ jobs:
       if: matrix.scenario == 'fresh-install'
       run: composer acceptance -- --group=fresh-install
 
+    # api-enable bootstrap fires AFTER the fresh-install group. Order
+    # matters: OAuth2SmokeTest's fresh-install-tagged assertions verify
+    # the API-disabled 404 gate that ships by default; the bootstrap
+    # then flips those globals so the api-enabled group can assert the
+    # opposite behavior (endpoints return 200 with real content).
+    - name: Bootstrap API via admin panel
+      if: matrix.scenario == 'fresh-install'
+      env:
+        OPENEMR_ENABLE_API_BOOTSTRAP: '1'
+      run: php tests/Acceptance/bin/api-enable.php
+
+    - name: Run acceptance suite (api-enabled of to_version)
+      if: matrix.scenario == 'fresh-install'
+      run: composer acceptance -- --group=api-enabled
+
     # ==== wizard-install scenario ====
     # Boots the artifact WITHOUT running install-helper.php so the
     # artifact serves setup.php on /. InstallWizardUiTest then drives
