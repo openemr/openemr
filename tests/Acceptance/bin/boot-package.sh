@@ -9,7 +9,7 @@
 # via OpenEMR's Installer class.
 #
 # Usage:
-#   tests/Acceptance/bin/boot-package.sh [--skip-install-helper] <version>
+#   tests/Acceptance/bin/boot-package.sh [--skip-install-helper] [--local-tarball=<path>] <version>
 #     --skip-install-helper (optional)
 #         Skip the install-helper.php step. Leaves the artifact serving
 #         setup.php on http://localhost:8680/, ready for the
@@ -19,11 +19,21 @@
 #         redirect target, which only appears AFTER a completed install;
 #         instead, waits for /setup.php to return 200 (proves apache is
 #         serving on the mapped port).
+#     --local-tarball=<path> (optional)
+#         Extract the given local tarball instead of curl-ing the
+#         GitHub release page. Enables Phase 3.5 PR-tarball validation:
+#         the acceptance-package workflow builds the tarball via
+#         PackageAssembler from the PR checkout, uploads it as a
+#         workflow artifact, and downstream matrix jobs pass the
+#         downloaded path here. Skips the network fetch entirely; the
+#         `<version>` arg is still required (used for the scratch dir
+#         name only in this mode).
 #     version — release tag suffix, must match ^[0-9]+\.[0-9]+\.[0-9]+$
 #               (e.g. 8.2.0). Anything else is rejected before any path
 #               is constructed — VERSION is caller-controlled and flows
 #               into `rm -rf` / `curl -o` paths.
-#               Fetches https://github.com/openemr/openemr/releases/download/v<X_Y_Z>/openemr-<version>.tar.gz
+#               Without --local-tarball: fetches
+#               https://github.com/openemr/openemr/releases/download/v<X_Y_Z>/openemr-<version>.tar.gz
 #
 # After a successful boot (default mode):
 #   Artifact URL:  http://localhost:8680
@@ -36,10 +46,15 @@
 set -euo pipefail
 
 skip_install_helper="false"
+local_tarball=""
 while [[ $# -gt 0 && "$1" == --* ]]; do
     case "$1" in
         --skip-install-helper)
             skip_install_helper="true"
+            shift
+            ;;
+        --local-tarball=*)
+            local_tarball="${1#--local-tarball=}"
             shift
             ;;
         *)
@@ -50,9 +65,10 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
 done
 
 if [[ $# -ne 1 ]]; then
-    echo "Usage: $0 [--skip-install-helper] <version>" >&2
+    echo "Usage: $0 [--skip-install-helper] [--local-tarball=<path>] <version>" >&2
     echo "  e.g.: $0 8.2.0" >&2
     echo "        $0 --skip-install-helper 8.2.0" >&2
+    echo "        $0 --local-tarball=/tmp/openemr-8.2.0.tar.gz 8.2.0" >&2
     exit 2
 fi
 
@@ -84,11 +100,30 @@ export HELPER_PATH="${SCRIPT_DIR}/install-helper.php"
 export COMPOSE_FILE="${REPO_ROOT}/.github/docker/acceptance-package-compose.yml"
 export COMPOSE_PROJECT_NAME="openemr-acceptance-package"
 
-# Random tarball path via mktemp — a predictable path like
-# /tmp/openemr-${VERSION}.tar.gz would let a local attacker
-# pre-create a symlink to redirect the curl download.
-TARBALL_PATH="$(mktemp -t "openemr-acceptance-tarball.XXXXXX.tar.gz")"
-trap 'rm -f "${TARBALL_PATH}"' EXIT
+if [[ -n "${local_tarball}" ]]; then
+    # Local-tarball mode: use the file the caller pointed us at, no
+    # network fetch. Path is expected to be a caller-controlled
+    # workflow-runner path (e.g. actions/download-artifact target); no
+    # mktemp / symlink defenses apply because there's no attacker-
+    # writable predictable path in play.
+    if [[ ! -f "${local_tarball}" ]]; then
+        echo "::error::--local-tarball path does not exist or is not a regular file: ${local_tarball}" >&2
+        exit 2
+    fi
+    # Absolute-ize before the `cd "${REPO_ROOT}"` below — a caller who
+    # passes a relative path (e.g. `--local-tarball=openemr-8.2.0.tar.gz`
+    # from their own cwd) would otherwise see `tar` look for it under
+    # REPO_ROOT and either extract the wrong file or fail. realpath
+    # handles both leading-`./` and no-leading-`./` shapes uniformly.
+    TARBALL_PATH="$(realpath "${local_tarball}")"
+    # No trap cleanup — the caller owns this file.
+else
+    # Random tarball path via mktemp — a predictable path like
+    # /tmp/openemr-${VERSION}.tar.gz would let a local attacker
+    # pre-create a symlink to redirect the curl download.
+    TARBALL_PATH="$(mktemp -t "openemr-acceptance-tarball.XXXXXX.tar.gz")"
+    trap 'rm -f "${TARBALL_PATH}"' EXIT
+fi
 
 cd "${REPO_ROOT}"
 
@@ -96,8 +131,12 @@ echo "==> Preparing scratch dir at ${TARBALL_DIR}"
 rm -rf "${TARBALL_DIR}"
 mkdir -p "${TARBALL_DIR}"
 
-echo "==> Downloading ${TARBALL_URL}"
-curl -fsSL "${TARBALL_URL}" -o "${TARBALL_PATH}"
+if [[ -n "${local_tarball}" ]]; then
+    echo "==> Using local tarball ${TARBALL_PATH} (--local-tarball set — skipping GitHub download)"
+else
+    echo "==> Downloading ${TARBALL_URL}"
+    curl -fsSL "${TARBALL_URL}" -o "${TARBALL_PATH}"
+fi
 
 echo "==> Extracting into ${TARBALL_DIR}"
 # --strip-components=1 pulls contents up so ${TARBALL_DIR} matches the
