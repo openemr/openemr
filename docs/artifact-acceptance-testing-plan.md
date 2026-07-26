@@ -452,7 +452,12 @@ upgrade path. Roughly 1 week.
 
 ### Phase 4 — Broaden test coverage
 
-Sliced for reviewability. Rollout order: 4a → 4a-2 → 4a-3 → 4b → 4c.
+Sliced for reviewability. Rollout order: 4a → 4a-2 → 4b → 4c → 4a-3.
+(4a-3 was originally sequenced third but shifted to last because
+its API-enable prerequisite is best handled via Panther admin-panel
+automation — which needs 4b's Panther plumbing to exist first — and
+because the authenticated-flow assertions dovetail naturally with
+4c's wizard-UI work rather than standing alone.)
 
 **4a — SHIPPED 2026-07-25 (#13193)**. `FhirSmokeTest` (unauth
 `/apis/default/fhir/metadata` + `/apis/default/fhir/.well-known/smart-configuration`
@@ -473,29 +478,62 @@ it. Original plan for this slice was successful DCR + authenticated
 `/api/version` — cut back after local repro on `openemr/openemr:latest`
 showed OAuth2 endpoints are 404-gated on any default install.
 
-**4a-3 — pending**. Authenticated Bearer-token access —
-`GET /apis/default/api/version` with a real access token. Blocked on
-the `site_addr_oath` install-time configuration story: openemr's
-token endpoint stamps `iss` from `globals.site_addr_oath`, and the
-artifact detects its own base URL from `HTTP_HOST` at install time,
-but the acceptance runner hits it at a DIFFERENT URL — so minted
-tokens have an `iss` claim that doesn't match the acceptance URL.
-Preflight change to `install-helper.php` + `docker/production/openemr.sh`
-(env-var override for `site_addr_oath`) needed before authenticated
-tests can land.
-
 **4b — pending**. Panther + Selenium plumbing (headless browser
 first-introduction to acceptance) + `E2eCriticalPathTest` (one
 critical flow — admin login → patient add → encounter start).
 Decision: bundled ChromeDriver on runner (simpler) vs selenium
-service in compose files (matches dev-stack pattern).
+service in compose files (matches dev-stack pattern). Foundation
+that 4c and 4a-3 both build on.
 
 **4c — pending**. Wizard-UI tests (tarball-only): `InstallWizardUiTest`
-+ `UpgradeWizardUiTest`. Depends on 4b's Panther plumbing. Once
-Phase 4c can drive the admin panel to flip API-enable toggles,
-successful-flow assertions can also land here (OIDC discovery
-returning provider metadata, DCR minting client credentials) as
-follow-ups to 4a-2's safety-net gate tests.
++ `UpgradeWizardUiTest`. Browser-driven walkthrough of setup.php's
+multi-step state machine and sql_upgrade.php's version-selector
+form. Fires only on the tarball acceptance workflow (docker skips
+the wizard via env-var auto-install). Depends on 4b's Panther
+plumbing.
+
+**4a-3 — pending, sequenced last.** Authenticated Bearer-token
+access — `GET /apis/default/api/version` with a real access token.
+Also lands the "successful-flow" assertions that were originally
+scoped for 4a-2 (OIDC discovery returning provider metadata, DCR
+minting client credentials against an API-enabled artifact) — those
+were cut back in 4a-2 to safety-net-gate assertions because API is
+disabled by default.
+
+Two prerequisites, both handled inside this slice:
+
+  1. **API-enable via Panther admin-panel automation.** Post-install,
+     drive a Panther session into the admin panel (Administration →
+     Globals → Connectors) and flip `rest_api`, `rest_fhir_api`,
+     `rest_portal_api` to enabled. Then re-hit /oauth2/* — should
+     now return 200 with the actual OIDC discovery / DCR responses.
+     This is what a real admin would do to turn the API on. Depends
+     on 4b's Panther plumbing being in place.
+
+     Alternative considered: install-time env-var override (add
+     OE_ENABLE_API=1 handling to install-helper.php +
+     docker/production/openemr.sh, flip globals via post-install
+     SQL). Faster to land but changes the artifact-under-test's
+     default configuration for the test run and doesn't exercise
+     the real user-facing enable path. Rejected in favor of the
+     Panther admin-panel approach for fidelity.
+
+  2. **`site_addr_oath` install-time configuration.** OpenEMR's
+     token endpoint stamps the `iss` claim from
+     `globals.site_addr_oath`. The artifact detects its own base
+     URL from `HTTP_HOST` at install time, but the acceptance
+     runner hits it at a DIFFERENT URL (docker container's internal
+     alias vs mapped host port) — so minted tokens' `iss` doesn't
+     match the acceptance URL. Fix: env-var override for
+     `site_addr_oath` in `install-helper.php` +
+     `docker/production/openemr.sh` (or drive the same value
+     through Panther admin-panel automation alongside the API-enable
+     flip — one-time setup, then all authenticated tests work).
+
+Once both prerequisites are addressed inside this slice, the
+authenticated `/api/version` GET works end-to-end, and the
+successful-flow OIDC/DCR assertions that were held back from 4a-2
+can land as sibling tests in the same PR.
 
 Original Phase 4 scope preserved below for reference:
 
