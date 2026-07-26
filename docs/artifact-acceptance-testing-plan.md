@@ -460,7 +460,7 @@ upgrade path. Roughly 1 week.
 - `.github/docker/` added to dependabot; mariadb + flex images
   sha-pinned.
 
-### Phase 3.5 — Build-from-codebase for package/tarball PR validation
+### Phase 3.5 — Build-from-codebase for package/tarball PR validation — SHIPPED 2026-07-26
 
 Analogous to Phase 2.5 for docker, but far simpler because
 `PackageAssembler` already builds a tarball from local source (no
@@ -468,39 +468,58 @@ Analogous to Phase 2.5 for docker, but far simpler because
 Dockerfile has — that's why Phase 6 needs source-mode indirection
 while 3.5 does not).
 
-Adds `build_locally: bool` workflow_dispatch input + auto-fire on
-any PR/push touching `tools/release/PackageAssembler.php` or
-release-time tarball-shape files. When enabled, a `build-tarball`
-job runs `PackageAssembler` on the PR checkout, uploads the result
-as a workflow artifact (~200 MB via `actions/upload-artifact`).
-The existing acceptance matrix legs then download+extract into
-`TARBALL_DIR` instead of curling from the GitHub releases page.
+Added `build_locally: bool` workflow_dispatch input + auto-fire on
+any PR/push touching `tools/release/**`, `build.xml`, or
+`.gitattributes` (the surface `PackageAssembler` consumes at build
+time). Also added a `detect-mode` job that resolves the flag
+identically to acceptance-docker.yml (dispatch input wins;
+otherwise diff the PR/push base against HEAD). When enabled, a
+`build-tarball` job runs `PackageAssembler` against the PR
+checkout, uploads `openemr-<to_version>.tar.gz` as a workflow
+artifact (~200 MB via `actions/upload-artifact`, retention 1 day).
 
-Two invocation shapes fire from a single workflow run:
+The existing acceptance matrix legs then download+extract that
+artifact instead of curling from the GitHub releases page. Two
+new script flags carry the local-tarball path through the
+existing scripts without breaking the from-GitHub path:
 
-- `fresh-install` scenario — boots the PR-built tarball, runs
-  `InstallTest` + `fresh-install` group + `api-enable.php` bootstrap
-  + `--group=api-enabled`.
-- `upgrade` scenario — boots from_version (shipped tarball from
-  GitHub releases), runs `fresh-install` group, upgrades to
-  PR-built tarball via `upgrade-package.sh`, runs
-  `--group=post-upgrade`.
+- `tests/Acceptance/bin/boot-package.sh --local-tarball=<path>`
+  skips the curl step and extracts the given file. Used by the
+  `fresh-install` + `wizard-install` scenarios to boot the
+  PR-built tarball as to_version.
+- `tests/Acceptance/bin/upgrade-package.sh --to-local-tarball=<path>`
+  skips the to-version curl step (from_version always downloads
+  from GitHub — the whole point of the upgrade test is starting
+  from a shipped release). Used by `upgrade` + `wizard-upgrade`
+  scenarios.
 
-Also unblocks CI's `upgrade` + `wizard-upgrade` scenarios: those
-are workflow_dispatch-only today because from_version defaults
-would need a shipped earlier tarball (only 8.2.0 has one). With
-PR-built acting as to_version and any shipped tarball as
-from_version, the matrix can gate off `github.event_name ==
-'workflow_dispatch' || build_locally`.
+Also unblocks CI's `upgrade` + `wizard-upgrade` scenarios: they
+were workflow_dispatch-only because from_version defaults would
+need a shipped earlier tarball (only 8.2.0 has one today). With
+PR-built acting as to_version and 8.2.0 as from_version, those
+scenarios now fire whenever `build_locally=true` via
+`github.event_name == 'workflow_dispatch' || needs.detect-mode.outputs.build_locally == 'true'`.
 
 Purpose: answer "will this PR ship a broken tarball?" *pre-merge*
 rather than catching it only after the release-prep conductor
 runs `PackageAssembler` at ship time.
 
-Exit criterion: workflow succeeds with `build_locally: true` on a
-scratch PR that intentionally touches `PackageAssembler` (e.g.
-adds a no-op comment), demonstrating pre-merge PR-tarball
-validation works end-to-end. Roughly 3 days.
+Notable implementation detail from the local validation walk: the
+`--release-version` arg to `PackageAssembler` is a naming label
+only (drives staging-dir + artifact filename), not baked into the
+packaged codebase — using the workflow's `to_version` value keeps
+the artifact filename aligned with what `boot-package.sh`'s
+`<version>` arg + scratch-dir naming expects downstream.
+
+Exit criterion (met): local end-to-end plumbing walk of
+`boot-package.sh --local-tarball=<local file> 8.2.0` + the
+`fresh-install` acceptance group passed (6/6 non-Panther tests);
+workflow yaml validated. The landing PR itself won't exercise
+the `build_locally=true` path (it touches the workflow + script
+surface but not `tools/release/**`), so the first real production
+exercise will be either a future PR that touches
+`tools/release/**` / `build.xml` / `.gitattributes`, or a manual
+`workflow_dispatch` with `build_locally: true`.
 
 ### Phase 4 — Broaden test coverage
 
