@@ -460,7 +460,18 @@ upgrade path. Roughly 1 week.
 - `.github/docker/` added to dependabot; mariadb + flex images
   sha-pinned.
 
-### Phase 3.5 — Build-from-codebase for package/tarball PR validation — SHIPPED 2026-07-26
+### Phase 3.5 — Build-from-codebase for package/tarball PR validation — SHIPPED 2026-07-26 (#13204)
+
+**Fulfills the long-standing "test the release-tarball artifact
+(both fresh install and upgrade paths) during the release process"
+goal for the tarball side.** Phase 7a's tarball prong (release-prep
+PR triggers) is now covered — a release-prep PR fires this workflow
+with `build_locally=true`, PackageAssembler builds the tarball from
+the PR checkout, and all four matrix scenarios (`fresh-install`,
+`wizard-install`, `upgrade`, `wizard-upgrade`) exercise that tarball
+end-to-end. The one remaining piece for full release-lifecycle
+coverage is gating the actual publish on acceptance (see "Follow-up
+release-time gate" below).
 
 Analogous to Phase 2.5 for docker, but far simpler because
 `PackageAssembler` already builds a tarball from local source (no
@@ -476,7 +487,8 @@ identically to acceptance-docker.yml (dispatch input wins;
 otherwise diff the PR/push base against HEAD). When enabled, a
 `build-tarball` job runs `PackageAssembler` against the PR
 checkout, uploads `openemr-<to_version>.tar.gz` as a workflow
-artifact (~200 MB via `actions/upload-artifact`, retention 1 day).
+artifact (~200 MB via `actions/upload-artifact`, retention 1 day,
+node-version 24 to match `build-release.yml`'s canonical shape).
 
 The existing acceptance matrix legs then download+extract that
 artifact instead of curling from the GitHub releases page. Two
@@ -493,33 +505,92 @@ existing scripts without breaking the from-GitHub path:
   from a shipped release). Used by `upgrade` + `wizard-upgrade`
   scenarios.
 
+Both flags `realpath`-normalize the input before the `cd $REPO_ROOT`
+so a caller-supplied relative path resolves correctly at extraction.
+
 Also unblocks CI's `upgrade` + `wizard-upgrade` scenarios: they
 were workflow_dispatch-only because from_version defaults would
 need a shipped earlier tarball (only 8.2.0 has one today). With
 PR-built acting as to_version and 8.2.0 as from_version, those
 scenarios now fire whenever `build_locally=true` via
 `github.event_name == 'workflow_dispatch' || needs.detect-mode.outputs.build_locally == 'true'`.
+The synthetic `99.99.99` label default satisfies `upgrade-package.sh`'s
+equality/downgrade guards without needing a real version bump; it's a
+naming-only label (drives artifact filename + scratch-dir name),
+because `sql_upgrade.php` reads `--from=FROM_VERSION` and derives
+the target from the DB `version` table populated by the from-install.
 
-Purpose: answer "will this PR ship a broken tarball?" *pre-merge*
-rather than catching it only after the release-prep conductor
-runs `PackageAssembler` at ship time.
+**Release-prep PR handling.** `detect-mode` also detects
+`release-prep/*` head branches (pull_request `head_ref` or push
+`ref` stripped) and force-enables `build_locally=true` regardless of
+what files the PR touches — the whole point of `release-prep.yml`'s
+conductor PR is validating the tarball the release would ship. On
+match, the block parses `X.Y.Z` out of the `chore(release): prep
+X.Y.Z` PR title so downstream logs and the artifact filename reflect
+the actual release version rather than the 99.99.99 synthetic
+default. Falls back to 99.99.99 on push events (no PR title context)
+or when the title regex misses.
+
+The trigger surface intentionally does NOT include `version.php` —
+that file gets bumped in many non-release contexts (dev-cycle bumps,
+backport version ticks, etc.) and adding it to paths would over-fire.
+The intended long-term wire-up is `release-prep.yml` explicitly
+dispatching this workflow after opening/updating the release-prep PR
+(`gh workflow run acceptance-package.yml --ref release-prep/<branch>
+-f build_locally=true`), coupling the trigger to the release-prep
+concern itself. That dispatch depends on Phase 3.5 being present on
+the target rel-branch (rel-830+, since Brady chose not to backport
+to rel-820).
+
+**Additional bug fixed:** `upgrade-package.sh`'s `cp -a ${FROM}/sites
+${TO}/sites` had a latent perm-denied on OAuth key files
+(`sites/default/documents/certificates/oaprivate.key` / `oapublic.key`)
+created by the flex-image apache uid, unreadable to the host runner
+user. Was previously masked by the "identical from/to versions" bug
+that fired first. Fix runs `docker compose exec openemr chown -R ...`
+inside the still-live from-container to rewrite ownership via the
+shared bind mount before the cp; bounded to `sites/` since ownership
+is discarded seconds later when compose recreates the container with
+the to-version bind mount.
 
 Notable implementation detail from the local validation walk: the
 `--release-version` arg to `PackageAssembler` is a naming label
 only (drives staging-dir + artifact filename), not baked into the
-packaged codebase — using the workflow's `to_version` value keeps
-the artifact filename aligned with what `boot-package.sh`'s
+packaged codebase — the shipped self-reported version comes from
+`version.php` in the source tree, which the assembler ships as-is
+from the checked-out ref. Using the workflow's `to_version` value
+keeps the artifact filename aligned with what `boot-package.sh`'s
 `<version>` arg + scratch-dir naming expects downstream.
 
-Exit criterion (met): local end-to-end plumbing walk of
-`boot-package.sh --local-tarball=<local file> 8.2.0` + the
-`fresh-install` acceptance group passed (6/6 non-Panther tests);
-workflow yaml validated. The landing PR itself won't exercise
-the `build_locally=true` path (it touches the workflow + script
-surface but not `tools/release/**`), so the first real production
-exercise will be either a future PR that touches
-`tools/release/**` / `build.xml` / `.gitattributes`, or a manual
-`workflow_dispatch` with `build_locally: true`.
+Exit criterion (met): end-to-end `build_locally=true` demo on a
+real runner produced 6/6 green — `detect-mode`, `build-tarball`
+(PackageAssembler produced tarball from PR HEAD), `fresh-install`,
+`wizard-install`, `upgrade` (8.2.0 → PR-built 99.99.99), `wizard-upgrade`.
+See PR #13204's test plan for the run link.
+
+**Follow-up release-time gate (not yet scoped as a phase):**
+Phase 3.5 validates the PR-built tarball, which is produced by the
+same `PackageAssembler` invocation that release-time will use — so
+in practice a passing Phase 3.5 gives very high confidence in the
+actual release-time tarball. Closing the last gap (validating the
+literal published artifact before it lands on the GitHub releases
+page) requires:
+
+- Adding `workflow_call` trigger to `acceptance-package.yml` so it
+  can be invoked as a reusable workflow with a "here's the tarball,
+  don't fetch from GitHub" input (uses the same `--local-tarball`
+  plumbing already in place).
+- Modifying `build-release.yml` to a build → validate → publish
+  sequence: the existing build job's output tarball flows into an
+  acceptance-package call, and the "upload to GitHub release" step
+  gains `needs: [acceptance] && if: needs.acceptance.result ==
+  'success'`. If acceptance fails, the tarball never publishes.
+
+Small follow-up scope. Could ship alongside Phase 7b's
+repository_dispatch listener for `openemr-tag` events (fires
+acceptance against a just-shipped floating-tag artifact within
+minutes of publish) — the two together give both pre-publish
+gating and post-publish latency-catching.
 
 ### Phase 4 — Broaden test coverage
 
@@ -897,17 +968,46 @@ push events, validating the artifacts the release will ship:
   match release-prep-PR changes (version.php bump; the conductor
   rarely touches Dockerfile), so `fresh-install-to` + `upgrade`
   scenarios run against the PR-built image (which represents the
-  about-to-ship image).
-- Tarball path: build a tarball from the PR's checkout via
-  `git archive HEAD` and validate it. Analogous to Phase 2.5 for
-  docker; may end up as its own "Phase 3.5" scope. Phase 3's
-  workflow can accept a `local_tarball: bool` input mirroring
-  Phase 2.5's shape.
+  about-to-ship image). **Still pending.**
+- Tarball path: **SHIPPED as Phase 3.5 (#13204).** `detect-mode`
+  detects `release-prep/*` head branches and force-enables
+  `build_locally=true` regardless of what files the PR touches;
+  PackageAssembler builds the tarball from the PR checkout; all
+  four matrix scenarios (`fresh-install`, `wizard-install`,
+  `upgrade`, `wizard-upgrade`) exercise the PR-built tarball.
+  Actual trigger delivery (how the workflow starts firing on
+  release-prep PRs) is a small follow-up — the intended pattern
+  is `release-prep.yml` explicitly dispatching acceptance-package
+  via `gh workflow run` after opening/updating the PR (path-based
+  triggers were rejected as over-firing on non-release version
+  bumps). Depends on Phase 3.5 being on the target rel-branch, so
+  effective from rel-830+.
 
 The Phase 4 sub-item "Consider making acceptance runs required
 checks on release-prep PRs" folds into this: once 7a fires on
 release-prep PRs and proves stable, promoting to required check
 is a small branch-protection change.
+
+**7c. Release-time pre-publish gate (added 2026-07-26).** After
+Phase 3.5 landed and its release-prep PR coverage was demonstrated,
+one gap remained: gating the actual GitHub-releases publish on
+acceptance passing against the LITERAL SHIPPED tarball (not just the
+PR-built one that Phase 3.5 validates). Small follow-up scope:
+
+- Add `workflow_call` trigger to `acceptance-package.yml` so it can
+  be invoked as a reusable workflow with a "here's the tarball,
+  don't fetch from GitHub" input (uses the same `--local-tarball`
+  plumbing Phase 3.5 already put in place).
+- Modify `build-release.yml` to a build → validate → publish
+  sequence: the existing build job's output tarball flows into an
+  acceptance-package call, and the "upload to GitHub release" step
+  gains `needs: [acceptance] && if: needs.acceptance.result ==
+  'success'`. If acceptance fails, the tarball never publishes.
+
+Docker equivalent (7c-docker) is analogous once acceptance-docker
+grows a `workflow_call` trigger + docker-build-release.yml gains
+build → validate → publish sequencing. Can ship together with 7c
+or as separate slice.
 
 **7b. Release-event triggers.** Fire acceptance against the
 just-shipped artifact within minutes of publish, catching
@@ -935,9 +1035,14 @@ validation) if that changes how the release-prep PR image is
 constructed.
 
 Exit criterion: release-prep PRs auto-fire the acceptance
-matrix against the PR's artifacts; `openemr-tag` events
-trigger a fresh acceptance run against the just-published
-Docker Hub tag + GitHub release tarball. Roughly 1 week.
+matrix against the PR's artifacts (**7a tarball: DONE via Phase
+3.5, effective rel-830+**; 7a docker: pending); the release
+pipeline gates GitHub-releases publish on acceptance against
+the literal shipped tarball (7c: pending small follow-up);
+`openemr-tag` events trigger a fresh acceptance run against
+the just-published Docker Hub tag + GitHub release tarball
+(7b: pending). Roughly 1 week remaining across 7a-docker + 7b
++ 7c.
 
 **Total remaining calendar (from 2026-07-25 baseline, Phases 1+2+2.5
 +3 all in flight or landed):** ~5-6 weeks focused work through Phase
@@ -1226,3 +1331,23 @@ in acceptance."
   during ongoing development — Phase 7 is a latency + targeting
   improvement, not a coverage improvement, worth adding once the
   underlying harness is proven stable.
+
+- **2026-07-26** — **Long-standing "test package artifacts (fresh
+  install + upgrade) during release process" goal fulfilled for
+  the tarball side.** Phase 3.5 (openemr/openemr#13204) landed the
+  build_locally auto-fire + build-tarball job + release-prep head-
+  ref detection in detect-mode. A release-prep PR now flows: (1)
+  detect-mode force-enables build_locally=true, (2) build-tarball
+  runs PackageAssembler on the PR checkout and uploads the
+  tarball as a workflow artifact, (3) all four acceptance matrix
+  scenarios (fresh-install, wizard-install, upgrade, wizard-upgrade)
+  extract that artifact via boot-package.sh --local-tarball /
+  upgrade-package.sh --to-local-tarball and run the acceptance
+  suite against it. End-to-end demo on the PR itself produced 6/6
+  green. This constitutes Phase 7a's tarball prong (release-prep
+  PR trigger for tarball validation) — 7a's docker prong (extend
+  Phase 2.5 to auto-fire on release-prep PRs) still pending, and a
+  new **Phase 7c** (release-time pre-publish gate: workflow_call
+  trigger on acceptance-package + build → validate → publish
+  sequencing in build-release.yml) captures the last gap between
+  "PR-tarball validated" and "actual shipped tarball gated."
