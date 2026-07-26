@@ -4,19 +4,28 @@
 #
 # Downloads the tarball from the GitHub release page, extracts it into
 # a scratch directory, boots the compose stack (flex image + mariadb)
-# with the extracted tree bind-mounted, then runs install-helper.php
-# via `docker compose exec` to complete the install via OpenEMR's
-# Installer class.
+# with the extracted tree bind-mounted, then (by default) runs
+# install-helper.php via `docker compose exec` to complete the install
+# via OpenEMR's Installer class.
 #
 # Usage:
-#   tests/Acceptance/bin/boot-package.sh <version>
+#   tests/Acceptance/bin/boot-package.sh [--skip-install-helper] <version>
+#     --skip-install-helper (optional)
+#         Skip the install-helper.php step. Leaves the artifact serving
+#         setup.php on http://localhost:8680/, ready for the
+#         InstallWizardUiTest (Phase 4c) to drive the wizard end-to-end
+#         via Panther. Also skips the "wait for openemr healthy" gate
+#         because that healthcheck asserts the post-install login-page
+#         redirect target, which only appears AFTER a completed install;
+#         instead, waits for /setup.php to return 200 (proves apache is
+#         serving on the mapped port).
 #     version — release tag suffix, must match ^[0-9]+\.[0-9]+\.[0-9]+$
 #               (e.g. 8.2.0). Anything else is rejected before any path
 #               is constructed — VERSION is caller-controlled and flows
 #               into `rm -rf` / `curl -o` paths.
 #               Fetches https://github.com/openemr/openemr/releases/download/v<X_Y_Z>/openemr-<version>.tar.gz
 #
-# After a successful boot:
+# After a successful boot (default mode):
 #   Artifact URL:  http://localhost:8680
 #   HTTPS URL:     https://localhost:8643  (self-signed cert)
 #   Scratch dir:   /tmp/openemr-acceptance-<version>/  (bind-mount source)
@@ -26,9 +35,24 @@
 
 set -euo pipefail
 
+skip_install_helper="false"
+while [[ $# -gt 0 && "$1" == --* ]]; do
+    case "$1" in
+        --skip-install-helper)
+            skip_install_helper="true"
+            shift
+            ;;
+        *)
+            echo "::error::unknown flag: $1" >&2
+            exit 2
+            ;;
+    esac
+done
+
 if [[ $# -ne 1 ]]; then
-    echo "Usage: $0 <version>" >&2
+    echo "Usage: $0 [--skip-install-helper] <version>" >&2
     echo "  e.g.: $0 8.2.0" >&2
+    echo "        $0 --skip-install-helper 8.2.0" >&2
     exit 2
 fi
 
@@ -97,6 +121,35 @@ for attempt in $(seq 1 30); do
     fi
     sleep 5
 done
+
+if [[ "${skip_install_helper}" == "true" ]]; then
+    echo "==> Skipping install-helper.php (--skip-install-helper set)"
+    echo "==> Waiting for apache to serve /setup.php (proxy for 'container up')"
+    # Can't wait on the compose openemr healthcheck here because that
+    # check asserts the post-install login-page redirect target — a
+    # freshly-extracted artifact serves /setup.php instead, and would
+    # never pass the healthcheck. Poll setup.php directly instead.
+    for attempt in $(seq 1 60); do
+        if curl -sf -o /dev/null "http://localhost:8680/setup.php"; then
+            echo "    apache serving /setup.php"
+            break
+        fi
+        if [[ "${attempt}" -eq 60 ]]; then
+            echo "::error::apache never served /setup.php within 300s" >&2
+            exit 1
+        fi
+        sleep 5
+    done
+
+    echo ""
+    echo "==> Boot complete (skip-install-helper mode)."
+    echo "    Artifact URL:  http://localhost:8680  (serving setup.php)"
+    echo "    HTTPS URL:     https://localhost:8643 (self-signed cert)"
+    echo ""
+    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-install"
+    echo "    Teardown:      tests/Acceptance/bin/down-package.sh"
+    exit 0
+fi
 
 echo "==> Running install-helper.php via docker compose exec (as apache user)"
 # install-helper.php is mounted READ-ONLY at /opt/openemr-acceptance-helper.php
