@@ -138,6 +138,25 @@ if [[ ! -d "${FROM_TARBALL_DIR}/sites" ]]; then
     exit 1
 fi
 
+# Make from-version files readable to the host user before the sites/
+# overlay below. The flex-image apache runs at its own UID (typically
+# 100 in Alpine), and any files that apache created during install-
+# helper + downstream test activity — most notably the OAuth key pair
+# under sites/default/documents/certificates/, generated during OAuth
+# setup with 0400 perms — land on the host bind mount owned by that
+# UID and unreadable to the host runner user. Without this chown, the
+# `cp -a` below fails with `Permission denied` on those keys.
+#
+# `chown -R $(id -u):$(id -g)` inside the still-running from-container
+# rewrites ownership to the host runner user via the shared bind
+# mount, giving cp read access. Runs before the TO scratch-dir setup
+# so the from-container is still up when this executes. Ownership is
+# discarded seconds later when the to-version container recreates the
+# bind mount (compose stop + up --force-recreate), so there's no
+# lingering side effect on the downstream to_version boot.
+export TARBALL_DIR="${FROM_TARBALL_DIR}"
+docker compose exec -T openemr chown -R "$(id -u):$(id -g)" /var/www/localhost/htdocs/openemr/sites
+
 echo "==> Preparing scratch dir at ${TO_TARBALL_DIR}"
 rm -rf "${TO_TARBALL_DIR}"
 mkdir -p "${TO_TARBALL_DIR}"
