@@ -437,7 +437,7 @@ jobs:
     # ==== Phase 3.5: load PR-built tarball + resolve boot flags ====
     - name: Download PR-built tarball (if build-tarball ran)
       if: needs.build-tarball.result == 'success'
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: openemr-pr-built-tarball
         path: /tmp/pr-built-tarball

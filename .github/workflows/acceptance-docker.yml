@@ -274,7 +274,7 @@ jobs:
     # ==== Phase 2.5: load PR-built image + resolve effective tags ====
     - name: Download PR-built image (if build-image ran)
       if: needs.build-image.result == 'success'
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: openemr-pr-built-image
         path: /tmp
