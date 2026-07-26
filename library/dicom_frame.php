@@ -29,10 +29,12 @@ if (!AclMain::aclCheckCore('patients', 'docs')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs: Dicom Viewer", xl("Dicom Viewer"));
 }
 
-CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
-
 $web_path = $_REQUEST['web_path'] ?? null;
 if ($web_path) {
+    // CSRF only when the sensitive parameter is present. Bare navigation
+    // (main-menu Dicom Viewer link) has no `web_path` and just renders the
+    // viewer chrome — no token requirement in that case.
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     $patid = $_REQUEST['patient_id'] ?? null;
     $docid = $_REQUEST['document_id'] ?? $_REQUEST['doc_id'] ?? null;
     $d = new Document(attr($docid));
