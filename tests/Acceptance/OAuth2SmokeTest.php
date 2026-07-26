@@ -17,43 +17,58 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
- * OAuth2/OIDC discovery + dynamic-client-registration smoke test.
+ * OAuth2 API-disabled gate smoke test.
  *
- * Together these two endpoints are what every external OAuth2/OIDC
- * integration hits FIRST — before any token can be minted, before any
- * login form is rendered, before any authenticated call is made.
- * Neither requires authentication (both are RFC-standard public
- * discovery/onboarding endpoints).
+ * Openemr's `OAuth2AuthorizationListener` gates every `/oauth2/*`
+ * request behind "at least one of `rest_api`, `rest_fhir_api`, or
+ * `rest_portal_api` must be enabled" — see
+ * src/RestControllers/Subscriber/OAuth2AuthorizationListener.php.
+ * The default openemr install ships with all three globals set to
+ * `0` (defense-in-depth: API off unless admins explicitly opt in via
+ * the UI), so this is the state every fresh production docker image
+ * and tarball install starts in.
  *
- * If either regresses in a shipped artifact:
- *   - Every SMART-on-FHIR / OIDC client onboarding fails at step 1
- *   - Every dynamically-registered integration (Inferno bulk-data
- *     clients, external app-launch clients, etc.) can't get past
- *     initial handshake
+ * Both tests below assert that gate is in place and returns the
+ * expected shape (404 + JSON body carrying "API is disabled"):
  *
- * The FhirSmokeTest in Phase 4a covers the FHIR-flavored analog
- * (/apis/default/fhir/metadata + .well-known/smart-configuration).
- * This test covers the OAuth2/OIDC side of the discovery surface,
- * plus proves the DCR endpoint mints client credentials on demand.
+ *   - Regression signal: if the listener check is ever removed or
+ *     gated wrongly, OAuth2 endpoints would become externally
+ *     reachable on a default install — exposing dynamic client
+ *     registration + full auth surface to any anonymous caller who
+ *     can reach the artifact. These tests fail loudly if that
+ *     regression ever ships.
  *
- * Authenticated API access (token issuance + Bearer requests against
- * /apis/default/api/*) is Phase 4a-3, blocked on the site_addr_oath
- * install-time configuration story (issuer claim in minted tokens
- * doesn't match the acceptance URL by default because the artifact
- * detects its own base URL from HTTP_HOST at install time, not from
- * the acceptance-runner's perspective).
+ *   - Contract shape: proves the gate returns 404 (not 500, not a
+ *     redirect to setup.php, not a raw HTML error page) so external
+ *     OAuth2 clients receive a definitive "not here" response with
+ *     an interpretable error body.
+ *
+ *   - Coverage complement: Phase 4a's FhirSmokeTest proves the FHIR
+ *     discovery paths BYPASS the gate (they're on the
+ *     SkipAuthorizationStrategy allowlist and MUST be reachable
+ *     without auth per FHIR/SMART spec). This one proves the OAuth2
+ *     paths do NOT accidentally bypass it — the two tests together
+ *     pin down both sides of the auth-gate policy.
+ *
+ * Once Phase 4c's wizard-UI tests can drive the admin panel to flip
+ * an API toggle, additional assertions can verify OAuth2 endpoints
+ * return 200 when the API is actually enabled. Full authenticated
+ * Bearer-token access is still Phase 4a-3 (blocked on the
+ * site_addr_oath install-time story).
  */
 #[Group('fresh-install')]
 #[Group('post-upgrade')]
 final class OAuth2SmokeTest extends TestCase
 {
-    public function testOidcDiscoveryEndpointReturnsProviderMetadata(): void
+    private const API_DISABLED_MESSAGE = 'API is disabled';
+
+    public function testOidcDiscoveryEndpointIsGatedWhenApiDisabled(): void
     {
-        // Per OIDC spec (https://openid.net/specs/openid-connect-discovery-1_0.html),
-        // /.well-known/openid-configuration returns a JSON provider-
-        // metadata document with mandatory fields including issuer,
-        // authorization_endpoint, token_endpoint, jwks_uri. Must be
-        // publicly accessible so clients can bootstrap the auth flow.
+        // The discovery endpoint is the first thing every OIDC client
+        // hits before any auth handshake. If the API-disabled gate is
+        // accidentally removed here, the entire OAuth2 surface (auth,
+        // token, DCR, jwks) becomes reachable by anonymous callers on
+        // any freshly-installed openemr artifact.
         $browser = ArtifactBrowser::create();
         $browser->request(
             'GET',
@@ -62,72 +77,35 @@ final class OAuth2SmokeTest extends TestCase
         $response = $browser->getResponse();
 
         self::assertSame(
-            200,
+            404,
             $response->getStatusCode(),
-            'OIDC /.well-known/openid-configuration must return 200 without auth per OIDC Discovery spec',
+            'OIDC discovery must be 404 on a default (API-disabled) install — a 200 response means the OAuth2AuthorizationListener gate has been bypassed and the OAuth2 surface is now reachable anonymously',
         );
 
         $body = json_decode($response->getContent(), true);
         self::assertIsArray(
             $body,
-            'OIDC discovery response should be JSON — non-JSON body means the response is an HTML error page',
+            'API-disabled response should be a JSON error object — a non-JSON body (raw HTML, empty response, redirect) means the response shape has regressed and machine-readable error handling is broken',
         );
-
-        // The four mandatory OIDC provider-metadata fields per
-        // https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata.
-        // registration_endpoint is optional per OIDC spec, but openemr
-        // ships DCR support and clients doing dynamic registration
-        // (the whole point of the DCR test below) MUST have it advertised.
-        foreach (
-            [
-                'issuer',
-                'authorization_endpoint',
-                'token_endpoint',
-                'jwks_uri',
-                'registration_endpoint',
-            ] as $key
-        ) {
-            self::assertArrayHasKey(
-                $key,
-                $body,
-                "OIDC discovery missing required key: {$key}",
-            );
-            self::assertIsString($body[$key]);
-            self::assertNotFalse(
-                filter_var($body[$key], FILTER_VALIDATE_URL),
-                "OIDC discovery {$key} must be a valid absolute URL — empty or malformed value blocks clients from discovering the auth surface",
-            );
-        }
+        self::assertArrayHasKey('message', $body, 'API-disabled response must carry a machine-readable "message" field');
+        self::assertIsString($body['message']);
+        self::assertStringContainsString(
+            self::API_DISABLED_MESSAGE,
+            $body['message'],
+            'Error body should identify the reason as API-disabled — a different message means the 404 came from a different code path than the API-disabled gate',
+        );
     }
 
-    public function testDynamicClientRegistrationMintsClientCredentials(): void
+    public function testDynamicClientRegistrationIsGatedWhenApiDisabled(): void
     {
-        // Per RFC 7591 (OAuth 2.0 Dynamic Client Registration), a POST
-        // to the registration endpoint with a valid client metadata
-        // document returns 200 with `client_id` + `client_secret` (the
-        // latter for confidential clients using client_secret_* auth
-        // methods). Openemr's DCR endpoint is open (no initial access
-        // token required), which is standard for public registration.
-        //
-        // Purpose: proves external integrations can register a client
-        // and obtain credentials — the mandatory first step of every
-        // SMART app launch, Inferno certification run, etc.
-        //
-        // No DB cleanup: acceptance tests run against a per-CI-run
-        // fresh install, so the registered client just gets thrown
-        // away with the whole DB when the workflow finishes. The
-        // client_name is randomized to avoid accidental clash with
-        // any parallel run against the same artifact.
-        $clientName = 'AcceptanceHarnessDcrSmoke-' . bin2hex(random_bytes(4));
-        $registration = [
-            'application_type' => 'private',
-            'redirect_uris' => ['https://acceptance-harness.example/callback'],
-            'client_name' => $clientName,
-            'token_endpoint_auth_method' => 'client_secret_post',
-            'contacts' => ['acceptance-harness@openemr.example'],
-            'scope' => 'openid fhirUser',
-        ];
-
+        // The DCR endpoint is the mechanism by which external clients
+        // onboard themselves. If the API-disabled gate is bypassed
+        // here, anonymous callers can mint arbitrary client_id +
+        // client_secret pairs against a default install — one step
+        // closer to unauthenticated abuse of the token endpoint. Fire
+        // a well-formed POST body so this test would still fail
+        // (rather than 400/415) if the gate were removed but the DCR
+        // handler still validated its input.
         $browser = ArtifactBrowser::create();
         $browser->request(
             'POST',
@@ -135,42 +113,31 @@ final class OAuth2SmokeTest extends TestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode($registration, JSON_THROW_ON_ERROR),
+            json_encode([
+                'application_type' => 'web',
+                'redirect_uris' => ['https://acceptance-harness.example/callback'],
+                'client_name' => 'AcceptanceHarnessApiDisabledGateProbe',
+                'token_endpoint_auth_method' => 'client_secret_post',
+                'contacts' => ['acceptance-harness@openemr.example'],
+                'scope' => 'openid fhirUser',
+            ], JSON_THROW_ON_ERROR),
         );
         $response = $browser->getResponse();
 
         self::assertSame(
-            200,
+            404,
             $response->getStatusCode(),
-            'DCR POST /oauth2/default/registration must return 200 for a well-formed registration request per RFC 7591',
+            'DCR must be 404 on a default (API-disabled) install — a 200/201 response means anonymous callers can now mint client credentials against a fresh openemr',
         );
 
         $body = json_decode($response->getContent(), true);
-        self::assertIsArray(
-            $body,
-            'DCR response should be JSON — non-JSON body means the auth-server routing is broken',
-        );
-        self::assertArrayHasKey(
-            'client_id',
-            $body,
-            'DCR response must include client_id per RFC 7591 — without it the caller has no way to identify the newly-registered client',
-        );
-        self::assertArrayHasKey(
-            'client_secret',
-            $body,
-            'DCR response must include client_secret when token_endpoint_auth_method is client_secret_post — without it confidential-client flows cannot authenticate',
-        );
-        self::assertIsString($body['client_id']);
-        self::assertIsString($body['client_secret']);
-        self::assertNotSame('', $body['client_id'], 'client_id must not be empty');
-        self::assertNotSame('', $body['client_secret'], 'client_secret must not be empty');
-        // Echo-back check: server should preserve client_name as
-        // supplied. If a template munges it, clients won't be able to
-        // find their own registration record.
-        self::assertSame(
-            $clientName,
-            $body['client_name'] ?? null,
-            'DCR response should echo the submitted client_name unchanged',
+        self::assertIsArray($body, 'API-disabled DCR response should be a JSON error object');
+        self::assertArrayHasKey('message', $body);
+        self::assertIsString($body['message']);
+        self::assertStringContainsString(
+            self::API_DISABLED_MESSAGE,
+            $body['message'],
+            'DCR error body should identify the reason as API-disabled — different message means 404 came from a different code path',
         );
     }
 }
