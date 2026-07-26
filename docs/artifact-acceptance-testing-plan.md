@@ -578,8 +578,7 @@ docker skips wizards entirely via env-var auto-install. Depends on
     option.click() didn't fire the select's change handler in
     headless mode (switched to executeScript with dispatchEvent).
 
-**4a-3 — SHIPPED (first slice, 2026-07-26, #13201). Second slice
-pending.**
+**4a-3 — SHIPPED 2026-07-26 (both slices, #13201 + #13203).**
 
   * **4a-3 (1/2) — SHIPPED 2026-07-26 (#13201)**. Panther admin-
     panel bootstrap for API-enable + `site_addr_oath` (via new
@@ -592,15 +591,40 @@ pending.**
     group. Bootstrap resolves target fields by label-text walk
     since form_N indices shift when globals.inc.php gets added-to.
 
-  * **4a-3 (2/2) — pending.** Full authenticated Bearer-token
-    `GET /apis/default/api/version` with a real access token minted
-    via DCR + auth-code flow (login form scrape + consent form
-    scrape + code exchange). The 4a-3 (1/2) bootstrap already
-    handles both prerequisites (API-enable + site_addr_oath) so
-    this slice is just the auth-code flow itself + the Bearer
-    endpoint assertion. Analog of AuthorizationLogoutFullFlowTest
-    (openemr/openemr#13175) minus the DB-seeding, plus a Bearer
-    call at the end.
+  * **4a-3 (2/2) — SHIPPED 2026-07-26 (#13203).** Full
+    authenticated Bearer-token `GET /apis/default/api/facility`
+    with a real access token minted via DCR + auth-code flow (login
+    form scrape + consent form scrape + code exchange), via new
+    `Support/OAuth2/AuthCodeFlow` helper and `ApiSmokeTest`.
+
+    Two mid-implementation pivots from the original description
+    above:
+
+      * **/api/version → /api/facility.** `/api/version` turned
+        out to be on the `SkipAuthorizationStrategy` skip-list
+        (see `src/RestControllers/Subscriber/AuthorizationListener.php`)
+        — a Bearer request against it never actually exercises
+        token validation. `/api/facility` requires `api:oemr` +
+        `user/facility.*` SMART scope + `admin/users` ACL +
+        Bearer strategy pass, so the endpoint exercises every
+        layer in the dispatch pipeline. Fresh install always has
+        at least one facility (the one the install wizard
+        creates), so no seeding needed.
+
+      * **Inline admin client-approval step added.** DCR-registered
+        clients requesting any `user/` or `system/` scope land in
+        `is_enabled=0` per `ScopeRepository::hasScopesThatRequireManualApproval`;
+        `/token` returns `invalid_client` until an admin approves
+        the client via `/interface/smart/admin-client.php`. The
+        helper drives that approval through a second HttpBrowser
+        session (admin auth via `LoginFlow`, then GET
+        `?action=edit/<id>/enable&csrf_token=<t>`) — cheaper than
+        replicating openemr's manual-approval rules on the harness
+        side, and unconditional so the flow keeps working if the
+        rules change. Not covered by the source-side
+        `AuthorizationLogoutFullFlowTest` (openemr/openemr#13175)
+        that this ports from, since that test seeds `is_enabled=1`
+        directly in the DB.
 
 Two prerequisites, both handled inside this slice:
 
