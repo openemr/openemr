@@ -195,6 +195,11 @@ final class AuthCodeFlow
             $listBody,
             "Client list page after enable does not mention client id {$clientId} — the enable action redirected somewhere unexpected",
         );
+        Assert::assertMatchesRegularExpression(
+            '/' . preg_quote($clientId, '/') . '.*Disable Client/is',
+            $listBody,
+            "Client row for {$clientId} does not show a Disable Client action — the enable action silently no-oped (row present but is_enabled still 0)",
+        );
     }
 
     private static function runAuthCodeFlow(
