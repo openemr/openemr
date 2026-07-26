@@ -93,6 +93,14 @@ jobs:
       # from "upgrade path broken" (different code paths).
       fail-fast: false
       matrix:
+        # Scenarios:
+        #   fresh-install   — CLI install-helper.php then acceptance suite
+        #   wizard-install  — no install-helper; InstallWizardUiTest
+        #                     drives setup.php via Panther instead
+        #   upgrade         — CLI install then CLI sql_upgrade; only on
+        #                     workflow_dispatch (from_version tarball
+        #                     doesn't exist for the default 8.2.0)
+        #
         # Upgrade scenario is only included on workflow_dispatch (where
         # the caller supplies from_version + to_version explicitly). On
         # push/PR/schedule the from_version default would need to point
@@ -101,7 +109,7 @@ jobs:
         # page (patch releases only shipped .zip patches). Once 8.3.0
         # releases and the from_version default becomes 8.2.0 → 8.3.0,
         # the upgrade scenario can move back into the default matrix.
-        scenario: ${{ github.event_name == 'workflow_dispatch' && fromJson('["fresh-install","upgrade"]') || fromJson('["fresh-install"]') }}
+        scenario: ${{ github.event_name == 'workflow_dispatch' && fromJson('["fresh-install","wizard-install","upgrade"]') || fromJson('["fresh-install","wizard-install"]') }}
     env:
       FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}
       TO_VERSION: ${{ inputs.to_version || '8.2.0' }}
@@ -137,6 +145,21 @@ jobs:
     - name: Run acceptance suite (fresh-install of to_version)
       if: matrix.scenario == 'fresh-install'
       run: composer acceptance -- --group=fresh-install
+
+    # ==== wizard-install scenario ====
+    # Boots the artifact WITHOUT running install-helper.php so the
+    # artifact serves setup.php on /. InstallWizardUiTest then drives
+    # the wizard via Panther end-to-end (state 0 → 3 + verify / now
+    # redirects to login). Covers what Phase 3's CLI install path
+    # bypasses: setup.php's browser-facing state machine, form
+    # rendering, CSRF, cookie-based state.
+    - name: Boot tarball artifact (to_version, no install-helper)
+      if: matrix.scenario == 'wizard-install'
+      run: tests/Acceptance/bin/boot-package.sh --skip-install-helper "${TO_VERSION}"
+
+    - name: Run acceptance suite (wizard-install of to_version)
+      if: matrix.scenario == 'wizard-install'
+      run: composer acceptance -- --group=wizard-install
 
     # ==== upgrade scenario ====
     - name: Boot tarball artifact (from_version)
