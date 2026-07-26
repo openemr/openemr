@@ -323,7 +323,7 @@ jobs:
         extensions: curl, dom, mbstring, tokenizer, xml, zip
 
     - name: Set up Node for `npm ci` + `npm run build`
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         # Match build-release.yml (the canonical release-time tarball
         # builder) — this job is validating what that same shape would
