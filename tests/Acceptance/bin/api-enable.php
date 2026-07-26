@@ -114,8 +114,11 @@ try {
     $mapping = json_decode($mappingJson, true, 512, JSON_THROW_ON_ERROR);
     foreach (['site_addr_oath', 'rest_api', 'rest_fhir_api', 'rest_portal_api'] as $key) {
         if (empty($mapping[$key])) {
-            fwrite(STDERR, "api-enable.php: could not find '{$key}' input by label — admin panel structure may have regressed\n");
-            exit(1);
+            // Throw rather than exit() so the outer finally block runs
+            // (Chrome subprocess gets $client->quit() and doesn't leak).
+            throw new RuntimeException(
+                "could not find '{$key}' input by label — admin panel structure may have regressed",
+            );
         }
         echo "    {$key} → form field '{$mapping[$key]['name']}' (type={$mapping[$key]['type']})\n";
     }
@@ -198,8 +201,11 @@ try {
         }
     }
     if (!empty($failed)) {
-        fwrite(STDERR, "api-enable.php: post-save verification failed for: " . implode(', ', $failed) . "\n");
-        exit(1);
+        // Throw rather than exit() so the outer finally block runs
+        // (Chrome subprocess gets $client->quit() and doesn't leak).
+        throw new RuntimeException(
+            'post-save verification failed for: ' . implode(', ', $failed),
+        );
     }
 
     echo "==> Bootstrap complete: API enabled + site_addr_oath set\n";

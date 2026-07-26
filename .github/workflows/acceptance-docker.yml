@@ -385,19 +385,24 @@ jobs:
       run: composer acceptance -- --group=${{ matrix.test_group }}
 
     # api-enable bootstrap fires AFTER the fresh-install group only
-    # (not upgrade — the target of upgrade is api-enabled downstream
-    # by its own path). Order matters: OAuth2SmokeTest's fresh-install
-    # tag asserts the API-disabled 404 gate that ships by default;
-    # the bootstrap flips those globals so the api-enabled group
-    # asserts the opposite behavior (endpoints return 200).
+    # (not the plain upgrade scenario — the target of upgrade is api-
+    # enabled downstream by its own path). The docker workflow uses
+    # `fresh-install-from` and `fresh-install-to` as its two fresh-
+    # install matrix values (the `-from` / `-to` distinction lets the
+    # single fresh-install scenario stand in for both sides of a
+    # future upgrade-target artifact test). Order matters:
+    # OAuth2SmokeTest's fresh-install-tagged assertions verify the
+    # API-disabled 404 gate that ships by default; the bootstrap
+    # flips those globals so the api-enabled group asserts the
+    # opposite behavior (endpoints return 200).
     - name: Bootstrap API via admin panel
-      if: matrix.scenario == 'fresh-install'
+      if: startsWith(matrix.scenario, 'fresh-install')
       env:
         OPENEMR_ENABLE_API_BOOTSTRAP: '1'
       run: php tests/Acceptance/bin/api-enable.php
 
     - name: Run acceptance suite (--group=api-enabled) against ${{ steps.tags.outputs.boot_tag }}
-      if: matrix.scenario == 'fresh-install'
+      if: startsWith(matrix.scenario, 'fresh-install')
       run: composer acceptance -- --group=api-enabled
 
     # ==== Upgrade-scenario-only steps (image swap + post-upgrade suite) ====
