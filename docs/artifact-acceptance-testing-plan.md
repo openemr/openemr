@@ -326,12 +326,22 @@ Shared harness compose files under `.github/docker/`:
 
 ## Phased plan
 
-**Rollout order**: `1 → 2 → 2.5 → 3 → 4 → 5 → 6 → 7`. Phases execute in
-numeric order. Phase 6 was added 2026-07-24 as a scoped-out follow-up
-to Phase 5 — Phase 5 alone doesn't unlock full-fidelity PR-image
-validation (see [Phase 5](#phase-5--retire-the-tests-in-image-dependency)
-and [Phase 6](#phase-6--full-fidelity-pr-image-testing-source-mode-indirection)
-for the misread-and-correction thread that generated Phase 6).
+**Rollout order**: `1 → 2 → 2.5 → 3 → 4 → 3.5 → 5 → 6 → 7`. Phases
+execute roughly in numeric order with two intentional out-of-numeric
+insertions:
+
+- Phase 6 was added 2026-07-24 as a scoped-out follow-up to Phase 5
+  — Phase 5 alone doesn't unlock full-fidelity PR-image validation
+  (see [Phase 5](#phase-5--retire-the-tests-in-image-dependency)
+  and [Phase 6](#phase-6--full-fidelity-pr-image-testing-source-mode-indirection)
+  for the misread-and-correction thread that generated Phase 6).
+- Phase 3.5 was formalized 2026-07-26 as the tarball counterpart to
+  Phase 2.5's docker `build_locally` mode — originally called out
+  as a "possible follow-up" in Phase 3's shipped-scope notes but
+  not planned as a discrete phase until then. Rollout slot is
+  after Phase 4 because Phase 4 was already in flight when 3.5
+  got formalized; nothing in 3.5's design depends on Phase 4, but
+  reordering an in-flight phase would be pointless churn.
 
 ### Phase 1 — Planning + one representative test  *(SHIPPED 2026-07-24)*
 
@@ -449,6 +459,48 @@ upgrade path. Roughly 1 week.
   opt-in (matches `contrib/util/installScripts/InstallerAuto.php`).
 - `.github/docker/` added to dependabot; mariadb + flex images
   sha-pinned.
+
+### Phase 3.5 — Build-from-codebase for package/tarball PR validation
+
+Analogous to Phase 2.5 for docker, but far simpler because
+`PackageAssembler` already builds a tarball from local source (no
+"checkout ref vs source ref" decoupling problem like the docker
+Dockerfile has — that's why Phase 6 needs source-mode indirection
+while 3.5 does not).
+
+Adds `build_locally: bool` workflow_dispatch input + auto-fire on
+any PR/push touching `tools/release/PackageAssembler.php` or
+release-time tarball-shape files. When enabled, a `build-tarball`
+job runs `PackageAssembler` on the PR checkout, uploads the result
+as a workflow artifact (~200 MB via `actions/upload-artifact`).
+The existing acceptance matrix legs then download+extract into
+`TARBALL_DIR` instead of curling from the GitHub releases page.
+
+Two invocation shapes fire from a single workflow run:
+
+- `fresh-install` scenario — boots the PR-built tarball, runs
+  `InstallTest` + `fresh-install` group + `api-enable.php` bootstrap
+  + `--group=api-enabled`.
+- `upgrade` scenario — boots from_version (shipped tarball from
+  GitHub releases), runs `fresh-install` group, upgrades to
+  PR-built tarball via `upgrade-package.sh`, runs
+  `--group=post-upgrade`.
+
+Also unblocks CI's `upgrade` + `wizard-upgrade` scenarios: those
+are workflow_dispatch-only today because from_version defaults
+would need a shipped earlier tarball (only 8.2.0 has one). With
+PR-built acting as to_version and any shipped tarball as
+from_version, the matrix can gate off `github.event_name ==
+'workflow_dispatch' || build_locally`.
+
+Purpose: answer "will this PR ship a broken tarball?" *pre-merge*
+rather than catching it only after the release-prep conductor
+runs `PackageAssembler` at ship time.
+
+Exit criterion: workflow succeeds with `build_locally: true` on a
+scratch PR that intentionally touches `PackageAssembler` (e.g.
+adds a no-op comment), demonstrating pre-merge PR-tarball
+validation works end-to-end. Roughly 3 days.
 
 ### Phase 4 — Broaden test coverage
 
@@ -661,7 +713,9 @@ Closes the gap Phase 2.5 leaves open: today Phase 2.5's
 hybrid, because the Dockerfile hardcodes `git clone
 https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION}"`.
 Phase 6 lets the docker build consume the PR's local checkout as
-source (matching what Phase 3 gets for free with tarballs).
+source (matching what Phase 3.5 gives the tarball path via
+`PackageAssembler` — the tarball toolchain already builds from local
+source with no source-vs-checkout decoupling to unwind).
 
 **Non-trivial constraint** — the release pipeline currently
 depends on the "checkout ref vs source ref are different"
