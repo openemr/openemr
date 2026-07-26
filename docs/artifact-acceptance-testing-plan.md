@@ -578,13 +578,29 @@ docker skips wizards entirely via env-var auto-install. Depends on
     option.click() didn't fire the select's change handler in
     headless mode (switched to executeScript with dispatchEvent).
 
-**4a-3 — pending, sequenced last.** Authenticated Bearer-token
-access — `GET /apis/default/api/version` with a real access token.
-Also lands the "successful-flow" assertions that were originally
-scoped for 4a-2 (OIDC discovery returning provider metadata, DCR
-minting client credentials against an API-enabled artifact) — those
-were cut back in 4a-2 to safety-net-gate assertions because API is
-disabled by default.
+**4a-3 — SHIPPED (first slice, 2026-07-26, #13201). Second slice
+pending.**
+
+  * **4a-3 (1/2) — SHIPPED 2026-07-26 (#13201)**. Panther admin-
+    panel bootstrap for API-enable + `site_addr_oath` (via new
+    `tests/Acceptance/bin/api-enable.php`, guarded by
+    `OPENEMR_ENABLE_API_BOOTSTRAP=1` opt-in + CLI-only guard) plus
+    `OAuth2ApiEnabledTest` with the successful-flow OIDC discovery
+    + DCR assertions that were cut back from 4a-2. Workflow wired
+    in both acceptance-docker and acceptance-package to run the
+    bootstrap after the fresh-install group, then the api-enabled
+    group. Bootstrap resolves target fields by label-text walk
+    since form_N indices shift when globals.inc.php gets added-to.
+
+  * **4a-3 (2/2) — pending.** Full authenticated Bearer-token
+    `GET /apis/default/api/version` with a real access token minted
+    via DCR + auth-code flow (login form scrape + consent form
+    scrape + code exchange). The 4a-3 (1/2) bootstrap already
+    handles both prerequisites (API-enable + site_addr_oath) so
+    this slice is just the auth-code flow itself + the Bearer
+    endpoint assertion. Analog of AuthorizationLogoutFullFlowTest
+    (openemr/openemr#13175) minus the DB-seeding, plus a Bearer
+    call at the end.
 
 Two prerequisites, both handled inside this slice:
 
