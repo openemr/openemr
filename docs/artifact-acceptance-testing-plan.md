@@ -478,12 +478,18 @@ it. Original plan for this slice was successful DCR + authenticated
 `/api/version` — cut back after local repro on `openemr/openemr:latest`
 showed OAuth2 endpoints are 404-gated on any default install.
 
-**4b — pending**. Panther + Selenium plumbing (headless browser
-first-introduction to acceptance) + `E2eCriticalPathTest` (one
-critical flow — admin login → patient add → encounter start).
-Decision: bundled ChromeDriver on runner (simpler) vs selenium
-service in compose files (matches dev-stack pattern). Foundation
-that 4c and 4a-3 both build on.
+**4b — SHIPPED 2026-07-26 (#13196)**. `Support/BrowserSession`
+Panther factory (local ChromeDriver + Selenium-grid backends,
+env-var selected via `SELENIUM_USE_GRID`) + `E2eCriticalPathTest`
+asserting admin login → Knockout main menu render. Chrome install
+in both acceptance workflows via `nanasess/setup-chromedriver@v2`
+matched against the runner's pre-installed google-chrome — chosen
+over `browser-actions/setup-chrome@v1` after that action's
+Chrome/ChromeDriver release-cadence drift shipped a mismatched pair
+mid-PR. Original scope of "admin login → patient add → encounter
+start" cut to just login+menu-render for the first Panther-in-
+acceptance PR — more critical-path steps land as follow-ups once
+plumbing is proven in CI. Foundation that 4c and 4a-3 both build on.
 
 **4c — pending**. Wizard-UI tests (tarball-only): `InstallWizardUiTest`
 + `UpgradeWizardUiTest`. Browser-driven walkthrough of setup.php's
