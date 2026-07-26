@@ -183,10 +183,20 @@ final class InstallWizardUiTest extends TestCase
         // 3 reported success but `/` still shows setup.php or errors,
         // the install didn't actually take effect — this catches that.
         $client->request('GET', '/');
+        // Assert BOTH the current URL redirected away from `/` to the
+        // login route AND the page title matches "OpenEMR Login". Title
+        // alone would pass if a root handler ever rendered a login-page
+        // template inline at `/` without redirecting; asserting the URL
+        // change is the "redirect actually happened" proof.
+        self::assertStringContainsString(
+            '/interface/login/login.php',
+            $client->getCurrentURL(),
+            'GET / after wizard install should redirect to /interface/login/login.php — staying at / means the install did not actually take effect (sqlconf.php $config still 0)',
+        );
         self::assertStringContainsString(
             'OpenEMR Login',
             $client->getTitle(),
-            'GET / after wizard install should redirect to the login page — a different title means the wizard reported success but the install did not actually take effect',
+            'Post-redirect page title should be "OpenEMR Login" — a different title after the redirect target check passes means the login route rendered something unexpected',
         );
     }
 
