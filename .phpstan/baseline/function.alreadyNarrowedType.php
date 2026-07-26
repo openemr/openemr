@@ -122,11 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with list\\<array\\> will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',

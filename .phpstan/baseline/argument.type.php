@@ -22882,8 +22882,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_278_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$separator of function explode expects non\\-empty\\-string, mixed given\\.$#',
-    'count' => 35,
+    'message' => '#^Parameter \\#1 \\$separator of function explode expects non\\-empty\\-string, string given\\.$#',
+    'count' => 16,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
@@ -22902,17 +22902,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$delimiters of function edih_835_clp_summary expects array, mixed given\\.$#',
+    'message' => '#^Parameter \\#4 \\$delimiters of function edih_835_clp_summary expects array\\{e\\: string, s\\: string, r\\?\\: string\\}, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$delimiters of function edih_835_payment_html expects array, mixed given\\.$#',
+    'message' => '#^Parameter \\#4 \\$delimiters of function edih_835_payment_html expects array\\{e\\: string, s\\: string, r\\?\\: string\\}, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$delimiters of function edih_835_transaction_html expects array, mixed given\\.$#',
+    'message' => '#^Parameter \\#4 \\$delimiters of function edih_835_transaction_html expects array\\{e\\: string, s\\: string, r\\?\\: string\\}, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
