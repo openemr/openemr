@@ -491,12 +491,30 @@ start" cut to just login+menu-render for the first Panther-in-
 acceptance PR — more critical-path steps land as follow-ups once
 plumbing is proven in CI. Foundation that 4c and 4a-3 both build on.
 
-**4c — pending**. Wizard-UI tests (tarball-only): `InstallWizardUiTest`
-+ `UpgradeWizardUiTest`. Browser-driven walkthrough of setup.php's
-multi-step state machine and sql_upgrade.php's version-selector
-form. Fires only on the tarball acceptance workflow (docker skips
-the wizard via env-var auto-install). Depends on 4b's Panther
-plumbing.
+**4c — sliced into 4c-1 and 4c-2.** Wizard-UI tests, tarball-only —
+docker skips wizards entirely via env-var auto-install. Depends on
+4b's Panther plumbing.
+
+  * **4c-1 — SHIPPED 2026-07-26 (#13198)**. `InstallWizardUiTest`
+    walks setup.php state machine 0 → 1 → 2 → 3 via Panther, then
+    verifies GET / redirects to the login page as the definitive
+    "install actually took effect" signal. `boot-package.sh` grew
+    a `--skip-install-helper` flag so the artifact serves setup.php
+    on a fresh boot; `acceptance-package.yml` matrix grew a
+    `wizard-install` scenario firing on push/PR/schedule. States
+    4-7 (informational pages: PHP config, web server config, theme
+    select, final credentials display) not walked — the login-page
+    redirect is a stronger signal than walking decorative pages.
+    Documented two Panther form-fill quirks inline: (1) submitForm
+    silently drops POSTs when the value array contains a field
+    the DOM lacks, and (2) button-click sometimes doesn't fire
+    when the button label has nested icon markup — switched to
+    findElement+sendKeys and form-element `.submit()` respectively.
+
+  * **4c-2 — pending**. `UpgradeWizardUiTest` — analogous to 4c-1
+    but for sql_upgrade.php's version-selector form. Needs a
+    `--skip-upgrade` flag on `upgrade-package.sh` + a
+    `wizard-upgrade` matrix scenario in the workflow.
 
 **4a-3 — pending, sequenced last.** Authenticated Bearer-token
 access — `GET /apis/default/api/version` with a real access token.
