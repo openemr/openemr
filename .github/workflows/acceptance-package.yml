@@ -325,7 +325,11 @@ jobs:
     - name: Set up Node for `npm ci` + `npm run build`
       uses: actions/setup-node@v6
       with:
-        node-version: '22'
+        # Match build-release.yml (the canonical release-time tarball
+        # builder) — this job is validating what that same shape would
+        # produce, so drifting node-version between them defeats the
+        # point. Also matches styling.yml + js-test.yml + inferno-test.
+        node-version: '24'
 
     - name: Install harness composer deps (autoloader for PackageAssembler)
       # tools/release/bin/package-assemble.php requires vendor/autoload.php
