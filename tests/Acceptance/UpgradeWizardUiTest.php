@@ -118,46 +118,62 @@ final class UpgradeWizardUiTest extends TestCase
             . implode(', ', $optionValues),
         );
 
-        // Step 3: select the from-version and submit. Use direct
-        // element manipulation for the same reason Phase 4c-1's
-        // InstallWizardUiTest does: submitForm() silently drops POSTs
-        // when the values array references DOM-missing fields, and
-        // button-click-with-nested-icon-markup sometimes doesn't
-        // fire. findElement + JS-driven change event + form-element
-        // .submit() bypasses both quirks.
-        $select = $client->findElement(WebDriverBy::name('form_old_version'));
-        // The select's <option> uses `value='<version>'`; find and click.
-        $client->findElement(WebDriverBy::cssSelector(
-            'select[name="form_old_version"] option[value="' . $fromVersion . '"]',
-        ))->click();
-        // Confirm the selection took (browser sync).
+        // Step 3: select the from-version and submit. Options via
+        // JS-driven .value + change event (Panther/ChromeDriver's
+        // findElement(option)->click() doesn't reliably trigger the
+        // select's change handler in a headless context), then click
+        // the plain submit button — sql_upgrade.php's button has no
+        // nested icon markup so the Phase 4c-1 button-click quirk
+        // doesn't apply here (verified against setup.php's
+        // Create-DB-and-User button in InstallWizardUiTest, which
+        // DID have that quirk because it wrapped an <i class="fas">).
+        $client->executeScript(
+            'const s = document.querySelector("select[name=\"form_old_version\"]");'
+            . 's.value = arguments[0];'
+            . 's.dispatchEvent(new Event("change", {bubbles: true}));',
+            [$fromVersion],
+        );
         self::assertSame(
             $fromVersion,
-            $select->getAttribute('value'),
-            'form_old_version select should reflect the clicked option value',
+            $client->findElement(WebDriverBy::name('form_old_version'))->getAttribute('value'),
+            'form_old_version select should reflect the JS-assigned value',
         );
-        // The sql_upgrade.php form has no `id` attribute; find via CSS.
-        $client->findElement(WebDriverBy::cssSelector('form[action="sql_upgrade.php"]'))->submit();
+        $client->findElement(WebDriverBy::cssSelector('button[name="form_submit"]'))->click();
 
-        // Step 4: assert the migration ran without ERROR / FAILED
-        // markers in the response body. Mirrors InstallWizardUiTest's
-        // state 3 sanity check. sql_upgrade.php's success path prints
-        // green "success" indicators for each migration file it
-        // processes; the failure path prints "ERROR" or "FAILED" in
-        // red. Absence of both is the "no migration failed" signal.
+        // Step 4: assert the migration ran through completion. Wait
+        // for the definitive "Database and Access Control upgrade
+        // finished." marker — sql_upgrade.php emits this only at the
+        // end of the post-submit handler (line 563), immediately
+        // before exit(). Choosing this specific string (rather than
+        // e.g. "Upgrade" which is present on the initial form's
+        // "Upgrade Database" button, or "Updating UUIDs" which fires
+        // partway through) means the wait only settles once the
+        // migration has run all the way through, not on any of the
+        // in-flight or pre-submit states.
         //
-        // Wait for the body to contain "Upgrade" (the response title
-        // or heading text after the form re-renders) so we're not
-        // asserting on the still-visible form-submission page.
+        // 120s timeout — real migrations can take a few minutes on
+        // large-jump upgrades (the sql_upgrade.php form itself warns
+        // "several minutes to several hours" for pre-5.0.0 upgrades).
+        // Give it enough headroom for the tests' typical single-minor
+        // jumps.
         try {
-            $client->waitForElementToContain('body', 'Upgrade', 60);
+            $client->waitForElementToContain(
+                'body',
+                'Database and Access Control upgrade finished.',
+                120,
+            );
         } catch (TimeoutException) {
             self::fail(
-                "sql_upgrade.php post-submit response did not contain 'Upgrade' within 60s. "
+                "sql_upgrade.php never emitted its completion marker "
+                . "('Database and Access Control upgrade finished.') within 120s. "
                 . "Current URL: {$client->getCurrentURL()}. "
                 . "The migration script may have hung, crashed, or returned an unexpected shape.",
             );
         }
+        // Also assert no ERROR / FAILED markers in the body — the
+        // completion string could theoretically appear alongside a
+        // partial-failure banner. Mirrors InstallWizardUiTest's
+        // state 3 sanity check pattern.
         $body = $client->getCrawler()->filter('body')->text();
         self::assertStringNotContainsString(
             'ERROR',
