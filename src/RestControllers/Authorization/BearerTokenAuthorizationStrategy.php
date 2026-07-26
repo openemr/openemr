@@ -217,12 +217,12 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             throw new HttpException(400);
         }
 
-        if (!$this->isValidRequestForUserRole($request, $attributes['oauth_scopes'], $userRole)) {
-            throw new HttpException(403, "User role does not have permission to access this resource.");
-        }
-
         if ($isExternalToken && !empty($attributes['oauth_external_internal_scope_exchange'])) {
             $attributes['oauth_scopes'] = $this->exchangeExternalTokenScopes($request, $attributes['oauth_scopes'], $userRole);
+        }
+
+        if (!$this->isValidRequestForUserRole($request, $attributes['oauth_scopes'], $userRole)) {
+            throw new HttpException(403, "User role does not have permission to access this resource.");
         }
 
         // setup our scopes and other attributes needed before we setup the session as those are needed for session setup
@@ -459,8 +459,30 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         }
 
         if ($request->isStandardApiRequest()) {
-            if (preg_match('#/api/([^/?]+)#', $path, $matches) === 1) {
-                return trim($matches[1]) !== '' ? trim($matches[1]) : null;
+            if (preg_match('#/api/(.+)$#', $path, $matches) === 1) {
+                $tail = trim((string) $matches[1], '/');
+                if ($tail === '') {
+                    return null;
+                }
+                $parts = array_values(array_filter(explode('/', $tail), static fn($part) => trim((string) $part) !== ''));
+                if ($parts === []) {
+                    return null;
+                }
+                $resource = null;
+                foreach ($parts as $part) {
+                    $segment = trim((string) $part);
+                    if ($segment === '' || $segment[0] === '$') {
+                        continue;
+                    }
+                    if (preg_match('/^\d+$/', $segment) === 1) {
+                        continue;
+                    }
+                    if (preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/', $segment) === 1) {
+                        continue;
+                    }
+                    $resource = $segment;
+                }
+                return $resource;
             }
             return null;
         }
