@@ -64,6 +64,31 @@ on:
         description: 'Build target tarball from the PR checkout via PackageAssembler instead of downloading to_version from the GitHub release page (Phase 3.5 PR-tarball validation)'
         type: boolean
         default: false
+  # Phase 7c: called by build-release.yml as a pre-publish gate. The
+  # caller has already built the release tarball, uploads it as a
+  # workflow-run artifact, and dispatches this workflow with the
+  # artifact name + version label. When these inputs are set, the
+  # build-tarball job self-skips (tarball already exists) and the
+  # acceptance matrix downloads the caller's artifact instead.
+  # Enables build-release.yml to gate GitHub-releases publish on
+  # acceptance success. See workflow_call block below.
+  workflow_call:
+    inputs:
+      from_version:
+        description: 'Prior openemr version for the upgrade scenario. Defaults to 8.2.0.'
+        required: false
+        type: string
+        default: '8.2.0'
+      to_version:
+        description: 'Version label for the caller-supplied tarball (drives artifact filename lookup + upgrade guards). Required when caller_tarball_artifact is set.'
+        required: false
+        type: string
+        default: ''
+      caller_tarball_artifact:
+        description: 'Name of the workflow-run artifact holding the caller-supplied tarball (openemr-<to_version>.tar.gz). When set, skips this workflow build-tarball job and treats the caller-supplied tarball as if it were PR-built.'
+        required: false
+        type: string
+        default: ''
   push:
     paths:
     - '.github/workflows/acceptance-package.yml'
@@ -149,6 +174,7 @@ jobs:
         EVENT_NAME: ${{ github.event_name }}
         DISPATCH_BUILD_LOCALLY: ${{ inputs.build_locally }}
         DISPATCH_TO_VERSION: ${{ inputs.to_version }}
+        CALLER_TARBALL_ARTIFACT: ${{ inputs.caller_tarball_artifact }}
         PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
@@ -186,6 +212,33 @@ jobs:
           echo "to_version=${candidate}" >> "$GITHUB_OUTPUT"
           echo "==> resolved to_version=${candidate}"
         }
+
+        # Phase 7c workflow_call gate — caller (build-release.yml)
+        # already has the tarball built and uploaded as an artifact.
+        # Skip the diff-detection dance entirely; treat as build_locally=true
+        # with the caller-supplied version. The build-tarball job self-
+        # skips (see its `if:` condition below) and the bootflags step
+        # downloads the caller's artifact name instead of Phase 3.5's
+        # `openemr-pr-built-tarball` default.
+        #
+        # Detect on CALLER_TARBALL_ARTIFACT being non-empty, NOT on
+        # $EVENT_NAME == 'workflow_call' — GitHub Actions reports the
+        # original event that started the CALLING workflow in a called
+        # workflow's github.event_name (so workflow_dispatch of build-
+        # release.yml surfaces as workflow_dispatch here, not
+        # workflow_call). The caller_tarball_artifact input is only
+        # populated in workflow_call invocations, so it's the reliable
+        # signal.
+        if [[ -n "$CALLER_TARBALL_ARTIFACT" ]]; then
+          if [[ -z "$DISPATCH_TO_VERSION" ]]; then
+            echo "::error::workflow_call with caller_tarball_artifact requires to_version to be set explicitly"
+            exit 1
+          fi
+          echo "==> workflow_call gate mode (caller=${CALLER_TARBALL_ARTIFACT}): forcing build_locally=true"
+          echo "build_locally=true" >> "$GITHUB_OUTPUT"
+          emit_to_version "true"
+          exit 0
+        fi
 
         # release-prep detection — the release-prep.yml conductor opens
         # a long-lived PR from release-prep/<rel-branch> INTO its
@@ -293,7 +346,14 @@ jobs:
   # registry or release page. Self-contained to this workflow run.
   build-tarball:
     needs: [detect-mode]
-    if: needs.detect-mode.outputs.build_locally == 'true'
+    # Skip when the caller (Phase 7c workflow_call gate) already
+    # supplied the tarball as an artifact — no point re-running
+    # PackageAssembler when the caller just did that against the exact
+    # tree being validated. The bootflags step downloads the caller's
+    # artifact by name in that case.
+    if: >-
+      needs.detect-mode.outputs.build_locally == 'true'
+      && inputs.caller_tarball_artifact == ''
     runs-on: ubuntu-24.04
     env:
       # Single source of truth for the to_version label — see the
@@ -403,7 +463,13 @@ jobs:
         # the from_version default becomes 8.2.0 → 8.3.0, both upgrade
         # scenarios can move back into the default matrix
         # unconditionally.
-        scenario: ${{ (github.event_name == 'workflow_dispatch' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('["fresh-install","wizard-install","upgrade","wizard-upgrade"]') || fromJson('["fresh-install","wizard-install"]') }}
+        # `inputs.caller_tarball_artifact` (workflow_call from
+        # build-release.yml's Phase 7c gate) also expands the matrix —
+        # can't gate on github.event_name for workflow_call because that
+        # reports the CALLING workflow's original event (typically
+        # workflow_dispatch), not "workflow_call". See detect-mode's
+        # gate check for the same signal choice.
+        scenario: ${{ (github.event_name == 'workflow_dispatch' || inputs.caller_tarball_artifact != '' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('["fresh-install","wizard-install","upgrade","wizard-upgrade"]') || fromJson('["fresh-install","wizard-install"]') }}
     env:
       FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}
       # Single source of truth for to_version — see the
@@ -434,23 +500,40 @@ jobs:
     - name: Install acceptance-suite composer dependencies
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
-    # ==== Phase 3.5: load PR-built tarball + resolve boot flags ====
-    - name: Download PR-built tarball (if build-tarball ran)
-      if: needs.build-tarball.result == 'success'
+    # ==== Load PR-built or caller-supplied tarball + resolve boot flags ====
+    # Two source paths converge here:
+    #   Phase 3.5 (PR validation): build-tarball job just uploaded
+    #     openemr-pr-built-tarball. Download that.
+    #   Phase 7c (workflow_call gate): caller (build-release.yml)
+    #     already uploaded the release-candidate tarball under
+    #     inputs.caller_tarball_artifact — build-tarball self-skipped.
+    #     Download that artifact name instead.
+    #
+    # Both land the tarball under /tmp/pr-built-tarball/openemr-<TO_VERSION>.tar.gz,
+    # so the bootflags step below doesn't need to care which path fired.
+    - name: Download PR-built tarball (Phase 3.5)
+      if: needs.build-tarball.result == 'success' && inputs.caller_tarball_artifact == ''
       uses: actions/download-artifact@v4
       with:
         name: openemr-pr-built-tarball
+        path: /tmp/pr-built-tarball
+
+    - name: Download caller-supplied tarball (Phase 7c gate)
+      if: inputs.caller_tarball_artifact != ''
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.caller_tarball_artifact }}
         path: /tmp/pr-built-tarball
 
     - name: Resolve boot flags for to_version
       # `to_local_flag` is spliced into every boot-package.sh
       # invocation that boots the to_version tarball;
       # `to_upgrade_local_flag` is spliced into upgrade-package.sh
-      # (different flag name, same file). When build-tarball ran,
-      # both point at the PR-built .tar.gz (downloaded above) and
-      # the underlying script skips its GitHub-release download
-      # entirely. Otherwise both are empty and the scripts do their
-      # normal curl.
+      # (different flag name, same file). When either the build-tarball
+      # job ran OR the caller supplied a tarball via workflow_call, both
+      # point at the local .tar.gz (downloaded above) and the underlying
+      # script skips its GitHub-release download entirely. Otherwise
+      # both are empty and the scripts do their normal curl.
       #
       # There is intentionally no `from_local_flag` — the upgrade
       # scenarios always boot the shipped from_version from GitHub
@@ -459,6 +542,7 @@ jobs:
       id: bootflags
       env:
         BUILD_TARBALL_RESULT: ${{ needs.build-tarball.result }}
+        CALLER_TARBALL_ARTIFACT: ${{ inputs.caller_tarball_artifact }}
         TO_VERSION: ${{ needs.detect-mode.outputs.to_version }}
       run: |
         set -euo pipefail
@@ -471,17 +555,24 @@ jobs:
           echo "::error::TO_VERSION '${TO_VERSION}' does not match required X.Y.Z"
           exit 1
         fi
-        if [[ "$BUILD_TARBALL_RESULT" == "success" ]]; then
+        # Local-tarball sources: either build-tarball job (Phase 3.5)
+        # or workflow_call caller-supplied artifact (Phase 7c). Both
+        # download to /tmp/pr-built-tarball/openemr-<TO_VERSION>.tar.gz.
+        if [[ "$BUILD_TARBALL_RESULT" == "success" || -n "$CALLER_TARBALL_ARTIFACT" ]]; then
           LOCAL_PATH="/tmp/pr-built-tarball/openemr-${TO_VERSION}.tar.gz"
           if [[ ! -f "$LOCAL_PATH" ]]; then
-            echo "::error::build-tarball artifact was reported successful but $LOCAL_PATH is not present"
+            echo "::error::local-tarball path expected but $LOCAL_PATH is not present"
             exit 1
           fi
-          echo "==> Using PR-built tarball for to_version: $LOCAL_PATH"
+          if [[ -n "$CALLER_TARBALL_ARTIFACT" ]]; then
+            echo "==> Using caller-supplied tarball (Phase 7c): $LOCAL_PATH"
+          else
+            echo "==> Using PR-built tarball (Phase 3.5): $LOCAL_PATH"
+          fi
           echo "to_local_flag=--local-tarball=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
           echo "to_upgrade_local_flag=--to-local-tarball=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
         else
-          echo "==> No PR-built tarball; to_version will be fetched from the GitHub release page"
+          echo "==> No local tarball; to_version will be fetched from the GitHub release page"
           echo "to_local_flag=" >> "$GITHUB_OUTPUT"
           echo "to_upgrade_local_flag=" >> "$GITHUB_OUTPUT"
         fi
