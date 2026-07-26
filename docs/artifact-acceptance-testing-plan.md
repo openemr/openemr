@@ -511,10 +511,20 @@ docker skips wizards entirely via env-var auto-install. Depends on
     when the button label has nested icon markup — switched to
     findElement+sendKeys and form-element `.submit()` respectively.
 
-  * **4c-2 — pending**. `UpgradeWizardUiTest` — analogous to 4c-1
-    but for sql_upgrade.php's version-selector form. Needs a
-    `--skip-upgrade` flag on `upgrade-package.sh` + a
-    `wizard-upgrade` matrix scenario in the workflow.
+  * **4c-2 — SHIPPED 2026-07-26 (#13199)**. `UpgradeWizardUiTest`
+    walks sql_upgrade.php's version-selector form via Panther:
+    load /sql_upgrade.php → select from-version → submit → wait
+    for "Database and Access Control upgrade finished." marker →
+    verify GET / redirects to login. `upgrade-package.sh` grew a
+    `--skip-sql-upgrade` flag (extracts to-tarball + overlays
+    from-version's sites/ + swaps bind mount, but skips step 5's
+    CLI sql_upgrade). `acceptance-package.yml` matrix grew a
+    `wizard-upgrade` scenario, gated on workflow_dispatch alongside
+    the plain upgrade scenario (same "no earlier tarball" reason).
+    Panther interaction quirks documented: form-element `.submit()`
+    left DOM stale on sql_upgrade.php (switched to button.click());
+    option.click() didn't fire the select's change handler in
+    headless mode (switched to executeScript with dispatchEvent).
 
 **4a-3 — pending, sequenced last.** Authenticated Bearer-token
 access — `GET /apis/default/api/version` with a real access token.
