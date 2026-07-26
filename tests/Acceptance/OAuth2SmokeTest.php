@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance;
 
 use OpenEMR\Tests\Acceptance\Support\ArtifactBrowser;
+use OpenEMR\Tests\Acceptance\Support\ResponseHeaders;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -82,6 +83,17 @@ final class OAuth2SmokeTest extends TestCase
             'OIDC discovery must be 404 on a default (API-disabled) install — a 200 response means the OAuth2AuthorizationListener gate has been bypassed and the OAuth2 surface is now reachable anonymously',
         );
 
+        // Content-Type asserted BEFORE json_decode because a JSON-shaped
+        // response served with the wrong media type (text/html, text/plain)
+        // fails machine-readable clients even though json_decode would
+        // still parse the body. Assert the media-type prefix so a
+        // ; charset=utf-8 suffix doesn't break the check.
+        self::assertStringStartsWith(
+            'application/json',
+            ResponseHeaders::first($response, 'Content-Type'),
+            'API-disabled response must be served as application/json — a text/html response means an unhandled framework exception rendered the default HTML error page instead of the RestConfig-shaped JSON error body',
+        );
+
         $body = json_decode($response->getContent(), true);
         self::assertIsArray(
             $body,
@@ -128,6 +140,12 @@ final class OAuth2SmokeTest extends TestCase
             404,
             $response->getStatusCode(),
             'DCR must be 404 on a default (API-disabled) install — a 200/201 response means anonymous callers can now mint client credentials against a fresh openemr',
+        );
+
+        self::assertStringStartsWith(
+            'application/json',
+            ResponseHeaders::first($response, 'Content-Type'),
+            'API-disabled DCR response must be served as application/json for machine-readable error handling',
         );
 
         $body = json_decode($response->getContent(), true);
