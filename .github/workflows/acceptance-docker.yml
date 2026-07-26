@@ -345,6 +345,18 @@ jobs:
         # but naming them keeps failure modes obvious).
         extensions: curl, dom, mbstring, tokenizer, xml
 
+    # Chrome for the E2eCriticalPathTest — Panther launches a headless
+    # subprocess Chrome bound to the mapped artifact port. The runner's
+    # apt-provided chromium works too, but setup-chrome pins to a
+    # tested-with-Panther release channel and installs the matching
+    # ChromeDriver alongside so Panther's driver-version-detection just
+    # works.
+    - name: Set up Chrome for Panther-driven acceptance tests
+      uses: browser-actions/setup-chrome@v1
+      with:
+        chrome-version: stable
+        install-chromedriver: true
+
     - name: Install acceptance-suite composer dependencies
       # `--no-scripts` skips OpenEMR's post-install scripts (they assume
       # the full app runtime context; acceptance only needs vendor/).
