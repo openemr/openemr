@@ -20,6 +20,7 @@
  * (Phase 3.5) — the workflow builds the tarball from the PR checkout and
  * runs the fresh-install + upgrade acceptance groups against it, catching
  * assembler regressions pre-merge instead of at release-conductor time.
+ * See docs/artifact-acceptance-testing-plan.md for the phase design.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
