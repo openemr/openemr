@@ -195,7 +195,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         return $processingResult;
     }
 
-    private function parseSocialHistoryIntoObservationRecords(ProcessingResult $processingResult, $record, $observationCodesToReturn): void
+    private function parseSocialHistoryIntoObservationRecords(ProcessingResult $processingResult, array $record, array $observationCodesToReturn): void
     {
         $uuidMappings = $this->getUuidMappings(UuidRegistry::uuidToBytes($record['uuid']));
         // convert each record into it's own openEMR record array
