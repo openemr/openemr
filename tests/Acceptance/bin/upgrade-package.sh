@@ -155,7 +155,12 @@ fi
 # bind mount (compose stop + up --force-recreate), so there's no
 # lingering side effect on the downstream to_version boot.
 export TARBALL_DIR="${FROM_TARBALL_DIR}"
-docker compose exec -T openemr chown -R "$(id -u):$(id -g)" /var/www/localhost/htdocs/openemr/sites
+# Split `id -u` / `id -g` into their own vars — shellcheck SC2312
+# flags inline `$(...)` in a compound command because a failing
+# substitution's non-zero exit is masked by the outer chown.
+RUNNER_UID="$(id -u)"
+RUNNER_GID="$(id -g)"
+docker compose exec -T openemr chown -R "${RUNNER_UID}:${RUNNER_GID}" /var/www/localhost/htdocs/openemr/sites
 
 echo "==> Preparing scratch dir at ${TO_TARBALL_DIR}"
 rm -rf "${TO_TARBALL_DIR}"
