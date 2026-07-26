@@ -1229,11 +1229,16 @@
       <xsl:text>: </xsl:text>
    </xsl:template>
    <!--  Tables   -->
+   <!--
+     Attribute-node template. Not reached by current callers (parent
+     element templates handle attribute copying via safe-copy-narrative-attrs),
+     but kept and gated so any future <xsl:apply-templates select="@*"/> call
+     also respects the allowlist rather than blindly copying.
+   -->
    <xsl:template match="n1:table/@*|n1:thead/@*|n1:tfoot/@*|n1:tbody/@*|n1:colgroup/@*|n1:col/@*|n1:tr/@*|n1:th/@*|n1:td/@*">
-      <xsl:copy>
-         <xsl:call-template name="safe-copy-narrative-attrs"/>
-         <xsl:apply-templates/>
-      </xsl:copy>
+      <xsl:if test="contains($narrative-block-attr-allowlist, concat(' ', local-name(.), ' '))">
+         <xsl:copy/>
+      </xsl:if>
    </xsl:template>
    <xsl:template match="n1:table">
       <table class="narr_table">

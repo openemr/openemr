@@ -85,6 +85,54 @@ XSL;
     }
 
     /**
+     * Belt-and-suspenders coverage for the attribute-match templates in
+     * ccd.xsl/qrda.xsl that match `n1:table/@*|n1:thead/@*|...`. Not
+     * currently reached by production callers (parent element templates
+     * copy attributes via safe-copy-narrative-attrs), but gated so any
+     * future `<xsl:apply-templates select="@*"/>` respects the allowlist.
+     *
+     * Test drives that path directly against ccd.xsl and asserts drops.
+     */
+    public function testCcdAttributeMatchTemplateAppliesAllowlist(): void
+    {
+        $ccdPath = realpath(self::XSL_DIR . '/ccd.xsl');
+        self::assertNotFalse($ccdPath, 'ccd.xsl must resolve');
+
+        // Wrapper imports ccd.xsl and drives the attribute-match template by
+        // explicitly applying to @* on our synthetic root. Overrides ccd.xsl's
+        // match="/" template (import lowers priority) so we don't get pulled
+        // into CCD's full rendering pipeline for our tiny synthetic input.
+        $wrapperXsl = <<<XSL
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:n1="urn:hl7-org:v3">
+  <xsl:import href="file://$ccdPath"/>
+  <xsl:output method="xml" indent="no" omit-xml-declaration="yes"/>
+  <xsl:template match="/">
+    <result>
+      <xsl:apply-templates select="/n1:td/@*"/>
+    </result>
+  </xsl:template>
+</xsl:stylesheet>
+XSL;
+
+        $xsl = new DOMDocument();
+        $xsl->loadXML($wrapperXsl);
+        $xml = new DOMDocument();
+        $xml->loadXML('<n1:td xmlns:n1="urn:hl7-org:v3" ID="keep" colspan="2" onmouseover="alert(1)" style="x"/>');
+
+        $proc = new XSLTProcessor();
+        $proc->importStylesheet($xsl);
+        $out = (string) $proc->transformToXml($xml);
+
+        $this->assertMatchesRegularExpression('/\bID=/', $out, 'ID must survive attribute-match template');
+        $this->assertMatchesRegularExpression('/\bcolspan=/', $out, 'colspan must survive attribute-match template');
+        $this->assertDoesNotMatchRegularExpression('/\bonmouseover=/', $out, 'onmouseover must be dropped by attribute-match template');
+        $this->assertDoesNotMatchRegularExpression('/\bstyle=/', $out, 'style must be dropped by attribute-match template');
+    }
+
+    /**
      * @return array<string, array{string, list<string>, list<string>}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.

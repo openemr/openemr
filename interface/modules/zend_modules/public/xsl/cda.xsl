@@ -1722,6 +1722,20 @@ limitations under the License.
       <xsl:variable name="lcSource" select="translate($source, $uc, $lc)"/>
       <xsl:variable name="scrubbedSource" select="translate($source, $simple-sanitizer-match, $simple-sanitizer-replace)"/>
       <xsl:choose>
+        <xsl:when test="not(contains($narrative-block-attr-allowlist,
+                                     concat(' ', $attr-name, ' ')))">
+          <!--
+            Drop any attribute not on the CDA R2 narrative-block allowlist
+            (see $narrative-block-attr-allowlist in
+            _narrative-block-attrs.xsl). Blocks event handlers, style,
+            srcdoc, formaction, and every other non-narrative HTML attribute.
+
+            Ordered first so a non-allowlisted attribute is silently dropped
+            before its value can reach the javascript-terminate check below,
+            which would otherwise abort the whole render on malicious input
+            that would have been safely dropped anyway.
+          -->
+        </xsl:when>
         <xsl:when test="contains($lcSource, 'javascript')">
           <p>
             <xsl:value-of select="$javascript-injection-warning"/>
@@ -1732,15 +1746,6 @@ limitations under the License.
         </xsl:when>
         <xsl:when test="$attr-name = 'styleCode'">
           <xsl:apply-templates select="."/>
-        </xsl:when>
-        <xsl:when test="not(contains($narrative-block-attr-allowlist,
-                                     concat(' ', $attr-name, ' ')))">
-          <!--
-            Drop any attribute not on the CDA R2 narrative-block allowlist
-            (see $narrative-block-attr-allowlist in
-            _narrative-block-attrs.xsl). Blocks event handlers, style,
-            srcdoc, formaction, and every other non-narrative HTML attribute.
-          -->
         </xsl:when>
         <xsl:when test="not($source = $scrubbedSource)">
           <p>
