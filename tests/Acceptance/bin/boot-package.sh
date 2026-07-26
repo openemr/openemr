@@ -131,20 +131,24 @@ if [[ "${skip_install_helper}" == "true" ]]; then
     # never pass the healthcheck. Poll setup.php directly instead.
     #
     # Require HTTP 200 explicitly (not curl -f which passes 3xx
-    # redirects) and cap each attempt at 10s so a single stalled
-    # response can't extend the 300s retry window into arbitrary hang.
-    for attempt in $(seq 1 60); do
+    # redirects). Absolute 300s deadline via $SECONDS (each attempt is
+    # up to 10s of curl + 5s of sleep = 15s worst case; a naive "60
+    # attempts × sleep 5" loop would allow 900s wall-clock, not 300s
+    # the diagnostic message advertises).
+    deadline=$((SECONDS + 300))
+    STATUS="not-yet-attempted"
+    while (( SECONDS < deadline )); do
         STATUS="$(curl -sk --max-time 10 -o /dev/null -w '%{http_code}' "http://localhost:8680/setup.php" || echo "curl-failed")"
         if [[ "${STATUS}" == "200" ]]; then
             echo "    apache serving /setup.php (HTTP 200)"
             break
         fi
-        if [[ "${attempt}" -eq 60 ]]; then
-            echo "::error::apache never served /setup.php with HTTP 200 within 300s (last status: ${STATUS})" >&2
-            exit 1
-        fi
         sleep 5
     done
+    if [[ "${STATUS}" != "200" ]]; then
+        echo "::error::apache never served /setup.php with HTTP 200 within 300s (last status: ${STATUS})" >&2
+        exit 1
+    fi
 
     echo ""
     echo "==> Boot complete (skip-install-helper mode)."
