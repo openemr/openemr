@@ -15,6 +15,7 @@
 require_once("../../interface/globals.php");
 require_once("$srcdir/pid.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -22,6 +23,11 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    http_response_code(403);
+    exit;
+}
 
 if (in_array("set_pid", $_GET, true) && !empty($_GET["set_pid"]) && ($_GET["set_pid"] != $session->get('pid'))) {
     setpid($_GET["set_pid"]);

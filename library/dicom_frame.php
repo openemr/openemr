@@ -35,6 +35,10 @@ if ($web_path) {
     // (main-menu Dicom Viewer link) has no `web_path` and just renders the
     // viewer chrome — no token requirement in that case.
     CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+    if (!is_string($web_path) || !str_starts_with($web_path, OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?')) {
+        http_response_code(400);
+        exit;
+    }
     $patid = $_REQUEST['patient_id'] ?? null;
     $docid = $_REQUEST['document_id'] ?? $_REQUEST['doc_id'] ?? null;
     $d = new Document(attr($docid));
@@ -50,7 +54,7 @@ if ($web_path) {
 $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 echo $twig->render("dicom/dicom-viewer.html.twig", [
     'assets_static_relative' => OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative()
-    ,'web_root' => $web_root
+    ,'web_root' => OEGlobalsBag::getInstance()->getWebRoot()
     ,'web_path' => $web_path
     ,'state_url' => $state_url ?? null
     ,'docid' => $docid ?? null

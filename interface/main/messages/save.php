@@ -25,6 +25,10 @@ require_once OEGlobalsBag::getInstance()->getSrcDir() . "/MedEx/API.php";
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_REQUEST['go'] == 'sms_search') {
+    if (!AclMain::aclCheckCore('patients', 'notes')) {
+        http_response_code(403);
+        exit;
+    }
     $param = "%" . $_GET['term'] . "%";
     $query = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ?";
     $result = sqlStatement($query, [$param, $param]);
@@ -163,6 +167,10 @@ if ($_REQUEST['MedEx'] == "start") {
 }
 
 if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
+    if (!AclMain::aclCheckCore('patients', 'notes')) {
+        http_response_code(403);
+        exit;
+    }
     $query = "SELECT * FROM patient_data WHERE pid=?";
     $result = sqlQuery($query, [$_REQUEST['pid']]);
     $result['age'] = $MedEx->events->getAge($result['DOB']);
