@@ -17,7 +17,7 @@
 #      migrations to apply
 #
 # Usage:
-#   tests/Acceptance/bin/upgrade-package.sh [--skip-sql-upgrade] <from-version> <to-version>
+#   tests/Acceptance/bin/upgrade-package.sh [--skip-sql-upgrade] [--to-local-tarball=<path>] <from-version> <to-version>
 #     --skip-sql-upgrade (optional)
 #         Skip step 5. Leaves the artifact serving to-version's
 #         filesystem with from-version's DB — the classic "user just
@@ -28,8 +28,18 @@
 #         login-page redirect target, which the pre-upgrade state
 #         still meets; but the DB migrations haven't run, so any
 #         downstream test that touches the DB would fail).
+#     --to-local-tarball=<path> (optional)
+#         Extract the given local file as the to-version tarball
+#         instead of curl-ing the GitHub release page. Phase 3.5
+#         PR-tarball validation: acceptance-package workflow builds
+#         the tarball via PackageAssembler from the PR checkout,
+#         uploads it as a workflow artifact, and passes the
+#         downloaded path here. from-version is always downloaded
+#         from GitHub (whole point of the upgrade test is starting
+#         from a shipped release).
 #     from-version — the version already installed via boot-package.sh
-#     to-version   — the target version (must have a v<X_Y_Z> release tag)
+#     to-version   — the target version (must have a v<X_Y_Z> release tag,
+#                    unless --to-local-tarball is set)
 #     Both must match ^[0-9]+\.[0-9]+\.[0-9]+$; from must be strictly
 #     less than to (this is an UPgrade — same-version is a no-op that
 #     would delete the installed source, and downgrade isn't supported).
@@ -41,10 +51,15 @@
 set -euo pipefail
 
 skip_sql_upgrade="false"
+to_local_tarball=""
 while [[ $# -gt 0 && "$1" == --* ]]; do
     case "$1" in
         --skip-sql-upgrade)
             skip_sql_upgrade="true"
+            shift
+            ;;
+        --to-local-tarball=*)
+            to_local_tarball="${1#--to-local-tarball=}"
             shift
             ;;
         *)
@@ -55,9 +70,10 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
 done
 
 if [[ $# -ne 2 ]]; then
-    echo "Usage: $0 [--skip-sql-upgrade] <from-version> <to-version>" >&2
+    echo "Usage: $0 [--skip-sql-upgrade] [--to-local-tarball=<path>] <from-version> <to-version>" >&2
     echo "  e.g.: $0 8.2.0 8.3.0" >&2
     echo "        $0 --skip-sql-upgrade 8.2.0 8.3.0" >&2
+    echo "        $0 --to-local-tarball=/tmp/openemr-8.3.0.tar.gz 8.2.0 8.3.0" >&2
     exit 2
 fi
 
@@ -99,9 +115,19 @@ export HELPER_PATH="${SCRIPT_DIR}/install-helper.php"
 export COMPOSE_FILE="${REPO_ROOT}/.github/docker/acceptance-package-compose.yml"
 export COMPOSE_PROJECT_NAME="openemr-acceptance-package"
 
-# mktemp for the download path (same rationale as boot-package.sh).
-TARBALL_PATH="$(mktemp -t "openemr-acceptance-upgrade-tarball.XXXXXX.tar.gz")"
-trap 'rm -f "${TARBALL_PATH}"' EXIT
+if [[ -n "${to_local_tarball}" ]]; then
+    # Local-tarball mode: caller-supplied file, no network fetch.
+    if [[ ! -f "${to_local_tarball}" ]]; then
+        echo "::error::--to-local-tarball path does not exist or is not a regular file: ${to_local_tarball}" >&2
+        exit 2
+    fi
+    TARBALL_PATH="${to_local_tarball}"
+    # No trap cleanup — the caller owns this file.
+else
+    # mktemp for the download path (same rationale as boot-package.sh).
+    TARBALL_PATH="$(mktemp -t "openemr-acceptance-upgrade-tarball.XXXXXX.tar.gz")"
+    trap 'rm -f "${TARBALL_PATH}"' EXIT
+fi
 
 cd "${REPO_ROOT}"
 
@@ -114,8 +140,12 @@ echo "==> Preparing scratch dir at ${TO_TARBALL_DIR}"
 rm -rf "${TO_TARBALL_DIR}"
 mkdir -p "${TO_TARBALL_DIR}"
 
-echo "==> Downloading ${TO_TARBALL_URL}"
-curl -fsSL "${TO_TARBALL_URL}" -o "${TARBALL_PATH}"
+if [[ -n "${to_local_tarball}" ]]; then
+    echo "==> Using local to-version tarball ${TARBALL_PATH} (--to-local-tarball set — skipping GitHub download)"
+else
+    echo "==> Downloading ${TO_TARBALL_URL}"
+    curl -fsSL "${TO_TARBALL_URL}" -o "${TARBALL_PATH}"
+fi
 
 echo "==> Extracting into ${TO_TARBALL_DIR}"
 tar -pxzf "${TARBALL_PATH}" -C "${TO_TARBALL_DIR}" --strip-components=1
