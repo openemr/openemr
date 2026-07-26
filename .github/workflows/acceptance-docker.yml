@@ -345,6 +345,23 @@ jobs:
         # but naming them keeps failure modes obvious).
         extensions: curl, dom, mbstring, tokenizer, xml
 
+    # ChromeDriver for the E2eCriticalPathTest — Panther launches a
+    # headless subprocess Chrome bound to the mapped artifact port.
+    # ubuntu-24.04 runners ship with google-chrome pre-installed
+    # (/opt/google/chrome/chrome); nanasess/setup-chromedriver@v2
+    # detects that version and installs the exactly-matching
+    # ChromeDriver from Chrome-for-Testing so Panther's
+    # driver-version-detection succeeds.
+    #
+    # Do NOT swap this for browser-actions/setup-chrome@v1 with
+    # install-chromedriver: true — that action pulls Chrome from
+    # Google's Linux repo and ChromeDriver from CfT with independent
+    # release cadences, and drifts a mismatched pair through
+    # (Chrome 150 + ChromeDriver 151 was the concrete example that
+    # first bit this test).
+    - name: Set up matching ChromeDriver for Panther-driven acceptance tests
+      uses: nanasess/setup-chromedriver@v2
+
     - name: Install acceptance-suite composer dependencies
       # `--no-scripts` skips OpenEMR's post-install scripts (they assume
       # the full app runtime context; acceptance only needs vendor/).
