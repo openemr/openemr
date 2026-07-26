@@ -78,14 +78,6 @@ on:
     - 'tools/release/**'
     - 'build.xml'
     - '.gitattributes'
-    # version.php is bumped on every release-prep PR (release-prep.yml
-    # writes it via peter-evans). Listing it here is what lets the
-    # detect-mode job even see release-prep pushes — without it, a
-    # `chore(release): prep X.Y.Z` PR would touch only version.php +
-    # docker-compose.yml and this workflow would skip. On release-prep
-    # head branches, detect-mode force-enables build_locally=true so
-    # the release-in-flight's tarball gets exercised end-to-end.
-    - 'version.php'
   pull_request:
     paths:
     - '.github/workflows/acceptance-package.yml'
@@ -96,7 +88,6 @@ on:
     - 'tools/release/**'
     - 'build.xml'
     - '.gitattributes'
-    - 'version.php'
   schedule:
   - cron: '0 10 * * *'
 
@@ -199,13 +190,32 @@ jobs:
         # release-prep detection — the release-prep.yml conductor opens
         # a long-lived PR from release-prep/<rel-branch> INTO its
         # rel-branch (base=rel-820, head=release-prep/rel-820, title
-        # like `chore(release): prep 8.2.1`). Force build_locally=true
-        # on these regardless of what files the PR happens to touch —
-        # the whole point of the release-prep PR is validating the
-        # tarball this release would ship. Detected on both pull_request
-        # (head_ref matches) AND push (branch matches) so the check
-        # fires however the release-prep branch is currently being
-        # exercised.
+        # like `chore(release): prep 8.2.1`). When this workflow fires
+        # on such a branch, force build_locally=true regardless of
+        # what files the PR happens to touch — the whole point of the
+        # release-prep PR is validating the tarball this release would
+        # ship.
+        #
+        # NOTE on how the workflow actually gets triggered on
+        # release-prep PRs: the existing paths filter above doesn't
+        # match a typical release-prep PR (which only touches
+        # `version.php` + `docker/production/docker-compose.yml`), and
+        # adding either of those to the paths filter would over-fire
+        # on unrelated version bumps and docker-compose edits. The
+        # intended trigger is release-prep.yml explicitly dispatching
+        # this workflow (via `gh workflow run acceptance-package.yml
+        # --ref release-prep/<branch> -f build_locally=true`) after
+        # it opens or updates the release-prep PR — that couples the
+        # trigger to the release-prep concern itself rather than to
+        # incidental file paths. That wiring is a follow-up PR; until
+        # it lands, this block still catches manual workflow_dispatch
+        # against a release-prep branch and any PR that happens to
+        # touch a paths-list file (e.g. a tools/release change piggy-
+        # backing on the release-prep PR).
+        #
+        # Detected on both pull_request (head_ref matches) AND push
+        # (branch matches) so the check fires however the release-prep
+        # branch is currently being exercised.
         HEAD_REF=""
         case "$EVENT_NAME" in
           pull_request) HEAD_REF="$PR_HEAD_REF" ;;
