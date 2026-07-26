@@ -17,22 +17,47 @@
 #      migrations to apply
 #
 # Usage:
-#   tests/Acceptance/bin/upgrade-package.sh <from-version> <to-version>
+#   tests/Acceptance/bin/upgrade-package.sh [--skip-sql-upgrade] <from-version> <to-version>
+#     --skip-sql-upgrade (optional)
+#         Skip step 5. Leaves the artifact serving to-version's
+#         filesystem with from-version's DB — the classic "user just
+#         extracted new tarball, hasn't run the upgrade script yet"
+#         state, ready for UpgradeWizardUiTest (Phase 4c-2) to drive
+#         sql_upgrade.php via Panther. Also skips the post-upgrade
+#         healthcheck wait (the compose healthcheck asserts the
+#         login-page redirect target, which the pre-upgrade state
+#         still meets; but the DB migrations haven't run, so any
+#         downstream test that touches the DB would fail).
 #     from-version — the version already installed via boot-package.sh
 #     to-version   — the target version (must have a v<X_Y_Z> release tag)
 #     Both must match ^[0-9]+\.[0-9]+\.[0-9]+$; from must be strictly
 #     less than to (this is an UPgrade — same-version is a no-op that
 #     would delete the installed source, and downgrade isn't supported).
 #
-# After successful upgrade:
+# After successful upgrade (default mode):
 #   Same URL:      http://localhost:8680  (openemr now serving <to>)
 #   Scratch dir:   /tmp/openemr-acceptance-<to>/  (bind-mount source)
 
 set -euo pipefail
 
+skip_sql_upgrade="false"
+while [[ $# -gt 0 && "$1" == --* ]]; do
+    case "$1" in
+        --skip-sql-upgrade)
+            skip_sql_upgrade="true"
+            shift
+            ;;
+        *)
+            echo "::error::unknown flag: $1" >&2
+            exit 2
+            ;;
+    esac
+done
+
 if [[ $# -ne 2 ]]; then
-    echo "Usage: $0 <from-version> <to-version>" >&2
+    echo "Usage: $0 [--skip-sql-upgrade] <from-version> <to-version>" >&2
     echo "  e.g.: $0 8.2.0 8.3.0" >&2
+    echo "        $0 --skip-sql-upgrade 8.2.0 8.3.0" >&2
     exit 2
 fi
 
@@ -109,6 +134,40 @@ docker compose stop openemr
 echo "==> Re-creating openemr container with ${TO_VERSION} bind mount"
 export TARBALL_DIR="${TO_TARBALL_DIR}"
 docker compose up --detach --force-recreate --no-deps openemr
+
+if [[ "${skip_sql_upgrade}" == "true" ]]; then
+    echo "==> Skipping sql_upgrade.php CLI (--skip-sql-upgrade set)"
+    echo "==> Waiting for apache to serve /sql_upgrade.php (proxy for 'container up')"
+    # No healthcheck wait: the compose openemr healthcheck asserts the
+    # post-install login-page redirect target, which the pre-upgrade
+    # state still meets (sqlconf.php $config=1 from the from-version
+    # install), but the DB schema hasn't migrated. Instead poll
+    # sql_upgrade.php directly — that's what the wizard test will hit.
+    # Absolute 300s deadline via $SECONDS (each attempt is up to 10s
+    # of curl + 5s of sleep = 15s worst case).
+    deadline=$((SECONDS + 300))
+    STATUS="not-yet-attempted"
+    while (( SECONDS < deadline )); do
+        STATUS="$(curl -sk --max-time 10 -o /dev/null -w '%{http_code}' "http://localhost:8680/sql_upgrade.php" || echo "curl-failed")"
+        if [[ "${STATUS}" == "200" ]]; then
+            echo "    apache serving /sql_upgrade.php (HTTP 200)"
+            break
+        fi
+        sleep 5
+    done
+    if [[ "${STATUS}" != "200" ]]; then
+        echo "::error::apache never served /sql_upgrade.php with HTTP 200 within 300s (last status: ${STATUS})" >&2
+        exit 1
+    fi
+
+    echo ""
+    echo "==> Upgrade prep complete (skip-sql-upgrade mode): ${FROM_VERSION} filesystem + DB, ${TO_VERSION} bind mount, migrations NOT run"
+    echo "    Artifact URL:  http://localhost:8680  (serving ${TO_VERSION} source, pre-migration DB)"
+    echo ""
+    echo "    Run tests:     ACCEPTANCE_ARTIFACT_URL=http://localhost:8680 composer acceptance -- --group=wizard-upgrade"
+    echo "    Teardown:      tests/Acceptance/bin/down-package.sh"
+    exit 0
+fi
 
 echo "==> Running sql_upgrade.php CLI mode (--from=${FROM_VERSION})"
 # The wiki upgrade flow points users at sql_upgrade.php in the browser
