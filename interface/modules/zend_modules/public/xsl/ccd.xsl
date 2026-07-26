@@ -20,6 +20,9 @@
   You may obtain a copy of the License at  http://www.apache.org/licenses/LICENSE-2.0
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:n1="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <!-- Shared allowlist template for narrative-block attribute copying. -->
+   <xsl:import href="_narrative-block-attrs.xsl"/>
+
    <xsl:output method="html" indent="yes" version="4.01" encoding="ISO-8859-1" doctype-system="http://www.w3.org/TR/html4/strict.dtd" doctype-public="-//W3C//DTD HTML 4.01//EN"/>
    <!-- global variable title -->
    <xsl:variable name="title">
@@ -1223,61 +1226,61 @@
    <!--  Tables   -->
    <xsl:template match="n1:table/@*|n1:thead/@*|n1:tfoot/@*|n1:tbody/@*|n1:colgroup/@*|n1:col/@*|n1:tr/@*|n1:th/@*|n1:td/@*">
       <xsl:copy>
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </xsl:copy>
    </xsl:template>
    <xsl:template match="n1:table">
       <table class="narr_table">
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </table>
    </xsl:template>
    <xsl:template match="n1:thead">
       <thead>
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </thead>
    </xsl:template>
    <xsl:template match="n1:tfoot">
       <tfoot>
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </tfoot>
    </xsl:template>
    <xsl:template match="n1:tbody">
       <tbody>
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </tbody>
    </xsl:template>
    <xsl:template match="n1:colgroup">
       <colgroup>
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </colgroup>
    </xsl:template>
    <xsl:template match="n1:col">
       <col>
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </col>
    </xsl:template>
    <xsl:template match="n1:tr">
       <tr class="narr_tr">
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </tr>
    </xsl:template>
    <xsl:template match="n1:th">
       <th class="narr_th">
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </th>
    </xsl:template>
    <xsl:template match="n1:td">
       <td>
-         <xsl:copy-of select="@*"/>
+         <xsl:call-template name="safe-copy-narrative-attrs"/>
          <xsl:apply-templates/>
       </td>
    </xsl:template>
