@@ -195,7 +195,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         return $processingResult;
     }
 
-    private function parseSocialHistoryIntoObservationRecords(ProcessingResult $processingResult, array $record, array $observationCodesToReturn): void
+    private function parseSocialHistoryIntoObservationRecords(ProcessingResult $processingResult, $record, $observationCodesToReturn): void
     {
         $uuidMappings = $this->getUuidMappings(UuidRegistry::uuidToBytes($record['uuid']));
         // convert each record into it's own openEMR record array
@@ -236,6 +236,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
                 continue;
             }
 
+            $providerUuid = is_array($record) ? ($record['provider_uuid'] ?? null) : null;
             $observation = [
                 "code" => $mapping['fullcode']
                 ,"description" => $this->getDescriptionForCode($code)
@@ -243,7 +244,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
                 ,"ob_status" => 'final' // we always set this to final as there's no in-between state
                 ,"puuid" => $record['puuid']
                 ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
-                ,"user_uuid" => $record['provider_uuid'] ?? null
+                ,"user_uuid" => $providerUuid
                 ,"date" => $record['date']
                 ,"last_updated" => $record['date']
                 ,"profiles" => $this->getProfileForVersions(self::USCGI_PROFILE_SMOKING_STATUS, $this->getSupportedVersions())
