@@ -4,6 +4,8 @@ require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -57,7 +59,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             $('#btn-pharm-full').attr("disabled", true);
             $('#presc-btn').attr("disabled", true);
             $.ajax({
-                url: "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php?daily=" + encodeURIComponent(daily),
+                url: "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php?daily=" + encodeURIComponent(daily) + "&csrf_token_form=" + encodeURIComponent(<?php echo js_escape(CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession())); ?>),
                 type: "GET",
                 success: function (data) {
                     if (data.includes('Error') || data.includes('failed')) {

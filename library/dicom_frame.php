@@ -29,6 +29,8 @@ if (!AclMain::aclCheckCore('patients', 'docs')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs: Dicom Viewer", xl("Dicom Viewer"));
 }
 
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
 $web_path = $_REQUEST['web_path'] ?? null;
 if ($web_path) {
     $patid = $_REQUEST['patient_id'] ?? null;

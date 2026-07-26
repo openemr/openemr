@@ -609,7 +609,8 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
             ptid: <?php echo js_escape($patient_id); ?>,
             form_checksum: <?php echo js_escape($current_checksum); ?>,
             form_reason: form_reason,
-            form_notes: form_notes
+            form_notes: form_notes,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         });
         params.append(voidaction, <?php echo js_escape($encounter); ?>);
         <?php if (!empty($_GET['framed'])) { ?>
@@ -1733,6 +1734,7 @@ $form_notes  = empty($_GET['form_notes' ]) ? '' : $_GET['form_notes'];
 // If "regen" encounter ID was given, then we must generate a new receipt ID.
 //
 if (!$alertmsg && $patient_id && !empty($_GET['regen'])) {
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     BillingUtilities::doVoid(
         $patient_id,
         $encounter_id,
@@ -1772,9 +1774,11 @@ if ($patient_id && !empty($_GET['enc'])) {
 // Or for "voidall" undo all checkouts for the encounter.
 //
 if (!$alertmsg && $patient_id && !empty($_GET['void'])) {
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     BillingUtilities::doVoid($patient_id, $encounter_id, true, '', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
 } elseif (!$alertmsg && $patient_id && !empty($_GET['voidall'])) {
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     BillingUtilities::doVoid($patient_id, $encounter_id, true, 'all', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
 }
