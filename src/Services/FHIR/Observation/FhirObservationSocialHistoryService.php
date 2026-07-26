@@ -243,7 +243,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
                 ,"ob_status" => 'final' // we always set this to final as there's no in-between state
                 ,"puuid" => $record['puuid']
                 ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
-                ,"user_uuid" => 'provider_uuid'
+                ,"user_uuid" => $record['provider_uuid'] ?? null
                 ,"date" => $record['date']
                 ,"last_updated" => $record['date']
                 ,"profiles" => $this->getProfileForVersions(self::USCGI_PROFILE_SMOKING_STATUS, $this->getSupportedVersions())
