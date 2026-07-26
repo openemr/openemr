@@ -97,19 +97,22 @@ jobs:
         #   fresh-install   — CLI install-helper.php then acceptance suite
         #   wizard-install  — no install-helper; InstallWizardUiTest
         #                     drives setup.php via Panther instead
-        #   upgrade         — CLI install then CLI sql_upgrade; only on
-        #                     workflow_dispatch (from_version tarball
-        #                     doesn't exist for the default 8.2.0)
+        #   upgrade         — CLI install then CLI sql_upgrade
+        #   wizard-upgrade  — CLI install then upgrade-package
+        #                     --skip-sql-upgrade to leave the artifact
+        #                     pre-migration; UpgradeWizardUiTest walks
+        #                     sql_upgrade.php via Panther
         #
-        # Upgrade scenario is only included on workflow_dispatch (where
-        # the caller supplies from_version + to_version explicitly). On
-        # push/PR/schedule the from_version default would need to point
-        # at a shipped tarball, and right now the most recent tarball is
-        # 8.2.0 itself — no earlier tarball asset exists on the release
-        # page (patch releases only shipped .zip patches). Once 8.3.0
-        # releases and the from_version default becomes 8.2.0 → 8.3.0,
-        # the upgrade scenario can move back into the default matrix.
-        scenario: ${{ github.event_name == 'workflow_dispatch' && fromJson('["fresh-install","wizard-install","upgrade"]') || fromJson('["fresh-install","wizard-install"]') }}
+        # `upgrade` and `wizard-upgrade` are only included on
+        # workflow_dispatch (where the caller supplies from_version +
+        # to_version explicitly). On push/PR/schedule the from_version
+        # default would need to point at a shipped tarball, and right
+        # now the most recent tarball is 8.2.0 itself — no earlier
+        # tarball asset exists on the release page (patch releases only
+        # shipped .zip patches). Once 8.3.0 releases and the
+        # from_version default becomes 8.2.0 → 8.3.0, both upgrade
+        # scenarios can move back into the default matrix.
+        scenario: ${{ github.event_name == 'workflow_dispatch' && fromJson('["fresh-install","wizard-install","upgrade","wizard-upgrade"]') || fromJson('["fresh-install","wizard-install"]') }}
     env:
       FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}
       TO_VERSION: ${{ inputs.to_version || '8.2.0' }}
@@ -177,6 +180,26 @@ jobs:
     - name: Run post-upgrade suite against to_version
       if: matrix.scenario == 'upgrade'
       run: composer acceptance -- --group=post-upgrade
+
+    # ==== wizard-upgrade scenario ====
+    # Boots the from-version normally (install-helper.php runs, DB
+    # populated), then swaps to the to-version bind mount via
+    # upgrade-package.sh --skip-sql-upgrade — leaving the artifact in
+    # the classic "user just extracted new tarball, hasn't run the
+    # upgrade script yet" state. UpgradeWizardUiTest then drives
+    # sql_upgrade.php via Panther end-to-end (form load → version
+    # select → submit → verify / redirects to login).
+    - name: Boot tarball artifact (from_version)
+      if: matrix.scenario == 'wizard-upgrade'
+      run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
+
+    - name: Swap bind mount to to_version without running CLI upgrade
+      if: matrix.scenario == 'wizard-upgrade'
+      run: tests/Acceptance/bin/upgrade-package.sh --skip-sql-upgrade "${FROM_VERSION}" "${TO_VERSION}"
+
+    - name: Run acceptance suite (wizard-upgrade)
+      if: matrix.scenario == 'wizard-upgrade'
+      run: composer acceptance -- --group=wizard-upgrade
 
     # ==== debug + teardown (all scenarios) ====
     - name: Capture container state (on failure)
