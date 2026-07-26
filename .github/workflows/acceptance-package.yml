@@ -119,13 +119,12 @@ jobs:
         tools: composer:v2
         extensions: curl, dom, mbstring, tokenizer, xml
 
-    # Chrome for the E2eCriticalPathTest — see acceptance-docker.yml
-    # for the rationale on setup-chrome vs apt chromium.
-    - name: Set up Chrome for Panther-driven acceptance tests
-      uses: browser-actions/setup-chrome@v1
-      with:
-        chrome-version: stable
-        install-chromedriver: true
+    # ChromeDriver for the E2eCriticalPathTest — see acceptance-docker.yml
+    # for the rationale on nanasess/setup-chromedriver over
+    # browser-actions/setup-chrome (avoids Chrome/ChromeDriver version
+    # drift from independent release channels).
+    - name: Set up matching ChromeDriver for Panther-driven acceptance tests
+      uses: nanasess/setup-chromedriver@v2
 
     - name: Install acceptance-suite composer dependencies
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
