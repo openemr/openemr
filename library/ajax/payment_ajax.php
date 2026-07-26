@@ -74,7 +74,7 @@ function AjaxDropDownCode(): void
 
 //===============================================================================
     if ($_POST["ajax_mode"] == "set_patient") {//patient.
-        if (!AclMain::aclCheckCore('patients', 'demo')) {
+        if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
             http_response_code(403);
             exit;
         }

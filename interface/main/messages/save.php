@@ -167,7 +167,7 @@ if ($_REQUEST['MedEx'] == "start") {
 }
 
 if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
-    if (!AclMain::aclCheckCore('patients', 'notes')) {
+    if (!AclMain::aclCheckCore('patients', 'notes') && !AclMain::aclCheckCore('patients', 'appt')) {
         http_response_code(403);
         exit;
     }
