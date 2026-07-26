@@ -81,13 +81,19 @@ final class BrowserSession
      */
     private static function createLocalClient(): Client
     {
-        // Panther's static factories accept `arguments` under the
-        // `browser_arguments` key of its options array. External base
-        // URI is the artifact URL, so tests can use relative paths
-        // (`$client->request('GET', '/interface/login/login.php')`).
-        return Client::createChromeClient(null, self::CHROME_ARGS, [
-            'external_base_uri' => ArtifactBrowser::baseUrl(),
-        ]);
+        // Signature: createChromeClient($chromeDriverBinary, $arguments,
+        // $options, $baseUri). baseUri MUST be the 4th positional arg —
+        // there's no `external_base_uri` key on $options for this
+        // factory (that key is a Panther *internal* extra_capability,
+        // and passing it via $options is silently ignored, which
+        // reports as "invalid argument" from ChromeDriver on the first
+        // relative-URL request because get() tries to load "/login...").
+        return Client::createChromeClient(
+            null,
+            self::CHROME_ARGS,
+            [],
+            ArtifactBrowser::baseUrl(),
+        );
     }
 
     /**
