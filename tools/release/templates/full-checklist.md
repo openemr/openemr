@@ -15,9 +15,6 @@ manual — they're separate from the auto-generated download page. Only
 steps that require maintainer judgment, landing external content, or
 touching the wiki stay on this list.
 
-- [ ] Verify source archives + checksums on the GitHub Release page match the
-      artifact bundle this build produced (spot-check one tarball / one zip / one
-      checksum file against the run's Upload artifacts step output).
 - [ ] Confirm the docker image auto-build for this release completed successfully
       on Docker Hub — the [`.github/workflows/docker-release-orchestrator.yml`](../../../.github/workflows/docker-release-orchestrator.yml)
       cron fires 06:00 UTC daily and after `.github/release-targets.yml`
