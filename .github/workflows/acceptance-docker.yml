@@ -212,7 +212,7 @@ jobs:
           | zstd -T0 -3 -o /tmp/openemr-pr-built.tar.zst
         ls -lh /tmp/openemr-pr-built.tar.zst
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: openemr-pr-built-image
         path: /tmp/openemr-pr-built.tar.zst
