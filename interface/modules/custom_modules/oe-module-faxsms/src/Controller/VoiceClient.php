@@ -4,7 +4,6 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGenException;
-use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
 
@@ -52,7 +51,6 @@ class VoiceClient extends AppDispatch
     public $apiBase;
     protected $platform;
     protected $rcsdk;
-    protected CryptoInterface $crypto;
 
     public function __construct()
     {

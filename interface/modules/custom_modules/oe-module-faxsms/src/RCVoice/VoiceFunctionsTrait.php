@@ -13,10 +13,13 @@
 namespace OpenEMR\Modules\FaxSMS\RCVoice;
 
 use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
 
 trait VoiceFunctionsTrait
 {
+    protected CryptoInterface $crypto;
+
     public function install(): string
     {
         // Call-event tracking is a RingCentral-only, strictly opt-in feature.
