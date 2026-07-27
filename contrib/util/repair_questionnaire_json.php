@@ -186,6 +186,10 @@ class QuestionnaireJsonRepair
                 continue;
             }
             $newJson = json_encode($repaired, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            if ($newJson === false) {
+                fwrite(STDERR, "    re-encode failed for row $rowId: " . json_last_error_msg() . " - NOT updating this row\n");
+                continue;
+            }
             $stmt = mysqli_prepare($mysqli, "UPDATE questionnaire_repository SET questionnaire = ?, modified_date = current_timestamp() WHERE id = ?");
             if (!$stmt instanceof mysqli_stmt) {
                 fwrite(STDERR, "    prepare failed: " . mysqli_error($mysqli) . "\n");

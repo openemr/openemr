@@ -12,7 +12,10 @@
 
 declare(strict_types=1);
 
-require_once(__DIR__ . '/../../../vendor/autoload.php');
+// globals.php sets up the Composer autoloader itself (as early as possible), so no
+// separate vendor/autoload.php require is needed here. Unlike save.php and
+// questionnaire_assessments.php, this endpoint resolves no portal-session flag before
+// globals.php, so there is nothing load-bearing between the two.
 require_once(__DIR__ . '/../../globals.php');
 
 use OpenEMR\BC\ServiceContainer;
@@ -21,31 +24,14 @@ use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\NativeQuestionnaireResponseProcessor;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Maximum accepted QuestionnaireResponse payload. Large SDC responses are well under this;
-// anything bigger is either malformed or hostile.
-const OE_QR_MAX_PAYLOAD_BYTES = 2097152; // 2 MiB
-
-// QuestionnaireResponse.status values this workspace is allowed to persist.
-const OE_QR_ALLOWED_STATUSES = ['in-progress', 'completed', 'amended'];
-
-$nonNegativeInt = static function (mixed $value): ?int {
-    if (is_int($value)) {
-        return $value >= 0 ? $value : null;
-    }
-
-    if (!is_string($value) || $value === '' || !ctype_digit($value)) {
-        return null;
-    }
-
-    $validated = filter_var($value, FILTER_VALIDATE_INT);
-    return is_int($validated) && $validated >= 0 ? $validated : null;
-};
+$processor = new NativeQuestionnaireResponseProcessor();
 
 try {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: false);
@@ -67,22 +53,7 @@ try {
         FILTER_REQUIRE_SCALAR
     );
     $questionnaireResponseJson = is_string($questionnaireResponseInput) ? $questionnaireResponseInput : '';
-    if (trim($questionnaireResponseJson) === '') {
-        throw new RuntimeException(xlt('QuestionnaireResponse data is missing.'));
-    }
-    if (strlen($questionnaireResponseJson) > OE_QR_MAX_PAYLOAD_BYTES) {
-        throw new RuntimeException(xlt('QuestionnaireResponse data exceeds the maximum allowed size.'));
-    }
-
-    $questionnaireResponse = json_decode($questionnaireResponseJson, true, 512, JSON_THROW_ON_ERROR);
-    if (!is_array($questionnaireResponse) || ($questionnaireResponse['resourceType'] ?? null) !== 'QuestionnaireResponse') {
-        throw new RuntimeException(xlt('FHIR QuestionnaireResponse data is invalid.'));
-    }
-
-    $responseStatus = $questionnaireResponse['status'] ?? null;
-    if (!is_string($responseStatus) || !in_array($responseStatus, OE_QR_ALLOWED_STATUSES, true)) {
-        throw new RuntimeException(xlt('FHIR QuestionnaireResponse status is invalid.'));
-    }
+    $questionnaireResponse = $processor->decodeAndValidateResponse($questionnaireResponseJson);
 
     $responseIdInput = filter_input(INPUT_POST, 'response_id', FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
     $responseId = is_string($responseIdInput) ? trim($responseIdInput) : '';
@@ -95,13 +66,13 @@ try {
         if ($existingResponse === []) {
             throw new RuntimeException(xlt('The QuestionnaireResponse to update was not found.'));
         }
-        if ($nonNegativeInt($existingResponse['patient_id'] ?? null) !== $pid) {
+        if ($processor->normalizeNonNegativeInt($existingResponse['patient_id'] ?? null) !== $pid) {
             throw new RuntimeException(xlt('The QuestionnaireResponse does not belong to the selected patient.'));
         }
-        if ($nonNegativeInt($existingResponse['encounter'] ?? null) !== 0) {
+        if ($processor->normalizeNonNegativeInt($existingResponse['encounter'] ?? null) !== 0) {
             throw new RuntimeException(xlt('Encounter questionnaires cannot be updated from the patient assessment workspace.'));
         }
-        if ($nonNegativeInt($existingResponse['questionnaire_foreign_id'] ?? null) !== $questionnaireRecordId) {
+        if ($processor->normalizeNonNegativeInt($existingResponse['questionnaire_foreign_id'] ?? null) !== $questionnaireRecordId) {
             throw new RuntimeException(xlt('QuestionnaireResponse repository linkage is invalid.'));
         }
 
@@ -110,7 +81,7 @@ try {
             : '';
     } else {
         $questionnaireRecord = $questionnaireService->fetchQuestionnaireById($questionnaireRecordId);
-        if ($questionnaireRecord === [] || $nonNegativeInt($questionnaireRecord['active'] ?? null) !== 1) {
+        if ($questionnaireRecord === [] || $processor->normalizeNonNegativeInt($questionnaireRecord['active'] ?? null) !== 1) {
             throw new RuntimeException(xlt('The selected Questionnaire is not active or was not found.'));
         }
         $questionnaireJson = is_string($questionnaireRecord['questionnaire'] ?? null)
@@ -118,46 +89,23 @@ try {
             : '';
     }
 
-    $questionnaire = json_decode($questionnaireJson, true, 512, JSON_THROW_ON_ERROR);
-    if (!is_array($questionnaire) || ($questionnaire['resourceType'] ?? null) !== 'Questionnaire') {
-        throw new RuntimeException(xlt('FHIR Questionnaire data is invalid.'));
+    $questionnaire = $processor->decodeAndValidateQuestionnaire($questionnaireJson);
+
+    // Resolve the session patient's UUID. Ensure only THIS patient has a UUID rather than
+    // triggering a whole-table backfill on every save; createMissingUuidForRow is idempotent
+    // and no-ops when the row already has one.
+    $patientService = new PatientService();
+    $puuidBinary = $patientService->getUuid((string) $pid);
+    if ($puuidBinary === false) {
+        UuidRegistry::createMissingUuidForRow('patient_data', 'pid', $pid);
+        $puuidBinary = $patientService->getUuid((string) $pid);
     }
+    $puuid = $puuidBinary !== false ? UuidRegistry::uuidToString($puuidBinary) : '';
 
     // Server-side stamping. The DB row linkage above is authoritative, so the persisted FHIR
     // resource content must agree with it rather than trusting whatever the browser submitted.
     // These values flow out through the FHIR API and CCDA, where consumers trust the resource.
-    UuidRegistry::createMissingUuidsForTables(['patient_data']);
-    $patientService = new PatientService();
-    $puuidBinary = $patientService->getUuid((string) $pid);
-    $puuid = $puuidBinary !== false ? UuidRegistry::uuidToString($puuidBinary) : '';
-    if ($puuid === '') {
-        throw new RuntimeException(xlt('Unable to resolve the patient identity for this QuestionnaireResponse.'));
-    }
-
-    // Identity and versioning are owned by the server. Stripping any client-supplied id also
-    // prevents the save service from adopting a caller-chosen response_id on new saves.
-    unset($questionnaireResponse['id'], $questionnaireResponse['meta']);
-
-    // Subject must be the session patient regardless of what the client claimed.
-    $questionnaireResponse['subject'] = ['reference' => 'Patient/' . $puuid];
-
-    // Canonical questionnaire reference comes from the server-side Questionnaire snapshot.
-    $questionnaireUrl = $questionnaire['url'] ?? null;
-    $questionnaireIdValue = $questionnaire['id'] ?? null;
-    $questionnaireCanonical = '';
-    if (is_string($questionnaireUrl) && $questionnaireUrl !== '') {
-        $questionnaireCanonical = $questionnaireUrl;
-    } elseif (is_string($questionnaireIdValue) && $questionnaireIdValue !== '') {
-        $questionnaireCanonical = 'Questionnaire/' . $questionnaireIdValue;
-    }
-    if ($questionnaireCanonical !== '') {
-        $questionnaireResponse['questionnaire'] = $questionnaireCanonical;
-    } else {
-        unset($questionnaireResponse['questionnaire']);
-    }
-
-    // Authoring time is stamped by the server so it cannot be forged or drift with client clocks.
-    $questionnaireResponse['authored'] = date('c');
+    $questionnaireResponse = $processor->stampResponse($questionnaireResponse, $questionnaire, $puuid);
 
     $stampedResponseJson = json_encode(
         $questionnaireResponse,

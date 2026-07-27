@@ -14,8 +14,8 @@ An assessment launch returns the normal patient and optional encounter context. 
   "patient": "<patient FHIR id>",
   "intent": "questionnaire.assessment.dialog",
   "fhirContext": [
-    {"reference": "Questionnaire/<questionnaire FHIR id>"},
-    {"reference": "QuestionnaireResponse/<response FHIR id>"}
+    {"type": "Questionnaire", "reference": "Questionnaire/<questionnaire FHIR id>"},
+    {"type": "QuestionnaireResponse", "reference": "QuestionnaireResponse/<response FHIR id>"}
   ],
   "appContext": "{\"workflow\":\"questionnaire-assessment\",\"action\":\"continue\",\"returnContext\":\"patient-fhir-assessments\"}"
 }

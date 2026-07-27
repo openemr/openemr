@@ -501,7 +501,10 @@ $formAction .= '&mode=' . urlencode($mode);
 <script>
     <?php if ($isPortal || $patientPortalOther) { ?>
     window.addEventListener('message', (event) => {
-        if (event.origin !== window.location.origin) {
+        // This portal view runs inside an iframe and only expects control messages from its
+        // host page, so require the sender to be the parent window in addition to the
+        // same-origin check (any same-origin frame could otherwise post here).
+        if (event.source !== window.parent || event.origin !== window.location.origin) {
             asyncAlertMsg(<?php echo xlj('Request is not same origin!'); ?>, 15000);
             return;
         }

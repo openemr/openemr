@@ -170,7 +170,11 @@ $responseForJs = json_encode(
     });
 
     window.addEventListener('message', async (event) => {
-        if (event.origin !== window.location.origin || event.data?.submitForm !== true) {
+        // This runtime runs inside an iframe and only ever expects control messages from its
+        // host page, so require the sender to be the parent window (not just same-origin —
+        // any same-origin frame could otherwise post here). Mirrors the source-check pattern
+        // used by the parent side in fhir_assessments.php.
+        if (event.source !== window.parent || event.origin !== window.location.origin || event.data?.submitForm !== true) {
             return;
         }
 
