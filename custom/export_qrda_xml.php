@@ -30,6 +30,7 @@ require_once("../library/clinical_rules.php");
 require_once "$srcdir/report_database.inc.php";
 require_once "qrda_functions.php";
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -38,6 +39,11 @@ use OpenEMR\Services\FacilityService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    http_response_code(403);
+    exit;
+}
 
 $facilityService = new FacilityService();
 

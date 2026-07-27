@@ -1442,11 +1442,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between \'\' and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_278_html.php',

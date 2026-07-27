@@ -1492,11 +1492,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/deletedrug.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$web_root might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dicom_frame.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$help_icon_title might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/display_help_icon_inc.php',
