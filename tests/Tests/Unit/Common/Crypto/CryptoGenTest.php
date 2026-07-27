@@ -25,7 +25,7 @@ use ReflectionMethod;
 use ReflectionProperty;
 
 /**
- * @deprecated (This is to bulk-supress testing of deprecated methods)
+ * @deprecated (This is to bulk-suppress testing of deprecated methods)
  */
 final class CryptoGenTest extends TestCase
 {

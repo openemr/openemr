@@ -29,7 +29,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @deprecated (This is to bulk-supress testing of deprecated methods)
+ * @deprecated (This is to bulk-suppress testing of deprecated methods)
  */
 final class CryptoGenDecryptionTest extends TestCase
 {
