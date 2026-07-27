@@ -399,6 +399,76 @@ jobs:
           "${output_dir}"/*.sha512 \
           "${output_dir}/changelog.md"
 
+    # Phase 7b (openemr/openemr#TBD): re-fetch the just-uploaded
+    # tarball + zip from the GitHub Release page and byte-compare
+    # against the local artifacts. Catches the one class of failure
+    # Phase 7c-tarball's acceptance-gate can't see — corruption
+    # between the tested-bytes-on-disk and the bytes-on-release-page:
+    #   * `gh release upload` HTTPS transfer corruption (rare —
+    #     HTTPS has integrity, but not impossible with proxy
+    #     interception or transient network artifacts)
+    #   * GitHub Releases post-upload storage corruption
+    #     (never observed but the failure mode is real)
+    #   * Someone / something manually replacing the release asset
+    #     between our upload and this verify step (would need to
+    #     race a very small window and defeat our app-token
+    #     auth, but the check is essentially free)
+    # sha256 comparison is O(size-of-artifact) which is ~seconds for
+    # a ~200 MB tarball. Simpler than downloading + sha256 -c against
+    # the .sha256 file (which would also need verification of the
+    # .sha256 file's own integrity — turtles).
+    #
+    # On mismatch: fail the job. Publish is atomic-per-step but not
+    # cross-step: the tag already exists, the Release object exists,
+    # and the assets are uploaded (possibly corrupted). Recovery is
+    # "Re-run failed jobs" in the Actions UI — the upload step re-runs
+    # (gh release upload --clobber is idempotent) and this verify
+    # step re-runs. Idempotent all the way down.
+    - name: Verify uploaded assets byte-match local copies
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
+        verify_dir="$RUNNER_TEMP/publish-verify"
+        rm -rf "$verify_dir"
+        mkdir -p "$verify_dir"
+
+        assets=(
+          "openemr-${RELEASE_VERSION}.tar.gz"
+          "openemr-${RELEASE_VERSION}.zip"
+        )
+
+        for asset in "${assets[@]}"; do
+          local_path="${output_dir}/${asset}"
+          remote_path="${verify_dir}/${asset}"
+          if [[ ! -f "$local_path" ]]; then
+            echo "::error::local asset missing: $local_path"
+            exit 1
+          fi
+          echo "==> Re-fetching $asset from release $tag for byte-verify"
+          gh release download "$tag" \
+            --repo openemr/openemr \
+            --pattern "$asset" \
+            --dir "$verify_dir"
+          local_sha="$(sha256sum "$local_path" | awk '{print $1}')"
+          remote_sha="$(sha256sum "$remote_path" | awk '{print $1}')"
+          if [[ "$local_sha" != "$remote_sha" ]]; then
+            echo "::error::sha256 mismatch on $asset"
+            echo "::error::  local  = $local_sha"
+            echo "::error::  remote = $remote_sha"
+            echo "::error::The uploaded release asset does not match the tested build output. Re-run this job to re-upload; investigate if the mismatch persists."
+            exit 1
+          fi
+          echo "    OK: $asset sha256=$local_sha"
+        done
+
+        rm -rf "$verify_dir"
+        echo "==> All published release assets byte-match the local build output."
+
     # Summary step needs task on the runner + the checked-out repo (for
     # the Taskfile) — restore both.
     - name: Setup PHP and Composer
