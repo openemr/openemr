@@ -29,6 +29,9 @@ class AppointmentApiTest extends TestCase
     private ApiTestClient $testClient;
     private AppointmentFixtureManager $fixtureManager;
     private int $appointmentEid;
+    private int $patientPid;
+    private string $patientUuid;
+    private int $facilityId;
 
     protected function setUp(): void
     {
@@ -39,12 +42,13 @@ class AppointmentApiTest extends TestCase
         $this->fixtureManager = new AppointmentFixtureManager();
         $dependencies = $this->fixtureManager->installDependencies();
 
-        $pid = $dependencies['pid'];
-        $facilityId = $dependencies['facility_id'];
-        $appointmentData = $this->fixtureManager->getSingleAppointmentFixture($facilityId);
+        $this->patientPid = $dependencies['pid'];
+        $this->patientUuid = $dependencies['puuid'];
+        $this->facilityId = $dependencies['facility_id'];
+        $appointmentData = $this->fixtureManager->getSingleAppointmentFixture($this->facilityId);
 
         $postResponse = $this->testClient->post(
-            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$pid}/appointment",
+            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$this->patientPid}/appointment",
             $appointmentData
         );
         $this->assertEquals(200, $postResponse->getStatusCode());
@@ -113,5 +117,38 @@ class AppointmentApiTest extends TestCase
         $actualResponse = $this->testClient->get(self::APPOINTMENT_API_ENDPOINT);
 
         $this->assertEquals(401, $actualResponse->getStatusCode());
+    }
+
+    #[Test]
+    public function testCreateAppointmentUsingPatientUuidOnStandardRoute(): void
+    {
+        $appointmentData = $this->fixtureManager->getSecondAppointmentFixture($this->facilityId);
+
+        $postResponse = $this->testClient->post(
+            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$this->patientUuid}/appointment",
+            $appointmentData
+        );
+        $this->assertEquals(
+            200,
+            $postResponse->getStatusCode(),
+            "POST with patient UUID should resolve to numeric pid on the standard appointment route"
+        );
+
+        /** @var array{id: int|string} $responseBody */
+        $responseBody = json_decode((string) $postResponse->getBody(), true);
+        $appointmentEid = (int) $responseBody['id'];
+        $this->assertGreaterThan(0, $appointmentEid);
+
+        $patientAppointmentsResponse = $this->testClient->get(
+            self::PATIENT_APPOINTMENT_API_ENDPOINT . "/{$this->patientUuid}/appointment"
+        );
+        $this->assertEquals(200, $patientAppointmentsResponse->getStatusCode());
+
+        /** @var list<array<string, mixed>> $patientAppointments */
+        $patientAppointments = json_decode((string) $patientAppointmentsResponse->getBody(), true);
+        $this->assertNotEmpty($patientAppointments);
+
+        $eids = array_column($patientAppointments, 'pc_eid');
+        $this->assertContains((string) $appointmentEid, $eids);
     }
 }

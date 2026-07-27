@@ -13,7 +13,6 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientService;
@@ -22,10 +21,12 @@ use OpenEMR\Validators\ProcessingResult;
 class AppointmentRestController
 {
     private $appointmentService;
+    private $patientService;
 
     public function __construct()
     {
         $this->appointmentService = new AppointmentService();
+        $this->patientService = new PatientService();
     }
 
     /**
@@ -71,7 +72,7 @@ class AppointmentRestController
             new OA\Parameter(
                 name: 'pid',
                 in: 'path',
-                description: 'The id for the patient.',
+                description: 'The patient identifier. Backward-compatible: accepts either numeric pid or patient UUID.',
                 required: true,
                 schema: new OA\Schema(type: 'string')
             ),
@@ -183,7 +184,7 @@ class AppointmentRestController
     )]
     public function getAllForPatient($pid)
     {
-        $serviceResult = $this->appointmentService->getAppointmentsForPatient($pid);
+        $serviceResult = $this->appointmentService->getAppointmentsForPatient($this->resolvePatientPid($pid));
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
@@ -200,7 +201,7 @@ class AppointmentRestController
             new OA\Parameter(
                 name: 'pid',
                 in: 'path',
-                description: 'The id for the patient.',
+                description: 'The patient identifier. Backward-compatible: accepts either numeric pid or patient UUID.',
                 required: true,
                 schema: new OA\Schema(type: 'string')
             ),
@@ -247,6 +248,7 @@ class AppointmentRestController
     )]
     public function post($pid, $data)
     {
+        $pid = $this->resolvePatientPid($pid);
         $data['pid'] = $pid;
         $validationResult = $this->appointmentService->validate($data);
 
@@ -257,6 +259,28 @@ class AppointmentRestController
 
         $serviceResult = $this->appointmentService->insert($pid, $data);
         return RestControllerHelper::responseHandler(["id" => $serviceResult], null, 200);
+    }
+
+    /**
+     * PR note: some API clients discover patients through FHIR first and then
+     * call the standard OpenEMR appointment routes using that patient UUID.
+     * These routes were historically documented as {pid}, but rejecting UUIDs
+     * here created a hard-to-diagnose false-success flow for mixed clients.
+     * We normalize UUIDs to numeric pid at the controller boundary so the
+     * legacy standard route remains compatible with both identifier forms.
+     */
+    private function resolvePatientPid($pid): int|string
+    {
+        if (is_numeric($pid)) {
+            return $pid;
+        }
+
+        $result = ProcessingResult::extractDataArray($this->patientService->getOne($pid));
+        if (!empty($result[0]['pid'])) {
+            return $result[0]['pid'];
+        }
+
+        return $pid;
     }
 
     /**
