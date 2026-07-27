@@ -50,7 +50,7 @@ jobs:
       with:
         path: /tmp/rector
         key: ${{ runner.os }}-rector-${{ steps.rector-version.outputs.version }}-${{ hashFiles('rector.php', 'rector-bootstrap.php', '.phpstan/rector-scan.neon', 'tests/Rector/Rules/**') }}-${{ github.run_id }}
-        restore-keys: ${{ runner.os }}-rector-${{ steps.rector-version.outputs.version }}-${{ hashFiles('rector.php') }}-
+        restore-keys: ${{ runner.os }}-rector-${{ steps.rector-version.outputs.version }}-${{ hashFiles('rector.php', 'rector-bootstrap.php', '.phpstan/rector-scan.neon', 'tests/Rector/Rules/**') }}-
 
     - name: Create Rector cache directory
       run: mkdir -p /tmp/rector
