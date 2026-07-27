@@ -1080,14 +1080,17 @@ GitHub-releases publish on acceptance against the literal
 shipped tarball (**7c tarball: DONE via openemr/openemr#13207**;
 **7c docker-latest-gate: SCOPED + DEFERRED until 8.3.0 ships**
 — narrow scope covers only the daily orchestrator's `latest`-
-tagged build; in-place docker-build-release.yml refactor
-becomes trivial once acceptance-docker.yml is present on the
-`latest`-owning rel-branch, which happens when 8.3.0 ships and
-rotates latest ownership from rel-820 to rel-830); `openemr-tag` events trigger a
-fresh acceptance run against the just-published Docker Hub tag
-+ GitHub release tarball (**7b: scoped down to sha256 re-verify
-inside publish job, ~30 min follow-up** — full 7b matrix re-run
-is redundant given 7c-tarball validated the exact bytes).
+tagged build; in-place docker-build-release.yml refactor becomes
+trivial once acceptance-docker.yml is present on the `latest`-
+owning rel-branch, which happens when 8.3.0 ships and rotates
+latest ownership from rel-820 to rel-830); publish verifies
+byte-integrity of the uploaded release assets (**7b: DONE via
+openemr/openemr#13217** as a scoped-down sha256 re-verify inside
+build-release.yml's publish job — the original repository_dispatch
+full-matrix re-run was rejected as redundant given 7c-tarball
+validated the same exact bytes). Only remaining Phase 7 work is
+7c-docker-latest-gate, unblocked when 8.3.0 ships.
+
 
 **Total remaining calendar (from 2026-07-25 baseline, Phases 1+2+2.5
 +3 all in flight or landed):** ~5-6 weeks focused work through Phase
@@ -1508,11 +1511,30 @@ in acceptance."
       gate catches, and running acceptance under arm64 emulation
       would substantially inflate daily orchestrator runtime.
 
-  Only remaining Phase 7 work outside this deferred slice is 7b
-  (openemr-tag post-publish latency-catcher). Original 7b scope
-  (re-run full acceptance matrix minutes after publish) is
-  overkill given 7c-tarball already validated the exact bytes;
-  Brady's simpler suggestion — sha256 re-verify inside build-
-  release.yml's publish job — captures the actual value (byte-
-  integrity on the just-uploaded asset) at a fraction of the cost.
-  Small (~30 min) follow-up when someone wants to close that gap.
+- **2026-07-27 (later)** — **Phase 7b SHIPPED (openemr/openemr#13217).**
+  Scoped-down 7b landed as a single sha256 re-verify step in
+  build-release.yml's publish job, right after `gh release upload`.
+  Re-fetches openemr-<version>.tar.gz + .zip via
+  `gh release download`, sha256 both, byte-compares against local
+  build-package output. Fail-fast on mismatch; idempotent recovery
+  via "Re-run failed jobs" (`gh release upload --clobber` +
+  step re-run converge cleanly). Original repository_dispatch-
+  based full-matrix re-run was rejected as redundant given
+  7c-tarball validated the same exact bytes; sha256 catches the
+  only remaining risk (byte-integrity between tested-bytes-on-
+  disk and bytes-on-release-page) at ~seconds runtime vs
+  ~15-20 min for a matrix re-run. Also trimmed the "verify
+  source archives + checksums" manual item from
+  tools/release/templates/full-checklist.md — automated now,
+  and summary renders only after the sha-verify step passes so
+  reaching the checklist implies the automated check succeeded.
+
+  **Phase 7 status now:** 7a-tarball DONE (#13207), 7a-docker
+  DONE (#13210), 7b DONE (#13217), 7c-tarball DONE (#13207),
+  7c-docker-latest-gate SCOPED + DEFERRED until 8.3.0 ships
+  (rotates `latest` ownership from rel-820 to rel-830, at which
+  point the in-place docker-build-release.yml refactor becomes
+  trivial). Remaining Phase 7 scope is only the docker-latest-
+  gate. Original Phase 5 and Phase 6 (docker source-mode
+  indirection) are separate from Phase 7 and stay on the plan
+  independent of Phase 7 completion.
