@@ -17,7 +17,7 @@ interface CryptoInterface
     /**
      * Encrypts data using the standard encryption method
      *
-     * @deprecated use encryptForDatabase, encryptForDrive, or PasswordBasedCrypto
+     * @deprecated use encryptForDatabase, encryptForFilesystem, or PasswordBasedCrypto
      *
      * @param ?string $value     The data to encrypt
      * @param KeySource $keySource The source of the standard keys.
@@ -28,7 +28,7 @@ interface CryptoInterface
     /**
      * Decrypts data using the standard decryption method
      *
-     * @deprecated use decryptFromDatabase, decryptFromDrive, or PasswordBasedCrypto
+     * @deprecated use decryptFromDatabase, decryptFromFilesystem, or PasswordBasedCrypto
      *
      * @param ?string $value          The data to decrypt
      * @param KeySource $keySource      The source of the standard keys.
