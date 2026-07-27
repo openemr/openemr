@@ -200,7 +200,7 @@ jobs:
     # any build step fails, the job aborts before a release exists —
     # never publish a release that has no distribution assets attached.
     - name: Setup Node
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: '24'
 
