@@ -1078,15 +1078,16 @@ effective rel-830+**; **7a docker: DONE via
 openemr/openemr#13210**); the release pipeline gates
 GitHub-releases publish on acceptance against the literal
 shipped tarball (**7c tarball: DONE via openemr/openemr#13207**;
-7c docker: **INTENTIONALLY NOT SHIPPED** — docker publish is
-transitively gated by tarball 7c through the finalize-PR merge
-chain in full-auto ship-release, and Phase 7a-docker's release-
-prep dispatch catches codebase regressions pre-merge in both
-full-auto and semi-auto, so no per-image gate in
-docker-build-release.yml is warranted); `openemr-tag` events
-trigger a fresh acceptance run against the just-published Docker
-Hub tag + GitHub release tarball (7b: pending). Roughly 1-2 days
-remaining on 7b alone.
+**7c docker-latest-gate: SCOPED + DEFERRED until 8.3.0 ships**
+— narrow scope covers only the daily orchestrator's `latest`-
+tagged build; in-place docker-build-release.yml refactor
+becomes trivial once acceptance-docker.yml is present on the
+`latest`-owning rel-branch, which happens when 8.3.0 ships and
+rotates latest ownership from rel-820 to rel-830); `openemr-tag` events trigger a
+fresh acceptance run against the just-published Docker Hub tag
++ GitHub release tarball (**7b: scoped down to sha256 re-verify
+inside publish job, ~30 min follow-up** — full 7b matrix re-run
+is redundant given 7c-tarball validated the exact bytes).
 
 **Total remaining calendar (from 2026-07-25 baseline, Phases 1+2+2.5
 +3 all in flight or landed):** ~5-6 weeks focused work through Phase
@@ -1445,8 +1446,73 @@ in acceptance."
   prep dispatch catches codebase regressions well before Finalize
   is even reviewable. What the transitive gate doesn't cover
   (Dockerfile edits, docker-runtime-only regressions) is exactly
-  what Phase 7a-docker fills. So a per-image gate inside
-  docker-build-release.yml would only add value for scheduled +
-  workflow_dispatch runs of the orchestrator — not worth the
-  refactor. Only remaining Phase 7 work is 7b (openemr-tag
-  post-publish latency-catcher, ~1-2 days).
+  what Phase 7a-docker fills.
+
+- **2026-07-27 (later)** — **Phase 7c-docker-latest-gate scoped +
+  deferred until rel-830 cut.** Reversed the earlier "no 7c-docker"
+  position on Brady's daily-build observation: dockers are
+  rebuilt + pushed to Docker Hub every day (docker-release-
+  orchestrator's cron), so any regression in the docker path
+  (Dockerfile drift, upstream base-image bumps, MariaDB/Alpine
+  changes) reaches end users daily unless there's a pre-publish
+  gate. Phase 7a-docker only fires at release-prep-PR time — it
+  doesn't cover the daily orchestrator path. So we DO want a
+  pre-publish gate on docker, but scoped narrowly:
+
+    * **Only the `latest`-tagged build gets acceptance-gated**
+      (currently the rel-820 row per release-targets.yml, will be
+      rel-830 after 8.3.0 ships). Other rows (version-pinned tags
+      like 8.0.0, floating tags like dev/next/edge) continue
+      through the current single-step build+push. Rationale:
+      `latest` is the tag most end users pull; version-pinned
+      tags are early-adopter / CI-consumer surface with much
+      smaller blast radius on regression.
+
+    * **Implementation:** add `workflow_call` trigger +
+      caller_image_artifact input to acceptance-docker.yml
+      (mirroring what Phase 7c-tarball added to acceptance-package).
+      Add `gate_with_acceptance: bool` input to
+      docker-build-release.yml — when true, refactor its steps
+      into build (no push) → docker save to artifact → workflow_call
+      acceptance-docker.yml → if pass, push. Orchestrator sets
+      gate_with_acceptance=true for rows whose docker_tags
+      includes `latest`.
+
+    * **Deferred until 8.3.0 ships (rel-830 takes ownership of
+      `latest`).** rel-820 is excluded from byte-identical sync
+      of acceptance-docker.yml (Phase 2 block, symfony/mime dep
+      gap), so `uses: ./.github/workflows/acceptance-docker.yml`
+      inside docker-build-release.yml on rel-820 would fail to
+      resolve — the same class of problem the Phase 7c-tarball
+      landing hit, solved there by adding rel-820 to build-
+      release.yml's exclude-branches. Wrapper-on-master
+      workaround is possible but adds a new workflow file + cross-
+      ref `uses:` gymnastics. The operative deferral point isn't
+      rel-830 cut but rel-830 taking OWNERSHIP of `latest` (via
+      the release-targets.yml row rotation that happens when
+      8.3.0 releases) — until then the daily orchestrator still
+      routes latest through rel-820, which still lacks
+      acceptance-docker.yml. Once 8.3.0 ships and latest moves
+      to rel-830, the in-place docker-build-release.yml refactor
+      becomes trivial: add gate_with_acceptance input, resolve
+      workflow_call against rel-830's copy of acceptance-docker.yml.
+      Only cost: daily `latest` builds stay ungated for the
+      window between now and 8.3.0 ship (bounded, and 7a-docker
+      still catches release-prep-PR regressions during that
+      window).
+
+    * **arm64 gap acknowledged.** Acceptance would only exercise
+      linux/amd64 (the GHA runner arch). arm64 is built + pushed
+      unvalidated. Reasonable trade-off — arm64-specific bugs are
+      rare vs the upstream-base-image class of failures the daily
+      gate catches, and running acceptance under arm64 emulation
+      would substantially inflate daily orchestrator runtime.
+
+  Only remaining Phase 7 work outside this deferred slice is 7b
+  (openemr-tag post-publish latency-catcher). Original 7b scope
+  (re-run full acceptance matrix minutes after publish) is
+  overkill given 7c-tarball already validated the exact bytes;
+  Brady's simpler suggestion — sha256 re-verify inside build-
+  release.yml's publish job — captures the actual value (byte-
+  integrity on the just-uploaded asset) at a fraction of the cost.
+  Small (~30 min) follow-up when someone wants to close that gap.
