@@ -129,6 +129,7 @@ class SMARTLaunchToken
         $cryptoGen = ServiceContainer::getCrypto();
         $jsonEncoded = json_encode($context);
         ServiceContainer::getLogger()->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
+        // @phpstan-ignore method.deprecated (needs OTP conversion)
         $launchParams = $cryptoGen->encryptStandard($jsonEncoded !== false ? $jsonEncoded : null);
         return base64_encode($launchParams); // make it URL safe
     }
@@ -159,6 +160,7 @@ class SMARTLaunchToken
         if ($jsonEncrypted === false) {
             throw new \InvalidArgumentException("serialized token is not valid base64");
         }
+        // @phpstan-ignore method.deprecated (needs OTP conversion)
         $jsonEncoded = $cryptoGen->decryptStandard($jsonEncrypted);
         if ($jsonEncoded === false) {
             throw new \InvalidArgumentException("serialized token could not be decrypted.  Token was either invalid or something is wrong with the encryption keys");
