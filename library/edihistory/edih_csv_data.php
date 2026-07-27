@@ -220,7 +220,7 @@ function edih_list_denied_claims($filetype, $filename, $trace = '')
     if ($ft == 'f997') {
         $str_html = edih_997_error($filename);
         return $str_html;
-    } elseif (strpos('|f271|f277|f835', (string) $ft)) {
+    } elseif (strpos('|f271|f277|f835', $ft)) {
         $row_ar = csv_denied_by_file($ft, $filename, $trace);
     } else {
         $str_html .= "Invalid file type " . text($filetype) . " for denied claim search<br />";
@@ -609,7 +609,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
     //
     // now create the body of the table
     //
-    $cls = (strpos('|f837|f270|f276|f278', (string) $tp)) ? 'sub' : 'rsp';
+    $cls = (strpos('|f837|f270|f276|f278', $tp)) ? 'sub' : 'rsp';
     //
     $idx = 0;
     if ($csv_type == 'file') {
