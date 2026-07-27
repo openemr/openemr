@@ -28,6 +28,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @deprecated (This is to bulk-supress testing of deprecated methods)
+ */
 final class CryptoGenDecryptionTest extends TestCase
 {
     private static CryptoFixtureManager $fixtureManager;
