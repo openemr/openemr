@@ -329,6 +329,60 @@ jobs:
           echo "::warning::acceptance-package.yml dispatch failed for ${target_ref} (workflow file may predate Phase 3.5 on this rel-branch); continuing release-prep without pre-merge acceptance gate"
         fi
 
+    # Phase 7a-docker: sibling dispatch for the docker side. Same
+    # rationale as the acceptance-package dispatch above — every
+    # peter-evans force-push of a release-prep PR should exercise a
+    # fresh docker image build against the acceptance matrix so
+    # Dockerfile-side regressions on the release-in-flight get caught
+    # pre-merge rather than surfacing at docker-orchestrator time.
+    #
+    # No openemr_version_ref override needed: the rel-branch's
+    # docker/release/Dockerfile already has OPENEMR_VERSION baked in
+    # via DockerfileOpenemrVersionMutator at branch-cut time
+    # (rel-830's Dockerfile defaults to OPENEMR_VERSION=rel-830). The
+    # release-prep branch is based on rel-branch tip and inherits that
+    # Dockerfile, so `docker build docker/release` under --ref
+    # release-prep/<rel-branch> naturally clones rel-branch source
+    # during the image build. Matches what docker-build-release.yml
+    # will produce at release-time, modulo the -dev version suffix on
+    # rel-branch tip vs the tagged release commit (cosmetic, not
+    # functional).
+    #
+    # Why there's no acceptance gate inside docker-build-release.yml
+    # itself (the docker analog of Phase 7c-tarball): the docker
+    # release pipeline is triggered by docker-release-orchestrator.yml
+    # on a master push touching release-targets.yml (which happens
+    # when the release-finalize PR merges to master). Finalize can't
+    # merge until the tarball GitHub Release object exists, and
+    # tarball publish is now gated by tarball acceptance (Phase 7c,
+    # openemr/openemr#13207). So a broken release-cycle codebase
+    # blocks tarball publish, blocks finalize merge, blocks docker
+    # orchestrator — the docker publish is transitively gated by
+    # tarball acceptance already. This release-prep dispatch is what
+    # adds docker-SPECIFIC coverage to the pre-merge moment: catches
+    # regressions the tarball path wouldn't (Dockerfile edits, docker-
+    # runtime-only behavior). See docs/RELEASE_PROCESS.md's Conductor
+    # PR section for the full argument.
+    - name: Trigger acceptance-docker validation of updated release-prep PR
+      if: >-
+        steps.resolve.outputs.should-run != 'false'
+        && steps.resolve.outputs.prep-prefix == 'release-prep'
+        && steps.prep-pr.outputs.pull-request-operation != ''
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+      run: |
+        set -euo pipefail
+        target_ref="release-prep/${REL_BRANCH}"
+        echo "==> Dispatching acceptance-docker.yml against ${target_ref}"
+        if ! gh workflow run acceptance-docker.yml \
+          --repo "${{ github.repository }}" \
+          --ref "${target_ref}" \
+          -f build_locally=true
+        then
+          echo "::warning::acceptance-docker.yml dispatch failed for ${target_ref} (workflow file may predate build_locally input on this rel-branch); continuing release-prep without docker-side pre-merge acceptance gate"
+        fi
+
     # --- Master-side partner PR (release-finalize) ---------------------
     # Paired with the release-prep/<rel-branch> PR above. Carries the
     # post-release master-side updates to .github/release-targets.yml:
