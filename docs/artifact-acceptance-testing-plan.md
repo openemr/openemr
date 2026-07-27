@@ -988,26 +988,54 @@ checks on release-prep PRs" folds into this: once 7a fires on
 release-prep PRs and proves stable, promoting to required check
 is a small branch-protection change.
 
-**7c. Release-time pre-publish gate (added 2026-07-26).** After
-Phase 3.5 landed and its release-prep PR coverage was demonstrated,
-one gap remained: gating the actual GitHub-releases publish on
-acceptance passing against the LITERAL SHIPPED tarball (not just the
-PR-built one that Phase 3.5 validates). Small follow-up scope:
+**7c. Release-time pre-publish gate — SHIPPED 2026-07-27 (openemr/openemr#13207).**
+Closes the last gap between "PR-built tarball validated" (Phase 3.5)
+and "actual shipped tarball validated": now the literal same bytes
+that reach the GitHub releases page have already passed the full
+acceptance matrix.
 
-- Add `workflow_call` trigger to `acceptance-package.yml` so it can
-  be invoked as a reusable workflow with a "here's the tarball,
-  don't fetch from GitHub" input (uses the same `--local-tarball`
-  plumbing Phase 3.5 already put in place).
-- Modify `build-release.yml` to a build → validate → publish
-  sequence: the existing build job's output tarball flows into an
-  acceptance-package call, and the "upload to GitHub release" step
-  gains `needs: [acceptance] && if: needs.acceptance.result ==
-  'success'`. If acceptance fails, the tarball never publishes.
+Shipped shape:
+
+- `acceptance-package.yml` gained a `workflow_call` trigger with
+  `caller_tarball_artifact` + `to_version` inputs. When called with
+  those set, `detect-mode` fast-paths to `build_locally=true`,
+  `build-tarball` self-skips (caller already built it), and the
+  new download step grabs the caller-supplied artifact into the
+  same `/tmp/pr-built-tarball/openemr-<version>.tar.gz` path
+  Phase 3.5 uses — downstream `boot-package.sh --local-tarball`
+  plumbing unchanged.
+- `build-release.yml` split from one job into three:
+  `build-package` (existing build steps + upload-artifact
+  `openemr-release-candidate-<version>`) → `acceptance-gate`
+  (calls acceptance-package via reusable workflow) → `publish`
+  (needs both, re-generates app token, re-checks out, re-downloads
+  artifact, runs the existing tag + `gh release create` + upload
+  + summary steps). Publish only fires if acceptance-gate passes.
+- Bonus follow-up in the same PR: wired `release-prep.yml` to
+  `gh workflow run acceptance-package.yml --ref release-prep/<branch>
+  -f build_locally=true` after peter-evans force-pushes the
+  release-prep PR, closing the Phase 3.5 "every release-prep push
+  runs acceptance" coverage gap the plan doc originally called out
+  as pending. Fire-and-forget from release-prep.yml; RELEASE_APP
+  token because GITHUB_TOKEN can't trigger workflow runs (platform
+  loop-guard); fallback swallow on dispatch failure so pre-Phase-3.5
+  rel-branches (rel-820) keep working without the gate.
+
+Failure recovery is 4 scenarios (documented in PR body +
+RELEASE_PROCESS.md runbook step 10): transient infra flake
+(re-run failed jobs), bad package build (re-run all jobs — fresh
+PackageAssembler pass), acceptance-harness false positive (fix on
+master, backport to rel-branch, re-run), real codebase regression
+that snuck past Phase 3.5 (rare — version bump recovery, poisoned
+tag stays cosmetic). Publication is NOT strictly atomic
+(`gh release create` + `gh release upload` are separate steps),
+but re-run is idempotent via `gh release view` skip +
+`gh release upload --clobber`.
 
 Docker equivalent (7c-docker) is analogous once acceptance-docker
 grows a `workflow_call` trigger + docker-build-release.yml gains
-build → validate → publish sequencing. Can ship together with 7c
-or as separate slice.
+build → validate → publish sequencing. Not yet shipped; can ship
+independently.
 
 **7b. Release-event triggers.** Fire acceptance against the
 just-shipped artifact within minutes of publish, catching
@@ -1035,14 +1063,15 @@ validation) if that changes how the release-prep PR image is
 constructed.
 
 Exit criterion: release-prep PRs auto-fire the acceptance
-matrix against the PR's artifacts (**7a tarball: DONE via Phase
-3.5, effective rel-830+**; 7a docker: pending); the release
-pipeline gates GitHub-releases publish on acceptance against
-the literal shipped tarball (7c: pending small follow-up);
-`openemr-tag` events trigger a fresh acceptance run against
-the just-published Docker Hub tag + GitHub release tarball
-(7b: pending). Roughly 1 week remaining across 7a-docker + 7b
-+ 7c.
+matrix against the PR's artifacts (**7a tarball: DONE via
+Phase 3.5 + release-prep.yml dispatch wire-up (openemr/openemr#13207),
+effective rel-830+**; 7a docker: pending); the release pipeline
+gates GitHub-releases publish on acceptance against the literal
+shipped tarball (**7c tarball: DONE via openemr/openemr#13207**;
+7c docker: pending); `openemr-tag` events trigger a fresh
+acceptance run against the just-published Docker Hub tag +
+GitHub release tarball (7b: pending). Roughly 3-4 days remaining
+across 7a-docker + 7b + 7c-docker.
 
 **Total remaining calendar (from 2026-07-25 baseline, Phases 1+2+2.5
 +3 all in flight or landed):** ~5-6 weeks focused work through Phase
@@ -1351,3 +1380,26 @@ in acceptance."
   trigger on acceptance-package + build → validate → publish
   sequencing in build-release.yml) captures the last gap between
   "PR-tarball validated" and "actual shipped tarball gated."
+
+- **2026-07-27** — **Phase 7c tarball prong SHIPPED
+  (openemr/openemr#13207).** acceptance-package.yml gained
+  workflow_call trigger; build-release.yml split into
+  build-package → acceptance-gate → publish. The literal same
+  tarball bytes that reach the GitHub releases page have now
+  passed the full acceptance matrix. Same PR also wired
+  release-prep.yml to `gh workflow run acceptance-package.yml`
+  on every peter-evans force-push of a release-prep PR, closing
+  the "every release-prep push runs acceptance" coverage gap
+  the plan doc originally called out as pending (per-file paths
+  filter was rejected as over-fire risk on version.php + docker-
+  compose.yml; explicit dispatch scoped to release-prep context
+  is the correct coupling). Fire-and-forget from release-prep.yml
+  using the RELEASE_APP token (GITHUB_TOKEN can't trigger workflow
+  runs — platform loop-guard); fallback swallow on dispatch
+  failure so pre-Phase-3.5 rel-branches (rel-820) keep flowing
+  without the gate. Remaining Phase 7 work is 7a-docker (extend
+  Phase 2.5 auto-fire to release-prep PRs), 7b (openemr-tag
+  post-publish acceptance latency-catcher), and 7c-docker
+  (workflow_call trigger on acceptance-docker + build/validate/
+  publish sequencing in docker-build-release.yml). Roughly
+  3-4 days remaining across all three.
