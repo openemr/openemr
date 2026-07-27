@@ -149,7 +149,16 @@ files:
 - path: .github/workflows/release-permissions-check.yml
   exclude-branches: [rel-800, rel-704]
 - path: .github/workflows/build-release.yml
-  exclude-branches: [rel-800, rel-704]
+  # rel-820 exclusion added 2026-07-27: Phase 7c
+  # (openemr/openemr#13207) refactored build-release.yml to
+  # `uses: ./.github/workflows/acceptance-package.yml` for the
+  # release-time acceptance gate. acceptance-package.yml is
+  # already excluded from rel-820 (see the acceptance-surface
+  # block below), so syncing master's build-release.yml to
+  # rel-820 would produce an actionlint failure ("reusable workflow
+  # file not found"). Effective from rel-830+ where both files
+  # exist together.
+  exclude-branches: [rel-820, rel-800, rel-704]
 - path: .github/workflows/build-patch.yml
   exclude-branches: [rel-800, rel-704]
 - path: .github/actions/setup-php-composer/action.yml
