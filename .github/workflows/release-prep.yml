@@ -352,17 +352,30 @@ jobs:
     # itself (the docker analog of Phase 7c-tarball): the docker
     # release pipeline is triggered by docker-release-orchestrator.yml
     # on a master push touching release-targets.yml (which happens
-    # when the release-finalize PR merges to master). Finalize can't
-    # merge until the tarball GitHub Release object exists, and
-    # tarball publish is now gated by tarball acceptance (Phase 7c,
-    # openemr/openemr#13207). So a broken release-cycle codebase
-    # blocks tarball publish, blocks finalize merge, blocks docker
-    # orchestrator — the docker publish is transitively gated by
-    # tarball acceptance already. This release-prep dispatch is what
-    # adds docker-SPECIFIC coverage to the pre-merge moment: catches
-    # regressions the tarball path wouldn't (Dockerfile edits, docker-
-    # runtime-only behavior). See docs/RELEASE_PROCESS.md's Conductor
-    # PR section for the full argument.
+    # when the release-finalize PR merges to master). In FULL-AUTO
+    # ship-release mode Finalize won't merge until the tarball
+    # GitHub Release object exists, and tarball publish is now gated
+    # by tarball acceptance (Phase 7c, openemr/openemr#13207) — so
+    # under full-auto a broken release-cycle codebase blocks tarball
+    # publish → blocks finalize merge → blocks docker orchestrator,
+    # transitively gating docker on tarball acceptance.
+    #
+    # Under SEMI-AUTO ship-release (the documented default for the
+    # first 1-2 cuts) Finalize is left for manual merge, so the
+    # transitive gate depends on operator discipline (runbook step 11
+    # says to verify the Release object before merging Finalize).
+    # That's why THIS release-prep dispatch matters even for semi-
+    # auto: it catches release-cycle regressions at the release-prep-
+    # PR moment — well before Finalize is even reviewable — so the
+    # operator sees the failure in the Actions tab rather than
+    # relying on remembering to check tarball publish before merging.
+    #
+    # Also adds docker-SPECIFIC coverage the tarball transitive gate
+    # would never catch: Dockerfile-side regressions, docker-runtime-
+    # only behavior differences (flex image vs real production
+    # container). Two independent value propositions.
+    # See docs/RELEASE_PROCESS.md's Conductor PR section for the
+    # full argument.
     - name: Trigger acceptance-docker validation of updated release-prep PR
       if: >-
         steps.resolve.outputs.should-run != 'false'
