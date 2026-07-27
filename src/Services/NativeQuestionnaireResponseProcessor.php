@@ -108,17 +108,39 @@ class NativeQuestionnaireResponseProcessor
     }
 
     /**
+     * QuestionnaireResponse fields whose value the server owns and the client is never trusted
+     * for. stampResponse() removes every one of these from the incoming resource; those the
+     * server sets (subject, authored) are then re-applied with server-authoritative values, and
+     * those the server does not set here (id, meta, questionnaire, encounter) stay removed so a
+     * downstream owner is the sole authority for them.
+     *
+     * The reason each is server-owned:
+     *  - id, meta:      identity/versioning are assigned on persist; a client id could also be
+     *                   adopted as the response_id on a new save.
+     *  - subject:       must be the session patient, never a client-claimed reference.
+     *  - authored:      stamped server-side so it cannot be forged or drift with client clocks.
+     *  - questionnaire: QuestionnaireResponseService::saveQuestionnaireResponse() rebuilds this
+     *                   canonical from the questionnaire id, so any stamped value is discarded;
+     *                   keeping it out avoids a misleading second source of truth.
+     *  - encounter:     this workspace persists patient-context records (encounter 0), and the
+     *                   save service skips setEncounter() for a zero/empty encounter, so a
+     *                   client-supplied encounter would otherwise survive and make the resource
+     *                   falsely claim an encounter when later read through the FHIR path.
+     *
+     * When adding support for a field the server must own, add it here rather than scattering
+     * unset() calls, so the complete client-untrusted policy stays visible in one place.
+     */
+    public const SERVER_OWNED_FIELDS = ['id', 'meta', 'subject', 'authored', 'questionnaire', 'encounter'];
+
+    /**
      * Apply server-authoritative stamping to a validated QuestionnaireResponse.
      *
-     * The DB row linkage is authoritative, so the persisted resource must agree with the
-     * server rather than trusting the browser. This strips client-supplied id/meta, forces the
-     * subject to the session patient, and stamps the authoring time. These values flow out
-     * through the FHIR API and CCDA, where consumers trust the resource.
-     *
-     * Note: the questionnaire canonical is intentionally NOT set here. QuestionnaireResponseService
-     * ::saveQuestionnaireResponse() owns the canonical and rebuilds it from the questionnaire id
-     * against the server FHIR base URL, so any value stamped here would be discarded. Keeping it
-     * out avoids a misleading second source of truth.
+     * The DB row linkage is authoritative, so the persisted resource must agree with the server
+     * rather than trusting the browser. Every field in SERVER_OWNED_FIELDS is first removed from
+     * the client-supplied resource; the server then re-applies the ones it sets here (subject,
+     * authored). The rest (id, meta, questionnaire, encounter) stay removed so their downstream
+     * owner is the sole authority. These values flow out through the FHIR API and CCDA, where
+     * consumers trust the resource.
      *
      * @param array<string, mixed> $response      the validated QuestionnaireResponse
      * @param string               $patientUuid   the resolved session patient UUID (string form)
@@ -132,11 +154,10 @@ class NativeQuestionnaireResponseProcessor
             throw new InvalidQuestionnaireResponseException(xlt('Unable to resolve the patient identity for this QuestionnaireResponse.'));
         }
 
-        // Identity and versioning are owned by the server. Stripping any client-supplied id also
-        // prevents the save service from adopting a caller-chosen response_id on new saves. The
-        // questionnaire reference is likewise stripped so the save service is the sole authority
-        // for it rather than a client-supplied value surviving into persistence.
-        unset($response['id'], $response['meta'], $response['questionnaire']);
+        // Remove every client-supplied server-owned field, then re-apply the ones the server sets.
+        foreach (self::SERVER_OWNED_FIELDS as $field) {
+            unset($response[$field]);
+        }
 
         // Subject must be the session patient regardless of what the client claimed.
         $response['subject'] = ['reference' => 'Patient/' . $patientUuid];

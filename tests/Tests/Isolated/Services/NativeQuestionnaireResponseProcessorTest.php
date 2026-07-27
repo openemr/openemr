@@ -247,6 +247,57 @@ namespace OpenEMR\Tests\Isolated\Services {
             $this->assertArrayNotHasKey('questionnaire', $stamped);
         }
 
+        public function testStampStripsClientEncounterReference(): void
+        {
+            // This workspace persists patient-context records (encounter 0), and the save service
+            // skips setEncounter() for a zero encounter, so a client-supplied encounter would
+            // otherwise survive into the persisted resource and falsely claim an encounter.
+            $response = [
+                'resourceType' => 'QuestionnaireResponse',
+                'status' => 'completed',
+                'encounter' => ['reference' => 'Encounter/client-forged'],
+            ];
+            $stamped = $this->processor->stampResponse($response, 'uuid', '2026-01-01T00:00:00+00:00');
+            $this->assertArrayNotHasKey('encounter', $stamped);
+        }
+
+        /**
+         * Every server-owned field must be removed from the client payload. Fields the server
+         * re-applies (subject, authored) are asserted to hold the server value, not the forged
+         * one; the rest must be absent entirely. Driven by the SERVER_OWNED_FIELDS constant so a
+         * newly added field is automatically covered.
+         *
+         * @return array<string, array{string}>
+         */
+        public static function serverOwnedFieldProvider(): array
+        {
+            $cases = [];
+            foreach (NativeQuestionnaireResponseProcessor::SERVER_OWNED_FIELDS as $field) {
+                $cases[$field] = [$field];
+            }
+            return $cases;
+        }
+
+        #[DataProvider('serverOwnedFieldProvider')]
+        public function testStampNeverPersistsForgedServerOwnedField(string $field): void
+        {
+            // Seed a hostile value under each server-owned field.
+            $response = [
+                'resourceType' => 'QuestionnaireResponse',
+                'status' => 'completed',
+                $field => ['reference' => 'forged/value', 'FORGED' => true],
+            ];
+            $stamped = $this->processor->stampResponse($response, 'session-patient-uuid', '2026-01-01T00:00:00+00:00');
+
+            if ($field === 'subject') {
+                $this->assertSame(['reference' => 'Patient/session-patient-uuid'], $stamped['subject']);
+            } elseif ($field === 'authored') {
+                $this->assertSame('2026-01-01T00:00:00+00:00', $stamped['authored']);
+            } else {
+                $this->assertArrayNotHasKey($field, $stamped, "Server-owned field '$field' must not survive from the client payload.");
+            }
+        }
+
         public function testStampSetsAuthoredWhenProvided(): void
         {
             $stamped = $this->processor->stampResponse(
