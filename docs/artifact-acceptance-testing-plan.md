@@ -964,11 +964,20 @@ opens 2 PRs per release event (release-prep PR on `rel-*` +
 finalize PR on master). Wire acceptance to fire on those PRs'
 push events, validating the artifacts the release will ship:
 
-- Docker path: extend Phase 2.5's `build_locally` auto-fire to
-  match release-prep-PR changes (version.php bump; the conductor
-  rarely touches Dockerfile), so `fresh-install-to` + `upgrade`
-  scenarios run against the PR-built image (which represents the
-  about-to-ship image). **Still pending.**
+- Docker path: **SHIPPED as Phase 7a-docker 2026-07-27
+  (openemr/openemr#13210).** `release-prep.yml` dispatches
+  acceptance-docker.yml alongside acceptance-package.yml after
+  every peter-evans force-push. No changes to acceptance-docker
+  itself were needed — `DockerfileOpenemrVersionMutator` already
+  bakes `OPENEMR_VERSION=<rel-branch>` into the rel-branch's
+  Dockerfile at branch-cut time, so `docker build docker/release`
+  on `release-prep/rel-830` naturally clones rel-830 source during
+  the image build; the existing Phase 2.5 `build-image` job does
+  the rest. Byte-identical sync tweaked in the same landing (add
+  rel-820 to `build-release.yml`'s exclude-branches — Phase 7c's
+  reusable-workflow reference to acceptance-package.yml was making
+  actionlint fail on the rel-820 sync PR since acceptance-package.yml
+  is already excluded from rel-820).
 - Tarball path: **SHIPPED as Phase 3.5 (#13204).** `detect-mode`
   detects `release-prep/*` head branches and force-enables
   `build_locally=true` regardless of what files the PR touches;
@@ -1065,13 +1074,19 @@ constructed.
 Exit criterion: release-prep PRs auto-fire the acceptance
 matrix against the PR's artifacts (**7a tarball: DONE via
 Phase 3.5 + release-prep.yml dispatch wire-up (openemr/openemr#13207),
-effective rel-830+**; 7a docker: pending); the release pipeline
-gates GitHub-releases publish on acceptance against the literal
+effective rel-830+**; **7a docker: DONE via
+openemr/openemr#13210**); the release pipeline gates
+GitHub-releases publish on acceptance against the literal
 shipped tarball (**7c tarball: DONE via openemr/openemr#13207**;
-7c docker: pending); `openemr-tag` events trigger a fresh
-acceptance run against the just-published Docker Hub tag +
-GitHub release tarball (7b: pending). Roughly 3-4 days remaining
-across 7a-docker + 7b + 7c-docker.
+7c docker: **INTENTIONALLY NOT SHIPPED** — docker publish is
+transitively gated by tarball 7c through the finalize-PR merge
+chain in full-auto ship-release, and Phase 7a-docker's release-
+prep dispatch catches codebase regressions pre-merge in both
+full-auto and semi-auto, so no per-image gate in
+docker-build-release.yml is warranted); `openemr-tag` events
+trigger a fresh acceptance run against the just-published Docker
+Hub tag + GitHub release tarball (7b: pending). Roughly 1-2 days
+remaining on 7b alone.
 
 **Total remaining calendar (from 2026-07-25 baseline, Phases 1+2+2.5
 +3 all in flight or landed):** ~5-6 weeks focused work through Phase
@@ -1403,3 +1418,35 @@ in acceptance."
   (workflow_call trigger on acceptance-docker + build/validate/
   publish sequencing in docker-build-release.yml). Roughly
   3-4 days remaining across all three.
+
+- **2026-07-27** — **Phase 7a-docker SHIPPED
+  (openemr/openemr#13210) + Phase 7c-docker INTENTIONALLY NOT
+  SHIPPED.** release-prep.yml gained a sibling
+  `gh workflow run acceptance-docker.yml` step next to the
+  acceptance-package dispatch. No changes to acceptance-docker.yml
+  itself: DockerfileOpenemrVersionMutator already bakes
+  OPENEMR_VERSION=<rel-branch> at branch-cut time so
+  `docker build docker/release` on release-prep/rel-830 naturally
+  clones rel-830 source. Byte-identical config also tweaked (add
+  rel-820 to build-release.yml's exclude-branches) because Phase
+  7c's reusable-workflow reference to acceptance-package.yml was
+  making actionlint fail on the rel-820 sync PR.
+
+  The 7c-docker mirror (build → validate → publish refactor of
+  docker-build-release.yml) was considered and rejected. Docker
+  publish is triggered by docker-release-orchestrator.yml on a
+  master push touching release-targets.yml, which happens when
+  release-finalize merges to master. In full-auto ship-release,
+  Finalize won't merge until the tarball GitHub Release object
+  exists (Phase 7c-tarball gates that); so docker publish is
+  transitively gated by tarball 7c. In semi-auto Finalize is
+  manual-merged and the transitive gate is a soft
+  runbook-discipline dependency, but Phase 7a-docker's release-
+  prep dispatch catches codebase regressions well before Finalize
+  is even reviewable. What the transitive gate doesn't cover
+  (Dockerfile edits, docker-runtime-only regressions) is exactly
+  what Phase 7a-docker fills. So a per-image gate inside
+  docker-build-release.yml would only add value for scheduled +
+  workflow_dispatch runs of the orchestrator — not worth the
+  refactor. Only remaining Phase 7 work is 7b (openemr-tag
+  post-publish latency-catcher, ~1-2 days).
