@@ -3,6 +3,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
@@ -91,23 +92,34 @@ class VoiceClient extends AppDispatch
         }
         $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$this->authUser, $vendor]);
 
+        $empty = [
+            'extension' => '',
+            'phone' => '',
+            'smsNumber' => '',
+            'appKey' => '',
+            'appSecret' => '',
+            'server' => '',
+            'portal' => '',
+            'production' => '',
+            'jwt' => ''
+        ];
+
         if (empty($credentials)) {
-            return [
-                'extension' => '',
-                'phone' => '',
-                'smsNumber' => '',
-                'appKey' => '',
-                'appSecret' => '',
-                'server' => '',
-                'portal' => '',
-                'production' => '',
-                'jwt' => ''
-            ];
+            return $empty;
         } else {
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
+        // decryptFromDatabase (not decryptStandard) so rows written while
+        // `database_encryption` was off are passed through as plaintext. These
+        // rows are written by CredentialsRepository::storeSetup(), which
+        // encrypts conditionally on that same setting.
+        try {
+            $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
+        } catch (CryptoGenException) {
+            return $empty;
+        }
+
         return json_decode($decrypt, true);
     }
 

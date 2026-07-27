@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\RCVoice;
 
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Core\OEGlobalsBag;
 
 trait VoiceFunctionsTrait
@@ -58,7 +59,7 @@ trait VoiceFunctionsTrait
 
     /**
      * Fetch the persisted RingCentral webhook secret, creating and storing one
-     * (encrypted at rest) on first use.
+     * on first use (encrypted at rest when `database_encryption` is on).
      *
      * Stored under a fixed (auth_user=0, vendor='_voice_webhook') row in
      * module_faxsms_credentials so the session-less voice_webhook.php can read
@@ -73,7 +74,7 @@ trait VoiceFunctionsTrait
         }
 
         $secret = bin2hex(random_bytes(32));
-        $content = $this->crypto->encryptStandard((string)json_encode(['secret' => $secret]));
+        $content = $this->crypto->encryptForDatabase((string)json_encode(['secret' => $secret]));
         // Insert without overwriting a row a concurrent install() may have just
         // written; the no-op UPDATE keeps the existing (already-registered) secret.
         sqlQuery(
@@ -99,8 +100,12 @@ trait VoiceFunctionsTrait
             ['_voice_webhook']
         );
         if (!empty($row['credentials'])) {
-            $plain = $this->crypto->decryptStandard((string)$row['credentials']);
-            $data = json_decode((string)$plain, true);
+            try {
+                $plain = $this->crypto->decryptFromDatabase((string)$row['credentials']);
+            } catch (CryptoGenException) {
+                return '';
+            }
+            $data = json_decode($plain, true);
             if (is_array($data) && !empty($data['secret']) && is_string($data['secret'])) {
                 return $data['secret'];
             }
