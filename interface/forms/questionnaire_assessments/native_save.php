@@ -105,7 +105,7 @@ try {
     // Server-side stamping. The DB row linkage above is authoritative, so the persisted FHIR
     // resource content must agree with it rather than trusting whatever the browser submitted.
     // These values flow out through the FHIR API and CCDA, where consumers trust the resource.
-    $questionnaireResponse = $processor->stampResponse($questionnaireResponse, $questionnaire, $puuid);
+    $questionnaireResponse = $processor->stampResponse($questionnaireResponse, $puuid);
 
     $stampedResponseJson = json_encode(
         $questionnaireResponse,
@@ -130,7 +130,7 @@ try {
 
     echo json_encode([
         'success' => true,
-        'id' => $saved['id'],
+        'id' => $saved['id'] ?? null,
         'response_id' => $saved['response_id'] ?? '',
         'new' => $saved['new'] ?? false,
     ], JSON_THROW_ON_ERROR);

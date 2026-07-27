@@ -207,44 +207,6 @@ namespace OpenEMR\Tests\Isolated\Services {
             $this->processor->decodeAndValidateQuestionnaire('');
         }
 
-        // --- buildCanonical ---------------------------------------------------------------
-
-        public function testCanonicalPrefersUrl(): void
-        {
-            $c = $this->processor->buildCanonical(['url' => 'http://example.org/Questionnaire/bp', 'id' => 'q9']);
-            $this->assertSame('http://example.org/Questionnaire/bp', $c);
-        }
-
-        public function testCanonicalFallsBackToIdReference(): void
-        {
-            $c = $this->processor->buildCanonical(['id' => 'q9']);
-            $this->assertSame('Questionnaire/q9', $c);
-        }
-
-        public function testCanonicalPinsVersionOntoUrl(): void
-        {
-            $c = $this->processor->buildCanonical(['url' => 'http://example.org/q/bp', 'version' => '2.1']);
-            $this->assertSame('http://example.org/q/bp|2.1', $c);
-        }
-
-        public function testCanonicalPinsVersionOntoIdReference(): void
-        {
-            $c = $this->processor->buildCanonical(['id' => 'q9', 'version' => '3']);
-            $this->assertSame('Questionnaire/q9|3', $c);
-        }
-
-        public function testCanonicalEmptyWhenNoUrlOrId(): void
-        {
-            $this->assertSame('', $this->processor->buildCanonical(['version' => '2.1']));
-            $this->assertSame('', $this->processor->buildCanonical([]));
-        }
-
-        public function testCanonicalIgnoresNonStringVersion(): void
-        {
-            $c = $this->processor->buildCanonical(['url' => 'http://x/q', 'version' => 5]);
-            $this->assertSame('http://x/q', $c);
-        }
-
         // --- stampResponse ----------------------------------------------------------------
 
         public function testStampForcesSubjectToSessionPatient(): void
@@ -254,7 +216,7 @@ namespace OpenEMR\Tests\Isolated\Services {
                 'status' => 'completed',
                 'subject' => ['reference' => 'Patient/attacker-controlled'],
             ];
-            $stamped = $this->processor->stampResponse($response, ['url' => 'http://x/q'], 'good-uuid', '2026-01-01T00:00:00+00:00');
+            $stamped = $this->processor->stampResponse($response, 'good-uuid', '2026-01-01T00:00:00+00:00');
             $this->assertIsArray($stamped['subject']);
             $this->assertSame('Patient/good-uuid', $stamped['subject']['reference']);
         }
@@ -267,35 +229,21 @@ namespace OpenEMR\Tests\Isolated\Services {
                 'id' => 'client-chosen-id',
                 'meta' => ['versionId' => '99'],
             ];
-            $stamped = $this->processor->stampResponse($response, ['url' => 'http://x/q'], 'uuid', '2026-01-01T00:00:00+00:00');
+            $stamped = $this->processor->stampResponse($response, 'uuid', '2026-01-01T00:00:00+00:00');
             $this->assertArrayNotHasKey('id', $stamped);
             $this->assertArrayNotHasKey('meta', $stamped);
         }
 
-        public function testStampOverridesClientQuestionnaireCanonical(): void
+        public function testStampStripsClientQuestionnaireReference(): void
         {
+            // The save service is the sole authority for the questionnaire canonical, so any
+            // client-supplied reference must be removed here rather than persisted.
             $response = [
                 'resourceType' => 'QuestionnaireResponse',
                 'status' => 'completed',
                 'questionnaire' => 'Questionnaire/client-forged|9.9',
             ];
-            $stamped = $this->processor->stampResponse(
-                $response,
-                ['url' => 'http://server/q/authoritative', 'version' => '1.0'],
-                'uuid',
-                '2026-01-01T00:00:00+00:00'
-            );
-            $this->assertSame('http://server/q/authoritative|1.0', $stamped['questionnaire']);
-        }
-
-        public function testStampRemovesQuestionnaireWhenSnapshotHasNoUrlOrId(): void
-        {
-            $response = [
-                'resourceType' => 'QuestionnaireResponse',
-                'status' => 'completed',
-                'questionnaire' => 'Questionnaire/client-forged',
-            ];
-            $stamped = $this->processor->stampResponse($response, ['resourceType' => 'Questionnaire'], 'uuid', '2026-01-01T00:00:00+00:00');
+            $stamped = $this->processor->stampResponse($response, 'uuid', '2026-01-01T00:00:00+00:00');
             $this->assertArrayNotHasKey('questionnaire', $stamped);
         }
 
@@ -303,7 +251,6 @@ namespace OpenEMR\Tests\Isolated\Services {
         {
             $stamped = $this->processor->stampResponse(
                 ['resourceType' => 'QuestionnaireResponse', 'status' => 'completed'],
-                ['url' => 'http://x/q'],
                 'uuid',
                 '2026-07-27T12:00:00+00:00'
             );
@@ -314,7 +261,6 @@ namespace OpenEMR\Tests\Isolated\Services {
         {
             $stamped = $this->processor->stampResponse(
                 ['resourceType' => 'QuestionnaireResponse', 'status' => 'completed'],
-                ['url' => 'http://x/q'],
                 'uuid'
             );
             $this->assertArrayHasKey('authored', $stamped);
@@ -331,7 +277,6 @@ namespace OpenEMR\Tests\Isolated\Services {
             $this->expectException(InvalidQuestionnaireResponseException::class);
             $this->processor->stampResponse(
                 ['resourceType' => 'QuestionnaireResponse', 'status' => 'completed'],
-                ['url' => 'http://x/q'],
                 ''
             );
         }

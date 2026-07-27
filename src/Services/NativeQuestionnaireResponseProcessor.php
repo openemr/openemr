@@ -108,69 +108,38 @@ class NativeQuestionnaireResponseProcessor
     }
 
     /**
-     * Build the canonical questionnaire reference from the server-side snapshot.
-     *
-     * Prefers the snapshot url, falling back to a Questionnaire/{id} reference. When the
-     * snapshot carries a business version it is pinned into the canonical (url|version) so the
-     * reference is not silently version-naive. Returns '' when neither url nor id is present.
-     *
-     * @param array<string, mixed> $questionnaire the validated server-side Questionnaire
-     */
-    public function buildCanonical(array $questionnaire): string
-    {
-        $url = $questionnaire['url'] ?? null;
-        $idValue = $questionnaire['id'] ?? null;
-        $version = $questionnaire['version'] ?? null;
-
-        $canonical = '';
-        if (is_string($url) && $url !== '') {
-            $canonical = $url;
-        } elseif (is_string($idValue) && $idValue !== '') {
-            $canonical = 'Questionnaire/' . $idValue;
-        }
-
-        if ($canonical !== '' && is_string($version) && $version !== '') {
-            $canonical .= '|' . $version;
-        }
-
-        return $canonical;
-    }
-
-    /**
      * Apply server-authoritative stamping to a validated QuestionnaireResponse.
      *
      * The DB row linkage is authoritative, so the persisted resource must agree with the
      * server rather than trusting the browser. This strips client-supplied id/meta, forces the
-     * subject to the session patient, overrides the questionnaire canonical from the snapshot,
-     * and stamps the authoring time. These values flow out through the FHIR API and CCDA, where
-     * consumers trust the resource.
+     * subject to the session patient, and stamps the authoring time. These values flow out
+     * through the FHIR API and CCDA, where consumers trust the resource.
+     *
+     * Note: the questionnaire canonical is intentionally NOT set here. QuestionnaireResponseService
+     * ::saveQuestionnaireResponse() owns the canonical and rebuilds it from the questionnaire id
+     * against the server FHIR base URL, so any value stamped here would be discarded. Keeping it
+     * out avoids a misleading second source of truth.
      *
      * @param array<string, mixed> $response      the validated QuestionnaireResponse
-     * @param array<string, mixed> $questionnaire the validated server-side Questionnaire snapshot
      * @param string               $patientUuid   the resolved session patient UUID (string form)
      * @param string|null          $authored      ISO-8601 authoring time; defaults to now when null
      * @return array<string, mixed> the stamped resource ready to persist
      * @throws InvalidQuestionnaireResponseException when the patient UUID is empty
      */
-    public function stampResponse(array $response, array $questionnaire, string $patientUuid, ?string $authored = null): array
+    public function stampResponse(array $response, string $patientUuid, ?string $authored = null): array
     {
         if ($patientUuid === '') {
             throw new InvalidQuestionnaireResponseException(xlt('Unable to resolve the patient identity for this QuestionnaireResponse.'));
         }
 
         // Identity and versioning are owned by the server. Stripping any client-supplied id also
-        // prevents the save service from adopting a caller-chosen response_id on new saves.
-        unset($response['id'], $response['meta']);
+        // prevents the save service from adopting a caller-chosen response_id on new saves. The
+        // questionnaire reference is likewise stripped so the save service is the sole authority
+        // for it rather than a client-supplied value surviving into persistence.
+        unset($response['id'], $response['meta'], $response['questionnaire']);
 
         // Subject must be the session patient regardless of what the client claimed.
         $response['subject'] = ['reference' => 'Patient/' . $patientUuid];
-
-        $canonical = $this->buildCanonical($questionnaire);
-        if ($canonical !== '') {
-            $response['questionnaire'] = $canonical;
-        } else {
-            unset($response['questionnaire']);
-        }
 
         // Authoring time is stamped by the server so it cannot be forged or drift with client clocks.
         $response['authored'] = $authored ?? date('c');
