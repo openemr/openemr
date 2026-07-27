@@ -108,7 +108,7 @@ trait VoiceFunctionsTrait
             } catch (CryptoGenException) {
                 return '';
             }
-            $data = json_decode($plain, true);
+            $data = json_decode((string) $plain, true);
             if (is_array($data) && !empty($data['secret']) && is_string($data['secret'])) {
                 return $data['secret'];
             }
