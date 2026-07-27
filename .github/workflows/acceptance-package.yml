@@ -383,7 +383,7 @@ jobs:
         extensions: curl, dom, mbstring, tokenizer, xml, zip
 
     - name: Set up Node for `npm ci` + `npm run build`
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         # Match build-release.yml (the canonical release-time tarball
         # builder) — this job is validating what that same shape would
@@ -413,7 +413,7 @@ jobs:
           --output-dir=/tmp/release-output
         ls -lh "/tmp/release-output/openemr-${TO_VERSION}.tar.gz"
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: openemr-pr-built-tarball
         # Upload just the .tar.gz; the .zip is a duplicate for
@@ -513,14 +513,14 @@ jobs:
     # so the bootflags step below doesn't need to care which path fired.
     - name: Download PR-built tarball (Phase 3.5)
       if: needs.build-tarball.result == 'success' && inputs.caller_tarball_artifact == ''
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: openemr-pr-built-tarball
         path: /tmp/pr-built-tarball
 
     - name: Download caller-supplied tarball (Phase 7c gate)
       if: inputs.caller_tarball_artifact != ''
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: ${{ inputs.caller_tarball_artifact }}
         path: /tmp/pr-built-tarball
