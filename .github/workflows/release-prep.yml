@@ -274,6 +274,61 @@ jobs:
         draft: true
         delete-branch: false
 
+    # Phase 7c follow-up (openemr/openemr#13207): fire the pre-merge
+    # acceptance gate against the just-force-pushed
+    # release-prep/<rel-branch> tip. Peter-evans already wrote the
+    # mutator output above; this validates that the resulting tarball
+    # still fresh-installs + upgrades + wizard-installs + wizard-upgrades
+    # cleanly before the PR is considered ship-ready. Async / fire-and-
+    # forget: release-prep.yml doesn't block waiting for the result;
+    # the run appears in the Actions tab and any failure is investigated
+    # + fixed on rel-branch, which re-fires this whole workflow and gets
+    # another try.
+    #
+    # Why can't we just add a paths filter that catches release-prep
+    # force-pushes: version.php + docker/production/docker-compose.yml
+    # (the two files release-prep typically writes) also get bumped in
+    # many non-release contexts, so listing them in acceptance-package's
+    # push paths would over-fire on every dev-cycle version tick. The
+    # explicit dispatch here is scoped to the release-prep context so
+    # only real release-prep force-pushes trigger a run.
+    #
+    # Uses the RELEASE_APP token (not GITHUB_TOKEN): the platform
+    # prevents GITHUB_TOKEN from firing new workflow runs (loop-guard),
+    # so a workflow_dispatch has to come from an app token or PAT.
+    # Skipped on test-mode (prep-prefix == 'release-prep-test') and
+    # when peter-evans reported no-op (pull-request-operation == ''),
+    # since neither writes a new release-prep tip worth revalidating.
+    #
+    # Skipped when acceptance-package.yml on the target rel-branch
+    # predates its workflow_dispatch trigger's `build_locally` input
+    # (openemr/openemr#13204, Phase 3.5, master + rel-830+). On rel-820
+    # the dispatch would fail with "unknown input"; the swallow here
+    # keeps release-prep flowing on legacy branches and pre-Phase-3.5
+    # backports.
+    - name: Trigger acceptance-package validation of updated release-prep PR
+      if: >-
+        steps.resolve.outputs.should-run != 'false'
+        && steps.resolve.outputs.prep-prefix == 'release-prep'
+        && steps.prep-pr.outputs.pull-request-operation != ''
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        RELEASE_VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        set -euo pipefail
+        target_ref="release-prep/${REL_BRANCH}"
+        echo "==> Dispatching acceptance-package.yml against ${target_ref} (to_version=${RELEASE_VERSION})"
+        if ! gh workflow run acceptance-package.yml \
+          --repo "${{ github.repository }}" \
+          --ref "${target_ref}" \
+          -f build_locally=true \
+          -f to_version="${RELEASE_VERSION}" \
+          -f from_version=8.2.0
+        then
+          echo "::warning::acceptance-package.yml dispatch failed for ${target_ref} (workflow file may predate Phase 3.5 on this rel-branch); continuing release-prep without pre-merge acceptance gate"
+        fi
+
     # --- Master-side partner PR (release-finalize) ---------------------
     # Paired with the release-prep/<rel-branch> PR above. Carries the
     # post-release master-side updates to .github/release-targets.yml:
