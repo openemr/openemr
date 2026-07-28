@@ -44,7 +44,6 @@
 require_once(__DIR__ . '/../../globals.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/forms.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/calendar.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/encounter_events.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient_tracker.inc.php');
