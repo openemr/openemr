@@ -24,6 +24,30 @@
 #     override bakes rel-810 source, which is what a maintainer
 #     testing a branch in isolation typically wants.
 #
+#   gate_with_acceptance
+#     Phase 7c-docker-latest-gate: when true, split build+push into a
+#     three-job flow: (1) build multi-arch and push to a temporary
+#     candidate tag on Docker Hub (openemr/openemr:release-candidate-
+#     <run-id>-<attempt>); (2) workflow_call acceptance-docker.yml with
+#     to_tag pointed at the candidate; (3) on acceptance pass, alias
+#     the candidate's manifest onto each final tag via `docker buildx
+#     imagetools create` (no rebuild — digest-identical across
+#     build/test/publish). A cleanup-candidate job then deletes the
+#     candidate tag from Docker Hub. Default false preserves the
+#     pre-Phase-7c single-step build+push shape for every row that
+#     doesn't ship a widely-consumed floating tag. Orchestrator sets
+#     this true for rows whose docker_tags include `latest` — see
+#     docker-release-orchestrator.yml.
+#
+#     arm64 coverage: acceptance-gate runs its full 3-scenario matrix on
+#     BOTH ubuntu-24.04 (amd64) and ubuntu-24.04-arm (arm64) runners
+#     via the workflow_call's test_arm64=true input. `docker pull` on
+#     each runner fetches the matching slice from the candidate's
+#     multi-arch manifest, so both platform slices are validated end-
+#     to-end. Publish then aliases the SAME multi-arch manifest onto
+#     each final tag — the digests users pull for both amd64 and arm64
+#     match what acceptance ran against.
+#
 # Triggered by:
 #   * workflow_dispatch -- driven by the master orchestrator on its
 #     scheduled tick (dispatching against this branch's --ref with both
@@ -53,9 +77,24 @@ on:
         required: false
         type: string
         default: ''
+      gate_with_acceptance:
+        description: 'Phase 7c-docker: gate publish on acceptance-docker.yml passing. Orchestrator sets true for rows whose docker_tags include `latest`.'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
+
+# Candidate tag suffix used to hand the gated build's image from the
+# build job (single multi-arch push) to acceptance-gate (which pulls
+# the candidate from Docker Hub) and publish (which aliases the
+# candidate's manifest onto each final tag). Unique per run+attempt so
+# concurrent orchestrator dispatches never collide on the same tag.
+# The `release-candidate-` prefix + GitHub run coordinates make the
+# tag unmistakably temporary; the cleanup-candidate job deletes it
+# once publish finishes (or acceptance fails).
+env:
+  GATE_CANDIDATE_TAG: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
 
 # Serialize per-(branch, docker_tags) builds. Two dispatches with
 # the same ref AND the same docker_tags input (e.g., release-
@@ -80,6 +119,16 @@ jobs:
     # Only run from the upstream openemr/openemr repository (not downstream forks).
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
     runs-on: ubuntu-24.04
+    # Downstream jobs (acceptance-gate, publish, cleanup-candidate — gated
+    # path only) look up the candidate tag + expanded final tag list from
+    # these outputs. `env` doesn't cross job boundaries so re-surface the
+    # tag suffix here even though it originated from a workflow-level env.
+    outputs:
+      candidate_tag: ${{ env.GATE_CANDIDATE_TAG }}
+      expanded_tags: ${{ steps.expand_docker_tags.outputs.list }}
+      openemr_version_ref: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
+      image_version: ${{ steps.image_version.outputs.value }}
+      build_date: ${{ steps.build_date.outputs.date }}
     steps:
     - name: Checkout
       uses: actions/checkout@v7
@@ -205,7 +254,33 @@ jobs:
         echo "value=$VERSION" >> "$GITHUB_OUTPUT"
         echo "✓ Extracted IMAGE_VERSION=$VERSION from openemr@${REF}/version.php"
 
-    - name: Build and push
+    # Phase 7c-docker gated path: multi-arch build+push to a candidate
+    # tag on Docker Hub (single push, both platforms). acceptance-gate
+    # pulls the candidate; publish aliases the candidate's manifest onto
+    # each final tag via `docker buildx imagetools create` (no rebuild,
+    # digest-identical across build/test/publish); cleanup-candidate
+    # deletes the tag after publish. arm64 IS validated in the sense
+    # that publish points its final-tag manifests at the same digest
+    # acceptance ran against — but acceptance itself only exercises
+    # amd64 (GHA runner arch). Accepted trade-off per plan doc.
+    #
+    # Non-gated path (the pre-Phase-7c shape, still every non-latest row)
+    # keeps the single-step multi-arch build+push below.
+    - name: Build and push to candidate tag — gated path
+      if: inputs.gate_with_acceptance
+      uses: docker/build-push-action@v7
+      with:
+        context: ./docker/release
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: openemr/openemr:${{ env.GATE_CANDIDATE_TAG }}
+        build-args: |
+          OPENEMR_VERSION=${{ steps.resolve_openemr_version_ref.outputs.ref }}
+          IMAGE_VERSION=${{ steps.image_version.outputs.value }}
+          BUILD_DATE=${{ steps.build_date.outputs.date }}
+
+    - name: Build and push — non-gated path
+      if: ${{ !inputs.gate_with_acceptance }}
       uses: docker/build-push-action@v7
       with:
         context: ./docker/release
@@ -217,7 +292,56 @@ jobs:
           IMAGE_VERSION=${{ steps.image_version.outputs.value }}
           BUILD_DATE=${{ steps.build_date.outputs.date }}
 
-    - name: Verify pushed image OCI labels
+    - name: Verify pushed candidate image OCI labels — gated path
+      if: inputs.gate_with_acceptance
+      env:
+        EXPECTED_REVISION: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
+        EXPECTED_VERSION: ${{ steps.image_version.outputs.value }}
+        EXPECTED_BUILD_DATE: ${{ steps.build_date.outputs.date }}
+        REF_TAG: openemr/openemr:${{ env.GATE_CANDIDATE_TAG }}
+      run: |
+        # Same verify logic as the non-gated path below, but runs against
+        # the candidate tag before spending acceptance-gate CI budget on
+        # an image whose Dockerfile ARGs didn't flow through correctly.
+        docker pull "$REF_TAG"
+        inspect_label() {
+          V=$(docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG")
+          if [ "$V" = "<no value>" ]; then
+            echo ""
+          else
+            echo "$V"
+          fi
+        }
+        FAIL=0
+        ACTUAL_REVISION=$(inspect_label revision)
+        if [ "$ACTUAL_REVISION" != "$EXPECTED_REVISION" ]; then
+          echo "::error::revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
+          FAIL=1
+        fi
+        ACTUAL_VERSION=$(inspect_label version)
+        if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+          echo "::error::version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION'"
+          FAIL=1
+        fi
+        ACTUAL_CREATED=$(inspect_label created)
+        if [ "$ACTUAL_CREATED" != "$EXPECTED_BUILD_DATE" ]; then
+          echo "::error::created label '$ACTUAL_CREATED' doesn't match expected '$EXPECTED_BUILD_DATE'"
+          FAIL=1
+        fi
+        for STATIC_LABEL in title source url licenses; do
+          VALUE=$(inspect_label "$STATIC_LABEL")
+          if [ -z "$VALUE" ]; then
+            echo "::error::Image is missing org.opencontainers.image.${STATIC_LABEL} label entirely"
+            FAIL=1
+          else
+            echo "✓ ${STATIC_LABEL}=${VALUE}"
+          fi
+        done
+        [ "$FAIL" -eq 0 ] || exit 1
+        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"
+
+    - name: Verify pushed image OCI labels — non-gated path
+      if: ${{ !inputs.gate_with_acceptance }}
       env:
         EXPECTED_REVISION: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
         EXPECTED_VERSION: ${{ steps.image_version.outputs.value }}
@@ -284,3 +408,182 @@ jobs:
 
         [ "$FAIL" -eq 0 ] || exit 1
         echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"
+
+  # Phase 7c-docker gate: run the full acceptance-docker matrix against
+  # the image build produced + saved as an artifact. Publish only fires
+  # if this passes. Skipped when gate_with_acceptance=false (the pre-
+  # Phase-7c shape, and the current default for every non-latest row).
+  #
+  # Runs against THIS branch's copy of acceptance-docker.yml — matches
+  # the acceptance surface the release branch says is canon. Downside:
+  # acceptance-docker.yml must exist on the target rel-branch (byte-
+  # identical propagation handles this for rel-820+ post-#13236; rel-800
+  # and rel-704 are excluded from the acceptance surface so they'd need
+  # this input kept false anyway).
+  acceptance-gate:
+    name: Acceptance gate
+    needs: [build]
+    if: inputs.gate_with_acceptance
+    uses: ./.github/workflows/acceptance-docker.yml
+    with:
+      # acceptance-docker.yml's matrix pulls both fresh-install-to and
+      # the upgrade-target boot from `openemr/openemr:${TO_TAG}`, so
+      # passing the candidate suffix here routes all "to-side" scenarios
+      # at the exact bytes we're gating. fresh-install-from stays on
+      # `latest` (real currently-shipped image) — a secondary smoke of
+      # whether Docker Hub `latest` is currently installable, complementing
+      # the gated candidate assertion.
+      to_tag: ${{ needs.build.outputs.candidate_tag }}
+      # Expand the matrix onto ubuntu-24.04-arm runners in addition to
+      # amd64. `docker pull` on arm64 runners fetches the arm64 slice
+      # of the candidate manifest, so with test_arm64=true we're
+      # covering both platform slices — closes the arm64-unvalidated
+      # gap the original 7c-docker plan doc accepted. Runner-minutes
+      # roughly double for the gated path only (every other acceptance-
+      # docker invocation stays amd64-only via test_arm64's false default).
+      test_arm64: true
+    # acceptance-docker doesn't currently use org secrets, but forward
+    # for future-proofing (matches build-release.yml -> acceptance-package
+    # workflow_call shape).
+    secrets: inherit
+
+  # Phase 7c-docker publish: alias the candidate's manifest onto each
+  # final tag via `docker buildx imagetools create`. Same digest, so the
+  # bytes acceptance-gate tested ARE the bytes each final tag now points
+  # at — no rebuild, no cache-hit assumption, byte-identical guarantee.
+  # amd64 + arm64 both preserved (they were both pushed under the
+  # candidate at build time). Skipped when gate_with_acceptance=false.
+  publish:
+    name: Publish
+    needs: [build, acceptance-gate]
+    if: inputs.gate_with_acceptance
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Alias candidate manifest onto each final tag
+      env:
+        CANDIDATE_TAG: ${{ needs.build.outputs.candidate_tag }}
+        TAGS_LIST: ${{ needs.build.outputs.expanded_tags }}
+      run: |
+        # `docker buildx imagetools create -t <new> <src>` creates a new
+        # manifest pointing at <src>'s digest without pulling image blobs.
+        # Multi-arch is preserved (the source manifest is a manifest list).
+        # Idempotent: re-running against an existing tag rewrites its
+        # pointer (harmless if source digest is the same).
+        SRC="openemr/openemr:${CANDIDATE_TAG}"
+        for tag in $TAGS_LIST; do
+          [ -z "$tag" ] && continue
+          echo "==> aliasing ${SRC} -> ${tag}"
+          docker buildx imagetools create -t "$tag" "$SRC"
+        done
+
+    - name: Verify pushed image OCI labels
+      env:
+        EXPECTED_REVISION: ${{ needs.build.outputs.openemr_version_ref }}
+        EXPECTED_VERSION: ${{ needs.build.outputs.image_version }}
+        EXPECTED_BUILD_DATE: ${{ needs.build.outputs.build_date }}
+        TAGS_LIST: ${{ needs.build.outputs.expanded_tags }}
+      run: |
+        # Same verify shape as the non-gated build job's step. Runs
+        # against the first published final tag as a defense-in-depth
+        # check that imagetools-create actually pointed the tag at a
+        # manifest with the expected labels (it should, by construction,
+        # but the check is essentially free).
+        REF_TAG=$(echo "$TAGS_LIST" | head -1)
+        docker pull "$REF_TAG"
+
+        inspect_label() {
+          V=$(docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG")
+          if [ "$V" = "<no value>" ]; then
+            echo ""
+          else
+            echo "$V"
+          fi
+        }
+
+        FAIL=0
+        ACTUAL_REVISION=$(inspect_label revision)
+        if [ "$ACTUAL_REVISION" != "$EXPECTED_REVISION" ]; then
+          echo "::error::revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
+          FAIL=1
+        fi
+        ACTUAL_VERSION=$(inspect_label version)
+        if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+          echo "::error::version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION'"
+          FAIL=1
+        fi
+        ACTUAL_CREATED=$(inspect_label created)
+        if [ "$ACTUAL_CREATED" != "$EXPECTED_BUILD_DATE" ]; then
+          echo "::error::created label '$ACTUAL_CREATED' doesn't match expected '$EXPECTED_BUILD_DATE'"
+          FAIL=1
+        fi
+        for STATIC_LABEL in title source url licenses; do
+          VALUE=$(inspect_label "$STATIC_LABEL")
+          if [ -z "$VALUE" ]; then
+            echo "::error::Image is missing org.opencontainers.image.${STATIC_LABEL} label entirely"
+            FAIL=1
+          else
+            echo "✓ ${STATIC_LABEL}=${VALUE}"
+          fi
+        done
+        [ "$FAIL" -eq 0 ] || exit 1
+        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"
+
+  # Phase 7c-docker cleanup: delete the candidate tag from Docker Hub
+  # after publish (success or fail). Always runs on the gated path;
+  # continue-on-error so cleanup failures don't fail the whole workflow
+  # run (a stale candidate tag is cosmetically annoying but not a
+  # correctness issue — the tag naming makes it obvious that
+  # release-candidate-<run-id>-<attempt> is an internal artifact).
+  cleanup-candidate:
+    name: Cleanup candidate tag
+    needs: [build, acceptance-gate, publish]
+    if: always() && inputs.gate_with_acceptance && needs.build.result == 'success'
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Delete candidate tag from Docker Hub
+      continue-on-error: true
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        CANDIDATE_TAG: ${{ needs.build.outputs.candidate_tag }}
+      run: |
+        set -euo pipefail
+        # Docker Hub v2 API tag deletion requires a JWT obtained from the
+        # user-login endpoint (the raw personal-access-token isn't
+        # sufficient for this specific endpoint). Cheap two-call flow:
+        # POST /v2/users/login/ -> extract .token -> DELETE the tag.
+        # If the JWT flow fails (e.g., PAT lacks write:delete perms), the
+        # `continue-on-error: true` on the step swallows it — the tag
+        # lingers until manually cleaned, non-blocking.
+        JWT=$(curl -sf -H 'Content-Type: application/json' \
+          -X POST -d "{\"username\": \"${DOCKERHUB_USERNAME}\", \"password\": \"${DOCKERHUB_TOKEN}\"}" \
+          https://hub.docker.com/v2/users/login/ | jq -r .token)
+        if [ -z "$JWT" ] || [ "$JWT" = "null" ]; then
+          echo "::warning::could not obtain Docker Hub JWT — cleanup skipped, candidate tag left in place"
+          exit 0
+        fi
+        echo "==> DELETE openemr/openemr:${CANDIDATE_TAG}"
+        HTTP_CODE=$(curl -s -o /tmp/dh-delete-response -w '%{http_code}' \
+          -X DELETE \
+          -H "Authorization: JWT ${JWT}" \
+          "https://hub.docker.com/v2/repositories/openemr/openemr/tags/${CANDIDATE_TAG}/")
+        case "$HTTP_CODE" in
+          204|404)
+            # 204 = deleted; 404 = already gone (idempotent re-run).
+            echo "==> cleanup OK (HTTP ${HTTP_CODE})"
+            ;;
+          *)
+            echo "::warning::Docker Hub tag delete returned HTTP ${HTTP_CODE}:"
+            cat /tmp/dh-delete-response || true
+            exit 1
+            ;;
+        esac
