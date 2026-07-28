@@ -24,7 +24,6 @@
  */
 
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pnotes.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;

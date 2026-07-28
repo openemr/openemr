@@ -15,7 +15,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
-require_once($srcdir . "/pnotes.inc.php");
 require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/gprelations.inc.php");
