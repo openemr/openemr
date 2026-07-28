@@ -68,6 +68,36 @@ on:
         description: 'Build target image from the PR docker/release/Dockerfile instead of pulling to_tag from Docker Hub (Phase 2.5 PR-image validation)'
         type: boolean
         default: false
+  # Phase 7c-docker-latest-gate: called by docker-build-release.yml as
+  # a pre-publish gate. Caller has already pushed the release image to
+  # Docker Hub under a candidate tag (e.g., openemr/openemr:release-
+  # candidate-<run-id>-<attempt>) and dispatches this workflow with
+  # to_tag set to that candidate suffix. The candidate is a real Docker
+  # Hub tag on the same repo, so the acceptance matrix pulls it via the
+  # existing to_tag path — no artifact plumbing, no local image load,
+  # and the bytes tested here are the exact bytes that publish's
+  # imagetools-create step will alias onto the final tag list.
+  # Mirrors acceptance-package.yml's Phase 7c-tarball workflow_call
+  # shape (different underlying transport — Docker Hub tag vs workflow
+  # artifact — but same "caller-supplied artifact, pre-publish gate"
+  # semantics).
+  workflow_call:
+    inputs:
+      from_tag:
+        description: 'Prior openemr Docker Hub tag. Defaults to latest.'
+        required: false
+        type: string
+        default: 'latest'
+      to_tag:
+        description: 'Target openemr Docker Hub tag (typically a Phase 7c-docker gate candidate tag suffix; may also be next / a version-pinned tag / etc.).'
+        required: false
+        type: string
+        default: 'next'
+      test_arm64:
+        description: 'Also run every matrix scenario on ubuntu-24.04-arm runners (Phase 7c-docker latest-gate uses this to cover the arm64 slice of the multi-arch candidate manifest, since the runner arch decides which slice `docker pull` fetches). Doubles matrix breadth; leave false for push/PR/schedule paths where the arm64 signal is not worth the runner-minutes.'
+        required: false
+        type: boolean
+        default: false
   push:
     paths:
     - '.github/workflows/acceptance-docker.yml'
@@ -142,6 +172,13 @@ jobs:
         PUSH_HEAD_SHA: ${{ github.sha }}
       run: |
         set -euo pipefail
+        # Phase 7c-docker workflow_call gate: caller pushed the candidate
+        # image to Docker Hub before calling this workflow, so build_locally
+        # stays FALSE (the existing to_tag path pulls the candidate from
+        # Docker Hub, no local build needed). Nothing to add here for
+        # workflow_call — inputs.to_tag flows through the normal fallback
+        # chain to the acceptance matrix's TO_TAG env.
+
         # Manual dispatch always wins — honor the input.
         if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
           echo "build_locally=${DISPATCH_BUILD_LOCALLY}" >> "$GITHUB_OUTPUT"
@@ -230,13 +267,25 @@ jobs:
       && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
       && needs.detect-mode.result == 'success'
       && (needs.build-image.result == 'success' || needs.build-image.result == 'skipped')
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runs_on }}
     strategy:
       # Don't fail-fast: if fresh-install on `next` breaks, we still
       # want the upgrade scenario's result to distinguish "target
       # installer broken" from "upgrade path broken" (different code).
       fail-fast: false
       matrix:
+        # Runner-arch dimension: workflow_call sets test_arm64=true (Phase
+        # 7c-docker latest-gate) so the matrix expands to both amd64 and
+        # arm64 slices of the candidate manifest. Every other invocation
+        # (push/PR/schedule) stays amd64-only.
+        runs_on: ${{ inputs.test_arm64 && fromJson('["ubuntu-24.04", "ubuntu-24.04-arm"]') || fromJson('["ubuntu-24.04"]') }}
+        # Scenario dimension. Cartesian-multiplied with runs_on; each
+        # cell picks up its scenario-specific description/image_tag/
+        # test_group from the include block below.
+        scenario:
+        - fresh-install-from
+        - fresh-install-to
+        - upgrade
         include:
         - scenario: fresh-install-from
           description: 'Fresh install of from_tag'
@@ -261,7 +310,11 @@ jobs:
       # upgrade scenario.
       COMPOSE_PROJECT_NAME: openemr-acceptance
       ACCEPTANCE_ARTIFACT_URL: http://localhost:8580
-    name: ${{ matrix.description }}
+    # Arch suffix in the job name so amd64 vs arm64 runs of the same
+    # scenario are distinguishable in the Actions UI + `gh pr checks`
+    # output. On amd64-only matrices the suffix is still present but
+    # redundant — worth the visual consistency vs a conditional.
+    name: ${{ matrix.description }} (${{ matrix.runs_on }})
     steps:
     - uses: actions/checkout@v7
       with:
