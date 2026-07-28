@@ -662,14 +662,26 @@ redis_cli_detect_tls_args() {
             printf '%s\n' --cert /certs/client.crt --key /certs/client.key
         fi
     fi
+    # Explicit success: callers capture this with a plain assignment
+    # (var=$(redis_cli_detect_tls_args)), which under set -e requires the
+    # function to reliably return 0 (both docker execs above are guarded).
+    return 0
 }
 
 ##
 # Run a redis-cli command against redis-master with auth and TLS handled.
 # The requirepass matches ci/compose-shared-redis-sentinel/docker-compose.yml.
 redis_master_cli() {
+    # Capture with a plain assignment rather than mapfile-from-process-
+    # substitution so the detect function's return value is not masked
+    # (SC2312); guard the herestring since <<< "" would yield one empty
+    # array element rather than an empty array.
+    local tls_output
+    tls_output=$(redis_cli_detect_tls_args)
     local -a tls_args=()
-    mapfile -t tls_args < <(redis_cli_detect_tls_args)
+    if [[ -n "${tls_output}" ]]; then
+        mapfile -t tls_args <<< "${tls_output}"
+    fi
     docker compose exec -T redis-master \
         redis-cli "${tls_args[@]}" -a strongpassword --no-auth-warning "$@"
 }
@@ -697,14 +709,19 @@ redis_monitor_start() {
             sleep 10
         done
     ) &
-    echo "$!" > "${outfile}.pid"
-    echo "redis monitor started (pid $(cat "${outfile}.pid")), sampling to ${outfile}"
+    local monitor_pid=$!
+    echo "${monitor_pid}" > "${outfile}.pid"
+    echo "redis monitor started (pid ${monitor_pid}), sampling to ${outfile}"
 }
 
 redis_monitor_stop() {
     local outfile=$1
+    local monitor_pid
     if [[ -f "${outfile}.pid" ]]; then
-        kill "$(cat "${outfile}.pid")" 2>/dev/null || true
+        monitor_pid=$(cat "${outfile}.pid") || monitor_pid=""
+        if [[ -n "${monitor_pid}" ]]; then
+            kill "${monitor_pid}" 2>/dev/null || true
+        fi
         rm -f "${outfile}.pid"
     fi
 }
@@ -722,11 +739,20 @@ redis_monitor_stop() {
 # signal (per-command call counts, cumulative usec, and latency percentiles)
 # without any payload data, and CLIENT LIST exposes only connection metadata
 # (addr, age, idle, last cmd name), never values.
+# Best-effort by design: every capture below is `|| true` because a dead
+# cluster — the very thing being diagnosed — may refuse any of these
+# commands, and a partial snapshot must still be written. set -e being
+# neutralized inside the function calls (SC2310) is therefore intended.
+# shellcheck disable=SC2310
 redis_diagnostics() {
     local dest=$1
+    local tls_output
     local -a tls_args=()
     mkdir -p "${dest}"
-    mapfile -t tls_args < <(redis_cli_detect_tls_args)
+    tls_output=$(redis_cli_detect_tls_args)
+    if [[ -n "${tls_output}" ]]; then
+        mapfile -t tls_args <<< "${tls_output}"
+    fi
     redis_master_cli INFO > "${dest}/redis-info.txt" 2>&1 || true
     redis_master_cli CLIENT LIST > "${dest}/redis-client-list.txt" 2>&1 || true
     {
