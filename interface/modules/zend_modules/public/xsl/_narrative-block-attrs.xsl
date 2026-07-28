@@ -41,8 +41,6 @@
   -->
   <xsl:variable name="narrative-block-url-attrs"
     select="' href '"/>
-  <xsl:variable name="narrative-block-url-safe-prefixes"
-    select="' http:// https:// mailto: tel: # '"/>
 
   <!--
     Iterate every attribute on the context element and emit a copy of

@@ -1739,20 +1739,14 @@ limitations under the License.
         <xsl:when test="contains($narrative-block-url-attrs,
                                  concat(' ', $attr-name, ' '))">
           <!--
-            URL-bearing attribute (href/...). Copy only if the value
-            starts with a recognized scheme prefix; otherwise silently
-            drop. Ordered before the scrubbedSource check because
-            legitimate URL characters (`:`, `/`) live on the
-            simple-sanitizer-match list and would otherwise trigger the
-            warning path.
+            URL-bearing attribute (href/...). Delegates to the shared
+            copy-if-safe-url template so the recognized-scheme list
+            lives in one place (_narrative-block-attrs.xsl). Ordered
+            before the scrubbedSource check because legitimate URL
+            characters (`:`, `/`) live on the simple-sanitizer-match
+            list and would otherwise trigger the warning path.
           -->
-          <xsl:if test="starts-with($source, 'http://')
-                     or starts-with($source, 'https://')
-                     or starts-with($source, 'mailto:')
-                     or starts-with($source, 'tel:')
-                     or starts-with($source, '#')">
-            <xsl:copy-of select="."/>
-          </xsl:if>
+          <xsl:call-template name="copy-if-safe-url"/>
         </xsl:when>
         <xsl:when test="contains($lcSource, 'javascript')">
           <p>

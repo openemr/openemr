@@ -452,6 +452,11 @@ XSL;
                 [],
                 ['href'],
             ],
+            'href javascript: dropped' => [
+                'href="javascript:alert(1)"',
+                [],
+                ['href'],
+            ],
             'legitimate href preserved alongside title' => [
                 'href="https://good.example" title="tip"',
                 ['href', 'title'],
