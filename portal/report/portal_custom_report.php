@@ -56,7 +56,6 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
-require_once("$srcdir/classes/Document.class.php");
 require_once(__DIR__ . "/../../custom/code_types.inc.php");
 require_once("$srcdir/ESign/Api.php");
 require_once("{$globalsBag->getIncludeRoot()}/orders/single_order_results.inc.php");
