@@ -616,6 +616,39 @@ jobs:
         build_test ${{ matrix.suite }}
 
     ##
+    # Redis post-mortem must run before anything else can disturb the
+    # cluster or delay the snapshot: the redis-failover suite stops and
+    # restarts redis-master, and the coverage/artifact steps below push the
+    # capture minutes past the point of interest. Diagnostics fire on
+    # failure first; the always() stop then finalizes the sampler so
+    # successful runs don't leave it running until runner cleanup
+    # (redis_monitor_stop is idempotent — the pid file guards a double stop).
+    - name: Redis diagnostics
+      if: ${{ failure() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        redis_monitor_stop redis-monitor.log
+        mkdir -p "${RUNNER_TEMP}/redis-diagnostics"
+        cp redis-monitor.log "${RUNNER_TEMP}/redis-diagnostics/" 2>/dev/null || true
+        redis_diagnostics "${RUNNER_TEMP}/redis-diagnostics"
+        echo '=== redis connection trend (last 60 lines) ==='
+        tail -n 60 redis-monitor.log || true
+
+    - name: Stop Redis monitor
+      if: ${{ always() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        redis_monitor_stop redis-monitor.log
+
+    - name: Upload Redis diagnostics
+      if: ${{ failure() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: redis-diagnostics-${{ needs.setup.outputs.docker_dir }}-${{ matrix.suite }}
+        path: ${{ runner.temp }}/redis-diagnostics/
+        if-no-files-found: ignore
+
+    ##
     # Coverage conversion for suites that use auto_prepend.php
     # (server-side coverage stored as raw PHP files in /tmp/openemr-coverage/)
     - name: Convert API coverage to Clover XML
@@ -784,25 +817,6 @@ jobs:
       with:
         name: e2e-test-videos-${{ needs.setup.outputs.docker_dir }}
         path: selenium-videos/
-
-    - name: Redis diagnostics
-      if: ${{ failure() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
-      run: |
-        . ci/ciLibrary.source
-        redis_monitor_stop redis-monitor.log
-        mkdir -p "${RUNNER_TEMP}/redis-diagnostics"
-        cp redis-monitor.log "${RUNNER_TEMP}/redis-diagnostics/" 2>/dev/null || true
-        redis_diagnostics "${RUNNER_TEMP}/redis-diagnostics"
-        echo '=== redis connection trend (last 60 lines) ==='
-        tail -n 60 redis-monitor.log || true
-
-    - name: Upload Redis diagnostics
-      if: ${{ failure() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
-      uses: actions/upload-artifact@v7
-      with:
-        name: redis-diagnostics-${{ needs.setup.outputs.docker_dir }}-${{ matrix.suite }}
-        path: ${{ runner.temp }}/redis-diagnostics/
-        if-no-files-found: ignore
 
     - name: Test Summary
       if: ${{ always() }}
