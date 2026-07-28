@@ -5847,67 +5847,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/patient_portal.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$constant of function xl expects literal\\-string, non\\-falsy\\-string given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$constant of function xl_form_title expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr_url expects string, mixed given\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function js_escape expects string, int given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function js_escape expects string, mixed given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$formid of static method OpenEMR\\\\Common\\\\Forms\\\\CoreFormToPortalUtility\\:\\:confirmFormBootstrapPatient\\(\\) expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$formid of static method OpenEMR\\\\Common\\\\Forms\\\\CoreFormToPortalUtility\\:\\:formQuestionnairePortalPostSave\\(\\) expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$formid of static method OpenEMR\\\\Common\\\\Forms\\\\CoreFormToPortalUtility\\:\\:confirmFormBootstrapPatient\\(\\) expects int, mixed given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
+    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#6 \\$q of method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:saveQuestionnaireResponse\\(\\) expects array\\|string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#7 \\$category of method OpenEMR\\\\Services\\\\QuestionnaireService\\:\\:saveQuestionnaireResource\\(\\) expects string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#8 \\$form_response of method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:saveQuestionnaireResponse\\(\\) expects string\\|null, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
 ];
@@ -58917,18 +58872,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$context of method Psr\\\\Log\\\\LoggerInterface\\:\\:debug\\(\\) expects array\\<mixed\\>, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$clientIdentifier of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:\\:getClientEntity\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$id of static method OpenEMR\\\\Services\\\\BaseService\\:\\:getUuidById\\(\\) expects string, mixed given\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
 ];
 $ignoreErrors[] = [

@@ -22112,11 +22112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\SmartLaunchController\\:\\:getLaunchCodeContext\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\SmartLaunchController\\:\\:redirectAndLaunchSmartApp\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
@@ -25215,11 +25210,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\FhirProcedureSurgeryService\\:\\:getProfileForVersions\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureSurgeryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Questionnaire\\\\FhirQuestionnaireFormService\\:\\:parseQuestionnaireItems\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Questionnaire/FhirQuestionnaireFormService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Serialization\\\\FhirOrganizationSerializer\\:\\:serialize\\(\\) has no return type specified\\.$#',
