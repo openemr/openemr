@@ -68,6 +68,27 @@ on:
         description: 'Build target image from the PR docker/release/Dockerfile instead of pulling to_tag from Docker Hub (Phase 2.5 PR-image validation)'
         type: boolean
         default: false
+  # Phase 7c-docker-latest-gate: called by docker-build-release.yml as
+  # a pre-publish gate. The caller has already built the release image,
+  # saved it via `docker save` as a workflow-run artifact, and dispatches
+  # this workflow with the artifact name. When these inputs are set, the
+  # build-image job self-skips (the caller-supplied artifact takes its
+  # place) and the acceptance matrix downloads the caller's artifact
+  # instead of Phase 2.5's `openemr-pr-built-image` default.
+  # Mirrors acceptance-package.yml's Phase 7c-tarball workflow_call
+  # (caller_tarball_artifact / to_version).
+  workflow_call:
+    inputs:
+      from_tag:
+        description: 'Prior openemr Docker Hub tag. Defaults to latest.'
+        required: false
+        type: string
+        default: 'latest'
+      caller_image_artifact:
+        description: 'Name of the workflow-run artifact holding the caller-supplied docker save zstd tarball (openemr-<name>.tar.zst). When set, skips this workflow build-image job and treats the caller-supplied image as if it were PR-built.'
+        required: false
+        type: string
+        default: ''
   push:
     paths:
     - '.github/workflows/acceptance-docker.yml'
@@ -136,12 +157,35 @@ jobs:
       env:
         EVENT_NAME: ${{ github.event_name }}
         DISPATCH_BUILD_LOCALLY: ${{ inputs.build_locally }}
+        CALLER_IMAGE_ARTIFACT: ${{ inputs.caller_image_artifact }}
         PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         PUSH_BEFORE_SHA: ${{ github.event.before }}
         PUSH_HEAD_SHA: ${{ github.sha }}
       run: |
         set -euo pipefail
+
+        # Phase 7c-docker workflow_call gate — caller (docker-build-release.yml)
+        # already has the image built and uploaded as an artifact. Skip the
+        # diff-detection dance entirely; force build_locally=true. The
+        # build-image job self-skips (see its `if:` condition below) and
+        # the acceptance jobs download the caller's artifact name instead
+        # of Phase 2.5's `openemr-pr-built-image` default.
+        #
+        # Detect on CALLER_IMAGE_ARTIFACT being non-empty, NOT on
+        # $EVENT_NAME == 'workflow_call' — GitHub Actions reports the
+        # original event that started the CALLING workflow in a called
+        # workflow's github.event_name (so workflow_dispatch of docker-
+        # build-release.yml surfaces as workflow_dispatch here, not
+        # workflow_call). The caller_image_artifact input is only populated
+        # in workflow_call invocations, so it's the reliable signal.
+        # (Same signal choice as acceptance-package.yml's detect-mode.)
+        if [[ -n "$CALLER_IMAGE_ARTIFACT" ]]; then
+          echo "==> workflow_call gate mode (caller=${CALLER_IMAGE_ARTIFACT}): forcing build_locally=true"
+          echo "build_locally=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
         # Manual dispatch always wins — honor the input.
         if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
           echo "build_locally=${DISPATCH_BUILD_LOCALLY}" >> "$GITHUB_OUTPUT"
@@ -181,7 +225,14 @@ jobs:
   # build is self-contained to this workflow run.
   build-image:
     needs: [detect-mode]
-    if: needs.detect-mode.outputs.build_locally == 'true'
+    # Skip when the caller (Phase 7c-docker workflow_call gate) already
+    # supplied the image as an artifact — no point re-running docker
+    # build when the caller just did that against the exact source
+    # being validated. The acceptance job downloads the caller's
+    # artifact by name in that case.
+    if: >-
+      needs.detect-mode.outputs.build_locally == 'true'
+      && inputs.caller_image_artifact == ''
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v7
@@ -225,6 +276,12 @@ jobs:
     # only if build-image itself failed (no point running the fresh-install-to
     # / upgrade scenarios if their target image failed to build) or if
     # detect-mode failed (shouldn't happen — trivial job).
+    #
+    # build-image is `skipped` in two cases: (1) detect-mode said
+    # build_locally=false (Phase 2 default path — acceptance runs against
+    # Docker Hub tags), or (2) the caller (Phase 7c-docker workflow_call
+    # gate) supplied its own image artifact — the download step below
+    # picks that up.
     if: >-
       always()
       && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
@@ -271,18 +328,59 @@ jobs:
         # credential exposure surface.
         persist-credentials: false
 
-    # ==== Phase 2.5: load PR-built image + resolve effective tags ====
-    - name: Download PR-built image (if build-image ran)
-      if: needs.build-image.result == 'success'
+    # ==== Load PR-built or caller-supplied image + resolve effective tags ====
+    # Two source paths converge here:
+    #   Phase 2.5 (PR validation): build-image job just uploaded
+    #     openemr-pr-built-image. Download that.
+    #   Phase 7c-docker (workflow_call gate): caller (docker-build-release.yml)
+    #     already uploaded the release-candidate image under
+    #     inputs.caller_image_artifact — build-image self-skipped.
+    #     Download that artifact name instead.
+    #
+    # Both land the image tarball at /tmp/openemr-pr-built.tar.zst so the
+    # docker-load step below doesn't need to care which path fired.
+    - name: Download PR-built image (Phase 2.5)
+      if: needs.build-image.result == 'success' && inputs.caller_image_artifact == ''
       uses: actions/download-artifact@v8
       with:
         name: openemr-pr-built-image
         path: /tmp
 
-    - name: Load PR-built image into docker (if downloaded)
-      if: needs.build-image.result == 'success'
+    - name: Download caller-supplied image (Phase 7c-docker gate)
+      if: inputs.caller_image_artifact != ''
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.caller_image_artifact }}
+        path: /tmp
+
+    - name: Load PR-built or caller-supplied image into docker
+      if: needs.build-image.result == 'success' || inputs.caller_image_artifact != ''
       run: |
-        zstd -d -c /tmp/openemr-pr-built.tar.zst | docker load
+        # Find whichever .tar.zst the download step landed in /tmp — Phase 2.5's
+        # build-image uploads openemr-pr-built.tar.zst; a Phase 7c-docker caller
+        # may name its artifact file differently. Glob rather than assume.
+        TARBALL=$(find /tmp -maxdepth 1 -name '*.tar.zst' -type f | head -1)
+        if [[ -z "$TARBALL" ]]; then
+          echo "::error::no .tar.zst image artifact found in /tmp after download"
+          find /tmp -maxdepth 1 -type f
+          exit 1
+        fi
+        # Parse the loaded image ref out of `docker load` output rather
+        # than assume the tag name. Phase 2.5's build-image tags as
+        # openemr/openemr:pr-built directly; a Phase 7c-docker caller may
+        # save under any openemr/openemr:<name> tag (e.g., matching what
+        # it intends to push). Retag to :pr-built so downstream steps
+        # have a single well-known handle.
+        LOAD_OUT=$(zstd -d -c "$TARBALL" | docker load)
+        echo "$LOAD_OUT"
+        LOADED=$(echo "$LOAD_OUT" | awk -F': ' '/^Loaded image:/{print $2; exit}')
+        if [[ -z "$LOADED" ]]; then
+          echo "::error::could not determine loaded image ref from docker load output"
+          exit 1
+        fi
+        if [[ "$LOADED" != "openemr/openemr:pr-built" ]]; then
+          docker tag "$LOADED" openemr/openemr:pr-built
+        fi
         docker image inspect openemr/openemr:pr-built --format 'loaded: {{.Id}}'
 
     - name: Resolve effective image tags
@@ -302,11 +400,20 @@ jobs:
         MATRIX_SCENARIO: ${{ matrix.scenario }}
         MATRIX_IMAGE_TAG: ${{ matrix.image_tag }}
         BUILD_IMAGE_RESULT: ${{ needs.build-image.result }}
+        CALLER_IMAGE_ARTIFACT: ${{ inputs.caller_image_artifact }}
         # TO_TAG is already a job-level env, but hoisted here for the
         # zero-splice-in-run: convention.
       run: |
         LOCAL_TAG="openemr/openemr:pr-built"
-        if [[ "$BUILD_IMAGE_RESULT" == "success" ]]; then
+        # BUILT signals "the to-side image is a locally-loaded artifact"
+        # rather than a Docker Hub tag. Two sources:
+        #   Phase 2.5 — the build-image job produced openemr-pr-built-image
+        #   Phase 7c-docker gate — the caller (docker-build-release.yml)
+        #     supplied the release-candidate image as caller_image_artifact
+        # Either way, the load step above loaded it as
+        # openemr/openemr:pr-built, so downstream scenarios can treat both
+        # paths identically.
+        if [[ "$BUILD_IMAGE_RESULT" == "success" || -n "$CALLER_IMAGE_ARTIFACT" ]]; then
           BUILT="true"
         else
           BUILT="false"

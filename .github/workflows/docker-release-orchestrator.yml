@@ -139,9 +139,29 @@ jobs:
         DOCKER_TAGS: ${{ matrix.docker_tags }}
         OPENEMR_VERSION_REF: ${{ matrix.openemr_version_ref }}
       run: |
+        # Phase 7c-docker-latest-gate: rows that ship `latest` get the
+        # acceptance pre-publish gate. Every daily build of `latest`
+        # reaches the widest end-user surface (Docker Hub's default
+        # pull) so a regression there propagates fastest — worth the
+        # extra ~30 min acceptance runtime per gated build. Other
+        # rows (version-pinned tags, dev/next floating tags) stay on
+        # the single-step build+push shape: smaller blast radius,
+        # cheaper daily runtime. See docker-build-release.yml's
+        # gate_with_acceptance input description for the mechanic.
+        GATE="false"
+        IFS=',' read -ra TAG_ARR <<< "$DOCKER_TAGS"
+        for tag in "${TAG_ARR[@]}"; do
+          tag="${tag// /}"   # strip whitespace
+          if [[ "$tag" == "latest" ]]; then
+            GATE="true"
+            break
+          fi
+        done
+
         gh workflow run docker-build-release.yml \
           --repo "$REPO" \
           --ref "$BRANCH" \
           -f docker_tags="$DOCKER_TAGS" \
-          -f openemr_version_ref="$OPENEMR_VERSION_REF"
-        echo "Dispatched $BRANCH with docker_tags=$DOCKER_TAGS openemr_version_ref=$OPENEMR_VERSION_REF"
+          -f openemr_version_ref="$OPENEMR_VERSION_REF" \
+          -f gate_with_acceptance="$GATE"
+        echo "Dispatched $BRANCH with docker_tags=$DOCKER_TAGS openemr_version_ref=$OPENEMR_VERSION_REF gate_with_acceptance=$GATE"
