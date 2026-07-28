@@ -27,7 +27,6 @@
 
 require_once __DIR__ . '/base_controller.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pid.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;

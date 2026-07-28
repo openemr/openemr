@@ -34,7 +34,6 @@ $result_sent_count = 0;
 $notes_sent_count = 0;
 
 if (!empty($_GET['set_pid'])) {
-    require_once($srcdir . '/pid.inc.php');
     setpid($_GET['set_pid']);
 }
 

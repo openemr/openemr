@@ -28,7 +28,6 @@ use OpenEMR\Core\OEGlobalsBag;
 
 
 if (!empty($_GET['set_pid'])) {
-    require_once($srcdir . "/pid.inc.php");
     setpid($_GET['set_pid']);
 }
 
