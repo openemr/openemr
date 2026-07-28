@@ -17,7 +17,6 @@ $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
 require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
-require_once($srcdir . "/gprelations.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
