@@ -527,8 +527,6 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 <body>
 <nav>
     <?php //DYNAMIC FORM RETRIEVAL
-    require_once($srcdir . "/registry.inc.php");
-
     $reg = getFormsByCategory();
     $old_category = '';
     $DivId = 1;
