@@ -31,18 +31,57 @@
     select="' ID abbr align axis border cellpadding cellspacing char charoff colspan frame headers href language listType mediaType name referencedObject rel rev revised rowspan rules scope span styleCode summary title valign width '"/>
 
   <!--
+    URL-bearing attributes additionally require a recognized scheme
+    prefix. The plain allowlist above accepts `href` on narrative
+    elements, but XSL doesn't distinguish `href="https://example.org"`
+    from `href="data:text/html,..."` without this extra check —
+    narrow to the schemes real CDA narrative content actually uses.
+
+    `#` is included so fragment-only links (in-page anchors) still work.
+  -->
+  <xsl:variable name="narrative-block-url-attrs"
+    select="' href '"/>
+  <xsl:variable name="narrative-block-url-safe-prefixes"
+    select="' http:// https:// mailto: tel: # '"/>
+
+  <!--
     Iterate every attribute on the context element and emit a copy of
     each one whose local-name is on the allowlist. Non-allowlisted
-    attributes are silently dropped.
+    attributes are silently dropped. For URL-bearing attributes, the
+    value must additionally start with a safe scheme prefix.
 
     Use from ccd.xsl / qrda.xsl in place of `<xsl:copy-of select="@*"/>`.
   -->
   <xsl:template name="safe-copy-narrative-attrs">
     <xsl:for-each select="@*">
+      <xsl:variable name="attr-name" select="local-name(.)"/>
       <xsl:if test="contains($narrative-block-attr-allowlist,
-                             concat(' ', local-name(.), ' '))">
-        <xsl:copy-of select="."/>
+                             concat(' ', $attr-name, ' '))">
+        <xsl:choose>
+          <xsl:when test="contains($narrative-block-url-attrs,
+                                   concat(' ', $attr-name, ' '))">
+            <xsl:call-template name="copy-if-safe-url"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:copy-of select="."/>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:if>
     </xsl:for-each>
+  </xsl:template>
+
+  <!--
+    Emit the current attribute only if its value starts with one of the
+    safe URL prefixes. Called with an attribute node as context.
+  -->
+  <xsl:template name="copy-if-safe-url">
+    <xsl:variable name="value" select="."/>
+    <xsl:if test="starts-with($value, 'http://')
+               or starts-with($value, 'https://')
+               or starts-with($value, 'mailto:')
+               or starts-with($value, 'tel:')
+               or starts-with($value, '#')">
+      <xsl:copy-of select="."/>
+    </xsl:if>
   </xsl:template>
 </xsl:stylesheet>

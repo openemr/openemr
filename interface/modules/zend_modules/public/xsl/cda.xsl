@@ -1736,6 +1736,24 @@ limitations under the License.
             that would have been safely dropped anyway.
           -->
         </xsl:when>
+        <xsl:when test="contains($narrative-block-url-attrs,
+                                 concat(' ', $attr-name, ' '))">
+          <!--
+            URL-bearing attribute (href/...). Copy only if the value
+            starts with a recognized scheme prefix; otherwise silently
+            drop. Ordered before the scrubbedSource check because
+            legitimate URL characters (`:`, `/`) live on the
+            simple-sanitizer-match list and would otherwise trigger the
+            warning path.
+          -->
+          <xsl:if test="starts-with($source, 'http://')
+                     or starts-with($source, 'https://')
+                     or starts-with($source, 'mailto:')
+                     or starts-with($source, 'tel:')
+                     or starts-with($source, '#')">
+            <xsl:copy-of select="."/>
+          </xsl:if>
+        </xsl:when>
         <xsl:when test="contains($lcSource, 'javascript')">
           <p>
             <xsl:value-of select="$javascript-injection-warning"/>
