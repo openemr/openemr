@@ -1144,31 +1144,68 @@ validated the same exact bytes). Only remaining Phase 7 work is
 7. No hard deadline. rel-830 (~2 weeks out) gets the Phase 1+2+2.5+3
 baseline; Phases 4+5+6+7 land into a rel-830-shipped codebase.
 
-### Phase 7d — PR-time arm64 coverage for the build_locally path *(proposed 2026-07-28)*
+### Phase 7d — arm64 acceptance restoration + PR-time coverage *(NEXT UP — priority after rel-800/rel-704 fixes land)*
 
-Phase 7c-docker-latest-gate (#13239) added arm64 acceptance coverage
-to the daily orchestrator's `latest` build via ubuntu-24.04-arm
-runners (GA Jan 2025, free for public repos). But at release-prep-PR
-time, the build_locally path in acceptance-docker.yml still builds
-amd64-only — the Phase 2.5 `build-image` job runs a plain
-`docker build docker/release` on ubuntu-24.04, producing an amd64
-image and saving it to a workflow artifact. Downstream acceptance
-runs on amd64 only. arm64 regressions in a rel-branch's
-Dockerfile or an upstream base-image bump won't surface until the
-image actually ships and the daily gate catches them — too late to
-block via release-prep review.
+**Sequencing note.** Phase 7c-docker-latest-gate (#13239) wired
+`test_arm64: true` into acceptance-docker.yml's workflow_call from
+docker-build-release.yml — but the first end-to-end run on 2026-07-28
+revealed that `nanasess/setup-chromedriver@v2` doesn't work on
+ubuntu-24.04-arm runners: Google Chrome ships amd64-only debs from
+Google's apt repo, so the action's fallback `apt install
+google-chrome-stable` fails with unmet dependencies. All 3 arm64
+scenarios failed at the ChromeDriver setup step in 29s each.
+Immediate mitigation: revert `test_arm64: true` in
+docker-build-release.yml's acceptance-gate call so the daily gate
+runs amd64-only. Full arm64 restoration is this phase.
 
-Fix: extend the same test_arm64 matrix pattern that 7c-docker uses
-into the PR-time build path.
+Phase 7d has two slices:
+
+**7d-1 (BLOCKING — do first) — CFT-arm64 setup on arm64 runners.**
+Replace the ubuntu-24.04-arm ChromeDriver setup step with a manual
+Chrome for Testing (CFT) install: CFT publishes native arm64 builds
+(https://storage.googleapis.com/chrome-for-testing-public/{version}/
+linux-arm64/chrome-linux-arm64.zip + chromedriver-linux-arm64.zip)
+that Panther can drive. Options:
+
+  * (A) **Conditional step in acceptance-docker.yml.** When
+    `runs-on` ends with `-arm`, run a custom install step that
+    downloads matching Chrome + ChromeDriver arm64 zips from the
+    CFT known-good-versions API, extracts to `/usr/local/bin`,
+    and skips `nanasess/setup-chromedriver@v2` entirely. Ugly
+    but self-contained.
+  * (B) **Wrap in a composite action.** Move the amd64
+    nanasess-path + the arm64 CFT-manual-path into
+    `.github/actions/setup-chromedriver-multiarch/`; both matrix
+    branches call one action. Cleaner but adds another workflow
+    surface.
+  * (C) **Third-party action that already handles arm64.** If
+    one exists and is trustworthy. Would need vetting; probably
+    not worth the supply-chain expansion.
+
+Lean toward (B) — reusable across acceptance-docker + acceptance-
+package + any future Panther-in-CI workflow. Exit criterion:
+manual re-dispatch of docker-release-orchestrator (`include=rel-820`)
+succeeds with test_arm64 restored to true; all 6 matrix cells
+(3 scenarios × amd64/arm64) go green. Once verified, re-enable
+`test_arm64: true` in docker-build-release.yml's acceptance-gate
+call. ~1 day of work.
+
+**7d-2 (after 7d-1) — PR-time build_locally arm64 coverage.**
+Extend the same test_arm64 matrix pattern into acceptance-docker.yml's
+build_locally path (Phase 2.5's `build-image` job today builds
+amd64-only via `docker build docker/release` on ubuntu-24.04). This
+closes the release-prep-PR gap where arm64 regressions in a
+rel-branch's Dockerfile or an upstream base-image bump would only
+surface after merge, via the daily gate.
 
   * `build-image` job grows a `runs_on: [ubuntu-24.04,
-    ubuntu-24.04-arm]` matrix gated on the existing `test_arm64`
-    input. Each arch builds natively (no QEMU emulation) on its own
-    runner and uploads its arch-specific artifact under a distinct
-    name (`openemr-pr-built-image-<arch>`).
-  * The `acceptance` job's "Download PR-built image" step picks the
-    artifact matching `matrix.runs_on` so amd64 runners load the
-    amd64 tarball and arm64 runners load the arm64 tarball.
+    ubuntu-24.04-arm]` matrix gated on the same `test_arm64`
+    input. Each arch builds natively (no QEMU emulation) on its
+    own runner and uploads its arch-specific artifact under a
+    distinct name (`openemr-pr-built-image-<arch>`).
+  * The `acceptance` job's "Download PR-built image" step picks
+    the artifact matching `matrix.runs_on` so amd64 runners load
+    the amd64 tarball and arm64 runners load the arm64 tarball.
   * `release-prep.yml`'s `gh workflow run acceptance-docker.yml`
     dispatch grows `-f test_arm64=true`. Same input also becomes
     available on manual workflow_dispatch for maintainer-driven
@@ -1177,7 +1214,11 @@ into the PR-time build path.
     workflow_dispatch without test_arm64) stays amd64-only —
     default behavior unchanged.
 
-Trade-offs:
+Depends on 7d-1's CFT-arm64 setup working (arm64 acceptance
+scenarios need Chrome regardless of whether they run against a
+gate candidate or a build_locally artifact).
+
+Trade-offs (7d-2):
 
   * Runtime: PR-time gets a second parallel build-image job; wall
     clock similar (parallel), runner-minutes ~2x for the build
@@ -1191,9 +1232,9 @@ Trade-offs:
     one flag on its dispatch. No new registry, no OCI extraction,
     no cleanup logic.
 
-Rejected alternative: single multi-arch build+push to a temporary
-Docker Hub or GHCR tag (mirroring 7c-docker's candidate-tag
-pattern) with per-arch pull on each acceptance runner. Adds
+Rejected alternative (7d-2): single multi-arch build+push to a
+temporary Docker Hub or GHCR tag (mirroring 7c-docker's candidate-
+tag pattern) with per-arch pull on each acceptance runner. Adds
 registry churn per PR run + cleanup + potential visibility of
 half-baked images. The two-build-image-jobs approach keeps
 everything workflow-artifact-scoped, matching Phase 2.5's existing
@@ -1945,3 +1986,46 @@ in acceptance."
   hardening; ~2-3 weeks. Phase 9 is a specific tool + small existing-
   workflow tweaks; ~3-4 days. None blocking each other; can slice
   independently as ops priorities dictate.
+
+- **2026-07-28 (later still)** — **First end-to-end run of
+  Phase 7c-docker gated flow: amd64 passed, arm64 failed at
+  ChromeDriver setup. Phase 7d promoted to NEXT UP + split
+  into 7d-1 (CFT-arm64 setup) + 7d-2 (PR-time build_locally
+  arm64).** Manual orchestrator dispatch (`include=all`)
+  produced this matrix on rel-820's gated flow:
+
+    * build: passed (24m47s, multi-arch push to
+      openemr/openemr:release-candidate-30400686125-1)
+    * All 3 amd64 acceptance scenarios: passed (2-4 min each)
+    * All 3 arm64 acceptance scenarios: failed at "Set up matching
+      ChromeDriver" step (29s each)
+    * publish: skipped (gate failed as a whole)
+    * cleanup-candidate: ran + deleted the candidate tag
+
+  Root cause of arm64 failure: Google Chrome's apt repo ships
+  amd64-only debs. ubuntu-24.04-arm runners don't have Chrome
+  pre-installed, so `nanasess/setup-chromedriver@v2`'s fallback
+  `apt install google-chrome-stable` fails with unmet dependencies.
+  Chrome for Testing (CFT) publishes arm64 builds directly (not
+  via Google's apt repo), so the fix is to install CFT arm64
+  manually on arm64 runners.
+
+  Immediate mitigation: revert `test_arm64: true` in docker-
+  build-release.yml's acceptance-gate call (follow-up PR TBD)
+  so the daily orchestrator's gated flow runs amd64-only.
+  Preserves the coverage win from 7c-docker (amd64 gated pre-
+  publish is still a net-new gate over the pre-#13239 state),
+  and buys time for the arm64 chromedriver setup work without
+  daily-gate failures.
+
+  Phase 7d re-scoped + prioritized: originally a "PR-time arm64
+  coverage" scope, split into 7d-1 (CFT-arm64 setup — blocking,
+  do first) + 7d-2 (PR-time build_locally arm64 — depends on
+  7d-1). Phase 7d is now the top-priority phase; Phases 8 + 9
+  slide behind it. Also side-effect: the cleanup-candidate
+  behavior tweak from Phase 9 (preserve candidate tag on
+  acceptance failure for skip-build re-run) surfaces as
+  immediately useful for arm64-fix iteration — a fixed
+  acceptance-docker.yml could be re-tested against the
+  still-live candidate rather than needing a full 24-minute
+  rebuild per attempt.
