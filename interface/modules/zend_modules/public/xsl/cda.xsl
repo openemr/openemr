@@ -1736,6 +1736,18 @@ limitations under the License.
             that would have been safely dropped anyway.
           -->
         </xsl:when>
+        <xsl:when test="contains($narrative-block-url-attrs,
+                                 concat(' ', $attr-name, ' '))">
+          <!--
+            URL-bearing attribute (href/...). Delegates to the shared
+            copy-if-safe-url template so the recognized-scheme list
+            lives in one place (_narrative-block-attrs.xsl). Ordered
+            before the scrubbedSource check because legitimate URL
+            characters (`:`, `/`) live on the simple-sanitizer-match
+            list and would otherwise trigger the warning path.
+          -->
+          <xsl:call-template name="copy-if-safe-url"/>
+        </xsl:when>
         <xsl:when test="contains($lcSource, 'javascript')">
           <p>
             <xsl:value-of select="$javascript-injection-warning"/>

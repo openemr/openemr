@@ -265,6 +265,203 @@ XSL;
                 [],
                 ['widthy'],
             ],
+
+            // --- href scheme filtering ---
+            'href https preserved' => [
+                'href="https://example.org/x"',
+                ['href'],
+                [],
+            ],
+            'href http preserved' => [
+                'href="http://example.org/x"',
+                ['href'],
+                [],
+            ],
+            'href mailto preserved' => [
+                'href="mailto:a@b.example"',
+                ['href'],
+                [],
+            ],
+            'href tel preserved' => [
+                'href="tel:+15555550100"',
+                ['href'],
+                [],
+            ],
+            'href fragment preserved' => [
+                'href="#section"',
+                ['href'],
+                [],
+            ],
+            'href javascript: dropped' => [
+                'href="javascript:alert(1)"',
+                [],
+                ['href'],
+            ],
+            'href data:text/html dropped' => [
+                'href="data:text/html,&lt;script&gt;alert(1)&lt;/script&gt;"',
+                [],
+                ['href'],
+            ],
+            'href vbscript dropped' => [
+                'href="vbscript:alert(1)"',
+                [],
+                ['href'],
+            ],
+            'href file:// dropped' => [
+                'href="file:///etc/passwd"',
+                [],
+                ['href'],
+            ],
+            'href empty dropped' => [
+                'href=""',
+                [],
+                ['href'],
+            ],
+            'href relative path dropped' => [
+                'href="/relative/path"',
+                [],
+                ['href'],
+            ],
+            'href mixed benign + malicious side-by-side' => [
+                'href="https://good.example" title="tip"',
+                ['href', 'title'],
+                [],
+            ],
+        ];
+    }
+
+    /**
+     * Drive cda.xsl's inline `output-attrs` template with a synthetic <n1:td>
+     * element and assert that URL-scheme filtering on `href` is applied.
+     * Parallel to safe-copy-narrative-attrs coverage above; cda.xsl uses
+     * inline logic rather than calling the shared template, so it needs
+     * its own regression coverage.
+     *
+     * @param non-empty-string $inputAttrs
+     * @param list<string> $expectedNames
+     * @param list<string> $droppedNames
+     */
+    #[DataProvider('cdaOutputAttrsUrlCasesProvider')]
+    public function testCdaOutputAttrsUrlScheme(string $inputAttrs, array $expectedNames, array $droppedNames): void
+    {
+        $xslPath = realpath(self::XSL_DIR . '/cda.xsl');
+        self::assertNotFalse($xslPath, 'cda.xsl must resolve');
+
+        // Wrapper imports cda.xsl and drives output-attrs on a synthetic
+        // <n1:td>. `match="/"` overrides the imported match="/" (import
+        // lowers priority) so our root template runs instead of cda.xsl's
+        // ClinicalDocument-only dispatcher.
+        $wrapperXsl = <<<XSL
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:n1="urn:hl7-org:v3">
+  <xsl:import href="file://$xslPath"/>
+  <xsl:output method="xml" indent="no" omit-xml-declaration="yes"/>
+  <xsl:template match="/">
+    <result>
+      <xsl:for-each select="n1:td">
+        <xsl:call-template name="output-attrs"/>
+      </xsl:for-each>
+    </result>
+  </xsl:template>
+</xsl:stylesheet>
+XSL;
+
+        $xsl = new DOMDocument();
+        $xsl->loadXML($wrapperXsl);
+
+        $xml = new DOMDocument();
+        $xml->loadXML('<n1:td xmlns:n1="urn:hl7-org:v3" ' . $inputAttrs . '/>');
+
+        $proc = new XSLTProcessor();
+        $proc->importStylesheet($xsl);
+        $result = (string) $proc->transformToXml($xml);
+
+        foreach ($expectedNames as $name) {
+            $this->assertMatchesRegularExpression(
+                '/\b' . preg_quote($name, '/') . '=/',
+                $result,
+                "Expected `$name=` to be preserved in: $result"
+            );
+        }
+        foreach ($droppedNames as $name) {
+            $this->assertDoesNotMatchRegularExpression(
+                '/\b' . preg_quote($name, '/') . '=/',
+                $result,
+                "Expected `$name=` to be dropped from: $result"
+            );
+        }
+    }
+
+    /**
+     * @return array<string, array{non-empty-string, list<string>, list<string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function cdaOutputAttrsUrlCasesProvider(): array
+    {
+        return [
+            'href https preserved' => [
+                'href="https://example.org/x"',
+                ['href'],
+                [],
+            ],
+            'href http preserved' => [
+                'href="http://example.org/x"',
+                ['href'],
+                [],
+            ],
+            'href mailto preserved' => [
+                'href="mailto:a@b.example"',
+                ['href'],
+                [],
+            ],
+            'href tel preserved' => [
+                'href="tel:+15555550100"',
+                ['href'],
+                [],
+            ],
+            'href fragment preserved' => [
+                'href="#section"',
+                ['href'],
+                [],
+            ],
+            'href data:text/html dropped' => [
+                'href="data:text/html,&lt;script&gt;alert(1)&lt;/script&gt;"',
+                [],
+                ['href'],
+            ],
+            'href vbscript dropped' => [
+                'href="vbscript:alert(1)"',
+                [],
+                ['href'],
+            ],
+            'href file:// dropped' => [
+                'href="file:///etc/passwd"',
+                [],
+                ['href'],
+            ],
+            'href empty dropped' => [
+                'href=""',
+                [],
+                ['href'],
+            ],
+            'href relative path dropped' => [
+                'href="/relative/path"',
+                [],
+                ['href'],
+            ],
+            'href javascript: dropped' => [
+                'href="javascript:alert(1)"',
+                [],
+                ['href'],
+            ],
+            'legitimate href preserved alongside title' => [
+                'href="https://good.example" title="tip"',
+                ['href', 'title'],
+                [],
+            ],
         ];
     }
 }
