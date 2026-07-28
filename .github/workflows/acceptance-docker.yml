@@ -358,13 +358,28 @@ jobs:
       run: |
         # Find whichever .tar.zst the download step landed in /tmp — Phase 2.5's
         # build-image uploads openemr-pr-built.tar.zst; a Phase 7c-docker caller
-        # may name its artifact file differently. Glob rather than assume.
-        TARBALL=$(find /tmp -maxdepth 1 -name '*.tar.zst' -type f | head -1)
-        if [[ -z "$TARBALL" ]]; then
-          echo "::error::no .tar.zst image artifact found in /tmp after download"
-          find /tmp -maxdepth 1 -type f
-          exit 1
-        fi
+        # may name its artifact file differently. Enforce exactly one match:
+        # multiple tarballs would mean the two source paths (Phase 2.5 build +
+        # workflow_call caller) somehow both fired for the same run, which is
+        # a workflow shape bug worth failing loudly on rather than picking
+        # whichever `head -1` happens to return.
+        mapfile -t TARBALLS < <(find /tmp -maxdepth 1 -name '*.tar.zst' -type f)
+        case "${#TARBALLS[@]}" in
+          0)
+            echo "::error::no .tar.zst image artifact found in /tmp after download"
+            find /tmp -maxdepth 1 -type f
+            exit 1
+            ;;
+          1)
+            TARBALL="${TARBALLS[0]}"
+            ;;
+          *)
+            echo "::error::expected exactly one .tar.zst in /tmp, found ${#TARBALLS[@]}:"
+            printf '  %s\n' "${TARBALLS[@]}"
+            echo "::error::both Phase 2.5 build-image and workflow_call caller artifact appear to have downloaded — workflow shape bug."
+            exit 1
+            ;;
+        esac
         # Parse the loaded image ref out of `docker load` output rather
         # than assume the tag name. Phase 2.5's build-image tags as
         # openemr/openemr:pr-built directly; a Phase 7c-docker caller may

@@ -81,6 +81,14 @@ on:
 permissions:
   contents: read
 
+# Artifact name used to hand the gated build's saved image tarball
+# from the build job to the acceptance-gate + publish jobs. Defined
+# once here so a rename touches one line — the upload step reads
+# it via env, and the build job's `image_artifact_name` output also
+# resolves from it via env, keeping the two references in sync.
+env:
+  GATE_IMAGE_ARTIFACT_NAME: openemr-release-candidate-image
+
 # Serialize per-(branch, docker_tags) builds. Two dispatches with
 # the same ref AND the same docker_tags input (e.g., release-
 # targets.yml push + daily orchestrator cron landing close
@@ -109,7 +117,7 @@ jobs:
     # from these outputs, matching GitHub Actions cross-job wiring
     # conventions (env doesn't cross job boundaries).
     outputs:
-      image_artifact_name: openemr-release-candidate-image
+      image_artifact_name: ${{ env.GATE_IMAGE_ARTIFACT_NAME }}
       expanded_tags: ${{ steps.expand_docker_tags.outputs.list }}
       openemr_version_ref: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
       image_version: ${{ steps.image_version.outputs.value }}
@@ -274,7 +282,7 @@ jobs:
     - uses: actions/upload-artifact@v7
       if: inputs.gate_with_acceptance
       with:
-        name: openemr-release-candidate-image
+        name: ${{ env.GATE_IMAGE_ARTIFACT_NAME }}
         path: /tmp/openemr-release-candidate.tar.zst
         # Only needs to survive from build -> acceptance-gate -> publish
         # within one workflow run — no downstream consumer, no reason
