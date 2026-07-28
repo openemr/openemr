@@ -712,9 +712,16 @@ redis_monitor_stop() {
 ##
 # Post-mortem snapshot of the Redis cluster into directory $1 (host path).
 # Everything is best-effort: any of these can fail if the cluster is the
-# thing that died, and a partial snapshot is still a snapshot. Nothing here
-# contains secrets (INFO/CLIENT LIST/SLOWLOG do not echo requirepass), so the
-# artifact is safe on a public PR.
+# thing that died, and a partial snapshot is still a snapshot.
+#
+# Artifact safety: this lands in a downloadable artifact on a public PR, so
+# only aggregate/metadata commands are used. In particular SLOWLOG GET is
+# deliberately NOT captured — slowlog entries include the arguments of each
+# slow command, which for session writes means serialized session payloads.
+# INFO commandstats/latencystats carry the same "which command was slow"
+# signal (per-command call counts, cumulative usec, and latency percentiles)
+# without any payload data, and CLIENT LIST exposes only connection metadata
+# (addr, age, idle, last cmd name), never values.
 redis_diagnostics() {
     local dest=$1
     local -a tls_args=()
@@ -722,7 +729,17 @@ redis_diagnostics() {
     mapfile -t tls_args < <(redis_cli_detect_tls_args)
     redis_master_cli INFO > "${dest}/redis-info.txt" 2>&1 || true
     redis_master_cli CLIENT LIST > "${dest}/redis-client-list.txt" 2>&1 || true
-    redis_master_cli SLOWLOG GET 25 > "${dest}/redis-slowlog.txt" 2>&1 || true
+    {
+        echo '# SLOWLOG LEN (entry count only; entries themselves contain'
+        echo '# command payloads and are not exported):'
+        redis_master_cli SLOWLOG LEN
+        echo
+        echo '# Per-command aggregate stats:'
+        redis_master_cli INFO commandstats
+        echo
+        echo '# Per-command latency percentiles:'
+        redis_master_cli INFO latencystats
+    } > "${dest}/redis-command-stats.txt" 2>&1 || true
     docker compose exec -T sentinel-1 \
         redis-cli "${tls_args[@]}" -p 26379 SENTINEL master redis-master \
         > "${dest}/sentinel-master-state.txt" 2>&1 || true
