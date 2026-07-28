@@ -187,7 +187,15 @@ for FILE in "${FILES_TO_CHECK[@]}"; do
     echo "  + ${FILE}  (add)"
     dir=$(dirname "${FILE}")
     mkdir -p "${dir}"
-    git show "master:${FILE}" > "${FILE}"
+    # Use `git checkout master -- FILE` rather than
+    # `git show master:FILE > FILE` — the redirect writes only the
+    # blob content and leaves the file at the writer's umask, which
+    # silently strips the executable bit off .sh files that were
+    # 100755 on master. `git checkout` restores content AND mode
+    # from master's tree entry, and stages the file in the process
+    # (peter-evans's downstream `git add -A` picks it up either way,
+    # so the earlier staging is harmless).
+    git checkout master -- "${FILE}"
     CHANGES+=("add: ${FILE}")
     continue
   fi
@@ -207,7 +215,8 @@ for FILE in "${FILES_TO_CHECK[@]}"; do
   fi
 
   echo "  ~ ${FILE}  (update from master)"
-  git show "master:${FILE}" > "${FILE}"
+  # Same mode-preserving pattern as the add case above.
+  git checkout master -- "${FILE}"
   CHANGES+=("update: ${FILE}")
 done
 
