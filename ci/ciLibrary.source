@@ -852,6 +852,22 @@ enable_coredumps() {
     dc exec -T openemr sh -c "mkdir -p '${COREDUMP_DIR}' && chmod 1777 '${COREDUMP_DIR}'"
     sudo sysctl -w "kernel.core_pattern=${COREDUMP_DIR}/core.%e.%p.%t"
     sudo sysctl -w 'fs.suid_dumpable=2'
+    # Make the kernel actually LOG segfaults ("segfault at ... ip ... in
+    # xyz.so") so the workflow's dmesg capture has something to capture: the
+    # stock runner kernel logged nothing for the ~55 real worker segfaults in
+    # the 2026-07-28 mTLS e2e run.
+    sudo sysctl -w 'debug.exception-trace=1'
+    sudo sysctl -w 'kernel.print-fatal-signals=1'
+
+    # CoreDumpDirectory makes each Apache child call prctl(PR_SET_DUMPABLE, 1)
+    # after its root->apache setuid. Without it, children sit in the kernel's
+    # restrictive "suid-safe" dumpable state — setuid WITHOUT exec keeps
+    # dumpable at the fs.suid_dumpable value — and that is why the same run
+    # produced 55 worker segfaults and zero cores while the su-based CLI
+    # canary below dumped fine: su execs php, and execve of a non-setuid
+    # binary RESETS dumpable to 1. The graceful restart below both loads this
+    # directive and re-forks the workers under it.
+    dc exec -T openemr sh -c "printf 'CoreDumpDirectory %s\n' '${COREDUMP_DIR}' > /etc/apache2/conf.d/zz-ci-coredump.conf"
     # The two sysctls above are checked at the moment a process changes UID.
     # Apache started earlier in the compose `up` and its prefork workers
     # already dropped root -> apache before we ran these sysctls, so those
@@ -886,6 +902,30 @@ enable_coredumps() {
         echo "coredump canary OK: core file present in ${COREDUMP_DIR}"
         # Remove the canary's core so capture_coredumps only reports real crashes.
         docker compose exec -T openemr sh -c "rm -f ${COREDUMP_DIR}/core.php.*" 2>/dev/null || true
+    fi
+
+    # Second canary, the one that matters: SIGSEGV a REAL Apache worker and
+    # require its core. The CLI canary above cannot stand in for this — its
+    # execve resets dumpable to 1, so it passes even when the workers (setuid,
+    # no exec) cannot dump. This canary would have failed loudly on every run
+    # to date and pointed straight at the CoreDumpDirectory fix above. Cost:
+    # one AH00052 line in the error log; the parent forks a replacement
+    # worker immediately.
+    local worker_pid worker_cores
+    worker_pid=$(docker compose exec -T openemr sh -c 'pgrep -u apache httpd | head -1') || worker_pid=""
+    worker_pid=${worker_pid//[!0-9]/}
+    if [[ -z "${worker_pid}" ]]; then
+        echo "worker coredump canary skipped: no apache worker process found"
+        return 0
+    fi
+    docker compose exec -T openemr kill -SEGV "${worker_pid}" 2>/dev/null || true
+    sleep 2
+    worker_cores=$(docker compose exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}'/core.httpd.${worker_pid}.* 2>/dev/null | wc -l") || worker_cores=0
+    if [[ "${worker_cores//[!0-9]/}" == "0" || -z "${worker_cores//[!0-9]/}" ]]; then
+        echo "::warning::worker coredump canary FAILED: SIGSEGV to worker ${worker_pid} left no core in ${COREDUMP_DIR} — real worker segfaults will not be debuggable in this job"
+    else
+        echo "worker coredump canary OK: core.httpd.${worker_pid} present"
+        docker compose exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.httpd.${worker_pid}.*" 2>/dev/null || true
     fi
 }
 
