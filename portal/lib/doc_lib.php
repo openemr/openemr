@@ -55,7 +55,6 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
         exit;
     }
 }
-$srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/appsql.class.php");
 
 
