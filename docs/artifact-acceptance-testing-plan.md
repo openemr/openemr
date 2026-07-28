@@ -751,6 +751,53 @@ authenticated `/api/version` GET works end-to-end, and the
 successful-flow OIDC/DCR assertions that were held back from 4a-2
 can land as sibling tests in the same PR.
 
+**Phase 4 continuation candidates (identified 2026-07-28, not
+yet sliced).** With 4a → 4c → 4a-3 all shipped, two adjacent test
+surfaces stand out as natural extensions of the Acceptance suite
+that don't yet have a slice number:
+
+  * **4d (proposed) — absorb `docker/container_benchmarking/test_suite.sh`
+    into Acceptance.** That bash suite exercises the shipped
+    release/binary/flex containers end-to-end today: fresh
+    installation, manual setup, SSL, Redis sessions, Swarm mode,
+    Kubernetes mode, Xdebug, document upload, and docker upgrade.
+    It's driven from `docker-test-container-functionality.yml`
+    (parallel to but disjoint from `acceptance-docker.yml`) and
+    duplicates coverage that `InstallTest` + `UpgradeIntegrityTest`
+    already assert in PHPUnit — plus some real net-new coverage
+    (Swarm, Kubernetes, Redis sessions, Xdebug) that nothing in
+    Acceptance touches yet. Consolidation win: single toolchain for
+    "does the shipped container work end-to-end," and the
+    net-new-coverage paths get the same Panther + PHPUnit ergonomics
+    the rest of Acceptance uses. Scope-question to answer during
+    slicing: which of the bash-only paths actually justify
+    porting (fresh-install + upgrade are clear duplicates to
+    delete; Swarm/K8s modes are the interesting keepers). Not
+    a coverage-add slice per se — more a consolidation + delete-
+    duplication play that surfaces the Swarm/K8s coverage as
+    first-class Acceptance concerns.
+
+  * **4e (proposed) — reuse `tests/Tests/E2e/*` against shipped
+    artifacts.** The dev-checkout E2e suite has ~20 Selenium tests
+    (login, staff creation, patient creation, encounter workflows,
+    menu render, email) that today only run against the dev stack.
+    4b's `E2eCriticalPathTest` established the pattern of "take a
+    dev-checkout E2E flow and run it against a shipped artifact via
+    Panther" — reused the login + main-menu-render assertion. That
+    same reuse pattern extends cleanly to the rest of the E2e
+    suite: shared fixtures + assertions, Acceptance-suite Panther
+    plumbing already in place, and the resulting tests fire against
+    the actual bytes end users install. Delivery shape TBD: either
+    port each E2e test as its own `tests/Acceptance/*` file, or
+    (better) refactor the common flow logic into `Support/` helpers
+    that both suites consume, so the dev-checkout E2e suite stays
+    authoritative and Acceptance runs it against the artifact.
+
+Both candidates are independent of the currently-in-flight
+Phase 7c-docker-latest-gate work and can slice in parallel. Neither
+belongs on the critical path to Phase 7 completion — worth pursuing
+after 7c-docker lands to broaden the coverage the gate enforces.
+
 Original Phase 4 scope preserved below for reference:
 
 - Add ApiSmokeTest, FhirSmokeTest, E2eCriticalPathTest (last one
@@ -1538,3 +1585,67 @@ in acceptance."
   gate. Original Phase 5 and Phase 6 (docker source-mode
   indirection) are separate from Phase 7 and stay on the plan
   independent of Phase 7 completion.
+
+- **2026-07-28** — **7c-docker-latest-gate deferral reversed;
+  unblocking rel-820 NOW rather than waiting for rel-830.** The
+  daily orchestrator rebuilds `latest` every 06:00 UTC against
+  rel-820, so waiting for 8.3.0 leaves ~2 weeks of ungated daily
+  latest pushes to Docker Hub. Cheaper to backport the acceptance
+  surface to rel-820 (three surgical PRs — composer, byte-identical
+  manifest, phpstan config — no runtime code change) than to keep
+  the gate off until the ownership rotation.
+
+  Sequence executed today:
+
+    1. **#13227** (SHIPPED) — backport composer surface to rel-820:
+       `symfony/mime: ^7.3` require-dev, `OpenEMR\Tests\Acceptance\`
+       autoload-dev, `acceptance` composer script. Mirrors Phase 1's
+       #13149 landing that rel-820 was cut before.
+
+    2. **#13233** (SHIPPED) — drop rel-820 from all 5 acceptance-
+       surface entries in `.github/byte-identical.yml` (acceptance-
+       docker.yml, acceptance-package.yml, acceptance-docker-compose.yml,
+       acceptance-package-compose.yml, tests/Acceptance/**) plus
+       build-release.yml. All acceptance workflows now propagate to
+       rel-820 via the next sync.
+
+    3. **#13237** (SHIPPED) — fix mode-preservation regression
+       surfaced by the auto-sync: `git show master:FILE > FILE`
+       silently strips the executable bit off .sh files. Switched
+       both write-from-master paths in
+       `.github/scripts/sync-byte-identical.sh` to
+       `git checkout master -- FILE` (preserves mode + stages).
+       Regression bats tests added (add/update/demote 100755 vs
+       100644). General git gotcha — the "safe" shell redirect is
+       actually mode-lossy.
+
+    4. **#13238** (SHIPPED) — backport `tests/Acceptance/bin/*.php`
+       phpstan exclude to rel-820's `phpstan.neon.dist`. The exclude
+       lives in a config that isn't itself in the byte-identical
+       manifest, so had to migrate explicitly. rel-820's schema
+       differs from master (flat `excludePaths` list vs master's
+       `analyseAndScan:` sub-key) — added to the flat list.
+
+    5. Next: sync-byte-identical re-runs, PR #13236 (auto-sync to
+       rel-820) goes green + merges, then Phase 7c-docker-latest-gate
+       lands on master (workflow_call trigger on acceptance-docker +
+       `gate_with_acceptance` input on docker-build-release +
+       orchestrator conditional dispatch for `latest`-tagged rows).
+       Once merged + synced back to rel-820, daily orchestrator
+       runs a gated `latest` build.
+
+  Also, ALL rel-820 exclusions dropped (not just docker) since a
+  possible 8.2.1 patch release would then run through the same
+  acceptance surface as rel-830+ — "just in case."
+
+- **2026-07-28** — **Phase 4 continuation candidates identified**
+  (added as `4d` + `4e` in the phase section above). Two adjacent
+  test surfaces stand out as natural extensions once 7c-docker
+  lands: (a) absorb `docker/container_benchmarking/test_suite.sh`
+  (bash-driven fresh-install / manual-setup / SSL / Redis-sessions /
+  Swarm / K8s / Xdebug / doc-upload / upgrade suite) into
+  PHPUnit + delete duplicated coverage; and (b) reuse the ~20
+  Selenium tests in `tests/Tests/E2e/*` against shipped artifacts
+  (extending 4b's `E2eCriticalPathTest` reuse pattern). Neither is
+  on the critical path to Phase 7; both are Phase 4 coverage
+  broadening after the harness is fully gated.
