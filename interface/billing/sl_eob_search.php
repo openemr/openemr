@@ -61,7 +61,6 @@ require_once($srcDir . '/forms.inc.php');
 require_once($srcDir . '/../controllers/C_Document.class.php');
 require_once($srcDir . '/documents.php');
 require_once($srcDir . '/options.inc.php');
-require_once($srcDir . '/user.inc.php');
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));

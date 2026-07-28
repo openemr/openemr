@@ -33,7 +33,6 @@ use OpenEMR\Core\OEGlobalsBag;
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/forms.inc.php');
-require_once($srcDir . '/user.inc.php');
 require_once($srcDir . '/payment.inc.php');
 
 $debug = 0; // set to 1 for debugging mode

@@ -36,7 +36,6 @@ $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once("$srcDir/patient.inc.php");
 require_once("$srcDir/options.inc.php");
 require_once("$srcDir/gprelations.inc.php");
-require_once "$srcDir/user.inc.php";
 require_once("$srcDir/MedEx/API.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

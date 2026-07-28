@@ -24,7 +24,6 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php";
 require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
