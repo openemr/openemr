@@ -39,14 +39,14 @@
 #     this true for rows whose docker_tags include `latest` — see
 #     docker-release-orchestrator.yml.
 #
-#     arm64 note: acceptance-gate exercises linux/amd64 only (the GHA
-#     runner arch). But the candidate manifest is multi-arch, and
-#     publish aliases the SAME manifest onto each final tag — so the
-#     amd64 slice tested and the amd64 slice on `latest` share a
-#     digest, and arm64 is preserved without a fresh rebuild. Accepted
-#     trade-off per the plan doc: arm64 bytes ship without direct
-#     acceptance coverage, but not through a separate build path
-#     that could drift from the tested amd64.
+#     arm64 coverage: acceptance-gate runs its full 3-scenario matrix on
+#     BOTH ubuntu-24.04 (amd64) and ubuntu-24.04-arm (arm64) runners
+#     via the workflow_call's test_arm64=true input. `docker pull` on
+#     each runner fetches the matching slice from the candidate's
+#     multi-arch manifest, so both platform slices are validated end-
+#     to-end. Publish then aliases the SAME multi-arch manifest onto
+#     each final tag — the digests users pull for both amd64 and arm64
+#     match what acceptance ran against.
 #
 # Triggered by:
 #   * workflow_dispatch -- driven by the master orchestrator on its
@@ -434,6 +434,14 @@ jobs:
       # whether Docker Hub `latest` is currently installable, complementing
       # the gated candidate assertion.
       to_tag: ${{ needs.build.outputs.candidate_tag }}
+      # Expand the matrix onto ubuntu-24.04-arm runners in addition to
+      # amd64. `docker pull` on arm64 runners fetches the arm64 slice
+      # of the candidate manifest, so with test_arm64=true we're
+      # covering both platform slices — closes the arm64-unvalidated
+      # gap the original 7c-docker plan doc accepted. Runner-minutes
+      # roughly double for the gated path only (every other acceptance-
+      # docker invocation stays amd64-only via test_arm64's false default).
+      test_arm64: true
     # acceptance-docker doesn't currently use org secrets, but forward
     # for future-proofing (matches build-release.yml -> acceptance-package
     # workflow_call shape).

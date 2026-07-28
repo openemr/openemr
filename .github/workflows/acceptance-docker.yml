@@ -93,6 +93,11 @@ on:
         required: false
         type: string
         default: 'next'
+      test_arm64:
+        description: 'Also run every matrix scenario on ubuntu-24.04-arm runners (Phase 7c-docker latest-gate uses this to cover the arm64 slice of the multi-arch candidate manifest, since the runner arch decides which slice `docker pull` fetches). Doubles matrix breadth; leave false for push/PR/schedule paths where the arm64 signal is not worth the runner-minutes.'
+        required: false
+        type: boolean
+        default: false
   push:
     paths:
     - '.github/workflows/acceptance-docker.yml'
@@ -262,13 +267,25 @@ jobs:
       && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
       && needs.detect-mode.result == 'success'
       && (needs.build-image.result == 'success' || needs.build-image.result == 'skipped')
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runs_on }}
     strategy:
       # Don't fail-fast: if fresh-install on `next` breaks, we still
       # want the upgrade scenario's result to distinguish "target
       # installer broken" from "upgrade path broken" (different code).
       fail-fast: false
       matrix:
+        # Runner-arch dimension: workflow_call sets test_arm64=true (Phase
+        # 7c-docker latest-gate) so the matrix expands to both amd64 and
+        # arm64 slices of the candidate manifest. Every other invocation
+        # (push/PR/schedule) stays amd64-only.
+        runs_on: ${{ inputs.test_arm64 && fromJson('["ubuntu-24.04", "ubuntu-24.04-arm"]') || fromJson('["ubuntu-24.04"]') }}
+        # Scenario dimension. Cartesian-multiplied with runs_on; each
+        # cell picks up its scenario-specific description/image_tag/
+        # test_group from the include block below.
+        scenario:
+        - fresh-install-from
+        - fresh-install-to
+        - upgrade
         include:
         - scenario: fresh-install-from
           description: 'Fresh install of from_tag'
@@ -293,7 +310,11 @@ jobs:
       # upgrade scenario.
       COMPOSE_PROJECT_NAME: openemr-acceptance
       ACCEPTANCE_ARTIFACT_URL: http://localhost:8580
-    name: ${{ matrix.description }}
+    # Arch suffix in the job name so amd64 vs arm64 runs of the same
+    # scenario are distinguishable in the Actions UI + `gh pr checks`
+    # output. On amd64-only matrices the suffix is still present but
+    # redundant — worth the visual consistency vs a conditional.
+    name: ${{ matrix.description }} (${{ matrix.runs_on }})
     steps:
     - uses: actions/checkout@v7
       with:
