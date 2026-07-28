@@ -598,6 +598,18 @@ jobs:
         . ci/ciLibrary.source
         enable_coredumps
 
+    ##
+    # The redis-sentinel e2e failures (#13230-style: pages hang on "Loading"
+    # until TimeoutException, then the rest of the suite cascades) leave no
+    # evidence after teardown. Sample Redis connection health through the run
+    # so a failure shows whether connected_clients climbed (connection leak),
+    # blocked_clients pinned (lock contention), or Redis was never involved.
+    - name: Start Redis monitor
+      if: ${{ needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        redis_monitor_start redis-monitor.log
+
     - name: Run ${{ matrix.suite }} tests
       run: |
         . ci/ciLibrary.source
@@ -772,6 +784,25 @@ jobs:
       with:
         name: e2e-test-videos-${{ needs.setup.outputs.docker_dir }}
         path: selenium-videos/
+
+    - name: Redis diagnostics
+      if: ${{ failure() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        redis_monitor_stop redis-monitor.log
+        mkdir -p "${RUNNER_TEMP}/redis-diagnostics"
+        cp redis-monitor.log "${RUNNER_TEMP}/redis-diagnostics/" 2>/dev/null || true
+        redis_diagnostics "${RUNNER_TEMP}/redis-diagnostics"
+        echo '=== redis connection trend (last 60 lines) ==='
+        tail -n 60 redis-monitor.log || true
+
+    - name: Upload Redis diagnostics
+      if: ${{ failure() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: redis-diagnostics-${{ needs.setup.outputs.docker_dir }}-${{ matrix.suite }}
+        path: ${{ runner.temp }}/redis-diagnostics/
+        if-no-files-found: ignore
 
     - name: Test Summary
       if: ${{ always() }}

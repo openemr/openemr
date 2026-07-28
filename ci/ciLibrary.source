@@ -637,6 +637,100 @@ dump_error_log() {
 }
 
 ##
+# --- Redis Sentinel diagnostics -------------------------------------------
+# The redis-sentinel e2e failures (pages hang on "Loading" until
+# TimeoutException, then cascade) leave no evidence once the job's containers
+# are torn down. These helpers sample Redis connection health during the test
+# run and take a post-mortem snapshot on failure, so a failing run tells us
+# whether the session layer leaked connections (connected_clients climbing,
+# rejected_connections > 0), stalled on locks (blocked_clients pinned), or
+# was never involved at all.
+
+##
+# Print redis-cli TLS arguments (one per line) derived from the openemr
+# container's REDIS_TLS/REDIS_X509 env — the same detection used in
+# build_test_redis_failover. Prints nothing on non-TLS configs. Callers read
+# with mapfile so multi-word paths would survive, and an empty result yields
+# an empty array.
+redis_cli_detect_tls_args() {
+    local _tls _x509
+    _tls=$(docker compose exec -T openemr printenv REDIS_TLS 2>/dev/null) || _tls=""
+    if [[ "${_tls}" == "yes" ]]; then
+        printf '%s\n' --tls --cacert /certs/ca.crt
+        _x509=$(docker compose exec -T openemr printenv REDIS_X509 2>/dev/null) || _x509=""
+        if [[ "${_x509}" == "yes" ]]; then
+            printf '%s\n' --cert /certs/client.crt --key /certs/client.key
+        fi
+    fi
+}
+
+##
+# Run a redis-cli command against redis-master with auth and TLS handled.
+# The requirepass matches ci/compose-shared-redis-sentinel/docker-compose.yml.
+redis_master_cli() {
+    local -a tls_args=()
+    mapfile -t tls_args < <(redis_cli_detect_tls_args)
+    docker compose exec -T redis-master \
+        redis-cli "${tls_args[@]}" -a strongpassword --no-auth-warning "$@"
+}
+
+##
+# Sample connection/lock health of redis-master every 10s, appending to the
+# file named in $1, until redis_monitor_stop. Backgrounds itself; the child
+# writes only to the outfile (never the step's stdout/stderr pipes), so it
+# survives the end of the workflow step that started it.
+redis_monitor_start() {
+    local outfile=$1
+    : > "${outfile}"
+    (
+        # This sampler must outlive failovers and container restarts: drop
+        # the library's errexit/xtrace inside the child so a failed sample
+        # neither kills the loop nor writes to the (soon closed) step pipe.
+        set +e +x
+        while true; do
+            {
+                echo "=== $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+                redis_master_cli INFO clients 2>&1 | grep -E '^(connected|blocked)_clients'
+                redis_master_cli INFO stats 2>&1 | grep -E '^(rejected_connections|total_connections_received)'
+                redis_master_cli INFO memory 2>&1 | grep -E '^used_memory_human'
+            } >> "${outfile}" 2>&1
+            sleep 10
+        done
+    ) &
+    echo "$!" > "${outfile}.pid"
+    echo "redis monitor started (pid $(cat "${outfile}.pid")), sampling to ${outfile}"
+}
+
+redis_monitor_stop() {
+    local outfile=$1
+    if [[ -f "${outfile}.pid" ]]; then
+        kill "$(cat "${outfile}.pid")" 2>/dev/null || true
+        rm -f "${outfile}.pid"
+    fi
+}
+
+##
+# Post-mortem snapshot of the Redis cluster into directory $1 (host path).
+# Everything is best-effort: any of these can fail if the cluster is the
+# thing that died, and a partial snapshot is still a snapshot. Nothing here
+# contains secrets (INFO/CLIENT LIST/SLOWLOG do not echo requirepass), so the
+# artifact is safe on a public PR.
+redis_diagnostics() {
+    local dest=$1
+    local -a tls_args=()
+    mkdir -p "${dest}"
+    mapfile -t tls_args < <(redis_cli_detect_tls_args)
+    redis_master_cli INFO > "${dest}/redis-info.txt" 2>&1 || true
+    redis_master_cli CLIENT LIST > "${dest}/redis-client-list.txt" 2>&1 || true
+    redis_master_cli SLOWLOG GET 25 > "${dest}/redis-slowlog.txt" 2>&1 || true
+    docker compose exec -T sentinel-1 \
+        redis-cli "${tls_args[@]}" -p 26379 SENTINEL master redis-master \
+        > "${dest}/sentinel-master-state.txt" 2>&1 || true
+    dc logs --timestamps redis-master redis-replica-1 redis-replica-2 sentinel-1 sentinel-2 \
+        > "${dest}/redis-container-logs.txt" 2>&1 || true
+}
+
+##
 # Directory inside the openemr container where coredumps are collected. The
 # kernel core_pattern (set by enable_coredumps) is interpreted within the
 # crashing process's mount namespace, so this is a container path. It is not
