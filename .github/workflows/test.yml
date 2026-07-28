@@ -795,6 +795,20 @@ jobs:
         echo "=== kernel segfault/trap lines (tail) ==="
         tail -n 40 "${CRASH_DIAG_DIR}/kernel-segfaults.txt" || true
 
+    ##
+    # The step above runs for every failed suite, but the crash-diagnostics
+    # artifact that would carry kernel-segfaults.txt only uploads for apache
+    # e2e (below). Upload it separately for every other scope — gated as the
+    # exact complement of the crash-diagnostics condition so the file is
+    # persisted exactly once per failed job, never duplicated.
+    - name: Upload kernel segfault log
+      if: ${{ failure() && !(matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache') }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: kernel-segfaults-${{ needs.setup.outputs.docker_dir }}-${{ matrix.suite }}
+        path: ${{ runner.temp }}/crash-diagnostics/kernel-segfaults.txt
+        if-no-files-found: ignore
+
     - name: Upload crash diagnostics
       if: ${{ failure() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
       uses: actions/upload-artifact@v7
