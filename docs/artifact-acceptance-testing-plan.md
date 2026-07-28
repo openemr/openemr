@@ -1144,6 +1144,178 @@ validated the same exact bytes). Only remaining Phase 7 work is
 7. No hard deadline. rel-830 (~2 weeks out) gets the Phase 1+2+2.5+3
 baseline; Phases 4+5+6+7 land into a rel-830-shipped codebase.
 
+### Phase 7d — PR-time arm64 coverage for the build_locally path *(proposed 2026-07-28)*
+
+Phase 7c-docker-latest-gate (#13239) added arm64 acceptance coverage
+to the daily orchestrator's `latest` build via ubuntu-24.04-arm
+runners (GA Jan 2025, free for public repos). But at release-prep-PR
+time, the build_locally path in acceptance-docker.yml still builds
+amd64-only — the Phase 2.5 `build-image` job runs a plain
+`docker build docker/release` on ubuntu-24.04, producing an amd64
+image and saving it to a workflow artifact. Downstream acceptance
+runs on amd64 only. arm64 regressions in a rel-branch's
+Dockerfile or an upstream base-image bump won't surface until the
+image actually ships and the daily gate catches them — too late to
+block via release-prep review.
+
+Fix: extend the same test_arm64 matrix pattern that 7c-docker uses
+into the PR-time build path.
+
+  * `build-image` job grows a `runs_on: [ubuntu-24.04,
+    ubuntu-24.04-arm]` matrix gated on the existing `test_arm64`
+    input. Each arch builds natively (no QEMU emulation) on its own
+    runner and uploads its arch-specific artifact under a distinct
+    name (`openemr-pr-built-image-<arch>`).
+  * The `acceptance` job's "Download PR-built image" step picks the
+    artifact matching `matrix.runs_on` so amd64 runners load the
+    amd64 tarball and arm64 runners load the arm64 tarball.
+  * `release-prep.yml`'s `gh workflow run acceptance-docker.yml`
+    dispatch grows `-f test_arm64=true`. Same input also becomes
+    available on manual workflow_dispatch for maintainer-driven
+    validation.
+  * Every other trigger (PR touching docker/release/**, schedule,
+    workflow_dispatch without test_arm64) stays amd64-only —
+    default behavior unchanged.
+
+Trade-offs:
+
+  * Runtime: PR-time gets a second parallel build-image job; wall
+    clock similar (parallel), runner-minutes ~2x for the build
+    phase. Both arm64 + amd64 GHA runners are free for public
+    repos, so no billing.
+  * Coverage: every release-prep PR catches arm64 regressions
+    before the merge lands on a rel-branch. Also picks up
+    docker/release/** PRs that opt in via workflow_dispatch.
+  * Complexity: acceptance-docker.yml gains a matrix dimension on
+    build-image + a per-arch artifact name; release-prep.yml gains
+    one flag on its dispatch. No new registry, no OCI extraction,
+    no cleanup logic.
+
+Rejected alternative: single multi-arch build+push to a temporary
+Docker Hub or GHCR tag (mirroring 7c-docker's candidate-tag
+pattern) with per-arch pull on each acceptance runner. Adds
+registry churn per PR run + cleanup + potential visibility of
+half-baked images. The two-build-image-jobs approach keeps
+everything workflow-artifact-scoped, matching Phase 2.5's existing
+transport.
+
+Exit criterion: a docker/release/** PR that breaks the arm64
+Dockerfile build fails the release-prep PR's acceptance-docker
+check with an arm64-specific error, without needing to wait for
+the daily orchestrator gate. ~1 day of implementation.
+
+### Phase 8 — Test reliability hardening *(proposed 2026-07-28)*
+
+By Phases 7 + 7d, acceptance gates on the release-prep PR AND on
+the daily `latest` push AND on the release-time publish. Every
+gate that fires increases the surface area where a flaky test can
+delay a release. This phase reduces the flake rate + adds explicit
+handling for the flakes that do slip through.
+
+Scope (unordered — implementation order tbd):
+
+  * **Flake rate baseline.** Instrument acceptance jobs to emit a
+    per-test-per-run status to a small persistent store (Codecov's
+    test-analytics feature, a GitHub Issues-based bucket, or
+    similar). Establish a flake baseline before making changes;
+    then track whether interventions actually reduce it.
+  * **Root-cause common flake modes.** Panther/Selenium race
+    conditions (element-not-yet-visible vs polling), Docker Hub
+    rate-limit 429s during pulls, GHA runner cold-start variability
+    on the compose stack boot, Chrome/ChromeDriver version drift.
+    Each has a targeted fix; enumerate + prioritize.
+  * **Automatic retry policy.** GHA-native retry (rerun-failed-jobs
+    on transient signals) vs test-level retry (PHPUnit @retryFor
+    annotations or a small wrapping harness). Trade-off:
+    hiding a real regression behind auto-retry is a worse outcome
+    than a caught flake; retries should target known-transient
+    failure modes only, with visible retry-count in the check
+    output.
+  * **Quarantine mechanism.** A test file/method can be marked
+    `@group flaky-quarantined` — runs, but its result doesn't
+    fail the gate. Quarantined tests appear in a distinct check
+    summary with owner + rationale. Time-boxed (auto-un-quarantine
+    after N days) so quarantine can't become a graveyard.
+  * **Better error surfacing.** When a gate fails, the operator
+    should see immediately whether it was (a) code regression,
+    (b) known-flake retry-exhausted, or (c) infrastructure issue
+    (Docker Hub, Chrome install, etc.). Structured failure
+    classification in the workflow summary.
+
+Rejected alternative: "just accept some flakiness and let operators
+re-run." That's the current baseline. Phase 8 exists because
+release-time flakes have higher pain (visible pause in ship, ops
+scramble, sometimes users watching Docker Hub for `latest` bump)
+than dev-time flakes. Worth investing to reduce.
+
+Exit criterion: acceptance gate flake rate below X% (baseline TBD;
+target ~1% or lower per gate invocation) sustained across a
+2-week window. Rough timing: ~2-3 weeks of iterative work.
+
+### Phase 9 — Skip-build re-run for release recovery *(proposed 2026-07-28)*
+
+Even with Phase 8's flake reduction, release-time flakes will
+happen occasionally. Today's recovery path is "Re-run failed jobs"
+which re-runs everything from build-package onward — for the
+tarball path that's ~15 min of PackageAssembler + composer + node
+work before acceptance even starts; for the docker path it's
+~30-60 min of multi-arch buildx before acceptance starts. Long
+enough that operators feel the pain and start second-guessing
+whether to just push-through.
+
+Phase 9 adds a dedicated re-run entry point: **acceptance-only
+against already-built artifacts**. When a release-time acceptance
+gate flakes on a known-good build, the operator dispatches this
+entry point instead of "Re-run failed jobs", skips the entire
+build phase, and gets a fresh acceptance verdict in ~5-10 minutes.
+
+Concrete shape:
+
+  * **Tarball path.** `build-release.yml`'s `build-package` job
+    already uploads the release-candidate tarball as a workflow-
+    run artifact with 7-day retention. Add a new
+    `acceptance-only` workflow_dispatch entry point that takes a
+    workflow run ID as input, downloads that run's
+    `openemr-release-candidate-<version>` artifact, and calls
+    acceptance-package.yml against it via the existing
+    `caller_tarball_artifact` workflow_call surface. If
+    acceptance passes, the operator manually re-fires the publish
+    job of the original workflow run (or a follow-up PR wires
+    "acceptance-only → publish" for full automation).
+  * **Docker path.** Requires a small tweak to Phase 7c-docker's
+    cleanup-candidate job: today it always runs on the gated
+    path regardless of acceptance outcome (`if: always() &&
+    inputs.gate_with_acceptance`). Change to only cleanup on
+    (acceptance success AND publish success) OR explicit operator
+    override. Result: on acceptance flake, the candidate tag
+    stays on Docker Hub; the acceptance-only dispatch re-fires
+    acceptance-docker.yml with `to_tag=<preserved-candidate-suffix>`
+    against the still-existing candidate. Publish then proceeds
+    normally against the same digest.
+  * **Guardrail.** The acceptance-only entry point should refuse
+    to run against an artifact older than N hours (7 days is too
+    long — real regression risk if the operator has been sitting
+    on a broken artifact). Suggested: 24-48h ceiling.
+
+Trade-offs:
+
+  * Complexity: two changes (build-release.yml + docker-build-
+    release.yml) + one new small workflow OR extension of
+    existing workflow_call surface. Well-bounded.
+  * Docker-Hub tag lifetime: candidate tags on the gated docker
+    path stay longer (until publish succeeds), which briefly
+    increases visibility of temporary tags. Naming (release-
+    candidate-<run-id>-<attempt>) already signals internal-use.
+  * Operator UX: a dedicated re-run entry point vs remembering
+    to click "Re-run failed jobs" on the right workflow run.
+    Small quality-of-life win, real when release-time pressure
+    is on.
+
+Exit criterion: an operator observing a release-time acceptance
+flake can dispatch acceptance-only and get pass/fail in under 10
+minutes without re-doing the build phase; on green, publish
+proceeds normally. ~3-4 days of implementation.
+
 ## Test-coverage philosophy
 
 Guidelines for where a new test belongs, once both surfaces exist:
@@ -1702,3 +1874,74 @@ in acceptance."
   no `latest` in their tags). Once landed, this is the last piece
   of Phase 7 — every published tarball + docker `latest` builds
   now flow through an acceptance gate on the same bytes that ship.
+
+- **2026-07-28 (later)** — **Phase 7c-docker-latest-gate SHIPPED
+  (#13239) with immediate bootstrap regression on rel-800/rel-704;
+  fixed via #13244 + #13245 + #13246.** The `if:`-gated
+  `uses: ./.github/workflows/acceptance-docker.yml` reference in
+  docker-build-release.yml is parsed by GitHub Actions at workflow-
+  dispatch time (BEFORE the `if:` guard evaluates), so once auto-
+  sync (#13243) propagated the new file to rel-800 and rel-704 —
+  which don't carry acceptance-docker.yml (excluded per byte-
+  identical config) — those branches' dispatches started failing
+  with HTTP 422 "workflow was not found". Fix: convert docker-
+  build-release.yml's byte-identical entry to object form with
+  `exclude-branches: [rel-800, rel-704]` (#13244), and revert
+  rel-800 (#13245) + rel-704 (#13246) to the pre-Phase-7c single-
+  step build+push shape. Same trade-off already accepted for
+  acceptance-docker.yml: future master-side changes to docker-
+  build-release.yml need manual cherry-pick if they matter for
+  those older branches. No ops burden noted on the acceptance-
+  docker.yml precedent (months of exclusion, zero pain).
+
+  Alternative considered + rejected: full acceptance-surface
+  backport to rel-800 and rel-704 (composer + tests + workflow),
+  same as the rel-820 backport track. Reasons:
+
+    * rel-704 (PHP 8.1) can't take `symfony/mime: ^7.3` (requires
+      PHP 8.2); would need `^6.4` divergence.
+    * The acceptance suite was written against current codebase;
+      assumptions about UI, install flow, API endpoints likely
+      don't hold against 8.0.0 and 7.0.4 artifacts. Real test-
+      correctness risk.
+    * rel-800 + rel-704 are old maintenance-mode branches; the
+      value of gating their daily builds is much lower than
+      rel-820's `latest`.
+
+  Kept as future work if the "gate all daily builds" idea
+  graduates from nice-to-have to worth-the-maintenance-cost.
+
+- **2026-07-28 (later)** — **New Phases 7d + 8 + 9 proposed
+  (unstarted)** based on scoping conversation with Brady after
+  #13239 landed. Added in the phase section above:
+
+    * **7d — PR-time arm64 coverage for the build_locally path.**
+      Extends 7c-docker's arm64 coverage from the daily gate into
+      release-prep-PR-time. Two build-image jobs (amd64 + arm64,
+      each native, each producing arch-specific artifact); the
+      acceptance job's download step picks the artifact matching
+      its runner arch. release-prep.yml passes `-f test_arm64=true`
+      when dispatching. Coverage win: rel-branch Dockerfile
+      regressions that break arm64 are caught at release-prep
+      review time rather than post-merge on the daily gate.
+
+    * **8 — Test reliability hardening.** Every gate that fires
+      increases surface area where a flaky test delays a release.
+      Baseline the flake rate, root-cause common flake modes,
+      targeted auto-retry policy, quarantine mechanism (time-
+      boxed), better failure classification in check output. No
+      unified plan yet — enumerate + prioritize.
+
+    * **9 — Skip-build re-run for release recovery.** Dedicated
+      workflow_dispatch entry point that skips build and re-runs
+      acceptance against already-uploaded release-candidate
+      artifacts (tarball or docker candidate tag). Recovery time:
+      ~5-10 minutes vs 15-60 for full "Re-run failed jobs".
+      Requires small tweak to 7c-docker's cleanup-candidate to
+      preserve the candidate tag on acceptance failure.
+
+  Phase 7d is a natural extension of 7c-docker + already-added
+  test_arm64 input; ~1 day of work. Phase 8 is broader operational
+  hardening; ~2-3 weeks. Phase 9 is a specific tool + small existing-
+  workflow tweaks; ~3-4 days. None blocking each other; can slice
+  independently as ops priorities dictate.
