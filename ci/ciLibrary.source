@@ -701,7 +701,9 @@ redis_monitor_start() {
         set +e +x
         while true; do
             {
-                echo "=== $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+                # Let date print the separator itself: no command
+                # substitution, so no return value for SC2312 to worry about.
+                date -u '+=== %Y-%m-%dT%H:%M:%SZ'
                 redis_master_cli INFO clients 2>&1 | grep -E '^(connected|blocked)_clients'
                 redis_master_cli INFO stats 2>&1 | grep -E '^(rejected_connections|total_connections_received)'
                 redis_master_cli INFO memory 2>&1 | grep -E '^used_memory_human'
