@@ -691,9 +691,42 @@ redis_master_cli() {
 # file named in $1, until redis_monitor_stop. Backgrounds itself; the child
 # writes only to the outfile (never the step's stdout/stderr pipes), so it
 # survives the end of the workflow step that started it.
+# Path (relative to the openemr webroot) of the OPcache probe installed by
+# redis_monitor_start and removed by redis_monitor_stop. It must run inside an
+# Apache worker: CLI `php -r 'opcache_get_status()'` reads the CLI's own SHM
+# segment, not the one the workers share, which is the segment suspected of
+# corruption in the #12438 segfaults.
+# Assign-if-unset before readonly, same as COREDUMP_DIR above: this library
+# is sourced multiple times per shell by ci/inferno/run.sh, and a bare
+# `readonly VAR=...` errors on the second source.
+: "${OPCACHE_PROBE:=opcache-ci-status.php}"
+readonly OPCACHE_PROBE
+
 redis_monitor_start() {
     local outfile=$1
     : > "${outfile}"
+    # Install the probe. The webroot is the bind-mounted checkout, so this
+    # exists only for the lifetime of the CI job and is removed in
+    # redis_monitor_stop. It reports only aggregate memory/restart counters —
+    # no keys, no source, nothing sensitive for a public artifact.
+    docker compose exec -T openemr sh -c "cat > '${OPENEMR_DIR}/${OPCACHE_PROBE}'" <<'PHP' || true
+<?php
+// CI-only probe; written by ci/ciLibrary.source redis_monitor_start.
+header('Content-Type: application/json');
+$s = opcache_get_status(false);
+echo json_encode([
+    'used_memory' => $s['memory_usage']['used_memory'] ?? null,
+    'free_memory' => $s['memory_usage']['free_memory'] ?? null,
+    'wasted_memory' => $s['memory_usage']['wasted_memory'] ?? null,
+    'cache_full' => $s['cache_full'] ?? null,
+    'restart_pending' => $s['restart_pending'] ?? null,
+    'restart_in_progress' => $s['restart_in_progress'] ?? null,
+    'oom_restarts' => $s['opcache_statistics']['oom_restarts'] ?? null,
+    'hash_restarts' => $s['opcache_statistics']['hash_restarts'] ?? null,
+    'manual_restarts' => $s['opcache_statistics']['manual_restarts'] ?? null,
+    'num_cached_scripts' => $s['opcache_statistics']['num_cached_scripts'] ?? null,
+]), "\n";
+PHP
     (
         # This sampler must outlive failovers and container restarts: drop
         # the library's errexit/xtrace inside the child so a failed sample
@@ -707,6 +740,14 @@ redis_monitor_start() {
                 redis_master_cli INFO clients 2>&1 | grep -E '^(connected|blocked)_clients'
                 redis_master_cli INFO stats 2>&1 | grep -E '^(rejected_connections|total_connections_received)'
                 redis_master_cli INFO memory 2>&1 | grep -E '^used_memory_human'
+                # OPcache health of the Apache workers, via the probe above.
+                # cache_full/restart_pending flipping true or oom_restarts
+                # incrementing right before a segfault avalanche is the
+                # smoking gun for the SHM-corruption theory (#12438).
+                printf 'opcache: '
+                docker compose exec -T openemr \
+                    curl -sf "http://localhost/${OPCACHE_PROBE}" 2>&1
+                echo
             } >> "${outfile}" 2>&1
             sleep 10
         done
@@ -719,6 +760,9 @@ redis_monitor_start() {
 redis_monitor_stop() {
     local outfile=$1
     local monitor_pid
+    # Remove the OPcache probe from the bind-mounted webroot. Best-effort:
+    # the container may already be gone at cleanup time.
+    docker compose exec -T openemr rm -f "${OPENEMR_DIR}/${OPCACHE_PROBE}" 2>/dev/null || true
     if [[ -f "${outfile}.pid" ]]; then
         monitor_pid=$(cat "${outfile}.pid") || monitor_pid=""
         if [[ -n "${monitor_pid}" ]]; then
@@ -823,6 +867,26 @@ enable_coredumps() {
     # shellcheck disable=SC2310  # graceful restart failure is diagnostic, not fatal
     dc exec -T openemr sh -c 'httpd -k graceful' \
         || echo 'enable_coredumps: graceful restart failed; existing workers keep dumpable=0'
+
+    # Canary: prove the whole coredump pipeline works in THIS job before
+    # trusting it. Run 30343650338 had 166 worker segfaults after the
+    # graceful restart above ran cleanly, yet produced zero cores — and
+    # nobody knew the pipeline was broken until the cores were needed.
+    # Crash a sacrificial CLI php as the unprivileged web user (mirroring
+    # the root->apache setuid path the workers take) and require a core.
+    local canary_files
+    docker compose exec -T openemr \
+        su -s /bin/sh apache -c 'php -d error_reporting=0 -r "posix_kill(posix_getpid(), 11);"' \
+        2>/dev/null || true
+    sleep 1
+    canary_files=$(docker compose exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}' 2>/dev/null | wc -l") || canary_files=0
+    if [[ "${canary_files//[!0-9]/}" == "0" || -z "${canary_files//[!0-9]/}" ]]; then
+        echo "::warning::coredump canary produced no core in ${COREDUMP_DIR} — worker segfaults in this job will NOT be debuggable; check ulimits.core, kernel.core_pattern, and fs.suid_dumpable"
+    else
+        echo "coredump canary OK: core file present in ${COREDUMP_DIR}"
+        # Remove the canary's core so capture_coredumps only reports real crashes.
+        docker compose exec -T openemr sh -c "rm -f ${COREDUMP_DIR}/core.php.*" 2>/dev/null || true
+    fi
 }
 
 ##

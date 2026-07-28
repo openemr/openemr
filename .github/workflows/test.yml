@@ -777,6 +777,24 @@ jobs:
         # Backtrace + gzip'd core for each coredump produced this run.
         capture_coredumps "${CRASH_DIAG_DIR}"
 
+    ##
+    # The kernel logs every segfault with the instruction pointer and the
+    # shared object it landed in (e.g. "segfault at ... ip ... in
+    # opcache.so[...]"), for container processes too — the runner shares its
+    # kernel with the containers. This names the faulting module for every
+    # crash in the run even when the coredump pipeline yields nothing, as in
+    # run 30343650338 (166 segfaults, zero cores).
+    - name: Kernel segfault log
+      if: ${{ failure() }}
+      env:
+        CRASH_DIAG_DIR: ${{ runner.temp }}/crash-diagnostics
+      run: |
+        mkdir -p "${CRASH_DIAG_DIR}"
+        sudo dmesg -T 2>/dev/null | grep -iE 'segfault|traps:|core_pattern|coredump' \
+            > "${CRASH_DIAG_DIR}/kernel-segfaults.txt" || true
+        echo "=== kernel segfault/trap lines (tail) ==="
+        tail -n 40 "${CRASH_DIAG_DIR}/kernel-segfaults.txt" || true
+
     - name: Upload crash diagnostics
       if: ${{ failure() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
       uses: actions/upload-artifact@v7
