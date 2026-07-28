@@ -18,6 +18,15 @@ parameters:
   # not maintained in this repo, so exclude it from analysis the same way vendor/
   # is excluded.
   - interface/modules/custom_modules/oe-module-claimrev-connect/*
+  # Acceptance-harness bootstrap scripts — runtime-only. install-helper.php
+  # is copied into a running container's mount point at execution time
+  # and depends on container-absolute paths (autoload.php under
+  # /var/www/localhost/htdocs/openemr) that don't exist on the runner
+  # where phpstan runs. Nothing else references these files at build
+  # time, so excluding from analysis is appropriate. (Backported from
+  # master alongside the tests/Acceptance surface to unblock rel-820
+  # acceptance gating for Phase 7c-docker-latest-gate.)
+  - tests/Acceptance/bin/*.php
   paths:
   - Documentation
   - _rest_routes.inc.php
