@@ -107,13 +107,26 @@ permissions:
   contents: read
 
 jobs:
-  build-release:
+  # Job 1 of 3 (Phase 7c refactor): produce the release distribution
+  # (tarball + zip + checksums + release-notes changelog) and upload
+  # everything as a workflow artifact so downstream jobs (acceptance-
+  # gate + publish) can consume it. No tag is pushed here, no GitHub
+  # release is created — this job is purely the build side of build →
+  # validate → publish.
+  build-package:
     runs-on: ubuntu-24.04
-    name: Build Release
-    # Cap runtime. Package assembly + tag/release is under 15 min in
-    # normal runs; the GitHub-default 6h ceiling would let a hung
-    # composer/npm/git step burn runner minutes if something wedged.
+    name: Build package
+    # Cap runtime. Package assembly is under 15 min in normal runs; the
+    # GitHub-default 6h ceiling would let a hung composer/npm/git step
+    # burn runner minutes if something wedged.
     timeout-minutes: 30
+    outputs:
+      # Downstream jobs (acceptance-gate + publish) look up the artifact
+      # by name and derive the tarball filename from the version. Both
+      # feed reusable-workflow inputs, so expose as job outputs (not
+      # env), matching GitHub Actions cross-job wiring conventions.
+      release_version: ${{ inputs.version }}
+      artifact_name: openemr-release-candidate-${{ inputs.version }}
     steps:
     - name: Validate inputs
       if: "!inputs.dry_run && inputs.release_tag == ''"
@@ -196,9 +209,6 @@ jobs:
         VERSION="$RELEASE_VERSION"
         OPENEMR_DIR='${{ github.workspace }}'
 
-    # Build and checksum the package before creating the tag/release. If
-    # any build step fails, the job aborts before a release exists —
-    # never publish a release that has no distribution assets attached.
     - name: Setup Node
       uses: actions/setup-node@v7
       with:
@@ -221,10 +231,109 @@ jobs:
         task checksum FILE="openemr-${RELEASE_VERSION}.tar.gz"
         task checksum FILE="openemr-${RELEASE_VERSION}.zip"
 
+    # Upload the whole release-output dir as a single workflow-run
+    # artifact so downstream jobs (acceptance-gate + publish) can
+    # consume it. Artifact name embeds the version so parallel dispatch
+    # runs (e.g. two different rel-branches under test) don't collide.
+    # acceptance-package.yml's workflow_call flow expects the tarball
+    # to be present at
+    # /tmp/pr-built-tarball/openemr-<version>.tar.gz after download;
+    # publish job re-downloads to read the other assets.
+    #
+    # Retention-days matches the previous dry-run upload behavior (7d)
+    # — a maintainer inspecting a failed dispatch shouldn't have their
+    # artifact evicted between the failure and the postmortem.
+    - name: Upload release-output artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: openemr-release-candidate-${{ inputs.version }}
+        path: |
+          tools/release/release-output/openemr-${{ inputs.version }}.tar.gz
+          tools/release/release-output/openemr-${{ inputs.version }}.zip
+          tools/release/release-output/changelog.md
+          tools/release/release-output/*.md5
+          tools/release/release-output/*.sha256
+          tools/release/release-output/*.sha512
+        retention-days: 7
+
+  # Job 2 of 3 (Phase 7c): pre-publish acceptance gate. Runs the full
+  # acceptance-package matrix (fresh-install, wizard-install, upgrade,
+  # wizard-upgrade) against the tarball build-package just uploaded.
+  # Publish job only fires if this passes.
+  #
+  # Skipped on dry_run — the acceptance gate exists to prevent broken
+  # tarballs from reaching the GitHub releases page, so it's redundant
+  # when publish is skipped. That also keeps dry-run runtime bounded
+  # to just the build step.
+  #
+  # Runs against the release branch's copy of acceptance-package.yml
+  # (@${{ inputs.version_branch }}), NOT the caller's ref. This matches
+  # the shape end users would see: whatever tests the release branch
+  # says are canon, run those. Downside: acceptance-package.yml has to
+  # exist on the target rel-branch (rel-830+ once Phase 3.5 backports;
+  # earlier branches would need this workflow_call trigger backported
+  # or the acceptance-gate job disabled for those branches).
+  acceptance-gate:
+    name: Acceptance gate
+    needs: [build-package]
+    if: '!inputs.dry_run'
+    uses: ./.github/workflows/acceptance-package.yml
+    with:
+      caller_tarball_artifact: ${{ needs.build-package.outputs.artifact_name }}
+      to_version: ${{ needs.build-package.outputs.release_version }}
+    # Acceptance-package doesn't currently use secrets, but forward
+    # them for future-proofing (e.g. if a downstream test grows a
+    # secret dependency, no ops-side change needed here).
+    secrets: inherit
+
+  # Job 3 of 3 (Phase 7c): publish. Push the annotated tag, create
+  # the GitHub release, and upload the artifacts. Runs ONLY if
+  # acceptance-gate succeeded — a broken tarball never reaches the
+  # releases page.
+  #
+  # Skipped on dry_run (there's no release to push to).
+  publish:
+    runs-on: ubuntu-24.04
+    name: Publish release
+    needs: [build-package, acceptance-gate]
+    if: '!inputs.dry_run'
+    timeout-minutes: 30
+    steps:
+    # App-token regenerated here rather than passed as an output from
+    # build-package — GitHub Actions redacts token outputs across job
+    # boundaries anyway (writing a token to `$GITHUB_OUTPUT` masks it
+    # in logs but the value that reaches the downstream job is often
+    # empty). Regenerating is the documented path.
+    - name: Generate app token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+        repositories: openemr
+
+    # Need a checkout for `git tag` + `git push origin <tag>`. Same
+    # minimal fetch shape as build-package.
+    - name: Checkout openemr release branch
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ inputs.version_branch }}
+        token: ${{ steps.app-token.outputs.token }}
+        filter: blob:none
+        fetch-depth: 1
+
+    # Reconstruct the release-output/ directory that build-package
+    # produced, from the workflow-run artifact.
+    - name: Download release-output artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ needs.build-package.outputs.artifact_name }}
+        path: tools/release/release-output
+
     - name: Create annotated tag and GitHub release
-      if: '!inputs.dry_run'
       env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
         RELEASE_TAG: ${{ inputs.release_tag }}
         RELEASE_VERSION: ${{ inputs.version }}
         VERSION_BRANCH: ${{ inputs.version_branch }}
@@ -272,9 +381,8 @@ jobs:
         fi
 
     - name: Upload package and checksums to release
-      if: '!inputs.dry_run'
       env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
         RELEASE_TAG: ${{ inputs.release_tag }}
         RELEASE_VERSION: ${{ inputs.version }}
       run: |
@@ -291,6 +399,89 @@ jobs:
           "${output_dir}"/*.sha512 \
           "${output_dir}/changelog.md"
 
+    # Phase 7b (openemr/openemr#TBD): re-fetch the just-uploaded
+    # tarball + zip from the GitHub Release page and byte-compare
+    # against the local artifacts. Catches the one class of failure
+    # Phase 7c-tarball's acceptance-gate can't see — corruption
+    # between the tested-bytes-on-disk and the bytes-on-release-page:
+    #   * `gh release upload` HTTPS transfer corruption (rare —
+    #     HTTPS has integrity, but not impossible with proxy
+    #     interception or transient network artifacts)
+    #   * GitHub Releases post-upload storage corruption
+    #     (never observed but the failure mode is real)
+    #   * Someone / something manually replacing the release asset
+    #     between our upload and this verify step (would need to
+    #     race a very small window and defeat our app-token
+    #     auth, but the check is essentially free)
+    # sha256 comparison is O(size-of-artifact) which is ~seconds for
+    # a ~200 MB tarball. Simpler than downloading + sha256 -c against
+    # the .sha256 file (which would also need verification of the
+    # .sha256 file's own integrity — turtles).
+    #
+    # On mismatch: fail the job. Publish is atomic-per-step but not
+    # cross-step: the tag already exists, the Release object exists,
+    # and the assets are uploaded (possibly corrupted). Recovery is
+    # "Re-run failed jobs" in the Actions UI — the upload step re-runs
+    # (gh release upload --clobber is idempotent) and this verify
+    # step re-runs. Idempotent all the way down.
+    - name: Verify uploaded assets byte-match local copies
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
+        verify_dir="$RUNNER_TEMP/publish-verify"
+        rm -rf "$verify_dir"
+        mkdir -p "$verify_dir"
+
+        assets=(
+          "openemr-${RELEASE_VERSION}.tar.gz"
+          "openemr-${RELEASE_VERSION}.zip"
+        )
+
+        for asset in "${assets[@]}"; do
+          local_path="${output_dir}/${asset}"
+          remote_path="${verify_dir}/${asset}"
+          if [[ ! -f "$local_path" ]]; then
+            echo "::error::local asset missing: $local_path"
+            exit 1
+          fi
+          echo "==> Re-fetching $asset from release $tag for byte-verify"
+          gh release download "$tag" \
+            --repo openemr/openemr \
+            --pattern "$asset" \
+            --dir "$verify_dir"
+          local_sha="$(sha256sum "$local_path" | awk '{print $1}')"
+          remote_sha="$(sha256sum "$remote_path" | awk '{print $1}')"
+          if [[ "$local_sha" != "$remote_sha" ]]; then
+            echo "::error::sha256 mismatch on $asset"
+            echo "::error::  local  = $local_sha"
+            echo "::error::  remote = $remote_sha"
+            echo "::error::The uploaded release asset does not match the tested build output. Re-run this job to re-upload; investigate if the mismatch persists."
+            exit 1
+          fi
+          echo "    OK: $asset sha256=$local_sha"
+        done
+
+        rm -rf "$verify_dir"
+        echo "==> All published release assets byte-match the local build output."
+
+    # Summary step needs task on the runner + the checked-out repo (for
+    # the Taskfile) — restore both.
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.5'
+
+    - name: Install Taskfile
+      uses: arduino/setup-task@v3
+      with:
+        version: 3.x
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build summary
       working-directory: tools/release
       env:
@@ -305,17 +496,3 @@ jobs:
         VERSION_BRANCH="$VERSION_BRANCH"
         RELEASE_TAG="$RELEASE_TAG"
         DRY_RUN="$DRY_RUN"
-
-    - name: Upload artifacts (dry run)
-      if: inputs.dry_run
-      uses: actions/upload-artifact@v7
-      with:
-        name: release-${{ inputs.version }}
-        path: |
-          tools/release/release-output/openemr-${{ inputs.version }}.tar.gz
-          tools/release/release-output/openemr-${{ inputs.version }}.zip
-          tools/release/release-output/changelog.md
-          tools/release/release-output/*.md5
-          tools/release/release-output/*.sha256
-          tools/release/release-output/*.sha512
-        retention-days: 7
