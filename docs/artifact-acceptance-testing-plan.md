@@ -1649,3 +1649,56 @@ in acceptance."
   (extending 4b's `E2eCriticalPathTest` reuse pattern). Neither is
   on the critical path to Phase 7; both are Phase 4 coverage
   broadening after the harness is fully gated.
+
+- **2026-07-28 (later)** — **Phase 7c-docker-latest-gate IN FLIGHT
+  as #13239** on master, using a candidate-tag-on-Docker-Hub
+  design + full arm64 coverage. Two design pivots vs the prior
+  scoping note above worth capturing:
+
+    * **Transport pivot: Docker Hub candidate tag, not workflow
+      artifact.** Original sketch had build save the image via
+      `docker save` → workflow artifact → acceptance-gate download +
+      load → publish rebuild multi-arch (arm64 fresh, amd64 from GHA
+      build-cache). Two problems: publish's amd64 layers "cache-hit"
+      is theoretical (GHA cache can evict between jobs), and arm64
+      goes through an entirely separate build path from the amd64
+      that WAS tested — no digest-level continuity. Replaced with:
+      build pushes multi-arch to `openemr/openemr:release-candidate-
+      <run-id>-<attempt>` on Docker Hub (single push, both platforms
+      under the candidate); acceptance-gate calls acceptance-docker.yml
+      with `to_tag=<candidate-suffix>` (existing to_tag path pulls
+      the candidate — no artifact plumbing); publish runs `docker
+      buildx imagetools create -t <final> <candidate>` for each
+      expanded tag, which copies the manifest without touching image
+      blobs (every final tag points at the same digest acceptance
+      tested); a new cleanup-candidate job deletes the temporary
+      candidate tag via Docker Hub v2 API JWT flow (`continue-on-
+      error: true` — stale candidate is cosmetic, not correctness).
+      Net win: single build, byte-identical guarantee across
+      build/test/publish, arm64 shipped from the tested manifest
+      not a separate rebuild.
+
+    * **arm64 coverage: closed, not accepted-as-gap.** Prior scoping
+      note said "arm64 built + pushed unvalidated" as an accepted
+      trade-off. GitHub GA'd ubuntu-24.04-arm runners for public
+      repos in Jan 2025 (free tier) — so the daily latest-gate can
+      cover arm64 too. acceptance-docker.yml gains a `test_arm64:
+      bool` workflow_call input; when true (only from docker-build-
+      release's acceptance-gate call), the matrix restructures into
+      `runs_on × scenario` cartesian and each scenario runs on both
+      amd64 + arm64 runners. `docker pull` on each runner fetches
+      the matching slice from the candidate's multi-arch manifest,
+      so both slices are validated end-to-end. Runner-minutes
+      roughly double on the gated path only; every other acceptance-
+      docker invocation (push/PR/schedule) keeps test_arm64=false
+      and stays amd64-only.
+
+  Bootstrap sequence for the merge: (1) merge #13239 to master;
+  (2) trigger sync-byte-identical manually; (3) merge rel-820 sync
+  PR; (4) next orchestrator cron (06:00 UTC) picks up the gated
+  flow for rel-820's `latest` row. If step 4 fires before step 3,
+  `-f gate_with_acceptance=true` fails dispatch on rel-820's
+  pre-sync docker-build-release.yml (rel-800/rel-704 unaffected —
+  no `latest` in their tags). Once landed, this is the last piece
+  of Phase 7 — every published tarball + docker `latest` builds
+  now flow through an acceptance gate on the same bytes that ship.
