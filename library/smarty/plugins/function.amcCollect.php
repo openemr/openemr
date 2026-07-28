@@ -25,8 +25,6 @@
  * @param Smarty $smarty
  */
 
-require_once(__DIR__ . '/../../amc.php');
-
 function smarty_function_amcCollect($params, &$smarty): void
 {
     $amc_id = $params['amc_id'];

@@ -17,7 +17,6 @@
  */
 
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/registry.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/amc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
