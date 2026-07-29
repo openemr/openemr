@@ -120,6 +120,12 @@ files:
 # Same trade-off already accepted for acceptance-docker.yml itself.
 - path: .github/workflows/docker-build-release.yml
   exclude-branches: [rel-800, rel-704]
+# verify-oci-labels.sh is called from docker-build-release.yml in three
+# places; same rel-800/rel-704 exclusion applies (those branches don't
+# carry the caller workflow — see the docker-build-release.yml entry
+# above for the load-time reusable-workflow-reference constraint).
+- path: .github/scripts/verify-oci-labels.sh
+  exclude-branches: [rel-800, rel-704]
 - .github/workflows/docker-test-core.yml
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
