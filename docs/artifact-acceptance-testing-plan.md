@@ -1659,6 +1659,93 @@ flake can dispatch acceptance-only and get pass/fail in under 10
 minutes without re-doing the build phase; on green, publish
 proceeds normally. ~3-4 days of implementation.
 
+### Phase 10 — Release-mechanism infrastructure unification + test coverage *(proposed 2026-07-29)*
+
+By Phases 1-9, the release-mechanism has 20+ shipped slices touching
+~10 workflows and 4 shell scripts. Concrete duplication + test-
+coverage gaps have accumulated. Consolidate before they become
+drift-bug sources.
+
+**Sliced by concern; slices are independent — pick in any order:**
+
+* **10a — Extract OCI-label verify script.** Currently 3 copies in
+  `docker-build-release.yml` (gated candidate verify, non-gated
+  pushed verify, publish job verify). Rabbit flagged on #13239;
+  deferred as scope-creep at the time. Now warranted. Extract to
+  `.github/scripts/verify-oci-labels.sh` (or a composite action);
+  each of the 3 sites becomes a 2-3 line call. Reduces per-verify
+  block from ~40 lines to ~5. Small (~half day). No behavior
+  change.
+
+* **10b — Extract app-token composite action.** `actions/create-
+  github-app-token@v3` step repeated verbatim in `build-release.yml`
+  (2×: build-package + publish), `release-prep.yml`, and elsewhere.
+  Each site is ~10 lines (uses + inputs). Composite action at
+  `.github/actions/generate-release-app-token/action.yml` cuts each
+  callsite to 1 line. Small (~half day).
+
+* **10c — Extract release publish flow + automate Phase 9 recovery.**
+  Two entangled concerns:
+    * `build-release.yml`'s `publish` job (~100 lines: app token +
+      checkout + download-artifact + tag + release + upload + Phase
+      7b sha256 verify + summary) is the primary user of the publish
+      path today.
+    * Phase 9's `acceptance-only.yml` currently STOPS at green
+      acceptance-gate — operator manually re-fires publish. Direct
+      duplication of build-release.yml's publish job into
+      acceptance-only.yml would eliminate the manual step but bake
+      in ~100 lines of duplicate publish logic.
+    * **Better**: extract publish to a reusable workflow
+      (`.github/workflows/reusable-publish-release.yml`) that both
+      build-release.yml and acceptance-only.yml call via `uses:`.
+      Single source of truth; both callers stay thin.
+    * Same treatment for the docker side: extract docker-build-
+      release.yml's `publish` + `cleanup-candidate` jobs into a
+      reusable, then a new `docker-acceptance-only.yml` gives
+      operators fully-automated docker recovery too (currently
+      docker recovery still requires manual `docker buildx
+      imagetools create` + manual candidate delete).
+    * Cost: moderate (~2-3 days total), moderate risk (touches
+      release-critical publish paths). But eliminates all remaining
+      Phase 9 manual steps.
+
+* **10d — Extract common ZIP-extract helper for boot/upgrade
+  scripts.** `boot-package.sh` and `upgrade-package.sh` have
+  near-identical zip extract branches (mktemp + unzip + nullglob
+  single-top-level + mv). Small helper at
+  `tests/Acceptance/bin/lib/extract-zip.sh` (or a bash function
+  sourced by both). ~30 lines duplicated → shared. Small (~few
+  hours).
+
+* **10e — BATS coverage audit + fill gaps.** Systematic pass:
+    * Enumerate every shell script + composite action + workflow
+      step under the release-mechanism umbrella.
+    * Mark tested vs runtime-only-tested.
+    * Priority fills: boot-package.sh zip extract logic (currently
+      never runs in isolation), upgrade-package.sh zip extract,
+      acceptance-only.yml guardrails (48h age check + workflow-path
+      validation), docker cleanup-candidate JWT flow (Docker Hub
+      API call with error-code paths).
+    * Existing BATS coverage lives at
+      `tests/bats/ci-scripts/{sync,validate}-byte-identical/` —
+      established pattern to follow.
+
+* **10f — Doc audit.** RELEASE_PROCESS.md's recovery paragraphs now
+  reference multiple workflows and manual fallbacks; after 10c the
+  manual fallbacks go away and the doc can simplify. Also worth
+  cross-referencing this plan doc's phase entries from the runbook
+  where relevant.
+
+**Sequencing suggestion:** 10a first (smallest, closes a deferred
+rabbit finding, no behavior change). 10c second (biggest ergonomic
+win — eliminates manual recovery steps). 10b + 10d + 10e + 10f
+independent, pick as capacity allows.
+
+**Not in Phase 10 scope:** anything that changes acceptance
+semantics or gate topology. This is refactoring-in-place. If a
+consolidation exposes a bug (e.g. drift between the 3 OCI verify
+copies), fix in a paired PR with clear before/after tests.
+
 ## Test-coverage philosophy
 
 Guidelines for where a new test belongs, once both surfaces exist:
