@@ -233,16 +233,26 @@ jobs:
         # Actions reports the original event that started the CALLING
         # workflow in a called workflow's github.event_name (so
         # workflow_dispatch of build-release.yml surfaces as
-        # workflow_dispatch here, not workflow_call). Either caller_*
-        # input being populated is the reliable signal; build-release.yml
-        # sets both to the same artifact name (single bundle contains
-        # both formats), but the gate honours either alone as well.
+        # workflow_dispatch here, not workflow_call).
+        #
+        # Enforce both-or-neither on the caller_*_artifact pair. If the
+        # caller passes only one (say tarball), the other-format matrix
+        # cells (zip) would either fail their download step or silently
+        # skip — masking a real integration mistake at the caller side.
+        # build-release.yml correctly passes both today (single bundle
+        # contains both formats), so requiring symmetric inputs costs
+        # nothing at the intended caller and catches misconfiguration
+        # in any future caller cleanly.
         if [[ -n "$CALLER_TARBALL_ARTIFACT" || -n "$CALLER_ZIP_ARTIFACT" ]]; then
+          if [[ -z "$CALLER_TARBALL_ARTIFACT" || -z "$CALLER_ZIP_ARTIFACT" ]]; then
+            echo "::error::workflow_call requires BOTH caller_tarball_artifact AND caller_zip_artifact to be set (or neither). Got tarball='${CALLER_TARBALL_ARTIFACT:-<empty>}', zip='${CALLER_ZIP_ARTIFACT:-<empty>}'."
+            exit 1
+          fi
           if [[ -z "$DISPATCH_TO_VERSION" ]]; then
             echo "::error::workflow_call with caller_tarball_artifact/caller_zip_artifact requires to_version to be set explicitly"
             exit 1
           fi
-          echo "==> workflow_call gate mode (tarball=${CALLER_TARBALL_ARTIFACT:-<none>}, zip=${CALLER_ZIP_ARTIFACT:-<none>}): forcing build_locally=true"
+          echo "==> workflow_call gate mode (tarball=${CALLER_TARBALL_ARTIFACT}, zip=${CALLER_ZIP_ARTIFACT}): forcing build_locally=true"
           echo "build_locally=true" >> "$GITHUB_OUTPUT"
           emit_to_version "true"
           exit 0

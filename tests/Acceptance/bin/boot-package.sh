@@ -184,14 +184,40 @@ case "${ARTIFACT_FORMAT}" in
         # then move the single top-level `openemr-<version>/` contents up
         # into ${TARBALL_DIR} to mirror the tarball layout.
         ZIP_TMP="$(mktemp -d -t "openemr-acceptance-zip.XXXXXX")"
-        trap 'rm -rf "${ZIP_TMP}"' EXIT
-        # -q quiet; -o overwrite (no interactive prompt). PackageAssembler
-        # produces a single top-level `openemr-<version>/` dir; anything
-        # else is a packaging bug and the mv below will fail loudly.
+        # Compose with any existing EXIT trap (the download branch above
+        # may have installed one for ${ARTIFACT_PATH} cleanup) rather
+        # than clobbering. Currently the branches are mutually exclusive
+        # so a bare replace would be safe, but composing is future-proof
+        # against a later refactor that introduces coexisting cleanups.
+        PRIOR_TRAP="$(trap -p EXIT | sed -E "s/^trap -- '(.*)' EXIT$/\1/" || true)"
+        if [[ -n "${PRIOR_TRAP}" ]]; then
+            trap "${PRIOR_TRAP}; rm -rf \"${ZIP_TMP}\"" EXIT
+        else
+            trap 'rm -rf "${ZIP_TMP}"' EXIT
+        fi
+        # -q quiet; -o overwrite (no interactive prompt).
         unzip -qo "${ARTIFACT_PATH}" -d "${ZIP_TMP}"
+        # Enforce exactly one top-level dir inside the ZIP. `mv .../*/*`
+        # would silently merge if PackageAssembler ever regressed to
+        # multiple top-level entries — surface that as a hard error
+        # instead of a subtly-broken web root.
+        mapfile -t ZIP_ROOTS < <(find "${ZIP_TMP}" -mindepth 1 -maxdepth 1)
+        if [[ ${#ZIP_ROOTS[@]} -ne 1 || ! -d "${ZIP_ROOTS[0]}" ]]; then
+            echo "::error::expected exactly one top-level directory in ${ARTIFACT_PATH}, found ${#ZIP_ROOTS[@]}:" >&2
+            printf '  %s\n' "${ZIP_ROOTS[@]}" >&2
+            exit 1
+        fi
         shopt -s dotglob
-        mv "${ZIP_TMP}"/*/* "${TARBALL_DIR}"/
+        mv "${ZIP_ROOTS[0]}"/* "${TARBALL_DIR}"/
         shopt -u dotglob
+        ;;
+    *)
+        # ARTIFACT_FORMAT is derived from the flag-parsing block above
+        # (--local-tarball → tar, --local-zip → zip, download → tar) so
+        # any other value is a programming error rather than user input.
+        # Fail loud rather than silently continue with an empty web root.
+        echo "::error::unexpected ARTIFACT_FORMAT '${ARTIFACT_FORMAT}' (expected 'tar' or 'zip')" >&2
+        exit 1
         ;;
 esac
 
