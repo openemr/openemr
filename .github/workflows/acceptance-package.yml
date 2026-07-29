@@ -497,10 +497,11 @@ jobs:
         #   default (acceptance-surface push/PR/schedule):
         #     fresh-install × [tar, zip] + wizard-install × [tar, zip] = 4
         #   expanded (dispatch, build_locally, or workflow_call gate):
-        #     above 4 + upgrade[tar] + wizard-upgrade[tar]             = 6
-        # upgrade + wizard-upgrade stay tar-only until upgrade-package.sh
-        # grows --to-local-zip (Phase 3.6 slice 2).
-        include: ${{ (github.event_name == 'workflow_dispatch' || inputs.caller_tarball_artifact != '' || inputs.caller_zip_artifact != '' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"},{"scenario":"upgrade","format":"tar"},{"scenario":"wizard-upgrade","format":"tar"}]') || fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"}]') }}
+        #     above 4 + upgrade × [tar, zip] + wizard-upgrade × [tar, zip] = 8
+        # All 4 scenarios now cover both formats (Phase 3.6 slice 2 added
+        # upgrade-package.sh --to-local-zip alongside boot-package.sh's
+        # --local-zip).
+        include: ${{ (github.event_name == 'workflow_dispatch' || inputs.caller_tarball_artifact != '' || inputs.caller_zip_artifact != '' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"},{"scenario":"upgrade","format":"tar"},{"scenario":"upgrade","format":"zip"},{"scenario":"wizard-upgrade","format":"tar"},{"scenario":"wizard-upgrade","format":"zip"}]') || fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"}]') }}
     env:
       FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}
       # Single source of truth for to_version — see the
@@ -651,15 +652,19 @@ jobs:
             echo "==> Using PR-built ${MATRIX_FORMAT} (Phase 3.5): $LOCAL_PATH"
           fi
           echo "to_local_flag=${LOCAL_FLAG}" >> "$GITHUB_OUTPUT"
-          # upgrade-package.sh only accepts --to-local-tarball today;
-          # matrix pins format=tar for upgrade scenarios, so this only
-          # ever fires on the tar path. Leave empty in the zip case as
-          # a defensive no-op — no upgrade step will consume it.
-          if [[ "$MATRIX_FORMAT" == "tar" ]]; then
-            echo "to_upgrade_local_flag=--to-local-tarball=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
-          else
-            echo "to_upgrade_local_flag=" >> "$GITHUB_OUTPUT"
-          fi
+          # upgrade-package.sh --to-local-tarball / --to-local-zip
+          # symmetric with boot-package.sh's --local-{tarball,zip}
+          # (Phase 3.6 slice 2). Emit whichever flag matches the
+          # matrix format so upgrade + wizard-upgrade[zip] cells
+          # exercise the zip extraction path in upgrade-package.sh.
+          case "$MATRIX_FORMAT" in
+            tar)
+              echo "to_upgrade_local_flag=--to-local-tarball=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
+              ;;
+            zip)
+              echo "to_upgrade_local_flag=--to-local-zip=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
         else
           echo "==> No local artifact; to_version will be fetched from the GitHub release page"
           echo "to_local_flag=" >> "$GITHUB_OUTPUT"

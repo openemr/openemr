@@ -180,6 +180,16 @@ case "${ARTIFACT_FORMAT}" in
         tar -pxzf "${ARTIFACT_PATH}" -C "${TARBALL_DIR}" --strip-components=1
         ;;
     zip)
+        # Fail early if unzip isn't on PATH. The subsequent extract
+        # would blow up mid-flight AFTER the scratch dir is prepared,
+        # producing a confusing "no such file or directory" from the
+        # `mv` below rather than a clear "install unzip" signal.
+        # GHA ubuntu-24.04 runners ship unzip pre-installed; guard is
+        # for minimal-image / self-hosted-runner future callers.
+        if ! command -v unzip >/dev/null 2>&1; then
+            echo "::error::unzip is required for --local-zip / zip extraction but was not found on PATH" >&2
+            exit 1
+        fi
         # unzip has no --strip-components; extract to a temp dir first,
         # then move the single top-level `openemr-<version>/` contents up
         # into ${TARBALL_DIR} to mirror the tarball layout.
