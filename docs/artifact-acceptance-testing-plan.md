@@ -832,52 +832,130 @@ authenticated `/api/version` GET works end-to-end, and the
 successful-flow OIDC/DCR assertions that were held back from 4a-2
 can land as sibling tests in the same PR.
 
-**Phase 4 continuation candidates (identified 2026-07-28, not
-yet sliced).** With 4a → 4c → 4a-3 all shipped, two adjacent test
-surfaces stand out as natural extensions of the Acceptance suite
-that don't yet have a slice number:
+**Phase 4 continuation candidates (identified 2026-07-28, scoped
+2026-07-29 — parked until Phase 7d + 3.6 finish).** With 4a → 4c
+→ 4a-3 all shipped, two adjacent test surfaces stand out as
+natural extensions of the Acceptance suite. Both are scoped in
+detail below; slicing waits until Phase 7d (arm64 restoration +
+PR-time coverage) and Phase 3.6 (ZIP acceptance) finish, since
+those close open gaps on already-shipped surfaces and 4d/4e are
+net-new coverage broadening.
 
-  * **4d (proposed) — absorb `docker/container_benchmarking/test_suite.sh`
-    into Acceptance.** That bash suite exercises the shipped
-    release/binary/flex containers end-to-end today: fresh
-    installation, manual setup, SSL, Redis sessions, Swarm mode,
-    Kubernetes mode, Xdebug, document upload, and docker upgrade.
-    It's driven from `docker-test-container-functionality.yml`
-    (parallel to but disjoint from `acceptance-docker.yml`) and
-    duplicates coverage that `InstallTest` + `UpgradeIntegrityTest`
-    already assert in PHPUnit — plus some real net-new coverage
-    (Swarm, Kubernetes, Redis sessions, Xdebug) that nothing in
-    Acceptance touches yet. Consolidation win: single toolchain for
-    "does the shipped container work end-to-end," and the
-    net-new-coverage paths get the same Panther + PHPUnit ergonomics
-    the rest of Acceptance uses. Scope-question to answer during
-    slicing: which of the bash-only paths actually justify
-    porting (fresh-install + upgrade are clear duplicates to
-    delete; Swarm/K8s modes are the interesting keepers). Not
-    a coverage-add slice per se — more a consolidation + delete-
-    duplication play that surfaces the Swarm/K8s coverage as
-    first-class Acceptance concerns.
+**4d — absorb `docker/container_benchmarking/test_suite.sh` into
+Acceptance.** 1700-line bash suite exercising release/binary/flex
+containers end-to-end. Driven by
+`docker-test-container-functionality.yml` on push/PR against
+`docker/{container_benchmarking,release,binary,flex}/**` paths
+(no daily schedule). Consolidation + delete-duplication play; the
+Swarm/K8s/Redis-sessions paths are the interesting keepers.
 
-  * **4e (proposed) — reuse `tests/Tests/E2e/*` against shipped
-    artifacts.** The dev-checkout E2e suite has ~20 Selenium tests
-    (login, staff creation, patient creation, encounter workflows,
-    menu render, email) that today only run against the dev stack.
-    4b's `E2eCriticalPathTest` established the pattern of "take a
-    dev-checkout E2E flow and run it against a shipped artifact via
-    Panther" — reused the login + main-menu-render assertion. That
-    same reuse pattern extends cleanly to the rest of the E2e
-    suite: shared fixtures + assertions, Acceptance-suite Panther
-    plumbing already in place, and the resulting tests fire against
-    the actual bytes end users install. Delivery shape TBD: either
-    port each E2e test as its own `tests/Acceptance/*` file, or
-    (better) refactor the common flow logic into `Support/` helpers
-    that both suites consume, so the dev-checkout E2e suite stays
-    authoritative and Acceptance runs it against the artifact.
+Per-function slicing map (scoped 2026-07-29):
 
-Both candidates are independent of the currently-in-flight
-Phase 7c-docker-latest-gate work and can slice in parallel. Neither
-belongs on the critical path to Phase 7 completion — worth pursuing
-after 7c-docker lands to broaden the coverage the gate enforces.
+  | Function                | Class         | Effort | Notes |
+  |-------------------------|---------------|--------|-------|
+  | fresh_installation      | DUPLICATE     | 0      | Covered by `InstallTest`. Delete bash version after parity check. |
+  | manual_setup            | PORTABLE      | Small  | Net-new. `MANUAL_SETUP=yes` boot; assert `auto_configure.php` present + OpenEMR NOT configured. |
+  | ssl_configuration       | PORTABLE      | Medium | Net-new. HTTPS on :443 with self-signed cert; Panther health-check via HTTPS. |
+  | redis_sessions          | PORTABLE      | Small  | Net-new. `REDIS_SERVER` env; assert 99-redis-sessions.ini + marker file. |
+  | xdebug_configuration    | PORTABLE      | Small  | Net-new. `XDEBUG_ON=1`; `php -m` assert + opcache-disabled assert. Binary variant skipped upstream. |
+  | document_upload         | PORTABLE      | Small  | Net-new. Filesystem-permission touch-test on /sites/default/documents. |
+  | swarm_mode              | BASH-NATIVE   | Large  | Multi-container leader/follower coordination; docker-completed marker; shared sites volume. Not expressible as PHPUnit. |
+  | kubernetes_mode         | BASH-NATIVE   | Large  | K8S admin/worker roles; shared sites volume + service_completed_successfully. Orchestration-topology test. |
+  | docker_upgrade          | BASH-NATIVE   | Large  | Version-mismatch detection + fsupgrade-N.sh + marker update. State-machine behavior, not browser-driven. |
+
+Recommended shape:
+
+  * **Slice 1 (~3-4 days):** delete `fresh_installation` bash test;
+    port `manual_setup`, `redis_sessions`, `xdebug_configuration`,
+    `document_upload`, `ssl_configuration` as
+    `tests/Acceptance/{ManualSetup,RedisSessions,XDebug,DocumentUpload,Ssl}Test.php`.
+    ~510 lines total. High-confidence, low-friction; validates the
+    absorption pattern.
+
+  * **Slice 2 (~larger — separate design phase):** extract
+    `swarm_mode` + `kubernetes_mode` + `docker_upgrade` into a
+    dedicated bash-based Acceptance harness at
+    `tests/Acceptance/docker-orchestration-suite.sh`. Different
+    concern (deployment topology, not application behavior) so
+    keeping bash + running as a distinct CI group makes sense.
+    Timing: whenever the current bash suite starts drifting or
+    needs a real reason to consolidate.
+
+  * **Delete post-slice-1:** the docker-test-container-functionality.yml
+    workflow's fresh_installation coverage. Keep the workflow
+    itself for the three bash-native tests until slice 2 lands.
+
+**4e — reuse `tests/Tests/E2e/*` against shipped artifacts.**
+Dev-checkout suite has 17 Selenium test classes. `E2eCriticalPathTest`
+(#13196) established the "take a dev-checkout E2E flow and run
+against a shipped artifact via Panther" pattern for admin login +
+main-menu-render.
+
+Per-class slicing map (scoped 2026-07-29):
+
+  | Class                                 | Effort | Notes |
+  |---------------------------------------|--------|-------|
+  | AaLoginTest                           | Small  | No seeding; validates auth + admin-page load. Ideal warmup. |
+  | GgUserMenuLinksTest                   | Small  | DataProvider pattern; no seeding beyond login. |
+  | FrontPaymentCssContrastTest           | Small  | Pure CSS inspection via JS executor; no seeding. |
+  | KkEncounterFormNavbarUrlTest          | Small  | Self-contained; inlines Selenium client; minimal seeding. |
+  | BbCreateStaffTest                     | Medium | UI-driven user creation; setUp/tearDown DB cleanup. |
+  | CcCreatePatientTest                   | Medium | Reuses PatientAddTrait; depends on `testLoginAuthorized`. |
+  | DdOpenPatientTest                     | Medium | Requires seeded patient. |
+  | EeCreateEncounterTest                 | Medium | EncounterAddTrait; needs active patient. |
+  | FfOpenEncounterTest                   | Medium | Requires seeded encounter; depends on DdOpenPatientTest. |
+  | SvcCodeFinancialReportTest            | Medium | Fixture seeding (codes, billing, ar_activity); cleanup helpers provided. |
+  | HhMainMenuLinksTest                   | Large  | 58× menu links; feature-module dependent; skips on old Node. |
+  | IiPatientContextMainMenuLinksTest     | Large  | 40+ patient-scoped menu variants; needs seeded patient+encounter. |
+  | JjEncounterContextMainMenuLinksTest   | Large  | 15+ encounter-scoped variants; complex dependencies. |
+  | EmailSendTest                         | N/A    | DEV-ONLY. Requires Mailpit; shipped artifacts don't have email. |
+  | EmailTestServiceTest                  | N/A    | DEV-ONLY. Mailpit + email_queue table dependencies. |
+  | FaxSmsEmailTest                       | N/A    | DEV-ONLY. Module not in CI DB; auto-skipped. |
+  | NotificationCronEmailTest             | N/A    | DEV-ONLY. Requires faxsms + cron pipeline. |
+
+Recommended shape:
+
+  * **Slice 1 (validation, ~1-2 weeks):** port 3 easy tests —
+    `AaLoginTest` → `E2eLoginTest`, `FrontPaymentCssContrastTest`
+    → `E2eFrontPaymentTest`, `GgUserMenuLinksTest`
+    → `E2eUserMenuTest`. No seeding required. Validates the
+    porting mechanic + Selenium infrastructure on shipped
+    artifacts. ~200 LOC.
+
+  * **Slice 2 (data-seeding, ~3-4 weeks):** add
+    `CcCreatePatientTest` (introduces fixture-seeding pattern) +
+    `SvcCodeFinancialReportTest` (introduces billing/codes
+    seeding). Validates the seeding strategy for shipped-artifact
+    context.
+
+  * **Deferred / possibly-never:** the 3 Hh/Ii/Jj menu-links tests
+    (113+ menu variants combined; huge maintenance surface).
+    Defer until core slices prove ROI. May not be worth porting
+    at all — the daily-gate + release-time gate on core flows
+    already catches most regressions.
+
+  * **Excluded:** the 4 email/fax/notification DEV-ONLY tests.
+    Don't fit shipped-artifact context.
+
+Refactoring approach: **duplicate + gradually consolidate.**
+E2e traits are UI-automation-heavy (Selenium XPath sequences,
+form interactions, menu navigation); a shared-flow Support layer
+would risk a thick orchestration coupling. Simpler to duplicate
+into `tests/Acceptance/E2e*.php`, then extract shared helpers
+into `tests/Acceptance/Support/E2e*` only if 2+ tests grow
+identical boilerplate. `Support/LoginFlow` from 4a already
+handles the login side; other flows follow the same pattern.
+
+Runtime concern: 17 tests × 3 acceptance scenarios × 2 archs =
+102 test runs, each 30-60s. Not tenable as always-on. Land as
+a distinct matrix group (`--group=e2e-acceptance`) that runs
+either only on manual dispatch, or as a separate scheduled tick
+(distinct from the 09:00 UTC acceptance schedule). Not gating
+merge to start.
+
+Both 4d and 4e are independent of Phase 7d, Phase 3.6, and each
+other. Ordering: after 7d + 3.6 finish, pick whichever slice-1
+lands cleanest given whoever picks it up.
 
 Original Phase 4 scope preserved below for reference:
 
@@ -2127,3 +2205,35 @@ in acceptance."
   preservation, empty-dir handling, path-separator edge cases)
   that byte-similar tarball content doesn't cover. ~2 days.
   Not on the critical path — slot after Phase 7d finishes.
+
+- **2026-07-29 (later)** — **Phase 4d + 4e scoped in detail
+  (implementation parked until 7d + 3.6 finish).** Both phases
+  had loose one-paragraph descriptions from 2026-07-28; today
+  Explore agents surveyed the source (test_suite.sh's 9
+  functions; tests/Tests/E2e/'s 17 classes) and produced
+  per-item slicing maps. Key findings folded into the phase
+  section above:
+
+    * **4d** — 1 duplicate to delete, 5 portable to Panther+PHPUnit
+      (~510 LOC), 3 bash-native topology tests (Swarm/K8s/upgrade)
+      that keep bash + move to a separate `docker-orchestration-
+      suite.sh` harness. Slice 1 = the 5 portable + delete.
+
+    * **4e** — 4 easy ports (Login/UserMenu/FrontPaymentCss/
+      EncounterFormNavbarUrl, no seeding), 6 medium ports
+      (Patient/Encounter CRUD + financial report, need
+      fixture seeding), 3 large ports (113+ menu-link variants,
+      likely defer), 4 dev-only (email/fax/notification, excluded).
+      Slice 1 = 3 easy tests as validation of the porting
+      mechanic against shipped artifacts.
+
+  Refactoring approach for both: duplicate + gradually
+  consolidate. Runtime concern for 4e: 17 × 3 scenarios × 2 archs
+  = 102 test runs at 30-60s each — not tenable as always-on. Land
+  as `--group=e2e-acceptance` matrix cell that runs on manual
+  dispatch or separate scheduled tick, not on every PR/merge.
+
+  Ordering: 7d-1 SHIPPED (#13254), waiting on end-to-end
+  validation; 7d-2 next up if 7d-1 validates green; 3.6 after
+  7d; then 4d + 4e in either order as capacity allows. Both
+  4d and 4e are independent of everything else.
