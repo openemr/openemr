@@ -48,6 +48,7 @@ on:
     branches:
     - master
     - 'rel-*'
+  merge_group:
 
 permissions:
   contents: read

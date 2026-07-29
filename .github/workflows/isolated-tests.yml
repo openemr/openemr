@@ -16,6 +16,7 @@ on:
     branches:
     - master
     - rel-*
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
