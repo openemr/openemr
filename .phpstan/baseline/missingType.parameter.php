@@ -24872,16 +24872,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_function_amcCollect\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.amcCollect.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_amcCollect\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.amcCollect.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function smarty_function_datetimepickerSupport\\(\\) has parameter \\$params with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.datetimepickerSupport.php',

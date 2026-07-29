@@ -179,11 +179,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../custom/ajax_download.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../custom/chart_tracker.php',
 ];
 $ignoreErrors[] = [
@@ -208,7 +203,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../custom/download_qrda.php',
 ];
 $ignoreErrors[] = [
@@ -218,11 +213,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$facility_name might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_qrda_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/export_qrda_xml.php',
 ];
@@ -778,7 +768,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/newGroupEncounter/common.php',
 ];
 $ignoreErrors[] = [
@@ -833,7 +823,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms_admin/forms_admin.php',
 ];
 $ignoreErrors[] = [
@@ -865,11 +855,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$go might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/lang_definition.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/language/language.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$openemr_name might not be defined\\.$#',
@@ -913,7 +898,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive_save.php',
 ];
 $ignoreErrors[] = [
@@ -933,7 +918,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/new/new_patient_save.php',
 ];
 $ignoreErrors[] = [
@@ -1003,7 +988,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
@@ -1277,11 +1262,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$default$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
@@ -1293,7 +1273,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/dated_reminders_counter.php',
 ];
 $ignoreErrors[] = [
@@ -1322,11 +1302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/messages/validate_messages_document_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$bgcolor$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/payment_ajax.php',
@@ -1350,11 +1325,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$patient_code_complete might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/payment_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/set_pt.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
@@ -1473,7 +1443,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
 ];
 $ignoreErrors[] = [
@@ -1698,7 +1668,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/account/account.php',
 ];
 $ignoreErrors[] = [
