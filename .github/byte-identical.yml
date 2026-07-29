@@ -74,6 +74,19 @@
 #                                                  dead weight
 #   .github/scripts/sync-byte-identical.sh         same rationale as the
 #                                                  workflow above
+#   .github/workflows/acceptance-only.yml          master-only-firing per its
+#                                                  own `if: github.ref ==
+#                                                  'refs/heads/master'` guard
+#                                                  (Phase 9 recovery workflow;
+#                                                  dispatch from a rel branch
+#                                                  would defeat the master-
+#                                                  freshest-harness intent).
+#                                                  No rel-branch copy needed.
+#   .github/workflows/docker-acceptance-only.yml   same rationale as the
+#                                                  workflow above (Phase 10c
+#                                                  docker-side recovery
+#                                                  workflow, same master-ref
+#                                                  guard, same design intent).
 #   .github/workflows/check-vendored-contracts.yml master-only-firing
 #                                                  (workflow_call reusable
 #                                                  invoked by external
@@ -126,6 +139,13 @@ files:
 # above for the load-time reusable-workflow-reference constraint).
 - path: .github/scripts/verify-oci-labels.sh
   exclude-branches: [rel-800, rel-704]
+# Phase 10c (openemr/openemr#TBD, 2026-07-30): reusable-docker-publish.yml
+# is called via `uses: ./.github/workflows/reusable-docker-publish.yml`
+# from docker-build-release.yml (gated path) — same reusable-workflow-
+# reference load-time constraint as docker-build-release.yml itself.
+# Same rel-800/rel-704 exclusion applies.
+- path: .github/workflows/reusable-docker-publish.yml
+  exclude-branches: [rel-800, rel-704]
 - .github/workflows/docker-test-core.yml
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
@@ -177,6 +197,15 @@ files:
   # surface block below no longer excludes rel-820, so Phase 7c's
   # `uses: ./.github/workflows/acceptance-package.yml` reference
   # from build-release.yml resolves cleanly on rel-820.
+  exclude-branches: [rel-800, rel-704]
+# Phase 10c (openemr/openemr#TBD, 2026-07-30): reusable-publish-release.yml
+# is called via `uses: ./.github/workflows/reusable-publish-release.yml`
+# from build-release.yml — GitHub Actions parses reusable-workflow
+# references at workflow-dispatch time against the target branch's
+# checkout, so the reusable must exist on every branch build-release.yml
+# can fire from. Same rel-800/rel-704 exclusion applies for the same
+# reason (those branches predate the release-mechanism entirely).
+- path: .github/workflows/reusable-publish-release.yml
   exclude-branches: [rel-800, rel-704]
 - path: .github/workflows/build-patch.yml
   exclude-branches: [rel-800, rel-704]

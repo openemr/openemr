@@ -1,17 +1,29 @@
-# Phase 9 (skip-build re-run for release recovery, 2026-07-28):
-# dedicated workflow_dispatch entry point that re-runs the tarball
+# Phase 9 (skip-build re-run for release recovery, 2026-07-28) +
+# Phase 10c (extract publish-flow to reusable, automate the Phase 9
+# manual re-publish step, 2026-07-30):
+#
+# Dedicated workflow_dispatch entry point that re-runs the tarball
 # acceptance-gate against an artifact already produced by a prior
-# build-release.yml run — without re-building the tarball.
+# build-release.yml run — WITHOUT re-building the tarball — and, on
+# green acceptance, publishes automatically via the same reusable
+# publish workflow build-release.yml uses.
 #
-# The problem this solves: today's recovery path for a release-time
-# acceptance flake on a known-good build is "Re-run failed jobs" in
-# the Actions UI, which re-runs build-package (~15 min of composer +
-# npm + phing) before acceptance restarts. For a transient chromedriver
-# glitch or a wizard-install fluke, that's ~15 min of wasted CI time
-# before the operator learns whether the flake was real.
+# The problem Phase 9 solved: today's recovery path for a release-time
+# acceptance flake on a known-good build was "Re-run failed jobs" in
+# the Actions UI, which re-ran build-package (~15 min of composer +
+# npm + phing) before acceptance restarted. For a transient chromedriver
+# glitch or a wizard-install fluke, that was ~15 min of wasted CI time
+# before the operator learned whether the flake was real.
 #
-# acceptance-only.yml lets an operator dispatch a fresh acceptance run
-# against the OTHER run's already-uploaded artifact:
+# What Phase 10c adds on top: pre-Phase-10c, on green acceptance-only
+# the operator still had to manually re-fire the ORIGINAL build-release
+# run's publish job (or re-dispatch build-release.yml) to actually
+# ship. Phase 10c wires a publish job into acceptance-only.yml that
+# calls .github/workflows/reusable-publish-release.yml — the same
+# reusable build-release.yml now uses — so recovery is now truly
+# one-dispatch fire-and-forget.
+#
+# Flow:
 #
 #   1. fetch-source-artifact — cross-run download-artifact via run-id
 #      to grab openemr-release-candidate-<version> from the failed
@@ -32,25 +44,32 @@
 #      openemr-release-candidate-<version> (same bundle contains both
 #      files; per-format download picks the right file out).
 #
-# No publish job — this is verify-only. On green, the operator manually
-# re-runs the `publish` job of the ORIGINAL build-release run (Actions
-# UI → Re-run failed jobs), which is idempotent (git ls-remote skips
-# existing tag; gh release view short-circuits; gh release upload
-# --clobber overwrites). Or re-dispatches build-release.yml with the
-# same inputs; publish is the only step that mutates external state,
-# and it's designed to be re-run safely.
+#   3. publish — mirrors build-release.yml's publish job. workflow_call
+#      into reusable-publish-release.yml with the artifact re-uploaded
+#      by job 1. release_tag + version_branch come from workflow_dispatch
+#      inputs (see the Phase 10c design note below on why explicit).
+#
+# Explicit release_tag + version_branch inputs (Phase 10c design call):
+# the operator knows both values when dispatching for recovery — they
+# come from the failed build-release.yml run's workflow_dispatch
+# inputs, visible on the source run's page. Auto-deriving via a
+# `gh api /repos/.../actions/runs/<id>` lookup on the source run's
+# input payload would work but adds a fetch step + API-shape coupling
+# for a small ergonomic win. Explicit inputs also mean the operator
+# consciously confirms which version + branch + tag the recovery
+# publish will target — a mild guardrail against operator error.
 #
 # Recovery-time reduction: from ~15-60 min for the full re-run path
 # (build-package rerun + acceptance rerun, at worst) to ~5-10 min
-# (acceptance-only rerun). Real quality-of-life win when release-time
-# pressure is on.
+# (acceptance-only rerun) + no manual re-publish step. Real quality-
+# of-life win when release-time pressure is on.
 #
 # See docs/RELEASE_PROCESS.md's Phase 5 failure-recovery bullet list
-# and docs/artifact-acceptance-testing-plan.md's Phase 9 section for
-# the full design rationale.
+# and docs/artifact-acceptance-testing-plan.md's Phase 9 + Phase 10c
+# sections for the full design rationale.
 
-name: Acceptance-only re-run (tarball)
-run-name: "Acceptance-only re-run for ${{ inputs.version }} (source run ${{ inputs.source_run_id }})"
+name: Acceptance-only re-run + publish (tarball)
+run-name: "Acceptance-only re-run + publish for ${{ inputs.version }} (source run ${{ inputs.source_run_id }})"
 
 on:
   workflow_dispatch:
@@ -61,6 +80,14 @@ on:
         type: string
       version:
         description: 'Human-readable version label (e.g. 8.2.0). Must match the source run''s openemr-release-candidate-<version> artifact name.'
+        required: true
+        type: string
+      release_tag:
+        description: 'Git tag (e.g. v8_2_0) — same value the source build-release run was dispatched with; used for `git tag`, `gh release create/view/upload` in the publish job. Publish is idempotent, so re-firing recovery against an already-tagged release is safe.'
+        required: true
+        type: string
+      version_branch:
+        description: 'Release branch (e.g. rel-820) — same value the source build-release run was dispatched with; publish checks it out for `git tag` creation.'
         required: true
         type: string
 
@@ -263,4 +290,37 @@ jobs:
       caller_tarball_artifact: ${{ needs.fetch-source-artifact.outputs.artifact_name }}
       caller_zip_artifact: ${{ needs.fetch-source-artifact.outputs.artifact_name }}
       to_version: ${{ inputs.version }}
+    secrets: inherit
+
+  # Job 3 (Phase 10c, 2026-07-30): on green acceptance, publish
+  # automatically via the shared reusable-publish-release.yml — the
+  # same reusable build-release.yml's publish job uses. Removes the
+  # last manual step in the Phase 9 recovery path (previously the
+  # operator had to re-fire the ORIGINAL build-release run's publish
+  # job in the Actions UI).
+  #
+  # `needs: [fetch-source-artifact, acceptance-gate]` gates publish
+  # on both:
+  #   * fetch-source-artifact — supplies the artifact_name output the
+  #     reusable's download-artifact step consumes.
+  #   * acceptance-gate — no publish if acceptance failed.
+  #
+  # Same master-only ref guard as fetch-source-artifact. The reusable
+  # itself uses `uses: ./.github/workflows/reusable-publish-release.yml`
+  # which resolves against this workflow's own ref (master) — the same
+  # freshness-over-rel-branch trade-off acceptance-gate already made.
+  # Since publish is a workflow_call and not a job with steps, the `if:`
+  # gate must appear on the job stanza directly.
+  publish:
+    name: Publish release
+    needs: [fetch-source-artifact, acceptance-gate]
+    if: >-
+      github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+      && github.ref == 'refs/heads/master'
+    uses: ./.github/workflows/reusable-publish-release.yml
+    with:
+      version: ${{ inputs.version }}
+      release_tag: ${{ inputs.release_tag }}
+      version_branch: ${{ inputs.version_branch }}
+      artifact_name: ${{ needs.fetch-source-artifact.outputs.artifact_name }}
     secrets: inherit
