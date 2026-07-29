@@ -388,12 +388,21 @@ jobs:
         set -euo pipefail
         target_ref="release-prep/${REL_BRANCH}"
         echo "==> Dispatching acceptance-docker.yml against ${target_ref}"
+        # Phase 7d-2: test_arm64=true expands build-image into a two-arch
+        # matrix (amd64 + arm64 native runners, per-arch artifacts) and
+        # the acceptance matrix into 6 cells (3 scenarios × 2 archs).
+        # Catches rel-branch Dockerfile regressions that only surface on
+        # arm64 at release-prep review time, rather than post-merge on
+        # the daily latest-gate. Dispatch swallows arg-unknown failures
+        # so pre-Phase-7d-2 rel-branches (still using the amd64-only
+        # build-image shape) keep working.
         if ! gh workflow run acceptance-docker.yml \
           --repo "${{ github.repository }}" \
           --ref "${target_ref}" \
-          -f build_locally=true
+          -f build_locally=true \
+          -f test_arm64=true
         then
-          echo "::warning::acceptance-docker.yml dispatch failed for ${target_ref} (workflow file may predate build_locally input on this rel-branch); continuing release-prep without docker-side pre-merge acceptance gate"
+          echo "::warning::acceptance-docker.yml dispatch failed for ${target_ref} (workflow file may predate build_locally or test_arm64 input on this rel-branch); continuing release-prep without docker-side pre-merge acceptance gate"
         fi
 
     # --- Master-side partner PR (release-finalize) ---------------------
