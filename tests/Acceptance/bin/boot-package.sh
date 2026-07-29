@@ -183,35 +183,26 @@ case "${ARTIFACT_FORMAT}" in
         # unzip has no --strip-components; extract to a temp dir first,
         # then move the single top-level `openemr-<version>/` contents up
         # into ${TARBALL_DIR} to mirror the tarball layout.
+        #
+        # Trap-composition note: this branch installs an EXIT cleanup for
+        # ZIP_TMP. The download branch above installs an EXIT cleanup
+        # for ARTIFACT_PATH. The two branches are mutually exclusive by
+        # construction (this branch is entered ONLY when --local-zip is
+        # set, in which case the download branch is skipped) so the
+        # simple `trap 'rm -rf ...' EXIT` here doesn't clobber anything.
+        # If a future refactor introduces coexisting cleanups, revisit.
         ZIP_TMP="$(mktemp -d -t "openemr-acceptance-zip.XXXXXX")"
-        # Compose with any existing EXIT trap (the download branch above
-        # may have installed one for ${ARTIFACT_PATH} cleanup) rather
-        # than clobbering. Currently the branches are mutually exclusive
-        # so a bare replace would be safe, but composing is future-proof
-        # against a later refactor that introduces coexisting cleanups.
-        PRIOR_TRAP="$(trap -p EXIT | sed -E "s/^trap -- '(.*)' EXIT$/\1/" || true)"
-        if [[ -n "${PRIOR_TRAP}" ]]; then
-            # shellcheck disable=SC2064
-            # Intentional expansion-at-decl-time: PRIOR_TRAP + ZIP_TMP
-            # must be baked into the trap string NOW so the composed
-            # cleanup captures the current values, not whatever the
-            # shell happens to have when EXIT fires.
-            trap "${PRIOR_TRAP}; rm -rf \"${ZIP_TMP}\"" EXIT
-        else
-            trap 'rm -rf "${ZIP_TMP}"' EXIT
-        fi
+        trap 'rm -rf "${ZIP_TMP}"' EXIT
         # -q quiet; -o overwrite (no interactive prompt).
         unzip -qo "${ARTIFACT_PATH}" -d "${ZIP_TMP}"
         # Enforce exactly one top-level dir inside the ZIP. `mv .../*/*`
         # would silently merge if PackageAssembler ever regressed to
         # multiple top-level entries — surface that as a hard error
-        # instead of a subtly-broken web root.
-        # find here can only fail on an unwritable /tmp, which is a
-        # shell precondition; the "invoke separately to avoid masking
-        # return value" ceremony (SC2312) would add noise without
-        # changing behavior.
-        # shellcheck disable=SC2312
-        mapfile -t ZIP_ROOTS < <(find "${ZIP_TMP}" -mindepth 1 -maxdepth 1)
+        # instead of a subtly-broken web root. Glob-based check avoids
+        # find + process-substitution + shellcheck SC2312.
+        shopt -s nullglob
+        ZIP_ROOTS=("${ZIP_TMP}"/*)
+        shopt -u nullglob
         if [[ ${#ZIP_ROOTS[@]} -ne 1 || ! -d "${ZIP_ROOTS[0]}" ]]; then
             echo "::error::expected exactly one top-level directory in ${ARTIFACT_PATH}, found ${#ZIP_ROOTS[@]}:" >&2
             printf '  %s\n' "${ZIP_ROOTS[@]}" >&2
