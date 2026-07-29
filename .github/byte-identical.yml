@@ -103,8 +103,23 @@
 #                                                  bin/console tweak
 
 files:
-# Docker orchestration surface -- the historical byte-identical scope
-- .github/workflows/docker-build-release.yml
+# Docker orchestration surface -- the historical byte-identical scope.
+#
+# docker-build-release.yml carries an `if:`-gated
+# `uses: ./.github/workflows/acceptance-docker.yml` reference (Phase 7c-
+# docker-latest-gate, openemr/openemr#13239). GitHub Actions parses the
+# reusable-workflow reference at workflow-dispatch time, BEFORE
+# evaluating the `if:` guard. So on rel-800 + rel-704 (which don't
+# carry acceptance-docker.yml — see the exclude-branches on that entry
+# below) the whole workflow file fails to load with HTTP 422
+# "workflow was not found". Excluding docker-build-release.yml from
+# those two branches keeps them on the pre-Phase-7c single-step
+# build+push shape (still working for months); future changes to
+# docker-build-release.yml propagate to master + rel-820+ automatically
+# and need a manual cherry-pick if they matter for rel-800/rel-704.
+# Same trade-off already accepted for acceptance-docker.yml itself.
+- path: .github/workflows/docker-build-release.yml
+  exclude-branches: [rel-800, rel-704]
 - .github/workflows/docker-test-core.yml
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
