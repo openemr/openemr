@@ -1331,10 +1331,11 @@ validated end-to-end 2026-07-29 with both amd64 + arm64
 matrix cells green on rel-820's daily `latest` build.** The
 "deferred until 8.3.0 ships" position was reversed by
 backporting the acceptance surface to rel-820 first; see the
-2026-07-28 update-log entry for the sequence. Only remaining
-Phase 7 work is Phase 7d-2 (PR-time build_locally arm64
-coverage) — small extension of the existing test_arm64
-matrix pattern into acceptance-docker.yml's build-image job.
+2026-07-28 update-log entry for the sequence.
+**Phase 7d-2 (PR-time build_locally arm64 coverage) DONE
+2026-07-29 via #13259** — arm64 now covered on both the daily
+latest-gate (Phase 7d-1) AND the release-prep PR path
+(Phase 7d-2). **All of Phase 7 is complete.**
 
 
 **Total remaining calendar (from 2026-07-25 baseline, Phases 1+2+2.5
@@ -1415,61 +1416,66 @@ adoption there is a follow-up when acceptance-package grows
 arm64 coverage (probably alongside Phase 3.6 or a dedicated
 small PR).
 
-**7d-2 (NEXT UP — 7d-1 unblocked it 2026-07-29) — PR-time
-build_locally arm64 coverage.**
-Extend the same test_arm64 matrix pattern into acceptance-docker.yml's
-build_locally path (Phase 2.5's `build-image` job today builds
-amd64-only via `docker build docker/release` on ubuntu-24.04). This
-closes the release-prep-PR gap where arm64 regressions in a
-rel-branch's Dockerfile or an upstream base-image bump would only
-surface after merge, via the daily gate.
+**7d-2 — PR-time build_locally arm64 coverage — SHIPPED
+2026-07-29 (#13259).** Extended the test_arm64 matrix pattern
+into acceptance-docker.yml's build_locally path (Phase 2.5's
+`build-image` job) so PR-time validation catches arm64 Dockerfile
+regressions at release-prep review time rather than post-merge
+on the daily gate.
 
-  * `build-image` job grows a `runs_on: [ubuntu-24.04,
-    ubuntu-24.04-arm]` matrix gated on the same `test_arm64`
-    input. Each arch builds natively (no QEMU emulation) on its
-    own runner and uploads its arch-specific artifact under a
-    distinct name (`openemr-pr-built-image-<arch>`).
-  * The `acceptance` job's "Download PR-built image" step picks
-    the artifact matching `matrix.runs_on` so amd64 runners load
-    the amd64 tarball and arm64 runners load the arm64 tarball.
+Shipped shape:
+
+  * `build-image` job matrixed on
+    `runs_on: [ubuntu-24.04, ubuntu-24.04-arm]` gated on the
+    existing `test_arm64` input. Each arch builds natively
+    (no QEMU emulation) on its own runner and uploads its
+    arch-specific artifact under a distinct name
+    (`openemr-pr-built-image-amd64` / `openemr-pr-built-image-arm64`).
+  * The `acceptance` job's "Download PR-built image" step
+    resolves runner arch via `uname -m` and picks the matching
+    artifact — amd64 runners load the amd64 tarball, arm64
+    runners load the arm64 tarball.
   * `release-prep.yml`'s `gh workflow run acceptance-docker.yml`
-    dispatch grows `-f test_arm64=true`. Same input also becomes
-    available on manual workflow_dispatch for maintainer-driven
-    validation.
-  * Every other trigger (PR touching docker/release/**, schedule,
-    workflow_dispatch without test_arm64) stays amd64-only —
-    default behavior unchanged.
+    dispatch grew `-f test_arm64=true` alongside the existing
+    `-f build_locally=true`. Swallow-on-failure guard preserved
+    so pre-Phase-7d-2 rel-branches (still on the amd64-only
+    build-image shape) degrade to amd64-only rather than
+    failing hard.
+  * Every other trigger (PR touching docker/release/**,
+    schedule, workflow_dispatch without test_arm64) stays
+    amd64-only — default behavior unchanged.
 
-Depends on 7d-1's CFT-arm64 setup working (arm64 acceptance
-scenarios need Chrome regardless of whether they run against a
-gate candidate or a build_locally artifact).
+Trade-offs (as-shipped):
 
-Trade-offs (7d-2):
-
-  * Runtime: PR-time gets a second parallel build-image job; wall
-    clock similar (parallel), runner-minutes ~2x for the build
-    phase. Both arm64 + amd64 GHA runners are free for public
-    repos, so no billing.
+  * Runtime: PR-time gets a second parallel build-image job;
+    wall clock similar (parallel), runner-minutes ~2x for the
+    build phase. Both arm64 + amd64 GHA runners are free for
+    public repos, so no billing.
   * Coverage: every release-prep PR catches arm64 regressions
     before the merge lands on a rel-branch. Also picks up
     docker/release/** PRs that opt in via workflow_dispatch.
-  * Complexity: acceptance-docker.yml gains a matrix dimension on
-    build-image + a per-arch artifact name; release-prep.yml gains
-    one flag on its dispatch. No new registry, no OCI extraction,
-    no cleanup logic.
+  * Complexity: acceptance-docker.yml gained a matrix dimension
+    on build-image + a per-arch artifact name; release-prep.yml
+    gained one flag on its dispatch. No new registry, no OCI
+    extraction, no cleanup logic. Composite action from Phase
+    7d-1 (#13254) handles the arm64 chromedriver install on
+    both PR-time and gated paths.
 
-Rejected alternative (7d-2): single multi-arch build+push to a
-temporary Docker Hub or GHCR tag (mirroring 7c-docker's candidate-
-tag pattern) with per-arch pull on each acceptance runner. Adds
-registry churn per PR run + cleanup + potential visibility of
-half-baked images. The two-build-image-jobs approach keeps
-everything workflow-artifact-scoped, matching Phase 2.5's existing
-transport.
+Rejected alternative (revisit if it ever matters): single multi-
+arch build+push to a temporary Docker Hub or GHCR tag (mirroring
+7c-docker's candidate-tag pattern) with per-arch pull on each
+acceptance runner. Adds registry churn per PR run + cleanup +
+potential visibility of half-baked images. The two-build-image-
+jobs approach keeps everything workflow-artifact-scoped, matching
+Phase 2.5's existing transport.
 
-Exit criterion: a docker/release/** PR that breaks the arm64
-Dockerfile build fails the release-prep PR's acceptance-docker
-check with an arm64-specific error, without needing to wait for
-the daily orchestrator gate. ~1 day of implementation.
+**Phase 7d is complete** — 7d-1 + 7d-2 both shipped. arm64 now
+covered end-to-end: daily latest-gate validates the shipped
+`latest` tag on both platforms; release-prep PRs validate the
+PR-built image on both platforms. Only next-up validation:
+observing the first release-prep cycle that fires with test_arm64
+propagated (rel-820+ once sync #13260 or the equivalent for
+#13259 lands).
 
 ### Phase 8 — Test reliability hardening *(proposed 2026-07-28)*
 
@@ -2345,3 +2351,31 @@ in acceptance."
   autodetect works unchanged.
 
   Next up: Phase 7d-2 (PR-time build_locally arm64 coverage).
+
+- **2026-07-29 (later still, later still)** — **Phase 7d-2
+  SHIPPED (#13259). Phase 7d complete. All of Phase 7 complete.**
+  build-image job matrixed on runs_on gated by the existing
+  test_arm64 input; per-arch artifact naming (openemr-pr-built-
+  image-{amd64,arm64}); acceptance job's download step picks
+  the arch-matched artifact via `uname -m`. release-prep.yml
+  dispatch of acceptance-docker.yml gained -f test_arm64=true
+  alongside the existing -f build_locally=true, with the same
+  swallow-on-failure guard so pre-Phase-7d-2 rel-branches
+  degrade to amd64-only. Reuses Phase 7d-1's chromedriver-
+  multiarch composite action for the acceptance runner-arch
+  dimension.
+
+  Post-shipment orchestrator run 30443226952 confirmed the
+  broader plumbing: all 4 fan-out dispatches (master + rel-820
+  + rel-800 + rel-704) succeeded cleanly — first fully-green
+  orchestrator run since Phase 7c-docker landed. #13258's
+  "only pass gate_with_acceptance when true" fix eliminated
+  the HTTP 422 that was breaking rel-800/rel-704 dispatches.
+  Daily orchestrator (06:00 UTC) now runs end-to-end without
+  operator intervention.
+
+  Phase 7 remaining work: none. Next priorities: Phase 3.6
+  (ZIP acceptance coverage), Phase 8 (test reliability
+  hardening), Phase 9 (skip-build re-run for release recovery),
+  and the Phase 4d + 4e absorption/reuse work. All independent;
+  pick order as capacity allows.
