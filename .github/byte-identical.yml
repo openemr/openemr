@@ -221,5 +221,15 @@ files:
   exclude-branches: [rel-800, rel-704]
 - path: .github/docker/acceptance-package-compose.yml
   exclude-branches: [rel-800, rel-704]
+# Composite action used from acceptance-docker.yml (Phase 7d-1 arm64
+# ChromeDriver setup fix). Referenced via `uses: ./.github/actions/
+# setup-chromedriver-multiarch` — GitHub Actions resolves that path
+# against the workflow's checkout at dispatch time, so the action.yml
+# must exist on every branch that carries acceptance-docker.yml.
+# Excluded from rel-800 + rel-704 for the same reason acceptance-
+# docker.yml is: those branches don't carry the caller workflow, so
+# they don't need the callee action either.
+- path: .github/actions/setup-chromedriver-multiarch/**
+  exclude-branches: [rel-800, rel-704]
 - path: tests/Acceptance/**
   exclude-branches: [rel-800, rel-704]
