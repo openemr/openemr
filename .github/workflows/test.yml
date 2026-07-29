@@ -599,8 +599,8 @@ jobs:
         enable_coredumps
 
     ##
-    # The redis-sentinel e2e failures (#13230-style: pages hang on "Loading"
-    # until TimeoutException, then the rest of the suite cascades) leave no
+    # The redis-sentinel e2e failures (#12438: pages hang on "Loading" until
+    # TimeoutException, then the rest of the suite cascades) leave no
     # evidence after teardown. Sample Redis connection health through the run
     # so a failure shows whether connected_clients climbed (connection leak),
     # blocked_clients pinned (lock contention), or Redis was never involved.
@@ -639,6 +639,11 @@ jobs:
       run: |
         . ci/ciLibrary.source
         redis_monitor_stop redis-monitor.log
+        # Print the workers' first OPcache sample so every run — green or
+        # red — records the JIT config it actually ran with. The diagnostics
+        # artifact only uploads on failure, so without this line a green run
+        # leaves no evidence that the #12438 JIT-off remedy was in effect.
+        grep -m1 '^opcache:' redis-monitor.log || true
 
     - name: Upload Redis diagnostics
       if: ${{ failure() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
@@ -782,8 +787,8 @@ jobs:
     # shared object it landed in (e.g. "segfault at ... ip ... in
     # opcache.so[...]"), for container processes too — the runner shares its
     # kernel with the containers. This names the faulting module for every
-    # crash in the run even when the coredump pipeline yields nothing, as in
-    # run 30343650338 (166 segfaults, zero cores).
+    # crash in the run even when the coredump pipeline yields nothing — as
+    # #12438 runs did for weeks (segfault storms, zero cores).
     - name: Kernel segfault log
       if: ${{ failure() }}
       env:

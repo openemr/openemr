@@ -246,6 +246,10 @@ services:
       REDIS_TLS_CERT_KEY_PATH: /redis-certs
     volumes:
     - redis-certs:/redis-certs:ro
+    # Keep the OPcache JIT off (#12438): the image entrypoint (openemr.sh)
+    # enables it at first boot UNLESS the guard file below already exists —
+    # see zz-ci-jit-off.ini for the evidence trail. The same file is mounted
+    # as the entrypoint's guard AND as a conf.d assert.
     # NB: with the multi-file COMPOSE_FILE the CI uses, relative paths in ALL
     # files resolve against the FIRST file's directory (ci/), not this file's
     # — hence the config-dir prefix. A bare ./zz-ci-jit-off.ini silently
