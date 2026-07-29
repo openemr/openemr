@@ -216,6 +216,10 @@ case "${ARTIFACT_FORMAT}" in
         # mutually exclusive (this branch only runs when --to-local-zip
         # is set) so the bare EXIT trap doesn't clobber the download
         # branch's ARTIFACT_PATH cleanup.
+        if ! command -v unzip >/dev/null 2>&1; then
+            echo "::error::unzip is required for --to-local-zip / zip extraction but was not found on PATH" >&2
+            exit 1
+        fi
         ZIP_TMP="$(mktemp -d -t "openemr-acceptance-upgrade-zip.XXXXXX")"
         trap 'rm -rf "${ZIP_TMP}"' EXIT
         unzip -qo "${ARTIFACT_PATH}" -d "${ZIP_TMP}"
