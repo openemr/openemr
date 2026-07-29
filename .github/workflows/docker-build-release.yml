@@ -369,8 +369,13 @@ jobs:
     # Needed so the "Verify pushed image OCI labels" step below can call
     # .github/scripts/verify-oci-labels.sh. Publish is a separate job
     # from build so the workspace doesn't carry over — must re-checkout.
+    # persist-credentials: false because publish uses its own app-token
+    # (steps.<>.outputs.token) for gh commands; leaving GITHUB_TOKEN in
+    # .git/config would be zero-value credential surface.
     - name: Checkout
       uses: actions/checkout@v7
+      with:
+        persist-credentials: false
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
