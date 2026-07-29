@@ -1595,7 +1595,7 @@ Exit criterion: acceptance gate flake rate below X% (baseline TBD;
 target ~1% or lower per gate invocation) sustained across a
 2-week window. Rough timing: ~2-3 weeks of iterative work.
 
-### Phase 9 — Skip-build re-run for release recovery *(proposed 2026-07-28)*
+### Phase 9 — Skip-build re-run for release recovery *(IN FLIGHT as #13272, opened 2026-07-29)*
 
 Even with Phase 8's flake reduction, release-time flakes will
 happen occasionally. Today's recovery path is "Re-run failed jobs"
@@ -2576,3 +2576,52 @@ in acceptance."
   8 (test reliability hardening), 9 (skip-build re-run for
   release recovery). All independent; pick order as capacity
   allows.
+
+- **2026-07-29 (end-of-day, redux) — RELEASE_PROCESS.md sync to
+  rel-820 (#13271) SHIPPED; Phase 9 IN FLIGHT (#13272).**
+
+  * **#13271 SHIPPED** — one-off copy of master's current
+    RELEASE_PROCESS.md into rel-820 so patch releases from
+    that branch have the accurate Phase-7-era runbook
+    alongside. Doc isn't byte-identical-propagated, so
+    manual sync when it matters is the pattern.
+
+  * **Phase 9 IN FLIGHT as #13272** — dedicated skip-build
+    re-run for release recovery. Two prongs:
+
+      1. **Tarball**: new `.github/workflows/acceptance-only.yml`
+         workflow_dispatch entry with `source_run_id` + `version`
+         inputs. Cross-run artifact download via
+         `actions/download-artifact@v8 run-id:`, 48h age
+         guardrail, path-based source-run validation (must be
+         a build-release.yml run). Re-uploads the fetched
+         artifact into current-run context, then calls
+         acceptance-package.yml via workflow_call. Verify-only
+         — no publish job. Operator manually re-fires the
+         original build-release run's publish job on green.
+         Recovery time ~5-10 min vs 15-60 for full re-run.
+
+      2. **Docker**: cleanup-candidate `if:` narrows to
+         preserve the candidate tag on acceptance-gate
+         failure (`&& needs.acceptance-gate.result != 'failure'`).
+         No new workflow needed — operator manually
+         workflow_dispatches acceptance-docker.yml with
+         `to_tag=<preserved-candidate-suffix>` against the
+         still-live candidate, then on green does the
+         `docker buildx imagetools create` alias manually to
+         complete publish.
+
+      3. **RELEASE_PROCESS.md** update in same PR — added
+         "Fast acceptance-only re-run" bullet to Phase 7c-
+         tarball failure-recovery + docker acceptance-gate
+         recovery paragraph.
+
+    Agent design calls flagged in the PR: (a) cleanup `if:`
+    uses `!= 'failure'` rather than the plan's rougher
+    `== 'success' || == 'skipped'` — cleaner edge-case
+    coverage for cancelled/skipped; (b) acceptance-only.yml
+    runs acceptance-package.yml from master (via
+    `./.github/workflows/...`) not the rel-branch's copy —
+    deliberate for the "acceptance-harness bug" recovery case
+    so a master fix flows through without waiting for
+    backport.
