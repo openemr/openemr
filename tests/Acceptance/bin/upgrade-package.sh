@@ -17,7 +17,8 @@
 #      migrations to apply
 #
 # Usage:
-#   tests/Acceptance/bin/upgrade-package.sh [--skip-sql-upgrade] [--to-local-tarball=<path>] <from-version> <to-version>
+#   tests/Acceptance/bin/upgrade-package.sh [--skip-sql-upgrade] \
+#     [--to-local-tarball=<path> | --to-local-zip=<path>] <from-version> <to-version>
 #     --skip-sql-upgrade (optional)
 #         Skip step 5. Leaves the artifact serving to-version's
 #         filesystem with from-version's DB — the classic "user just
@@ -29,7 +30,7 @@
 #         still meets; but the DB migrations haven't run, so any
 #         downstream test that touches the DB would fail).
 #     --to-local-tarball=<path> (optional)
-#         Extract the given local file as the to-version tarball
+#         Extract the given local .tar.gz as the to-version artifact
 #         instead of curl-ing the GitHub release page. Phase 3.5
 #         PR-tarball validation: acceptance-package workflow builds
 #         the tarball via PackageAssembler from the PR checkout,
@@ -37,9 +38,15 @@
 #         downloaded path here. from-version is always downloaded
 #         from GitHub (whole point of the upgrade test is starting
 #         from a shipped release).
+#     --to-local-zip=<path> (optional)
+#         Extract the given local .zip as the to-version artifact.
+#         Same semantics as --to-local-tarball but for the ZIP
+#         artifact — Phase 3.6 slice 2 upgrade[zip] +
+#         wizard-upgrade[zip] matrix cells use this. Mutually
+#         exclusive with --to-local-tarball.
 #     from-version — the version already installed via boot-package.sh
 #     to-version   — the target version (must have a v<X_Y_Z> release tag,
-#                    unless --to-local-tarball is set)
+#                    unless --to-local-tarball or --to-local-zip is set)
 #     Both must match ^[0-9]+\.[0-9]+\.[0-9]+$; from must be strictly
 #     less than to (this is an UPgrade — same-version is a no-op that
 #     would delete the installed source, and downgrade isn't supported).
@@ -52,6 +59,7 @@ set -euo pipefail
 
 skip_sql_upgrade="false"
 to_local_tarball=""
+to_local_zip=""
 while [[ $# -gt 0 && "$1" == --* ]]; do
     case "$1" in
         --skip-sql-upgrade)
@@ -62,6 +70,10 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
             to_local_tarball="${1#--to-local-tarball=}"
             shift
             ;;
+        --to-local-zip=*)
+            to_local_zip="${1#--to-local-zip=}"
+            shift
+            ;;
         *)
             echo "::error::unknown flag: $1" >&2
             exit 2
@@ -69,11 +81,17 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
     esac
 done
 
+if [[ -n "${to_local_tarball}" && -n "${to_local_zip}" ]]; then
+    echo "::error::--to-local-tarball and --to-local-zip are mutually exclusive" >&2
+    exit 2
+fi
+
 if [[ $# -ne 2 ]]; then
-    echo "Usage: $0 [--skip-sql-upgrade] [--to-local-tarball=<path>] <from-version> <to-version>" >&2
+    echo "Usage: $0 [--skip-sql-upgrade] [--to-local-tarball=<path> | --to-local-zip=<path>] <from-version> <to-version>" >&2
     echo "  e.g.: $0 8.2.0 8.3.0" >&2
     echo "        $0 --skip-sql-upgrade 8.2.0 8.3.0" >&2
     echo "        $0 --to-local-tarball=/tmp/openemr-8.3.0.tar.gz 8.2.0 8.3.0" >&2
+    echo "        $0 --to-local-zip=/tmp/openemr-8.3.0.zip 8.2.0 8.3.0" >&2
     exit 2
 fi
 
@@ -123,12 +141,24 @@ if [[ -n "${to_local_tarball}" ]]; then
     fi
     # Absolute-ize before the `cd "${REPO_ROOT}"` below — same
     # rationale as boot-package.sh's --local-tarball normalization.
-    TARBALL_PATH="$(realpath "${to_local_tarball}")"
+    ARTIFACT_PATH="$(realpath "${to_local_tarball}")"
+    ARTIFACT_FORMAT="tar"
+    # No trap cleanup — the caller owns this file.
+elif [[ -n "${to_local_zip}" ]]; then
+    # Local-zip mode — same shape as local-tarball; the extractor
+    # further below switches on ARTIFACT_FORMAT.
+    if [[ ! -f "${to_local_zip}" ]]; then
+        echo "::error::--to-local-zip path does not exist or is not a regular file: ${to_local_zip}" >&2
+        exit 2
+    fi
+    ARTIFACT_PATH="$(realpath "${to_local_zip}")"
+    ARTIFACT_FORMAT="zip"
     # No trap cleanup — the caller owns this file.
 else
     # mktemp for the download path (same rationale as boot-package.sh).
-    TARBALL_PATH="$(mktemp -t "openemr-acceptance-upgrade-tarball.XXXXXX.tar.gz")"
-    trap 'rm -f "${TARBALL_PATH}"' EXIT
+    ARTIFACT_PATH="$(mktemp -t "openemr-acceptance-upgrade-tarball.XXXXXX.tar.gz")"
+    ARTIFACT_FORMAT="tar"
+    trap 'rm -f "${ARTIFACT_PATH}"' EXIT
 fi
 
 cd "${REPO_ROOT}"
@@ -167,14 +197,49 @@ rm -rf "${TO_TARBALL_DIR}"
 mkdir -p "${TO_TARBALL_DIR}"
 
 if [[ -n "${to_local_tarball}" ]]; then
-    echo "==> Using local to-version tarball ${TARBALL_PATH} (--to-local-tarball set — skipping GitHub download)"
+    echo "==> Using local to-version tarball ${ARTIFACT_PATH} (--to-local-tarball set — skipping GitHub download)"
+elif [[ -n "${to_local_zip}" ]]; then
+    echo "==> Using local to-version zip ${ARTIFACT_PATH} (--to-local-zip set — skipping GitHub download)"
 else
     echo "==> Downloading ${TO_TARBALL_URL}"
-    curl -fsSL "${TO_TARBALL_URL}" -o "${TARBALL_PATH}"
+    curl -fsSL "${TO_TARBALL_URL}" -o "${ARTIFACT_PATH}"
 fi
 
-echo "==> Extracting into ${TO_TARBALL_DIR}"
-tar -pxzf "${TARBALL_PATH}" -C "${TO_TARBALL_DIR}" --strip-components=1
+echo "==> Extracting into ${TO_TARBALL_DIR} (format=${ARTIFACT_FORMAT})"
+case "${ARTIFACT_FORMAT}" in
+    tar)
+        tar -pxzf "${ARTIFACT_PATH}" -C "${TO_TARBALL_DIR}" --strip-components=1
+        ;;
+    zip)
+        # Same unzip + single-top-level-dir enforcement as
+        # boot-package.sh's zip branch. Download and zip branches are
+        # mutually exclusive (this branch only runs when --to-local-zip
+        # is set) so the bare EXIT trap doesn't clobber the download
+        # branch's ARTIFACT_PATH cleanup.
+        if ! command -v unzip >/dev/null 2>&1; then
+            echo "::error::unzip is required for --to-local-zip / zip extraction but was not found on PATH" >&2
+            exit 1
+        fi
+        ZIP_TMP="$(mktemp -d -t "openemr-acceptance-upgrade-zip.XXXXXX")"
+        trap 'rm -rf "${ZIP_TMP}"' EXIT
+        unzip -qo "${ARTIFACT_PATH}" -d "${ZIP_TMP}"
+        shopt -s nullglob
+        ZIP_ROOTS=("${ZIP_TMP}"/*)
+        shopt -u nullglob
+        if [[ ${#ZIP_ROOTS[@]} -ne 1 || ! -d "${ZIP_ROOTS[0]}" ]]; then
+            echo "::error::expected exactly one top-level directory in ${ARTIFACT_PATH}, found ${#ZIP_ROOTS[@]}:" >&2
+            printf '  %s\n' "${ZIP_ROOTS[@]}" >&2
+            exit 1
+        fi
+        shopt -s dotglob
+        mv "${ZIP_ROOTS[0]}"/* "${TO_TARBALL_DIR}"/
+        shopt -u dotglob
+        ;;
+    *)
+        echo "::error::unexpected ARTIFACT_FORMAT '${ARTIFACT_FORMAT}' (expected 'tar' or 'zip')" >&2
+        exit 1
+        ;;
+esac
 
 echo "==> Overlaying ${FROM_VERSION}'s sites/ dir onto ${TO_VERSION} extraction"
 # Matches the wiki "Copy the old OpenEMR sites/ to the new OpenEMR at

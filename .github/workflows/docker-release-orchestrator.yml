@@ -158,10 +158,26 @@ jobs:
           fi
         done
 
+        # Only pass `-f gate_with_acceptance=...` when we actually want
+        # the gate on (GATE=true). rel-800 and rel-704 carry the pre-
+        # Phase-7c docker-build-release.yml (see the exclude-branches
+        # for that path in .github/byte-identical.yml) which doesn't
+        # declare a `gate_with_acceptance` input — GitHub Actions
+        # rejects `gh workflow run -f <unknown>` with HTTP 422
+        # "Unexpected inputs provided", failing dispatch entirely
+        # before the target workflow even loads. Omitting the flag
+        # lets the receiving workflow's input default (false) do the
+        # right thing whether the input exists (master + rel-820) or
+        # not (rel-800 + rel-704).
+        GATE_ARGS=()
+        if [[ "$GATE" == "true" ]]; then
+          GATE_ARGS=(-f gate_with_acceptance=true)
+        fi
+
         gh workflow run docker-build-release.yml \
           --repo "$REPO" \
           --ref "$BRANCH" \
           -f docker_tags="$DOCKER_TAGS" \
           -f openemr_version_ref="$OPENEMR_VERSION_REF" \
-          -f gate_with_acceptance="$GATE"
+          "${GATE_ARGS[@]}"
         echo "Dispatched $BRANCH with docker_tags=$DOCKER_TAGS openemr_version_ref=$OPENEMR_VERSION_REF gate_with_acceptance=$GATE"
