@@ -72,6 +72,7 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
     # Needed so the "Verify pushed image OCI labels" step below can call
     # .github/scripts/verify-oci-labels.sh. persist-credentials: false
@@ -142,6 +143,7 @@ jobs:
     needs: [publish]
     if: always() && needs.publish.result == 'success'
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
     - name: Delete candidate tag from Docker Hub
       continue-on-error: true
@@ -158,7 +160,7 @@ jobs:
         # If the JWT flow fails (e.g., PAT lacks write:delete perms), the
         # `continue-on-error: true` on the step swallows it — the tag
         # lingers until manually cleaned, non-blocking.
-        JWT=$(curl -sf -H 'Content-Type: application/json' \
+        JWT=$(curl -sf --max-time 30 -H 'Content-Type: application/json' \
           -X POST -d "{\"username\": \"${DOCKERHUB_USERNAME}\", \"password\": \"${DOCKERHUB_TOKEN}\"}" \
           https://hub.docker.com/v2/users/login/ | jq -r .token)
         if [ -z "$JWT" ] || [ "$JWT" = "null" ]; then
@@ -166,7 +168,7 @@ jobs:
           exit 0
         fi
         echo "==> DELETE openemr/openemr:${CANDIDATE_TAG}"
-        HTTP_CODE=$(curl -s -o /tmp/dh-delete-response -w '%{http_code}' \
+        HTTP_CODE=$(curl -s --max-time 30 -o /tmp/dh-delete-response -w '%{http_code}' \
           -X DELETE \
           -H "Authorization: JWT ${JWT}" \
           "https://hub.docker.com/v2/repositories/openemr/openemr/tags/${CANDIDATE_TAG}/")

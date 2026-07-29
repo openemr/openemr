@@ -51,3 +51,4 @@ jobs:
         bats tests/bats/ci-scripts/validate-byte-identical/
         bats tests/bats/ci-scripts/list-manifest-paths/
         bats tests/bats/ci-scripts/verify-oci-labels/
+        bats tests/bats/ci-scripts/expand-docker-tags/

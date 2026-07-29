@@ -230,20 +230,14 @@ jobs:
         fi
         echo "    candidate BUILD_DATE (from OCI label)=${BUILD_DATE}"
 
+        # Delegate to the shared expand-docker-tags.sh script so the
+        # version-number regex + dated-variant rule stays in one place
+        # (see docker-build-release.yml's expand_docker_tags step for
+        # the primary caller).
+        export BUILD_DATE
         {
           echo 'list<<EOF'
-          IFS=',' read -ra TAGS <<< "$INPUT_TAGS"
-          for t in "${TAGS[@]}"; do
-            t="${t// /}"   # strip whitespace
-            [ -z "$t" ] && continue
-            echo "openemr/openemr:${t}"
-            # Rule: version-number tags (digits and dots only) also get
-            # a dated sibling. Same logic as docker-build-release.yml's
-            # `expand_docker_tags` step — must stay in sync.
-            if [[ "$t" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-              echo "openemr/openemr:${t}-${BUILD_DATE}"
-            fi
-          done
+          .github/scripts/expand-docker-tags.sh
           echo EOF
         } >> "$GITHUB_OUTPUT"
 
@@ -303,6 +297,18 @@ jobs:
   # Job 3: publish + cleanup via the shared reusable. Same reusable
   # docker-build-release.yml's gated path uses — single source of
   # truth for imagetools-alias + Docker Hub tag cleanup.
+  #
+  # Recovery-context note: the verify step inside the reusable publish
+  # workflow derives EXPECTED_* values from the candidate image's own
+  # OCI labels (via docker inspect --format), then compares against
+  # the aliased final tag's labels. Same source of "expected" and
+  # "actual" — so value-checks degenerate to a "labels preserved
+  # through imagetools alias" smoke test. The static-label presence
+  # checks (title/source/url/licenses) still work meaningfully — they
+  # catch an alias that somehow stripped a label block entirely.
+  # Independent Dockerfile-ARG verify already ran at build time in the
+  # original docker-build-release run, so recovery verify's job is
+  # narrower on purpose.
   publish-and-cleanup:
     name: Publish + cleanup
     needs: [fetch-source-run-outputs, acceptance-gate]

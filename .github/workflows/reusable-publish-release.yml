@@ -111,6 +111,7 @@ jobs:
         RELEASE_VERSION: ${{ inputs.version }}
         VERSION_BRANCH: ${{ inputs.version_branch }}
       run: |
+        set -euo pipefail
         tag="$RELEASE_TAG"
         output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
 
@@ -159,6 +160,7 @@ jobs:
         RELEASE_TAG: ${{ inputs.release_tag }}
         RELEASE_VERSION: ${{ inputs.version }}
       run: |
+        set -euo pipefail
         tag="$RELEASE_TAG"
         output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
 

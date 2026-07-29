@@ -139,6 +139,13 @@ files:
 # above for the load-time reusable-workflow-reference constraint).
 - path: .github/scripts/verify-oci-labels.sh
   exclude-branches: [rel-800, rel-704]
+# Phase 10c (openemr/openemr#TBD, 2026-07-30): expand-docker-tags.sh is
+# called from docker-build-release.yml's `expand_docker_tags` step;
+# same rel-800/rel-704 exclusion applies (those branches don't carry
+# the caller workflow — see the docker-build-release.yml entry above
+# for the load-time reusable-workflow-reference constraint).
+- path: .github/scripts/expand-docker-tags.sh
+  exclude-branches: [rel-800, rel-704]
 # Phase 10c (openemr/openemr#TBD, 2026-07-30): reusable-docker-publish.yml
 # is called via `uses: ./.github/workflows/reusable-docker-publish.yml`
 # from docker-build-release.yml (gated path) — same reusable-workflow-

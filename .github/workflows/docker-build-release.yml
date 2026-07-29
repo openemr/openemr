@@ -164,18 +164,7 @@ jobs:
       run: |
         {
           echo 'list<<EOF'
-          IFS=',' read -ra TAGS <<< "$INPUT_TAGS"
-          for t in "${TAGS[@]}"; do
-            t="${t// /}"   # strip whitespace
-            [ -z "$t" ] && continue
-            echo "openemr/openemr:${t}"
-            # Rule: version-number tags (digits and dots only) also get a dated sibling.
-            # "8.1.0" -> push "8.1.0" + "8.1.0-2026-06-13"
-            # "next" / "dev" / "latest" / "manual-test" -> no dated variant.
-            if [[ "$t" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-              echo "openemr/openemr:${t}-${BUILD_DATE}"
-            fi
-          done
+          .github/scripts/expand-docker-tags.sh
           echo EOF
         } >> "$GITHUB_OUTPUT"
 
