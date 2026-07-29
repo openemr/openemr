@@ -89,6 +89,11 @@ on:
         required: false
         type: string
         default: ''
+      caller_zip_artifact:
+        description: 'Name of the workflow-run artifact holding the caller-supplied ZIP (openemr-<to_version>.zip). When set, skips this workflow build-tarball job and treats the caller-supplied ZIP as if it were PR-built. Phase 3.6 companion to caller_tarball_artifact — build-release.yml passes both since its release-output bundle contains both formats under the same artifact name.'
+        required: false
+        type: string
+        default: ''
   push:
     paths:
     - '.github/workflows/acceptance-package.yml'
@@ -175,6 +180,7 @@ jobs:
         DISPATCH_BUILD_LOCALLY: ${{ inputs.build_locally }}
         DISPATCH_TO_VERSION: ${{ inputs.to_version }}
         CALLER_TARBALL_ARTIFACT: ${{ inputs.caller_tarball_artifact }}
+        CALLER_ZIP_ARTIFACT: ${{ inputs.caller_zip_artifact }}
         PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
@@ -214,27 +220,29 @@ jobs:
         }
 
         # Phase 7c workflow_call gate — caller (build-release.yml)
-        # already has the tarball built and uploaded as an artifact.
-        # Skip the diff-detection dance entirely; treat as build_locally=true
-        # with the caller-supplied version. The build-tarball job self-
-        # skips (see its `if:` condition below) and the bootflags step
-        # downloads the caller's artifact name instead of Phase 3.5's
-        # `openemr-pr-built-tarball` default.
+        # already has the tarball (+ Phase 3.6 ZIP) built and uploaded
+        # as an artifact. Skip the diff-detection dance entirely; treat
+        # as build_locally=true with the caller-supplied version. The
+        # build-tarball job self-skips (see its `if:` condition below)
+        # and the bootflags step downloads the caller's artifact name
+        # instead of Phase 3.5's `openemr-pr-built-tarball` /
+        # `openemr-pr-built-zip` defaults.
         #
-        # Detect on CALLER_TARBALL_ARTIFACT being non-empty, NOT on
-        # $EVENT_NAME == 'workflow_call' — GitHub Actions reports the
-        # original event that started the CALLING workflow in a called
-        # workflow's github.event_name (so workflow_dispatch of build-
-        # release.yml surfaces as workflow_dispatch here, not
-        # workflow_call). The caller_tarball_artifact input is only
-        # populated in workflow_call invocations, so it's the reliable
-        # signal.
-        if [[ -n "$CALLER_TARBALL_ARTIFACT" ]]; then
+        # Detect on CALLER_TARBALL_ARTIFACT / CALLER_ZIP_ARTIFACT being
+        # non-empty, NOT on $EVENT_NAME == 'workflow_call' — GitHub
+        # Actions reports the original event that started the CALLING
+        # workflow in a called workflow's github.event_name (so
+        # workflow_dispatch of build-release.yml surfaces as
+        # workflow_dispatch here, not workflow_call). Either caller_*
+        # input being populated is the reliable signal; build-release.yml
+        # sets both to the same artifact name (single bundle contains
+        # both formats), but the gate honours either alone as well.
+        if [[ -n "$CALLER_TARBALL_ARTIFACT" || -n "$CALLER_ZIP_ARTIFACT" ]]; then
           if [[ -z "$DISPATCH_TO_VERSION" ]]; then
-            echo "::error::workflow_call with caller_tarball_artifact requires to_version to be set explicitly"
+            echo "::error::workflow_call with caller_tarball_artifact/caller_zip_artifact requires to_version to be set explicitly"
             exit 1
           fi
-          echo "==> workflow_call gate mode (caller=${CALLER_TARBALL_ARTIFACT}): forcing build_locally=true"
+          echo "==> workflow_call gate mode (tarball=${CALLER_TARBALL_ARTIFACT:-<none>}, zip=${CALLER_ZIP_ARTIFACT:-<none>}): forcing build_locally=true"
           echo "build_locally=true" >> "$GITHUB_OUTPUT"
           emit_to_version "true"
           exit 0
@@ -347,13 +355,15 @@ jobs:
   build-tarball:
     needs: [detect-mode]
     # Skip when the caller (Phase 7c workflow_call gate) already
-    # supplied the tarball as an artifact — no point re-running
+    # supplied the tarball (or ZIP) as an artifact — no point re-running
     # PackageAssembler when the caller just did that against the exact
     # tree being validated. The bootflags step downloads the caller's
-    # artifact by name in that case.
+    # artifact by name in that case. Either caller_* input being set
+    # is enough to skip since build-release.yml passes both.
     if: >-
       needs.detect-mode.outputs.build_locally == 'true'
       && inputs.caller_tarball_artifact == ''
+      && inputs.caller_zip_artifact == ''
     runs-on: ubuntu-24.04
     env:
       # Single source of truth for the to_version label — see the
@@ -397,7 +407,7 @@ jobs:
       # symfony/console + symfony/process deps.
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
-    - name: Build tarball from PR checkout via PackageAssembler
+    - name: Build package from PR checkout via PackageAssembler
       # --release-version uses the workflow's to_version so the output
       # filename matches what boot-package.sh's VERSION arg + downstream
       # scratch-dir naming expects. Version string doesn't get baked
@@ -405,21 +415,37 @@ jobs:
       #
       # --openemr-dir is the PR checkout itself; --output-dir writes
       # under /tmp so the artifact upload step can grab it by known path.
+      # PackageAssembler produces BOTH openemr-<version>.tar.gz AND
+      # openemr-<version>.zip in one pass — both are uploaded below for
+      # the Phase 3.6 matrix's `format` dimension.
       run: |
         mkdir -p /tmp/release-output
         php tools/release/bin/package-assemble.php \
           --release-version="${TO_VERSION}" \
           --openemr-dir=. \
           --output-dir=/tmp/release-output
-        ls -lh "/tmp/release-output/openemr-${TO_VERSION}.tar.gz"
+        ls -lh \
+          "/tmp/release-output/openemr-${TO_VERSION}.tar.gz" \
+          "/tmp/release-output/openemr-${TO_VERSION}.zip"
 
-    - uses: actions/upload-artifact@v7
+    - name: Upload PR-built tarball artifact
+      uses: actions/upload-artifact@v7
       with:
         name: openemr-pr-built-tarball
-        # Upload just the .tar.gz; the .zip is a duplicate for
-        # Windows-user convenience on the real release and isn't
-        # what the linux-based acceptance stack extracts.
         path: /tmp/release-output/openemr-${{ needs.detect-mode.outputs.to_version }}.tar.gz
+        retention-days: 1
+
+    # Phase 3.6: upload the ZIP under a distinct artifact name so the
+    # acceptance matrix's `format: zip` cells can download it in parallel
+    # with the tarball cells. Distinct artifact-per-format keeps each
+    # matrix leg's download step size-minimal (a single file) and lets
+    # the workflow_call gate reference each format independently
+    # (caller_tarball_artifact / caller_zip_artifact).
+    - name: Upload PR-built zip artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: openemr-pr-built-zip
+        path: /tmp/release-output/openemr-${{ needs.detect-mode.outputs.to_version }}.zip
         retention-days: 1
 
   acceptance:
@@ -440,6 +466,9 @@ jobs:
       # from "upgrade path broken" (different code paths).
       fail-fast: false
       matrix:
+        # Scenarios × formats. Two dimensions folded into an `include`
+        # list because the cartesian isn't uniform — see below.
+        #
         # Scenarios:
         #   fresh-install   — CLI install-helper.php then acceptance suite
         #   wizard-install  — no install-helper; InstallWizardUiTest
@@ -450,26 +479,47 @@ jobs:
         #                     pre-migration; UpgradeWizardUiTest walks
         #                     sql_upgrade.php via Panther
         #
-        # `upgrade` and `wizard-upgrade` are gated on either explicit
-        # workflow_dispatch (where the caller supplies from_version +
-        # to_version explicitly) OR the Phase 3.5 build_locally path
-        # (where PR-built tarball is to_version, any shipped tarball
-        # is from_version, and the pair is meaningful for pre-merge
-        # validation). On acceptance-surface-only push/PR/schedule the
-        # from_version default would need to point at a shipped tarball
-        # and right now the most recent tarball is 8.2.0 itself — no
-        # earlier tarball asset exists on the release page (patch
-        # releases only shipped .zip patches). Once 8.3.0 releases and
-        # the from_version default becomes 8.2.0 → 8.3.0, both upgrade
-        # scenarios can move back into the default matrix
-        # unconditionally.
-        # `inputs.caller_tarball_artifact` (workflow_call from
-        # build-release.yml's Phase 7c gate) also expands the matrix —
-        # can't gate on github.event_name for workflow_call because that
-        # reports the CALLING workflow's original event (typically
-        # workflow_dispatch), not "workflow_call". See detect-mode's
-        # gate check for the same signal choice.
-        scenario: ${{ (github.event_name == 'workflow_dispatch' || inputs.caller_tarball_artifact != '' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('["fresh-install","wizard-install","upgrade","wizard-upgrade"]') || fromJson('["fresh-install","wizard-install"]') }}
+        # Formats (Phase 3.6):
+        #   tar   — extracts openemr-<version>.tar.gz via tar -xzf
+        #   zip   — extracts openemr-<version>.zip via unzip
+        # Both artifacts come out of the same PackageAssembler pass;
+        # the ZIP dimension catches ZIP-only regressions (line-ending
+        # translation, exec-bit preservation, empty-dir handling,
+        # path-separator handling — see the Phase 3.6 plan doc for
+        # the failure classes this closes).
+        #
+        # Constraint: `upgrade` and `wizard-upgrade` stay tar-only.
+        # upgrade-package.sh does not yet accept `--to-local-zip`
+        # (deferred to a Phase 3.6 follow-up); until then only the
+        # install-side scenarios exercise the ZIP format.
+        #
+        # `upgrade` and `wizard-upgrade` are also gated on either
+        # explicit workflow_dispatch (where the caller supplies
+        # from_version + to_version explicitly) OR the Phase 3.5
+        # build_locally path (where PR-built tarball is to_version,
+        # any shipped tarball is from_version, and the pair is
+        # meaningful for pre-merge validation). On acceptance-surface-
+        # only push/PR/schedule the from_version default would need to
+        # point at a shipped tarball and right now the most recent
+        # tarball is 8.2.0 itself — no earlier tarball asset exists on
+        # the release page (patch releases only shipped .zip patches).
+        # Once 8.3.0 releases and the from_version default becomes
+        # 8.2.0 → 8.3.0, both upgrade scenarios can move back into
+        # the default matrix unconditionally.
+        # `inputs.caller_tarball_artifact` / `inputs.caller_zip_artifact`
+        # (workflow_call from build-release.yml's Phase 7c gate) also
+        # expand the matrix — can't gate on github.event_name for
+        # workflow_call because that reports the CALLING workflow's
+        # original event (typically workflow_dispatch), not
+        # "workflow_call". See detect-mode's gate check for the same
+        # signal choice.
+        #
+        # Matrix cell counts:
+        #   default (acceptance-surface push/PR/schedule):
+        #     fresh-install × [tar,zip] + wizard-install × [tar,zip] = 4
+        #   expanded (dispatch / build_locally / caller_*_artifact):
+        #     above 4 + upgrade[tar] + wizard-upgrade[tar]           = 6
+        include: ${{ (github.event_name == 'workflow_dispatch' || inputs.caller_tarball_artifact != '' || inputs.caller_zip_artifact != '' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"},{"scenario":"upgrade","format":"tar"},{"scenario":"wizard-upgrade","format":"tar"}]') || fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"}]') }}
     env:
       FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}
       # Single source of truth for to_version — see the
@@ -477,7 +527,7 @@ jobs:
       # path resolves this to 99.99.99.
       TO_VERSION: ${{ needs.detect-mode.outputs.to_version }}
       ACCEPTANCE_ARTIFACT_URL: http://localhost:8680
-    name: ${{ matrix.scenario }}
+    name: ${{ matrix.scenario }} (${{ matrix.format }})
     steps:
     - uses: actions/checkout@v7
       with:
@@ -500,40 +550,68 @@ jobs:
     - name: Install acceptance-suite composer dependencies
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
 
-    # ==== Load PR-built or caller-supplied tarball + resolve boot flags ====
-    # Two source paths converge here:
-    #   Phase 3.5 (PR validation): build-tarball job just uploaded
-    #     openemr-pr-built-tarball. Download that.
+    # ==== Load PR-built or caller-supplied artifact + resolve boot flags ====
+    # Two source paths × two formats converge here:
+    #   Phase 3.5 (PR validation): build-tarball job uploaded either
+    #     openemr-pr-built-tarball OR openemr-pr-built-zip depending
+    #     on matrix.format. Download the format-matching one.
     #   Phase 7c (workflow_call gate): caller (build-release.yml)
-    #     already uploaded the release-candidate tarball under
-    #     inputs.caller_tarball_artifact — build-tarball self-skipped.
-    #     Download that artifact name instead.
+    #     already uploaded a release-candidate bundle containing BOTH
+    #     formats under inputs.caller_{tarball,zip}_artifact — build-
+    #     tarball self-skipped. Download the caller's format-matching
+    #     artifact name instead.
     #
-    # Both land the tarball under /tmp/pr-built-tarball/openemr-<TO_VERSION>.tar.gz,
-    # so the bootflags step below doesn't need to care which path fired.
-    - name: Download PR-built tarball (Phase 3.5)
-      if: needs.build-tarball.result == 'success' && inputs.caller_tarball_artifact == ''
+    # All four permutations land the artifact under
+    # /tmp/pr-built-tarball/openemr-<TO_VERSION>.{tar.gz,zip}, so the
+    # bootflags step below only needs to switch on matrix.format.
+    #
+    # upgrade + wizard-upgrade cells never fire the zip-download steps —
+    # their matrix entries pin format=tar (upgrade-package.sh does not
+    # yet accept --to-local-zip; Phase 3.6 follow-up).
+    - name: Download PR-built tarball (Phase 3.5, tar)
+      if: needs.build-tarball.result == 'success' && inputs.caller_tarball_artifact == '' && matrix.format == 'tar'
       uses: actions/download-artifact@v8
       with:
         name: openemr-pr-built-tarball
         path: /tmp/pr-built-tarball
 
-    - name: Download caller-supplied tarball (Phase 7c gate)
-      if: inputs.caller_tarball_artifact != ''
+    - name: Download PR-built zip (Phase 3.5, zip)
+      if: needs.build-tarball.result == 'success' && inputs.caller_zip_artifact == '' && matrix.format == 'zip'
+      uses: actions/download-artifact@v8
+      with:
+        name: openemr-pr-built-zip
+        path: /tmp/pr-built-tarball
+
+    - name: Download caller-supplied tarball (Phase 7c gate, tar)
+      if: inputs.caller_tarball_artifact != '' && matrix.format == 'tar'
       uses: actions/download-artifact@v8
       with:
         name: ${{ inputs.caller_tarball_artifact }}
         path: /tmp/pr-built-tarball
 
+    - name: Download caller-supplied zip (Phase 7c gate, zip)
+      if: inputs.caller_zip_artifact != '' && matrix.format == 'zip'
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.caller_zip_artifact }}
+        path: /tmp/pr-built-tarball
+
     - name: Resolve boot flags for to_version
       # `to_local_flag` is spliced into every boot-package.sh
-      # invocation that boots the to_version tarball;
+      # invocation that boots the to_version artifact;
       # `to_upgrade_local_flag` is spliced into upgrade-package.sh
       # (different flag name, same file). When either the build-tarball
-      # job ran OR the caller supplied a tarball via workflow_call, both
-      # point at the local .tar.gz (downloaded above) and the underlying
-      # script skips its GitHub-release download entirely. Otherwise
-      # both are empty and the scripts do their normal curl.
+      # job ran OR the caller supplied an artifact via workflow_call,
+      # both point at the local .tar.gz / .zip (downloaded above) and
+      # the underlying script skips its GitHub-release download entirely.
+      # Otherwise both are empty and the scripts do their normal curl.
+      #
+      # Format switching (Phase 3.6): `to_local_flag` becomes
+      # --local-tarball=<path> for tar cells and --local-zip=<path> for
+      # zip cells. `to_upgrade_local_flag` stays --to-local-tarball only
+      # — upgrade-package.sh doesn't yet accept --to-local-zip, and the
+      # upgrade + wizard-upgrade matrix entries pin format=tar so the
+      # zip branch is unreachable for those scenarios.
       #
       # There is intentionally no `from_local_flag` — the upgrade
       # scenarios always boot the shipped from_version from GitHub
@@ -543,6 +621,8 @@ jobs:
       env:
         BUILD_TARBALL_RESULT: ${{ needs.build-tarball.result }}
         CALLER_TARBALL_ARTIFACT: ${{ inputs.caller_tarball_artifact }}
+        CALLER_ZIP_ARTIFACT: ${{ inputs.caller_zip_artifact }}
+        MATRIX_FORMAT: ${{ matrix.format }}
         TO_VERSION: ${{ needs.detect-mode.outputs.to_version }}
       run: |
         set -euo pipefail
@@ -555,24 +635,52 @@ jobs:
           echo "::error::TO_VERSION '${TO_VERSION}' does not match required X.Y.Z"
           exit 1
         fi
-        # Local-tarball sources: either build-tarball job (Phase 3.5)
+        # Which caller_* input is relevant for this matrix cell — used
+        # only to decide "did the caller supply an artifact for this
+        # format" for the log-message + presence-check below.
+        case "$MATRIX_FORMAT" in
+          tar) CALLER_ARTIFACT_FOR_FORMAT="$CALLER_TARBALL_ARTIFACT" ;;
+          zip) CALLER_ARTIFACT_FOR_FORMAT="$CALLER_ZIP_ARTIFACT" ;;
+          *)
+            echo "::error::unknown matrix.format value: '${MATRIX_FORMAT}' (expected tar or zip)"
+            exit 1
+            ;;
+        esac
+        # Local-artifact sources: either build-tarball job (Phase 3.5)
         # or workflow_call caller-supplied artifact (Phase 7c). Both
-        # download to /tmp/pr-built-tarball/openemr-<TO_VERSION>.tar.gz.
-        if [[ "$BUILD_TARBALL_RESULT" == "success" || -n "$CALLER_TARBALL_ARTIFACT" ]]; then
-          LOCAL_PATH="/tmp/pr-built-tarball/openemr-${TO_VERSION}.tar.gz"
+        # download to /tmp/pr-built-tarball/openemr-<TO_VERSION>.{tar.gz,zip}.
+        if [[ "$BUILD_TARBALL_RESULT" == "success" || -n "$CALLER_ARTIFACT_FOR_FORMAT" ]]; then
+          case "$MATRIX_FORMAT" in
+            tar)
+              LOCAL_PATH="/tmp/pr-built-tarball/openemr-${TO_VERSION}.tar.gz"
+              LOCAL_FLAG="--local-tarball=${LOCAL_PATH}"
+              ;;
+            zip)
+              LOCAL_PATH="/tmp/pr-built-tarball/openemr-${TO_VERSION}.zip"
+              LOCAL_FLAG="--local-zip=${LOCAL_PATH}"
+              ;;
+          esac
           if [[ ! -f "$LOCAL_PATH" ]]; then
-            echo "::error::local-tarball path expected but $LOCAL_PATH is not present"
+            echo "::error::local-artifact path expected but $LOCAL_PATH is not present"
             exit 1
           fi
-          if [[ -n "$CALLER_TARBALL_ARTIFACT" ]]; then
-            echo "==> Using caller-supplied tarball (Phase 7c): $LOCAL_PATH"
+          if [[ -n "$CALLER_ARTIFACT_FOR_FORMAT" ]]; then
+            echo "==> Using caller-supplied ${MATRIX_FORMAT} (Phase 7c): $LOCAL_PATH"
           else
-            echo "==> Using PR-built tarball (Phase 3.5): $LOCAL_PATH"
+            echo "==> Using PR-built ${MATRIX_FORMAT} (Phase 3.5): $LOCAL_PATH"
           fi
-          echo "to_local_flag=--local-tarball=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
-          echo "to_upgrade_local_flag=--to-local-tarball=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
+          echo "to_local_flag=${LOCAL_FLAG}" >> "$GITHUB_OUTPUT"
+          # upgrade-package.sh only accepts --to-local-tarball today;
+          # matrix pins format=tar for upgrade scenarios, so this only
+          # ever fires on the tar path. Leave empty in the zip case as
+          # a defensive no-op — no upgrade step will consume it.
+          if [[ "$MATRIX_FORMAT" == "tar" ]]; then
+            echo "to_upgrade_local_flag=--to-local-tarball=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
+          else
+            echo "to_upgrade_local_flag=" >> "$GITHUB_OUTPUT"
+          fi
         else
-          echo "==> No local tarball; to_version will be fetched from the GitHub release page"
+          echo "==> No local artifact; to_version will be fetched from the GitHub release page"
           echo "to_local_flag=" >> "$GITHUB_OUTPUT"
           echo "to_upgrade_local_flag=" >> "$GITHUB_OUTPUT"
         fi

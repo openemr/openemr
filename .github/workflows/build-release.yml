@@ -279,7 +279,13 @@ jobs:
     if: '!inputs.dry_run'
     uses: ./.github/workflows/acceptance-package.yml
     with:
+      # Both caller_* inputs reference the SAME artifact name because
+      # the release-output bundle contains BOTH openemr-<version>.tar.gz
+      # AND openemr-<version>.zip (see build-package's upload-artifact
+      # step). acceptance-package's per-format download step picks the
+      # right file out of the bundle by matrix.format.
       caller_tarball_artifact: ${{ needs.build-package.outputs.artifact_name }}
+      caller_zip_artifact: ${{ needs.build-package.outputs.artifact_name }}
       to_version: ${{ needs.build-package.outputs.release_version }}
     # Acceptance-package doesn't currently use secrets, but forward
     # them for future-proofing (e.g. if a downstream test grows a

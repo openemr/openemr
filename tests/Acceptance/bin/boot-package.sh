@@ -9,7 +9,8 @@
 # via OpenEMR's Installer class.
 #
 # Usage:
-#   tests/Acceptance/bin/boot-package.sh [--skip-install-helper] [--local-tarball=<path>] <version>
+#   tests/Acceptance/bin/boot-package.sh [--skip-install-helper] \
+#     [--local-tarball=<path> | --local-zip=<path>] <version>
 #     --skip-install-helper (optional)
 #         Skip the install-helper.php step. Leaves the artifact serving
 #         setup.php on http://localhost:8680/, ready for the
@@ -20,7 +21,7 @@
 #         instead, waits for /setup.php to return 200 (proves apache is
 #         serving on the mapped port).
 #     --local-tarball=<path> (optional)
-#         Extract the given local tarball instead of curl-ing the
+#         Extract the given local .tar.gz instead of curl-ing the
 #         GitHub release page. Enables Phase 3.5 PR-tarball validation:
 #         the acceptance-package workflow builds the tarball via
 #         PackageAssembler from the PR checkout, uploads it as a
@@ -28,11 +29,18 @@
 #         downloaded path here. Skips the network fetch entirely; the
 #         `<version>` arg is still required (used for the scratch dir
 #         name only in this mode).
+#     --local-zip=<path> (optional)
+#         Extract the given local .zip instead. Same semantics as
+#         --local-tarball but for the ZIP artifact PackageAssembler
+#         also produces alongside the tarball. Enables Phase 3.6 ZIP
+#         acceptance coverage — the matrix's `format: zip` cells use
+#         this to validate the shipped ZIP boots + installs correctly.
+#         Mutually exclusive with --local-tarball.
 #     version — release tag suffix, must match ^[0-9]+\.[0-9]+\.[0-9]+$
 #               (e.g. 8.2.0). Anything else is rejected before any path
 #               is constructed — VERSION is caller-controlled and flows
 #               into `rm -rf` / `curl -o` paths.
-#               Without --local-tarball: fetches
+#               Without --local-tarball / --local-zip: fetches
 #               https://github.com/openemr/openemr/releases/download/v<X_Y_Z>/openemr-<version>.tar.gz
 #
 # After a successful boot (default mode):
@@ -47,6 +55,7 @@ set -euo pipefail
 
 skip_install_helper="false"
 local_tarball=""
+local_zip=""
 while [[ $# -gt 0 && "$1" == --* ]]; do
     case "$1" in
         --skip-install-helper)
@@ -57,6 +66,10 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
             local_tarball="${1#--local-tarball=}"
             shift
             ;;
+        --local-zip=*)
+            local_zip="${1#--local-zip=}"
+            shift
+            ;;
         *)
             echo "::error::unknown flag: $1" >&2
             exit 2
@@ -64,11 +77,17 @@ while [[ $# -gt 0 && "$1" == --* ]]; do
     esac
 done
 
+if [[ -n "${local_tarball}" && -n "${local_zip}" ]]; then
+    echo "::error::--local-tarball and --local-zip are mutually exclusive" >&2
+    exit 2
+fi
+
 if [[ $# -ne 1 ]]; then
-    echo "Usage: $0 [--skip-install-helper] [--local-tarball=<path>] <version>" >&2
+    echo "Usage: $0 [--skip-install-helper] [--local-tarball=<path> | --local-zip=<path>] <version>" >&2
     echo "  e.g.: $0 8.2.0" >&2
     echo "        $0 --skip-install-helper 8.2.0" >&2
     echo "        $0 --local-tarball=/tmp/openemr-8.2.0.tar.gz 8.2.0" >&2
+    echo "        $0 --local-zip=/tmp/openemr-8.2.0.zip 8.2.0" >&2
     exit 2
 fi
 
@@ -115,14 +134,27 @@ if [[ -n "${local_tarball}" ]]; then
     # from their own cwd) would otherwise see `tar` look for it under
     # REPO_ROOT and either extract the wrong file or fail. realpath
     # handles both leading-`./` and no-leading-`./` shapes uniformly.
-    TARBALL_PATH="$(realpath "${local_tarball}")"
+    ARTIFACT_PATH="$(realpath "${local_tarball}")"
+    ARTIFACT_FORMAT="tar"
+    # No trap cleanup — the caller owns this file.
+elif [[ -n "${local_zip}" ]]; then
+    # Local-zip mode — same shape as local-tarball; the only difference
+    # is the extractor further below (unzip vs tar -xzf). Phase 3.6
+    # validation of the shipped ZIP artifact.
+    if [[ ! -f "${local_zip}" ]]; then
+        echo "::error::--local-zip path does not exist or is not a regular file: ${local_zip}" >&2
+        exit 2
+    fi
+    ARTIFACT_PATH="$(realpath "${local_zip}")"
+    ARTIFACT_FORMAT="zip"
     # No trap cleanup — the caller owns this file.
 else
     # Random tarball path via mktemp — a predictable path like
     # /tmp/openemr-${VERSION}.tar.gz would let a local attacker
     # pre-create a symlink to redirect the curl download.
-    TARBALL_PATH="$(mktemp -t "openemr-acceptance-tarball.XXXXXX.tar.gz")"
-    trap 'rm -f "${TARBALL_PATH}"' EXIT
+    ARTIFACT_PATH="$(mktemp -t "openemr-acceptance-tarball.XXXXXX.tar.gz")"
+    ARTIFACT_FORMAT="tar"
+    trap 'rm -f "${ARTIFACT_PATH}"' EXIT
 fi
 
 cd "${REPO_ROOT}"
@@ -132,16 +164,36 @@ rm -rf "${TARBALL_DIR}"
 mkdir -p "${TARBALL_DIR}"
 
 if [[ -n "${local_tarball}" ]]; then
-    echo "==> Using local tarball ${TARBALL_PATH} (--local-tarball set — skipping GitHub download)"
+    echo "==> Using local tarball ${ARTIFACT_PATH} (--local-tarball set — skipping GitHub download)"
+elif [[ -n "${local_zip}" ]]; then
+    echo "==> Using local zip ${ARTIFACT_PATH} (--local-zip set — skipping GitHub download)"
 else
     echo "==> Downloading ${TARBALL_URL}"
-    curl -fsSL "${TARBALL_URL}" -o "${TARBALL_PATH}"
+    curl -fsSL "${TARBALL_URL}" -o "${ARTIFACT_PATH}"
 fi
 
-echo "==> Extracting into ${TARBALL_DIR}"
-# --strip-components=1 pulls contents up so ${TARBALL_DIR} matches the
-# openemr web-root layout the flex image's bind mount expects.
-tar -pxzf "${TARBALL_PATH}" -C "${TARBALL_DIR}" --strip-components=1
+echo "==> Extracting into ${TARBALL_DIR} (format=${ARTIFACT_FORMAT})"
+case "${ARTIFACT_FORMAT}" in
+    tar)
+        # --strip-components=1 pulls contents up so ${TARBALL_DIR} matches
+        # the openemr web-root layout the flex image's bind mount expects.
+        tar -pxzf "${ARTIFACT_PATH}" -C "${TARBALL_DIR}" --strip-components=1
+        ;;
+    zip)
+        # unzip has no --strip-components; extract to a temp dir first,
+        # then move the single top-level `openemr-<version>/` contents up
+        # into ${TARBALL_DIR} to mirror the tarball layout.
+        ZIP_TMP="$(mktemp -d -t "openemr-acceptance-zip.XXXXXX")"
+        trap 'rm -rf "${ZIP_TMP}"' EXIT
+        # -q quiet; -o overwrite (no interactive prompt). PackageAssembler
+        # produces a single top-level `openemr-<version>/` dir; anything
+        # else is a packaging bug and the mv below will fail loudly.
+        unzip -qo "${ARTIFACT_PATH}" -d "${ZIP_TMP}"
+        shopt -s dotglob
+        mv "${ZIP_TMP}"/*/* "${TARBALL_DIR}"/
+        shopt -u dotglob
+        ;;
+esac
 
 echo "==> Booting compose stack (mysql + openemr, EMPTY=yes)"
 docker compose up --detach --no-recreate
