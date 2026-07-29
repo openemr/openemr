@@ -592,6 +592,87 @@ acceptance against a just-shipped floating-tag artifact within
 minutes of publish) — the two together give both pre-publish
 gating and post-publish latency-catching.
 
+### Phase 3.6 — ZIP acceptance coverage *(proposed 2026-07-29)*
+
+Phase 3 through Phase 7c-tarball built the full "test the shipped
+tarball, at PR time + release-time gate" story. But the shipped
+package artifact list is TWO files: `openemr-<version>.tar.gz`
+AND `openemr-<version>.zip`. Only the tarball flows through
+acceptance today; the ZIP ships tested only in the "same
+PackageAssembler produced both" sense (byte-similar content
+guarantee, not black-box behavior guarantee). Deferred-known-debt
+entry in the doc from day one; promoted here now that the tarball
+path is stable and the "every artifact tested" goal is in reach.
+
+ZIP-only bugs are rare (both files are produced by the same
+PackageAssembler pass over the same source tree) but not
+theoretical:
+
+  * Line-ending translation (`\r\n` vs `\n`) — ZIP toolchains
+    sometimes normalize; PackageAssembler doesn't. A regression
+    that switched to a normalizing zip tool would produce a
+    subtly-broken ZIP.
+  * Executable-bit preservation — ZIP encodes exec-bit via
+    extra-field metadata (unix external attributes); some
+    extractors on some platforms drop it silently. Real user
+    impact: `.sh` scripts in the extracted tree can't run.
+  * Empty-directory handling — ZIP treats zero-file dirs as
+    optional entries; PackageAssembler may skip them. Some
+    OpenEMR install paths expect specific empty dirs to exist.
+  * Path-separator handling — ZIP uses `/` (like tar), but
+    extractors on Windows can transform to `\`. Content-wise
+    fine, but if any OpenEMR runtime code does path-string
+    comparison, could surface only on ZIP-extracted installs.
+
+Design mirrors the tarball path:
+
+  * **`boot-package.sh`** grows a `--local-zip <path>` flag
+    alongside the existing `--local-tarball`. Uses `unzip`
+    instead of `tar -xzf`; otherwise identical extract-into-
+    scratch-dir → point compose at it flow.
+  * **`build-tarball` job** (name becomes slightly misleading —
+    could rename to `build-package` for consistency with
+    build-release.yml's terminology) uploads both artifacts.
+    PackageAssembler already produces both; just add the ZIP to
+    the upload-artifact step.
+  * **`acceptance-package.yml` matrix** gains a `format: [tar, zip]`
+    dimension. Cartesian with the existing scenario dimension:
+    fresh-install / wizard-install / upgrade / wizard-upgrade
+    × tar/zip = 8 cells (vs current 4). Runtime doubles but
+    parallelizes — wall clock similar.
+  * **`acceptance-package.yml`'s workflow_call trigger** gets
+    a `caller_zip_artifact` input alongside `caller_tarball_artifact`.
+    When Phase 7c-tarball's build-release.yml calls it (release-
+    time gate), both artifacts flow through.
+  * **`build-release.yml`'s build-package job** already produces
+    both files via `task package:assemble`; just add the ZIP to
+    its upload-artifact list. The publish job's `gh release
+    upload` already publishes both (byte-identical publish
+    unchanged) — Phase 7b's sha256 re-verify already covers both
+    since it uses the shipped-asset list.
+
+Coverage after landing:
+
+  * Release-prep PR: auto-fired acceptance-package now tests
+    both formats (via the same release-prep.yml dispatch that
+    Phase 3.5 already wired).
+  * Release-time gate: Phase 7c-tarball's build-release.yml
+    workflow_call passes both artifacts; publish only proceeds
+    if acceptance passes on both formats.
+  * PR touching tools/release/**: same doubled coverage via the
+    Phase 3.5 auto-detect mechanism.
+
+Not covered (out of scope for 3.6): ZIP extraction on Windows
+itself. The acceptance runners are Ubuntu; Windows-native
+extraction quirks stay outside the automated harness (would need
+a windows-2022 runner + PowerShell Expand-Archive test — real
+work + real value but separate phase).
+
+Exit criterion: a synthetic ZIP-only regression (e.g., temporarily
+mutate PackageAssembler to strip exec bits on ZIP output) is
+caught by the fresh-install (zip) scenario in release-prep PR CI.
+~2 days of implementation.
+
 ### Phase 4 — Broaden test coverage
 
 Sliced for reviewability. Rollout order: 4a → 4a-2 → 4b → 4c → 4a-3.
@@ -1502,9 +1583,12 @@ in acceptance."
   scenario but expensive to test comprehensively — quadratic in
   version count. Start with single-hop (latest → next), add multi-hop
   case-by-case for reported upgrade paths.
-- **Package acceptance for zip artifact.** Initial rollout tests the
-  tarball only. Zip is byte-similar; add later when the tarball path is
-  solid.
+- **~~Package acceptance for zip artifact.~~** Promoted 2026-07-29
+  to **Phase 3.6** in the phase section above — the tarball path
+  is stable enough and the "every artifact tested" goal is now
+  in reach. Original entry text preserved for continuity: initial
+  rollout tests the tarball only; zip is byte-similar; add later
+  when the tarball path is solid.
 - **Kcov replacement strategy.** This plan retires the artifact-side
   kcov path but doesn't specify what replaces it for code coverage
   measurement. Options: source-side kcov in the dev stack (matches
@@ -2029,3 +2113,17 @@ in acceptance."
   acceptance-docker.yml could be re-tested against the
   still-live candidate rather than needing a full 24-minute
   rebuild per attempt.
+
+- **2026-07-29** — **Phase 3.6 (ZIP acceptance coverage) promoted
+  from deferred-known-debt to a scheduled phase.** Design mirrors
+  the tarball path: boot-package.sh gains --local-zip;
+  build-tarball job uploads both artifacts; acceptance-package.yml
+  matrix expands to `format: [tar, zip]` cartesian (8 cells vs
+  current 4); workflow_call trigger gains `caller_zip_artifact`
+  alongside `caller_tarball_artifact`; build-release.yml passes
+  both. Both firing paths (release-prep PR auto-dispatch + release-
+  time gate) covered by the same acceptance-package.yml change.
+  Catches the ZIP-only bug classes (line endings, exec-bit
+  preservation, empty-dir handling, path-separator edge cases)
+  that byte-similar tarball content doesn't cover. ~2 days.
+  Not on the critical path — slot after Phase 7d finishes.
