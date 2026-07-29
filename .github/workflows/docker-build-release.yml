@@ -299,46 +299,10 @@ jobs:
         EXPECTED_VERSION: ${{ steps.image_version.outputs.value }}
         EXPECTED_BUILD_DATE: ${{ steps.build_date.outputs.date }}
         REF_TAG: openemr/openemr:${{ env.GATE_CANDIDATE_TAG }}
-      run: |
-        # Same verify logic as the non-gated path below, but runs against
-        # the candidate tag before spending acceptance-gate CI budget on
-        # an image whose Dockerfile ARGs didn't flow through correctly.
-        docker pull "$REF_TAG"
-        inspect_label() {
-          V=$(docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG")
-          if [ "$V" = "<no value>" ]; then
-            echo ""
-          else
-            echo "$V"
-          fi
-        }
-        FAIL=0
-        ACTUAL_REVISION=$(inspect_label revision)
-        if [ "$ACTUAL_REVISION" != "$EXPECTED_REVISION" ]; then
-          echo "::error::revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
-          FAIL=1
-        fi
-        ACTUAL_VERSION=$(inspect_label version)
-        if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
-          echo "::error::version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION'"
-          FAIL=1
-        fi
-        ACTUAL_CREATED=$(inspect_label created)
-        if [ "$ACTUAL_CREATED" != "$EXPECTED_BUILD_DATE" ]; then
-          echo "::error::created label '$ACTUAL_CREATED' doesn't match expected '$EXPECTED_BUILD_DATE'"
-          FAIL=1
-        fi
-        for STATIC_LABEL in title source url licenses; do
-          VALUE=$(inspect_label "$STATIC_LABEL")
-          if [ -z "$VALUE" ]; then
-            echo "::error::Image is missing org.opencontainers.image.${STATIC_LABEL} label entirely"
-            FAIL=1
-          else
-            echo "✓ ${STATIC_LABEL}=${VALUE}"
-          fi
-        done
-        [ "$FAIL" -eq 0 ] || exit 1
-        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"
+      # Runs against the candidate tag before spending acceptance-gate CI
+      # budget on an image whose Dockerfile ARGs didn't flow through
+      # correctly. Same verify script the non-gated + publish sites use.
+      run: .github/scripts/verify-oci-labels.sh
 
     - name: Verify pushed image OCI labels — non-gated path
       if: ${{ !inputs.gate_with_acceptance }}
@@ -347,67 +311,13 @@ jobs:
         EXPECTED_VERSION: ${{ steps.image_version.outputs.value }}
         EXPECTED_BUILD_DATE: ${{ steps.build_date.outputs.date }}
         TAGS_LIST: ${{ steps.expand_docker_tags.outputs.list }}
+      # First pushed tag is the representative one to verify -- all tags
+      # in TAGS_LIST point at the same manifest so inspecting one covers
+      # all of them.
       run: |
-        # Pull the first pushed tag back and inspect its labels.
-        REF_TAG=$(echo "$TAGS_LIST" | head -1)
-        docker pull "$REF_TAG"
-
-        inspect_label() {
-          # docker's Go-template `index` returns the literal string "<no value>"
-          # when a label key is missing on newer Docker versions, instead of an
-          # empty string. Normalize it back to empty so callers (both the
-          # value-comparison and the presence-checks below) can rely on -z to
-          # mean "label absent."
-          V=$(docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG")
-          if [ "$V" = "<no value>" ]; then
-            echo ""
-          else
-            echo "$V"
-          fi
-        }
-
-        FAIL=0
-
-        # Value checks: the two labels that vary per build and have a
-        # computable expected value.
-        ACTUAL_REVISION=$(inspect_label revision)
-        if [ "$ACTUAL_REVISION" != "$EXPECTED_REVISION" ]; then
-          echo "::error::revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
-          echo "  This means docker/release/Dockerfile either dropped the OPENEMR_VERSION ARG or hardcoded the LABEL value."
-          FAIL=1
-        fi
-
-        ACTUAL_VERSION=$(inspect_label version)
-        if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
-          echo "::error::version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION' (parsed from openemr@${EXPECTED_REVISION}/version.php)"
-          echo "  This means docker/release/Dockerfile either dropped the IMAGE_VERSION ARG or hardcoded the LABEL value."
-          FAIL=1
-        fi
-
-        ACTUAL_CREATED=$(inspect_label created)
-        if [ "$ACTUAL_CREATED" != "$EXPECTED_BUILD_DATE" ]; then
-          echo "::error::created label '$ACTUAL_CREATED' doesn't match expected '$EXPECTED_BUILD_DATE'"
-          echo "  This means docker/release/Dockerfile either dropped the BUILD_DATE ARG or hardcoded the LABEL value."
-          FAIL=1
-        fi
-
-        # Presence checks: the four static labels that don't vary per build.
-        # Catches the "someone truncated the Dockerfile and the whole LABEL
-        # block disappeared" failure mode that the value checks above wouldn't
-        # see if those three ARGs were also gone.
-        for STATIC_LABEL in title source url licenses; do
-          VALUE=$(inspect_label "$STATIC_LABEL")
-          if [ -z "$VALUE" ]; then
-            echo "::error::Image is missing org.opencontainers.image.${STATIC_LABEL} label entirely"
-            echo "  Check that docker/release/Dockerfile's LABEL block at the final stage is intact."
-            FAIL=1
-          else
-            echo "✓ ${STATIC_LABEL}=${VALUE}"
-          fi
-        done
-
-        [ "$FAIL" -eq 0 ] || exit 1
-        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"
+        REF_TAG=$(echo "${TAGS_LIST}" | head -1)
+        export REF_TAG
+        .github/scripts/verify-oci-labels.sh
 
   # Phase 7c-docker gate: run the full acceptance-docker matrix against
   # the image build produced + saved as an artifact. Publish only fires
@@ -456,6 +366,17 @@ jobs:
     if: inputs.gate_with_acceptance
     runs-on: ubuntu-24.04
     steps:
+    # Needed so the "Verify pushed image OCI labels" step below can call
+    # .github/scripts/verify-oci-labels.sh. Publish is a separate job
+    # from build so the workspace doesn't carry over — must re-checkout.
+    # persist-credentials: false because publish uses its own app-token
+    # (steps.<>.outputs.token) for gh commands; leaving GITHUB_TOKEN in
+    # .git/config would be zero-value credential surface.
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
 
@@ -488,51 +409,15 @@ jobs:
         EXPECTED_VERSION: ${{ needs.build.outputs.image_version }}
         EXPECTED_BUILD_DATE: ${{ needs.build.outputs.build_date }}
         TAGS_LIST: ${{ needs.build.outputs.expanded_tags }}
+      # Runs against the first published final tag as a defense-in-depth
+      # check that imagetools-create actually pointed the tag at a
+      # manifest with the expected labels (it should, by construction,
+      # but the check is essentially free). Same verify script the
+      # build job's gated + non-gated sites use.
       run: |
-        # Same verify shape as the non-gated build job's step. Runs
-        # against the first published final tag as a defense-in-depth
-        # check that imagetools-create actually pointed the tag at a
-        # manifest with the expected labels (it should, by construction,
-        # but the check is essentially free).
-        REF_TAG=$(echo "$TAGS_LIST" | head -1)
-        docker pull "$REF_TAG"
-
-        inspect_label() {
-          V=$(docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG")
-          if [ "$V" = "<no value>" ]; then
-            echo ""
-          else
-            echo "$V"
-          fi
-        }
-
-        FAIL=0
-        ACTUAL_REVISION=$(inspect_label revision)
-        if [ "$ACTUAL_REVISION" != "$EXPECTED_REVISION" ]; then
-          echo "::error::revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
-          FAIL=1
-        fi
-        ACTUAL_VERSION=$(inspect_label version)
-        if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
-          echo "::error::version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION'"
-          FAIL=1
-        fi
-        ACTUAL_CREATED=$(inspect_label created)
-        if [ "$ACTUAL_CREATED" != "$EXPECTED_BUILD_DATE" ]; then
-          echo "::error::created label '$ACTUAL_CREATED' doesn't match expected '$EXPECTED_BUILD_DATE'"
-          FAIL=1
-        fi
-        for STATIC_LABEL in title source url licenses; do
-          VALUE=$(inspect_label "$STATIC_LABEL")
-          if [ -z "$VALUE" ]; then
-            echo "::error::Image is missing org.opencontainers.image.${STATIC_LABEL} label entirely"
-            FAIL=1
-          else
-            echo "✓ ${STATIC_LABEL}=${VALUE}"
-          fi
-        done
-        [ "$FAIL" -eq 0 ] || exit 1
-        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"
+        REF_TAG=$(echo "${TAGS_LIST}" | head -1)
+        export REF_TAG
+        .github/scripts/verify-oci-labels.sh
 
   # Phase 7c-docker cleanup: delete the candidate tag from Docker Hub
   # after publish (success or fail). Runs on the gated path when the
