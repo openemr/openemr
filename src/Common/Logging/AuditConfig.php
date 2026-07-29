@@ -17,19 +17,19 @@ namespace OpenEMR\Common\Logging;
 class AuditConfig
 {
     /**
-     * @param array<string, bool> $eventTypeFlags
+     * @param list<EventCategory> $enabledEventTypes
      */
     public function __construct(
         public readonly bool $enabled,
         public readonly bool $forceBreakglass,
         public readonly bool $queryEvents,
         public readonly bool $httpRequestEvents,
-        private readonly array $eventTypeFlags,
+        private readonly array $enabledEventTypes,
     ) {
     }
 
-    public function isEventTypeEnabled(string $type): bool
+    public function isEventCategoryEnabled(EventCategory $category): bool
     {
-        return $this->eventTypeFlags[$type] ?? false;
+        return in_array($category, $this->enabledEventTypes, true);
     }
 }

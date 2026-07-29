@@ -56,7 +56,7 @@ $alertmsg = '';
 $tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pricelevel' AND activity = 1");
 $price_levels_are_used = $tmp['count'] > 1;
 // For revenue codes
-$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support') ? true : false;
+$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support');
 // Helper function for creating drop-lists.
 function endFSCategory(): void
 {

@@ -1,0 +1,70 @@
+name: Notify release-targets-changed
+
+# When .github/release-targets.yml is pushed to master, dispatch a
+# `release-targets-changed` event to the demo_farm_openemr repo so its
+# auto-derive bot reconciles immediately instead of waiting for the next
+# daily 07:00 UTC tick. Without this workflow the bot still works on its
+# daily schedule; this just removes the up-to-24h latency.
+#
+# Companion to openemr/demo_farm_openemr#141 (adds the listener side).
+
+on:
+  push:
+    branches: [master]
+    paths: [.github/release-targets.yml]
+  # Workflow-dispatch escape hatch for recovery / manual reruns.
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: notify-release-targets-changed-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    name: Dispatch release-targets-changed to demo_farm_openemr (${{ matrix.php-version }})
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        # Conductor tooling runs only on CI runners (no customer
+        # deployment), so per OCE conventions it tracks the latest
+        # stable PHP rather than the openemr application floor.
+        php-version:
+        - '8.5'
+    steps:
+    - name: Mint App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+        repositories: demo_farm_openemr
+        # Repository_dispatch only needs contents:write; without this the
+        # token inherits every permission the App installation has.
+        permission-contents: write
+
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: Dispatch release-targets-changed to demo_farm_openemr
+      env:
+        RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        REPO: ${{ github.repository }}
+        COMMIT_SHA: ${{ github.sha }}
+      run: |
+        php tools/release/bin/dispatch.php \
+          --event=release-targets-changed \
+          --repo="${REPO}" \
+          --sha="${COMMIT_SHA}" \
+          --actor='openemr-release-bot' \
+          --target-repos=openemr/demo_farm_openemr

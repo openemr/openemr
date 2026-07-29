@@ -47,7 +47,7 @@ $ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
 $attendant_type ??= 'pid';
 $therapy_group ??= 0;
 
-$is_group = ($attendant_type == 'gid') ? true : false;
+$is_group = $attendant_type == 'gid';
 
 if (isset($_GET['pid']) && $_GET['pid'] != $session->get('pid')) {
     PatientSessionUtil::setPid($_GET['pid']);

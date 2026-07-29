@@ -34,16 +34,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Left side of && is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Left side of && is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Left side of && is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/templates/relation_form.php',
 ];
 $ignoreErrors[] = [

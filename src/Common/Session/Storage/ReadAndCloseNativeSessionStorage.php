@@ -24,6 +24,7 @@
 namespace OpenEMR\Common\Session\Storage;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionConfiguration;
 use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpFoundation\Session\Storage\Proxy\AbstractProxy;
@@ -36,19 +37,15 @@ class ReadAndCloseNativeSessionStorage extends NativeSessionStorage
 
     private bool $wasOriginallyReadAndClose = false;
 
-    /**
-     * @param array<string, mixed> $options Session configuration options (may include 'read_and_close')
-     * @param AbstractProxy|\SessionHandlerInterface|null $handler
-     */
-    public function __construct(array $options = [], AbstractProxy|\SessionHandlerInterface|null $handler = null, ?MetadataBag $metaBag = null)
-    {
+    public function __construct(
+        SessionConfiguration $options,
+        AbstractProxy|\SessionHandlerInterface|null $handler = null,
+        ?MetadataBag $metaBag = null,
+    ) {
         // Extract read_and_close before parent sees it (parent would silently drop it)
-        if (isset($options['read_and_close'])) {
-            $this->readAndClose = (bool) $options['read_and_close'];
-            unset($options['read_and_close']);
-        }
+        $this->readAndClose = $options->readAndClose;
 
-        parent::__construct($options, $handler, $metaBag);
+        parent::__construct($options->toSessionStartOptions(), $handler, $metaBag);
     }
 
     /**

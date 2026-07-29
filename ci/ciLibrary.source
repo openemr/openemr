@@ -53,6 +53,53 @@ dc() {
     docker compose "$@"
 }
 
+##
+# Retry a command with exponential backoff. Docker Hub registry pulls time
+# out transiently in CI (issue #12423); without a retry a single hiccup
+# fails the whole matrix job. Usage: with_retry MAX_ATTEMPTS DELAY cmd args...
+with_retry() {
+    local max_attempts=$1
+    local delay=$2
+    shift 2
+    local attempt=1
+    while true; do
+        # shellcheck disable=SC2310  # the command's failure drives the retry, not errexit
+        if "$@"; then
+            return 0
+        fi
+        if (( attempt >= max_attempts )); then
+            echo "Command failed after ${attempt} attempts: $*" >&2
+            return 1
+        fi
+        echo "Attempt ${attempt}/${max_attempts} failed: $* — retrying in ${delay}s" >&2
+        sleep "${delay}"
+        (( ++attempt ))
+        (( delay *= 2 ))
+    done
+}
+
+##
+# Pull every image the compose stack needs, retrying on transient registry
+# errors. Separated from `up` so a Docker Hub timeout retries just the pull
+# rather than failing the bring-up. --ignore-buildable skips services that
+# build locally (e.g. inferno's terminology_builder).
+#
+# Pulls at most once per job: dockers_env_start runs in several workflow
+# steps (initial bring-up, again after restarts in setup_e2e_bookends and
+# build_test_e2e), each in a fresh shell, so the guard is a marker file in
+# RUNNER_TEMP rather than a shell variable. Repeat calls skip the pull and
+# rely on `dc up --quiet-pull` to fetch anything still missing (e.g. a
+# profile-gated image the first pull's COMPOSE_PROFILES did not include).
+pull_images() {
+    local marker="${RUNNER_TEMP:-/tmp}/openemr-ci-images-pulled"
+    if [[ -f "${marker}" ]]; then
+        echo 'Images already pulled this job; skipping pull (up will fetch anything missing).'
+        return 0
+    fi
+    with_retry 4 5 dc pull --quiet --ignore-buildable
+    touch "${marker}"
+}
+
 _exec() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         # Set XDEBUG_MODE env var for xdebug coverage (ignored if using pcov).
@@ -62,6 +109,17 @@ _exec() {
     else
         dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
     fi
+}
+
+##
+# Echo the first existing web-server user inside the openemr container.
+# OpenEMR ships two web stacks: the apache image uses `apache`, the
+# nginx + php-fpm image uses `www-data`. Probe both so the same wrap
+# pattern works across the full CI matrix without needing per-stack
+# branching at every su call site.
+web_user_in_openemr() {
+    # shellcheck disable=SC2016  # $u is the inner for-loop variable, intentionally evaluated inside the container's shell.
+    _exec sh -c 'for u in apache www-data; do if id "$u" >/dev/null 2>&1; then echo "$u"; exit 0; fi; done; exit 1'
 }
 
 ##
@@ -84,6 +142,12 @@ convert_coverage() {
 }
 
 dockers_env_start() {
+    # Pull first, with retry, so a transient Docker Hub timeout retries the
+    # pull instead of failing the whole bring-up (issue #12423). `up` then
+    # finds the images already present; its own --quiet-pull is left as a
+    # harmless fallback for anything pull_images skipped (e.g. buildable
+    # services in the inferno stack).
+    pull_images
     dc up --detach --quiet-pull --wait --wait-timeout 300
 }
 
@@ -179,10 +243,17 @@ install_configure() {
     	actions_chmod 0666 sites/default/sqlconf.php
     	actions_chmod -R 0777 sites/default/documents
     )
-    # we need this to occur on the docker image of OpenEMR, on local systems this may be the same but in the ci engine its inside the docker container
-    # until we get the devops repo setup we'll just grab the auto_configure.php script and use that
-    _exec sh -c 'curl -v https://raw.githubusercontent.com/openemr/openemr-devops/refs/heads/master/docker/openemr/flex/auto_configure.php > /root/auto_configure.php'
-    _exec sh -c 'OPENEMR_ENABLE_INSTALLER_AUTO=1 php -f ./contrib/util/installScripts/InstallerAuto.php rootpass=root server=mysql loginhost=%'
+    _exec cp docker/flex/auto_configure.php /root/auto_configure.php
+    # InstallerAuto goes through the Installer class, which RootCliGuard
+    # refuses to run as root (PR #12267, def8758). Drop to the web user
+    # for the subprocess — same approach as the upgradeOpenEMR override
+    # below. The openemr-devops devtools change will eventually carry the
+    # same privilege drop; until that lands, the ci library wraps locally.
+    # Web user differs between stacks (apache image: apache, nginx image:
+    # www-data); web_user_in_openemr probes both.
+    local web_user
+    web_user=$(web_user_in_openemr)
+    _exec sh -c "OPENEMR_ENABLE_INSTALLER_AUTO=1 su -p -s /bin/sh ${web_user} -c 'php -f ./contrib/util/installScripts/InstallerAuto.php rootpass=root server=mysql loginhost=%'"
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
@@ -563,6 +634,148 @@ dump_error_log() {
             exit 255
             ;;
     esac
+}
+
+##
+# Directory inside the openemr container where coredumps are collected. The
+# kernel core_pattern (set by enable_coredumps) is interpreted within the
+# crashing process's mount namespace, so this is a container path. It is not
+# on the bind mount; cores are streamed out with `dc exec` in
+# capture_coredumps, so they never touch the repo working tree.
+# Assign-if-unset before marking readonly: ci/inferno/run.sh sources this
+# library several times in one shell, and a bare `readonly VAR=...` errors on
+# the second source.
+: "${COREDUMP_DIR:=/var/www/coredumps}"
+readonly COREDUMP_DIR
+
+##
+# Enable coredumps so a segfaulting Apache worker leaves a usable core
+# (issue #12438/#12439). Three things must line up:
+#   1. The container's core ulimit must be non-zero — set in
+#      ci/compose-shared-apache.yml (ulimits.core).
+#   2. kernel.core_pattern must be a plain path, not a pipe. The GitHub
+#      runner ships `|/usr/share/apport/apport ...`, which the kernel runs
+#      in the host namespace; the core never reaches the container. An
+#      absolute path pattern is instead resolved inside the crashing
+#      process's mount namespace, landing the core in the container.
+#   3. fs.suid_dumpable=2 — Apache children drop privileges from root to
+#      the web user, which clears the dumpable flag; mode 2 restores it
+#      (core owned by root, readable by root).
+# core_pattern is a kernel global shared with the container.
+enable_coredumps() {
+    # Create the in-container target up front so the kernel has somewhere to
+    # write the core. World-writable + sticky: Apache workers run as the
+    # unprivileged web user once privileges are dropped.
+    dc exec -T openemr sh -c "mkdir -p '${COREDUMP_DIR}' && chmod 1777 '${COREDUMP_DIR}'"
+    sudo sysctl -w "kernel.core_pattern=${COREDUMP_DIR}/core.%e.%p.%t"
+    sudo sysctl -w 'fs.suid_dumpable=2'
+    # The two sysctls above are checked at the moment a process changes UID.
+    # Apache started earlier in the compose `up` and its prefork workers
+    # already dropped root -> apache before we ran these sysctls, so those
+    # existing workers still have dumpable=0 — the kernel will silently
+    # discard their cores. This is why #12438's crash-diagnostics artifact
+    # has been reporting "No coredumps found in /var/www/coredumps" on
+    # every apache_82_118* segfault since #12445 landed: enable_coredumps
+    # ran cleanly but the workers that segfaulted were already un-dumpable.
+    #
+    # `httpd -k graceful` sends SIGUSR1 to the parent apache. The parent
+    # forks fresh workers, and those inherit dumpable=1 under
+    # fs.suid_dumpable=2, so subsequent segfaults leave usable cores.
+    # shellcheck disable=SC2310  # graceful restart failure is diagnostic, not fatal
+    dc exec -T openemr sh -c 'httpd -k graceful' \
+        || echo 'enable_coredumps: graceful restart failed; existing workers keep dumpable=0'
+}
+
+##
+# Backtrace every coredump collected in the openemr container and write the
+# results into the diagnostics directory passed as $1 (a host path). For each
+# core we always write a gdb text backtrace (naming the faulting shared
+# object — the whole point of #12439). The raw core is NOT uploaded by
+# default: it can hold in-memory secrets (session tokens, the sqlconf.php DB
+# password) and the artifact is downloadable on a public PR. Set
+# COREDUMP_MAX_MB > 0 to also stream out the gzip'd core when it is under that
+# size. No-op when no core was produced.
+capture_coredumps() {
+    local dest_dir=$1
+    local max_core_mb=${COREDUMP_MAX_MB:-0}
+    mkdir -p "${dest_dir}"
+
+    local cores
+    # shellcheck disable=SC2310  # missing-core is expected; || true drives the no-op branch
+    cores=$(dc exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}'/core.* 2>/dev/null") || true
+    if [[ -z "${cores}" ]]; then
+        echo "No coredumps found in ${COREDUMP_DIR}." > "${dest_dir}/coredumps.none.txt"
+        return 0
+    fi
+
+    # gdb gives us `bt` and `info sharedlibrary`. Install inside the container
+    # so symbol resolution uses the container's own libraries.
+    # shellcheck disable=SC2310  # install failure is non-fatal; backtrace is just skipped
+    dc exec -T openemr sh -c \
+        'command -v gdb >/dev/null 2>&1 || { (apk add --no-cache gdb 2>/dev/null) || { apt-get update -qq && apt-get install -y -qq gdb; }; }' \
+        || echo 'WARNING: gdb install failed; no backtrace will be produced. The raw core is retained in the container; set COREDUMP_MAX_MB > 0 to upload it for offline analysis.' >&2
+
+    # The faulting process is an Apache worker (AH00051 in the job log).
+    local exe
+    # shellcheck disable=SC2310  # missing binary is tolerated; gdb auto-detects from the core
+    exe=$(dc exec -T openemr sh -c 'command -v apache2 httpd 2>/dev/null | head -n1') || true
+    exe=${exe%$'\r'}
+
+    local core base
+    while IFS= read -r core; do
+        [[ -n "${core}" ]] || continue
+        base=$(basename "${core}")
+        echo "Backtracing ${base} (exe=${exe:-auto})..."
+        # `bt` (not `bt full`): a stack-only trace names the faulting frames
+        # and `info sharedlibrary` the faulting .so without printing locals or
+        # function arguments, which can hold request data / credentials. This
+        # keeps the backtrace safe to publish in a public artifact.
+        local -a gdb_args=(
+            exec -T openemr gdb --batch --nx
+            -ex 'set pagination off'
+            -ex 'thread apply all bt'
+            -ex 'info sharedlibrary'
+        )
+        [[ -n "${exe}" ]] && gdb_args+=("${exe}")
+        gdb_args+=("${core}")
+        # shellcheck disable=SC2310  # a gdb failure is logged, not fatal — keep processing cores
+        dc "${gdb_args[@]}" \
+            > "${dest_dir}/${base}.backtrace.txt" 2>&1 \
+            || echo "gdb failed for ${base}; see ${base}.backtrace.txt" >&2
+        # Raw core upload is opt-in (COREDUMP_MAX_MB > 0) and size-gated, since
+        # a core can contain in-memory secrets. The backtrace above is the
+        # default deliverable and is safe to publish.
+        if (( max_core_mb <= 0 )); then
+            echo "Raw core retained in the container only (COREDUMP_MAX_MB=0); backtrace uploaded. Set COREDUMP_MAX_MB > 0 to include the gzip'd core." \
+                > "${dest_dir}/${base}.gz.skipped.txt"
+            continue
+        fi
+        # If size can't be determined, skip the raw-core upload rather than
+        # risk streaming an oversized core past the cap; backtrace is retained.
+        local size_mb=''
+        # shellcheck disable=SC2310  # du failure handled explicitly below
+        size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1") || size_mb=''
+        size_mb=${size_mb%$'\r'}
+        if [[ -z "${size_mb}" ]]; then
+            echo "Could not determine size of ${base}; raw core omitted (cap cannot be enforced), backtrace retained." \
+                > "${dest_dir}/${base}.gz.skipped.txt"
+            continue
+        fi
+        if (( size_mb > max_core_mb )); then
+            echo "Core ${base} is ${size_mb}MB (> ${max_core_mb}MB cap); raw core omitted, backtrace retained." \
+                > "${dest_dir}/${base}.gz.skipped.txt"
+            continue
+        fi
+        # Best-effort like the gdb/du calls: a gzip/stream failure (missing
+        # gzip, permissions, disk) must not abort the loop and skip the
+        # remaining cores' backtraces.
+        # shellcheck disable=SC2310  # gzip failure is logged, not fatal — keep processing cores
+        if ! dc exec -T openemr gzip -c "${core}" > "${dest_dir}/${base}.gz"; then
+            rm -f "${dest_dir}/${base}.gz"
+            echo "gzip stream failed for ${base}; raw core omitted, backtrace retained." \
+                > "${dest_dir}/${base}.gz.skipped.txt"
+        fi
+    done <<< "${cores}"
 }
 
 ##

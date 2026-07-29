@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OpenEMR\Modules\FaxSMS\Notification;
 
 use OpenEMR\Appointment\Reminder\ReminderRunResult;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
 use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
@@ -45,15 +46,15 @@ class AppointmentNotificationRunner
     private readonly ClockInterface $clock;
 
     /**
-     * @param NotificationChannel $channel             Which reminder channel to process.
-     * @param AppDispatch         $client              Configured email or SMS client.
-     * @param int                 $notificationHours   Appointment lead time (hours ahead).
-     * @param int                 $cronIntervalHours   Background-service execution interval, in hours.
-     * @param bool                $dryRun              When true, scans and logs but sends nothing.
-     * @param string              $messageTemplate     Raw template with ***PLACEHOLDER*** tokens.
-     * @param string              $gatewayType         Vendor slug persisted to notification_log.
-     * @param LoggerInterface|null $logger             PSR-3 logger (NullLogger when omitted).
-     * @param ClockInterface|null  $clock              Injected clock for deterministic tests.
+     * @param NotificationChannel  $channel           Which reminder channel to process.
+     * @param AppDispatch          $client            Configured email or SMS client.
+     * @param int                  $notificationHours Appointment lead time (hours ahead).
+     * @param int                  $cronIntervalHours Background-service execution interval, in hours.
+     * @param bool                 $dryRun            When true, scans and logs but sends nothing.
+     * @param string               $messageTemplate   Raw template with ***PLACEHOLDER*** tokens.
+     * @param string               $gatewayType       Vendor slug persisted to notification_log.
+     * @param LoggerInterface|null $logger            PSR-3 logger (NullLogger when omitted).
+     * @param ClockInterface|null  $clock             Injected clock for deterministic tests.
      */
     public function __construct(
         private readonly NotificationChannel $channel,
@@ -125,10 +126,10 @@ class AppointmentNotificationRunner
         int $nowTimestamp,
         int $notificationHours,
     ): int {
-        $apptHour = (int) round($appointmentTimestamp / 3600);
-        $nowHour = (int) round($nowTimestamp / 3600);
+        $apptHour = (int)round($appointmentTimestamp / 3600);
+        $nowHour = (int)round($nowTimestamp / 3600);
         $remainingApptHour = $apptHour - $nowHour;
-        return (int) round($remainingApptHour - $notificationHours);
+        return (int)round($remainingApptHour - $notificationHours);
     }
 
     /**
@@ -191,26 +192,40 @@ class AppointmentNotificationRunner
             return $value;
         }
         if (is_int($value) || is_float($value)) {
-            return (string) $value;
+            return (string)$value;
         }
         return '';
     }
 
     /**
-     * Normalize a phone string to 10 digits, stripping a leading country
-     * code of 1. Returns the normalized digits, or null when the input does
-     * not yield exactly 10 digits after cleanup.
+     * Normalize a phone string to E.164 for the SMS gateway.
+     *
+     * Delegates to the core phone parser so numbers from any country are
+     * accepted: a value already carrying a "+CC" prefix is self-describing,
+     * while a bare national number is interpreted against $defaultRegion (an
+     * ISO 3166-1 alpha-2 code such as "US" or "GB"). Returns the E.164 form
+     * (e.g. "+12125551234"), or null when the input is not a possible number.
+     *
+     * Possible-length (not strict-valid) is used on purpose: it matches the
+     * prior digit-count behavior and avoids rejecting otherwise-deliverable
+     * numbers that libphonenumber metadata does not recognize as assigned.
      */
-    public static function normalizePhone(?string $phone): ?string
+    public static function normalizePhone(?string $phone, string $defaultRegion = 'US'): ?string
     {
-        $digits = preg_replace('/[^0-9]/', '', $phone ?? '');
-        if (!is_string($digits)) {
+        $raw = trim($phone ?? '');
+        if ($raw === '') {
             return null;
         }
-        if (strlen($digits) === 11 && $digits[0] === '1') {
-            $digits = substr($digits, 1);
+        $parsed = PhoneNumber::tryParse($raw, $defaultRegion);
+        // Require a complete national number. isPossible() also accepts
+        // local-only 7-digit forms (no area code), which are not deliverable
+        // to an SMS gateway; getNationalDigits() returns null for anything
+        // that isn't a full national number, which also rejects the
+        // 11-digit non-NANP case. We still emit E.164 for the gateway.
+        if ($parsed === null || $parsed->getNationalDigits() === null) {
+            return null;
         }
-        return strlen($digits) === 10 ? $digits : null;
+        return $parsed->toE164();
     }
 
     /**
@@ -271,7 +286,10 @@ class AppointmentNotificationRunner
     private function deliverSms(array $row, string $message, array $logData): DeliveryOutcome
     {
         $phone = self::stringFromRow($row, 'phone_cell');
-        $normalized = self::normalizePhone($phone === '' ? null : $phone);
+        $normalized = self::normalizePhone(
+            $phone === '' ? null : $phone,
+            $this->client->defaultPhoneRegion()
+        );
         if ($normalized === null) {
             $this->logger->warning('Skipping SMS reminder: invalid phone number.', [
                 'pid' => $row['pid'] ?? null,
@@ -393,6 +411,6 @@ class AppointmentNotificationRunner
             return;
         }
         $recur = self::stringFromRow($row, 'pc_recurrtype');
-        rc_sms_notification_cron_update_entry($this->channel, (int) $pid, (int) $pcEid, $recur);
+        rc_sms_notification_cron_update_entry($this->channel, (int)$pid, (int)$pcEid, $recur);
     }
 }

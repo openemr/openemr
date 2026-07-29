@@ -22,8 +22,11 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = Request::createFromGlobals();
 
 // Check authorization.
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -87,9 +90,9 @@ if (filter_input(INPUT_POST, 'import')) {
     }
 
     $fname = '';
-    $userfile = $_FILES['userfile'] ?? null;
-    if (is_array($userfile) && is_string($userfile['tmp_name'])) {
-        $fname = $userfile['tmp_name'];
+    $userfile = $request->files->get('userfile');
+    if ($userfile instanceof UploadedFile && $userfile->isValid()) {
+        $fname = $userfile->getPathname();
     }
 
     $handle = @fopen($fname, "r");

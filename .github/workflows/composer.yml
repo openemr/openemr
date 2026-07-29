@@ -25,7 +25,7 @@ jobs:
         php-version: ['8.2']
     steps:
     - name: "Checkout Code"
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer

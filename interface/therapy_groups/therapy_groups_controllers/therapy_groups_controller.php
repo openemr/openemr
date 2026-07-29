@@ -120,7 +120,7 @@ class TherapyGroupsController extends BaseController
         $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
         if (isset($_POST['save'])) {
-            $isEdit = empty($_POST['group_id']) ? false : true;
+            $isEdit = !empty($_POST['group_id']);
 
             // for new group - checking if already exist same name
             if ($_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST, $isEdit)) {

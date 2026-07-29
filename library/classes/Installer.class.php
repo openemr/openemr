@@ -18,6 +18,7 @@
 
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\Common\Command\RootCliGuard;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Installer\InstallerInterface;
@@ -1449,6 +1450,18 @@ $config = 1; /////////////
      */
     public function quick_install(): bool
     {
+        // Refuse to run the installer as root from the CLI. The Installer
+        // does substantial filesystem writes (site directory copy, key
+        // material, generated config) and root-owned outputs would brick
+        // the web server later. CLI entry points are InstallerAuto.php
+        // (this repo) and auto_configure.php (openemr-devops); the web
+        // setup.php is also a caller but RootCliGuard short-circuits for
+        // non-CLI SAPI so web installs are unaffected. Skipped under
+        // PHPUnit so InstallerTest can construct/exercise the class.
+        if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+            RootCliGuard::assertNotRoot();
+        }
+
         // Validation of OpenEMR user settings
         //   (applicable if not cloning from another database)
         if (empty($this->clone_database)) {

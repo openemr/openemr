@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 use Firehed\Container\TypedContainerInterface;
 use GuzzleHttp\Psr7\ServerRequest;
+use OpenEMR\BC\Deprecation;
+use OpenEMR\BC\DeprecationMode;
 use OpenEMR\BC\FallbackRouter;
 use Psr\Log\LoggerInterface;
 
@@ -19,6 +21,8 @@ $container = require_once __DIR__ . '/../bootstrap.php';
 if (!$container instanceof TypedContainerInterface) {
     throw new \LogicException('bootstrap.php must return a ' . TypedContainerInterface::class);
 }
+
+Deprecation::$mode = DeprecationMode::Error;
 
 $request = ServerRequest::fromGlobals();
 

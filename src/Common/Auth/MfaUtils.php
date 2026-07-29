@@ -74,7 +74,7 @@ class MfaUtils
      */
     public function isMfaRequired()
     {
-        return !empty($this->types) ? true : false;
+        return !empty($this->types);
     }
 
     public function getType()
@@ -233,7 +233,7 @@ class MfaUtils
     private function validateToken($token, $type)
     {
         return match ($type) {
-            'TOTP' => strlen((string) $token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false,
+            'TOTP' => strlen((string) $token) === self::TOTP_TOKEN_LENGTH && is_numeric($token),
             // todo - USF string validation
             'U2F' => true,
             default => throw new \Exception('MFA type do not supported'),

@@ -33,5 +33,11 @@ function smarty_function_headerTemplate($params, &$smarty)
         $assets = explode('|', (string) $params['assets']);
     }
 
-    return Header::setupHeader($assets);
+    // Pass $echoOutput = false so setupHeader() only returns the markup. As a Smarty
+    // function plugin, the value returned here is printed at the {headerTemplate} tag.
+    // With the default $echoOutput = true, setupHeader() would also echo the markup,
+    // emitting the entire header (jQuery, Bootstrap, etc.) twice from a single tag --
+    // double-binding Bootstrap's data-api handlers (e.g. dropdowns open then instantly
+    // close). See OpenEMR\Core\Header::setupHeader().
+    return Header::setupHeader($assets, false);
 }

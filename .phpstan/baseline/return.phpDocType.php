@@ -12,16 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Models/TeleHealthUser.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type bool\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/ClickatellSMSClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type bool\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type int\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/AuthorizationService.php',
@@ -100,6 +90,11 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type array\\|bool\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Validators\\\\ProcessingResult is incompatible with native type never\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\Search\\\\ISearchField\\|null is not subtype of native type OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\|null\\.$#',

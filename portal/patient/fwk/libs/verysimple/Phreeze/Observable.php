@@ -36,7 +36,7 @@ abstract class Observable implements IObservable
      * Fires and observable event.
      * All registered observers will be notified
      *
-     * @param variant $obj
+     * @param mixed $obj
      *          a string, numeric or object that contains the observable message
      * @param int $ltype
      *          specified the "level" as defined in IObservable

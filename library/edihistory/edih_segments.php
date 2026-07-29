@@ -13,24 +13,6 @@
 
 
 /**
- * increment loop values ($lpval is a reference)
- *
- * @param $lptest   the prospective loop value
- * @param &$lpval    the present loop value -- reassigned here
- * @return int value from strcmp()
- */
-function edih_change_loop($lptest, &$lpval)
-{
-    // strcmp($str1,$str2) Returns < 0 if str1 is less than str2; > 0 if str1 is greater than str2, and 0 if they are equal.
-    if (strcmp((string) $lptest, (string) $lpval) > 0) {
-        //echo "$lptest greater than $lpval" .PHP_EOL;
-        $lpval = $lptest;
-    }
-
-    return strcmp((string) $lptest, (string) $lpval);
-}
-
-/**
  * format segments for display of x12 edi files
  *
  * @param array  $segments
@@ -76,7 +58,6 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
 {
     //
     $str_html = '';
-    $err_ar = [];
     //
     if (!is_array($segments) || !count($segments) || strlen($delimiter) != 1) {
         // debug
@@ -373,14 +354,6 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     } else {
         $erstn = '';
         $erseg = [];
-    }
-
-    //
-    if ($err_seg) {
-        $er = edih_errseg_parse($err_seg);
-        if (is_array($er) && count($er)) {
-            $err_ar = $er;
-        }
     }
 
     //
@@ -735,7 +708,7 @@ function edih_277_text($segments, $delimiter, $stpos = '')
             switch ((string)$loopid) {
                 case '2000A':
                     $loopid = '2100A';
-                    break;     // edih_change_loop($lptest, &$lpval)
+                    break;
                 case '2000B':
                     $loopid = '2100B';
                     break;
@@ -850,7 +823,6 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     $loopid = "0";
     $lx_ct = 0;
     $hasst = false;
-    $err_ar = [];
     $idx = 0;
     $stsegct = 0;
     $stn = '';

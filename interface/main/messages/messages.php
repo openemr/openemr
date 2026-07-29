@@ -395,7 +395,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $delete_id = $_POST['delete_id'];
                             for ($i = 0; $i < count($delete_id); $i++) {
                                 // IDOR protection: verify note is assigned to current user
-                                if (!checkPnotesNoteId($delete_id[$i], $_SESSION['authUser'])) {
+                                if (!checkPnotesNoteId($delete_id[$i], $session->get('authUser'))) {
                                     continue; // skip notes not assigned to user
                                 }
                                 deletePnote($delete_id[$i]);

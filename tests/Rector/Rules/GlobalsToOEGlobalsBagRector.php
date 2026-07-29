@@ -288,7 +288,6 @@ CODE_SAMPLE
             'library/sql.inc.php',
             'library/classes/Installer.class.php',
             'library/ajax/sql_server_status.php',
-            'library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
             'sites/default/config.php',
             'src/Core/OEGlobalsBag.php',
         ] as $suffix) {

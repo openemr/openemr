@@ -1,5 +1,8 @@
 {
-    "plugins": ["stylelint-order", "stylelint-scss"],
+    "plugins": [
+        "stylelint-order",
+        "stylelint-scss"
+    ],
     "extends": [
         "stylelint-config-standard",
         "stylelint-config-sass-guidelines"
@@ -9,7 +12,11 @@
         "selector-no-qualifying-type": [
             true,
             {
-                "ignore": ["attribute", "class", "id"]
+                "ignore": [
+                    "attribute",
+                    "class",
+                    "id"
+                ]
             }
         ],
         "selector-class-pattern": null,

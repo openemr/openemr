@@ -21,6 +21,8 @@
  * @link    https://www.open-emr.org
  */
 
+use OpenEMR\BC\ServiceContainer;
+
     $result = getMedicationData();
     $value = sqlFetchArray($result);
 
@@ -32,7 +34,7 @@ do {
     $e_Medication = $ccr->createElement('Medication');
     $e_Medications->appendChild($e_Medication);
 
-    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', getUuid());
+    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', ServiceContainer::getUuidFactory()->uuid4()->toString());
     $e_Medication->appendChild($e_CCRDataObjectID);
 
     $e_DateTime = $ccr->createElement('DateTime');

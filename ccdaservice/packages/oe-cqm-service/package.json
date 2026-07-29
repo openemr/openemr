@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "bluebird": "3.7.2",
-    "body-parser": "1.20.5",
+    "body-parser": "1.20.6",
     "compression": "1.8.1",
     "cqm-execution": "4.4.1",
     "cqm-models": "4.3.1",
@@ -16,7 +16,6 @@
   "devDependencies": {
     "mocha": "^11.7.6"
   },
-
   "deprecated": false,
   "license": "MIT",
   "main": "server.js",

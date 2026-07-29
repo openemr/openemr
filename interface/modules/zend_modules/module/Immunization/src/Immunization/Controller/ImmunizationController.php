@@ -173,7 +173,7 @@ class ImmunizationController extends AbstractActionController
         $i = 0;
         $rows = [];
         foreach ($res as $value) {
-            $select = $value == $defaultCode ? true : false;
+            $select = $value == $defaultCode;
 
             $rows[$i] = [
                 'value' => $value['id'],

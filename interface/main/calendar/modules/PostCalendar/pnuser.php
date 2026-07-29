@@ -1,7 +1,9 @@
 <?php
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PostCalendar\CalendarRenderer;
 
 @define('__POSTCALENDAR__', 'PostCalendar');
 /**
@@ -73,7 +75,11 @@ function postcalendar_user_view()
         $pc_username = $sessionPcUsername;
     }
 
-    return postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]) . postcalendar_footer();
+    $displayResult = postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]);
+    $footer = postcalendar_footer();
+    $displayStr = is_string($displayResult) ? $displayResult : '';
+    $footerStr = is_string($footer) ? $footer : '';
+    return $displayStr . $footerStr;
 }
 
 /**
@@ -83,10 +89,9 @@ function postcalendar_user_view()
  */
 function postcalendar_user_display($args)
 {
-    [$eid, $viewtype, $tplview, $pc_username, $Date, $print, $category, $topic, $pc_facility] = pnVarCleanFromInput(
+    [$eid, $viewtype, $pc_username, $Date, $print, $category, $topic, $pc_facility] = pnVarCleanFromInput(
         'eid',
         'viewtype',
-        'tplview',
         'pc_username',
         'Date',
         'print',
@@ -123,9 +128,12 @@ function postcalendar_user_display($args)
  */
 function postcalendar_user_search()
 {
-    $tpl = new pcSmarty();
+    $tpl = CalendarRenderer::create();
     $k = pnVarCleanFromInput('pc_keywords') ?? '';
     $k_andor = pnVarCleanFromInput('pc_keywords_andor');
+    // Twig template expects the POST-derived values pre-extracted.
+    $tpl->assign('keywords_value', $k);
+    $tpl->assign('keywords_andor', $k_andor);
     $pc_category = pnVarCleanFromInput('pc_category');
     $pc_facility = pnVarCleanFromInput('pc_facility');
     $pc_topic = pnVarCleanFromInput('pc_topic');
@@ -186,6 +194,9 @@ function postcalendar_user_search()
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sessionPcUsername = $session->get('pc_username', []);
+    // pc_username may be a single username (string) or a list of usernames
+    // (from the multi-select pc_username[] input); normalize to the first one.
+    $firstPcUsername = is_array($sessionPcUsername) ? ($sessionPcUsername[0] ?? null) : $sessionPcUsername;
     $provider_options .= ">" . xlt('All Providers') . "</option>";
     foreach ($provinfo as $provider) {
         $selected = "";
@@ -194,7 +205,7 @@ function postcalendar_user_search()
         if ($ProviderID == "") {
             // that variable stores the 'username' and not the numeric 'id'
 
-            if ($sessionPcUsername[0] == $provider['username']) {
+            if ($firstPcUsername !== null && $firstPcUsername == $provider['username']) {
                 $selected = " SELECTED ";
             }
         } elseif ($ProviderID == $provider['id']) {
@@ -298,11 +309,6 @@ function postcalendar_user_search()
 
         $tpl->assign_by_ref('TOPIC_OPTIONS', $top_options);
     }
-
-    //=================================================================
-    //  Find out what Template we're using
-    //=================================================================
-    $template_name = _SETTING_TEMPLATE !== '' ? _SETTING_TEMPLATE : 'default';
 
     //=================================================================
     //  Output the search form
@@ -430,9 +436,91 @@ function postcalendar_user_search()
         $tpl->assign('A_EVENTS', $eventsByDate);
     }
 
-    $tpl->caching = false;
     $tpl->assign('STYLE', OEGlobalsBag::getInstance()->get('style'));
-    $pageSetup =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
-    $return = $pageSetup . $tpl->fetch($template_name . '/user/ajax_search.html');
-    return $return;
+    $tpl->assign('USE_TOPICS', _SETTING_DISPLAY_TOPICS);
+
+    // Pre-decorate search_results from A_EVENTS (replaces the legacy
+    // [-php-] block in ajax_search.html that did sqlStatement(provider)
+    // lookups per row during render).
+    $searchResultsForTwig = [];
+    $rawEvents = $tpl->getVar('A_EVENTS');
+    if (is_array($rawEvents)) {
+        foreach ($rawEvents as $eDate => $dateEvents) {
+            if (!is_string($eDate) || !is_array($dateEvents)) {
+                continue;
+            }
+            $eventDateYmd = substr($eDate, 0, 4) . substr($eDate, 5, 2) . substr($eDate, 8, 2);
+            foreach ($dateEvents as $event) {
+                if (!is_array($event)) {
+                    continue;
+                }
+                $aid = $event['aid'] ?? null;
+                $provInfo = null;
+                if (is_int($aid) || (is_string($aid) && $aid !== '')) {
+                    $provRows = QueryUtils::fetchRecords('SELECT * FROM users WHERE id=?', [$aid]);
+                    $provInfo = $provRows[0] ?? null;
+                }
+
+                $startTimeRaw = $event['startTime'] ?? '00:00:00';
+                $startTimeStr = is_string($startTimeRaw) ? $startTimeRaw : '00:00:00';
+                $eventTs = strtotime($eDate . ' ' . $startTimeStr);
+                $datetimeDisplay = $eventTs !== false ? date('Y-m-d h:i a', $eventTs) : '';
+
+                $provFname = is_array($provInfo) && is_string($provInfo['fname'] ?? null) ? $provInfo['fname'] : '';
+                $provPhone = is_array($provInfo) && is_string($provInfo['phonew1'] ?? null) ? $provInfo['phonew1'] : '';
+                $provStreet = is_array($provInfo) && is_string($provInfo['street'] ?? null) ? $provInfo['street'] : '';
+                $provCity = is_array($provInfo) && is_string($provInfo['city'] ?? null) ? $provInfo['city'] : '';
+                $provState = is_array($provInfo) && is_string($provInfo['state'] ?? null) ? $provInfo['state'] : '';
+
+                $provInfoTitle = $provFname . ' ' . xl('contact info') . ":\n";
+                if (is_array($provInfo)) {
+                    $provInfoTitle .= $provPhone . "\n"
+                        . $provStreet . "\n"
+                        . $provCity . ' ' . $provState;
+                }
+
+                $eid = $event['eid'] ?? '';
+                $eidStr = is_int($eid) || is_string($eid) ? (string) $eid : '';
+
+                $searchResultsForTwig[] = [
+                    'event_id_token'      => $eidStr . '~' . $eventDateYmd,
+                    'datetime_display'    => $datetimeDisplay,
+                    'provider_name'       => is_string($event['provider_name'] ?? null) ? $event['provider_name'] : '',
+                    'provider_info_title' => $provInfoTitle,
+                    'catname'             => is_string($event['catname'] ?? null) ? $event['catname'] : '',
+                    'patient_name'        => is_string($event['patient_name'] ?? null) ? $event['patient_name'] : '',
+                ];
+            }
+        }
+    }
+    $tpl->assign('search_results', $searchResultsForTwig);
+
+    // datepicker_xl: capture the JS-config output the legacy template
+    // emitted by require-ing jquery-datetimepicker-2-5-4.js.php inline.
+    $datetimepicker_timepicker = false;
+    $datetimepicker_showseconds = false;
+    $datetimepicker_formatInput = false;
+    ob_start();
+    require OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
+    $datepicker_xl = ob_get_clean();
+    $tpl->assign('datepicker_xl', is_string($datepicker_xl) ? $datepicker_xl : '');
+
+    // Templates need a small fixed subset of globals; avoid dumping
+    // the whole $GLOBALS into template scope (it exposes secrets,
+    // paths, DB handles, etc.). ajax_search.html.twig reads
+    // images_static_relative for the provinfo icon.
+    $tpl->assign('globals', [
+        'images_static_relative' => OEGlobalsBag::getInstance()->getString('images_static_relative'),
+    ]);
+    // header.html.twig reads body_class from the consumer (legacy got it
+    // from session.language_direction inside a [-php-] block).
+    $languageDirection = $session->get('language_direction');
+    $tpl->assign('body_class', is_string($languageDirection) ? $languageDirection : '');
+    $pageSetup = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
+    $pageSetupStr = is_string($pageSetup) ? $pageSetup : '';
+    // Only the 'default' PostCalendar template set ships with the
+    // codebase (per the earlier tplview removal — see 2f84202232);
+    // hardcoding the template name matches what pnuserapi.php does
+    // for the same render path.
+    return $pageSetupStr . $tpl->render('calendar/default/user/ajax_search.html.twig');
 }

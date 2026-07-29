@@ -1,0 +1,164 @@
+# Run container_benchmarking test_functionality.sh for the release, binary, and flex docker images.
+# Uses the test_suite.sh inside container_benchmarking to verify containers perform as expected.
+# By default runs the full test suite per variant. Use workflow_dispatch with test_name to run a single test.
+
+name: Container Functionality (release, binary, flex)
+
+on:
+  push:
+    paths:
+    - '.github/workflows/docker-test-container-functionality.yml'
+    - 'docker/container_benchmarking/**'
+    - 'docker/release/**'
+    - 'docker/binary/**'
+    - 'docker/flex/**'
+  pull_request:
+    paths:
+    - '.github/workflows/docker-test-container-functionality.yml'
+    - 'docker/container_benchmarking/**'
+    - 'docker/release/**'
+    - 'docker/binary/**'
+    - 'docker/flex/**'
+  workflow_dispatch:
+    inputs:
+      test_name:
+        description: 'Run only this test (e.g. fresh_installation). Leave empty for full suite.'
+        required: false
+        default: ''
+
+env:
+  # Run full test suite by default; use workflow_dispatch with test_name to run a single test
+  TEST_SUITE_ARGS: ''
+
+permissions:
+  contents: read
+
+jobs:
+  functionality-release:
+    name: Functionality release
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+    - name: Set test args
+      id: args
+      env:
+        TEST_NAME: ${{ github.event.inputs.test_name }}
+        EVENT_NAME: ${{ github.event_name }}
+      run: |
+        if [[ -n "$TEST_NAME" ]]; then
+          # Allowlist: test names are file basenames in test_suite.sh's test
+          # registry, so [A-Za-z0-9_-]+ is the full character set we accept.
+          # Reject anything else fail-fast rather than letting it land in argv
+          # to test_functionality.sh.
+          if ! [[ "$TEST_NAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::test_name must match [A-Za-z0-9_-]+; got '$TEST_NAME'"
+            exit 1
+          fi
+          printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
+        elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          echo "args=" >> "$GITHUB_OUTPUT"
+        else
+          echo "args=${TEST_SUITE_ARGS}" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Run container functionality tests (release)
+      env:
+        TEST_ARGS: ${{ steps.args.outputs.args }}
+      run: |
+        cd docker/container_benchmarking
+        # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
+        # into two argv elements; quoting would pass it as one combined string.
+        # shellcheck disable=SC2086
+        ./test_functionality.sh release $TEST_ARGS
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-results-release
+        path: docker/container_benchmarking/test_results/
+        retention-days: 7
+
+  functionality-binary:
+    name: Functionality binary
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+    - name: Set test args
+      id: args
+      env:
+        TEST_NAME: ${{ github.event.inputs.test_name }}
+        EVENT_NAME: ${{ github.event_name }}
+      run: |
+        if [[ -n "$TEST_NAME" ]]; then
+          # Allowlist: test names are file basenames in test_suite.sh's test
+          # registry, so [A-Za-z0-9_-]+ is the full character set we accept.
+          # Reject anything else fail-fast rather than letting it land in argv
+          # to test_functionality.sh.
+          if ! [[ "$TEST_NAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::test_name must match [A-Za-z0-9_-]+; got '$TEST_NAME'"
+            exit 1
+          fi
+          printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
+        elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          echo "args=" >> "$GITHUB_OUTPUT"
+        else
+          echo "args=${TEST_SUITE_ARGS}" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Run container functionality tests (binary)
+      env:
+        TEST_ARGS: ${{ steps.args.outputs.args }}
+      run: |
+        cd docker/container_benchmarking
+        # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
+        # into two argv elements; quoting would pass it as one combined string.
+        # shellcheck disable=SC2086
+        ./test_functionality.sh binary $TEST_ARGS
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-results-binary
+        path: docker/container_benchmarking/test_results/
+        retention-days: 7
+
+  functionality-flex:
+    name: Functionality flex
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+    - name: Set test args
+      id: args
+      env:
+        TEST_NAME: ${{ github.event.inputs.test_name }}
+        EVENT_NAME: ${{ github.event_name }}
+      run: |
+        if [[ -n "$TEST_NAME" ]]; then
+          # Allowlist: test names are file basenames in test_suite.sh's test
+          # registry, so [A-Za-z0-9_-]+ is the full character set we accept.
+          # Reject anything else fail-fast rather than letting it land in argv
+          # to test_functionality.sh.
+          if ! [[ "$TEST_NAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::test_name must match [A-Za-z0-9_-]+; got '$TEST_NAME'"
+            exit 1
+          fi
+          printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
+        elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          echo "args=" >> "$GITHUB_OUTPUT"
+        else
+          echo "args=${TEST_SUITE_ARGS}" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Run container functionality tests (flex)
+      env:
+        TEST_ARGS: ${{ steps.args.outputs.args }}
+      run: |
+        cd docker/container_benchmarking
+        # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
+        # into two argv elements; quoting would pass it as one combined string.
+        # shellcheck disable=SC2086
+        ./test_functionality.sh flex $TEST_ARGS
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-results-flex
+        path: docker/container_benchmarking/test_results/
+        retention-days: 7

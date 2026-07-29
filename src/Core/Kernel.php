@@ -200,7 +200,7 @@ class Kernel
      */
     public function isDev()
     {
-        return (($_ENV['OPENEMR__ENVIRONMENT'] ?? '') === 'dev') ? true : false;
+        return ($_ENV['OPENEMR__ENVIRONMENT'] ?? '') === 'dev';
     }
 
     /**

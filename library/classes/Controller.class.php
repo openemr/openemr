@@ -85,14 +85,14 @@ class Controller extends Smarty implements ControllerInterface
          $this->_current_action = $action;
     }
 
-    public function default_action()
+    public function default_action(): string
     {
-         echo "<html><body></body></html>";
+         return "<html><body></body></html>";
     }
 
     public function process_action()
     {
-         $this->default_action();
+         echo $this->default_action();
     }
 
     public function populate_object(&$obj)

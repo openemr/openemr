@@ -56,7 +56,8 @@
         "doctrine/orm": "^3.6",
         "dompdf/dompdf": "^3.1.4",
         "ezyang/htmlpurifier": "^4.19.0",
-        "firehed/container": "^1.0",
+        "firehed/container": "^1.1",
+        "firehed/dbal-logger": "^3.0",
         "giggsey/libphonenumber-for-php": "^9.0",
         "google/apiclient": "^2.18.4",
         "guzzlehttp/guzzle": "^7.10.0",
@@ -77,7 +78,7 @@
         "laminas/laminas-servicemanager": "^3.24.0",
         "laminas/laminas-soap": "^2.14.0",
         "laminas/laminas-stdlib": "^3.21.0",
-        "laminas/laminas-xmlrpc": "^2.22.0",
+        "laminas/laminas-view": "^2.43.0",
         "lcobucci/clock": "^2.3 || ^3.0",
         "lcobucci/jwt": "^4.3.0",
         "league/csv": "^9.28.0",
@@ -128,9 +129,9 @@
         "symfony/http-kernel": "^7.3",
         "symfony/process": "^7.3",
         "symfony/psr-http-message-bridge": "^7.3",
+        "symfony/routing": "^7.3",
         "symfony/yaml": "^7.3",
         "twig/twig": "^3.22.2",
-        "twilio/sdk": "^8.10.0",
         "vlucas/phpdotenv": "^5.6.3",
         "yubico/u2flib-server": "^1.0.2",
         "zircote/swagger-php": "^6.0"
@@ -141,6 +142,7 @@
         "justinrainbow/json-schema": "^6.8",
         "league/flysystem-memory": "^3.31",
         "maglnet/composer-require-checker": "^4.0",
+        "phpmyadmin/sql-parser": "^6.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-deprecation-rules": "^2.0",
@@ -148,11 +150,14 @@
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpunit/php-code-coverage": "^11.0",
         "phpunit/phpunit": "^11.0",
+        "psy/psysh": "^0.12.23",
         "ramsey/conventional-commits": "^1.5",
         "rector/rector": "^2.1",
+        "roave/security-advisories": "dev-latest",
         "shipmonk/phpstan-baseline-per-identifier": "^2.3",
         "slevomat/coding-standard": "^8.28",
         "squizlabs/php_codesniffer": "^4.0",
+        "symfony/mime": "^7.3",
         "symfony/panther": "^2.0"
     },
     "repositories": [
@@ -192,7 +197,8 @@
     "autoload-dev": {
         "psr-4": {
             "OpenEMR\\": "tests",
-            "OpenEMR\\Release\\": "tools/release/src"
+            "OpenEMR\\Release\\": "tools/release/src",
+            "OpenEMR\\Tests\\Acceptance\\": "tests/Acceptance"
         }
     },
     "config": {
@@ -224,6 +230,7 @@
             "ext-pdo": "8.2",
             "ext-pdo_mysql": "8.2",
             "ext-phar": "8.2",
+            "ext-redis": "8.2",
             "ext-session": "8.2",
             "ext-simplexml": "8.2",
             "ext-soap": "8.2",
@@ -272,6 +279,7 @@
         }
     },
     "scripts": {
+        "acceptance": "phpunit -c tests/Acceptance/phpunit.acceptance.xml",
         "checks": [
             "composer validate --strict",
             "composer normalize --dry-run"

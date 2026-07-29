@@ -37,7 +37,7 @@ require_once($srcDir . '/user.inc.php');
 require_once($srcDir . '/payment.inc.php');
 
 $debug = 0; // set to 1 for debugging mode
-$save_stay = (!empty($_REQUEST['form_save']) && ($_REQUEST['form_save'] == '1')) ? true : false;
+$save_stay = !empty($_REQUEST['form_save']) && ($_REQUEST['form_save'] == '1');
 $from_posting = (0 + ($_REQUEST['isPosting'] ?? null)) ? 1 : 0;
 $g_posting_adj_disable = OEGlobalsBag::getInstance()->getBoolean('posting_adj_disable') ? 'checked' : '';
 if ($from_posting) {

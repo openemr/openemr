@@ -7,8 +7,10 @@
  * @link    https://www.open-emr.org
  * @author    Victor Kofia <https://kofiav.com> 'Viewer'
  * @author    Jerry Padgett <sjpadgett@gmail.com> 'Viewer wrapper'
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2018 Victor Kofia <https://kofiav.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -31,6 +33,14 @@ if (!AclMain::aclCheckCore('patients', 'docs')) {
 
 $web_path = $_REQUEST['web_path'] ?? null;
 if ($web_path) {
+    // CSRF only when the sensitive parameter is present. Bare navigation
+    // (main-menu Dicom Viewer link) has no `web_path` and just renders the
+    // viewer chrome — no token requirement in that case.
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+    if (!is_string($web_path) || !str_starts_with($web_path, OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?')) {
+        http_response_code(400);
+        exit;
+    }
     $patid = $_REQUEST['patient_id'] ?? null;
     $docid = $_REQUEST['document_id'] ?? $_REQUEST['doc_id'] ?? null;
     $d = new Document(attr($docid));
@@ -46,7 +56,7 @@ if ($web_path) {
 $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 echo $twig->render("dicom/dicom-viewer.html.twig", [
     'assets_static_relative' => OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative()
-    ,'web_root' => $web_root
+    ,'web_root' => OEGlobalsBag::getInstance()->getWebRoot()
     ,'web_path' => $web_path
     ,'state_url' => $state_url ?? null
     ,'docid' => $docid ?? null

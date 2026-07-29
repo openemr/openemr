@@ -57,7 +57,7 @@ class Gacl {
     private $_db;
 
     /** @var \ADOConnection An ADODB database connector object */
-    protected $db;
+    public $db;
 
     /*
      * NOTE:    This cache must be manually cleaned each time ACL's are modified.
@@ -178,8 +178,6 @@ class Gacl {
             ];
             $this->Cache_Lite = new Hashed_Cache_Lite($cache_options);
         }
-
-        return true;
     }
 
     /**

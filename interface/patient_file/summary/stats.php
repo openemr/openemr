@@ -172,7 +172,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $viewArgs = [
                 'title' => xl('Current Medications'),
                 'id' => $id,
-                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                'initiallyCollapsed' => getUserSetting($id) == 0,
                 'auth' => false,
                 'rxList' => $rxArr,
             ];
@@ -207,7 +207,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         $viewArgs = [
             'title' => xl($arr[0]),
             'id' => $id,
-            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+            'initiallyCollapsed' => getUserSetting($id) == 0,
             'linkMethod' => "javascript",
             'list' => $listData,
             'auth' => AclMain::aclCheckIssue($key, '', ['write', 'addonly'])
@@ -224,7 +224,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         $viewArgs['btnLink'] = str_replace("__page__", $btnLinkPage, $btnLinkBase);
 
         if (count($listData) == 0) {
-            $viewArgs['listTouched'] = (getListTouch($pid, $key)) ? true : false;
+            $viewArgs['listTouched'] = (bool) getListTouch($pid, $key);
         }
 
         if ($id == "medication_ps_expand") {
@@ -261,7 +261,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
             echo $t->render('patient/card/tp_il.html.twig', [
                 'title' => xl("Injury Log"),
                 'id' => $id,
-                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                'initiallyCollapsed' => getUserSetting($id) == 0,
                 'formName' => $formname,
                 'formRows' => $formRows,
             ]);
@@ -304,7 +304,7 @@ if (!OEGlobalsBag::getInstance()->getBoolean('disable_immunizations') && !OEGlob
     echo $t->render('patient/card/immunizations.html.twig', [
         'title' => xl('Immunizations'),
         'id' => $id,
-        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+        'initiallyCollapsed' => getUserSetting($id) == 0,
         'btnLabel' => 'Edit',
         'btnLink' => 'immunizations.php',
         'linkMethod' => 'html',
@@ -331,7 +331,7 @@ if ($erx_upload_complete == 1) {
     $viewArgs = [
         'title' => xl('Old Medication'),
         'label' => $id,
-        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+        'initiallyCollapsed' => getUserSetting($id) == 0,
         'btnLabel' => 'Edit',
         'btnLink' => "return load_location(\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
         'linkMethod' => 'javascript',

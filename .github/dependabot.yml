@@ -89,7 +89,7 @@ updates:
       - patch
     build-tools:
       patterns:
-      - gulp*
+      - webpack*
       - eslint*
       - stylelint*
       - prettier
@@ -117,6 +117,26 @@ updates:
   - github-actions
   commit-message:
     prefix: ci
+    include: scope
+  open-pull-requests-limit: 5
+
+  # Pre-commit hook revs in .pre-commit-config.yaml. Tooling pins -- same
+  # category as github-actions above. Majors are allowed (no ignore block):
+  # hook bumps are reviewed before merge, so a behavior change (new lint
+  # rule, CLI rename) surfaces as a Dependabot PR with a diff, not silent
+  # drift. Application-dep ecosystems (composer/npm) block majors because
+  # the blast radius is different; pre-commit doesn't have that risk.
+- package-ecosystem: pre-commit
+  directory: /
+  schedule:
+    interval: weekly
+    day: monday
+    time: "08:00"
+  labels:
+  - dependencies
+  - pre-commit
+  commit-message:
+    prefix: chore
     include: scope
   open-pull-requests-limit: 5
 
@@ -174,6 +194,12 @@ updates:
   - ci/nginx_84/
   - ci/nginx_85/
   - ci/nginx_86/
+  # Artifact-acceptance workflow compose files (Phase 2 + Phase 3). Same
+  # image classes as the ci/ dirs above (mariadb + openemr flex), so the
+  # existing ignore rules and groups apply unchanged. The
+  # ${OPENEMR_TAG:-latest} reference in acceptance-docker-compose.yml is
+  # a variable substitution — dependabot skips those automatically.
+  - .github/docker/
   schedule:
     interval: daily
   open-pull-requests-limit: 10

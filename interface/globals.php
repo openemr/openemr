@@ -14,6 +14,8 @@
  */
 
 use Dotenv\Dotenv;
+use OpenEMR\BC\Deprecation;
+use OpenEMR\BC\DeprecationMode;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -28,6 +30,15 @@ use OpenEMR\Core\OEGlobalsBag;
 
 // Set up autoloader as early as possible
 require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+// Refuse to run as root from the CLI. No OpenEMR CLI script needs root,
+// and a root-owned write here would brick the web server later. See
+// RootCliGuard for details. Skipped under PHPUnit so CI bootstraps that
+// load globals.php as root aren't tripped — RootCliGuard's own tests
+// invoke the guard directly and bypass this carveout.
+if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+    OpenEMR\Common\Command\RootCliGuard::assertNotRoot();
+}
 
 // Checks if the server's PHP version is compatible with OpenEMR:
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
@@ -61,6 +72,10 @@ if (file_exists("{$webserver_root}/.env")) {
     Dotenv::createImmutable($webserver_root)->load();
 }
 
+if (($_ENV['OPENEMR_DEPRECATION_MODE'] ?? null) === 'error') {
+    Deprecation::$mode = DeprecationMode::Error;
+}
+
 $logger = ServiceContainer::getLogger();
 
 // Set up exception handling: ensure that any uncaught exceptions have some
@@ -81,13 +96,15 @@ $handler->installExceptionHandler();
 if (!(extension_loaded('openssl'))) {
     http_response_code(500);
     $logger->critical('OpenEMR is not working since the php openssl module is not installed');
-    die("OpenEMR Error : OpenEMR is not working since the php openssl module is not installed.");
+    echo "OpenEMR Error : OpenEMR is not working since the php openssl module is not installed.";
+    exit(1);
 }
 // Throw error if the openssl aes-256-cbc cipher is not available.
 if (!(in_array('aes-256-cbc', openssl_get_cipher_methods()))) {
     http_response_code(500);
     $logger->critical('OpenEMR is not working since the openssl aes-256-cbc cipher is not available');
-    die("OpenEMR Error : OpenEMR is not working since the openssl aes-256-cbc cipher is not available.");
+    echo "OpenEMR Error : OpenEMR is not working since the openssl aes-256-cbc cipher is not available.";
+    exit(1);
 }
 
 
@@ -302,7 +319,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
             header('Location: ../login/login.php?site=' . urlencode((string)$tmp)); // Assuming in the interface/main directory
         }
 
-        exit;
+        exit(1);
     }
 
     if ($siteId === null || $siteId != $tmp) {
@@ -366,7 +383,7 @@ try {
 } catch (\Throwable $e) {
     $logger->error($e->getMessage(), ['exception' => $e]);
     http_response_code(500);
-    die();
+    exit(1);
 }
 
 // This will open the openemr mysql connection.
@@ -402,19 +419,9 @@ if (!empty($glrow)) {
     // Collect user specific settings from user_settings table.
     //
     $gl_user = [];
-    // Collect the user id first
     $temp_authuserid = '';
     if (!empty($session->get('authUserID'))) {
-        //Set the user id from the session variable
         $temp_authuserid = $session->get('authUserID');
-    } else {
-        if (!empty($_POST['authUser'])) {
-            $temp_sql_ret = sqlQueryNoLog("SELECT `id` FROM `users` WHERE BINARY `username` = ?", [$_POST['authUser']]);
-            if (!empty($temp_sql_ret['id'])) {
-                //Set the user id from the login variable
-                $temp_authuserid = $temp_sql_ret['id'];
-            }
-        }
     }
 
     if (!empty($temp_authuserid)) {
@@ -720,40 +727,6 @@ if (!$ignoreAuth) {
 // Currently it is applicable only to the "Search or Add Patient" form.
 $globalsBag->set('layout_search_color', '#ff9919');
 
-// module configurations
-// upgrade fails for versions prior to 4.2.0 since no modules table
-$checkModulesTableExists = QueryUtils::existsTable('modules');
-
-if (!empty($checkModulesTableExists)) {
-    $globalsBag->set('baseModDir', "interface/modules/"); //default path of modules
-    $globalsBag->set('customModDir', "custom_modules"); //non zend modules
-    $globalsBag->set('zendModDir', "zend_modules"); //zend modules
-
-    try {
-        // load up the modules system and bootstrap them.
-        // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
-        // registering event listeners, etc.
-        // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
-        $globalsBag->set('modules_application', new ModulesApplication(
-            $globalsBag->getKernel(),
-            $globalsBag->getString('fileroot'),
-            $globalsBag->getString('baseModDir'),
-            $globalsBag->getString('zendModDir')
-        ));
-    } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
-        // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
-        http_response_code(401);
-        $logger->warning($accessDeniedException->getMessage(), ['exception' => $accessDeniedException]);
-        die();
-    } catch (\Throwable $ex) {
-        http_response_code(500);
-        $logger->error($ex->getMessage(), ['exception' => $ex]);
-        die();
-    }
-}
-
-// Don't change anything below this line. ////////////////////////////
-
 $encounter = EncounterSessionUtil::getEncounter();
 
 if (!empty($_GET['pid']) && empty($session->get('pid'))) {
@@ -848,5 +821,39 @@ if ($globalsBag->getBoolean('translation_preload_cache')) {
  * Used by include files to guard against direct HTTP access.
  */
 const OPENEMR_GLOBALS_LOADED = true;
+
+// Module configurations.
+// Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files
+// with direct-access guards can be autoloaded without tripping the guard.
+// Upgrade fails for versions prior to 4.2.0 since no modules table.
+$checkModulesTableExists = QueryUtils::existsTable('modules');
+
+if (!empty($checkModulesTableExists)) {
+    $globalsBag->set('baseModDir', "interface/modules/"); //default path of modules
+    $globalsBag->set('customModDir', "custom_modules"); //non zend modules
+    $globalsBag->set('zendModDir', "zend_modules"); //zend modules
+
+    try {
+        // load up the modules system and bootstrap them.
+        // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
+        // registering event listeners, etc.
+        // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
+        $globalsBag->set('modules_application', new ModulesApplication(
+            $globalsBag->getKernel(),
+            $globalsBag->getString('fileroot'),
+            $globalsBag->getString('baseModDir'),
+            $globalsBag->getString('zendModDir')
+        ));
+    } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
+        // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
+        http_response_code(401);
+        $logger->warning($accessDeniedException->getMessage(), ['exception' => $accessDeniedException]);
+        exit(1);
+    } catch (\Throwable $ex) {
+        http_response_code(500);
+        $logger->error($ex->getMessage(), ['exception' => $ex]);
+        exit(1);
+    }
+}
 
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value

@@ -269,34 +269,6 @@ assets:
   dompurify:
     basePath: '%assets_static_relative%/'
     script: dompurify/dist/purify.js
-  questionnaires:
-    basePath: '%webroot%/interface/forms/questionnaire_assessments/'
-    script:
-    - src: lforms/webcomponent/assets/lib/zone.min.js
-      type: module
-    - src: lforms/webcomponent/runtime.js
-      type: module
-    - src: lforms/webcomponent/polyfills.js
-      type: module
-    - src: lforms/webcomponent/main.js
-      type: module
-    - src: lforms/fhir/R4/lformsFHIR.min.js
-      type: module
-    link: /assets/styles/styles_openemr_lforms.css
-  questionnaires-lform:
-    basePath: '%webroot%/interface/forms/questionnaire_assessments/'
-    script:
-    - src: lforms/webcomponent/assets/lib/zone.min.js
-      type: module
-    - src: lforms/webcomponent/runtime.js
-      type: module
-    - src: lforms/webcomponent/polyfills.js
-      type: module
-    - src: lforms/webcomponent/main.js
-      type: module
-    - src: lforms/fhir/R4/lformsFHIR.min.js
-      type: module
-    link: /assets/styles/styles_openemr_lforms.css
 # Note validation_script depends on the moment asset if using the date validation
 # We currently don't have a way of enforcing this dependency so it is up to the
 # developer to ensure the moment asset is loaded before the validation_script asset

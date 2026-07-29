@@ -1,21 +1,21 @@
 services:
   redis-master:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.1@sha256:c88d347edef6249a6d2293f926f1eeb48bd40c57cbcd02c07f52e7f1fd2cb46b
     container_name: redis-master
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replica-announce-ip
-      - redis-master
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replica-announce-ip
+    - redis-master
     ports:
     - "${WT_REDIS_PORT:-6379}:6379"
     healthcheck:
@@ -24,88 +24,88 @@ services:
       timeout: 3s
       retries: 5
   redis-replica-1:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.1@sha256:c88d347edef6249a6d2293f926f1eeb48bd40c57cbcd02c07f52e7f1fd2cb46b
     container_name: redis-replica-1
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replicaof
-      - redis-master
-      - "6379"
-      - --replica-announce-ip
-      - redis-replica-1
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --replica-announce-ip
+    - redis-replica-1
   redis-replica-2:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.1@sha256:c88d347edef6249a6d2293f926f1eeb48bd40c57cbcd02c07f52e7f1fd2cb46b
     container_name: redis-replica-2
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replicaof
-      - redis-master
-      - "6379"
-      - --replica-announce-ip
-      - redis-replica-2
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --replica-announce-ip
+    - redis-replica-2
   sentinel-1:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.1@sha256:c88d347edef6249a6d2293f926f1eeb48bd40c57cbcd02c07f52e7f1fd2cb46b
     container_name: sentinel-1
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - |
-        printf '%s\n' \
-          'port 26379' \
-          'daemonize no' \
-          'sentinel resolve-hostnames yes' \
-          'sentinel announce-hostnames yes' \
-          'sentinel monitor redis-master redis-master 6379 2' \
-          'sentinel auth-pass redis-master strongpassword' \
-          'sentinel down-after-milliseconds redis-master 5000' \
-          'sentinel failover-timeout redis-master 60000' \
-          'sentinel parallel-syncs redis-master 1' \
-          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    - |
+      printf '%s\n' \
+        'port 26379' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
   sentinel-2:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.1@sha256:c88d347edef6249a6d2293f926f1eeb48bd40c57cbcd02c07f52e7f1fd2cb46b
     container_name: sentinel-2
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - |
-        printf '%s\n' \
-          'port 26379' \
-          'daemonize no' \
-          'sentinel resolve-hostnames yes' \
-          'sentinel announce-hostnames yes' \
-          'sentinel monitor redis-master redis-master 6379 2' \
-          'sentinel auth-pass redis-master strongpassword' \
-          'sentinel down-after-milliseconds redis-master 5000' \
-          'sentinel failover-timeout redis-master 60000' \
-          'sentinel parallel-syncs redis-master 1' \
-          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    - |
+      printf '%s\n' \
+        'port 26379' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
   mysql:
     restart: always
-    image: mariadb:11.8.7@sha256:78185355dd49b54dd6909072531ce8d7e06aa0eccd7aa5b23c93ebb7e34c5aaa
+    image: mariadb:11.8.8@sha256:efb4959ef2c835cd735dbc388eb9ad6aab0c78dd64febcd51bc17481111890c4
     command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
@@ -130,7 +130,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:f652556da7997eeee983b16afd37c941637d2c2118ddd47b091562ead6f9949b
+    image: openemr/openemr:flex@sha256:5aff35b713fd87325dcac248ebebcd925122f00d726ca830b1ef0572c9e5fc8b
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -143,12 +143,24 @@ services:
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - phpstanvolume:/var/www/localhost/htdocs/openemr/tmp-phpstan:rw
+    - webpackcachevolume:/var/www/localhost/htdocs/openemr/.webpack-cache:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
     - ./php.ini:/usr/local/etc/php/php.ini:ro
     environment:
+      # HOST_UID/HOST_GID let the entrypoint adopt the host user's uid for
+      # apache (see docker/flex/openemr.sh — adoption is a no-op when these
+      # default to 1000). Without override, behavior matches the original
+      # Dockerfile-baked uid=1000. Override (e.g. `HOST_UID=$(id -u)
+      # docker compose up`) so apache writes bind-mount files as your host
+      # user — eliminates the uid-mismatch class of bugs for any host whose
+      # uid != 1000 (CI runners, multi-user dev boxes, distros that start
+      # uids at 1001+, macOS via Docker Desktop). Always exported by
+      # openemr-cmd, optional everywhere else.
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: "true"
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -226,7 +238,7 @@ services:
       retries: 3
   selenium:
     restart: always
-    image: selenium/standalone-chromium:148.0.7778.178@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b
+    image: selenium/standalone-chromium:150.0.7871.114@sha256:3400b92f1cddb2dfaaf358654e8f7d83d7be45192fb73c5f28c25faa28d36504
     ports:
     - "${WT_SELENIUM_PORT:-4444}:4444"
     - "${WT_VNC_PORT:-7900}:7900"
@@ -246,7 +258,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:7dfd52c452049bf077f5ae6d46324f5f33ea0130c16b958d9821aff5c6f812ef
+    image: phpmyadmin:5.2.3@sha256:b68f318c5fd85541795ed8eb4ced28ea6908a89910871783b3e479cc6c6d1e1b
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -256,7 +268,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb:3.5.2@sha256:9a84b943671e9587a690e0c4418e0bd89984b5045db84532add2e560e6b76127
+    image: couchdb:3.5.2@sha256:7feb744b60195233219f3fa801cbc2384efa24b28c76a5d1f3e93efe6557f921
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
@@ -279,7 +291,7 @@ services:
       LDAP_TLS_KEY_FILENAME: server-key.pem
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:v1.30.1@sha256:3bd7c2f2696deb35a4780d152b404dceec99cb041b942c0877b3b22384714f85
+    image: axllent/mailpit:v1.30.6@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d
     ports:
     - "${WT_MAILPIT_UI_PORT:-8025}:8025"
     - "${WT_MAILPIT_SMTP_PORT:-1025}:1025"
@@ -304,6 +316,7 @@ volumes:
   nodemodules: {}
   vendordir: {}
   phpstanvolume: {}
+  webpackcachevolume: {}
   ccdanodemodules: {}
   ccdanodemodules2: {}
   logvolume: {}

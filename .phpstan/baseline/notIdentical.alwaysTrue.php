@@ -74,11 +74,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between string and false will always evaluate to true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between string and false will always evaluate to true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_278_html.php',
 ];
 $ignoreErrors[] = [
@@ -90,11 +85,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between non\\-falsy\\-string and \'\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between Phreezable and false will always evaluate to true\\.$#',
@@ -150,11 +140,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between int and \'200\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between non\\-empty\\-string and \'\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode and null will always evaluate to true\\.$#',

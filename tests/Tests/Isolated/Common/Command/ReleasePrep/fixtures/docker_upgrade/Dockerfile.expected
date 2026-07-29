@@ -1,0 +1,19 @@
+# syntax=docker/dockerfile:1
+ARG OPENEMR_VERSION=master
+FROM alpine:3.23 AS base
+
+# ============================================================================
+# UPGRADE SYSTEM
+# ============================================================================
+COPY upgrade/docker-version \
+     upgrade/fsupgrade-1.sh \
+     upgrade/fsupgrade-2.sh \
+     upgrade/fsupgrade-11.sh \
+     upgrade/fsupgrade-12.sh \
+     /root/
+
+RUN chmod 500 \
+    /root/fsupgrade-1.sh \
+    /root/fsupgrade-2.sh \
+    /root/fsupgrade-11.sh \
+    /root/fsupgrade-12.sh

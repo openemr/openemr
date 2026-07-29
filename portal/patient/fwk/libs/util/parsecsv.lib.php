@@ -355,7 +355,7 @@ class parseCSV
             // open and closing quotes
             if ($ch == $enclosure) {
                 if (! $enclosed || $nch != $enclosure) {
-                    $enclosed = ($enclosed) ? false : true;
+                    $enclosed = !$enclosed;
                 } elseif ($enclosed) {
                     $i++;
                 }
@@ -712,7 +712,7 @@ class parseCSV
                     }
                 }
 
-                return (str_contains($or, '1')) ? true : false;
+                return str_contains($or, '1');
             }
 
             return true;

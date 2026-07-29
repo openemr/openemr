@@ -9,61 +9,77 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
+
+use function OpenEMR\Forms\PhysicalExam\physical_exam_lines;
+use function OpenEMR\Forms\PhysicalExam\scalar_string;
 
 require_once(__DIR__ . '/../../globals.php');
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
-require_once("lines.php");
+require_once(__DIR__ . '/lines.php');
 
-function physical_exam_report($pid, $encounter, $cols, $id): void
+function physical_exam_report(int $pid, int $encounter, int $cols, int $id): void
 {
-    global $pelines;
+    // A stored checkbox/text value counts as "set" when non-empty and not '0'.
+    $isSet = static fn (string $value): bool => $value !== '' && $value !== '0';
 
     $rows = [];
-    $res = sqlStatement("SELECT * FROM form_physical_exam WHERE forms_id = ?", [$id]);
-    while ($row = sqlFetchArray($res)) {
-        $rows[$row['line_id']] = $row;
+    foreach (QueryUtils::fetchRecords('SELECT * FROM form_physical_exam WHERE forms_id = ?', [$id]) as $row) {
+        $rows[scalar_string($row['line_id'] ?? null)] = $row;
     }
 
-    echo "<table cellpadding='0' cellspacing='0'>\n";
-
-    foreach ($pelines as $sysname => $sysarray) {
-        $sysnameStr = is_string($sysname) ? $sysname : '';
-        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
-        $sysnamedisp = xl($sysnameStr);
-        foreach ($sysarray as $line_id => $description) {
-            $linedbrow = $rows[$line_id];
-            if (
-                !($linedbrow['wnl'] || $linedbrow['abn'] || $linedbrow['diagnosis'] ||
-                $linedbrow['comments'])
-            ) {
+    $body = '';
+    foreach (physical_exam_lines() as $system) {
+        $systemCell = text($system['label']);
+        foreach ($system['lines'] as $line_id => $description) {
+            $linedbrow = $rows[$line_id] ?? [];
+            $wnl = scalar_string($linedbrow['wnl'] ?? null);
+            $abn = scalar_string($linedbrow['abn'] ?? null);
+            $diagnosis = scalar_string($linedbrow['diagnosis'] ?? null);
+            $comments = scalar_string($linedbrow['comments'] ?? null);
+            if (!($isSet($wnl) || $isSet($abn) || $isSet($diagnosis) || $isSet($comments))) {
                 continue;
             }
 
-            if ($sysname != '*') { // observation line
-                   echo " <tr>\n";
-                   echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "WNL" : "") . "&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text' align='center'>" . ($linedbrow['abn'] ? "ABNL" : "") . "&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text' nowrap>" . text($sysnamedisp) . "&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text' nowrap>" . text($description) . "&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text'>" . text($linedbrow['diagnosis']) . "&nbsp;&nbsp;</td>\n";
-                   echo "  <td class='text'>" . text($linedbrow['comments']) . "</td>\n";
-                   echo " </tr>\n";
+            $descriptionCell = text($description);
+            $commentsCell = text($comments);
+            if ($system['code'] !== '*') { // observation line
+                $wnlCell = $isSet($wnl) ? 'WNL' : '';
+                $abnCell = $isSet($abn) ? 'ABNL' : '';
+                $diagnosisCell = text($diagnosis);
+                $body .= <<<HTML
+                    <tr>
+                        <td class='text' align='center'>{$wnlCell}&nbsp;&nbsp;</td>
+                        <td class='text' align='center'>{$abnCell}&nbsp;&nbsp;</td>
+                        <td class='text' nowrap>{$systemCell}&nbsp;&nbsp;</td>
+                        <td class='text' nowrap>{$descriptionCell}&nbsp;&nbsp;</td>
+                        <td class='text'>{$diagnosisCell}&nbsp;&nbsp;</td>
+                        <td class='text'>{$commentsCell}</td>
+                    </tr>
+                    HTML;
             } else { // treatment line
-                     echo " <tr>\n";
-                     echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "Y" : "") . "&nbsp;&nbsp;</td>\n";
-                     echo "  <td class='text' align='center'>&nbsp;&nbsp;</td>\n";
-                     echo "  <td class='text' colspan='2' nowrap>" . text($description) . "&nbsp;&nbsp;</td>\n";
-                     echo "  <td class='text' colspan='2'>" . text($linedbrow['comments']) . "</td>\n";
-                     echo " </tr>\n";
+                $wnlCell = $isSet($wnl) ? 'Y' : '';
+                $body .= <<<HTML
+                    <tr>
+                        <td class='text' align='center'>{$wnlCell}&nbsp;&nbsp;</td>
+                        <td class='text' align='center'>&nbsp;&nbsp;</td>
+                        <td class='text' colspan='2' nowrap>{$descriptionCell}&nbsp;&nbsp;</td>
+                        <td class='text' colspan='2'>{$commentsCell}</td>
+                    </tr>
+                    HTML;
             }
 
-            $sysnamedisp = '';
-        } // end of line
-    } // end of system name
+            // The system heading only shows on its first populated line.
+            $systemCell = '';
+        }
+    }
 
-    echo "</table>\n";
+    echo <<<HTML
+        <table cellpadding='0' cellspacing='0'>{$body}</table>
+        HTML;
 }

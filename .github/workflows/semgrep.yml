@@ -26,13 +26,13 @@ concurrency:
 jobs:
   semgrep:
     name: Semgrep Security Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: semgrep/semgrep:latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 

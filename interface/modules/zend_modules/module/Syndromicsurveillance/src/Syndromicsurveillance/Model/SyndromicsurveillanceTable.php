@@ -57,7 +57,7 @@ class SyndromicsurveillanceTable
         ];
         $i = 1;
         foreach ($result as $row) {
-            $select = $row['id'] == ($provider ?? '') ? true : false;
+            $select = $row['id'] == ($provider ?? '');
 
             $rows[$i] =  [
                 'value' => $row['id'],

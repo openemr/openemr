@@ -214,7 +214,7 @@ class SessionUtil
     {
         $settings = SessionConfigurationBuilder::forSetup();
         $handler = self::getSessionHandler();
-        $storage = new NativeSessionStorage($settings, $handler);
+        $storage = new NativeSessionStorage($settings->toSessionStartOptions(), $handler);
         $session = new Session($storage);
         $session->start();
         SessionWrapperFactory::getInstance()->setActiveSession($session);
@@ -246,8 +246,10 @@ class SessionUtil
             ]
         );
 
-        // Destroy the session.
-        session_destroy();
+        // Destroy the session if active.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
         ServiceContainer::getLogger()->debug("SessionUtil: destroyed session and cookie", [
             'session_name' => $sessionName,
         ]);

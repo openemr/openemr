@@ -563,7 +563,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
             }
         }
 
-        $same_day = ( strtotime((string) $next_appointment_date) == strtotime((string) $date) ) ? true : false;
+        $same_day = strtotime((string) $next_appointment_date) == strtotime((string) $date);
 
         if ($next_appointment_time && $same_day) {
             // check the start time of the next appointment

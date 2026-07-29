@@ -79,10 +79,10 @@ $default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag:
 
 // form logic fails if not set to boolean
 if (isset($_GET['group'])) {
-    $_GET['group'] = $_GET['group'] == "true" ? true : false;
+    $_GET['group'] = $_GET['group'] == "true";
 }
 if (isset($_GET['prov'])) {
-    $_GET['prov'] = $_GET['prov'] == "true" ? true : false;
+    $_GET['prov'] = $_GET['prov'] == "true";
 }
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
 $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null) ?: null;
@@ -1692,6 +1692,9 @@ function are_days_checked(){
 var collectvalidation = <?php echo $collectthis; ?>;
 function validateform(event,value){
     let allDay = document.getElementById('rballday1').checked;
+    let catValue = document.forms[0].form_category.value;
+    let isInOffice = catValue == IN_OFFICE_CAT_ID;
+    let isOutOfOffice = catValue == OUT_OF_OFFICE_CAT_ID;
     collectvalidation.form_hour = {
         numericality: {
             onlyInteger: true,
@@ -1718,7 +1721,7 @@ function validateform(event,value){
         }
     };
 
-    if ( allDay == true) {
+    if (allDay == true || isInOffice == true || isOutOfOffice == true) {
         collectvalidation.form_duration ={};
     } else {
     collectvalidation.form_duration = {

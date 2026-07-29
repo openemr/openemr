@@ -2234,34 +2234,6 @@ $GLOBALS_METADATA = [
             xl('Enable facility/warehouse restrictions in the user administration form.')
         ],
 
-        'is_client_ssl_enabled' => [
-            xl('Enable Client SSL'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Enable client SSL certificate authentication.')
-        ],
-
-        'certificate_authority_crt' => [
-            xl('Path to CA Certificate File'),
-            'text',                           // data type
-            '',                               // default
-            xl('Set this to the full absolute path. For creating client SSL certificates for HTTPS.')
-        ],
-
-        'certificate_authority_key' => [
-            xl('Path to CA Key File'),
-            'text',                           // data type
-            '',                               // default
-            xl('Set this to the full absolute path. For creating client SSL certificates for HTTPS.')
-        ],
-
-        'client_certificate_valid_in_days' => [
-            xl('Client Certificate Expiration Days'),
-            'num',                            // data type
-            '365',                            // default
-            xl('Number of days that the client certificate is valid.')
-        ],
-
         'Emergency_Login_email_id' => [
             xl('Emergency Login Email Address'),
             'text',                           // data type
@@ -3197,6 +3169,13 @@ $GLOBALS_METADATA = [
             xl('Allow Patient to make and view appointments online.')
         ],
 
+        'view_only_portal_appointments' => [
+            xl('Allow Online Appointments View Only.'),
+            'bool',                           // data type
+            '0',
+            xl('Allow Patient only to view appointments online. Overrides the above setting to allow only view of appointments.')
+        ],
+
         'allow_custom_report' => [
             xl('Allow Online Custom Content Report'),
             'bool',                           // data type
@@ -3280,6 +3259,13 @@ $GLOBALS_METADATA = [
             'bool',
             '0',
             xl('Enable OpenEMR Standard FHIR RESTful API.')
+        ],
+
+        GlobalConnectorsEnum::SMART_TEST_LAUNCHES_ENABLE->value => [
+            xl('Enable OpenEMR SMART ON FHIR Context Test Launches (Turn on only if you know what you are doing)'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR SMART ON FHIR Current Context Test Launches.')
         ],
 
         GlobalConnectorsEnum::REST_SYSTEM_SCOPES_API->value => [
@@ -4442,20 +4428,19 @@ $GLOBALS_METADATA = [
                 '2' => xl('At the top of the page and at the foot of the page'),
                 '3' => xl('Do not display the note')
             ],
-            '0' ,                          // default = display at top of form
+            '3' ,                          // default = off
             xl('Configure where LOINC statement should be displayed')
         ],
 
         'questionnaire_display_style' => [
             xl('Questionnaire Form Display Style'),
             [
-                '0' => xl('OpenEMR Auto Select Dark/Light Themed Version'),
-                '1' => xl('LForms Project Maintained Light Version(Original)'),
-                '3' => xl('OpenEMR Light Theme Version Always'),
-                '4' => xl('OpenEMR Dark Theme Version Always'),
+                '0' => xl('OpenEMR Auto Select Dark/Light Theme'),
+                '3' => xl('OpenEMR Light Theme Always'),
+                '4' => xl('OpenEMR Dark Theme Always'),
             ],
-            '0' ,                          // default = display at top of form
-            xl('Choose OpenEMR auto select based on core theme styles(OpenEMR dark theme turns on Questionnaire dark, LForms project maintained light styles(Original) or default to always dark or light regardless of core themes.')
+            '0',
+            xl('Choose automatic theme selection or always use the light or dark Questionnaire theme.')
         ],
 
         'questionnaire_display_fullscreen' => [

@@ -142,10 +142,8 @@ require_once("modules/$pcDir/pnincludes/Date/Calc.php");
 //=========================================================================
 require_once("modules/$pcDir/pnlang/eng/global.php");
 
-//=========================================================================
-//  Setup Smarty defines
-//=========================================================================
-require_once("modules/$pcDir/pcSmarty.class.php");
+// (legacy `require_once("modules/$pcDir/pcSmarty.class.php")` removed —
+//  the Twig conversion deleted pcSmarty along with library/smarty_legacy/.)
 //=========================================================================
 //  utility functions for postcalendar
 //=========================================================================
@@ -414,7 +412,7 @@ function postcalendar_userapi_buildMonthSelect($args)
 
     for ($c = 0,$i = 1; $i <= 12; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false;
+            $sel = $selected == $i;
         } elseif ($i == $pc_month) {
             $sel = true;
         } else {
@@ -448,7 +446,7 @@ function postcalendar_userapi_buildDaySelect($args)
 
     for ($c = 0,$i = 1; $i <= 31; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false;
+            $sel = $selected == $i;
         } elseif ($i == $pc_day) {
             $sel = true;
         } else {
@@ -486,7 +484,7 @@ function postcalendar_userapi_buildYearSelect($args)
 
     for ($c = 0,$i = $pc_start_year; $i <= $pc_end_year; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false;
+            $sel = $selected == $i;
         } elseif ($i == $pc_year) {
             $sel = true;
         } else {
