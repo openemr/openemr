@@ -535,15 +535,34 @@ jobs:
         echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"
 
   # Phase 7c-docker cleanup: delete the candidate tag from Docker Hub
-  # after publish (success or fail). Always runs on the gated path;
-  # continue-on-error so cleanup failures don't fail the whole workflow
-  # run (a stale candidate tag is cosmetically annoying but not a
-  # correctness issue — the tag naming makes it obvious that
+  # after publish (success or fail). Runs on the gated path when the
+  # candidate is no longer needed for recovery; continue-on-error so
+  # cleanup failures don't fail the whole workflow run (a stale
+  # candidate tag is cosmetically annoying but not a correctness issue
+  # — the tag naming makes it obvious that
   # release-candidate-<run-id>-<attempt> is an internal artifact).
+  #
+  # Phase 9 (skip-build re-run for release recovery, 2026-07-28):
+  # preserve the candidate tag on acceptance-gate failure so an
+  # operator can re-run acceptance without a fresh multi-arch build.
+  # Recovery flow after an acceptance flake:
+  #   1. Manually workflow_dispatch acceptance-docker.yml with
+  #      `to_tag=<candidate-suffix>` (the candidate_tag output on the
+  #      failed build job — visible on the failed run page).
+  #   2. On green acceptance, manually alias the candidate onto the
+  #      final tags with `docker buildx imagetools create -t
+  #      openemr/openemr:<final> openemr/openemr:<candidate>` for each
+  #      expanded tag, then delete the candidate by hand (or re-run
+  #      this job — cleanup is idempotent via the 204/404 handling
+  #      below).
+  # Cleanup still fires on acceptance success (normal path) and on
+  # publish failure (the candidate is already useless since the
+  # multi-arch manifest points at it and future runs use a new
+  # candidate suffix). Only acceptance-gate == 'failure' preserves.
   cleanup-candidate:
     name: Cleanup candidate tag
     needs: [build, acceptance-gate, publish]
-    if: always() && inputs.gate_with_acceptance && needs.build.result == 'success'
+    if: always() && inputs.gate_with_acceptance && needs.build.result == 'success' && needs.acceptance-gate.result != 'failure'
     runs-on: ubuntu-24.04
     steps:
     - name: Delete candidate tag from Docker Hub
