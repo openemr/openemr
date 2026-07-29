@@ -388,21 +388,35 @@ jobs:
         set -euo pipefail
         target_ref="release-prep/${REL_BRANCH}"
         echo "==> Dispatching acceptance-docker.yml against ${target_ref}"
-        # Phase 7d-2: test_arm64=true expands build-image into a two-arch
-        # matrix (amd64 + arm64 native runners, per-arch artifacts) and
-        # the acceptance matrix into 6 cells (3 scenarios × 2 archs).
-        # Catches rel-branch Dockerfile regressions that only surface on
-        # arm64 at release-prep review time, rather than post-merge on
-        # the daily latest-gate. Dispatch swallows arg-unknown failures
-        # so pre-Phase-7d-2 rel-branches (still using the amd64-only
-        # build-image shape) keep working.
-        if ! gh workflow run acceptance-docker.yml \
+        # acceptance-docker.yml's matrix runs both amd64 and arm64
+        # unconditionally on master; on rel branches with the current
+        # workflow synced, the same applies. build_locally=true tells
+        # detect-mode to build target image from PR Dockerfile rather
+        # than pulling to_tag from Docker Hub.
+        #
+        # Narrow-swallow: only tolerate the "unknown input"
+        # (HTTP 422 "Unexpected inputs provided") failure, which is the
+        # pre-Phase-3.5-rel-branch case where the acceptance-docker.yml
+        # copy on that branch doesn't declare build_locally yet.
+        # Anything else (auth, network, invalid ref, transient API 5xx,
+        # etc.) is a real failure and should abort release-prep so the
+        # operator notices rather than silently skipping the docker
+        # acceptance gate for a possibly-shippable release.
+        set +e
+        gh_out="$(gh workflow run acceptance-docker.yml \
           --repo "${{ github.repository }}" \
           --ref "${target_ref}" \
-          -f build_locally=true \
-          -f test_arm64=true
-        then
-          echo "::warning::acceptance-docker.yml dispatch failed for ${target_ref} (workflow file may predate build_locally or test_arm64 input on this rel-branch); continuing release-prep without docker-side pre-merge acceptance gate"
+          -f build_locally=true 2>&1)"
+        gh_rc=$?
+        set -e
+        echo "$gh_out"
+        if [[ $gh_rc -ne 0 ]]; then
+          if grep -qE 'HTTP 422.*Unexpected inputs.*build_locally' <<< "$gh_out"; then
+            echo "::warning::acceptance-docker.yml on ${target_ref} predates the build_locally input; continuing release-prep without docker-side pre-merge acceptance gate"
+          else
+            echo "::error::acceptance-docker.yml dispatch failed for ${target_ref} with an unexpected error (not the legacy 'unknown input' case) — aborting release-prep so the failure is visible."
+            exit "$gh_rc"
+          fi
         fi
 
     # --- Master-side partner PR (release-finalize) ---------------------
