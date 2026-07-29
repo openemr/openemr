@@ -398,22 +398,27 @@ jobs:
         # but naming them keeps failure modes obvious).
         extensions: curl, dom, mbstring, tokenizer, xml
 
-    # ChromeDriver for the E2eCriticalPathTest — Panther launches a
-    # headless subprocess Chrome bound to the mapped artifact port.
-    # ubuntu-24.04 runners ship with google-chrome pre-installed
-    # (/opt/google/chrome/chrome); nanasess/setup-chromedriver@v2
-    # detects that version and installs the exactly-matching
-    # ChromeDriver from Chrome-for-Testing so Panther's
-    # driver-version-detection succeeds.
+    # Chrome + ChromeDriver for Panther-driven acceptance tests.
+    # Composite action delegates by runner arch (see the action's
+    # own comment header for the full source-choice rationale):
     #
-    # Do NOT swap this for browser-actions/setup-chrome@v1 with
-    # install-chromedriver: true — that action pulls Chrome from
-    # Google's Linux repo and ChromeDriver from CfT with independent
-    # release cadences, and drifts a mismatched pair through
-    # (Chrome 150 + ChromeDriver 151 was the concrete example that
-    # first bit this test).
+    #   amd64 — nanasess/setup-chromedriver@v2 reads the runner's
+    #   pre-installed google-chrome and installs the matching
+    #   ChromeDriver from Chrome for Testing. Do NOT swap this for
+    #   browser-actions/setup-chrome@v2 — that action pulls Chrome
+    #   and ChromeDriver from independent release channels and drifts
+    #   a mismatched pair through (Chrome 150 + ChromeDriver 151 was
+    #   the concrete example that first bit this test). Also it
+    #   still marks Linux ARM64 unsupported as of v2.1.2 (2026-05).
+    #
+    #   arm64 — xtradeb PPA chromium + chromium-driver install.
+    #   Google Chrome has no arm64 deb (Google's apt repo is
+    #   amd64-only) and Chrome for Testing hasn't shipped a
+    #   linux-arm64 platform variant yet (crbug/374811603 open).
+    #   xtradeb ships browser + driver as a matched-pair version,
+    #   eliminating the drift risk.
     - name: Set up matching ChromeDriver for Panther-driven acceptance tests
-      uses: nanasess/setup-chromedriver@v2
+      uses: ./.github/actions/setup-chromedriver-multiarch
 
     - name: Install acceptance-suite composer dependencies
       # `--no-scripts` skips OpenEMR's post-install scripts (they assume
