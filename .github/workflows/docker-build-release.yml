@@ -555,14 +555,20 @@ jobs:
   #      expanded tag, then delete the candidate by hand (or re-run
   #      this job — cleanup is idempotent via the 204/404 handling
   #      below).
-  # Cleanup still fires on acceptance success (normal path) and on
-  # publish failure (the candidate is already useless since the
-  # multi-arch manifest points at it and future runs use a new
-  # candidate suffix). Only acceptance-gate == 'failure' preserves.
+  # Cleanup fires only on publish SUCCESS. Any earlier-stage failure
+  # (acceptance-gate failed, publish failed after acceptance passed,
+  # publish cancelled mid-run) preserves the candidate so an operator
+  # can re-run acceptance-docker.yml manually with `to_tag=<candidate-
+  # suffix>` and then manually `docker buildx imagetools create`
+  # against the still-live candidate. Also preserves the candidate on
+  # cancelled runs. Uses publish.result rather than acceptance-gate.result
+  # because publish's imagetools-alias would fail if the candidate got
+  # deleted between publish attempts — treating the whole publish job
+  # as the "safe to cleanup" gate avoids that race.
   cleanup-candidate:
     name: Cleanup candidate tag
     needs: [build, acceptance-gate, publish]
-    if: always() && inputs.gate_with_acceptance && needs.build.result == 'success' && needs.acceptance-gate.result != 'failure'
+    if: always() && inputs.gate_with_acceptance && needs.build.result == 'success' && needs.publish.result == 'success'
     runs-on: ubuntu-24.04
     steps:
     - name: Delete candidate tag from Docker Hub

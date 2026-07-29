@@ -84,6 +84,16 @@ jobs:
   # workflow permissions block above.
   fetch-source-artifact:
     name: Fetch source artifact
+    # Only dispatchable from master. The downstream acceptance-gate job
+    # uses `uses: ./.github/workflows/acceptance-package.yml` which
+    # resolves against the workflow's checkout ref — for the
+    # "acceptance-harness-bug recovery" case the whole point is to run
+    # the FRESHEST harness (master's copy) against the OLDER build's
+    # artifact, so a dispatch from a rel branch would defeat that.
+    # Enforce here rather than relying on operator discipline.
+    if: >-
+      github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+      && github.ref == 'refs/heads/master'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     outputs:
