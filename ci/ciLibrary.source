@@ -943,6 +943,14 @@ capture_coredumps() {
     local max_core_mb=${COREDUMP_MAX_MB:-0}
     mkdir -p "${dest_dir}"
 
+    # Inventory first: which cores exist, how big, and how full the disk is.
+    # The 2026-07-28 mTLS run logged ~20 gen-2 worker segfaults (AH00051) but
+    # only ONE core existed at capture time — this file is how the next such
+    # discrepancy explains itself (truncated cores, ENOSPC, RLIMIT_CORE, or
+    # crashes that never dumped).
+    dc exec -T openemr sh -c "ls -la '${COREDUMP_DIR}' 2>&1; echo; df -h / '${COREDUMP_DIR}' 2>&1" \
+        > "${dest_dir}/coredumps.inventory.txt" 2>&1 || true
+
     local cores
     # shellcheck disable=SC2310  # missing-core is expected; || true drives the no-op branch
     cores=$(dc exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}'/core.* 2>/dev/null") || true
@@ -959,10 +967,19 @@ capture_coredumps() {
         || echo 'WARNING: gdb install failed; no backtrace will be produced. The raw core is retained in the container; set COREDUMP_MAX_MB > 0 to upload it for offline analysis.' >&2
 
     # The faulting process is an Apache worker (AH00051 in the job log).
+    # NB: busybox ash's `command -v` only honors its FIRST operand, so the
+    # previous single call `command -v apache2 httpd` printed nothing on
+    # Alpine (apache2 does not exist there) — gdb then received only the
+    # core, no executable, and bailed with "not in executable format". First
+    # observed on the 2026-07-28 mTLS run: the first run in which a core
+    # ever survived long enough to reach this code. Probe each candidate
+    # separately, httpd first (Alpine), with a path fallback.
     local exe
-    # shellcheck disable=SC2310  # missing binary is tolerated; gdb auto-detects from the core
-    exe=$(dc exec -T openemr sh -c 'command -v apache2 httpd 2>/dev/null | head -n1') || true
+    # shellcheck disable=SC2310  # missing binary is tolerated; gdb runs core-only as last resort
+    exe=$(dc exec -T openemr sh -c \
+        'command -v httpd 2>/dev/null || command -v apache2 2>/dev/null || ls /usr/sbin/httpd /usr/sbin/apache2 2>/dev/null | head -n1') || true
     exe=${exe%$'\r'}
+    exe=${exe%%$'\n'*}
 
     local core base
     while IFS= read -r core; do
