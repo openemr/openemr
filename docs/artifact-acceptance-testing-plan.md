@@ -606,16 +606,60 @@ wizard-install × [tar, zip]); expanded matrix (workflow_dispatch
 or build_locally) grows from 4 cells to 6 (adds upgrade[tar] +
 wizard-upgrade[tar], both tar-only).
 
-**Slice 2 (follow-up, deferred) — upgrade-side ZIP.**
-`upgrade-package.sh` currently only extracts .tar.gz for both
-the FROM side (curl'd from GitHub Release) and the TO side
-(--to-local-tarball). Extending to ZIP means (a) a
-`--to-local-zip` flag mirroring boot-package.sh's, and (b)
-the extract-swap flow using unzip. Once done, matrix grows to
-8 cells (all 4 scenarios × [tar, zip]). Not on any critical
-path; sequence after 3.6 slice 1 lands + first real observation
-of ZIP-only bugs (or lack thereof) informs whether upgrade ZIP
-adds real value.
+**Slice 2 (IN FLIGHT as #13262, opened 2026-07-29) — upgrade-
+side ZIP.** `upgrade-package.sh` gained `--to-local-zip`
+mirroring boot-package.sh's slice-1 pattern (mktemp -d + unzip
++ nullglob single-top-level enforcement + mv). Matrix grew to
+8 cells on the expanded path (all 4 scenarios × [tar, zip]);
+default matrix unchanged at 4 (install-side only). Boot-flags
+step's `to_upgrade_local_flag` switches on `matrix.format`
+between `--to-local-tarball` and `--to-local-zip`.
+
+FROM-version side stays tar-only — always downloaded from
+GitHub Release as .tar.gz. The whole point of an upgrade test
+is starting from real shipped release bytes; only the TO side
+varies between local-built PR artifact and shipped tag.
+
+**Trigger-time observations (all captured 2026-07-29).**
+
+Testing surface for the tarball/zip artifact split by trigger:
+
+  * **push / schedule** (default `build_locally=false`) — tests
+    already-released packages. Downloads `openemr-<from>.tar.gz`
+    + `.zip` from the GitHub Release page. No PackageAssembler
+    run.
+  * **workflow_dispatch** — operator toggles `build_locally`.
+    Off → tests shipped release; on → PackageAssembler builds
+    from PR checkout, then tests.
+  * **push/PR touching `tools/release/**`** — Phase 3.5 auto-
+    detect flips `build_locally=true` → build then test.
+  * **release-prep.yml dispatch** — always `build_locally=true`,
+    PackageAssembler builds from the release-prep PR checkout.
+  * **workflow_call from build-release.yml** (release-time
+    gate) — caller passes `caller_tarball_artifact` +
+    `caller_zip_artifact` → tests the exact bundle
+    build-release.yml just produced. Bytes tested = bytes
+    published, atomically.
+
+Both tar and zip validated across ALL of these — full parity
+for the format dimension.
+
+**Default-matrix upgrade coverage post-8.3.0.** Today's default
+matrix (push / schedule / non-`tools/release/**` PR) is install-
+only because `from_version` and `to_version` both default to
+`8.2.0`, and upgrade-package.sh rejects a same-version upgrade.
+Upgrade cells only exist when `from != to`, which happens on
+dispatch (operator provides differing inputs), build_locally
+paths (from=8.2.0 shipped; to=99.99.99 synthetic PR-built), and
+workflow_call gate (from=8.2.0 shipped; to=the version being
+shipped). Once 8.3.0 releases and the default `from_version`
+becomes 8.2.0 → default `to_version` becomes 8.3.0, upgrade
+scenarios can move into the default matrix and daily/scheduled
+runs will exercise the shipped upgrade path continuously —
+would catch a base-image regression or release-page availability
+issue against the actual `latest-1 → latest` upgrade end users
+perform, without needing an operator to dispatch. Small
+follow-up (input default bump), not a full phase.
 
 **Original scoping (as-scoped 2026-07-29, preserved for
 context):**
@@ -2433,3 +2477,53 @@ in acceptance."
       makes no mention of the pre-publish acceptance gate.
       Also doesn't call out that ZIP is now tested. Doc-only
       PR (separate from #13261) covers both.
+
+- **2026-07-29 (later × N)** — **Phase 3.6 slice 2 IN FLIGHT as
+  #13262 + arm64 becoming always-on for acceptance-docker.**
+  Two decisions captured while working through Phase 3.6:
+
+    * **Upgrade-side ZIP shipped.** upgrade-package.sh
+      --to-local-zip mirrors slice-1's boot-package.sh pattern.
+      Matrix now 8 cells on expanded path (all 4 scenarios ×
+      both formats). Rebase into master required a cherry-pick
+      onto post-#13261 master rather than a straight rebase,
+      because #13261 landed as a squash — the original slice-1
+      commits my slice-2 branch was based on became duplicates
+      of master's new squash SHA, triggering per-commit
+      conflicts on rebase. Cherry-pick of slice-2's single
+      commit onto the merged-slice-1 master was clean.
+
+    * **arm64 acceptance becomes always-on (design pivot,
+      2026-07-29).** Original scoping (Phase 7d update-log
+      entries) had test_arm64 default false because arm64
+      runner-minutes cost was framed as a real concern —
+      doubling every acceptance-surface push/PR/schedule run.
+      Reality check: `ubuntu-24.04-arm` runners are FREE for
+      public repos (same cost line as ubuntu-24.04). The "cost"
+      is runner-minute quota, which openemr/openemr as a public
+      repo doesn't have a meaningful limit on. So the ambient
+      arm64 signal (daily-schedule + push/PR on acceptance-
+      docker surface) is worth having by default.
+
+      Follow-up code change: flip test_arm64 default from
+      false to true in acceptance-docker.yml's workflow_call
+      and workflow_dispatch inputs. Reference to the input
+      also becomes redundant at docker-build-release.yml's
+      gate call + release-prep.yml's dispatch (both currently
+      pass `-f test_arm64=true` explicitly) — those calls can
+      drop the flag to rely on the default, or keep as
+      belt-and-suspenders. Small PR, ~5-line change.
+
+      Effect: daily 09:00 UTC acceptance-docker.yml schedule
+      run now exercises both amd64 + arm64. Any push/PR on
+      the acceptance-docker surface too. arm64 coverage
+      approaches ZIP coverage's full-parity shape.
+
+  Also captured a **default-matrix upgrade coverage post-8.3.0**
+  observation in the Phase 3.6 section: today's default matrix
+  is install-only because from_version = to_version = 8.2.0
+  (upgrade-package.sh rejects same-version). Once 8.3.0
+  releases, default becomes 8.2.0 → 8.3.0 and upgrade cells
+  can move into the default matrix — daily runs would exercise
+  the shipped `latest-1 → latest` upgrade path continuously.
+  Small follow-up (input default bump).
