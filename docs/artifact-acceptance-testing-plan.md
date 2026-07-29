@@ -1595,7 +1595,7 @@ Exit criterion: acceptance gate flake rate below X% (baseline TBD;
 target ~1% or lower per gate invocation) sustained across a
 2-week window. Rough timing: ~2-3 weeks of iterative work.
 
-### Phase 9 — Skip-build re-run for release recovery *(IN FLIGHT as #13272, opened 2026-07-29)*
+### Phase 9 — Skip-build re-run for release recovery *(SHIPPED 2026-07-29 as #13272)*
 
 Even with Phase 8's flake reduction, release-time flakes will
 happen occasionally. Today's recovery path is "Re-run failed jobs"
@@ -2712,3 +2712,48 @@ in acceptance."
     deliberate for the "acceptance-harness bug" recovery case
     so a master fix flows through without waiting for
     backport.
+
+- **2026-07-29 (very-late) — Phase 9 SHIPPED (#13272); Phase 10
+  drafted.** Landed with the two rabbit-fix refinements from
+  code review:
+
+    * acceptance-only.yml gained an explicit master-ref guard on
+      its entry job (`if: github.ref == 'refs/heads/master'`).
+      The `uses: ./.github/workflows/acceptance-package.yml`
+      inside only resolves correctly against master's freshest
+      harness copy; a dispatch from a rel branch would defeat
+      the "run master's harness against the older build's
+      artifact" intent.
+
+    * docker-build-release.yml cleanup-candidate condition
+      pushed further than rabbit's suggestion: `needs.publish.
+      result == 'success'` rather than
+      `needs.acceptance-gate.result == 'success'`. Closes a
+      publish-failed-after-acceptance-passed race that rabbit's
+      variant leaves open (cleanup runs → candidate deleted →
+      operator can't re-run publish's imagetools-alias which
+      needs the candidate). Now: full-green success is the ONLY
+      path that cleans up; anything else (acceptance fail,
+      publish fail, cancelled) preserves for recovery.
+
+  **Also drafted Phase 10** — Release-mechanism infrastructure
+  unification + test coverage. Six slices covering the concrete
+  duplication accumulated across Phases 1-9 (3x OCI-verify
+  copies, repeated app-token generation, single-caller publish
+  logic, mirror-image zip-extract in boot/upgrade scripts) plus
+  a BATS coverage audit for the shell + workflow surface. 10c
+  (extract publish + automate Phase 9's remaining manual
+  steps) is the biggest ergonomic win; 10a (OCI-verify extract,
+  closes deferred rabbit finding from #13239) is the smallest
+  starting point. All slices independent.
+
+  **Deliberate deferral in #13272**: the "extract build-release.
+  yml's publish job first, then automate Phase 9 recovery
+  atop it" refactor was scoped OUT of the ongoing PR to keep
+  it landable — landed acceptance-only.yml as verify-only with
+  a manual re-publish step. Phase 10c will collapse that manual
+  step (both tarball + docker sides) via the extracted
+  reusable-publish workflow. Real trade-off: temporary manual
+  step is operationally minor (no release-time flake has hit
+  us yet, Phase 9 is preventive); refactor gets clean design
+  space in a dedicated PR rather than growing in-flight scope.
