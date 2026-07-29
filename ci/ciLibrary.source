@@ -687,21 +687,22 @@ redis_master_cli() {
 }
 
 ##
-# Sample connection/lock health of redis-master every 10s, appending to the
-# file named in $1, until redis_monitor_stop. Backgrounds itself; the child
-# writes only to the outfile (never the step's stdout/stderr pipes), so it
-# survives the end of the workflow step that started it.
 # Path (relative to the openemr webroot) of the OPcache probe installed by
 # redis_monitor_start and removed by redis_monitor_stop. It must run inside an
 # Apache worker: CLI `php -r 'opcache_get_status()'` reads the CLI's own SHM
-# segment, not the one the workers share, which is the segment suspected of
-# corruption in the #12438 segfaults.
-# Assign-if-unset before readonly, same as COREDUMP_DIR above: this library
+# segment, not the one the workers share — and the workers' segment holds the
+# JIT buffer implicated in the #12438 segfaults.
+# Assign-if-unset before readonly, same as COREDUMP_DIR below: this library
 # is sourced multiple times per shell by ci/inferno/run.sh, and a bare
 # `readonly VAR=...` errors on the second source.
 : "${OPCACHE_PROBE:=opcache-ci-status.php}"
 readonly OPCACHE_PROBE
 
+##
+# Sample connection/lock health of redis-master every 10s, appending to the
+# file named in $1, until redis_monitor_stop. Backgrounds itself; the child
+# writes only to the outfile (never the step's stdout/stderr pipes), so it
+# survives the end of the workflow step that started it.
 redis_monitor_start() {
     local outfile=$1
     : > "${outfile}"
@@ -725,6 +726,10 @@ echo json_encode([
     'hash_restarts' => $s['opcache_statistics']['hash_restarts'] ?? null,
     'manual_restarts' => $s['opcache_statistics']['manual_restarts'] ?? null,
     'num_cached_scripts' => $s['opcache_statistics']['num_cached_scripts'] ?? null,
+    // Worker-truth for the JIT config: the image entrypoint (openemr.sh)
+    // enables JIT at first boot, so CLI probes and the static image lie.
+    'jit' => ini_get('opcache.jit'),
+    'jit_buffer_size' => ini_get('opcache.jit_buffer_size'),
 ]), "\n";
 PHP
     (
@@ -854,19 +859,18 @@ enable_coredumps() {
     sudo sysctl -w 'fs.suid_dumpable=2'
     # Make the kernel actually LOG segfaults ("segfault at ... ip ... in
     # xyz.so") so the workflow's dmesg capture has something to capture: the
-    # stock runner kernel logged nothing for the ~55 real worker segfaults in
-    # the 2026-07-28 mTLS e2e run.
+    # stock runner kernel logs nothing for them by default (#12438).
     sudo sysctl -w 'debug.exception-trace=1'
     sudo sysctl -w 'kernel.print-fatal-signals=1'
 
     # CoreDumpDirectory makes each Apache child call prctl(PR_SET_DUMPABLE, 1)
     # after its root->apache setuid. Without it, children sit in the kernel's
     # restrictive "suid-safe" dumpable state — setuid WITHOUT exec keeps
-    # dumpable at the fs.suid_dumpable value — and that is why the same run
-    # produced 55 worker segfaults and zero cores while the su-based CLI
-    # canary below dumped fine: su execs php, and execve of a non-setuid
-    # binary RESETS dumpable to 1. The graceful restart below both loads this
-    # directive and re-forks the workers under it.
+    # dumpable at the fs.suid_dumpable value — which is how #12438 runs kept
+    # producing worker segfaults with zero cores while exec-based probes
+    # dumped fine (execve of a non-setuid binary RESETS dumpable to 1). The
+    # graceful restart below both loads this directive and re-forks the
+    # workers under it.
     dc exec -T openemr sh -c "printf 'CoreDumpDirectory %s\n' '${COREDUMP_DIR}' > /etc/apache2/conf.d/zz-ci-coredump.conf"
     # The two sysctls above are checked at the moment a process changes UID.
     # Apache started earlier in the compose `up` and its prefork workers
@@ -885,7 +889,7 @@ enable_coredumps() {
         || echo 'enable_coredumps: graceful restart failed; existing workers keep dumpable=0'
 
     # Canary: prove the whole coredump pipeline works in THIS job before
-    # trusting it. Run 30343650338 had 166 worker segfaults after the
+    # trusting it. #12438 runs had a hundred-plus worker segfaults after the
     # graceful restart above ran cleanly, yet produced zero cores — and
     # nobody knew the pipeline was broken until the cores were needed.
     # Crash a sacrificial CLI php as the unprivileged web user (mirroring
@@ -901,7 +905,9 @@ enable_coredumps() {
     else
         echo "coredump canary OK: core file present in ${COREDUMP_DIR}"
         # Remove the canary's core so capture_coredumps only reports real crashes.
-        docker compose exec -T openemr sh -c "rm -f ${COREDUMP_DIR}/core.php.*" 2>/dev/null || true
+        # Glob without the trailing dot: the core's %e is the binary's comm,
+        # which an Alpine packaging change could turn into php82.
+        docker compose exec -T openemr sh -c "rm -f ${COREDUMP_DIR}/core.php*" 2>/dev/null || true
     fi
 
     # Second canary, the one that matters: SIGSEGV a REAL Apache worker and
@@ -909,8 +915,8 @@ enable_coredumps() {
     # execve resets dumpable to 1, so it passes even when the workers (setuid,
     # no exec) cannot dump. This canary would have failed loudly on every run
     # to date and pointed straight at the CoreDumpDirectory fix above. Cost:
-    # one AH00052 line in the error log; the parent forks a replacement
-    # worker immediately.
+    # one AH00051 line in the error log (AH00051, not AH00052, because
+    # CoreDumpDirectory is set); the parent forks a replacement immediately.
     local worker_pid worker_cores
     worker_pid=$(docker compose exec -T openemr sh -c 'pgrep -u apache httpd | head -1') || worker_pid=""
     worker_pid=${worker_pid//[!0-9]/}
@@ -944,10 +950,10 @@ capture_coredumps() {
     mkdir -p "${dest_dir}"
 
     # Inventory first: which cores exist, how big, and how full the disk is.
-    # The 2026-07-28 mTLS run logged ~20 gen-2 worker segfaults (AH00051) but
-    # only ONE core existed at capture time — this file is how the next such
-    # discrepancy explains itself (truncated cores, ENOSPC, RLIMIT_CORE, or
-    # crashes that never dumped).
+    # #12438 runs have logged dozens of worker segfaults (AH00051) with far
+    # fewer cores on disk — this file is how any such discrepancy explains
+    # itself (truncated cores, ENOSPC, RLIMIT_CORE, or crashes that never
+    # dumped).
     # shellcheck disable=SC2310  # best-effort inventory; a dead container must not abort diagnostics
     dc exec -T openemr sh -c "ls -la '${COREDUMP_DIR}' 2>&1; echo; df -h / '${COREDUMP_DIR}' 2>&1" \
         > "${dest_dir}/coredumps.inventory.txt" 2>&1 || true
@@ -971,10 +977,10 @@ capture_coredumps() {
     # NB: busybox ash's `command -v` only honors its FIRST operand, so the
     # previous single call `command -v apache2 httpd` printed nothing on
     # Alpine (apache2 does not exist there) — gdb then received only the
-    # core, no executable, and bailed with "not in executable format". First
-    # observed on the 2026-07-28 mTLS run: the first run in which a core
-    # ever survived long enough to reach this code. Probe each candidate
-    # separately, httpd first (Alpine), with a path fallback.
+    # core, no executable, and bailed with "not in executable format" — a
+    # latent bug for as long as this code existed, unexercisable until a core
+    # first survived to reach it (#12438). Probe each candidate separately,
+    # httpd first (Alpine), with a path fallback.
     local exe
     # shellcheck disable=SC2310  # missing binary is tolerated; gdb runs core-only as last resort
     exe=$(dc exec -T openemr sh -c \
@@ -982,9 +988,9 @@ capture_coredumps() {
     exe=${exe%$'\r'}
     exe=${exe%%$'\n'*}
 
-    # Cap the number of cores backtraced: the 2026-07-29 mTLS run produced
-    # 184 cores of ~290MB each (49GB, disk at 78%), and every crash shared
-    # ONE instruction pointer — after a handful of backtraces the rest are
+    # Cap the number of cores backtraced: a single #12438 e2e run produced
+    # 184 cores of ~290MB each (49GB, runner disk at 78%), all sharing ONE
+    # instruction pointer — after a handful of backtraces the rest are
     # duplicates, and 184 gdb passes over 290MB cores would eat the job.
     local max_backtraces=${COREDUMP_MAX_BACKTRACES:-5}
     local processed=0
@@ -1013,9 +1019,8 @@ capture_coredumps() {
         gdb_args+=("${core}")
         # </dev/null on every exec inside this loop: `docker compose exec -T`
         # forwards (and thereby consumes) the loop's stdin — the herestring
-        # feeding `read` — so without it the loop exits after ONE core.
-        # Observed on the 2026-07-29 mTLS run: 184 cores in the inventory,
-        # exactly one backtrace produced.
+        # feeding `read` — so without it the loop exits after ONE core
+        # (observed: 184 cores in the inventory, one backtrace produced).
         # shellcheck disable=SC2310  # a gdb failure is logged, not fatal — keep processing cores
         dc "${gdb_args[@]}" < /dev/null \
             > "${dest_dir}/${base}.backtrace.txt" 2>&1 \
