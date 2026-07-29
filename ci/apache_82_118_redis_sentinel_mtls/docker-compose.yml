@@ -246,11 +246,12 @@ services:
       REDIS_TLS_CERT_KEY_PATH: /redis-certs
     volumes:
     - redis-certs:/redis-certs:ro
-    # EXPERIMENT: JIT off for this config only — see zz-ci-jit-off.ini for
-    # the rationale (#12438 segfault avalanche / suspected JIT-SHM
-    # corruption). Path is version-pinned like the image: flex-3.22-php-8.2
-    # is Alpine 3.22 with PHP 8.2 in /etc/php82.
-    - ./zz-ci-jit-off.ini:/etc/php82/conf.d/zz-ci-jit-off.ini:ro
+    # NB: with the multi-file COMPOSE_FILE the CI uses, relative paths in ALL
+    # files resolve against the FIRST file's directory (ci/), not this file's
+    # — hence the config-dir prefix. A bare ./zz-ci-jit-off.ini silently
+    # bind-mounted a Docker-created empty DIRECTORY from ci/ instead.
+    - ./apache_82_118_redis_sentinel_mtls/zz-ci-jit-off.ini:/etc/php-opcache-jit-configured:ro
+    - ./apache_82_118_redis_sentinel_mtls/zz-ci-jit-off.ini:/etc/php82/conf.d/zz-ci-jit-off.ini:ro
     depends_on:
       redis-tls-init:
         condition: service_completed_successfully
