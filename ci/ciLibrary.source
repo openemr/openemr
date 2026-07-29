@@ -948,6 +948,7 @@ capture_coredumps() {
     # only ONE core existed at capture time — this file is how the next such
     # discrepancy explains itself (truncated cores, ENOSPC, RLIMIT_CORE, or
     # crashes that never dumped).
+    # shellcheck disable=SC2310  # best-effort inventory; a dead container must not abort diagnostics
     dc exec -T openemr sh -c "ls -la '${COREDUMP_DIR}' 2>&1; echo; df -h / '${COREDUMP_DIR}' 2>&1" \
         > "${dest_dir}/coredumps.inventory.txt" 2>&1 || true
 
