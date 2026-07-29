@@ -39,9 +39,9 @@ require_once("$srcdir/api.inc.php");
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -331,7 +331,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     var conf = confirm(<?php echo js_escape($str_nosave_confirm); ?>);
 
                     if (conf) {
-                        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>";
+                        window.location.href = "<?php echo FormActionBarSettings::EXIT_URL; ?>";
                     }
                     return (conf);
                 }

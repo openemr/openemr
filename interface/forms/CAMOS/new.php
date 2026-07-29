@@ -19,6 +19,7 @@ require_once("../../../library/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -1098,7 +1099,7 @@ if (!$out_of_encounter) {
   <option value='12'><?php echo xlt('Back twelve visits'); ?></option>
 </select>
     <?php
-    echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
+    echo "<a href='" . FormActionBarSettings::EXIT_URL . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
     ?>
 <input type='button' name='hide columns' value='<?php echo xla('Hide/Show Columns'); ?>' onClick="hide_columns()">
 <input type='button' name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
@@ -1234,7 +1235,7 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-    echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
+    echo "<a href='" . FormActionBarSettings::EXIT_URL . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
     echo "<a href='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/CAMOS/help.html' target='new'> | [" . xlt('Help') . "]</a>";
 //  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }

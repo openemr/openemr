@@ -22,6 +22,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Session\EncounterSessionUtil;
@@ -1903,7 +1904,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         onclick='top.restoreSession();transmitting = true;'><?php echo xlt('Transmit Order'); ?>
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-cancel"
-                                        onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'"><?php echo xlt('Cancel/Exit'); ?>
+                                        onclick="top.restoreSession();location='<?php echo FormActionBarSettings::EXIT_URL; ?>'"><?php echo xlt('Cancel/Exit'); ?>
                                     </button>
                                 </div>
                             </div>
