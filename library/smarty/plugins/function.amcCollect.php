@@ -21,7 +21,7 @@
  * Name:     amcCollect<br />
  * Purpose:  amcCollect in OpenEMR - Smarty templates<br />
  *
- * @param array $params
+ * @param array<string, mixed> $params
  * @param Smarty $smarty
  */
 
