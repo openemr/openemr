@@ -1668,14 +1668,25 @@ drift-bug sources.
 
 **Sliced by concern; slices are independent — pick in any order:**
 
-* **10a — Extract OCI-label verify script.** Currently 3 copies in
+* **10a — Extract OCI-label verify script — SHIPPED 2026-07-29 as
+  #13274.** Was 3 near-identical ~35-line blocks in
   `docker-build-release.yml` (gated candidate verify, non-gated
-  pushed verify, publish job verify). Rabbit flagged on #13239;
-  deferred as scope-creep at the time. Now warranted. Extract to
-  `.github/scripts/verify-oci-labels.sh` (or a composite action);
-  each of the 3 sites becomes a 2-3 line call. Reduces per-verify
-  block from ~40 lines to ~5. Small (~half day). No behavior
-  change.
+  pushed verify, publish job verify); now single script at
+  `.github/scripts/verify-oci-labels.sh` + 3 thin ~4-line callers.
+  Env contract: REF_TAG + EXPECTED_REVISION + EXPECTED_VERSION +
+  EXPECTED_BUILD_DATE. New BATS suite at
+  `tests/bats/ci-scripts/verify-oci-labels/` (16 tests via
+  docker-mock.sh, wired into test-byte-identical-scripts.yml).
+  Script added to `.github/byte-identical.yml` with same
+  `exclude-branches: [rel-800, rel-704]` as docker-build-release.yml
+  itself. Two agent judgment calls landed as-is: (a) verbose
+  Dockerfile-context hints now emit on all 3 sites (previously
+  only non-gated) — net-positive diagnostic info, not a
+  regression; (b) publish job gained an actions/checkout since
+  the extracted script needs a workspace on disk;
+  persist-credentials: false added in a follow-up commit
+  (belt-and-suspenders — publish uses its own app-token for gh
+  commands, doesn't need persisted GITHUB_TOKEN in .git/config).
 
 * **10b — Extract app-token composite action.** `actions/create-
   github-app-token@v3` step repeated verbatim in `build-release.yml`
