@@ -70,12 +70,19 @@ runs:
       sudo apt-get update
       sudo apt-get install -y chromium chromium-driver
 
-      # xtradeb packages chromedriver as /usr/bin/chromedriver on current
-      # noble releases; symlink from /usr/local/bin (higher priority on
-      # $PATH) as a defensive no-op if the future package name shifts.
-      if [ ! -x /usr/local/bin/chromedriver ] && [ -x /usr/bin/chromedriver ]; then
-        sudo ln -sf /usr/bin/chromedriver /usr/local/bin/chromedriver
+      # xtradeb ships chromedriver as /usr/bin/chromedriver — fail loudly
+      # if that assumption drifts (packaging rename, install-path change)
+      # rather than silently falling back to whatever chromedriver an
+      # earlier setup step happened to leave in $PATH. Force-symlink into
+      # /usr/local/bin (higher $PATH priority than /usr/bin) so callers
+      # that resolve `chromedriver` always land on the freshly-installed
+      # xtradeb copy, even if some other step pre-created the target.
+      if [ ! -x /usr/bin/chromedriver ]; then
+        echo "::error::chromium-driver package did not install /usr/bin/chromedriver — xtradeb PPA may have restructured its packaging."
+        dpkg -L chromium-driver 2>&1 | head -20 || true
+        exit 1
       fi
+      sudo ln -sf /usr/bin/chromedriver /usr/local/bin/chromedriver
 
       # Panther + most Chrome-driving code autodetects a browser binary
       # by looking for `google-chrome` first. On arm64 we have chromium
