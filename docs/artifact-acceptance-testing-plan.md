@@ -592,7 +592,33 @@ acceptance against a just-shipped floating-tag artifact within
 minutes of publish) — the two together give both pre-publish
 gating and post-publish latency-catching.
 
-### Phase 3.6 — ZIP acceptance coverage *(proposed 2026-07-29)*
+### Phase 3.6 — ZIP acceptance coverage *(slice 1 IN FLIGHT as #13261, opened 2026-07-29)*
+
+**Slice 1 (in flight):** ZIP coverage for `fresh-install` +
+`wizard-install` scenarios only — the ones that use
+`boot-package.sh` end-to-end. Delivered via `boot-package.sh
+--local-zip` + acceptance-package.yml matrix.include with
+per-scenario format expansion + workflow_call
+`caller_zip_artifact` input + build-release.yml passing both
+tar and zip artifacts to acceptance-gate. Default matrix
+grows from 2 cells to 4 (fresh-install × [tar, zip] +
+wizard-install × [tar, zip]); expanded matrix (workflow_dispatch
+or build_locally) grows from 4 cells to 6 (adds upgrade[tar] +
+wizard-upgrade[tar], both tar-only).
+
+**Slice 2 (follow-up, deferred) — upgrade-side ZIP.**
+`upgrade-package.sh` currently only extracts .tar.gz for both
+the FROM side (curl'd from GitHub Release) and the TO side
+(--to-local-tarball). Extending to ZIP means (a) a
+`--to-local-zip` flag mirroring boot-package.sh's, and (b)
+the extract-swap flow using unzip. Once done, matrix grows to
+8 cells (all 4 scenarios × [tar, zip]). Not on any critical
+path; sequence after 3.6 slice 1 lands + first real observation
+of ZIP-only bugs (or lack thereof) informs whether upgrade ZIP
+adds real value.
+
+**Original scoping (as-scoped 2026-07-29, preserved for
+context):**
 
 Phase 3 through Phase 7c-tarball built the full "test the shipped
 tarball, at PR time + release-time gate" story. But the shipped
@@ -2379,3 +2405,31 @@ in acceptance."
   hardening), Phase 9 (skip-build re-run for release recovery),
   and the Phase 4d + 4e absorption/reuse work. All independent;
   pick order as capacity allows.
+
+- **2026-07-29 (later, later, later still)** — **Phase 3.6
+  slice 1 IN FLIGHT as #13261.** boot-package.sh gained
+  --local-zip flag (unzip + move-up-one-level to mirror the
+  tarball layout); acceptance-package.yml matrix restructured
+  to matrix.include with per-scenario format expansion
+  (fresh-install + wizard-install → tar+zip, upgrade +
+  wizard-upgrade → tar-only pending upgrade-package.sh --to-
+  local-zip); workflow_call gained caller_zip_artifact input;
+  build-release.yml acceptance-gate passes both artifact names
+  (same bundle since build-package uploads tar+zip+changelog+
+  checksums together). Default matrix: 4 cells; expanded
+  matrix: 6 cells (2 new zip cells, upgrade side stays tar).
+
+  Two follow-ups called out on the PR:
+
+    * **upgrade-package.sh --to-local-zip** — small script
+      change (unzip + move mirroring boot-package.sh); unblocks
+      upgrade[zip] + wizard-upgrade[zip] matrix cells for full
+      4×2=8 coverage. Sequence when a ZIP-only upgrade bug
+      surfaces or someone wants the coverage completeness.
+
+    * **RELEASE_PROCESS.md updates** — the runbook predates
+      Phase 7 landing; step 11 ("verify the Release object")
+      still frames byte-integrity as a manual concern, and
+      makes no mention of the pre-publish acceptance gate.
+      Also doesn't call out that ZIP is now tested. Doc-only
+      PR (separate from #13261) covers both.
