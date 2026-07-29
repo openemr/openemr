@@ -592,9 +592,9 @@ acceptance against a just-shipped floating-tag artifact within
 minutes of publish) — the two together give both pre-publish
 gating and post-publish latency-catching.
 
-### Phase 3.6 — ZIP acceptance coverage *(slice 1 IN FLIGHT as #13261, opened 2026-07-29)*
+### Phase 3.6 — ZIP acceptance coverage *(SHIPPED 2026-07-29: slice 1 via #13261 + slice 2 via #13262)*
 
-**Slice 1 (in flight):** ZIP coverage for `fresh-install` +
+**Slice 1 (SHIPPED #13261):** ZIP coverage for `fresh-install` +
 `wizard-install` scenarios only — the ones that use
 `boot-package.sh` end-to-end. Delivered via `boot-package.sh
 --local-zip` + acceptance-package.yml matrix.include with
@@ -606,8 +606,8 @@ wizard-install × [tar, zip]); expanded matrix (workflow_dispatch
 or build_locally) grows from 4 cells to 6 (adds upgrade[tar] +
 wizard-upgrade[tar], both tar-only).
 
-**Slice 2 (IN FLIGHT as #13262, opened 2026-07-29) — upgrade-
-side ZIP.** `upgrade-package.sh` gained `--to-local-zip`
+**Slice 2 (SHIPPED #13262) — upgrade-side ZIP.**
+`upgrade-package.sh` gained `--to-local-zip`
 mirroring boot-package.sh's slice-1 pattern (mktemp -d + unzip
 + nullglob single-top-level enforcement + mv). Matrix grew to
 8 cells on the expanded path (all 4 scenarios × [tar, zip]);
@@ -2527,3 +2527,52 @@ in acceptance."
   can move into the default matrix — daily runs would exercise
   the shipped `latest-1 → latest` upgrade path continuously.
   Small follow-up (input default bump).
+
+- **2026-07-29 (end-of-day) — Phase 3.6 both slices SHIPPED,
+  arm64 always-on SHIPPED, RELEASE_PROCESS.md updates IN
+  FLIGHT.** All three landed today after slice-2 rebase-via-
+  cherry-pick fix:
+
+    * **Phase 3.6 slice 1 (#13261) SHIPPED** — install-side
+      ZIP coverage: boot-package.sh --local-zip,
+      acceptance-package.yml 4-cell default / 6-cell expanded
+      matrix (was: 2/4), workflow_call caller_zip_artifact +
+      build-release.yml passing it.
+
+    * **Phase 3.6 slice 2 (#13262) SHIPPED** — upgrade-side
+      ZIP coverage: upgrade-package.sh --to-local-zip,
+      matrix.include extends to 8 cells (all 4 scenarios ×
+      tar/zip) on the expanded path. Phase 3.6 fully complete.
+
+    * **arm64 always-on (#13264) SHIPPED** — retired the
+      test_arm64 opt-in on acceptance-docker.yml. Matrix runs
+      both amd64 + arm64 on EVERY trigger (push, PR, schedule,
+      workflow_dispatch, workflow_call). Reason: ubuntu-24.04-arm
+      runners are free for public repos so no cost reason to
+      gate. Cleaned up test_arm64: true passes in
+      docker-build-release.yml + release-prep.yml (input no
+      longer exists). Also narrowed release-prep.yml's
+      swallow-on-failure to only tolerate the legacy
+      "unknown input" case, not any dispatch error.
+
+    * **RELEASE_PROCESS.md (#13269) IN FLIGHT** — updates Phase
+      5 of the runbook to reflect what actually runs
+      automatically: acceptance-gate now covers 8 cells (tar +
+      zip parity), Phase 7b post-upload sha256 re-verify
+      described, step 11 softened from correctness → cosmetic
+      check, step 12 gets full Phase 7c-docker-latest-gate +
+      arm64 always-on description. Also flags the emulation-vs-
+      native arm64 asymmetry between release-time gated flow
+      (amd64+QEMU build, real-arm test) and PR-time
+      build_locally (native per-arch throughout) as a possible
+      future refactor.
+
+  **Overall status now:** Phases 1, 2, 2.5, 3, 3.5, 3.6, 4a,
+  4a-2, 4a-3, 4b, 4c-1, 4c-2, 5(retirement partial), 7a-tarball,
+  7a-docker, 7b, 7c-tarball, 7c-docker-latest-gate, 7d-1, 7d-2
+  ALL SHIPPED. Not yet started: 4d + 4e (test_suite.sh
+  absorption + E2E reuse), 5 (retire tests-in-image dep) full,
+  6 (full-fidelity PR-image via source-mode indirection),
+  8 (test reliability hardening), 9 (skip-build re-run for
+  release recovery). All independent; pick order as capacity
+  allows.
