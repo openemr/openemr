@@ -492,43 +492,14 @@ jobs:
         # Formats (Phase 3.6):
         #   tar   — extracts openemr-<version>.tar.gz via tar -xzf
         #   zip   — extracts openemr-<version>.zip via unzip
-        # Both artifacts come out of the same PackageAssembler pass;
-        # the ZIP dimension catches ZIP-only regressions (line-ending
-        # translation, exec-bit preservation, empty-dir handling,
-        # path-separator handling — see the Phase 3.6 plan doc for
-        # the failure classes this closes).
-        #
-        # Constraint: `upgrade` and `wizard-upgrade` stay tar-only.
-        # upgrade-package.sh does not yet accept `--to-local-zip`
-        # (deferred to a Phase 3.6 follow-up); until then only the
-        # install-side scenarios exercise the ZIP format.
-        #
-        # `upgrade` and `wizard-upgrade` are also gated on either
-        # explicit workflow_dispatch (where the caller supplies
-        # from_version + to_version explicitly) OR the Phase 3.5
-        # build_locally path (where PR-built tarball is to_version,
-        # any shipped tarball is from_version, and the pair is
-        # meaningful for pre-merge validation). On acceptance-surface-
-        # only push/PR/schedule the from_version default would need to
-        # point at a shipped tarball and right now the most recent
-        # tarball is 8.2.0 itself — no earlier tarball asset exists on
-        # the release page (patch releases only shipped .zip patches).
-        # Once 8.3.0 releases and the from_version default becomes
-        # 8.2.0 → 8.3.0, both upgrade scenarios can move back into
-        # the default matrix unconditionally.
-        # `inputs.caller_tarball_artifact` / `inputs.caller_zip_artifact`
-        # (workflow_call from build-release.yml's Phase 7c gate) also
-        # expand the matrix — can't gate on github.event_name for
-        # workflow_call because that reports the CALLING workflow's
-        # original event (typically workflow_dispatch), not
-        # "workflow_call". See detect-mode's gate check for the same
-        # signal choice.
-        #
-        # Matrix cell counts:
+        # Matrix cells (per Phase 3.6 + Phase 3.5 gating rules — see
+        # the plan doc's Phase 3.6 section for the full rationale):
         #   default (acceptance-surface push/PR/schedule):
-        #     fresh-install × [tar,zip] + wizard-install × [tar,zip] = 4
-        #   expanded (dispatch / build_locally / caller_*_artifact):
-        #     above 4 + upgrade[tar] + wizard-upgrade[tar]           = 6
+        #     fresh-install × [tar, zip] + wizard-install × [tar, zip] = 4
+        #   expanded (dispatch, build_locally, or workflow_call gate):
+        #     above 4 + upgrade[tar] + wizard-upgrade[tar]             = 6
+        # upgrade + wizard-upgrade stay tar-only until upgrade-package.sh
+        # grows --to-local-zip (Phase 3.6 slice 2).
         include: ${{ (github.event_name == 'workflow_dispatch' || inputs.caller_tarball_artifact != '' || inputs.caller_zip_artifact != '' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"},{"scenario":"upgrade","format":"tar"},{"scenario":"wizard-upgrade","format":"tar"}]') || fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"}]') }}
     env:
       FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}

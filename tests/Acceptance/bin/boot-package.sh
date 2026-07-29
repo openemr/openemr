@@ -191,6 +191,11 @@ case "${ARTIFACT_FORMAT}" in
         # against a later refactor that introduces coexisting cleanups.
         PRIOR_TRAP="$(trap -p EXIT | sed -E "s/^trap -- '(.*)' EXIT$/\1/" || true)"
         if [[ -n "${PRIOR_TRAP}" ]]; then
+            # shellcheck disable=SC2064
+            # Intentional expansion-at-decl-time: PRIOR_TRAP + ZIP_TMP
+            # must be baked into the trap string NOW so the composed
+            # cleanup captures the current values, not whatever the
+            # shell happens to have when EXIT fires.
             trap "${PRIOR_TRAP}; rm -rf \"${ZIP_TMP}\"" EXIT
         else
             trap 'rm -rf "${ZIP_TMP}"' EXIT
@@ -201,6 +206,11 @@ case "${ARTIFACT_FORMAT}" in
         # would silently merge if PackageAssembler ever regressed to
         # multiple top-level entries — surface that as a hard error
         # instead of a subtly-broken web root.
+        # find here can only fail on an unwritable /tmp, which is a
+        # shell precondition; the "invoke separately to avoid masking
+        # return value" ceremony (SC2312) would add noise without
+        # changing behavior.
+        # shellcheck disable=SC2312
         mapfile -t ZIP_ROOTS < <(find "${ZIP_TMP}" -mindepth 1 -maxdepth 1)
         if [[ ${#ZIP_ROOTS[@]} -ne 1 || ! -d "${ZIP_ROOTS[0]}" ]]; then
             echo "::error::expected exactly one top-level directory in ${ARTIFACT_PATH}, found ${#ZIP_ROOTS[@]}:" >&2
