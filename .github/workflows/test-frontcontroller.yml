@@ -6,6 +6,7 @@ on:
   push:
     branches:
     - master
+  merge_group:
 
 env:
   ENVIRONMENT: ci

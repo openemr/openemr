@@ -9,6 +9,7 @@ on:
     branches:
     - master
     - rel-*
+  merge_group:
 
 permissions:
   contents: read
@@ -41,6 +42,10 @@ jobs:
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Get changed docker compose files
+      # Skipped in the merge queue, where there is no pull request to diff
+      # against. The step below then falls through to recursive mode and lints
+      # every compose file, which is the right scope for a merged-state check.
+      if: github.event_name != 'merge_group'
       id: changed-files
       continue-on-error: true
       uses: tj-actions/changed-files@v47

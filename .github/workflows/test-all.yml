@@ -6,6 +6,7 @@
 #
 # Matrix strategy:
 # - Pull requests: Only PHP 8.2 configurations (oldest supported) for faster feedback
+# - Merge queue: Only PHP 8.2 configurations, to bound queue latency
 # - Pull requests with "Test-Mode: full" trailer: All configurations (like nightly)
 # - Push to master/rel-*: All configurations
 #
@@ -28,6 +29,7 @@ on:
     branches:
     - master
     - rel-*
+  merge_group:
 
 permissions:
   contents: read
@@ -72,12 +74,14 @@ jobs:
     - name: Collect Docker Dirs
       id: docker-dirs
       env:
-        IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
+        REDUCED_MATRIX: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
         FULL_TEST_MODE: ${{ steps.test-mode.outputs.full }}
       ##
       # Collect the docker directory names from ci subdirectories
       # and compute display names for each configuration.
-      # For PRs (without full mode): only PHP 8.2 configs (oldest supported).
+      # For PRs and merge queue entries (without full mode): only PHP 8.2
+      # configs (oldest supported), so a queued group is not gated on the
+      # whole nightly-scale matrix.
       # For PRs with full mode or pushes to master/rel-*: all configs.
       run: |
         shopt -s nullglob
@@ -87,10 +91,10 @@ jobs:
         dirs=( "${dirs[@]%/docker-compose.yml}" )
         dirs=( "${dirs[@]#ci/}" )
 
-        if [[ "${IS_PULL_REQUEST}" = 'true' && "${FULL_TEST_MODE}" != 'true' ]]; then
-          # For PRs without full mode: filter to only PHP 8.2 configurations
+        if [[ "${REDUCED_MATRIX}" = 'true' && "${FULL_TEST_MODE}" != 'true' ]]; then
+          # Reduced matrix: filter to only PHP 8.2 configurations
           ci/parse_docker_dir.sh "${dirs[@]}" |
-            jq -rc --arg is_pr "${IS_PULL_REQUEST}" 'map({
+            jq -rc 'map({
               docker_dir: .output.docker_dir,
               php: .output.php,
               display_name: ("PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)" + (if .output.redis_sentinel_enabled == "true" then (" - Redis Sentinel" + (if (.output.docker_dir | endswith("_mtls")) then " mTLS" elif (.output.docker_dir | endswith("_tls")) then " TLS" else "" end)) else "" end) + (if (.output.docker_dir | endswith("_upgrade")) then " - Upgrade from 5.0.0" else "" end)),
@@ -121,8 +125,10 @@ jobs:
     with:
       docker_dir: ${{ matrix.config.docker_dir }}
       display_name: ${{ matrix.config.display_name }}
-      # Enable coverage for one config: apache_82_118 on PRs (oldest PHP), apache_85_118 on push
+      # Enable coverage for one config: apache_82_118 on PRs (oldest PHP), apache_85_118 on push.
+      # Merge queue runs collect none: the PR run already reported patch coverage
+      # for the same changes, and apache_85_118 is not in the reduced matrix anyway.
       # Full coverage for all configs runs in scheduled nightly workflow
-      enable_coverage: ${{ (github.event_name == 'pull_request' && matrix.config.docker_dir == 'apache_82_118') || (github.event_name != 'pull_request' && matrix.config.docker_dir == 'apache_85_118') }}
+      enable_coverage: ${{ (github.event_name == 'pull_request' && matrix.config.docker_dir == 'apache_82_118') || (github.event_name == 'push' && matrix.config.docker_dir == 'apache_85_118') }}
       save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
       save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}

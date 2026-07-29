@@ -9,12 +9,19 @@ on:
     branches:
     - master
     - rel-*
+  merge_group:
 
 jobs:
   all-checks:
     name: All Checks Passed
     runs-on: ubuntu-24.04
     steps:
+    # "All Checks Passed" is the single required status context for master and
+    # rel-*, so it has to report on merge groups too — a required check that
+    # never reports stalls the queue forever. On a merge_group event github.sha
+    # is the merge group's head commit, and every workflow that opts into
+    # merge_group attaches its check runs to that same SHA, so the wait below
+    # aggregates them exactly as it does for a pull request head.
     - uses: lewagon/wait-on-check-action@v1.8.1
       with:
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
