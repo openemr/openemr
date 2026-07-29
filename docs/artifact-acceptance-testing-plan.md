@@ -937,14 +937,43 @@ Recommended shape:
   * **Excluded:** the 4 email/fax/notification DEV-ONLY tests.
     Don't fit shipped-artifact context.
 
-Refactoring approach: **duplicate + gradually consolidate.**
-E2e traits are UI-automation-heavy (Selenium XPath sequences,
-form interactions, menu navigation); a shared-flow Support layer
-would risk a thick orchestration coupling. Simpler to duplicate
-into `tests/Acceptance/E2e*.php`, then extract shared helpers
-into `tests/Acceptance/Support/E2e*` only if 2+ tests grow
-identical boilerplate. `Support/LoginFlow` from 4a already
-handles the login side; other flows follow the same pattern.
+Refactoring approach: **slice-dependent — duplicate for
+slice 1, reconsider shared-trait for slice 2.**
+
+For **slice 1 (3 easy tests: Login/UserMenu/FrontPaymentCss)**:
+duplicate straight into `tests/Acceptance/E2e*.php`. Total
+surface is small, no seeding involved, easy to keep in sync
+manually. UI-automation-heavy code (Selenium XPath sequences,
+form interactions) tends to couple in awkward ways when you
+try to share it up front — better to see 2-3 concrete
+duplications before designing a shared abstraction. The two
+suites also have slightly different contexts (dev-stack
+pre-seeded data vs fresh-install seed) that would need to be
+threaded through any shared-flow abstraction.
+
+For **slice 2 (CRUD flows with fixture seeding —
+CcCreatePatientTest, SvcCodeFinancialReportTest, etc.)**:
+reconsider the shared-trait approach. The seeding logic
+(patient creation, encounter creation, billing/codes/ar_activity
+fixture setup) IS genuinely reusable across dev-stack + shipped-
+artifact context — the values and DOM sequences are the same.
+The trait pattern already exists in the dev-checkout E2E suite
+(PatientAddTrait, EncounterAddTrait, UserAddTrait) so extension
+into shared-across-suites traits is a natural evolution rather
+than a new abstraction. Shape: extract flow logic (form-fill
+sequence, assertion targets) into
+`tests/Acceptance/Support/E2eFlows/*` trait imported by both
+concrete tests; thin per-suite wiring around the shared trait.
+Higher upfront design cost than pure duplication, but eliminates
+drift risk long-term where it matters most.
+
+For slice 3 (Hh/Ii/Jj menu-links tests, 113+ variants): likely
+defer indefinitely; if ever ported, the sheer surface area makes
+shared-trait mandatory to keep maintenance sane.
+
+`Support/LoginFlow` from 4a already handles the login side; the
+slice-2 shared-trait pattern extends that same approach to
+patient / encounter / seeding flows.
 
 Runtime concern: 17 tests × 3 acceptance scenarios × 2 archs =
 102 test runs, each 30-60s. Not tenable as always-on. Land as
@@ -1294,8 +1323,18 @@ byte-integrity of the uploaded release assets (**7b: DONE via
 openemr/openemr#13217** as a scoped-down sha256 re-verify inside
 build-release.yml's publish job — the original repository_dispatch
 full-matrix re-run was rejected as redundant given 7c-tarball
-validated the same exact bytes). Only remaining Phase 7 work is
-7c-docker-latest-gate, unblocked when 8.3.0 ships.
+validated the same exact bytes). **7c-docker-latest-gate DONE
+2026-07-28 via #13239 + follow-ups (#13244 + #13245 + #13246
+byte-identical exclusion + rel-800/rel-704 reverts, #13254 arm64
+composite action, #13258 orchestrator gate-flag plumbing);
+validated end-to-end 2026-07-29 with both amd64 + arm64
+matrix cells green on rel-820's daily `latest` build.** The
+"deferred until 8.3.0 ships" position was reversed by
+backporting the acceptance surface to rel-820 first; see the
+2026-07-28 update-log entry for the sequence. Only remaining
+Phase 7 work is Phase 7d-2 (PR-time build_locally arm64
+coverage) — small extension of the existing test_arm64
+matrix pattern into acceptance-docker.yml's build-image job.
 
 
 **Total remaining calendar (from 2026-07-25 baseline, Phases 1+2+2.5
@@ -1303,7 +1342,7 @@ validated the same exact bytes). Only remaining Phase 7 work is
 7. No hard deadline. rel-830 (~2 weeks out) gets the Phase 1+2+2.5+3
 baseline; Phases 4+5+6+7 land into a rel-830-shipped codebase.
 
-### Phase 7d — arm64 acceptance restoration + PR-time coverage *(NEXT UP — priority after rel-800/rel-704 fixes land)*
+### Phase 7d — arm64 acceptance restoration + PR-time coverage
 
 **Sequencing note.** Phase 7c-docker-latest-gate (#13239) wired
 `test_arm64: true` into acceptance-docker.yml's workflow_call from
@@ -1312,44 +1351,72 @@ revealed that `nanasess/setup-chromedriver@v2` doesn't work on
 ubuntu-24.04-arm runners: Google Chrome ships amd64-only debs from
 Google's apt repo, so the action's fallback `apt install
 google-chrome-stable` fails with unmet dependencies. All 3 arm64
-scenarios failed at the ChromeDriver setup step in 29s each.
-Immediate mitigation: revert `test_arm64: true` in
-docker-build-release.yml's acceptance-gate call so the daily gate
-runs amd64-only. Full arm64 restoration is this phase.
+scenarios failed at the ChromeDriver setup step in 29s each. Full
+arm64 restoration is this phase.
 
 Phase 7d has two slices:
 
-**7d-1 (BLOCKING — do first) — CFT-arm64 setup on arm64 runners.**
-Replace the ubuntu-24.04-arm ChromeDriver setup step with a manual
-Chrome for Testing (CFT) install: CFT publishes native arm64 builds
-(https://storage.googleapis.com/chrome-for-testing-public/{version}/
-linux-arm64/chrome-linux-arm64.zip + chromedriver-linux-arm64.zip)
-that Panther can drive. Options:
+**7d-1 — multi-arch ChromeDriver setup composite action —
+SHIPPED + VALIDATED 2026-07-29 (#13254).** Chose Option B
+(composite action) from the original scoping, but pivoted the
+arm64 install source when research confirmed Chrome for Testing
+publishes NO `linux-arm64` platform variant (only linux64,
+mac-arm64, mac-x64, win32, win64 as of 2026-07;
+GoogleChromeLabs/chrome-for-testing#1 open, crbug/374811603
+unshipped). Ubuntu noble's own chromium is a snap-transitional
+stub not usable in CI; browser-actions/setup-chrome@v2.1.2
+still marks all Linux ARM64 columns unsupported. Landed on
+**xtradeb PPA** (ppa:xtradeb/apps) which ships native arm64
+debs for chromium + chromium-driver as a byte-matched-pair
+version, eliminating the drift risk that killed
+browser-actions historically.
 
-  * (A) **Conditional step in acceptance-docker.yml.** When
-    `runs-on` ends with `-arm`, run a custom install step that
-    downloads matching Chrome + ChromeDriver arm64 zips from the
-    CFT known-good-versions API, extracts to `/usr/local/bin`,
-    and skips `nanasess/setup-chromedriver@v2` entirely. Ugly
-    but self-contained.
-  * (B) **Wrap in a composite action.** Move the amd64
-    nanasess-path + the arm64 CFT-manual-path into
-    `.github/actions/setup-chromedriver-multiarch/`; both matrix
-    branches call one action. Cleaner but adds another workflow
-    surface.
-  * (C) **Third-party action that already handles arm64.** If
-    one exists and is trustworthy. Would need vetting; probably
-    not worth the supply-chain expansion.
+Shipped shape:
 
-Lean toward (B) — reusable across acceptance-docker + acceptance-
-package + any future Panther-in-CI workflow. Exit criterion:
-manual re-dispatch of docker-release-orchestrator (`include=rel-820`)
-succeeds with test_arm64 restored to true; all 6 matrix cells
-(3 scenarios × amd64/arm64) go green. Once verified, re-enable
-`test_arm64: true` in docker-build-release.yml's acceptance-gate
-call. ~1 day of work.
+  * New composite action `.github/actions/setup-chromedriver-
+    multiarch/action.yml` — amd64 delegates unchanged to
+    nanasess/setup-chromedriver@v2; arm64 does
+    `add-apt-repository -y ppa:xtradeb/apps` +
+    `apt-get install -y chromium chromium-driver` +
+    symlink chromium to `/usr/local/bin/google-chrome` and
+    `/chrome` so Panther autodetect works unchanged.
+  * acceptance-docker.yml swaps its `uses: nanasess/setup-
+    chromedriver@v2` line for `uses: ./.github/actions/setup-
+    chromedriver-multiarch`.
+  * byte-identical.yml carries the composite action path with
+    the same `exclude-branches: [rel-800, rel-704]` as
+    acceptance-docker.yml — callee only needs to exist where
+    the caller does.
 
-**7d-2 (after 7d-1) — PR-time build_locally arm64 coverage.**
+Validated 2026-07-29 via manual orchestrator dispatch
+(`gh workflow run docker-release-orchestrator.yml --repo
+openemr/openemr --ref master`): rel-820's gated flow ran all
+6 acceptance matrix cells (3 scenarios × amd64/arm64) green,
+publish (imagetools alias) succeeded, cleanup-candidate
+deleted the temporary tag. `docker manifest inspect
+openemr/openemr:latest` confirmed multi-arch manifest with
+amd64 digest c8d3b10f... and arm64 digest 1c5423c1... —
+identical to what acceptance tested against. First true
+end-to-end validation of Phase 7c-docker + arm64 coverage.
+
+Also landed in flight: **#13258 — orchestrator gate-flag
+plumbing fix.** The reverted (pre-Phase-7c) docker-build-
+release.yml on rel-800/rel-704 doesn't declare
+`gate_with_acceptance`, so the orchestrator's unconditional
+`-f gate_with_acceptance=false` failed dispatch on those
+branches with HTTP 422 "Unexpected inputs provided". Fix:
+only pass the flag when GATE=true (rows with `latest` in
+their docker_tags). Elides the input for non-gated rows,
+letting the receiving workflow's default handle both shapes.
+
+acceptance-package.yml still uses nanasess directly (amd64-
+only). It doesn't yet have a test_arm64 input, so composite
+adoption there is a follow-up when acceptance-package grows
+arm64 coverage (probably alongside Phase 3.6 or a dedicated
+small PR).
+
+**7d-2 (NEXT UP — 7d-1 unblocked it 2026-07-29) — PR-time
+build_locally arm64 coverage.**
 Extend the same test_arm64 matrix pattern into acceptance-docker.yml's
 build_locally path (Phase 2.5's `build-image` job today builds
 amd64-only via `docker build docker/release` on ubuntu-24.04). This
@@ -2237,3 +2304,44 @@ in acceptance."
   validation; 7d-2 next up if 7d-1 validates green; 3.6 after
   7d; then 4d + 4e in either order as capacity allows. Both
   4d and 4e are independent of everything else.
+
+- **2026-07-29 (later still)** — **Phase 7c-docker-latest-gate
+  + Phase 7d-1 VALIDATED end-to-end.** Manual orchestrator
+  dispatch (`gh workflow run docker-release-orchestrator.yml
+  --repo openemr/openemr --ref master`) fanned out all 4
+  branches; rel-820's gated flow completed with all 6
+  acceptance matrix cells (3 scenarios × amd64/arm64) green,
+  publish (`docker buildx imagetools create`) aliased the
+  candidate manifest onto latest / 8.2.0 / 8.2.0-2026-07-29,
+  and cleanup-candidate deleted the ephemeral tag. `docker
+  manifest inspect openemr/openemr:latest` confirmed
+  multi-arch manifest with amd64 digest c8d3b10f... and arm64
+  digest 1c5423c1... — identical to what acceptance tested
+  against. First true end-to-end validation of the full
+  gated flow with arm64 coverage.
+
+  Alongside: **#13258 (orchestrator gate-flag plumbing fix)**
+  opened after the same manual dispatch caught a follow-up
+  bug on rel-800/rel-704. Their reverted (pre-Phase-7c)
+  docker-build-release.yml doesn't declare
+  `gate_with_acceptance`, so the orchestrator's unconditional
+  `-f gate_with_acceptance=false` returned HTTP 422 for those
+  rows. Fix: only pass the flag when GATE=true. Elides the
+  input for non-gated rows; receiving workflow's default
+  handles both shapes. Small follow-up, not blocking.
+
+  Phase 7d-1's implementation pivoted from the originally-scoped
+  CFT-arm64 manual install to **xtradeb PPA
+  chromium+chromium-driver** — Chrome for Testing turned out
+  to publish no linux-arm64 variant (still open at
+  GoogleChromeLabs/chrome-for-testing#1 as of 2026-07;
+  crbug/374811603 unshipped). xtradeb ships browser + driver
+  as byte-matched-pair native arm64 debs, eliminating drift
+  risk. Composite action at
+  `.github/actions/setup-chromedriver-multiarch/` reused
+  across both matrix branches (amd64 nanasess-path,
+  arm64 xtradeb-path). Symlinks chromium to
+  `/usr/local/bin/google-chrome` so Panther's default binary
+  autodetect works unchanged.
+
+  Next up: Phase 7d-2 (PR-time build_locally arm64 coverage).
