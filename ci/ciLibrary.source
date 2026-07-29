@@ -982,9 +982,21 @@ capture_coredumps() {
     exe=${exe%$'\r'}
     exe=${exe%%$'\n'*}
 
+    # Cap the number of cores backtraced: the 2026-07-29 mTLS run produced
+    # 184 cores of ~290MB each (49GB, disk at 78%), and every crash shared
+    # ONE instruction pointer — after a handful of backtraces the rest are
+    # duplicates, and 184 gdb passes over 290MB cores would eat the job.
+    local max_backtraces=${COREDUMP_MAX_BACKTRACES:-5}
+    local processed=0
     local core base
     while IFS= read -r core; do
         [[ -n "${core}" ]] || continue
+        if (( processed >= max_backtraces )); then
+            echo "Reached COREDUMP_MAX_BACKTRACES=${max_backtraces}; remaining cores are listed in coredumps.inventory.txt but were not backtraced." \
+                > "${dest_dir}/coredumps.truncated.txt"
+            break
+        fi
+        processed=$(( processed + 1 ))
         base=$(basename "${core}")
         echo "Backtracing ${base} (exe=${exe:-auto})..."
         # `bt` (not `bt full`): a stack-only trace names the faulting frames
@@ -999,8 +1011,13 @@ capture_coredumps() {
         )
         [[ -n "${exe}" ]] && gdb_args+=("${exe}")
         gdb_args+=("${core}")
+        # </dev/null on every exec inside this loop: `docker compose exec -T`
+        # forwards (and thereby consumes) the loop's stdin — the herestring
+        # feeding `read` — so without it the loop exits after ONE core.
+        # Observed on the 2026-07-29 mTLS run: 184 cores in the inventory,
+        # exactly one backtrace produced.
         # shellcheck disable=SC2310  # a gdb failure is logged, not fatal — keep processing cores
-        dc "${gdb_args[@]}" \
+        dc "${gdb_args[@]}" < /dev/null \
             > "${dest_dir}/${base}.backtrace.txt" 2>&1 \
             || echo "gdb failed for ${base}; see ${base}.backtrace.txt" >&2
         # Raw core upload is opt-in (COREDUMP_MAX_MB > 0) and size-gated, since
@@ -1015,7 +1032,7 @@ capture_coredumps() {
         # risk streaming an oversized core past the cap; backtrace is retained.
         local size_mb=''
         # shellcheck disable=SC2310  # du failure handled explicitly below
-        size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1") || size_mb=''
+        size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1" < /dev/null) || size_mb=''
         size_mb=${size_mb%$'\r'}
         if [[ -z "${size_mb}" ]]; then
             echo "Could not determine size of ${base}; raw core omitted (cap cannot be enforced), backtrace retained." \
@@ -1031,7 +1048,7 @@ capture_coredumps() {
         # gzip, permissions, disk) must not abort the loop and skip the
         # remaining cores' backtraces.
         # shellcheck disable=SC2310  # gzip failure is logged, not fatal — keep processing cores
-        if ! dc exec -T openemr gzip -c "${core}" > "${dest_dir}/${base}.gz"; then
+        if ! dc exec -T openemr gzip -c "${core}" < /dev/null > "${dest_dir}/${base}.gz"; then
             rm -f "${dest_dir}/${base}.gz"
             echo "gzip stream failed for ${base}; raw core omitted, backtrace retained." \
                 > "${dest_dir}/${base}.gz.skipped.txt"
