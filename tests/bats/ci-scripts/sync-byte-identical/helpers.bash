@@ -20,7 +20,10 @@ SYNC_BYTE_IDENTICAL_SCRIPT="$(cd "${__HELPERS_DIR}/../../../.." && pwd)/.github/
 # the same shell as the @test that follows).
 setup_test_repo() {
     local rel_branch="${1:-rel-810}"
-    REPO=$(mktemp -d -t sync-byte-identical-test-XXXX)
+    # `mktemp -d` (no `-t <template>`) — BusyBox's mktemp in the
+    # bats/bats:1.13.0 Alpine image rejects the `-t` form that GNU
+    # mktemp accepts.
+    REPO=$(mktemp -d)
     OUTPUT_DIR="${REPO}/output"
     mkdir -p "$OUTPUT_DIR"
 
