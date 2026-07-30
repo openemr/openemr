@@ -111,6 +111,9 @@ TARBALL_URL="https://github.com/openemr/openemr/releases/download/${TAG_NAME}/op
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../../.." &>/dev/null && pwd)"
 
+# shellcheck source=tests/Acceptance/bin/lib/extract-zip.sh
+source "${SCRIPT_DIR}/lib/extract-zip.sh"
+
 # Persist TARBALL_DIR + HELPER_PATH for every compose invocation in this
 # script (compose reparses the file each time and would otherwise warn
 # about the unset variable + create broken bind mounts).
@@ -180,47 +183,16 @@ case "${ARTIFACT_FORMAT}" in
         tar -pxzf "${ARTIFACT_PATH}" -C "${TARBALL_DIR}" --strip-components=1
         ;;
     zip)
-        # Fail early if unzip isn't on PATH. The subsequent extract
-        # would blow up mid-flight AFTER the scratch dir is prepared,
-        # producing a confusing "no such file or directory" from the
-        # `mv` below rather than a clear "install unzip" signal.
-        # GHA ubuntu-24.04 runners ship unzip pre-installed; guard is
-        # for minimal-image / self-hosted-runner future callers.
-        if ! command -v unzip >/dev/null 2>&1; then
-            echo "::error::unzip is required for --local-zip / zip extraction but was not found on PATH" >&2
-            exit 1
-        fi
-        # unzip has no --strip-components; extract to a temp dir first,
-        # then move the single top-level `openemr-<version>/` contents up
-        # into ${TARBALL_DIR} to mirror the tarball layout.
-        #
-        # Trap-composition note: this branch installs an EXIT cleanup for
-        # ZIP_TMP. The download branch above installs an EXIT cleanup
-        # for ARTIFACT_PATH. The two branches are mutually exclusive by
-        # construction (this branch is entered ONLY when --local-zip is
-        # set, in which case the download branch is skipped) so the
-        # simple `trap 'rm -rf ...' EXIT` here doesn't clobber anything.
-        # If a future refactor introduces coexisting cleanups, revisit.
-        ZIP_TMP="$(mktemp -d -t "openemr-acceptance-zip.XXXXXX")"
-        trap 'rm -rf "${ZIP_TMP}"' EXIT
-        # -q quiet; -o overwrite (no interactive prompt).
-        unzip -qo "${ARTIFACT_PATH}" -d "${ZIP_TMP}"
-        # Enforce exactly one top-level dir inside the ZIP. `mv .../*/*`
-        # would silently merge if PackageAssembler ever regressed to
-        # multiple top-level entries — surface that as a hard error
-        # instead of a subtly-broken web root. Glob-based check avoids
-        # find + process-substitution + shellcheck SC2312.
-        shopt -s nullglob
-        ZIP_ROOTS=("${ZIP_TMP}"/*)
-        shopt -u nullglob
-        if [[ ${#ZIP_ROOTS[@]} -ne 1 || ! -d "${ZIP_ROOTS[0]}" ]]; then
-            echo "::error::expected exactly one top-level directory in ${ARTIFACT_PATH}, found ${#ZIP_ROOTS[@]}:" >&2
-            printf '  %s\n' "${ZIP_ROOTS[@]}" >&2
-            exit 1
-        fi
-        shopt -s dotglob
-        mv "${ZIP_ROOTS[0]}"/* "${TARBALL_DIR}"/
-        shopt -u dotglob
+        # Delegate to the shared helper — same extract-into-scratch,
+        # enforce-single-top-level-dir, mv-into-place dance that
+        # upgrade-package.sh's zip branch also runs. See
+        # lib/extract-zip.sh for the full rationale (unzip PATH guard,
+        # single-top-level enforcement, trap-composition notes).
+        extract_zip_flattening_single_top_level_dir \
+            "${ARTIFACT_PATH}" \
+            "${TARBALL_DIR}" \
+            "openemr-acceptance-zip.XXXXXX" \
+            "--local-zip / zip extraction"
         ;;
     *)
         # ARTIFACT_FORMAT is derived from the flag-parsing block above
