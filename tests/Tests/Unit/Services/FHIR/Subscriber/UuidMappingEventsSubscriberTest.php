@@ -1,14 +1,14 @@
 <?php
 
-namespace OpenEMR\Tests\Unit\ZendModules\FHIR\Listener;
+namespace OpenEMR\Tests\Unit\Services\FHIR\Subscriber;
 
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\FHIR\Observation\FhirObservationSocialHistoryService;
+use OpenEMR\Services\FHIR\Subscriber\UuidMappingEventsSubscriber;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Services\VitalsService;
-use OpenEMR\ZendModules\FHIR\Listener\UuidMappingEventsSubscriber;
 use PHPUnit\Framework\TestCase;
 
 class UuidMappingEventsSubscriberTest extends TestCase

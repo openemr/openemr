@@ -7,7 +7,7 @@
 # connection.
 
 x-includes:
-  node-version: "22"
+  node-version: "24"
   redis-sentinel-template: "compose-shared-redis-sentinel/docker-compose.yml"
   selenium-template: "compose-shared-selenium/docker-compose.yml"
   webserver-template: "compose-shared-apache.yml"
@@ -239,7 +239,7 @@ services:
 
   # ---------- OpenEMR: TLS + X.509 client certs ----------
   openemr:
-    image: openemr/openemr:flex-3.22-php-8.2@sha256:ae4d1b9373b3588011f8f955116529f5ef551509e028612af7a777cd081548f5
+    image: openemr/openemr:flex-3.23-php-8.3@sha256:53e5bf52a739de07953cfc1eb70fb903530decd437ebff96d91d6e884a55aee3
     environment:
       REDIS_TLS: "yes"
       REDIS_X509: "yes"

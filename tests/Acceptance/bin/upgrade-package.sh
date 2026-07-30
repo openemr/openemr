@@ -129,6 +129,9 @@ TO_TARBALL_URL="https://github.com/openemr/openemr/releases/download/${TO_TAG_NA
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/../../.." &>/dev/null && pwd)"
 
+# shellcheck source=tests/Acceptance/bin/lib/extract-zip.sh
+source "${SCRIPT_DIR}/lib/extract-zip.sh"
+
 export HELPER_PATH="${SCRIPT_DIR}/install-helper.php"
 export COMPOSE_FILE="${REPO_ROOT}/.github/docker/acceptance-package-compose.yml"
 export COMPOSE_PROJECT_NAME="openemr-acceptance-package"
@@ -212,28 +215,16 @@ case "${ARTIFACT_FORMAT}" in
         ;;
     zip)
         # Same unzip + single-top-level-dir enforcement as
-        # boot-package.sh's zip branch. Download and zip branches are
-        # mutually exclusive (this branch only runs when --to-local-zip
-        # is set) so the bare EXIT trap doesn't clobber the download
-        # branch's ARTIFACT_PATH cleanup.
-        if ! command -v unzip >/dev/null 2>&1; then
-            echo "::error::unzip is required for --to-local-zip / zip extraction but was not found on PATH" >&2
-            exit 1
-        fi
-        ZIP_TMP="$(mktemp -d -t "openemr-acceptance-upgrade-zip.XXXXXX")"
-        trap 'rm -rf "${ZIP_TMP}"' EXIT
-        unzip -qo "${ARTIFACT_PATH}" -d "${ZIP_TMP}"
-        shopt -s nullglob
-        ZIP_ROOTS=("${ZIP_TMP}"/*)
-        shopt -u nullglob
-        if [[ ${#ZIP_ROOTS[@]} -ne 1 || ! -d "${ZIP_ROOTS[0]}" ]]; then
-            echo "::error::expected exactly one top-level directory in ${ARTIFACT_PATH}, found ${#ZIP_ROOTS[@]}:" >&2
-            printf '  %s\n' "${ZIP_ROOTS[@]}" >&2
-            exit 1
-        fi
-        shopt -s dotglob
-        mv "${ZIP_ROOTS[0]}"/* "${TO_TARBALL_DIR}"/
-        shopt -u dotglob
+        # boot-package.sh's zip branch — both call the shared helper.
+        # Download and zip branches are mutually exclusive (this branch
+        # only runs when --to-local-zip is set) so the helper's bare
+        # EXIT trap doesn't clobber the download branch's
+        # ARTIFACT_PATH cleanup.
+        extract_zip_flattening_single_top_level_dir \
+            "${ARTIFACT_PATH}" \
+            "${TO_TARBALL_DIR}" \
+            "openemr-acceptance-upgrade-zip.XXXXXX" \
+            "--to-local-zip / zip extraction"
         ;;
     *)
         echo "::error::unexpected ARTIFACT_FORMAT '${ARTIFACT_FORMAT}' (expected 'tar' or 'zip')" >&2

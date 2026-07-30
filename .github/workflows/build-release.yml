@@ -134,10 +134,21 @@ jobs:
         printf '::error::release_tag is required when dry_run is false\n'
         exit 1
 
+    # Sparse checkout of just the composite action so the token-mint
+    # step below can resolve `uses: ./.github/actions/...`. Full
+    # checkout happens after the token is minted (uses the token).
+    - name: Checkout composite action
+      if: '!inputs.dry_run'
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: .github/actions/generate-app-token
+        sparse-checkout-cone-mode: false
+        persist-credentials: false
+
     - name: Generate app token
       if: '!inputs.dry_run'
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -298,207 +309,21 @@ jobs:
   # releases page.
   #
   # Skipped on dry_run (there's no release to push to).
+  #
+  # Phase 10c (openemr/openemr#TBD): the ~100-line publish job body
+  # was extracted into .github/workflows/reusable-publish-release.yml
+  # so acceptance-only.yml can call the same publish flow from its
+  # recovery path. Behavior preserved step-for-step; the only visible
+  # change here is the swap from `runs-on: ... steps: ...` to `uses:`.
   publish:
-    runs-on: ubuntu-24.04
     name: Publish release
     needs: [build-package, acceptance-gate]
     if: '!inputs.dry_run'
-    timeout-minutes: 30
-    steps:
-    # App-token regenerated here rather than passed as an output from
-    # build-package — GitHub Actions redacts token outputs across job
-    # boundaries anyway (writing a token to `$GITHUB_OUTPUT` masks it
-    # in logs but the value that reaches the downstream job is often
-    # empty). Regenerating is the documented path.
-    - name: Generate app token
-      id: app-token
-      uses: actions/create-github-app-token@v3
-      with:
-        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
-        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-        owner: ${{ github.repository_owner }}
-        repositories: openemr
-
-    # Need a checkout for `git tag` + `git push origin <tag>`. Same
-    # minimal fetch shape as build-package.
-    - name: Checkout openemr release branch
-      uses: actions/checkout@v7
-      with:
-        ref: ${{ inputs.version_branch }}
-        token: ${{ steps.app-token.outputs.token }}
-        filter: blob:none
-        fetch-depth: 1
-
-    # Reconstruct the release-output/ directory that build-package
-    # produced, from the workflow-run artifact.
-    - name: Download release-output artifact
-      uses: actions/download-artifact@v8
-      with:
-        name: ${{ needs.build-package.outputs.artifact_name }}
-        path: tools/release/release-output
-
-    - name: Create annotated tag and GitHub release
-      env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        RELEASE_TAG: ${{ inputs.release_tag }}
-        RELEASE_VERSION: ${{ inputs.version }}
-        VERSION_BRANCH: ${{ inputs.version_branch }}
-      run: |
-        tag="$RELEASE_TAG"
-        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
-
-        git config user.name 'github-actions[bot]'
-        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-
-        # Check the remote, not the local checkout: the checkout step
-        # uses fetch-depth: 1 and does not fetch tags, so a local
-        # rev-parse always misses an already-published tag. That made
-        # `git push origin "$tag"` fail with "tag already exists in the
-        # remote" when re-firing after the openemr/openemr conductor
-        # had already tagged via its finalize job.
-        #
-        # `git ls-remote --exit-code` returns 0 when the tag exists and 2
-        # when it does not. Any other status is a real lookup failure
-        # (auth, transport) and must abort rather than fall through to a
-        # tag push that would mask the underlying error.
-        tag_lookup_status=0
-        git ls-remote --tags --exit-code origin "refs/tags/$tag" > /dev/null 2>&1 || tag_lookup_status=$?
-        case "$tag_lookup_status" in
-          0)
-            echo "Tag $tag already exists on origin, skipping tag creation"
-            ;;
-          2)
-            git tag -a -m "Release $tag" "$tag" "$VERSION_BRANCH"
-            git push origin "$tag"
-            ;;
-          *)
-            echo "::error::Failed to query origin for tag $tag (git ls-remote exit $tag_lookup_status)" >&2
-            exit "$tag_lookup_status"
-            ;;
-        esac
-
-        if ! gh release view "$tag" --repo openemr/openemr > /dev/null 2>&1; then
-          echo "Creating release $tag"
-          gh release create "$tag" \
-            --repo openemr/openemr \
-            --title "OpenEMR $RELEASE_VERSION" \
-            --notes-file "${output_dir}/changelog.md" \
-            --verify-tag
-        fi
-
-    - name: Upload package and checksums to release
-      env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        RELEASE_TAG: ${{ inputs.release_tag }}
-        RELEASE_VERSION: ${{ inputs.version }}
-      run: |
-        tag="$RELEASE_TAG"
-        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
-
-        gh release upload "$tag" \
-          --repo openemr/openemr \
-          --clobber \
-          "${output_dir}/openemr-${RELEASE_VERSION}.tar.gz" \
-          "${output_dir}/openemr-${RELEASE_VERSION}.zip" \
-          "${output_dir}"/*.md5 \
-          "${output_dir}"/*.sha256 \
-          "${output_dir}"/*.sha512 \
-          "${output_dir}/changelog.md"
-
-    # Phase 7b (openemr/openemr#TBD): re-fetch the just-uploaded
-    # tarball + zip from the GitHub Release page and byte-compare
-    # against the local artifacts. Catches the one class of failure
-    # Phase 7c-tarball's acceptance-gate can't see — corruption
-    # between the tested-bytes-on-disk and the bytes-on-release-page:
-    #   * `gh release upload` HTTPS transfer corruption (rare —
-    #     HTTPS has integrity, but not impossible with proxy
-    #     interception or transient network artifacts)
-    #   * GitHub Releases post-upload storage corruption
-    #     (never observed but the failure mode is real)
-    #   * Someone / something manually replacing the release asset
-    #     between our upload and this verify step (would need to
-    #     race a very small window and defeat our app-token
-    #     auth, but the check is essentially free)
-    # sha256 comparison is O(size-of-artifact) which is ~seconds for
-    # a ~200 MB tarball. Simpler than downloading + sha256 -c against
-    # the .sha256 file (which would also need verification of the
-    # .sha256 file's own integrity — turtles).
-    #
-    # On mismatch: fail the job. Publish is atomic-per-step but not
-    # cross-step: the tag already exists, the Release object exists,
-    # and the assets are uploaded (possibly corrupted). Recovery is
-    # "Re-run failed jobs" in the Actions UI — the upload step re-runs
-    # (gh release upload --clobber is idempotent) and this verify
-    # step re-runs. Idempotent all the way down.
-    - name: Verify uploaded assets byte-match local copies
-      env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        RELEASE_TAG: ${{ inputs.release_tag }}
-        RELEASE_VERSION: ${{ inputs.version }}
-      run: |
-        set -euo pipefail
-        tag="$RELEASE_TAG"
-        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
-        verify_dir="$RUNNER_TEMP/publish-verify"
-        rm -rf "$verify_dir"
-        mkdir -p "$verify_dir"
-
-        assets=(
-          "openemr-${RELEASE_VERSION}.tar.gz"
-          "openemr-${RELEASE_VERSION}.zip"
-        )
-
-        for asset in "${assets[@]}"; do
-          local_path="${output_dir}/${asset}"
-          remote_path="${verify_dir}/${asset}"
-          if [[ ! -f "$local_path" ]]; then
-            echo "::error::local asset missing: $local_path"
-            exit 1
-          fi
-          echo "==> Re-fetching $asset from release $tag for byte-verify"
-          gh release download "$tag" \
-            --repo openemr/openemr \
-            --pattern "$asset" \
-            --dir "$verify_dir"
-          local_sha="$(sha256sum "$local_path" | awk '{print $1}')"
-          remote_sha="$(sha256sum "$remote_path" | awk '{print $1}')"
-          if [[ "$local_sha" != "$remote_sha" ]]; then
-            echo "::error::sha256 mismatch on $asset"
-            echo "::error::  local  = $local_sha"
-            echo "::error::  remote = $remote_sha"
-            echo "::error::The uploaded release asset does not match the tested build output. Re-run this job to re-upload; investigate if the mismatch persists."
-            exit 1
-          fi
-          echo "    OK: $asset sha256=$local_sha"
-        done
-
-        rm -rf "$verify_dir"
-        echo "==> All published release assets byte-match the local build output."
-
-    # Summary step needs task on the runner + the checked-out repo (for
-    # the Taskfile) — restore both.
-    - name: Setup PHP and Composer
-      uses: ./.github/actions/setup-php-composer
-      with:
-        php-version: '8.5'
-
-    - name: Install Taskfile
-      uses: arduino/setup-task@v3
-      with:
-        version: 3.x
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Build summary
-      working-directory: tools/release
-      env:
-        MILESTONE: ${{ inputs.milestone }}
-        VERSION_BRANCH: ${{ inputs.version_branch }}
-        RELEASE_TAG: ${{ inputs.release_tag }}
-        DRY_RUN: ${{ inputs.dry_run }}
-      run: >-
-        task summary
-        TYPE=full
-        MILESTONE="$MILESTONE"
-        VERSION_BRANCH="$VERSION_BRANCH"
-        RELEASE_TAG="$RELEASE_TAG"
-        DRY_RUN="$DRY_RUN"
+    uses: ./.github/workflows/reusable-publish-release.yml
+    with:
+      version: ${{ inputs.version }}
+      release_tag: ${{ inputs.release_tag }}
+      version_branch: ${{ inputs.version_branch }}
+      artifact_name: ${{ needs.build-package.outputs.artifact_name }}
+      milestone: ${{ inputs.milestone }}
+    secrets: inherit

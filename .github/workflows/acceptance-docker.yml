@@ -93,11 +93,6 @@ on:
         required: false
         type: string
         default: 'next'
-      test_arm64:
-        description: 'Also run every matrix scenario on ubuntu-24.04-arm runners (Phase 7c-docker latest-gate uses this to cover the arm64 slice of the multi-arch candidate manifest, since the runner arch decides which slice `docker pull` fetches). Doubles matrix breadth; leave false for push/PR/schedule paths where the arm64 signal is not worth the runner-minutes.'
-        required: false
-        type: boolean
-        default: false
   push:
     paths:
     - '.github/workflows/acceptance-docker.yml'
@@ -217,14 +212,14 @@ jobs:
   # + loads the image locally, so nothing is pushed to Docker Hub
   # (or GHCR) — the build is self-contained to this workflow run.
   #
-  # Phase 7d-2: matrix on `runs_on` so arm64 gets its own native
-  # build when test_arm64=true. Chose two parallel single-arch native
-  # builds (amd64 on ubuntu-24.04, arm64 on ubuntu-24.04-arm) over a
+  # Matrix on `runs_on` so arm64 gets its own native build (Phase
+  # 7d-2 as-shipped). Two parallel single-arch native builds
+  # (amd64 on ubuntu-24.04, arm64 on ubuntu-24.04-arm) instead of a
   # single multi-arch build on amd64 because native builds skip QEMU
   # emulation (arm64 under emulation is ~10x slower than native) and
   # each produces its own arch-specific artifact for the arch-matched
   # acceptance job downstream. Both runner types are free for public
-  # repos.
+  # repos — no gate.
   build-image:
     needs: [detect-mode]
     if: needs.detect-mode.outputs.build_locally == 'true'
@@ -232,9 +227,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Mirrors the acceptance job's runs_on dimension: test_arm64
-        # true → build for both archs; default → amd64 only.
-        runs_on: ${{ inputs.test_arm64 && fromJson('["ubuntu-24.04", "ubuntu-24.04-arm"]') || fromJson('["ubuntu-24.04"]') }}
+        runs_on: [ubuntu-24.04, ubuntu-24.04-arm]
     name: build-image (${{ matrix.runs_on }})
     steps:
     - uses: actions/checkout@v7
@@ -307,11 +300,12 @@ jobs:
       # installer broken" from "upgrade path broken" (different code).
       fail-fast: false
       matrix:
-        # Runner-arch dimension: workflow_call sets test_arm64=true (Phase
-        # 7c-docker latest-gate) so the matrix expands to both amd64 and
-        # arm64 slices of the candidate manifest. Every other invocation
-        # (push/PR/schedule) stays amd64-only.
-        runs_on: ${{ inputs.test_arm64 && fromJson('["ubuntu-24.04", "ubuntu-24.04-arm"]') || fromJson('["ubuntu-24.04"]') }}
+        # Runner-arch dimension: always both amd64 + arm64. GitHub
+        # arm64 runners (ubuntu-24.04-arm) are free for public repos,
+        # so the ambient arm64 signal on push/PR/schedule is worth
+        # having by default. Every trigger of this workflow exercises
+        # both platform slices.
+        runs_on: [ubuntu-24.04, ubuntu-24.04-arm]
         # Scenario dimension. Cartesian-multiplied with runs_on; each
         # cell picks up its scenario-specific description/image_tag/
         # test_group from the include block below.

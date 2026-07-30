@@ -19,6 +19,7 @@
 namespace OpenEMR\Services\Utils;
 
 use DateTime;
+use DateTimeImmutable;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -36,6 +37,34 @@ class DateFormatterUtils
      */
     public const TIME_FORMAT_24HR = 0;
     public const TIME_FORMAT_12HR = 1;
+
+    /**
+     * Strictly parse a MySQL DATE or DATETIME column value into a 'Y-m-d' string.
+     *
+     * Unlike strtotime(), this rejects values that only parse with warnings
+     * (e.g. overflow dates such as '2026-02-30'), MySQL zero dates
+     * ('0000-00-00 00:00:00'), and non-string input. Returns null when the
+     * value is not a valid calendar date.
+     */
+    public static function dbDateToYmd(mixed $value): ?string
+    {
+        if (!is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        $date = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $value)
+            ?: DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+        // getLastErrors() reflects the most recent createFromFormat() call,
+        // which is the one that produced $date. On PHP >= 8.3 it returns
+        // false when there were no errors or warnings.
+        $errors = DateTimeImmutable::getLastErrors();
+
+        if ($date === false || ($errors !== false && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
+            return null;
+        }
+
+        return $date->format('Y-m-d');
+    }
 
     public static function isNotEmptyDateTimeString(?string $dateString): bool
     {

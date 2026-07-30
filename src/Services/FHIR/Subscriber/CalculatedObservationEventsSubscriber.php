@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\ZendModules\FHIR\Listener;
+namespace OpenEMR\Services\FHIR\Subscriber;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Events\Services\ServiceSaveEvent;
@@ -22,10 +22,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CalculatedObservationEventsSubscriber implements EventSubscriberInterface
 {
-    public function __construct()
-    {
-    }
-
     public static function getSubscribedEvents()
     {
         return [
