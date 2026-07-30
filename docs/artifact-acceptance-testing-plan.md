@@ -1771,27 +1771,122 @@ drift-bug sources.
   helper lives under `tests/Acceptance/**` glob so auto-syncs
   to rel-810/rel-820 alongside callers.
 
-* **10e — BATS coverage audit + fill gaps.** Systematic pass:
-    * Enumerate every shell script + composite action + workflow
-      step under the release-mechanism umbrella.
-    * Mark tested vs runtime-only-tested.
-    * Priority fills: boot-package.sh zip extract logic (currently
-      never runs in isolation), upgrade-package.sh zip extract,
-      acceptance-only.yml guardrails (48h age check + workflow-path
-      validation), docker cleanup-candidate JWT flow (Docker Hub
-      API call with error-code paths).
-    * Existing BATS coverage lives at
-      `tests/bats/ci-scripts/{sync,validate}-byte-identical,verify-oci-labels,expand-docker-tags}/`
-      — established pattern to follow (helpers.bash + `.bats`).
-    * **Portable-mktemp cleanup in helpers.bash.** All 4 current
-      BATS suites use `mktemp -t <template>` via their helpers,
-      which BusyBox's mktemp (in the `bats/bats:1.13.0` Alpine
-      image) rejects. CI runs on ubuntu-24.04 with GNU mktemp so
-      the pattern works in CI, but local devs trying to run BATS
-      via the bats/bats docker image hit the incompatibility.
-      Cheap fix: switch to `mktemp -d` (portable form) across
-      all 4 suites' helpers. Noted 2026-07-30 while shipping
-      Phase 10c's expand-docker-tags suite.
+* **10e — BATS coverage audit + fill gaps.** Multi-slice; slice 1
+  (portable-mktemp) IN FLIGHT as #13292; audit DONE 2026-07-30;
+  slices 2-6 planned as follow-up work.
+
+  * **10e-1 — Portable-mktemp helpers cleanup — IN FLIGHT as #13292.**
+    Switches the 5 remaining BATS suites' `setup_test_dir` from
+    `mktemp -d -t <template>` (GNU-only) to the portable `mktemp -d`
+    form already used by extract-zip's helpers. Unblocks the
+    `bats/bats:1.13.0` Alpine image for local iteration (CI on
+    ubuntu-24.04 was unaffected; issue is local-only). Not
+    sufficient for full Alpine runnability — some suites still need
+    yq or git that Alpine doesn't ship; called out as separate
+    follow-up if local Alpine iteration becomes routine.
+
+  * **10e-audit — Release-mechanism BATS coverage audit — DONE
+    2026-07-30.** Systematic enumeration of everything currently
+    running as part of release orchestration + byte-identical
+    propagation. Six BATS suites cover 5 scripts + 1 lib
+    (sync-byte-identical, validate-byte-identical, verify-oci-labels,
+    expand-docker-tags, list-manifest-paths, extract-zip); glob-expand
+    lib is indirectly covered via three of those. Untested surface
+    (grouped by risk):
+
+    - **High** (publishes artifacts / tags / blesses builds):
+      `reusable-publish-release.yml` tag+release + sha256 verify
+      (silent regression → wrong tag or skipped verify); `reusable-
+      docker-publish.yml` cleanup-candidate JWT+DELETE (has
+      `continue-on-error: true` — silent stale-tag accumulation on
+      Docker Hub with zero visibility); `acceptance-only.yml` +
+      `docker-acceptance-only.yml` source-run validation (48h +
+      workflow_path + candidate_tag binding — the last is the
+      malicious-alias defense, regression could ship mismatched
+      candidate as final); `acceptance-package.yml` detect-mode
+      (~140 lines of shell branching — silently changes what gets
+      acceptance-tested and therefore what ships).
+    - **Medium** (release-adjacent orchestration): `release-
+      amendment.yml` changelog-section extract + 125K truncation +
+      anchor-slug; `release-prep.yml` parse-version-php + G16
+      dev-gate + branch/version cross-check; `patch-prep-
+      automation.yml` / `branch-cut-automation.yml` version-parse
+      shape (candidate for shared `lib/parse-version-php.sh`);
+      `sync-byte-identical.yml` enumerate-rel-branches yq expression.
+    - **Low** (already loud on failure): `release-permissions-check.yml`
+      (fails loudly, real-API mocking would defeat the point);
+      `setup-chromedriver-multiarch` + `generate-app-token` +
+      `setup-php-composer` composites (thin wrappers, surface
+      immediately); `notify-release-targets-changed.yml` dispatch;
+      `ship-release.yml` delegates to PHP `task ship`.
+
+  * **10e-2 — Slice: `acceptance-only-guardrails`.** Extract the
+    48h age check + workflow_path check + (docker) candidate_tag
+    binding + Docker Hub HEAD into `.github/scripts/validate-source-
+    run.sh`. Env contract: RUN_JSON fixture + SOURCE_RUN_ID +
+    (optional) EXPECTED_CANDIDATE_TAG. ~12-15 BATS tests covering
+    eligible / expired / wrong-path / malformed-timestamp /
+    candidate-tag-mismatch / HTTP 200 / 404 / 500 / curl-fail.
+    Value: highest — plan-doc-listed priority + small extraction.
+
+  * **10e-3 — Slice: `docker-publish-cleanup` JWT+DELETE.** Extract
+    the cleanup-candidate step from `reusable-docker-publish.yml`
+    into `.github/scripts/dockerhub-delete-tag.sh`. ~6-8 tests via
+    mocked curl: JWT ok / JWT null / JWT missing / DELETE 204 /
+    404 / 401 / 5xx. Blast radius (silent stale-tag accumulation
+    forever, no visibility) makes this worth the mock-curl effort.
+
+  * **10e-4 — Slice: `acceptance-package-detect-mode`.** Extract
+    detect-mode's ~140-line shell block (incl. `emit_to_version`
+    helper) into `.github/scripts/detect-acceptance-mode.sh`.
+    ~15 tests covering workflow_call gate (both / one / neither
+    caller inputs) + release-prep branch detection + workflow_
+    dispatch + push/PR diff-detection + base=000... branch-creation
+    + version validation. Highest logic density on the whole
+    release-mechanism surface; regression silently changes what
+    ships. NEW recommendation — not on original plan-doc list.
+
+  * **10e-5 — Slice: `reusable-publish-tag-create`.** Extract the
+    ls-remote 0/2/other case + `gh release view` idempotency into
+    `.github/scripts/create-release-tag.sh`. ~6 tests. Modest but
+    recovery-path idempotency is release-critical.
+
+  * **10e-6 — Slice: `release-amendment-changelog-extract`.**
+    Extract the awk section-extractor + 125K truncation +
+    anchor-slug into `.github/scripts/extract-changelog-section.sh`
+    + `.github/scripts/build-release-body.sh`. ~10 tests. Lower
+    priority than 10e-2 through 10e-5 but decent post-GHSA amendment
+    reliability. The anchor-slug rule must match GitHub's own
+    heading-slug algorithm — drift silently 404s the truncated-
+    body pointer link.
+
+  Byte-identical propagation for 10e-2 through 10e-6: none of the
+  new BATS suites need propagation (tests are master-only). Target
+  scripts (`validate-source-run.sh`, `dockerhub-delete-tag.sh`,
+  `detect-acceptance-mode.sh`, `create-release-tag.sh`, `extract-
+  changelog-section.sh`, `build-release-body.sh`) are consumed only
+  from master-only workflows (`acceptance-only.yml`, `docker-
+  acceptance-only.yml`, `reusable-*.yml`, `acceptance-package.yml`,
+  `release-amendment.yml`) — safe to keep on master. Only exception
+  worth noting: `acceptance-package.yml` IS byte-identical'd to
+  rel-810/rel-820, so extracting detect-mode into a helper means the
+  helper (`detect-acceptance-mode.sh`) also needs the same byte-
+  identical entry with same exclusions.
+
+  **Explicitly not-worth-testing** (audit's non-recommendations,
+  preserved to prevent future noise-BATS slices): permissions-check
+  probes (need real API); orchestration workflows (`release-prep`'s
+  peter-evans loop, `docker-release-orchestrator`, `ship-release`'s
+  merge sequencing, `branch-cut-automation`'s dual-scope checkout)
+  observable only end-to-end; Taskfile-delegating steps (their PHP
+  has its own test surface); `sync-byte-identical.yml` PR-body
+  heredoc + add-paths compute (string interpolation, visible in
+  the PR body immediately); `notify-release-targets-changed.yml`
+  dispatch (single call); `release-amendment.yml` restore-original-
+  date step (already has a `grep -q` self-verify); `docker-build-
+  release.yml` IMAGE_VERSION extraction (parses `version.php` at a
+  specific ref, hard to meaningfully mock, fails immediately at
+  build time).
 
 * **10f — Doc audit — SHIPPED 2026-07-30 as #13285.** Smaller than
   scoped: Phase 9 (#13272) and Phase 10c (#13279) each shipped their
@@ -1843,11 +1938,14 @@ drift-bug sources.
 **Sequencing suggestion:** 10a first (smallest, closes a deferred
 rabbit finding, no behavior change) — SHIPPED. 10c second (biggest
 ergonomic win — eliminates manual recovery steps) — SHIPPED. 10b +
-10d + 10f shipped together in parallel — SHIPPED 2026-07-30. Only
-10e (BATS coverage audit + portable-mktemp helpers cleanup) remains;
-scope shrunk since 10c/10d each added new BATS suites covering
-some of the priority-fill list. 10g is optional — do not do unless
-the cost/benefit shifts.
+10d + 10f shipped together in parallel — SHIPPED 2026-07-30. 10e
+now sub-sliced: 10e-1 (portable-mktemp) IN FLIGHT as #13292;
+10e-audit DONE 2026-07-30; 10e-2 through 10e-6 planned as ranked
+follow-ups (10e-2 acceptance-only guardrails first, 10e-3 docker-
+publish JWT cleanup second, 10e-4 detect-mode extract third — all
+three worth doing per plan; 10e-5 + 10e-6 lower-priority but
+present). 10g remains optional — do not do unless the cost/benefit
+shifts.
 
 **Not in Phase 10 scope:** anything that changes acceptance
 semantics or gate topology. This is refactoring-in-place. If a
@@ -2962,3 +3060,22 @@ in acceptance."
     kebab`, so `acceptance/extract-zip` rejected — must be
     `acceptance` with the sub-context moved into the
     description).
+
+- **2026-07-30 (even-later) — Phase 10e re-scoped after audit.**
+  Started with a small quality-of-life fix (portable-mktemp,
+  #13292 IN FLIGHT — 5 helpers.bash files switched from GNU-only
+  `mktemp -d -t <template>` to portable `mktemp -d`, unblocking
+  `bats/bats:1.13.0` Alpine iteration for local devs). Then ran a
+  research-only coverage audit across the release-mechanism
+  surface — see 10e entry above for the full result. Findings:
+  the plan-doc's original 10e priority list (acceptance-only.yml
+  guardrails, docker cleanup-candidate JWT) was correct but
+  incomplete. Newly-discovered highest-density gap is
+  `acceptance-package.yml` detect-mode (~140 lines of shell
+  branching that silently determines what gets acceptance-tested).
+  10e now re-sliced 10e-1 through 10e-6, with 10e-2/3/4 committed
+  to as next-round follow-up work. 10e-5 + 10e-6 lower priority
+  but tracked. Explicit not-worth-testing list preserved in the
+  10e entry to prevent future noise-BATS PRs on things that either
+  need real-API access (permissions probes) or fail loud enough
+  already (orchestration, IMAGE_VERSION parse, etc.).
