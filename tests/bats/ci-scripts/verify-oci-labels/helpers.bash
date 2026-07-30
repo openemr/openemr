@@ -22,7 +22,10 @@ VERIFY_OCI_LABELS_SCRIPT="$(cd "${__HELPERS_DIR}/../../../.." && pwd)/.github/sc
 #                              simulate different image label shapes.
 #   PATH                       prepended with the docker mock dir.
 setup_test_dir() {
-    CWD=$(mktemp -d -t verify-oci-labels-test-XXXX)
+    # `mktemp -d` (no `-t <template>`) — BusyBox's mktemp in the
+    # bats/bats:1.13.0 Alpine image rejects the `-t` form that GNU
+    # mktemp accepts.
+    CWD=$(mktemp -d)
 
     export MOCK_DOCKER_LABELS_FILE="${CWD}/labels.txt"
 

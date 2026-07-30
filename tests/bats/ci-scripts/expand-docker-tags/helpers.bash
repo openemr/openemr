@@ -9,7 +9,10 @@ __HELPERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EXPAND_DOCKER_TAGS_SCRIPT="$(cd "${__HELPERS_DIR}/../../../.." && pwd)/.github/scripts/expand-docker-tags.sh"
 
 setup_test_dir() {
-    CWD=$(mktemp -d -t expand-docker-tags-test-XXXX)
+    # `mktemp -d` (no `-t <template>`) — BusyBox's mktemp in the
+    # bats/bats:1.13.0 Alpine image rejects the `-t` form that GNU
+    # mktemp accepts.
+    CWD=$(mktemp -d)
     cd "${CWD}" || exit 1
 }
 
