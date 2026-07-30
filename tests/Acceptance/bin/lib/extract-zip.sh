@@ -101,16 +101,33 @@ extract_zip_flattening_single_top_level_dir() {
     # multiple top-level entries — surface that as a hard error
     # instead of a subtly-broken web root. Glob-based check avoids
     # find + process-substitution + shellcheck SC2312.
+    # Helper is sourced — save the caller's nullglob+dotglob state so
+    # we can restore it before returning. `shopt -p` emits shopt
+    # commands that recreate the current state; eval replays them.
+    local shopt_saved
+    shopt_saved="$(shopt -p nullglob dotglob)"
+
     local zip_roots
     shopt -s nullglob dotglob
     zip_roots=("${zip_tmp}"/*)
-    shopt -u nullglob dotglob
     if [[ ${#zip_roots[@]} -ne 1 || ! -d "${zip_roots[0]}" ]]; then
         echo "::error::expected exactly one top-level directory in ${zip_path}, found ${#zip_roots[@]}:" >&2
         printf '  %s\n' "${zip_roots[@]}" >&2
+        # No shopt restore here — `exit` terminates the whole shell
+        # (callers run under set -euo pipefail), so caller-visible
+        # shell state is moot.
         exit 1
     fi
-    shopt -s dotglob
-    mv "${zip_roots[0]}"/* "${dest_dir}"/
-    shopt -u dotglob
+
+    # Keep nullglob+dotglob on for the flatten mv. An empty top-level
+    # dir would otherwise expand `${zip_roots[0]}/*` to a literal `*`
+    # and error; with nullglob the array is simply empty and we skip
+    # the mv (dest stays empty — callers will fail their own presence
+    # checks downstream if they expected content).
+    local zip_entries
+    zip_entries=("${zip_roots[0]}"/*)
+    if [[ ${#zip_entries[@]} -gt 0 ]]; then
+        mv "${zip_entries[@]}" "${dest_dir}"/
+    fi
+    eval "${shopt_saved}"
 }

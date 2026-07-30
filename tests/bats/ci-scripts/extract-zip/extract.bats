@@ -100,6 +100,23 @@ teardown() {
     [[ -z "$(ls -A "${DEST_DIR}")" ]]
 }
 
+@test "single top-level dir is empty: succeeds silently, dest stays empty" {
+    # Regression guard for the nullglob-off-during-mv bug: with nullglob
+    # disabled between the root check and the mv, an empty top-level dir
+    # would expand `${zip_roots[0]}/*` to a literal `*` and mv would fail
+    # with "cannot stat '.../\\*': No such file or directory". Keeping
+    # nullglob on through the mv turns that into a no-op (dest stays
+    # empty — callers detect empty content via their own downstream
+    # presence checks).
+    mkdir -p "${STAGING_DIR}/openemr-8.2.0"
+    make_zip empty-openemr openemr-8.2.0
+
+    run_extract "${ZIP_DIR}/empty-openemr.zip" "${DEST_DIR}" "extract-zip-test.XXXXXX" "test context"
+
+    [[ ${status} -eq 0 ]]
+    [[ -z "$(ls -A "${DEST_DIR}")" ]]
+}
+
 @test "multi top-level entries with dot-prefixed sibling: rejected (nullglob+dotglob)" {
     # Regression guard for the nullglob-alone bug: without `dotglob`,
     # the single-root check ignored dot-prefixed top-level entries so
