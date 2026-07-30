@@ -13,7 +13,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\ZendModules\FHIR\Listener;
+namespace OpenEMR\Services\FHIR\Subscriber;
 
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Events\Patient\PatientCreatedEvent;

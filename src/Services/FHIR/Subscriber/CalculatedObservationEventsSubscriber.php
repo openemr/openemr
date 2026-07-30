@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\ZendModules\FHIR\Listener;
+namespace OpenEMR\Services\FHIR\Subscriber;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Events\Services\ServiceSaveEvent;
