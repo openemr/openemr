@@ -27,6 +27,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\CodeTypes\Subscriber\CodeTypeEventsSubscriber;
 use OpenEMR\Services\FHIR\Subscriber\CalculatedObservationEventsSubscriber;
 use OpenEMR\Services\FHIR\Subscriber\UuidMappingEventsSubscriber;
 
@@ -830,6 +831,7 @@ const OPENEMR_GLOBALS_LOADED = true;
 $coreDispatcher = $globalsBag->getKernel()->getEventDispatcher();
 $coreDispatcher->addSubscriber(new UuidMappingEventsSubscriber());
 $coreDispatcher->addSubscriber(new CalculatedObservationEventsSubscriber());
+$coreDispatcher->addSubscriber(new CodeTypeEventsSubscriber());
 
 // Module configurations.
 // Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files
