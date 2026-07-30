@@ -134,10 +134,21 @@ jobs:
         printf '::error::release_tag is required when dry_run is false\n'
         exit 1
 
+    # Sparse checkout of just the composite action so the token-mint
+    # step below can resolve `uses: ./.github/actions/...`. Full
+    # checkout happens after the token is minted (uses the token).
+    - name: Checkout composite action
+      if: '!inputs.dry_run'
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: .github/actions/generate-release-app-token
+        sparse-checkout-cone-mode: false
+        persist-credentials: false
+
     - name: Generate app token
       if: '!inputs.dry_run'
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-release-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
