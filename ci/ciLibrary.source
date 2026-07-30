@@ -637,6 +637,194 @@ dump_error_log() {
 }
 
 ##
+# --- Redis Sentinel diagnostics -------------------------------------------
+# The redis-sentinel e2e failures (pages hang on "Loading" until
+# TimeoutException, then cascade) leave no evidence once the job's containers
+# are torn down. These helpers sample Redis connection health during the test
+# run and take a post-mortem snapshot on failure, so a failing run tells us
+# whether the session layer leaked connections (connected_clients climbing,
+# rejected_connections > 0), stalled on locks (blocked_clients pinned), or
+# was never involved at all.
+
+##
+# Print redis-cli TLS arguments (one per line) derived from the openemr
+# container's REDIS_TLS/REDIS_X509 env — the same detection used in
+# build_test_redis_failover. Prints nothing on non-TLS configs. Callers read
+# with mapfile so multi-word paths would survive, and an empty result yields
+# an empty array.
+redis_cli_detect_tls_args() {
+    local _tls _x509
+    _tls=$(docker compose exec -T openemr printenv REDIS_TLS 2>/dev/null) || _tls=""
+    if [[ "${_tls}" == "yes" ]]; then
+        printf '%s\n' --tls --cacert /certs/ca.crt
+        _x509=$(docker compose exec -T openemr printenv REDIS_X509 2>/dev/null) || _x509=""
+        if [[ "${_x509}" == "yes" ]]; then
+            printf '%s\n' --cert /certs/client.crt --key /certs/client.key
+        fi
+    fi
+    # Explicit success: callers capture this with a plain assignment
+    # (var=$(redis_cli_detect_tls_args)), which under set -e requires the
+    # function to reliably return 0 (both docker execs above are guarded).
+    return 0
+}
+
+##
+# Run a redis-cli command against redis-master with auth and TLS handled.
+# The requirepass matches ci/compose-shared-redis-sentinel/docker-compose.yml.
+redis_master_cli() {
+    # Capture with a plain assignment rather than mapfile-from-process-
+    # substitution so the detect function's return value is not masked
+    # (SC2312); guard the herestring since <<< "" would yield one empty
+    # array element rather than an empty array.
+    local tls_output
+    tls_output=$(redis_cli_detect_tls_args)
+    local -a tls_args=()
+    if [[ -n "${tls_output}" ]]; then
+        mapfile -t tls_args <<< "${tls_output}"
+    fi
+    docker compose exec -T redis-master \
+        redis-cli "${tls_args[@]}" -a strongpassword --no-auth-warning "$@"
+}
+
+##
+# Path (relative to the openemr webroot) of the OPcache probe installed by
+# redis_monitor_start and removed by redis_monitor_stop. It must run inside an
+# Apache worker: CLI `php -r 'opcache_get_status()'` reads the CLI's own SHM
+# segment, not the one the workers share — and the workers' segment holds the
+# JIT buffer implicated in the #12438 segfaults.
+# Assign-if-unset before readonly, same as COREDUMP_DIR below: this library
+# is sourced multiple times per shell by ci/inferno/run.sh, and a bare
+# `readonly VAR=...` errors on the second source.
+: "${OPCACHE_PROBE:=opcache-ci-status.php}"
+readonly OPCACHE_PROBE
+
+##
+# Sample connection/lock health of redis-master every 10s, appending to the
+# file named in $1, until redis_monitor_stop. Backgrounds itself; the child
+# writes only to the outfile (never the step's stdout/stderr pipes), so it
+# survives the end of the workflow step that started it.
+redis_monitor_start() {
+    local outfile=$1
+    : > "${outfile}"
+    # Install the probe. The webroot is the bind-mounted checkout, so this
+    # exists only for the lifetime of the CI job and is removed in
+    # redis_monitor_stop. It reports only aggregate memory/restart counters —
+    # no keys, no source, nothing sensitive for a public artifact.
+    docker compose exec -T openemr sh -c "cat > '${OPENEMR_DIR}/${OPCACHE_PROBE}'" <<'PHP' || true
+<?php
+// CI-only probe; written by ci/ciLibrary.source redis_monitor_start.
+header('Content-Type: application/json');
+$s = opcache_get_status(false);
+echo json_encode([
+    'used_memory' => $s['memory_usage']['used_memory'] ?? null,
+    'free_memory' => $s['memory_usage']['free_memory'] ?? null,
+    'wasted_memory' => $s['memory_usage']['wasted_memory'] ?? null,
+    'cache_full' => $s['cache_full'] ?? null,
+    'restart_pending' => $s['restart_pending'] ?? null,
+    'restart_in_progress' => $s['restart_in_progress'] ?? null,
+    'oom_restarts' => $s['opcache_statistics']['oom_restarts'] ?? null,
+    'hash_restarts' => $s['opcache_statistics']['hash_restarts'] ?? null,
+    'manual_restarts' => $s['opcache_statistics']['manual_restarts'] ?? null,
+    'num_cached_scripts' => $s['opcache_statistics']['num_cached_scripts'] ?? null,
+    // Worker-truth for the JIT config: the image entrypoint (openemr.sh)
+    // enables JIT at first boot, so CLI probes and the static image lie.
+    'jit' => ini_get('opcache.jit'),
+    'jit_buffer_size' => ini_get('opcache.jit_buffer_size'),
+]), "\n";
+PHP
+    (
+        # This sampler must outlive failovers and container restarts: drop
+        # the library's errexit/xtrace inside the child so a failed sample
+        # neither kills the loop nor writes to the (soon closed) step pipe.
+        set +e +x
+        while true; do
+            {
+                # Let date print the separator itself: no command
+                # substitution, so no return value for SC2312 to worry about.
+                date -u '+=== %Y-%m-%dT%H:%M:%SZ'
+                redis_master_cli INFO clients 2>&1 | grep -E '^(connected|blocked)_clients'
+                redis_master_cli INFO stats 2>&1 | grep -E '^(rejected_connections|total_connections_received)'
+                redis_master_cli INFO memory 2>&1 | grep -E '^used_memory_human'
+                # OPcache health of the Apache workers, via the probe above.
+                # cache_full/restart_pending flipping true or oom_restarts
+                # incrementing right before a segfault avalanche is the
+                # smoking gun for the SHM-corruption theory (#12438).
+                printf 'opcache: '
+                docker compose exec -T openemr \
+                    curl -sf "http://localhost/${OPCACHE_PROBE}" 2>&1
+                echo
+            } >> "${outfile}" 2>&1
+            sleep 10
+        done
+    ) &
+    local monitor_pid=$!
+    echo "${monitor_pid}" > "${outfile}.pid"
+    echo "redis monitor started (pid ${monitor_pid}), sampling to ${outfile}"
+}
+
+redis_monitor_stop() {
+    local outfile=$1
+    local monitor_pid
+    # Remove the OPcache probe from the bind-mounted webroot. Best-effort:
+    # the container may already be gone at cleanup time.
+    docker compose exec -T openemr rm -f "${OPENEMR_DIR}/${OPCACHE_PROBE}" 2>/dev/null || true
+    if [[ -f "${outfile}.pid" ]]; then
+        monitor_pid=$(cat "${outfile}.pid") || monitor_pid=""
+        if [[ -n "${monitor_pid}" ]]; then
+            kill "${monitor_pid}" 2>/dev/null || true
+        fi
+        rm -f "${outfile}.pid"
+    fi
+}
+
+##
+# Post-mortem snapshot of the Redis cluster into directory $1 (host path).
+# Everything is best-effort: any of these can fail if the cluster is the
+# thing that died, and a partial snapshot is still a snapshot.
+#
+# Artifact safety: this lands in a downloadable artifact on a public PR, so
+# only aggregate/metadata commands are used. In particular SLOWLOG GET is
+# deliberately NOT captured — slowlog entries include the arguments of each
+# slow command, which for session writes means serialized session payloads.
+# INFO commandstats/latencystats carry the same "which command was slow"
+# signal (per-command call counts, cumulative usec, and latency percentiles)
+# without any payload data, and CLIENT LIST exposes only connection metadata
+# (addr, age, idle, last cmd name), never values.
+# Best-effort by design: every capture below is `|| true` because a dead
+# cluster — the very thing being diagnosed — may refuse any of these
+# commands, and a partial snapshot must still be written. set -e being
+# neutralized inside the function calls (SC2310) is therefore intended.
+# shellcheck disable=SC2310
+redis_diagnostics() {
+    local dest=$1
+    local tls_output
+    local -a tls_args=()
+    mkdir -p "${dest}"
+    tls_output=$(redis_cli_detect_tls_args)
+    if [[ -n "${tls_output}" ]]; then
+        mapfile -t tls_args <<< "${tls_output}"
+    fi
+    redis_master_cli INFO > "${dest}/redis-info.txt" 2>&1 || true
+    redis_master_cli CLIENT LIST > "${dest}/redis-client-list.txt" 2>&1 || true
+    {
+        echo '# SLOWLOG LEN (entry count only; entries themselves contain'
+        echo '# command payloads and are not exported):'
+        redis_master_cli SLOWLOG LEN
+        echo
+        echo '# Per-command aggregate stats:'
+        redis_master_cli INFO commandstats
+        echo
+        echo '# Per-command latency percentiles:'
+        redis_master_cli INFO latencystats
+    } > "${dest}/redis-command-stats.txt" 2>&1 || true
+    docker compose exec -T sentinel-1 \
+        redis-cli "${tls_args[@]}" -p 26379 SENTINEL master redis-master \
+        > "${dest}/sentinel-master-state.txt" 2>&1 || true
+    dc logs --timestamps redis-master redis-replica-1 redis-replica-2 sentinel-1 sentinel-2 \
+        > "${dest}/redis-container-logs.txt" 2>&1 || true
+}
+
+##
 # Directory inside the openemr container where coredumps are collected. The
 # kernel core_pattern (set by enable_coredumps) is interpreted within the
 # crashing process's mount namespace, so this is a container path. It is not
@@ -669,6 +857,21 @@ enable_coredumps() {
     dc exec -T openemr sh -c "mkdir -p '${COREDUMP_DIR}' && chmod 1777 '${COREDUMP_DIR}'"
     sudo sysctl -w "kernel.core_pattern=${COREDUMP_DIR}/core.%e.%p.%t"
     sudo sysctl -w 'fs.suid_dumpable=2'
+    # Make the kernel actually LOG segfaults ("segfault at ... ip ... in
+    # xyz.so") so the workflow's dmesg capture has something to capture: the
+    # stock runner kernel logs nothing for them by default (#12438).
+    sudo sysctl -w 'debug.exception-trace=1'
+    sudo sysctl -w 'kernel.print-fatal-signals=1'
+
+    # CoreDumpDirectory makes each Apache child call prctl(PR_SET_DUMPABLE, 1)
+    # after its root->apache setuid. Without it, children sit in the kernel's
+    # restrictive "suid-safe" dumpable state — setuid WITHOUT exec keeps
+    # dumpable at the fs.suid_dumpable value — which is how #12438 runs kept
+    # producing worker segfaults with zero cores while exec-based probes
+    # dumped fine (execve of a non-setuid binary RESETS dumpable to 1). The
+    # graceful restart below both loads this directive and re-forks the
+    # workers under it.
+    dc exec -T openemr sh -c "printf 'CoreDumpDirectory %s\n' '${COREDUMP_DIR}' > /etc/apache2/conf.d/zz-ci-coredump.conf"
     # The two sysctls above are checked at the moment a process changes UID.
     # Apache started earlier in the compose `up` and its prefork workers
     # already dropped root -> apache before we ran these sysctls, so those
@@ -684,6 +887,52 @@ enable_coredumps() {
     # shellcheck disable=SC2310  # graceful restart failure is diagnostic, not fatal
     dc exec -T openemr sh -c 'httpd -k graceful' \
         || echo 'enable_coredumps: graceful restart failed; existing workers keep dumpable=0'
+
+    # Canary: prove the whole coredump pipeline works in THIS job before
+    # trusting it. #12438 runs had a hundred-plus worker segfaults after the
+    # graceful restart above ran cleanly, yet produced zero cores — and
+    # nobody knew the pipeline was broken until the cores were needed.
+    # Crash a sacrificial CLI php as the unprivileged web user (mirroring
+    # the root->apache setuid path the workers take) and require a core.
+    local canary_files
+    docker compose exec -T openemr \
+        su -s /bin/sh apache -c 'php -d error_reporting=0 -r "posix_kill(posix_getpid(), 11);"' \
+        2>/dev/null || true
+    sleep 1
+    canary_files=$(docker compose exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}' 2>/dev/null | wc -l") || canary_files=0
+    if [[ "${canary_files//[!0-9]/}" == "0" || -z "${canary_files//[!0-9]/}" ]]; then
+        echo "::warning::coredump canary produced no core in ${COREDUMP_DIR} — worker segfaults in this job will NOT be debuggable; check ulimits.core, kernel.core_pattern, and fs.suid_dumpable"
+    else
+        echo "coredump canary OK: core file present in ${COREDUMP_DIR}"
+        # Remove the canary's core so capture_coredumps only reports real crashes.
+        # Glob without the trailing dot: the core's %e is the binary's comm,
+        # which an Alpine packaging change could turn into php82.
+        docker compose exec -T openemr sh -c "rm -f ${COREDUMP_DIR}/core.php*" 2>/dev/null || true
+    fi
+
+    # Second canary, the one that matters: SIGSEGV a REAL Apache worker and
+    # require its core. The CLI canary above cannot stand in for this — its
+    # execve resets dumpable to 1, so it passes even when the workers (setuid,
+    # no exec) cannot dump. This canary would have failed loudly on every run
+    # to date and pointed straight at the CoreDumpDirectory fix above. Cost:
+    # one AH00051 line in the error log (AH00051, not AH00052, because
+    # CoreDumpDirectory is set); the parent forks a replacement immediately.
+    local worker_pid worker_cores
+    worker_pid=$(docker compose exec -T openemr sh -c 'pgrep -u apache httpd | head -1') || worker_pid=""
+    worker_pid=${worker_pid//[!0-9]/}
+    if [[ -z "${worker_pid}" ]]; then
+        echo "worker coredump canary skipped: no apache worker process found"
+        return 0
+    fi
+    docker compose exec -T openemr kill -SEGV "${worker_pid}" 2>/dev/null || true
+    sleep 2
+    worker_cores=$(docker compose exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}'/core.httpd.${worker_pid}.* 2>/dev/null | wc -l") || worker_cores=0
+    if [[ "${worker_cores//[!0-9]/}" == "0" || -z "${worker_cores//[!0-9]/}" ]]; then
+        echo "::warning::worker coredump canary FAILED: SIGSEGV to worker ${worker_pid} left no core in ${COREDUMP_DIR} — real worker segfaults will not be debuggable in this job"
+    else
+        echo "worker coredump canary OK: core.httpd.${worker_pid} present"
+        docker compose exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.httpd.${worker_pid}.*" 2>/dev/null || true
+    fi
 }
 
 ##
@@ -699,6 +948,15 @@ capture_coredumps() {
     local dest_dir=$1
     local max_core_mb=${COREDUMP_MAX_MB:-0}
     mkdir -p "${dest_dir}"
+
+    # Inventory first: which cores exist, how big, and how full the disk is.
+    # #12438 runs have logged dozens of worker segfaults (AH00051) with far
+    # fewer cores on disk — this file is how any such discrepancy explains
+    # itself (truncated cores, ENOSPC, RLIMIT_CORE, or crashes that never
+    # dumped).
+    # shellcheck disable=SC2310  # best-effort inventory; a dead container must not abort diagnostics
+    dc exec -T openemr sh -c "ls -la '${COREDUMP_DIR}' 2>&1; echo; df -h / '${COREDUMP_DIR}' 2>&1" \
+        > "${dest_dir}/coredumps.inventory.txt" 2>&1 || true
 
     local cores
     # shellcheck disable=SC2310  # missing-core is expected; || true drives the no-op branch
@@ -716,14 +974,35 @@ capture_coredumps() {
         || echo 'WARNING: gdb install failed; no backtrace will be produced. The raw core is retained in the container; set COREDUMP_MAX_MB > 0 to upload it for offline analysis.' >&2
 
     # The faulting process is an Apache worker (AH00051 in the job log).
+    # NB: busybox ash's `command -v` only honors its FIRST operand, so the
+    # previous single call `command -v apache2 httpd` printed nothing on
+    # Alpine (apache2 does not exist there) — gdb then received only the
+    # core, no executable, and bailed with "not in executable format" — a
+    # latent bug for as long as this code existed, unexercisable until a core
+    # first survived to reach it (#12438). Probe each candidate separately,
+    # httpd first (Alpine), with a path fallback.
     local exe
-    # shellcheck disable=SC2310  # missing binary is tolerated; gdb auto-detects from the core
-    exe=$(dc exec -T openemr sh -c 'command -v apache2 httpd 2>/dev/null | head -n1') || true
+    # shellcheck disable=SC2310  # missing binary is tolerated; gdb runs core-only as last resort
+    exe=$(dc exec -T openemr sh -c \
+        'command -v httpd 2>/dev/null || command -v apache2 2>/dev/null || ls /usr/sbin/httpd /usr/sbin/apache2 2>/dev/null | head -n1') || true
     exe=${exe%$'\r'}
+    exe=${exe%%$'\n'*}
 
+    # Cap the number of cores backtraced: a single #12438 e2e run produced
+    # 184 cores of ~290MB each (49GB, runner disk at 78%), all sharing ONE
+    # instruction pointer — after a handful of backtraces the rest are
+    # duplicates, and 184 gdb passes over 290MB cores would eat the job.
+    local max_backtraces=${COREDUMP_MAX_BACKTRACES:-5}
+    local processed=0
     local core base
     while IFS= read -r core; do
         [[ -n "${core}" ]] || continue
+        if (( processed >= max_backtraces )); then
+            echo "Reached COREDUMP_MAX_BACKTRACES=${max_backtraces}; remaining cores are listed in coredumps.inventory.txt but were not backtraced." \
+                > "${dest_dir}/coredumps.truncated.txt"
+            break
+        fi
+        processed=$(( processed + 1 ))
         base=$(basename "${core}")
         echo "Backtracing ${base} (exe=${exe:-auto})..."
         # `bt` (not `bt full`): a stack-only trace names the faulting frames
@@ -738,8 +1017,12 @@ capture_coredumps() {
         )
         [[ -n "${exe}" ]] && gdb_args+=("${exe}")
         gdb_args+=("${core}")
+        # </dev/null on every exec inside this loop: `docker compose exec -T`
+        # forwards (and thereby consumes) the loop's stdin — the herestring
+        # feeding `read` — so without it the loop exits after ONE core
+        # (observed: 184 cores in the inventory, one backtrace produced).
         # shellcheck disable=SC2310  # a gdb failure is logged, not fatal — keep processing cores
-        dc "${gdb_args[@]}" \
+        dc "${gdb_args[@]}" < /dev/null \
             > "${dest_dir}/${base}.backtrace.txt" 2>&1 \
             || echo "gdb failed for ${base}; see ${base}.backtrace.txt" >&2
         # Raw core upload is opt-in (COREDUMP_MAX_MB > 0) and size-gated, since
@@ -754,7 +1037,7 @@ capture_coredumps() {
         # risk streaming an oversized core past the cap; backtrace is retained.
         local size_mb=''
         # shellcheck disable=SC2310  # du failure handled explicitly below
-        size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1") || size_mb=''
+        size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1" < /dev/null) || size_mb=''
         size_mb=${size_mb%$'\r'}
         if [[ -z "${size_mb}" ]]; then
             echo "Could not determine size of ${base}; raw core omitted (cap cannot be enforced), backtrace retained." \
@@ -770,7 +1053,7 @@ capture_coredumps() {
         # gzip, permissions, disk) must not abort the loop and skip the
         # remaining cores' backtraces.
         # shellcheck disable=SC2310  # gzip failure is logged, not fatal — keep processing cores
-        if ! dc exec -T openemr gzip -c "${core}" > "${dest_dir}/${base}.gz"; then
+        if ! dc exec -T openemr gzip -c "${core}" < /dev/null > "${dest_dir}/${base}.gz"; then
             rm -f "${dest_dir}/${base}.gz"
             echo "gzip stream failed for ${base}; raw core omitted, backtrace retained." \
                 > "${dest_dir}/${base}.gz.skipped.txt"
