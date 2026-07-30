@@ -52,10 +52,6 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
      */
     private array $fhirPatientDataObservationResourcePaths = [];
 
-    public function __construct()
-    {
-    }
-
     public static function getSubscribedEvents()
     {
         return [
