@@ -26,8 +26,10 @@ inputs:
   repositories:
     description: >
       Newline- or comma-separated repository names to scope the
-      installation token to (least-privilege). Defaults to unset,
-      which mints a token spanning every repo the app is installed on.
+      installation token to (least-privilege). When `owner` is set,
+      leaving this unset grants access to every repository in that
+      owner's installation; when both are unset, access is limited to
+      the current repository.
     required: false
     default: ''
   permission-contents:
