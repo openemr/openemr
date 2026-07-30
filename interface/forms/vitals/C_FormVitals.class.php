@@ -18,6 +18,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/libr
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\BmiCategory;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
@@ -364,7 +365,7 @@ class C_FormVitals
             ,'validationErrors' => $validationErrors
             ,'vitalFields' => $vitalFields
             ,'FORM_ACTION' => OEGlobalsBag::getInstance()->getWebRoot()
-            ,'DONT_SAVE_LINK' => OEGlobalsBag::getInstance()->get('form_exit_url')
+            ,'DONT_SAVE_LINK' => FormActionBarSettings::EXIT_URL
             ,'STYLE' => OEGlobalsBag::getInstance()->get('style')
             ,'units_of_measurement' => $this->units_of_measurement
             ,'MEASUREMENT_METRIC_ONLY' => FormVitals::MEASUREMENT_METRIC_ONLY
