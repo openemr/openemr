@@ -131,6 +131,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPO: ${{ github.repository }}
         SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        INPUT_CANDIDATE_TAG: ${{ inputs.candidate_tag }}
       run: |
         set -euo pipefail
 
@@ -139,12 +140,28 @@ jobs:
 
         source_path=$(printf '%s' "$run_json" | jq -er .path)
         source_created_at=$(printf '%s' "$run_json" | jq -er .created_at)
+        source_run_attempt=$(printf '%s' "$run_json" | jq -er .run_attempt)
 
         echo "==> Confirming source run is a docker-build-release.yml run"
         expected_path=".github/workflows/docker-build-release.yml"
         if [ "$source_path" != "$expected_path" ]; then
           echo "::error::source run ${SOURCE_RUN_ID} was produced by '${source_path}', not '${expected_path}'."
           echo "::error::docker-acceptance-only only accepts source runs from docker-build-release.yml — the candidate_tag shape (release-candidate-<run-id>-<attempt>) is specific to that workflow."
+          exit 1
+        fi
+
+        # Bind operator-supplied candidate_tag to the source run's own
+        # coordinates. Without this check, an operator could dispatch
+        # this workflow with a valid source_run_id but a candidate_tag
+        # pointing at an unrelated image on Docker Hub — aliasing that
+        # foreign image under the requested final tags. Match the exact
+        # format docker-build-release.yml stamps via its
+        # GATE_CANDIDATE_TAG env: release-candidate-<run_id>-<run_attempt>.
+        echo "==> Confirming candidate_tag matches source run coordinates"
+        expected_candidate_tag="release-candidate-${SOURCE_RUN_ID}-${source_run_attempt}"
+        if [ "$INPUT_CANDIDATE_TAG" != "$expected_candidate_tag" ]; then
+          echo "::error::candidate_tag mismatch: operator supplied '${INPUT_CANDIDATE_TAG}' but source run ${SOURCE_RUN_ID} (attempt ${source_run_attempt}) would have produced '${expected_candidate_tag}'."
+          echo "::error::docker-acceptance-only aliases the candidate image under the final tags — a mismatched candidate_tag risks publishing an unrelated image (accidentally or maliciously). Re-dispatch with candidate_tag='${expected_candidate_tag}', or pick a different source_run_id whose coordinates match the intended candidate."
           exit 1
         fi
 
@@ -182,7 +199,23 @@ jobs:
 
         url="https://hub.docker.com/v2/repositories/openemr/openemr/tags/${CANDIDATE_TAG}/"
         echo "==> HEAD ${url}"
-        http_code=$(curl -s -o /tmp/dh-tag-response -w '%{http_code}' "$url")
+        # Bound the request explicitly: --connect-timeout guards TCP/TLS
+        # setup, --max-time guards total wall time. Without these, curl's
+        # defaults are effectively unbounded and a hung Docker Hub could
+        # stall the job until the runner's own timeout fires.
+        # Capture curl's exit code explicitly (via `|| curl_exit=$?`)
+        # so a curl-level failure (DNS, TLS, timeout, connection reset —
+        # anything that prevents an HTTP response) produces a clear
+        # error instead of tripping `set -e` and leaving the case-
+        # statement handler unreached. `|| ...` disarms `set -e` for
+        # this one call; we re-arm by explicitly checking $curl_exit.
+        curl_exit=0
+        http_code=$(curl --connect-timeout 10 --max-time 30 -sS \
+          -o /tmp/dh-tag-response -w '%{http_code}' "$url") || curl_exit=$?
+        if [ "$curl_exit" -ne 0 ]; then
+          echo "::error::Docker Hub request failed before receiving an HTTP response (DNS, TLS, timeout, or connection error). curl exit: ${curl_exit}"
+          exit 1
+        fi
 
         case "$http_code" in
           200)
