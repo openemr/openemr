@@ -40,13 +40,13 @@ if (empty($tmp)) {
 
 $enc_list = [];
 if (!empty($prow)) {
-    $results = QueryUtils::fetchRecords("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
+    $enc_list = QueryUtils::fetchRecords("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
         " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", [$prow['pid']]);
     foreach ($enc_list as $row) {
         $enc_list[] = [
             'encounter' => $row['encounter'],
             'pc_catname' => xl_appt_category($row['pc_catname']),
-            'date' => oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))
+            'date' => oeFormatShortDate(date("Y-m-d", strtotime((string) $row['date'])))
         ];
     }
 }
