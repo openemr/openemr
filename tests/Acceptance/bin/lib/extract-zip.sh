@@ -127,7 +127,12 @@ extract_zip_flattening_single_top_level_dir() {
     local zip_entries
     zip_entries=("${zip_roots[0]}"/*)
     if [[ ${#zip_entries[@]} -gt 0 ]]; then
-        mv "${zip_entries[@]}" "${dest_dir}"/
+        # `|| exit 1` makes the helper's failure contract portable —
+        # current callers run under set -euo pipefail so mv failure
+        # would already abort, but a future caller sourcing this
+        # without set -e would otherwise see eval return zero after a
+        # failed mv and continue past a broken extraction.
+        mv "${zip_entries[@]}" "${dest_dir}"/ || exit 1
     fi
     eval "${shopt_saved}"
 }
