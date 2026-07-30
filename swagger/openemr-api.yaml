@@ -6,6 +6,127 @@ servers:
   -
     url: /apis/default/
 paths:
+  /api/admin/users:
+    get:
+      tags:
+        - standard-admin
+      description: 'Retrieves a list of users with admin-level detail (username, authorized, ACL groups)'
+      parameters:
+        -
+          name: fname
+          in: query
+          required: false
+          schema:
+            type: string
+        -
+          name: lname
+          in: query
+          required: false
+          schema:
+            type: string
+        -
+          name: username
+          in: query
+          required: false
+          schema:
+            type: string
+        -
+          name: active
+          in: query
+          required: false
+          schema:
+            type: string
+        -
+          name: authorized
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    post:
+      tags:
+        - standard-admin
+      description: 'Creates a new user (requires admin/super ACL)'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - username
+                - password
+                - admin_password
+                - fname
+                - lname
+                - access_group
+              properties:
+                username:
+                  type: string
+                password:
+                  description: 'Password for the new user'
+                  type: string
+                admin_password:
+                  description: 'Current password of the authenticated admin performing this action'
+                  type: string
+                fname:
+                  type: string
+                lname:
+                  type: string
+                mname:
+                  type: string
+                email:
+                  type: string
+                authorized:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                facility_id:
+                  type: integer
+                access_group:
+                  type: array
+                  items:
+                    type: string
+              type: object
+      responses:
+        201:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/users/{uuid}':
+    get:
+      tags:
+        - standard-admin
+      description: 'Retrieves a single user by UUID with admin-level detail'
+      parameters:
+        -
+          name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          description: 'User not found'
+      security:
+        -
+          openemr_auth: {  }
   /api/allergy:
     get:
       tags:
@@ -10352,6 +10473,9 @@ tags:
   -
     name: standard
     description: 'Standard OpenEMR API'
+  -
+    name: standard-admin
+    description: 'Standard Admin OpenEMR API'
   -
     name: standard-patient
     description: 'Standard Patient Portal OpenEMR API'

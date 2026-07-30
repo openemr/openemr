@@ -20,6 +20,7 @@
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\RestControllers\Admin\UserManagementRestController;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\BackgroundServiceRestController;
@@ -46,6 +47,8 @@ use OpenEMR\RestControllers\TransactionRestController;
 use OpenEMR\RestControllers\UserRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\Services\Search\SearchQueryConfig;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 return [
     "GET /api/facility" => function (HttpRestRequest $request) {
@@ -693,9 +696,9 @@ return [
         if (is_string($body) && $body !== '') {
             $decoded = json_decode($body, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                return new \Symfony\Component\HttpFoundation\JsonResponse(
+                return new JsonResponse(
                     ['error' => 'Invalid JSON payload'],
-                    \Symfony\Component\HttpFoundation\Response::HTTP_BAD_REQUEST,
+                    Response::HTTP_BAD_REQUEST,
                 );
             }
             $data = is_array($decoded) ? $decoded : [];
@@ -714,4 +717,33 @@ return [
     // rather than `<scope>/run.c`.
     'POST /api/background_service/$run'
         => fn(HttpRestRequest $request) => (new BackgroundServiceRestController())->runAllDue(),
+
+    // Admin User Management endpoints
+    "GET /api/admin/users" => static function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        /** @var array<string, mixed> $search */
+        $search = $request->query->all();
+        return (new UserManagementRestController())->getAll($request, $search);
+    },
+    "GET /api/admin/users/:uuid" => static function ($uuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        return (new UserManagementRestController())->getOne(is_string($uuid) ? $uuid : '', $request);
+    },
+    "POST /api/admin/users" => static function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $body = file_get_contents("php://input");
+        $data = [];
+        if (is_string($body) && $body !== '') {
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return new JsonResponse(
+                    ['error' => 'Invalid JSON payload'],
+                    Response::HTTP_BAD_REQUEST,
+                );
+            }
+        }
+        /** @var array<string, mixed> $data */
+        $data = is_array($data) ? $data : [];
+        return (new UserManagementRestController())->post($data, $request);
+    },
 ];
