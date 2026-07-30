@@ -52,9 +52,19 @@ jobs:
         php-version:
         - '8.5'
     steps:
+    # Sparse checkout of just the composite action so the token-mint
+    # step below can resolve `uses: ./.github/actions/...`. Full
+    # checkouts happen later against the master/new-rel-branch refs.
+    - name: Checkout composite action
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: .github/actions/generate-app-token
+        sparse-checkout-cone-mode: false
+        persist-credentials: false
+
     - name: Mint App token
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
