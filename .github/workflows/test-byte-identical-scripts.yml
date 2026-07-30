@@ -57,3 +57,4 @@ jobs:
         bats tests/bats/ci-scripts/extract-zip/
         bats tests/bats/ci-scripts/validate-source-run/
         bats tests/bats/ci-scripts/verify-dockerhub-tag-exists/
+        bats tests/bats/ci-scripts/dockerhub-delete-tag/
