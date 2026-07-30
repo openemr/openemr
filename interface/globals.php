@@ -27,6 +27,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FHIR\Subscriber\CalculatedObservationEventsSubscriber;
+use OpenEMR\Services\FHIR\Subscriber\UuidMappingEventsSubscriber;
 
 // Set up autoloader as early as possible
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -821,6 +823,13 @@ if ($globalsBag->getBoolean('translation_preload_cache')) {
  * Used by include files to guard against direct HTTP access.
  */
 const OPENEMR_GLOBALS_LOADED = true;
+
+// Core event subscribers.
+// These are always-on behaviour, not optional modules, so they register directly
+// on the kernel dispatcher rather than going through the modules system.
+$coreDispatcher = $globalsBag->getKernel()->getEventDispatcher();
+$coreDispatcher->addSubscriber(new UuidMappingEventsSubscriber());
+$coreDispatcher->addSubscriber(new CalculatedObservationEventsSubscriber());
 
 // Module configurations.
 // Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files
