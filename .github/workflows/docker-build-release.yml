@@ -164,18 +164,7 @@ jobs:
       run: |
         {
           echo 'list<<EOF'
-          IFS=',' read -ra TAGS <<< "$INPUT_TAGS"
-          for t in "${TAGS[@]}"; do
-            t="${t// /}"   # strip whitespace
-            [ -z "$t" ] && continue
-            echo "openemr/openemr:${t}"
-            # Rule: version-number tags (digits and dots only) also get a dated sibling.
-            # "8.1.0" -> push "8.1.0" + "8.1.0-2026-06-13"
-            # "next" / "dev" / "latest" / "manual-test" -> no dated variant.
-            if [[ "$t" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-              echo "openemr/openemr:${t}-${BUILD_DATE}"
-            fi
-          done
+          .github/scripts/expand-docker-tags.sh
           echo EOF
         } >> "$GITHUB_OUTPUT"
 
@@ -354,143 +343,31 @@ jobs:
     # workflow_call shape).
     secrets: inherit
 
-  # Phase 7c-docker publish: alias the candidate's manifest onto each
-  # final tag via `docker buildx imagetools create`. Same digest, so the
-  # bytes acceptance-gate tested ARE the bytes each final tag now points
-  # at — no rebuild, no cache-hit assumption, byte-identical guarantee.
-  # amd64 + arm64 both preserved (they were both pushed under the
-  # candidate at build time). Skipped when gate_with_acceptance=false.
-  publish:
-    name: Publish
+  # Phase 7c-docker publish + cleanup — Phase 10c (openemr/openemr#TBD)
+  # extracted both jobs into .github/workflows/reusable-docker-publish.yml
+  # so docker-acceptance-only.yml can drive the same manifest-alias +
+  # candidate-cleanup flow from its recovery path. Behavior preserved
+  # step-for-step; the two jobs become one reusable-workflow call that
+  # expands back into publish + cleanup-candidate jobs at run time.
+  #
+  # Same gate as before (inputs.gate_with_acceptance) — non-gated path
+  # publishes directly from the build job, no reusable involved.
+  #
+  # Phase 9 (skip-build re-run for release recovery, 2026-07-28) is
+  # still honored by the reusable's `cleanup-candidate` job: it fires
+  # only on publish success, preserving the candidate tag on any
+  # earlier-stage failure (acceptance-gate failed, publish failed,
+  # publish cancelled). Phase 10c automates the recovery step this
+  # preservation was designed for — see docker-acceptance-only.yml.
+  publish-and-cleanup:
+    name: Publish + cleanup
     needs: [build, acceptance-gate]
     if: inputs.gate_with_acceptance
-    runs-on: ubuntu-24.04
-    steps:
-    # Needed so the "Verify pushed image OCI labels" step below can call
-    # .github/scripts/verify-oci-labels.sh. Publish is a separate job
-    # from build so the workspace doesn't carry over — must re-checkout.
-    # persist-credentials: false because publish uses its own app-token
-    # (steps.<>.outputs.token) for gh commands; leaving GITHUB_TOKEN in
-    # .git/config would be zero-value credential surface.
-    - name: Checkout
-      uses: actions/checkout@v7
-      with:
-        persist-credentials: false
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v4
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v4
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Alias candidate manifest onto each final tag
-      env:
-        CANDIDATE_TAG: ${{ needs.build.outputs.candidate_tag }}
-        TAGS_LIST: ${{ needs.build.outputs.expanded_tags }}
-      run: |
-        # `docker buildx imagetools create -t <new> <src>` creates a new
-        # manifest pointing at <src>'s digest without pulling image blobs.
-        # Multi-arch is preserved (the source manifest is a manifest list).
-        # Idempotent: re-running against an existing tag rewrites its
-        # pointer (harmless if source digest is the same).
-        SRC="openemr/openemr:${CANDIDATE_TAG}"
-        for tag in $TAGS_LIST; do
-          [ -z "$tag" ] && continue
-          echo "==> aliasing ${SRC} -> ${tag}"
-          docker buildx imagetools create -t "$tag" "$SRC"
-        done
-
-    - name: Verify pushed image OCI labels
-      env:
-        EXPECTED_REVISION: ${{ needs.build.outputs.openemr_version_ref }}
-        EXPECTED_VERSION: ${{ needs.build.outputs.image_version }}
-        EXPECTED_BUILD_DATE: ${{ needs.build.outputs.build_date }}
-        TAGS_LIST: ${{ needs.build.outputs.expanded_tags }}
-      # Runs against the first published final tag as a defense-in-depth
-      # check that imagetools-create actually pointed the tag at a
-      # manifest with the expected labels (it should, by construction,
-      # but the check is essentially free). Same verify script the
-      # build job's gated + non-gated sites use.
-      run: |
-        REF_TAG=$(echo "${TAGS_LIST}" | head -1)
-        export REF_TAG
-        .github/scripts/verify-oci-labels.sh
-
-  # Phase 7c-docker cleanup: delete the candidate tag from Docker Hub
-  # after publish (success or fail). Runs on the gated path when the
-  # candidate is no longer needed for recovery; continue-on-error so
-  # cleanup failures don't fail the whole workflow run (a stale
-  # candidate tag is cosmetically annoying but not a correctness issue
-  # — the tag naming makes it obvious that
-  # release-candidate-<run-id>-<attempt> is an internal artifact).
-  #
-  # Phase 9 (skip-build re-run for release recovery, 2026-07-28):
-  # preserve the candidate tag on acceptance-gate failure so an
-  # operator can re-run acceptance without a fresh multi-arch build.
-  # Recovery flow after an acceptance flake:
-  #   1. Manually workflow_dispatch acceptance-docker.yml with
-  #      `to_tag=<candidate-suffix>` (the candidate_tag output on the
-  #      failed build job — visible on the failed run page).
-  #   2. On green acceptance, manually alias the candidate onto the
-  #      final tags with `docker buildx imagetools create -t
-  #      openemr/openemr:<final> openemr/openemr:<candidate>` for each
-  #      expanded tag, then delete the candidate by hand (or re-run
-  #      this job — cleanup is idempotent via the 204/404 handling
-  #      below).
-  # Cleanup fires only on publish SUCCESS. Any earlier-stage failure
-  # (acceptance-gate failed, publish failed after acceptance passed,
-  # publish cancelled mid-run) preserves the candidate so an operator
-  # can re-run acceptance-docker.yml manually with `to_tag=<candidate-
-  # suffix>` and then manually `docker buildx imagetools create`
-  # against the still-live candidate. Also preserves the candidate on
-  # cancelled runs. Uses publish.result rather than acceptance-gate.result
-  # because publish's imagetools-alias would fail if the candidate got
-  # deleted between publish attempts — treating the whole publish job
-  # as the "safe to cleanup" gate avoids that race.
-  cleanup-candidate:
-    name: Cleanup candidate tag
-    needs: [build, acceptance-gate, publish]
-    if: always() && inputs.gate_with_acceptance && needs.build.result == 'success' && needs.publish.result == 'success'
-    runs-on: ubuntu-24.04
-    steps:
-    - name: Delete candidate tag from Docker Hub
-      continue-on-error: true
-      env:
-        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        CANDIDATE_TAG: ${{ needs.build.outputs.candidate_tag }}
-      run: |
-        set -euo pipefail
-        # Docker Hub v2 API tag deletion requires a JWT obtained from the
-        # user-login endpoint (the raw personal-access-token isn't
-        # sufficient for this specific endpoint). Cheap two-call flow:
-        # POST /v2/users/login/ -> extract .token -> DELETE the tag.
-        # If the JWT flow fails (e.g., PAT lacks write:delete perms), the
-        # `continue-on-error: true` on the step swallows it — the tag
-        # lingers until manually cleaned, non-blocking.
-        JWT=$(curl -sf -H 'Content-Type: application/json' \
-          -X POST -d "{\"username\": \"${DOCKERHUB_USERNAME}\", \"password\": \"${DOCKERHUB_TOKEN}\"}" \
-          https://hub.docker.com/v2/users/login/ | jq -r .token)
-        if [ -z "$JWT" ] || [ "$JWT" = "null" ]; then
-          echo "::warning::could not obtain Docker Hub JWT — cleanup skipped, candidate tag left in place"
-          exit 0
-        fi
-        echo "==> DELETE openemr/openemr:${CANDIDATE_TAG}"
-        HTTP_CODE=$(curl -s -o /tmp/dh-delete-response -w '%{http_code}' \
-          -X DELETE \
-          -H "Authorization: JWT ${JWT}" \
-          "https://hub.docker.com/v2/repositories/openemr/openemr/tags/${CANDIDATE_TAG}/")
-        case "$HTTP_CODE" in
-          204|404)
-            # 204 = deleted; 404 = already gone (idempotent re-run).
-            echo "==> cleanup OK (HTTP ${HTTP_CODE})"
-            ;;
-          *)
-            echo "::warning::Docker Hub tag delete returned HTTP ${HTTP_CODE}:"
-            cat /tmp/dh-delete-response || true
-            exit 1
-            ;;
-        esac
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    with:
+      candidate_tag: ${{ needs.build.outputs.candidate_tag }}
+      expanded_tags: ${{ needs.build.outputs.expanded_tags }}
+      openemr_version_ref: ${{ needs.build.outputs.openemr_version_ref }}
+      image_version: ${{ needs.build.outputs.image_version }}
+      build_date: ${{ needs.build.outputs.build_date }}
+    secrets: inherit
