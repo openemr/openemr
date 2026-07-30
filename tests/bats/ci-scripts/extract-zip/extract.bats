@@ -100,6 +100,24 @@ teardown() {
     [[ -z "$(ls -A "${DEST_DIR}")" ]]
 }
 
+@test "multi top-level entries with dot-prefixed sibling: rejected (nullglob+dotglob)" {
+    # Regression guard for the nullglob-alone bug: without `dotglob`,
+    # the single-root check ignored dot-prefixed top-level entries so
+    # `openemr-.../` + `.metadata` would pass with found=1 and
+    # `.metadata` would be silently dropped by the wrapper flatten.
+    mkdir -p "${STAGING_DIR}/openemr-8.2.0"
+    echo "x" >"${STAGING_DIR}/openemr-8.2.0/index.php"
+    echo "meta" >"${STAGING_DIR}/.metadata"
+    make_zip with-dotfile openemr-8.2.0 .metadata
+
+    run_extract "${ZIP_DIR}/with-dotfile.zip" "${DEST_DIR}" "extract-zip-test.XXXXXX" "test context"
+
+    [[ ${status} -ne 0 ]]
+    [[ "${output}" == *"expected exactly one top-level directory"* ]]
+    [[ "${output}" == *"found 2"* ]]
+    [[ -z "$(ls -A "${DEST_DIR}")" ]]
+}
+
 @test "top-level file (not directory) rejected" {
     # A zip containing a single top-level file (rather than a
     # directory) should fail the `-d "${zip_roots[0]}"` guard.

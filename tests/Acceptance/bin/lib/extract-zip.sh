@@ -102,9 +102,9 @@ extract_zip_flattening_single_top_level_dir() {
     # instead of a subtly-broken web root. Glob-based check avoids
     # find + process-substitution + shellcheck SC2312.
     local zip_roots
-    shopt -s nullglob
+    shopt -s nullglob dotglob
     zip_roots=("${zip_tmp}"/*)
-    shopt -u nullglob
+    shopt -u nullglob dotglob
     if [[ ${#zip_roots[@]} -ne 1 || ! -d "${zip_roots[0]}" ]]; then
         echo "::error::expected exactly one top-level directory in ${zip_path}, found ${#zip_roots[@]}:" >&2
         printf '  %s\n' "${zip_roots[@]}" >&2
