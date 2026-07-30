@@ -43,7 +43,8 @@ if (!empty($prow)) {
     $results = QueryUtils::fetchRecords("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
         " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", [$prow['pid']]);
     foreach ($results as $row) {
-        $date = \DateTimeImmutable::createFromFormat('Y-m-d', (string) $row['date']);
+        $dateString = substr((string) $row['date'], 0, 10);
+        $date = \DateTimeImmutable::createFromFormat('Y-m-d', $dateString);
         $enc_list[] = [
             'encounter' => $row['encounter'],
             'pc_catname' => xl_appt_category($row['pc_catname']),
