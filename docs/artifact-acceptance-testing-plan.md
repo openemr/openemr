@@ -1765,14 +1765,14 @@ drift-bug sources.
   where relevant.
 
 * **10g — Pin candidate image by digest through acceptance +
-  publish** *(proposed — deferred from #13279 rabbit round-3)*.
-  Today's docker publish path re-resolves the candidate tag at
-  publish time rather than pinning to the immutable digest returned
-  by build. Rabbit flagged this as a data-integrity gap: a retagged
-  image with matching OCI labels could pass acceptance-gate and then
-  be alias-published (attacker with `openemr/openemr` Docker Hub
-  write access; window is ~minutes on normal path, up to 48h on
-  Phase 9 recovery). Fix: `docker buildx imagetools inspect
+  publish** *(OPTIONAL — benefit unclear; deferred from #13279 rabbit
+  round-3)*. Today's docker publish path re-resolves the candidate
+  tag at publish time rather than pinning to the immutable digest
+  returned by build. Rabbit flagged this as a data-integrity gap: a
+  retagged image with matching OCI labels could pass acceptance-gate
+  and then be alias-published (attacker with `openemr/openemr`
+  Docker Hub write access; window is ~minutes on normal path, up to
+  48h on Phase 9 recovery). Fix: `docker buildx imagetools inspect
   ${CANDIDATE_TAG} --format '{{json .Manifest}}' | jq -r .digest`
   right after build; thread digest through as job output; publish
   and recovery both reference `openemr/openemr@sha256:${DIGEST}`
@@ -1780,16 +1780,30 @@ drift-bug sources.
   (`reusable-docker-publish.yml` + `docker-acceptance-only.yml`).
   Cost: moderate — untested for our multi-arch aliasing pattern
   (`imagetools create` semantics with digest refs need to be
-  verified). Deferred because threat model requires already-
-  compromised Docker Hub write access (attacker who has that can
-  push a NEW digest under any tag anyway) — marginal defense
-  against a self-signed-org-only surface. Worth the slice if it
-  becomes cheap; not blocking on its own.
+  verified).
+
+  **Why unclear if worth doing at all:** threat model requires
+  already-compromised Docker Hub write access on the openemr org.
+  An attacker at that level can push a NEW digest under any tag
+  anyway — including a "pinned" digest tag they retag over. So
+  digest-pinning defends against a self-signed-org-only tag-swap
+  window (minutes to 48h) but does not defend against the
+  compromised-credentials scenario that would let the tag-swap
+  happen in the first place. If the org-level Docker Hub creds are
+  intact, the current re-resolve path is already safe. If they're
+  compromised, digest-pinning doesn't stop the attacker. Net: the
+  bug rabbit flagged is real but the fix's marginal defense is
+  minimal, and the fix itself carries real cost (multi-arch
+  imagetools semantics with digest refs are untested for us). Skip
+  unless (a) the cost drops dramatically, (b) the threat model
+  changes (e.g. multi-org publishing), or (c) an incident shows the
+  window matters.
 
 **Sequencing suggestion:** 10a first (smallest, closes a deferred
 rabbit finding, no behavior change) — SHIPPED. 10c second (biggest
 ergonomic win — eliminates manual recovery steps) — SHIPPED. 10b +
-10d + 10e + 10f + 10g independent, pick as capacity allows.
+10d + 10e + 10f independent, pick as capacity allows. 10g is
+optional — do not do unless the cost/benefit shifts.
 
 **Not in Phase 10 scope:** anything that changes acceptance
 semantics or gate topology. This is refactoring-in-place. If a
