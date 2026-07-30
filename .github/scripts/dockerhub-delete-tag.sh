@@ -60,13 +60,20 @@ login_response_file=$(mktemp)
 trap 'rm -f "${login_response_file}"' EXIT
 
 echo "==> POST https://hub.docker.com/v2/users/login/"
+# Build the JSON body with jq so a `"` or `\` in the username or token
+# doesn't produce a malformed request. Piped via stdin so the raw token
+# never appears in argv (visible via `ps` for the curl call's lifetime).
+login_body=$(jq -n \
+    --arg u "${DOCKERHUB_USERNAME}" \
+    --arg p "${DOCKERHUB_TOKEN}" \
+    '{username: $u, password: $p}')
 curl_exit=0
 curl --connect-timeout 10 --max-time 30 -sS \
     -H 'Content-Type: application/json' \
     -X POST \
-    -d "{\"username\": \"${DOCKERHUB_USERNAME}\", \"password\": \"${DOCKERHUB_TOKEN}\"}" \
+    --data-binary @- \
     -o "${login_response_file}" \
-    https://hub.docker.com/v2/users/login/ || curl_exit=$?
+    https://hub.docker.com/v2/users/login/ <<< "${login_body}" || curl_exit=$?
 
 if [[ "${curl_exit}" -ne 0 ]]; then
     echo "::error::Docker Hub login request failed before receiving an HTTP response (DNS, TLS, timeout, or connection error). curl exit: ${curl_exit}"

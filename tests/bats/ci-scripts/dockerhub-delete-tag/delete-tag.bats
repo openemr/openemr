@@ -20,6 +20,26 @@
 
 load 'helpers'
 
+# Install jq if missing. The script under test uses jq to build the
+# login body (safe JSON escaping) and to parse the login response for
+# .token. GHA ubuntu-24.04 runners ship jq pre-installed. The
+# bats/bats:1.13.0 Alpine base image (natural way to iterate locally)
+# does not — same setup_file pattern extract-zip uses for `zip`. Runs
+# once per test file.
+setup_file() {
+    if ! command -v jq >/dev/null 2>&1; then
+        if command -v apk >/dev/null 2>&1; then
+            apk add --no-cache jq >/dev/null 2>&1 || true
+        elif command -v apt-get >/dev/null 2>&1; then
+            apt-get update >/dev/null 2>&1 && apt-get install -y jq >/dev/null 2>&1 || true
+        fi
+    fi
+    if ! command -v jq >/dev/null 2>&1; then
+        echo "# skip-reason: 'jq' binary not installable in this environment" >&3
+        skip "jq binary required to build/parse login JSON"
+    fi
+}
+
 setup() {
     setup_test_dir
 }

@@ -52,7 +52,7 @@ while [[ $# -gt 0 ]]; do
         -o) output_file="$2"; shift 2 ;;
         -w) write_format="$2"; shift 2 ;;
         -H) shift 2 ;;
-        -d|--data|--data-raw) shift 2 ;;
+        -d|--data|--data-raw|--data-binary) shift 2 ;;
         --connect-timeout|--max-time|--retry|--retry-delay) shift 2 ;;
         --retry-connrefused|-sS|-s|-S|-f) shift ;;
         http://*|https://*) url="$1"; shift ;;
@@ -68,7 +68,15 @@ fi
 # Route based on URL + method.
 case "${url}" in
     https://hub.docker.com/v2/users/login/)
-        # Login POST. Simulate a network failure if requested.
+        # Login POST. Guard: a regression that flips the login call to a
+        # different HTTP method would still match on URL alone; assert
+        # method here so the mock fails loudly instead of pretending to
+        # log in with a GET (or whatever).
+        if [[ "${method}" != "POST" ]]; then
+            echo "curl-mock: expected POST for login, got ${method}" >&2
+            exit 2
+        fi
+        # Simulate a network failure if requested.
         login_exit="${MOCK_LOGIN_EXIT:-0}"
         if [[ "${login_exit}" -ne 0 ]]; then
             exit "${login_exit}"
@@ -89,7 +97,12 @@ case "${url}" in
         exit 0
         ;;
     https://hub.docker.com/v2/repositories/*/tags/*/)
-        # DELETE tag. Same network-failure simulation hook.
+        # DELETE tag. Guard method the same way as login above.
+        if [[ "${method}" != "DELETE" ]]; then
+            echo "curl-mock: expected DELETE for tag route, got ${method}" >&2
+            exit 2
+        fi
+        # Same network-failure simulation hook.
         delete_exit="${MOCK_DELETE_EXIT:-0}"
         if [[ "${delete_exit}" -ne 0 ]]; then
             exit "${delete_exit}"
