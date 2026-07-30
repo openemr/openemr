@@ -63,8 +63,6 @@ if ($isStaticAnalysis) {
     require_once(__DIR__ . "/../library/sql.inc.php");
 }
 
-require_once(__DIR__ . "/../library/csv_like_join.php");
-
 $code_types = [];
 global $code_types;
 

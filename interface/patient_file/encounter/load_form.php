@@ -13,7 +13,6 @@
  */
 
 require_once("../../globals.php");
-require_once("../../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

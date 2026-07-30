@@ -39,7 +39,6 @@ if (!empty($_POST["form_pubpid"])) {
     }
 }
 
-require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 

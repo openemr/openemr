@@ -27,7 +27,6 @@ $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/csv_like_join.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

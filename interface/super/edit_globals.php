@@ -21,7 +21,6 @@
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/globals.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php");
 
 /** @var array<string,array<string,array<int,mixed>>> $GLOBALS_METADATA */
 /** @var list<string> $USER_SPECIFIC_GLOBALS */

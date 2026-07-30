@@ -27,7 +27,6 @@ use OpenEMR\BC\ServiceContainer;
 require_once("../library/patient.inc.php");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
-require_once "$srcdir/report_database.inc.php";
 require_once "qrda_functions.php";
 
 use OpenEMR\Common\Acl\AclMain;

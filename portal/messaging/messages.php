@@ -49,7 +49,6 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 $srcdir = $globalsBag->getString('srcdir');
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/classes/Document.class.php");
 require_once("./../lib/portal_mail.inc.php");
 
 if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {

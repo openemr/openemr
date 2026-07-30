@@ -12,7 +12,6 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;

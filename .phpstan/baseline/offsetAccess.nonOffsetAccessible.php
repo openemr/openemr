@@ -32287,26 +32287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'amc_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.amcCollect.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'object_category\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.amcCollect.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'object_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.amcCollect.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'patient_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.amcCollect.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'input\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.datetimepickerSupport.php',

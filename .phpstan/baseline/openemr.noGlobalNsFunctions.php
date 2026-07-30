@@ -3622,71 +3622,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/upload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function amcAdd may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcAddForce may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcCollect may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcComplete may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcCompleteSafe may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInComplete may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcInCompleteSafe may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcNoSoCProvided may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcRemove may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcSoCProvided may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function amcTrackingRequest may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function businessDaysDifference may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function processAmcCall may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/amc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function formDisappear may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/api.inc.php',
@@ -3890,26 +3825,6 @@ $ignoreErrors[] = [
     'message' => '#^Function start_X12_SFTP may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/billing_sftp_service.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getUserFacWH may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/calendar.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getUserFacilities may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/calendar.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function is_holiday may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/calendar.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function is_weekend_day may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/calendar.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function craGetTimestamps may not be defined in the global namespace\\.$#',
@@ -4185,31 +4100,6 @@ $ignoreErrors[] = [
     'message' => '#^Function contraception_billing_scan may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/contraception_billing_scan.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_like_join may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/csv_like_join.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_quote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/csv_like_join.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function maybe_csv_quote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/csv_like_join.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function need_csv_quote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/csv_like_join.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function split_csv_line may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/csv_like_join.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function listitemCode may not be defined in the global namespace\\.$#',
@@ -5042,16 +4932,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/globals.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function isGpRelation may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/gprelations.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function setGpRelation may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/gprelations.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getCounselors may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/group.inc.php',
@@ -5762,166 +5642,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patientvalidation.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function DistributionInsert may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/payment.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function frontPayment may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/payment.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function payment_row_delete may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/payment.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function payment_row_modify may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/payment.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function setpid may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pid.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addMailboxPnote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addPnote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function authorizePnote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function checkPnotesNoteId may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function checkPortalAuthUser may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deletePnote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function disappearPnote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getAssignedToById may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getMessageStatusById may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getPnoteById may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getPnotesByDate may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getPnotesByUser may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getSentPnotesByDate may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnoteConvertLinks may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function reappearPnote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnoteMessageStatus may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnotePatient may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormsByCategory may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getRegistered may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getRegistryEntry may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getRegistryEntryByDirectory may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getTherapyGroupCategories may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function installSQL may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function isRegistered may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function registerForm may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updateRegistered may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function patient_fetch_reminders may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
@@ -6050,66 +5770,6 @@ $ignoreErrors[] = [
     'message' => '#^Function printRecDataOne may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/report.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function beginReportDatabase may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function bookmarkReportDatabase may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function collectItemizedPatientsCdrReport may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function collectItemizedRuleDisplayTitle may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function collectReportDatabase may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function finishReportDatabase may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formatReportData may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getStatusReportDatabase may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function insertItemReportTracker may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function listingReportDatabase may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function setTotalItemsReportDatabase may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updateReportDatabase may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function smarty_function_amcCollect may not be defined in the global namespace\\.$#',
@@ -6480,66 +6140,6 @@ $ignoreErrors[] = [
     'message' => '#^Function saveAddressesForPatient may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/templates/address_save_handler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function authorizeTransaction may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/transactions.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getTransById may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/transactions.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getTransByPid may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/transactions.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function newTransaction may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/transactions.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function checkUserSetting may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function collectAndOrganizeExpandSetting may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function effectiveUser may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getUserIDInfo may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getUserSetting may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function prevSetting may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function removeUserSetting may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function setUserSetting may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function autoPopulateAllMissingUuids may not be defined in the global namespace\\.$#',

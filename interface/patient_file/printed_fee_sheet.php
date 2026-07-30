@@ -24,7 +24,6 @@ $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/appointments.inc.php");
 require_once($srcdir . "/patient.inc.php");
-require_once($srcdir . "/user.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;

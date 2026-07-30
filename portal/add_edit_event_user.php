@@ -29,8 +29,6 @@ require_once(__DIR__ . "/../vendor/autoload.php");
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
 
-require_once("./../library/pnotes.inc.php");
-
 //landing page definition -- where to go if something goes wrong
 $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
 //
