@@ -43,11 +43,19 @@ if (!empty($prow)) {
     $results = QueryUtils::fetchRecords("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
         " LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date DESC", [$prow['pid']]);
     foreach ($results as $row) {
-        $date = new DateTimeImmutable((string) $row['date']);
+        $value = (string) $row['date'];
+        $date = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $value)
+            ?: DateTimeImmutable::createFromFormat('Y-m-d', $value);
+
+        $errors = DateTimeImmutable::getLastErrors();
+
+        $valid = $date !== false
+            && ($errors === false || ($errors['warning_count'] === 0 && $errors['error_count'] === 0));
+
         $enc_list[] = [
             'encounter' => $row['encounter'],
             'pc_catname' => xl_appt_category($row['pc_catname']),
-            'date' => oeFormatShortDate($date->format('Y-m-d')),
+            'date' => $valid ? oeFormatShortDate($date->format('Y-m-d')) : '',
         ];
     }
 }
