@@ -13412,11 +13412,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/Runner/CommandRunner.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'PHP version needs…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \' \' and mixed results in an error\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',

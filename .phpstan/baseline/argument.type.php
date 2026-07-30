@@ -28877,11 +28877,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/ZfcModule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$version2 of function version_compare expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$algo of function hash_hkdf expects non\\-falsy\\-string, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',

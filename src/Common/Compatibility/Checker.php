@@ -16,7 +16,7 @@ namespace OpenEMR\Common\Compatibility;
  */
 class Checker
 {
-    private static $minimumPhpVersion = "8.3.0";
+    private static string $minimumPhpVersion = "8.3.0";
 
     /**
      * Checks to see if minimum PHP version is met.
