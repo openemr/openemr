@@ -70,7 +70,7 @@ class InstallerController extends AbstractActionController
             'listenerObject' => $this->listenerObject,
             'dependencyObject' => $this->InstallerTable,
             // TODO: @adunsulag there should be a way to pull this from application.config.php but so far the answer eludes me.
-            'coreModules' => ['Application', 'Acl', 'Installer', 'FHIR', 'PatientFlowBoard']
+            'coreModules' => ['Application', 'Acl', 'Installer', 'PatientFlowBoard']
         ]);
     }
 
@@ -88,7 +88,7 @@ class InstallerController extends AbstractActionController
         $baseModuleDir = OEGlobalsBag::getInstance()->get('baseModDir');
         $customDir = OEGlobalsBag::getInstance()->get('customModDir');
         $zendModDir = OEGlobalsBag::getInstance()->get('zendModDir');
-        $coreModules = ['Application', 'Acl', 'Installer', 'FHIR', 'PatientFlowBoard'];
+        $coreModules = ['Application', 'Acl', 'Installer', 'PatientFlowBoard'];
         $allModules = [];
 
         $result = $this->InstallerTable->allModules();

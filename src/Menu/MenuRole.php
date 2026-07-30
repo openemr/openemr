@@ -17,8 +17,6 @@
 
 namespace OpenEMR\Menu;
 
-require_once(__DIR__ . "/../../library/registry.inc.php");
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 

@@ -36,7 +36,6 @@ use OpenEMR\PaymentProcessing\Recorder;
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/options.inc.php');
-require_once($srcDir . '/payment.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $CountIndexAbove = 0;

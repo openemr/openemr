@@ -28,7 +28,6 @@ require_once(__DIR__ . "/../../library/RsFilterIF.php");
 require_once('AmcFilterIF.php');
 require_once('IAmcItemizedReport.php');
 require_once(__DIR__ . "/../../../../clinical_rules.php");
-require_once(__DIR__ . "/../../../../amc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;

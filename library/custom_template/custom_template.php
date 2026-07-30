@@ -29,7 +29,6 @@
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;

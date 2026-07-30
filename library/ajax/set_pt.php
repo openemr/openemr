@@ -13,7 +13,6 @@
  */
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/pid.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -24,7 +23,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-if (in_array("set_pid", $_GET, true) && !empty($_GET["set_pid"]) && ($_GET["set_pid"] != $session->get('pid'))) {
+if (!empty($_GET['set_pid']) && ($_GET["set_pid"] != $session->get('pid'))) {
     // The only live caller of this branch is the Messages Center document-attach
     // flow in interface/main/messages/templates/linked_documents.php, which
     // requires patients/docs. Widen if future callers legitimately need it.

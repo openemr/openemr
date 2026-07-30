@@ -30,7 +30,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/encounter.inc.php");
 require_once($srcdir . "/group.inc.php");
 require_once($srcdir . "/patient.inc.php");
-require_once($srcdir . "/amc.php");
 require_once($srcdir . '/ESign/Api.php');
 require_once($srcdir . "/../controllers/C_Document.class.php");
 
@@ -528,8 +527,6 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 <body>
 <nav>
     <?php //DYNAMIC FORM RETRIEVAL
-    require_once($srcdir . "/registry.inc.php");
-
     $reg = getFormsByCategory();
     $old_category = '';
     $DivId = 1;

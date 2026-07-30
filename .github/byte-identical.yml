@@ -74,6 +74,19 @@
 #                                                  dead weight
 #   .github/scripts/sync-byte-identical.sh         same rationale as the
 #                                                  workflow above
+#   .github/workflows/acceptance-only.yml          master-only-firing per its
+#                                                  own `if: github.ref ==
+#                                                  'refs/heads/master'` guard
+#                                                  (Phase 9 recovery workflow;
+#                                                  dispatch from a rel branch
+#                                                  would defeat the master-
+#                                                  freshest-harness intent).
+#                                                  No rel-branch copy needed.
+#   .github/workflows/docker-acceptance-only.yml   same rationale as the
+#                                                  workflow above (Phase 10c
+#                                                  docker-side recovery
+#                                                  workflow, same master-ref
+#                                                  guard, same design intent).
 #   .github/workflows/check-vendored-contracts.yml master-only-firing
 #                                                  (workflow_call reusable
 #                                                  invoked by external
@@ -119,6 +132,26 @@ files:
 # and need a manual cherry-pick if they matter for rel-800/rel-704.
 # Same trade-off already accepted for acceptance-docker.yml itself.
 - path: .github/workflows/docker-build-release.yml
+  exclude-branches: [rel-800, rel-704]
+# verify-oci-labels.sh is called from docker-build-release.yml in three
+# places; same rel-800/rel-704 exclusion applies (those branches don't
+# carry the caller workflow — see the docker-build-release.yml entry
+# above for the load-time reusable-workflow-reference constraint).
+- path: .github/scripts/verify-oci-labels.sh
+  exclude-branches: [rel-800, rel-704]
+# Phase 10c (openemr/openemr#TBD, 2026-07-30): expand-docker-tags.sh is
+# called from docker-build-release.yml's `expand_docker_tags` step;
+# same rel-800/rel-704 exclusion applies (those branches don't carry
+# the caller workflow — see the docker-build-release.yml entry above
+# for the load-time reusable-workflow-reference constraint).
+- path: .github/scripts/expand-docker-tags.sh
+  exclude-branches: [rel-800, rel-704]
+# Phase 10c (openemr/openemr#TBD, 2026-07-30): reusable-docker-publish.yml
+# is called via `uses: ./.github/workflows/reusable-docker-publish.yml`
+# from docker-build-release.yml (gated path) — same reusable-workflow-
+# reference load-time constraint as docker-build-release.yml itself.
+# Same rel-800/rel-704 exclusion applies.
+- path: .github/workflows/reusable-docker-publish.yml
   exclude-branches: [rel-800, rel-704]
 - .github/workflows/docker-test-core.yml
 - .github/workflows/docker-test-release.yml
@@ -172,9 +205,30 @@ files:
   # `uses: ./.github/workflows/acceptance-package.yml` reference
   # from build-release.yml resolves cleanly on rel-820.
   exclude-branches: [rel-800, rel-704]
+# Phase 10c (openemr/openemr#TBD, 2026-07-30): reusable-publish-release.yml
+# is called via `uses: ./.github/workflows/reusable-publish-release.yml`
+# from build-release.yml — GitHub Actions parses reusable-workflow
+# references at workflow-dispatch time against the target branch's
+# checkout, so the reusable must exist on every branch build-release.yml
+# can fire from. Same rel-800/rel-704 exclusion applies for the same
+# reason (those branches predate the release-mechanism entirely).
+- path: .github/workflows/reusable-publish-release.yml
+  exclude-branches: [rel-800, rel-704]
 - path: .github/workflows/build-patch.yml
   exclude-branches: [rel-800, rel-704]
 - path: .github/actions/setup-php-composer/action.yml
+  exclude-branches: [rel-800, rel-704]
+# Phase 10b (openemr/openemr#TBD, 2026-07-30): generate-app-token
+# is called via `uses: ./.github/actions/generate-app-token`
+# from build-release.yml, release-prep.yml, build-patch.yml, patch-prep-
+# automation.yml, branch-cut-automation.yml, release-permissions-check.yml,
+# and reusable-publish-release.yml -- all of which are in this block
+# with the same rel-800/rel-704 exclusion. Composite paths resolve
+# against the workflow's local checkout at step-load time, so the
+# action.yml must exist on every branch the caller workflows can fire
+# from. rel-800/rel-704 excluded for the same reason the callers are
+# (those branches predate the release mechanism entirely).
+- path: .github/actions/generate-app-token/**
   exclude-branches: [rel-800, rel-704]
 - path: .github/PULL_REQUEST_TEMPLATE/release-prep.md
   exclude-branches: [rel-800, rel-704]
@@ -220,6 +274,16 @@ files:
 - path: .github/docker/acceptance-docker-compose.yml
   exclude-branches: [rel-800, rel-704]
 - path: .github/docker/acceptance-package-compose.yml
+  exclude-branches: [rel-800, rel-704]
+# Composite action used from acceptance-docker.yml (Phase 7d-1 arm64
+# ChromeDriver setup fix). Referenced via `uses: ./.github/actions/
+# setup-chromedriver-multiarch` — GitHub Actions resolves that path
+# against the workflow's checkout at dispatch time, so the action.yml
+# must exist on every branch that carries acceptance-docker.yml.
+# Excluded from rel-800 + rel-704 for the same reason acceptance-
+# docker.yml is: those branches don't carry the caller workflow, so
+# they don't need the callee action either.
+- path: .github/actions/setup-chromedriver-multiarch/**
   exclude-branches: [rel-800, rel-704]
 - path: tests/Acceptance/**
   exclude-branches: [rel-800, rel-704]

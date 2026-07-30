@@ -239,8 +239,6 @@ class AclExtended
 
         //see if this user is gacl protected (ie. do not allow
         //removal from the Administrators group)
-        require_once(__DIR__ . '/../../../library/user.inc.php');
-
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
         $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin";

@@ -13,7 +13,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\ZendModules\FHIR\Listener;
+namespace OpenEMR\Services\FHIR\Subscriber;
 
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
@@ -51,10 +51,6 @@ class UuidMappingEventsSubscriber implements EventSubscriberInterface
      * @var array Holds the cached resource paths for patient data observation records
      */
     private array $fhirPatientDataObservationResourcePaths = [];
-
-    public function __construct()
-    {
-    }
 
     public static function getSubscribedEvents()
     {

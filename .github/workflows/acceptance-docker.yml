@@ -93,11 +93,6 @@ on:
         required: false
         type: string
         default: 'next'
-      test_arm64:
-        description: 'Also run every matrix scenario on ubuntu-24.04-arm runners (Phase 7c-docker latest-gate uses this to cover the arm64 slice of the multi-arch candidate manifest, since the runner arch decides which slice `docker pull` fetches). Doubles matrix breadth; leave false for push/PR/schedule paths where the arm64 signal is not worth the runner-minutes.'
-        required: false
-        type: boolean
-        default: false
   push:
     paths:
     - '.github/workflows/acceptance-docker.yml'
@@ -212,19 +207,47 @@ jobs:
   # Build the target image from the PR's docker/release/Dockerfile.
   # Runs only when detect-mode resolved build_locally=true.
   #
-  # Output: openemr/openemr:pr-built loaded from a workflow-artifact
-  # tarball. Each acceptance matrix job downloads + loads the image
-  # locally, so nothing is pushed to Docker Hub (or GHCR) — the
-  # build is self-contained to this workflow run.
+  # Output: openemr/openemr:pr-built loaded from a per-arch
+  # workflow-artifact tarball. Each acceptance matrix job downloads
+  # + loads the image locally, so nothing is pushed to Docker Hub
+  # (or GHCR) — the build is self-contained to this workflow run.
+  #
+  # Matrix on `runs_on` so arm64 gets its own native build (Phase
+  # 7d-2 as-shipped). Two parallel single-arch native builds
+  # (amd64 on ubuntu-24.04, arm64 on ubuntu-24.04-arm) instead of a
+  # single multi-arch build on amd64 because native builds skip QEMU
+  # emulation (arm64 under emulation is ~10x slower than native) and
+  # each produces its own arch-specific artifact for the arch-matched
+  # acceptance job downstream. Both runner types are free for public
+  # repos — no gate.
   build-image:
     needs: [detect-mode]
     if: needs.detect-mode.outputs.build_locally == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runs_on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runs_on: [ubuntu-24.04, ubuntu-24.04-arm]
+    name: build-image (${{ matrix.runs_on }})
     steps:
     - uses: actions/checkout@v7
       with:
         # No git ops after checkout (docker build only).
         persist-credentials: false
+
+    - name: Compute arch label
+      # Convert the runs_on runner ref to a stable "amd64" / "arm64"
+      # label. Used both in the artifact name (so per-arch uploads
+      # don't collide) and in the tag (harmless local suffix that
+      # makes docker save output identifiable in per-arch logs).
+      id: arch
+      shell: bash
+      run: |
+        case "$(uname -m)" in
+          x86_64)  echo "label=amd64" >> "$GITHUB_OUTPUT" ;;
+          aarch64) echo "label=arm64" >> "$GITHUB_OUTPUT" ;;
+          *) echo "::error::unsupported runner arch $(uname -m)"; exit 1 ;;
+        esac
 
     - name: Build target image from PR Dockerfile
       # Uses the Dockerfile's default OPENEMR_VERSION=master, so the
@@ -251,7 +274,10 @@ jobs:
 
     - uses: actions/upload-artifact@v7
       with:
-        name: openemr-pr-built-image
+        # Per-arch artifact name so amd64 + arm64 uploads coexist
+        # without stomping each other. Acceptance job's download step
+        # picks the one matching its runner arch.
+        name: openemr-pr-built-image-${{ steps.arch.outputs.label }}
         path: /tmp/openemr-pr-built.tar.zst
         retention-days: 1
         compression-level: 0  # Already zstd-compressed; skip re-compress
@@ -274,11 +300,12 @@ jobs:
       # installer broken" from "upgrade path broken" (different code).
       fail-fast: false
       matrix:
-        # Runner-arch dimension: workflow_call sets test_arm64=true (Phase
-        # 7c-docker latest-gate) so the matrix expands to both amd64 and
-        # arm64 slices of the candidate manifest. Every other invocation
-        # (push/PR/schedule) stays amd64-only.
-        runs_on: ${{ inputs.test_arm64 && fromJson('["ubuntu-24.04", "ubuntu-24.04-arm"]') || fromJson('["ubuntu-24.04"]') }}
+        # Runner-arch dimension: always both amd64 + arm64. GitHub
+        # arm64 runners (ubuntu-24.04-arm) are free for public repos,
+        # so the ambient arm64 signal on push/PR/schedule is worth
+        # having by default. Every trigger of this workflow exercises
+        # both platform slices.
+        runs_on: [ubuntu-24.04, ubuntu-24.04-arm]
         # Scenario dimension. Cartesian-multiplied with runs_on; each
         # cell picks up its scenario-specific description/image_tag/
         # test_group from the include block below.
@@ -324,12 +351,25 @@ jobs:
         # credential exposure surface.
         persist-credentials: false
 
-    # ==== Phase 2.5: load PR-built image + resolve effective tags ====
-    - name: Download PR-built image (if build-image ran)
+    # ==== Phase 2.5 (+ Phase 7d-2 arm64 dimension): load PR-built image ====
+    - name: Compute arch label
+      # Per-arch artifact naming (Phase 7d-2): amd64 runners pick the
+      # amd64 tarball, arm64 runners pick the arm64 tarball, so each
+      # acceptance cell loads the image slice matching its own runner.
+      id: arch
+      shell: bash
+      run: |
+        case "$(uname -m)" in
+          x86_64)  echo "label=amd64" >> "$GITHUB_OUTPUT" ;;
+          aarch64) echo "label=arm64" >> "$GITHUB_OUTPUT" ;;
+          *) echo "::error::unsupported runner arch $(uname -m)"; exit 1 ;;
+        esac
+
+    - name: Download PR-built image (if build-image ran, arch-matched)
       if: needs.build-image.result == 'success'
       uses: actions/download-artifact@v8
       with:
-        name: openemr-pr-built-image
+        name: openemr-pr-built-image-${{ steps.arch.outputs.label }}
         path: /tmp
 
     - name: Load PR-built image into docker (if downloaded)
@@ -398,22 +438,27 @@ jobs:
         # but naming them keeps failure modes obvious).
         extensions: curl, dom, mbstring, tokenizer, xml
 
-    # ChromeDriver for the E2eCriticalPathTest — Panther launches a
-    # headless subprocess Chrome bound to the mapped artifact port.
-    # ubuntu-24.04 runners ship with google-chrome pre-installed
-    # (/opt/google/chrome/chrome); nanasess/setup-chromedriver@v2
-    # detects that version and installs the exactly-matching
-    # ChromeDriver from Chrome-for-Testing so Panther's
-    # driver-version-detection succeeds.
+    # Chrome + ChromeDriver for Panther-driven acceptance tests.
+    # Composite action delegates by runner arch (see the action's
+    # own comment header for the full source-choice rationale):
     #
-    # Do NOT swap this for browser-actions/setup-chrome@v1 with
-    # install-chromedriver: true — that action pulls Chrome from
-    # Google's Linux repo and ChromeDriver from CfT with independent
-    # release cadences, and drifts a mismatched pair through
-    # (Chrome 150 + ChromeDriver 151 was the concrete example that
-    # first bit this test).
+    #   amd64 — nanasess/setup-chromedriver@v2 reads the runner's
+    #   pre-installed google-chrome and installs the matching
+    #   ChromeDriver from Chrome for Testing. Do NOT swap this for
+    #   browser-actions/setup-chrome@v2 — that action pulls Chrome
+    #   and ChromeDriver from independent release channels and drifts
+    #   a mismatched pair through (Chrome 150 + ChromeDriver 151 was
+    #   the concrete example that first bit this test). Also it
+    #   still marks Linux ARM64 unsupported as of v2.1.2 (2026-05).
+    #
+    #   arm64 — xtradeb PPA chromium + chromium-driver install.
+    #   Google Chrome has no arm64 deb (Google's apt repo is
+    #   amd64-only) and Chrome for Testing hasn't shipped a
+    #   linux-arm64 platform variant yet (crbug/374811603 open).
+    #   xtradeb ships browser + driver as a matched-pair version,
+    #   eliminating the drift risk.
     - name: Set up matching ChromeDriver for Panther-driven acceptance tests
-      uses: nanasess/setup-chromedriver@v2
+      uses: ./.github/actions/setup-chromedriver-multiarch
 
     - name: Install acceptance-suite composer dependencies
       # `--no-scripts` skips OpenEMR's post-install scripts (they assume

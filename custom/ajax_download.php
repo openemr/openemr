@@ -14,7 +14,6 @@
  */
 
 require_once("../interface/globals.php");
-require_once("$srcdir/report_database.inc.php");
 require_once("qrda_category1_functions.php");
 require_once("qrda_category1.inc.php");
 require_once("qrda_functions.php");

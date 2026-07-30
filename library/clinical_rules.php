@@ -19,7 +19,6 @@
 require_once(__DIR__ . "/patient.inc.php");
 require_once(__DIR__ . "/forms.inc.php");
 require_once(__DIR__ . "/options.inc.php");
-require_once(__DIR__ . "/report_database.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
