@@ -1695,30 +1695,38 @@ drift-bug sources.
   `.github/actions/generate-release-app-token/action.yml` cuts each
   callsite to 1 line. Small (~half day).
 
-* **10c — Extract release publish flow + automate Phase 9 recovery.**
-  Two entangled concerns:
-    * `build-release.yml`'s `publish` job (~100 lines: app token +
-      checkout + download-artifact + tag + release + upload + Phase
-      7b sha256 verify + summary) is the primary user of the publish
-      path today.
-    * Phase 9's `acceptance-only.yml` currently STOPS at green
-      acceptance-gate — operator manually re-fires publish. Direct
-      duplication of build-release.yml's publish job into
-      acceptance-only.yml would eliminate the manual step but bake
-      in ~100 lines of duplicate publish logic.
-    * **Better**: extract publish to a reusable workflow
-      (`.github/workflows/reusable-publish-release.yml`) that both
-      build-release.yml and acceptance-only.yml call via `uses:`.
-      Single source of truth; both callers stay thin.
-    * Same treatment for the docker side: extract docker-build-
-      release.yml's `publish` + `cleanup-candidate` jobs into a
-      reusable, then a new `docker-acceptance-only.yml` gives
-      operators fully-automated docker recovery too (currently
-      docker recovery still requires manual `docker buildx
-      imagetools create` + manual candidate delete).
-    * Cost: moderate (~2-3 days total), moderate risk (touches
-      release-critical publish paths). But eliminates all remaining
-      Phase 9 manual steps.
+* **10c — Extract release publish flow + automate Phase 9 recovery —
+  SHIPPED 2026-07-30 as #13279.** Both prongs landed:
+    * Tarball: `build-release.yml`'s inline publish job replaced with
+      `uses: ./.github/workflows/reusable-publish-release.yml`;
+      `acceptance-only.yml` gained a `publish` job calling the same
+      reusable — Phase 9 fast re-run now auto-publishes on green,
+      no manual step.
+    * Docker: `docker-build-release.yml`'s publish + cleanup-
+      candidate jobs replaced with a single call to
+      `reusable-docker-publish.yml`; new `docker-acceptance-only.yml`
+      gives operators the same fast-recovery ergonomics for docker
+      (aliases candidate → final tags via imagetools, cleans up
+      candidate) with no manual `imagetools create` / candidate
+      delete.
+    * Also extracted `expand-docker-tags.sh` (env contract:
+      INPUT_TAGS + BUILD_DATE) so tag-expansion logic isn't
+      duplicated between docker-build-release.yml and
+      docker-acceptance-only.yml. New BATS suite at
+      `tests/bats/ci-scripts/expand-docker-tags/` (16 tests).
+    * Guardrails on docker-acceptance-only.yml: master-ref only;
+      source-run must be docker-build-release.yml workflow; source
+      run <48h old; supplied `candidate_tag` must match the source
+      run's expected `release-candidate-${run_id}-${run_attempt}`
+      format (rabbit round-2 major fix — prevents alias-publishing
+      an unrelated candidate under final tags). Docker Hub curls
+      bounded (`--connect-timeout 10 --max-time 30`).
+    * Verify-step in docker-acceptance-only.yml degenerates to
+      "labels preserved through alias" smoke check — accepted as
+      correct for recovery context (build-time verify in
+      docker-build-release.yml already caught Dockerfile-ARG
+      regressions before the candidate reached Docker Hub).
+      Recovery-context comment documents the trade-off inline.
 
 * **10d — Extract common ZIP-extract helper for boot/upgrade
   scripts.** `boot-package.sh` and `upgrade-package.sh` have
@@ -1756,10 +1764,32 @@ drift-bug sources.
   cross-referencing this plan doc's phase entries from the runbook
   where relevant.
 
+* **10g — Pin candidate image by digest through acceptance +
+  publish** *(proposed — deferred from #13279 rabbit round-3)*.
+  Today's docker publish path re-resolves the candidate tag at
+  publish time rather than pinning to the immutable digest returned
+  by build. Rabbit flagged this as a data-integrity gap: a retagged
+  image with matching OCI labels could pass acceptance-gate and then
+  be alias-published (attacker with `openemr/openemr` Docker Hub
+  write access; window is ~minutes on normal path, up to 48h on
+  Phase 9 recovery). Fix: `docker buildx imagetools inspect
+  ${CANDIDATE_TAG} --format '{{json .Manifest}}' | jq -r .digest`
+  right after build; thread digest through as job output; publish
+  and recovery both reference `openemr/openemr@sha256:${DIGEST}`
+  instead of tag. Two callsites to update
+  (`reusable-docker-publish.yml` + `docker-acceptance-only.yml`).
+  Cost: moderate — untested for our multi-arch aliasing pattern
+  (`imagetools create` semantics with digest refs need to be
+  verified). Deferred because threat model requires already-
+  compromised Docker Hub write access (attacker who has that can
+  push a NEW digest under any tag anyway) — marginal defense
+  against a self-signed-org-only surface. Worth the slice if it
+  becomes cheap; not blocking on its own.
+
 **Sequencing suggestion:** 10a first (smallest, closes a deferred
-rabbit finding, no behavior change). 10c second (biggest ergonomic
-win — eliminates manual recovery steps). 10b + 10d + 10e + 10f
-independent, pick as capacity allows.
+rabbit finding, no behavior change) — SHIPPED. 10c second (biggest
+ergonomic win — eliminates manual recovery steps) — SHIPPED. 10b +
+10d + 10e + 10f + 10g independent, pick as capacity allows.
 
 **Not in Phase 10 scope:** anything that changes acceptance
 semantics or gate topology. This is refactoring-in-place. If a
@@ -2777,3 +2807,52 @@ in acceptance."
   step is operationally minor (no release-time flake has hit
   us yet, Phase 9 is preventive); refactor gets clean design
   space in a dedicated PR rather than growing in-flight scope.
+
+- **2026-07-30 — Phase 10a + 10c SHIPPED (#13274 + #13279).**
+  Two-thirds of Phase 10's ergonomic + duplication payoff landed
+  the same week Phase 9 shipped.
+
+    * **10a (#13274)** consolidated the 3 OCI-label verify
+      copies in docker-build-release.yml into a single script
+      + 16-test BATS suite. No behavior change.
+
+    * **10c (#13279)** extracted 3 reusable pieces —
+      reusable-publish-release.yml (tarball), reusable-docker-
+      publish.yml (docker publish + cleanup-candidate),
+      expand-docker-tags.sh — and stood up docker-acceptance-
+      only.yml so operators now have zero-manual-step recovery
+      for both tarball AND docker paths. Rabbit round-1 delivered
+      3 tightenings applied inline (set -euo pipefail on 2 publish
+      steps, extracted expand-docker-tags helper, timeouts on
+      reusable-docker-publish.yml). Rabbit round-2 delivered 1
+      Major + 1 Minor also applied inline (candidate_tag binding
+      check derives expected `release-candidate-${run_id}-
+      ${run_attempt}` from source-run metadata and rejects
+      mismatches — closes an alias-publish-unrelated-image gap;
+      Docker Hub curls now bounded with `--connect-timeout 10
+      --max-time 30`). Rabbit round-3 raised digest-pinning
+      (Major, Heavy lift) — deferred as new Phase 10g since the
+      threat model requires pre-existing Docker Hub compromise
+      (attacker at that level can push a NEW digest under any
+      tag anyway) and the fix touches multi-arch imagetools
+      semantics that need dedicated design.
+
+    * **Verify-context trade-off in docker-acceptance-only.yml**:
+      auto-derives openemr_version_ref/image_version/build_date
+      from `docker inspect` of the candidate rather than reading
+      them from the source run's workflow_dispatch inputs
+      (GitHub API doesn't expose either job outputs or dispatch
+      inputs after the fact). Verify degenerates to "labels
+      preserved through alias" smoke — accepted because
+      docker-build-release.yml's build-time verify already caught
+      any Dockerfile-ARG regression before the candidate reached
+      Docker Hub. Recovery-context comment inline documents the
+      call.
+
+    * **Post-10c state**: Phase 10b/10d/10e/10f/10g remain
+      independent slices; none block a release cycle. 10e also
+      picked up a portable-mktemp helpers.bash cleanup bullet
+      (BusyBox mktemp rejects the `-t <template>` form the 4
+      current BATS suites use — CI runs on GNU mktemp so it's
+      not a regression, only bites local devs on bats/bats
+      Alpine image).
