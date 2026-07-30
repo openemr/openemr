@@ -1775,15 +1775,18 @@ drift-bug sources.
   (portable-mktemp) IN FLIGHT as #13292; audit DONE 2026-07-30;
   slices 2-6 planned as follow-up work.
 
-  * **10e-1 — Portable-mktemp helpers cleanup — IN FLIGHT as #13292.**
-    Switches the 5 remaining BATS suites' `setup_test_dir` from
-    `mktemp -d -t <template>` (GNU-only) to the portable `mktemp -d`
-    form already used by extract-zip's helpers. Unblocks the
-    `bats/bats:1.13.0` Alpine image for local iteration (CI on
-    ubuntu-24.04 was unaffected; issue is local-only). Not
+  * **10e-1 — Portable-mktemp helpers cleanup — SHIPPED 2026-07-30
+    as #13292.** Switched the 5 remaining BATS suites' `setup_test_dir`
+    from `mktemp -d -t <template>` (GNU-only) to the portable
+    `mktemp -d` form already used by extract-zip's helpers. Unblocks
+    the `bats/bats:1.13.0` Alpine image for local iteration (CI on
+    ubuntu-24.04 was unaffected; issue was local-only). Not
     sufficient for full Alpine runnability — some suites still need
     yq or git that Alpine doesn't ship; called out as separate
-    follow-up if local Alpine iteration becomes routine.
+    follow-up if local Alpine iteration becomes routine (post-fix
+    state: 3 of 6 suites fully clean in Alpine, 3 have deeper dep
+    gaps — `sync-byte-identical` needs git, `validate-byte-identical`
+    test 16 + `list-manifest-paths` test 10 need yq).
 
   * **10e-audit — Release-mechanism BATS coverage audit — DONE
     2026-07-30.** Systematic enumeration of everything currently
@@ -1939,7 +1942,7 @@ drift-bug sources.
 rabbit finding, no behavior change) — SHIPPED. 10c second (biggest
 ergonomic win — eliminates manual recovery steps) — SHIPPED. 10b +
 10d + 10f shipped together in parallel — SHIPPED 2026-07-30. 10e
-now sub-sliced: 10e-1 (portable-mktemp) IN FLIGHT as #13292;
+now sub-sliced: 10e-1 (portable-mktemp) SHIPPED as #13292;
 10e-audit DONE 2026-07-30; 10e-2 through 10e-6 planned as ranked
 follow-ups (10e-2 acceptance-only guardrails first, 10e-3 docker-
 publish JWT cleanup second, 10e-4 detect-mode extract third — all
