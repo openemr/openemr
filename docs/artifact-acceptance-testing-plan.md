@@ -1688,12 +1688,29 @@ drift-bug sources.
   (belt-and-suspenders — publish uses its own app-token for gh
   commands, doesn't need persisted GITHUB_TOKEN in .git/config).
 
-* **10b — Extract app-token composite action.** `actions/create-
-  github-app-token@v3` step repeated verbatim in `build-release.yml`
-  (2×: build-package + publish), `release-prep.yml`, and elsewhere.
-  Each site is ~10 lines (uses + inputs). Composite action at
-  `.github/actions/generate-release-app-token/action.yml` cuts each
-  callsite to 1 line. Small (~half day).
+* **10b — Extract app-token composite action — SHIPPED 2026-07-30 as
+  #13287.** Wound up much larger than the plan-doc estimate: whole-
+  tree sweep found **14 callsites across 13 workflows** (not the ~3
+  originally scoped). Composite lives at
+  `.github/actions/generate-app-token/action.yml` (renamed from
+  the original `generate-release-app-token` after enumeration
+  showed non-release apps also using it). Three apps ride the same
+  composite: RELEASE_APP (11 callers — build/publish/prep/patch/
+  amendment/branch-cut/ship/sync-byte-identical/notify/permissions-
+  check/reusable-publish), AUTO_MERGE_APP (dependabot-auto-merge),
+  RESERVED_WORD_BOT (refresh-reserved-word-supplement). Composite
+  is app-agnostic (client-id + private-key inputs forwarded to
+  `actions/create-github-app-token@v3`). Two design points landed
+  as-is: (a) 8 workflows minted the token BEFORE any checkout, so
+  those got a lean `sparse-checkout: .github/actions/generate-app-
+  token` prepended (persist-credentials: false); subsequent full
+  checkouts overwrite transparently. (b) `.github/actions/generate-
+  app-token/**` added to byte-identical.yml with same rel-800/
+  rel-704 exclusion as the 7 caller workflows already in that
+  block. Dependabot's github-actions ecosystem scans composite
+  action.yml files (per config `directory: /`), so future
+  create-github-app-token version bumps get a single PR against
+  the composite instead of 14 workflow PRs.
 
 * **10c — Extract release publish flow + automate Phase 9 recovery —
   SHIPPED 2026-07-30 as #13279.** Both prongs landed:
@@ -1728,13 +1745,31 @@ drift-bug sources.
       regressions before the candidate reached Docker Hub).
       Recovery-context comment documents the trade-off inline.
 
-* **10d — Extract common ZIP-extract helper for boot/upgrade
-  scripts.** `boot-package.sh` and `upgrade-package.sh` have
-  near-identical zip extract branches (mktemp + unzip + nullglob
-  single-top-level + mv). Small helper at
-  `tests/Acceptance/bin/lib/extract-zip.sh` (or a bash function
-  sourced by both). ~30 lines duplicated → shared. Small (~few
-  hours).
+* **10d — Extract common ZIP-extract helper for boot/upgrade scripts
+  — SHIPPED 2026-07-30 as #13286.** Helper at
+  `tests/Acceptance/bin/lib/extract-zip.sh` exposes
+  `extract_zip_flattening_single_top_level_dir <zip> <dest>
+  <mktemp_template> <error_context>`; both callers now delegate.
+  Behavior-preserving — same unzip PATH guard, same nullglob
+  single-top-level enforcement, same EXIT-trap cleanup ordering,
+  same `::error::` message shapes. Callers pass their own template
+  prefix + context noun so diagnostics stay flag-accurate
+  ("--local-zip" vs "--to-local-zip"). New 16-test BATS suite at
+  `tests/bats/ci-scripts/extract-zip/`, wired into
+  test-byte-identical-scripts.yml. Rabbit iterated 3 rounds; ended
+  up applying: dotglob addition to catch dot-prefixed top-level
+  entries (rabbit round-1, edge case for a zip containing
+  `.metadata` alongside the wrapper dir); shopt-state
+  preservation via `shopt -p ... eval` for sourced-helper hygiene
+  plus skip-mv-when-empty for the empty-top-level-dir case (rabbit
+  round-2, real edge case); `mv ... || exit 1` for portable
+  failure propagation independent of caller set -e (rabbit
+  round-3). Rejected: rabbit round-2 EXIT-trap-clobber concern
+  (docstring already addressed — local-zip branch has no caller
+  trap) and unzip-exit-status concern (`set -euo pipefail` in
+  callers already handles). No new byte-identical entry needed —
+  helper lives under `tests/Acceptance/**` glob so auto-syncs
+  to rel-810/rel-820 alongside callers.
 
 * **10e — BATS coverage audit + fill gaps.** Systematic pass:
     * Enumerate every shell script + composite action + workflow
@@ -1758,11 +1793,17 @@ drift-bug sources.
       all 4 suites' helpers. Noted 2026-07-30 while shipping
       Phase 10c's expand-docker-tags suite.
 
-* **10f — Doc audit.** RELEASE_PROCESS.md's recovery paragraphs now
-  reference multiple workflows and manual fallbacks; after 10c the
-  manual fallbacks go away and the doc can simplify. Also worth
-  cross-referencing this plan doc's phase entries from the runbook
-  where relevant.
+* **10f — Doc audit — SHIPPED 2026-07-30 as #13285.** Smaller than
+  scoped: Phase 9 (#13272) and Phase 10c (#13279) each shipped their
+  own RELEASE_PROCESS.md updates alongside the workflow work, so the
+  "manual re-publish" / "hand-run imagetools" language was already
+  gone. 10f's load-bearing edits were plan-doc cross-references from
+  the runbook (Steps 10 + 12) and one redundant sentence removal.
+  Doc is not in `.github/byte-identical.yml` so no rel-branch
+  exclusions needed. Known artifact: cross-references to
+  `docs/artifact-acceptance-testing-plan.md` will 404 on GitHub's
+  web view until this doc's long-lived PR lands; in-repo relative
+  links work for anyone with a clone. Accepted per Brady 2026-07-30.
 
 * **10g — Pin candidate image by digest through acceptance +
   publish** *(OPTIONAL — benefit unclear; deferred from #13279 rabbit
@@ -1802,8 +1843,11 @@ drift-bug sources.
 **Sequencing suggestion:** 10a first (smallest, closes a deferred
 rabbit finding, no behavior change) — SHIPPED. 10c second (biggest
 ergonomic win — eliminates manual recovery steps) — SHIPPED. 10b +
-10d + 10e + 10f independent, pick as capacity allows. 10g is
-optional — do not do unless the cost/benefit shifts.
+10d + 10f shipped together in parallel — SHIPPED 2026-07-30. Only
+10e (BATS coverage audit + portable-mktemp helpers cleanup) remains;
+scope shrunk since 10c/10d each added new BATS suites covering
+some of the priority-fill list. 10g is optional — do not do unless
+the cost/benefit shifts.
 
 **Not in Phase 10 scope:** anything that changes acceptance
 semantics or gate topology. This is refactoring-in-place. If a
@@ -2870,3 +2914,51 @@ in acceptance."
       current BATS suites use — CI runs on GNU mktemp so it's
       not a regression, only bites local devs on bats/bats
       Alpine image).
+
+- **2026-07-30 (later) — Phase 10b + 10d + 10f SHIPPED in parallel
+  (#13287 + #13286 + #13285).** Three worktrees, three subagents,
+  three PRs stood up simultaneously and landed within the same
+  window. Only 10e remains open on the Phase 10 board (10g is
+  optional per its own analysis).
+
+    * **10b (#13287)** — app-token composite. Whole-tree sweep
+      found 14 callsites across 13 workflows (plan-doc estimate
+      of ~3 was way off — the pattern was more pervasive than
+      recorded). Composite renamed generate-release-app-token →
+      generate-app-token after enumeration showed non-release
+      apps (dependabot-auto-merge → AUTO_MERGE_APP, refresh-
+      reserved-word-supplement → RESERVED_WORD_BOT) also ride
+      it alongside the 11 RELEASE_APP callers. Rabbit landed
+      one docstring correction (repositories-input default-scope
+      contract). Dependabot's github-actions ecosystem scans
+      composite action.yml files, so future create-github-app-
+      token version bumps get a single PR against the composite.
+
+    * **10d (#13286)** — extract-zip helper. Original PR was
+      the standard duplication-collapse; rabbit iterated 3
+      rounds and each round produced a legitimate refinement
+      that landed inline. Applied: dotglob for dot-prefixed
+      top-level entries, shopt-state preservation via
+      `shopt -p ... eval` for sourced-helper hygiene, skip-mv-
+      when-empty for empty-top-level-dir edge case, and
+      `mv ... || exit 1` for portable failure propagation
+      independent of caller set -e. Rejected: rabbit's EXIT-
+      trap-clobber concern (docstring already addressed) and
+      unzip-exit-status concern (caller set -e already handles).
+
+    * **10f (#13285)** — RELEASE_PROCESS.md audit. Turned out
+      much smaller than scoped: prior PRs (Phase 9 + 10c)
+      already updated the recovery paragraphs alongside their
+      workflow work, so 10f's real value was plan-doc cross-
+      references. Known artifact: the added links will 404 on
+      GitHub web view until the plan-doc PR lands (accepted).
+
+    Parallel-launch worked as a delegation pattern — file
+    overlap analyzed up-front (zero between the three), each
+    subagent got a self-contained brief, plan-doc updates were
+    left centralized to avoid three-way merge conflicts. Also
+    tripped over the conventional-commits scope rule twice
+    (`ramsey/conventional-commits` config sets `scopeCase:
+    kebab`, so `acceptance/extract-zip` rejected — must be
+    `acceptance` with the sub-context moved into the
+    description).
