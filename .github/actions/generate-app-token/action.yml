@@ -1,10 +1,12 @@
-name: Generate release app token
+name: Generate app token
 description: >
   Mint a GitHub App installation token via
   actions/create-github-app-token@v3. Centralizes the boilerplate so
-  every release-mechanism workflow that needs a bot-scoped token wires
-  it the same way (single point to bump the underlying action version,
-  add new inputs, or adjust minted-token defaults).
+  every workflow that needs a bot-scoped token wires it the same way
+  (single point to bump the underlying action version, add new inputs,
+  or adjust minted-token defaults). Used by the release-mechanism
+  workflows (RELEASE_APP), dependabot auto-merge (AUTO_MERGE_APP),
+  and the reserved-word refresh (RESERVED_WORD_BOT).
 
 inputs:
   client-id:

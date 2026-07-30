@@ -218,8 +218,8 @@ files:
   exclude-branches: [rel-800, rel-704]
 - path: .github/actions/setup-php-composer/action.yml
   exclude-branches: [rel-800, rel-704]
-# Phase 10b (openemr/openemr#TBD, 2026-07-30): generate-release-app-token
-# is called via `uses: ./.github/actions/generate-release-app-token`
+# Phase 10b (openemr/openemr#TBD, 2026-07-30): generate-app-token
+# is called via `uses: ./.github/actions/generate-app-token`
 # from build-release.yml, release-prep.yml, build-patch.yml, patch-prep-
 # automation.yml, branch-cut-automation.yml, release-permissions-check.yml,
 # and reusable-publish-release.yml -- all of which are in this block
@@ -228,7 +228,7 @@ files:
 # action.yml must exist on every branch the caller workflows can fire
 # from. rel-800/rel-704 excluded for the same reason the callers are
 # (those branches predate the release mechanism entirely).
-- path: .github/actions/generate-release-app-token/**
+- path: .github/actions/generate-app-token/**
   exclude-branches: [rel-800, rel-704]
 - path: .github/PULL_REQUEST_TEMPLATE/release-prep.md
   exclude-branches: [rel-800, rel-704]

@@ -100,13 +100,13 @@ jobs:
     - name: Checkout composite action
       uses: actions/checkout@v7
       with:
-        sparse-checkout: .github/actions/generate-release-app-token
+        sparse-checkout: .github/actions/generate-app-token
         sparse-checkout-cone-mode: false
         persist-credentials: false
 
     - name: Mint App token
       id: app-token
-      uses: ./.github/actions/generate-release-app-token
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
