@@ -1738,8 +1738,17 @@ drift-bug sources.
       validation), docker cleanup-candidate JWT flow (Docker Hub
       API call with error-code paths).
     * Existing BATS coverage lives at
-      `tests/bats/ci-scripts/{sync,validate}-byte-identical/` —
-      established pattern to follow.
+      `tests/bats/ci-scripts/{sync,validate}-byte-identical,verify-oci-labels,expand-docker-tags}/`
+      — established pattern to follow (helpers.bash + `.bats`).
+    * **Portable-mktemp cleanup in helpers.bash.** All 4 current
+      BATS suites use `mktemp -t <template>` via their helpers,
+      which BusyBox's mktemp (in the `bats/bats:1.13.0` Alpine
+      image) rejects. CI runs on ubuntu-24.04 with GNU mktemp so
+      the pattern works in CI, but local devs trying to run BATS
+      via the bats/bats docker image hit the incompatibility.
+      Cheap fix: switch to `mktemp -d` (portable form) across
+      all 4 suites' helpers. Noted 2026-07-30 while shipping
+      Phase 10c's expand-docker-tags suite.
 
 * **10f — Doc audit.** RELEASE_PROCESS.md's recovery paragraphs now
   reference multiple workflows and manual fallbacks; after 10c the
