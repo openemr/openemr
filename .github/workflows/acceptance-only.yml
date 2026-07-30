@@ -127,80 +127,35 @@ jobs:
       artifact_name: openemr-release-candidate-${{ inputs.version }}
     steps:
     # Guardrail A: validate the source run is under 48h old + was
-    # produced by build-release.yml. Both checks live in the same
-    # step so we fail fast before spending download-artifact time
-    # on an ineligible run.
+    # produced by build-release.yml. Delegates to the shared
+    # validate-source-run.sh (see that script's header for the
+    # per-guard rationale). Extracted from the previous inline block
+    # so acceptance-only.yml and docker-acceptance-only.yml share the
+    # same validation surface — a fix to the age check or the
+    # workflow_path check lands once instead of twice.
     #
-    # Why 48h: a stale artifact risks not matching the current
-    # rel-branch tip (some other PR might have landed in the
-    # meantime), and the whole point of acceptance-only is fast
-    # recovery from a known-good build — if it's been >48h since
-    # the build, "re-run failed jobs" or a fresh build-release
-    # dispatch is the safer path.
-    #
-    # Why check workflow_id: the input is a raw run ID, and
-    # actions/download-artifact will happily fetch an artifact by
-    # name from any run the token can see. Confirming the source
-    # run is a build-release.yml run means we're validating a
-    # release-shape bundle, not (say) an unrelated workflow that
-    # happens to have uploaded an artifact of the same name shape
-    # (e.g., a hand-crafted repro of an acceptance failure).
+    # Only EXPECTED_WORKFLOW_PATH is passed (no EXPECTED_CANDIDATE_TAG):
+    # tarball recovery has no operator-supplied candidate binding to
+    # cross-check.
     - name: Validate source run eligibility
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPO: ${{ github.repository }}
         SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        EXPECTED_WORKFLOW_PATH: .github/workflows/build-release.yml
       run: |
         set -euo pipefail
 
-        # Fetch the source run's metadata. jq -e turns absent/false
-        # values into a non-zero exit so a garbage run ID (bad number,
-        # deleted run) fails here rather than at download time with a
-        # confusing "artifact not found."
         echo "==> Fetching source run metadata"
-        run_json=$(gh api "repos/${REPO}/actions/runs/${SOURCE_RUN_ID}")
+        RUN_JSON=$(gh api "repos/${REPO}/actions/runs/${SOURCE_RUN_ID}")
+        export RUN_JSON
 
-        source_workflow_id=$(printf '%s' "$run_json" | jq -er .workflow_id)
-        source_created_at=$(printf '%s' "$run_json" | jq -er .created_at)
-        source_name=$(printf '%s' "$run_json" | jq -er .name)
-        source_path=$(printf '%s' "$run_json" | jq -er .path)
+        source_name=$(printf '%s' "$RUN_JSON" | jq -er .name)
+        source_path=$(printf '%s' "$RUN_JSON" | jq -er .path)
+        source_created_at=$(printf '%s' "$RUN_JSON" | jq -er .created_at)
+        echo "    source run: id=${SOURCE_RUN_ID} name='${source_name}' path='${source_path}' created_at='${source_created_at}'"
 
-        echo "    source run: id=${SOURCE_RUN_ID} name='${source_name}' path='${source_path}'"
-        echo "    source run: workflow_id=${source_workflow_id} created_at=${source_created_at}"
-
-        # workflow_id check: look up build-release.yml's ID in this
-        # repo and compare. Uses .path rather than .name to avoid
-        # brittleness if the workflow name is edited (path is the
-        # file location, which is more stable). GitHub's workflow
-        # listing endpoint returns .path as ".github/workflows/<file>".
-        echo "==> Confirming source run is a build-release.yml run"
-        expected_path=".github/workflows/build-release.yml"
-        if [ "$source_path" != "$expected_path" ]; then
-          echo "::error::source run ${SOURCE_RUN_ID} was produced by '${source_path}', not '${expected_path}'."
-          echo "::error::acceptance-only only accepts source runs from build-release.yml — the artifact shape (openemr-release-candidate-<version>) is specific to that workflow."
-          exit 1
-        fi
-
-        # Age check: 48h ceiling on source-run age. Use date -d for
-        # portable ISO-8601 parsing; both dates are UTC by convention
-        # so no TZ juggling needed.
-        echo "==> Checking source run age (<= 48h)"
-        source_epoch=$(date -d "$source_created_at" +%s)
-        now_epoch=$(date -u +%s)
-        age_seconds=$(( now_epoch - source_epoch ))
-        age_hours=$(( age_seconds / 3600 ))
-        ceiling_seconds=$(( 48 * 3600 ))
-
-        echo "    source_epoch=${source_epoch} now_epoch=${now_epoch} age_hours=${age_hours}"
-
-        if [ "$age_seconds" -gt "$ceiling_seconds" ]; then
-          echo "::error::source run ${SOURCE_RUN_ID} is ${age_hours}h old (> 48h ceiling)."
-          echo "::error::An artifact this old risks being stale — the rel-branch may have advanced since build, and re-running acceptance against the old bundle would validate a version the branch has already moved past."
-          echo "::error::Recovery paths for stale runs: (1) dispatch build-release.yml fresh with the same version_branch + version + release_tag inputs to rebuild + re-gate from current rel-branch tip; (2) re-run the failed build-release run in-place via the Actions UI (rebuilds from the same commit the annotated tag points at, which is still the ship point)."
-          exit 1
-        fi
-
-        echo "==> source run eligible: age=${age_hours}h, workflow=build-release.yml"
+        .github/scripts/validate-source-run.sh
 
     # Cross-run artifact download: actions/download-artifact@v8 with
     # both `run-id` and `github-token` fetches from ANOTHER run in the
