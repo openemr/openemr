@@ -153,7 +153,12 @@ jobs:
         # can enforce operator-input == derived-coordinates. The script
         # re-derives the same value internally as a defence-in-depth
         # against caller drift; passing it here surfaces intent.
-        source_run_attempt=$(printf '%s' "$RUN_JSON" | jq -er .run_attempt)
+        #
+        # Non-strict extraction with an empty-string fallback so a
+        # RUN_JSON missing .run_attempt flows into the script's own
+        # BATS-tested guard (with a clear ::error:: message) rather
+        # than aborting here with a raw jq error under set -e.
+        source_run_attempt=$(printf '%s' "$RUN_JSON" | jq -r '.run_attempt // ""')
         EXPECTED_CANDIDATE_TAG="release-candidate-${SOURCE_RUN_ID}-${source_run_attempt}"
         export EXPECTED_CANDIDATE_TAG
 

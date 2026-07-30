@@ -144,6 +144,25 @@ teardown() {
     [[ "${output}" == *"attempt 3"* ]]
 }
 
+@test "caller-drift: CANDIDATE_TAG matches derived but EXPECTED_CANDIDATE_TAG is stale -> exit 1" {
+    # Guards script lines around the second candidate_tag equality
+    # check: script derives release-candidate-<id>-<attempt> internally
+    # and asserts that (a) operator-supplied CANDIDATE_TAG matches AND
+    # (b) caller-supplied EXPECTED_CANDIDATE_TAG matches. Every other
+    # test keeps the two in sync; this one deliberately makes the caller
+    # send a stale EXPECTED value while the operator's CANDIDATE_TAG
+    # is correct, to lock in the caller-drift error path.
+    RUN_JSON=$(make_run_json ".github/workflows/docker-build-release.yml" "$(hours_ago 1)" 1) \
+    SOURCE_RUN_ID="30443247578" \
+    EXPECTED_WORKFLOW_PATH=".github/workflows/docker-build-release.yml" \
+    CANDIDATE_TAG="release-candidate-30443247578-1" \
+    EXPECTED_CANDIDATE_TAG="release-candidate-99999999999-1" \
+        run bash "${VALIDATE_SOURCE_RUN_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"EXPECTED_CANDIDATE_TAG"* ]]
+    [[ "${output}" == *"stale inputs"* ]]
+}
+
 @test "EXPECTED_CANDIDATE_TAG set but CANDIDATE_TAG unset -> exit 1 with clear error" {
     RUN_JSON=$(make_run_json ".github/workflows/docker-build-release.yml" "$(hours_ago 1)" 1) \
     SOURCE_RUN_ID="30443247578" \

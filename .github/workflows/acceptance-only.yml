@@ -150,9 +150,14 @@ jobs:
         RUN_JSON=$(gh api "repos/${REPO}/actions/runs/${SOURCE_RUN_ID}")
         export RUN_JSON
 
-        source_name=$(printf '%s' "$RUN_JSON" | jq -er .name)
-        source_path=$(printf '%s' "$RUN_JSON" | jq -er .path)
-        source_created_at=$(printf '%s' "$RUN_JSON" | jq -er .created_at)
+        # Non-strict extraction (`.field // "unknown"`) — these three
+        # are only used for the log line below. The friendly BATS-tested
+        # ::error:: guards in validate-source-run.sh cover the "field
+        # missing" cases; a strict `jq -er` here would trip set -e
+        # first with a raw jq error, defeating the script's guards.
+        source_name=$(printf '%s' "$RUN_JSON" | jq -r '.name // "unknown"')
+        source_path=$(printf '%s' "$RUN_JSON" | jq -r '.path // "unknown"')
+        source_created_at=$(printf '%s' "$RUN_JSON" | jq -r '.created_at // "unknown"')
         echo "    source run: id=${SOURCE_RUN_ID} name='${source_name}' path='${source_path}' created_at='${source_created_at}'"
 
         .github/scripts/validate-source-run.sh
