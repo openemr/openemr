@@ -7193,7 +7193,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$day of static method Date_Calc\\:\\:dateFormat\\(\\) expects string, int given\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
@@ -24662,17 +24662,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$option of function xml_parser_set_option expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$subject of function str_replace expects array\\<string\\>\\|string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$value of function xml_parser_set_option expects int\\|string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
 ];
@@ -27262,11 +27252,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\.\\.\\.\\$values of function sprintf expects bool\\|float\\|int\\|string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of method OpenEMR\\\\Common\\\\Crypto\\\\CryptoInterface\\:\\:decryptFromFilesystem\\(\\) expects string\\|null, string\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingLogger.php',
@@ -28890,11 +28875,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$InstallerTable of class Installer\\\\Controller\\\\InstallerController constructor expects Installer\\\\Model\\\\InstModuleTable, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/ZfcModule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$version2 of function version_compare expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$algo of function hash_hkdf expects non\\-falsy\\-string, string given\\.$#',

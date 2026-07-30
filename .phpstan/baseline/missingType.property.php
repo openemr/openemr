@@ -22607,11 +22607,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_gscount has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_hhmm has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
@@ -22628,11 +22623,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_sendid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_stcount has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
 ];
@@ -23405,11 +23395,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Command\\\\SymfonyCommandRunner\\:\\:\\$eventDispatcher has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/SymfonyCommandRunner.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Compatibility\\\\Checker\\:\\:\\$minimumPhpVersion has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Forms\\\\FormVitalDetails\\:\\:\\$id has no type specified\\.$#',

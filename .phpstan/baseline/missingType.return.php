@@ -16062,11 +16062,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:xmlparser_setoption\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ApplicationTable\\:\\:dateFormat\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
