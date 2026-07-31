@@ -2077,6 +2077,39 @@ flight; 10g optional-skip). Phase 11 is single-slice (not
 sub-sliced) — the change is one atomic restructure of docker-build-
 release.yml + testing.
 
+**Not in Phase 11 (initial) scope — flex builds** *(`.github/
+workflows/docker-build-flex-core.yml`; same `linux/amd64,linux/
+arm64` single-runner QEMU pattern as release, moved to openemr core
+in the 2026-06-20 docker-migration)*:
+
+Flex would benefit from the same native-arm64 treatment in principle
+— same QEMU class of risk, same imagetools-merge pattern applies
+directly. Deferred from initial scope because the cost/benefit shape
+is proportionally weaker:
+
+- **QEMU pain is much smaller per-build.** Flex images are alpine +
+  PHP base only (no composer/npm install inside like the release
+  image), so builds finish in ~1-2 min under QEMU vs release's
+  30-45 min. SIGILL surface scales with build weight; flex has
+  historically been near-zero flake rate.
+- **Matrix scale amplifies runner cost.** 3 alpine versions × 4 PHP
+  versions ≈ 12 variants × 2 archs = ~24 native jobs per flex-
+  refresh vs release-time's 4 rel-branches × 2 archs = 8 jobs.
+  GHA arm64 minutes are 2x amd64, so aggregate spend jumps.
+- **No PR-validation parity concern.** Release-time has Phase 7d
+  PR-validation on native arm64, so QEMU-vs-native drift is a real
+  surface. Flex has no equivalent per-arch PR gate — PR tests
+  (`docker-test-flex-{322,323,edge}.yml`) pull the built image and
+  run test suites against it, agnostic to how it was built.
+
+**Easy to extend later** — same imagetools-merge pattern transfers
+directly to `docker-build-flex-core.yml` once the release-time
+version is proven and any operational quirks (arm64 runner
+availability, retry patterns, cache reuse) are ironed out. Track as
+a follow-up Phase 11b if flex QEMU flakes actually surface or the
+"parity" argument grows teeth (e.g. if a future flex change
+introduces build-step complexity that makes QEMU pain scale up).
+
 ## Test-coverage philosophy
 
 Guidelines for where a new test belongs, once both surfaces exist:
