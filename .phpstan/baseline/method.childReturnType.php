@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\ZendModules\\\\PatientFlowBoard\\\\Listener\\\\PatientFlowBoardEventsSubscriber\\:\\:getSubscribedEvents\\(\\) should be covariant with return type \\(array\\<string, list\\<array\\{0\\: string, 1\\?\\: int\\}\\|int\\|string\\>\\|string\\>\\) of method Symfony\\\\Component\\\\EventDispatcher\\\\EventSubscriberInterface\\:\\:getSubscribedEvents\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFlowBoard/src/PatientFlowBoard/Listener/PatientFlowBoardEventsSubscriber.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(Laminas\\\\Stdlib\\\\ResponseInterface\\) of method Patientvalidation\\\\Controller\\\\PatientvalidationController\\:\\:indexAction\\(\\) should be covariant with return type \\(Laminas\\\\View\\\\Model\\\\ViewModel\\) of method Laminas\\\\Mvc\\\\Controller\\\\AbstractActionController\\:\\:indexAction\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/PatientvalidationController.php',
@@ -1475,6 +1470,11 @@ $ignoreErrors[] = [
     'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Services\\\\ObservationService\\:\\:createResultRecordFromDatabaseResult\\(\\) should be covariant with return type \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\Services\\\\BaseService\\:\\:createResultRecordFromDatabaseResult\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Return type \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\Services\\\\PatientFlowBoard\\\\Subscriber\\\\PatientFlowBoardEventsSubscriber\\:\\:getSubscribedEvents\\(\\) should be covariant with return type \\(array\\<string, list\\<array\\{0\\: string, 1\\?\\: int\\}\\|int\\|string\\>\\|string\\>\\) of method Symfony\\\\Component\\\\EventDispatcher\\\\EventSubscriberInterface\\:\\:getSubscribedEvents\\(\\)$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/PatientFlowBoard/Subscriber/PatientFlowBoardEventsSubscriber.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Return type \\(mixed\\) of method OpenEMR\\\\Services\\\\Search\\\\BasicSearchField\\:\\:getField\\(\\) should be covariant with return type \\(string\\) of method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:getField\\(\\)$#',
