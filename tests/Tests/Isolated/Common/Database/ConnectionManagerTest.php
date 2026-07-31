@@ -8,8 +8,8 @@ use Doctrine\DBAL\Connection;
 use InvalidArgumentException;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 class ConnectionManagerTest extends TestCase
 {
