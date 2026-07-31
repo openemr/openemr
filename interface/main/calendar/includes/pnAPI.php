@@ -234,7 +234,7 @@ function pnVarCleanFromInput()
     $resarray = [];
     foreach (func_get_args() as $var) {
     // Get var
-        if (empty($var) || !is_string($var)) {
+        if ($var === '' || !is_string($var)) {
             return;
         }
 
