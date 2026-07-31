@@ -875,7 +875,10 @@ HTML;
         return $formData['Payload'];
     }
 
-    public static function mimeParse(string $formBody, $contentType)
+    /**
+     * @return \non-empty-list<string>[]|string[]
+     */
+    public static function mimeParse(string $formBody, $contentType): array
     {
         // Normalize
         $mimeBody = preg_replace('~\r\n?~', "\r\n", $formBody);

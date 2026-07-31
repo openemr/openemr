@@ -45,7 +45,10 @@ class ListService
         return $validator->validate($list);
     }
 
-    public function getAll($pid, $list_type)
+    /**
+     * @return mixed[]
+     */
+    public function getAll($pid, $list_type): array
     {
         $sql = "SELECT * FROM lists WHERE pid=? AND type=? ORDER BY date DESC";
 
@@ -118,7 +121,10 @@ class ListService
         return QueryUtils::fetchTableColumn($sql, 'list_id', []);
     }
 
-    public function getOptionsByListName($list_name, $search = [])
+    /**
+     * @return mixed[]
+     */
+    public function getOptionsByListName($list_name, $search = []): array
     {
         $sql = "SELECT * FROM list_options WHERE list_id = ? ";
         $binding = [$list_name];

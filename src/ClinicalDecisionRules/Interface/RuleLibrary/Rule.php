@@ -349,7 +349,10 @@ class Rule
         return true;
     }
 
-    function getRuleTypeLabels()
+    /**
+     * @return mixed[]
+     */
+    function getRuleTypeLabels(): array
     {
         $labels = [];
         foreach ($this->ruleTypes as $ruleType) {

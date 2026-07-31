@@ -44,7 +44,10 @@ class RuleCriteriaSex extends RuleCriteria
         return "sex.php";
     }
 
-    function getOptions()
+    /**
+     * @return array{id: mixed, label: mixed}[]
+     */
+    function getOptions(): array
     {
         $listService = new ListService();
         $optionsByListName  = $listService->getOptionsByListName('sex', ['active' => 1]);

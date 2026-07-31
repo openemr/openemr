@@ -425,7 +425,10 @@ abstract class AbstractAmcReport implements RsReportIF
         return $results;
     }
 
-    private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility, $provider_id)
+    /**
+     * @return mixed[]
+     */
+    private function collectTransitionOutObjects($patient, $begin, $end, $billing_facility, $provider_id): array
     {
 
         $results = [];

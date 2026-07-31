@@ -38,7 +38,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  * @param mixed $obj997
  * @return array
  */
-function edih_997_errdata($obj997)
+function edih_997_errdata($obj997): array
 {
     //
     $segments = $obj997->edih_segments();

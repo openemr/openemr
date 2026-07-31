@@ -201,7 +201,10 @@ class AppointmentService extends BaseService
         return $processingResult;
     }
 
-    public function getAppointmentsForPatient($pid)
+    /**
+     * @return mixed[]
+     */
+    public function getAppointmentsForPatient($pid): array
     {
         $sqlBindArray = [];
 
@@ -256,7 +259,10 @@ class AppointmentService extends BaseService
         return $finalRecords;
     }
 
-    public function getAppointment($eid)
+    /**
+     * @return mixed[]
+     */
+    public function getAppointment($eid): array
     {
         $sql = "SELECT pce.pc_eid,
                        pce.uuid AS pc_uuid,

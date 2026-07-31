@@ -175,7 +175,7 @@ class FhirPatientServiceMappingTest extends TestCase
      * @param $telecomUse - The telecom use to match
      * @return matching entries (array)
      */
-    private function findTelecomEntry(FHIRPatient $fhirPatientResource, $telecomSystem, $telecomUse)
+    private function findTelecomEntry(FHIRPatient $fhirPatientResource, $telecomSystem, $telecomUse): array
     {
         $matchingEntries = [];
 

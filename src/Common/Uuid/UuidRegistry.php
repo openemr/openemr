@@ -560,7 +560,7 @@ class UuidRegistry
      * @param int $limit
      * @return array
      */
-    private function getUUIDBatch($limit = 10)
+    private function getUUIDBatch($limit = 10): array
     {
         $uuids = [];
         // Create uuid using the Timestamp-first COMB Codec, so can use for primary keys

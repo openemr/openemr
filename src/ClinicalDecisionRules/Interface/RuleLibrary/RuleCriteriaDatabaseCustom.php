@@ -59,7 +59,10 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
         return "custom.php";
     }
 
-    function getTableNameOptions()
+    /**
+     * @return array{id: mixed, label: mixed}[]
+     */
+    function getTableNameOptions(): array
     {
         $options = [];
         $stmts = sqlStatement("SHOW TABLES");

@@ -245,7 +245,7 @@ class FHIRSearchFieldFactory
      * @param $fhirSearchField
      * @return array
      */
-    private function extractFieldModifiers($fhirSearchField)
+    private function extractFieldModifiers($fhirSearchField): array
     {
         $fieldNameWithModifiers = explode(":", (string) $fhirSearchField);
         $fieldName = $fieldNameWithModifiers[0];

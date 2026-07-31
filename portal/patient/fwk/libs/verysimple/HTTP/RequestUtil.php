@@ -137,7 +137,7 @@ class RequestUtil
      * @param string $appRoot root folder for the app (ex. 'myapp' or 'myapp/subdir1')
      * @return array
      */
-    public static function GetUrlParts($appRoot = '')
+    public static function GetUrlParts($appRoot = ''): array
     {
         $urlqs = explode("?", self::GetCurrentURL(), 2);
         $url = $urlqs [0];
@@ -194,7 +194,7 @@ class RequestUtil
      *
      * @return array
      */
-    public static function GetRequestHeaders()
+    public static function GetRequestHeaders(): array
     {
         if (function_exists('getallheaders')) {
             return getallheaders();

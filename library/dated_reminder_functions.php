@@ -85,8 +85,9 @@ function GetPortalAlertCounts(): array
  * RemindersArray function
  *
  * @returns array reminders for specified user, defaults to current user if none specified
+ * @return array{messageID: mixed, PatientID: mixed, PatientName: string, message: mixed, dueDate: mixed, fromName: non-falsy-string}[]
  */
-function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
+function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null): array
 {
     if (!$userID) {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();

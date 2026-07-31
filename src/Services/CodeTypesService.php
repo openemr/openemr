@@ -401,7 +401,7 @@ class CodeTypesService
      * @param string $codeDescriptionType
      * @return array
      */
-    public function resolveCode($code, $codeType, $currentCodeText = '', $codeDescriptionType = 'code_text')
+    public function resolveCode($code, $codeType, $currentCodeText = '', $codeDescriptionType = 'code_text'): array
     {
         $valueset = '';
         $valueset_name = '';
@@ -488,7 +488,10 @@ class CodeTypesService
         return $listService->getListOption('discharge-disposition', $option_id)['codes'] ?? '';
     }
 
-    public function parseCodesIntoCodeableConcepts($codes)
+    /**
+     * @return mixed[]
+     */
+    public function parseCodesIntoCodeableConcepts($codes): array
     {
         if (!is_string($codes) || empty(trim($codes))) {
             return [];

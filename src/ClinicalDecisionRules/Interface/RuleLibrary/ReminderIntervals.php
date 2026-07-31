@@ -42,7 +42,10 @@ class ReminderIntervals
         $this->detailMap[$detail->intervalType->code] = $details;
     }
 
-    function getTypes()
+    /**
+     * @return mixed[]
+     */
+    function getTypes(): array
     {
         $types = [];
         foreach (array_keys($this->detailMap) as $code) {

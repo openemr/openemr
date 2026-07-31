@@ -59,7 +59,10 @@ class Provider extends ORDataObject
         $this->insurance_numbers = $ins->insurance_numbers_factory($this->id);
     }
 
-    function utility_provider_array()
+    /**
+     * @return non-falsy-string[]
+     */
+    function utility_provider_array(): array
     {
         $provider_array = [];
         $records = QueryUtils::fetchRecords("Select id,fname,lname  from users where authorized = 1");
@@ -70,7 +73,10 @@ class Provider extends ORDataObject
         return $provider_array;
     }
 
-    function providers_factory($sort = "ORDER BY lname,fname")
+    /**
+     * @return \Provider[]
+     */
+    function providers_factory($sort = "ORDER BY lname,fname"): array
     {
         $psa = [];
         $sql = "SELECT id FROM "  . $this->_table . " where authorized = 1 " . $sort;

@@ -413,7 +413,7 @@ class VerySimpleStringUtil
      * @param string $string
      * @return array
      */
-    static function unicode_string_to_array($string)
+    static function unicode_string_to_array($string): array
     {
         $array =  [];
         $strlen = mb_strlen($string);

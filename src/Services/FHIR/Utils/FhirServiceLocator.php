@@ -33,7 +33,7 @@ class FhirServiceLocator
      * interfaces.  It returns a hashmap of resourceName:string => service:IFhirExportableResourceService.
      * @return IFhirExportableResourceService[]
      */
-    public function findServices($type)
+    public function findServices($type): array
     {
         if (empty($type) || !(class_exists($type) || interface_exists($type))) {
             throw new \InvalidArgumentException('$type must be a valid class or instance');

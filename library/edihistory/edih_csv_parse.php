@@ -80,7 +80,7 @@ function edih_parse_date($strdate)
  * @param mixed $obj835 edih_x12_obj
  * @return array
  */
-function edih_835_csv_data($obj835)
+function edih_835_csv_data($obj835): array
 {
     //
     $ret_ar = [];
@@ -242,7 +242,10 @@ function edih_835_csv_data($obj835)
  * @param object  edih_x12_ file object
  * @return array  data to write csv file and csv clain table rows
  */
-function edih_837_csv_data($obj837)
+/**
+ * @return mixed[]|non-empty-array<('claim' | 'file' | 'type'), mixed>[]
+ */
+function edih_837_csv_data($obj837): array
 {
     //
     $ret_ar = [];
@@ -409,7 +412,10 @@ function edih_837_csv_data($obj837)
  * @param object  edih_x12_file object of type 276/277
  * @return array
  */
-function edih_277_csv_data($obj277)
+/**
+ * @return array<mixed, array<'claim'|'file'|'type', mixed>>
+ */
+function edih_277_csv_data($obj277): array
 {
     //
     $ret_ar = [];
@@ -970,7 +976,7 @@ function edih_278_csv_data($obj278)
  * @param string $file_type type of source file
  * @return array
  */
-function edih_rsp_st_match($rsp_trace, $file_type)
+function edih_rsp_st_match($rsp_trace, $file_type): array
 {
     //
     $info_ar = [];
@@ -1020,7 +1026,7 @@ function edih_rsp_st_match($rsp_trace, $file_type)
  * @param mixed $obj997 edih_x12_file object of type 999/997
  * @return array
  */
-function edih_997_csv_data($obj997)
+function edih_997_csv_data($obj997): array
 {
     //
     $ret_ar = [];
@@ -1248,7 +1254,7 @@ function edih_997_csv_data($obj997)
  * @param mixed $obj270 x12_file_object
  * @return array
  */
-function edih_271_csv_data($obj270)
+function edih_271_csv_data($obj270): array
 {
     //'f270 claim = array('PtName', 'ReqDate', 'PtAcct', 'InsLevel', 'BHT03', 'FileName', 'Payer');
     //'f270 file = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12_partner');
