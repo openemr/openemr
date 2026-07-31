@@ -159,12 +159,12 @@ class Company extends ORDataObject
     {
         return $this->country;
     }
-    function persist($fid = "")
+    function persist($fid = ""): mixed
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
 
-        parent::persist();
+        return parent::persist();
     }
 } // end of Company

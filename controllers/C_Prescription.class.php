@@ -710,7 +710,7 @@ class C_Prescription extends Controller
         return $this->multiprint_footer($pdf);
     }
 
-    function current_user_has_signature()
+    function current_user_has_signature(): bool
     {
         if (!empty($this->pconfig['signature'])) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();

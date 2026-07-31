@@ -683,7 +683,7 @@ class InstallerController extends AbstractActionController
     /**
      * @return bool
      */
-    public function InstallModuleSQL(int $modId)
+    public function InstallModuleSQL(int $modId): bool
     {
         $registryEntry = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
         $dirModule = $registryEntry->modDirectory;

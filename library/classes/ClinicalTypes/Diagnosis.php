@@ -66,7 +66,7 @@ class Diagnosis extends ClinicalType
      *
      * @return true if patient meets criteria, false ow
      */
-    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null): bool
     {
         $data = Codes::lookup($this->getOptionId());
         $type = $this->getListType();

@@ -12,7 +12,7 @@ class Handler_HL7v2
         $this->parser = &$parser;
     }
 
-    function Type()
+    function Type(): bool
     {
         return false;
     }

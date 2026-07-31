@@ -6792,7 +6792,7 @@ function display_refractive_data($encounter_data): void
  * @param bool $strict
  * @return bool
  */
-function in_array_r($needle, $haystack, $strict = false)
+function in_array_r($needle, $haystack, $strict = false): bool
 {
     if (empty($haystack)) {
         return false;

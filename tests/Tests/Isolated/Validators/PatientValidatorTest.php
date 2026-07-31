@@ -424,7 +424,7 @@ class PatientValidatorStub extends PatientValidator
     /**
      * Override validateId to avoid database calls
      */
-    public static function validateId($field, $table, $lookupId, $isUuid = false)
+    public static function validateId($field, $table, $lookupId, $isUuid = false): bool
     {
         // For testing purposes, assume all IDs are valid
         return true;
@@ -433,7 +433,7 @@ class PatientValidatorStub extends PatientValidator
     /**
      * Override isExistingUuid to avoid database calls
      */
-    public function isExistingUuid($uuid)
+    public function isExistingUuid($uuid): bool
     {
         // For testing purposes, assume all UUIDs exist
         return true;
@@ -448,7 +448,7 @@ class PatientValidatorTestStub extends PatientValidator
     /**
      * Override validateId to avoid database calls
      */
-    public static function validateId($field, $table, $lookupId, $isUuid = false)
+    public static function validateId($field, $table, $lookupId, $isUuid = false): bool
     {
         // For testing purposes, assume all IDs are valid
         return true;
@@ -457,7 +457,7 @@ class PatientValidatorTestStub extends PatientValidator
     /**
      * Override isExistingUuid to test different scenarios
      */
-    public function isExistingUuid($uuid)
+    public function isExistingUuid($uuid): bool
     {
         // Simulate validation logic without database
 
