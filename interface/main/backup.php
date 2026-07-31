@@ -1175,7 +1175,7 @@ function obliterate_dir($dir)
 
 // Create a tar archive given the archive file name, compression method if any, and the
 // array of file/directory names to archive
-function create_tar_archive($archiveName, $compressMethod, $itemArray)
+function create_tar_archive($archiveName, $compressMethod, $itemArray): bool
 {
     // Create a tar object using the pear library
     $tar = new Archive_Tar($archiveName, $compressMethod);

@@ -189,7 +189,7 @@ function pnConfigGetVar($name)
  * running.
  * @returns void
  */
-function pnInit()
+function pnInit(): bool
 {
     // Hack for some weird PHP systems that should have the
     // LC_* constants defined, but don't

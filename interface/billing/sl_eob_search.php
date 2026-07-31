@@ -81,7 +81,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
     require_once("../../portal/lib/portal_mail.inc.php");
     require_once("../../portal/lib/appsql.class.php");
 
-    function is_auth_portal($pid = 0)
+    function is_auth_portal($pid = 0): bool
     {
         $rows = QueryUtils::fetchRecords("SELECT id, allow_patient_portal, fname FROM `patient_data` WHERE `pid` = ?", [$pid]);
         $pData = $rows[0] ?? null;
@@ -93,7 +93,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
         return false;
     }
 
-    function notify_portal($thispid, array $invoices, $template, $invid)
+    function notify_portal($thispid, array $invoices, $template, $invid): bool
     {
         $builddir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/onsite_portal_documents/templates/' . $thispid;
         if (!is_dir($builddir)) {
@@ -120,7 +120,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
         return true;
     }
 
-    function fixup_invoice($template, $ifile)
+    function fixup_invoice($template, $ifile): bool
     {
         $data = file_get_contents($template);
         if ($data == "") {

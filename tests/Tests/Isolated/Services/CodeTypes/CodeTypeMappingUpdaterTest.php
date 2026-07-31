@@ -43,7 +43,7 @@ class CodeTypeMappingUpdaterTest extends TestCase
         $this->listOptionRepo = $this->createMock(EntityRepository::class);
 
         $this->em->method('getRepository')
-            ->willReturnCallback(fn (string $class) => match ($class) {
+            ->willReturnCallback(fn (string $class): MockObject => match ($class) {
                 CodeType::class => $this->codeTypeRepo,
                 Code::class => $this->codeRepo,
                 ListOption::class => $this->listOptionRepo,

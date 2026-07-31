@@ -48,7 +48,7 @@ class Utils_Verification implements VerificationIF
         return $string;
     }
 
-    public function verify($data, $hash)
+    public function verify($data, $hash): bool
     {
         if (strlen((string) $hash) < 50) {
             // support backward compatibility of prior hashes in sha1

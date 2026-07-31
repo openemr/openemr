@@ -496,9 +496,8 @@ function match_patient($ptarr)
  * Look for a lab matching the given XCN field from some segment.
  *
  * @param array $seg MSH seg identifying a provider.
- * @return mixed        TRUE, or FALSE if no match.
  */
-function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = '')
+function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = ''): bool
 {
     if (empty($hl7)) {
         return false;
