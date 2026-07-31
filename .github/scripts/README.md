@@ -12,6 +12,8 @@ from testing or reuse.
 | [`validate-byte-identical.sh`](validate-byte-identical.sh) | [`.github/workflows/validate-byte-identical.yml`](../workflows/validate-byte-identical.yml) | [`tests/bats/ci-scripts/validate-byte-identical/`](../../tests/bats/ci-scripts/validate-byte-identical/) (BATS, curl mocked via PATH shim) |
 | [`dockerhub-delete-tag.sh`](dockerhub-delete-tag.sh) | [`.github/workflows/reusable-docker-publish.yml`](../workflows/reusable-docker-publish.yml) | [`tests/bats/ci-scripts/dockerhub-delete-tag/`](../../tests/bats/ci-scripts/dockerhub-delete-tag/) (BATS, curl mocked via PATH shim) |
 | [`create-release-tag.sh`](create-release-tag.sh) | [`.github/workflows/reusable-publish-release.yml`](../workflows/reusable-publish-release.yml) | [`tests/bats/ci-scripts/create-release-tag/`](../../tests/bats/ci-scripts/create-release-tag/) (BATS, git + gh mocked via PATH shim) |
+| [`extract-changelog-section.sh`](extract-changelog-section.sh) | [`.github/workflows/release-amendment.yml`](../workflows/release-amendment.yml) | [`tests/bats/ci-scripts/extract-changelog-section/`](../../tests/bats/ci-scripts/extract-changelog-section/) (BATS, synthetic CHANGELOG fixtures) |
+| [`build-release-body.sh`](build-release-body.sh) | [`.github/workflows/release-amendment.yml`](../workflows/release-amendment.yml) | [`tests/bats/ci-scripts/build-release-body/`](../../tests/bats/ci-scripts/build-release-body/) (BATS, byte-size boundaries + anchor-slug variations) |
 
 ## Running the tests locally
 
