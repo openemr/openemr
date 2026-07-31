@@ -352,21 +352,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\$previous of method OpenEMR\\\\Common\\\\Auth\\\\Exception\\\\OneTimeAuthException\\:\\:__construct\\(\\) has invalid type OpenEMR\\\\Common\\\\Auth\\\\Exception\\\\Throwable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/Exception/OneTimeAuthException.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$previous of method OpenEMR\\\\Common\\\\Auth\\\\Exception\\\\OneTimeAuthExpiredException\\:\\:__construct\\(\\) has invalid type OpenEMR\\\\Common\\\\Auth\\\\Exception\\\\Throwable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/Exception/OneTimeAuthExpiredException.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Compatibility\\\\Checker\\:\\:checkPhpVersion\\(\\) has invalid return type OpenEMR\\\\Common\\\\Compatibility\\\\warning\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$notes has unknown class OpenEMR\\\\Common\\\\ORDataObject\\\\Note as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
@@ -375,71 +360,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\$uuid of method OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:getRegistryRecordForUuid\\(\\) has invalid type OpenEMR\\\\Common\\\\Uuid\\\\binary\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:getFormat\\(\\) has invalid return type OpenEMR\\\\Events\\\\PatientDocuments\\\\html\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientDocuments/PatientDocumentCreateCCDAEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:getFormat\\(\\) has invalid return type OpenEMR\\\\Events\\\\PatientDocuments\\\\xml\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientDocuments/PatientDocumentCreateCCDAEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:getFormat\\(\\) has invalid return type OpenEMR\\\\Events\\\\PatientDocuments\\\\zip\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientDocuments/PatientDocumentCreateCCDAEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$format of method OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:setFormat\\(\\) has invalid type OpenEMR\\\\Events\\\\PatientDocuments\\\\html\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientDocuments/PatientDocumentCreateCCDAEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$format of method OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:setFormat\\(\\) has invalid type OpenEMR\\\\Events\\\\PatientDocuments\\\\xml\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientDocuments/PatientDocumentCreateCCDAEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$format of method OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:setFormat\\(\\) has invalid type OpenEMR\\\\Events\\\\PatientDocuments\\\\zip\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientDocuments/PatientDocumentCreateCCDAEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:\\$format has unknown class OpenEMR\\\\Events\\\\PatientDocuments\\\\html as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientDocuments/PatientDocumentCreateCCDAEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:\\$format has unknown class OpenEMR\\\\Events\\\\PatientDocuments\\\\xml as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientDocuments/PatientDocumentCreateCCDAEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Events\\\\PatientDocuments\\\\PatientDocumentCreateCCDAEvent\\:\\:\\$format has unknown class OpenEMR\\\\Events\\\\PatientDocuments\\\\zip as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientDocuments/PatientDocumentCreateCCDAEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\UserInterface\\\\PageHeadingRenderEvent\\:\\:setActions\\(\\) has invalid return type OpenEMR\\\\Events\\\\UserInterface\\\\UserEditRenderEvent\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/UserInterface/PageHeadingRenderEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRNarrative\\:\\:getDiv\\(\\) has invalid return type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRElement/FHIRNarrative.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$div of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRNarrative\\:\\:setDiv\\(\\) has invalid type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRElement/FHIRNarrative.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRNarrative\\:\\:\\$div has unknown class string as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRElement/FHIRNarrative.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Instantiated class OpenEMR\\\\Gacl\\\\Hashed_Cache_Lite not found\\.$#',

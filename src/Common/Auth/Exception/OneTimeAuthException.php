@@ -9,7 +9,7 @@ class OneTimeAuthException extends \Exception
      */
     private $pid;
 
-    public function __construct(string $message = "", $pid = null, int $code = 0, ?Throwable $previous = null)
+    public function __construct(string $message = "", $pid = null, int $code = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
         $this->pid = $pid ?? null;
