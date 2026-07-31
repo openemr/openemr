@@ -32,7 +32,6 @@ class Therapy_Groups_Encounters
     /**
       * Get all encounters of specified group.
       * @param $gid
-      * @return ADORecordSet_mysqli
       */
     public function getGroupEncounters($gid): array
     {

@@ -48,7 +48,6 @@ class CdaValidateDocuments
     /**
      * @param $document
      * @param $type
-     * @return array|bool|null
      * @throws Exception
      */
     public function validateDocument($document, $type): array

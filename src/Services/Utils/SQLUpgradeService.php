@@ -1245,7 +1245,6 @@ class SQLUpgradeService implements ISQLUpgradeService
      * Request to information_schema
      *
      * @param array $arg possible arguments: engine, table_name
-     * @return SQLStatement
      */
     private function getTablesList($arg = []): array
     {
