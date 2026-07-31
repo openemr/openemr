@@ -850,6 +850,25 @@ readonly COREDUMP_DIR
 #      the web user, which clears the dumpable flag; mode 2 restores it
 #      (core owned by root, readable by root).
 # core_pattern is a kernel global shared with the container.
+##
+# Poll (up to ~10s) for a core file belonging to pid $1. A fixed sleep
+# false-warns when the kernel is still streaming the core to disk — and the
+# cores this pipeline targets run to hundreds of MB, so slow writes are the
+# expected case, not the edge case. The glob is pid-scoped (core.*.<pid>.*)
+# rather than comm-scoped, so it needs no assumption about the crashing
+# binary's name (php vs php82 vs httpd).
+_await_core_for_pid() {
+    local pid=$1
+    local _attempt
+    for _attempt in $(seq 1 20); do
+        if docker compose exec -T openemr sh -c "ls '${COREDUMP_DIR}'/core.*.${pid}.* >/dev/null 2>&1"; then
+            return 0
+        fi
+        sleep 0.5
+    done
+    return 1
+}
+
 enable_coredumps() {
     # Create the in-container target up front so the kernel has somewhere to
     # write the core. World-writable + sticky: Apache workers run as the
@@ -893,21 +912,31 @@ enable_coredumps() {
     # graceful restart above ran cleanly, yet produced zero cores — and
     # nobody knew the pipeline was broken until the cores were needed.
     # Crash a sacrificial CLI php as the unprivileged web user (mirroring
-    # the root->apache setuid path the workers take) and require a core.
-    local canary_files
-    docker compose exec -T openemr \
-        su -s /bin/sh apache -c 'php -d error_reporting=0 -r "posix_kill(posix_getpid(), 11);"' \
-        2>/dev/null || true
-    sleep 1
-    canary_files=$(docker compose exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}' 2>/dev/null | wc -l") || canary_files=0
-    if [[ "${canary_files//[!0-9]/}" == "0" || -z "${canary_files//[!0-9]/}" ]]; then
-        echo "::warning::coredump canary produced no core in ${COREDUMP_DIR} — worker segfaults in this job will NOT be debuggable; check ulimits.core, kernel.core_pattern, and fs.suid_dumpable"
+    # the root->apache setuid path the workers take) and require ITS core:
+    # the check and the cleanup are scoped to the canary's own pid, so a
+    # pre-existing file in the directory cannot fake a pass and the cleanup
+    # cannot remove cores that are not the canary's. The pid is emitted on
+    # stderr — unbuffered — because the process dies before stdout's block
+    # buffer would flush.
+    local canary_pid canary_core_ok=0
+    canary_pid=$(docker compose exec -T openemr \
+        su -s /bin/sh apache -c 'php -d error_reporting=0 -r "fwrite(STDERR, posix_getpid()); posix_kill(posix_getpid(), 11);"' \
+        2>&1 >/dev/null) || true
+    canary_pid=${canary_pid//[!0-9]/}
+    if [[ -n "${canary_pid}" ]]; then
+        # shellcheck disable=SC2310  # poll outcome selects the message; never fatal
+        if _await_core_for_pid "${canary_pid}"; then
+            canary_core_ok=1
+        fi
+    fi
+    if [[ -z "${canary_pid}" ]]; then
+        echo "coredump canary inconclusive: could not capture the canary php pid"
+    elif [[ "${canary_core_ok}" == "1" ]]; then
+        echo "coredump canary OK: core for pid ${canary_pid} present in ${COREDUMP_DIR}"
+        # Remove the canary's own core so capture_coredumps only reports real crashes.
+        docker compose exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.*.${canary_pid}.*" 2>/dev/null || true
     else
-        echo "coredump canary OK: core file present in ${COREDUMP_DIR}"
-        # Remove the canary's core so capture_coredumps only reports real crashes.
-        # Glob without the trailing dot: the core's %e is the binary's comm,
-        # which an Alpine packaging change could turn into php82.
-        docker compose exec -T openemr sh -c "rm -f ${COREDUMP_DIR}/core.php*" 2>/dev/null || true
+        echo "::warning::coredump canary produced no core in ${COREDUMP_DIR} — worker segfaults in this job will NOT be debuggable; check ulimits.core, kernel.core_pattern, and fs.suid_dumpable"
     fi
 
     # Second canary, the one that matters: SIGSEGV a REAL Apache worker and
@@ -917,7 +946,7 @@ enable_coredumps() {
     # to date and pointed straight at the CoreDumpDirectory fix above. Cost:
     # one AH00051 line in the error log (AH00051, not AH00052, because
     # CoreDumpDirectory is set); the parent forks a replacement immediately.
-    local worker_pid worker_cores
+    local worker_pid
     worker_pid=$(docker compose exec -T openemr sh -c 'pgrep -u apache httpd | head -1') || worker_pid=""
     worker_pid=${worker_pid//[!0-9]/}
     if [[ -z "${worker_pid}" ]]; then
@@ -925,13 +954,16 @@ enable_coredumps() {
         return 0
     fi
     docker compose exec -T openemr kill -SEGV "${worker_pid}" 2>/dev/null || true
-    sleep 2
-    worker_cores=$(docker compose exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}'/core.httpd.${worker_pid}.* 2>/dev/null | wc -l") || worker_cores=0
-    if [[ "${worker_cores//[!0-9]/}" == "0" || -z "${worker_cores//[!0-9]/}" ]]; then
-        echo "::warning::worker coredump canary FAILED: SIGSEGV to worker ${worker_pid} left no core in ${COREDUMP_DIR} — real worker segfaults will not be debuggable in this job"
+    local worker_core_ok=0
+    # shellcheck disable=SC2310  # poll outcome selects the message; never fatal
+    if _await_core_for_pid "${worker_pid}"; then
+        worker_core_ok=1
+    fi
+    if [[ "${worker_core_ok}" == "1" ]]; then
+        echo "worker coredump canary OK: core for worker pid ${worker_pid} present"
+        docker compose exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.*.${worker_pid}.*" 2>/dev/null || true
     else
-        echo "worker coredump canary OK: core.httpd.${worker_pid} present"
-        docker compose exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.httpd.${worker_pid}.*" 2>/dev/null || true
+        echo "::warning::worker coredump canary FAILED: SIGSEGV to worker ${worker_pid} left no core in ${COREDUMP_DIR} — real worker segfaults will not be debuggable in this job"
     fi
 }
 
