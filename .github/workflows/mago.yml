@@ -1,0 +1,114 @@
+name: Mago
+
+# Proof-of-concept workflow for Mago (https://mago.carthage.software/),
+# a Rust-based PHP toolchain that combines linting, static analysis, and
+# formatting in a single tool.
+
+on:
+  push:
+    branches:
+    - master
+    - rel-*
+  pull_request:
+    branches:
+    - master
+    - rel-*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  mago:
+    name: Mago
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        # Single-element matrix provides named variable and job title
+        php-version: ['8.2']
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    # Composer dependencies are required for Mago's analyzer to resolve
+    # third-party class/function symbols referenced from src/.
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    # Official Mago install recipe — see
+    # https://mago.carthage.software/guide/ci and
+    # https://github.com/carthage-software/mago/blob/main/docs/recipes/github-actions.md
+    - name: Setup Mago
+      uses: nhedger/setup-mago@v1
+      with:
+        version: '1.24.0'
+
+    # Every subsequent step uses `if: always()` so one failing tool does not
+    # short-circuit the rest — the job still fails, but we see all findings
+    # in a single run.
+
+    - name: Mago format (check only)
+      if: always()
+      run: mago format --check
+
+    - name: Mago lint
+      if: always()
+      run: mago lint --reporting-format=github
+
+    - name: Mago lint (JSON for summary)
+      if: always()
+      run: mago lint --reporting-format=json > mago-lint.json
+
+    - name: Mago analyze
+      if: always()
+      run: mago analyze --reporting-format=github
+
+    - name: Mago analyze (JSON for summary)
+      if: always()
+      run: mago analyze --reporting-format=json > mago-analyze.json
+
+    - name: Summarize findings
+      if: always()
+      run: |
+        python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+        import json
+        import collections
+        import pathlib
+
+        def summarize(path: str, title: str) -> None:
+            p = pathlib.Path(path)
+            if not p.exists():
+                print(f'## {title}\n\n_no output produced_\n')
+                return
+            data = json.loads(p.read_text())
+            issues = data.get('issues', data) if isinstance(data, dict) else data
+            by_code = collections.Counter(i.get('code', '?') for i in issues)
+            by_level = collections.Counter(i.get('level', '?') for i in issues)
+            print(f'## {title}\n')
+            print(f'Total issues: **{len(issues)}**\n')
+            print('By level: ' + ', '.join(f'{k}: {v}' for k, v in by_level.most_common()))
+            print('\nTop 15 rules:\n')
+            print('| Count | Rule |')
+            print('|------:|------|')
+            for code, n in by_code.most_common(15):
+                print(f'| {n} | `{code}` |')
+            print()
+
+        summarize('mago-lint.json', 'Mago Lint')
+        summarize('mago-analyze.json', 'Mago Analyze')
+        PY
+
+    - name: Upload Mago reports
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: mago-reports-php${{ matrix.php-version }}
+        path: |
+          mago-lint.json
+          mago-analyze.json
+        if-no-files-found: ignore

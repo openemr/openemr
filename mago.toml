@@ -1,0 +1,19 @@
+# Mago configuration for OpenEMR
+# See https://mago.carthage.software/
+#
+# Scope: modern PSR-4 code under src/ only. Legacy library/ and interface/ are
+# listed as `includes` so the analyzer can resolve symbols referenced from
+# src/ without reporting issues in those trees.
+
+php-version = "8.2"
+
+[source]
+paths = ["src"]
+includes = ["vendor", "library", "interface/globals.php"]
+excludes = ["node_modules"]
+
+[linter]
+
+[analyzer]
+
+[formatter]
