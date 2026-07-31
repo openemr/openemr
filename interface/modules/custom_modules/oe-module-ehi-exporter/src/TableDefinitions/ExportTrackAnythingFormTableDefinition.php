@@ -23,7 +23,7 @@ class ExportTrackAnythingFormTableDefinition extends ExportTableDefinition
     const TABLE_NAME = 'form_track_anything';
     const FORM_DIR = "track_anything";
 
-    public function getRecords()
+    public function getRecords(): array
     {
         $selectQuery = $this->getSelectClause(); // make sure we only grab the clauses we allow
 
