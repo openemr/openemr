@@ -296,16 +296,14 @@ function saveImmunizationObservationResults($id, $immunizationdata): void
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $imm_obs_data = getImmunizationObservationResults();
-    if (!empty($imm_obs_data) && count($imm_obs_data) > 0) {
-        foreach ($imm_obs_data as $val) {
-            if ($val['imo_id'] && $val['imo_id'] != 0) {
-                $sql2                   = " DELETE
-                                            FROM
-                                              immunization_observation
-                                            WHERE imo_im_id = ?
-                                              AND imo_pid = ?";
-                $result2                = sqlQuery($sql2, [$val['imo_im_id'],$val['imo_pid']]);
-            }
+    foreach ($imm_obs_data as $val) {
+        if ($val['imo_id'] && $val['imo_id'] != 0) {
+            $sql2                   = " DELETE
+                                        FROM
+                                          immunization_observation
+                                        WHERE imo_im_id = ?
+                                          AND imo_pid = ?";
+            $result2                = sqlQuery($sql2, [$val['imo_im_id'],$val['imo_pid']]);
         }
     }
 
