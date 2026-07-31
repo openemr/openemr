@@ -59,6 +59,16 @@ set -euo pipefail
 : "${VERSION_BRANCH:?VERSION_BRANCH env var is required}"
 : "${RELEASE_NOTES_FILE:?RELEASE_NOTES_FILE env var is required}"
 
+# Preflight the notes file BEFORE any tag mutation. If it's missing,
+# unreadable, or a directory, the failure would otherwise surface
+# later at `gh release create --notes-file` — AFTER `git push` has
+# already published the tag, leaving the release in a partial state
+# (tag exists, no release, manual recovery needed).
+if [[ ! -f "${RELEASE_NOTES_FILE}" || ! -r "${RELEASE_NOTES_FILE}" ]]; then
+    echo "::error::RELEASE_NOTES_FILE is missing or unreadable: ${RELEASE_NOTES_FILE}" >&2
+    exit 1
+fi
+
 tag="${RELEASE_TAG}"
 
 git config user.name 'github-actions[bot]'

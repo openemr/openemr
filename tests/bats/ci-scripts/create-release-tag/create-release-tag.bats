@@ -177,3 +177,28 @@ teardown() {
     [[ ${status} -ne 0 ]]
     [[ "${output}" == *"RELEASE_TAG"*"required"* ]]
 }
+
+@test "RELEASE_NOTES_FILE points at missing path -> exit 1 BEFORE any tag mutation" {
+    # Regression guard: without the preflight -f check, a missing
+    # notes file would only surface at `gh release create --notes-file`
+    # AFTER `git push` published the tag, leaving the release in a
+    # partial state (tag on origin, no release, manual recovery
+    # needed). Preflight moves the failure to before any mutation.
+    export RELEASE_NOTES_FILE="${CWD}/does-not-exist.md"
+    run bash "${CREATE_RELEASE_TAG_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::RELEASE_NOTES_FILE is missing or unreadable"* ]]
+    # Must NOT have invoked git tag / git push / any gh call.
+    [[ "${output}" != *"git tag"* ]]
+    [[ "${output}" != *"gh release"* ]]
+}
+
+@test "RELEASE_NOTES_FILE points at a directory -> exit 1 BEFORE any tag mutation" {
+    # -f rejects directories too. Same partial-state defense as the
+    # missing-file case.
+    mkdir -p "${CWD}/notes-dir"
+    export RELEASE_NOTES_FILE="${CWD}/notes-dir"
+    run bash "${CREATE_RELEASE_TAG_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::RELEASE_NOTES_FILE is missing or unreadable"* ]]
+}
