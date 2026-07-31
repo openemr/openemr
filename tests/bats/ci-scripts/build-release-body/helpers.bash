@@ -25,8 +25,10 @@ teardown_test_dir() {
     unset SECTION_FILE VERSION DATE CHANGELOG_URL REL_BRANCH
 }
 
-# Generate a file of exactly N bytes (ASCII `a` characters plus a final
-# newline). Used to hit the truncation-boundary tests precisely.
+# Generate a file of exactly N bytes, all ASCII `a` characters, with
+# NO trailing newline. Used to hit the truncation-boundary tests
+# precisely (head -c cuts at exactly the byte count; tr doesn't add
+# anything, so the file is byte-exact).
 # Usage: make_body_of_size <path> <size-in-bytes>
 make_body_of_size() {
     local path="$1"

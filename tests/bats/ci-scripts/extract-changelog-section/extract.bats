@@ -87,7 +87,7 @@ EOF
     [[ "${output}" == *"may not contain a ## [8.2.0] heading"* ]]
 }
 
-@test "empty section (heading present but body empty until next heading) -> exit 1" {
+@test "bare heading with no body until next heading -> exit 0 (permissive, matches pre-extraction inline behavior)" {
     # awk emits the heading line itself even if there's no body, so
     # `[[ ! -s section_file ]]` alone wouldn't catch this. Verify the
     # empty-section guard matches the pre-extraction inline-block
