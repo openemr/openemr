@@ -145,41 +145,28 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
+    # Needed so the "Delete candidate tag from Docker Hub" step below can
+    # call .github/scripts/dockerhub-delete-tag.sh. persist-credentials:
+    # false because the delete step authenticates to Docker Hub with its
+    # own DOCKERHUB_USERNAME/TOKEN; leaving GITHUB_TOKEN in .git/config
+    # would be zero-value credential surface.
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
     - name: Delete candidate tag from Docker Hub
+      # continue-on-error preserves the pre-extraction behavior: a stale
+      # candidate tag is cosmetically annoying but not a correctness
+      # issue (the release-candidate-<run-id>-<attempt> naming makes it
+      # obvious it's an internal artifact), so cleanup failures shouldn't
+      # fail the whole release. Orthogonal to the script's exit code —
+      # the script exits non-zero on JWT failure / unexpected HTTP so the
+      # regression is visible in logs and BATS coverage, but the workflow
+      # tolerates it.
       continue-on-error: true
       env:
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-        CANDIDATE_TAG: ${{ inputs.candidate_tag }}
-      run: |
-        set -euo pipefail
-        # Docker Hub v2 API tag deletion requires a JWT obtained from the
-        # user-login endpoint (the raw personal-access-token isn't
-        # sufficient for this specific endpoint). Cheap two-call flow:
-        # POST /v2/users/login/ -> extract .token -> DELETE the tag.
-        # If the JWT flow fails (e.g., PAT lacks write:delete perms), the
-        # `continue-on-error: true` on the step swallows it — the tag
-        # lingers until manually cleaned, non-blocking.
-        JWT=$(curl -sf --max-time 30 -H 'Content-Type: application/json' \
-          -X POST -d "{\"username\": \"${DOCKERHUB_USERNAME}\", \"password\": \"${DOCKERHUB_TOKEN}\"}" \
-          https://hub.docker.com/v2/users/login/ | jq -r .token)
-        if [ -z "$JWT" ] || [ "$JWT" = "null" ]; then
-          echo "::warning::could not obtain Docker Hub JWT — cleanup skipped, candidate tag left in place"
-          exit 0
-        fi
-        echo "==> DELETE openemr/openemr:${CANDIDATE_TAG}"
-        HTTP_CODE=$(curl -s --max-time 30 -o /tmp/dh-delete-response -w '%{http_code}' \
-          -X DELETE \
-          -H "Authorization: JWT ${JWT}" \
-          "https://hub.docker.com/v2/repositories/openemr/openemr/tags/${CANDIDATE_TAG}/")
-        case "$HTTP_CODE" in
-          204|404)
-            # 204 = deleted; 404 = already gone (idempotent re-run).
-            echo "==> cleanup OK (HTTP ${HTTP_CODE})"
-            ;;
-          *)
-            echo "::warning::Docker Hub tag delete returned HTTP ${HTTP_CODE}:"
-            cat /tmp/dh-delete-response || true
-            exit 1
-            ;;
-        esac
+        TAG: ${{ inputs.candidate_tag }}
+      run: .github/scripts/dockerhub-delete-tag.sh
