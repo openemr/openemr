@@ -875,9 +875,6 @@ HTML;
         return $formData['Payload'];
     }
 
-    /**
-     * @return array<string, string|list<string>>
-     */
     public static function mimeParse(string $formBody, $contentType): array
     {
         // Normalize
