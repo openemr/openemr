@@ -154,11 +154,12 @@ jobs:
         # re-derives the same value internally as a defence-in-depth
         # against caller drift; passing it here surfaces intent.
         #
-        # Non-strict extraction with an empty-string fallback so a
-        # RUN_JSON missing .run_attempt flows into the script's own
-        # BATS-tested guard (with a clear ::error:: message) rather
-        # than aborting here with a raw jq error under set -e.
-        source_run_attempt=$(printf '%s' "$RUN_JSON" | jq -r '.run_attempt // ""')
+        # Non-strict extraction handles BOTH missing field (`.run_attempt
+        # // ""`) AND malformed JSON payload (`|| echo ""` captures the
+        # jq-parse-failure case). Both failure shapes then flow into the
+        # script's own BATS-tested guard rather than aborting here with a
+        # raw jq error under set -euo pipefail.
+        source_run_attempt=$(printf '%s' "$RUN_JSON" | jq -r '.run_attempt // ""' 2>/dev/null || echo "")
         EXPECTED_CANDIDATE_TAG="release-candidate-${SOURCE_RUN_ID}-${source_run_attempt}"
         export EXPECTED_CANDIDATE_TAG
 
