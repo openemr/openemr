@@ -1330,7 +1330,7 @@ class X12File
         if ($file_text) {
             // need to validate file edih_file_text($file_text, $type=false, $delimiters=false, $segments=false)
             $vars = $this->edih_file_text($file_text, true, true, false);
-            if (is_array($vars) && count($vars)) {
+            if (count($vars)) {
                 $f_str = $file_text;
                 $dt = $vars['delimiters']['t'] ?? '';
                 $de = $vars['delimiters']['e'] ?? '';
