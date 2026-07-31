@@ -126,6 +126,26 @@ class EventAuditLogger implements AuditLoggerInterface
     }
 
     /**
+     * Matches transaction control statements, which are never auditable: they
+     * name no table, touch no patient data, and carry no bound parameters.
+     *
+     * Both database layers route these through auditSQLEvent(). ADODB's
+     * BeginTrans()/CommitTrans()/RollbackTrans() run BEGIN/COMMIT/ROLLBACK
+     * through the audited ADODB_mysqli_log::Execute() wrapper, and the DBAL
+     * logging middleware synthesizes START TRANSACTION/COMMIT/ROLLBACK for the
+     * driver-level calls plus SAVEPOINT statements for nested transactions.
+     */
+    private const TRANSACTION_CONTROL_PATTERN = '/^(?:'
+        . 'BEGIN\b'
+        . '|START\s+TRANSACTION\b'
+        . '|COMMIT\b'
+        . '|ROLLBACK\b'
+        . '|SAVEPOINT\b'
+        . '|RELEASE\s+SAVEPOINT\b'
+        . '|SET\s+AUTOCOMMIT\s*='
+        . ')/i';
+
+    /**
      * @var array<string, EventCategory>
      */
     private const LOG_TABLES = [
@@ -429,6 +449,10 @@ class EventAuditLogger implements AuditLoggerInterface
     public function auditSQLEvent($statement, $outcome, $binds = null): void
     {
         $statement = trim((string) $statement);
+
+        if (preg_match(self::TRANSACTION_CONTROL_PATTERN, $statement) === 1) {
+            return;
+        }
 
         if (
             (stripos($statement, "insert into log") !== false)      // avoid infinite loop
