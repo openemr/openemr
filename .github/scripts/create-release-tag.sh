@@ -76,7 +76,12 @@ git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 # transport) and must abort rather than fall through to a tag push
 # that would mask the underlying error.
 tag_lookup_status=0
-git ls-remote --tags --exit-code origin "refs/tags/${tag}" > /dev/null 2>&1 || tag_lookup_status=$?
+# Capture stderr into a variable so the wildcard-failure branch below
+# can surface git's own diagnostic (auth error, transport failure,
+# etc.) alongside the exit code — speeds up incident triage on the
+# release-critical path. `2>&1 > /dev/null` reorders redirects: stderr
+# to captured stdout, then the original stdout to /dev/null.
+tag_lookup_stderr=$(git ls-remote --tags --exit-code origin "refs/tags/${tag}" 2>&1 > /dev/null) || tag_lookup_status=$?
 case "${tag_lookup_status}" in
     0)
         echo "Tag ${tag} already exists on origin, skipping tag creation"
@@ -86,7 +91,7 @@ case "${tag_lookup_status}" in
         git push origin "${tag}"
         ;;
     *)
-        echo "::error::Failed to query origin for tag ${tag} (git ls-remote exit ${tag_lookup_status})" >&2
+        echo "::error::Failed to query origin for tag ${tag} (git ls-remote exit ${tag_lookup_status}): ${tag_lookup_stderr}" >&2
         exit "${tag_lookup_status}"
         ;;
 esac
