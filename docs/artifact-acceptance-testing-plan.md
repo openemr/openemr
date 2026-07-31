@@ -1823,21 +1823,46 @@ drift-bug sources.
       immediately); `notify-release-targets-changed.yml` dispatch;
       `ship-release.yml` delegates to PHP `task ship`.
 
-  * **10e-2 — Slice: `acceptance-only-guardrails`.** Extract the
-    48h age check + workflow_path check + (docker) candidate_tag
-    binding + Docker Hub HEAD into `.github/scripts/validate-source-
-    run.sh`. Env contract: RUN_JSON fixture + SOURCE_RUN_ID +
-    (optional) EXPECTED_CANDIDATE_TAG. ~12-15 BATS tests covering
-    eligible / expired / wrong-path / malformed-timestamp /
-    candidate-tag-mismatch / HTTP 200 / 404 / 500 / curl-fail.
-    Value: highest — plan-doc-listed priority + small extraction.
+  * **10e-2 — Slice: `acceptance-only-guardrails` — SHIPPED
+    2026-07-31 as #13294.** Agent split into two scripts by concern
+    (offline metadata parse vs network I/O): `validate-source-run.sh`
+    handles the 48h age check + workflow_path check + candidate_tag
+    binding, `verify-dockerhub-tag-exists.sh` handles the remote HEAD
+    probe. Both scripts under `.github/scripts/`, both master-only
+    (callers are master-only recovery workflows). New BATS at
+    `tests/bats/ci-scripts/validate-source-run/` (22 tests) +
+    `tests/bats/ci-scripts/verify-dockerhub-tag-exists/` (9 tests).
+    Rabbit iterated 3 rounds; ended up applying: caller-drift BATS
+    case (round 2, defense-in-depth branch was implicit-only);
+    caller-side `jq -er` → non-strict + `|| echo` capture-with-default
+    (round 3, so malformed RUN_JSON flows to the script's guards
+    instead of aborting with raw jq error under set -e). Alpine
+    `setup_file()` shim apk-installs jq + coreutils (BusyBox mktemp
+    rejects ISO-8601 T…Z; coreutils gets GNU date).
 
-  * **10e-3 — Slice: `docker-publish-cleanup` JWT+DELETE.** Extract
-    the cleanup-candidate step from `reusable-docker-publish.yml`
-    into `.github/scripts/dockerhub-delete-tag.sh`. ~6-8 tests via
-    mocked curl: JWT ok / JWT null / JWT missing / DELETE 204 /
-    404 / 401 / 5xx. Blast radius (silent stale-tag accumulation
-    forever, no visibility) makes this worth the mock-curl effort.
+  * **10e-3 — Slice: `docker-publish-cleanup` JWT+DELETE — SHIPPED
+    2026-07-31 as #13293.** Extracted cleanup-candidate step into
+    `.github/scripts/dockerhub-delete-tag.sh`. New BATS at
+    `tests/bats/ci-scripts/dockerhub-delete-tag/` (8 tests, mocked
+    curl). Byte-identical caveat surfaced during extraction:
+    `reusable-docker-publish.yml` IS byte-identical'd to rel-810/820+
+    (not master-only as the audit assumed), so the extracted script
+    was added to `.github/byte-identical.yml` with the same
+    `[rel-800, rel-704]` exclusion; without that, rel-branch runs
+    would `run: .github/scripts/dockerhub-delete-tag.sh` and hit a
+    missing file. Rabbit iterated 3 rounds; ended up applying:
+    build-body-with-jq (round 1, JSON-escape safety for
+    quote/backslash in creds); token via `--rawfile` from mktemp'd
+    tempfile (round 3, keeps raw token out of jq's argv); response-
+    body echoes prefix each line with 2 spaces + strip CR (round 3,
+    prevents GHA workflow-command injection via response containing
+    `::error::` or `%0A`). Skipped rabbit's mock-body-assertion
+    suggestion (round 3) — muddles mock concerns; jq escaping is
+    already trusted. Also surfaced a silent-failure improvement in
+    the process: original inline `curl -sf` on login masked 401/403
+    as empty JWT → warn + exit 0; extracted script surfaces HTTP
+    errors honestly (workflow's `continue-on-error: true` still
+    tolerates it operationally).
 
   * **10e-4 — Slice: `acceptance-package-detect-mode`.** Extract
     detect-mode's ~140-line shell block (incl. `emit_to_version`
@@ -1942,13 +1967,12 @@ drift-bug sources.
 rabbit finding, no behavior change) — SHIPPED. 10c second (biggest
 ergonomic win — eliminates manual recovery steps) — SHIPPED. 10b +
 10d + 10f shipped together in parallel — SHIPPED 2026-07-30. 10e
-now sub-sliced: 10e-1 (portable-mktemp) SHIPPED as #13292;
-10e-audit DONE 2026-07-30; 10e-2 through 10e-6 planned as ranked
-follow-ups (10e-2 acceptance-only guardrails first, 10e-3 docker-
-publish JWT cleanup second, 10e-4 detect-mode extract third — all
-three worth doing per plan; 10e-5 + 10e-6 lower-priority but
-present). 10g remains optional — do not do unless the cost/benefit
-shifts.
+now sub-sliced: 10e-1 SHIPPED 2026-07-30 as #13292; 10e-audit DONE
+2026-07-30; 10e-2 + 10e-3 SHIPPED 2026-07-31 as #13294 + #13293.
+Remaining: 10e-4 (detect-mode extract, still the biggest-logic-
+density gap per audit) + 10e-5 (reusable-publish tag-create) + 10e-6
+(release-amendment changelog-extract). 10g remains optional — do not
+do unless the cost/benefit shifts.
 
 **Not in Phase 10 scope:** anything that changes acceptance
 semantics or gate topology. This is refactoring-in-place. If a
@@ -3082,3 +3106,41 @@ in acceptance."
   10e entry to prevent future noise-BATS PRs on things that either
   need real-API access (permissions probes) or fail loud enough
   already (orchestration, IMAGE_VERSION parse, etc.).
+
+- **2026-07-31 — Phase 10e-2 + 10e-3 SHIPPED (#13294 + #13293).**
+  Two of the three next-round Phase 10e slices landed in parallel
+  the day after the audit. Only 10e-4 (detect-mode extract, ~140
+  lines) remains from the "committed follow-up" list; 10e-5 + 10e-6
+  still tracked as lower priority.
+
+    * **10e-2 (#13294)** — source-run validation extract. Agent
+      split into two scripts by concern (offline metadata vs
+      network I/O) rather than one script with env-flag toggles —
+      cleaner mocking + reasoning. Rabbit iterated 3 rounds:
+      round 1 clean, round 2 asked for a caller-drift BATS case +
+      relax caller `jq -er` to non-strict (applied), round 3
+      pointed out the round-2 fix only handled missing fields not
+      malformed-JSON (applied with `2>/dev/null || echo` capture).
+
+    * **10e-3 (#13293)** — Docker Hub JWT+DELETE extract. Byte-
+      identical surprise: `reusable-docker-publish.yml` IS synced
+      to rel-810/820+ (audit misread as master-only), so the new
+      script had to be added to byte-identical.yml with the same
+      rel-800/rel-704 exclusion as the caller. Rabbit iterated 3
+      rounds: round 1 asked for jq-build-body + curl-mock method
+      assertions (applied), round 3 asked for token via `--rawfile`
+      to keep it out of jq argv + response-body sanitization to
+      prevent GHA workflow-command injection via `::error::`
+      markers (applied). Skipped the round-3 mock-body-assertion
+      suggestion (muddles mock concerns; jq escaping already
+      trusted). Also surfaced a silent-failure improvement: the
+      original inline `curl -sf` on login masked 401/403 credential
+      failures as empty JWT → warn + exit 0; extracted script
+      surfaces HTTP errors honestly.
+
+    * **Rebase quirk on 10e-3**: since 10e-2 landed first and both
+      PRs touched `test-byte-identical-scripts.yml` (each adding
+      new BATS suite paths) + `byte-identical.yml`, 10e-3 needed
+      `git rebase FETCH_HEAD` + a `--force-with-lease` push after
+      resolving a trivial one-line conflict in the workflow's BATS-
+      runner list.
