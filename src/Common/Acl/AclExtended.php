@@ -71,7 +71,10 @@ class AclExtended
     // Get the ACO name/value pairs for a designated section.  Each value
     // is an array (section_value, value, order_value, name, hidden).
     //
-    private static function aclGetSectionAcos($section)
+    /**
+     * @return mixed[]
+     */
+    private static function aclGetSectionAcos($section): array
     {
         $gacl = self::collectGaclApiObject();
         $arr1 = $gacl->get_objects($section, 1, 'ACO');
@@ -116,7 +119,10 @@ class AclExtended
     //
     // Returns a sorted array of all available Group Titles.
     //
-    public static function aclGetGroupTitleList($include_superusers = true)
+    /**
+     * @return mixed[]
+     */
+    public static function aclGetGroupTitleList($include_superusers = true): array
     {
         $gacl = self::collectGaclApiObject();
         $parent_id = $gacl->get_root_group_id();
@@ -506,7 +512,10 @@ class AclExtended
     //
     // Function to remove an element from an array
     //
-    private static function removeElement($arr, $val)
+    /**
+     * @return mixed[]
+     */
+    private static function removeElement($arr, $val): array
     {
         $arr2 = [];
         foreach ($arr as $value) {
@@ -542,7 +551,10 @@ class AclExtended
 
 
     // Returns array of all ACOs
-    public static function genAcoArray()
+    /**
+     * @return non-empty-array<array{name: mixed, value: non-falsy-string}>[]
+     */
+    public static function genAcoArray(): array
     {
         $acoArray = [];
         $gacl = self::collectGaclApiObject();
@@ -1097,7 +1109,7 @@ class AclExtended
      * @param  string  $username              Name of user
      * @return array                          The array of ACOs
      */
-    public static function getUserPermissions($username = '')
+    public static function getUserPermissions($username = ''): array
     {
         if (!$username) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();

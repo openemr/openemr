@@ -3534,7 +3534,7 @@ class EncounterccdadispatchTable
      * @param $user_id
      * @return array
      */
-    public function fetchFields($ccda_component, $ccda_section, $user_id)
+    public function fetchFields($ccda_component, $ccda_section, $user_id): array
     {
         $form_type = $table_name = $field_names = '';
         $query = "select * from ccda_table_mapping
@@ -3748,7 +3748,7 @@ class EncounterccdadispatchTable
      * @param $date
      * @return array
      */
-    public function getEncounterDate($date)
+    public function getEncounterDate($date): array
     {
         $date_list = [];
         $query = "select pid, encounter from form_encounter where date between ? and ?";
@@ -3776,7 +3776,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return array
      */
-    public function signOff($pid, $encounter)
+    public function signOff($pid, $encounter): array
     {
         /*Saving Demographics to locked data*/
         $query_patient_data = "SELECT * FROM patient_data WHERE pid = ?";
@@ -3886,7 +3886,7 @@ class EncounterccdadispatchTable
      * @param $type
      * @return array
      */
-    public function getCCDAComponents($type)
+    public function getCCDAComponents($type): array
     {
         $get = new SendtoTable();
         $components = $get->getCcdaComponents($type);
@@ -4774,7 +4774,7 @@ class EncounterccdadispatchTable
      * @param $pid
      * @return array
      */
-    private function getReferralRecords($pid)
+    private function getReferralRecords($pid): array
     {
         $wherCon = '';
         $sqlBindArray = [$pid];
@@ -4873,7 +4873,7 @@ class EncounterccdadispatchTable
      * @param $encounter
      * @return array
      */
-    private function getEncounterListForDateRange($pid, $encounter)
+    private function getEncounterListForDateRange($pid, $encounter): array
     {
         $encounter = '';
         $boundParams = [$pid];

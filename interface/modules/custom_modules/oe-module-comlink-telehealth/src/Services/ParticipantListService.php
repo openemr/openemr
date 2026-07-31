@@ -11,7 +11,10 @@ class ParticipantListService
     {
     }
 
-    public function getParticipantListWithInvitationsForAppointment($user, $session)
+    /**
+     * @return mixed[]
+     */
+    public function getParticipantListWithInvitationsForAppointment($user, $session): array
     {
         $participants = $this->getParticipantListForAppointment($user, $session);
         $link = $this->getJoinLink($session);
@@ -41,7 +44,7 @@ class ParticipantListService
             . intval($session['pc_eid']);
     }
 
-    public function getSparseParticipantListFromSession($session)
+    public function getSparseParticipantListFromSession($session): array
     {
         $participantList = [
             [
@@ -68,7 +71,7 @@ class ParticipantListService
     }
 
 
-    public function getParticipantListForAppointment($user, $session)
+    public function getParticipantListForAppointment($user, $session): array
     {
         $userTelehealthSettings = $this->provisioningService->getOrCreateTelehealthProvider($user);
 

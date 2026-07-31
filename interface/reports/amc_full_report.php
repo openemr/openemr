@@ -15,7 +15,10 @@ require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 
-function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
+/**
+ * @return mixed[]
+ */
+function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = []): array
 {
     $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];

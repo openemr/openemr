@@ -1247,7 +1247,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      * @param array $arg possible arguments: engine, table_name
      * @return SQLStatement
      */
-    private function getTablesList($arg = [])
+    private function getTablesList($arg = []): array
     {
         $binds = [$this->databaseName()];
         $sql = 'SELECT TABLE_NAME AS table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = "BASE TABLE"';

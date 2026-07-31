@@ -187,8 +187,9 @@ class DataDriverMySQLi implements IDataDriver
 
     /**
      * @inheritdocs
+     * @return mixed[]
      */
-    function GetTableNames($connection, $dbname, $ommitEmptyTables = false)
+    function GetTableNames($connection, $dbname, $ommitEmptyTables = false): array
     {
         $sql = "SHOW TABLE STATUS FROM `" . $this->Escape($dbname) . "`";
         $rs = $this->Query($connection, $sql);

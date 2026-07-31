@@ -224,7 +224,7 @@ class GenHl7OrderBase
      * @param string  $date
      * @return array   Array containing an array of data for each payer.
      */
-    public function loadPayerInfo($pid, $date = '')
+    public function loadPayerInfo($pid, $date = ''): array
     {
         if (empty($date)) {
             $date = date('Y-m-d');
@@ -258,7 +258,10 @@ class GenHl7OrderBase
         return $payers;
     }
 
-    public function loadGuarantorInfo($pid, $date = '')
+    /**
+     * @return array{data: mixed}[]
+     */
+    public function loadGuarantorInfo($pid, $date = ''): array
     {
         if (empty($date)) {
             $date = date('Y-m-d');

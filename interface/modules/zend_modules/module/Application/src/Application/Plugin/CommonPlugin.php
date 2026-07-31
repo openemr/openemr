@@ -120,7 +120,10 @@ class CommonPlugin extends AbstractPlugin
         return $audit_master_id;
     }
 
-    public function getList($list_id, $selected = '', $opt = '')
+    /**
+     * @return array{value: '', label: mixed, disabled: false}[]|array{value: string, label: mixed, selected: bool}[]
+     */
+    public function getList($list_id, $selected = '', $opt = ''): array
     {
         $this->listenerObject = new Listener();
         $res = QueryUtils::fetchRecords("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", [$list_id]);

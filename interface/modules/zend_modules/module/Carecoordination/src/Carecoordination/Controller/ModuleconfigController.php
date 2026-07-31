@@ -55,7 +55,10 @@ class ModuleconfigController extends AbstractActionController
         return $this->inputFilter;
     }
 
-    public function getHookConfig()
+    /**
+     * @return list<array{name: 'send_to_hie', title: 'Send To HIE', path: 'encountermanager'}>
+     */
+    public function getHookConfig(): array
     {
     //SOECIFY HOOKS DETAILS OF A MODULE IN AN ARRAY, WITH MODULE NAME AS KEY
     //SHOULD SPECIFY THE CONTROLLER AND ITS ACTION IN THE PATH, INCLUDING INDEX ACTION
@@ -70,7 +73,7 @@ class ModuleconfigController extends AbstractActionController
         return $hooks;
     }
 
-    public function getDependedModulesConfig()
+    public function getDependedModulesConfig(): array
     {
         // these modules need to be activated before this module can be installed
         $dependedModules = [
@@ -82,7 +85,10 @@ class ModuleconfigController extends AbstractActionController
         return $dependedModules;
     }
 
-    public function getAclConfig()
+    /**
+     * @return list<array{section_id: 'send_to_hie', section_name: 'Send To HIE', parent_section: 'carecoordination'}>
+     */
+    public function getAclConfig(): array
     {
         $acl = [
         [

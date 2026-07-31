@@ -259,8 +259,9 @@ class RuleManager
 
     /**
      * @param Rule $rule
+     * @return \OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleTargets[]
      */
-    private function fetchRuleTargetCriteria($rule)
+    private function fetchRuleTargetCriteria($rule): array
     {
         $stmt = sqlStatement(self::SQL_RULE_TARGET, [$rule->id]);
         $criterion = $this->gatherCriteria(
@@ -285,8 +286,9 @@ class RuleManager
 
     /**
      * @param Rule $rule
+     * @return \OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleActions[]
      */
-    private function fetchRuleActions($rule)
+    private function fetchRuleActions($rule): array
     {
         $stmt = sqlStatement(self::SQL_RULE_ACTIONS, [$rule->id]);
         $ruleActionGroups = [];
@@ -410,8 +412,9 @@ class RuleManager
      * supplied sql source.
      * @param Rule $rule
      * @param RuleCriteriaFactory $factory
+     * @return mixed[]
      */
-    private function gatherCriteria($rule, $stmt, $factory)
+    private function gatherCriteria($rule, $stmt, $factory): array
     {
         $criterion = [];
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
@@ -687,7 +690,10 @@ class RuleManager
         }
     }
 
-    function getAllowedFilterCriteriaTypes()
+    /**
+     * @return mixed[]
+     */
+    function getAllowedFilterCriteriaTypes(): array
     {
         $allowed = [];
         foreach (RuleCriteriaType::values() as $type) {
@@ -698,7 +704,7 @@ class RuleManager
         return $allowed;
     }
 
-    function getAllowedTargetCriteriaTypes()
+    function getAllowedTargetCriteriaTypes(): array
     {
         $allowed = [];
         array_push($allowed, RuleCriteriaType::from(RuleCriteriaType::lifestyle));

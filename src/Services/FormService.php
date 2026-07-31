@@ -20,13 +20,16 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class FormService
 {
+    /**
+     * @return mixed[]
+     */
     public function getFormByEncounter(
         $attendant_id,
         $encounter,
         $cols = "form_id, form_name",
         $name = "",
         $orderby = "FIND_IN_SET(formdir,'vitals') DESC, date DESC"
-    ) {
+    ): array {
 
         global $attendant_type;
         $arraySqlBind = [];

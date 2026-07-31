@@ -77,7 +77,7 @@ class QueryUtils
      * @param   string  $table sql table
      * @return  string[]
      */
-    public static function listTableFields($table)
+    public static function listTableFields($table): array
     {
         if (!array_key_exists($table, self::$tableFieldsCache)) {
             $sql = "SHOW COLUMNS FROM " . self::escapeTableName($table);
@@ -139,7 +139,7 @@ class QueryUtils
      * @param mixed[] $binds
      * @return list<array<mixed>>
      */
-    public static function fetchRecordsNoLog($sqlStatement, $binds = [])
+    public static function fetchRecordsNoLog($sqlStatement, $binds = []): array
     {
         // Below line is to avoid a nasty bug in windows.
         if (empty($binds)) {
@@ -170,7 +170,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return list<mixed>
      */
-    public static function fetchTableColumn($sqlStatement, $column, $binds = [])
+    public static function fetchTableColumn($sqlStatement, $column, $binds = []): array
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -197,7 +197,7 @@ class QueryUtils
      * @param bool $noLog
      * @return list<array<mixed>>
      */
-    public static function fetchRecords($sqlStatement, $binds = [], $noLog = false)
+    public static function fetchRecords($sqlStatement, $binds = [], $noLog = false): array
     {
         $result = self::sqlStatementThrowException($sqlStatement, $binds, $noLog);
         $list = [];
@@ -215,7 +215,7 @@ class QueryUtils
      * @throws SqlQueryException Thrown if there is an error in the database executing the statement
      * @return array<mixed>
      */
-    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = [])
+    public static function fetchTableColumnAssoc($sqlStatement, $column, $binds = []): array
     {
         $recordSet = self::sqlStatementThrowException($sqlStatement, $binds);
         $list = [];
@@ -382,7 +382,7 @@ class QueryUtils
      * @throws SqlQueryException If the query is invalid
      * @return array of associative arrays | one associative array.
      */
-    public static function selectHelper($sqlUpToFromStatement, $map)
+    public static function selectHelper($sqlUpToFromStatement, $map): array
     {
         $where = $map["where"] ?? null;
         $data  = isset($map["data"]) && is_array($map['data']) ? $map["data"]  : [];

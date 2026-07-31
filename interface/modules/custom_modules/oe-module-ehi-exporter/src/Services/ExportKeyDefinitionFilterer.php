@@ -183,7 +183,10 @@ class ExportKeyDefinitionFilterer
         return false;
     }
 
-    public function filterMultipleKeys(ExportKeyDefinition $key)
+    /**
+     * @return \OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition[]
+     */
+    public function filterMultipleKeys(ExportKeyDefinition $key): array
     {
         $keys = [];
         if ($key->localTable == 'lists') {

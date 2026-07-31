@@ -172,7 +172,10 @@ function print_as_money($money)
 }
 
 // get an array from Photos category
-function pic_array($pid, $picture_directory)
+/**
+ * @return mixed[]
+ */
+function pic_array($pid, $picture_directory): array
 {
     $pics = [];
     $sql_query = "select documents.id from documents join categories_to_documents " .

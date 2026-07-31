@@ -85,7 +85,7 @@ function hl7Workman($s)
  * @param  date $encounter_date YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
-function labcorp_loadPayerInfo($pid, $date = '')
+function labcorp_loadPayerInfo($pid, $date = ''): array
 {
     if (empty($date)) {
         $date = date('Y-m-d');
@@ -121,7 +121,10 @@ function labcorp_loadPayerInfo($pid, $date = '')
     return $payers;
 }
 
-function loadGuarantorInfo($pid, $date = '')
+/**
+ * @return array{data: mixed}[]
+ */
+function loadGuarantorInfo($pid, $date = ''): array
 {
     if (empty($date)) {
         $date = date('Y-m-d');

@@ -175,7 +175,10 @@ class X12RemoteTracker extends BaseService
         return $results;
     }
 
-    protected function onlyRealFields($passed_in)
+    /**
+     * @return mixed[]
+     */
+    protected function onlyRealFields($passed_in): array
     {
         $realFields = [];
         foreach ($passed_in as $key => $value) {

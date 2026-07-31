@@ -199,7 +199,10 @@ abstract class AbstractCqmReport implements RsReportIF
         return $this->_resultsArray;
     }
 
-    private function initNumeratorPopulations(array $numerators)
+    /**
+     * @return int[]
+     */
+    private function initNumeratorPopulations(array $numerators): array
     {
         $numeratorPatientPopulations = [];
         foreach ($numerators as $numerator) {
