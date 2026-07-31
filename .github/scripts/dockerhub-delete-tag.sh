@@ -57,15 +57,23 @@ REPO="${REPO:-openemr/openemr}"
 # TLS, timeout, connection reset) produces a clear ::error:: instead of
 # silently propagating a JSON-parse failure downstream.
 login_response_file=$(mktemp)
-trap 'rm -f "${login_response_file}"' EXIT
+# Write the token to a tempfile so jq can read it via --rawfile
+# instead of receiving it as a --arg. That keeps the raw token out of
+# jq's argv (visible via `ps aux` for the jq call's lifetime). Both
+# tempfiles cleaned up in the same trap.
+token_file=$(mktemp)
+trap 'rm -f "${login_response_file}" "${token_file}"' EXIT
+printf '%s' "${DOCKERHUB_TOKEN}" > "${token_file}"
 
 echo "==> POST https://hub.docker.com/v2/users/login/"
-# Build the JSON body with jq so a `"` or `\` in the username or token
-# doesn't produce a malformed request. Piped via stdin so the raw token
-# never appears in argv (visible via `ps` for the curl call's lifetime).
+# Build the JSON body with jq so a `"` or `\` in either credential
+# doesn't produce a malformed request. Username is short + non-secret
+# so --arg is fine; token uses --rawfile (see token_file above) to
+# stay out of argv. Body piped to curl via stdin so it also stays out
+# of curl's argv.
 login_body=$(jq -n \
     --arg u "${DOCKERHUB_USERNAME}" \
-    --arg p "${DOCKERHUB_TOKEN}" \
+    --rawfile p "${token_file}" \
     '{username: $u, password: $p}')
 curl_exit=0
 curl --connect-timeout 10 --max-time 30 -sS \
@@ -86,8 +94,11 @@ fi
 JWT=$(jq -r '.token // ""' < "${login_response_file}" 2>/dev/null || echo "")
 if [[ -z "${JWT}" ]] || [[ "${JWT}" = "null" ]]; then
     echo "::error::Could not obtain Docker Hub JWT from login response (no .token field, or field was null/empty)."
-    echo "::error::Response body:"
-    cat "${login_response_file}" || true
+    echo "::error::Response body (each line prefixed to prevent workflow-command injection):"
+    # `sed 's/^/  /'` on every line + `tr -d '\r'` strips CR — prevents
+    # a response containing `::error::` or `%0A` from being interpreted
+    # as an injected GHA workflow command.
+    sed 's/^/  /' "${login_response_file}" | tr -d '\r' || true
     exit 1
 fi
 
@@ -98,7 +109,7 @@ fi
 #   *   = anything else is unexpected; surface the response body and
 #         exit non-zero so the operator can see what happened.
 delete_response_file=$(mktemp)
-trap 'rm -f "${login_response_file}" "${delete_response_file}"' EXIT
+trap 'rm -f "${login_response_file}" "${token_file}" "${delete_response_file}"' EXIT
 
 url="https://hub.docker.com/v2/repositories/${REPO}/tags/${TAG}/"
 echo "==> DELETE ${url}"
@@ -123,8 +134,9 @@ case "${http_code}" in
         echo "==> cleanup OK: ${REPO}:${TAG} already gone (HTTP 404)"
         ;;
     *)
-        echo "::error::Docker Hub tag delete returned HTTP ${http_code}. Response body:"
-        cat "${delete_response_file}" || true
+        echo "::error::Docker Hub tag delete returned HTTP ${http_code}. Response body (each line prefixed to prevent workflow-command injection):"
+        # Same sanitization as the login-response echo above.
+        sed 's/^/  /' "${delete_response_file}" | tr -d '\r' || true
         exit 1
         ;;
 esac
