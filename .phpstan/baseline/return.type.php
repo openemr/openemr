@@ -327,11 +327,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function load_fee_sheet_options\\(\\) should return an but returns list\\<fee_sheet_option\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_options_queries.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function get_appt_data\\(\\) should return array but returns array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/group_attendance/functions.php',
