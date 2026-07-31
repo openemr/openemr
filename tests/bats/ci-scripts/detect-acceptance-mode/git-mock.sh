@@ -20,6 +20,11 @@
 #                          `git diff --name-only`. Unset or empty
 #                          means no files (mimics a diff that
 #                          touched nothing on the release surface).
+#   MOCK_GIT_DIFF_EXIT     optional non-zero exit for `git diff` to
+#                          simulate an unresolvable range (fatal:
+#                          bad revision, etc.). When set + non-zero,
+#                          the mock exits with that code before
+#                          emitting output.
 
 set -euo pipefail
 
@@ -30,6 +35,11 @@ case "${subcommand}" in
     diff)
         # Only the `--name-only <range>` shape is supported (the only
         # form the script uses). Ignore all args and emit the fixture.
+        diff_exit="${MOCK_GIT_DIFF_EXIT:-0}"
+        if [[ "${diff_exit}" -ne 0 ]]; then
+            echo "fatal: bad revision (simulated)" >&2
+            exit "${diff_exit}"
+        fi
         if [[ -n "${MOCK_GIT_DIFF_OUTPUT:-}" ]]; then
             printf '%s\n' "${MOCK_GIT_DIFF_OUTPUT}"
         fi

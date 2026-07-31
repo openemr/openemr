@@ -213,7 +213,19 @@ fi
 # itself, the phing buildfile that owns the prune target list,
 # or the .gitattributes export-ignore rules that gate what
 # ships. tools/release/** is the primary surface.
-if git diff --name-only "${BASE}".."${HEAD}" | grep -qE '^(tools/release/|build\.xml$|\.gitattributes$)'; then
+#
+# Capture git diff separately from the grep so a git-side failure
+# (unresolvable range after a force-push + reflog GC, etc.) exits
+# loudly. Under set -euo pipefail the pipeline's exit status is the
+# rightmost non-zero; without this split, git diff's failure would
+# be masked by grep's exit-1-for-no-match and silently reported as
+# "no relevant change" -> build_locally=false, wrong-artifact
+# validation with no ::error:: line.
+changed_files=$(git diff --name-only "${BASE}".."${HEAD}") || {
+    echo "::error::git diff failed for range ${BASE}..${HEAD}"
+    exit 1
+}
+if grep -qE '^(tools/release/|build\.xml$|\.gitattributes$)' <<< "${changed_files}"; then
     echo "==> tarball-build surface changed between ${BASE} and ${HEAD}: build_locally=true"
     echo "build_locally=true" >> "${GITHUB_OUTPUT}"
     emit_to_version "true"

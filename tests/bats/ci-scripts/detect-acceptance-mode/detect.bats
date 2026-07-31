@@ -206,6 +206,29 @@ teardown() {
     [[ "${emitted}" == *"to_version=99.99.99"* ]]
 }
 
+@test "git diff failure surfaces loudly with ::error:: (not silently masked by grep)" {
+    # Regression guard: under set -euo pipefail, a plain `git diff |
+    # grep -qE` pipeline masks a git-side failure as grep's exit-1-
+    # for-no-match (rightmost non-zero wins under pipefail), silently
+    # reporting build_locally=false. The fix captures git diff
+    # separately + checks exit before grepping. This test simulates
+    # git diff exiting non-zero (unresolvable range after force-push
+    # + reflog GC, etc.) and asserts we exit 1 with a clear
+    # ::error:: line, NOT a quiet build_locally=false.
+    export EVENT_NAME="push"
+    export PUSH_REF="refs/heads/some-branch"
+    export PUSH_BEFORE_SHA="deadbeef"
+    export PUSH_HEAD_SHA="cafef00d"
+    export MOCK_GIT_DIFF_EXIT="128"
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::git diff failed for range deadbeef..cafef00d"* ]]
+    # Must NOT have silently emitted build_locally=false.
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" != *"build_locally=false"* ]]
+}
+
 @test "push with README.md only -> build_locally=false, to_version=8.2.0" {
     export EVENT_NAME="push"
     export PUSH_REF="refs/heads/some-branch"
