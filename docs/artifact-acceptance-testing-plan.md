@@ -1993,6 +1993,90 @@ semantics or gate topology. This is refactoring-in-place. If a
 consolidation exposes a bug (e.g. drift between the 3 OCI verify
 copies), fix in a paired PR with clear before/after tests.
 
+### Phase 11 — Native arm64 for release-time docker builds (rel-810+) *(proposed 2026-07-31; attack next after Phase 10 wraps)*
+
+**Goal:** Move release-time docker builds from QEMU-emulated arm64 on a
+single amd64 runner to native arm64 builds on arm64 runners, mirroring
+the Phase 7d pattern already used at PR-validation time.
+
+**Motivation** (three benefits, all real):
+
+1. **Reliability.** QEMU intermittently SIGILLs (exit 132) during
+   arm64 build steps like `apk add build-base` / composer / npm.
+   rel-800 hit this 2026-07-30 daily orchestrator (recovered
+   2026-07-31); the same class of failure surfaced repeatedly during
+   Phase 7d PR-validation work before we moved to native. Native
+   builds don't hit that class of failure at all.
+2. **Speed.** Native arm64 is ~5-10x faster than emulated. rel-704 +
+   rel-800 builds currently take ~1h (per activity-log 2026-07-27
+   note); native would land in 10-15 min.
+3. **Correctness parity.** Phase 7d already validates on native arm64
+   at PR time. Release-time still QEMU-builds means we ship a
+   differently-produced arm64 image than what was validated. Not a
+   correctness bug today (same Dockerfile → same content), but a
+   drift surface — any QEMU-specific behavior (missing instructions,
+   syscall differences) that PR-validation caught would ship uncaught.
+
+**Scope decision — rel-810+ only:**
+
+- rel-704 + rel-800 have a monolithic Dockerfile that predates split-
+  arch-friendly structure. Restructuring them is a separate project
+  (Dockerfile split, ARG plumbing, cross-arch testing) worth doing
+  only if daily-orchestrator flakes become a maintenance burden.
+- Those branches are maintenance-only anyway; daily-retry catches
+  QEMU flakes eventually and the images are less-frequently pulled.
+- rel-810+ have the modern multi-stage Dockerfile that already
+  accommodates the split-build pattern Phase 7d uses.
+
+**Design shape:**
+
+- Split `docker-build-release.yml`'s build job into a matrix (amd64
+  runner + arm64 runner), each producing a per-arch pushed image
+  under an intermediate arch-specific tag.
+- Add a manifest-merge job that runs `docker buildx imagetools
+  create` to unify the per-arch pushed images into one multi-arch
+  final tag. Same imagetools-alias pattern Phase 10c uses for
+  candidate → final promotion.
+- Preserve all existing gates: OCI-label verify (Phase 10a extracted
+  script), acceptance-gate (Phase 7c-docker-latest-gate), publish
+  (Phase 10c reusable), cleanup-candidate (Phase 10c reusable + 10e-3
+  extracted script).
+- Byte-identical: `docker-build-release.yml` IS byte-identical'd to
+  rel-810/820+ with rel-800/rel-704 exclusion. The restructure
+  propagates automatically to rel-810 + rel-820 (any future rel-830+
+  inherits too). Existing exclusion protects rel-800/rel-704 from
+  the split-arch structure they can't consume.
+
+**Costs:**
+
+- GHA arm64 hosted-runners are 2x amd64 minutes. Amortized over 4
+  daily orchestrator runs (master + rel-820 + one more rel-branch =
+  3 native-arm64-eligible per day), roughly triples the arm-related
+  minutes vs current single-runner QEMU pass. Real dollar impact is
+  small because arm64 build takes 10-15 min native vs 30-45 min
+  QEMU, so total minutes are comparable.
+- More YAML surface: matrix build + manifest-merge job. Phase 7d
+  already carries this pattern for PR-validation, so the shape is
+  proven.
+
+**Blast radius on transition:**
+
+- `docker buildx imagetools create` merge pattern proven in Phase 7d
+  (PR-time) and Phase 10c (acceptance-only recovery).
+- Rollback: revert the workflow structure; each arch image still
+  exists on Docker Hub under intermediate tags for the transition
+  window.
+
+**Not blocking rel-830:** the ~2-week cadence to rel-830 cut is not
+gated by this — QEMU still works, just slower + occasionally flaky.
+Phase 11 is quality-of-life + reliability improvement, not
+correctness blocker.
+
+**Sequencing:** attack after Phase 10 fully wraps (10e-5 + 10e-6 in
+flight; 10g optional-skip). Phase 11 is single-slice (not
+sub-sliced) — the change is one atomic restructure of docker-build-
+release.yml + testing.
+
 ## Test-coverage philosophy
 
 Guidelines for where a new test belongs, once both surfaces exist:
