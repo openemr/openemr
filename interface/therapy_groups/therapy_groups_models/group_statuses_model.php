@@ -31,7 +31,6 @@ class Group_Statuses
 
     /**
      * Gets group appointment statuses
-     * @return ADORecordSet_mysqli
      */
     public function getGroupStatuses(): array
     {
@@ -47,7 +46,6 @@ class Group_Statuses
 
     /**
      * Gets group meeting attendance statuses
-     * @return ADORecordSet_mysqli
      */
     public function getGroupAttendanceStatuses(): array
     {

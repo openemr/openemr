@@ -876,7 +876,7 @@ HTML;
     }
 
     /**
-     * @return \non-empty-list<string>[]|string[]
+     * @return array<string, string|list<string>>
      */
     public static function mimeParse(string $formBody, $contentType): array
     {

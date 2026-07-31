@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
 use OpenEMR\Tests\Fixtures\FixtureManager;
@@ -173,7 +174,7 @@ class FhirPatientServiceMappingTest extends TestCase
      * @param $fhirPatientResource - The FHIR Patient Resource to search
      * @param $telecomSystem - The telecom system to match
      * @param $telecomUse - The telecom use to match
-     * @return matching entries (array)
+     * @return list<FHIRContactPoint>
      */
     private function findTelecomEntry(FHIRPatient $fhirPatientResource, $telecomSystem, $telecomUse): array
     {
