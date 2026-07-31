@@ -22,6 +22,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/object_search.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with non\\-empty\\-array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array\\<int\\<0, max\\>, mixed\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -45,6 +50,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_countable\\(\\) with list will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification_helpers.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
@@ -75,6 +85,16 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with null will always evaluate to true\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array\\<bool\\|string\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_scalar\\(\\) with bool\\|string will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_countable\\(\\) with non\\-empty\\-list\\<string\\> will always evaluate to true\\.$#',
@@ -125,6 +145,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_numeric\\(\\) with int\\<min, \\-1\\>\\|int\\<1, max\\> will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/contraception_billing_scan.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with list\\<array\\> will always evaluate to true\\.$#',
@@ -217,8 +242,18 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
@@ -285,6 +320,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with list\\<mixed\\> will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
@@ -477,7 +517,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/PatientValidatorTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_callable\\(\\) with Closure\\(mixed, mixed, mixed\\=\\)\\: mixed will always evaluate to true\\.$#',
+    'message' => '#^Call to function is_callable\\(\\) with Closure\\(mixed, mixed, mixed\\=\\)\\: array\\<array\\{chg\\: float\\|int, bal\\: mixed, adj\\?\\: float\\|int, ins\\?\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\>\\}\\|array\\{chg\\: float\\|int, bal\\: mixed, code_type\\: mixed, code_value\\: mixed, modifier\\: mixed, code_text\\: mixed, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: string\\}\\>, adj\\?\\: float\\|int, ins\\?\\: int\\<min, \\-1\\>\\|int\\<1, max\\>\\}\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/InvoiceSummaryTest.php',
 ];

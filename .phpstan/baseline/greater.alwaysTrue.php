@@ -19,6 +19,16 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Comparison operation "\\>" between int\\<1, max\\> and 0 is always true\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/copay.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Comparison operation "\\>" between int\\<1, max\\> and 0 is always true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/immunizations.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Comparison operation "\\>" between int\\<1, max\\> and 0 is always true\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/daily_summary_report.php',
 ];
 $ignoreErrors[] = [

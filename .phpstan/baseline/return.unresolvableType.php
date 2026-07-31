@@ -6,5 +6,10 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @return contains unresolvable type\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EDI270.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

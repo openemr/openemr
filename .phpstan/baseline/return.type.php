@@ -372,6 +372,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_getCategories\\(\\) should return array\\<array\\{dailylimit\\: mixed\\}\\|array\\{id\\: mixed, name\\: mixed, constantid\\: mixed, color\\: mixed, desc\\: mixed, value_cat_type\\: mixed, active\\: mixed, sequence\\: mixed, \\.\\.\\.\\}\\> but returns array\\<int\\<0, max\\>, non\\-empty\\-array\\<\'aco\'\\|\'active\'\\|\'color\'\\|\'constantid\'\\|\'dailylimit\'\\|\'desc\'\\|\'end_all_day\'\\|\'end_date_flag\'\\|\'end_date_freq\'\\|\'end_date_type\'\\|\'event_duration\'\\|\'event_durationh\'\\|\'event_durationm\'\\|\'event_recurrspec\'\\|\'event_repeat\'\\|\'event_repeat_freq\'\\|\'event_repeat_freq…\'\\|\'event_repeat_on_day\'\\|\'event_repeat_on_freq\'\\|\'event_repeat_on_num\'\\|\'id\'\\|\'name\'\\|\'sequence\'\\|\'value_cat_type\', mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function postcalendar_userapi_getmonthname\\(\\) should return string but returns false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
@@ -388,11 +393,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Date_Calc\\:\\:dayOfWeek\\(\\) should return int but returns float\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getMonthFromFullName\\(\\) should return int but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
@@ -432,7 +432,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleconferenceRoomController\\:\\:getParticipantListForAppointment\\(\\) should return array\\<array\\> but returns mixed\\.$#',
+    'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleconferenceRoomController\\:\\:getParticipantListForAppointment\\(\\) should return array\\<array\\> but returns array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php',
 ];
@@ -550,11 +550,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\ExportState\\:\\:getTableDefinitionForTable\\(\\) should return OpenEMR\\\\Modules\\\\EhiExporter\\\\TableDefinitions\\\\ExportTableDefinition\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Models/ExportState.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Services\\\\EhiExporter\\:\\:createExportTasksFromJob\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Services\\\\EhiExporter\\:\\:createJobForRequest\\(\\) should return OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\EhiExportJob but returns mixed\\.$#',
@@ -912,6 +907,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Application\\\\Plugin\\\\CommonPlugin\\:\\:getList\\(\\) should return array\\<array\\{value\\: \'\', label\\: mixed, disabled\\: false\\}\\|array\\{value\\: string, label\\: mixed, selected\\: bool\\}\\> but returns array\\<int\\<0, max\\>, non\\-empty\\-array\\<literal\\-string&non\\-falsy\\-string, bool\\|string\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:indexAction\\(\\) should return Laminas\\\\View\\\\Model\\\\ViewModel but returns Laminas\\\\Http\\\\Response\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
@@ -972,11 +972,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getCCDAComponents\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getCarecoordinationModuleSettingValue\\(\\) should return null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
@@ -1002,14 +997,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getPreviousNames\\(\\) should return array but returns mixed\\.$#',
+    'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getSettings\\(\\) should return string\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getSettings\\(\\) should return string\\|null but returns mixed\\.$#',
+    'message' => '#^Method Carecoordination\\\\Model\\\\MapperTable\\:\\:getMappedFields\\(\\) should return array\\<non\\-empty\\-array\\<non\\-empty\\-array\\<int\\<0, max\\>, array\\{form_dir\\: mixed, form_type\\?\\: mixed, form_table\\?\\: mixed, ccda_field\\?\\: mixed, name\\?\\: mixed, class\\?\\: non\\-falsy\\-string\\}\\>\\>\\> but returns array\\<non\\-empty\\-array\\<non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\<\'ccda_field\'\\|\'class\'\\|\'form_dir\'\\|\'form_table\'\\|\'form_type\'\\|\'name\', mixed\\>\\>\\>\\>\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/MapperTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Carecoordination\\\\Model\\\\SetupTable\\:\\:getMappedFields\\(\\) should return array\\<non\\-empty\\-array\\<non\\-empty\\-array\\<int\\<0, max\\>, array\\{form_dir\\: mixed, form_type\\?\\: mixed, form_table\\?\\: mixed, ccda_field\\?\\: mixed, name\\?\\: mixed, class\\?\\: non\\-falsy\\-string\\}\\>\\>\\> but returns array\\<non\\-empty\\-array\\<non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\<\'ccda_field\'\\|\'class\'\\|\'form_dir\'\\|\'form_table\'\\|\'form_type\'\\|\'name\', mixed\\>\\>\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/SetupTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Ccr\\\\Controller\\\\CcrController\\:\\:getCcrTable\\(\\) should return Ccr\\\\Model\\\\CcrTable but returns mixed\\.$#',
@@ -1020,6 +1020,11 @@ $ignoreErrors[] = [
     'message' => '#^Method Ccr\\\\Model\\\\Ccr\\:\\:getInputFilter\\(\\) should return Laminas\\\\InputFilter\\\\InputFilterInterface but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/Ccr.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Ccr\\\\Model\\\\CcrTable\\:\\:parseXmlStream\\(\\) should return array\\<string, non\\-empty\\-array\\<int\\<1, max\\>, non\\-empty\\-array\\<string, mixed\\>\\>\\> but returns array\\<string, array\\<int\\<1, max\\>, non\\-empty\\-array\\<string, non\\-falsy\\-string\\>\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Documents\\\\Model\\\\Documents\\:\\:getInputFilter\\(\\) should return Laminas\\\\InputFilter\\\\InputFilterInterface but returns mixed\\.$#',
@@ -1127,11 +1132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Patientvalidation\\\\Controller\\\\BaseController\\:\\:getPostParamsArray\\(\\) should return Patientvalidation\\\\Controller\\\\post but returns array\\<int\\|string, array\\<mixed\\>\\|string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Patientvalidation\\\\Controller\\\\BaseController\\:\\:getUserId\\(\\) should return int but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/BaseController.php',
@@ -1192,22 +1192,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Group_Statuses\\:\\:getGroupAttendanceStatuses\\(\\) should return ADORecordSet_mysqli but returns list\\<array\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/group_statuses_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Group_Statuses\\:\\:getGroupStatuses\\(\\) should return ADORecordSet_mysqli but returns list\\<array\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/group_statuses_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups_Encounters\\:\\:getGroupEncounters\\(\\) should return ADORecordSet_mysqli but returns list\\<array\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_encounters_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Therapy_Groups_Events\\:\\:getGroupEvents\\(\\) should return ADORecordSet_mysqli but returns mixed\\.$#',
+    'message' => '#^Method Therapy_Groups_Events\\:\\:getGroupEvents\\(\\) should return ADORecordSet_mysqli but returns array\\<mixed\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_events_model.php',
 ];
@@ -1657,11 +1642,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/forms.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getFormByEncounter\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/forms.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function Digits\\(\\) should return string but returns string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
@@ -1710,6 +1690,21 @@ $ignoreErrors[] = [
     'message' => '#^Function getPnotesByUser\\(\\) should return int but returns ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function getRecEmployerData\\(\\) should return array\\<non\\-empty\\-array\\<int\\<1, max\\>, array\\{value\\: mixed, date\\: mixed\\}\\>\\> but returns array\\<array\\<int\\<1, max\\>, array\\{value\\: mixed, date\\: mixed\\}\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/report.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function getRecInsuranceData\\(\\) should return array\\<non\\-empty\\-array\\<int\\<1, max\\>, array\\{value\\: mixed, date\\: mixed\\}\\>\\> but returns array\\<array\\<int\\<1, max\\>, array\\{value\\: mixed, date\\: mixed\\}\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/report.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function getRecPatientData\\(\\) should return array\\<non\\-empty\\-array\\<int\\<1, max\\>, array\\{value\\: mixed, date\\: mixed\\}\\>\\> but returns array\\<array\\<int\\<1, max\\>, array\\{value\\: mixed, date\\: mixed\\}\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/report.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function collectItemizedPatientsCdrReport\\(\\) should return array\\|int but returns mixed\\.$#',
@@ -2465,6 +2460,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_x12_type\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\InvoiceSummary\\:\\:arGetInvoiceSummary\\(\\) should return array\\<array\\{chg\\: float\\|int, bal\\: mixed, adj\\?\\: float\\|int, ins\\?\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, \\.\\.\\.\\}\\|array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, \\.\\.\\.\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\>\\}\\|array\\{chg\\: float\\|int, bal\\: mixed, code_type\\: mixed, code_value\\: mixed, modifier\\: mixed, code_text\\: mixed, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, \\.\\.\\.\\}\\|array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, \\.\\.\\.\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: string\\}\\>, adj\\?\\: float\\|int, \\.\\.\\.\\}\\> but returns array\\<array\\{chg\\: \\(float\\|int\\), bal\\: \\(float\\|int\\), adj\\?\\: \\(float\\|int\\), ins\\?\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, dtl\\?\\: non\\-empty\\-array\\<literal\\-string&non\\-falsy\\-string&numeric\\-string, array\\{chg\\: \\(float\\|int\\), pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\<string\\>\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, \\.\\.\\.\\}\\|array\\{chg\\: \\(float\\|int\\), pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\<string\\>\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, \\.\\.\\.\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\>\\}\\|array\\{chg\\: \\(float\\|int\\), bal\\: \\(float\\|int\\), code_type\\: mixed, code_value\\: mixed, modifier\\: mixed, code_text\\: mixed, dtl\\?\\: array\\<literal\\-string&non\\-falsy\\-string&numeric\\-string, array\\{chg\\: \\(float\\|int\\), pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\<string\\>\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, \\.\\.\\.\\}\\|array\\{chg\\: \\(float\\|int\\), pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\<string\\>\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, \\.\\.\\.\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string\\}\\>, adj\\?\\: \\(float\\|int\\), \\.\\.\\.\\}\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/InvoiceSummary.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\MiscBillingOptions\\:\\:qual_id_to_description\\(\\) should return string\\|null but returns mixed\\.$#',
@@ -8202,11 +8202,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AppointmentService\\:\\:getAppointmentStatuses\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\AppointmentService\\:\\:getEncounterForAppointment\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
@@ -9702,11 +9697,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\:\\:getTablesList\\(\\) should return OpenEMR\\\\Services\\\\Utils\\\\SQLStatement but returns array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\:\\:isRenderOutputToScreen\\(\\) should return bool but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
@@ -9885,16 +9875,6 @@ $ignoreErrors[] = [
     'message' => '#^Anonymous function should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirLocationServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirPatientServiceMappingTest\\:\\:findTelecomEntry\\(\\) should return OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\matching but returns array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceMappingTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirPatientServiceMappingTest\\:\\:findTelecomEntry\\(\\) should return OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\matching but returns list\\<OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRContactPoint\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceMappingTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationHistorySdohServiceTest\\:\\:insertSdohRecord\\(\\) should return int but returns mixed\\.$#',

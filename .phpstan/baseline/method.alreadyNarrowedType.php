@@ -67,6 +67,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Auth/OpenIDConnect/IdTokenSMARTResponseTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Database/QueryPaginationTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/MeasurementUtilsTest.php',
@@ -257,9 +262,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/ProcessingResultTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../tests/Tests/Services/AppointmentServiceTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/BillingClaimBatchControlNumberTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array\\<array\\{chg\\: float\\|int, bal\\: mixed, adj\\?\\: float\\|int, ins\\?\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, \\.\\.\\.\\}\\|array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, \\.\\.\\.\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\>\\}\\|array\\{chg\\: float\\|int, bal\\: mixed, code_type\\: mixed, code_value\\: mixed, modifier\\: mixed, code_text\\: mixed, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, \\.\\.\\.\\}\\|array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, \\.\\.\\.\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: string\\}\\>, adj\\?\\: float\\|int, \\.\\.\\.\\}\\> will always evaluate to true\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Services/Billing/InvoiceSummaryTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertTrue\\(\\) with true will always evaluate to true\\.$#',
@@ -950,6 +965,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Crypto/CryptoGenTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Forms/FormQuestionnaireAssessmentTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'OpenEMR\\\\\\\\Common\\\\\\\\Logging\\\\\\\\EventAuditLogger\' and OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger will always evaluate to true\\.$#',
