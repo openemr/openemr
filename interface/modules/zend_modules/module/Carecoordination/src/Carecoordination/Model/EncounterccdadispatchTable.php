@@ -1441,7 +1441,7 @@ class EncounterccdadispatchTable
 
         try {
             $service = new CareTeamService();
-            $teamData = $service->getCareTeamData((int)$pid) ?? [];
+            $teamData = $service->getCareTeamData((int)$pid);
 
             if (!empty($teamData['members']) && is_array($teamData['members'])) {
                 $careTeamMembers = $teamData['members'];

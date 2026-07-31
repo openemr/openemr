@@ -125,7 +125,7 @@ $viewArgs = [
     ,'defaultType' => $defaultType
     ,'defaultCategory' => $defaultCategory
     ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'api')
-    ,'resultCategories' => $resultCategories ?? []
+    ,'resultCategories' => $resultCategories
 ];
 $templatePageEvent = new TemplatePageEvent(
     'clinical_notes/new.php',
