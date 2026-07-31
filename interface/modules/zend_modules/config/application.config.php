@@ -19,7 +19,6 @@ $core_modules = [
     'Application', // Main application module starting point.
     'Installer', // Handles the dynamic adding / removing of modules in the system.
     'Acl', // Handles all of the permission checks in the system.
-    'PatientFlowBoard', // Handle any functionality needed for the patient flow board
 ];
 
 // $zendConfigurationPath is loaded using ModulesApplication.php from globals.php

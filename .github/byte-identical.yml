@@ -153,6 +153,14 @@ files:
 # Same rel-800/rel-704 exclusion applies.
 - path: .github/workflows/reusable-docker-publish.yml
   exclude-branches: [rel-800, rel-704]
+# Phase 10e-3 (openemr/openemr#TBD, 2026-07-30): dockerhub-delete-tag.sh
+# is called from reusable-docker-publish.yml's cleanup-candidate job.
+# The reusable's `run: .github/scripts/dockerhub-delete-tag.sh` resolves
+# at runtime against the branch's own checkout, so every branch that
+# carries the reusable must also carry the script. Same rel-800/rel-704
+# exclusion applies (those branches don't carry the reusable).
+- path: .github/scripts/dockerhub-delete-tag.sh
+  exclude-branches: [rel-800, rel-704]
 - .github/workflows/docker-test-core.yml
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
@@ -270,6 +278,14 @@ files:
 - path: .github/workflows/acceptance-docker.yml
   exclude-branches: [rel-800, rel-704]
 - path: .github/workflows/acceptance-package.yml
+  exclude-branches: [rel-800, rel-704]
+# Phase 10e-4 (openemr/openemr#TBD, 2026-07-30): detect-acceptance-mode.sh
+# is called from acceptance-package.yml's detect-mode job. The workflow's
+# `run: .github/scripts/detect-acceptance-mode.sh` resolves at runtime
+# against the branch's own checkout, so every branch that carries the
+# workflow must also carry the script. Same rel-800/rel-704 exclusion
+# applies (those branches don't carry acceptance-package.yml).
+- path: .github/scripts/detect-acceptance-mode.sh
   exclude-branches: [rel-800, rel-704]
 - path: .github/docker/acceptance-docker-compose.yml
   exclude-branches: [rel-800, rel-704]

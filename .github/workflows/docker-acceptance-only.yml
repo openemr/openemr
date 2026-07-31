@@ -124,115 +124,60 @@ jobs:
       build_date: ${{ steps.inspect_candidate.outputs.created }}
     steps:
     # Guardrail A: source run must be a docker-build-release.yml run
-    # under 48h old. Same shape acceptance-only.yml uses — see that
-    # workflow's Validate step for the full rationale on each check.
+    # under 48h old AND the operator-supplied candidate_tag must match
+    # the run's coordinates. Delegates to the shared validate-source-
+    # run.sh (see that script's header for the per-guard rationale).
+    # Extracted from the previous inline block so acceptance-only.yml
+    # and docker-acceptance-only.yml share the same validation surface
+    # — a fix to any guard lands once instead of twice.
+    #
+    # EXPECTED_CANDIDATE_TAG is set (unlike acceptance-only.yml) to
+    # enable the candidate_tag coordinates-binding check specific to
+    # the docker-side recovery path.
     - name: Validate source run eligibility
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         REPO: ${{ github.repository }}
         SOURCE_RUN_ID: ${{ inputs.source_run_id }}
-        INPUT_CANDIDATE_TAG: ${{ inputs.candidate_tag }}
-      run: |
-        set -euo pipefail
-
-        echo "==> Fetching source run metadata"
-        run_json=$(gh api "repos/${REPO}/actions/runs/${SOURCE_RUN_ID}")
-
-        source_path=$(printf '%s' "$run_json" | jq -er .path)
-        source_created_at=$(printf '%s' "$run_json" | jq -er .created_at)
-        source_run_attempt=$(printf '%s' "$run_json" | jq -er .run_attempt)
-
-        echo "==> Confirming source run is a docker-build-release.yml run"
-        expected_path=".github/workflows/docker-build-release.yml"
-        if [ "$source_path" != "$expected_path" ]; then
-          echo "::error::source run ${SOURCE_RUN_ID} was produced by '${source_path}', not '${expected_path}'."
-          echo "::error::docker-acceptance-only only accepts source runs from docker-build-release.yml — the candidate_tag shape (release-candidate-<run-id>-<attempt>) is specific to that workflow."
-          exit 1
-        fi
-
-        # Bind operator-supplied candidate_tag to the source run's own
-        # coordinates. Without this check, an operator could dispatch
-        # this workflow with a valid source_run_id but a candidate_tag
-        # pointing at an unrelated image on Docker Hub — aliasing that
-        # foreign image under the requested final tags. Match the exact
-        # format docker-build-release.yml stamps via its
-        # GATE_CANDIDATE_TAG env: release-candidate-<run_id>-<run_attempt>.
-        echo "==> Confirming candidate_tag matches source run coordinates"
-        expected_candidate_tag="release-candidate-${SOURCE_RUN_ID}-${source_run_attempt}"
-        if [ "$INPUT_CANDIDATE_TAG" != "$expected_candidate_tag" ]; then
-          echo "::error::candidate_tag mismatch: operator supplied '${INPUT_CANDIDATE_TAG}' but source run ${SOURCE_RUN_ID} (attempt ${source_run_attempt}) would have produced '${expected_candidate_tag}'."
-          echo "::error::docker-acceptance-only aliases the candidate image under the final tags — a mismatched candidate_tag risks publishing an unrelated image (accidentally or maliciously). Re-dispatch with candidate_tag='${expected_candidate_tag}', or pick a different source_run_id whose coordinates match the intended candidate."
-          exit 1
-        fi
-
-        echo "==> Checking source run age (<= 48h)"
-        source_epoch=$(date -d "$source_created_at" +%s)
-        now_epoch=$(date -u +%s)
-        age_seconds=$(( now_epoch - source_epoch ))
-        age_hours=$(( age_seconds / 3600 ))
-        ceiling_seconds=$(( 48 * 3600 ))
-
-        if [ "$age_seconds" -gt "$ceiling_seconds" ]; then
-          echo "::error::source run ${SOURCE_RUN_ID} is ${age_hours}h old (> 48h ceiling)."
-          echo "::error::A preserved candidate this old risks not matching the rel-branch tip (some other PR may have landed). Recovery paths for stale runs: (1) dispatch docker-build-release.yml fresh (rebuilds the multi-arch image against current rel-branch tip); (2) re-run the failed docker-build-release run in-place via the Actions UI."
-          exit 1
-        fi
-
-        echo "==> source run eligible: age=${age_hours}h, workflow=docker-build-release.yml"
-
-    # Guardrail B: candidate tag must still exist on Docker Hub. If
-    # cleanup-candidate somehow ran despite acceptance failure, or an
-    # operator manually deleted the candidate before recovering, the
-    # HEAD request here fails fast with a clear error — much better
-    # than acceptance-docker.yml failing later with a confusing "image
-    # pull failed" message deep in the matrix.
-    #
-    # Uses the anonymous Docker Hub v2 API tag endpoint: no login
-    # needed for a HEAD-like existence check, and the response body
-    # (small JSON with tag metadata) is fine to parse for a defense-
-    # in-depth "tag actually is what we think" check.
-    - name: Verify candidate tag exists on Docker Hub
-      env:
+        EXPECTED_WORKFLOW_PATH: .github/workflows/docker-build-release.yml
         CANDIDATE_TAG: ${{ inputs.candidate_tag }}
       run: |
         set -euo pipefail
 
-        url="https://hub.docker.com/v2/repositories/openemr/openemr/tags/${CANDIDATE_TAG}/"
-        echo "==> HEAD ${url}"
-        # Bound the request explicitly: --connect-timeout guards TCP/TLS
-        # setup, --max-time guards total wall time. Without these, curl's
-        # defaults are effectively unbounded and a hung Docker Hub could
-        # stall the job until the runner's own timeout fires.
-        # Capture curl's exit code explicitly (via `|| curl_exit=$?`)
-        # so a curl-level failure (DNS, TLS, timeout, connection reset —
-        # anything that prevents an HTTP response) produces a clear
-        # error instead of tripping `set -e` and leaving the case-
-        # statement handler unreached. `|| ...` disarms `set -e` for
-        # this one call; we re-arm by explicitly checking $curl_exit.
-        curl_exit=0
-        http_code=$(curl --connect-timeout 10 --max-time 30 -sS \
-          -o /tmp/dh-tag-response -w '%{http_code}' "$url") || curl_exit=$?
-        if [ "$curl_exit" -ne 0 ]; then
-          echo "::error::Docker Hub request failed before receiving an HTTP response (DNS, TLS, timeout, or connection error). curl exit: ${curl_exit}"
-          exit 1
-        fi
+        echo "==> Fetching source run metadata"
+        RUN_JSON=$(gh api "repos/${REPO}/actions/runs/${SOURCE_RUN_ID}")
+        export RUN_JSON
 
-        case "$http_code" in
-          200)
-            echo "==> Candidate tag openemr/openemr:${CANDIDATE_TAG} exists on Docker Hub."
-            ;;
-          404)
-            echo "::error::Candidate tag openemr/openemr:${CANDIDATE_TAG} not found on Docker Hub (HTTP 404)."
-            echo "::error::The candidate may have been already cleaned up (successful publish path deletes it) or manually deleted."
-            echo "::error::Recovery paths: (1) if the source run's publish succeeded, no recovery needed; (2) if the source run failed BEFORE publish and the candidate is gone anyway, dispatch docker-build-release.yml fresh."
-            exit 1
-            ;;
-          *)
-            echo "::error::Unexpected HTTP ${http_code} from Docker Hub v2 API. Response:"
-            cat /tmp/dh-tag-response || true
-            exit 1
-            ;;
-        esac
+        # EXPECTED_CANDIDATE_TAG is derived from the source run
+        # coordinates and passed alongside CANDIDATE_TAG so the script
+        # can enforce operator-input == derived-coordinates. The script
+        # re-derives the same value internally as a defence-in-depth
+        # against caller drift; passing it here surfaces intent.
+        #
+        # Non-strict extraction handles BOTH missing field (`.run_attempt
+        # // ""`) AND malformed JSON payload (`|| echo ""` captures the
+        # jq-parse-failure case). Both failure shapes then flow into the
+        # script's own BATS-tested guard rather than aborting here with a
+        # raw jq error under set -euo pipefail.
+        source_run_attempt=$(printf '%s' "$RUN_JSON" | jq -r '.run_attempt // ""' 2>/dev/null || echo "")
+        EXPECTED_CANDIDATE_TAG="release-candidate-${SOURCE_RUN_ID}-${source_run_attempt}"
+        export EXPECTED_CANDIDATE_TAG
+
+        .github/scripts/validate-source-run.sh
+
+    # Guardrail B: candidate tag must still exist on Docker Hub.
+    # Delegates to verify-dockerhub-tag-exists.sh — see that script's
+    # header for the fail-fast rationale (avoiding a confusing "image
+    # pull failed" mid-matrix in acceptance-docker.yml). Kept separate
+    # from validate-source-run.sh because it's a network I/O check;
+    # the two scripts have distinct testability profiles (one needs a
+    # curl mock, the other doesn't touch the network).
+    - name: Verify candidate tag exists on Docker Hub
+      env:
+        TAG: ${{ inputs.candidate_tag }}
+      run: |
+        set -euo pipefail
+        .github/scripts/verify-dockerhub-tag-exists.sh
 
     # Expand the operator-provided docker_tags list into the same
     # final-tag list docker-build-release.yml's build job would have
