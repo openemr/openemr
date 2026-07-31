@@ -1,0 +1,120 @@
+name: Release Artifacts
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-release-package:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.release.tag_name }}
+
+    - name: Extract version from tag
+      id: version
+      run: |
+        # Convert tag format v8_0_1 to 8.0.1
+        TAG="${{ github.event.release.tag_name }}"
+        VERSION="${TAG#v}"  # Remove leading 'v'
+        VERSION="${VERSION//_/.}"  # Replace underscores with dots
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "Version: $VERSION"
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: npm
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        tools: composer:v2
+
+    - name: Install Node dependencies
+      run: npm ci
+
+    - name: Build frontend assets
+      run: npm run build
+
+    - name: Install Composer dependencies (production)
+      run: composer install --no-dev --optimize-autoloader --prefer-dist
+
+    - name: Install ccdaservice dependencies
+      working-directory: ccdaservice
+      run: npm ci --omit=dev
+
+    - name: Prepare release directory
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        RELEASE_DIR="openemr-${VERSION}"
+
+        # Create release directory
+        mkdir -p "$RELEASE_DIR"
+
+        # Copy all files except excluded ones
+        rsync -a \
+          --exclude='.git' \
+          --exclude='.github' \
+          --exclude='.gitignore' \
+          --exclude='.gitattributes' \
+          --exclude='.pre-commit-config.yaml' \
+          --exclude='node_modules' \
+          --exclude='docker/development-*' \
+          --exclude='tests' \
+          --exclude='*.md' \
+          --exclude='phpunit*.xml' \
+          --exclude='phpstan*.neon' \
+          --exclude='phpcs.xml' \
+          --exclude='rector.php' \
+          --exclude='.editorconfig' \
+          --exclude='.eslintrc.json' \
+          --exclude='.stylelintrc.json' \
+          --exclude='jest.config.js' \
+          --exclude='gulpfile.js' \
+          --exclude='package-lock.json' \
+          --exclude='composer.lock' \
+          --exclude='release-please-config.json' \
+          --exclude='.release-please-manifest.json' \
+          --exclude='RELEASE_NOTES.md' \
+          . "$RELEASE_DIR/"
+
+        # Re-include essential markdown files
+        cp README.md "$RELEASE_DIR/" 2>/dev/null || true
+        cp LICENSE "$RELEASE_DIR/" 2>/dev/null || true
+        cp CHANGELOG.md "$RELEASE_DIR/" 2>/dev/null || true
+        cp CONTRIBUTING.md "$RELEASE_DIR/" 2>/dev/null || true
+
+        echo "RELEASE_DIR=$RELEASE_DIR" >> "$GITHUB_ENV"
+
+    - name: Create tar.gz archive
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        tar -czvf "openemr-${VERSION}.tar.gz" "$RELEASE_DIR"
+
+    - name: Create zip archive
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        zip -r "openemr-${VERSION}.zip" "$RELEASE_DIR"
+
+    - name: Generate checksums
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        sha256sum "openemr-${VERSION}.tar.gz" > "openemr-${VERSION}.tar.gz.sha256"
+        sha256sum "openemr-${VERSION}.zip" > "openemr-${VERSION}.zip.sha256"
+
+    - name: Upload release artifacts
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          openemr-${{ steps.version.outputs.version }}.tar.gz
+          openemr-${{ steps.version.outputs.version }}.tar.gz.sha256
+          openemr-${{ steps.version.outputs.version }}.zip
+          openemr-${{ steps.version.outputs.version }}.zip.sha256
