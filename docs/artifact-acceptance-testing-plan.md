@@ -1864,15 +1864,29 @@ drift-bug sources.
     errors honestly (workflow's `continue-on-error: true` still
     tolerates it operationally).
 
-  * **10e-4 — Slice: `acceptance-package-detect-mode`.** Extract
-    detect-mode's ~140-line shell block (incl. `emit_to_version`
-    helper) into `.github/scripts/detect-acceptance-mode.sh`.
-    ~15 tests covering workflow_call gate (both / one / neither
-    caller inputs) + release-prep branch detection + workflow_
-    dispatch + push/PR diff-detection + base=000... branch-creation
-    + version validation. Highest logic density on the whole
-    release-mechanism surface; regression silently changes what
-    ships. NEW recommendation — not on original plan-doc list.
+  * **10e-4 — Slice: `acceptance-package-detect-mode` — SHIPPED
+    2026-07-31 as #13306.** Extracted the ~165-line detect-mode
+    inline block from `acceptance-package.yml` into
+    `.github/scripts/detect-acceptance-mode.sh` (`emit_to_version`
+    kept as internal function; every echo/error preserved verbatim).
+    18 BATS tests cover all 7 emit paths + validator + override
+    precedence. Byte-identical propagation applied (script added to
+    byte-identical.yml with same rel-800/rel-704 exclusion as the
+    caller workflow). Left `acceptance-docker.yml`'s simpler
+    detect-mode variant inline (different caller, different diff
+    surface `docker/release/**` vs `tools/release/`, no workflow_call
+    gate / no release-prep detection / no emit_to_version — could
+    be a separate slice later). Rabbit found one legit bug during
+    review that applied to BOTH the extracted script AND the docker
+    variant: `git diff --name-only | grep -qE` under set -euo
+    pipefail silently masks git-diff failures as grep's exit-1-for-
+    no-match (rightmost non-zero wins under pipefail), reporting
+    build_locally=false with no ::error:: line when the range is
+    unresolvable (force-push + reflog GC scenario). Fix landed
+    atomically in the same PR — captured git diff into a variable +
+    checked exit before grepping, applied to both the extracted
+    script AND acceptance-docker.yml inline. New BATS regression
+    test simulates git diff exit 128 + asserts loud failure.
 
   * **10e-5 — Slice: `reusable-publish-tag-create`.** Extract the
     ls-remote 0/2/other case + `gh release view` idempotency into
@@ -1968,11 +1982,11 @@ rabbit finding, no behavior change) — SHIPPED. 10c second (biggest
 ergonomic win — eliminates manual recovery steps) — SHIPPED. 10b +
 10d + 10f shipped together in parallel — SHIPPED 2026-07-30. 10e
 now sub-sliced: 10e-1 SHIPPED 2026-07-30 as #13292; 10e-audit DONE
-2026-07-30; 10e-2 + 10e-3 SHIPPED 2026-07-31 as #13294 + #13293.
-Remaining: 10e-4 (detect-mode extract, still the biggest-logic-
-density gap per audit) + 10e-5 (reusable-publish tag-create) + 10e-6
-(release-amendment changelog-extract). 10g remains optional — do not
-do unless the cost/benefit shifts.
+2026-07-30; 10e-2 + 10e-3 SHIPPED 2026-07-31 as #13294 + #13293;
+10e-4 SHIPPED 2026-07-31 as #13306. Remaining: 10e-5 (reusable-
+publish tag-create) + 10e-6 (release-amendment changelog-extract),
+both lower priority per audit. 10g remains optional — do not do
+unless the cost/benefit shifts.
 
 **Not in Phase 10 scope:** anything that changes acceptance
 semantics or gate topology. This is refactoring-in-place. If a
@@ -3144,3 +3158,33 @@ in acceptance."
       `git rebase FETCH_HEAD` + a `--force-with-lease` push after
       resolving a trivial one-line conflict in the workflow's BATS-
       runner list.
+
+- **2026-07-31 (later) — Phase 10e-4 SHIPPED (#13306).** Extracted
+  ~165-line detect-mode block from `acceptance-package.yml` into
+  `.github/scripts/detect-acceptance-mode.sh`. 18 BATS tests cover
+  all 7 emit paths + validator + override precedence. Byte-identical
+  propagation applied (same rel-800/rel-704 exclusion as the
+  caller). Left `acceptance-docker.yml`'s simpler variant inline
+  (different caller / diff surface / no workflow_call gate / no
+  release-prep detection — could be a future micro-slice, low
+  priority since it's ~44 lines vs the 165 that mattered).
+
+  **Real bug discovered during rabbit review** (Minor severity per
+  rabbit but genuinely subtle): under `set -euo pipefail`, `git
+  diff --name-only | grep -qE` silently masks a git-diff failure as
+  grep's exit-1-for-no-match. Rightmost non-zero wins under pipefail
+  → `if` takes the else branch → build_locally=false is emitted with
+  NO `::error::` line. In production this means a force-pushed base
+  + reflog GC scenario would silently make a PR get validated
+  against the stock 8.2.0 tarball instead of a local build. Fix
+  applied atomically to BOTH the extracted script AND
+  `acceptance-docker.yml`'s inline block (same bug pattern, 3-line
+  fix each — atomic-fix beat filing a follow-up). New BATS regression
+  test simulates `git diff` exit 128 + asserts loud `::error::`
+  + no silent build_locally=false emit.
+
+  **Post-10e-4 state**: Phase 10 has 10a/b/c/d/f + 10e-1/2/3/4
+  shipped. Only 10e-5 (reusable-publish tag-create) + 10e-6
+  (release-amendment changelog-extract) remain, both audit-priority-
+  4-and-5 (lower value than 10e-2/3/4). 10g optional-skip. Phase 10
+  is essentially wrapping.
