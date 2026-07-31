@@ -103,7 +103,7 @@ class FhirMedicationRestController
      * Queries for FHIR medication resources using various search parameters.
      * Search parameters include:
      * - patient (puuid)
-     * @return FHIR bundle with query results, if found
+     * @return \Symfony\Component\HttpFoundation\Response FHIR bundle with query results, if found
      */
     #[OA\Get(
         path: '/fhir/Medication',

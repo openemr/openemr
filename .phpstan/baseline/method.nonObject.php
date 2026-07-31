@@ -5727,18 +5727,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirValueSetRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method write\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getId\\(\\) on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method write\\(\\) on mixed\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
 ];
 $ignoreErrors[] = [
