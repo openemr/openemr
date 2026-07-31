@@ -112,11 +112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Caught class MpdfException not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\$encounterId of method ESign\\\\Encounter_Log\\:\\:__construct\\(\\) has invalid type ESign\\\\unknown\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Encounter/Log.php',
