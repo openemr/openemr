@@ -120,49 +120,8 @@ jobs:
         RELEASE_TAG: ${{ inputs.release_tag }}
         RELEASE_VERSION: ${{ inputs.version }}
         VERSION_BRANCH: ${{ inputs.version_branch }}
-      run: |
-        set -euo pipefail
-        tag="$RELEASE_TAG"
-        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
-
-        git config user.name 'github-actions[bot]'
-        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-
-        # Check the remote, not the local checkout: the checkout step
-        # uses fetch-depth: 1 and does not fetch tags, so a local
-        # rev-parse always misses an already-published tag. That made
-        # `git push origin "$tag"` fail with "tag already exists in the
-        # remote" when re-firing after the openemr/openemr conductor
-        # had already tagged via its finalize job.
-        #
-        # `git ls-remote --exit-code` returns 0 when the tag exists and 2
-        # when it does not. Any other status is a real lookup failure
-        # (auth, transport) and must abort rather than fall through to a
-        # tag push that would mask the underlying error.
-        tag_lookup_status=0
-        git ls-remote --tags --exit-code origin "refs/tags/$tag" > /dev/null 2>&1 || tag_lookup_status=$?
-        case "$tag_lookup_status" in
-          0)
-            echo "Tag $tag already exists on origin, skipping tag creation"
-            ;;
-          2)
-            git tag -a -m "Release $tag" "$tag" "$VERSION_BRANCH"
-            git push origin "$tag"
-            ;;
-          *)
-            echo "::error::Failed to query origin for tag $tag (git ls-remote exit $tag_lookup_status)" >&2
-            exit "$tag_lookup_status"
-            ;;
-        esac
-
-        if ! gh release view "$tag" --repo openemr/openemr > /dev/null 2>&1; then
-          echo "Creating release $tag"
-          gh release create "$tag" \
-            --repo openemr/openemr \
-            --title "OpenEMR $RELEASE_VERSION" \
-            --notes-file "${output_dir}/changelog.md" \
-            --verify-tag
-        fi
+        RELEASE_NOTES_FILE: ${{ github.workspace }}/tools/release/release-output/changelog.md
+      run: .github/scripts/create-release-tag.sh
 
     - name: Upload package and checksums to release
       env:
