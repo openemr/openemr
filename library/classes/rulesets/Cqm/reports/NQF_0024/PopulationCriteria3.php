@@ -19,6 +19,9 @@ class NQF_0024_PopulationCriteria3 implements CqmPopulationCrtiteriaFactory
         return new NQF_0024_InitialPatientPopulation3();
     }
 
+    /**
+     * @return list<CqmFilterIF>
+     */
     public function createNumerators(): array
     {
         $nums = [];
