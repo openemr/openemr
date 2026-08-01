@@ -2146,7 +2146,7 @@ a follow-up Phase 11b if flex QEMU flakes actually surface or the
 "parity" argument grows teeth (e.g. if a future flex change
 introduces build-step complexity that makes QEMU pain scale up).
 
-### Phase 12 — Extend acceptance-gate to all rel-820+ branches, not just `latest` *(proposed 2026-08-01; attack next after Phase 11 wraps)*
+### Phase 12 — Extend acceptance-gate to all rel-820+ branches, not just `latest` *(SHIPPED 2026-08-01 as #13332)*
 
 **Goal:** Replace the current "row-contains-latest tag → gate=true"
 auto-detection in `docker-release-orchestrator.yml` with an explicit
@@ -3524,3 +3524,69 @@ in acceptance."
   proportionally weaker (lighter per-build QEMU pain, matrix-scale
   amplifies runner cost, no PR-parity concern to fix). Track as
   follow-up if flex flakes actually surface.
+
+  **Real-world validation LANDED same-day**: manual orchestrator
+  dispatch after Phase 11 merged confirmed the design end-to-end.
+  rel-820 gated build: 13m57s wall-clock (prep 10s → build-arch
+  matrix ~5-5.5m parallel → merge-manifest 20s → 6-scenario native
+  acceptance ~5m parallel → publish + cleanup ~2m). Pre-Phase-11
+  QEMU shape was ~50-70 min for the same build. ~4-5× speedup.
+  Docker Hub `openemr/openemr:latest` verified multi-arch (amd64 +
+  arm64 both in manifest), OCI labels correct, all intermediate
+  tags cleaned up. All design assumptions validated: native arm64
+  runners available, imagetools-create merge produced correct
+  multi-arch manifests, per-arch OCI verify caught no drift,
+  intermediate-tag cleanup via dockerhub-delete-tag.sh worked
+  cleanly, downstream acceptance-gate/publish consumed the merged
+  candidate exactly as pre-Phase-11.
+
+- **2026-08-01 (later) — sync-byte-identical POST-cleanup fix
+  SHIPPED (#13326).** Cosmetic-but-noisy issue introduced by Phase
+  10b's composite: sync-byte-identical.yml's POST cleanup couldn't
+  find action.yml on rel-800/rel-704 after the rel-branch checkout
+  replaced the workspace (composite excluded from those branches).
+  Fix: dropped rel-800/rel-704 from the composite's byte-identical
+  exclusion so the file propagates there (unused but present for
+  POST cleanup lookup). Zero workflow-code change. Rabbit round-1
+  reworded the "metadata-only" phrase in my comment (action.yml
+  carries executable composite steps; just not invoked on those
+  branches).
+
+- **2026-08-01 (later still) — Phase 12 SHIPPED (#13332).** Extend
+  the pre-publish acceptance gate from the pre-Phase-12 "row-ships-
+  latest → gated" auto-detection to an explicit per-row
+  `gate_with_acceptance: true` flag in release-targets.yml. Enable
+  for master + rel-820 (+ any future rel-830+ at cut time); leave
+  rel-800 + rel-704 unflagged (legacy, no acceptance-docker.yml
+  surface). Motivation: pre-Phase-12 latest-only scoping was
+  driven by CI-budget cost (~1h QEMU acceptance). Phase 11 native
+  arm64 dropped that to ~14 min, so wider gate coverage became
+  affordable. Consistent quality bar for anything shipped that
+  can be tested. Rabbit iterated 2 rounds: round-1 caught 4
+  findings, 3 applied (stale docker-build-release.yml comments
+  updated to describe the new explicit flag; TBD PR refs swapped
+  for #13332; recovery paragraph in RELEASE_PROCESS.md rewritten
+  for accuracy at each failure point — per-arch intermediates are
+  deleted at merge-manifest success so they're NOT available after
+  acceptance/publish failure, docker-acceptance-only.yml recovery
+  only applies to acceptance/publish failures where the merged
+  candidate still exists), 1 skipped (Phase 11 vs Phase 12 label
+  consolidation — accurate as distinct changes). Round-2 finding
+  was rabbit misreading byte-identical exclusions (thought rel-800/
+  rel-704 inherit the current Phase 11 shape, but docker-build-
+  release.yml is excluded from those branches so they run their
+  frozen pre-Phase-7c copy). Skipped with reasoning.
+
+  **Also updated RELEASE_PROCESS.md** in the same PR to sweep
+  Phase 11 + Phase 12 staleness: gated flow description swapped
+  from 4-job to 5-job structure (prep + build-arch matrix +
+  merge-manifest + acceptance-gate + publish/cleanup); wall-clock
+  updated to ~14 min end-to-end; native-arm64 paragraph replaces
+  the obsolete "built via QEMU emulation" note; recovery paragraph
+  rewritten for accuracy; cross-ref bumped to Phases 1-12.
+
+  **Post-Phase-12 state**: Phase 10 + 11 + 12 all shipped and
+  validated end-to-end same day. Only 10g remains as OPTIONAL-
+  skip. 11b (flex native arm64) tracked as follow-up only if
+  flex flakes actually surface. Next attack: unclear —
+  acceptance-mechanism-work is essentially caught up.
