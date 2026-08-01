@@ -22,7 +22,10 @@ require_once("$srcdir/api.inc.php");
 
 require("C_FormSOAP.class.php");
 
-EncounterFormAccess::assertFormBelongsToSessionPatient(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT), 'soap');
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'soap');
 
 $c = new C_FormSOAP();
-echo $c->view_action($_GET['id']);
+echo $c->view_action($formId);

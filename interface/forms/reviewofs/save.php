@@ -35,10 +35,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-EncounterFormAccess::assertFormBelongsToSessionPatient(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT), 'reviewofs');
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'reviewofs');
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_reviewofs", $_POST, ($_GET["id"] ?? ''), $userauthorized);
+    $newid = formSubmit("form_reviewofs", $_POST, $formId, $userauthorized);
     addForm($encounter, "Review of Systems Checks", $newid, "reviewofs", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     sqlStatement(
@@ -269,7 +272,7 @@ if ($_GET["mode"] == "new") {
             ($_POST["cushing_syndrom"] ?? null),
             ($_POST["addison_syndrom"] ?? null),
             ($_POST["additional_notes"] ?? null),
-            $_GET["id"]
+            $formId
         ]
     );
 }

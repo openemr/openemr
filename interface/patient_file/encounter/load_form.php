@@ -23,6 +23,7 @@ use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Telemetry\TelemetryService;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @gloal $incdir the include directory
@@ -46,28 +47,29 @@ if (!str_starts_with((string) $_GET["formname"], 'LBF')) {
         AccessDeniedHelper::denyWithTemplate("ACL check failed for form: " . $formLabel, $formLabel);
     }
 }
-// Confirm the target form (if identified by an existing form_id) belongs to the
-// session patient. No-ops when creating a new form (id <= 0).
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput > 0 ? $formIdInput : 0;
 $formnameInput = filter_input(INPUT_GET, 'formname', FILTER_UNSAFE_RAW);
-EncounterFormAccess::assertFormBelongsToSessionPatient(
-    filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT),
-    is_string($formnameInput) ? $formnameInput : '',
-);
+$formDir = is_string($formnameInput) ? $formnameInput : '';
 
-// Enforce encounter sensitivity ACL so a form load cannot bypass the
-// sensitivity filter shown on the encounter dashboard.
-$encounterInput = filter_input(INPUT_GET, 'encounter', FILTER_VALIDATE_INT);
-$pidInput = filter_input(INPUT_GET, 'pid', FILTER_VALIDATE_INT);
-$sensitivityEncounterId = is_int($encounterInput) && $encounterInput > 0
-    ? $encounterInput
-    : EncounterSessionUtil::getEncounter();
-$sensitivityPid = is_int($pidInput) && $pidInput > 0
-    ? $pidInput
-    : PatientSessionUtil::getPid();
+$sessionPid = PatientSessionUtil::getPid();
+$sensitivityEncounterId = EncounterSessionUtil::getEncounter();
+
+if ($formId > 0) {
+    $formOwner = EncounterFormAccess::fetchFormOwner($formId, $formDir);
+    if (!EncounterFormAccess::isFormOwnedBySession($formOwner['pid'] ?? null, $sessionPid)) {
+        AccessDeniedHelper::deny(
+            sprintf('Form %d/%s not accessible by session pid %d', $formId, $formDir, $sessionPid),
+            'security-access',
+            Response::HTTP_NOT_FOUND,
+        );
+    }
+    $sensitivityEncounterId = $formOwner['encounter'];
+}
+
 if ($sensitivityEncounterId > 0) {
-    $sensitivity = (new EncounterService())->getSensitivity($sensitivityPid, $sensitivityEncounterId);
-    // getSensitivity returns string when a row is found, [] when not.
-    if (is_string($sensitivity) && $sensitivity !== '' && !AclMain::aclCheckCore('sensitivities', $sensitivity)) {
+    $sensitivity = (new EncounterService())->getSensitivity($sessionPid, $sensitivityEncounterId);
+    if ($sensitivity !== null && $sensitivity !== '' && !AclMain::aclCheckCore('sensitivities', $sensitivity)) {
         AccessDeniedHelper::denyWithTemplate('Not authorized to view encounter form.', 'Not authorized');
     }
 }
