@@ -22,10 +22,13 @@ require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/api.inc.php');
 /* include our smarty derived controller class. */
 require('C_FormPainMap.class.php');
 
-EncounterFormAccess::assertFormBelongsToSessionPatient(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT), 'painmap');
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'painmap');
 
 /* Create a form object. */
 $c = new C_FormPainMap();
 
 /* Render a 'view/edit form' page. */
-echo $c->view_action($_GET['id']);
+echo $c->view_action($formId);

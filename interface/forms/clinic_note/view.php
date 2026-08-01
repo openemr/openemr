@@ -40,8 +40,11 @@ if (! $encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
 }
 
-$formid = $_GET['id'];
-EncounterFormAccess::assertFormBelongsToSessionPatient(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT), 'clinic_note');
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+$formid = $formId;
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'clinic_note');
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // If Save was clicked, save the info.

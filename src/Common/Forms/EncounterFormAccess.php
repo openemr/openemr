@@ -41,9 +41,10 @@ final class EncounterFormAccess
      * the given session pid/encounter?
      *
      * A `null` $ownerPid represents "form not found" (fetch returned no row);
-     * that case always returns false. Encounter enforcement only fires when
-     * `$sessionEncounter` is non-null (opt-in per caller); when omitted, the
-     * check is pid-only.
+     * that case always returns false. A `$sessionPid <= 0` means "no active
+     * patient in session" (PatientSessionUtil::getPid() sentinel); also always
+     * denies. Encounter enforcement only fires when `$sessionEncounter` is
+     * non-null (opt-in per caller); when omitted, the check is pid-only.
      */
     public static function isFormOwnedBySession(
         ?int $ownerPid,
@@ -51,7 +52,7 @@ final class EncounterFormAccess
         ?int $ownerEncounter = null,
         ?int $sessionEncounter = null,
     ): bool {
-        if ($ownerPid === null || $ownerPid !== $sessionPid) {
+        if ($sessionPid <= 0 || $ownerPid === null || $ownerPid !== $sessionPid) {
             return false;
         }
 
@@ -90,27 +91,44 @@ final class EncounterFormAccess
         }
 
         $sessionPid ??= PatientSessionUtil::getPid();
+        $owner = self::fetchFormOwner($formId, $formDir);
 
-        $formOwner = QueryUtils::querySingleRow(
-            "SELECT pid, encounter FROM forms WHERE form_id = ? AND formdir = ? AND deleted = 0",
-            [$formId, $formDir],
-        );
-
-        $ownerPid = null;
-        $ownerEncounter = null;
-        if (is_array($formOwner)) {
-            $ownerPidRaw = $formOwner['pid'] ?? null;
-            $ownerEncounterRaw = $formOwner['encounter'] ?? null;
-            $ownerPid = is_numeric($ownerPidRaw) ? (int) $ownerPidRaw : null;
-            $ownerEncounter = is_numeric($ownerEncounterRaw) ? (int) $ownerEncounterRaw : null;
-        }
-
-        if (!self::isFormOwnedBySession($ownerPid, $sessionPid, $ownerEncounter, $sessionEncounter)) {
+        if (!self::isFormOwnedBySession(
+            $owner['pid'] ?? null,
+            $sessionPid,
+            $owner['encounter'] ?? null,
+            $sessionEncounter,
+        )) {
             AccessDeniedHelper::deny(
                 sprintf('Form %d/%s not accessible by session pid %d', $formId, $formDir, $sessionPid),
                 'security-access',
                 Response::HTTP_NOT_FOUND,
             );
         }
+    }
+
+    /**
+     * Look up the pid+encounter of a form. Returns null when the form row is
+     * absent or deleted. Callers that need the form's encounter for downstream
+     * checks (e.g. sensitivity ACL) can compose this with
+     * `isFormOwnedBySession()` and reuse the returned encounter.
+     *
+     * @return array{pid: int, encounter: int}|null
+     */
+    public static function fetchFormOwner(int $formId, string $formDir): ?array
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT pid, encounter FROM forms WHERE form_id = ? AND formdir = ? AND deleted = 0",
+            [$formId, $formDir],
+        );
+        if (!is_array($row)) {
+            return null;
+        }
+        $pidRaw = $row['pid'] ?? null;
+        $encounterRaw = $row['encounter'] ?? null;
+        if (!is_numeric($pidRaw) || !is_numeric($encounterRaw)) {
+            return null;
+        }
+        return ['pid' => (int) $pidRaw, 'encounter' => (int) $encounterRaw];
     }
 }

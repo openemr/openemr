@@ -50,9 +50,10 @@ class C_FormROS extends Controller
 
     function view_action($form_id)
     {
-        EncounterFormAccess::assertFormBelongsToSessionPatient(is_numeric($form_id) ? (int) $form_id : 0, 'ros');
+        $formId = is_numeric($form_id) ? (int) $form_id : 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'ros');
 
-        $ros = is_numeric($form_id) ? new FormROS($form_id) : new FormROS();
+        $ros = is_numeric($form_id) ? new FormROS($formId) : new FormROS();
 
         $this->assign("form", $ros);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");

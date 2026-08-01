@@ -72,9 +72,11 @@ final class EncounterFormAccessTest extends TestCase
             'pid match, encounter opt-in with owner encounter 0' => [42, 42, 0,   100, false],
             'pid match, encounter opt-in with null owner enc'    => [42, 42, null, 100, false],
 
-            // --- Session pid 0 (unauthenticated / no session pid) ---
-            'session pid 0 matches owner 0 in pid-only mode' => [0, 0, null, null, true],
-            'session pid 0 with owner pid 42 denies'         => [42, 0, null, null, false],
+            // --- Non-positive session pid ---
+            'session pid 0 with owner pid 0'      => [0,  0,  null, null, false],
+            'session pid 0 with owner pid 42'     => [42, 0,  null, null, false],
+            'negative session pid'                => [42, -1, null, null, false],
+            'session pid 0 with encounter opt-in' => [0,  0,  100, 100, false],
         ];
     }
 }

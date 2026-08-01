@@ -33,14 +33,17 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-EncounterFormAccess::assertFormBelongsToSessionPatient(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT), 'phq9');
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'phq9');
 
 if (!$encounter) {
     $encounter = date("Ymd");
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_phq9", $_POST, $_GET["id"], $userauthorized);
+    $newid = formSubmit("form_phq9", $_POST, $formId, $userauthorized);
     addForm($encounter, "PHQ-9 Form", $newid, "phq9", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     sqlStatement(
@@ -75,7 +78,7 @@ if ($_GET["mode"] == "new") {
             $_POST["psychomotor_score"],
             $_POST["suicide_score"],
             $_POST["difficulty"],
-            $_GET["id"]
+            $formId
         ]
     );
 }

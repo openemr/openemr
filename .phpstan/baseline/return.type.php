@@ -8537,16 +8537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\EncounterService\\:\\:getSensitivity\\(\\) should return string but returns array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/EncounterService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\EncounterService\\:\\:getSensitivity\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/EncounterService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\EncounterService\\:\\:updateEncounter\\(\\) should return OpenEMR\\\\Validators\\\\ProcessingResult but returns string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',

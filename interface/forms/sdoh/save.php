@@ -43,6 +43,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
 if (!$encounter) {
     $encounter = date("Ymd");
 }
@@ -54,11 +57,11 @@ if ($_GET["mode"] == "new") {
     $formid = $newid;
 } elseif ($_GET["mode"] == "update") {
     // if running from patient portal, then below will ensure patient can only see their forms
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $session->get('pid'));
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $formId, 'sdoh', $session->get('pid'));
     if (!$patientPortalSession) {
-        EncounterFormAccess::assertFormBelongsToSessionPatient(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT), 'sdoh');
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'sdoh');
     }
-    $formid = $_GET["id"];
+    $formid = $formId;
     sqlStatement(
         "UPDATE form_sdoh set pid = ?,
             groupname=?,
@@ -328,7 +331,7 @@ WHERE id=?",
         ($_POST["contactotherinput"] ?? ''),
         ($_POST["totalscore"] ?? null),
         ($_POST["additional_notes"] ?? null),
-            $_GET["id"]
+            $formId
         ]
     );
 }

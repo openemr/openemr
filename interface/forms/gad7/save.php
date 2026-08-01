@@ -34,14 +34,17 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-EncounterFormAccess::assertFormBelongsToSessionPatient(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT), 'gad7');
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'gad7');
 
 if (!$encounter) {
     $encounter = date("Ymd");
 }
 
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit("form_gad7", $_POST, $_GET["id"], $userauthorized);
+    $newid = formSubmit("form_gad7", $_POST, $formId, $userauthorized);
     addForm($encounter, "GAD-7 Form", $newid, "gad7", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     $pid = $session->get('pid');
@@ -75,7 +78,7 @@ if ($_GET["mode"] == "new") {
             $_POST["irritable_score"],
             $_POST["fear_score"],
             $_POST["difficulty"],
-            $_GET["id"]
+            $formId
         ]
     );
 }
