@@ -20,6 +20,26 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class FormService
 {
+    private $listFormsSeqAcl = 'formSeqAcl';
+    
+    private function setupLocalSeqAcl() {
+        $localSeqAcl = [];
+        
+        // Check formSeqAcl list
+        $loRecs = sqlQuery(
+            'select * from list_options where list_id=? and option_id=?',
+            ['lists', $this->listFormsSeqAcl]
+            );
+        // Create formSeqAcl if needed
+        if (!isset($loRecs['option_id'])) {
+            sqlStatement(
+                'INSERT INTO list_options (list_id, option_id, title) VALUES (?,?,?)',
+                ['lists', $this->listFormsSeqAcl, 'Encounter Forms Sequence and Access']
+            );
+        }
+        return true;
+    }
+    
     public function getFormByEncounter(
         $attendant_id,
         $encounter,
@@ -29,9 +49,14 @@ class FormService
     ) {
 
         global $attendant_type;
+        $this->setupLocalSeqAcl();
+        
         $arraySqlBind = [];
-        $sql = "select " . escape_sql_column_name(process_cols_escape($cols), ['forms']) . " from forms where encounter = ? and deleted = 0 ";
-        array_push($arraySqlBind, $encounter);
+        $esccols = escape_sql_column_name(process_cols_escape($cols), ['forms']);
+        $sql = "select $esccols, lo.title as local_acl from forms
+            LEFT OUTER JOIN list_options lo ON lo.list_id = ? and lo.option_id = forms.formdir and lo.activity = 1
+            where encounter = ? and deleted = 0";
+        array_push($arraySqlBind, $this->listFormsSeqAcl, $encounter);
         if (!empty($name)) {
             $sql .= "and form_name=? ";
             array_push($arraySqlBind, $name);
@@ -46,7 +71,7 @@ class FormService
         array_push($arraySqlBind, $attendant_id);
 
         // Default $orderby puts vitals first in the list, and newpatient last:
-        $sql .= "ORDER BY $orderby";
+        $sql .= "ORDER BY IFNULL(lo.seq, -1), $orderby";
 
         $res = sqlStatement($sql, $arraySqlBind);
 
@@ -54,7 +79,7 @@ class FormService
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;
         }
-
+        
         // TODO: @adunsulag fire off a module filter event here letting us modify / restrict / add data to the form list.
         return $all;
     }
