@@ -14,6 +14,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/libr
 require_once("FormPriorAuth.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -44,7 +45,10 @@ class C_FormPriorAuth extends Controller
 
     function view_action($form_id)
     {
-        $prior_auth = is_numeric($form_id) ? new FormPriorAuth($form_id) : new FormPriorAuth();
+        $formId = is_numeric($form_id) ? (int) $form_id : 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'prior_auth');
+
+        $prior_auth = is_numeric($form_id) ? new FormPriorAuth($formId) : new FormPriorAuth();
 
         $this->assign("VIEW", true);
         $this->assign("prior_auth", $prior_auth);

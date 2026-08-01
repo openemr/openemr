@@ -11,7 +11,6 @@
 
 /* include globals.php, required. */
 
-use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
@@ -22,13 +21,8 @@ require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/api.inc.php');
 /* include our smarty derived controller class. */
 require('C_FormPainMap.class.php');
 
-$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
-
-EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'painmap');
-
 /* Create a form object. */
 $c = new C_FormPainMap();
 
 /* Render a 'view/edit form' page. */
-echo $c->view_action($formId);
+echo $c->view_action(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT));
