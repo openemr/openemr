@@ -60,6 +60,14 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
     private const COLUMN_MAPPINGS = [
     ];
 
+    /**
+     * Official LOINC display values for laboratory observation codes.
+     * @see https://loinc.org
+     */
+    private const LOINC_DISPLAY = [
+        '5804-0' => 'Protein [Mass/volume] in Urine by Test strip',
+    ];
+
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
@@ -248,12 +256,14 @@ class FhirObservationLaboratoryService extends FhirServiceBase implements IPatie
         $observation->addCategory($obsCategoryCoding);
 
         // ONC FHIR requirements require there is a text value for the code, otherwise the code is not reported.
-        if (!empty($dataRecord['code']) && !empty($dataRecord['text'])) {
+        if (!empty($dataRecord['code']) && !empty($dataRecord['text']) && is_string($dataRecord['code'])) {
+            $loincCode = $dataRecord['code'];
+            $display = self::LOINC_DISPLAY[$loincCode] ?? $dataRecord['text'];
             $observation->setCode(UtilsService::createCodeableConcept([
-                $dataRecord['code'] => [
-                    'code' => $dataRecord['code'],
+                $loincCode => [
+                    'code' => $loincCode,
                     'system' => FhirCodeSystemConstants::LOINC,
-                    'description' => $dataRecord['text']
+                    'description' => $display
                 ]
             ]));
         } else {
