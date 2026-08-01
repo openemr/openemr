@@ -361,6 +361,33 @@ class TwigTemplateRenderTest extends TestCase
             ],
             $fixtureDir . '/appointments-with-future.html',
         ];
+
+        yield 'reports/email/queue hardened escaping and js encoding' => [
+            'reports/email/queue.html.twig',
+            [
+                'statistics' => [
+                    'total' => 1,
+                    'sent' => 1,
+                    'pending' => 0,
+                    'failed' => 0,
+                ],
+                'templateNames' => ['welcome" onclick="alert(1)'],
+                'emails' => [],
+                'filters' => [
+                    'search' => '\"><script>alert(1)</script>',
+                    'status' => 'sent',
+                    'template_name' => 'welcome" onclick="alert(1)',
+                    'date_from' => '2026-07-01\" onfocus=\"alert(1)',
+                    'date_to' => '2026-07-31\" onfocus=\"alert(1)',
+                ],
+                'totalCount' => 0,
+                'currentPage' => 1,
+                'totalPages' => 1,
+                'queryString' => 'search=test',
+                'webroot' => '/openemr\";alert(1);//',
+            ],
+            $fixtureDir . '/reports-email-queue-hardened.html',
+        ];
     }
 
     /**
