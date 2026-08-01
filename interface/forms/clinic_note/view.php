@@ -17,6 +17,7 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -40,6 +41,7 @@ if (! $encounter) { // comes from globals.php
 }
 
 $formid = $_GET['id'];
+EncounterFormAccess::assertFormBelongsToSessionPatient(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT), 'clinic_note');
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // If Save was clicked, save the info.

@@ -98,6 +98,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/load_form.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/super/edit_globals.php',
 ];

@@ -12,6 +12,7 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -54,6 +55,9 @@ if ($_GET["mode"] == "new") {
 } elseif ($_GET["mode"] == "update") {
     // if running from patient portal, then below will ensure patient can only see their forms
     CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $session->get('pid'));
+    if (!$patientPortalSession) {
+        EncounterFormAccess::assertFormBelongsToSessionPatient(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT), 'sdoh');
+    }
     $formid = $_GET["id"];
     sqlStatement(
         "UPDATE form_sdoh set pid = ?,

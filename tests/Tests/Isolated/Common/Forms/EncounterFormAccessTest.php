@@ -1,0 +1,80 @@
+<?php
+
+/**
+ * Isolated tests for the pure ownership-comparison logic in
+ * `OpenEMR\Common\Forms\EncounterFormAccess::isFormOwnedBySession()`.
+ *
+ * The security-relevant decision — "does this form's owner permit access
+ * from this session?" — lives entirely in `isFormOwnedBySession()`. The
+ * `assertFormBelongsToSessionPatient()` wrapper composes it with a DB
+ * fetch and a `deny()` call; the pure function is the trust boundary.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Isolated\Common\Forms;
+
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
+final class EncounterFormAccessTest extends TestCase
+{
+    #[DataProvider('ownershipCasesProvider')]
+    public function testIsFormOwnedBySession(
+        ?int $ownerPid,
+        int $sessionPid,
+        ?int $ownerEncounter,
+        ?int $sessionEncounter,
+        bool $expected,
+    ): void {
+        $this->assertSame(
+            $expected,
+            EncounterFormAccess::isFormOwnedBySession(
+                $ownerPid,
+                $sessionPid,
+                $ownerEncounter,
+                $sessionEncounter,
+            ),
+        );
+    }
+
+    /**
+     * @return array<string, array{?int, int, ?int, ?int, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function ownershipCasesProvider(): array
+    {
+        return [
+            // --- Form not found (owner null) always denies ---
+            'form not found — pid-only mode'          => [null, 42, null, null, false],
+            'form not found — encounter opt-in mode'  => [null, 42, null, 100, false],
+            'form not found with owner encounter set' => [null, 42, 100, null, false],
+
+            // --- Pid mismatch always denies ---
+            'pid mismatch — pid-only mode'                => [7,  42, null, null, false],
+            'pid mismatch — different sessions'           => [42, 43, null, null, false],
+            'pid mismatch even when encounter matches'    => [7,  42, 100, 100, false],
+            'zero owner pid vs non-zero session'          => [0,  42, null, null, false],
+
+            // --- Pid match, pid-only mode (encounter check disabled) ---
+            'pid match, both encounters null'                    => [42, 42, null, null, true],
+            'pid match, owner has encounter but session opts out' => [42, 42, 100, null, true],
+
+            // --- Pid match, encounter opt-in ---
+            'pid match, encounter match'                         => [42, 42, 100, 100, true],
+            'pid match, encounter mismatch'                      => [42, 42, 99,  100, false],
+            'pid match, encounter opt-in with owner encounter 0' => [42, 42, 0,   100, false],
+            'pid match, encounter opt-in with null owner enc'    => [42, 42, null, 100, false],
+
+            // --- Session pid 0 (unauthenticated / no session pid) ---
+            'session pid 0 matches owner 0 in pid-only mode' => [0, 0, null, null, true],
+            'session pid 0 with owner pid 42 denies'         => [42, 0, null, null, false],
+        ];
+    }
+}
