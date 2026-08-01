@@ -955,6 +955,41 @@ Recommended shape:
     workflow's fresh_installation coverage. Keep the workflow
     itself for the three bash-native tests until slice 2 lands.
 
+**Phase 4d BLOCKED as-scoped 2026-08-01 — variant coverage gap.**
+Slicing map originally sliced by *function*, but `docker-test-
+container-functionality.yml` runs `test_suite.sh` against release
++ binary + flex (3 separate jobs). The PHPUnit Acceptance harness
+(`boot-package.sh`, `boot-docker.sh`) only targets the release
+image. **Every port would lose flex + binary coverage** for the
+ported function. Even the "pure duplicate" delete (`fresh_
+installation`) loses binary + flex fresh-install coverage since
+`InstallTest` (PHPUnit) only exercises release.
+
+Options considered:
+
+  1. **Extend Acceptance harness with flex + binary variants**
+     first, then port. Adds ~1 week harness work before touching
+     ports. Also opens design questions: does boot-package.sh even
+     make sense for flex (dev-oriented bind-mount)? Does the
+     Panther-based flow work against flex's stack?
+  2. **Delete only `fresh_installation` bash** (pure duplicate for
+     release) + keep bash for flex/binary + release-variant-of-
+     the-others. Partial-hybrid — achieves audit item #3
+     (eliminate duplication) for release only; nothing else.
+  3. **Port release variants + keep bash for flex/binary** —
+     hybrid. Would need docker-test-container-functionality.yml to
+     skip release, run only flex + binary.
+  4. **Accept flex + binary coverage loss** — regression.
+
+Decision (2026-08-01, per user): don't extend Acceptance scope
+AND don't lose tests. Every option violates one constraint or the
+other. **Phase 4d is skipped indefinitely** — revisit if either
+constraint relaxes (e.g., if flex/binary variants gain natural
+Acceptance-harness coverage via a separate effort, or if flex/
+binary phase out entirely). The audit item #3 duplication cost is
+low (fresh_installation bash + PHPUnit InstallTest both continue
+to run) — not worth breaking a constraint over.
+
 **4e — reuse `tests/Tests/E2e/*` against shipped artifacts.**
 Dev-checkout suite has 17 Selenium test classes. `E2eCriticalPathTest`
 (#13196) established the "take a dev-checkout E2E flow and run
@@ -3588,5 +3623,36 @@ in acceptance."
   **Post-Phase-12 state**: Phase 10 + 11 + 12 all shipped and
   validated end-to-end same day. Only 10g remains as OPTIONAL-
   skip. 11b (flex native arm64) tracked as follow-up only if
-  flex flakes actually surface. Next attack: unclear —
-  acceptance-mechanism-work is essentially caught up.
+  flex flakes actually surface.
+
+  **Phase 12 real-world master-gated validation**: manual
+  orchestrator dispatch at 15:16 UTC confirmed master's
+  first-ever gated build worked cleanly. 13m12s wall-clock
+  (prep 10s → build-arch matrix ~5m parallel → merge-manifest
+  20s → 6-scenario native acceptance ~4.5m parallel → publish +
+  cleanup ~2m). All 6 acceptance scenarios PASSED. `dev` / `next`
+  / `8.3.0` / `8.3.0-2026-08-01` tags now flow through the gated
+  path (publish-and-cleanup's imagetools-alias fan-out) rather
+  than direct build+push. Cost was ~+2 min vs pre-Phase-12
+  non-gated master, well under the estimated 15-25 min ceiling.
+
+- **2026-08-01 (later still) — Phase 4d BLOCKED under scope
+  constraints; pursuing 4e next.** Phase 4d slicing map originally
+  scoped by function (manual_setup, redis_sessions, etc.) but
+  didn't address the variant dimension. `docker-test-container-
+  functionality.yml` runs `test_suite.sh` against release + binary
+  + flex (3 separate jobs); PHPUnit Acceptance harness targets
+  release only. Every port loses flex + binary coverage for the
+  ported function; even the pure duplicate delete
+  (`fresh_installation`) drops binary + flex fresh-install
+  coverage since InstallTest only exercises release. Under
+  constraint "don't extend Acceptance scope + don't lose tests"
+  every option fails one or both. Phase 4d skipped indefinitely
+  (see 4d section for the full option analysis + decision
+  rationale). Phase 4e (E2E reuse against shipped artifacts) is
+  purely additive — dev-checkout tests stay running against dev
+  stack unchanged, ported classes ALSO run against shipped
+  release image in Acceptance suite. No delete, no loss. Attack
+  next; start with a Small warmup (AaLoginTest — auth +
+  admin-page load, no seeding, ideal warmup per plan doc's own
+  annotation).
