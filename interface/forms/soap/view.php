@@ -12,7 +12,6 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
-use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
@@ -22,10 +21,5 @@ require_once("$srcdir/api.inc.php");
 
 require("C_FormSOAP.class.php");
 
-$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
-
-EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'soap');
-
 $c = new C_FormSOAP();
-echo $c->view_action($formId);
+echo $c->view_action(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT));
