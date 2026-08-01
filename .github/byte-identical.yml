@@ -249,9 +249,11 @@ files:
 # the target rel branch doesn't carry the composite the job fails at
 # POST cleanup even though the sync itself completed cleanly (see PR
 # #13326). Propagate the composite to rel-800/rel-704 too so POST
-# resolves successfully there. The composite is unused on those
-# branches (no caller workflows carrying it) but the ~10-line
-# action.yml is metadata-only and costs nothing operationally.
+# resolves successfully there. The composite's action.yml carries
+# executable composite steps (wraps actions/create-github-app-token
+# @v3) but no caller workflow on those branches invokes it — it's
+# kept present solely so POST cleanup can resolve action.yml.
+# Operational cost: none (dormant file on 2 rel branches).
 - path: .github/actions/generate-app-token/**
 - path: .github/PULL_REQUEST_TEMPLATE/release-prep.md
   exclude-branches: [rel-800, rel-704]
