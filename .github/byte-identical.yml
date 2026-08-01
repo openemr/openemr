@@ -236,17 +236,25 @@ files:
 - path: .github/actions/setup-php-composer/action.yml
   exclude-branches: [rel-800, rel-704]
 # Phase 10b (openemr/openemr#TBD, 2026-07-30): generate-app-token
-# is called via `uses: ./.github/actions/generate-app-token`
-# from build-release.yml, release-prep.yml, build-patch.yml, patch-prep-
-# automation.yml, branch-cut-automation.yml, release-permissions-check.yml,
-# and reusable-publish-release.yml -- all of which are in this block
-# with the same rel-800/rel-704 exclusion. Composite paths resolve
-# against the workflow's local checkout at step-load time, so the
-# action.yml must exist on every branch the caller workflows can fire
-# from. rel-800/rel-704 excluded for the same reason the callers are
-# (those branches predate the release mechanism entirely).
+# is called via `uses: ./.github/actions/generate-app-token` from a
+# spread of release-mechanism workflows (build-release, release-prep,
+# build-patch, patch-prep-automation, branch-cut-automation,
+# release-permissions-check, reusable-publish-release, etc.). Most of
+# those callers ARE excluded from rel-800/rel-704 -- but sync-byte-
+# identical.yml (fires on master push, matrices over ALL rel branches
+# including rel-800/rel-704) also uses the composite, and its
+# `Checkout rel branch` step fully replaces the workspace with the
+# target rel branch's tree. At end-of-job GHA runs the composite's
+# POST-step for token invalidation, needs action.yml on disk, and if
+# the target rel branch doesn't carry the composite the job fails at
+# POST cleanup even though the sync itself completed cleanly (see PR
+# #13326). Propagate the composite to rel-800/rel-704 too so POST
+# resolves successfully there. The composite's action.yml carries
+# executable composite steps (wraps actions/create-github-app-token
+# @v3) but no caller workflow on those branches invokes it — it's
+# kept present solely so POST cleanup can resolve action.yml.
+# Operational cost: none (dormant file on 2 rel branches).
 - path: .github/actions/generate-app-token/**
-  exclude-branches: [rel-800, rel-704]
 - path: .github/PULL_REQUEST_TEMPLATE/release-prep.md
   exclude-branches: [rel-800, rel-704]
 - path: .github/PULL_REQUEST_TEMPLATE/release-finalize.md
