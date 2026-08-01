@@ -2027,7 +2027,7 @@ semantics or gate topology. This is refactoring-in-place. If a
 consolidation exposes a bug (e.g. drift between the 3 OCI verify
 copies), fix in a paired PR with clear before/after tests.
 
-### Phase 11 — Native arm64 for release-time docker builds (rel-810+) *(proposed 2026-07-31; attack next after Phase 10 wraps)*
+### Phase 11 — Native arm64 for release-time docker builds (rel-810+) *(SHIPPED 2026-08-01 as #13330)*
 
 **Goal:** Move release-time docker builds from QEMU-emulated arm64 on a
 single amd64 runner to native arm64 builds on arm64 runners, mirroring
@@ -2106,10 +2106,12 @@ gated by this — QEMU still works, just slower + occasionally flaky.
 Phase 11 is quality-of-life + reliability improvement, not
 correctness blocker.
 
-**Sequencing:** attack after Phase 10 fully wraps (10e-5 + 10e-6 in
-flight; 10g optional-skip). Phase 11 is single-slice (not
-sub-sliced) — the change is one atomic restructure of docker-build-
-release.yml + testing.
+**Sequencing:** Phase 11 SHIPPED 2026-08-01 as #13330 — three-job
+split (prep + build-arch matrix + merge-manifest). Rabbit found +
+we fixed one gap: verify-OCI-labels moved from merge-manifest into
+build-arch matrix so both arches get natively verified (docker
+pull's arch-selection on merged manifest would otherwise skip
+arm64). See activity-log 2026-08-01 for full detail.
 
 **Not in Phase 11 (initial) scope — flex builds** *(`.github/
 workflows/docker-build-flex-core.yml`; same `linux/amd64,linux/
@@ -3387,3 +3389,64 @@ in acceptance."
   release-time docker builds, rel-810+); rationale + scope
   discussion (including flex-deferred-to-Phase-11b note) captured
   in the Phase 11 section above.
+
+- **2026-08-01 (later) — sync-byte-identical POST-cleanup fix
+  SHIPPED (#13326).** Every sync-byte-identical run since 2026-07-31
+  had been marked failed on rel-800/rel-704 sync jobs (11+ in a
+  row) — Phase 10b's composite lookup at end-of-job couldn't find
+  action.yml on those branches after the rel-branch checkout
+  replaced the workspace. Root cause was correctly designed for
+  during Phase 10b (comment even acknowledged the risk), but POST-
+  cleanup strictness wasn't anticipated. Fix: drop rel-800/rel-704
+  from the composite's byte-identical exclusion — composite now
+  propagates to those branches too. Unused there but resolves
+  POST-cleanup on any sync run that checks out those branches.
+  Rabbit round-1 reworded the comment (my "metadata-only" phrasing
+  was imprecise since action.yml carries executable composite
+  steps — reworded to say "carries executable composite steps but
+  no caller workflow on rel-800/rel-704 invokes it; kept present
+  solely so POST cleanup can resolve it"). Zero workflow-code
+  change.
+
+- **2026-08-01 (later still) — Phase 11 SHIPPED (#13330).**
+  Restructured `docker-build-release.yml` from single-runner QEMU-
+  emulated multi-arch to native per-arch matrix + manifest merge.
+  Three-job split: `prep` (compute BUILD_DATE + version metadata
+  once) → `build-arch` (matrix over `[ubuntu-24.04, ubuntu-24.04-
+  arm]`, native build+push to per-arch intermediate tags) →
+  `merge-manifest` (`docker buildx imagetools create` unifies per-
+  arch pushes into final multi-arch manifest, cleans up
+  intermediates via Phase 10e-3's dockerhub-delete-tag.sh).
+  Downstream `acceptance-gate` + `publish-and-cleanup` just rewired
+  `needs:` from `build` → `merge-manifest`; outputs contract
+  preserved.
+
+  **Rabbit round-1 caught a real gap**: initial design put OCI-
+  label verify in merge-manifest, but `docker pull` selects the
+  runner's arch (amd64 on ubuntu-24.04) from the merged manifest,
+  so arm64 label drift would go unverified. Fix: moved verify into
+  build-arch (per-arch, native — each arch verifies its own
+  intermediate on its own runner where docker pull trivially
+  matches). No verify-oci-labels.sh script change needed; workflow-
+  only fix. As a bonus, verify now runs BEFORE merge-manifest, so a
+  failed verify skips both merge + acceptance-gate + publish (pre-
+  move, verify ran after merge — a failed verify still wasted the
+  merge step). Rabbit's other 2 nitpicks skipped with reasoning:
+  scheduled orphan-tag sweeper (marginal — namespace disjoint,
+  ~1/week orphan rate at worst, years to accumulate meaningfully),
+  collapse gated+non-gated build steps into one (elegant but
+  breaks the split pattern used consistently elsewhere in the
+  file). Rel-704/rel-800 unaffected (byte-identical exclusion).
+
+  **Real-world validation**: pending. No local reproduction path
+  for multi-arch native push without hitting Docker Hub. First
+  daily orchestrator run (07:00 UTC) after byte-identical sync
+  propagates the workflow to rel-820 is the actual smoke test.
+  Rollback plan documented in PR body — `git revert`, Docker Hub
+  still carries QEMU-built images from prior days.
+
+  **Flex builds deferred to Phase 11b** per the Phase 11 section
+  above: same pattern would apply but cost/benefit is
+  proportionally weaker (lighter per-build QEMU pain, matrix-scale
+  amplifies runner cost, no PR-parity concern to fix). Track as
+  follow-up if flex flakes actually surface.
