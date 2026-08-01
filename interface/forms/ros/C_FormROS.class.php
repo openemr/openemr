@@ -19,6 +19,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/libr
 require_once("FormROS.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -49,6 +50,7 @@ class C_FormROS extends Controller
 
     function view_action($form_id)
     {
+        EncounterFormAccess::assertFormBelongsToSessionPatient(is_numeric($form_id) ? (int) $form_id : 0, 'ros');
 
         $ros = is_numeric($form_id) ? new FormROS($form_id) : new FormROS();
 

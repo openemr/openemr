@@ -17,6 +17,7 @@ require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -112,6 +113,7 @@ $showTreatmentLine = function (string $line_id, string $description, array $line
 };
 
 $formid = $request->query->getString('id');
+EncounterFormAccess::assertFormBelongsToSessionPatient((int) $formid, 'physical_exam');
 
 // If Save was clicked, save the info.
 //
