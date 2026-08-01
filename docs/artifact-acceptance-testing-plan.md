@@ -1888,19 +1888,52 @@ drift-bug sources.
     script AND acceptance-docker.yml inline. New BATS regression
     test simulates git diff exit 128 + asserts loud failure.
 
-  * **10e-5 — Slice: `reusable-publish-tag-create`.** Extract the
-    ls-remote 0/2/other case + `gh release view` idempotency into
-    `.github/scripts/create-release-tag.sh`. ~6 tests. Modest but
-    recovery-path idempotency is release-critical.
+  * **10e-5 — Slice: `reusable-publish-tag-create` — SHIPPED
+    2026-08-01 as #13310.** Extracted `reusable-publish-release.yml`'s
+    "Create annotated tag and GitHub release" step (43 inline lines)
+    into `.github/scripts/create-release-tag.sh` (101 lines) with 10
+    BATS tests covering the 4-cell tag-exists × release-exists
+    idempotency matrix plus ls-remote unexpected-exit, gh/git push
+    failure, missing-env, missing-notes-file, and directory-target
+    cases. Byte-identical propagation applied (script added to
+    byte-identical.yml with same rel-800/rel-704 exclusion as caller).
+    One env-contract refinement landed: script takes explicit
+    RELEASE_NOTES_FILE instead of computing `$GITHUB_WORKSPACE/...`
+    internally (caller renders full path via `${{ github.workspace }}`);
+    same final path resolution, cleaner boundary. Rabbit iterated 2
+    rounds: round 1 caught a real bug (git ls-remote stderr was
+    discarded on the wildcard-failure branch, so incident triage
+    only saw the exit code number — applied); round 2 flagged missing
+    RELEASE_NOTES_FILE preflight (missing/unreadable/directory would
+    fail AFTER `git push`, leaving release in partial state — applied
+    with 2 regression BATS tests). Round 2 also flagged distinguishing
+    "release not found" from "release-view lookup failure" — skipped
+    with reasoning (gh release create errors cleanly on duplicate-tag,
+    so mis-classified transport flakes result in spurious create-
+    attempts that fail safely, not double-releases; fix would need
+    fragile CLI-string parsing or full gh-api path-swap).
 
-  * **10e-6 — Slice: `release-amendment-changelog-extract`.**
-    Extract the awk section-extractor + 125K truncation +
-    anchor-slug into `.github/scripts/extract-changelog-section.sh`
-    + `.github/scripts/build-release-body.sh`. ~10 tests. Lower
-    priority than 10e-2 through 10e-5 but decent post-GHSA amendment
-    reliability. The anchor-slug rule must match GitHub's own
-    heading-slug algorithm — drift silently 404s the truncated-
-    body pointer link.
+  * **10e-6 — Slice: `release-amendment-changelog-extract` — SHIPPED
+    2026-08-01 as #13311.** Extracted `release-amendment.yml`'s awk
+    section-extractor + 125K truncation + anchor-slug into two
+    scripts by concern: `extract-changelog-section.sh` (pure awk
+    extractor) + `build-release-body.sh` (truncation + anchor pointer
+    assembly). 19 BATS tests (7 extractor + 12 body-assembler). Both
+    scripts stay master-only (release-amendment.yml is a manual-
+    dispatch orchestrator, not byte-identical'd). Anchor-slug NOT a
+    general GitHub-slug implementation — exploits the specific
+    `[X.Y.Z] - YYYY-MM-DD` heading shape (strip dots, join with
+    `---`); documented as a fragility surface in the script header
+    so future heading-format drift trips fast. Two rabbit rounds:
+    round 1 = docs/naming (make_body_of_size docstring; empty-section
+    test rename to match its own success assertion — both applied).
+    A CI-only failure surfaced on the exact-equality assertion `[[
+    "${output}" == "..." ]]` — reproducible only on GHA runners, not
+    on local bats/bats:1.13.0 docker OR fresh-from-source bats-core
+    v1.13.0 on ubuntu:24.04; some GHA-runner-specific output-capture
+    quirk. Switched to substring assertions matching other tests'
+    style (captures actual intent without depending on byte-equality)
+    and merged.
 
   Byte-identical propagation for 10e-2 through 10e-6: none of the
   new BATS suites need propagation (tests are master-only). Target
@@ -1983,10 +2016,11 @@ ergonomic win — eliminates manual recovery steps) — SHIPPED. 10b +
 10d + 10f shipped together in parallel — SHIPPED 2026-07-30. 10e
 now sub-sliced: 10e-1 SHIPPED 2026-07-30 as #13292; 10e-audit DONE
 2026-07-30; 10e-2 + 10e-3 SHIPPED 2026-07-31 as #13294 + #13293;
-10e-4 SHIPPED 2026-07-31 as #13306. Remaining: 10e-5 (reusable-
-publish tag-create) + 10e-6 (release-amendment changelog-extract),
-both lower priority per audit. 10g remains optional — do not do
-unless the cost/benefit shifts.
+10e-4 SHIPPED 2026-07-31 as #13306; 10e-5 + 10e-6 SHIPPED 2026-08-01
+as #13310 + #13311. **Phase 10 fully wraps 2026-08-01** (10a/b/c/d/f
++ 10e-1 through 10e-6 all shipped). Only 10g remains, marked
+OPTIONAL — do not do unless the cost/benefit shifts. Next attack:
+Phase 11 (native arm64 for release-time docker builds, rel-810+).
 
 **Not in Phase 10 scope:** anything that changes acceptance
 semantics or gate topology. This is refactoring-in-place. If a
@@ -3305,3 +3339,51 @@ in acceptance."
   (release-amendment changelog-extract) remain, both audit-priority-
   4-and-5 (lower value than 10e-2/3/4). 10g optional-skip. Phase 10
   is essentially wrapping.
+
+- **2026-08-01 — Phase 10e-5 + 10e-6 SHIPPED (#13310 + #13311).
+  Phase 10 fully wraps.** Both slices landed in parallel — same
+  design pattern as 10e-2/10e-3 (zero core-file overlap; trivial
+  rebase-quirk conflicts on `test-byte-identical-scripts.yml` +
+  `byte-identical.yml` + `.github/scripts/README.md` handled on
+  whichever landed second).
+
+    * **10e-5 (#13310)** — create-release-tag extract. Rabbit found
+      2 real bugs across 2 review rounds: (1) `git ls-remote` stderr
+      was discarded on the wildcard-failure branch (only exit code
+      surfaced) — applied capture; (2) missing RELEASE_NOTES_FILE
+      preflight would fail AFTER `git push` had published the tag,
+      leaving release in partial state — applied `-f && -r` preflight
+      with 2 regression BATS tests. Skipped a "distinguish 'release
+      not found' from 'view lookup failure'" nitpick with reasoning
+      (gh release create errors cleanly on duplicate-tag, so the
+      feared double-release scenario doesn't manifest; fix would
+      need fragile CLI-string parsing or a full gh-api restructure).
+      Also refined env-contract: script takes explicit
+      RELEASE_NOTES_FILE instead of computing `$GITHUB_WORKSPACE/...`
+      internally (caller renders the full path); same final path,
+      cleaner boundary.
+
+    * **10e-6 (#13311)** — changelog-section extract + release-body
+      assembler. Split by concern into 2 scripts (pure awk extractor
+      + truncation-and-anchor assembly). 19 BATS tests. Master-only
+      (release-amendment.yml is a manual-dispatch orchestrator, not
+      byte-identical'd). Anchor-slug is deliberately NOT a general
+      GitHub-slug impl — exploits the specific `[X.Y.Z] - YYYY-MM-DD`
+      heading shape; documented as a fragility surface in the script
+      header. **CI-only failure surfaced** on an exact-equality
+      assertion `[[ "${output}" == "..." ]]` — could NOT be
+      reproduced on local `bats/bats:1.13.0` docker OR fresh-from-
+      source bats-core v1.13.0 on ubuntu:24.04 (7/7 pass both
+      places). Some GHA-runner-specific output-capture quirk we
+      couldn't pin down; switched to substring assertions matching
+      the other tests' style (captures actual intent without
+      depending on byte-equality) and merged. Lesson: exact-string
+      equality on BATS `$output` is fragile across GHA vs local;
+      prefer substring for all future assertions.
+
+  **Phase 10 fully wraps 2026-08-01.** Every slice (10a through
+  10f, 10e-1 through 10e-6) shipped. Only 10g remains as
+  OPTIONAL-skip. Attack-next is Phase 11 (native arm64 for
+  release-time docker builds, rel-810+); rationale + scope
+  discussion (including flex-deferred-to-Phase-11b note) captured
+  in the Phase 11 section above.
