@@ -188,6 +188,19 @@ class AppointmentServiceTest extends TestCase
     }
 
     #[Test]
+    public function testInsertDefaultsMissingProviderToClinicProvider(): void
+    {
+        $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
+        $appointment = $this->appointmentService->getAppointment($insertId);
+
+        $this->assertIsArray($appointment);
+        $this->assertNotEmpty($appointment);
+        $row = $appointment[0];
+        $this->assertIsArray($row);
+        $this->assertEquals(0, (int) $row['pc_aid']);
+    }
+
+    #[Test]
     public function testGetAppointmentReturnsEmptyForNonExistent(): void
     {
         $result = $this->appointmentService->getAppointment(999999999);

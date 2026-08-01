@@ -68,6 +68,14 @@ This layout is the legacy login page, a centered box with the logos on top
                     {% endif %}
                 </div>
 
+                {% if externalAuthenticationProviders %}
+                <div class="mt-3 external-authentication-providers">
+                    {% for provider in externalAuthenticationProviders %}
+                        <a class="btn btn-outline-primary btn-block mb-2" href="{{ provider.loginUrl|safe_href }}" data-external-authentication-provider="{{ provider.id|attr }}" data-site-id="{{ siteID|attr }}">{{ provider.label|text }}</a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 {% include "login/partials/html/acknowledgements.html.twig" %}
             </div>
         </div>
