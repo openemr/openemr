@@ -368,6 +368,32 @@ jobs:
           IMAGE_VERSION=${{ needs.prep.outputs.image_version }}
           BUILD_DATE=${{ needs.prep.outputs.build_date }}
 
+    # Verify OCI labels on the just-pushed per-arch intermediate BEFORE
+    # merge-manifest fans them out. Runs on the matrix runner so each
+    # arch verifies its OWN image natively (docker pull on the single-
+    # arch intermediate tag trivially fetches the runner's arch). Moved
+    # here from merge-manifest (post-Phase-11 review): merge-manifest's
+    # verify only ever inspected the runner's arch (amd64 on ubuntu-
+    # 24.04) via docker pull's platform-selection, leaving arm64 label
+    # drift unverified. Per-arch verify catches both.
+    - name: Verify per-arch OCI labels — gated path
+      if: inputs.gate_with_acceptance
+      env:
+        EXPECTED_REVISION: ${{ needs.prep.outputs.openemr_version_ref }}
+        EXPECTED_VERSION: ${{ needs.prep.outputs.image_version }}
+        EXPECTED_BUILD_DATE: ${{ needs.prep.outputs.build_date }}
+        REF_TAG: openemr/openemr:${{ needs.prep.outputs.candidate_tag }}-${{ steps.arch.outputs.label }}
+      run: .github/scripts/verify-oci-labels.sh
+
+    - name: Verify per-arch OCI labels — non-gated path
+      if: ${{ !inputs.gate_with_acceptance }}
+      env:
+        EXPECTED_REVISION: ${{ needs.prep.outputs.openemr_version_ref }}
+        EXPECTED_VERSION: ${{ needs.prep.outputs.image_version }}
+        EXPECTED_BUILD_DATE: ${{ needs.prep.outputs.build_date }}
+        REF_TAG: openemr/openemr:${{ env.ARCH_INTERMEDIATE_PREFIX }}-${{ steps.arch.outputs.label }}
+      run: .github/scripts/verify-oci-labels.sh
+
   # Phase 11 merge-manifest: unify the per-arch intermediate pushes
   # into the final multi-arch manifest(s) via `docker buildx imagetools
   # create`. This is a metadata-only op on Docker Hub -- no image blobs
@@ -437,50 +463,24 @@ jobs:
           docker buildx imagetools create -t "$tag" "$SRC_AMD64" "$SRC_ARM64"
         done
 
-    # Verify labels once against the merged manifest. Pre-Phase-11 this
-    # ran twice (gated vs non-gated) on the per-flavor push; post-Phase-11
-    # the per-arch intermediates share the merged digest, so one verify
-    # covers both platform slices and both flavors. REF_TAG picks the
-    # merged candidate for the gated path, the first expanded final tag
-    # for the non-gated path. Same verify script the publish site uses.
-    - name: Verify pushed image OCI labels — gated path
-      if: inputs.gate_with_acceptance
-      env:
-        EXPECTED_REVISION: ${{ needs.prep.outputs.openemr_version_ref }}
-        EXPECTED_VERSION: ${{ needs.prep.outputs.image_version }}
-        EXPECTED_BUILD_DATE: ${{ needs.prep.outputs.build_date }}
-        REF_TAG: openemr/openemr:${{ needs.prep.outputs.candidate_tag }}
-      # Runs against the merged candidate tag before spending
-      # acceptance-gate CI budget on an image whose Dockerfile ARGs
-      # didn't flow through correctly. Same verify script the non-gated
-      # + publish sites use.
-      run: .github/scripts/verify-oci-labels.sh
+    # Note: OCI-label verify moved into build-arch (per-arch, native).
+    # The old merge-manifest-side verify only inspected the runner's arch
+    # (amd64 on ubuntu-24.04) via docker pull's platform-selection,
+    # leaving arm64 label drift unverified. Per-arch verify catches
+    # both by running on the matrix runner where docker pull trivially
+    # matches the runner's own arch.
 
-    - name: Verify pushed image OCI labels — non-gated path
-      if: ${{ !inputs.gate_with_acceptance }}
-      env:
-        EXPECTED_REVISION: ${{ needs.prep.outputs.openemr_version_ref }}
-        EXPECTED_VERSION: ${{ needs.prep.outputs.image_version }}
-        EXPECTED_BUILD_DATE: ${{ needs.prep.outputs.build_date }}
-        TAGS_LIST: ${{ needs.prep.outputs.expanded_tags }}
-      # First pushed tag is the representative one to verify -- all tags
-      # in TAGS_LIST point at the same manifest so inspecting one covers
-      # all of them.
-      run: |
-        REF_TAG=$(echo "${TAGS_LIST}" | head -1)
-        export REF_TAG
-        .github/scripts/verify-oci-labels.sh
-
-    # Cleanup the per-arch intermediate tags after verify succeeds. The
+    # Cleanup the per-arch intermediate tags after merge succeeds. The
     # merged manifests still reference the arch-specific image digests
     # directly (imagetools create copies the digests into the manifest
     # list), so deleting the intermediate tag pointers is safe -- the
     # multi-arch tag(s) keep working. Default step `if: success()`
-    # preserves the per-arch intermediates on verify failure so an
-    # operator can inspect them (they're the only surviving reference
-    # to the individual arch digests once the merged manifest is in
-    # place). continue-on-error so a Docker Hub delete failure doesn't
-    # tank the whole workflow run -- a stray build-arch-* or
+    # preserves the per-arch intermediates on merge failure (or on any
+    # earlier build-arch failure that skips merge) so an operator can
+    # inspect them (they're the only surviving reference to the
+    # individual arch digests once the merged manifest is in place).
+    # continue-on-error so a Docker Hub delete failure doesn't tank the
+    # whole workflow run -- a stray build-arch-* or
     # release-candidate-*-<arch> tag is cosmetically annoying but not
     # a correctness issue, same rationale as reusable-docker-
     # publish.yml's cleanup-candidate.
