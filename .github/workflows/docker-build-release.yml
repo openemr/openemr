@@ -34,10 +34,16 @@
 #     imagetools create` (no rebuild — digest-identical across
 #     build/test/publish). A cleanup-candidate job then deletes the
 #     candidate tag from Docker Hub. Default false preserves the
-#     pre-Phase-7c single-step build+push shape for every row that
-#     doesn't ship a widely-consumed floating tag. Orchestrator sets
-#     this true for rows whose docker_tags include `latest` — see
-#     docker-release-orchestrator.yml.
+#     pre-Phase-7c single-step build+push shape for rows that don't
+#     carry the mechanism. Post-Phase-12 (openemr/openemr#13332, 2026-
+#     08-01) the orchestrator sets this true from an explicit per-row
+#     `gate_with_acceptance: true` flag in release-targets.yml (master
+#     + rel-820, plus any future rel-830+ at cut time); rel-800 +
+#     rel-704 leave the flag unset and stay on the non-gated shape.
+#     Pre-Phase-12 the orchestrator auto-detected on "any tag ==
+#     latest" — replaced by the explicit flag when Phase 11 native
+#     arm64 made the ~1h QEMU acceptance cost drop to ~14 min, so
+#     wider gate coverage became affordable.
 #
 #     arm64 coverage: acceptance-gate runs its full 3-scenario matrix on
 #     BOTH ubuntu-24.04 (amd64) and ubuntu-24.04-arm (arm64) runners
@@ -93,7 +99,7 @@ on:
         type: string
         default: ''
       gate_with_acceptance:
-        description: 'Phase 7c-docker: gate publish on acceptance-docker.yml passing. Orchestrator sets true for rows whose docker_tags include `latest`.'
+        description: 'Phase 7c-docker: gate publish on acceptance-docker.yml passing. Orchestrator sets true from each release-target row''s explicit `gate_with_acceptance` flag (Phase 12).'
         type: boolean
         default: false
 
@@ -506,7 +512,11 @@ jobs:
   # Phase 7c-docker gate: run the full acceptance-docker matrix against
   # the image build produced + saved as an artifact. Publish only fires
   # if this passes. Skipped when gate_with_acceptance=false (the pre-
-  # Phase-7c shape, and the current default for every non-latest row).
+  # Phase-7c shape). As of Phase 12 (openemr/openemr#13332, 2026-08-01)
+  # the orchestrator sets this true from an explicit per-row
+  # `gate_with_acceptance: true` flag in release-targets.yml — master
+  # + rel-820 (+ future rel-830+) have it; rel-800 + rel-704 don't
+  # (legacy, no acceptance-docker.yml surface via byte-identical).
   #
   # Runs against THIS branch's copy of acceptance-docker.yml — matches
   # the acceptance surface the release branch says is canon. Downside:
