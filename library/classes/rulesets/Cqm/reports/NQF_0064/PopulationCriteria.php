@@ -19,6 +19,9 @@ class NQF_0064_PopulationCriteria implements CqmPopulationCrtiteriaFactory
         return new DiabetesInitialPatientPopulation();
     }
 
+    /**
+     * @return list<CqmFilterIF>
+     */
     public function createNumerators(): array
     {
         $numerators = [];

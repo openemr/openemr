@@ -9,6 +9,9 @@
 //
 class NQF_0024 extends AbstractCqmReport
 {
+    /**
+     * @return list<CqmPopulationCrtiteriaFactory>
+     */
     public function createPopulationCriteria(): array
     {
          $populationCriteria = [];
