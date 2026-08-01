@@ -2146,6 +2146,80 @@ a follow-up Phase 11b if flex QEMU flakes actually surface or the
 "parity" argument grows teeth (e.g. if a future flex change
 introduces build-step complexity that makes QEMU pain scale up).
 
+### Phase 12 — Extend acceptance-gate to all rel-820+ branches, not just `latest` *(proposed 2026-08-01; attack next after Phase 11 wraps)*
+
+**Goal:** Replace the current "row-contains-latest tag → gate=true"
+auto-detection in `docker-release-orchestrator.yml` with an explicit
+per-row `gate_with_acceptance: true` flag in `release-targets.yml`.
+Enable for master + rel-820 (and any future rel-830+); leave rel-800
++ rel-704 unflagged (they don't have the acceptance-docker.yml
+surface anyway per byte-identical exclusion).
+
+**Motivation:** Pre-Phase-11 the CI-budget cost of running the full
+6-scenario acceptance-docker matrix was ~1h under QEMU emulation, so
+scoping to `latest` only (the widest end-user pull path) was the
+right cost/benefit call. Post-Phase-11 the same matrix runs natively
+in ~15-25 min. The "expensive CI" argument that drove latest-only is
+now much weaker; consistent quality-bar-for-everything-shipped-that-
+can-be-tested wins on ergonomics.
+
+**Scope:**
+- **Enable gate** on: master (ships `8.3.0` / `dev` / `next`),
+  rel-820 (ships `latest` / `8.2.0`), any future rel-830+ (docs
+  update to include the flag by default on cut).
+- **Skip gate** on: rel-800 + rel-704 — legacy branches, no
+  acceptance-docker.yml surface (byte-identical excluded), phasing
+  out anyway.
+
+**Design shape:**
+1. Add `gate_with_acceptance: true` to master + rel-820 rows in
+   `.github/release-targets.yml` (~1 line each).
+2. Change `docker-release-orchestrator.yml`'s GATE-detection block
+   from "if any tag in row.docker_tags == 'latest', set GATE=true"
+   to "if row.gate_with_acceptance == true, set GATE=true". ~5-line
+   swap.
+3. Update the comment above that block to reflect the new criterion
+   (post-Phase-11 native builds make the wider gate affordable).
+4. Update release-cut docs (rel-branch cut playbook) to note that
+   new rel branches should get `gate_with_acceptance: true` at cut
+   time.
+
+**Cost:** adds ~15-25 min to master's daily orchestrator wall-clock
+(the master build now waits on acceptance-gate before publish/
+cleanup, though publish/cleanup are skipped for non-gated tags —
+gating master shifts it to the gated path where publish IS reused
+via imagetools create). Real GHA runner minutes: 6 acceptance
+scenarios × ~5 min each on native runners, ×2 arches. Small
+relative to Phase 11's savings on the same runs.
+
+**Benefit:** `8.3.0` / `dev` / `next` daily rebuilds get the same
+acceptance validation as `latest`. Regressions in master's daily
+build get caught before shipping to preview-tag users (dev, next)
+or numbered-pin users (8.3.0). Consistent "was this validated
+before shipping?" bar across everything Phase-11-eligible.
+
+**Consideration re: master's preview tags:** `dev` / `next` are
+by-design unstable — users on those tags have opted in to
+instability. But "unstable" doesn't mean "we don't check it boots":
+acceptance is fresh-install + upgrade smoke, not deep stability
+testing. A gate here catches complete-boot-failure regressions
+without over-committing to preview-tag stability guarantees.
+
+**Not in Phase 12 scope:**
+- Extending gate to flex builds — flex has no equivalent
+  acceptance-docker.yml surface. Track as Phase 12b if flex gains
+  one.
+- Retiring `latest`-based auto-detect entirely — keep as fallback
+  for a transition window? Or hard-switch to explicit flag? Choose
+  at implementation time; hard-switch is cleaner if the migration
+  is atomic (release-targets.yml + orchestrator change land in the
+  same PR).
+
+**Sequencing:** implement as a single small PR — release-targets.yml
+edit + orchestrator GATE-detect swap + docs update. Low risk;
+release-targets.yml is master-only, orchestrator is master-only.
+No byte-identical concern.
+
 ## Test-coverage philosophy
 
 Guidelines for where a new test belongs, once both surfaces exist:
