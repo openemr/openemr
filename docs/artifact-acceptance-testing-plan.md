@@ -3969,3 +3969,56 @@ in acceptance."
   dev-stack E2E suite carries the same `sleep(5) + click + wait(15)`
   pattern. If #13348's wait-widening proves out in acceptance CI,
   worth porting the 60s bump there too — separate PR.
+
+- **2026-08-02 (later still) — Seed-identity randomization SHIPPED
+  (#13351); Kk dual-tagged; Medium tier unblocked.** Converted
+  `UiSeedingTrait`'s fixed `SEED_PATIENT_FNAME` / `SEED_PATIENT_LNAME`
+  constants to per-test-instance identity via
+  `seedPatientFname()` / `seedPatientLname()` accessors backed by a
+  single shared `bin2hex(random_bytes(3))` suffix generated once
+  per test instance and cached. Fname + lname share the SAME
+  suffix so paired identity correlates cleanly in DB rows + logs
+  (`Ftestabc123` / `Ltestabc123` — obvious grep target for "which
+  test seeded this?"). DOB + SEX + encounter category + encounter
+  reason stay fixed (uniqueness is by fname/lname/DOB tuple;
+  varying the name suffix is enough).
+
+  With per-instance identity, both collision scenarios flagged
+  during #13348 go away: the upgrade scenario's post-upgrade phase
+  seeds a DIFFERENT patient than the pre-upgrade phase (so no
+  dup-check collision against the surviving pre-upgrade seed),
+  and future Medium-tier tests each get their own identity.
+
+  Kk regained `#[Group('post-upgrade')]` in the same PR (was held
+  out of the #13345 dual-tag backfill pending this refactor). Kk
+  now runs in both pre-upgrade AND post-upgrade phases of the
+  upgrade scenario, plus the two fresh-install scenarios, plus
+  the tarball fresh-install prong — 4 seed-and-assert executions
+  per CI run.
+
+  **Rabbit round-1 (2 nits, 1 addressed, 1 skipped):**
+
+    * *"Waits still compare Ftest, Ltest directly."* Skipped —
+      rabbit misread the file; both waits (Medical Record
+      Dashboard header + navbar encounter title) DO consume the
+      accessors (verified via commit-time grep).
+
+    * *"Document independent suffixes."* Addressed via redesign:
+      the initial commit generated a DIFFERENT suffix per accessor
+      (Ftestabc123 / Ltestdef456 — unpaired), so the docblock's
+      "Ftest<suffix> Ltest<suffix>" wording implying a shared
+      suffix was inaccurate. Rather than reword to advertise the
+      split, share the suffix: single `seedPatientSuffix()`
+      lazy-generator, both fname + lname use it. Docblock stays
+      accurate + paired identity is more useful downstream.
+
+  **Bonus flake-stress effect:** every CI run now seeds a UNIQUE
+  patient via the same add-patient flow that #13348 widened.
+  Doubles as validation surface: if the 60s wait is still
+  insufficient on some runners, the flake surfaces at the FIRST
+  addPatientViaUi call instead of masking behind a same-patient
+  dup-check that eventually resolves.
+
+  **Medium tier now unblocked.** Bb/Cc/Dd/Ee/Ff/Svc all seed
+  patients; each will consume the accessors and get a distinct
+  identity per test instance.
