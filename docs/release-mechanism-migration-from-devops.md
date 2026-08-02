@@ -73,11 +73,9 @@ release-prep PRs.
 - [Phased plan](#phased-plan)
 - [Behavior contract](#behavior-contract)
 - [Branch-cut process under the final model](#branch-cut-process-under-the-final-model)
-- [Decisions to lock before phase 2](#decisions-to-lock-before-phase-2)
 - [Risks and wrinkles to plan for](#risks-and-wrinkles-to-plan-for)
 - [Rollback](#rollback)
 - [Deferred / known debt](#deferred--known-debt)
-- [Feedback wanted](#feedback-wanted)
 
 ## Goal
 
@@ -157,7 +155,7 @@ encountered.
 | 4 | **Ensure 8.1.1 ship works** | openemr/openemr (validation) | hours | When PR #12377 lands and the post-tag flow fires for the first time end-to-end. Most consumer dispatches fire to devops's still-live workflows; this is the validation of the half-migrated state. **Blocked by workstream 1** — see analysis below. Lessons feed back into workstream 7's design. |
 | 5 | **Automate demo farm derivation (G6)** | demo_farm_openemr | ~3-4 days | Cross-repo work — build automation in `demo_farm_openemr` that derives `ip_map_branch.txt` + `demoLibrary.source` from `openemr/openemr`'s `release-targets.yml` + per-rel-branch Dockerfile ARGs. Orthogonal to release-mechanism migration; can run in parallel with any other workstream. |
 | 6 | **Patch-prep automation** — **SHIPPED 2026-07-01; workflow-invocation + mutator refinements during 2026-07-02 branch-cut exercise** | openemr/openemr (already) | ~2-3 days | Sibling to workstream 2 but for patch-dev-cycle start instead of minor-branch cut: when a maintainer bumps `$v_patch` in `version.php` on a `rel-*` branch, fire a workflow that opens 2 coordinated ready-for-review PRs (rel-side + master-side) carrying the mechanical bootstrap work — docker upgrade scaffolding on both, new SQL upgrade skeleton on both, master bridge-file rename, master release-targets row insert + placeholder drop. Reuses the workstream 2 mutator framework (`DockerUpgradeScaffoldMutator`, `SqlUpgradeSkeletonMutator`) plus 2 new mutators + `MutatorContext::$fromVersion` extension. Shipped in openemr/openemr#12697 (merge `c1af6370a0`) directly after workstream 2's #12696 merged. **Not migration work** — patch-prep tooling lives entirely in `openemr/openemr` core. 8.1.x is being skipped; first production exercise fires on rel-820's `8.2.0 → 8.2.1-dev` transition. Shared mutators picked up branch-cut-exercise fixes on 2026-07-02: #12722 added `--skip-globals` to patch-prep's CLI invocation, #12731 changed `DockerUpgradeScaffoldMutator` to full-copy `fsupgrade-N.sh` from the prior file (no more stub), and #12735 fixed `SqlUpgradeSkeletonMutator` double-newline output + wired the sql-scan `priorOpenemrVersion` derivation (with `MutatorContext::$fromVersion` override — the same field patch-prep introduced). |
-| 7 | **Migrate release stuff from devops to core** | openemr-devops → openemr/openemr | ~5+ days | The actual migration. All workstream 1-6 learnings baked in. Reusable-workflow-pattern decision revisited at workstream 7 entry (downgraded from blocking — see "Pre-Phase-1 architectural decision" section). Detailed phases in "Phased plan" section below cover the workstream-7 internals. (Previously numbered workstream 6 before the 2026-06-30 renumber for patch-prep.) |
+| 7 | **Migrate release stuff from devops to core** | openemr-devops → openemr/openemr | ~5+ days | The actual migration. All workstream 1-6 learnings baked in. Reusable-workflow-pattern decision revisited at workstream 7 entry (downgraded from blocking; locked 2026-07-07 as per-branch copies + byte-identical enforcement — full reasoning in gaps doc G15). Detailed phases in "Phased plan" section below cover the workstream-7 internals. (Previously numbered workstream 6 before the 2026-06-30 renumber for patch-prep.) |
 
 **Sequencing notes:**
 
@@ -630,113 +628,6 @@ intentionally inert (no `openemr-tag` dispatch, no downstream consumers
 wired). Standard openemr-consumer upgrade flow goes through full minor
 releases (8.1.0 → 8.1.1 → 8.1.2 from rel-810) via the conductor + tag +
 build-release-on-tag chain, not the patch path.
-
-## Pre-Phase-1 architectural decision: per-branch copies vs reusable workflows
-
-**Open question that shapes every phase below.** As of 2026-06-23 the
-release-mechanism migration is structurally similar to the docker-pipeline
-migration: workflows + supporting PHP tooling live per-branch in
-`openemr/openemr`, and rel branches carry their own copies that can drift
-from master. The docker pipeline manages drift via the byte-identical
-canary system (FILES_ALL + auto-sync + classification). The
-release-mechanism doc originally adopted the same "per-branch copy,
-divergence tolerated" pattern, with byte-identity explicitly NOT
-enforced for release tooling (per the gaps doc's decisions-made section).
-
-**The first production-use of the conductor (8.1.1 prep, 2026-06-23)
-exposed why that decision deserves consideration.** Bug G7 — rel-810's
-`BranchVersionResolver` had drifted from master's tag-walking version
-without being noticed for weeks. The fix backported master's class to
-rel-810 only (openemr/openemr#12611). rel-800 and rel-704 still carry
-the old version but are out of scope (per maintainer 2026-06-23 —
-those branches will rotate out without future releases). So the
-practical drift surface is just rel-810.
-
-**Two options for migrated workflows + tooling going forward:**
-
-1. **Per-branch copies (status quo extended).** Every workflow being
-   migrated (`build-release-on-tag`, `ship-release`,
-   `release-announcements`) lands on every rel branch via copy. Drift
-   managed via either (a) ad-hoc "remember to backport," (b) the
-   byte-identical canary's FILES_ALL set expanded to cover the new
-   files, or (c) tolerated divergence with manual reconciliation when
-   bugs emerge. Today's pattern is (c); G7 is the cost of that choice.
-2. **Reusable workflows (caller + impl split).** Master owns the *real*
-   workflow implementations (`*-impl.yml`); rel branches carry only
-   thin caller stubs (`~10 LOC`) invoking master's impl via
-   `uses: openemr/openemr/.github/workflows/...-impl.yml@master`.
-   Supporting PHP classes live on master only; the impl workflow
-   checks out master's `tools/release/` tree explicitly, regardless of
-   which branch fired the caller. Drift impossible by construction.
-
-**Architectural tradeoffs:**
-
-| Aspect | Per-branch copies | Reusable workflows |
-|---|---|---|
-| Drift | Possible (G7-class bugs) | Eliminated by construction |
-| Master bug fixes reach rel branches | After explicit backport PR per branch | Immediately on master merge |
-| PR queue per rel branch | Sync PRs accumulate (if canary used) | Minimal (only thin caller stubs change) |
-| Ad-hoc inspection (`cat` on a rel-branch workflow) | Shows real logic | Shows a stub pointing at master |
-| Per-branch override flexibility | Native (edit the copy) | Requires editing caller's `uses:` ref |
-| Setup cost during migration | Lower (copy existing pattern) | Higher (caller/impl decomposition per workflow) |
-| Surface that needs byte-identity enforcement | Whole workflow + tooling files | Only the thin caller stubs (~3-5 files per branch) |
-
-**Decision locked 2026-07-07: option 1 with byte-identical enforcement
-(docker-pipeline pattern extended to release machinery).** Formal tracking
-lives in gaps doc as G15; full reasoning + file-set sizing there.
-
-Summary of the lock in weight order:
-
-1. **Production-validated this session.** Track A openemr/openemr#12778
-   landed on master → sync-byte-identical fired → produced
-   #12787/#12788/#12789 auto-sync PRs against rel-820/800/704 within 13
-   minutes. Zero manual per-branch work. Real evidence, not theory.
-2. **Lower migration risk.** Reusable workflows would be a structural
-   refactor per workflow — adds complexity to the migration itself. Byte-
-   identical is "add files to FILES_ALL" — trivial.
-3. **Same team mental model.** Byte-identical already understood from
-   docker; reusable workflows introduce caller/impl decomposition + cross-
-   branch action refs that nobody in this codebase has used.
-4. **Doesn't preclude reusable workflows later.** They're an optimization
-   on top of byte-identical; can land as a follow-up refactor without
-   redoing migrated work. Zero lock-in.
-5. **Sync PRs stay review-gated** (auto-merge intentionally off in
-   sync-byte-identical.yml). Drift prevention without giving up substantive
-   review.
-6. **Preserves per-branch customization escape hatch.** If a specific
-   rel-* ever needs legitimately divergent build behavior, remove the file
-   from FILES_ALL (or move it to the opt-out comment block). Reusable-
-   workflow equivalent is much more restrictive.
-
-**File-set sizing:** Only Phase 2 (build-release + build-release-on-tag +
-build-patch) fires from rel-* branches, so only Phase 2 adds to FILES_ALL.
-Phases 3-6 are master-only. Additions ~20-25 files (3 workflows +
-`tools/release/**` glob covering the PHP tree). Post-migration FILES_ALL
-totals ~30 files (current docker set is 8).
-
-**Recommended FILES_ALL shape at Phase 2 kickoff:**
-
-```yaml
-files:
-  - .github/workflows/build-release.yml
-  - .github/workflows/build-release-on-tag.yml
-  - .github/workflows/build-patch.yml
-  - tools/release/**            # whole tree byte-identical
-```
-
-Enumerate the workflows individually (only 3 fire from rel-*); use a
-glob for the PHP tree so per-file curation isn't needed as classes
-churn during Phase 2/3/4 development. Cost: some ship-release /
-announcement PHP classes end up as dead code on rel-* branches (their
-workflows never fire from there). ~10-15 KB dead weight per rel-* —
-trivial. Verify sync-byte-identical.yml handles glob expansion cleanly
-at Phase 2 kickoff.
-
-**G10 (future consideration in gaps doc):** the docker pipeline's own
-canary could be retired if reusable workflows were ever adopted for
-release-mechanism. That path narrowed by locking byte-identical here —
-G10 stays open as a separate future consideration if reusable-workflow
-appetite ever materializes.
 
 ## Validated foundation
 
@@ -2069,94 +1960,6 @@ No new maintainer steps relative to today's process. The release-mechanism
 migration removes one dispatch destination (devops) without adding any
 steps to branch-cut.
 
-## Decisions to lock before phase 2
-
-These don't block Phase 1. They need to be settled before Phase 2's PHP-side
-moves start, since they shape the destination structure:
-
-1. **Composer integration** — `openemr/openemr-devops/tools/release/composer.json`
-   is its own composer project (own `vendor/`, own PHP version pin). Does the
-   moved version (a) stay as its own composer project inside this repo
-   (under `tools/release/`), or (b) merge into this repo's root `composer.json`
-   as PSR-4 entries + `require-dev`?
-
-   **Locked 2026-07-07: (a) — nested `tools/release/composer.json`.** Not a
-   preference call: root-merge is a hard block. The release toolchain
-   requires PHP `^8.5` and `symfony/yaml ^8.0`; this repo's root
-   `composer.json` requires PHP `^8.2` and `symfony/yaml ^7.3`. Merging
-   forces root's PHP minimum to 8.5, breaking every openemr install on
-   PHP 8.2/8.3/8.4 (which the CI matrix tests explicitly). Nested keeps
-   release-toolchain deps isolated at the cost of one extra
-   `composer install --working-dir=tools/release` step in the build
-   workflow (~30–60s in CI). No end-user impact — release toolchain deps
-   never enter an openemr install's `vendor/`.
-2. **Trigger shape for internal event consumers** — for the `openemr-tag`
-   consumers that move into this repo (build-release-on-tag,
-   release-announcements), three options:
-   1. Self-dispatch `repository_dispatch` events to its own repo (lossy
-      parity with cross-repo pattern, requires extra PAT)
-   2. `workflow_run` triggers tied to `release-prep.yml :: finalize` (no
-      extra PAT, but couples the workflows structurally rather than via
-      event contract)
-   3. `push: tags: ['v*']` — fire on the tag-creation push that
-      release-prep.yml already produces via `create-tag.php`. Semantically
-      correct (the artifact under build corresponds to a specific tag; if
-      the tag exists, we build for it). Symmetric with how
-      `docker-build-release.yml` already fires in this repo today. Also
-      naturally covers any manual `v*` tag push (emergency release), which
-      the other two options don't. Devops uses option 1 today because it's
-      cross-repo — that constraint disappears in-repo. **Emerging leaning:
-      option 3** unless a same-run causality argument tips it to option 2.
-      Lock in phase 2 kickoff.
-3. **Token scope for the moved workflows** — today's `release-prep.yml` token
-   is scoped to `openemr,openemr-devops,website-openemr,demo_farm_openemr`.
-   Post-migration, the scope shrinks to `openemr,website-openemr,
-   demo_farm_openemr` (devops drops out). Confirm the App's installation +
-   org-variable + org-secret continue to work for the narrowed scope without
-   intervention.
-4. **`release-permissions-check.yml` reshape** — devops's probe today
-   includes a cross-repo dispatch probe back to itself (since devops
-   receives dispatches today). Post-migration, devops no longer receives
-   dispatches — the probe simplifies. This-repo's probe expands slightly to
-   cover the consumers that move here. Mechanical.
-5. **Release-prep PR merge is irreducibly required — do not "simplify" by
-   creating the tag directly.** Idea floated (verbally) that post-migration
-   the release-prep PR could be skipped and `create-tag.php` could just
-   fire on some other trigger (workflow_dispatch, cron, a version.php
-   push, etc.). It cannot. The release-prep PR does three jobs:
-   1. Approval gate — replaceable with any signal.
-   2. Audit trail — replaceable with tag messages / commit trailers.
-   3. **Delivery mechanism for the mechanical mutations** — irreducible.
-      The mutators (`version.php` strip `-dev`, `docker/production/docker
-      -compose.yml` image-tag pin, `src/RestControllers/OpenApi/OpenApi
-      Definitions.php` version bump, `swagger/openemr-api.yaml` regen)
-      land on the rel branch *via the merge commit*. Without the merge,
-      the branch tip still says `X.Y.Z-dev` in `version.php` and still
-      pins `openemr/openemr:latest` in the compose. Tagging that state
-      would put a public `v_X_Y_Z` tag on a tree that reports itself
-      as `X.Y.Z-dev`.
-
-   Any "just create the tag directly" proposal has to first answer
-   *where do the mechanical edits go*. The only structurally-sound
-   answers are (a) a PR merge (which is what release-prep.yml already
-   does — reinvented) or (b) an unreviewed direct push to the rel
-   branch by the conductor (which loses the approval gate and skips
-   the byte-identical/actionlint/etc. CI that runs on the PR). Option
-   (b) is a strictly worse version of the PR flow. **Locked from the
-   start** — captured here so the "skip the PR" idea doesn't get
-   re-litigated later when the migration surfaces new ambitions to
-   trim steps.
-
-(The 3-PR-vs-2-PR question was previously listed here; it's locked to 2 PRs,
-landing as part of Phase 1.)
-
-(The per-branch-copy-vs-reusable-workflow question is now blocking
-**Phase 1** — see the "Pre-Phase-1 architectural decision" section above.
-It changes the destination structure of every workflow migrated in
-Phase 2+, so needs to be settled before Phase 2 starts and ideally
-before the Phase 1 PRs land so they reflect the chosen direction in
-their doc updates.)
-
 ## Risks and wrinkles to plan for
 
 - **Parallel-run window between Phases 2/3/4 and Phase 6** is the highest-risk
@@ -2188,9 +1991,10 @@ their doc updates.)
   per-branch copies. Workstream 3 (per-release-on-rel-branch optimization)
   does a comprehensive rel-810 conductor sync from master which proactively
   catches these. The reusable-workflow alternative (eliminate drift by
-  construction) is the deferred option — see "Pre-Phase-1 architectural
-  decision" section. (rel-800/rel-704 not in scope — they'll rotate out
-  without future releases, so latent drift bugs there will never fire.)
+  construction) is tracked as a deferred option in gaps doc G15; migration
+  landed with per-branch copies + byte-identical enforcement. (rel-800/rel-704
+  not in scope — they'll rotate out without future releases, so latent drift
+  bugs there will never fire.)
 - **`ShipReleaseOrchestrator`'s tests** are the densest seam — 19 test
   classes + 4 in-memory fakes, asserting strict ordering, docs-first
   detection, partial-merge recovery, etc. Phase 3 has to carry the test
@@ -2291,9 +2095,9 @@ G7-G10 for full detail):**
   (per-release-on-rel-branch optimization)** — natural place to do a
   comprehensive rel-810 conductor sync from master as part of optimizing
   the per-release cycle. Was originally tied to a Phase-1-blocking
-  reusable-workflow POC; downgraded (see "Pre-Phase-1 architectural
-  decision" above) because bounded scope (just rel-810) no longer justifies
-  pre-migration restructuring.
+  reusable-workflow POC; downgraded because bounded scope (just rel-810)
+  no longer justified pre-migration restructuring. Migration ultimately
+  landed with per-branch copies + byte-identical enforcement (gaps doc G15).
 - **G8 — No automated regression test for conductor resolvers.** The G7 bug
   shipped silently because `BranchVersionResolver` has no isolated PHPUnit
   coverage exercising `branchToVersion('rel-810')` against realistic tag
@@ -2309,10 +2113,10 @@ G7-G10 for full detail):**
   change so requires coordination with website-openemr maintainers.
 - **G10 — Reusable workflows as a replacement for the byte-identical canary
   on the docker pipeline.** Captured as a future post-migration consistency
-  pass. If Phase 2+ ever adopts reusable workflows for release-mechanism
-  (deferred decision; see "Pre-Phase-1 architectural decision" above), the
-  docker pipeline would become the lone holdout using canary; aligning the
-  two on the same pattern would be a natural follow-up.
+  pass. If release-mechanism ever adopts reusable workflows (deferred
+  decision tracked in gaps doc G15), the docker pipeline would become the
+  lone holdout using canary; aligning the two on the same pattern would be
+  a natural follow-up.
 
 **Post-2026-07-05 gaps closed during 8.2.0 dispatch shake-out (see gaps
 doc G12-G13 for full detail):**
@@ -2340,45 +2144,6 @@ doc G12-G13 for full detail):**
   create the branch fresh on master's HEAD each dispatch → single-commit
   branches, clean merge base with master, PR merges cleanly.
   openemr/website-openemr#174/#175/#176.
-
-## Feedback wanted
-
-Specifically on:
-
-- ~~Composer integration shape (Phase 2 decision 1)~~ — **locked 2026-07-07,
-  nested `tools/release/composer.json`**. Was open until an investigation
-  of the actual dep constraints (PHP `^8.5` + `symfony/yaml ^8.0` in the
-  release toolchain vs root's `^8.2` + `^7.3`) made root-merge a hard
-  block, not a preference call. See Phase 2 decision 1 for details.
-- Self-dispatch vs `workflow_run` for internal event consumers (Phase 2
-  decision 2)
-- Parallel-run-window risk tolerance — gate each phase's devops-side delete
-  on (a) one observed green release, (b) two releases, or (c) a full
-  minor + patch cycle?
-- Anything else load-bearing the audit + sweep missed
-
-## Optimization opportunities (post-migration, not in scope)
-
-This whole automation system was "work in progress, close to good real-world
-use" pre-migration. Once the migration completes, several optimizations
-become natural follow-ups (separate from migration scope; tracked here so
-they don't fall off):
-
-- Ship-release's "desired end state" per `RELEASE_PROCESS.md` § Partial
-  merges — make it tag/Release-aware rather than PR-state-only, which
-  retires the manual out-of-band-tag recovery and makes "re-run ship-release"
-  the answer for every non-docs-first stuck state.
-- Auto-merge the website-openemr docs PR on `openemr-tag` (openemr-devops#761).
-- Docs DRAFT→FINAL tag-exists guard (website-openemr#132).
-- Docs-first reconciliation workflow (website-openemr#133).
-- Automated post-release announcement fan-out (openemr-devops#711).
-- Demo-farm production-demo-row seeding on new minor lines
-  (demo_farm_openemr#110).
-- Unified PR-management approach — the rotation slice used a custom
-  `bin/open-rotation-pr.php`; the conductor uses `peter-evans/create-pull-request`.
-  With rotation deleted, this divergence goes away naturally.
-- Wire the vendored-contract drift check into the post-migration canonical
-  location (Phase 5 handles the move; the wiring stays).
 
 ## Status
 
