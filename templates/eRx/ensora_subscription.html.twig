@@ -1,8 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "core/base.html.twig" %}
+
+{% block head %}
     {{ setupHeader(['no_main-theme']) }}
-    <title>{{ "Ensora ePrescribing Service"|xlt }}</title>
     <style>
         body {
             background-color: #f5f5f5;
@@ -178,8 +177,11 @@
             }
         }
     </style>
-</head>
-<body>
+{% endblock %}
+
+{% block pagetitle %}{{ "Ensora ePrescribing Service"|xlt }}{% endblock %}
+
+{% block content %}
     <div class="ensora-container">
         <div class="ensora-header">
             <h1>{{ "Ensora ePrescribing Service"|xlt }}</h1>
@@ -247,5 +249,4 @@
             </div>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}
