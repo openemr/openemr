@@ -42,24 +42,41 @@ class ControllerRoutingTest extends TestCase
      * 'action' parameters, making it order-independent.
      */
     /**
+     * Parameter-order coverage for a controller that is NOT in `CONTROLLER_ACL_MAP`,
+     * so the ACL gate is a no-op and dispatch reaches the mocked `i_once()` file-load
+     * path. Verifies that the controller name is extracted regardless of parameter
+     * order (the resulting `NotFoundHttpException` carries the derived class name).
+     *
      * @param array<string, string> $params
      */
-    #[DataProvider('parameterOrderProvider')]
+    #[DataProvider('parameterOrderNonMappedControllerProvider')]
     #[Test]
     public function testDispatchExtractsControllerRegardlessOfOrder(array $params): void
     {
-        // Use reflection to test the parameter extraction logic without
-        // actually loading controller files or requiring authentication
         $controller = $this->createPartialMock(\Controller::class, ['i_once']);
-
-        // Mock i_once to return false (simulates controller file not found)
-        // This lets us verify the extracted controller name without side effects
         $controller->method('i_once')->willReturn(false);
 
-        // The exception message should reference 'Document' controller regardless of param order.
-        // The controller is now listed in CONTROLLER_ACL_MAP, so the ACL check fires before the
-        // i_once() file-load path — the resulting AccessDeniedHttpException still carries the
-        // display name we assert on.
+        $this->expectException(NotFoundHttpException::class);
+        $this->expectExceptionMessage('X12Partner');
+
+        $controller->dispatch($params);
+    }
+
+    /**
+     * Parameter-order coverage for a controller that IS in `CONTROLLER_ACL_MAP`,
+     * so the ACL gate fires before the file-load path. Verifies that the controller
+     * name is extracted regardless of parameter order (the resulting
+     * `AccessDeniedHttpException` carries the display name from the ACL map).
+     *
+     * @param array<string, string> $params
+     */
+    #[DataProvider('parameterOrderAclMappedControllerProvider')]
+    #[Test]
+    public function testDispatchExtractsAclMappedControllerRegardlessOfOrder(array $params): void
+    {
+        $controller = $this->createPartialMock(\Controller::class, ['i_once']);
+        $controller->method('i_once')->willReturn(false);
+
         $this->expectException(AccessDeniedHttpException::class);
         $this->expectExceptionMessage('Document');
 
@@ -67,11 +84,41 @@ class ControllerRoutingTest extends TestCase
     }
 
     /**
-     * Provide parameter arrays with controller/action in different positions.
+     * Parameter arrays with an unmapped controller in different positions.
      *
      * @return array<string, array{array<string, string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
-    public static function parameterOrderProvider(): array
+    public static function parameterOrderNonMappedControllerProvider(): array
+    {
+        return [
+            'controller first' => [
+                ['controller' => 'x12_partner', 'action' => 'list', 'patient_id' => '1'],
+            ],
+            'action first' => [
+                ['action' => 'list', 'controller' => 'x12_partner', 'patient_id' => '1'],
+            ],
+            'patient_id first' => [
+                ['patient_id' => '1', 'controller' => 'x12_partner', 'action' => 'list'],
+            ],
+            'controller last' => [
+                ['patient_id' => '1', 'action' => 'list', 'controller' => 'x12_partner'],
+            ],
+            'mixed order' => [
+                ['action' => 'view', 'patient_id' => '1', 'doc_id' => '123', 'controller' => 'x12_partner'],
+            ],
+        ];
+    }
+
+    /**
+     * Parameter arrays with an ACL-mapped controller in different positions.
+     *
+     * @return array<string, array{array<string, string>}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function parameterOrderAclMappedControllerProvider(): array
     {
         return [
             'controller first' => [
