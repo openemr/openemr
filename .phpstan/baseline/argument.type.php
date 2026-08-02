@@ -61763,7 +61763,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$isAndCondition of method OpenEMR\\\\Services\\\\EncounterService\\:\\:search\\(\\) expects bool, array\\<string, string\\> given\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
 ];
 $ignoreErrors[] = [

@@ -47,7 +47,7 @@ class C_FormSOAP extends Controller
         );
     }
 
-    function view_action($form_id)
+    public function view_action($form_id): string
     {
         $formId = is_numeric($form_id) ? (int) $form_id : 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'soap');
@@ -70,7 +70,11 @@ class C_FormSOAP extends Controller
             return;
         }
 
-        $this->form = new FormSOAP($_POST['id']);
+        $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $formId = is_int($postId) && $postId >= 0 ? $postId : 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'soap');
+
+        $this->form = $formId > 0 ? new FormSOAP($formId) : new FormSOAP();
         parent::populate_object($this->form);
 
         $this->form->persist();
@@ -78,7 +82,7 @@ class C_FormSOAP extends Controller
             OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
-        if (empty($_POST['id'])) {
+        if ($formId === 0) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(
                 OEGlobalsBag::getInstance()->get('encounter'),

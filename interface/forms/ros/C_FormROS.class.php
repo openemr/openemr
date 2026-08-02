@@ -48,7 +48,7 @@ class C_FormROS extends Controller
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
-    function view_action($form_id)
+    public function view_action($form_id): string
     {
         $formId = is_numeric($form_id) ? (int) $form_id : 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'ros');
@@ -65,7 +65,11 @@ class C_FormROS extends Controller
             return;
         }
 
-        $this->form = new FormROS($_POST['id']);
+        $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $formId = is_int($postId) && $postId >= 0 ? $postId : 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'ros');
+
+        $this->form = $formId > 0 ? new FormROS($formId) : new FormROS();
 
         parent::populate_object($this->form);
         $this->form->persist();
@@ -74,7 +78,7 @@ class C_FormROS extends Controller
             OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
-        if (empty($_POST['id'])) {
+        if ($formId === 0) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(OEGlobalsBag::getInstance()->get('encounter'), "Review Of Systems", $this->form->id, "ros", OEGlobalsBag::getInstance()->get('pid'), $session->get('userauthorized'));
             $_POST['process'] = "";

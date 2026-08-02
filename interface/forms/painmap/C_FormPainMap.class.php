@@ -49,7 +49,7 @@ class C_FormPainMap extends C_AbstractClickmap
      * @brief Overrides parent to gate the form load on session-patient ownership
      *  before delegating to parent::view_action().
      */
-    function view_action($form_id)
+    public function view_action($form_id): string
     {
         $formId = is_numeric($form_id) ? (int) $form_id : 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, self::$FORM_CODE);

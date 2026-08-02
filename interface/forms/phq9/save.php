@@ -46,6 +46,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_phq9", $_POST, $formId, $userauthorized);
     addForm($encounter, "PHQ-9 Form", $newid, "phq9", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'phq9');
     sqlStatement(
         "update form_phq9 set pid = ?,
             groupname = ?,

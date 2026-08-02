@@ -713,7 +713,10 @@ class EncounterService extends BaseService
      */
     public function getSensitivity(mixed $pid, mixed $encounter_id): ?string
     {
-        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        $encounterResult = $this->search(
+            ['pid' => $pid, 'eid' => $encounter_id],
+            options: ['limit' => 1],
+        );
         if (!$encounterResult->hasData()) {
             return null;
         }
