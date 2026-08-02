@@ -78,6 +78,15 @@ trait LoginTrait
     private function performLogin(string $name, string $password, bool $goalPass): void
     {
         $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
+        // filter() snapshots the DOM at a single instant, and form() on an
+        // empty match throws Panther's opaque "The current node list is
+        // empty". Under CI load that instant can precede the login page
+        // finishing its render (or, on the php-fpm configs, catch a
+        // transient upstream error page with no form at all). waitFor()
+        // polls for the selector instead and, if the form genuinely never
+        // appears, fails with a TimeoutException that names '#login_form' —
+        // an actionable message instead of an anonymous empty-crawler error.
+        $this->crawler = $this->client->waitFor('#login_form', 10);
         $form = $this->crawler->filter('#login_form')->form();
         $form['authUser'] = $name;
         $form['clearPass'] = $password;
