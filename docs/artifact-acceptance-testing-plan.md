@@ -1000,10 +1000,10 @@ Per-class slicing map (scoped 2026-07-29):
 
   | Class                                 | Effort | Notes |
   |---------------------------------------|--------|-------|
-  | AaLoginTest                           | Small  | **SHIPPED 2026-08-02 as #13336 (partial port — 2/5 scenarios).** Login-page-happy-path duplicated E2eCriticalPathTest; admin.php-disabled scenarios impossible against release image (openemr.sh deletes admin.php post-configure). Ported: testLoginUnauthorized + testurlWithoutTokenShouldRedirectToLoginPage. |
-  | GgUserMenuLinksTest                   | Small  | **SHIPPED 2026-08-02 as #13338 (full port — 5/5 scenarios).** All menuLinkProvider scenarios (Settings, Change Password, MFA Management, About OpenEMR, Logout). Absorbed release-image-specific gotcha: shipped image shows a Product Registration modal on first login that intercepts user-icon click; dismissed via jQuery `.modal('hide')` after waiting for Bootstrap's show-transition. |
-  | FrontPaymentCssContrastTest           | Small  | **SHIPPED 2026-08-02 as #13340 (full port — 1/1 scenario).** `testReceiptCssHasExplicitTextColor` — CSS-inspection assertion on `front_payment.php?receipt=1`, real signal for openemr#10842 (light/solar-theme text visibility). No login needed, no modal-dismiss needed. |
-  | KkEncounterFormNavbarUrlTest          | Small  | **SHIPPED 2026-08-02 as #13341 (full port — 1/1 scenario).** First 4e port requiring UI-driven seeding (patient + encounter). Menu XPaths calibrated live via Panther probe against booted stack — release-image uses `Patient` label (not `Patient/Client`) and `<div class="menuLabel">` (not `<a>`); dev-checkout blind-copy would silently break. Modal-dismiss included defensively. |
+  | AaLoginTest                           | Small  | **SHIPPED 2026-08-02 as #13336 (partial port — 2/5 scenarios).** Login-page-happy-path duplicated E2eCriticalPathTest; admin.php-disabled scenarios impossible against release image (openemr.sh deletes admin.php post-configure). Ported: testLoginUnauthorized + testurlWithoutTokenShouldRedirectToLoginPage. Support/ extract SHIPPED 2026-08-02 as #13344. Post-upgrade dual-tag SHIPPED 2026-08-02 as #13345. |
+  | GgUserMenuLinksTest                   | Small  | **SHIPPED 2026-08-02 as #13338 (full port — 5/5 scenarios).** All menuLinkProvider scenarios (Settings, Change Password, MFA Management, About OpenEMR, Logout). Absorbed release-image-specific gotcha: shipped image shows a Product Registration modal on first login that intercepts user-icon click; dismissed via jQuery `.modal('hide')` after waiting for Bootstrap's show-transition. Support/ extract SHIPPED 2026-08-02 as #13344. Post-upgrade dual-tag SHIPPED 2026-08-02 as #13345. |
+  | FrontPaymentCssContrastTest           | Small  | **SHIPPED 2026-08-02 as #13340 (full port — 1/1 scenario).** `testReceiptCssHasExplicitTextColor` — CSS-inspection assertion on `front_payment.php?receipt=1`, real signal for openemr#10842 (light/solar-theme text visibility). No login needed, no modal-dismiss needed. Support/ extract SHIPPED 2026-08-02 as #13344. Post-upgrade dual-tag SHIPPED 2026-08-02 as #13345. |
+  | KkEncounterFormNavbarUrlTest          | Small  | **SHIPPED 2026-08-02 as #13341 (full port — 1/1 scenario).** First 4e port requiring UI-driven seeding (patient + encounter). Menu XPaths calibrated live via Panther probe against booted stack — release-image uses `Patient` label (not `Patient/Client`) and `<div class="menuLabel">` (not `<a>`); dev-checkout blind-copy would silently break. Modal-dismiss included defensively. Support/ extract SHIPPED 2026-08-02 as #13344. **Post-upgrade dual-tag DEFERRED**: WebDriver `alertIsPresent()` timeout surfaced on rel-820 sync PR #13342's upgrade scenario pre-flight (line 412 inside `addEncounterViaUi`); dual-tag ships bundled with the flake root-cause fix. |
   | BbCreateStaffTest                     | Medium | UI-driven user creation; setUp/tearDown DB cleanup. |
   | CcCreatePatientTest                   | Medium | Reuses PatientAddTrait; depends on `testLoginAuthorized`. |
   | DdOpenPatientTest                     | Medium | Requires seeded patient. |
@@ -3822,3 +3822,69 @@ in acceptance."
   duplicating + refactoring later. Estimated Support/ extract
   scope: 4 helpers + XPath constants + a shared BasePantherTest
   class (or trait) that pulls them together. ~1 PR, ~1 day.
+
+- **2026-08-02 (later still) — Support/ extract SHIPPED (#13344) +
+  post-upgrade dual-tag SHIPPED (#13345).** Two follow-ups from
+  Small-tier completion, both landed same-day.
+
+  * **#13344 — Support/ extract.** `PantherAcceptanceTestCase`
+    abstract base + `UiSeedingTrait` consolidate the 4 helpers
+    surfaced in the audit above (`performLoginAsAdmin`,
+    `dismissProductRegistrationModalIfPresent`, `addPatientViaUi` +
+    `addEncounterViaUi`, XPath / JS constants). LOC on the 5 test
+    files: 1647 → 808 (-839, -50.9%); Support/ adds 682; net -157.
+    Local acceptance 10/10 (5 classes, 93 assertions) at ~49s vs
+    baseline 47s. FrontPayment's login stays scoped-down inline
+    (title-only, no Knockout gate, no modal dismiss — deliberate
+    per its own docblock rationale); Aa's non-authenticating
+    scenarios are mostly lifecycle + constants. Medium tier now
+    consumes the Support/ helpers from day one.
+
+  * **#13345 — post-upgrade dual-tag.** Adds `#[Group('post-upgrade')]`
+    alongside existing `#[Group('fresh-install')]` on Aa / Gg /
+    FrontPayment / E2eCriticalPath so those flows now run in the
+    upgrade scenario's post-upgrade phase, not just its initial
+    fresh-install pre-flight. Rationale: user question surfaced
+    that no full E2E was actually running post-upgrade — only
+    FhirSmokeTest + OAuth2SmokeTest (both dual-tagged since 4a) +
+    UpgradeIntegrityTest (post-upgrade-only). Now admin login,
+    user-menu links, front-payment CSS, and Knockout menu render
+    all get post-upgrade regression coverage effectively for free
+    (harness already runs `--group=post-upgrade`; needed the tag
+    on more tests). E2eCriticalPathTest docblock's "Fires only on
+    fresh-install for now" note superseded.
+
+  * **KkEncounterFormNavbarUrlAcceptanceTest excluded from #13345.**
+    PR #13342 (rel-820 sync from master) exposed a WebDriver
+    `alertIsPresent()` timeout at
+    `KkEncounterFormNavbarUrlAcceptanceTest:412` inside
+    `addEncounterViaUi()`. Same test, same target image
+    (`openemr/openemr:latest`), passes on the fresh-install-from
+    scenario runner but fails on the upgrade scenario's initial
+    fresh-install pre-flight. Reads as runner-timing flake — the
+    5s sleep before the confirm-create click is likely not enough
+    for the JS handler wiring on the slower upgrade-scenario
+    runner, so the click no-ops and the 15s alert wait times out.
+    Dual-tagging Kk before the flake is understood would add
+    guaranteed post-upgrade failures on top of the pre-flight
+    failure. Kk's dual-tag ships bundled with the flake root-cause
+    fix.
+
+  **Design note surfaced during 4e planning that this dual-tag
+  addresses:** the acceptance matrix has always had a
+  `--group=post-upgrade` invocation post-upgrade, but only 3
+  tests carried that group tag until now. All the fresh-install-
+  tagged tests (including the 4 Small-tier ports) ran in the
+  upgrade scenario's initial install pre-flight (the "does the
+  from_tag still install cleanly?" check) but not against the
+  actually-upgraded to_tag. This is why the KkEncounter flake
+  surfaced only in the upgrade scenario's pre-flight phase, not
+  post-upgrade — and why until this PR, most E2E surface post-
+  upgrade was blind. Backfill fixes coverage; going forward, all
+  new Small-tier ports (and any Medium-tier ports where post-
+  upgrade regression makes sense) should carry both group tags.
+
+  **Small tier state now:** all 5 ports SHIPPED, extracted onto
+  shared `PantherAcceptanceTestCase` + `UiSeedingTrait`, and (4 of
+  5) dual-tagged for post-upgrade regression coverage. Medium tier
+  is unblocked.
