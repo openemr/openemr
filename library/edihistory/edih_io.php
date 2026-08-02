@@ -111,6 +111,7 @@ function edih_disp_archive_restore()
 {
     //name="archrestore_sel" { archrestore: 'yes', archfile: archf };
     $fn = (isset($_POST['archrestore_sel'])) ? filter_input(INPUT_POST, 'archrestore_sel', FILTER_UNSAFE_RAW) : '';
+    $fn = is_string($fn) ? basename($fn) : '';
     if (strlen($fn)) {
         $str_html = edih_archive_restore($fn);
     } else {

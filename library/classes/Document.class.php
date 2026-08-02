@@ -17,9 +17,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../pnotes.inc.php");
-require_once(__DIR__ . "/../gprelations.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGenException;
@@ -852,7 +849,7 @@ class Document extends ORDataObject
     *   @param int $fid foreign id that should be used so that this document can be related (joined) on it later
     */
 
-    function persist($fid = "")
+    function persist($fid = ""): mixed
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
@@ -860,7 +857,7 @@ class Document extends ORDataObject
 
         // need to populate our uuid if its empty
 
-        parent::persist();
+        return parent::persist();
     }
 
     function set_storagemethod($str): void

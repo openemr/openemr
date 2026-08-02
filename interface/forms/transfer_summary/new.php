@@ -100,7 +100,7 @@ echo "<form method='post' name='my_form' " .
 
      <td class="forms">
          <input type="text" name="transfer_to" id="transfer_to"
-        value="<?php echo text($obj["transfer_to"] ?? '');?>"></td>
+        value="<?php echo attr($obj["transfer_to"] ?? '');?>"></td>
 
         <td align="left" class="forms"><?php echo xlt('Transfer date'); ?>:</td>
         <td class="forms">

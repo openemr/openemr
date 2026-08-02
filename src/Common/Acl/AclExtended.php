@@ -233,14 +233,12 @@ class AclExtended
     //   $middle_name = middle name
     //   $last_name = last name
     //
-    public static function setUserAro($arr_group_titles, $user_name, $first_name, $middle_name, $last_name)
+    public static function setUserAro($arr_group_titles, $user_name, $first_name, $middle_name, $last_name): bool
     {
         $gacl = self::collectGaclApiObject();
 
         //see if this user is gacl protected (ie. do not allow
         //removal from the Administrators group)
-        require_once(__DIR__ . '/../../../library/user.inc.php');
-
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
         $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin";
@@ -340,7 +338,7 @@ class AclExtended
     //    $name = name of acl (string)
     //    $return_value = return value of acl (string)
     //
-    public static function aclExist($title, $name, $return_value)
+    public static function aclExist($title, $name, $return_value): bool
     {
         $gacl = self::collectGaclApiObject();
         if (!$name) {
@@ -1122,7 +1120,7 @@ class AclExtended
      * @param  string  $username              Name of user
      * @return bool
      */
-    public static function iHavePermissionsOf($username)
+    public static function iHavePermissionsOf($username): bool
     {
         $perms = self::getUserPermissions($username);
         $myperms = self::getUserPermissions();
@@ -1147,7 +1145,7 @@ class AclExtended
      * @param  string  $group_name            Name of group
      * @return bool
      */
-    public static function iHaveGroupPermissions($group_name)
+    public static function iHaveGroupPermissions($group_name): bool
     {
         $perms = [];
         self::getGroupPermissions($group_name, $perms);

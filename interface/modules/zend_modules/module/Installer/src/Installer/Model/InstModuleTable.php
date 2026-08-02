@@ -100,7 +100,7 @@ class InstModuleTable
         return null;
     }
 
-    private function installSQLWithLineSplitter($installScript)
+    private function installSQLWithLineSplitter($installScript): bool
     {
         if (file_exists($installScript)) {
             if ($sqlarray = @file($installScript)) {
@@ -150,7 +150,7 @@ class InstModuleTable
         return false;
     }
 
-    private function installSQLWithUpgradeService($installScript)
+    private function installSQLWithUpgradeService($installScript): bool
     {
         if (file_exists($installScript)) {
             try {

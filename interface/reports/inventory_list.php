@@ -59,7 +59,7 @@ function addWarning($msg): void
 
 // Check if a product needs to be re-ordered, optionally for a given warehouse.
 //
-function checkReorder($drug_id, $min, $warehouse = '')
+function checkReorder($drug_id, $min, $warehouse = ''): bool
 {
     global $form_days;
 

@@ -88,7 +88,7 @@ jobs:
 
     - name: Mint App token
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -274,6 +274,151 @@ jobs:
         draft: true
         delete-branch: false
 
+    # Phase 7c follow-up (openemr/openemr#13207): fire the pre-merge
+    # acceptance gate against the just-force-pushed
+    # release-prep/<rel-branch> tip. Peter-evans already wrote the
+    # mutator output above; this validates that the resulting tarball
+    # still fresh-installs + upgrades + wizard-installs + wizard-upgrades
+    # cleanly before the PR is considered ship-ready. Async / fire-and-
+    # forget: release-prep.yml doesn't block waiting for the result;
+    # the run appears in the Actions tab and any failure is investigated
+    # + fixed on rel-branch, which re-fires this whole workflow and gets
+    # another try.
+    #
+    # Why can't we just add a paths filter that catches release-prep
+    # force-pushes: version.php + docker/production/docker-compose.yml
+    # (the two files release-prep typically writes) also get bumped in
+    # many non-release contexts, so listing them in acceptance-package's
+    # push paths would over-fire on every dev-cycle version tick. The
+    # explicit dispatch here is scoped to the release-prep context so
+    # only real release-prep force-pushes trigger a run.
+    #
+    # Uses the RELEASE_APP token (not GITHUB_TOKEN): the platform
+    # prevents GITHUB_TOKEN from firing new workflow runs (loop-guard),
+    # so a workflow_dispatch has to come from an app token or PAT.
+    # Skipped on test-mode (prep-prefix == 'release-prep-test') and
+    # when peter-evans reported no-op (pull-request-operation == ''),
+    # since neither writes a new release-prep tip worth revalidating.
+    #
+    # Skipped when acceptance-package.yml on the target rel-branch
+    # predates its workflow_dispatch trigger's `build_locally` input
+    # (openemr/openemr#13204, Phase 3.5, master + rel-830+). On rel-820
+    # the dispatch would fail with "unknown input"; the swallow here
+    # keeps release-prep flowing on legacy branches and pre-Phase-3.5
+    # backports.
+    - name: Trigger acceptance-package validation of updated release-prep PR
+      if: >-
+        steps.resolve.outputs.should-run != 'false'
+        && steps.resolve.outputs.prep-prefix == 'release-prep'
+        && steps.prep-pr.outputs.pull-request-operation != ''
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        RELEASE_VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        set -euo pipefail
+        target_ref="release-prep/${REL_BRANCH}"
+        echo "==> Dispatching acceptance-package.yml against ${target_ref} (to_version=${RELEASE_VERSION})"
+        if ! gh workflow run acceptance-package.yml \
+          --repo "${{ github.repository }}" \
+          --ref "${target_ref}" \
+          -f build_locally=true \
+          -f to_version="${RELEASE_VERSION}" \
+          -f from_version=8.2.0
+        then
+          echo "::warning::acceptance-package.yml dispatch failed for ${target_ref} (workflow file may predate Phase 3.5 on this rel-branch); continuing release-prep without pre-merge acceptance gate"
+        fi
+
+    # Phase 7a-docker: sibling dispatch for the docker side. Same
+    # rationale as the acceptance-package dispatch above — every
+    # peter-evans force-push of a release-prep PR should exercise a
+    # fresh docker image build against the acceptance matrix so
+    # Dockerfile-side regressions on the release-in-flight get caught
+    # pre-merge rather than surfacing at docker-orchestrator time.
+    #
+    # No openemr_version_ref override needed: the rel-branch's
+    # docker/release/Dockerfile already has OPENEMR_VERSION baked in
+    # via DockerfileOpenemrVersionMutator at branch-cut time
+    # (rel-830's Dockerfile defaults to OPENEMR_VERSION=rel-830). The
+    # release-prep branch is based on rel-branch tip and inherits that
+    # Dockerfile, so `docker build docker/release` under --ref
+    # release-prep/<rel-branch> naturally clones rel-branch source
+    # during the image build. Matches what docker-build-release.yml
+    # will produce at release-time, modulo the -dev version suffix on
+    # rel-branch tip vs the tagged release commit (cosmetic, not
+    # functional).
+    #
+    # Why there's no acceptance gate inside docker-build-release.yml
+    # itself (the docker analog of Phase 7c-tarball): the docker
+    # release pipeline is triggered by docker-release-orchestrator.yml
+    # on a master push touching release-targets.yml (which happens
+    # when the release-finalize PR merges to master). In FULL-AUTO
+    # ship-release mode Finalize won't merge until the tarball
+    # GitHub Release object exists, and tarball publish is now gated
+    # by tarball acceptance (Phase 7c, openemr/openemr#13207) — so
+    # under full-auto a broken release-cycle codebase blocks tarball
+    # publish → blocks finalize merge → blocks docker orchestrator,
+    # transitively gating docker on tarball acceptance.
+    #
+    # Under SEMI-AUTO ship-release (the documented default for the
+    # first 1-2 cuts) Finalize is left for manual merge, so the
+    # transitive gate depends on operator discipline (runbook step 11
+    # says to verify the Release object before merging Finalize).
+    # That's why THIS release-prep dispatch matters even for semi-
+    # auto: it catches release-cycle regressions at the release-prep-
+    # PR moment — well before Finalize is even reviewable — so the
+    # operator sees the failure in the Actions tab rather than
+    # relying on remembering to check tarball publish before merging.
+    #
+    # Also adds docker-SPECIFIC coverage the tarball transitive gate
+    # would never catch: Dockerfile-side regressions, docker-runtime-
+    # only behavior differences (flex image vs real production
+    # container). Two independent value propositions.
+    # See docs/RELEASE_PROCESS.md's Conductor PR section for the
+    # full argument.
+    - name: Trigger acceptance-docker validation of updated release-prep PR
+      if: >-
+        steps.resolve.outputs.should-run != 'false'
+        && steps.resolve.outputs.prep-prefix == 'release-prep'
+        && steps.prep-pr.outputs.pull-request-operation != ''
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+      run: |
+        set -euo pipefail
+        target_ref="release-prep/${REL_BRANCH}"
+        echo "==> Dispatching acceptance-docker.yml against ${target_ref}"
+        # acceptance-docker.yml's matrix runs both amd64 and arm64
+        # unconditionally on master; on rel branches with the current
+        # workflow synced, the same applies. build_locally=true tells
+        # detect-mode to build target image from PR Dockerfile rather
+        # than pulling to_tag from Docker Hub.
+        #
+        # Narrow-swallow: only tolerate the "unknown input"
+        # (HTTP 422 "Unexpected inputs provided") failure, which is the
+        # pre-Phase-3.5-rel-branch case where the acceptance-docker.yml
+        # copy on that branch doesn't declare build_locally yet.
+        # Anything else (auth, network, invalid ref, transient API 5xx,
+        # etc.) is a real failure and should abort release-prep so the
+        # operator notices rather than silently skipping the docker
+        # acceptance gate for a possibly-shippable release.
+        set +e
+        gh_out="$(gh workflow run acceptance-docker.yml \
+          --repo "${{ github.repository }}" \
+          --ref "${target_ref}" \
+          -f build_locally=true 2>&1)"
+        gh_rc=$?
+        set -e
+        echo "$gh_out"
+        if [[ $gh_rc -ne 0 ]]; then
+          if grep -qE 'HTTP 422.*Unexpected inputs.*build_locally' <<< "$gh_out"; then
+            echo "::warning::acceptance-docker.yml on ${target_ref} predates the build_locally input; continuing release-prep without docker-side pre-merge acceptance gate"
+          else
+            echo "::error::acceptance-docker.yml dispatch failed for ${target_ref} with an unexpected error (not the legacy 'unknown input' case) — aborting release-prep so the failure is visible."
+            exit "$gh_rc"
+          fi
+        fi
+
     # --- Master-side partner PR (release-finalize) ---------------------
     # Paired with the release-prep/<rel-branch> PR above. Carries the
     # post-release master-side updates to .github/release-targets.yml:
@@ -403,7 +548,7 @@ jobs:
 
     - name: Mint App token
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}

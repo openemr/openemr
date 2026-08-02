@@ -11,7 +11,7 @@
         "website": "https://www.open-emr.org/"
     },
     "require": {
-        "php": ">=8.2.0",
+        "php": ">=8.3.0",
         "ext-bcmath": "*",
         "ext-calendar": "*",
         "ext-ctype": "*",
@@ -61,7 +61,7 @@
         "giggsey/libphonenumber-for-php": "^9.0",
         "google/apiclient": "^2.18.4",
         "guzzlehttp/guzzle": "^7.10.0",
-        "guzzlehttp/psr7": "^2.8",
+        "guzzlehttp/psr7": "^2.13",
         "html2text/html2text": "^4.3.2",
         "kamermans/guzzle-oauth2-subscriber": "^1.1.1",
         "knplabs/knp-snappy": "^1.5.1",
@@ -157,6 +157,7 @@
         "shipmonk/phpstan-baseline-per-identifier": "^2.3",
         "slevomat/coding-standard": "^8.28",
         "squizlabs/php_codesniffer": "^4.0",
+        "symfony/mime": "^7.3",
         "symfony/panther": "^2.0"
     },
     "repositories": [
@@ -177,14 +178,25 @@
             "library/classes"
         ],
         "files": [
-            "library/global_functions.inc.php",
-            "library/htmlspecialchars.inc.php",
-            "library/formdata.inc.php",
-            "library/sanitize.inc.php",
-            "library/formatting.inc.php",
+            "library/amc.php",
+            "library/calendar.inc.php",
+            "library/csv_like_join.php",
             "library/date_functions.php",
-            "library/validation/validate_core.php",
-            "library/translation.inc.php"
+            "library/formatting.inc.php",
+            "library/formdata.inc.php",
+            "library/global_functions.inc.php",
+            "library/gprelations.inc.php",
+            "library/htmlspecialchars.inc.php",
+            "library/payment.inc.php",
+            "library/pid.inc.php",
+            "library/pnotes.inc.php",
+            "library/registry.inc.php",
+            "library/report_database.inc.php",
+            "library/sanitize.inc.php",
+            "library/transactions.inc.php",
+            "library/translation.inc.php",
+            "library/user.inc.php",
+            "library/validation/validate_core.php"
         ],
         "exclude-from-classmap": [
             "src/Common/Compatibility/Checker.php",
@@ -196,7 +208,8 @@
     "autoload-dev": {
         "psr-4": {
             "OpenEMR\\": "tests",
-            "OpenEMR\\Release\\": "tools/release/src"
+            "OpenEMR\\Release\\": "tools/release/src",
+            "OpenEMR\\Tests\\Acceptance\\": "tests/Acceptance"
         }
     },
     "config": {
@@ -208,40 +221,40 @@
             "phpstan/extension-installer": true
         },
         "platform": {
-            "ext-bcmath": "8.2",
-            "ext-calendar": "8.2",
-            "ext-ctype": "8.2",
-            "ext-curl": "8.2",
-            "ext-dom": "8.2",
-            "ext-fileinfo": "8.2",
-            "ext-filter": "8.2",
-            "ext-gd": "8.2",
-            "ext-iconv": "8.2",
-            "ext-imagick": "8.2",
-            "ext-intl": "8.2",
-            "ext-json": "8.2",
-            "ext-ldap": "8.2",
-            "ext-libxml": "8.2",
-            "ext-mbstring": "8.2",
-            "ext-mysqli": "8.2",
-            "ext-openssl": "8.2",
-            "ext-pdo": "8.2",
-            "ext-pdo_mysql": "8.2",
-            "ext-phar": "8.2",
-            "ext-redis": "8.2",
-            "ext-session": "8.2",
-            "ext-simplexml": "8.2",
-            "ext-soap": "8.2",
-            "ext-sockets": "8.2",
-            "ext-sodium": "8.2",
-            "ext-tokenizer": "8.2",
-            "ext-xml": "8.2",
-            "ext-xmlreader": "8.2",
-            "ext-xmlwriter": "8.2",
-            "ext-xsl": "8.2",
-            "ext-zip": "8.2",
-            "ext-zlib": "8.2",
-            "php": "8.2"
+            "ext-bcmath": "8.3",
+            "ext-calendar": "8.3",
+            "ext-ctype": "8.3",
+            "ext-curl": "8.3",
+            "ext-dom": "8.3",
+            "ext-fileinfo": "8.3",
+            "ext-filter": "8.3",
+            "ext-gd": "8.3",
+            "ext-iconv": "8.3",
+            "ext-imagick": "8.3",
+            "ext-intl": "8.3",
+            "ext-json": "8.3",
+            "ext-ldap": "8.3",
+            "ext-libxml": "8.3",
+            "ext-mbstring": "8.3",
+            "ext-mysqli": "8.3",
+            "ext-openssl": "8.3",
+            "ext-pdo": "8.3",
+            "ext-pdo_mysql": "8.3",
+            "ext-phar": "8.3",
+            "ext-redis": "8.3",
+            "ext-session": "8.3",
+            "ext-simplexml": "8.3",
+            "ext-soap": "8.3",
+            "ext-sockets": "8.3",
+            "ext-sodium": "8.3",
+            "ext-tokenizer": "8.3",
+            "ext-xml": "8.3",
+            "ext-xmlreader": "8.3",
+            "ext-xmlwriter": "8.3",
+            "ext-xsl": "8.3",
+            "ext-zip": "8.3",
+            "ext-zlib": "8.3",
+            "php": "8.3"
         },
         "sort-packages": true
     },
@@ -277,6 +290,7 @@
         }
     },
     "scripts": {
+        "acceptance": "phpunit -c tests/Acceptance/phpunit.acceptance.xml",
         "checks": [
             "composer validate --strict",
             "composer normalize --dry-run"

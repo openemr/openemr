@@ -116,7 +116,7 @@ function edih_835_csv_data($obj835)
             }
         }
 
-        $ret_ar[$icn]['type'] = csv_file_type($ft);
+        $ret_ar[$icn]['type'] = is_string($ft) ? csv_file_type($ft) : '';
         $gsdate = $gsdate ?: edih_parse_date($isa['date']);
         //
         $fdx = count($ret_ar[$icn]['file']);
@@ -270,7 +270,7 @@ function edih_837_csv_data($obj837)
         //$ret_ar[$icn]['type'] = $ft;
         foreach ($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
-                $ret_ar[$icn]['type'] = csv_file_type($gs['type']);
+                $ret_ar[$icn]['type'] = is_string($gs['type']) ? csv_file_type($gs['type']) : '';
                 $gsdate = $gs['date'];
                 break;
             }
@@ -441,7 +441,7 @@ function edih_277_csv_data($obj277)
         $rspdate = $isa['date'];
         foreach ($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
-                $ret_ar[$icn]['type'] = csv_file_type($gs['type']);
+                $ret_ar[$icn]['type'] = is_string($gs['type']) ? csv_file_type($gs['type']) : '';
                 $rspdate = $gs['date'];
                 break;
             }
@@ -734,7 +734,8 @@ function edih_278_csv_data($obj278)
     $fn = $obj278->edih_filename();
     $seg_ar = $obj278->edih_segments();
     $env_ar = $obj278->edih_envelopes();
-    $ft = csv_file_type($obj278->edih_type());
+    $x12type = $obj278->edih_type();
+    $ft = is_string($x12type) ? csv_file_type($x12type) : '';
     //
     // $ft: 'HI'=>'278'
     if (!isset($env_ar['ST'])) {
@@ -1049,7 +1050,7 @@ function edih_997_csv_data($obj997)
 
         foreach ($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
-                $ret_ar[$icn]['type'] = csv_file_type($gs['type']);
+                $ret_ar[$icn]['type'] = is_string($gs['type']) ? csv_file_type($gs['type']) : '';
                 $rspdate = $gs['date'];
                 break;
             }
@@ -1261,7 +1262,8 @@ function edih_271_csv_data($obj270)
     $fn = $obj270->edih_filename();
     $seg_ar = $obj270->edih_segments();
     $env_ar = $obj270->edih_envelopes();
-    $ft = csv_file_type($obj270->edih_type());
+    $x12type = $obj270->edih_type();
+    $ft = is_string($x12type) ? csv_file_type($x12type) : '';
     //
     // $rsptype = array('HS'=>'270', 'HB'=>'271', 'HC'=>'837', 'HR'=>'276', 'HI'=>'278');
     if (!isset($env_ar['ST'])) {

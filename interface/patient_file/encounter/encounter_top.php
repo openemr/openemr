@@ -14,7 +14,6 @@
 
 require_once(__DIR__ . '/../../globals.php');
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
-require_once($srcdir . "/pid.inc.php");
 require_once($srcdir . "/encounter.inc.php");
 require_once($srcdir . "/forms.inc.php");
 

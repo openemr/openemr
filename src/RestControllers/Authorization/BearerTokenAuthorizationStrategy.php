@@ -547,7 +547,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return $raw;
     }
 
-    private function isValidRequestForUserRole(Request $request, array $oauthScopes, string $userRole)
+    private function isValidRequestForUserRole(Request $request, array $oauthScopes, string $userRole): bool
     {
         $resource = $request->getPathInfo();
         if (

@@ -31,9 +31,9 @@ class Form_Log implements LogIF
      * the constructor because they aren't necessarily available
      * through the SignableIF interface when render() function is called.
      *
-     * @param unknown $formId
-     * @param unknown $formDir
-     * @param unknown $encounterId
+     * @param int|string $formId
+     * @param string $formDir
+     * @param int|string $encounterId
      */
     public function __construct($formId, $formDir, $encounterId)
     {

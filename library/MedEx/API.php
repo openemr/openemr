@@ -372,8 +372,8 @@ class Events extends Base
 
                 if (!empty($prefs['ME_facilities'])) {
                     $facilityIds = array_filter(
-                        array_map(fn($id) => filter_var($id, FILTER_VALIDATE_INT), explode('|', (string) $prefs['ME_facilities'])),
-                        fn($id) => $id !== false
+                        array_map(fn($id): int|false => filter_var($id, FILTER_VALIDATE_INT), explode('|', (string) $prefs['ME_facilities'])),
+                        fn($id): bool => $id !== false
                     );
                     if ($facilityIds === []) {
                         continue;
@@ -1085,7 +1085,7 @@ class Events extends Base
         return count($hits);
     }
 
-    private function recursive_array_search($needle, $haystack)
+    private function recursive_array_search($needle, $haystack): bool
     {
         foreach ($haystack as $key => $value) {
             $current_key = $key;
@@ -2924,7 +2924,7 @@ class Display extends Base
  * @return bool
  */
 
-    public function SMS_bot($logged_in)
+    public function SMS_bot($logged_in): bool
     {
         $fields = [];
         $fields = $_REQUEST;

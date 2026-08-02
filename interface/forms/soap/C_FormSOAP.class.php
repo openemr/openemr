@@ -14,6 +14,7 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
@@ -39,7 +40,7 @@ class C_FormSOAP extends Controller
             'soap_form.twig',
             [
                 "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),
-                "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
+                "DONT_SAVE_LINK" => FormActionBarSettings::EXIT_URL,
                 "data" => $form
             ]
         );
@@ -53,7 +54,7 @@ class C_FormSOAP extends Controller
             'soap_form.twig',
             [
                 "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),
-                "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
+                "DONT_SAVE_LINK" => FormActionBarSettings::EXIT_URL,
                 "data" => $form
             ]
         );

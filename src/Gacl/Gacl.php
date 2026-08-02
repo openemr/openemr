@@ -185,7 +185,7 @@ class Gacl {
     * @param string $text THe text to output
     * @return bool Always returns true
     */
-    function debug_text($text) {
+    function debug_text($text): bool {
 
         if ($this->_debug) {
             echo "$text<br />\n";

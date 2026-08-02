@@ -56,10 +56,10 @@ class xmltoarray_parser_htmlfix
 
     /**
      * xmlparser_setoption sets XML options based on xml_parser_set_option options.
-     * @param $optionName - The name of the option from the xml_parser_set_option list.
-     * @param $value - The value to set for the option.
+     * @param int $optionName - The name of the option from the xml_parser_set_option list.
+     * @param bool|int|string $value - The value to set for the option.
      */
-    function xmlparser_setoption($optionName, $value)
+    function xmlparser_setoption(int $optionName, bool|int|string $value): void
     {
         xml_parser_set_option($this->parser, $optionName, $value);
     }

@@ -27,7 +27,6 @@ $rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/csv_like_join.php");
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -154,9 +153,9 @@ $check_res = $formid ? $check_res : [];
                                     <div class="form-row">
                                         <div class="forms col-md-2">
                                             <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                            <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo text($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                            <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                             <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
-                                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"]); ?>">
+                                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>">
                                         </div>
                                         <div class="forms col-md-2">
                                             <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
@@ -186,9 +185,9 @@ $check_res = $formid ? $check_res : [];
                                 <div class="form-row">
                                         <div class="forms col-md-2">
                                             <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                            <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo text($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
+                                            <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
                                             <span id="displaytext_1"  class="displaytext help-block"></span>
-                                            <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"] ?? ''); ?>">
+                                            <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">
                                         </div>
                                         <div class="forms col-md-2">
                                             <label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>

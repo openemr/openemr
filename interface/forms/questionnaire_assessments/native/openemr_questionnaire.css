@@ -1,0 +1,93 @@
+/* OpenEMR native FHIR Questionnaire runtime */
+
+.oe-questionnaire-runtime {
+    --oe-questionnaire-indent: 1rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group {
+    overflow: visible;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group > .card-header {
+    padding: 0.75rem 1rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-group > .card-body {
+    padding: 1rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-question {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    margin-bottom: 0;
+    padding: 0.9rem 0;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-question:last-child {
+    border-bottom: 0;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-question .oe-questionnaire-question {
+    border-bottom: 0;
+    margin-left: var(--oe-questionnaire-indent);
+    padding-bottom: 0;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-label {
+    line-height: 1.35;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-control {
+    max-width: 100%;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-control > .form-control,
+.oe-questionnaire-runtime .oe-questionnaire-control > .input-group {
+    max-width: 48rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-help-button {
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-weight: 700;
+    height: 1.6rem;
+    line-height: 1.25rem;
+    min-width: 1.6rem;
+    text-decoration: none;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-help {
+    margin: 0.75rem 0 0;
+    white-space: pre-wrap;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-display {
+    margin-bottom: 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-invalid {
+    border-left: 0.25rem solid var(--danger);
+    padding-left: 0.75rem;
+}
+
+.oe-questionnaire-runtime .oe-questionnaire-invalid .oe-questionnaire-label {
+    color: var(--danger);
+}
+
+.oe-questionnaire-runtime input[readonly],
+.oe-questionnaire-runtime textarea[readonly] {
+    font-weight: 600;
+}
+
+@media (max-width: 767.98px) {
+    .oe-questionnaire-runtime .oe-questionnaire-group > .card-body {
+        padding: 0.75rem;
+    }
+
+    .oe-questionnaire-runtime .oe-questionnaire-question {
+        padding: 0.75rem 0;
+    }
+}
+
+.oe-questionnaire-runtime.oe-questionnaire-guides .oe-questionnaire-group > .card-body {
+    border-left: 0.2rem solid rgba(0, 0, 0, 0.12);
+}

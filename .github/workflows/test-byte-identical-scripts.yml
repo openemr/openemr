@@ -8,9 +8,13 @@
 # version (v1.13.0) and put it on PATH. No bats-support / bats-assert
 # dependencies -- the tests use plain [[ ]] asserts.
 #
-# Not in any byte-identical set: the scripts these tests cover are
-# master-only (auto-sync + the canary's logic), so the tests live on
-# master only too.
+# Not in any byte-identical set: even where a script under test IS
+# byte-identical-synced to rel branches (e.g. verify-oci-labels.sh syncs
+# to rel-820+, extract-zip.sh syncs to rel-810+ via the
+# tests/Acceptance/** glob), the byte-identical canary guarantees each
+# rel branch runs an exact byte copy of master's script -- so master-
+# side test coverage is enough. Master's script gets exercised on every
+# PR; rel branches inherit the identical bytes, no extra CI needed there.
 
 name: Test byte-identical scripts
 
@@ -20,6 +24,7 @@ on:
     - master
     paths:
     - '.github/scripts/**'
+    - 'tests/Acceptance/bin/lib/**'
     - 'tests/bats/ci-scripts/**'
     - '.github/workflows/test-byte-identical-scripts.yml'
   workflow_dispatch:
@@ -47,3 +52,13 @@ jobs:
         bats tests/bats/ci-scripts/sync-byte-identical/
         bats tests/bats/ci-scripts/validate-byte-identical/
         bats tests/bats/ci-scripts/list-manifest-paths/
+        bats tests/bats/ci-scripts/verify-oci-labels/
+        bats tests/bats/ci-scripts/expand-docker-tags/
+        bats tests/bats/ci-scripts/extract-zip/
+        bats tests/bats/ci-scripts/validate-source-run/
+        bats tests/bats/ci-scripts/verify-dockerhub-tag-exists/
+        bats tests/bats/ci-scripts/dockerhub-delete-tag/
+        bats tests/bats/ci-scripts/detect-acceptance-mode/
+        bats tests/bats/ci-scripts/create-release-tag/
+        bats tests/bats/ci-scripts/extract-changelog-section/
+        bats tests/bats/ci-scripts/build-release-body/

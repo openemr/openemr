@@ -95,7 +95,7 @@ class Controller extends Smarty implements ControllerInterface
          echo $this->default_action();
     }
 
-    public function populate_object(&$obj)
+    public function populate_object(&$obj): bool
     {
         if (!is_object($obj)) {
             $this->function_argument_error();

@@ -21,7 +21,6 @@
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/globals.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php");
 
 /** @var array<string,array<string,array<int,mixed>>> $GLOBALS_METADATA */
 /** @var list<string> $USER_SPECIFIC_GLOBALS */
@@ -56,7 +55,7 @@ if (!$userMode) {
     }
 }
 
-function checkCreateCDB()
+function checkCreateCDB(): bool
 {
     $globalsres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
   ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')");

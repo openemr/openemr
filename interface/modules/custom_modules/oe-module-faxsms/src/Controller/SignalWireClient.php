@@ -360,6 +360,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
             // gives both confidentiality and tamper-detection, so faxMedia.php
             // can trust it without a session.
             $payload = json_encode(['f' => $name, 'site' => $siteId, 'exp' => time() + $ttl]);
+            // @phpstan-ignore method.deprecated (needs OTP conversion)
             $token = $this->crypto->encryptStandard((string)$payload);
             if (!is_string($token) || $token === '') {
                 @unlink($path);

@@ -36,7 +36,6 @@ use OpenEMR\PaymentProcessing\Recorder;
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/options.inc.php');
-require_once($srcDir . '/payment.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $CountIndexAbove = 0;
@@ -167,7 +166,7 @@ if ($saveError === null && isset($_POST["mode"])) {
 
         // This becomes MUCH more straightforward with actual dbal, but this is
         // still safe from SQLI since the keys are all string literals.
-        $updates = array_map(fn ($col) => sprintf('`%s` = ?', $col), array_keys($updatedValues));
+        $updates = array_map(fn ($col): string => sprintf('`%s` = ?', $col), array_keys($updatedValues));
         $query = implode(' ', [
             'UPDATE ar_session SET',
             implode(', ', $updates),

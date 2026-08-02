@@ -82,7 +82,7 @@ class Hashed_Cache_Lite extends Cache_Lite
         }
     }
 
-    function _remove_dir_structure($dir,$remove_dir = false)
+    function _remove_dir_structure($dir,$remove_dir = false): bool
     {
         if (in_array(substr((string) $dir,-1),[DIR_SEP,'/','\\'])) {
             $dir = substr((string) $dir,0,-1);
@@ -132,10 +132,9 @@ class Hashed_Cache_Lite extends Cache_Lite
     * else only cache files of the specified group will be destroyed
     *
     * @param string $group name of the cache group
-    * @return bool true if no problem
     * @access public
     */
-    function clean($group = false)
+    function clean($group = false): bool
     {
         if ($group) {
             $motif = $this->_cacheDir.$group.'/';

@@ -6773,7 +6773,7 @@ function display_refractive_data($encounter_data): void
               <td><?php echo text($OSLT); ?></td>
               <td><?php echo text($OSW2W); ?></td>
               <td><?php echo text($OSECL); ?></td>
-              <!--  <td><input type=text id="pend" name="pend" value="<?php echo text($pend); ?>"></td> -->
+              <!--  <td><input type=text id="pend" name="pend" value="<?php echo attr($pend); ?>"></td> -->
             </tr>
           </table>
           </td>
@@ -6792,7 +6792,7 @@ function display_refractive_data($encounter_data): void
  * @param bool $strict
  * @return bool
  */
-function in_array_r($needle, $haystack, $strict = false)
+function in_array_r($needle, $haystack, $strict = false): bool
 {
     if (empty($haystack)) {
         return false;

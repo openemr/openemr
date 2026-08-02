@@ -107,13 +107,26 @@ permissions:
   contents: read
 
 jobs:
-  build-release:
+  # Job 1 of 3 (Phase 7c refactor): produce the release distribution
+  # (tarball + zip + checksums + release-notes changelog) and upload
+  # everything as a workflow artifact so downstream jobs (acceptance-
+  # gate + publish) can consume it. No tag is pushed here, no GitHub
+  # release is created — this job is purely the build side of build →
+  # validate → publish.
+  build-package:
     runs-on: ubuntu-24.04
-    name: Build Release
-    # Cap runtime. Package assembly + tag/release is under 15 min in
-    # normal runs; the GitHub-default 6h ceiling would let a hung
-    # composer/npm/git step burn runner minutes if something wedged.
+    name: Build package
+    # Cap runtime. Package assembly is under 15 min in normal runs; the
+    # GitHub-default 6h ceiling would let a hung composer/npm/git step
+    # burn runner minutes if something wedged.
     timeout-minutes: 30
+    outputs:
+      # Downstream jobs (acceptance-gate + publish) look up the artifact
+      # by name and derive the tarball filename from the version. Both
+      # feed reusable-workflow inputs, so expose as job outputs (not
+      # env), matching GitHub Actions cross-job wiring conventions.
+      release_version: ${{ inputs.version }}
+      artifact_name: openemr-release-candidate-${{ inputs.version }}
     steps:
     - name: Validate inputs
       if: "!inputs.dry_run && inputs.release_tag == ''"
@@ -121,10 +134,21 @@ jobs:
         printf '::error::release_tag is required when dry_run is false\n'
         exit 1
 
+    # Sparse checkout of just the composite action so the token-mint
+    # step below can resolve `uses: ./.github/actions/...`. Full
+    # checkout happens after the token is minted (uses the token).
+    - name: Checkout composite action
+      if: '!inputs.dry_run'
+      uses: actions/checkout@v7
+      with:
+        sparse-checkout: .github/actions/generate-app-token
+        sparse-checkout-cone-mode: false
+        persist-credentials: false
+
     - name: Generate app token
       if: '!inputs.dry_run'
       id: app-token
-      uses: actions/create-github-app-token@v3
+      uses: ./.github/actions/generate-app-token
       with:
         client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -196,11 +220,8 @@ jobs:
         VERSION="$RELEASE_VERSION"
         OPENEMR_DIR='${{ github.workspace }}'
 
-    # Build and checksum the package before creating the tag/release. If
-    # any build step fails, the job aborts before a release exists —
-    # never publish a release that has no distribution assets attached.
     - name: Setup Node
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: '24'
 
@@ -221,96 +242,22 @@ jobs:
         task checksum FILE="openemr-${RELEASE_VERSION}.tar.gz"
         task checksum FILE="openemr-${RELEASE_VERSION}.zip"
 
-    - name: Create annotated tag and GitHub release
-      if: '!inputs.dry_run'
-      env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
-        RELEASE_TAG: ${{ inputs.release_tag }}
-        RELEASE_VERSION: ${{ inputs.version }}
-        VERSION_BRANCH: ${{ inputs.version_branch }}
-      run: |
-        tag="$RELEASE_TAG"
-        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
-
-        git config user.name 'github-actions[bot]'
-        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-
-        # Check the remote, not the local checkout: the checkout step
-        # uses fetch-depth: 1 and does not fetch tags, so a local
-        # rev-parse always misses an already-published tag. That made
-        # `git push origin "$tag"` fail with "tag already exists in the
-        # remote" when re-firing after the openemr/openemr conductor
-        # had already tagged via its finalize job.
-        #
-        # `git ls-remote --exit-code` returns 0 when the tag exists and 2
-        # when it does not. Any other status is a real lookup failure
-        # (auth, transport) and must abort rather than fall through to a
-        # tag push that would mask the underlying error.
-        tag_lookup_status=0
-        git ls-remote --tags --exit-code origin "refs/tags/$tag" > /dev/null 2>&1 || tag_lookup_status=$?
-        case "$tag_lookup_status" in
-          0)
-            echo "Tag $tag already exists on origin, skipping tag creation"
-            ;;
-          2)
-            git tag -a -m "Release $tag" "$tag" "$VERSION_BRANCH"
-            git push origin "$tag"
-            ;;
-          *)
-            echo "::error::Failed to query origin for tag $tag (git ls-remote exit $tag_lookup_status)" >&2
-            exit "$tag_lookup_status"
-            ;;
-        esac
-
-        if ! gh release view "$tag" --repo openemr/openemr > /dev/null 2>&1; then
-          echo "Creating release $tag"
-          gh release create "$tag" \
-            --repo openemr/openemr \
-            --title "OpenEMR $RELEASE_VERSION" \
-            --notes-file "${output_dir}/changelog.md" \
-            --verify-tag
-        fi
-
-    - name: Upload package and checksums to release
-      if: '!inputs.dry_run'
-      env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
-        RELEASE_TAG: ${{ inputs.release_tag }}
-        RELEASE_VERSION: ${{ inputs.version }}
-      run: |
-        tag="$RELEASE_TAG"
-        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
-
-        gh release upload "$tag" \
-          --repo openemr/openemr \
-          --clobber \
-          "${output_dir}/openemr-${RELEASE_VERSION}.tar.gz" \
-          "${output_dir}/openemr-${RELEASE_VERSION}.zip" \
-          "${output_dir}"/*.md5 \
-          "${output_dir}"/*.sha256 \
-          "${output_dir}"/*.sha512 \
-          "${output_dir}/changelog.md"
-
-    - name: Build summary
-      working-directory: tools/release
-      env:
-        MILESTONE: ${{ inputs.milestone }}
-        VERSION_BRANCH: ${{ inputs.version_branch }}
-        RELEASE_TAG: ${{ inputs.release_tag }}
-        DRY_RUN: ${{ inputs.dry_run }}
-      run: >-
-        task summary
-        TYPE=full
-        MILESTONE="$MILESTONE"
-        VERSION_BRANCH="$VERSION_BRANCH"
-        RELEASE_TAG="$RELEASE_TAG"
-        DRY_RUN="$DRY_RUN"
-
-    - name: Upload artifacts (dry run)
-      if: inputs.dry_run
+    # Upload the whole release-output dir as a single workflow-run
+    # artifact so downstream jobs (acceptance-gate + publish) can
+    # consume it. Artifact name embeds the version so parallel dispatch
+    # runs (e.g. two different rel-branches under test) don't collide.
+    # acceptance-package.yml's workflow_call flow expects the tarball
+    # to be present at
+    # /tmp/pr-built-tarball/openemr-<version>.tar.gz after download;
+    # publish job re-downloads to read the other assets.
+    #
+    # Retention-days matches the previous dry-run upload behavior (7d)
+    # — a maintainer inspecting a failed dispatch shouldn't have their
+    # artifact evicted between the failure and the postmortem.
+    - name: Upload release-output artifact
       uses: actions/upload-artifact@v7
       with:
-        name: release-${{ inputs.version }}
+        name: openemr-release-candidate-${{ inputs.version }}
         path: |
           tools/release/release-output/openemr-${{ inputs.version }}.tar.gz
           tools/release/release-output/openemr-${{ inputs.version }}.zip
@@ -319,3 +266,64 @@ jobs:
           tools/release/release-output/*.sha256
           tools/release/release-output/*.sha512
         retention-days: 7
+
+  # Job 2 of 3 (Phase 7c): pre-publish acceptance gate. Runs the full
+  # acceptance-package matrix (fresh-install, wizard-install, upgrade,
+  # wizard-upgrade) against the tarball build-package just uploaded.
+  # Publish job only fires if this passes.
+  #
+  # Skipped on dry_run — the acceptance gate exists to prevent broken
+  # tarballs from reaching the GitHub releases page, so it's redundant
+  # when publish is skipped. That also keeps dry-run runtime bounded
+  # to just the build step.
+  #
+  # Runs against the release branch's copy of acceptance-package.yml
+  # (@${{ inputs.version_branch }}), NOT the caller's ref. This matches
+  # the shape end users would see: whatever tests the release branch
+  # says are canon, run those. Downside: acceptance-package.yml has to
+  # exist on the target rel-branch (rel-830+ once Phase 3.5 backports;
+  # earlier branches would need this workflow_call trigger backported
+  # or the acceptance-gate job disabled for those branches).
+  acceptance-gate:
+    name: Acceptance gate
+    needs: [build-package]
+    if: '!inputs.dry_run'
+    uses: ./.github/workflows/acceptance-package.yml
+    with:
+      # Both caller_* inputs reference the SAME artifact name because
+      # the release-output bundle contains BOTH openemr-<version>.tar.gz
+      # AND openemr-<version>.zip (see build-package's upload-artifact
+      # step). acceptance-package's per-format download step picks the
+      # right file out of the bundle by matrix.format.
+      caller_tarball_artifact: ${{ needs.build-package.outputs.artifact_name }}
+      caller_zip_artifact: ${{ needs.build-package.outputs.artifact_name }}
+      to_version: ${{ needs.build-package.outputs.release_version }}
+    # Acceptance-package doesn't currently use secrets, but forward
+    # them for future-proofing (e.g. if a downstream test grows a
+    # secret dependency, no ops-side change needed here).
+    secrets: inherit
+
+  # Job 3 of 3 (Phase 7c): publish. Push the annotated tag, create
+  # the GitHub release, and upload the artifacts. Runs ONLY if
+  # acceptance-gate succeeded — a broken tarball never reaches the
+  # releases page.
+  #
+  # Skipped on dry_run (there's no release to push to).
+  #
+  # Phase 10c (openemr/openemr#TBD): the ~100-line publish job body
+  # was extracted into .github/workflows/reusable-publish-release.yml
+  # so acceptance-only.yml can call the same publish flow from its
+  # recovery path. Behavior preserved step-for-step; the only visible
+  # change here is the swap from `runs-on: ... steps: ...` to `uses:`.
+  publish:
+    name: Publish release
+    needs: [build-package, acceptance-gate]
+    if: '!inputs.dry_run'
+    uses: ./.github/workflows/reusable-publish-release.yml
+    with:
+      version: ${{ inputs.version }}
+      release_tag: ${{ inputs.release_tag }}
+      version_branch: ${{ inputs.version_branch }}
+      artifact_name: ${{ needs.build-package.outputs.artifact_name }}
+      milestone: ${{ inputs.milestone }}
+    secrets: inherit

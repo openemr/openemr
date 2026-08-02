@@ -27,3 +27,12 @@ coverage:
       default:
         target: 50%       # New code must have at least 50% coverage (was 0%)
         threshold: 5%     # Flexibility for config/migration/generated files
+
+# Carry forward coverage for flags not uploaded on a given commit.
+# PRs only collect coverage from one config (apache_82_118) while the
+# nightly scheduled run uploads all configs to master HEAD — without
+# carryforward, codecov/project compares a single-config head total
+# against a full-matrix base total and reports a phantom drop.
+flag_management:
+  default_rules:
+    carryforward: true

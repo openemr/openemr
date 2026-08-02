@@ -29,7 +29,7 @@ class FhirOperationDefinitionRestController
     /**
      * Queries for FHIR OperationDefinition resources using various search parameters.
      * @param mixed $searchParams @searchParams
-     * @return FHIR bundle with query results, if found
+     * @return \Psr\Http\Message\ResponseInterface FHIR bundle with query results, if found
      */
     #[OA\Get(
         path: '/fhir/OperationDefinition',
@@ -51,7 +51,7 @@ class FhirOperationDefinitionRestController
 
         $bundleSearchResult = $this->fhirService->createBundle('OperationDefinition', $resources, false);
         $response = $this->createResponseForCode(StatusCode::OK);
-        $response->getBody()->write(json_encode($bundleSearchResult));
+        $response->getBody()->write(json_encode($bundleSearchResult, JSON_THROW_ON_ERROR));
         return $response;
     }
 
@@ -123,7 +123,7 @@ class FhirOperationDefinitionRestController
     /**
      * Create a response object for the given status code with our default set of headers.
      * @param $statusCode
-     * @return ResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
     private function createResponseForCode($statusCode)
     {

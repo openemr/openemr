@@ -516,3 +516,61 @@ teardown() {
     # And no rename-sweep re-delete attempt printed.
     ! grep -qF "delete: master removed this path entirely" <(echo "${output}")
 }
+
+# ---------- Mode preservation ----------
+#
+# Regression cover for the bug where `git show master:FILE > FILE`
+# wrote only the blob content and left the file at the writer's umask,
+# stripping the executable bit off .sh files that were 100755 on
+# master. Surfaced by a real sync PR to rel-820 where the freshly-
+# copied tests/Acceptance/bin/boot-package.sh landed as 100644 and
+# CI failed with "Permission denied" (exit 126). Fix switched both
+# the add and update paths from `git show > FILE` to
+# `git checkout master -- FILE` which preserves mode.
+
+@test "add case preserves executable bit (100755) from master" {
+    write_executable_on_branch master src/tool.sh "#!/bin/sh\necho hi"
+    write_files_all_config src/tool.sh
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/tool.sh ]]
+    # The synced file must be executable both in the working tree and
+    # in git's tree entry (peter-evans would commit the working-tree
+    # + index state, so both need to be 755).
+    [[ -x src/tool.sh ]]
+    [[ "$(git_staged_mode src/tool.sh)" == "100755" ]]
+    grep -qxF "add: src/tool.sh" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "update case preserves executable bit (100755) from master" {
+    write_executable_on_branch master  src/tool.sh "master-content"
+    write_executable_on_branch rel-810 src/tool.sh "older-content"
+    write_files_all_config src/tool.sh
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ "$(cat src/tool.sh)" == "master-content" ]]
+    [[ -x src/tool.sh ]]
+    [[ "$(git_staged_mode src/tool.sh)" == "100755" ]]
+    grep -qxF "update: src/tool.sh" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "update case demotes 100755 to 100644 when master's mode changed" {
+    write_on_branch            master  src/tool.sh "master-content"     # 100644
+    write_executable_on_branch rel-810 src/tool.sh "older-content"      # 100755
+    write_files_all_config src/tool.sh
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ "$(cat src/tool.sh)" == "master-content" ]]
+    [[ ! -x src/tool.sh ]]
+    [[ "$(git_staged_mode src/tool.sh)" == "100644" ]]
+    grep -qxF "update: src/tool.sh" "$OUTPUT_DIR/changes.txt"
+}
