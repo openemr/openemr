@@ -1001,7 +1001,7 @@ Per-class slicing map (scoped 2026-07-29):
   | Class                                 | Effort | Notes |
   |---------------------------------------|--------|-------|
   | AaLoginTest                           | Small  | **SHIPPED 2026-08-02 as #13336 (partial port — 2/5 scenarios).** Login-page-happy-path duplicated E2eCriticalPathTest; admin.php-disabled scenarios impossible against release image (openemr.sh deletes admin.php post-configure). Ported: testLoginUnauthorized + testurlWithoutTokenShouldRedirectToLoginPage. |
-  | GgUserMenuLinksTest                   | Small  | DataProvider pattern; no seeding beyond login. |
+  | GgUserMenuLinksTest                   | Small  | **SHIPPED 2026-08-02 as #13338 (full port — 5/5 scenarios).** All menuLinkProvider scenarios (Settings, Change Password, MFA Management, About OpenEMR, Logout). Absorbed release-image-specific gotcha: shipped image shows a Product Registration modal on first login that intercepts user-icon click; dismissed via jQuery `.modal('hide')` after waiting for Bootstrap's show-transition. |
   | FrontPaymentCssContrastTest           | Small  | Pure CSS inspection via JS executor; no seeding. |
   | KkEncounterFormNavbarUrlTest          | Small  | Self-contained; inlines Selenium client; minimal seeding. |
   | BbCreateStaffTest                     | Medium | UI-driven user creation; setUp/tearDown DB cleanup. |
@@ -3709,3 +3709,47 @@ in acceptance."
   CSS via JS executor, no seeding) → KkEncounterFormNavbarUrlTest
   (self-contained, minimal seeding). After all 4 Small ports,
   extract shared code + move to Medium tier.
+
+- **2026-08-02 (later) — Phase 4e-2 SHIPPED (#13338).** Full port
+  of GgUserMenuLinksTest (5/5 menuLinkProvider scenarios: Settings,
+  Change Password, MFA Management, About OpenEMR, Logout). Zero
+  workflow/PHPUnit-config changes — automatic pickup via
+  `#[Group('fresh-install')]` + recursive discovery.
+
+  **Third learning captured** (extend the 4e-1 learnings above):
+
+    3. **Release-image UI differs from dev checkout in operational
+       ways.** Shipped OpenEMR images render a Product Registration
+       modal on first login that intercepts the top-right user
+       icon; dev checkouts don't trigger this modal the same way,
+       so any port that clicks user-menu / user-icon must dismiss
+       this modal first. Pattern established in
+       GgUserMenuLinksAcceptanceTest::dismissProductRegistrationModalIfPresent:
+       wait for `.product-registration-modal.show` +
+       `display:block` (Bootstrap fade-in commits), 500ms settle
+       for state-machine, `.modal('hide')` via jQuery (guarded for
+       noConflict edge case), wait for both modal AND backdrop to
+       disappear before proceeding. Try/catch scope: presence-wait
+       ONLY (benign no-modal case); dismissal + fade-out
+       propagate failures (rabbit round-2 caught a bug where a
+       broad try/catch made dismissal failures look like "no
+       modal appeared"). This is a strong candidate for extract-
+       to-Support/ once a second port needs it — likely IiPatient
+       ContextMainMenuLinksTest or JjEncounterContextMainMenuLinks
+       Test in the Large tier, since those also click into
+       user-icon-adjacent surfaces.
+
+  **Rabbit iteration density observation**: PR #13338 went 3 rounds
+  (round-1: docblock accuracy + modal wait cost + post-login title
+  wait diagnostic — all applied except a DataProvider magic-string
+  refactor rabbit itself tagged low-value; round-2: try/catch scope
+  bug caught in the round-1 fix — applied; round-3: fail-fast
+  status return on the jQuery-missing edge — skipped as rabbit-
+  self-tagged low-value + defense-against-impossible). Each round
+  produced legit refinements; the 3-round cadence is worth
+  budgeting for on Panther-driven ports since race conditions +
+  edge-case error handling take iterations to converge.
+
+  **Small tier remaining**: FrontPaymentCssContrastTest →
+  KkEncounterFormNavbarUrlTest. Then Small-tier audit +
+  extract-to-Support/, then Medium tier.
