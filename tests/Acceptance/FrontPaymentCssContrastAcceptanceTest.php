@@ -62,6 +62,7 @@ use Symfony\Component\Panther\Client;
  * release artifact.
  */
 #[Group('fresh-install')]
+#[Group('post-upgrade')]
 final class FrontPaymentCssContrastAcceptanceTest extends TestCase
 {
     private ?Client $client = null;
