@@ -824,9 +824,9 @@ correctly, and downstream artifacts all landed on schedule.
 
 ## Status
 
-**Live.** The initial four release-flow workflows (branch-cut, patch-prep,
-release-prep, and release-prep's release-finalize partner PR) shipped
-2026-07-01 (#12662, #12696, #12697) on top of the conductor that shipped
+**Live.** The initial three release-flow workflows (branch-cut, patch-prep,
+release-prep, the last of which also produces the release-finalize partner
+PR) shipped 2026-07-01 (#12662, #12696, #12697) on top of the conductor that shipped
 earlier this cycle. The 8.1.1 ship in 2026-06 was the first real production
 exercise of release-prep + release-finalize; the rel-820 cut on 2026-07-02
 was the first production exercise of branch-cut (see "First production
