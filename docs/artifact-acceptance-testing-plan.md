@@ -1002,8 +1002,8 @@ Per-class slicing map (scoped 2026-07-29):
   |---------------------------------------|--------|-------|
   | AaLoginTest                           | Small  | **SHIPPED 2026-08-02 as #13336 (partial port — 2/5 scenarios).** Login-page-happy-path duplicated E2eCriticalPathTest; admin.php-disabled scenarios impossible against release image (openemr.sh deletes admin.php post-configure). Ported: testLoginUnauthorized + testurlWithoutTokenShouldRedirectToLoginPage. |
   | GgUserMenuLinksTest                   | Small  | **SHIPPED 2026-08-02 as #13338 (full port — 5/5 scenarios).** All menuLinkProvider scenarios (Settings, Change Password, MFA Management, About OpenEMR, Logout). Absorbed release-image-specific gotcha: shipped image shows a Product Registration modal on first login that intercepts user-icon click; dismissed via jQuery `.modal('hide')` after waiting for Bootstrap's show-transition. |
-  | FrontPaymentCssContrastTest           | Small  | Pure CSS inspection via JS executor; no seeding. |
-  | KkEncounterFormNavbarUrlTest          | Small  | Self-contained; inlines Selenium client; minimal seeding. |
+  | FrontPaymentCssContrastTest           | Small  | **SHIPPED 2026-08-02 as #13340 (full port — 1/1 scenario).** `testReceiptCssHasExplicitTextColor` — CSS-inspection assertion on `front_payment.php?receipt=1`, real signal for openemr#10842 (light/solar-theme text visibility). No login needed, no modal-dismiss needed. |
+  | KkEncounterFormNavbarUrlTest          | Small  | **SHIPPED 2026-08-02 as #13341 (full port — 1/1 scenario).** First 4e port requiring UI-driven seeding (patient + encounter). Menu XPaths calibrated live via Panther probe against booted stack — release-image uses `Patient` label (not `Patient/Client`) and `<div class="menuLabel">` (not `<a>`); dev-checkout blind-copy would silently break. Modal-dismiss included defensively. |
   | BbCreateStaffTest                     | Medium | UI-driven user creation; setUp/tearDown DB cleanup. |
   | CcCreatePatientTest                   | Medium | Reuses PatientAddTrait; depends on `testLoginAuthorized`. |
   | DdOpenPatientTest                     | Medium | Requires seeded patient. |
@@ -3753,3 +3753,72 @@ in acceptance."
   **Small tier remaining**: FrontPaymentCssContrastTest →
   KkEncounterFormNavbarUrlTest. Then Small-tier audit +
   extract-to-Support/, then Medium tier.
+
+- **2026-08-02 (later) — Phase 4e-3 + 4e-4 SHIPPED (#13340 + #13341).
+  Small tier COMPLETE.** Both landed in parallel; zero file overlap
+  (each new file in tests/Acceptance/*).
+
+    * **4e-3 (#13340)** — FrontPaymentCssContrastTest full port
+      (single scenario). Interesting context: the scenario exists
+      because of openemr#10842 (light/solar-theme text visibility
+      fix) — real production signal, not just style testing. No
+      login needed, no modal-dismiss needed (pure GET +
+      JS-executed CSS inspection). Rabbit-round-1: no findings.
+
+    * **4e-4 (#13341)** — KkEncounterFormNavbarUrlTest full port
+      (single scenario for openemr#10844). **First 4e port
+      requiring UI-driven seeding** — patient + encounter
+      created via UI navigation up front, no SQL/DB writes (the
+      acceptance layer is black-box). Menu XPaths calibrated live
+      via Panther probe against the booted stack — discovered
+      release-image labels use `Patient` (not `Patient/Client`)
+      and `<div class="menuLabel">` (not `<a>`). That's exactly
+      the dev-checkout vs shipped-image drift Learning 3 was
+      designed to catch; validates the "check assertion validity
+      against the shipped artifact before blind-copying" rule.
+      68 assertions, ~17s. Rabbit-round-1 caught a
+      docblock-vs-code contradiction: `addEncounterViaUi()`'s
+      docblock explicitly documented "caller does NOT need to
+      re-navigate" but the test method repeated the frame-switch
+      chain — trusted the docblock and dropped the redundant
+      block.
+
+  **Small tier state (4 of 4 ports complete)**: E2eCriticalPathTest
+  (Phase 4b pattern-establisher #13196) + 4e-1 AaLoginAcceptanceTest
+  + 4e-2 GgUserMenuLinksAcceptanceTest + 4e-3
+  FrontPaymentCssContrastAcceptanceTest + 4e-4
+  KkEncounterFormNavbarUrlAcceptanceTest. All 5 shipped, all in
+  the acceptance matrix's 6-cell grid via `#[Group('fresh-install')]`.
+
+  **Extract-to-Support/ audit — recommended before Medium tier**.
+  Concrete candidates observed across the Small ports:
+
+    * **`performLoginAsAdmin()`** helper — login flow + wait for
+      shell title. Currently duplicated in 3 of 4 ports
+      (AaLoginAcceptanceTest uses partial variant, GgUserMenu +
+      KkEncounter use full variant). Medium tier ports all need
+      it. Solid extract candidate.
+
+    * **`dismissProductRegistrationModalIfPresent()`** helper —
+      the Product Registration modal dismissal shape from
+      GgUserMenu + KkEncounter (defensive inclusion). Any port
+      that clicks after login is a candidate consumer. Extract
+      as-is with the try/catch scope fix from rabbit-round-2.
+
+    * **`addPatientViaUi()` / `addEncounterViaUi()`** helpers —
+      KkEncounter's UI-seeding methods. Every Medium tier port
+      needs seeded patient (Cc/Dd) or seeded encounter (Ee/Ff).
+      Extract as the acceptance-side analog of source-side
+      `PatientAddTrait` / `EncounterAddTrait`.
+
+    * **XPath constants for menu labels** — the
+      `Patient`-not-`Patient/Client` gotcha suggests a small
+      `Support/ShippedShellXPaths` module capturing the
+      release-image-specific menu structure. Prevents each port
+      from re-discovering it via Panther probe.
+
+  Ordering: extract Support/ first (~1 PR), THEN start Medium
+  tier so those ports consume the helpers from day one instead of
+  duplicating + refactoring later. Estimated Support/ extract
+  scope: 4 helpers + XPath constants + a shared BasePantherTest
+  class (or trait) that pulls them together. ~1 PR, ~1 day.
