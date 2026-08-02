@@ -19,6 +19,7 @@ namespace OpenEMR\Tests\RestControllers;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -55,8 +56,11 @@ class ControllerRoutingTest extends TestCase
         // This lets us verify the extracted controller name without side effects
         $controller->method('i_once')->willReturn(false);
 
-        // The exception message should reference 'Document' controller regardless of param order
-        $this->expectException(NotFoundHttpException::class);
+        // The exception message should reference 'Document' controller regardless of param order.
+        // The controller is now listed in CONTROLLER_ACL_MAP, so the ACL check fires before the
+        // i_once() file-load path — the resulting AccessDeniedHttpException still carries the
+        // display name we assert on.
+        $this->expectException(AccessDeniedHttpException::class);
         $this->expectExceptionMessage('Document');
 
         $controller->dispatch($params);
