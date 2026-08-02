@@ -77,6 +77,7 @@ class C_FormROS extends Controller
         $this->form = $formId > 0 ? new FormROS($formId) : new FormROS();
 
         parent::populate_object($this->form);
+        EncounterFormAccess::applySessionPidToForm($this->form);
         $this->form->persist();
 
         if (OEGlobalsBag::getInstance()->get('encounter') == "") {

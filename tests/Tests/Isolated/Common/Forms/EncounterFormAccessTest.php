@@ -106,4 +106,62 @@ final class EncounterFormAccessTest extends TestCase
             'null'            => [null, false],
         ];
     }
+
+    public function testApplySessionPidToFormOverridesPreviousValue(): void
+    {
+        $form = new class {
+            public int $pid = 0;
+            public function set_pid(int $pid): void
+            {
+                $this->pid = $pid;
+            }
+        };
+        $form->set_pid(99);
+        EncounterFormAccess::applySessionPidToForm($form, sessionPid: 42);
+        $this->assertSame(42, $form->pid);
+    }
+
+    public function testApplySessionPidToFormNoOpWhenSessionPidZero(): void
+    {
+        $form = new class {
+            public int $pid = 0;
+            public function set_pid(int $pid): void
+            {
+                $this->pid = $pid;
+            }
+        };
+        $form->set_pid(99);
+        EncounterFormAccess::applySessionPidToForm($form, sessionPid: 0);
+        $this->assertSame(99, $form->pid);
+    }
+
+    public function testApplySessionPidToFormNoOpWhenSessionPidNegative(): void
+    {
+        $form = new class {
+            public int $pid = 0;
+            public function set_pid(int $pid): void
+            {
+                $this->pid = $pid;
+            }
+        };
+        $form->set_pid(99);
+        EncounterFormAccess::applySessionPidToForm($form, sessionPid: -1);
+        $this->assertSame(99, $form->pid);
+    }
+
+    public function testApplySessionPidToFormNoOpWhenFormHasNoSetPidMethod(): void
+    {
+        $form = new class {
+            public int $pid = 99;
+        };
+        EncounterFormAccess::applySessionPidToForm($form, sessionPid: 42);
+        $this->assertSame(99, $form->pid);
+    }
+
+    public function testApplySessionPidToFormNoOpForNonObject(): void
+    {
+        // No exception thrown for non-object input; no observable side effects.
+        EncounterFormAccess::applySessionPidToForm('not an object', sessionPid: 42);
+        $this->expectNotToPerformAssertions();
+    }
 }
