@@ -116,8 +116,14 @@ trait UiSeedingTrait
      * pre-existing patient. Mirrors the source-side
      * PatientAddTrait flow shape: open New/Search tab → fill the DEM
      * form in the patient iframe → click Create → confirm in the modal
-     * iframe → accept the resulting duplicate-check alert → wait for
-     * the Medical Record Dashboard header to appear.
+     * iframe → wait for the Medical Record Dashboard header.
+     *
+     * Post-condition is the dashboard header. On landing, the
+     * dashboard's clinical-reminders widget fires a native browser
+     * alert (see library/clinical_rules.php); BrowserSession sets
+     * unhandledPromptBehavior=accept on both driver paths so the
+     * alert fires + auto-closes transparently, without racing the
+     * test's own timing.
      *
      * XPath discoveries from KkEncounterFormNavbarUrl port:
      *
