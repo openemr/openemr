@@ -56,6 +56,7 @@ use Symfony\Component\Panther\Client;
  * artifact.
  */
 #[Group('fresh-install')]
+#[Group('post-upgrade')]
 final class AaLoginAcceptanceTest extends TestCase
 {
     private ?Client $client = null;

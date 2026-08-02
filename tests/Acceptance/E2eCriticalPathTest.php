@@ -38,13 +38,12 @@ use Symfony\Component\Panther\Client;
  * render. Adding more critical-path steps (patient add, encounter
  * start) is straightforward once the plumbing is proven in CI.
  *
- * Fires only on fresh-install for now; post-upgrade coverage is a
- * follow-up (need to think about whether Knockout menu rendering is
- * a useful upgrade-regression signal, or if it's just a duplicate
- * of fresh-install signal since the upgrade path doesn't touch the
- * post-login shell).
+ * Runs in both fresh-install and post-upgrade phases — the upgrade
+ * path doesn't rebuild the post-login SPA, but a broken menu-render
+ * after upgrade still signals a regression worth catching.
  */
 #[Group('fresh-install')]
+#[Group('post-upgrade')]
 final class E2eCriticalPathTest extends TestCase
 {
     private ?Client $client = null;
