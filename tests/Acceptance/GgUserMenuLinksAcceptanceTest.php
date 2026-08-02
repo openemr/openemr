@@ -32,9 +32,13 @@ use Symfony\Component\Panther\Client;
  * tests/Acceptance/bin/boot-docker.sh). Extends the pattern established
  * by AaLoginAcceptanceTest (#13336): Panther client via BrowserSession
  * factory, base URI resolved from ACCEPTANCE_ARTIFACT_URL, JS-redirect
- * anti-flake pattern via typed WebDriverExpectedCondition (never a raw
- * closure — phpstan level 10 rejects the closure form because $driver
- * types as mixed).
+ * anti-flake pattern via `wait()->until(...)`. Closures inside `until()`
+ * MUST explicitly type their `$driver` parameter as `WebDriver` (or
+ * `JavaScriptExecutor` when calling executeScript) — otherwise phpstan
+ * level 10 infers `mixed` for the parameter and rejects `getCurrentURL()
+ * / getTitle() / executeScript()` calls on it. `WebDriverExpectedCondition`
+ * carries its own types so plain-`until(WebDriverExpectedCondition::...)`
+ * needs no annotation.
  *
  * Full port of the source-side menuLinkProvider — all five user-menu
  * links exercise post-login UI surface (not admin.php / not any surface
@@ -152,10 +156,24 @@ final class GgUserMenuLinksAcceptanceTest extends TestCase
         // source-side LoginTrait::performLogin handles by waiting for
         // getTitle() === 'OpenEMR'. Use the same wait-for-title
         // pattern here so downstream user-menu clicks don't race the
-        // shell load.
-        $client->wait(10)->until(
-            static fn(WebDriver $driver): bool => $driver->getTitle() === 'OpenEMR',
-        );
+        // shell load. Wrapped in try/catch so a timeout surfaces a
+        // useful diagnostic (landing URL + current title) instead of a
+        // bare TimeoutException — a failed login is by far the most
+        // likely cause of a timeout at this gate, and knowing WHICH
+        // page the browser actually landed on cuts triage time to zero.
+        try {
+            $client->wait(10)->until(
+                static fn(WebDriver $driver): bool => $driver->getTitle() === 'OpenEMR',
+            );
+        } catch (TimeoutException) {
+            self::fail(
+                'Post-login shell title never became "OpenEMR" (10s timeout). '
+                . 'Landing URL: ' . $client->getCurrentURL() . '. '
+                . 'Title: ' . $client->getTitle() . '. '
+                . 'This usually means the login POST did not authenticate '
+                . '(credentials wrong, POST rejected, or login handler broke).'
+            );
+        }
 
         try {
             $client->waitFor('#mainMenu', 30);
@@ -214,7 +232,15 @@ final class GgUserMenuLinksAcceptanceTest extends TestCase
             // Bootstrap has committed the show-transition; calling
             // `.modal('hide')` mid-transition is a no-op that gets
             // clobbered when the show-side of the animation completes.
-            $client->wait(15)->until(fn(JavaScriptExecutor $driver): bool => (bool) $driver->executeScript(
+            //
+            // 5s poll (not 15s): product_reg.js's XHR fires during
+            // document.ready which has already completed by the time
+            // the Knockout-ready gate above passes, so the modal
+            // either shows within the first few hundred ms of this
+            // poll or it isn't going to. Longer window costs the full
+            // wait × 5 scenarios × 6 matrix cells for zero signal
+            // gain when the modal doesn't appear.
+            $client->wait(5)->until(fn(JavaScriptExecutor $driver): bool => (bool) $driver->executeScript(
                 <<<'JS_WRAP'
                     var modal = document.querySelector('.product-registration-modal.show');
                     return modal !== null && modal.style.display === 'block';
@@ -226,8 +252,18 @@ final class GgUserMenuLinksAcceptanceTest extends TestCase
             // 500ms gives comfortable margin without lengthening the
             // test noticeably.
             usleep(500_000);
+            // Guard the jQuery call — if jQuery is under noConflict or
+            // absent from window entirely, calling `window.jQuery(...)`
+            // throws a WebDriver JS error, which is NOT a
+            // TimeoutException and therefore wouldn't be caught by the
+            // block below. The if-check keeps the dismissal a no-op in
+            // that case rather than turning it into a test error.
             $client->executeScript(
-                'window.jQuery(".product-registration-modal").modal("hide");',
+                <<<'JS_WRAP'
+                    if (window.jQuery) {
+                        window.jQuery(".product-registration-modal").modal("hide");
+                    }
+                JS_WRAP,
             );
             // Wait for the fade-out to complete so the subsequent
             // user-icon click isn't intercepted by the modal
