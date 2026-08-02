@@ -588,7 +588,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, float\\|int\\|string given\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
