@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Acceptance;
 
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\Acceptance\Support\BrowserSession;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -95,7 +96,17 @@ final class AaLoginAcceptanceTest extends TestCase
             'clearPass' => 'pass1',
         ]);
 
-        // Post-submit the browser is still on the login page. The
+        // OpenEMR's authLoginScreen() redirects via `w.top.location
+        // .href = ...` (client-side JS), so reading the title
+        // immediately after submitForm can race the redirect. Wait
+        // for the URL to settle on /interface/login/login.php before
+        // asserting the title. Anti-flake sync — Panther-standard
+        // pattern for JS-driven redirects.
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::urlContains('/interface/login/login.php'),
+        );
+
+        // Post-redirect the browser is still on the login page. The
         // release image's login handler re-renders login.php on
         // failure rather than redirecting to an error page, so the
         // title stays "OpenEMR Login" (a successful auth would
@@ -124,6 +135,15 @@ final class AaLoginAcceptanceTest extends TestCase
         $this->client->request(
             'GET',
             '/interface/main/tabs/main.php?site=default&testing_mode=1',
+        );
+
+        // Same JS-redirect race as testLoginRejectsWrongPassword:
+        // the unauthenticated main.php entry-point kicks the user
+        // back to login.php via a client-side redirect, so a title
+        // read immediately after request() can race the redirect.
+        // Wait for the URL to reach /interface/login/login.php first.
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::urlContains('/interface/login/login.php'),
         );
 
         self::assertSame(
