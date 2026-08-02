@@ -208,6 +208,36 @@ if [[ -z "${BASE}" || "${BASE}" == "0000000000000000000000000000000000000000" ]]
     emit_to_version "false"
     exit 0
 fi
+# Verify BASE is reachable in the local clone. If the branch was
+# force-pushed or regenerated (bot-authored sync PRs like master->rel-*,
+# rebase-and-push, etc.) the push event's before-SHA can point at an
+# orphaned commit no longer in any ref. actions/checkout fetch-depth: 0
+# clones all refs but not orphaned commits (those live only in the
+# server-side reflog). Try to fetch the specific SHA — GitHub retains
+# force-pushed commits for ~90 days and supports fetch-by-SHA — and if
+# it still can't be resolved, treat as branch-creation-style and default
+# to build_locally=false. Preserves fail-loud on genuinely broken git
+# state (see git diff error handling below) while gracefully handling
+# the force-push-orphaned-base case that was blocking legitimate reruns.
+if ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+    echo "==> BASE ${BASE} not present locally; attempting server-side fetch-by-SHA"
+    # Capture stderr so a failed fetch (auth, transient network, unknown
+    # SHA) surfaces in the fall-back log below rather than being silently
+    # masked. Not retried or fatal — we still want to unblock legitimate
+    # force-pushed reruns — but operators reading the log can distinguish
+    # "reflog GC" from "auth failure" without spelunking through the run.
+    fetch_stderr=$(git fetch --depth=1 --no-tags origin "${BASE}" 2>&1 >/dev/null) || true
+    if ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
+        echo "==> BASE ${BASE} still not reachable after fetch attempt: defaulting build_locally=false"
+        echo "==> (may indicate: force-push + reflog GC, auth failure, or transient network — see fetch output below)"
+        if [[ -n "${fetch_stderr}" ]]; then
+            awk '{ print "==>   fetch: " $0 }' <<< "${fetch_stderr}"
+        fi
+        echo "build_locally=false" >> "${GITHUB_OUTPUT}"
+        emit_to_version "false"
+        exit 0
+    fi
+fi
 # Trigger the local-build path when the PR touches anything
 # PackageAssembler consumes at build time: the assembler code
 # itself, the phing buildfile that owns the prune target list,
