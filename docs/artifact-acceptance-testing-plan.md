@@ -3888,3 +3888,30 @@ in acceptance."
   shared `PantherAcceptanceTestCase` + `UiSeedingTrait`, and (4 of
   5) dual-tagged for post-upgrade regression coverage. Medium tier
   is unblocked.
+
+  **Rabbit round-2 refinements landed with #13344 pre-merge:**
+
+    1. **JS seeding helpers assert their target existed.**
+       `UiSeedingTrait::setInputValue` + `setSelectValue` originally
+       wrapped the JS mutation in `if (el) { ... }` — a silent no-op
+       when the XPath didn't match. Seeding would continue with an
+       unset field and fail far downstream at an unrelated wait
+       timeout with no clue about the actual root cause. Fix: return
+       true/false from the JS block and assert the flag in PHP so a
+       stale XPath fails at the seeding call itself with a message
+       identifying which XPath was missing. **Pattern to apply
+       everywhere in Medium-tier seeding**: any JS-executor helper
+       that mutates the DOM should return a boolean success flag
+       and the PHP caller should assert it.
+
+    2. **Teardown catch narrowed to `WebDriverException`.** Round-1
+       nit suggested `try { quit(); } catch (\Throwable) { }` to
+       keep a dying driver from masking test outcomes as teardown
+       errors; phpstan's `openemr.forbiddenCatchType` rule caught
+       that catching `\Throwable` would swallow genuine PHP
+       `\Error`s. Narrowed to `Facebook\WebDriver\Exception\
+       WebDriverException` — the specific class hierarchy that
+       covers dead-driver scenarios. General lesson: prefer the
+       narrowest exception type that covers the expected failure
+       mode; `\Throwable` catches are actively linted against in
+       this codebase.
