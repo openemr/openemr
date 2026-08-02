@@ -3915,3 +3915,57 @@ in acceptance."
        narrowest exception type that covers the expected failure
        mode; `\Throwable` catches are actively linted against in
        this codebase.
+
+- **2026-08-02 (later still) — KkEncounter WebDriver-alert flake
+  root-caused; wait bumped 15s→60s (#13348).** After landing the
+  Support/ extract (#13344) and post-upgrade dual-tag backfill
+  (#13345), the KkEncounterFormNavbarUrlAcceptanceTest flake that
+  first surfaced in the rel-820 sync PR #13342 recurred across
+  scenarios (~30% of runs). Diagnosis: post-`click` alert wait of
+  15s was too tight for slow-runner CPU contention — the confirm
+  handler occasionally wired + fired the alert after 15s. Widening
+  the wait to 60s absorbs the tail without changing happy-path
+  semantics.
+
+  **False start captured for future flake work:** initial hypothesis
+  was that the click was landing during the JS wire race and no-oping,
+  so introduced a `clickUntilAlertPresent(xpath, timeout, maxAttempts)`
+  helper that re-clicked on TimeoutException. CI proved the theory
+  wrong immediately — 100% failure rate on Kk across 3 scenarios,
+  all throwing the helper's own "no alert after N attempts". Actual
+  failure mode: **clicking during the wire race leaves the button in
+  a state subsequent clicks do not rescue.** Retry compounds the bad
+  state rather than recovering. Only widening the post-click wait
+  works; multi-click retries at this DOM spot are strictly wrong.
+  Rolled the helper back; kept the wait-widening. Lesson: when a
+  race yields a broken-state failure mode (as opposed to a
+  transient-flake failure mode), the fix is to give the ONE
+  operation more room to complete, not to repeat the operation.
+
+  **Also surfaced (thanks to user question during the fix): the
+  seed-identity multiplicity gap.** `addPatientViaUi` uses fixed
+  constants (Acceptance-Firstname / Acceptance-Lastname / fixed
+  DOB), which means a second call against the same DB — as would
+  happen for a `post-upgrade`-tagged test running against an
+  already-seeded upgraded DB, or two future Medium-tier tests both
+  seeding in the same phase — collides on the pre-existing patient
+  and hits a different alert flow the current helper does not
+  handle. Kk was **not** dual-tagged for post-upgrade in #13348 for
+  this reason; needs seed-identity randomization first. This is a
+  hard prerequisite for Medium tier — every Medium-tier port
+  (Bb/Cc/Dd/Ee/Ff/Svc) either seeds a patient or depends on one,
+  so the same collision would fire.
+
+  **Follow-up: seed-identity randomization refactor.** Convert
+  UiSeedingTrait's SEED_PATIENT_* constants into instance-scoped
+  identity generated per test (e.g., bin2hex(random_bytes(4))
+  suffix on fname/lname, deterministic-per-run DOB). Downstream
+  assertions that today string-match on the constants need to
+  consume the instance-scoped accessor instead. Non-trivial but
+  scoped: one PR before starting Medium tier, then Kk dual-tagged
+  as part of that PR (safe now that seeds are unique per call).
+
+  **Source-side follow-up (parked):** `PatientAddTrait` in the
+  dev-stack E2E suite carries the same `sleep(5) + click + wait(15)`
+  pattern. If #13348's wait-widening proves out in acceptance CI,
+  worth porting the 60s bump there too — separate PR.
