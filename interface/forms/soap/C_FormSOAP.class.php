@@ -14,11 +14,13 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Response;
 
 class C_FormSOAP extends Controller
 {
@@ -47,12 +49,12 @@ class C_FormSOAP extends Controller
         );
     }
 
-    public function view_action($form_id): string
+    public function view_action(int|false|null $form_id): string
     {
-        $formId = is_numeric($form_id) ? (int) $form_id : 0;
+        $formId = is_int($form_id) && $form_id >= 0 ? $form_id : 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'soap');
 
-        $form = is_numeric($form_id) ? new FormSOAP($formId) : new FormSOAP();
+        $form = $formId > 0 ? new FormSOAP($formId) : new FormSOAP();
 
         return $this->twig->getTwig()->render(
             'soap_form.twig',
@@ -70,8 +72,11 @@ class C_FormSOAP extends Controller
             return;
         }
 
-        $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $formId = is_int($postId) && $postId >= 0 ? $postId : 0;
+        $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($postId === false) {
+            AccessDeniedHelper::deny('Invalid soap form id', 'security-access', Response::HTTP_NOT_FOUND);
+        }
+        $formId = $postId ?? 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'soap');
 
         $this->form = $formId > 0 ? new FormSOAP($formId) : new FormSOAP();
