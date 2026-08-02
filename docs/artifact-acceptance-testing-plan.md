@@ -1000,7 +1000,7 @@ Per-class slicing map (scoped 2026-07-29):
 
   | Class                                 | Effort | Notes |
   |---------------------------------------|--------|-------|
-  | AaLoginTest                           | Small  | No seeding; validates auth + admin-page load. Ideal warmup. |
+  | AaLoginTest                           | Small  | **SHIPPED 2026-08-02 as #13336 (partial port — 2/5 scenarios).** Login-page-happy-path duplicated E2eCriticalPathTest; admin.php-disabled scenarios impossible against release image (openemr.sh deletes admin.php post-configure). Ported: testLoginUnauthorized + testurlWithoutTokenShouldRedirectToLoginPage. |
   | GgUserMenuLinksTest                   | Small  | DataProvider pattern; no seeding beyond login. |
   | FrontPaymentCssContrastTest           | Small  | Pure CSS inspection via JS executor; no seeding. |
   | KkEncounterFormNavbarUrlTest          | Small  | Self-contained; inlines Selenium client; minimal seeding. |
@@ -3656,3 +3656,56 @@ in acceptance."
   next; start with a Small warmup (AaLoginTest — auth +
   admin-page load, no seeding, ideal warmup per plan doc's own
   annotation).
+
+- **2026-08-02 — Phase 4e-1 SHIPPED (#13336).** First Small
+  warmup after E2eCriticalPathTest (#13196). AaLoginTest port
+  landed as a PARTIAL — 2 of 5 source scenarios ported:
+  testLoginUnauthorized (wrong-password stays on login page) +
+  testurlWithoutTokenShouldRedirectToLoginPage (unauth deep-link
+  redirect). Three scenarios deliberately skipped:
+  testGoToOpenemrLoginPage (duplicate of E2eCriticalPathTest
+  happy path), testAdminPageDisabledByDefault +
+  testAdminPageEnabledWithEnvVar (impossible against release
+  image — `docker/release/openemr.sh:648` deletes admin.php
+  post-configure, so those assertions are meaningless on a booted
+  release artifact; source-side coverage retained). Zero
+  workflow/PHPUnit-config changes — `phpunit.acceptance.xml`
+  recursive discovery + `#[Group('fresh-install')]` = automatic
+  pickup by all 6 acceptance matrix cells (fresh-install-from,
+  fresh-install-to, upgrade × amd64 + arm64).
+
+  **Two useful learnings captured for follow-up ports:**
+
+    1. **Not every dev-checkout assertion maps.** Release image
+       strips dev-only surfaces (admin.php is one — others may
+       surface as Phase 4e progresses). Port-authors should check
+       assertion validity against the shipped artifact before
+       blind-copying; source-side coverage retained where the
+       assertion can't map.
+
+    2. **JS-redirect anti-flake pattern needed.** OpenEMR's
+       authLoginScreen() uses `w.top.location.href = ...` for
+       client-side redirects. Reading getTitle() immediately after
+       submitForm or request races the redirect. Standard sync:
+       `$client->wait(10)->until(WebDriverExpectedCondition::urlContains(...))`
+       before the title assertion. Rabbit round-1 caught this on
+       the AaLogin port; documented here so future Small/Medium
+       ports include the wait up-front. WebDriverExpectedCondition
+       (typed) over raw closure — phpstan-friendly under level 10.
+
+  **Duplicate-vs-share direction (per user 2026-08-02):** ship
+  Small tier as duplicates first (n=2 to n=4-5), then audit for
+  extract-to-Support/ opportunities before starting Medium tier.
+  Only 2 Acceptance E2E classes exist so far — insufficient data
+  to design shared abstractions without premature-abstraction
+  risk. Source-side went the same trajectory (LoginTrait /
+  PatientAddTrait extracted AFTER several tests existed).
+  `Support/BrowserSession` (from #13196) already exists as the
+  shared foundation; additional helpers grow that namespace
+  incrementally as duplication surfaces.
+
+  **Next up in Small tier:** GgUserMenuLinksTest (DataProvider,
+  no seeding beyond login) → FrontPaymentCssContrastTest (pure
+  CSS via JS executor, no seeding) → KkEncounterFormNavbarUrlTest
+  (self-contained, minimal seeding). After all 4 Small ports,
+  extract shared code + move to Medium tier.
