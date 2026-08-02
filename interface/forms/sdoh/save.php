@@ -56,6 +56,7 @@ if ($_GET["mode"] == "new") {
     addForm($encounter, "Social Screening Tool", $newid, "sdoh", $pid, $userauthorized);
     $formid = $newid;
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'sdoh');
     // if running from patient portal, then below will ensure patient can only see their forms
     CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $formId, 'sdoh', $session->get('pid'));
     if (!$patientPortalSession) {

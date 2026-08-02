@@ -43,7 +43,7 @@ class C_FormPriorAuth extends Controller
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
-    function view_action($form_id)
+    public function view_action($form_id): string
     {
         $formId = is_numeric($form_id) ? (int) $form_id : 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'prior_auth');
@@ -61,7 +61,11 @@ class C_FormPriorAuth extends Controller
             return;
         }
 
-        $this->form = new FormPriorAuth($_POST['id']);
+        $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+        $formId = is_int($postId) && $postId >= 0 ? $postId : 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'prior_auth');
+
+        $this->form = $formId > 0 ? new FormPriorAuth($formId) : new FormPriorAuth();
         parent::populate_object($this->form);
 
 
@@ -70,7 +74,7 @@ class C_FormPriorAuth extends Controller
             OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
-        if (empty($_POST['id'])) {
+        if ($formId === 0) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(OEGlobalsBag::getInstance()->get('encounter'), "Prior Authorization", $this->form->id, "prior_auth", OEGlobalsBag::getInstance()->get('pid'), $session->get('userauthorized'));
             $_POST['process'] = "";

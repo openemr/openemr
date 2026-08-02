@@ -108,6 +108,23 @@ final class EncounterFormAccess
     }
 
     /**
+     * Terminates the request with an audit-logged 404 unless `$formId` is a
+     * positive integer. Intended for update-mode branches where a missing or
+     * malformed form id should not silently proceed as a no-op UPDATE.
+     */
+    public static function requirePositiveFormId(int|false|null $formId, string $formDir): int
+    {
+        if (!is_int($formId) || $formId <= 0) {
+            AccessDeniedHelper::deny(
+                sprintf('Missing or invalid form id for %s', $formDir),
+                'security-access',
+                Response::HTTP_NOT_FOUND,
+            );
+        }
+        return $formId;
+    }
+
+    /**
      * Look up the pid+encounter of a form. Returns null when the form row is
      * absent or deleted. Callers that need the form's encounter for downstream
      * checks (e.g. sensitivity ACL) can compose this with

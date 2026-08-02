@@ -47,6 +47,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_gad7", $_POST, $formId, $userauthorized);
     addForm($encounter, "GAD-7 Form", $newid, "gad7", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'gad7');
     $pid = $session->get('pid');
     $authProvider = $session->get('authProvider');
     $authUser = $session->get('authUser');

@@ -44,6 +44,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_reviewofs", $_POST, $formId, $userauthorized);
     addForm($encounter, "Review of Systems Checks", $newid, "reviewofs", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'reviewofs');
     sqlStatement(
         "UPDATE form_reviewofs set pid = ?,
             groupname=?,

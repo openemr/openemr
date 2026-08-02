@@ -41,6 +41,7 @@ if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_dictation", $_POST, $formId, $userauthorized);
     addForm($encounter, "Speech Dictation", $newid, "dictation", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'dictation');
     sqlStatement("update form_dictation set pid = ?,groupname=?,user=?,authorized=?,activity=1, date = NOW(), dictation=?, additional_notes=? where id=?", [$session->get('pid'),$session->get('authProvider'),$session->get('authUser'),$userauthorized,$_POST["dictation"],$_POST["additional_notes"],$formId]);
 }
 
