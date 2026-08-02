@@ -14,9 +14,8 @@ namespace OpenEMR\Tests\Acceptance;
 
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\Acceptance\Support\BrowserSession;
+use OpenEMR\Tests\Acceptance\Support\PantherAcceptanceTestCase;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Panther\Client;
 
 /**
  * Panther-driven acceptance port of the non-overlapping scenarios in
@@ -24,9 +23,10 @@ use Symfony\Component\Panther\Client;
  *
  * Phase 4e-1 (first Small warmup of Phase 4e — reuse tests/Tests/E2e/*
  * flows against the SHIPPED docker release image booted by
- * tests/Acceptance/bin/boot-docker.sh). Extends the E2eCriticalPathTest
- * pattern shipped in PR #13196: Panther client via BrowserSession
- * factory, base URI resolved from ACCEPTANCE_ARTIFACT_URL.
+ * tests/Acceptance/bin/boot-docker.sh). Extends PantherAcceptanceTestCase
+ * for BrowserSession lifecycle discipline, though the negative-auth
+ * flows here don't invoke performLoginAsAdmin() — they intentionally
+ * stay pre-login.
  *
  * Deliberately partial port — the source-side AaLoginTest has five
  * scenarios; only two of them add signal over what already ships in
@@ -57,21 +57,8 @@ use Symfony\Component\Panther\Client;
  */
 #[Group('fresh-install')]
 #[Group('post-upgrade')]
-final class AaLoginAcceptanceTest extends TestCase
+final class AaLoginAcceptanceTest extends PantherAcceptanceTestCase
 {
-    private ?Client $client = null;
-
-    protected function tearDown(): void
-    {
-        if ($this->client !== null) {
-            // Panther leaves a Chrome subprocess + ChromeDriver session
-            // dangling if not explicitly quit. Same discipline as
-            // E2eCriticalPathTest.
-            $this->client->quit();
-            $this->client = null;
-        }
-    }
-
     /**
      * Wrong password should NOT authenticate; the login page stays put.
      *
@@ -81,18 +68,19 @@ final class AaLoginAcceptanceTest extends TestCase
     public function testLoginWithWrongPasswordStaysOnLoginPage(): void
     {
         $this->client = BrowserSession::create();
-        $this->client->request('GET', '/interface/login/login.php?site=default');
+        $client = $this->requireClient();
+        $client->request('GET', self::LOGIN_URL);
 
         self::assertSame(
-            'OpenEMR Login',
-            $this->client->getTitle(),
+            self::LOGIN_TITLE,
+            $client->getTitle(),
             'Login page must render before submitting bad credentials — a different title means the login route itself is broken',
         );
 
         // Submit the login form with a deliberately wrong password.
         // Same admin username, password with a "1" suffix — matches
         // the source-side LoginTestData::password . "1" pattern.
-        $this->client->submitForm('login-button', [
+        $client->submitForm('login-button', [
             'authUser' => 'admin',
             'clearPass' => 'pass1',
         ]);
@@ -103,7 +91,7 @@ final class AaLoginAcceptanceTest extends TestCase
         // for the URL to settle on /interface/login/login.php before
         // asserting the title. Anti-flake sync — Panther-standard
         // pattern for JS-driven redirects.
-        $this->client->wait(10)->until(
+        $client->wait(10)->until(
             WebDriverExpectedCondition::urlContains('/interface/login/login.php'),
         );
 
@@ -113,8 +101,8 @@ final class AaLoginAcceptanceTest extends TestCase
         // title stays "OpenEMR Login" (a successful auth would
         // transition it to "OpenEMR").
         self::assertSame(
-            'OpenEMR Login',
-            $this->client->getTitle(),
+            self::LOGIN_TITLE,
+            $client->getTitle(),
             'Login with a wrong password must NOT authenticate — a title change to "OpenEMR" means the artifact accepted invalid credentials',
         );
     }
@@ -129,13 +117,14 @@ final class AaLoginAcceptanceTest extends TestCase
     public function testUnauthenticatedDeepLinkRedirectsToLoginPage(): void
     {
         $this->client = BrowserSession::create();
+        $client = $this->requireClient();
         // Hit the post-login main shell without ever having authenticated.
         // testing_mode=1 mirrors the source-side flow — it suppresses
         // some prod-only redirects that would otherwise complicate the
         // assertion (matches the source-side E2e's flag choice).
-        $this->client->request(
+        $client->request(
             'GET',
-            '/interface/main/tabs/main.php?site=default&testing_mode=1',
+            self::MAIN_SHELL_URL . '?site=default&testing_mode=1',
         );
 
         // Same JS-redirect race as testLoginRejectsWrongPassword:
@@ -143,13 +132,13 @@ final class AaLoginAcceptanceTest extends TestCase
         // back to login.php via a client-side redirect, so a title
         // read immediately after request() can race the redirect.
         // Wait for the URL to reach /interface/login/login.php first.
-        $this->client->wait(10)->until(
+        $client->wait(10)->until(
             WebDriverExpectedCondition::urlContains('/interface/login/login.php'),
         );
 
         self::assertSame(
-            'OpenEMR Login',
-            $this->client->getTitle(),
+            self::LOGIN_TITLE,
+            $client->getTitle(),
             'Unauthenticated GET on /interface/main/tabs/main.php should land on the login page — a different title means the artifact either exposed post-login content or served an error page instead of the expected auth redirect',
         );
     }
