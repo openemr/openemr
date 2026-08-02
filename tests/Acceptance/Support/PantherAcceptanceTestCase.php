@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance\Support;
 
 use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\JavaScriptExecutor;
 use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
@@ -131,8 +132,10 @@ abstract class PantherAcceptanceTestCase extends TestCase
             // mask the real test outcome as a teardown error.
             try {
                 $this->client->quit();
-            } catch (\Throwable) {
+            } catch (WebDriverException) {
                 // Driver session already gone; nothing left to clean up.
+                // Narrowed from \Throwable per openemr.forbiddenCatchType
+                // rule — genuine PHP errors should still propagate.
             } finally {
                 $this->client = null;
             }

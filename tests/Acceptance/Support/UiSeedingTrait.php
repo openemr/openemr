@@ -238,7 +238,7 @@ trait UiSeedingTrait
     protected function setInputValue(string $xpath, string $value): void
     {
         $client = $this->requireClient();
-        $client->executeScript(
+        $applied = $client->executeScript(
             <<<'JS_WRAP'
                 var xpath = arguments[0];
                 var value = arguments[1];
@@ -249,13 +249,22 @@ trait UiSeedingTrait
                     XPathResult.FIRST_ORDERED_NODE_TYPE,
                     null,
                 ).singleNodeValue;
-                if (el) {
-                    el.value = value;
-                    el.dispatchEvent(new Event('input', { bubbles: true }));
-                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                if (!el) {
+                    return false;
                 }
+                el.value = value;
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                return true;
             JS_WRAP,
             [$xpath, $value],
+        );
+        // Fail fast at the seeding call; a silent no-op would surface as
+        // a cryptic downstream wait timeout after the form was submitted
+        // with an unset field.
+        self::assertTrue(
+            $applied === true,
+            sprintf('setInputValue: no element found for XPath %s', $xpath),
         );
     }
 
@@ -268,7 +277,7 @@ trait UiSeedingTrait
     protected function setSelectValue(string $xpath, string $value): void
     {
         $client = $this->requireClient();
-        $client->executeScript(
+        $applied = $client->executeScript(
             <<<'JS_WRAP'
                 var xpath = arguments[0];
                 var value = arguments[1];
@@ -279,12 +288,18 @@ trait UiSeedingTrait
                     XPathResult.FIRST_ORDERED_NODE_TYPE,
                     null,
                 ).singleNodeValue;
-                if (el) {
-                    el.value = value;
-                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                if (!el) {
+                    return false;
                 }
+                el.value = value;
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                return true;
             JS_WRAP,
             [$xpath, $value],
+        );
+        self::assertTrue(
+            $applied === true,
+            sprintf('setSelectValue: no element found for XPath %s', $xpath),
         );
     }
 }
