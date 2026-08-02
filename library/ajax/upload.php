@@ -58,8 +58,7 @@ if ($action === 'save' || $action === 'fetch') {
         AccessDeniedHelper::deny("ACL check failed for patients/docs: DICOM image state");
     }
     if ($doc_id <= 0) {
-        http_response_code(400);
-        exit();
+        AccessDeniedHelper::deny("Invalid document id for DICOM image state");
     }
     $doc = new Document($doc_id);
     $docForeignId = $doc->get_foreign_id();
