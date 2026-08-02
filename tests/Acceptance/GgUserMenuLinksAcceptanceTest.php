@@ -223,56 +223,36 @@ final class GgUserMenuLinksAcceptanceTest extends TestCase
     private function dismissProductRegistrationModalIfPresent(): void
     {
         $client = $this->requireClient();
+        // The modal is triggered by an async XHR fired from
+        // product_reg.js's document.ready — that XHR resolves and
+        // calls `.modal('toggle')` some time after main.php
+        // finishes rendering. Wait for the modal to be fully
+        // shown (both the `show` class AND display:block) so
+        // Bootstrap has committed the show-transition; calling
+        // `.modal('hide')` mid-transition is a no-op that gets
+        // clobbered when the show-side of the animation completes.
+        //
+        // 5s poll (not 15s): product_reg.js's XHR fires during
+        // document.ready which has already completed by the time
+        // the Knockout-ready gate above passes, so the modal
+        // either shows within the first few hundred ms of this
+        // poll or it isn't going to. Longer window costs the full
+        // wait × 5 scenarios × 6 matrix cells for zero signal
+        // gain when the modal doesn't appear.
+        //
+        // Try/catch scoped ONLY to this presence wait: TimeoutException
+        // here is benign ("no modal appeared, nothing to dismiss") and
+        // should not be conflated with a dismissal failure below. If
+        // the modal DID appear but the dismissal below fails, the
+        // fade-out wait's TimeoutException propagates — real failure
+        // (would otherwise leave a backdrop intercepting user-menu
+        // clicks and cause a downstream test failure with no useful
+        // signal).
         try {
-            // The modal is triggered by an async XHR fired from
-            // product_reg.js's document.ready — that XHR resolves and
-            // calls `.modal('toggle')` some time after main.php
-            // finishes rendering. Wait for the modal to be fully
-            // shown (both the `show` class AND display:block) so
-            // Bootstrap has committed the show-transition; calling
-            // `.modal('hide')` mid-transition is a no-op that gets
-            // clobbered when the show-side of the animation completes.
-            //
-            // 5s poll (not 15s): product_reg.js's XHR fires during
-            // document.ready which has already completed by the time
-            // the Knockout-ready gate above passes, so the modal
-            // either shows within the first few hundred ms of this
-            // poll or it isn't going to. Longer window costs the full
-            // wait × 5 scenarios × 6 matrix cells for zero signal
-            // gain when the modal doesn't appear.
             $client->wait(5)->until(fn(JavaScriptExecutor $driver): bool => (bool) $driver->executeScript(
                 <<<'JS_WRAP'
                     var modal = document.querySelector('.product-registration-modal.show');
                     return modal !== null && modal.style.display === 'block';
-                JS_WRAP,
-            ));
-            // Small settle after the show transition — Bootstrap's
-            // internal state machine ignores hide() until the fade-in
-            // completes. Empirically ~150ms is the fade-in duration;
-            // 500ms gives comfortable margin without lengthening the
-            // test noticeably.
-            usleep(500_000);
-            // Guard the jQuery call — if jQuery is under noConflict or
-            // absent from window entirely, calling `window.jQuery(...)`
-            // throws a WebDriver JS error, which is NOT a
-            // TimeoutException and therefore wouldn't be caught by the
-            // block below. The if-check keeps the dismissal a no-op in
-            // that case rather than turning it into a test error.
-            $client->executeScript(
-                <<<'JS_WRAP'
-                    if (window.jQuery) {
-                        window.jQuery(".product-registration-modal").modal("hide");
-                    }
-                JS_WRAP,
-            );
-            // Wait for the fade-out to complete so the subsequent
-            // user-icon click isn't intercepted by the modal
-            // backdrop mid-transition.
-            $client->wait(10)->until(fn(JavaScriptExecutor $driver): bool => (bool) $driver->executeScript(
-                <<<'JS_WRAP'
-                    var modal = document.querySelector('.product-registration-modal.show');
-                    var backdrop = document.querySelector('.modal-backdrop');
-                    return modal === null && backdrop === null;
                 JS_WRAP,
             ));
         } catch (TimeoutException) {
@@ -280,7 +260,46 @@ final class GgUserMenuLinksAcceptanceTest extends TestCase
             // (a re-run against the same artifact won't re-show the
             // modal, and future release-image changes may drop it
             // entirely); proceed with the user-menu interactions.
+            return;
         }
+        // Modal detected — from here down, failures propagate so a
+        // failed dismissal surfaces loudly rather than getting hidden
+        // by a broad catch upstream.
+
+        // Small settle after the show transition — Bootstrap's
+        // internal state machine ignores hide() until the fade-in
+        // completes. Empirically ~150ms is the fade-in duration;
+        // 500ms gives comfortable margin without lengthening the
+        // test noticeably.
+        usleep(500_000);
+        // Guard the jQuery call — if jQuery is under noConflict or
+        // absent from window entirely, calling `window.jQuery(...)`
+        // throws a WebDriver JS error. If the guard hits (jQuery
+        // missing on a shipped OpenEMR release image would itself be
+        // a real problem to surface), the modal stays visible and
+        // the fade-out wait below times out — that TimeoutException
+        // propagates and fails the test with a clear signal that
+        // dismissal didn't complete, rather than silently letting
+        // the backdrop intercept the next user-icon click.
+        $client->executeScript(
+            <<<'JS_WRAP'
+                if (window.jQuery) {
+                    window.jQuery(".product-registration-modal").modal("hide");
+                }
+            JS_WRAP,
+        );
+        // Wait for the fade-out to complete so the subsequent
+        // user-icon click isn't intercepted by the modal
+        // backdrop mid-transition. No try/catch — a timeout here
+        // means we detected a modal but couldn't hide it, which
+        // is a real failure the test must surface.
+        $client->wait(10)->until(fn(JavaScriptExecutor $driver): bool => (bool) $driver->executeScript(
+            <<<'JS_WRAP'
+                var modal = document.querySelector('.product-registration-modal.show');
+                var backdrop = document.querySelector('.modal-backdrop');
+                return modal === null && backdrop === null;
+            JS_WRAP,
+        ));
     }
 
     /**
