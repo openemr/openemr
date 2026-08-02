@@ -62,21 +62,23 @@ trait UiSeedingTrait
     protected const SEED_PATIENT_DOB = '1958-05-02';
     protected const SEED_PATIENT_SEX = 'Male';
 
-    private ?string $seedPatientFname = null;
-    private ?string $seedPatientLname = null;
+    private ?string $seedPatientSuffix = null;
 
     /**
-     * First name for the seeded patient — base + random suffix,
-     * generated once per test instance and cached so patient-add
-     * calls and downstream assertions see the same value.
+     * First name for the seeded patient — base + shared random
+     * suffix, generated once per test instance and cached so
+     * patient-add calls and downstream assertions see the same
+     * value. fname and lname share the SAME suffix so the pair
+     * correlates cleanly in DB rows + logs ("which test seeded
+     * Ftestabc123 / Ltestabc123?" → obvious grep target).
      *
      * Multiple test instances (PHPUnit creates one per test method)
-     * each generate their own identity, so tests running in the
+     * each generate their own suffix, so tests running in the
      * same phase against the same DB never collide.
      */
     protected function seedPatientFname(): string
     {
-        return $this->seedPatientFname ??= self::SEED_PATIENT_FNAME_BASE . self::seedRandomSuffix();
+        return self::SEED_PATIENT_FNAME_BASE . $this->seedPatientSuffix();
     }
 
     /**
@@ -84,12 +86,12 @@ trait UiSeedingTrait
      */
     protected function seedPatientLname(): string
     {
-        return $this->seedPatientLname ??= self::SEED_PATIENT_LNAME_BASE . self::seedRandomSuffix();
+        return self::SEED_PATIENT_LNAME_BASE . $this->seedPatientSuffix();
     }
 
-    private static function seedRandomSuffix(): string
+    private function seedPatientSuffix(): string
     {
-        return bin2hex(random_bytes(3));
+        return $this->seedPatientSuffix ??= bin2hex(random_bytes(3));
     }
 
     /**
