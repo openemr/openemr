@@ -43,15 +43,56 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 trait UiSeedingTrait
 {
     /**
-     * Default fixture identity used by the encounter-form navbar port
-     * (Ftest/Ltest matches the source-side PatientAddTrait's chosen
-     * fixture name, kept as a shared constant so Medium-tier ports
-     * that assert on patient-name-in-DOM can reuse the same string).
+     * Base names for the seeded patient. Actual identity is
+     * base + random suffix, generated per test instance and
+     * returned by seedPatientFname() / seedPatientLname().
+     *
+     * Ftest/Ltest bases match the source-side PatientAddTrait's
+     * chosen fixture names so grep across suites still ties back
+     * to the same convention; the suffix isolates each test's
+     * seed from every other test's + from prior runs against a
+     * persisted DB (upgrade scenario's post-upgrade phase).
+     *
+     * DOB + SEX stay fixed — patient uniqueness is by
+     * (fname, lname, DOB), and varying fname/lname is enough to
+     * make each seed unique.
      */
-    protected const SEED_PATIENT_FNAME = 'Ftest';
-    protected const SEED_PATIENT_LNAME = 'Ltest';
+    protected const SEED_PATIENT_FNAME_BASE = 'Ftest';
+    protected const SEED_PATIENT_LNAME_BASE = 'Ltest';
     protected const SEED_PATIENT_DOB = '1958-05-02';
     protected const SEED_PATIENT_SEX = 'Male';
+
+    private ?string $seedPatientSuffix = null;
+
+    /**
+     * First name for the seeded patient — base + shared random
+     * suffix, generated once per test instance and cached so
+     * patient-add calls and downstream assertions see the same
+     * value. fname and lname share the SAME suffix so the pair
+     * correlates cleanly in DB rows + logs ("which test seeded
+     * Ftestabc123 / Ltestabc123?" → obvious grep target).
+     *
+     * Multiple test instances (PHPUnit creates one per test method)
+     * each generate their own suffix, so tests running in the
+     * same phase against the same DB never collide.
+     */
+    protected function seedPatientFname(): string
+    {
+        return self::SEED_PATIENT_FNAME_BASE . $this->seedPatientSuffix();
+    }
+
+    /**
+     * Last name for the seeded patient — see seedPatientFname().
+     */
+    protected function seedPatientLname(): string
+    {
+        return self::SEED_PATIENT_LNAME_BASE . $this->seedPatientSuffix();
+    }
+
+    private function seedPatientSuffix(): string
+    {
+        return $this->seedPatientSuffix ??= bin2hex(random_bytes(3));
+    }
 
     /**
      * Encounter category id — matches source-side EncounterTestData's
@@ -67,8 +108,12 @@ trait UiSeedingTrait
     protected const SEED_ENCOUNTER_REASON = 'Testing encounter';
 
     /**
-     * Add a fresh patient (Ftest Ltest by default) via the "Patient/
-     * Client → New/Search" main-menu path. Mirrors the source-side
+     * Add a fresh patient (Ftest<suffix> Ltest<suffix>) via the
+     * "Patient/Client → New/Search" main-menu path. Identity is
+     * per-test-instance via seedPatientFname/seedPatientLname so
+     * multiple tests seeding in the same phase and post-upgrade
+     * runs against an already-seeded DB never collide on a
+     * pre-existing patient. Mirrors the source-side
      * PatientAddTrait flow shape: open New/Search tab → fill the DEM
      * form in the patient iframe → click Create → confirm in the modal
      * iframe → accept the resulting duplicate-check alert → wait for
@@ -129,8 +174,8 @@ trait UiSeedingTrait
         // inside iframes, and this form has enough JS-bound side effects
         // (sex/sex_identified twinning) that submitting the form element
         // is more robust than reconstructing a POST.
-        $this->setInputValue("//input[@type='text' and @name='form_fname']", self::SEED_PATIENT_FNAME);
-        $this->setInputValue("//input[@type='text' and @name='form_lname']", self::SEED_PATIENT_LNAME);
+        $this->setInputValue("//input[@type='text' and @name='form_fname']", $this->seedPatientFname());
+        $this->setInputValue("//input[@type='text' and @name='form_lname']", $this->seedPatientLname());
         $this->setInputValue("//input[@name='form_DOB']", self::SEED_PATIENT_DOB);
         $this->setSelectValue("//select[@name='form_sex']", self::SEED_PATIENT_SEX);
         $this->setSelectValue("//select[@name='form_sex_identified']", self::SEED_PATIENT_SEX);
@@ -174,7 +219,7 @@ trait UiSeedingTrait
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
         $client->waitFor(
-            '//*[text()="Medical Record Dashboard - ' . self::SEED_PATIENT_FNAME . ' ' . self::SEED_PATIENT_LNAME . '"]',
+            '//*[text()="Medical Record Dashboard - ' . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '"]',
             30,
         );
     }
@@ -230,7 +275,7 @@ trait UiSeedingTrait
         $this->switchToIFrame('//iframe[@src="forms.php"]');
         $client->waitFor(
             '//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for '
-                . self::SEED_PATIENT_FNAME . ' ' . self::SEED_PATIENT_LNAME . '")]',
+                . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '")]',
             30,
         );
     }

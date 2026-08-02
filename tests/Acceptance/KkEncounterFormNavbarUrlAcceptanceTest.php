@@ -63,6 +63,7 @@ use PHPUnit\Framework\Attributes\Group;
  * against the release artifact.
  */
 #[Group('fresh-install')]
+#[Group('post-upgrade')]
 final class KkEncounterFormNavbarUrlAcceptanceTest extends PantherAcceptanceTestCase
 {
     use UiSeedingTrait;
