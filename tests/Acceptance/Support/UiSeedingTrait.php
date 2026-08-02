@@ -116,8 +116,14 @@ trait UiSeedingTrait
      * pre-existing patient. Mirrors the source-side
      * PatientAddTrait flow shape: open New/Search tab → fill the DEM
      * form in the patient iframe → click Create → confirm in the modal
-     * iframe → accept the resulting duplicate-check alert → wait for
-     * the Medical Record Dashboard header to appear.
+     * iframe → wait for the Medical Record Dashboard header.
+     *
+     * Post-condition is the dashboard header. On landing, the
+     * dashboard's clinical-reminders widget fires a native browser
+     * alert (see library/clinical_rules.php); BrowserSession sets
+     * unhandledPromptBehavior=accept on both driver paths so the
+     * alert fires + auto-closes transparently, without racing the
+     * test's own timing.
      *
      * XPath discoveries from KkEncounterFormNavbarUrl port:
      *
@@ -197,21 +203,23 @@ trait UiSeedingTrait
         );
         // Empirical stabilization — the modal form is clickable before
         // its JS finishes wiring the confirm handler. Same 5s wait the
-        // source-side PatientAddTrait uses. Multi-click retry does not
-        // recover (see #13348: once a click lands during the wire race
-        // the button ends up in a state subsequent clicks can't rescue,
-        // so retrying makes the flake worse not better) — only widening
-        // the *post-click* alert wait helps, since the handler may fire
-        // the alert well after the 15s prior ceiling on a slow runner.
+        // source-side PatientAddTrait uses.
         sleep(5);
         $client->findElement(WebDriverBy::xpath("//*[@id='confirmCreate']"))->click();
 
-        // A duplicate-check JS alert fires after confirm — accept it
-        // and continue. Bumped 15s → 60s to absorb slow-runner cases
-        // where the wire slipped past the 5s stabilization above.
-        $client->wait(60)->until(WebDriverExpectedCondition::alertIsPresent());
-        $client->switchTo()->alert()->accept();
-
+        // No explicit alert-wait: after form submit the browser
+        // navigates to the new patient's Medical Record Dashboard,
+        // where a "New Due Clinical Reminders" alert(...) fires from
+        // library/clinical_rules.php via <img onload>. That alert is
+        // driver-level auto-accepted (unhandledPromptBehavior: accept
+        // capability in BrowserSession) and needs no test-side
+        // handling. Prior versions tried to explicitly wait for the
+        // alert (5s → 15s → 60s) — flaky because reminder compute
+        // time varies with runner load, and once misread as a
+        // dup-check alert, the wait pattern accreted layers of
+        // wrong-shape mitigation (see #13348). Waiting for the real
+        // post-condition — the dashboard header — is deterministic.
+        //
         // Switch back to defaults, into the patient iframe, wait for
         // the Medical Record Dashboard header — proof the create
         // succeeded and the browser landed on the summary.
