@@ -141,17 +141,22 @@ final class EncounterFormAccess
      * persisted row's pid tracks session context rather than whatever the
      * caller submitted.
      *
-     * No-op when the form object has no `set_pid` method or when the session
-     * has no active patient (`PatientSessionUtil::getPid()` returns 0).
-     * `$sessionPid` may be supplied for tests.
+     * Fails closed (audit-logged 404) when the session has no active patient
+     * (`PatientSessionUtil::getPid()` returns a non-positive value) — form
+     * save flows require a patient context. `$sessionPid` may be supplied
+     * for tests.
      */
     public static function applySessionPidToForm(mixed $form, ?int $sessionPid = null): void
     {
-        if (!is_object($form) || !method_exists($form, 'set_pid')) {
-            return;
-        }
         $sessionPid ??= PatientSessionUtil::getPid();
-        if ($sessionPid > 0) {
+        if ($sessionPid <= 0) {
+            AccessDeniedHelper::deny(
+                'Form save attempted without an active patient session',
+                'security-access',
+                Response::HTTP_NOT_FOUND,
+            );
+        }
+        if (is_object($form) && method_exists($form, 'set_pid')) {
             $form->set_pid($sessionPid);
         }
     }
