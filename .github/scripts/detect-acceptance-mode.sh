@@ -231,7 +231,7 @@ if ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
         echo "==> BASE ${BASE} still not reachable after fetch attempt: defaulting build_locally=false"
         echo "==> (may indicate: force-push + reflog GC, auth failure, or transient network — see fetch output below)"
         if [[ -n "${fetch_stderr}" ]]; then
-            sed 's/^/==>   fetch: /' <<< "${fetch_stderr}"
+            awk '{ print "==>   fetch: " $0 }' <<< "${fetch_stderr}"
         fi
         echo "build_locally=false" >> "${GITHUB_OUTPUT}"
         emit_to_version "false"
