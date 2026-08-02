@@ -2,22 +2,25 @@
 
 Tracks: openemr/openemr-devops#664 (refines #662, overlaps with #638).
 
-This repo owns the four coordinated **release-automation workflows** that
-drive the OpenEMR release lifecycle from cut through ship: **branch-cut**,
-**patch-prep**, **release-prep** (the conductor), and **release-finalize**
-(paired with release-prep). Merging a release-prep PR is still the "we're
-shipping" decision — the merge commit gets the annotated release tag, which
-drives the downstream PR in `website-openemr` plus the `openemr-tag`
-cascade into `openemr-devops` (Release object + announcement drafts). The
-three other workflows own the mechanical bootstrap around that decision so
-that no lifecycle event on a `rel-*` branch requires a maintainer to hand-edit
-the same version stamps, docker scaffolding, or `release-targets.yml` rows
-twice.
+This repo owns the five coordinated **release-automation workflows** that
+drive the OpenEMR release lifecycle from cut through ship (and post-ship):
+**branch-cut**, **patch-prep**, **release-prep** (the conductor, which also
+emits the `release-finalize` partner PR), **release-amendment** (post-ship
+CHANGELOG rerun after GHSAs publish), and **release-mechanism-smoketest**
+(CI gate that exercises the mutator plumbing on every release-mechanism
+change). Merging a release-prep PR is still the "we're shipping" decision —
+the merge commit gets the annotated release tag, which drives the downstream
+PR in `website-openemr` plus the `openemr-tag` cascade into `openemr-devops`
+(Release object + announcement drafts). The other workflows own the mechanical
+bootstrap around that decision (and post-decision cleanup) so that no
+lifecycle event on a `rel-*` branch requires a maintainer to hand-edit the
+same version stamps, docker scaffolding, or `release-targets.yml` rows twice.
 
-All four workflows share one mutator framework (see
-[Mutator framework](#mutator-framework)) so a lifecycle transition is
-defined by *the list of mutators it runs against which side of the cut*
-rather than by bespoke automation code.
+All five workflows share one mutator framework (see
+[Mutator framework](#mutator-framework)) so a lifecycle transition (or
+post-ship amendment, or smoketest run) is defined by *the list of mutators
+it runs against which side of the cut* rather than by bespoke automation
+code.
 
 ## Role in the flow
 
@@ -51,10 +54,12 @@ merge release-prep/<rel-branch>                                       │
 merge release-finalize/<rel-branch> on master   (pins rel branch row, shuffles docker slots)
 ```
 
-Each of the four workflows opens a **coordinated pair** of PRs — one on
-the rel branch, one on master — so the "we're doing X for release Y"
-change lives as a single reviewable unit spanning both places release
-state is kept.
+The four PR-emitting workflows (branch-cut, patch-prep, release-prep, and
+release-amendment) each open a **coordinated pair** of PRs — one on the
+rel branch, one on master — so the "we're doing X for release Y" change
+lives as a single reviewable unit spanning both places release state is
+kept. (release-mechanism-smoketest is the fifth workflow but opens no PRs
+— it's a pure CI check that discards its diff.)
 
 ## Pattern
 
@@ -65,10 +70,11 @@ the branch-cut / patch-prep / release-finalize PRs are opened
 ready-for-review because they land fast, once, and shouldn't sit as
 drafts.
 
-All commits are authored as `openemr-release-bot`. All four workflows
-mint an installation token from `RELEASE_APP_CLIENT_ID` (org var) +
-`RELEASE_APP_PRIVATE_KEY` (org secret) scoped narrowly to the target
-repos.
+All commits are authored as `openemr-release-bot`. The four PR-emitting
+workflows mint an installation token from `RELEASE_APP_CLIENT_ID` (org var)
++ `RELEASE_APP_PRIVATE_KEY` (org secret) scoped narrowly to the target
+repos. The smoketest workflow uses the runner-provided `github.token` —
+it only reads via `gh api` (no writes) so no App token is needed.
 
 ---
 
@@ -291,6 +297,126 @@ creation (a maintainer can review and land it before merging release-prep);
 the semantic invariant is only that the tag it references exists by
 the time master's `release-targets.yml` is consulted downstream.
 
+## Release-amendment (post-ship CHANGELOG rerun)
+
+Workflow: [`.github/workflows/release-amendment.yml`](../.github/workflows/release-amendment.yml)
+· Command: `bin/console openemr:release-prep` (reused;
+[`ReleasePrepCommand`](../src/Common/Command/ReleasePrepCommand.php)).
+
+**Trigger.** `workflow_dispatch` only, invoked by the release manager in
+the days/weeks after ship, once the security advisories tied to that
+release have been published on GitHub. Inputs: `version`
+(MAJOR.MINOR.PATCH), `rel_branch` (`rel-NNN0`), and optional `dry_run`
+to preview mutations without opening PRs or touching the Release object.
+
+**Why it exists.** `ChangelogGenerator` matches advisories by
+`vulnerabilities[].patched_versions == "<version>"` (strict string equal;
+see the Conductor PR section in `RELEASE_PROCESS.md`). At release-prep
+time the GHSAs typically aren't public yet — the release-prep run
+therefore produces a CHANGELOG section with an empty or partial
+`### Security Fixes` block. Once the maintainer publishes the GHSAs,
+`ChangelogMutator` now finds them; this workflow re-runs the mutators
+against the post-tag checkout so both branches' `CHANGELOG.md`, the
+GitHub Release body, and the `changelog.md` Release attachment converge
+on the up-to-date section.
+
+**Idempotence.** Every mutator except `ChangelogMutator` +
+`CompatibilityMutator` is a no-op against a shipped release (version.php
+has `$v_tag=''`, release-targets.yml is post-rotation, etc.). The two
+exceptions regenerate their CHANGELOG.md blocks against the current
+advisory + compatibility state — which is exactly the amendment we want.
+Safe to re-run as more GHSAs get published: subsequent runs wholesale-
+replace the `## [X.Y.Z]` section with the fresh state. Hand-edits to
+the amendment PR do not survive a rerun.
+
+**Original release date is preserved.** The mutator writes today's date
+into the `## [X.Y.Z] - YYYY-MM-DD` heading; the workflow captures the
+shipped date from the pre-mutator CHANGELOG and restores it after the
+mutator runs, so the heading date stays pinned to when the release
+actually shipped.
+
+**PRs opened.** Rel-side `release-amendment/<version>-<rel_branch>`
+(base `<rel-branch>`) + master-side `release-amendment/<version>-master`
+(base `master`). Both authored as `openemr-release-bot`. Skipped when
+`dry_run=true` (previewed diff shown in the workflow summary).
+
+**Release-object sync.** In the same run: `gh release edit
+--notes-file` replaces the Release body with the freshly-extracted
+section, and `gh release upload --clobber changelog.md` overwrites the
+Release attachment. Body is substituted for a link-only pointer to the
+rel branch's live CHANGELOG.md when the section exceeds GitHub's 125K
+Release-body limit (the attachment has no such limit and always carries
+the full section — see the RELEASE_PROCESS.md § "Release body
+truncation at 125K" note). Extraction runs BEFORE `peter-evans/create-pull-request`
+because that action resets the working tree after committing — running
+Extract after would read pre-amendment CHANGELOG content and ship stale
+Release body / attachment content (see [openemr/openemr#13003](https://github.com/openemr/openemr/pull/13003)
+for the observed failure and fix).
+
+**Concurrency.** Serialised per `version`
+(`concurrency.group: <workflow>-<version>`, `cancel-in-progress: false`)
+so a fast second dispatch doesn't race the first run's force-push on
+the amendment branches.
+
+**Refuses to amend an unshipped release.** Validates the annotated tag
+exists on the rel branch before running any mutators — dispatching
+against a rel branch that hasn't been tagged yet fails early with a
+clear error.
+
+## Release-mechanism-smoketest (CI gate)
+
+Workflow: [`.github/workflows/release-mechanism-smoketest.yml`](../.github/workflows/release-mechanism-smoketest.yml)
+· Command: `bin/console openemr:release-prep --scope=rel` (reused;
+target-version pinned to a shipped release, currently `8.2.0` /
+`rel-820`).
+
+**Trigger.** Path-gated `pull_request` + `push` to `master` on the
+release-mechanism surface (any workflow YAML in this family,
+`src/Common/Command/ReleasePrepCommand.php`,
+`src/Common/Command/ReleasePrep/**`, `tools/release/**`, and the
+shared `.github/actions/setup-php-composer/` composite action). Also
+`workflow_dispatch` for manual reruns.
+
+**What it checks.** End-to-end `openemr:release-prep` invocation
+against `rel-820` — including `ChangelogMutator`'s `gh api` shellout
+to walk commits, PRs, and security advisories — and asserts the
+process completes successfully. Result diff is discarded (git checkout
+`.` at the end).
+
+**Why it exists.** The mutator unit tests (`ChangelogMutatorTest`,
+`CompatibilityMutatorTest`) and fixture regression test
+(`ChangelogGeneratorFixtureTest`) exercise the mutator LOGIC in
+isolation via injected fakes (`StubChangelogGenerator`,
+`FakeGitHubApi`), so they never actually shell out to `gh`. actionlint
+catches YAML syntax + shellcheck warnings but has no knowledge of
+runtime env semantics like "`gh` needs `GH_TOKEN`". This smoketest
+is the only place that catches env-plumbing bugs like
+[openemr/openemr#12999](https://github.com/openemr/openemr/pull/12999) —
+the release-amendment workflow was hardened with
+`persist-credentials: false` but the mutator step's env block was
+missing `GH_TOKEN`, so `gh api` had no ambient token to fall back on.
+
+**Hardened checkout shape.** Deliberately checks out with
+`persist-credentials: false` and requires `GH_TOKEN` in the mutator
+step's env block — mirrors the strictest workflow shape
+(`release-amendment.yml`). If the hardened variant works, the softer
+variant (`release-prep.yml` with default `persist-credentials`) will
+too, so no matrix job for the soft variant is needed.
+
+**Zero side effects.** No commit, no push, no PR. The `git checkout --
+.` at the end discards the mutator's diff so the run leaves no
+artifacts on any branch. Safe to run on every PR.
+
+**Post-hardening manual step.** Whenever hardening `release-prep.yml`,
+`release-amendment.yml`, or any other release-mechanism workflow that
+runs `openemr:release-prep`, **verify the smoketest job passes on the
+PR before merge.** For behaviour changes that go beyond auth/env
+plumbing (e.g., logic changes to the `finalize` job or the tag-cut
+path), also do a manual `test: true` dispatch of `release-prep.yml`
+against `rel-test` — that opens a `release-prep-test/<branch>` PR
+whose merge produces a throwaway `-test.<sha>` tag, exercising the
+whole conductor path without cutting a real release.
+
 ## Lifecycle: rel-NNN0 cut event
 
 The most complex per-workflow interaction happens when a new `rel-NNN0`
@@ -418,9 +544,12 @@ the diagram scales by inspection.
 
 ## Mutator framework
 
-All four workflows drive their console commands
+All five workflows drive their console commands
 (`openemr:release-prep`, `openemr:branch-cut`, `openemr:patch-prep`)
-against a shared framework at [`src/Common/Command/ReleasePrep/`](../src/Common/Command/ReleasePrep/):
+against a shared framework at [`src/Common/Command/ReleasePrep/`](../src/Common/Command/ReleasePrep/).
+release-amendment and the smoketest reuse `openemr:release-prep` (with
+`--scope=rel` / `--scope=master`); branch-cut and patch-prep each own one
+of the other two commands:
 
 - **`MutatorInterface`** — `name(): string` + `apply(MutatorContext): MutatorResult`.
 - **`MutatorContext`** — `readonly` value object carrying `projectDir`,
@@ -573,7 +702,7 @@ on this repo and the consumer repos; re-run if secrets are rotated.
 - **`acknowledge_license_cert.html`** — currently a wiki-rendered
   contributors page. Acknowledgments move to the docs PR (`website-openemr`)
   where they are generated from `git shortlog vPREV..HEAD`. None of the
-  four workflows here touch this file.
+  five workflows here touch this file.
 - **GitHub Release object + distribution packages** — driven by
   `openemr-devops`'s `build-release-on-tag.yml` (see
   [Tag handling](#tag-handling)).
@@ -695,20 +824,26 @@ correctly, and downstream artifacts all landed on schedule.
 
 ## Status
 
-**Live.** All four workflows shipped 2026-07-01 (#12662, #12696, #12697)
-on top of the conductor that shipped earlier this cycle. The 8.1.1 ship
-in 2026-06 was the first real production exercise of release-prep +
-release-finalize; the rel-820 cut on 2026-07-02 was the first production
-exercise of branch-cut (see "First production exercise" above); the next
-patch dev-cycle entry (e.g. 8.2.1-dev on rel-820) will be the first
-production exercise of patch-prep.
+**Live.** The initial four release-flow workflows (branch-cut, patch-prep,
+release-prep, and release-prep's release-finalize partner PR) shipped
+2026-07-01 (#12662, #12696, #12697) on top of the conductor that shipped
+earlier this cycle. The 8.1.1 ship in 2026-06 was the first real production
+exercise of release-prep + release-finalize; the rel-820 cut on 2026-07-02
+was the first production exercise of branch-cut (see "First production
+exercise" above); the next patch dev-cycle entry (e.g. 8.2.1-dev on
+rel-820) will be the first production exercise of patch-prep.
+release-amendment and release-mechanism-smoketest landed subsequently as
+part of the same slice — see their sections above for descriptions and
+[openemr/openemr#12999](https://github.com/openemr/openemr/pull/12999) for
+the specific env-plumbing regression that motivated the smoketest.
 
 Companion docs — start here for the wider context:
 
-- [`docs/release-mechanism-migration-from-devops.md`](release-mechanism-migration-from-devops.md)
-  — architectural rationale + phased migration plan out of `openemr-devops`.
-- [`docs/release-mechanism-gaps.md`](release-mechanism-gaps.md) —
-  living gap tracker (G4, G5, G11 above map to workstreams 2 and 3A).
 - [`docs/docker-migration-from-devops.md`](docker-migration-from-devops.md)
   — the load-bearing prerequisite migration that made this one tractable.
 - [`docs/RELEASE_PROCESS.md`](RELEASE_PROCESS.md) — the maintainer runbook.
+
+The architectural rationale + phased migration plan out of `openemr-devops`
+and the living gap tracker for the wider release-mechanism migration are
+tracked in separate drafts not yet landed on master; they will be linked
+here once merged.
