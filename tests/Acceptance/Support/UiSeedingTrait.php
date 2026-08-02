@@ -225,6 +225,70 @@ trait UiSeedingTrait
     }
 
     /**
+     * Search for an existing patient by lastname via the shell's
+     * always-visible anySearchBox (frm_search_globals), click the
+     * matching result in the patient-finder iframe, wait for that
+     * patient's Medical Record Dashboard. Mirrors source-side
+     * PatientOpenTrait::patientOpenIfExist minus the DB-existence
+     * pre-check — that check queries the database directly, which
+     * violates the acceptance suite's black-box discipline; the
+     * caller is responsible for having seeded the patient (typically
+     * via addPatientViaUi() earlier in the same test).
+     *
+     * Post-condition on return: browser is inside the pat iframe
+     * with the Medical Record Dashboard rendered for the opened
+     * patient. Callers that need to navigate elsewhere should
+     * switchTo()->defaultContent() first.
+     */
+    protected function openPatientViaUi(string $firstname, string $lastname): void
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+
+        // Type lastname into anySearchBox. Source-side uses the
+        // crawler filterXPath+form API; WebDriver findElement +
+        // clear + sendKeys is cleaner and doesn't rely on the
+        // crawler being freshly refreshed.
+        $anySearchBoxXpath = "//form[@name='frm_search_globals']//input[@name='anySearchBox']";
+        $client->wait(15)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath($anySearchBoxXpath),
+            ),
+        );
+        $anySearchBox = $client->findElement(WebDriverBy::xpath($anySearchBoxXpath));
+        $anySearchBox->clear();
+        $anySearchBox->sendKeys($lastname);
+
+        // Submit the global-search form.
+        $this->waitAndClick(
+            WebDriverBy::xpath("//button[@id='search_globals']"),
+            'Global patient-search submit button',
+        );
+
+        // Switch into the patient-finder iframe and click the result
+        // matching "Lastname, Firstname". Finder renders each hit as
+        // an <a> with exact "Lastname, Firstname" text.
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="fin"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="fin"]');
+        $resultXpath = '//a[text()="' . $lastname . ', ' . $firstname . '"]';
+        $client->waitFor($resultXpath, 30);
+        $client->findElement(WebDriverBy::xpath($resultXpath))->click();
+
+        // Back to default, into the patient iframe, wait for the
+        // Medical Record Dashboard header for THIS specific patient.
+        // Same assertion shape as addPatientViaUi's post-create wait —
+        // the header only renders for the patient we opened, so
+        // reaching this wait passing = search+open succeeded.
+        $client->switchTo()->defaultContent();
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
+        $client->waitFor(
+            '//*[text()="Medical Record Dashboard - ' . $firstname . ' ' . $lastname . '"]',
+            30,
+        );
+    }
+
+    /**
      * Add a fresh encounter for the just-created patient via the
      * per-patient New-Encounter shortcut in the shell. Mirrors the
      * source-side EncounterAddTrait: click the shell's New-Encounter
