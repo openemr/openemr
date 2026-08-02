@@ -151,15 +151,20 @@ trait UiSeedingTrait
             ),
         );
         // Empirical stabilization — the modal form is clickable before
-        // its JS finishes wiring the confirm handler; a bare click can
-        // race and no-op. Same 5s wait the source-side PatientAddTrait
-        // uses.
+        // its JS finishes wiring the confirm handler. Same 5s wait the
+        // source-side PatientAddTrait uses. Multi-click retry does not
+        // recover (see #13348: once a click lands during the wire race
+        // the button ends up in a state subsequent clicks can't rescue,
+        // so retrying makes the flake worse not better) — only widening
+        // the *post-click* alert wait helps, since the handler may fire
+        // the alert well after the 15s prior ceiling on a slow runner.
         sleep(5);
         $client->findElement(WebDriverBy::xpath("//*[@id='confirmCreate']"))->click();
 
         // A duplicate-check JS alert fires after confirm — accept it
-        // and continue.
-        $client->wait(15)->until(WebDriverExpectedCondition::alertIsPresent());
+        // and continue. Bumped 15s → 60s to absorb slow-runner cases
+        // where the wire slipped past the 5s stabilization above.
+        $client->wait(60)->until(WebDriverExpectedCondition::alertIsPresent());
         $client->switchTo()->alert()->accept();
 
         // Switch back to defaults, into the patient iframe, wait for
@@ -302,4 +307,5 @@ trait UiSeedingTrait
             sprintf('setSelectValue: no element found for XPath %s', $xpath),
         );
     }
+
 }
