@@ -72,7 +72,7 @@ class C_FormPriorAuth extends Controller
 
         $this->form = $formId > 0 ? new FormPriorAuth($formId) : new FormPriorAuth();
         parent::populate_object($this->form);
-
+        EncounterFormAccess::applySessionPidToForm($this->form);
 
         $this->form->persist();
         if (OEGlobalsBag::getInstance()->get('encounter') == "") {

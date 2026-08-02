@@ -81,6 +81,7 @@ class C_FormSOAP extends Controller
 
         $this->form = $formId > 0 ? new FormSOAP($formId) : new FormSOAP();
         parent::populate_object($this->form);
+        EncounterFormAccess::applySessionPidToForm($this->form);
 
         $this->form->persist();
         if (OEGlobalsBag::getInstance()->get('encounter') == "") {

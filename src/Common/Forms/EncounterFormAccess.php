@@ -135,6 +135,28 @@ final class EncounterFormAccess
     }
 
     /**
+     * Set a hydrated form object's pid to the session patient. Intended to
+     * run after a generic hydration step (e.g. `Controller::populate_object`
+     * which iterates `$_POST` and calls `set_$field` for each key), so the
+     * persisted row's pid tracks session context rather than whatever the
+     * caller submitted.
+     *
+     * No-op when the form object has no `set_pid` method or when the session
+     * has no active patient (`PatientSessionUtil::getPid()` returns 0).
+     * `$sessionPid` may be supplied for tests.
+     */
+    public static function applySessionPidToForm(mixed $form, ?int $sessionPid = null): void
+    {
+        if (!is_object($form) || !method_exists($form, 'set_pid')) {
+            return;
+        }
+        $sessionPid ??= PatientSessionUtil::getPid();
+        if ($sessionPid > 0) {
+            $form->set_pid($sessionPid);
+        }
+    }
+
+    /**
      * Look up the pid+encounter of a form. Returns null when the form row is
      * absent or deleted. Callers that need the form's encounter for downstream
      * checks (e.g. sensitivity ACL) can compose this with
