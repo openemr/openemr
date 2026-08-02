@@ -18,11 +18,13 @@ if (!defined('OPENEMR_GLOBALS_LOADED')) {
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormROS.class.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Response;
 
 class C_FormROS extends Controller
 {
@@ -48,12 +50,12 @@ class C_FormROS extends Controller
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
-    public function view_action($form_id): string
+    public function view_action(int|false|null $form_id): string
     {
-        $formId = is_numeric($form_id) ? (int) $form_id : 0;
+        $formId = is_int($form_id) && $form_id >= 0 ? $form_id : 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'ros');
 
-        $ros = is_numeric($form_id) ? new FormROS($formId) : new FormROS();
+        $ros = $formId > 0 ? new FormROS($formId) : new FormROS();
 
         $this->assign("form", $ros);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
@@ -65,8 +67,11 @@ class C_FormROS extends Controller
             return;
         }
 
-        $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-        $formId = is_int($postId) && $postId >= 0 ? $postId : 0;
+        $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($postId === false) {
+            AccessDeniedHelper::deny('Invalid ros form id', 'security-access', Response::HTTP_NOT_FOUND);
+        }
+        $formId = $postId ?? 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'ros');
 
         $this->form = $formId > 0 ? new FormROS($formId) : new FormROS();

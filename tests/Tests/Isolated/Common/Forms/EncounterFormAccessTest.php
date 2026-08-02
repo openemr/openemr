@@ -79,4 +79,31 @@ final class EncounterFormAccessTest extends TestCase
             'session pid 0 with encounter opt-in' => [0,  0,  100, 100, false],
         ];
     }
+
+    /**
+     * @param bool $expected
+     */
+    #[DataProvider('positiveFormIdCasesProvider')]
+    public function testIsPositiveFormId(int|false|null $formId, bool $expected): void
+    {
+        $this->assertSame($expected, EncounterFormAccess::isPositiveFormId($formId));
+    }
+
+    /**
+     * @return array<string, array{int|false|null, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function positiveFormIdCasesProvider(): array
+    {
+        return [
+            'positive int'    => [42, true],
+            'one'             => [1, true],
+            'max int'         => [PHP_INT_MAX, true],
+            'zero'            => [0, false],
+            'negative int'    => [-1, false],
+            'false'           => [false, false],
+            'null'            => [null, false],
+        ];
+    }
 }

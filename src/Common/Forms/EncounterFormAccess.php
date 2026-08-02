@@ -108,13 +108,23 @@ final class EncounterFormAccess
     }
 
     /**
+     * Pure predicate: is the given value a positive integer form id?
+     *
+     * @phpstan-assert-if-true int $formId
+     */
+    public static function isPositiveFormId(int|false|null $formId): bool
+    {
+        return is_int($formId) && $formId > 0;
+    }
+
+    /**
      * Terminates the request with an audit-logged 404 unless `$formId` is a
      * positive integer. Intended for update-mode branches where a missing or
      * malformed form id should not silently proceed as a no-op UPDATE.
      */
     public static function requirePositiveFormId(int|false|null $formId, string $formDir): int
     {
-        if (!is_int($formId) || $formId <= 0) {
+        if (!self::isPositiveFormId($formId)) {
             AccessDeniedHelper::deny(
                 sprintf('Missing or invalid form id for %s', $formDir),
                 'security-access',
