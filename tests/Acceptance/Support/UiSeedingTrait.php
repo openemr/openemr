@@ -267,10 +267,14 @@ trait UiSeedingTrait
 
         // Switch into the patient-finder iframe and click the result
         // matching "Lastname, Firstname". Finder renders each hit as
-        // an <a> with exact "Lastname, Firstname" text.
+        // an <a> with exact "Lastname, Firstname" text. Names are
+        // wrapped in xpathLiteral() so a name containing ' or " (not
+        // possible for today's hex-suffix seed identities but a valid
+        // shape a future caller might pass in) does not produce an
+        // invalid XPath.
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="fin"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="fin"]');
-        $resultXpath = '//a[text()="' . $lastname . ', ' . $firstname . '"]';
+        $resultXpath = '//a[text()=' . self::xpathLiteral($lastname . ', ' . $firstname) . ']';
         $client->waitFor($resultXpath, 30);
         $client->findElement(WebDriverBy::xpath($resultXpath))->click();
 
@@ -283,9 +287,30 @@ trait UiSeedingTrait
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
         $client->waitFor(
-            '//*[text()="Medical Record Dashboard - ' . $firstname . ' ' . $lastname . '"]',
+            '//*[text()=' . self::xpathLiteral('Medical Record Dashboard - ' . $firstname . ' ' . $lastname) . ']',
             30,
         );
+    }
+
+    /**
+     * Encode an arbitrary string as an XPath 1.0 string literal safe
+     * to embed inside a larger XPath expression. XPath 1.0 has no
+     * built-in escape mechanism, so a string containing both ' and "
+     * must be composed via concat(). Standard pattern used across
+     * WebDriver / Selenium ecosystems.
+     */
+    private static function xpathLiteral(string $value): string
+    {
+        if (!str_contains($value, "'")) {
+            return "'" . $value . "'";
+        }
+        if (!str_contains($value, '"')) {
+            return '"' . $value . '"';
+        }
+        // Both quote types present — concat() the pieces around every '.
+        // e.g. "Foo's \"Bar\"" -> concat('Foo', "'", 's "Bar"').
+        $parts = explode("'", $value);
+        return "concat('" . implode("', \"'\", '", $parts) . "')";
     }
 
     /**
