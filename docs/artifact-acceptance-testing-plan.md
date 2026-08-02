@@ -2255,6 +2255,78 @@ edit + orchestrator GATE-detect swap + docs update. Low risk;
 release-targets.yml is master-only, orchestrator is master-only.
 No byte-identical concern.
 
+### Phase 13 — Back-port candidates for source-side `tests/Tests/E2e/**` *(ongoing collection)*
+
+Living list of patterns / fixes surfaced while building out the
+acceptance surface that could also improve the pre-existing
+source-side E2e dev-suite. Not a shipping milestone — a tab of
+"if we ever revisit source-side E2e, apply these too."
+
+Ordering: newest at top so recent finds are easy to spot.
+Convention: each entry names the acceptance-side PR that
+originated it, the source-side surface it could apply to, and
+a one-line "why this is transferable."
+
+Candidates so far:
+
+- **Driver-level `unhandledPromptBehavior: 'accept'` on the local
+  ChromeDriver path** *(from #13355)* — source-side `E2e/Base/
+  BaseTrait::createChromeClient` almost certainly has the same
+  local-path capability gap the acceptance side just fixed. The
+  clinical-reminders alert (from `library/clinical_rules.php`)
+  fires on every newly-created patient's dashboard load; PHASE 4
+  spent three iterations chasing this flake on the acceptance
+  side (15s wait → 60s wait → click-retry) before landing the
+  driver-level accept. If source-side `PatientAddTrait` runs on
+  any local-ChromeDriver CI matrix cell, same flake potential.
+  Two-line fix (already the pattern the grid path uses).
+
+- **Explicit alert-wait dance in `PatientAddTrait`** *(companion to
+  the above, from #13355)* — source-side still has the
+  `sleep(5); click; wait(10)->until(alertIsPresent())` shape.
+  With driver-level accept the wait is dead code (alert
+  auto-closes before the wait polls). Simplification, same
+  behavior. Bundle with the capability fix.
+
+- **Per-instance random seed identity** *(from #13351)* — source-side
+  `PatientTestData::FNAME` / `LNAME` are fixed constants
+  (`Ftest` / `Ltest` / `1958-05-02`). Fine today because source-side
+  runs serially, but any move to parallel test execution (or
+  running the suite twice against the same DB) would collide on
+  the pre-existing patient. Acceptance-side accessor pattern
+  (`seedPatientFname()` / `seedPatientLname()` backed by a shared
+  suffix) is transferable.
+
+- **JS-executor helpers should return a boolean and PHP callers
+  should assert** *(from #13344 rabbit round-2)* — pattern:
+  wrap the "did the DOM mutation succeed" signal in the JS block
+  itself, so a stale XPath / missing element fails at the helper
+  call with a clear message instead of a cryptic downstream
+  timeout. Source-side E2e uses similar JS-executor patterns in
+  a few spots (calendar interactions, form seeding).
+
+- **`bin2hex(random_bytes(3))` XPath-literal escape helper** *(from
+  #13354 rabbit round-1)* — for XPath expressions that
+  concatenate arbitrary strings (patient names, freetext fields).
+  Standard `concat()`-based escape. Cheap defensive helper.
+
+- **Birthday-popup handling** *(NOTE: reportedly already fixed on
+  source side per user 2026-08-02; direction here is REVERSE —
+  acceptance side should pick up whatever source-side does)*.
+  The OpenEMR shell fires a Bootstrap DOM modal for the
+  logged-in user's birthday on their birthday. Not a browser
+  alert, so `unhandledPromptBehavior` doesn't cover it. When
+  acceptance tests start biting on this (rare today; only fires
+  if the admin user has a birthday today), cross-reference how
+  source-side handles it.
+
+How to use this list: when doing meaningful source-side E2e work,
+skim the list for anything relevant, ship as a separate
+source-side PR (byte-identical infrastructure doesn't cover
+`tests/Tests/E2e/**` — those are dev-side only). Adding new
+entries: append here whenever an acceptance-side fix has a
+plausible dev-side twin, so we don't lose the observation.
+
 ## Test-coverage philosophy
 
 Guidelines for where a new test belongs, once both surfaces exist:
