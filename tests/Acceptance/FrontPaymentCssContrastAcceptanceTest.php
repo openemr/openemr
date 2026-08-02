@@ -16,9 +16,8 @@ use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\JavaScriptExecutor;
 use Facebook\WebDriver\WebDriver;
 use OpenEMR\Tests\Acceptance\Support\BrowserSession;
+use OpenEMR\Tests\Acceptance\Support\PantherAcceptanceTestCase;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Panther\Client;
 
 /**
  * Panther-driven acceptance port of
@@ -26,13 +25,13 @@ use Symfony\Component\Panther\Client;
  *
  * Phase 4e-3 (third Small warmup of Phase 4e — reuse tests/Tests/E2e/*
  * flows against the SHIPPED docker release image booted by
- * tests/Acceptance/bin/boot-docker.sh). Extends the pattern established
- * by AaLoginAcceptanceTest (#13336) and GgUserMenuLinksAcceptanceTest
- * (#13338): Panther client via BrowserSession factory, base URI
- * resolved from ACCEPTANCE_ARTIFACT_URL, JS-redirect anti-flake
- * pattern via `wait()->until(...)` with a TYPED `$driver` parameter
- * so phpstan level 10 accepts the executeScript / getTitle /
- * getCurrentURL calls without inline @var casts.
+ * tests/Acceptance/bin/boot-docker.sh). Extends PantherAcceptanceTestCase
+ * for the BrowserSession lifecycle + shared constants; does NOT invoke
+ * performLoginAsAdmin() because the next step is a direct GET to
+ * front_payment.php (no clicks in the SPA shell), so the full
+ * Knockout-ready + modal-dismiss gate would just add wall-clock without
+ * changing the assertion outcome. See loginAsAdminAndWaitForShell()
+ * below for the scoped-down login that's actually needed here.
  *
  * Full port — the source has one scenario (testReceiptCssHasExplicitTextColor)
  * and it carries meaningful signal against a booted release artifact:
@@ -63,22 +62,8 @@ use Symfony\Component\Panther\Client;
  */
 #[Group('fresh-install')]
 #[Group('post-upgrade')]
-final class FrontPaymentCssContrastAcceptanceTest extends TestCase
+final class FrontPaymentCssContrastAcceptanceTest extends PantherAcceptanceTestCase
 {
-    private ?Client $client = null;
-
-    protected function tearDown(): void
-    {
-        if ($this->client !== null) {
-            // Panther leaves a Chrome subprocess + ChromeDriver session
-            // dangling if not explicitly quit. Same discipline as
-            // E2eCriticalPathTest / AaLoginAcceptanceTest /
-            // GgUserMenuLinksAcceptanceTest.
-            $this->client->quit();
-            $this->client = null;
-        }
-    }
-
     /**
      * The shipped front-payment receipt page must include explicit
      * `color` declarations on every element that sets a
@@ -245,21 +230,20 @@ final class FrontPaymentCssContrastAcceptanceTest extends TestCase
 
     /**
      * Log in as admin/pass and wait for the post-login shell title to
-     * settle. Same login-then-wait discipline as
-     * GgUserMenuLinksAcceptanceTest::loginAsAdminAndWaitForMenu, but
-     * scoped down: we don't need the full Knockout-ready gate here
-     * because the next step is a direct GET to front_payment.php, not
-     * a click sequence in the SPA shell. The title-change gate is the
-     * minimum sync needed to prove the session was established before
-     * we start using it.
+     * settle. Scoped-down variant of the base-class performLoginAsAdmin
+     * — we don't need the full Knockout-ready gate or the modal dismiss
+     * here because the next step is a direct GET to front_payment.php,
+     * not a click sequence in the SPA shell. The title-change gate is
+     * the minimum sync needed to prove the session was established
+     * before we start using it.
      */
     private function loginAsAdminAndWaitForShell(): void
     {
         $client = $this->requireClient();
-        $client->request('GET', '/interface/login/login.php?site=default');
+        $client->request('GET', self::LOGIN_URL);
 
         self::assertSame(
-            'OpenEMR Login',
+            self::LOGIN_TITLE,
             $client->getTitle(),
             'Login page must render before submitting credentials — a different title means '
             . 'the login route itself is broken',
@@ -271,36 +255,23 @@ final class FrontPaymentCssContrastAcceptanceTest extends TestCase
         ]);
 
         // Post-login redirect is client-side / async. Same wait-for-
-        // title pattern GgUserMenuLinksAcceptanceTest uses, with the
-        // TimeoutException wrapped in a diagnostic fail() so a broken
-        // login POST surfaces a clear signal (landing URL + observed
-        // title) rather than a bare TimeoutException on a helper line.
+        // title pattern the base class's performLoginAsAdmin uses,
+        // with the TimeoutException wrapped in a diagnostic fail() so
+        // a broken login POST surfaces a clear signal (landing URL +
+        // observed title) rather than a bare TimeoutException on a
+        // helper line.
         try {
             $client->wait(10)->until(
-                static fn(WebDriver $driver): bool => $driver->getTitle() === 'OpenEMR',
+                static fn(WebDriver $driver): bool => $driver->getTitle() === self::SHELL_TITLE,
             );
         } catch (TimeoutException) {
             self::fail(
-                'Post-login shell title never became "OpenEMR" (10s timeout). '
+                'Post-login shell title never became "' . self::SHELL_TITLE . '" (10s timeout). '
                 . 'Landing URL: ' . $client->getCurrentURL() . '. '
                 . 'Title: ' . $client->getTitle() . '. '
                 . 'This usually means the login POST did not authenticate '
                 . '(credentials wrong, POST rejected, or login handler broke).',
             );
         }
-    }
-
-    /**
-     * Narrow the nullable $this->client for phpstan and for a clearer
-     * failure mode if a helper is somehow called before setUp has run.
-     * Mirrors the requireClient() helper in
-     * GgUserMenuLinksAcceptanceTest.
-     */
-    private function requireClient(): Client
-    {
-        if ($this->client === null) {
-            self::fail('BrowserSession client not initialized — helper called before create()');
-        }
-        return $this->client;
     }
 }
