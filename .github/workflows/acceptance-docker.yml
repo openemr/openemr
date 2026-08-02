@@ -196,6 +196,29 @@ jobs:
           echo "build_locally=false" >> "$GITHUB_OUTPUT"
           exit 0
         fi
+        # Verify BASE is reachable in the local clone. If the branch was
+        # force-pushed or regenerated (bot-authored sync PRs like
+        # master->rel-*, rebase-and-push, etc.) the push event's
+        # before-SHA can point at an orphaned commit no longer in any
+        # ref. actions/checkout fetch-depth: 0 clones all refs but not
+        # orphaned commits (those live only in the server-side reflog).
+        # Try to fetch the specific SHA -- GitHub retains force-pushed
+        # commits for ~90 days and supports fetch-by-SHA -- and if it
+        # still can't be resolved, treat as branch-creation-style and
+        # default to build_locally=false. Preserves fail-loud on
+        # genuinely broken git state (see git diff error handling
+        # below) while gracefully handling the force-push-orphaned-base
+        # case. Same fix applied to detect-acceptance-mode.sh for the
+        # tarball prong.
+        if ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+          echo "==> BASE $BASE not present locally; attempting server-side fetch-by-SHA"
+          git fetch --depth=1 --no-tags origin "$BASE" 2>/dev/null || true
+          if ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo "==> BASE $BASE not fetchable (force-push + reflog GC?): defaulting build_locally=false"
+            echo "build_locally=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+        fi
         # Capture git diff separately from the grep so a git-side
         # failure (unresolvable range after a force-push + reflog GC,
         # etc.) exits loudly. Under set -euo pipefail the pipeline's
