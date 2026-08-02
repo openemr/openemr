@@ -50,6 +50,7 @@ class Controller extends Smarty implements ControllerInterface
      * Maps controller name to [section, value, display_name].
      */
     private const CONTROLLER_ACL_MAP = [
+        'document' => ['patients', 'docs', 'Documents'],
         'practice_settings' => ['admin', 'practice', 'Practice Settings'],
         'prescription' => ['patients', 'rx', 'Prescriptions'],
     ];
