@@ -117,15 +117,11 @@ final class KkEncounterFormNavbarUrlAcceptanceTest extends TestCase
         $this->addPatientViaUi();
         $this->addEncounterViaUi();
 
-        // Navigate into the encounter forms iframe where the navbar
-        // lives. Chain: defaultContent → encounter iframe → forms
-        // iframe. Mirrors the source-side flow after encounter add.
+        // addEncounterViaUi() leaves the browser already inside the
+        // forms.php iframe with the navbar rendered (see its final
+        // frame-switch + navbarEncounterTitle wait) — no re-navigation
+        // needed here.
         $client = $this->requireClient();
-        $client->switchTo()->defaultContent();
-        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="enc"]', 30);
-        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="enc"]');
-        $client->waitFor('//iframe[@src="forms.php"]', 30);
-        $this->switchToIFrame('//iframe[@src="forms.php"]');
 
         // Wait for the navbar element that hosts the dropdown items
         // to render — the dropdown items themselves aren't part of the
