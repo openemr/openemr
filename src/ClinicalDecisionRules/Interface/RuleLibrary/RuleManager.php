@@ -704,6 +704,9 @@ class RuleManager
         return $allowed;
     }
 
+    /**
+     * @return list<RuleCriteriaType>
+     */
     function getAllowedTargetCriteriaTypes(): array
     {
         $allowed = [];

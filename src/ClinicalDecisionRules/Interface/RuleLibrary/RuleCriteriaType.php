@@ -50,6 +50,9 @@ class RuleCriteriaType
         return array_keys($map);
     }
 
+    /**
+     * @return array<string, RuleCriteriaType>
+     */
     private static function map(): array
     {
         $map = [
