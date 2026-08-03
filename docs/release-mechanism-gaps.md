@@ -2494,106 +2494,20 @@ manual" vs "when it happens in the release cycle."
 | **`version.php` advance to next-dev on rel branch** (e.g., `8.1.1` → `8.1.2-dev`) | **Manual** today (G2: no auto-bump mechanism) | **Cut time** (post-release, set the intent state for the next cycle) |
 | **`version.php` advance on master + bridge SQL + OpenAPI bump + release-targets master-row bump** (when cutting a NEW rel branch from master) | **Manual** today (G4: no `--scope=master` workflow path) | **At new rel-branch cut time** (master-side, distinct from rel-branch per-release cut) |
 
-## Docker Hub tag model (`dev`, `next`, `latest` are versions)
+## Docker Hub tag model + `openemr_version_ref` pattern
 
-Per Brady (2026-06-22): the named tags `dev`, `next`, `latest` are
-treated as **full versions** on the Docker Hub presence, not just
-floating pointers — same first-class status as numbered tags like
-`8.1.0`, `8.0.0.3`. So a `release-targets.yml` row's `docker_tags`
-field typically pairs a version-numbered tag with its named-version
-alias from the same release stream.
+**Relocated to `RELEASE_PROCESS.md`.** The `dev`/`next`/`latest`
+slot semantics, the ship-time slot-promotion shuffle across
+`.github/release-targets.yml` rows, and the `openemr_version_ref`
+branch-tip vs tag-pin cycle a rel-branch row moves through across
+a release are all documented in the `Docker Hub tag model` section
+of `openemr/openemr`'s `docs/RELEASE_PROCESS.md`. See that runbook
+for the reference material; the treatment here was written before
+the runbook existed.
 
-The current shape across rows reflects this:
+## Terminology: two distinct "cut time" contexts
 
-| branch | docker_tags | meaning |
-|---|---|---|
-| master | `8.2.0,dev` | future version 8.2.0 == version-name `dev` (master's planned next) |
-| rel-810 | `8.1.0,next` | currently-released 8.1.0 == version-name `next` (the next-stable line) |
-| rel-800 | `8.0.0,8.0.0.3,latest` | currently-released 8.0.0 (+ specific patch 8.0.0.3) == version-name `latest` |
-| rel-704 | `7.0.4` | older release, no version-name alias |
-
-So pre-release docker_tags entries are NOT placeholders — they're the
-"this is the version we're heading toward" declaration. The
-version-numbered tag in a pre-release row publishes to Docker Hub
-under that number AS IF the version were already shipped (just from
-the in-progress branch content rather than a stable tag).
-
-### Slot-promotion model
-
-The three named version-slots represent a stable → upcoming → in-dev
-hierarchy. At-most-one row holds each slot at any time:
-
-| Slot | Semantic | Typical owner |
-|---|---|---|
-| `latest` | current production GA — what `docker pull openemr/openemr` gives consumers | the most recently released rel branch (e.g., rel-800 currently) |
-| `next` | upcoming stable — the version preparing to ship next | the rel branch preparing the next release (e.g., rel-810 currently), OR master when master is preparing the next minor without a dedicated rel branch yet (e.g., master after rel-820 cut) |
-| `dev` | active development — newest, master | always master |
-
-When a rel branch ships its release, the slots shuffle:
-
-- The branch that just shipped: `next` → `latest` in its row
-  (promoted from upcoming to current-stable).
-- The branch that previously held `latest`: drops `latest`
-  (demoted — still publishes its version-numbered tags, just no
-  longer the "current GA" alias).
-- The `next` slot: moves to wherever the *next* upcoming stable
-  lives. If a new rel branch has been cut for the next minor, it
-  takes `next`. If no new rel branch exists yet, master acquires
-  `next` alongside `dev` (master is then doubly tagged — `dev` for
-  "actively developing" + `next` for "what's coming next").
-
-Example shuffle when 8.1.1 ships from rel-810 (current planned state,
-no rel-820 cut yet):
-
-| branch | docker_tags pre | docker_tags post |
-|---|---|---|
-| master | `8.2.0,dev` | `8.2.0,dev,next` (acquired `next`) |
-| rel-810 | `8.1.1,next` | `8.1.1,latest` (`next` → `latest`) |
-| rel-800 | `8.0.0,8.0.0.3,latest` | `8.0.0,8.0.0.3` (lost `latest`) |
-| rel-704 | `7.0.4` | `7.0.4` (out of rotation, unchanged) |
-
-Future shuffle when rel-820 is cut from master and master moves to
-8.3.0-dev (hypothetical):
-
-| branch | docker_tags before cut | docker_tags after cut |
-|---|---|---|
-| master | `8.2.0,dev,next` | `8.3.0,dev` (lost `next` to rel-820) |
-| rel-820 (new) | (didn't exist) | `8.2.0,next` (`next` acquired) |
-| rel-810 | `8.1.1,latest` | `8.1.1,latest` (unchanged — still current GA) |
-
-The slot moves are part of the manual PR work, NOT conductor-handled.
-
-## `openemr_version_ref` pattern: branch tip vs tag pin
-
-For a given row, `openemr_version_ref` flips between two shapes
-across the release cycle:
-
-- **Branch tip (`rel-810`, `master`):** daily orchestrator builds use
-  the branch's HEAD content. Image content moves as commits land.
-  Used for "currently developing this version" state.
-- **Tag pin (`v8_1_0`, `v8_0_0_3`):** daily orchestrator builds use
-  the immutable tag's content. Image content is locked. Used for
-  "this version has been released, no more changes to this stream
-  until next release."
-
-A rel branch's row cycles through these states across a release:
-
-1. **Stable** (just after vX.Y.Z shipped): `openemr_version_ref: vX_Y_Z`,
-   `docker_tags: X.Y.Z,<name>`. Image locked to released content.
-2. **Pre-release prep** (working toward X.Y.Z+1): `openemr_version_ref: rel-XYZ`,
-   `docker_tags: X.Y.(Z+1),<name>` (both updated together — docker_tag
-   gets the FUTURE version number AND ref switches to branch tip).
-   Image moves as commits land on rel branch. Both tags
-   `X.Y.(Z+1)` and `<name>` publish in-progress content.
-3. **Released X.Y.Z+1**: `openemr_version_ref: vX_Y_(Z+1)`,
-   `docker_tags: X.Y.(Z+1),<name>` (just the ref flips back to a tag;
-   docker_tags stays). Image locked to the new released content.
-
-Master is always at stage 2 (`openemr_version_ref: master`), since
-master never gets stable-released as itself — its successor versions
-get released from rel branches.
-
-Two distinct "cut time" contexts conflated by the word "cut":
+The word "cut" gets used two different ways in the release cycle:
 
 - **Per-release cut time on the rel branch** — start of the next
   release cycle on an existing rel branch (e.g., starting 8.1.2 work
