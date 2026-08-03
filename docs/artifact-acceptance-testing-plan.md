@@ -4094,3 +4094,86 @@ in acceptance."
   **Medium tier now unblocked.** Bb/Cc/Dd/Ee/Ff/Svc all seed
   patients; each will consume the accessors and get a distinct
   identity per test instance.
+
+- **2026-08-02 (later still) — Kk WebDriver-alert flake TRUE
+  root cause identified + fixed (#13355). Third iteration.**
+  Live-probing the addPatientViaUi flow via Panther against the
+  dev stack revealed the alert we had been waiting for was not
+  a duplicate-check alert (the pre-existing comment was wrong)
+  but the Medical Record Dashboard's clinical-reminders popup
+  from `library/clinical_rules.php` L208:
+
+  ```php
+  echo '<img src="../../pic/empty.gif" onload="alert(...)" />';
+  ```
+
+  Fires when the dashboard's reminders widget computes due
+  reminders for the freshly-created patient (age-triggered
+  rules: cancer screenings, vaccines, weight measurement, etc).
+  Every new patient triggers at least some reminders. Compute
+  time varies 3-7s typical, 30-60s+ tail on slow ARM CI
+  runners — which is why widening the wait 15s → 60s (#13348)
+  helped but never fully zeroed the flake.
+
+  **The correct fix was already 90% written for the grid path**:
+  `BrowserSession` at line 117 sets
+  `unhandledPromptBehavior: accept` for the Selenium grid client
+  (matches source-side E2e/Base/BaseTrait's choice, with comment
+  "acceptance tests shouldn't be blocked by a stray prompt they
+  didn't ask for"). The local ChromeDriver path (which CI uses
+  after installing Chrome via browser-actions/setup-chrome) did
+  NOT set it. Adding the capability to the local path + removing
+  the explicit alert-wait dance from addPatientViaUi kills the
+  race entirely. Alert fires and closes at driver level; test
+  just waits for the dashboard header.
+
+  Preserves out-of-box behavior — `enable_alert_log` and
+  `enable_cdr_new_crp` globals remain enabled; alert still fires
+  as a real user would see. Only test-side handling changes.
+
+  **Investigation cost** — three iterations to converge:
+  - Iteration 1 (#13348 v1): click-and-retry helper — CI proved
+    100% failure. Wrong theory (racy button state, not racy
+    handler wire).
+  - Iteration 2 (#13348 v2): wait 15s → 60s. Reduced but did
+    not eliminate the flake.
+  - Iteration 3 (#13355): live-probe → correct diagnosis →
+    driver-capability fix. Actual zero on the flake (pending
+    validation on next master → rel-820 sync).
+
+  **Lesson**: when a flake fix takes multiple iterations without
+  converging, actually drive the flow with a live browser
+  session and inspect what happens. Grep-heavy source reading
+  can identify the ALERT-EMITTING code but doesn't reveal that
+  the emitter is a DIFFERENT alert than the code comment
+  claims. Panther debug scripts against a booted stack cost
+  minutes but replace hours of hypothesis-and-retry.
+
+  **#13355 not yet propagated to rel-820** at time of writing —
+  #13352 (master → rel-820 sync generated before #13355 landed)
+  still shows Kk flaking on old code. Next auto-sync run will
+  pull #13355 in; that is the real validation event.
+
+- **2026-08-02 (later still) — Dd first Medium-tier port opened
+  (#13354).** New `openPatientViaUi(fname, lname)` helper on
+  UiSeedingTrait: types lastname into the shell's always-visible
+  anySearchBox (`frm_search_globals`), submits, switches into
+  the patient-finder iframe (`iframe[@name="fin"]`), clicks the
+  matching result, waits for the Medical Record Dashboard header.
+  Mirrors source-side PatientOpenTrait minus the DB-existence
+  pre-check (violates black-box). Dual-tagged fresh-install +
+  post-upgrade from the start.
+
+  Rabbit round-1 catch: xpath-literal escape for names containing
+  `'` or `"`. Applied at the two new call sites via a new
+  `xpathLiteral()` static helper using the standard XPath 1.0
+  concat() pattern. Pre-existing addPatientViaUi + addEncounterViaUi
+  string-concat XPaths not backfilled (all consumers pass
+  hex-suffix seed identity today, quote-safe by construction).
+
+  **Medium tier remaining**: Bb (staff create — new area,
+  admin/users flow), Cc / Ee (trivial diagnostic-value ports
+  since addPatientViaUi + addEncounterViaUi already do the
+  flow), Ff (open encounter — natural continuation of Dd's
+  helper pattern; would define openEncounterViaUi), Svc
+  (heaviest — codes / billing / ar_activity fixture seeding).
