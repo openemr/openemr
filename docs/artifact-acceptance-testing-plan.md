@@ -2269,24 +2269,36 @@ a one-line "why this is transferable."
 
 Candidates so far:
 
-- **Driver-level `unhandledPromptBehavior: 'accept'` on the local
-  ChromeDriver path** *(from #13355)* — source-side `E2e/Base/
-  BaseTrait::createChromeClient` almost certainly has the same
-  local-path capability gap the acceptance side just fixed. The
-  clinical-reminders alert (from `library/clinical_rules.php`)
-  fires on every newly-created patient's dashboard load; PHASE 4
-  spent three iterations chasing this flake on the acceptance
-  side (15s wait → 60s wait → click-retry) before landing the
-  driver-level accept. If source-side `PatientAddTrait` runs on
-  any local-ChromeDriver CI matrix cell, same flake potential.
-  Two-line fix (already the pattern the grid path uses).
+- **CDP `Page.addScriptToEvaluateOnNewDocument` muzzle of
+  `window.alert` / `.confirm` / `.prompt`** *(the actual working
+  fix, from #13358)* — the clinical-reminders alert emitted from
+  `library/clinical_rules.php` via `<img onload="alert(...)">`
+  fires on every newly-created patient's dashboard load. Muzzling
+  `window.alert` at the JS level via a CDP script installed once
+  per WebDriver session means the emitter fires but produces no
+  popup — no timing race, no driver capability black box. On the
+  acceptance side this lives in `UiSeedingTrait::
+  muzzleBrowserPrompts` and is called from `addPatientViaUi` +
+  `openPatientViaUi`. Source-side `PatientAddTrait` still uses the
+  `sleep(5); click; wait(10)->until(alertIsPresent())` shape which
+  races the same reminder-widget compute time; muzzling would let
+  it drop the whole alert-wait dance and eliminate the potential
+  flake class. Applies wherever the source-side test suite hits
+  demographics.php on a fresh patient.
 
-- **Explicit alert-wait dance in `PatientAddTrait`** *(companion to
-  the above, from #13355)* — source-side still has the
-  `sleep(5); click; wait(10)->until(alertIsPresent())` shape.
-  With driver-level accept the wait is dead code (alert
-  auto-closes before the wait polls). Simplification, same
-  behavior. Bundle with the capability fix.
+- **Yank `unhandledPromptBehavior=accept` from source-side
+  `E2e/Base/BaseTrait::createChromeClient`** *(dead-code cleanup,
+  from #13364)* — source-side added the capability 2025-07-05 in
+  #8555 as defensive posture during the Selenium-grid transition,
+  NOT motivated by any specific known-firing alert. Acceptance
+  side mirrored it in #13196; #13355 later added it to the local
+  ChromeDriver path too. All three copies turned out to be dead
+  code — none observed to catch any alert. Acceptance side yanked
+  both paths (#13358 + #13364) after tracing the history + proving
+  the muzzle is the actual mechanism. Source-side add is
+  transferable-yankable for the same reasons. Bundle with the
+  muzzle back-port above if we ever open a source-side flake-fix
+  PR (both changes touch adjacent files).
 
 - **Per-instance random seed identity** *(from #13351)* — source-side
   `PatientTestData::FNAME` / `LNAME` are fixed constants
@@ -4294,3 +4306,70 @@ in acceptance."
   flow), Ff (open encounter — natural continuation of Dd's
   helper pattern; would define openEncounterViaUi), Svc
   (heaviest — codes / billing / ar_activity fixture seeding).
+
+- **2026-08-03 — Kk WebDriver-alert flake ACTUALLY fixed at source
+  via CDP muzzle (#13358); dead unhandledPromptBehavior capability
+  yanked from both driver paths (#13358 + #13364).** Fifth-and-
+  final iteration on the flake, with definitive fix + cleanup.
+
+  **The fix** (#13358): install a CDP `Page.
+  addScriptToEvaluateOnNewDocument` in UiSeedingTrait's seeding
+  helpers (addPatientViaUi + openPatientViaUi) that overrides
+  window.alert / window.confirm / window.prompt with no-ops.
+  Runs before any page JS on every navigation. The clinical-
+  reminders emitter still fires but produces no popup — no
+  driver-blocking exception, no timing race. CI confirmed 8 of 9
+  acceptance-scenario cells green on the PR itself, up from
+  2-3 failures per run pre-fix.
+
+  **The cleanup** (#13358 + #13364): yank
+  `unhandledPromptBehavior=accept` from BOTH driver paths in
+  BrowserSession. Investigation trail:
+
+  1. Local path capability added #13355 as attempted fix for
+     Kk. CI proved it took no observable effect
+     (UnexpectedAlertOpenException still thrown regardless).
+     Yanked in #13358.
+  2. Grid path capability added #13196 mirroring source-side
+     E2e/Base/BaseTrait. Source-side add came #8555 (2025-07-05)
+     as defensive posture during Selenium-grid transition —
+     never motivated by a known-firing alert; never demonstrated
+     to catch anything.
+  3. Yanked grid path in #13364 for consistency + to reduce
+     mental-model surface. Left detailed comment blocks at both
+     yank sites so future maintainer chasing "should we set
+     unhandledPromptBehavior?" has the answer without re-running
+     the experiment.
+
+  **Birthday-popup check**: does `unhandledPromptBehavior` cover
+  it? No — the birthday popup at `interface/patient_file/summary/
+  demographics.php:856` fires via `dlgopen()` (Bootstrap modal /
+  iframe dialog, DOM-level). Native-browser-alert capabilities
+  don't apply. If it starts biting acceptance tests, would need a
+  DOM-modal-dismiss helper (same shape as
+  `dismissProductRegistrationModalIfPresent`). Per user
+  2026-08-02, source-side reportedly already handles the birthday
+  popup — cross-reference before writing our own.
+
+  **Phase 13 updated**: replaced the (now-stale)
+  "back-port `unhandledPromptBehavior` to source-side" entry
+  with (a) back-port the CDP muzzle to source-side
+  `PatientAddTrait` — that's the actual working mechanism, would
+  let source-side drop its own alert-wait dance, and (b) yank
+  source-side's own dead `unhandledPromptBehavior` add — bundle
+  with (a) since both touch adjacent files.
+
+  **Investigation-cost lesson (for future flake work)**: total
+  five iterations to converge (v1 click-retry #13348 → v2 wait-
+  widen #13348 → v3 seed-refactor #13351 → v4 capability #13355
+  → v5 CDP muzzle #13358). The critical unlock was actually
+  driving the flow with Panther against the release image and
+  WATCHING what alert fires — grep-heavy source reading
+  identified the emitter but the pre-existing code comment
+  mislabeled it as a dup-check alert (it's the reminders alert)
+  and multiple iterations of test-side wait-shape mitigation
+  went wrong-shape because of that misread. Ground truth from a
+  live browser session beat 4 rounds of hypothesis-and-retry.
+  Phase 13's "back-port candidates" note about "when a flake
+  fix takes multiple iterations, actually drive the flow live"
+  earned its place.
