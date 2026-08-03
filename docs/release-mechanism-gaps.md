@@ -46,21 +46,35 @@ acceptance-testing owns the *verification that they work*.
 
 ## Gaps identified
 
-### G1 — `GlobalsIncMutator` skipped via `--skip-globals` in production
+### G1 — Bogus `--skip-globals` flag in `release-prep.yml` invocation
 
-- **What:** `release-prep.yml` invokes
+- **What:** `release-prep.yml`'s "Run release-prep mutators" step invokes
   `php bin/console openemr:release-prep --skip-globals --target-version=$V --scope=rel`.
-  The `--skip-globals` flag disables the `GlobalsIncMutator`
-  (`library/globals.inc.php` mutation).
-- **Why I care:** Prior manual releases edited `library/globals.inc.php`
-  by hand. The mutator exists but is intentionally disabled in production
-  runs — why? Mutator behavior may not match current release-model intent,
-  or it may have been disabled during conductor development and never
-  re-enabled.
-- **TODO:** Read `src/Common/Command/ReleasePrep/Mutator/GlobalsIncMutator.php`
-  to understand what it would do; check git log for when `--skip-globals`
-  was added and why.
-- **Status:** Not investigated.
+  But `ReleasePrepCommand::configure()` (`src/Common/Command/ReleasePrepCommand.php`)
+  defines only four options: `target-version`, `scope`, `image-digest`,
+  `project-dir`. There is no `--skip-globals` option. `GlobalsIncMutator`
+  is unconditionally wired into `buildDefaultRelMutators()` and runs on
+  every rel-scope invocation. The flag appears to have been copy-pasted
+  from `SwaggerRegenMutator`'s internal shell-out to
+  `openemr:create-api-documentation --skip-globals` (which does have that
+  option) and never questioned.
+- **Effective status:** the flag is likely being silently ignored by
+  Symfony console (verify) or should error out (`OptionDefinition::None`
+  → `The "--skip-globals" option does not exist.`). Either way the
+  intended-vs-actual mismatch documented in earlier iterations of this
+  entry ("mutator intentionally disabled in production") was wrong:
+  `GlobalsIncMutator` has always run. Prior manual releases still edited
+  `library/globals.inc.php` by hand because at the time the mutator
+  either didn't exist yet or wasn't wired.
+- **Follow-up:** either delete the `--skip-globals` line from
+  `release-prep.yml` (cosmetic; matches actual runtime behavior) or
+  wire the option through `ReleasePrepCommand::configure()` +
+  mutator-selection so it becomes an actual production guard. Cosmetic
+  delete is the simpler read; verify no unspoken production expectation
+  depends on the flag before removing.
+- **Status:** documented, not yet fixed. Rabbit round 1 on
+  openemr/openemr#12599 caught the discrepancy; this entry replaces the
+  earlier "not investigated" framing.
 
 ### G2 — Post-release version bump (rel-810 → next "-dev")  *(effectively covered 2026-07-20 — workstreams 2 + 6)*
 
