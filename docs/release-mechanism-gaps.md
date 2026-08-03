@@ -9,7 +9,7 @@ completes, plus discoveries during the upcoming manual 8.1.1 work.
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
-`/home/brady2/git/openemr-wt-release-mechanism-migration-doc/docs/release-mechanism-migration-from-devops.md`
+[`release-mechanism-migration-from-devops.md`](release-mechanism-migration-from-devops.md).
 
 **Artifact-testing gap tracked separately.** "How do we verify the shipped
 Docker image + release tarball actually install and upgrade cleanly for
