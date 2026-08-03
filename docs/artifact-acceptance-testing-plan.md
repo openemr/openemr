@@ -2267,6 +2267,25 @@ Convention: each entry names the acceptance-side PR that
 originated it, the source-side surface it could apply to, and
 a one-line "why this is transferable."
 
+**Explicitly NOT candidates** — the two suites have different
+testing objectives, so not every acceptance-side fix should
+propagate:
+
+- **Acceptance E2e** (`tests/Acceptance/**`) — validates the
+  SHIPPED release artifact end-to-end. Optimize for zero
+  flakiness + short runtime; bypass UI surfaces that don't
+  add signal-per-second (with scoped regression assertions
+  where the bypass loses coverage).
+- **Source-side E2e** (`tests/Tests/E2e/**`) — validates the
+  actual user workflow through the actual UI, run against a
+  dev checkout. Worth some flakiness (retry-3-times pattern
+  tolerated) to keep the real button-click path covered as
+  regression signal.
+
+When a fix could technically go both places, ask: does it
+preserve the source-side coverage, or does adopting it lose
+regression signal? If the latter, keep source-side as-is.
+
 Candidates so far:
 
 - **CDP `Page.addScriptToEvaluateOnNewDocument` muzzle of
@@ -4413,3 +4432,50 @@ in acceptance."
   alert-race; the wait-widen handles the runner-load-slow
   content render. If a flake DOES recur, it's a NEW failure
   mode worth investigating fresh (not more of the same).
+
+- **2026-08-03 (later still) — Root-caused the click-wiring race
+  behind the "form submit never fires" flake (#13372); #13365's
+  wait bump reverted since it was a symptom fix.** Container HTTP
+  logs on #13352's failing runs showed 60+ seconds of server
+  silence after the dup-check popup loaded: no POST to
+  `new_comprehensive_save.php`, no redirect, dashboard wait had
+  nothing to wait for. **The `#confirmCreate` click didn't
+  propagate** through `dlgclose → window[callback] →
+  srcConfirmSave() → form.submit`. Wiring race — the button
+  becomes WebDriver-clickable before its onclick chain is fully
+  wired.
+
+  **Not caused by our muzzle work** — per user 2026-08-03, this
+  same failure mode has bitten source-side E2e `PatientAddTrait`
+  predating any acceptance-side capability / muzzle changes.
+  Source-side never diagnosed it; their workaround is the
+  3-retry-whole-test loop in `testPatientAdd`.
+
+  **Acceptance-side fix (#13372):** skip the click theater,
+  invoke `srcConfirmSave()` directly via `executeScript` in the
+  parent context. `srcConfirmSave` is a single-line
+  `document.forms[0].submit()` (see
+  `interface/new/new_comprehensive.php:979`) — calling it
+  directly bypasses the modalframe-button click-handler wiring
+  race, the dlgclose iframe/modal cleanup dance, and the
+  window[callback] indirection. No `sleep(5)`, no
+  `elementToBeClickable` wait, no race. Reverts #13365's 30s → 60s
+  wait bumps since the "slow render" was actually "form never
+  submitted, wait had nothing to wait for."
+
+  **Modal-regression coverage preserved via scoped assertion:**
+  bypassing the click also bypasses modal-render / button-wiring
+  surface. Compensated with a small assertion right before the
+  direct invocation — switch into the modalframe, verify
+  `#confirmCreate` is present + has `srcConfirmSave` in its
+  onclick. Catches "modal template broke" or "onclick wiring
+  regressed" without depending on click propagation.
+
+  **Deliberate divergence from source-side E2e (per user
+  2026-08-03):** source-side keeps the real click + 3-retry
+  pattern to preserve full workflow-through-modal coverage as a
+  regression signal. Acceptance-side does the direct-invocation
+  bypass to eliminate the race + shorten test time. Two suites,
+  two objectives — see the "Explicitly NOT candidates" note at
+  the top of Phase 13. Phase 13 back-port candidates list does
+  NOT include "adopt direct-invocation" for source-side.
