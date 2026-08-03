@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 
 class ApiResponseLoggerListenerTest extends TestCase
@@ -137,6 +138,55 @@ class ApiResponseLoggerListenerTest extends TestCase
             });
         $apiResponseLoggerListener = new ApiResponseLoggerListener();
         $apiResponseLoggerListener->setSystemLogger($this->createMock(LoggerInterface::class));
+        $apiResponseLoggerListener->setEventAuditLogger($auditLogger);
+        $apiResponseLoggerListener->onRequestTerminated($terminatedEvent);
+    }
+
+    /**
+     * StreamedResponse::getContent() returns false rather than the content.
+     * The listener must normalize that to an empty string so the audit row
+     * (and its checksum) never receives a boolean.
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function testOnRequestTerminatedWithStreamedResponseLogsEmptyBody(): void
+    {
+        $globalsBag = new OEGlobalsBag([
+            'api_log_option' => 2, // response logging enabled: exercises the getContent() path
+        ]);
+        $kernel = $this->createMock(OEHttpKernel::class);
+        $kernel->method('getGlobalsBag')
+            ->willReturn($globalsBag);
+        $request = HttpRestRequest::create('/api/test');
+        $mockSessionFactory = new MockFileSessionStorageFactory();
+        $session = new Session($mockSessionFactory->createStorage(null));
+        $session->set('authUser', 'test_user');
+        $session->set('authUserID', 1);
+        $session->set('authProvider', 'Default');
+        $session->set('pid', 123);
+        $request->setSession($session);
+        $request->setResource('test');
+        $request->setClientId('test-oauth-client');
+
+        $response = new StreamedResponse(function (): void {
+            echo '{"status": "streamed"}';
+        }, Response::HTTP_OK, ['Content-Type' => 'application/json']);
+        $terminatedEvent = new TerminateEvent($kernel, $request, $response);
+        $auditLogger = $this->createMock(EventAuditLogger::class);
+        $auditLogger
+            ->expects($this->once())
+            ->method('recordLogItem')
+            ->withAnyParameters()
+            ->willReturnCallback(function ($success, $event, $user, $group, $comments, $patientId, $category, $logFrom, $menuItemId, $ccdaDocId, $user_notes, $api): void {
+                $this->assertIsArray($api);
+                $this->assertSame('', $api['request_body'], 'Streamed response body must be logged as empty string');
+                $this->assertSame('', $api['response'], 'Streamed response must be logged as empty string');
+                $this->assertSame('test-oauth-client', $api['client_id'], 'Client id must still be recorded for streamed responses');
+                // void return
+            });
+        $apiResponseLoggerListener = new ApiResponseLoggerListener();
+        $apiResponseLoggerListener->setLogger($this->createMock(LoggerInterface::class));
         $apiResponseLoggerListener->setEventAuditLogger($auditLogger);
         $apiResponseLoggerListener->onRequestTerminated($terminatedEvent);
     }
