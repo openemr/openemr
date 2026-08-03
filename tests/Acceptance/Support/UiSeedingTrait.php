@@ -313,19 +313,31 @@ trait UiSeedingTrait
             'Confirm-create modal rendered but #confirmCreate onclick lost the srcConfirmSave callback wiring — modal-side regression',
         );
 
-        // Bypass-strategy: invoke dlgclose("srcConfirmSave", false)
-        // directly via executeScript from the modalframe context —
-        // that's LITERALLY what the button's onclick attribute is
-        // (verified above). Does the FULL callback flow:
-        // dlgclose → hide modal + cleanup wrapper divs → post-hide
-        // callback fires srcConfirmSave() → document.forms[0].submit()
-        // → server redirect. Preserves all the modal-cleanup semantics
-        // dlgclose owns (which are non-trivial: Bootstrap modal-hide
-        // animation, wrapper div removal via hidden.bs.modal handler,
-        // iframe removal) so subsequent clicks on the shell aren't
-        // blocked by leftover DOM. Only the racy WebDriver-side
-        // button-click resolution is skipped.
-        $client->executeScript('dlgclose("srcConfirmSave", false);');
+        // Two-step bypass — cleanup then submit:
+        //
+        // (1) Aggressive top-level DOM cleanup — dlgclose stores the
+        // callback on a scope we can't reach from executeScript, so
+        // invoking it doesn't fire srcConfirmSave. Instead, manually
+        // rip out ALL Bootstrap modal wrappers (.dialogModal,
+        // .modal-dialog, .modal-backdrop) plus the modalframe iframe,
+        // and reset body classes that Bootstrap's modal-open uses.
+        // Prevents leftover DOM from intercepting subsequent shell
+        // clicks (Kk's "New Encounter" button, Dd's anySearchBox).
+        //
+        // (2) Submit the form directly from the pat iframe context —
+        // srcConfirmSave() is `document.forms[0].submit()` in
+        // new_comprehensive.php (loaded inside pat iframe). Calling
+        // submit() from that iframe's context is equivalent + no
+        // scope-lookup dependency.
+        $client->switchTo()->defaultContent();
+        $client->executeScript(
+            'document.querySelectorAll(".dialogModal, .modal-backdrop, iframe#modalframe").forEach(function (e) { e.remove(); });'
+            . 'document.body.classList.remove("modal-open");'
+            . 'document.body.style.overflow = "";'
+            . 'document.body.style.paddingRight = "";'
+        );
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
+        $client->executeScript('document.forms[0].submit();');
 
         // Switch back to defaults, into the patient iframe, wait for
         // the Medical Record Dashboard header — proof the create
