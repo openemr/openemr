@@ -28,12 +28,13 @@ Fix / support PRs landed alongside the migration (Phase 5.5 verification-
 battery findings): openemr/openemr#13100 (sync-byte-identical double-delete
 bug), #13108 (Phase-3c doc closure sweep), #13115 (`tools/release/.gitignore`
 + ship-release dry-run permissions), #13116 (rel-820 stale caller cleanup),
-#13113/#13117/#13128 (rel-820 refire sync fixes), #13120 (statuses:write
+rel-820 refire sync fixes #13113/#13117/#13128, #13120 (statuses:write
 probe on release-permissions-check), #13126 (`summary.php` empty-milestone
 fix + missing checklist templates ported), #13132 (CLI test backfill for
-7 bin scripts). Umbrella issues closed by Phase 6: openemr/openemr-devops
-#664 / #706 / #711; #761 was closed earlier by openemr/website-openemr#207
-during Phase 3c.
+7 bin scripts). Umbrella issues closed by Phase 6:
+openemr/openemr-devops#664 / openemr/openemr-devops#706 /
+openemr/openemr-devops#711; openemr/openemr-devops#761 was closed earlier
+by openemr/website-openemr#207 during Phase 3c.
 
 Everything below the status header is the historical planning + execution
 record. All ✅ SHIPPED markers are truthful; the "estimate" and
@@ -70,7 +71,7 @@ release-prep PRs.
 - [What moves where (concrete)](#what-moves-where-concrete)
 - [What dies as part of the migration](#what-dies-as-part-of-the-migration)
 - [What stays in `openemr-devops`](#what-stays-in-openemr-devops)
-- [Phased plan](#phased-plan)
+- [Phased plan (workstream 7 internals)](#phased-plan-workstream-7-internals)
 - [Behavior contract](#behavior-contract)
 - [Branch-cut process under the final model](#branch-cut-process-under-the-final-model)
 - [Risks and wrinkles to plan for](#risks-and-wrinkles-to-plan-for)
@@ -581,39 +582,55 @@ when they enter active development).
 
 ## Proposed model
 
-```
+Diagram + change list below reflect the shipped end-state (Phases 1-6 all
+landed 2026-06-28 → 2026-07-23). The behavior contract table further down
+records the same shape. See [`docs/RELEASE_PROCESS.md`](RELEASE_PROCESS.md)
+for the canonical, currently-live description of the flow; this section
+exists in the migration doc to record the planned-vs-actual shape.
+
+```text
                        openemr/openemr (single source of truth)
                        │
        Maintainer ── triggers ──┐
                                 │
                                 ▼
-   release-prep.yml ── push → release-prep/<rel> PR ── merge → annotated tag
-                                                                    │
-                                                                    ├─ self-dispatch openemr-tag (internal)
-                                                                    │   │
-                                                                    │   ├─→ build-release-on-tag.yml → distribution pkgs + GitHub Release
-                                                                    │   └─→ release-announcements.yml → per-channel draft artifacts
-                                                                    │
-                                                                    └─ cross-repo repository_dispatch (external consumers)
-                                                                        │
-                                                                        ├─→ openemr/website-openemr (docs PR)
-                                                                        └─→ openemr/demo_farm_openemr (direct push)
-
-   ship-release.yml ── workflow_dispatch ── merges {conductor, docs} PRs in order
+   release-prep.yml ── push → release-prep/<rel> PR + release-finalize/<rel> PR
                                                        │
-                                                       └─ posts release/ship-approved status
+                                          merge conductor → annotated tag
+                                                       │
+                                                       ├─ self-dispatch openemr-tag (intra-repo)
+                                                       │   │
+                                                       │   └─→ build-release-on-tag.yml → distribution pkgs + GitHub Release
+                                                       │
+                                                       └─ cross-repo repository_dispatch
+                                                           │
+                                                           └─→ openemr/website-openemr (docs PR + release-announcements on docs-PR merge)
+
+   ship-release.yml ── workflow_dispatch (mode: dry-run | semi-auto | full-auto)
+                                                       │
+                                                       └─ merges {conductor, finalize, docs} PRs in Conductor → Finalize → Docs order,
+                                                          posts release/ship-approved status on each head
 ```
 
 Two key changes from today:
 
-1. **`build-release-on-tag.yml` + `release-announcements.yml` consume the
-   `openemr-tag` event from inside the same repo** (via `repository_dispatch`
-   self-dispatch, or `workflow_run` after release-prep's `finalize` job).
-   No cross-repo hop.
-2. **`ship-release.yml` lives here** and coordinates 2 PRs (conductor + docs)
-   rather than 3 (infra + conductor + docs). The Infra PR is eliminated in
-   Phase 1 because `release-rotation/auto`'s reason for existing went away
-   with the docker migration. Locked decision; not a deferred question.
+1. **`build-release-on-tag.yml` consumes the `openemr-tag` event from
+   inside the same repo** (via `repository_dispatch` self-dispatch). No
+   cross-repo hop for build. `release-announcements.yml` moved to
+   `openemr/website-openemr` and fires on `pull_request:closed` for the
+   `release-docs/<version>` PR (docs-PR-merged = download-page-live is
+   the announcement-fire moment) rather than on `openemr-tag`.
+2. **`ship-release.yml` lives here** and coordinates 3 PRs (conductor +
+   finalize + docs) with a mode selector (`dry-run` | `semi-auto` |
+   `full-auto`) and asymmetric approval gate (conductor requires
+   APPROVED; finalize + docs are bot-authored and skip that check). The
+   pre-Phase-1 3-PR shape (infra + conductor + docs) was collapsed to
+   2-PR in Phase 1, then re-expanded to 3-PR in Phase 3b (2026-07-21,
+   openemr/openemr#13098) after `release-finalize` was added as the
+   master-side partner to the rel-side conductor PR — a different
+   3-PR shape than the retired one. Docs-PR auto-flip on `openemr-tag`
+   (Phase 3c, `website-openemr#207`) lets full-auto run truly
+   hands-off.
 
 External consumers (`website-openemr`, `demo_farm_openemr`) continue to
 receive `repository_dispatch` cross-repo. Their vendored copies of the
@@ -631,9 +648,8 @@ build-release-on-tag chain, not the patch path.
 
 ## Validated foundation
 
-Empirical findings the plan rests on (audit:
-[`/tmp/release-mechanism-audit.md`](file:///tmp/release-mechanism-audit.md)
-generated 2026-06-20 by sweep against `openemr-devops` at `eb1008c0`,
+Empirical findings the plan rests on (from an author-local audit sweep
+generated 2026-06-20 against `openemr-devops` at `eb1008c0`,
 post-docker-migration phase 5):
 
 - **Rotation slice has zero live targets in devops.** All 13 entries in
@@ -1167,7 +1183,7 @@ New `tools/release/bin/extract-changelog-section.php` (60-line
 Symfony Console CLI, `--release-version` chosen to avoid Symfony's
 built-in `--version` / `--verbose` clashes) reads openemr's
 CHANGELOG.md, locates `## [MAJOR.MINOR.PATCH]`, writes everything
-up to (but not including) the next `## ` heading or EOF to
+up to (but not including) the next `##`-prefixed heading or EOF to
 `release-output/changelog.md`. Content is pre-computed in openemr's
 CHANGELOG.md by ChangelogMutator + CompatibilityMutator (PRs 4 + 8),
 so the extract carries both the noise-filtered PR list and the
@@ -1255,12 +1271,12 @@ heading the changelog mutator writes. Refactored
 `appendOptionalReleaseMutators()` to loop over an FQCN array (was one
 hardcoded entry). Fixed `CompatibilityNotesRenderer::inject()`
 non-idempotence: the original CR-round-2 fix on PR 4 flagged blindly
-splicing after the first `## ` heading duplicates the section on
-rerun; PR 8's first pass fixed that but CR-round-1 on 12928 caught a
-worse variant — the strip regex was unscoped, so on a multi-release
+splicing after the first `##`-prefixed heading duplicates the section
+on rerun; PR 8's first pass fixed that but CR-round-1 on 12928 caught
+a worse variant — the strip regex was unscoped, so on a multi-release
 CHANGELOG (older release with its own compat block below the current
 heading), the strip deleted the older release's block. Landed fix
-scopes the strip to the FIRST `## ` section's contents only, older
+scopes the strip to the FIRST `##`-prefixed section's contents only, older
 sections preserved. Also fixed a latent bug in ChangelogMutator
 noticed while planning PR 8: release-prep.yml's rel-scope invocation
 didn't pass `--rel-branch`, so `$context->relBranch` was null on
@@ -1799,8 +1815,8 @@ port also evolved the shape from 2-PR to 3-PR (Conductor +
 Finalize + Docs) and added a mode selector (dry-run / semi-auto /
 full-auto) plus the packaging-wait gate that blocks downstream merges
 if `build-release-on-tag` fails. Concrete PR sequence: 3a #13096
-(orchestrator + workflow moved), 3b #13098 (3-PR + mode + gates), 3b-2
-#13099 (dry-run produces real artifacts), 3c
+(orchestrator + workflow moved), 3b #13098 (3-PR + mode + gates),
+3b-2 #13099 (dry-run produces real artifacts), 3c
 openemr/website-openemr#207 (docs PR auto-flip on `openemr-tag`).
 Sync-byte-identical script bug surfaced by Phase 3b's rename +
 fixed in openemr/openemr#13100. Historical note on the original three
@@ -1873,19 +1889,30 @@ between Phase 5 and Phase 6 because the 385MB artifact-bundle dry-run in
 
 ## Behavior contract
 
-What the maintainer experiences today, that must be preserved (unless
-explicitly redesigned and documented):
+Final shipped contract (Phases 1-6 all landed by 2026-07-23). Row-by-row
+maintainer experience relative to pre-migration:
 
-| Touchpoint | Today | Post-migration |
+| Touchpoint | Pre-migration | Shipped (post-migration) |
 |---|---|---|
 | Cut a new rel-line | `git push` of new `rel-NNN0` from master in this repo | Identical |
 | Iterate on a rel branch | Subsequent `git push` to the rel branch | Identical |
 | Edit release notes draft | PR-side edit on `release-docs/<version>` in website-openemr | Identical |
-| Ship | `gh workflow run ship-release.yml --repo openemr/openemr-devops -f version=X.Y.Z -f rel_branch=rel-XY0` | Same command, `--repo` changes to `openemr/openemr` |
-| Number of PRs to land | 3 (Infra in devops + Conductor in core + Docs in website-openemr) | **2** (Conductor + Docs) — locked in Phase 1 |
-| Manual docs-PR merge | `gh pr merge` on website-openemr after conductor merge | Identical |
-| Patch release | `gh workflow run build-patch.yml --repo openemr/openemr-devops` | Same command, `--repo` changes |
-| Investigate permissions | Per-repo `gh workflow run release-permissions-check.yml` | Identical (each repo keeps its own probe; devops's narrows scope) |
+| Ship | `gh workflow run ship-release.yml --repo openemr/openemr-devops -f version=X.Y.Z -f rel_branch=rel-XY0` | `gh workflow run ship-release.yml --repo openemr/openemr -f version=X.Y.Z -f rel_branch=rel-XY0 -f mode=semi-auto` (mode selector added; default `semi-auto` merges Conductor only, `full-auto` merges all three, `dry-run` merges nothing but builds real artifacts) |
+| Number of PRs to land | 3 (Infra in devops + Conductor in core + Docs in website-openemr) | **3** (Conductor + Finalize + Docs) — Phase 1 collapsed to 2-PR, Phase 3b re-expanded to 3-PR with the new `release-finalize/<rel-branch>` master-side partner (different shape than the retired Infra PR) |
+| Docs-PR readiness | Manual mark-Ready in the GitHub UI before ship-release preflight passed | Auto-flipped out of draft by `website-openemr`'s docs workflow on the `openemr-tag` dispatch (Phase 3c, `website-openemr#207`); full-auto is now truly hands-off |
+| Docs-PR merge | `gh pr merge` on website-openemr after conductor merge | Merged by ship-release in `semi-auto` (if the maintainer flips to that path) or `full-auto` (default in the doc runbook is currently `semi-auto` for the first 1-2 releases as training wheels) |
+| Patch release | `gh workflow run build-patch.yml --repo openemr/openemr-devops` | `gh workflow run build-patch.yml --repo openemr/openemr` (workflow migrated in Phase 2; parallel manual-only path, still intentionally not wired to the automated release flow) |
+| Investigate permissions | Per-repo `gh workflow run release-permissions-check.yml` | Identical (each repo keeps its own probe; devops's probe surface narrowed post-Phase-6) |
+
+**Historical (pre-migration) 2-PR intermediate shape.** Phase 1 collapsed
+ship-release from 3-PR (Infra + Conductor + Docs) to 2-PR (Conductor +
+Docs) on 2026-06-28 (openemr-devops#835). That 2-PR shape was live for
+~3 weeks until Phase 3b re-expanded to 3-PR by adding the
+`release-finalize/<rel-branch>` master-side partner PR on 2026-07-21
+(openemr/openemr#13098). The Phase-1 2-PR contract is preserved here
+for historical continuity — it was never load-bearing for a production
+release cycle (rel-820's 8.2.0 ship pre-dated Phase 1; no release
+happened during the 2-PR window).
 
 Artifacts produced — all preserved identically:
 
@@ -1898,27 +1925,42 @@ Artifacts produced — all preserved identically:
 - Per-channel announcement draft artifacts
 
 Ordering guarantees + recovery semantics from
-[`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) preserved (post-collapse):
+[`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) preserved:
 
-- Strict merge order conductor → docs
+- Strict merge order Conductor → Finalize → Docs (post-Phase-3b)
 - No-partial-merge preflight
-- Docs-first refusal (now equivalent to docs-before-conductor)
+- Docs-first refusal (still a hard-refuse in ship-release)
 - Idempotent re-run for partial-merge recovery
 - Per-PR readiness re-check before merge
+- Packaging-wait gate in `full-auto` mode (waits for the GitHub Release
+  object to exist before merging Finalize + Docs, so a broken build
+  blocks downstream merges)
 
-`RELEASE_PROCESS.md`'s Mermaid diagram + partial-merge state table + runbook
-step numbering all document the 3-PR flow today; PR 1b updates them in lock
-step with PR 1a's code changes.
+`RELEASE_PROCESS.md` on master is the canonical live description of the
+shipped 3-PR + mode-selector flow (updated in lockstep with Phases 3a-c).
 
-`repository_dispatch` events — emitted set unchanged from the conductor's
-perspective; the *destinations* prune:
+`repository_dispatch` events — final shipped destination set:
 
-| Event | Today's targets | Post-migration targets |
+| Event | Pre-migration targets | Shipped (post-Phase-6) targets |
 |---|---|---|
-| `openemr-rel-cut` | devops + website-openemr | website-openemr (devops drops out) |
+| `openemr-rel-cut` | devops + website-openemr | website-openemr (devops surface deleted in Phase 6) |
 | `openemr-rel-update` | devops + website-openemr | website-openemr |
-| `openemr-tag` | devops + website-openemr + demo_farm_openemr | website-openemr + demo_farm_openemr |
-| Internal consumers (moved workflows) | N/A | self-dispatch or `workflow_run` after `release-prep.yml :: finalize` |
+| `openemr-tag` | devops + website-openemr + demo_farm_openemr | openemr/openemr (intra-repo, consumed by `build-release-on-tag.yml` since Phase 2) + website-openemr; demo_farm_openemr dropped as a consumer earlier (moved to `release-targets-changed`) |
+| `release-targets-changed` | N/A | demo_farm_openemr (added post-migration by openemr/openemr#12657) |
+| Internal consumers (moved workflows) | N/A | `build-release-on-tag.yml` self-dispatch via `openemr-tag` above |
+
+**Caveat on `DEFAULT_TARGET_REPOS`.** `tools/release/src/Dispatcher.php`
+still lists `openemr/openemr-devops` in `DEFAULT_TARGET_REPOS` as of
+2026-08-02 (see `Dispatcher::DEFAULT_TARGET_REPOS`), and
+`release-permissions-check.yml` still probes devops explicitly at
+`--target-repos=openemr/openemr-devops,openemr/website-openemr,openemr/demo_farm_openemr`.
+The `openemr-tag` dispatch in `release-prep.yml`'s `finalize` job passes
+an explicit `--target-repos=openemr/openemr,openemr/website-openemr`
+override, so devops does NOT actually receive `openemr-tag` fanout — but
+the default list and the permissions probe target still name devops. Pruning
+those to align with the shipped fanout is a small follow-up (tracked as a
+deferred cleanup; devops has no active release-mechanism receiver to fail
+on the probe, so the drift is cosmetic-only).
 
 Schema patterns from `dispatch.schema.json` unchanged. `TagVerifier` semantics
 unchanged.
@@ -2147,6 +2189,10 @@ doc G12-G13 for full detail):**
 
 ## Status
 
-**Drafted 2026-06-20** post-completion of the docker-pipeline migration. Not
-yet tracked as a GitHub issue; this doc is the working planning surface.
-Phase 1 ready to execute on user signoff.
+**Historical record.** Drafted 2026-06-20 post-completion of the
+docker-pipeline migration; executed as workstream 7 across six phases
+that landed 2026-06-28 → 2026-07-23. All phases shipped end-to-end as
+noted in the STATUS header at the top of this document. As of 2026-08-02
+this doc is preserved as the planning + execution retrospective;
+[`docs/RELEASE_PROCESS.md`](RELEASE_PROCESS.md) on master is the
+canonical live description of the shipped release-mechanism flow.
