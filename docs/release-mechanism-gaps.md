@@ -5,7 +5,7 @@ aren't blockers for the current migration but warrant follow-up. Captures
 things to investigate or address AFTER the release-mechanism migration
 completes, plus discoveries during the upcoming manual 8.1.1 work.
 
-**Last updated:** 2026-07-07
+**Last updated:** 2026-08-02
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -23,17 +23,26 @@ acceptance-testing owns the *verification that they work*.
 
 ## Quick context
 
-- **Current branch under release work:** `rel-810` (8.1.0 was cut as
-  artifact only — was buggy, removed; next planned release is **8.1.1**).
-- **Conductor (`release-prep.yml`)** lives in `openemr/openemr` already.
-- **Consumers (build / ship)** still in `openemr-devops`;
-  release-mechanism migration in flight. **Announcements consumer**
-  migrated 2026-07-18/19 to `openemr/website-openemr` — fires on
-  docs-PR-merge (`pull_request:closed` on `release-docs/*`) instead
-  of `openemr-tag`; see `openemr/website-openemr#194` for the workflow
-  + `openemr/openemr-devops#861` for the devops-side retirement.
-- **Patch flow (`build-patch.yml`)** intentionally separate from main
-  automation — emergent-patch escape hatch only.
+- **Release-mechanism migration complete.** All release-mechanism code
+  lives in `openemr/openemr` (conductor + build + ship-release +
+  finalize) and `openemr/website-openemr` (docs + announcements). The
+  devops-side release surface was wholesale-deleted 2026-07-23 by
+  `openemr-devops#863` (workstream 7 Phase 6, closing umbrella
+  `openemr-devops#664`). No release automation remains in
+  `openemr/openemr-devops`.
+- **8.1.1 was abandoned.** It appears throughout this doc's earlier
+  entries as "the next planned release" because that framing was
+  correct when those entries were written. It never shipped; the
+  first release after the migration completed was 8.2.0 (shipped
+  2026-07-08 to 2026-07-09 from `rel-820`).
+- **Next real release event:** `rel-830` cut from master, expected
+  in roughly 2 weeks. That will be the first cut exercising the
+  fully-migrated `branch-cut-automation.yml` flow end-to-end on a
+  brand-new rel branch.
+- **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
+  `openemr/openemr` is the release manager's day-to-day reference.
+  This doc is the follow-up gap log — things surfaced during automation
+  work that warrant a fix but aren't blockers.
 
 ## Gaps identified
 
