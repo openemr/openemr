@@ -76,9 +76,12 @@ acceptance-testing owns the *verification that they work*.
   never closed here.
   - Master-side bump handled by `VersionPhpMasterMutator` (workstream
     2, invoked via branch-cut).
-  - Rel-side patch-cycle bump handled by
-    `PatchPrepReleaseTargetsMutator` (workstream 6 / openemr/openemr#12697,
-    `patch-prep-automation.yml`).
+  - Rel-side patch-cycle bump remains a manual `$v_patch` edit by the
+    maintainer. That edit is what fires `patch-prep-automation.yml`
+    (workstream 6 / openemr/openemr#12697); the workflow then runs
+    `PatchPrepReleaseTargetsMutator`, which inserts the new
+    release-targets row + removes the unreleased placeholder. The
+    mutator reacts to the version bump; it does not perform it.
   - Not fully traced across a complete post-tag → next-push cycle (the
     original TODO). Coverage is much better than the original "not
     investigated" framing, but a formal cycle trace hasn't been done.
