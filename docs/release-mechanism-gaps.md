@@ -1,9 +1,13 @@
 # OpenEMR Release Mechanism: Gaps & Open Questions
 
 Working notes — gaps surfaced during release-automation exploration that
-aren't blockers for the current migration but warrant follow-up. Captures
-things to investigate or address AFTER the release-mechanism migration
-completes, plus discoveries during the upcoming manual 8.1.1 work.
+aren't blockers but warrant follow-up. Captures things surfaced during
+the release-mechanism migration (now complete) and the shipped release
+cycles that exercised the migrated automation (8.2.0 from rel-820,
+2026-07-08). Earlier entries were framed against an upcoming manual
+8.1.1 cycle from rel-810; that release was abandoned before ship (see
+the Quick context below), and the affected entries carry the
+then-current framing preserved as historical context.
 
 **Last updated:** 2026-08-02
 
@@ -928,10 +932,13 @@ fourth attempt landed cleanly — see the refinement notes below).
 `ReleasePrepCommand --rel-branch` option + master mutator list,
 conductor workflow extension opening the paired
 `release-finalize/<rel-branch>` PR against master. Reality matched
-plan. Phase B (cherry-pick to rel-810 for 8.1.1 ship) is the next
-milestone; auto-merge of the master partner PR on `openemr-tag`
-remains deferred. For the 8.1.1 ship, maintainer will mark Ready +
-merge manually after the tag fires.
+plan. Phase B (originally scoped as cherry-pick to rel-810 for the
+8.1.1 ship) is moot — 8.1.x was abandoned and rel-820 became the
+first rel branch running Phase A end-to-end; the Phase A landing on
+master before rel-820 was cut removed the cherry-pick requirement.
+Auto-merge of the master partner PR on `openemr-tag` remains
+deferred; for shipped releases so far the maintainer marks Ready +
+merges manually after the tag fires.
 
 - **What:** After a rel-branch ships (e.g., 8.1.1 ships from
   rel-810), `.github/release-targets.yml` on master needs three
@@ -1028,14 +1035,17 @@ merge manually after the tag fires.
     predictable (3 specific transformations), so surgical edits are
     tractable.
 
-- **Phase B scope (post-Phase-A merge):** Cherry-pick the conductor
-  extension to rel-810 so the 8.1.1 release benefits. Per
-  `feedback_rel_branch_workflow.md`: worktree from
+- **Phase B scope (historical, moot as of 2026-07-01):** Original
+  plan was to cherry-pick the conductor extension to rel-810 so the
+  8.1.1 release benefits. 8.1.x was abandoned before ship; rel-820
+  (cut from master post-Phase-A) inherited the extension in its
+  cut-time snapshot, so no rel-810 backport ever happened. Kept
+  here for the workflow pattern (rel-branch worktree from
   `--base https://github.com/openemr/openemr.git#rel-810`, commit
-  with `--no-verify`. Needs both the workflow YAML cherry-pick AND
-  the PHP changes (PostReleaseTargetsMutator + MutatorContext +
-  command extension) because rel-810's conductor invokes its own
-  `src/Common/Command/...` tree, not master's.
+  with `--no-verify`, YAML + PHP both required because rel-branch
+  conductors invoke their own `src/Common/Command/...` tree) —
+  applicable if a future patch on an older rel branch needs a
+  release-machinery cherry-pick.
 
 - **The "partner PR" pattern generalizes**. The dual-PR
   (rel-branch + master, both managed by one workflow, both drafts
@@ -3007,14 +3017,16 @@ when the release-mechanism migration completes and the team has
 experience with a few real release cycles. Whatever cadence gets
 settled on should be documented in `RELEASE_PROCESS.md`.
 
-**For the upcoming 8.1.1 release from rel-810** (where 8.1.0 was
-artifact-only): the docker-version is currently `10` on rel-810 and
-master (both already in sync), matching the most recent
-fsupgrade-10.sh on both branches. 8.1.1 will need the +1 bump and
-new fsupgrade-11.sh on **both** rel-810 AND master per the steps
-above (since docker upgrade actions are always done per docker
-version release — this is how consumers get the auto-upgrade
-behavior).
+**Historical worked example (originally scoped for a planned 8.1.1
+release from rel-810; 8.1.x was abandoned so this bump never
+executed, but the mechanics stand as a template for future patch
+cycles):** at the time of writing, the docker-version was `10` on
+both rel-810 and master, matching the most recent fsupgrade-10.sh
+on both branches. A 8.1.1 ship would have needed the +1 bump and
+new fsupgrade-11.sh on **both** branches per the steps above (since
+docker upgrade actions are always done per docker version release —
+this is how consumers get the auto-upgrade behavior). The
+subsequent rel-820 → 8.2.0 cycle followed the same shape.
 
 **Snapshot of currently-stale state (2026-06-22, pre-rel-820-cut):**
 
