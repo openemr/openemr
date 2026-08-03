@@ -1619,15 +1619,18 @@ cross-branch propagation needed.
   validate-loop fetches + all 4 fanout branches hitting the same
   URL simultaneously.
 
-- **Fix (two parts):**
+- **Discovery-time fix sketch (superseded by shipped fix — see STATUS
+  block above):** originally scoped as two parts —
   1. **Retry-with-backoff on 429:** wrap the curl with 3-5 retries
-     spaced by `Retry-After` (default 30-60s) before failing. Or
-     switch to `gh api` — has authenticated rate limits, much higher
-     ceiling, and better error semantics.
-  2. **Distinguish 404 vs 429 in the error message.** Emit a clear
-     `HTTP 429 rate limit — retry after N seconds` for 429s so the
-     operator doesn't chase a phantom "bad ref" during a real
-     transient throttle.
+     spaced by `Retry-After` before failing.
+  2. **Distinguish 404 vs 429 in the error message.**
+
+  The shipped fix picked the "or" from part 1 — swap anonymous
+  `curl` for authenticated `gh api` at all three fetch sites,
+  bypassing the 60/hr anonymous rate ceiling entirely — plus part 2's
+  error-path split. No retry-with-backoff needed since the 5000/hr
+  authenticated budget makes the throttle window essentially
+  unreachable in normal operation.
 
 - **Recovery cost during 8.2.0 ship:** ~20 min manual rerun latency
   after diagnosing the 429 was the cause. Would have been zero with
@@ -2440,9 +2443,8 @@ Implementation notes worth capturing (not obvious from the code):
   `x-ratelimit-reset` header naming the wall-clock second when the
   budget refills — often minutes away.
 
-- **Two proposed fixes** (both are separate follow-up PRs, and they
-  compose — either one alone helps; together they materially
-  reduce exposure):
+- **Discovery-time fix framing (batching landed; rate-limit backoff
+  explicitly skipped — see STATUS block above for the shipped state):**
 
   1. **Rate-limit-aware backoff (`runGh()` enhancement).**
      When `gh` exits non-zero with stderr matching the
@@ -2451,25 +2453,22 @@ Implementation notes worth capturing (not obvious from the code):
      call, or a separate `gh api /rate_limit` probe) and sleep
      until that wall-clock second before the next retry. Fall
      back to the current linear backoff for non-403 failures.
-     Small, contained change in
-     `tools/release/src/GitHubApi.php::runGh()`; test seams
-     (`createProcess`, `backoff`) already accommodate this — the
-     new logic goes into `runGh` itself and the timeout-aware
-     `sleep` can be another override seam. Adds worst-case
-     minutes of delay but converts guaranteed-fail retries into
-     eventually-succeeding retries.
+     Adds worst-case minutes of delay but converts guaranteed-fail
+     retries into eventually-succeeding retries. **Not shipped:**
+     obsoleted by the ~96% API-call reduction from batching
+     (fix #2); the practical rate-limit exposure is now far below
+     the point where backoff pays for itself. Left here as a
+     candidate re-open if a future release scenario reintroduces
+     bursty per-commit API traffic.
 
-  2. **Batch commit→PR resolution.**
-     Replace the per-commit
-     `/repos/openemr/openemr/commits/{sha}/pulls` loop in
-     `GitHubApi::prsForCommits()` with fewer larger queries:
-     `gh pr list --state merged --search "sha:A sha:B sha:C ..."`
-     accepts a multi-SHA search filter and returns the associated
-     PRs in a single call (up to some batch size, ~50-100 SHAs
-     per query). A 200-commit delta drops from 200 API calls to
-     ~2-4. Semantics stay identical: same PR objects, same
-     dedup-by-number, same author/label extraction. Bigger refactor
-     than #1 but a bigger win.
+  2. **Batch commit→PR resolution.** **SHIPPED as #13146** — see
+     STATUS block for the shipped implementation. Original design
+     called for `gh pr list --search "sha:A sha:B sha:C ..."`
+     with ~50-100 SHAs per query; the actual implementation uses
+     25/batch via GraphQL (REST search's 256-char query cap made
+     the larger batches impractical). A 200-commit delta dropped
+     from ~200 API calls to ~8, matching the "bigger win"
+     framing at design time.
 
 - **Related:**
   - #13141 (GitHubApi retry helper) — the retry loop these two
