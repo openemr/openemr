@@ -1559,11 +1559,15 @@ Same-branch/same-tags dispatches serialise as intended.
   wasted CI + potential digest-swap flapping until the last push
   wins.
 
-- **Fix:** Add
+- **Historical fix sketch (superseded by the shipped key above):**
+  the original proposal was
   `concurrency: docker-build-release-${{ github.event.inputs.branch
   || github.ref }}` with `cancel-in-progress: false` (regenerations
-  are cheap; cancelling could lose state mid-push). Serializes
-  per-branch builds without cross-branch interference.
+  are cheap; cancelling could lose state mid-push). CodeRabbit
+  review flagged that this over-serialised the multi-row-per-branch
+  case (distinct `docker_tags` on the same branch push independent
+  registry pointers), so the shipped key adds `inputs.docker_tags`
+  — see STATUS block above for the actual expression.
 
 ### G19 — `raw.githubusercontent.com` rate-limit + misleading error on version.php pre-fetch  *(discovered live 2026-07-08, SHIPPED 2026-07-11)*
 
