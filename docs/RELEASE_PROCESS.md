@@ -180,6 +180,72 @@ Whenever hardening `release-prep.yml`, `release-amendment.yml`, or any other rel
 
 The two sibling one-shots handle **discrete lifecycle events** (branch creation, patch-cycle start); `release-prep.yml` handles the **continuous state** (draft PRs following the branch tip during an active dev cycle) plus the tag-time emission on merge. Clean separation of concerns — no overlap on which PRs each workflow owns, and the parallel firing on cut events is by design so the ready-for-review scaffolding and the draft tracking both appear together.
 
+## Docker Hub tag model
+
+The docker publish surface is driven by [`.github/release-targets.yml`](../.github/release-targets.yml). Each row describes one docker publish target and carries three fields the tag model cares about: `branch` (git ref to check out), `docker_tags` (comma-separated Docker Hub tags to push), and `openemr_version_ref` (git ref baked into the image as the `OPENEMR_VERSION` build arg — the source the shipped image actually contains). The optional `unreleased: true` marker suppresses publish for placeholder rows; see the file header for the full field list.
+
+`dev`, `next`, and `latest` are **full versions on the Docker Hub presence**, not floating pointers. They participate in `docker_tags` alongside numbered tags like `8.2.0` or `8.0.0.3` and get published the same way. A row's `docker_tags` typically pairs a version-numbered tag with its named-version alias from the same release stream — the numbered tag pins the specific version, the named tag identifies which slot that version occupies in the release lifecycle.
+
+### Slot semantics
+
+The three named tags represent a stable → upcoming → in-dev hierarchy. At-most-one row holds each slot at any time:
+
+| Slot | Meaning | Owner |
+| --- | --- | --- |
+| `latest` | current production GA — what `docker pull openemr/openemr` gives consumers | the most recently released rel branch |
+| `next` | upcoming stable — the version preparing to ship next | the rel branch preparing the next release, or master when master is preparing the next minor without a dedicated rel branch yet |
+| `dev` | active development | always master |
+
+A pre-release row's numbered `docker_tags` entry is not a placeholder. It's the "this is the version we're heading toward" declaration: the numbered tag publishes to Docker Hub *as if* the version were already shipped, sourced from the in-progress branch tip (via `openemr_version_ref: <branch>`) rather than a stable release tag.
+
+### Slot promotion at ship time
+
+When a rel branch ships its release, the slots shuffle across rows in the master-side `release-finalize/<rel-branch>` PR (see [Finalize-on-master PR](#finalize-on-master-pr--release-finalizerel-branch-in-openemropenemr)):
+
+- The branch that just shipped promotes `next` → `latest` in its row.
+- The branch that previously held `latest` drops it (still publishes its version-numbered tags, just no longer the "current GA" alias).
+- The `next` slot moves to wherever the next upcoming stable lives. If a new rel branch has been cut for the next minor, it takes `next`. If no new rel branch exists yet, master acquires `next` alongside `dev` (master is then doubly tagged — `dev` for actively developing, `next` for what's coming next).
+
+Example shuffle when `8.1.1` ships from `rel-810` with no `rel-820` cut yet:
+
+| branch | `docker_tags` before | `docker_tags` after |
+| --- | --- | --- |
+| master | `8.2.0,dev` | `8.2.0,dev,next` (acquired `next`) |
+| rel-810 | `8.1.1,next` | `8.1.1,latest` (`next` → `latest`) |
+| rel-800 | `8.0.0,8.0.0.3,latest` | `8.0.0,8.0.0.3` (lost `latest`) |
+| rel-704 | `7.0.4` | `7.0.4` (unchanged) |
+
+Example shuffle when `rel-820` is later cut from master and master advances to `8.3.0-dev`:
+
+| branch | `docker_tags` before cut | `docker_tags` after cut |
+| --- | --- | --- |
+| master | `8.2.0,dev,next` | `8.3.0,dev` (lost `next` to rel-820) |
+| rel-820 (new) | (didn't exist) | `8.2.0,next` (acquired `next`) |
+| rel-810 | `8.1.1,latest` | `8.1.1,latest` (unchanged — still current GA) |
+
+### `openemr_version_ref`: branch tip vs tag pin
+
+For a given row, `openemr_version_ref` alternates between two shapes across the release cycle:
+
+- **Branch tip** (e.g. `rel-810`, `master`) — daily orchestrator builds pull the branch's HEAD content. Image content moves as commits land. Used for "currently developing this version" state.
+- **Tag pin** (e.g. `v8_1_0`, `v8_0_0_3`) — daily orchestrator builds pull the immutable tag's content. Image content is locked. Used for "this version has been released; no more changes to this stream until next release."
+
+A rel branch's row cycles through three states per release:
+
+1. **Stable** (just after `vX.Y.Z` shipped): `openemr_version_ref: vX_Y_Z`, `docker_tags: X.Y.Z,<name>`. Image locked to released content.
+2. **Pre-release prep** (working toward `X.Y.(Z+1)`): `openemr_version_ref: rel-XYZ`, `docker_tags: X.Y.(Z+1),<name>`. Both updated together — the numbered docker tag advances to the future version AND the ref switches to branch tip. Image moves as commits land on the rel branch; both `X.Y.(Z+1)` and `<name>` publish in-progress content.
+3. **Released `X.Y.(Z+1)`**: `openemr_version_ref: vX_Y_(Z+1)`, `docker_tags: X.Y.(Z+1),<name>`. Only the ref flips back to a tag; `docker_tags` is unchanged from state 2. Image relocks to the newly-released content.
+
+Master is always at state 2 (`openemr_version_ref: master`) — master never gets stable-released as itself; its successor versions release from rel branches.
+
+### Multi-row: keeping the prior stable published during a patch cycle
+
+When a rel branch enters its next patch dev cycle (e.g. `rel-810` bumps to `8.1.2-dev` after `8.1.1` ships), the existing row retargets at the new dev (`docker_tags: 8.1.2,next`, `openemr_version_ref: rel-810`) and a **second** row is added on the same branch pinning the prior stable (`docker_tags: 8.1.1`, `openemr_version_ref: v8_1_1`). Daily builds keep republishing the stable image alongside the new dev. When the new dev ships, the prior-release row is dropped and the branch returns to a single row. The prior-release row publishes for real during the dev cycle — `unreleased: true` is not set on it. See the [`release-targets.yml` header](../.github/release-targets.yml) for the full multi-row rules.
+
+### Where the shuffle happens in the automation
+
+Slot moves land via the master-side `release-finalize/<rel-branch>` PR — see the [Finalize-on-master PR section](#finalize-on-master-pr--release-finalizerel-branch-in-openemropenemr) for the two-phase (preview during `-dev`, post-tag ref-flip) lifecycle. `branch-cut-automation.yml` handles the new-rel-branch insertion in its own master-side PR (see [Lifecycle-event workflows](#lifecycle-event-workflows-siblings)). Rel-branch rows for the shipping branch itself are also touched here; other rows in the same shuffle (previous `latest` holder, master's `dev`/`next` doubling) are re-written in the same PR since they all live in the one master-side file.
+
 ## Orientation: finding the current release state
 
 This document describes the *process*. The *current* state lives in Git and the GitHub API — discover it before acting; do not assume a release is or isn't in flight.
