@@ -385,10 +385,9 @@ Delivered:
 Exit criterion met: workflow succeeds on `latest` → `next` upgrade
 (first CI run passed all 3 matrix scenarios: 2m19s, 2m34s, 4m1s).
 
-### Phase 2.5 — Build-from-codebase for PR validation *(extension of Phase 2, IN FLIGHT)*
+### Phase 2.5 — Build-from-codebase for PR validation *(SHIPPED)*
 
-**STATUS: IN FLIGHT** as
-[openemr/openemr#13163](https://github.com/openemr/openemr/pull/13163).
+**STATUS: SHIPPED as #13163** (merge commit `00721eb0b8`).
 
 Adds `build_locally: bool` workflow_dispatch input + auto-fire on
 any PR/push touching `docker/release/**` (detected via `git diff`).
