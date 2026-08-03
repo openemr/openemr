@@ -313,14 +313,27 @@ trait UiSeedingTrait
             'Confirm-create modal rendered but #confirmCreate onclick lost the srcConfirmSave callback wiring — modal-side regression',
         );
 
+        // Dismiss the modal at top level BEFORE the direct submit —
+        // dlgclose normally does .modal("hide") + iframe removal as
+        // part of the callback dance we're bypassing. Skipping that
+        // cleanup leaves the modalframe iframe in the top-level DOM,
+        // which intercepts subsequent clicks on the shell (broke
+        // addEncounterViaUi's "New Encounter" click; broke Dd's
+        // finder anySearchBox interaction — both in the pat iframe
+        // sit BEHIND the top-level modal overlay).
+        $client->switchTo()->defaultContent();
+        $client->executeScript(
+            'if (window.jQuery) { jQuery(".dialogModal").modal("hide"); }'
+            . 'document.querySelectorAll("iframe#modalframe").forEach(function (f) { f.remove(); });'
+        );
+
         // srcConfirmSave is defined in new_comprehensive.php which
         // loads INSIDE the pat iframe, NOT the top-level document.
-        // Switch back to the pat iframe (where the form lives) then
+        // Switch into the pat iframe (where the form lives) and
         // submit directly — equivalent to what srcConfirmSave does
         // (`document.forms[0].submit()` per new_comprehensive.php:979)
         // but no scope-lookup dependency on the srcConfirmSave name
         // being defined in whatever context we happen to be in.
-        $client->switchTo()->defaultContent();
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
         $client->executeScript('document.forms[0].submit();');
 
