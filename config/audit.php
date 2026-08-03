@@ -34,7 +34,7 @@ return [
     BreakglassCheckerInterface::class => BreakglassChecker::class,
     // See notes in BreakglassChecker's constructor: it must use the
     // non-audited connection in order to avoid an infinite loop w/ SQL logging
-    BreakglassChecker::class => fn (TC $c) => new BreakglassChecker(
+    BreakglassChecker::class => fn (TC $c): BreakglassChecker => new BreakglassChecker(
         $c->get(ConnectionManager::class)->get(ConnectionType::NonAudited),
     ),
 
@@ -69,13 +69,13 @@ return [
 
 
     // ATNA logging config
-    Audit\Atna\TcpWriter::class => fn (TC $c) => new Audit\Atna\TcpWriter(
+    Audit\Atna\TcpWriter::class => fn (TC $c): Audit\Atna\TcpWriter => new Audit\Atna\TcpWriter(
         host: $c->getString('ATNA_AUDIT_HOST'),
         port: $c->getInt('ATNA_AUDIT_PORT'),
         localCert: $c->getString('ATNA_AUDIT_LOCALCERT'),
         caCert: $c->getString('ATNA_AUDIT_CACERT'),
     ),
-    Audit\AtnaSink::class => fn (TC $c) => new Audit\AtnaSink(
+    Audit\AtnaSink::class => fn (TC $c): Audit\AtnaSink => new Audit\AtnaSink(
         clock: $c->get(ClockInterface::class),
         writer: $c->get(Audit\Atna\TcpWriter::class),
         host: $c->getString('ATNA_AUDIT_HOST'),

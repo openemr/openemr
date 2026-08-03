@@ -29,7 +29,7 @@ class AMC_302f_STG2_Numerator implements AmcFilterIF
         return "AMC_302f_STG2 Numerator";
     }
 
-    public function test(AmcPatient $patient, $beginDate, $endDate)
+    public function test(AmcPatient $patient, $beginDate, $endDate): bool
     {
         if (
             ( ($patient->calculateAgeOnDate($endDate) >= 3) &&

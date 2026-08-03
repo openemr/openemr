@@ -59,3 +59,6 @@ jobs:
         bats tests/bats/ci-scripts/verify-dockerhub-tag-exists/
         bats tests/bats/ci-scripts/dockerhub-delete-tag/
         bats tests/bats/ci-scripts/detect-acceptance-mode/
+        bats tests/bats/ci-scripts/create-release-tag/
+        bats tests/bats/ci-scripts/extract-changelog-section/
+        bats tests/bats/ci-scripts/build-release-body/

@@ -143,7 +143,7 @@ class AuthUtils
      * @param $email    - used when a email address is required
      * @return bool returns true if the password for the given user is correct, false otherwise.
      */
-    private function confirmPatientPassword($username, &$password, $email = '')
+    private function confirmPatientPassword($username, &$password, $email = ''): bool
     {
         // Set variables for log
         $event = 'portalapi';
@@ -272,7 +272,7 @@ class AuthUtils
      * @return bool returns true if the password for the given user is correct, false otherwise.
      * @throws SodiumException
      */
-    private function confirmUserPassword($username, &$password)
+    private function confirmUserPassword($username, &$password): bool
     {
         // Set variables for log
         if ($this->loginAuth) {
@@ -512,7 +512,7 @@ class AuthUtils
      * @param $new_username    The username for a new user
      * @return bool Was the password successfully updated/created? If false, then $this->errorMessage will tell you why it failed.
      */
-    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, array $userData = [], $new_username = null)
+    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, array $userData = [], $new_username = null): bool
     {
         // Collect ip address for log
         $ip = collectIpAddresses();
@@ -685,7 +685,7 @@ class AuthUtils
                     EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " No user data provided for new user");
                     return false;
                 }
-                $columns = array_map(fn($col) => '`' . $col . '`', array_keys($userData));
+                $columns = array_map(fn($col): string => '`' . $col . '`', array_keys($userData));
                 $placeholders = array_fill(0, count($userData), '?');
                 $insertSql = 'INSERT INTO `users` (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
                 $newUserId = QueryUtils::sqlInsert($insertSql, array_values($userData));
@@ -834,7 +834,7 @@ class AuthUtils
      *
      * @return bool
      */
-    public static function authCheckSession()
+    public static function authCheckSession(): bool
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ((!empty($session->get('authUserID'))) && (!empty($session->get('authUser'))) && (!empty($session->get('authPass')))) {
@@ -868,7 +868,7 @@ class AuthUtils
      * @param $user
      * @return bool
      */
-    public static function useActiveDirectory($user = '')
+    public static function useActiveDirectory($user = ''): bool
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled')) {
@@ -895,7 +895,7 @@ class AuthUtils
      * @param $pass
      * @return bool
      */
-    private function activeDirectoryValidation($user, &$pass)
+    private function activeDirectoryValidation($user, &$pass): bool
     {
         // Make sure the connection is not anonymous.
         if ($pass === '' || preg_match('/^\0/', (string) $pass) || !preg_match('/^[\w.-]+$/', (string) $user)) {
@@ -1014,7 +1014,7 @@ class AuthUtils
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
      * @return bool is the password long enough?
      */
-    private function testMinimumPasswordLength(&$pwd)
+    private function testMinimumPasswordLength(&$pwd): bool
     {
         if ((OEGlobalsBag::getInstance()->get('gbl_minimum_password_length') != 0) && (check_integer(OEGlobalsBag::getInstance()->get('gbl_minimum_password_length')))) {
             if (strlen((string) $pwd) < OEGlobalsBag::getInstance()->get('gbl_minimum_password_length')) {
@@ -1041,7 +1041,7 @@ class AuthUtils
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
      * @return bool is the password short enough?
      */
-    private function testMaximumPasswordLength(&$pwd)
+    private function testMaximumPasswordLength(&$pwd): bool
     {
         if ((!empty(OEGlobalsBag::getInstance()->get('gbl_maximum_password_length'))) && (check_integer(OEGlobalsBag::getInstance()->get('gbl_maximum_password_length')))) {
             if (strlen((string) $pwd) > OEGlobalsBag::getInstance()->get('gbl_maximum_password_length')) {
@@ -1059,7 +1059,7 @@ class AuthUtils
      * @param $pwd     the password to test - passed by reference to prevent storage of pass in memory
      * @return bool is the password strong enough?
      */
-    private function testPasswordStrength(&$pwd)
+    private function testPasswordStrength(&$pwd): bool
     {
         if (OEGlobalsBag::getInstance()->getBoolean('secure_password')) {
             $features = 0;
@@ -1083,7 +1083,7 @@ class AuthUtils
      * @param $user
      * @return bool
      */
-    private function checkPasswordNotExpired($user)
+    private function checkPasswordNotExpired($user): bool
     {
         if ((OEGlobalsBag::getInstance()->getInt('password_expiration_days') === 0) || self::useActiveDirectory($user)) {
             // skip the check if turned off or using active directory for login
@@ -1440,7 +1440,7 @@ class AuthUtils
      * @param $token
      * @return bool
      */
-    public static function verifyGoogleSignIn($token)
+    public static function verifyGoogleSignIn($token): bool
     {
         $event = 'login';
         $beginLog = 'Google Failure';

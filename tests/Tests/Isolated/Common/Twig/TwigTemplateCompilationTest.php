@@ -161,7 +161,7 @@ class TwigTemplateCompilationTest extends TestCase
         // Register stub functions that production code adds at runtime.
         // C_EncounterVisitForm registers displayOptionClass dynamically;
         // the stub lets those templates compile without the full form controller.
-        $twig->addFunction(new TwigFunction('displayOptionClass', fn () => ''));
+        $twig->addFunction(new TwigFunction('displayOptionClass', fn (): string => ''));
 
         self::$twig = $twig;
         return $twig;

@@ -74,7 +74,7 @@ class FhirDocumentReferenceAdvanceCareDirectiveService extends FhirServiceBase
     }
 
 
-    public function supportsCode($code)
+    public function supportsCode($code): bool
     {
 
         return false;

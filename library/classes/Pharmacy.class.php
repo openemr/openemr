@@ -215,7 +215,7 @@ class Pharmacy extends ORDataObject
         }
     }
 
-    function persist()
+    function persist(): mixed
     {
         // Wrap the whole logical save (parent row, address row, phone_numbers
         // delete + re-insert) in a single transaction. See the matching note
@@ -223,8 +223,8 @@ class Pharmacy extends ORDataObject
         // what stops the duplicate-phone-row accumulation, and the
         // transaction keeps a mid-loop failure from leaving the record with
         // partial or no phone data instead of just the buggy duplicates.
-        QueryUtils::inTransaction(function (): void {
-            parent::persist();
+        return QueryUtils::inTransaction(function (): mixed {
+            $ret = parent::persist();
             $this->address->persist($this->id);
             $phoneService = new PhoneNumberService();
             QueryUtils::sqlStatementThrowException(
@@ -244,6 +244,7 @@ class Pharmacy extends ORDataObject
                 $phoneService->type = $phone->type->value;
                 $phoneService->insert($phoneData, $this->id);
             }
+            return $ret;
         });
     }
 

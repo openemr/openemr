@@ -88,7 +88,7 @@ class GetPayinComponentParameters
             throw new UnexpectedValueException('Payment amount must be positive');
         }
 
-        $encounters = array_map(fn(array $row) => new Rainforest\EncounterData(
+        $encounters = array_map(fn(array $row): Rainforest\EncounterData => new Rainforest\EncounterData(
             id: $row['id'],
             code: $row['code'],
             codeType: $row['codeType'],

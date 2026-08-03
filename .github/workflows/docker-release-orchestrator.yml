@@ -138,25 +138,22 @@ jobs:
         BRANCH: ${{ matrix.branch }}
         DOCKER_TAGS: ${{ matrix.docker_tags }}
         OPENEMR_VERSION_REF: ${{ matrix.openemr_version_ref }}
+        MATRIX_GATE_WITH_ACCEPTANCE: ${{ matrix.gate_with_acceptance }}
       run: |
-        # Phase 7c-docker-latest-gate: rows that ship `latest` get the
-        # acceptance pre-publish gate. Every daily build of `latest`
-        # reaches the widest end-user surface (Docker Hub's default
-        # pull) so a regression there propagates fastest — worth the
-        # extra ~30 min acceptance runtime per gated build. Other
-        # rows (version-pinned tags, dev/next floating tags) stay on
-        # the single-step build+push shape: smaller blast radius,
-        # cheaper daily runtime. See docker-build-release.yml's
-        # gate_with_acceptance input description for the mechanic.
-        GATE="false"
-        IFS=',' read -ra TAG_ARR <<< "$DOCKER_TAGS"
-        for tag in "${TAG_ARR[@]}"; do
-          tag="${tag// /}"   # strip whitespace
-          if [[ "$tag" == "latest" ]]; then
-            GATE="true"
-            break
-          fi
-        done
+        # Phase 12: gate is driven by the per-row `gate_with_acceptance`
+        # flag in release-targets.yml, defaulted false. Pre-Phase-12 we
+        # auto-detected by "any tag == 'latest'" and only rel-820 (which
+        # ships latest) got the gate; the CI-budget cost of QEMU-emulated
+        # acceptance (~1h) made narrower scoping right. Phase 11's native
+        # arm64 restructure dropped acceptance runtime to ~15-25 min, so
+        # extending the gate to all rows that support the mechanism
+        # (master + rel-820, and any future rel-830+) is affordable and
+        # gives a consistent "was this validated before shipping?" bar.
+        # rel-800 + rel-704 leave the flag unset — they don't carry
+        # acceptance-docker.yml (byte-identical exclusion) so the receiving
+        # workflow wouldn't know how to run acceptance anyway; the docs
+        # comment on the flag in release-targets.yml captures the rule.
+        GATE="${MATRIX_GATE_WITH_ACCEPTANCE:-false}"
 
         # Only pass `-f gate_with_acceptance=...` when we actually want
         # the gate on (GATE=true). rel-800 and rel-704 carry the pre-

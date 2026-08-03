@@ -127,10 +127,8 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
 
     /**
      * Persist object to database
-     *
-     * @return bool|int
      */
-    public function persist()
+    public function persist(): mixed
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Generate UUID if creating new record
@@ -559,6 +557,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
         $this->active = 0;
         $this->inactive_reason = $reason;
         $this->inactive_date = new DateTime();
+        // @phpstan-ignore return.type (persist here _is_ truly bool but needss)
         return $this->persist();
     }
 
@@ -572,6 +571,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
         $this->active = 1;
         $this->inactive_reason = null;
         $this->inactive_date = null;
+        // @phpstan-ignore return.type (persist here _is_ truly bool but needss)
         return $this->persist();
     }
 
@@ -628,6 +628,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
     }
 
     /**
+    * @return bool true if no problem
      * String representation
      *
      * @return string

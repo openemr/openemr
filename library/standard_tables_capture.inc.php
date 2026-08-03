@@ -23,7 +23,7 @@ use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
-function temp_copy($filename, $type)
+function temp_copy($filename, $type): bool
 {
 
     if (!file_exists($filename)) {
@@ -82,7 +82,7 @@ function temp_unarchive($filename, $type)
 
 // Function to import the RXNORM tables
 // $is_windows_flag - pass the IS_WINDOWS constant
-function rxnorm_import($is_windows_flag)
+function rxnorm_import($is_windows_flag): bool
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
@@ -166,7 +166,7 @@ function rxnorm_import($is_windows_flag)
 }
 
 // Function to import SNOMED tables
-function snomed_import($us_extension = false)
+function snomed_import($us_extension = false): bool
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
@@ -324,7 +324,7 @@ function chg_ct_external_torf2(): void
     sqlStatement("UPDATE code_types SET ct_external = 12 WHERE ct_key = 'SNOMED-PR'");
 }
 
-function snomedRF2_import()
+function snomedRF2_import(): bool
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
@@ -593,7 +593,7 @@ function icd_import($type)
     return true;
 }
 
-function valueset_import($type)
+function valueset_import($type): bool
 {
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
@@ -710,7 +710,7 @@ function temp_dir_cleanup($type): void
 
 // Function to update version tracker table if successful
 // $type (RXNORM etc.)
-function update_tracker_table($type, $revision, $version, $file_checksum)
+function update_tracker_table($type, $revision, $version, $file_checksum): bool
 {
     if ($type == 'RXNORM') {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'RXNORM',?,?,?)", [$revision, $version, $file_checksum]);

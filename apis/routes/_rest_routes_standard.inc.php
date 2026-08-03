@@ -713,5 +713,5 @@ return [
     // segment, so OAuth2 scope checks resolve to `<scope>/background_service.c`
     // rather than `<scope>/run.c`.
     'POST /api/background_service/$run'
-        => fn(HttpRestRequest $request) => (new BackgroundServiceRestController())->runAllDue(),
+        => fn(HttpRestRequest $request): \Symfony\Component\HttpFoundation\Response => (new BackgroundServiceRestController())->runAllDue(),
 ];

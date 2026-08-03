@@ -269,7 +269,7 @@ class Rule
      * @param RuleType $ruleType
      * @return bool
      */
-    function hasRuleType($ruleType)
+    function hasRuleType($ruleType): bool
     {
         foreach ($this->ruleTypes as $type) {
             if ($type == $ruleType->code) {
@@ -344,7 +344,7 @@ class Rule
         $this->actions = $actions;
     }
 
-    function isEditable()
+    function isEditable(): bool
     {
         return true;
     }

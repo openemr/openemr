@@ -77,7 +77,7 @@ class Dispatcher
      * @param Context $context (optional) a context object for persisting state
      * @param IRouter $router (optional) router object for reading/writing URLs (if not provided, GenericRouter will be used)
      */
-    static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null)
+    static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null): bool
     {
         if ($router == null) {
             require_once('GenericRouter.php');
