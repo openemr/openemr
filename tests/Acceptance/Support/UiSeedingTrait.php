@@ -288,9 +288,14 @@ trait UiSeedingTrait
         $client->switchTo()->defaultContent();
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
+        // 60s (not the Panther-default 30s) — the post-submit
+        // dashboard render includes the reminders-widget compute
+        // which can slip past 30s on slow ARM CI runners. Matches
+        // the ARM-tolerance ceiling established for the alert wait
+        // in #13348.
         $client->waitFor(
             '//*[text()="Medical Record Dashboard - ' . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '"]',
-            30,
+            60,
         );
     }
 
@@ -357,9 +362,11 @@ trait UiSeedingTrait
         $client->switchTo()->defaultContent();
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
+        // 60s tolerance for the ARM-CI-runner-slow dashboard render —
+        // matches the addPatientViaUi() pattern above.
         $client->waitFor(
             '//*[text()=' . self::xpathLiteral('Medical Record Dashboard - ' . $firstname . ' ' . $lastname) . ']',
-            30,
+            60,
         );
     }
 
@@ -433,10 +440,13 @@ trait UiSeedingTrait
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="enc"]');
         $client->waitFor('//iframe[@src="forms.php"]', 30);
         $this->switchToIFrame('//iframe[@src="forms.php"]');
+        // 60s tolerance for ARM-CI-runner-slow encounter render —
+        // same class of post-navigation content-render wait as the
+        // dashboard-header waits above.
         $client->waitFor(
             '//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for '
                 . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '")]',
-            30,
+            60,
         );
     }
 
