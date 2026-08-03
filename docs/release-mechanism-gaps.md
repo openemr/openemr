@@ -677,9 +677,10 @@ fourth attempt landed cleanly — see the refinement notes below).
        writes
      - Atomic → one dispatch consumer running at all times, clean
        cutover
-- **Procedural rule until automation lands** (the manual checklist
-  to follow when changing a production-demo row in
-  `ip_map_branch.txt`):
+- **Historical manual checklist** (superseded by the shipped
+  demo_farm reconciliation bot — see STATUS block above; kept as
+  fallback recovery procedure for the case where the bot is
+  disabled or the auto-derive PR needs a manual override):
   1. Identify the target tag (e.g., `v8_0_0_3`) and the rel
      branch it lives on (e.g., rel-800).
   2. Read that rel branch's `docker/release/Dockerfile` to find
@@ -2524,9 +2525,9 @@ manual" vs "when it happens in the release cycle."
 | **Docker upgrade machinery on rel branch** (3 docker-version flags + new `fsupgrade-N.sh` + Dockerfile two-block manifest) | **Manual** | **Release time** (must be in the image baked at tag creation; in or alongside the release-prep PR before it merges) |
 | **Docker upgrade machinery on master** (same files, byte-equal copy of the new `fsupgrade-N.sh`) | **Manual cross-branch sync** | **Release time** (master's image needs the same fsupgrade chain entry for forward-upgrade compatibility from rel-branch image → master image) |
 | **Next-cycle SQL skeleton on rel branch** (`sql/<just-released>-to-<next>_upgrade.sql`, blank with long header) | **Manual** (G3: `SqlUpgradeSkeletonMutator` is master-only + unwired today) | **Cut time** (start of next cycle, i.e., after this release ships, to prep for the next one) |
-| **Next-cycle SQL skeleton on master + file-rename dance** | **Manual** | **Cut time** |
-| **`version.php` advance to next-dev on rel branch** (e.g., `8.1.1` → `8.1.2-dev`) | **Manual** today (G2: no auto-bump mechanism) | **Cut time** (post-release, set the intent state for the next cycle) |
-| **`version.php` advance on master + bridge SQL + OpenAPI bump + release-targets master-row bump** (when cutting a NEW rel branch from master) | **Manual** today (G4: no `--scope=master` workflow path) | **At new rel-branch cut time** (master-side, distinct from rel-branch per-release cut) |
+| **Next-cycle SQL skeleton on master + file-rename dance** | **Manual for intermediate-minor case** (`MasterSqlPatchBridgeMutator` shipped via G12 / `patch-prep-automation.yml` handles the same-minor patch bridge; the rename dance for intermediate-minor releases is still manual) | **Cut time** |
+| **`version.php` advance to next-dev on rel branch** (e.g., `8.1.1` → `8.1.2-dev`) | **Manual `$v_patch` bump** — that manual bump then fires `patch-prep-automation.yml` (G2 / G12; workstream 6), which runs `PatchPrepReleaseTargetsMutator` and opens the paired prep PRs. The bump itself remains a maintainer action. | **Cut time** (post-release, set the intent state for the next cycle) |
+| **`version.php` advance on master + bridge SQL + OpenAPI bump + release-targets master-row bump** (when cutting a NEW rel branch from master) | **`branch-cut-automation.yml`** (G5 / workstream 2, shipped 2026-07-01 as openemr/openemr#12696 — 4 mutators including `VersionPhpMasterMutator` fire on `create` for `rel-[0-9]*0`; first end-to-end exercise was rel-820 on 2026-07-02) | **At new rel-branch cut time** (master-side, distinct from rel-branch per-release cut) |
 
 ## Docker Hub tag model + `openemr_version_ref` pattern
 
@@ -2749,10 +2750,14 @@ the automated end-state.
 
 ## Manual procedure: master-side actions when cutting a new rel branch
 
-**Status:** fully manual today. Surfaces gaps G4 (no `--scope=master`
-workflow path) + G5 (no auto-trigger on branch creation). Capture here
-so the steps are documented for when the next rel branch is cut from
-master.
+**Status:** most of this work is now automated by
+`branch-cut-automation.yml` + the 4 branch-cut mutators (G5 /
+workstream 2, shipped 2026-07-01 as openemr/openemr#12696; first
+end-to-end exercise was rel-820, 2026-07-02). This checklist is kept
+as (a) the mental model for what the automation does — useful when
+diagnosing a failed cut or drafting workflow changes — and (b) the
+manual fallback if the automated workflow needs to be bypassed. Each
+step below annotates its automation status inline where relevant.
 
 **Trigger event:** cutting a new `rel-NNN0` branch from master
 (e.g., `git push origin master:rel-820`). The new rel branch inherits
@@ -2882,13 +2887,14 @@ master initializes at branch-cut time also needs to be **incremented
 on each release from a rel branch IF the release introduces
 docker-level upgrade actions.**
 
-**Note on the first release after a cut** (e.g., 8.1.1 from rel-810
-where 8.1.0 was artifact-only): the cut-time prep already established
-the docker upgrade flags at their initial state, so the FIRST release
-from the branch doesn't strictly need this work — unless the new
-release itself needs new docker-level upgrade actions over the
-established baseline. Subsequent releases from the same rel branch
-need it whenever upgrade actions change.
+**Note on the first release after a cut** (e.g., 8.2.0 from rel-820,
+or the historical 8.1.1-from-rel-810 case where 8.1.0 was
+artifact-only): the cut-time prep already established the docker
+upgrade flags at their initial state, so the FIRST release from the
+branch doesn't strictly need this work — unless the new release
+itself needs new docker-level upgrade actions over the established
+baseline. Subsequent releases from the same rel branch need it
+whenever upgrade actions change.
 
 **Per-release-on-rel-branch docker upgrade steps** (in the release PR
 on the rel branch, alongside any conductor-generated mutations).
