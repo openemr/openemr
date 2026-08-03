@@ -300,6 +300,10 @@ trait UiSeedingTrait
         $client->switchTo()->defaultContent();
         $client->waitFor("//iframe[@id='modalframe']", 30);
         $this->switchToIFrame("//iframe[@id='modalframe']");
+        // Wait for the button to appear before findElement — the
+        // modalframe iframe may still be loading its inner document
+        // when we switch into it (rabbit round-1 on #13372).
+        $client->waitFor("//*[@id='confirmCreate']", 15);
         $confirmButton = $client->findElement(
             WebDriverBy::xpath("//*[@id='confirmCreate']"),
         );
@@ -308,12 +312,22 @@ trait UiSeedingTrait
             (string) $confirmButton->getAttribute('onclick'),
             'Confirm-create modal rendered but #confirmCreate onclick lost the srcConfirmSave callback wiring — modal-side regression',
         );
+
+        // srcConfirmSave is defined in new_comprehensive.php which
+        // loads INSIDE the pat iframe, NOT the top-level document.
+        // Switch back to the pat iframe (where the form lives) then
+        // submit directly — equivalent to what srcConfirmSave does
+        // (`document.forms[0].submit()` per new_comprehensive.php:979)
+        // but no scope-lookup dependency on the srcConfirmSave name
+        // being defined in whatever context we happen to be in.
         $client->switchTo()->defaultContent();
-        $client->executeScript('srcConfirmSave();');
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
+        $client->executeScript('document.forms[0].submit();');
 
         // Switch back to defaults, into the patient iframe, wait for
         // the Medical Record Dashboard header — proof the create
         // succeeded and the browser landed on the summary.
+        $client->switchTo()->defaultContent();
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
         $client->waitFor(
