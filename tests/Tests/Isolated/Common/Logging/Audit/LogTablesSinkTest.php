@@ -232,6 +232,7 @@ class LogTablesSinkTest extends TestCase
     {
         return [
             'user_id' => 1,
+            'client_id' => 'test-client-id',
             'patient_id' => 123,
             'method' => 'GET',
             'request' => '/api/patient',
@@ -307,6 +308,7 @@ class LogTablesSinkTest extends TestCase
         self::assertNotNull($capturedApiLogData);
         self::assertSame('55', $capturedApiLogData['log_id']);
         self::assertSame(1, $capturedApiLogData['user_id']);
+        self::assertSame('test-client-id', $capturedApiLogData['client_id']);
         self::assertSame(123, $capturedApiLogData['patient_id']);
         self::assertSame('GET', $capturedApiLogData['method']);
         self::assertSame('/api/patient', $capturedApiLogData['request']);

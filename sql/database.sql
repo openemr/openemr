@@ -93,6 +93,7 @@ CREATE TABLE `api_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `log_id` int(11) NOT NULL,
   `user_id` bigint(20) NOT NULL,
+  `client_id` varchar(80) NOT NULL DEFAULT '' COMMENT 'oauth_clients.client_id of the API client that made the request',
   `patient_id` bigint(20) NOT NULL,
   `ip_address` varchar(255) NOT NULL,
   `method` varchar(20) NOT NULL,

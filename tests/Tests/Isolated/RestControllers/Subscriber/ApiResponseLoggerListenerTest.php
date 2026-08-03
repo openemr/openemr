@@ -60,6 +60,7 @@ class ApiResponseLoggerListenerTest extends TestCase
                 $this->assertEquals('', $user_notes, 'User notes should be empty');
                 $this->assertEquals([
                     'user_id' => $session->get('authUserID'),
+                    'client_id' => '',
                     'patient_id' => $session->get('pid'),
                     'method' => $request->getMethod(),
                     'request' => $request->getResource(),
@@ -96,6 +97,7 @@ class ApiResponseLoggerListenerTest extends TestCase
         $session->set('pid', 123); // Set a patient ID for testing
         $request->setSession($session);
         $request->setResource('test');
+        $request->setClientId('test-oauth-client');
 
         $jsonDataResponse = [
             'message' => 'Test response',
@@ -123,6 +125,7 @@ class ApiResponseLoggerListenerTest extends TestCase
                 $this->assertEquals('', $user_notes, 'User notes should be empty');
                 $this->assertEquals([
                     'user_id' => $session->get('authUserID'),
+                    'client_id' => 'test-oauth-client',
                     'patient_id' => $session->get('pid'),
                     'method' => $request->getMethod(),
                     'request' => $request->getResource(),

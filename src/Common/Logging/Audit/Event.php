@@ -18,6 +18,7 @@ namespace OpenEMR\Common\Logging\Audit;
  * (inferred from ApiResponseLoggerListener)
  * @phpstan-type ApiData array{
  *   user_id: int,
+ *   client_id?: string,
  *   patient_id: int,
  *   method: string,
  *   request: string,
