@@ -254,49 +254,71 @@ trait UiSeedingTrait
             'Create patient button',
         );
 
-        // Confirm dialog renders inside a modal iframe. Switch out of
-        // the patient iframe first, then into the modal frame.
+        // Confirm-create: assert the modal + button rendered as a
+        // regression signal, then invoke srcConfirmSave() directly.
+        //
+        // The source-side pattern of finding + clicking #confirmCreate
+        // inside the modalframe iframe hits a wiring race where the
+        // button becomes WebDriver-clickable before its onclick
+        // handler (`dlgclose("srcConfirmSave", false)`) is wired to
+        // dlgclose → window[callback] → srcConfirmSave() → form.submit.
+        // When the race bites, the click no-ops, the form is never
+        // submitted, no redirect, dashboard-header wait times out
+        // with no diagnostic signal (source-side E2e/Patient/
+        // PatientAddTrait masks the same class of failure with a
+        // 3-retry-whole-test loop; per user 2026-08-03 the failure
+        // predates any capability / muzzle work we did on the
+        // acceptance side).
+        //
+        // The confirmCreate button's onclick is a single-line
+        // `dlgclose("srcConfirmSave", false)` whose only purpose is
+        // to close the modal + invoke the parent's srcConfirmSave()
+        // callback. srcConfirmSave() itself is `document.forms[0].
+        // submit()` (see interface/new/new_comprehensive.php:979).
+        // Calling it directly:
+        //  - Skips the modalframe-button click-handler wiring race
+        //  - Skips the dlgclose iframe/modal cleanup dance
+        //  - Skips the window[callback] indirection
+        //  - No sleep(5), no elementToBeClickable wait, no race
+        //
+        // Cleanup: the modal stays open in the DOM, but the
+        // post-submit redirect to demographics.php destroys the
+        // whole page anyway. Not a concern.
+        //
+        // Modal-regression signal: because we're skipping the click,
+        // we ALSO skip any modal-rendering / button-wiring surface
+        // coverage the click would have provided. Compensate with a
+        // scoped assertion: switch into the modalframe, verify the
+        // #confirmCreate button is present and carries the expected
+        // dlgclose onclick, then switch back and invoke the callback.
+        // This catches "modal template broke" or "confirmCreate
+        // onclick regressed" without depending on click propagation.
+        //
+        // Phase 13 back-port candidate: source-side PatientAddTrait
+        // could adopt the same modal-verify + direct-invoke pattern
+        // and drop its 3-retry loop entirely.
         $client->switchTo()->defaultContent();
         $client->waitFor("//iframe[@id='modalframe']", 30);
         $this->switchToIFrame("//iframe[@id='modalframe']");
-        $client->wait(15)->until(
-            WebDriverExpectedCondition::elementToBeClickable(
-                WebDriverBy::xpath("//*[@id='confirmCreate']"),
-            ),
+        $confirmButton = $client->findElement(
+            WebDriverBy::xpath("//*[@id='confirmCreate']"),
         );
-        // Empirical stabilization — the modal form is clickable before
-        // its JS finishes wiring the confirm handler. Same 5s wait the
-        // source-side PatientAddTrait uses.
-        sleep(5);
-        $client->findElement(WebDriverBy::xpath("//*[@id='confirmCreate']"))->click();
+        self::assertStringContainsString(
+            'srcConfirmSave',
+            (string) $confirmButton->getAttribute('onclick'),
+            'Confirm-create modal rendered but #confirmCreate onclick lost the srcConfirmSave callback wiring — modal-side regression',
+        );
+        $client->switchTo()->defaultContent();
+        $client->executeScript('srcConfirmSave();');
 
-        // No explicit alert-wait: after form submit the browser
-        // navigates to the new patient's Medical Record Dashboard,
-        // where a "New Due Clinical Reminders" alert(...) would fire
-        // from library/clinical_rules.php via <img onload>. The
-        // muzzleBrowserPrompts() call at the top of this method has
-        // already overridden window.alert to a no-op via CDP, so
-        // the emitter fires but produces no popup. Prior versions
-        // tried to explicitly wait for the alert (5s → 15s → 60s)
-        // and misread it as a dup-check alert, accumulating layers
-        // of wrong-shape mitigation (#13348) — see this file's git log.
-        // Waiting for the real post-condition (the dashboard header)
-        // is deterministic.
-        //
         // Switch back to defaults, into the patient iframe, wait for
         // the Medical Record Dashboard header — proof the create
         // succeeded and the browser landed on the summary.
-        $client->switchTo()->defaultContent();
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
-        // 60s (not the Panther-default 30s) — the post-submit
-        // dashboard render includes the reminders-widget compute
-        // which can slip past 30s on slow ARM CI runners. Matches
-        // the ARM-tolerance ceiling established for the alert wait
-        // in #13348.
         $client->waitFor(
             '//*[text()="Medical Record Dashboard - ' . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '"]',
-            60,
+            30,
         );
     }
 
@@ -363,11 +385,9 @@ trait UiSeedingTrait
         $client->switchTo()->defaultContent();
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
-        // 60s tolerance for the ARM-CI-runner-slow dashboard render —
-        // matches the addPatientViaUi() pattern above.
         $client->waitFor(
             '//*[text()=' . self::xpathLiteral('Medical Record Dashboard - ' . $firstname . ' ' . $lastname) . ']',
-            60,
+            30,
         );
     }
 
@@ -441,13 +461,10 @@ trait UiSeedingTrait
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="enc"]');
         $client->waitFor('//iframe[@src="forms.php"]', 30);
         $this->switchToIFrame('//iframe[@src="forms.php"]');
-        // 60s tolerance for ARM-CI-runner-slow encounter render —
-        // same class of post-navigation content-render wait as the
-        // dashboard-header waits above.
         $client->waitFor(
             '//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for '
                 . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '")]',
-            60,
+            30,
         );
     }
 
