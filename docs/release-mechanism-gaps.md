@@ -2604,11 +2604,20 @@ Two distinct "cut time" contexts conflated by the word "cut":
   (`version.php`, OpenAPI, release-targets master row, bridge SQL,
   etc. — see master-side branch-cut checklist above) happens here.
 
-## Canonical 8.1.1 release sequence (apply pattern to subsequent releases)
+## Historical: pre-automation release sequence (reference)
 
-The full PR sequence for releasing 8.1.1 from rel-810, end to end.
-Most steps are manual today (see G2-G5 for which automations would
-collapse this in the future). Numbered by ordering constraint.
+**Historical — retained for reference only.** This is the full PR
+sequence that would have been walked by hand to release 8.1.1 from
+rel-810 before the release-mechanism migration completed. 8.1.1 was
+abandoned; 8.2.0 was the first release cut end-to-end via the
+migrated pipeline (see the Quick context above), and subsequent
+releases use `RELEASE_PROCESS.md` as the canonical runbook.
+
+Kept here because the step-by-step captures the mechanical work that
+several automation slices (workstreams 2, 3, 6) collapsed away — a
+useful cross-reference when reasoning about what a given mutator or
+workflow now handles. Do NOT use as a runbook for real releases.
+Numbered by ordering constraint.
 
 ### Pre-release (before pushing version.php bump on rel-810)
 
@@ -2788,30 +2797,6 @@ the automated end-state.
 - P6, P7, P8 all post-P5.
 - P8's rename dance on master only matters if a next-minor bridge
   file is present on master at that time (currently is).
-
-## Things to verify during 8.1.1 manual prep
-
-(Grows as the manual work uncovers gaps.)
-
-- [ ] Inspect rel-810's current `version.php`: what's `$v_tag`?
-- [ ] Inspect rel-810's `library/globals.inc.php`: does it need manual
-      edits before 8.1.1 push?
-- [ ] Confirm `sql/8_1_0-to-8_1_1_upgrade.sql` exists on rel-810 with
-      8.1.1's actual SQL upgrade content (NOT a blank skeleton — this
-      file is what runs when consumers upgrade TO 8.1.1).
-      `SqlUpgradeSkeletonMutator` won't create or modify it (master-only
-      + unwired per G3, and it scaffolds the NEXT-cycle blank, not the
-      current-cycle populated file). Manual responsibility either way.
-- [ ] Test-mode end-to-end first:
-      `gh workflow run release-prep.yml --ref rel-810 -f target-version=8.1.1 -f branch=rel-810 -f test=true`
-      and inspect what artifacts come out, what the test-tag looks like,
-      what the test PR contains.
-- [ ] Verify docker auto-upgrade refs (the `DockerComposeProductionMutator`
-      target — `docker/production/docker-compose.yml`) look right after a
-      test-mode run.
-- [ ] After successful test run: do the same dispatch without `test=true`
-      for the real 8.1.1 release, OR push to rel-810 and let the push
-      trigger fire it.
 
 ## Manual procedure: master-side actions when cutting a new rel branch
 
