@@ -2327,6 +2327,123 @@ source-side PR (byte-identical infrastructure doesn't cover
 entries: append here whenever an acceptance-side fix has a
 plausible dev-side twin, so we don't lose the observation.
 
+### Phase 14 — Skip-acceptance escape hatch on the recovery rerun workflows *(proposed 2026-08-03)*
+
+**Motivation.** The rerun workflows for already-built artifacts —
+`acceptance-only.yml` (tarball) and `docker-acceptance-only.yml`
+(docker image) — currently always run the full acceptance-scenario
+matrix before publishing. That's the right default: an operator
+firing a rerun does so because acceptance previously failed, and
+re-running acceptance is how you confirm the artifact is actually
+good.
+
+But there's a real operator-experience gap: sometimes acceptance
+fails REPEATEDLY on the SAME known-good artifact due to test-side
+flakes we haven't fully zeroed out. The Kk clinical-reminders alert
+saga (four iterations: #13348 wait-widen, click retry, #13351 seed
+refactor, #13355 capability, #13358 CDP muzzle) illustrates the
+shape — over the four-iteration debug window, operators re-fired
+the rerun workflow multiple times knowing full well the artifact
+was fine but acceptance kept red-flagging. There is no escape hatch
+today: the operator either accepts the CI churn, waits it out, or
+falls back to the pre-Phase-10c manual publish dance.
+
+**Proposal.** Add two matched inputs to BOTH rerun workflows:
+
+- `skip_acceptance: bool` (default `false`) — the escape-hatch
+  toggle. When `true`, the workflow jumps straight to the publish
+  step, bypassing the acceptance-scenario matrix entirely.
+- `skip_acceptance_reason: string` (default empty) — required
+  non-empty when `skip_acceptance=true`. Free-text explanation of
+  why the operator is bypassing. Workflow validates: if
+  `skip_acceptance=true` and reason is empty, fail immediately
+  with a clear error.
+
+**Behavior contract:**
+
+| skip_acceptance | reason | Behavior |
+| --- | --- | --- |
+| `false` (default) | (ignored) | Normal flow — run acceptance matrix, publish on green |
+| `true` | non-empty | Bypass acceptance, jump to publish. Log reason in workflow run-name + attach as artifact + emit as a check-run annotation. |
+| `true` | empty | Fail-loud in the FIRST job of the workflow with a clear "reason required" error. Never gets to publish. |
+| `false` | non-empty | Reason ignored (leaves it in the run inputs for audit; doesn't affect behavior) |
+
+**Audit trail requirements:**
+
+- The bypass reason appears in the workflow's `run-name` so it's
+  visible from the Actions UI list view without clicking in.
+- The bypass event lands in the run's summary annotation via
+  `::warning::` so it shows up on the run summary panel.
+- The published release (Docker Hub image + GitHub Release object)
+  gets a note in its description / trailer that acceptance was
+  bypassed for THIS specific publish, with the reason. Human-
+  reviewable after the fact.
+- If a bypass publishes a release, the acceptance-gap-audit report
+  (or similar tooling that surveys "how many releases have full
+  acceptance coverage") counts the bypass event distinctly.
+
+**When to use vs when NOT to use:**
+
+- Use when: acceptance has failed N times in a row on the SAME
+  artifact, with failures that inspection has confirmed are
+  test-side flakes (specific alerts, timing races, known-broken
+  assertions). Operator has read the failure logs and understands
+  what's flaking.
+- Do NOT use when: acceptance failures are on a NEW artifact that
+  hasn't been validated before. First-time failures might be real
+  regressions; bypass hides the signal.
+- Do NOT use as a permanent workaround: bypassing repeatedly on
+  the same class of flake means the flake needs a proper fix, not
+  a bypass. The audit trail is designed to make repeat-bypass
+  visible.
+
+**Sequencing:**
+
+- **Slice 1 (tarball prong):** `acceptance-only.yml` gets both
+  inputs + fail-loud reason validation + skip-scenario-matrix
+  gate + audit-trail wiring (run-name + summary annotation).
+  Follow-up: release-description trailer if easy to plumb; can
+  slip to Slice 3.
+- **Slice 2 (docker prong):** `docker-acceptance-only.yml` gets
+  the same inputs + same behavior. Copy the pattern from Slice 1
+  once its shape is settled.
+- **Slice 3 (audit-trail follow-through):** release-object /
+  Docker Hub image description gets the bypass note if the
+  workflow was skip-mode. Optional if too invasive; the run-name
+  + summary annotation from slices 1+2 provide adequate audit for
+  most cases.
+
+**Risks:**
+
+- **Over-use erodes signal.** If operators reach for bypass at
+  the first sign of failure, we lose the acceptance surface's
+  purpose. Mitigation: the required non-empty reason field forces
+  a moment of reflection; the audit-trail visibility makes
+  repeated-bypass patterns visible for retrospective review.
+- **Race with fix-the-real-flake work.** Bypassing masks a real
+  flake from CI, potentially delaying the fix. Mitigation: bypass
+  events should be spotcheckable, and if the same failure class
+  bypasses N times, that's a signal to prioritize the underlying
+  fix — the audit trail supports that spotcheck.
+- **Nothing prevents a bad-actor scenario.** Someone with
+  workflow_dispatch permission can bypass acceptance and publish a
+  broken artifact. The reason field doesn't prevent this — it just
+  documents the intent. Belt: workflow_dispatch on these workflows
+  is already gated to org-owner / release-maintainer. Suspenders:
+  the audit trail lets us catch after-the-fact.
+
+**Not addressed here (parked):**
+
+- Automated bypass-count budgeting (e.g., "no more than 3 bypasses
+  per week without escalation") — could be a later Phase 14b if
+  bypass-frequency ever becomes a real concern. Current volume
+  wouldn't justify.
+- Selective per-scenario bypass ("skip just the tar prong, still
+  run the docker prong") — the two workflows are already split
+  per-prong, so per-scenario granularity within one prong is
+  finer than needed. Full-workflow bypass is the right
+  granularity.
+
 ## Test-coverage philosophy
 
 Guidelines for where a new test belongs, once both surfaces exist:
