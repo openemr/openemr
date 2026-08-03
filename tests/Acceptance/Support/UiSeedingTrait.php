@@ -182,9 +182,10 @@ trait UiSeedingTrait
      * dashboard's clinical-reminders widget would emit a native
      * browser alert (see library/clinical_rules.php), but
      * muzzleBrowserPrompts() has already overridden window.alert
-     * to a no-op so no popup fires. The grid path in BrowserSession
-     * also sets unhandledPromptBehavior=accept as an independent
-     * safety net for any prompt the JS override doesn't cover.
+     * to a no-op so no popup fires. The muzzle is the sole
+     * mechanism — see BrowserSession's grid + local paths for
+     * why the previously-attempted unhandledPromptBehavior=accept
+     * capability was yanked.
      *
      * XPath discoveries from KkEncounterFormNavbarUrl port:
      *
