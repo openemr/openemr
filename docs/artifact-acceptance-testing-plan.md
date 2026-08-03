@@ -2692,7 +2692,7 @@ in acceptance."
   be cut from master that already has the dep).
 
 - **2026-07-24** — Phase 1 SHIPPED as #13149. Phase 2 SHIPPED as
-  #13159. Phase 2.5 IN FLIGHT as #13163. Reordered plan: Phase 5
+  #13159. Phase 2.5 SHIPPED as #13163. Reordered plan: Phase 5
   (Dockerfile git-clone -> git-archive) promoted from last to
   execute right after Phase 2.5, before Phase 3. Rationale: current
   Phase 2.5 validates PR-Dockerfile + master-source (hybrid). End
