@@ -926,7 +926,9 @@ merge manually after the tag fires.
     (e.g., `rel-810 → v8_1_1`). Stops daily builds from tracking
     the rel branch tip; locks them to the immutable tag content.
   - **Slot shuffle across rows** (per the slot-promotion model
-    documented in this doc's "Docker Hub tag model" section):
+    now documented in `RELEASE_PROCESS.md` — the treatment
+    previously lived in this doc, see the "Docker Hub tag model +
+    `openemr_version_ref` pattern" pointer below):
     - The newly-shipped rel branch promotes its `next` tag →
       `latest` (e.g., `rel-810: 8.1.1,next → 8.1.1,latest`).
     - The previous `latest` holder drops it (e.g.,
@@ -2646,8 +2648,9 @@ a. *rel-810 row ref pin*: `openemr_version_ref: rel-810 → v8_1_1`.
    Daily images now lock to v8_1_1's immutable content instead of
    moving with rel-810 HEAD.
 
-b. *Slot shuffle* (`next` → `latest` promotion, see "Slot-promotion
-   model" section above):
+b. *Slot shuffle* (`next` → `latest` promotion — see the "Docker
+   Hub tag model + `openemr_version_ref` pattern" pointer above,
+   which redirects to `RELEASE_PROCESS.md`'s full treatment):
 
    | row | docker_tags before | docker_tags after |
    |---|---|---|
