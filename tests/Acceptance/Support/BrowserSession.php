@@ -88,25 +88,23 @@ final class BrowserSession
         // and passing it via $options is silently ignored, which
         // reports as "invalid argument" from ChromeDriver on the first
         // relative-URL request because get() tries to load "/login...").
+        // Note on unhandledPromptBehavior=accept: #13355 tried to add
+        // it here as a mirror of the grid path below, aiming to
+        // auto-accept the Medical Record Dashboard's "New Due Clinical
+        // Reminders" alert emitted from library/clinical_rules.php.
+        // The capability had no observable effect on this driver path
+        // in CI (Panther's bundled ChromeDriver ignores it or the
+        // plumbing loses it — verified by post-13355 CI still throwing
+        // UnexpectedAlertOpenException with the reminders alert text).
+        // The alert is now handled at the JS layer instead via
+        // UiSeedingTrait::muzzleBrowserPrompts, so this path no longer
+        // needs the capability. Left here as a comment so a future
+        // maintainer chasing "should we add unhandledPromptBehavior to
+        // the local path?" has the answer.
         return Client::createChromeClient(
             null,
             self::CHROME_ARGS,
-            [
-                // Auto-accept unexpected JS alerts — matches the grid
-                // path below (and the source-side E2e BaseTrait).
-                // Acceptance tests shouldn't be blocked by out-of-box
-                // popups they didn't ask for: OpenEMR's Medical Record
-                // Dashboard fires a "New Due Clinical Reminders"
-                // alert(...) via <img onload> as soon as the widget
-                // computes, which raced against a 60s explicit alert
-                // wait on slow ARM CI runners (see #13348 flake
-                // investigation). Driver-level accept means the alert
-                // fires + closes transparently; tests just wait for
-                // the real post-condition (dashboard header rendered).
-                'capabilities' => [
-                    'unhandledPromptBehavior' => 'accept',
-                ],
-            ],
+            [],
             ArtifactBrowser::baseUrl(),
         );
     }

@@ -179,11 +179,12 @@ trait UiSeedingTrait
      * iframe → wait for the Medical Record Dashboard header.
      *
      * Post-condition is the dashboard header. On landing, the
-     * dashboard's clinical-reminders widget fires a native browser
-     * alert (see library/clinical_rules.php); BrowserSession sets
-     * unhandledPromptBehavior=accept on both driver paths so the
-     * alert fires + auto-closes transparently, without racing the
-     * test's own timing.
+     * dashboard's clinical-reminders widget would emit a native
+     * browser alert (see library/clinical_rules.php), but
+     * muzzleBrowserPrompts() has already overridden window.alert
+     * to a no-op so no popup fires. The grid path in BrowserSession
+     * also sets unhandledPromptBehavior=accept as an independent
+     * safety net for any prompt the JS override doesn't cover.
      *
      * XPath discoveries from KkEncounterFormNavbarUrl port:
      *
@@ -270,16 +271,16 @@ trait UiSeedingTrait
 
         // No explicit alert-wait: after form submit the browser
         // navigates to the new patient's Medical Record Dashboard,
-        // where a "New Due Clinical Reminders" alert(...) fires from
-        // library/clinical_rules.php via <img onload>. That alert is
-        // driver-level auto-accepted (unhandledPromptBehavior: accept
-        // capability in BrowserSession) and needs no test-side
-        // handling. Prior versions tried to explicitly wait for the
-        // alert (5s → 15s → 60s) — flaky because reminder compute
-        // time varies with runner load, and once misread as a
-        // dup-check alert, the wait pattern accreted layers of
-        // wrong-shape mitigation (see #13348). Waiting for the real
-        // post-condition — the dashboard header — is deterministic.
+        // where a "New Due Clinical Reminders" alert(...) would fire
+        // from library/clinical_rules.php via <img onload>. The
+        // muzzleBrowserPrompts() call at the top of this method has
+        // already overridden window.alert to a no-op via CDP, so
+        // the emitter fires but produces no popup. Prior versions
+        // tried to explicitly wait for the alert (5s → 15s → 60s)
+        // and misread it as a dup-check alert, accumulating layers
+        // of wrong-shape mitigation (#13348) — see this file's git log.
+        // Waiting for the real post-condition (the dashboard header)
+        // is deterministic.
         //
         // Switch back to defaults, into the patient iframe, wait for
         // the Medical Record Dashboard header — proof the create
