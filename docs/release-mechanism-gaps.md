@@ -178,7 +178,9 @@ planned. Reality matched design; the mutator audit's "5 already exist,
 openemr/openemr#12709 (merge `8a01001a27`) — 3 Major items missed at
 the initial merge (App-token permission scoping + `persist-credentials: false` on 3 checkouts in
 the new workflow + `endsWith` gate tightening). First real end-to-end
-production exercise is deferred to the rel-820 cut.
+production exercise was the rel-820 cut on 2026-07-02 (three earlier
+attempts caught mutator-ordering and premature-draft issues; the
+fourth attempt landed cleanly — see the refinement notes below).
 
 - **What:** Cutting a new `rel-NNN0` branch is a manual git operation
   (`git push origin master:rel-NNN0`). Nothing fires automatically on
