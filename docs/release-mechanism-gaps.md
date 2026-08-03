@@ -475,7 +475,7 @@ fourth attempt landed cleanly — see the refinement notes below).
 
 2. **The phpstan flake had a real root cause.** `composer remove` triggers full dep resolution which re-probes every `repositories.type=vcs` URL in composer.json. The wkhtmltopdf-openemr vcs entry is from 2021, isn't required by any package, but Composer probes it every time. GitHub's secondary rate limit on `/repos/.../commits/<sha>` fires on the burst. Other openemr workflows do `composer install` (reads lock, no probes) — phpstan was uniquely affected. Real fix: drop the Remove Rector step entirely (modern rector + phpstan don't interfere anymore, empirically verified byte-identical output).
 
-3. **bash printf with format starting with `-` aborts with "invalid option".** Caught in the wild by #142 when the scheduled bot run first hit the diff-path code: `printf '- bullet\n'` is parsed as printf trying to take a `- ` option. Fix: `printf '%s\n' '- bullet'`. Worth grepping for in any new shell-heredoc workflow.
+3. **bash printf with format starting with `-` aborts with "invalid option".** Caught in the wild by #142 when the scheduled bot run first hit the diff-path code: `printf '- bullet\n'` is parsed as printf trying to take a `-` (dash-space) option. Fix: `printf '%s\n' '- bullet'`. Worth grepping for in any new shell-heredoc workflow.
 
 4. **For PR triggers, GitHub Actions uses the workflow file from the PR's HEAD branch, not master.** So workflow fixes that land in master don't help open PRs until they rebase. Forced this dance for #12657: rebase to pick up #12658 → still failed (same flake) → land #12659 → rebase again → passed.
 
@@ -2097,7 +2097,7 @@ lose the Copilot entry too.
   `Copilot` as a contributor name in the acknowledgements page.
   Concrete for 8.2.0's just-landed acknowledgements page
   (`content/acknowledgements/8.2.0.md`, via #181):
-  ```
+  ```text
   - Copilot (16 commits)
   ```
   Copilot is not a person — it's the GitHub Copilot / VSCode
@@ -2163,7 +2163,7 @@ warning that appeared on every v2 usage.
 - **Concrete failure (2026-07-08):** Run 28973848333 fired from
   the v8_2_0 tag creation at 20:35Z. Failed at the `Install
   Task` step with:
-  ```
+  ```text
   ##[error]API rate limit exceeded for 52.159.229.55. (But
   here's the good news: Authenticated requests get a higher
   rate limit...)
