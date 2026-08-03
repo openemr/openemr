@@ -252,7 +252,7 @@ function checkBackgroundServices(): void
                         }
                     } else {
                         /* check value of single field. Don't update if the database holds the same value */
-                        $fldvalue = isset($_POST["form_$i"]) ? trim($_POST["form_$i"]) : "";
+                        $fldvalue = isset($_POST["form_$i"]) ? trim((string) $_POST["form_$i"]) : "";
 
                         if ($fldtype == 'encrypted') {
                             $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptForDatabase($fldvalue);
