@@ -184,7 +184,7 @@ The two sibling one-shots handle **discrete lifecycle events** (branch creation,
 
 The docker publish surface is driven by [`.github/release-targets.yml`](../.github/release-targets.yml). Each row describes one docker publish target and carries three fields the tag model cares about: `branch` (git ref to check out), `docker_tags` (comma-separated Docker Hub tags to push), and `openemr_version_ref` (git ref baked into the image as the `OPENEMR_VERSION` build arg — the source the shipped image actually contains). The optional `unreleased: true` marker suppresses publish for placeholder rows; see the file header for the full field list.
 
-`dev`, `next`, and `latest` are **full versions on the Docker Hub presence**, not floating pointers. They participate in `docker_tags` alongside numbered tags like `8.2.0` or `8.0.0.3` and get published the same way. A row's `docker_tags` typically pairs a version-numbered tag with its named-version alias from the same release stream — the numbered tag pins the specific version, the named tag identifies which slot that version occupies in the release lifecycle.
+`dev`, `next`, and `latest` are **mutable named tags on Docker Hub** whose owning row changes as the release lifecycle advances (see [Slot promotion at ship time](#slot-promotion-at-ship-time) below). They participate in `docker_tags` alongside numbered tags like `8.2.0` or `8.0.0.3` and get published the same way. A row's `docker_tags` typically pairs a version-numbered tag with its named-slot alias — the numbered tag pins the specific version, the named tag identifies which slot that version occupies in the release lifecycle.
 
 ### Slot semantics
 
@@ -234,13 +234,13 @@ A rel branch's row cycles through three states per release:
 
 1. **Stable** (just after `vX.Y.Z` shipped): `openemr_version_ref: vX_Y_Z`, `docker_tags: X.Y.Z,<name>`. Image locked to released content.
 2. **Pre-release prep** (working toward `X.Y.(Z+1)`): `openemr_version_ref: rel-XYZ`, `docker_tags: X.Y.(Z+1),<name>`. Both updated together — the numbered docker tag advances to the future version AND the ref switches to branch tip. Image moves as commits land on the rel branch; both `X.Y.(Z+1)` and `<name>` publish in-progress content.
-3. **Released `X.Y.(Z+1)`**: `openemr_version_ref: vX_Y_(Z+1)`, `docker_tags: X.Y.(Z+1),<name>`. Only the ref flips back to a tag; `docker_tags` is unchanged from state 2. Image relocks to the newly-released content.
+3. **Released `X.Y.(Z+1)`**: `openemr_version_ref: vX_Y_(Z+1)`, `docker_tags: X.Y.(Z+1),<name>`. The ref flips back to a tag and — if the row held `next` — the slot promotes to `latest` per the shuffle above. The numbered docker tag is unchanged. Image relocks to the newly-released content.
 
 Master is always at state 2 (`openemr_version_ref: master`) — master never gets stable-released as itself; its successor versions release from rel branches.
 
 ### Multi-row: keeping the prior stable published during a patch cycle
 
-When a rel branch enters its next patch dev cycle (e.g. `rel-810` bumps to `8.1.2-dev` after `8.1.1` ships), the existing row retargets at the new dev (`docker_tags: 8.1.2,next`, `openemr_version_ref: rel-810`) and a **second** row is added on the same branch pinning the prior stable (`docker_tags: 8.1.1`, `openemr_version_ref: v8_1_1`). Daily builds keep republishing the stable image alongside the new dev. When the new dev ships, the prior-release row is dropped and the branch returns to a single row. The prior-release row publishes for real during the dev cycle — `unreleased: true` is not set on it. See the [`release-targets.yml` header](../.github/release-targets.yml) for the full multi-row rules.
+When a rel branch enters its next patch dev cycle (e.g. `rel-810` bumps to `8.1.2-dev` after `8.1.1` ships), the existing row retargets at the new dev (`docker_tags: 8.1.2,next`, `openemr_version_ref: rel-810`) and a **second** row is added on the same branch pinning the prior stable (`docker_tags: 8.1.1,latest`, `openemr_version_ref: v8_1_1`). The prior-stable row keeps `latest` because that alias tracks the currently-shipped GA — 8.1.1 remains GA until 8.1.2 actually ships. Daily builds keep republishing the stable image alongside the new dev. When the new dev ships, the prior-release row is dropped, `latest` promotes to the newly-shipped row per the shuffle above, and the branch returns to a single row. The prior-release row publishes for real during the dev cycle — `unreleased: true` is not set on it. See the [`release-targets.yml` header](../.github/release-targets.yml) for the full multi-row rules.
 
 ### Where the shuffle happens in the automation
 
