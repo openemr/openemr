@@ -42,6 +42,9 @@ class ReminderIntervalRange
         return array_values($map);
     }
 
+    /**
+     * @return array<string, ReminderIntervalType>
+     */
     private static function map(): array
     {
         $map = [

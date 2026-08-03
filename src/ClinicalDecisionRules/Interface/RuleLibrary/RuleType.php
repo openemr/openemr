@@ -43,6 +43,9 @@ class RuleType
         return array_keys($map);
     }
 
+    /**
+     * @return array<string, RuleType>
+     */
     private static function map(): array
     {
         $map = [
