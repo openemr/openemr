@@ -4373,3 +4373,43 @@ in acceptance."
   Phase 13's "back-port candidates" note about "when a flake
   fix takes multiple iterations, actually drive the flow live"
   earned its place.
+
+- **2026-08-03 (later) — Post-navigation content-render waits
+  bumped 30s→60s in UiSeedingTrait (#13365).** With the muzzle
+  killing the alert-exception failure class, next-mode failures
+  on the master→rel-820 sync PR converged on a single wait
+  timing out: `waitFor(dashboard-header, 30)` in `addPatientViaUi`
+  + `openPatientViaUi`, and `waitFor(encounter-navbar-title, 30)`
+  in `addEncounterViaUi`. Same shape as the pre-fix alert wait
+  before its own 15s→60s bump: Panther default 30s is too tight
+  on slow-runner tails; bumped all three to 60s. Iframe-presence
+  waits stay at 30s (proven fast, never observed to slow-fail).
+
+  **Runner-load, not ARM-specific.** #13365's commit message +
+  PR body labeled the fix "ARM-tolerance" based on the first
+  batch of evidence (ARM cells failing). Subsequent CI on the
+  sync PR showed an AMD64 cell (`Fresh install of from_tag
+  ubuntu-24.04`) hitting the same timeout — so the slowness is
+  runner-load, not architecture-specific. Framing correction for
+  future PRs in this vein: **"runner-load tolerance," not
+  "ARM-tolerance."** Landed PR body left as-is (historical);
+  next related PR should use the corrected label.
+
+  **Deliberately NOT adopted from source-side:** the
+  retry-whole-test-on-TimeoutException pattern in
+  `PatientAddTrait::testPatientAdd` (3× retry with fresh browser
+  session per attempt). That pattern exists on source-side
+  because they don't have per-wait diagnostics; we do. Scoped
+  wait-widening is diagnostic-friendly (points at the specific
+  slow wait if it happens again), whereas retry-whole-test costs
+  ~15-20s login × 3 = ~60s wasted on any failing attempt AND
+  hides which wait is actually slow. Filed in Phase 13
+  back-port candidates as "wait-widening in source-side's
+  `PatientAddTrait` would let it drop the retry pattern entirely"
+  when we ever open a source-side flake-fix PR.
+
+  **Combined state post-#13358 + #13365:** the Kk / Dd flake
+  class should be zero on all runners. The muzzle handles the
+  alert-race; the wait-widen handles the runner-load-slow
+  content render. If a flake DOES recur, it's a NEW failure
+  mode worth investigating fresh (not more of the same).
