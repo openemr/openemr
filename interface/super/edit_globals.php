@@ -40,6 +40,7 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Request;
 
 // Set up crypto object
 $cryptoGen = ServiceContainer::getCrypto();
@@ -232,19 +233,20 @@ function checkBackgroundServices(): void
 
         // Get all the globals from DB
         $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', [], true);
-        QueryUtils::inTransaction(function () use ($GLOBALS_METADATA, $old_globals, $cryptoGen): void {
+        $postedGlobals = Request::createFromGlobals()->request;
+        QueryUtils::inTransaction(function () use ($GLOBALS_METADATA, $old_globals, $cryptoGen, $postedGlobals): void {
             $i = 0;
             foreach ($GLOBALS_METADATA as $grparr) {
                 foreach ($grparr as $fldid => $fldarr) {
                     [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                     /* Multiple choice fields - do not compare , overwrite */
                     if (!is_array($fldtype) && str_starts_with((string)$fldtype, 'm_')) {
-                        if (isset($_POST["form_$i"])) {
+                        if ($postedGlobals->has("form_$i")) {
                             $fldindex = 0;
 
                             sqlStatement("DELETE FROM globals WHERE gl_name = ?", [$fldid]);
 
-                            foreach ($_POST["form_$i"] as $fldvalue) {
+                            foreach ($postedGlobals->all("form_$i") as $fldvalue) {
                                 $fldvalue = trim((string)$fldvalue);
                                 sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', [$fldid, $fldindex, $fldvalue]);
                                 ++$fldindex;
@@ -252,7 +254,7 @@ function checkBackgroundServices(): void
                         }
                     } else {
                         /* check value of single field. Don't update if the database holds the same value */
-                        $fldvalue = isset($_POST["form_$i"]) ? trim((string) $_POST["form_$i"]) : "";
+                        $fldvalue = trim($postedGlobals->getString("form_$i"));
 
                         if ($fldtype == 'encrypted') {
                             $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptForDatabase($fldvalue);
