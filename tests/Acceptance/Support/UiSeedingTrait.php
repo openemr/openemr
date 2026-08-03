@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Acceptance\Support;
 
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use RuntimeException;
 
 /**
  * UI-driven seeding helpers for acceptance tests that need patient +
@@ -108,6 +110,64 @@ trait UiSeedingTrait
     protected const SEED_ENCOUNTER_REASON = 'Testing encounter';
 
     /**
+     * Install a browser-prompt muzzle via CDP for the rest of this
+     * WebDriver session. Overrides window.alert / .confirm / .prompt
+     * with no-ops on every subsequent page navigation, using
+     * ChromeDriver's `Page.addScriptToEvaluateOnNewDocument` (runs
+     * before any page JS).
+     *
+     * Motivation: the Medical Record Dashboard fires a native
+     * browser alert from `library/clinical_rules.php` via
+     * `<img src="empty.gif" onload="alert(...)">` when the widget
+     * computes New Due Clinical Reminders for a newly-created
+     * patient. On slow CI runners the alert races test-side
+     * waits and blocks the WebDriver session with
+     * UnexpectedAlertOpenException. Prior mitigation attempts
+     * (widening the wait, click retries, `unhandledPromptBehavior`
+     * capability) all failed to zero out the flake — the
+     * capability path doesn't take effect on Panther's local
+     * ChromeDriver in CI, and the wait-based approaches race
+     * unpredictable reminders-widget compute time. Muzzling
+     * `window.alert` at the source removes the popup entirely
+     * so there is no popup for the driver to block on.
+     *
+     * Scope: called from the seeding helpers that navigate to a
+     * patient's dashboard (addPatientViaUi, openPatientViaUi).
+     * Non-seeding tests keep their default alert-native
+     * behavior — if a future test wants to assert alert
+     * content, it just doesn't include UiSeedingTrait.
+     *
+     * Idempotent — CDP happily accepts the same script being
+     * registered multiple times; the no-ops just get installed
+     * repeatedly. Cheap.
+     */
+    private function muzzleBrowserPrompts(): void
+    {
+        $script = 'window.alert = function () {};'
+            . 'window.confirm = function () { return true; };'
+            . 'window.prompt = function () { return ""; };';
+        // Panther's Client::getWebDriver() returns the WebDriver
+        // interface; the CDP escape hatch lives on RemoteWebDriver
+        // (the concrete class both driver paths actually return).
+        // Narrow explicitly so phpstan sees the method.
+        $webDriver = $this->requireClient()->getWebDriver();
+        if (!$webDriver instanceof RemoteWebDriver) {
+            throw new RuntimeException(sprintf(
+                'muzzleBrowserPrompts requires a RemoteWebDriver instance for CDP execute; got %s',
+                $webDriver::class,
+            ));
+        }
+        $webDriver->executeCustomCommand(
+            '/session/:sessionId/goog/cdp/execute',
+            'POST',
+            [
+                'cmd' => 'Page.addScriptToEvaluateOnNewDocument',
+                'params' => ['source' => $script],
+            ],
+        );
+    }
+
+    /**
      * Add a fresh patient (Ftest<suffix> Ltest<suffix>) via the
      * "Patient/Client → New/Search" main-menu path. Identity is
      * per-test-instance via seedPatientFname/seedPatientLname so
@@ -136,6 +196,7 @@ trait UiSeedingTrait
     protected function addPatientViaUi(): void
     {
         $client = $this->requireClient();
+        $this->muzzleBrowserPrompts();
         $client->switchTo()->defaultContent();
 
         // Open the Patient → New/Search tab. The main menu is a
@@ -251,6 +312,7 @@ trait UiSeedingTrait
     protected function openPatientViaUi(string $firstname, string $lastname): void
     {
         $client = $this->requireClient();
+        $this->muzzleBrowserPrompts();
         $client->switchTo()->defaultContent();
 
         // Type lastname into anySearchBox. Source-side uses the
