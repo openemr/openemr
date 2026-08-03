@@ -3019,11 +3019,20 @@ checklist + the existing master-bump pattern.
   hatch (zero-day hotfixes), not part of main release flow. Migrates with
   the rest of the release tooling but stays inert (no `openemr-tag`
   dispatch, no downstream wiring).
-- **Byte-identity for release tooling** NOT enforced at this time. Drift
-  between branches' release tooling is tolerated. Each rel branch's
-  releases are produced by whatever release tooling the branch carries
-  (frozen at cut time + manual backports). Revisit only if drift becomes
-  a real headache.
+- **Byte-identity for release tooling** IS enforced (**decision reversed
+  2026-07-07 via G15; release-mechanism surface added to
+  the byte-identical manifest via G22 workstream 7**). G15 locked
+  Option 2 (per-branch copies + byte-identical canary + auto-sync,
+  same mechanism as the docker pipeline); G22's Phase 2 propagated
+  the release-machinery files (`build-release.yml`,
+  `build-release-on-tag.yml`, `build-patch.yml`, `tools/release/**`)
+  onto the FILES_ALL manifest so drift across rel-820/810/800/704 is
+  now canary-detected on master PRs and auto-synced. Original decision
+  ("drift tolerated") preserved in the update log — see the
+  2026-07-07 entry for the reversal rationale (G7 being the empirical
+  driver: rel-810's stale `BranchVersionResolver` bit 8.1.1 prep and
+  the cost of that discovery-at-release-time made the enforcement
+  investment worthwhile).
 - **Multi-row-per-branch IS supported** in `release-targets.yml`
   (decision reversed 2026-06-27 — see update log). Original framing
   was "one active version per rel branch" — older patches get
