@@ -553,7 +553,7 @@ class AppointmentService extends BaseService
      * Returns a list of appointment statuses (also used with encounters).
      * @return array
      */
-    public function getAppointmentStatuses()
+    public function getAppointmentStatuses(): array
     {
         $listService = new ListService();
         $options = $listService->getOptionsByListName('apptstat', ['activity' => 1]);

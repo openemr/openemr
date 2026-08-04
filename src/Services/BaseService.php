@@ -331,7 +331,7 @@ class BaseService implements BaseServiceInterface
      * @param $map                  - Query information (where clause(s), join clause(s), order, data, etc).
      * @return array of associative arrays
      */
-    public function selectHelper($sqlUpToFromStatement, $map)
+    public function selectHelper($sqlUpToFromStatement, $map): array
     {
         $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
         if ($records !== null) {

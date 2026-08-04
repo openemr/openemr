@@ -44,7 +44,10 @@ class AclExtended
     // Return an array keyed on squad ACO names.
     // This is only applicable for sports team use.
     //
-    public static function aclGetSquads()
+    /**
+     * @return mixed[]
+     */
+    public static function aclGetSquads(): array
     {
         $squads = self::aclGetSectionAcos('squads');
         uasort($squads, self::aclSquadCompare(...));

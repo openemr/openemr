@@ -240,7 +240,7 @@ class EhiExporter
      * @return array
      * @throws \Exception
      */
-    private function createExportTasksFromJob(EhiExportJob $job)
+    private function createExportTasksFromJob(EhiExportJob $job): array
     {
         $hasMorePatients = true;
         $iterations = -1;

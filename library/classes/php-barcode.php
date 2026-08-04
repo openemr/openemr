@@ -1271,7 +1271,10 @@ class BarcodeDatamatrix
 
         return $datamatrixTemp;
     }
-    public static function getDigit($text, $rectangular)
+    /**
+     * @return mixed[]
+     */
+    public static function getDigit($text, $rectangular): array
     {
         $dataCodeWords = self::encodeDataCodeWordsASCII($text); // Code the text in the ASCII mode
         $dataCWCount = count($dataCodeWords);

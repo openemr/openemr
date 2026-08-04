@@ -43,7 +43,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  * @param  date    $encounter_date  YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
-function default_loadPayerInfo($pid, $date = '')
+function default_loadPayerInfo($pid, $date = ''): array
 {
     if (empty($date)) {
         $date = date('Y-m-d');

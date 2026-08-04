@@ -36,7 +36,10 @@ class CdaValidateDocumentObject
         return false;
     }
 
-    public function getValidationErrorsForDocument(Document $document)
+    /**
+     * @return mixed[]
+     */
+    public function getValidationErrorsForDocument(Document $document): array
     {
         $cdaValidateDocuments = new CdaValidateDocuments();
         // TODO: @adunsulag do we need to cache this get_data here?  also need to figure out the doc type

@@ -300,7 +300,10 @@ abstract class AbstractAmcReport implements RsReportIF
         }
     }
 
-    private function collectObjects($patient, $object_label, $begin, $end)
+    /**
+     * @return mixed[]
+     */
+    private function collectObjects($patient, $object_label, $begin, $end): array
     {
 
         $results = [];
