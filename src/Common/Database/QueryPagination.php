@@ -123,6 +123,9 @@ class QueryPagination implements \JsonSerializable
         return $this->currentOffsetId;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getLinks(): array
     {
         $searchQueryUri = $this->searchUri;
