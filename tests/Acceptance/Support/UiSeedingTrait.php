@@ -547,6 +547,73 @@ trait UiSeedingTrait
     }
 
     /**
+     * Open an existing encounter for the currently-open patient via
+     * the shell's Past Encounters dropdown. Mirrors the source-side
+     * EncounterOpenTrait::encounterOpenIfExist minus the DB-existence
+     * pre-check — that check queries the database directly, which
+     * violates the acceptance suite's black-box discipline; the caller
+     * is responsible for having seeded the encounter (typically via
+     * addEncounterViaUi() earlier in the same test) and for having
+     * navigated back to the patient dashboard so the Past Encounters
+     * button is reachable in the shell.
+     *
+     * Post-condition on return: browser is inside the encounter forms
+     * iframe with the navbar rendered — same DOM location the
+     * encounter-navbar assertion needs. Caller does NOT need to
+     * re-navigate.
+     *
+     * Note: the "first Office Visit entry in the dropdown" match is
+     * intentional — the acceptance seed identity uses category id 5
+     * (Office Visit) via SEED_ENCOUNTER_CATEGORY_ID + a single
+     * encounter per test instance, so the first Office Visit li is
+     * unambiguously the seeded encounter. If a future test seeds
+     * multiple encounters per patient, this helper needs a name/date
+     * discriminator to select the right entry.
+     */
+    protected function openEncounterViaUi(): void
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+        // Belt-and-suspenders — nuke any leftover modals from the
+        // preceding openPatientViaUi (dashboard load can open reminders
+        // / birthday Bootstrap modals that intercept the pastEncounters
+        // dropdown button click).
+        $this->dismissAnyOpenModals();
+
+        // Click the Past Encounters dropdown button in the shell.
+        // Source-side XPath: //button[@id="pastEncounters"].
+        $this->waitAndClick(
+            WebDriverBy::xpath('//button[@id="pastEncounters"]'),
+            'Past Encounters dropdown button',
+        );
+
+        // Click the first Office Visit entry in the dropdown menu.
+        // Source-side XPath:
+        //   //ul[contains(@class, "dropdown-menu")]/li[1]/a[1]/span[text()="Office Visit"]
+        $this->waitAndClick(
+            WebDriverBy::xpath(
+                '//ul[contains(@class, "dropdown-menu")]/li[1]/a[1]/span[text()="Office Visit"]',
+            ),
+            'First Office Visit entry in Past Encounters dropdown',
+        );
+
+        // Switch into the encounter iframe → forms iframe → wait for
+        // the navbar title for THIS specific patient. Mirrors
+        // addEncounterViaUi's final frame-switch chain so the
+        // post-condition is identical between "created and opened"
+        // and "opened after creation".
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="enc"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="enc"]');
+        $client->waitFor('//iframe[@src="forms.php"]', 30);
+        $this->switchToIFrame('//iframe[@src="forms.php"]');
+        $client->waitFor(
+            '//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for '
+                . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '")]',
+            30,
+        );
+    }
+
+    /**
      * Set a text input's value via JS + fire an `input`/`change` event
      * so any bound listeners run. More robust inside iframes than
      * ->sendKeys() for forms that read via JS event listeners.
