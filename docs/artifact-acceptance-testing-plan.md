@@ -4478,3 +4478,61 @@ in acceptance."
   two objectives — see the "Explicitly NOT candidates" note at
   the top of Phase 13. Phase 13 back-port candidates list does
   NOT include "adopt direct-invocation" for source-side.
+
+- **2026-08-04 — #13372 LANDED with final shape; validated in the
+  wild on next rel-820 sync (passed acceptance CI + merged).**
+  Six-iteration arc converged.
+
+  **What actually shipped:**
+
+  1. Modal-regression assertion — switch into modalframe, verify
+     `#confirmCreate` present + has `srcConfirmSave` in onclick.
+     Preserves modal-template / onclick-wiring regression signal
+     that the click bypass would otherwise skip.
+  2. `dismissAnyOpenModals()` private helper — shotgun-nukes every
+     Bootstrap modal class present at top level (`.dialogModal,
+     .modal, .modal-dialog, .modal-content, .modal-body,
+     .modal-header, .modal-footer, .modal-backdrop,
+     iframe#modalframe`) plus resets body classes / inline styles
+     Bootstrap modal-open flow sets.
+  3. Called at 4 strategic points: mid-`addPatientViaUi` (clears
+     dup-check modal), end of `addPatientViaUi` (clears
+     dashboard-load modals — clinical-reminders widget's Bootstrap
+     dlgopen fires post-redirect and would intercept subsequent
+     shell clicks), start of `openPatientViaUi` +
+     `addEncounterViaUi` (belt-and-suspenders before shell
+     interaction).
+  4. Form submit: switch into pat iframe, `document.forms[0].
+     submit()` — equivalent to what `srcConfirmSave()` does but
+     no scope-lookup dependency (srcConfirmSave is defined in
+     new_comprehensive.php's pat-iframe context; calling by name
+     from executeScript in the wrong iframe throws `undefined`).
+  5. #13365's 30s → 60s wait bumps reverted — with the click race
+     eliminated, the "slow dashboard render" was actually "form
+     never submitted, wait had nothing to wait for." 30s Panther
+     default is plenty on happy path.
+
+  **Iteration log (6 rounds) captured in the PR #13372 body** for
+  future maintainers. Rough shape: (1) srcConfirmSave-not-defined
+  scope error → (2) ElementClickIntercepted by leftover
+  modalframe → (3) still intercepted by `.modal-body` living
+  outside `.dialogModal` subtree → (4) dlgclose direct-invoke
+  failed to fire callback → (5) shotgun modal cleanup + form
+  submit but blocked by fresh dashboard-load modal → (6)
+  per-point `dismissAnyOpenModals()` at 4 sites, converged.
+
+  **Validation event:** the next rel-820 sync PR (auto-generated
+  after #13372 landed on master) passed acceptance CI clean and
+  merged. Definitive "the flake is truly killed in the wild"
+  signal. Prior fixes (#13348, #13351, #13355, #13358, #13364,
+  #13365 partial revert) all contributed to this state; #13372
+  was the final piece.
+
+  **Investigation cost total:** ~7 PRs across ~2 days. Compare
+  source-side's 3-retry-whole-test workaround which has stood
+  for months without diagnosis. Diagnostic clarity (CI failure
+  signatures, container HTTP logs, live-probe Panther sessions)
+  is what let us actually root-cause vs paper over. Phase 13
+  captures the transferable lessons but not the full workaround
+  set — acceptance-side stays aggressive, source-side keeps its
+  retry pattern.
