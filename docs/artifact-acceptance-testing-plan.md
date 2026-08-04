@@ -4600,3 +4600,98 @@ in acceptance."
   either ships fresh-install-only first and adds persistence
   later, or the seeding stage lands as prerequisite infra.
   Decision pending user.
+
+- **2026-08-04 (evening) — Phase 4g persistence-flow SHIPPED
+  as #13388.** Corrected misread of the acceptance scaffold:
+  the upgrade scenario matrix cell ALREADY runs fresh-install
+  group tests against FROM_TAG before firing the upgrade
+  (line 483 of acceptance-docker.yml -- inside the upgrade
+  cell it runs `composer acceptance -- --group=fresh-install`
+  BEFORE downing + rebooting on TO_TAG). No new pre-upgrade
+  seeding infra needed -- a single test method dual-tagged
+  fresh-install + post-upgrade with idempotent create-if-missing
+  seeding automatically hits the create branch on the FROM_TAG
+  side and the assert-persisted branch on the TO_TAG side.
+
+  Two test classes:
+  - **AppointmentPersistenceAcceptanceTest** -- seed patient +
+    Office Visit appointment at 10:00 on 2099-06-15, assert
+    row on Patient Flow Board.
+  - **DocumentPersistenceAcceptanceTest** -- seed patient +
+    upload 1x1 PNG into Medical Record category, open it +
+    assert both viewer-iframe wired the retrieve URL AND
+    fetched blob has correct HTTP 200 status + PNG magic
+    bytes + non-zero length. HTTP 200 specifically catches
+    persistence-through-upgrade of `sites/default/documents/`
+    file existence + apache read permissions (Brady's
+    original signal target).
+
+  New trait surface:
+  - `addPatientViaUiWithIdentity(fname,lname,dob,sex)` --
+    parameterized version of addPatientViaUi. Existing
+    per-instance-random callers unchanged.
+  - `ensureShellContext()` -- re-establishes SPA shell via
+    performLoginAsAdmin (needed because Flow Board /
+    Documents standalone URLs render outside the shell).
+  - Persistence-flow section at bottom of UiSeedingTrait
+    with fixed-identity constants + create-if-missing helpers.
+
+  Iteration lessons captured:
+  1. pid extraction regex missed `?set_pid=<N>` form (session-
+     setter used by finder click) vs `?pid=<N>` (dashboard
+     nav). Widened to `(?:set_)?pid=`.
+  2. Shell-context loss after Flow Board nav -- report URL
+     doesn't include #mainMenu, direct GET of main.php
+     bounces to login without token_main param. Re-login is
+     the robust reset.
+  3. form_patient display field required alongside form_pid
+     (client-side validation) even though form_pid is what
+     the server reads.
+  4. Flow Board reads `$_POST` not `$_GET` (CSRF-protected).
+     URL params ignored; must fill fields + trigger the
+     anchor's onclick JS (`document.getElementById("theform")
+     .submit()`).
+  5. Selenium container can't see host filesystem paths.
+     File uploads via sendKeys need `LocalFileDetector`
+     attached to the element so bytes get uploaded over the
+     WebDriver protocol.
+  6. Doc viewer content lives in an `<iframe src="...
+     retrieve...">`, not inline. Assert on the iframe
+     presence + browser fetch() of retrieve URL for byte
+     verification.
+  7. Flow Board rows don't render appointment title in the
+     visible row schema (provider / date / time / patient /
+     category / status). Rabbit's title-match suggestion
+     wasn't reachable on that surface -- compound
+     discriminator patient-lastname + start-time used
+     instead.
+  8. `newEvt()` modal filters Category dropdown to
+     pc_cattype=0 rows only. In Office (catid=2) has
+     pc_cattype=1 and isn't in the standard modal
+     (`?prov=true` gate). Setting form_category to 2 set
+     a value with no matching option → renders blank →
+     save fails validation → modal never closes. Fix: skip
+     InOffice pre-seed entirely; the "Provider not
+     available, use it anyway?" prompt on save is a native
+     confirm() muzzled to true by muzzleBrowserPrompts.
+  9. **Local smoke against warm DB masked #8 for hours** --
+     idempotent-skip branch found the pre-existing fixture
+     from earlier probe runs. CI failed 8/8 acceptance
+     jobs identically. Wipe fixture rows before local
+     smoke to exercise fresh-create.
+
+  Rabbit round-1 valid findings applied: collapsed InOffice
+  + appointment oracles to single existence check, scoped
+  Flow Board selector to `table.table` with compound
+  patient-lastname + start-time discriminator, replaced
+  doc-list `body` fallback wait with bounded-wait for
+  filename link (5s timeout = genuinely absent, fall through
+  to upload).
+
+  **Acceptance state now:** all Small (4) + all real-
+  coverage Medium (3 of 4 -- Dd + Ff + Bb; Svc remaining;
+  Cc + Ee PERMANENTLY SKIPPED) shipped. Large-tier menu-link
+  ports (Hh/Ii/Jj) replaced by Phase 4g persistence-flow
+  tests. Next: Svc to complete Medium tier, then evaluate
+  whether any additional manual-QA-derived flow tests
+  warrant follow-up phases.
