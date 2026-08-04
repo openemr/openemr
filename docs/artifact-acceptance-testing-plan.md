@@ -1008,7 +1008,7 @@ Per-class slicing map (scoped 2026-07-29):
   | DdOpenPatientTest                     | Medium | Requires seeded patient. **SHIPPED 2026-08-02 as #13354.** First 4f Medium port. New `openPatientViaUi(fname, lname)` helper on UiSeedingTrait (search-by-lastname via `frm_search_globals` → click finder result → land on dashboard). Dual-tagged fresh-install + post-upgrade from the start (per-instance seed identity from #13351 makes both phases safe). |
   | EeCreateEncounterTest                 | **SKIP** | **PERMANENTLY SKIPPED per user 2026-08-04.** Same rationale as Cc — attribution-only, no new coverage: `addEncounterViaUi` (Ee's underlying flow) is already exercised by KkEncounterFormNavbarUrlAcceptanceTest on every acceptance CI run (6 executions per PR cycle). An encounter-create regression would surface via Kk failure. |
   | FfOpenEncounterTest                   | Medium | Requires seeded encounter. **SHIPPED 2026-08-04 as #13382.** Second 4f Medium port. New `openEncounterViaUi()` helper on UiSeedingTrait (Past Encounters dropdown → first Office Visit entry → enc → forms iframe chain → navbar wait). Test seeds patient + encounter, navigates back via `openPatientViaUi`, re-opens via `openEncounterViaUi` — distinct user journey from Kk (which lands in the navbar as a side effect of creation). Dual-tagged fresh-install + post-upgrade. |
-  | SvcCodeFinancialReportTest            | Medium | Fixture seeding (codes, billing, ar_activity); cleanup helpers provided. |
+  | SvcCodeFinancialReportTest            | **SKIP** | **PERMANENTLY SKIPPED per user 2026-08-04.** Source-side test seeds its fixtures via direct SQL through `QueryUtils` (inserts into `facility`, `form_encounter`, `billing`, `ar_activity`, `codes` tables + `DELETE`-based tearDown). That's the exact anti-pattern the acceptance suite explicitly avoids ("no SQL, no direct DB writes, no fixture files" — UiSeedingTrait docblock). Porting would require either (a) building UI-driven seeding for custom codes + Fee Sheet billing entry + payment posting — ~4 new complex UI helpers for one test, (b) breaking black-box discipline for this test alone (sets a precedent that undermines the suite's uniformity), or (c) porting only page-loads-empty scenarios that skip the actual signal (does the report compute totals correctly). Financial-report SQL correctness stays covered source-side; acceptance is about "does the shipped artifact boot + serve the primary user journeys," which this test isn't. |
   | HhMainMenuLinksTest                   | Large  | 58× menu links; feature-module dependent; skips on old Node. |
   | IiPatientContextMainMenuLinksTest     | Large  | 40+ patient-scoped menu variants; needs seeded patient+encounter. |
   | JjEncounterContextMainMenuLinksTest   | Large  | 15+ encounter-scoped variants; complex dependencies. |
@@ -4695,3 +4695,37 @@ in acceptance."
   tests. Next: Svc to complete Medium tier, then evaluate
   whether any additional manual-QA-derived flow tests
   warrant follow-up phases.
+
+- **2026-08-04 (later still) — Svc marked PERMANENTLY
+  SKIPPED, acceptance suite effectively complete.** Source-
+  side SvcCodeFinancialReportTest seeds its fixtures via
+  direct SQL through QueryUtils -- exactly the pattern the
+  acceptance suite explicitly avoids. UI-seeding the same
+  state would require building ~4 new complex helpers (custom
+  codes admin, Fee Sheet billing entry, payment posting),
+  and even then the test's primary signal (report SQL
+  correctness) is better covered source-side where direct-
+  SQL fixtures are appropriate. Acceptance covers "does the
+  shipped artifact boot + serve the primary user journeys,"
+  which financial-report SQL correctness isn't.
+
+  **Final acceptance state:**
+  - **Small (4 shipped):** Aa (login) + Gg (user menu) +
+    FrontPaymentCssContrast + Kk (encounter form navbar URL)
+  - **Medium (3 shipped, 3 skipped):**
+    Shipped: Dd (open patient) + Ff (open encounter) +
+    Bb (create staff).
+    Skipped: Cc + Ee (attribution-only, covered by Kk/Dd/Ff);
+    Svc (not black-box friendly, direct-SQL fixtures).
+  - **Large (persistence-flow replaces menu-link ports):**
+    AppointmentPersistence + DocumentPersistence dual-tagged
+    fresh-install + post-upgrade.
+  - **Per-instance random identity** (Ftest/Ltest/foobar +
+    hex suffix, 64-bit) for tests that seed transient state;
+    **fixed identity** (PersistCheck patient + persist appt
+    + persist doc) for persist-through-upgrade tests.
+
+  Suite is at a natural stopping point. Additional tests
+  will be added ad-hoc if new manual-QA flows or bug-repro
+  scenarios warrant black-box coverage against the shipped
+  artifact. No planned follow-up phases.
