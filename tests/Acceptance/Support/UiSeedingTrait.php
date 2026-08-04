@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Acceptance\Support;
 
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use RuntimeException;
@@ -617,6 +618,200 @@ trait UiSeedingTrait
             $applied === true,
             sprintf('setSelectValue: no element found for XPath %s', $xpath),
         );
+    }
+
+    /**
+     * Base names for the seeded staff user. Actual identity is base +
+     * random suffix, generated per test instance and returned by
+     * seedStaffUsername(). Same shape + rationale as the patient seed
+     * identity (see seedPatientFname()) — per-instance suffix isolates
+     * each test's seed and prevents collisions on post-upgrade DBs
+     * where prior test runs left users behind.
+     */
+    protected const SEED_STAFF_USERNAME_BASE = 'foobar';
+    protected const SEED_STAFF_FIRSTNAME = 'Foo';
+    protected const SEED_STAFF_LASTNAME = 'Bar';
+    /**
+     * Password chosen to satisfy the checkpwd_validation.js
+     * `passwordvalidate` rules (>= 8 chars, at least 3 of:
+     * lower / upper / digit / special). Matches the source-side
+     * UserTestData::PASSWORD value.
+     */
+    protected const SEED_STAFF_PASSWORD = 'Test12te$t';
+    /**
+     * Admin re-authentication password — the staff-create form's
+     * adminPass field validates the current admin user's password
+     * server-side before permitting the create. Stock release image's
+     * admin/pass credentials.
+     */
+    protected const SEED_STAFF_ADMIN_PASSWORD = 'pass';
+
+    private ?string $seedStaffSuffix = null;
+
+    /**
+     * Username for the seeded staff user — base + per-instance random
+     * suffix. Multiple test instances (PHPUnit creates one per test
+     * method) each generate their own suffix, so tests running in the
+     * same phase against the same DB never collide, and post-upgrade
+     * runs against an already-populated DB won't clash with prior
+     * runs' foobar entries. Suffix is hex-only to satisfy the source-
+     * side `checkUsername` regex when erx_enable is on (the ONE codepath
+     * where character-class restrictions kick in).
+     */
+    protected function seedStaffUsername(): string
+    {
+        return self::SEED_STAFF_USERNAME_BASE . ($this->seedStaffSuffix ??= bin2hex(random_bytes(3)));
+    }
+
+    /**
+     * Add a fresh staff user via the Admin → Users main-menu path.
+     * Mirrors the source-side UserAddTrait flow shape: open
+     * Admin → Users → click Add User in the admin iframe → fill the
+     * new-user form in the modalframe iframe → click Save → wait for
+     * modal close → wait for the new user row to appear in the admin
+     * iframe's users table.
+     *
+     * Historical flakiness note: source-side BbCreateStaffTest is the
+     * flakiest test in the E2E suite (per user 2026-08-04). Prior
+     * debug work pointed at the JS password check on the staff-create
+     * form (`checkpwd_validation.js` `passwordvalidate`, or the
+     * `checkPasswordStrength` onkeyup handler bound to the `stiltskin`
+     * password input) as the suspected culprit, but that was never
+     * definitively diagnosed / fixed. This port follows the same
+     * defensive patterns the source-side trait grew (JS value
+     * assignment via `clearAndType`, field-value verification loop,
+     * modal-close diagnostics), adapted for the acceptance suite's
+     * black-box discipline: no DB reads for the pre-existence check,
+     * no cleanup DELETE in setUp/tearDown, per-instance random
+     * usernames replace the DB-level user-uniqueness assumption.
+     *
+     * Post-condition on return: browser is inside the admin iframe
+     * with the users table rendered and the new user row visible.
+     * Caller does NOT need to re-navigate.
+     */
+    protected function addStaffUserViaUi(): void
+    {
+        $client = $this->requireClient();
+        $this->muzzleBrowserPrompts();
+        $client->switchTo()->defaultContent();
+        // Defensive: performLoginAsAdmin already dismissed Product
+        // Registration modal, but if a future release image adds a
+        // login-time modal in a different DOM path, this catches it.
+        $this->dismissAnyOpenModals();
+
+        // Open Admin → Users. The submenu selector shape matches the
+        // Patient-menu form used by addPatientViaUi — divs with
+        // dropdown-toggle / menuLabel classes rather than <a>/<span>.
+        $this->waitAndClick(
+            WebDriverBy::xpath(
+                '//div[@id="mainMenu"]//div[normalize-space(text())="Admin"'
+                . ' and contains(concat(" ",normalize-space(@class)," ")," dropdown-toggle ")]',
+            ),
+            'Admin top-level menu',
+        );
+        $this->waitAndClick(
+            WebDriverBy::xpath(
+                '//div[@id="mainMenu"]//div[normalize-space(text())="Users"'
+                . ' and contains(concat(" ",normalize-space(@class)," ")," menuLabel ")]',
+            ),
+            'Users menu item',
+        );
+        $this->assertActiveTab('User / Groups');
+
+        // Switch into the admin iframe and click Add User. Use a
+        // longer waitFor on the iframe because the users tab does a
+        // full server-render round-trip on activation, unlike the
+        // patient tab which fills asynchronously.
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="adm"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="adm"]');
+        $this->waitAndClick(
+            WebDriverBy::xpath("//a[text()='Add User']"),
+            'Add User link in Users admin iframe',
+        );
+
+        // The Add User link opens a dlgopen()-driven modal that loads
+        // usergroup_admin_add.php into a nested #modalframe iframe.
+        // Switch out to defaultContent first, then wait for + switch
+        // into the modalframe.
+        $client->switchTo()->defaultContent();
+        $client->waitFor("//iframe[@id='modalframe']", 30);
+        $this->switchToIFrame("//iframe[@id='modalframe']");
+
+        // Wait for the new_user form + the rumple (username) input to
+        // be clickable — the form is rendered before its JS bindings
+        // apply, and clearAndType via JS value-set can silently no-op
+        // if the field's not yet in a state where events would fire
+        // listeners.
+        $client->waitFor("//form[@id='new_user']", 30);
+        $client->wait(15)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath("//input[@type='text' and @name='rumple']"),
+            ),
+        );
+        // Wait for submitform() to be defined before proceeding — the
+        // Save button's onclick calls it, and if it's not yet in scope
+        // the click no-ops silently (mirrors the source-side gate at
+        // UserAddTrait.php:98).
+        $client->wait(15)->until(
+            fn(WebDriver $driver): bool => $driver instanceof \Facebook\WebDriver\JavaScriptExecutor
+                && $driver->executeScript('return typeof submitform === "function";') === true,
+        );
+
+        // Fill required fields via JS value assignment. The password
+        // field (`stiltskin`) has `onkeyup="checkPasswordStrength(this);"`
+        // wired on the source-side; going through JS value-set + input
+        // /change events (not keyup) side-steps the strength-meter
+        // race entirely. Fill in the order the source-side trait
+        // established: fname/lname/adminPass/stiltskin, then rumple
+        // last so earlier field handlers can't overwrite the username.
+        $username = $this->seedStaffUsername();
+        $this->setInputValue("//input[@name='fname']", self::SEED_STAFF_FIRSTNAME);
+        $this->setInputValue("//input[@name='lname']", self::SEED_STAFF_LASTNAME);
+        $this->setInputValue("//input[@name='adminPass']", self::SEED_STAFF_ADMIN_PASSWORD);
+        $this->setInputValue("//input[@name='stiltskin']", self::SEED_STAFF_PASSWORD);
+        $this->setInputValue("//input[@name='rumple']", $username);
+
+        // Verify each field kept its value. Under CI load, JS event
+        // handlers wired on some fields (email autocorrect,
+        // password-strength widget) have historically cleared or
+        // rewritten values after our set. If a field silently reverted,
+        // the server-side create fails silently (modal stays open, no
+        // diagnostic), so guard here.
+        $client->wait(10)->until(
+            fn(WebDriver $driver): bool => $driver->findElement(WebDriverBy::name('rumple'))->getAttribute('value') === $username
+                && $driver->findElement(WebDriverBy::name('stiltskin'))->getAttribute('value') === self::SEED_STAFF_PASSWORD
+                && $driver->findElement(WebDriverBy::name('fname'))->getAttribute('value') === self::SEED_STAFF_FIRSTNAME
+                && $driver->findElement(WebDriverBy::name('lname'))->getAttribute('value') === self::SEED_STAFF_LASTNAME
+                && $driver->findElement(WebDriverBy::name('adminPass'))->getAttribute('value') === self::SEED_STAFF_ADMIN_PASSWORD,
+        );
+
+        // Click Save. #form_save's onclick calls submitform() which
+        // validates → passwordvalidate → AJAX POST → dlgclose('reload')
+        // on success. If validation fails the muzzled alert() no-ops
+        // and dlgclose never fires; the wait-for-modal-close below
+        // will time out and surface the failure.
+        $this->waitAndClick(
+            WebDriverBy::xpath("//a[@id='form_save']"),
+            'Save (create user) button',
+        );
+
+        // Switch to defaultContent so the modal-close wait sees the
+        // top-level document — the modalframe iframe disappearing IS
+        // the signal we want.
+        $client->switchTo()->defaultContent();
+        $client->wait(30)->until(
+            WebDriverExpectedCondition::invisibilityOfElementLocated(
+                WebDriverBy::xpath("//iframe[@id='modalframe']"),
+            ),
+        );
+
+        // Modal closed → dlgclose('reload') fired → admin iframe
+        // reloaded. Switch into it and wait for the new user row to
+        // appear in the users table (the row is a link with the
+        // username as text, matching the source-side assertion).
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="adm"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="adm"]');
+        $client->waitFor("//table//a[text()=" . self::xpathLiteral($username) . "]", 30);
     }
 
 }
