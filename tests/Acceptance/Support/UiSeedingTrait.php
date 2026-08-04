@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Acceptance\Support;
 
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
+use RuntimeException;
 
 /**
  * UI-driven seeding helpers for acceptance tests that need patient +
@@ -43,15 +45,56 @@ use Facebook\WebDriver\WebDriverExpectedCondition;
 trait UiSeedingTrait
 {
     /**
-     * Default fixture identity used by the encounter-form navbar port
-     * (Ftest/Ltest matches the source-side PatientAddTrait's chosen
-     * fixture name, kept as a shared constant so Medium-tier ports
-     * that assert on patient-name-in-DOM can reuse the same string).
+     * Base names for the seeded patient. Actual identity is
+     * base + random suffix, generated per test instance and
+     * returned by seedPatientFname() / seedPatientLname().
+     *
+     * Ftest/Ltest bases match the source-side PatientAddTrait's
+     * chosen fixture names so grep across suites still ties back
+     * to the same convention; the suffix isolates each test's
+     * seed from every other test's + from prior runs against a
+     * persisted DB (upgrade scenario's post-upgrade phase).
+     *
+     * DOB + SEX stay fixed — patient uniqueness is by
+     * (fname, lname, DOB), and varying fname/lname is enough to
+     * make each seed unique.
      */
-    protected const SEED_PATIENT_FNAME = 'Ftest';
-    protected const SEED_PATIENT_LNAME = 'Ltest';
+    protected const SEED_PATIENT_FNAME_BASE = 'Ftest';
+    protected const SEED_PATIENT_LNAME_BASE = 'Ltest';
     protected const SEED_PATIENT_DOB = '1958-05-02';
     protected const SEED_PATIENT_SEX = 'Male';
+
+    private ?string $seedPatientSuffix = null;
+
+    /**
+     * First name for the seeded patient — base + shared random
+     * suffix, generated once per test instance and cached so
+     * patient-add calls and downstream assertions see the same
+     * value. fname and lname share the SAME suffix so the pair
+     * correlates cleanly in DB rows + logs ("which test seeded
+     * Ftestabc123 / Ltestabc123?" → obvious grep target).
+     *
+     * Multiple test instances (PHPUnit creates one per test method)
+     * each generate their own suffix, so tests running in the
+     * same phase against the same DB never collide.
+     */
+    protected function seedPatientFname(): string
+    {
+        return self::SEED_PATIENT_FNAME_BASE . $this->seedPatientSuffix();
+    }
+
+    /**
+     * Last name for the seeded patient — see seedPatientFname().
+     */
+    protected function seedPatientLname(): string
+    {
+        return self::SEED_PATIENT_LNAME_BASE . $this->seedPatientSuffix();
+    }
+
+    private function seedPatientSuffix(): string
+    {
+        return $this->seedPatientSuffix ??= bin2hex(random_bytes(3));
+    }
 
     /**
      * Encounter category id — matches source-side EncounterTestData's
@@ -67,12 +110,117 @@ trait UiSeedingTrait
     protected const SEED_ENCOUNTER_REASON = 'Testing encounter';
 
     /**
-     * Add a fresh patient (Ftest Ltest by default) via the "Patient/
-     * Client → New/Search" main-menu path. Mirrors the source-side
+     * Install a browser-prompt muzzle via CDP for the rest of this
+     * WebDriver session. Overrides window.alert / .confirm / .prompt
+     * with no-ops on every subsequent page navigation, using
+     * ChromeDriver's `Page.addScriptToEvaluateOnNewDocument` (runs
+     * before any page JS).
+     *
+     * Motivation: the Medical Record Dashboard fires a native
+     * browser alert from `library/clinical_rules.php` via
+     * `<img src="empty.gif" onload="alert(...)">` when the widget
+     * computes New Due Clinical Reminders for a newly-created
+     * patient. On slow CI runners the alert races test-side
+     * waits and blocks the WebDriver session with
+     * UnexpectedAlertOpenException. Prior mitigation attempts
+     * (widening the wait, click retries, `unhandledPromptBehavior`
+     * capability) all failed to zero out the flake — the
+     * capability path doesn't take effect on Panther's local
+     * ChromeDriver in CI, and the wait-based approaches race
+     * unpredictable reminders-widget compute time. Muzzling
+     * `window.alert` at the source removes the popup entirely
+     * so there is no popup for the driver to block on.
+     *
+     * Scope: called from the seeding helpers that navigate to a
+     * patient's dashboard (addPatientViaUi, openPatientViaUi).
+     * Non-seeding tests keep their default alert-native
+     * behavior — if a future test wants to assert alert
+     * content, it just doesn't include UiSeedingTrait.
+     *
+     * Idempotent — CDP happily accepts the same script being
+     * registered multiple times; the no-ops just get installed
+     * repeatedly. Cheap.
+     */
+    private function muzzleBrowserPrompts(): void
+    {
+        $script = 'window.alert = function () {};'
+            . 'window.confirm = function () { return true; };'
+            . 'window.prompt = function () { return ""; };';
+        // Panther's Client::getWebDriver() returns the WebDriver
+        // interface; the CDP escape hatch lives on RemoteWebDriver
+        // (the concrete class both driver paths actually return).
+        // Narrow explicitly so phpstan sees the method.
+        $webDriver = $this->requireClient()->getWebDriver();
+        if (!$webDriver instanceof RemoteWebDriver) {
+            throw new RuntimeException(sprintf(
+                'muzzleBrowserPrompts requires a RemoteWebDriver instance for CDP execute; got %s',
+                $webDriver::class,
+            ));
+        }
+        $webDriver->executeCustomCommand(
+            '/session/:sessionId/goog/cdp/execute',
+            'POST',
+            [
+                'cmd' => 'Page.addScriptToEvaluateOnNewDocument',
+                'params' => ['source' => $script],
+            ],
+        );
+    }
+
+    /**
+     * Rip every Bootstrap-modal-related DOM element out of the
+     * top-level document. Motivation: OpenEMR's dashboard opens
+     * modals via dlgopen() from multiple triggers (dup-check
+     * pop-up on patient add, clinical-reminders widget on
+     * dashboard load, potentially birthday-popup depending on
+     * globals). Leftover modal wrappers intercept subsequent
+     * shell clicks even after their content is closed — Bootstrap
+     * modal-hide sets display:none but leaves the wrapper div in
+     * place, and its child .modal-body sits over the shell z-order.
+     *
+     * Called at the point of each seeding helper (before/after
+     * navigations that trigger dashboard-load modal opens) to
+     * keep the shell clickable. Cheap (a single executeScript);
+     * safe (only affects test-side DOM; caller may have already
+     * cleared them, in which case this is a no-op).
+     */
+    private function dismissAnyOpenModals(): void
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+        $client->executeScript(
+            // Shotgun — every Bootstrap modal class + dlgopen
+            // wrappers + backdrop + our specific modalframe iframe.
+            'document.querySelectorAll('
+            . '".dialogModal, .modal, .modal-dialog, .modal-content, '
+            . '.modal-body, .modal-header, .modal-footer, '
+            . '.modal-backdrop, iframe#modalframe"'
+            . ').forEach(function (e) { e.remove(); });'
+            . 'document.body.classList.remove("modal-open");'
+            . 'document.body.style.overflow = "";'
+            . 'document.body.style.paddingRight = "";'
+        );
+    }
+
+    /**
+     * Add a fresh patient (Ftest<suffix> Ltest<suffix>) via the
+     * "Patient/Client → New/Search" main-menu path. Identity is
+     * per-test-instance via seedPatientFname/seedPatientLname so
+     * multiple tests seeding in the same phase and post-upgrade
+     * runs against an already-seeded DB never collide on a
+     * pre-existing patient. Mirrors the source-side
      * PatientAddTrait flow shape: open New/Search tab → fill the DEM
      * form in the patient iframe → click Create → confirm in the modal
-     * iframe → accept the resulting duplicate-check alert → wait for
-     * the Medical Record Dashboard header to appear.
+     * iframe → wait for the Medical Record Dashboard header.
+     *
+     * Post-condition is the dashboard header. On landing, the
+     * dashboard's clinical-reminders widget would emit a native
+     * browser alert (see library/clinical_rules.php), but
+     * muzzleBrowserPrompts() has already overridden window.alert
+     * to a no-op so no popup fires. The muzzle is the sole
+     * mechanism — see BrowserSession's grid + local paths for
+     * why the previously-attempted unhandledPromptBehavior=accept
+     * capability was yanked.
      *
      * XPath discoveries from KkEncounterFormNavbarUrl port:
      *
@@ -85,6 +233,7 @@ trait UiSeedingTrait
     protected function addPatientViaUi(): void
     {
         $client = $this->requireClient();
+        $this->muzzleBrowserPrompts();
         $client->switchTo()->defaultContent();
 
         // Open the Patient → New/Search tab. The main menu is a
@@ -129,8 +278,8 @@ trait UiSeedingTrait
         // inside iframes, and this form has enough JS-bound side effects
         // (sex/sex_identified twinning) that submitting the form element
         // is more robust than reconstructing a POST.
-        $this->setInputValue("//input[@type='text' and @name='form_fname']", self::SEED_PATIENT_FNAME);
-        $this->setInputValue("//input[@type='text' and @name='form_lname']", self::SEED_PATIENT_LNAME);
+        $this->setInputValue("//input[@type='text' and @name='form_fname']", $this->seedPatientFname());
+        $this->setInputValue("//input[@type='text' and @name='form_lname']", $this->seedPatientLname());
         $this->setInputValue("//input[@name='form_DOB']", self::SEED_PATIENT_DOB);
         $this->setSelectValue("//select[@name='form_sex']", self::SEED_PATIENT_SEX);
         $this->setSelectValue("//select[@name='form_sex_identified']", self::SEED_PATIENT_SEX);
@@ -140,32 +289,84 @@ trait UiSeedingTrait
             'Create patient button',
         );
 
-        // Confirm dialog renders inside a modal iframe. Switch out of
-        // the patient iframe first, then into the modal frame.
+        // Confirm-create: assert the modal + button rendered as a
+        // regression signal, then invoke srcConfirmSave() directly.
+        //
+        // The source-side pattern of finding + clicking #confirmCreate
+        // inside the modalframe iframe hits a wiring race where the
+        // button becomes WebDriver-clickable before its onclick
+        // handler (`dlgclose("srcConfirmSave", false)`) is wired to
+        // dlgclose → window[callback] → srcConfirmSave() → form.submit.
+        // When the race bites, the click no-ops, the form is never
+        // submitted, no redirect, dashboard-header wait times out
+        // with no diagnostic signal (source-side E2e/Patient/
+        // PatientAddTrait masks the same class of failure with a
+        // 3-retry-whole-test loop; per user 2026-08-03 the failure
+        // predates any capability / muzzle work we did on the
+        // acceptance side).
+        //
+        // The confirmCreate button's onclick is a single-line
+        // `dlgclose("srcConfirmSave", false)` whose only purpose is
+        // to close the modal + invoke the parent's srcConfirmSave()
+        // callback. srcConfirmSave() itself is `document.forms[0].
+        // submit()` (see interface/new/new_comprehensive.php:979).
+        // Calling it directly:
+        //  - Skips the modalframe-button click-handler wiring race
+        //  - Skips the dlgclose iframe/modal cleanup dance
+        //  - Skips the window[callback] indirection
+        //  - No sleep(5), no elementToBeClickable wait, no race
+        //
+        // Cleanup: the modal stays open in the DOM, but the
+        // post-submit redirect to demographics.php destroys the
+        // whole page anyway. Not a concern.
+        //
+        // Modal-regression signal: because we're skipping the click,
+        // we ALSO skip any modal-rendering / button-wiring surface
+        // coverage the click would have provided. Compensate with a
+        // scoped assertion: switch into the modalframe, verify the
+        // #confirmCreate button is present and carries the expected
+        // dlgclose onclick, then switch back and invoke the callback.
+        // This catches "modal template broke" or "confirmCreate
+        // onclick regressed" without depending on click propagation.
+        //
+        // Phase 13 back-port candidate: source-side PatientAddTrait
+        // could adopt the same modal-verify + direct-invoke pattern
+        // and drop its 3-retry loop entirely.
         $client->switchTo()->defaultContent();
         $client->waitFor("//iframe[@id='modalframe']", 30);
         $this->switchToIFrame("//iframe[@id='modalframe']");
-        $client->wait(15)->until(
-            WebDriverExpectedCondition::elementToBeClickable(
-                WebDriverBy::xpath("//*[@id='confirmCreate']"),
-            ),
+        // Wait for the button to appear before findElement — the
+        // modalframe iframe may still be loading its inner document
+        // when we switch into it (rabbit round-1 on #13372).
+        $client->waitFor("//*[@id='confirmCreate']", 15);
+        $confirmButton = $client->findElement(
+            WebDriverBy::xpath("//*[@id='confirmCreate']"),
         );
-        // Empirical stabilization — the modal form is clickable before
-        // its JS finishes wiring the confirm handler. Same 5s wait the
-        // source-side PatientAddTrait uses. Multi-click retry does not
-        // recover (see #13348: once a click lands during the wire race
-        // the button ends up in a state subsequent clicks can't rescue,
-        // so retrying makes the flake worse not better) — only widening
-        // the *post-click* alert wait helps, since the handler may fire
-        // the alert well after the 15s prior ceiling on a slow runner.
-        sleep(5);
-        $client->findElement(WebDriverBy::xpath("//*[@id='confirmCreate']"))->click();
+        self::assertStringContainsString(
+            'srcConfirmSave',
+            (string) $confirmButton->getAttribute('onclick'),
+            'Confirm-create modal rendered but #confirmCreate onclick lost the srcConfirmSave callback wiring — modal-side regression',
+        );
 
-        // A duplicate-check JS alert fires after confirm — accept it
-        // and continue. Bumped 15s → 60s to absorb slow-runner cases
-        // where the wire slipped past the 5s stabilization above.
-        $client->wait(60)->until(WebDriverExpectedCondition::alertIsPresent());
-        $client->switchTo()->alert()->accept();
+        // Two-step bypass — cleanup then submit:
+        //
+        // (1) Aggressive top-level DOM cleanup — dlgclose stores the
+        // callback on a scope we can't reach from executeScript, so
+        // invoking it doesn't fire srcConfirmSave. Instead, manually
+        // rip out ALL Bootstrap modal wrappers (.dialogModal,
+        // .modal-dialog, .modal-backdrop) plus the modalframe iframe,
+        // and reset body classes that Bootstrap's modal-open uses.
+        // Prevents leftover DOM from intercepting subsequent shell
+        // clicks (Kk's "New Encounter" button, Dd's anySearchBox).
+        //
+        // (2) Submit the form directly from the pat iframe context —
+        // srcConfirmSave() is `document.forms[0].submit()` in
+        // new_comprehensive.php (loaded inside pat iframe). Calling
+        // submit() from that iframe's context is equivalent + no
+        // scope-lookup dependency.
+        $this->dismissAnyOpenModals();
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
+        $client->executeScript('document.forms[0].submit();');
 
         // Switch back to defaults, into the patient iframe, wait for
         // the Medical Record Dashboard header — proof the create
@@ -174,9 +375,114 @@ trait UiSeedingTrait
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
         $client->waitFor(
-            '//*[text()="Medical Record Dashboard - ' . self::SEED_PATIENT_FNAME . ' ' . self::SEED_PATIENT_LNAME . '"]',
+            '//*[text()="Medical Record Dashboard - ' . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '"]',
             30,
         );
+        // Second cleanup pass — the dashboard load itself opens more
+        // Bootstrap modals (clinical-reminders widget dlgopen, possibly
+        // birthday-alert modal for patients with birthday-relevant
+        // globals set). These aren't blocked by the CDP alert muzzle
+        // — different mechanism (DOM modal, not native window.alert).
+        // Nuke them so the next step in the caller's flow
+        // (addEncounterViaUi → New Encounter click, openPatientViaUi
+        // → search box, or a downstream test's shell click) isn't
+        // intercepted.
+        $client->switchTo()->defaultContent();
+        $this->dismissAnyOpenModals();
+    }
+
+    /**
+     * Search for an existing patient by lastname via the shell's
+     * always-visible anySearchBox (frm_search_globals), click the
+     * matching result in the patient-finder iframe, wait for that
+     * patient's Medical Record Dashboard. Mirrors source-side
+     * PatientOpenTrait::patientOpenIfExist minus the DB-existence
+     * pre-check — that check queries the database directly, which
+     * violates the acceptance suite's black-box discipline; the
+     * caller is responsible for having seeded the patient (typically
+     * via addPatientViaUi() earlier in the same test).
+     *
+     * Post-condition on return: browser is inside the pat iframe
+     * with the Medical Record Dashboard rendered for the opened
+     * patient. Callers that need to navigate elsewhere should
+     * switchTo()->defaultContent() first.
+     */
+    protected function openPatientViaUi(string $firstname, string $lastname): void
+    {
+        $client = $this->requireClient();
+        $this->muzzleBrowserPrompts();
+        $client->switchTo()->defaultContent();
+        // Belt-and-suspenders — nuke any leftover modals from prior
+        // seeding calls (dashboard load can open reminders / birthday
+        // Bootstrap modals that intercept the anySearchBox click).
+        $this->dismissAnyOpenModals();
+
+        // Type lastname into anySearchBox. Source-side uses the
+        // crawler filterXPath+form API; WebDriver findElement +
+        // clear + sendKeys is cleaner and doesn't rely on the
+        // crawler being freshly refreshed.
+        $anySearchBoxXpath = "//form[@name='frm_search_globals']//input[@name='anySearchBox']";
+        $client->wait(15)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath($anySearchBoxXpath),
+            ),
+        );
+        $anySearchBox = $client->findElement(WebDriverBy::xpath($anySearchBoxXpath));
+        $anySearchBox->clear();
+        $anySearchBox->sendKeys($lastname);
+
+        // Submit the global-search form.
+        $this->waitAndClick(
+            WebDriverBy::xpath("//button[@id='search_globals']"),
+            'Global patient-search submit button',
+        );
+
+        // Switch into the patient-finder iframe and click the result
+        // matching "Lastname, Firstname". Finder renders each hit as
+        // an <a> with exact "Lastname, Firstname" text. Names are
+        // wrapped in xpathLiteral() so a name containing ' or " (not
+        // possible for today's hex-suffix seed identities but a valid
+        // shape a future caller might pass in) does not produce an
+        // invalid XPath.
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="fin"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="fin"]');
+        $resultXpath = '//a[text()=' . self::xpathLiteral($lastname . ', ' . $firstname) . ']';
+        $client->waitFor($resultXpath, 30);
+        $client->findElement(WebDriverBy::xpath($resultXpath))->click();
+
+        // Back to default, into the patient iframe, wait for the
+        // Medical Record Dashboard header for THIS specific patient.
+        // Same assertion shape as addPatientViaUi's post-create wait —
+        // the header only renders for the patient we opened, so
+        // reaching this wait passing = search+open succeeded.
+        $client->switchTo()->defaultContent();
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
+        $client->waitFor(
+            '//*[text()=' . self::xpathLiteral('Medical Record Dashboard - ' . $firstname . ' ' . $lastname) . ']',
+            30,
+        );
+    }
+
+    /**
+     * Encode an arbitrary string as an XPath 1.0 string literal safe
+     * to embed inside a larger XPath expression. XPath 1.0 has no
+     * built-in escape mechanism, so a string containing both ' and "
+     * must be composed via concat(). Standard pattern used across
+     * WebDriver / Selenium ecosystems.
+     */
+    private static function xpathLiteral(string $value): string
+    {
+        if (!str_contains($value, "'")) {
+            return "'" . $value . "'";
+        }
+        if (!str_contains($value, '"')) {
+            return '"' . $value . '"';
+        }
+        // Both quote types present — concat() the pieces around every '.
+        // e.g. "Foo's \"Bar\"" -> concat('Foo', "'", 's "Bar"').
+        $parts = explode("'", $value);
+        return "concat('" . implode("', \"'\", '", $parts) . "')";
     }
 
     /**
@@ -194,6 +500,11 @@ trait UiSeedingTrait
     {
         $client = $this->requireClient();
         $client->switchTo()->defaultContent();
+        // Belt-and-suspenders — nuke any leftover modals from the
+        // preceding addPatientViaUi (dashboard load can open reminders
+        // / birthday Bootstrap modals that intercept the "New
+        // Encounter" shell click).
+        $this->dismissAnyOpenModals();
 
         // Click the "New Encounter" shortcut in the outer shell (not
         // inside an iframe — it lives in the patient-context bar).
@@ -230,7 +541,7 @@ trait UiSeedingTrait
         $this->switchToIFrame('//iframe[@src="forms.php"]');
         $client->waitFor(
             '//span[@id="navbarEncounterTitle" and contains(text(), "Encounter for '
-                . self::SEED_PATIENT_FNAME . ' ' . self::SEED_PATIENT_LNAME . '")]',
+                . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '")]',
             30,
         );
     }
