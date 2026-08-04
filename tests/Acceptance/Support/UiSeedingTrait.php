@@ -331,7 +331,17 @@ trait UiSeedingTrait
         // scope-lookup dependency.
         $client->switchTo()->defaultContent();
         $client->executeScript(
-            'document.querySelectorAll(".dialogModal, .modal-backdrop, iframe#modalframe").forEach(function (e) { e.remove(); });'
+            // Shotgun modal cleanup: nuke every Bootstrap modal
+            // class present. .dialogModal alone isn't enough —
+            // .modal-dialog / .modal-body / .modal-backdrop live
+            // outside its subtree in dlgopen's structure and keep
+            // intercepting clicks otherwise (verified across
+            // multiple #13372 CI iterations).
+            'document.querySelectorAll('
+            . '".dialogModal, .modal, .modal-dialog, .modal-content, '
+            . '.modal-body, .modal-header, .modal-footer, '
+            . '.modal-backdrop, iframe#modalframe"'
+            . ').forEach(function (e) { e.remove(); });'
             . 'document.body.classList.remove("modal-open");'
             . 'document.body.style.overflow = "";'
             . 'document.body.style.paddingRight = "";'
