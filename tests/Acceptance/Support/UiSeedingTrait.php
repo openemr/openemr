@@ -168,6 +168,41 @@ trait UiSeedingTrait
     }
 
     /**
+     * Rip every Bootstrap-modal-related DOM element out of the
+     * top-level document. Motivation: OpenEMR's dashboard opens
+     * modals via dlgopen() from multiple triggers (dup-check
+     * pop-up on patient add, clinical-reminders widget on
+     * dashboard load, potentially birthday-popup depending on
+     * globals). Leftover modal wrappers intercept subsequent
+     * shell clicks even after their content is closed — Bootstrap
+     * modal-hide sets display:none but leaves the wrapper div in
+     * place, and its child .modal-body sits over the shell z-order.
+     *
+     * Called at the point of each seeding helper (before/after
+     * navigations that trigger dashboard-load modal opens) to
+     * keep the shell clickable. Cheap (a single executeScript);
+     * safe (only affects test-side DOM; caller may have already
+     * cleared them, in which case this is a no-op).
+     */
+    private function dismissAnyOpenModals(): void
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+        $client->executeScript(
+            // Shotgun — every Bootstrap modal class + dlgopen
+            // wrappers + backdrop + our specific modalframe iframe.
+            'document.querySelectorAll('
+            . '".dialogModal, .modal, .modal-dialog, .modal-content, '
+            . '.modal-body, .modal-header, .modal-footer, '
+            . '.modal-backdrop, iframe#modalframe"'
+            . ').forEach(function (e) { e.remove(); });'
+            . 'document.body.classList.remove("modal-open");'
+            . 'document.body.style.overflow = "";'
+            . 'document.body.style.paddingRight = "";'
+        );
+    }
+
+    /**
      * Add a fresh patient (Ftest<suffix> Ltest<suffix>) via the
      * "Patient/Client → New/Search" main-menu path. Identity is
      * per-test-instance via seedPatientFname/seedPatientLname so
@@ -329,23 +364,7 @@ trait UiSeedingTrait
         // new_comprehensive.php (loaded inside pat iframe). Calling
         // submit() from that iframe's context is equivalent + no
         // scope-lookup dependency.
-        $client->switchTo()->defaultContent();
-        $client->executeScript(
-            // Shotgun modal cleanup: nuke every Bootstrap modal
-            // class present. .dialogModal alone isn't enough —
-            // .modal-dialog / .modal-body / .modal-backdrop live
-            // outside its subtree in dlgopen's structure and keep
-            // intercepting clicks otherwise (verified across
-            // multiple #13372 CI iterations).
-            'document.querySelectorAll('
-            . '".dialogModal, .modal, .modal-dialog, .modal-content, '
-            . '.modal-body, .modal-header, .modal-footer, '
-            . '.modal-backdrop, iframe#modalframe"'
-            . ').forEach(function (e) { e.remove(); });'
-            . 'document.body.classList.remove("modal-open");'
-            . 'document.body.style.overflow = "";'
-            . 'document.body.style.paddingRight = "";'
-        );
+        $this->dismissAnyOpenModals();
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
         $client->executeScript('document.forms[0].submit();');
 
@@ -359,6 +378,17 @@ trait UiSeedingTrait
             '//*[text()="Medical Record Dashboard - ' . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '"]',
             30,
         );
+        // Second cleanup pass — the dashboard load itself opens more
+        // Bootstrap modals (clinical-reminders widget dlgopen, possibly
+        // birthday-alert modal for patients with birthday-relevant
+        // globals set). These aren't blocked by the CDP alert muzzle
+        // — different mechanism (DOM modal, not native window.alert).
+        // Nuke them so the next step in the caller's flow
+        // (addEncounterViaUi → New Encounter click, openPatientViaUi
+        // → search box, or a downstream test's shell click) isn't
+        // intercepted.
+        $client->switchTo()->defaultContent();
+        $this->dismissAnyOpenModals();
     }
 
     /**
@@ -382,6 +412,10 @@ trait UiSeedingTrait
         $client = $this->requireClient();
         $this->muzzleBrowserPrompts();
         $client->switchTo()->defaultContent();
+        // Belt-and-suspenders — nuke any leftover modals from prior
+        // seeding calls (dashboard load can open reminders / birthday
+        // Bootstrap modals that intercept the anySearchBox click).
+        $this->dismissAnyOpenModals();
 
         // Type lastname into anySearchBox. Source-side uses the
         // crawler filterXPath+form API; WebDriver findElement +
@@ -466,6 +500,11 @@ trait UiSeedingTrait
     {
         $client = $this->requireClient();
         $client->switchTo()->defaultContent();
+        // Belt-and-suspenders — nuke any leftover modals from the
+        // preceding addPatientViaUi (dashboard load can open reminders
+        // / birthday Bootstrap modals that intercept the "New
+        // Encounter" shell click).
+        $this->dismissAnyOpenModals();
 
         // Click the "New Encounter" shortcut in the outer shell (not
         // inside an iframe — it lives in the patient-context bar).
