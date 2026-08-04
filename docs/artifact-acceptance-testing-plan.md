@@ -1003,11 +1003,11 @@ Per-class slicing map (scoped 2026-07-29):
   | GgUserMenuLinksTest                   | Small  | **SHIPPED 2026-08-02 as #13338 (full port — 5/5 scenarios).** All menuLinkProvider scenarios (Settings, Change Password, MFA Management, About OpenEMR, Logout). Absorbed release-image-specific gotcha: shipped image shows a Product Registration modal on first login that intercepts user-icon click; dismissed via jQuery `.modal('hide')` after waiting for Bootstrap's show-transition. Support/ extract SHIPPED 2026-08-02 as #13344. Post-upgrade dual-tag SHIPPED 2026-08-02 as #13345. |
   | FrontPaymentCssContrastTest           | Small  | **SHIPPED 2026-08-02 as #13340 (full port — 1/1 scenario).** `testReceiptCssHasExplicitTextColor` — CSS-inspection assertion on `front_payment.php?receipt=1`, real signal for openemr#10842 (light/solar-theme text visibility). No login needed, no modal-dismiss needed. Support/ extract SHIPPED 2026-08-02 as #13344. Post-upgrade dual-tag SHIPPED 2026-08-02 as #13345. |
   | KkEncounterFormNavbarUrlTest          | Small  | **SHIPPED 2026-08-02 as #13341 (full port — 1/1 scenario).** First 4e port requiring UI-driven seeding (patient + encounter). Menu XPaths calibrated live via Panther probe against booted stack — release-image uses `Patient` label (not `Patient/Client`) and `<div class="menuLabel">` (not `<a>`); dev-checkout blind-copy would silently break. Modal-dismiss included defensively. Support/ extract SHIPPED 2026-08-02 as #13344. **Post-upgrade dual-tag DEFERRED**: WebDriver `alertIsPresent()` timeout surfaced on rel-820 sync PR #13342's upgrade scenario pre-flight (line 412 inside `addEncounterViaUi`); dual-tag ships bundled with the flake root-cause fix. |
-  | BbCreateStaffTest                     | Medium | UI-driven user creation; setUp/tearDown DB cleanup. |
+  | BbCreateStaffTest                     | Medium | UI-driven user creation. **SHIPPED 2026-08-04 as #13383.** Third 4f Medium port. New `addStaffUserViaUi()` helper on UiSeedingTrait (Admin → Users → Add User modal → fill `rumple`/`stiltskin`/`fname`/`lname`/`adminPass` via JS value-set → Save → wait modal-close → wait users-table row). Historically the flakiest test on core E2E; acceptance port uses JS value-set (fires input/change, NOT keyup) to side-step the `checkPasswordStrength` onkeyup handler + adds the source-side defensive gates (wait for submitform function defined, field-value verification loop). Per-instance random `foobar<suffix>` username (8-byte suffix per rabbit round-1 nit). Locally smoke-tested end-to-end against dev stack before push. Dual-tagged fresh-install + post-upgrade. |
   | CcCreatePatientTest                   | **SKIP** | **PERMANENTLY SKIPPED per user 2026-08-04.** Would be an attribution-only port with no new functional coverage: `addPatientViaUi` (Cc's underlying flow) is already exercised by KkEncounterFormNavbarUrlAcceptanceTest + DdOpenPatientAcceptanceTest as their setup on every acceptance CI run (8+ executions per PR cycle across all scenarios × arches × prongs). A patient-create regression would already surface via Kk/Dd failures. Standalone Cc port would add maintenance surface for a "clearer failure attribution" benefit that isn't a real pain point today. |
   | DdOpenPatientTest                     | Medium | Requires seeded patient. **SHIPPED 2026-08-02 as #13354.** First 4f Medium port. New `openPatientViaUi(fname, lname)` helper on UiSeedingTrait (search-by-lastname via `frm_search_globals` → click finder result → land on dashboard). Dual-tagged fresh-install + post-upgrade from the start (per-instance seed identity from #13351 makes both phases safe). |
   | EeCreateEncounterTest                 | **SKIP** | **PERMANENTLY SKIPPED per user 2026-08-04.** Same rationale as Cc — attribution-only, no new coverage: `addEncounterViaUi` (Ee's underlying flow) is already exercised by KkEncounterFormNavbarUrlAcceptanceTest on every acceptance CI run (6 executions per PR cycle). An encounter-create regression would surface via Kk failure. |
-  | FfOpenEncounterTest                   | Medium | Requires seeded encounter; depends on DdOpenPatientTest. |
+  | FfOpenEncounterTest                   | Medium | Requires seeded encounter. **SHIPPED 2026-08-04 as #13382.** Second 4f Medium port. New `openEncounterViaUi()` helper on UiSeedingTrait (Past Encounters dropdown → first Office Visit entry → enc → forms iframe chain → navbar wait). Test seeds patient + encounter, navigates back via `openPatientViaUi`, re-opens via `openEncounterViaUi` — distinct user journey from Kk (which lands in the navbar as a side effect of creation). Dual-tagged fresh-install + post-upgrade. |
   | SvcCodeFinancialReportTest            | Medium | Fixture seeding (codes, billing, ar_activity); cleanup helpers provided. |
   | HhMainMenuLinksTest                   | Large  | 58× menu links; feature-module dependent; skips on old Node. |
   | IiPatientContextMainMenuLinksTest     | Large  | 40+ patient-scoped menu variants; needs seeded patient+encounter. |
@@ -4550,3 +4550,53 @@ in acceptance."
   **Bb** (staff create — genuinely new area), **Ff** (encounter
   open — new helper), **Svc** (heaviest — fixture seeding for
   codes / billing / ar_activity + report generation).
+
+- **2026-08-04 (later) — Ff + Bb Medium ports shipped, real-
+  coverage Medium tier now down to Svc + strategic-pivot on
+  Large.** Ff (#13382) added `openEncounterViaUi()` helper —
+  distinct user journey from Kk (Kk lands in the encounter
+  navbar as a *side effect* of creation, Ff exercises the
+  Past Encounters dropdown → select-first-Office-Visit → open
+  path). Bb (#13383) added `addStaffUserViaUi()` for the
+  historically-flakiest source-side test — acceptance port
+  bypasses the `checkPasswordStrength` onkeyup handler via
+  JS value-set (fires input/change, not keyup), following the
+  source-side trait's defensive gate pattern (wait for
+  submitform function defined, field-value verification loop
+  before Save). Locally smoke-tested end-to-end against dev
+  stack before push. Rabbit round-1 nit on Bb: bump per-
+  instance seed suffix `random_bytes(3)` → `random_bytes(8)`
+  applied to BOTH patient + staff for consistency (staff and
+  patient rows both persist across post-upgrade runs, so both
+  benefit equally from 24 → 64-bit uniqueness).
+
+  **Medium-tier state now:** 3 of 4 real-coverage ports
+  SHIPPED (Dd #13354, Ff #13382, Bb #13383). Cc + Ee marked
+  PERMANENTLY SKIPPED (attribution-only, already covered).
+  **Svc** (SvcCodeFinancialReportTest) is the last real-
+  coverage Medium port — heaviest of the tier because it
+  needs fixture seeding for codes / billing / ar_activity
+  (source-side has cleanup helpers). Real signal (financial
+  report is a hot area, no other acceptance coverage of it).
+
+  **Large tier — strategic pivot proposed by user 2026-08-04.**
+  Original plan was Hh + Ii + Jj menu-link ports (58 + 40 + 15
+  variants each). User called out that these add lots of test
+  time for low bug-catch rate per variant (mechanical clicks,
+  most of which never regress independently). Proposed
+  replacement: derive a small number of high-signal flow tests
+  from the manual QA checklist that ships every release:
+  (1) create in/out time in calendar,
+  (2) create appointment within the in/out window (avoids
+      "outside working hours" modal),
+  (3) verify calendar item shows on Flow Board,
+  (4) upload a patient-summary document + open it.
+  Special upgrade-scenario wrinkle: post-upgrade phase should
+  see the appointment + document CREATED PRIOR TO THE UPGRADE
+  — a persist-through-upgrade assertion that has zero coverage
+  today. That last part requires a pre-upgrade seeding stage
+  in the acceptance scaffold (currently the "boot old release"
+  step does nothing before firing the upgrade), so the flow
+  either ships fresh-install-only first and adds persistence
+  later, or the seeding stage lands as prerequisite infra.
+  Decision pending user.
