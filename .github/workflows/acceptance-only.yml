@@ -69,7 +69,7 @@
 # sections for the full design rationale.
 
 name: Acceptance-only re-run + publish (tarball)
-run-name: "Acceptance-only re-run + publish for ${{ inputs.version }} (source run ${{ inputs.source_run_id }})"
+run-name: "Acceptance-only re-run + publish for ${{ inputs.version }} (source run ${{ inputs.source_run_id }})${{ inputs.skip_acceptance && format(' -- SKIP-ACCEPTANCE: {0}', inputs.skip_acceptance_reason) || '' }}"
 
 on:
   workflow_dispatch:
@@ -90,6 +90,23 @@ on:
         description: 'Release branch (e.g. rel-820) — same value the source build-release run was dispatched with; publish checks it out for `git tag` creation.'
         required: true
         type: string
+      # Phase 14 (2026-08-04) — escape-hatch for known-good artifacts
+      # where acceptance keeps flaking on a test-side issue we haven't
+      # zeroed out yet. Skips the acceptance-gate matrix entirely and
+      # jumps to publish. Requires a non-empty reason for the audit
+      # trail; workflow fails loudly if skip=true and reason is empty.
+      # See the Phase 14 section of docs/artifact-acceptance-testing-plan.md
+      # for the full behavior contract + when-to-use guidance.
+      skip_acceptance:
+        description: 'ESCAPE HATCH -- skip acceptance matrix and publish directly. ONLY use for confirmed test-side flakes on a known-good artifact. Requires non-empty skip_acceptance_reason. Do NOT use on first-time / never-validated artifacts.'
+        required: false
+        type: boolean
+        default: false
+      skip_acceptance_reason:
+        description: 'REQUIRED when skip_acceptance=true. Free-text explanation for the audit trail (appears in run-name, workflow summary, release description). Empty reason with skip=true fails the workflow immediately.'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -126,6 +143,35 @@ jobs:
     outputs:
       artifact_name: openemr-release-candidate-${{ inputs.version }}
     steps:
+    # Phase 14 guardrail: if the operator dispatched with
+    # skip_acceptance=true, they MUST supply a non-empty
+    # skip_acceptance_reason so the audit trail carries an
+    # accountable "why." Fail loudly + immediately (before doing
+    # any real work) on skip=true + empty reason.
+    - name: Validate skip-acceptance inputs
+      env:
+        SKIP: ${{ inputs.skip_acceptance }}
+        REASON: ${{ inputs.skip_acceptance_reason }}
+      run: |
+        set -euo pipefail
+        if [ "${SKIP}" = "true" ] && [ -z "${REASON}" ]; then
+          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason. The reason appears in the run-name, workflow summary, and release description for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
+          exit 1
+        fi
+        if [ "${SKIP}" = "true" ]; then
+          echo "::warning title=Acceptance bypassed::Acceptance matrix skipped for this run. Reason: ${REASON}"
+          {
+            echo "## :warning: Acceptance bypassed"
+            echo ""
+            echo "This run skipped the acceptance-scenario matrix and published directly."
+            echo ""
+            echo "**Reason (operator-supplied):** ${REASON}"
+            echo ""
+            echo "Skip-acceptance is intended for known-good artifacts hitting confirmed test-side flakes."
+            echo "If bypasses are repeating on the same failure class, the underlying flake needs a fix, not a bypass."
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
     # Guardrail A: validate the source run is under 48h old + was
     # produced by build-release.yml. Delegates to the shared
     # validate-source-run.sh (see that script's header for the
@@ -247,6 +293,11 @@ jobs:
   acceptance-gate:
     name: Acceptance gate
     needs: [fetch-source-artifact]
+    # Phase 14: bypass the acceptance matrix when the operator
+    # explicitly opts out. The publish job's if: absorbs the
+    # skipped-result and still fires — see its comment for the
+    # needs/if interaction rationale.
+    if: ${{ inputs.skip_acceptance != true }}
     uses: ./.github/workflows/acceptance-package.yml
     with:
       caller_tarball_artifact: ${{ needs.fetch-source-artifact.outputs.artifact_name }}
@@ -276,9 +327,24 @@ jobs:
   publish:
     name: Publish release
     needs: [fetch-source-artifact, acceptance-gate]
+    # Phase 14 needs/if interaction: `acceptance-gate` is gated by
+    # `if: skip_acceptance != true`, meaning it either runs to
+    # success/failure OR is skipped-by-if. Downstream jobs with
+    # `needs: [acceptance-gate]` auto-skip when a needed job's
+    # `if:` skipped it, UNLESS the downstream uses always()/!failure()
+    # to opt out of that auto-skip. Here we want publish to fire in
+    # BOTH cases (acceptance passed OR was bypassed with reason),
+    # but NOT when acceptance ran and failed. `!failure() &&
+    # !cancelled() && fetch-source-artifact.result == 'success'`
+    # captures that: proceeds on success (normal path) or skipped
+    # (bypass path), blocks on failure (real acceptance red).
     if: >-
-      github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+      always()
+      && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
       && github.ref == 'refs/heads/master'
+      && needs.fetch-source-artifact.result == 'success'
+      && needs.acceptance-gate.result != 'failure'
+      && needs.acceptance-gate.result != 'cancelled'
     uses: ./.github/workflows/reusable-publish-release.yml
     with:
       version: ${{ inputs.version }}
