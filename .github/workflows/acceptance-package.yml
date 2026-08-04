@@ -363,7 +363,7 @@ jobs:
     # browser-actions/setup-chrome (avoids Chrome/ChromeDriver version
     # drift from independent release channels).
     - name: Set up matching ChromeDriver for Panther-driven acceptance tests
-      uses: nanasess/setup-chromedriver@v2
+      uses: nanasess/setup-chromedriver@v3
 
     - name: Install acceptance-suite composer dependencies
       run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
