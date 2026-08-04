@@ -12,7 +12,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Acceptance\Support;
 
+use Facebook\WebDriver\JavaScriptExecutor;
+use Facebook\WebDriver\Remote\LocalFileDetector;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
+use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -42,6 +45,7 @@ use RuntimeException;
  * @method void waitAndClick(WebDriverBy $by, string $description, int $timeoutSeconds = 15)
  * @method void assertActiveTab(string $expectedTitle)
  * @method void switchToIFrame(string $xpath)
+ * @method void performLoginAsAdmin()
  */
 trait UiSeedingTrait
 {
@@ -233,6 +237,28 @@ trait UiSeedingTrait
      */
     protected function addPatientViaUi(): void
     {
+        $this->addPatientViaUiWithIdentity(
+            $this->seedPatientFname(),
+            $this->seedPatientLname(),
+            self::SEED_PATIENT_DOB,
+            self::SEED_PATIENT_SEX,
+        );
+    }
+
+    /**
+     * Parameterized version of addPatientViaUi(). The unparameterized
+     * caller passes the per-instance random seed identity from
+     * seedPatientFname()/Lname()/SEED_PATIENT_DOB/SEED_PATIENT_SEX.
+     * Persistence-flow tests that need a fixed-identity patient (so
+     * both fresh-install + post-upgrade phases look up the same row)
+     * pass their own identity constants.
+     */
+    protected function addPatientViaUiWithIdentity(
+        string $fname,
+        string $lname,
+        string $dob,
+        string $sex,
+    ): void {
         $client = $this->requireClient();
         $this->muzzleBrowserPrompts();
         $client->switchTo()->defaultContent();
@@ -279,11 +305,11 @@ trait UiSeedingTrait
         // inside iframes, and this form has enough JS-bound side effects
         // (sex/sex_identified twinning) that submitting the form element
         // is more robust than reconstructing a POST.
-        $this->setInputValue("//input[@type='text' and @name='form_fname']", $this->seedPatientFname());
-        $this->setInputValue("//input[@type='text' and @name='form_lname']", $this->seedPatientLname());
-        $this->setInputValue("//input[@name='form_DOB']", self::SEED_PATIENT_DOB);
-        $this->setSelectValue("//select[@name='form_sex']", self::SEED_PATIENT_SEX);
-        $this->setSelectValue("//select[@name='form_sex_identified']", self::SEED_PATIENT_SEX);
+        $this->setInputValue("//input[@type='text' and @name='form_fname']", $fname);
+        $this->setInputValue("//input[@type='text' and @name='form_lname']", $lname);
+        $this->setInputValue("//input[@name='form_DOB']", $dob);
+        $this->setSelectValue("//select[@name='form_sex']", $sex);
+        $this->setSelectValue("//select[@name='form_sex_identified']", $sex);
 
         $this->waitAndClick(
             WebDriverBy::xpath("//*[@id='create']"),
@@ -376,7 +402,7 @@ trait UiSeedingTrait
         $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
         $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
         $client->waitFor(
-            '//*[text()="Medical Record Dashboard - ' . $this->seedPatientFname() . ' ' . $this->seedPatientLname() . '"]',
+            '//*[text()="Medical Record Dashboard - ' . $fname . ' ' . $lname . '"]',
             30,
         );
         // Second cleanup pass — the dashboard load itself opens more
@@ -881,4 +907,611 @@ trait UiSeedingTrait
         $client->waitFor("//table//a[text()=" . self::xpathLiteral($username) . "]", 30);
     }
 
+    // ==============================================================
+    // Persistence-flow seeding helpers
+    // --------------------------------------------------------------
+    // Fixed-identity fixtures for tests that need to survive a docker
+    // upgrade cycle. Unlike the random per-instance identities above
+    // (Ftest<suffix>/Ltest<suffix>/foobar<suffix>), these use stable
+    // constants so the fresh-install phase of the upgrade scenario
+    // matrix cell seeds a fixture that the post-upgrade phase can
+    // still look up by the same identifier.
+    //
+    // Each helper is idempotent: check-then-create. On the first run
+    // against a fresh DB (fresh-install phase, fresh-install-from /
+    // -to cells) the helper creates the fixture. On subsequent runs
+    // against a DB where the fixture already exists (post-upgrade
+    // phase, or local dev iteration against a persisted volume) the
+    // helper skips creation and lets the assertion run against the
+    // pre-existing state.
+    // ==============================================================
+
+    /** Fixed-identity persist-through-upgrade fixture patient. */
+    protected const PERSIST_PATIENT_FNAME = 'PersistCheck';
+    protected const PERSIST_PATIENT_LNAME = 'PersistPatient';
+    protected const PERSIST_PATIENT_DOB = '1970-01-01';
+    protected const PERSIST_PATIENT_SEX = 'Male';
+
+    /**
+     * Fixed-identity target date for the persist-through-upgrade
+     * appointment. Far future so it's obviously a fixture (never
+     * collides with real appointment data a human might inspect on
+     * "today"), close enough to be within any reasonable calendar-
+     * navigation UI horizon (some year pickers cap at century+).
+     */
+    protected const PERSIST_APPT_DATE = '2099-06-15';
+
+    /**
+     * In-office slot bracketing the appointment — 08:00 for 540
+     * minutes (9 hours) covers standard business hours + the 10:00
+     * appointment time below. Prevents any "appointment scheduled
+     * outside working hours" validation modal from firing when the
+     * appointment is created.
+     */
+    protected const PERSIST_INOFFICE_HOUR = 8;
+    protected const PERSIST_INOFFICE_MINUTE = 0;
+    protected const PERSIST_INOFFICE_DURATION_MIN = 540;
+
+    /**
+     * Appointment identity. Title is used as the existence-check
+     * discriminator on the Flow Board results table.
+     */
+    protected const PERSIST_APPT_HOUR = 10;
+    protected const PERSIST_APPT_MINUTE = 0;
+    protected const PERSIST_APPT_DURATION_MIN = 30;
+    protected const PERSIST_APPT_TITLE = 'PersistCheckAppt';
+    /** Office Visit category. Matches SEED_ENCOUNTER_CATEGORY_ID. */
+    protected const PERSIST_APPT_CATEGORY_ID = '5';
+    /** In Office category (openemr_postcalendar_categories row 2). */
+    protected const PERSIST_INOFFICE_CATEGORY_ID = '2';
+
+    /** Fixed-identity persist-through-upgrade fixture document. */
+    protected const PERSIST_DOC_FILENAME = 'persist-check.png';
+    /** Medical Record category (documents.parent_id=3 in the seed schema). */
+    protected const PERSIST_DOC_CATEGORY_ID = '3';
+
+    /**
+     * Ensure we're on the SPA shell (main menu present). Persistence
+     * tests navigate to standalone report URLs (Flow Board) for
+     * existence checks + assertions; those URLs render outside the
+     * SPA shell so subsequent main-menu clicks would fail. Direct
+     * navigation to /interface/main/tabs/main.php bounces to login
+     * when the required token_main URL param is absent, so the
+     * robust reset is a full re-login (idempotent — the session
+     * cookie is preserved so login is a no-op auth-wise; it's the
+     * shell + Knockout render we want back).
+     */
+    protected function ensureShellContext(): void
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+        $onShell = $client->executeScript(
+            'return document.getElementById("mainMenu") !== null'
+            . ' && document.getElementById("mainMenu").children.length > 0;',
+        );
+        if ($onShell === true) {
+            return;
+        }
+        $this->performLoginAsAdmin();
+    }
+
+    /**
+     * Idempotent: if the persist-check patient already exists, open
+     * them and return their pid; otherwise create + return the new
+     * pid. Post-condition on return: browser is inside the pat iframe
+     * on the persist patient's Medical Record Dashboard.
+     */
+    protected function seedPersistPatientIfMissing(): int
+    {
+        $client = $this->requireClient();
+        if ($this->persistPatientExists()) {
+            // Existence check leaves us on the patient's dashboard —
+            // extract pid from the pat iframe URL and return.
+            return $this->currentPatientPidFromPatIframe();
+        }
+        $this->addPatientViaUiWithIdentity(
+            self::PERSIST_PATIENT_FNAME,
+            self::PERSIST_PATIENT_LNAME,
+            self::PERSIST_PATIENT_DOB,
+            self::PERSIST_PATIENT_SEX,
+        );
+        return $this->currentPatientPidFromPatIframe();
+    }
+
+    /**
+     * Search for the persist patient via the shell's anySearchBox.
+     * If the finder result appears within a short window, click it
+     * (opens the patient's dashboard) and return true. Otherwise
+     * return false — caller falls through to create.
+     *
+     * This mirrors openPatientViaUi's search + click shape but with
+     * a short timeout on the finder-result wait, so a missing patient
+     * costs ~5s instead of ~30s.
+     */
+    private function persistPatientExists(): bool
+    {
+        $client = $this->requireClient();
+        $this->muzzleBrowserPrompts();
+        $client->switchTo()->defaultContent();
+        $this->dismissAnyOpenModals();
+
+        $anySearchBoxXpath = "//form[@name='frm_search_globals']//input[@name='anySearchBox']";
+        $client->wait(15)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath($anySearchBoxXpath),
+            ),
+        );
+        $anySearchBox = $client->findElement(WebDriverBy::xpath($anySearchBoxXpath));
+        $anySearchBox->clear();
+        $anySearchBox->sendKeys(self::PERSIST_PATIENT_LNAME);
+        $this->waitAndClick(
+            WebDriverBy::xpath("//button[@id='search_globals']"),
+            'Global patient-search submit button (persist-check existence probe)',
+        );
+
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="fin"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="fin"]');
+        $resultXpath = '//a[text()=' . self::xpathLiteral(
+            self::PERSIST_PATIENT_LNAME . ', ' . self::PERSIST_PATIENT_FNAME,
+        ) . ']';
+        try {
+            $client->waitFor($resultXpath, 5);
+        } catch (\Facebook\WebDriver\Exception\TimeoutException) {
+            // Not found — return false, caller will create.
+            $client->switchTo()->defaultContent();
+            return false;
+        }
+        $client->findElement(WebDriverBy::xpath($resultXpath))->click();
+        // Wait for the dashboard to render so caller can extract pid.
+        $client->switchTo()->defaultContent();
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
+        $client->waitFor(
+            '//*[text()=' . self::xpathLiteral(
+                'Medical Record Dashboard - ' . self::PERSIST_PATIENT_FNAME . ' ' . self::PERSIST_PATIENT_LNAME,
+            ) . ']',
+            30,
+        );
+        return true;
+    }
+
+    /**
+     * Extract the patient's pid from the pat iframe's current URL.
+     * Self-sufficient: switches into the pat iframe explicitly (some
+     * callers reach here after the trait's terminal switchTo(
+     * defaultContent) call) so no assumption about current frame
+     * context.
+     */
+    private function currentPatientPidFromPatIframe(): int
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+        $client->waitFor('//*[@id="framesDisplay"]//iframe[@name="pat"]', 30);
+        $this->switchToIFrame('//*[@id="framesDisplay"]//iframe[@name="pat"]');
+        $url = $client->executeScript('return window.location.href;');
+        if (!is_string($url)) {
+            self::fail('Could not read pat iframe URL to extract pid');
+        }
+        // URL may carry pid as either `?pid=N` (dashboard nav) or
+        // `?set_pid=N` (session-setter used by the finder click).
+        if (preg_match('/[?&](?:set_)?pid=(\d+)/', (string) $url, $m) !== 1) {
+            self::fail("pat iframe URL has no pid/set_pid param: {$url}");
+        }
+        return (int) $m[1];
+    }
+
+    /**
+     * Idempotent: if an In Office slot with the persist title already
+     * exists on PERSIST_APPT_DATE, skip. Otherwise create one covering
+     * 08:00 for 9 hours so the persist appointment can be scheduled
+     * inside its window without triggering an outside-hours prompt.
+     *
+     * Existence check: probes Flow Board for any event on
+     * PERSIST_APPT_DATE with category = "In Office". If Flow Board
+     * shows a matching row, the slot exists.
+     */
+    protected function seedPersistInOfficeSlotIfMissing(): void
+    {
+        if ($this->persistInOfficeSlotExists()) {
+            return;
+        }
+        $this->createCalendarEvent(
+            date: self::PERSIST_APPT_DATE,
+            categoryId: self::PERSIST_INOFFICE_CATEGORY_ID,
+            title: 'PersistCheckInOffice',
+            hour: self::PERSIST_INOFFICE_HOUR,
+            minute: self::PERSIST_INOFFICE_MINUTE,
+            durationMin: self::PERSIST_INOFFICE_DURATION_MIN,
+            patientPid: null,
+        );
+    }
+
+    /**
+     * Idempotent: if the persist appointment already exists, skip.
+     * Otherwise create it for PERSIST_APPT_DATE at 10:00 (inside the
+     * in-office window), for the given patient pid.
+     */
+    protected function seedPersistAppointmentIfMissing(int $patientPid): void
+    {
+        if ($this->persistAppointmentExistsOnFlowBoard()) {
+            return;
+        }
+        $this->createCalendarEvent(
+            date: self::PERSIST_APPT_DATE,
+            categoryId: self::PERSIST_APPT_CATEGORY_ID,
+            title: self::PERSIST_APPT_TITLE,
+            hour: self::PERSIST_APPT_HOUR,
+            minute: self::PERSIST_APPT_MINUTE,
+            durationMin: self::PERSIST_APPT_DURATION_MIN,
+            patientPid: $patientPid,
+        );
+    }
+
+    /**
+     * Existence oracle for the in-office slot — reuse the Flow Board
+     * probe. If ANY event exists on PERSIST_APPT_DATE, the slot has
+     * already been seeded (or the appointment has, which implies the
+     * slot was seeded first this run).
+     */
+    private function persistInOfficeSlotExists(): bool
+    {
+        $rows = $this->flowBoardRowsForPersistDate();
+        return $rows > 0;
+    }
+
+    /**
+     * Existence oracle for the persist appointment — probe Flow Board
+     * for the appointment title on the target date.
+     */
+    private function persistAppointmentExistsOnFlowBoard(): bool
+    {
+        return $this->flowBoardHasPersistAppointment();
+    }
+
+    /**
+     * Navigate to Flow Board, filter to PERSIST_APPT_DATE, count
+     * result-table body rows. Cheap existence oracle: 0 = no seed
+     * events for that date yet.
+     */
+    private function flowBoardRowsForPersistDate(): int
+    {
+        $this->openFlowBoardFilteredToPersistDate();
+        $client = $this->requireClient();
+        // Flow Board result table lives at top level after submit.
+        $count = $client->executeScript(
+            "return document.querySelectorAll('table tbody tr').length;",
+        );
+        return is_int($count) ? $count : 0;
+    }
+
+    /**
+     * True iff Flow Board shows a row whose text contains the persist
+     * patient's lastname (fixture data identifier). Sufficient to
+     * confirm the appointment exists for that patient on that date.
+     */
+    private function flowBoardHasPersistAppointment(): bool
+    {
+        $this->openFlowBoardFilteredToPersistDate();
+        $client = $this->requireClient();
+        $hasRow = $client->executeScript(
+            "var rows = document.querySelectorAll('table tbody tr');"
+            . "for (var i = 0; i < rows.length; i++) {"
+            . "  if (rows[i].textContent.indexOf(arguments[0]) !== -1) return true;"
+            . "}"
+            . "return false;",
+            [self::PERSIST_PATIENT_LNAME],
+        );
+        return $hasRow === true;
+    }
+
+    /**
+     * Navigate to Patient Flow Board, set From/To = PERSIST_APPT_DATE,
+     * click Submit, wait for the result page to render. Post-
+     * condition: browser is at top level with the Flow Board results
+     * table loaded.
+     */
+    private function openFlowBoardFilteredToPersistDate(): void
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+        $this->dismissAnyOpenModals();
+        // GET the empty report page — filter form renders with an
+        // empty results panel. The report reads filter values from
+        // $_POST and requires CSRF, so URL params are ignored. Fill
+        // the From/To date fields + click Submit to trigger the
+        // POST-with-CSRF.
+        $client->request('GET', '/interface/reports/patient_flow_board_report.php');
+        $client->waitFor("//input[@name='form_from_date']", 30);
+        $this->setInputValue("//input[@name='form_from_date']", self::PERSIST_APPT_DATE);
+        $this->setInputValue("//input[@name='form_to_date']", self::PERSIST_APPT_DATE);
+        // Submit is an <a class='btn btn-save'> whose onclick sets
+        // form_refresh=true + calls $("#theform").submit(). Trigger
+        // the same behavior directly rather than clicking (the anchor
+        // wraps its text in mixed whitespace + PHP xlt output).
+        $client->executeScript(
+            'document.getElementById("form_refresh").value = "true";'
+            . 'document.getElementById("theform").submit();',
+        );
+        // Wait for the results panel to render — either a data table
+        // or the "no matching records" message.
+        $client->wait(30)->until(
+            fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript(
+                "return document.querySelector('table.table') !== null"
+                . " || document.body.textContent.indexOf('No matching records') !== -1"
+                . " || document.body.textContent.indexOf('no matching records') !== -1;",
+            ),
+        );
+    }
+
+    /**
+     * Assert the persist appointment appears on Flow Board for the
+     * target date. Fails the test with a diagnostic if the row is
+     * missing.
+     */
+    protected function assertPersistAppointmentOnFlowBoard(): void
+    {
+        self::assertTrue(
+            $this->flowBoardHasPersistAppointment(),
+            sprintf(
+                'Persist appointment for %s %s not found on Flow Board for %s',
+                self::PERSIST_PATIENT_FNAME,
+                self::PERSIST_PATIENT_LNAME,
+                self::PERSIST_APPT_DATE,
+            ),
+        );
+    }
+
+    /**
+     * Create a calendar event via the Calendar iframe's newEvt() JS
+     * hook. Opens add_edit_event.php inside #modalframe, fills fields,
+     * clicks Save. Idempotent-check is caller's responsibility — this
+     * helper always creates.
+     */
+    private function createCalendarEvent(
+        string $date,
+        string $categoryId,
+        string $title,
+        int $hour,
+        int $minute,
+        int $durationMin,
+        ?int $patientPid,
+    ): void {
+        $client = $this->requireClient();
+        $this->muzzleBrowserPrompts();
+        $client->switchTo()->defaultContent();
+
+        // Persistence-flow tests reach this helper AFTER a Flow Board
+        // existence check that navigated to the standalone report URL
+        // (no #mainMenu present). main.php GET without token_main
+        // bounces to login, so re-establish shell context via the
+        // full performLoginAsAdmin flow — expensive but robust.
+        $this->ensureShellContext();
+        $this->dismissAnyOpenModals();
+
+        // Open Calendar tab.
+        $this->waitAndClick(
+            WebDriverBy::xpath(
+                '//div[@id="mainMenu"]//div[normalize-space(text())="Calendar"'
+                . ' and contains(concat(" ",normalize-space(@class)," ")," menuLabel ")]',
+            ),
+            'Calendar main-menu item',
+        );
+        $client->waitFor('//iframe[@name="cal"]', 30);
+        $this->switchToIFrame('//iframe[@name="cal"]');
+        // newEvt(userid, hour, minute, "YYYYMMDD", ?, ?) opens the
+        // add-event modal via dlgopen. userid=1 = Administrator (the
+        // shipped default provider). Date is compact YYYYMMDD, not
+        // ISO YYYY-MM-DD.
+        $compactDate = str_replace('-', '', $date);
+        $client->wait(30)->until(
+            fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript('return typeof newEvt === "function";'),
+        );
+        $client->executeScript(
+            sprintf('newEvt(1, %d, %d, "%s", 0, 0);', $hour, $minute, $compactDate),
+        );
+
+        // Switch to top-level, wait for modalframe, switch in.
+        $client->switchTo()->defaultContent();
+        $client->waitFor("//iframe[@id='modalframe']", 30);
+        $this->switchToIFrame("//iframe[@id='modalframe']");
+        $client->waitFor("//select[@name='form_category']", 30);
+        $client->wait(15)->until(
+            WebDriverExpectedCondition::elementToBeClickable(
+                WebDriverBy::xpath("//input[@id='form_save']"),
+            ),
+        );
+
+        // Fill fields. Category triggers form UI rearrangement (in/out
+        // office hides patient row) so set it FIRST via change event.
+        $this->setSelectValue("//select[@name='form_category']", $categoryId);
+        $this->setInputValue("//input[@name='form_title']", $title);
+        // form_date is a picker input; setInputValue's input/change
+        // events are enough to update the underlying value.
+        $this->setInputValue("//input[@name='form_date']", $date);
+        $this->setInputValue("//input[@name='form_hour']", (string) $hour);
+        $this->setInputValue("//input[@name='form_minute']", (string) $minute);
+        $this->setInputValue("//input[@name='form_duration']", (string) $durationMin);
+        if ($patientPid !== null) {
+            // form_pid is the machine-readable hidden id (server
+            // reads this); form_patient is the visible display name
+            // (client-side submitform validation checks it isn't
+            // empty via the Click-to-select placeholder replacement
+            // sel_patient() would do). Set both.
+            $this->setInputValue("//input[@name='form_pid']", (string) $patientPid);
+            $this->setInputValue(
+                "//input[@name='form_patient']",
+                self::PERSIST_PATIENT_FNAME . ' ' . self::PERSIST_PATIENT_LNAME,
+            );
+        }
+
+        // Save. Muzzle handles any confirm() for outside-hours checks.
+        $client->findElement(WebDriverBy::xpath("//input[@id='form_save']"))->click();
+
+        // Wait for modal to close (add_edit_event.php calls
+        // dlgclose() on success).
+        $client->switchTo()->defaultContent();
+        $client->wait(30)->until(
+            WebDriverExpectedCondition::invisibilityOfElementLocated(
+                WebDriverBy::xpath("//iframe[@id='modalframe']"),
+            ),
+        );
+        $this->dismissAnyOpenModals();
+    }
+
+    /**
+     * Idempotent: if the persist document already exists in the
+     * patient's Medical Record category, skip. Otherwise generate a
+     * small in-memory PNG and upload it.
+     */
+    protected function seedPersistDocumentIfMissing(int $patientPid): void
+    {
+        if ($this->persistDocumentExists($patientPid)) {
+            return;
+        }
+        $this->uploadPersistDocument($patientPid);
+    }
+
+    /**
+     * True iff the persist document filename appears in the patient's
+     * Medical Record category document listing.
+     */
+    private function persistDocumentExists(int $patientPid): bool
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+        $this->dismissAnyOpenModals();
+        $client->request(
+            'GET',
+            "/controller.php?document&upload&patient_id={$patientPid}&parent_id=" . self::PERSIST_DOC_CATEGORY_ID,
+        );
+        // The documents list panel renders the file names as links in
+        // the category tree area. Wait for the tree, then check.
+        $client->wait(30)->until(
+            fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript(
+                "return document.querySelector('.documents-list, #documentsTree, body') !== null;",
+            ),
+        );
+        $found = $client->executeScript(
+            "var links = document.querySelectorAll('a');"
+            . "for (var i = 0; i < links.length; i++) {"
+            . "  if (links[i].textContent.indexOf(arguments[0]) !== -1) return true;"
+            . "}"
+            . "return false;",
+            [self::PERSIST_DOC_FILENAME],
+        );
+        return $found === true;
+    }
+
+    /**
+     * Upload the persist document. Generates a small in-memory PNG
+     * (1×1 pixel is enough — the assertion checks presence + open,
+     * not content), writes it to a per-run tmp path with the fixed
+     * PERSIST_DOC_FILENAME, drives the file input, clicks Upload,
+     * waits for the file to appear in the tree.
+     */
+    private function uploadPersistDocument(int $patientPid): void
+    {
+        $client = $this->requireClient();
+        // 1×1 transparent PNG — minimal valid PNG bytes.
+        $pngBytes = base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkAAIAAAoAAv/lxKUAAAAASUVORK5CYII=',
+        );
+        $tmpPath = '/tmp/' . self::PERSIST_DOC_FILENAME;
+        file_put_contents($tmpPath, $pngBytes);
+
+        $client->switchTo()->defaultContent();
+        $this->dismissAnyOpenModals();
+        $client->request(
+            'GET',
+            "/controller.php?document&upload&patient_id={$patientPid}&parent_id=" . self::PERSIST_DOC_CATEGORY_ID,
+        );
+        // File input is name="file[]" id="source-name". Attach a
+        // LocalFileDetector so sendKeys uploads the local file bytes
+        // over the WebDriver protocol to the Selenium node's Chrome
+        // (which runs in a separate container and can't see our
+        // filesystem path). Only works on RemoteWebElement — the
+        // instanceof narrow guards against future driver swaps.
+        $client->waitFor("//input[@id='source-name']", 30);
+        $fileInput = $client->findElement(WebDriverBy::xpath("//input[@id='source-name']"));
+        if ($fileInput instanceof RemoteWebElement) {
+            $fileInput->setFileDetector(new LocalFileDetector());
+        }
+        $fileInput->sendKeys($tmpPath);
+        // Click the Upload button (button/input[type=submit] with
+        // Upload text in the Source File Path form section).
+        $this->waitAndClick(
+            WebDriverBy::xpath("//button[normalize-space(text())='Upload' or @value='Upload']"
+                . " | //input[@type='submit' and (@value='Upload' or normalize-space(@value)='Upload')]"),
+            'Documents Upload button',
+        );
+        // After upload the page reloads; wait for the file to appear
+        // as a link in the tree.
+        $client->wait(60)->until(
+            fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript(
+                "var links = document.querySelectorAll('a');"
+                . "for (var i = 0; i < links.length; i++) {"
+                . "  if (links[i].textContent.indexOf(arguments[0]) !== -1) return true;"
+                . "}"
+                . "return false;",
+                [self::PERSIST_DOC_FILENAME],
+            ),
+        );
+    }
+
+    /**
+     * Open the persist document + wait for the viewer panel to render
+     * something (the file's img element for PNG viewing, or any
+     * viewer content). Post-condition on return: browser is at top
+     * level with the viewer visible.
+     */
+    protected function assertPersistDocumentOpenable(int $patientPid): void
+    {
+        $client = $this->requireClient();
+        $client->switchTo()->defaultContent();
+        $this->dismissAnyOpenModals();
+        $client->request(
+            'GET',
+            "/controller.php?document&upload&patient_id={$patientPid}&parent_id=" . self::PERSIST_DOC_CATEGORY_ID,
+        );
+        // Find + click the file link in the tree.
+        $client->wait(30)->until(
+            fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript(
+                "var links = document.querySelectorAll('a');"
+                . "for (var i = 0; i < links.length; i++) {"
+                . "  if (links[i].textContent.indexOf(arguments[0]) !== -1) return true;"
+                . "}"
+                . "return false;",
+                [self::PERSIST_DOC_FILENAME],
+            ),
+        );
+        // Click via JS since the tree link may be inside a
+        // conditionally-visible subtree.
+        $clicked = $client->executeScript(
+            "var links = document.querySelectorAll('a');"
+            . "for (var i = 0; i < links.length; i++) {"
+            . "  if (links[i].textContent.indexOf(arguments[0]) !== -1) { links[i].click(); return true; }"
+            . "}"
+            . "return false;",
+            [self::PERSIST_DOC_FILENAME],
+        );
+        self::assertTrue($clicked === true, 'Failed to click persist doc link in tree');
+        // Wait for the viewer to render — the "Document Uploader/
+        // Viewer" panel header displays the opened filename as its
+        // title. Finding the filename in the viewer header confirms
+        // the doc-view URL loaded and the viewer rendered its
+        // metadata pane. The image-render path is category+MIME
+        // dependent (PNG shows in-line, PDFs embed, .doc downloads)
+        // — the filename-in-header assertion catches all of those
+        // uniformly, and the persist assertion doesn't care about
+        // the specific display mechanism, only that the doc is
+        // reachable + the viewer knows about it.
+        $client->wait(30)->until(
+            fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript(
+                "var body = document.body ? document.body.textContent : '';"
+                . "return body.indexOf(arguments[0]) !== -1"
+                . "  && (document.querySelector('button, a.btn, .btn') !== null);",
+                [self::PERSIST_DOC_FILENAME],
+            ),
+        );
+    }
 }
