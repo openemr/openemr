@@ -505,7 +505,7 @@ LIMIT 1)";
  * @param int $report_id id of report in database (if already bookmarked)
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget = '', $mode = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $batchSize = '', $report_id = null)
+function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget = '', $mode = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $batchSize = '', $report_id = null): array
 {
 
   // Default to a batchsize, if empty
@@ -941,7 +941,7 @@ function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dat
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
+function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = ''): array
 {
 
   // If dateTarget is an array, then organize them.

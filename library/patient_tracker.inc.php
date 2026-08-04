@@ -37,7 +37,10 @@ function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_
     return PatientTrackerService::get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec);
 }
 
-function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat = null, $form_patient_name = null, $form_patient_id = null)
+/**
+ * @return mixed[]
+ */
+function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat = null, $form_patient_name = null, $form_patient_id = null): array
 {
     // TODO: refactor this method to use the PatientTrackerService  There is a whole hierarchy of inner function calls
     // inside the fetchAppointments method scattered across several different files which will require creating lots more classes
