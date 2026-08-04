@@ -212,7 +212,6 @@ if ($searchby && $searchparm) {
 <div id="searchstatus" class="howManyResults"><?php echo text(count($result)); ?> <?php echo xlt('records found.'); ?></div>
 <?php endif; ?>
 
-<?php if (isset($result)) : ?>
 <div id="searchResultsHeader">
 <table>
  <tr>
@@ -247,9 +246,6 @@ if ($searchby && $searchparm) {
         ?>
         </table>
     </div>
-<?php else : ?>
-<p><?php echo xlt("No groups found"); ?></p>
-<?php endif; ?>
 
 <script>
 
