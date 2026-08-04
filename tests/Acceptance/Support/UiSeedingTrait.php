@@ -94,7 +94,7 @@ trait UiSeedingTrait
 
     private function seedPatientSuffix(): string
     {
-        return $this->seedPatientSuffix ??= bin2hex(random_bytes(3));
+        return $this->seedPatientSuffix ??= bin2hex(random_bytes(8));
     }
 
     /**
@@ -660,7 +660,7 @@ trait UiSeedingTrait
      */
     protected function seedStaffUsername(): string
     {
-        return self::SEED_STAFF_USERNAME_BASE . ($this->seedStaffSuffix ??= bin2hex(random_bytes(3)));
+        return self::SEED_STAFF_USERNAME_BASE . ($this->seedStaffSuffix ??= bin2hex(random_bytes(8)));
     }
 
     /**
