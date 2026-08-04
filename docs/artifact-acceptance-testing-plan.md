@@ -1004,9 +1004,9 @@ Per-class slicing map (scoped 2026-07-29):
   | FrontPaymentCssContrastTest           | Small  | **SHIPPED 2026-08-02 as #13340 (full port — 1/1 scenario).** `testReceiptCssHasExplicitTextColor` — CSS-inspection assertion on `front_payment.php?receipt=1`, real signal for openemr#10842 (light/solar-theme text visibility). No login needed, no modal-dismiss needed. Support/ extract SHIPPED 2026-08-02 as #13344. Post-upgrade dual-tag SHIPPED 2026-08-02 as #13345. |
   | KkEncounterFormNavbarUrlTest          | Small  | **SHIPPED 2026-08-02 as #13341 (full port — 1/1 scenario).** First 4e port requiring UI-driven seeding (patient + encounter). Menu XPaths calibrated live via Panther probe against booted stack — release-image uses `Patient` label (not `Patient/Client`) and `<div class="menuLabel">` (not `<a>`); dev-checkout blind-copy would silently break. Modal-dismiss included defensively. Support/ extract SHIPPED 2026-08-02 as #13344. **Post-upgrade dual-tag DEFERRED**: WebDriver `alertIsPresent()` timeout surfaced on rel-820 sync PR #13342's upgrade scenario pre-flight (line 412 inside `addEncounterViaUi`); dual-tag ships bundled with the flake root-cause fix. |
   | BbCreateStaffTest                     | Medium | UI-driven user creation; setUp/tearDown DB cleanup. |
-  | CcCreatePatientTest                   | Medium | Reuses PatientAddTrait; depends on `testLoginAuthorized`. |
-  | DdOpenPatientTest                     | Medium | Requires seeded patient. |
-  | EeCreateEncounterTest                 | Medium | EncounterAddTrait; needs active patient. |
+  | CcCreatePatientTest                   | **SKIP** | **PERMANENTLY SKIPPED per user 2026-08-04.** Would be an attribution-only port with no new functional coverage: `addPatientViaUi` (Cc's underlying flow) is already exercised by KkEncounterFormNavbarUrlAcceptanceTest + DdOpenPatientAcceptanceTest as their setup on every acceptance CI run (8+ executions per PR cycle across all scenarios × arches × prongs). A patient-create regression would already surface via Kk/Dd failures. Standalone Cc port would add maintenance surface for a "clearer failure attribution" benefit that isn't a real pain point today. |
+  | DdOpenPatientTest                     | Medium | Requires seeded patient. **SHIPPED 2026-08-02 as #13354.** First 4f Medium port. New `openPatientViaUi(fname, lname)` helper on UiSeedingTrait (search-by-lastname via `frm_search_globals` → click finder result → land on dashboard). Dual-tagged fresh-install + post-upgrade from the start (per-instance seed identity from #13351 makes both phases safe). |
+  | EeCreateEncounterTest                 | **SKIP** | **PERMANENTLY SKIPPED per user 2026-08-04.** Same rationale as Cc — attribution-only, no new coverage: `addEncounterViaUi` (Ee's underlying flow) is already exercised by KkEncounterFormNavbarUrlAcceptanceTest on every acceptance CI run (6 executions per PR cycle). An encounter-create regression would surface via Kk failure. |
   | FfOpenEncounterTest                   | Medium | Requires seeded encounter; depends on DdOpenPatientTest. |
   | SvcCodeFinancialReportTest            | Medium | Fixture seeding (codes, billing, ar_activity); cleanup helpers provided. |
   | HhMainMenuLinksTest                   | Large  | 58× menu links; feature-module dependent; skips on old Node. |
@@ -4536,3 +4536,17 @@ in acceptance."
   captures the transferable lessons but not the full workaround
   set — acceptance-side stays aggressive, source-side keeps its
   retry pattern.
+
+- **2026-08-04 — Cc + Ee marked PERMANENTLY SKIPPED in the
+  4e/4f port table.** Both would be attribution-only ports with
+  no new functional coverage: `addPatientViaUi` (Cc's underlying
+  flow) is already exercised by Kk + Dd as their setup on every
+  acceptance CI run; `addEncounterViaUi` (Ee's flow) is exercised
+  by Kk. Any regression in either would already surface via Kk
+  or Dd failure (8+ executions per PR cycle across all scenarios).
+  Standalone Cc + Ee ports would add maintenance surface for a
+  "clearer failure attribution" benefit that isn't a real pain
+  point today. Real new-coverage Medium-tier ports remain:
+  **Bb** (staff create — genuinely new area), **Ff** (encounter
+  open — new helper), **Svc** (heaviest — fixture seeding for
+  codes / billing / ar_activity + report generation).
