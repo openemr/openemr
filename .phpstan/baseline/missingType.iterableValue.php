@@ -1872,6 +1872,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_encounters_model.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Therapy_Groups_Events\\:\\:getGroupEvents\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_events_model.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Therapy_Groups\\:\\:getGroupData\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php',
