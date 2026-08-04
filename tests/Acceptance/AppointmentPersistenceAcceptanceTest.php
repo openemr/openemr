@@ -24,13 +24,13 @@ use PHPUnit\Framework\Attributes\Group;
  *
  * Flow exercised end-to-end:
  *   1. Seed a fixed-identity persist-check patient (idempotent).
- *   2. If the persist appointment (matched by title + patient
- *      lastname on the target date) is missing on Flow Board,
- *      create an In Office window covering 08:00-17:00 followed by
- *      the Office Visit appointment at 10:00 (inside the window,
- *      so no outside-hours prompt). Otherwise skip both — the
- *      appointment cannot have been created without the InOffice
- *      window, so its presence proves both fixtures exist.
+ *   2. If the persist appointment (matched by patient lastname +
+ *      start time on the target date) is missing on Flow Board,
+ *      create the Office Visit appointment at 10:00. The outside-
+ *      hours "Provider not available" native confirm() that fires
+ *      because no In Office slot pre-exists is muzzled by
+ *      UiSeedingTrait::muzzleBrowserPrompts() (returns true),
+ *      so the save proceeds.
  *   3. Navigate to Patient Flow Board, filter to PERSIST_APPT_DATE,
  *      assert the appointment row appears.
  *

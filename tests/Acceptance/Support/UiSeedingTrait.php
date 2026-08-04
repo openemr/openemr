@@ -1117,18 +1117,20 @@ trait UiSeedingTrait
         if ($this->persistAppointmentExistsOnFlowBoard()) {
             return;
         }
-        // Create the InOffice window first so the appointment save
-        // doesn't trigger a "scheduling outside working hours" prompt.
-        $this->createCalendarEvent(
-            date: self::PERSIST_APPT_DATE,
-            categoryId: self::PERSIST_INOFFICE_CATEGORY_ID,
-            title: 'PersistCheckInOffice',
-            hour: self::PERSIST_INOFFICE_HOUR,
-            minute: self::PERSIST_INOFFICE_MINUTE,
-            durationMin: self::PERSIST_INOFFICE_DURATION_MIN,
-            patientPid: null,
-        );
-        // Then the appointment itself.
+        // Just create the Office Visit appointment. We do NOT
+        // pre-seed an In Office slot because the standard newEvt()-
+        // opened modal only offers categories with pc_cattype=0
+        // (regular event categories); In Office (pc_catid=2) has
+        // pc_cattype=1 and is only offered when the modal is opened
+        // with the ?prov=true param (a separate provider-availability
+        // flow). Setting form_category to a value not in the
+        // dropdown's options renders as blank + fails save.
+        //
+        // The outside-hours prompt that would otherwise fire on
+        // save (find_appt_popup.php:479 "Provider not available,
+        // use it anyway?") is a native browser confirm(), which
+        // muzzleBrowserPrompts() overrides to return true — so the
+        // save proceeds regardless of provider availability.
         $this->createCalendarEvent(
             date: self::PERSIST_APPT_DATE,
             categoryId: self::PERSIST_APPT_CATEGORY_ID,
@@ -1318,8 +1320,9 @@ trait UiSeedingTrait
         // Save. Muzzle handles any confirm() for outside-hours checks.
         $client->findElement(WebDriverBy::xpath("//input[@id='form_save']"))->click();
 
-        // Wait for modal to close (add_edit_event.php calls
-        // dlgclose() on success).
+        // Wait for modal to close (add_edit_event.php POSTs to
+        // itself; on success it echoes dlgclose() which fires on
+        // the parent frame).
         $client->switchTo()->defaultContent();
         $client->wait(30)->until(
             WebDriverExpectedCondition::invisibilityOfElementLocated(
