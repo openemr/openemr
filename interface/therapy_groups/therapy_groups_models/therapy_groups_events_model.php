@@ -34,7 +34,6 @@ class Therapy_Groups_Events
     /**
      * Get all events of specified group.
      * @param $gid
-     * @return ADORecordSet_mysqli
      */
     public function getGroupEvents($gid): array
     {
