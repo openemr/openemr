@@ -2287,6 +2287,22 @@ regression signal? If the latter, keep source-side as-is.
 
 Candidates so far:
 
+- **Downstream-oracle recovery pattern for modal-close races**
+  *(from #13391)* — source-side `UserAddTrait` handles the AJAX-
+  handler-to-dlgclose race with a 3-retry-whole-test loop
+  (`userAddIfNotExist(retry=true)`). Acceptance-side #13391
+  showed a cleaner alternative: wrap the modal-close wait in
+  try/catch, force-clean modal DOM on timeout, then let the
+  downstream users-table row wait act as the oracle. If the
+  user was created (typical flake mode), the row is there and
+  the test passes without a whole-test retry. If not (real
+  regression), the row wait fails and surfaces the underlying
+  issue. Simpler than the retry loop because the row oracle
+  already discriminates the two failure modes. Applies to any
+  source-side test whose failure mode is "action succeeded
+  server-side but the closing-signal JS raced" — patient add,
+  user add, encounter add.
+
 - **CDP `Page.addScriptToEvaluateOnNewDocument` muzzle of
   `window.alert` / `.confirm` / `.prompt`** *(the actual working
   fix, from #13358)* — the clinical-reminders alert emitted from
