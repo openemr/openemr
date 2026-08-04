@@ -827,11 +827,13 @@ correctly, and downstream artifacts all landed on schedule.
 **Live.** The initial three release-flow workflows (branch-cut, patch-prep,
 release-prep, the last of which also produces the release-finalize partner
 PR) shipped 2026-07-01 (#12662, #12696, #12697) on top of the conductor that shipped
-earlier this cycle. The 8.1.1 ship in 2026-06 was the first real production
-exercise of release-prep + release-finalize; the rel-820 cut on 2026-07-02
-was the first production exercise of branch-cut (see "First production
-exercise" above); the next patch dev-cycle entry (e.g. 8.2.1-dev on
-rel-820) will be the first production exercise of patch-prep.
+earlier this cycle. The rel-820 cut on 2026-07-02 exercised release-prep +
+release-finalize together for the first time; the 8.2.0 ship 2026-07-08/09
+was the first real production release through the paired flow. The rel-820
+cut on 2026-07-02 was also the first production exercise of branch-cut
+(see "First production exercise" above); the next patch dev-cycle entry
+(e.g. 8.2.1-dev on rel-820) will be the first production exercise of
+patch-prep.
 release-amendment and release-mechanism-smoketest landed subsequently as
 part of the same slice — see their sections above for descriptions and
 [openemr/openemr#12999](https://github.com/openemr/openemr/pull/12999) for
@@ -844,6 +846,6 @@ Companion docs — start here for the wider context:
 - [`docs/RELEASE_PROCESS.md`](RELEASE_PROCESS.md) — the maintainer runbook.
 
 The architectural rationale + phased migration plan out of `openemr-devops`
-and the living gap tracker for the wider release-mechanism migration are
-tracked in separate drafts not yet landed on master; they will be linked
-here once merged.
+lives in [`docs/release-mechanism-migration-from-devops.md`](release-mechanism-migration-from-devops.md);
+the living gap tracker for the wider release-mechanism migration lives in
+[`docs/release-mechanism-gaps.md`](release-mechanism-gaps.md).

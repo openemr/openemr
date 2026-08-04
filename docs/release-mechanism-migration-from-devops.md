@@ -153,15 +153,17 @@ encountered.
 | 1 | **Remove unused stuff in devops** — **SHIPPED 2026-06-28** | openemr-devops + openemr/openemr | ~1 day | Required prerequisite for 8.1.1 ship (workstream 4). Trio of PRs landed 2026-06-28: openemr-devops#835 (collapse ship-release to 2-PR shape + delete dead rotation slice), openemr/openemr#12631 (docs collapsed to 2-PR shape), openemr/openemr#12619 (wire vendored-contract drift check via devops reusable workflow). Originally framed as "safe drop-in cleanup" — re-classified 2026-06-24 after tracing the ship flow: the Infra PR slot (openemr-devops PR #760, `release-rotation/auto`) was frozen with pre-docker-migration content that would either block ship-release.yml's preflight or silently undo the docker migration on merge. Workstream 1 collapsed ship-release to 2-PR shape, eliminating the Infra slot entirely. Maps to the original Phase 1 PR 1a + 1b + 1c detailed below. |
 | 2 | **rel-820 cut readiness** — **SHIPPED 2026-07-01; first production exercise 2026-07-02 after three attempts** | openemr/openemr (already) | ~2-3 days | Next thing actually scheduled to happen after the 8.1.1 ship. Address G4 (master-scope mutator wiring for `8.X.0-dev → 8.X+1.0-dev` advance) + G5 (auto-trigger when `rel-NNN0` cut). Plus cross-branch-cut automation script. **Not migration work** — the conductor + mutators all already live in `openemr/openemr` core; this workstream extends them. Shipped in openemr/openemr#12696 (merge `6513b487b6`); rabbit-fix follow-up shipped in openemr/openemr#12709 (merge `8a01001a27`) — 3 Major items missed at initial merge (App-token permission scoping + `persist-credentials: false` on 3 checkouts + `endsWith` gate tightening). **First production exercise 2026-07-02** took three attempts and three rounds of mutator/workflow fixes to land clean: round 1 = #12722 (`--skip-globals` on branch-cut + patch-prep CLI invocations) + #12724 (drop `paths-ignore: docs/**` from release-prep); round 2 = #12731 (five fixes — fsupgrade-N.sh full-copy scaffold, `PostReleaseTargetsMutator` early-return when no live row, drop `GlobalsIncMutator` from release-prep rel-side list, `DockerComposeProductionMutator` tag-only pin, drop `MutatorContext::imageDigest`); round 3 = #12735 (`SqlUpgradeSkeletonMutator` double-newline fix + `DockerUpgradeScaffoldMutator` sql-scan `priorOpenemrVersion` derivation + `priorOpenemrVersion < target` ordering invariant + PR template audit). Fourth attempt landed clean via #12743 (rel-side) + #12744 (master-side) with release-prep #12742; downstream Docker Hub tags, dockerhub README, and demo_farm reconciliation (#168) all landed cleanly. |
 | 3 | **Per-release-on-rel-branch optimization** — **PHASE A SHIPPED 2026-07-01; refined during 2026-07-02 first exercise** | openemr/openemr (already) | ~3-4 days | Apply 8.1.1 learnings. P1-P4 (docker upgrade machinery, version.php bump, release-targets row bump) are 100% mechanical; build a release-cycle-bot script that takes `X.Y.Z` + rel branch and generates the prep PRs. Folds in G7 (rel-810 surgical conductor sync), G8 (regression tests on master + rel-810). Pays dividends every patch release going forward. **Not migration work** — release-prep tooling already in core. Phase A (release-finalize partner PR + `PostReleaseTargetsMutator`) shipped in openemr/openemr#12662 (merge `abb1e2d940`). 8.1.x is being skipped — first production exercise of the paired release-prep + release-finalize conductor was the rel-820 cut on 2026-07-02, which surfaced Phase-A-touching bugs fixed in #12731 (`PostReleaseTargetsMutator` early-return when target rel has no live row; `DockerComposeProductionMutator` tag-only pin — no `--image-digest`; drop `GlobalsIncMutator` from release-prep rel-side list) and #12724 (release-prep filter no longer ignores docs-only master tips). Phase B (bulk P1-P4 release-cycle-bot) still outstanding. |
-| 4 | **Ensure 8.1.1 ship works** | openemr/openemr (validation) | hours | When PR #12377 lands and the post-tag flow fires for the first time end-to-end. Most consumer dispatches fire to devops's still-live workflows; this is the validation of the half-migrated state. **Blocked by workstream 1** — see analysis below. Lessons feed back into workstream 7's design. |
+| 4 | **Ensure 8.1.1 ship works** — **SUPERSEDED — 8.1.x skipped; validation folded into rel-820 → 8.2.0 ship on 2026-07-08/09** | openemr/openemr (validation) | hours | Originally scoped to validate the half-migrated state when PR #12377 landed and the post-tag flow fired for the first time end-to-end. 8.1.x was abandoned; the first end-to-end production validation happened on the rel-820 → 8.2.0 ship 2026-07-08/09 instead. Lessons fed back into workstream 7's design as planned. |
 | 5 | **Automate demo farm derivation (G6)** | demo_farm_openemr | ~3-4 days | Cross-repo work — build automation in `demo_farm_openemr` that derives `ip_map_branch.txt` + `demoLibrary.source` from `openemr/openemr`'s `release-targets.yml` + per-rel-branch Dockerfile ARGs. Orthogonal to release-mechanism migration; can run in parallel with any other workstream. |
 | 6 | **Patch-prep automation** — **SHIPPED 2026-07-01; workflow-invocation + mutator refinements during 2026-07-02 branch-cut exercise** | openemr/openemr (already) | ~2-3 days | Sibling to workstream 2 but for patch-dev-cycle start instead of minor-branch cut: when a maintainer bumps `$v_patch` in `version.php` on a `rel-*` branch, fire a workflow that opens 2 coordinated ready-for-review PRs (rel-side + master-side) carrying the mechanical bootstrap work — docker upgrade scaffolding on both, new SQL upgrade skeleton on both, master bridge-file rename, master release-targets row insert + placeholder drop. Reuses the workstream 2 mutator framework (`DockerUpgradeScaffoldMutator`, `SqlUpgradeSkeletonMutator`) plus 2 new mutators + `MutatorContext::$fromVersion` extension. Shipped in openemr/openemr#12697 (merge `c1af6370a0`) directly after workstream 2's #12696 merged. **Not migration work** — patch-prep tooling lives entirely in `openemr/openemr` core. 8.1.x is being skipped; first production exercise fires on rel-820's `8.2.0 → 8.2.1-dev` transition. Shared mutators picked up branch-cut-exercise fixes on 2026-07-02: #12722 added `--skip-globals` to patch-prep's CLI invocation, #12731 changed `DockerUpgradeScaffoldMutator` to full-copy `fsupgrade-N.sh` from the prior file (no more stub), and #12735 fixed `SqlUpgradeSkeletonMutator` double-newline output + wired the sql-scan `priorOpenemrVersion` derivation (with `MutatorContext::$fromVersion` override — the same field patch-prep introduced). |
 | 7 | **Migrate release stuff from devops to core** | openemr-devops → openemr/openemr | ~5+ days | The actual migration. All workstream 1-6 learnings baked in. Reusable-workflow-pattern decision revisited at workstream 7 entry (downgraded from blocking; locked 2026-07-07 as per-branch copies + byte-identical enforcement — full reasoning in gaps doc G15). Detailed phases in "Phased plan" section below cover the workstream-7 internals. (Previously numbered workstream 6 before the 2026-06-30 renumber for patch-prep.) |
 
 **Sequencing notes:**
 
-- **Workstream 1 is a hard prerequisite for workstream 4** (8.1.1 ship).
-  Discovered 2026-06-24 while tracing the ship flow end-to-end:
+- **Workstream 1 was a hard prerequisite for workstream 4** (8.1.1 ship —
+  SUPERSEDED per the workstream 4 row above; 8.1.x was skipped and the
+  validation folded into the rel-820 → 8.2.0 ship). Discovered 2026-06-24
+  while tracing the ship flow end-to-end:
   - `ship-release.yml`'s preflight (via `PullRequestTarget::forRelease()`
     in `openemr-devops/tools/release/src/`) expects 3 PRs ready to merge:
     Infra (`openemr-devops:release-rotation/auto`), Conductor
@@ -184,8 +186,9 @@ encountered.
     dangling ignored OPEN PR (cosmetic; close manually anytime).
 - **Workstreams 2, 3, 5 can run in parallel with each other** (different
   repos / different files / no critical-path overlap)
-- **Workstream 4 (8.1.1 ship) unblocks the moment workstream 1 lands**
-  — happens whenever 8.1.1 is ready to go after that
+- **Workstream 4 (8.1.1 ship) was to unblock the moment workstream 1 landed**
+  — SUPERSEDED; 8.1.x was abandoned and end-to-end validation happened on
+  the rel-820 → 8.2.0 ship 2026-07-08/09 instead
 - **Workstream 6 (patch-prep automation) shares its mutator framework with
   workstream 2** — PR #12697 is based on PR #12696's branch. Lands after
   workstream 2 lands and rebases.
@@ -195,10 +198,15 @@ encountered.
 
 1. Land workstream 1 (PR 1a coordinated with PR 1b — see Phase 1 detail
    below). Close PR #760 as cosmetic cleanup after workstream 1 merges.
-2. 8.1.1 ships (workstream 4) — `gh workflow run ship-release.yml --repo openemr/openemr-devops -f version=8.1.1 -f rel_branch=rel-810`
-3. Workstreams 2, 3, 5, 6 proceed in parallel after 8.1.1 ships (or
-   alongside, if appetite for concurrent work). Workstream 6 rebases
-   onto landed workstream 2.
+2. ~~8.1.1 ships (workstream 4)~~ — SUPERSEDED; 8.1.x was skipped. The
+   first end-to-end production ship through the migrated flow was
+   rel-820 → 8.2.0 on 2026-07-08/09, dispatched via `gh workflow run
+   ship-release.yml --repo openemr/openemr -f version=8.2.0 -f
+   rel_branch=rel-820` (post-workstream-7 Phase 3a — ship-release.yml
+   lives in `openemr/openemr` now, not `openemr-devops`).
+3. Workstreams 2, 3, 5, 6 proceed in parallel (originally scoped to
+   follow the 8.1.1 ship; in practice they landed alongside workstream 1
+   without waiting). Workstream 6 rebases onto landed workstream 2.
 4. Workstream 7 (actual migration) begins when 2/3/5/6 are stable
 
 This re-order has the load-bearing property that **most workstreams are
@@ -380,11 +388,14 @@ Full design in gaps doc G11.
 list) + conductor workflow extension (second checkout/run/PR cycle
 against master). Reality matched plan — release-finalize partner PR
 on master is now paired with the existing release-prep PR on the rel
-branch. For the 8.1.1 ship, Phase B (cherry-pick the conductor + PHP
-changes to rel-810) still needs to land ahead of the tag. Auto-merge
-of the master partner PR on `openemr-tag` remains a stretch goal
-deferred to follow-up — for 8.1.1, maintainer will mark Ready + merge
-manually after the tag fires.
+branch. ~~For the 8.1.1 ship, Phase B (cherry-pick the conductor + PHP
+changes to rel-810) still needs to land ahead of the tag.~~ SUPERSEDED
+— 8.1.x was skipped; rel-820 was cut from current master so it inherits
+the conductor + PHP changes in-place with no cherry-pick needed (see
+the rel-820 exception noted at lines 322-323 above). Auto-merge of the
+master partner PR on `openemr-tag` remains a stretch goal deferred to
+follow-up — for the rel-820 → 8.2.0 ship 2026-07-08/09, the maintainer
+marked Ready + merged manually after the tag fired.
 
 **The "partner PR" pattern generalizes** to branch-cut (workstream
 2). Same shape: one workflow opens two coordinated PRs targeting
