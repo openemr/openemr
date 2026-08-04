@@ -4,7 +4,7 @@
     "body-parser": "1.20.6",
     "compression": "1.8.1",
     "cqm-execution": "4.4.1",
-    "cqm-models": "4.3.1",
+    "cqm-models": "4.3.2",
     "express": "4.22.2",
     "logform": "1.10.0",
     "luxon": "1.28.1",
