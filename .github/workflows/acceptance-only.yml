@@ -154,8 +154,12 @@ jobs:
         REASON: ${{ inputs.skip_acceptance_reason }}
       run: |
         set -euo pipefail
-        if [ "${SKIP}" = "true" ] && [ -z "${REASON}" ]; then
-          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason. The reason appears in the run-name, workflow summary, and release description for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
+        # Strip all whitespace before length check -- a reason that
+        # is only spaces / tabs / newlines is not a real audit trail
+        # entry, so treat it as empty.
+        STRIPPED_REASON="${REASON//[[:space:]]/}"
+        if [ "${SKIP}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
+          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason (whitespace-only reasons are rejected). The reason appears in the run-name, workflow summary, and release description for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
           exit 1
         fi
         if [ "${SKIP}" = "true" ]; then
@@ -334,12 +338,12 @@ jobs:
     # `if:` skipped it, UNLESS the downstream uses always()/!failure()
     # to opt out of that auto-skip. Here we want publish to fire in
     # BOTH cases (acceptance passed OR was bypassed with reason),
-    # but NOT when acceptance ran and failed. `!failure() &&
-    # !cancelled() && fetch-source-artifact.result == 'success'`
-    # captures that: proceeds on success (normal path) or skipped
-    # (bypass path), blocks on failure (real acceptance red).
+    # but NOT when acceptance ran and failed AND NOT when the
+    # workflow run itself was cancelled (always() alone would fire
+    # publish through a workflow-level cancel — !cancelled() blocks
+    # that). Fetch-source result must be 'success' regardless.
     if: >-
-      always()
+      always() && !cancelled()
       && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
       && github.ref == 'refs/heads/master'
       && needs.fetch-source-artifact.result == 'success'

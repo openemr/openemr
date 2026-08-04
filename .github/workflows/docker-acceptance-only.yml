@@ -151,8 +151,12 @@ jobs:
         REASON: ${{ inputs.skip_acceptance_reason }}
       run: |
         set -euo pipefail
-        if [ "${SKIP}" = "true" ] && [ -z "${REASON}" ]; then
-          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason. The reason appears in the run-name and workflow summary for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
+        # Strip all whitespace before length check -- a reason that
+        # is only spaces / tabs / newlines is not a real audit trail
+        # entry, so treat it as empty.
+        STRIPPED_REASON="${REASON//[[:space:]]/}"
+        if [ "${SKIP}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
+          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason (whitespace-only reasons are rejected). The reason appears in the run-name and workflow summary for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
           exit 1
         fi
         if [ "${SKIP}" = "true" ]; then
@@ -347,10 +351,11 @@ jobs:
     # skipped-by-if unless the downstream uses always()/!failure()
     # to opt out. Here we want publish to fire when acceptance
     # passed OR was bypassed (skipped-by-if), but NOT when it ran
-    # and failed. See acceptance-only.yml:publish for the same
-    # pattern + full rationale.
+    # and failed AND NOT when the workflow run itself was cancelled.
+    # See acceptance-only.yml:publish for the same pattern + full
+    # rationale.
     if: >-
-      always()
+      always() && !cancelled()
       && needs.fetch-source-run-outputs.result == 'success'
       && needs.acceptance-gate.result != 'failure'
       && needs.acceptance-gate.result != 'cancelled'
