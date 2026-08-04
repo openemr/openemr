@@ -21,7 +21,7 @@ class Checker
     /**
      * Checks to see if minimum PHP version is met.
      *
-     * @return bool | warning string
+     * @return true|string True when supported, otherwise the warning message.
      */
     public static function checkPhpVersion()
     {

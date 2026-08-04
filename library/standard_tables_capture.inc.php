@@ -17,6 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 
@@ -135,28 +136,24 @@ function rxnorm_import($is_windows_flag): bool
     }
 
 
-    // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("SET autocommit=0");
-    sqlStatementNoLog("START TRANSACTION");
-    $data = explode(";", $data_load);
-    foreach ($data as $val) {
-        foreach ($rx_info as $value) {
-            $file_name = $value['origin'];
-            $replacement = $dir . "/" . $file_name;
+    // Batching the inserts into one transaction drastically speeds up import with InnoDB
+    QueryUtils::inTransaction(function () use ($data_load, $rx_info, $dir): void {
+        $data = explode(";", $data_load);
+        foreach ($data as $val) {
+            foreach ($rx_info as $value) {
+                $file_name = $value['origin'];
+                $replacement = $dir . "/" . $file_name;
 
-            $pattern = '/' . $file_name . '/';
-            if (str_contains($val, $file_name)) {
-                $val1 = str_replace($file_name, $replacement, $val);
-                if (trim($val1) != '') {
-                    sqlStatementNoLog($val1);
+                $pattern = '/' . $file_name . '/';
+                if (str_contains($val, $file_name)) {
+                    $val1 = str_replace($file_name, $replacement, $val);
+                    if (trim($val1) != '') {
+                        sqlStatementNoLog($val1);
+                    }
                 }
             }
         }
-    }
-
-    // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("COMMIT");
-    sqlStatementNoLog("SET autocommit=1");
+    });
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.
@@ -528,15 +525,17 @@ function icd_import($type)
         'REV' => $next_rev
     ];
 
-    // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("SET autocommit=0");
-    sqlStatementNoLog("START TRANSACTION");
+    if (!is_dir($dir) || !($handle = opendir($dir))) {
+        echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES) . "<br />";
+        return;
+    }
 
-    // first inactivate older set(s)
-    sqlStatementNoLog("UPDATE icd10_pcs_order_code SET active = 0");
-    sqlStatementNoLog("UPDATE icd10_dx_order_code SET active = 0");
+    // Batching the inserts into one transaction drastically speeds up import with InnoDB
+    QueryUtils::inTransaction(function () use ($dir, $handle, $incoming): void {
+        // first inactivate older set(s)
+        sqlStatementNoLog("UPDATE icd10_pcs_order_code SET active = 0");
+        sqlStatementNoLog("UPDATE icd10_dx_order_code SET active = 0");
 
-    if (is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
             // bypass unwanted entries
             if (!stripos($filename, ".txt") || stripos($filename, "addenda")) {
@@ -576,14 +575,9 @@ function icd_import($type)
                 }
             }
         }
-        // Settings to drastically speed up import with InnoDB
-        sqlStatementNoLog("COMMIT");
-        sqlStatementNoLog("SET autocommit=1");
-        closedir($handle);
-    } else {
-        echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES) . "<br />";
-        return;
-    }
+    });
+
+    closedir($handle);
 
     // now update the tables where necessary
     sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = dx_code");
@@ -611,10 +605,12 @@ function valueset_import($type): bool
     $dir_valueset = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $type . "/";
     $dir = str_replace('\\', '/', $dir_valueset);
 
-    // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("SET autocommit=0");
-    sqlStatementNoLog("START TRANSACTION");
-    if (is_dir($dir) && $handle = opendir($dir)) {
+    // Batching the inserts into one transaction drastically speeds up import with InnoDB
+    QueryUtils::inTransaction(function () use ($dir): void {
+        if (!is_dir($dir) || !($handle = opendir($dir))) {
+            return;
+        }
+
         while (false !== ($filename = readdir($handle))) {
             // skip the zip file that's in the tmp file dir
             if (stripos($filename, ".zip")) {
@@ -670,11 +666,7 @@ function valueset_import($type): bool
                 sqlStatementNoLog("UPDATE valueset set code_type='ICD10' where code_type='ICD10CM'");
             }
         }
-    }
-
-    // Settings to drastically speed up import with InnoDB
-    sqlStatementNoLog("COMMIT");
-    sqlStatementNoLog("SET autocommit=1");
+    });
 
     // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
     // or any manual processing that needs to occur.

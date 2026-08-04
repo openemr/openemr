@@ -888,13 +888,19 @@ function processajax (serverPage, obj, getOrPost, str){
   }
 }
 
-
+// form_array is an Array used as an associative map (form_array['content'] = ...).
+// String keys do not contribute to .length and are not visited by the array
+// iterator, so `new URLSearchParams(form_array)` yields an empty string and the
+// POST body is dropped. Iterate with for...in to pick up the string-keyed
+// properties. Works for plain objects too, so callers may use either shape.
 function setformvalues(form_array){
-
-  //Run through a list of all objects and build query string
-  const params = new URLSearchParams(form_array);
-  //Then return the string values.
-  return params.toString();
+    const params = new URLSearchParams();
+    for (const key in form_array) {
+        if (Object.prototype.hasOwnProperty.call(form_array, key)) {
+            params.append(key, form_array[key]);
+        }
+    }
+    return params.toString();
 }
 
 //END OF AJAX RELATED FUNCTIONS

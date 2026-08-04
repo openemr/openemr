@@ -1223,20 +1223,15 @@ class SQLUpgradeService implements ISQLUpgradeService
             $drugs = file_get_contents('contrib/weno/erx_weno_drugs.sql');
             $drugsArray = preg_split('/;\R/', $drugs);
 
-            // Settings to drastically speed up import with InnoDB
-            sqlStatementNoLog("SET autocommit=0");
-            sqlStatementNoLog("START TRANSACTION");
-
-            foreach ($drugsArray as $drug) {
-                if (empty($drug)) {
-                    continue;
+            // Batching the inserts into one transaction drastically speeds up import with InnoDB
+            QueryUtils::inTransaction(function () use ($drugsArray): void {
+                foreach ($drugsArray as $drug) {
+                    if (empty($drug)) {
+                        continue;
+                    }
+                    sqlStatementNoLog($drug);
                 }
-                sqlStatementNoLog($drug);
-            }
-
-            // Settings to drastically speed up import with InnoDB
-            sqlStatementNoLog("COMMIT");
-            sqlStatementNoLog("SET autocommit=1");
+            });
         }
     }
 
@@ -1441,42 +1436,43 @@ class SQLUpgradeService implements ISQLUpgradeService
             return true;
         }
 
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        try {
-            while ($row = sqlFetchArray($result)) {
-                if (in_array($row['field_id'], $subject)) {
-                    $options = (json_decode((string)$row['edit_options'], true)) ?? [];
-                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
-                        $options[] = $add_option;
-                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
-                        $key = array_search($add_option, $options);
-                        unset($options[$key]);
-                    } else {
-                        continue;
+        $flag = QueryUtils::inTransaction(function () use ($result, $subject, $mode, $add_option, $form_id, $flag): bool {
+            try {
+                while ($row = sqlFetchArray($result)) {
+                    if (in_array($row['field_id'], $subject)) {
+                        $options = (json_decode((string)$row['edit_options'], true)) ?? [];
+                        if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
+                            $options[] = $add_option;
+                        } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
+                            $key = array_search($add_option, $options);
+                            unset($options[$key]);
+                        } else {
+                            continue;
+                        }
+                        if ($flag) {
+                            // just show this prior first change (so will be not shown if this is "skipped")
+                            $this->echo("<p class='text-success'>Start Layouts Edit Options " . text($mode) . " " . text($add_option) . " update.</p>");
+                        }
+                        $new_options = json_encode($options);
+                        $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = ? AND `field_id` = ? AND `seq` = ? ";
+                        $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
+                        sqlStatementNoLog($update_sql, [$new_options, $form_id, $row['field_id'], $row['seq']]);
+                        $flag = false;
                     }
-                    if ($flag) {
-                        // just show this prior first change (so will be not shown if this is "skipped")
-                        $this->echo("<p class='text-success'>Start Layouts Edit Options " . text($mode) . " " . text($add_option) . " update.</p>");
-                    }
-                    $new_options = json_encode($options);
-                    $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = ? AND `field_id` = ? AND `seq` = ? ";
-                    $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
-                    sqlStatementNoLog($update_sql, [$new_options, $form_id, $row['field_id'], $row['seq']]);
-                    $flag = false;
+                }
+            } catch (SqlQueryException $e) {
+                $this->failureCount++;
+                $this->echo("<p class='text-danger'>The above statement failed: " .
+                    text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
+                $this->flush_echo();
+                if ($this->isThrowExceptionOnError()) {
+                    throw $e;
                 }
             }
-        } catch (SqlQueryException $e) {
-            $this->failureCount++;
-            $this->echo("<p class='text-danger'>The above statement failed: " .
-                text($e->sqlError) . "<br />Upgrading will continue.<br /></p>\n");
-            $this->flush_echo();
-            if ($this->isThrowExceptionOnError()) {
-                throw $e;
-            }
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+
+            return $flag;
+        });
+
         if (!$flag) {
             // so will be not shown if this is "skipped"
             $this->echo("<p class='text-success'>Layout Edit Options " . text($mode) . " " . text($add_option) . " done.</p><br />");

@@ -22,6 +22,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/object_search.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with non\\-empty\\-array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array\\<int\\<0, max\\>, mixed\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -472,7 +477,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/PatientValidatorTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_callable\\(\\) with Closure\\(mixed, mixed, mixed\\=\\)\\: mixed will always evaluate to true\\.$#',
+    'message' => '#^Call to function is_callable\\(\\) with Closure\\(mixed, mixed, mixed\\=\\)\\: array\\<array\\{chg\\: float\\|int, bal\\: mixed, adj\\?\\: float\\|int, ins\\?\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\>\\}\\|array\\{chg\\: float\\|int, bal\\: mixed, code_type\\: mixed, code_value\\: mixed, modifier\\: mixed, code_text\\: mixed, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: float\\|int, pmt\\: mixed, pmt_method\\: mixed, rsn\\: array\\|string, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, msp\\: mixed, src\\: mixed, insurance_company\\: string, ins\\: int\\<min, \\-1\\>\\|int\\<1, max\\>, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: numeric\\-string, pmt\\: mixed, pmt_method\\: mixed, src\\: mixed, insurance_company\\: string, plv\\: mixed, arseq\\: mixed\\}\\|array\\{chg\\: string\\}\\>, adj\\?\\: float\\|int, ins\\?\\: int\\<min, \\-1\\>\\|int\\<1, max\\>\\}\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/InvoiceSummaryTest.php',
 ];
