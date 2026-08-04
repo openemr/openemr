@@ -1495,23 +1495,101 @@ trait UiSeedingTrait
             [self::PERSIST_DOC_FILENAME],
         );
         self::assertTrue($clicked === true, 'Failed to click persist doc link in tree');
-        // Wait for the viewer to render — the "Document Uploader/
-        // Viewer" panel header displays the opened filename as its
-        // title. Finding the filename in the viewer header confirms
-        // the doc-view URL loaded and the viewer rendered its
-        // metadata pane. The image-render path is category+MIME
-        // dependent (PNG shows in-line, PDFs embed, .doc downloads)
-        // — the filename-in-header assertion catches all of those
-        // uniformly, and the persist assertion doesn't care about
-        // the specific display mechanism, only that the doc is
-        // reachable + the viewer knows about it.
+        // Assertion (a) — user-visible render path: wait for the
+        // viewer's retrieve <iframe> to be present. OpenEMR's
+        // Documents viewer wires an <iframe src="/controller.php?
+        // document&retrieve&...&as_file=false"> for the Contents
+        // tab, and Chrome renders inline for image/* content-type.
+        // Presence of the iframe with the retrieve URL proves the
+        // viewer resolved the doc + wired the display element.
         $client->wait(30)->until(
             fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript(
-                "var body = document.body ? document.body.textContent : '';"
-                . "return body.indexOf(arguments[0]) !== -1"
-                . "  && (document.querySelector('button, a.btn, .btn') !== null);",
-                [self::PERSIST_DOC_FILENAME],
+                "return document.querySelector('iframe[src*=\"retrieve\"][src*=\"document_id\"]') !== null;",
             ),
+        );
+
+        // Assertion (b) — byte-level: fetch the retrieve URL via
+        // browser fetch() (uses the current session cookie) and
+        // verify:
+        //   1. HTTP 200 — proves the file exists on disk AND apache
+        //      can read it. Persistence-through-upgrade signal: the
+        //      fsupgrade-N.sh passes must preserve
+        //      sites/default/documents/ directory contents + file
+        //      permissions across the version bump. A 403 here would
+        //      mean the file exists but perms broke; a 404 would
+        //      mean the file itself was lost.
+        //   2. Content-type is image/png — proves mime-detection
+        //      + response-header shape survived.
+        //   3. First 8 bytes match the PNG magic signature
+        //      (89 50 4e 47 0d 0a 1a 0a) — proves the blob is
+        //      byte-identical, not corrupted / replaced with an
+        //      error page rendered with a 200 status.
+        $viewUrl = $client->getCurrentURL();
+        if (preg_match('/[?&]doc_id=(\d+)/', (string) $viewUrl, $m) !== 1) {
+            self::fail("Doc view URL has no doc_id param: {$viewUrl}");
+        }
+        $docId = (int) $m[1];
+        $retrieveUrl = "/controller.php?document&retrieve&patient_id={$patientPid}&document_id={$docId}";
+        // Async fetch needs a script timeout — default is 0.
+        $webDriver = $client->getWebDriver();
+        if ($webDriver instanceof RemoteWebDriver) {
+            $webDriver->manage()->timeouts()->setScriptTimeout(30);
+        }
+        $result = $client->executeAsyncScript(
+            <<<'JS'
+                var cb = arguments[arguments.length - 1];
+                var url = arguments[0];
+                fetch(url, {credentials: 'include'})
+                    .then(function (r) {
+                        return r.arrayBuffer().then(function (buf) {
+                            var hex = Array.from(new Uint8Array(buf.slice(0, 8)))
+                                .map(function (b) { return b.toString(16).padStart(2, '0'); })
+                                .join('');
+                            cb({
+                                status: r.status,
+                                type: r.headers.get('content-type') || '',
+                                len: buf.byteLength,
+                                head: hex,
+                            });
+                        });
+                    })
+                    .catch(function (e) { cb({error: e.toString()}); });
+            JS,
+            [$retrieveUrl],
+        );
+        self::assertIsArray(
+            $result,
+            'Retrieve fetch returned non-array (script error): ' . var_export($result, true),
+        );
+        self::assertArrayNotHasKey(
+            'error',
+            $result,
+            'Retrieve fetch failed with JS error: ' . (is_string($result['error'] ?? null) ? $result['error'] : ''),
+        );
+        self::assertSame(
+            200,
+            $result['status'] ?? null,
+            sprintf(
+                'Retrieve blob fetch returned status %s (expected 200). Most likely means the '
+                . 'sites/default/documents/ file is missing (persistence regression: fsupgrade lost '
+                . 'the directory), or apache lost read permission on the file.',
+                is_scalar($result['status'] ?? null) ? (string) $result['status'] : 'null',
+            ),
+        );
+        self::assertStringContainsString(
+            'image/png',
+            is_string($result['type'] ?? null) ? $result['type'] : '',
+            'Retrieve blob content-type is not image/png',
+        );
+        self::assertGreaterThan(
+            0,
+            is_int($result['len'] ?? null) ? $result['len'] : 0,
+            'Retrieve blob is zero bytes',
+        );
+        self::assertSame(
+            '89504e470d0a1a0a',
+            strtolower(is_string($result['head'] ?? null) ? $result['head'] : ''),
+            'Retrieve blob does not start with PNG magic bytes — file may be corrupted or replaced with an error page rendered with a 200 status',
         );
     }
 }
