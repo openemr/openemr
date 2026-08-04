@@ -24,12 +24,14 @@ use PHPUnit\Framework\Attributes\Group;
  *
  * Flow exercised end-to-end:
  *   1. Seed a fixed-identity persist-check patient (idempotent).
- *   2. Seed an "In Office" reserved slot for PERSIST_APPT_DATE
- *      covering 08:00-17:00 (idempotent).
- *   3. Seed an "Office Visit" appointment at 10:00 for the persist
- *      patient (idempotent — inside the in-office window, so no
- *      outside-hours prompt).
- *   4. Navigate to Patient Flow Board, filter to PERSIST_APPT_DATE,
+ *   2. If the persist appointment (matched by title + patient
+ *      lastname on the target date) is missing on Flow Board,
+ *      create an In Office window covering 08:00-17:00 followed by
+ *      the Office Visit appointment at 10:00 (inside the window,
+ *      so no outside-hours prompt). Otherwise skip both — the
+ *      appointment cannot have been created without the InOffice
+ *      window, so its presence proves both fixtures exist.
+ *   3. Navigate to Patient Flow Board, filter to PERSIST_APPT_DATE,
  *      assert the appointment row appears.
  *
  * Dual-tagged fresh-install + post-upgrade. Both phases run the same
@@ -67,7 +69,12 @@ final class AppointmentPersistenceAcceptanceTest extends PantherAcceptanceTestCa
         $this->performLoginAsAdmin();
 
         $pid = $this->seedPersistPatientIfMissing();
-        $this->seedPersistInOfficeSlotIfMissing();
+        // seedPersistAppointmentIfMissing is the single entry point:
+        // if the appointment doesn't exist, it seeds BOTH the In
+        // Office window slot AND the appointment. If it does exist
+        // (post-upgrade / re-run), it skips both (InOffice existence
+        // is coupled to appointment existence — the appointment
+        // couldn't have been created without the InOffice window).
         $this->seedPersistAppointmentIfMissing($pid);
 
         $this->assertPersistAppointmentOnFlowBoard();

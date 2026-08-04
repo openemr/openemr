@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Acceptance\Support;
 
+use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\JavaScriptExecutor;
 use Facebook\WebDriver\Remote\LocalFileDetector;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
@@ -1101,20 +1102,23 @@ trait UiSeedingTrait
     }
 
     /**
-     * Idempotent: if an In Office slot with the persist title already
-     * exists on PERSIST_APPT_DATE, skip. Otherwise create one covering
-     * 08:00 for 9 hours so the persist appointment can be scheduled
-     * inside its window without triggering an outside-hours prompt.
-     *
-     * Existence check: probes Flow Board for any event on
-     * PERSIST_APPT_DATE with category = "In Office". If Flow Board
-     * shows a matching row, the slot exists.
+     * Idempotent: if the persist appointment already exists (identified
+     * by BOTH title + patient lastname in a single Flow Board row —
+     * distinguishes it from any unrelated fixture on the same date),
+     * skip. Otherwise create the In Office slot + the appointment
+     * inside its window. Single existence oracle for both fixtures
+     * because they're coupled: the InOffice slot only matters as a
+     * prerequisite for creating an appointment without hitting the
+     * outside-hours prompt — no InOffice, no way to have created the
+     * appointment. So "appointment exists" implies "InOffice exists".
      */
-    protected function seedPersistInOfficeSlotIfMissing(): void
+    protected function seedPersistAppointmentIfMissing(int $patientPid): void
     {
-        if ($this->persistInOfficeSlotExists()) {
+        if ($this->persistAppointmentExistsOnFlowBoard()) {
             return;
         }
+        // Create the InOffice window first so the appointment save
+        // doesn't trigger a "scheduling outside working hours" prompt.
         $this->createCalendarEvent(
             date: self::PERSIST_APPT_DATE,
             categoryId: self::PERSIST_INOFFICE_CATEGORY_ID,
@@ -1124,18 +1128,7 @@ trait UiSeedingTrait
             durationMin: self::PERSIST_INOFFICE_DURATION_MIN,
             patientPid: null,
         );
-    }
-
-    /**
-     * Idempotent: if the persist appointment already exists, skip.
-     * Otherwise create it for PERSIST_APPT_DATE at 10:00 (inside the
-     * in-office window), for the given patient pid.
-     */
-    protected function seedPersistAppointmentIfMissing(int $patientPid): void
-    {
-        if ($this->persistAppointmentExistsOnFlowBoard()) {
-            return;
-        }
+        // Then the appointment itself.
         $this->createCalendarEvent(
             date: self::PERSIST_APPT_DATE,
             categoryId: self::PERSIST_APPT_CATEGORY_ID,
@@ -1148,58 +1141,35 @@ trait UiSeedingTrait
     }
 
     /**
-     * Existence oracle for the in-office slot — reuse the Flow Board
-     * probe. If ANY event exists on PERSIST_APPT_DATE, the slot has
-     * already been seeded (or the appointment has, which implies the
-     * slot was seeded first this run).
-     */
-    private function persistInOfficeSlotExists(): bool
-    {
-        $rows = $this->flowBoardRowsForPersistDate();
-        return $rows > 0;
-    }
-
-    /**
-     * Existence oracle for the persist appointment — probe Flow Board
-     * for the appointment title on the target date.
+     * True iff Flow Board shows a row for the persist appointment
+     * on the target date. Discriminator is compound: patient
+     * lastname AND the appointment start time. Flow Board does NOT
+     * render the appointment title in the row (rows show provider /
+     * date / time / patient / category / status), so the title is
+     * unavailable as a match key on this surface. Patient+time on
+     * the fixed target date is unique because no fresh acceptance
+     * DB seeds anything on 2099-06-15, and the persist test only
+     * ever creates one appointment for the persist patient at 10:00.
+     *
+     * Scoped to `table.table` (the results table's Bootstrap
+     * class) so the report's own filter-form table doesn't
+     * satisfy the check.
      */
     private function persistAppointmentExistsOnFlowBoard(): bool
     {
-        return $this->flowBoardHasPersistAppointment();
-    }
-
-    /**
-     * Navigate to Flow Board, filter to PERSIST_APPT_DATE, count
-     * result-table body rows. Cheap existence oracle: 0 = no seed
-     * events for that date yet.
-     */
-    private function flowBoardRowsForPersistDate(): int
-    {
         $this->openFlowBoardFilteredToPersistDate();
         $client = $this->requireClient();
-        // Flow Board result table lives at top level after submit.
-        $count = $client->executeScript(
-            "return document.querySelectorAll('table tbody tr').length;",
-        );
-        return is_int($count) ? $count : 0;
-    }
-
-    /**
-     * True iff Flow Board shows a row whose text contains the persist
-     * patient's lastname (fixture data identifier). Sufficient to
-     * confirm the appointment exists for that patient on that date.
-     */
-    private function flowBoardHasPersistAppointment(): bool
-    {
-        $this->openFlowBoardFilteredToPersistDate();
-        $client = $this->requireClient();
+        // Time format on Flow Board rows is 24h "HH:MM" (e.g.
+        // "10:00"). Compose the expected time literal.
+        $time = sprintf('%02d:%02d', self::PERSIST_APPT_HOUR, self::PERSIST_APPT_MINUTE);
         $hasRow = $client->executeScript(
-            "var rows = document.querySelectorAll('table tbody tr');"
+            "var rows = document.querySelectorAll('table.table tbody tr');"
             . "for (var i = 0; i < rows.length; i++) {"
-            . "  if (rows[i].textContent.indexOf(arguments[0]) !== -1) return true;"
+            . "  var t = rows[i].textContent;"
+            . "  if (t.indexOf(arguments[0]) !== -1 && t.indexOf(arguments[1]) !== -1) return true;"
             . "}"
             . "return false;",
-            [self::PERSIST_PATIENT_LNAME],
+            [$time, self::PERSIST_PATIENT_LNAME],
         );
         return $hasRow === true;
     }
@@ -1251,9 +1221,10 @@ trait UiSeedingTrait
     protected function assertPersistAppointmentOnFlowBoard(): void
     {
         self::assertTrue(
-            $this->flowBoardHasPersistAppointment(),
+            $this->persistAppointmentExistsOnFlowBoard(),
             sprintf(
-                'Persist appointment for %s %s not found on Flow Board for %s',
+                'Persist appointment "%s" for %s %s not found on Flow Board for %s',
+                self::PERSIST_APPT_TITLE,
                 self::PERSIST_PATIENT_FNAME,
                 self::PERSIST_PATIENT_LNAME,
                 self::PERSIST_APPT_DATE,
@@ -1384,22 +1355,36 @@ trait UiSeedingTrait
             'GET',
             "/controller.php?document&upload&patient_id={$patientPid}&parent_id=" . self::PERSIST_DOC_CATEGORY_ID,
         );
-        // The documents list panel renders the file names as links in
-        // the category tree area. Wait for the tree, then check.
-        $client->wait(30)->until(
-            fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript(
-                "return document.querySelector('.documents-list, #documentsTree, body') !== null;",
-            ),
-        );
-        $found = $client->executeScript(
-            "var links = document.querySelectorAll('a');"
-            . "for (var i = 0; i < links.length; i++) {"
-            . "  if (links[i].textContent.indexOf(arguments[0]) !== -1) return true;"
-            . "}"
-            . "return false;",
-            [self::PERSIST_DOC_FILENAME],
-        );
-        return $found === true;
+        // Wait for the upload widget's file input as the "page
+        // scaffold rendered" gate — #source-name is the file input
+        // that this same URL is going to interact with for uploads.
+        // The prior body-fallback selector resolved instantly and
+        // caused the filename scan to race Angular's category-tree
+        // fetch (ng-init="getCategories(0)" populates the tree
+        // asynchronously), returning false while the tree was still
+        // being built.
+        $client->waitFor("//input[@id='source-name']", 30);
+        // Now bounded-wait for the filename link to appear in the
+        // Angular-rendered category tree. If it's absent within the
+        // window, the doc genuinely doesn't exist and the caller
+        // will fall through to upload. If present, existence
+        // confirmed. 5s is generous — the Angular fetch typically
+        // completes in <1s locally.
+        try {
+            $client->wait(5)->until(
+                fn(JavaScriptExecutor $d): bool => (bool) $d->executeScript(
+                    "var links = document.querySelectorAll('a');"
+                    . "for (var i = 0; i < links.length; i++) {"
+                    . "  if (links[i].textContent.indexOf(arguments[0]) !== -1) return true;"
+                    . "}"
+                    . "return false;",
+                    [self::PERSIST_DOC_FILENAME],
+                ),
+            );
+            return true;
+        } catch (TimeoutException) {
+            return false;
+        }
     }
 
     /**
