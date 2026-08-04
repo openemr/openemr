@@ -1,12 +1,5 @@
 <?php
 
-namespace OpenEMR\Tests\Services\PaymentProcessing;
-
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\PaymentProcessing\Recorder;
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
-
 /**
  * Recorder Tests
  *
@@ -20,9 +13,20 @@ use PHPUnit\Framework\TestCase;
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Waite <stephen.waite@open-emr.org>
- * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
+ * @author    AI Generated - Claude (Anthropic)
+ * @copyright Copyright (c) 2026 - Public Domain for AI generated content
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Tests\Services\PaymentProcessing;
+
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\PaymentProcessing\Recorder;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+
 class RecorderTest extends TestCase
 {
     /**
