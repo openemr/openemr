@@ -62,6 +62,9 @@ class TeleHealthFrontendSettingsController
         }
         echo $this->twig->render("comlink/telehealth-frontend-settings.js.twig", $data);
     }
+    /**
+     * @return array<string, string>
+     */
     public function getTranslationSettings(): array
     {
         $translations = [

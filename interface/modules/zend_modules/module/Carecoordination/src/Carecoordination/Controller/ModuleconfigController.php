@@ -73,6 +73,9 @@ class ModuleconfigController extends AbstractActionController
         return $hooks;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getDependedModulesConfig(): array
     {
         // these modules need to be activated before this module can be installed
