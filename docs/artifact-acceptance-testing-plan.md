@@ -4729,3 +4729,29 @@ in acceptance."
   will be added ad-hoc if new manual-QA flows or bug-repro
   scenarios warrant black-box coverage against the shipped
   artifact. No planned follow-up phases.
+
+- **2026-08-04 (later still) — Bb modal-close recovery
+  shipped as #13391.** First rel-820 sync PR to include Bb
+  (#13390) exposed the ~30% single-shot flake rate on the
+  post-Save modal-close wait that source-side masks with
+  its 3-retry-whole-test loop. Failure signature: server
+  returns 200 with empty body (dlgclose signal), AJAX
+  .done() handler races the DOM modal removal, wait times
+  out at 30s. 2/6 acceptance jobs failed at exactly that
+  wait on rel-820 sync; 0/6 failed on the master run when
+  Bb landed (#13383 — lucky run).
+
+  Fix: wrap the modal-close wait in try/catch on
+  TimeoutException. On timeout, force-clean modal DOM +
+  refresh admin iframe, then fall through to the existing
+  users-table row wait. That row wait is the oracle: user
+  exists → recovery succeeded (typical flake mode), test
+  passes; user doesn't exist → hard fail (real regression).
+  STDERR breadcrumb on the recovery path so CI logs show
+  observed flake rate over time.
+
+  Simpler than source-side's 3-retry pattern because the
+  row-wait oracle already discriminates create-succeeded
+  from create-failed — no need for whole-test retry.
+  Preserves black-box discipline (no DB queries) +
+  regression signal (missing row = hard fail).
