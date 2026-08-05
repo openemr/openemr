@@ -2254,7 +2254,36 @@ edit + orchestrator GATE-detect swap + docs update. Low risk;
 release-targets.yml is master-only, orchestrator is master-only.
 No byte-identical concern.
 
-### Phase 13 — Back-port candidates for source-side `tests/Tests/E2e/**` *(ongoing collection)*
+### Phase 13 — Back-port candidates for source-side `tests/Tests/E2e/**` *(scope narrowed 2026-08-05 — pursuing only 3 items)*
+
+**Scope decision 2026-08-05** (per user): from the collected candidate
+list below, only the following will be pursued as source-side back-
+ports, chosen because they are the only ones that materially reduce
+false-positive rate (or, for the third, are cheap dead-code cleanup
+that pairs naturally with the first):
+
+1. **CDP `window.alert` muzzle** — real false-positive reducer for
+   the clinical-reminders alert race in PatientAddTrait /
+   EncounterAddTrait. Scope: per-trait, not globally in BaseTrait
+   (some source-side test may deliberately assert on an alert).
+2. **Yank dead `unhandledPromptBehavior=accept`** — two-line
+   cleanup in `E2e/Base/BaseTrait::createChromeClient`. Never
+   observed catching anything; acceptance side yanked both paths
+   (#13358 + #13364) after proving the muzzle is what works.
+   Bundles naturally with #1 since both touch adjacent files.
+3. **Bb row-oracle recovery pattern** — replaces source-side
+   UserAddTrait's 3-retry-whole-test loop with try/catch on
+   modal-close + downstream `isUserExist` DB check. Real
+   false-positive reducer. Bigger refactor than #1/#2 so ships
+   as a separate PR.
+
+All other candidates in the list below (per-instance random seed,
+JS-executor return-bool, xpathLiteral, birthday popup) are polish
+that don't reduce false-positive rate on their own. Kept in the
+list for context but explicitly not being pursued unless a
+future source-side PR happens to touch adjacent code.
+
+---
 
 Living list of patterns / fixes surfaced while building out the
 acceptance surface that could also improve the pre-existing
