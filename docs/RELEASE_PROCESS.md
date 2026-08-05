@@ -59,12 +59,12 @@ flowchart TB
     prepPR -. openemr-rel-cut .-> docsPR
     prepPR -. openemr-rel-update .-> docsPR
     tag -. openemr-tag .-> docsPR
-    oe -. release-targets-changed<br/>(master push touching<br/>.github/release-targets.yml) .-> derivePR
+    oe -. "release-targets-changed<br/>(master push touching<br/>.github/release-targets.yml)" .-> derivePR
 
-    classDef manualStep fill:#fff4cc,stroke:#b58900
-    classDef autoArtifact fill:#e8f0ff,stroke:#3b6fb8
-    classDef autoTag fill:#d4f1d4,stroke:#2a7f2a
-    classDef autoWorkflow fill:#f0e8ff,stroke:#7a3bb8
+    classDef manualStep fill:#fff4cc,stroke:#b58900,color:#000
+    classDef autoArtifact fill:#e8f0ff,stroke:#3b6fb8,color:#000
+    classDef autoTag fill:#d4f1d4,stroke:#2a7f2a,color:#000
+    classDef autoWorkflow fill:#f0e8ff,stroke:#7a3bb8,color:#000
     class cut,edit,sign,trigger manualStep
     class prepPR,docsPR,derivePR autoArtifact
     class tag autoTag
