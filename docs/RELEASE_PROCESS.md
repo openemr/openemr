@@ -15,6 +15,42 @@ For background on why the flow is shaped this way, see [openemr/openemr-devops#6
 | [`openemr/openemr-devops`](https://github.com/openemr/openemr-devops) | **Historical only — no longer part of the release-mechanism surface.** Previously owned the canonical `dispatch.schema.json` and `TagVerifier`; workstream 7 Phase 5.1 inverted canonical to this repo (openemr/openemr#13110, 2026-07-22), and Phase 6 (openemr/openemr-devops#863, 2026-07-23) then wholesale-deleted the devops copies (98 files, ~13k lines). The build consumer moved to this repo in workstream 7 Phase 2 (2026-07-21). Announcement rendering moved to `openemr/website-openemr` in Phase 4 (2026-07-19, `openemr-devops#861`). The CI matrix / package pin rotation slice was retired in the release-mechanism cleanup (post-docker-migration: Docker pins live in **this repo**'s [`.github/release-targets.yml`](../.github/release-targets.yml); CI matrix rotation went away with the slot system). Devops is retained in this table for cross-repo-flow context; it holds no live release-mechanism code today. |
 | [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr) | **Demo-farm consumer.** Subscribes to `release-targets-changed`. The `derive-ip-map` auto-derive bot regenerates `ip_map_branch.txt` + `docker/scripts/demoLibrary.source` from upstream `openemr/openemr` state (`.github/release-targets.yml` + per-rel-branch Dockerfile ARGs + `ci/apache_*` listing + flex Dockerfile). On diff it force-pushes the stable `auto-derive/reconciliation` branch and opens (or updates) a reviewable PR titled `[auto-derive] reconcile demo_farm against upstream openemr master`; on no-diff it closes any open reconciliation PR and deletes the branch. Runs on the `release-targets-changed` dispatch (immediate), a daily 07:00 UTC cron (self-healing fallback), and `workflow_dispatch` (manual). A maintainer merges the PR and manually updates wiki pages if applicable; the demo-farm host's nightly reset then picks up the new pins. |
 
+## Quick actions
+
+Task-oriented cheat sheet for the operations a release maintainer actually performs. Every item is the trigger only — no configuration or setting details. Full rationale, guardrails, and recovery paths for each live in the sections and runbook below; cross-links point at the relevant deep-dive.
+
+### 1. Cut a new release branch for a major or minor release
+
+Create the `rel-<MAJOR><MINOR>0` branch off master (e.g. `rel-830` for the 8.3.0 line) and push it. That's the entire trigger — [`branch-cut-automation.yml`](../.github/workflows/branch-cut-automation.yml) fires on the `create` event and opens the rel-side + master-side branch-cut PRs; [`release-prep.yml`](../.github/workflows/release-prep.yml) fires on subsequent pushes and maintains the draft release-prep PR. See [runbook step 2](#phase-2--branch-cut-and-pr-generation).
+
+### 2. Cut a new release branch for a patch release
+
+Land a `$v_patch` bump into `-dev` on the rel branch (e.g. `8.1.0` → `8.1.1-dev` on `rel-810`). [`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml) fires when it sees the `version.php` diff and opens the patch-cycle PRs (rel-side seed + master-side SQL-bridge file-rename dance). See the [patch-prep workflow entry](#lifecycle-event-workflows-siblings).
+
+### 3. Ship the release
+
+Two moves:
+
+1. Confirm QA sign-off is complete (per the [QA and Release Process wiki page](https://www.open-emr.org/wiki/index.php/QA_and_Release_Process)).
+2. Trigger [`ship-release.yml`](../.github/workflows/ship-release.yml) via `workflow_dispatch` — pick version + rel-branch + mode (`semi-auto` default, `full-auto`, or `dry-run`).
+
+Everything downstream (Conductor + Finalize + Docs merges, tag creation, package build + Release object, docker orchestrator cascade, announcements) is automated. See [runbook steps 6–15](#release-runbook) for the full sequence.
+
+### 4. Re-run acceptance testing on a stalled release
+
+For confirmed-transient acceptance flakes on a known-good artifact — replaces the ~15 min build-package rerun with a ~5-10 min acceptance-only rerun that also auto-publishes on green:
+
+- **Tarball:** dispatch [`acceptance-only.yml`](../.github/workflows/acceptance-only.yml) with `source_run_id` + `version` + `release_tag` + `version_branch` (all copied from the failed `build-release.yml` run's dispatch inputs).
+- **Docker:** dispatch [`docker-acceptance-only.yml`](../.github/workflows/docker-acceptance-only.yml) with `source_run_id` + `candidate_tag` + `docker_tags` (copied from the failed `docker-build-release.yml` run).
+
+Both **must dispatch from `--ref master`** — workflows reject other refs. See [runbook step 10](#release-runbook) (tarball) + [step 12](#release-runbook) (docker) for guardrails + when to prefer this over "Re-run failed jobs".
+
+### 5. Bypass acceptance testing on a stalled release
+
+**Last-resort escape hatch** for confirmed test-side flakes on a known-good artifact that keeps failing acceptance. Dispatch the same workflow as action 4 with `skip_acceptance=true` + a required non-empty `skip_acceptance_reason` explaining the specific flake being bypassed (empty or whitespace-only reason fails the workflow loudly). Bypass reason lands in the workflow run-name + a `::warning::` annotation + a `GITHUB_STEP_SUMMARY` block for audit.
+
+**Do NOT use** on a first-time / never-validated artifact, or repeatedly on the same flake class (that's a signal to fix the flake, not bypass — the audit trail is designed to make repeat-bypass visible). See [runbook step 10 skip-acceptance paragraph](#release-runbook) + the [acceptance-testing plan's Phase 14 section](artifact-acceptance-testing-plan.md) for the full when-to-use / when-NOT-to-use guidance.
+
 ## Cross-repo flow
 
 ```mermaid
