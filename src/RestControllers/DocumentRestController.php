@@ -15,6 +15,7 @@ namespace OpenEMR\RestControllers;
 use OpenApi\Attributes as OA;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\DocumentService;
+use OpenEMR\Services\PatientService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -22,10 +23,35 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class DocumentRestController
 {
     private $documentService;
+    private readonly PatientService $patientService;
 
     public function __construct()
     {
         $this->documentService = new DocumentService();
+        $this->patientService = new PatientService();
+    }
+
+    /**
+     * Every document endpoint is scoped to a patient, so a pid that does not resolve to a patient
+     * is a bad request rather than an empty result. Without this check a document can be uploaded
+     * against a pid that has no patient, leaving a row that no patient chart will ever surface.
+     */
+    private function isValidPid(mixed $pid): bool
+    {
+        if (!is_scalar($pid)) {
+            return false;
+        }
+
+        return $this->patientService->getUuid((string)$pid) !== false;
+    }
+
+    private function invalidPidResponse(): Response
+    {
+        return RestControllerHelper::responseHandler(
+            ['validationErrors' => ['pid' => ['Invalid pid']]],
+            null,
+            Response::HTTP_BAD_REQUEST
+        );
     }
 
     /**
@@ -67,6 +93,10 @@ class DocumentRestController
     )]
     public function getAllAtPath($pid, $path)
     {
+        if (!$this->isValidPid($pid)) {
+            return $this->invalidPidResponse();
+        }
+
         $serviceResult = $this->documentService->getAllAtPath($pid, $path);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
@@ -119,6 +149,10 @@ class DocumentRestController
     )]
     public function postWithPath($pid, $path, $fileData, $eid)
     {
+        if (!$this->isValidPid($pid)) {
+            return $this->invalidPidResponse();
+        }
+
         $serviceResult = $this->documentService->insertAtPath($pid, $path, $fileData, $eid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
@@ -155,6 +189,10 @@ class DocumentRestController
     )]
     public function downloadFile($pid, $did)
     {
+        if (!$this->isValidPid($pid)) {
+            return $this->invalidPidResponse();
+        }
+
         $results = $this->documentService->getFile($pid, $did);
 
         if (!empty($results)) {
