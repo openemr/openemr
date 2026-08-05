@@ -6,6 +6,42 @@ The automation core spans three repositories and is driven by `repository_dispat
 
 For background on why the flow is shaped this way, see [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664) (the original workstream 7 umbrella, closed by Phase 6 openemr/openemr-devops#863 on 2026-07-23 alongside the wholesale delete of the devops release-mechanism surface). For the per-slice plan documents, see the [Slice plans](#slice-plans) section below. For the end-to-end ordered checklist a release manager actually walks through, jump to [Release runbook](#release-runbook).
 
+## Quick actions
+
+Task-oriented cheat sheet for the operations a release maintainer actually performs. Every item is the trigger only — no configuration or setting details. Full rationale, guardrails, and recovery paths for each live in the sections and runbook below; cross-links point at the relevant deep-dive.
+
+### 1. Cut a new release branch for a major or minor release
+
+Create the `rel-<MAJOR><MINOR>0` branch off master (e.g. `rel-830` for the 8.3.0 line) and push it. That's the entire trigger — [`branch-cut-automation.yml`](../.github/workflows/branch-cut-automation.yml) fires on the `create` event and opens the rel-side + master-side branch-cut PRs; [`release-prep.yml`](../.github/workflows/release-prep.yml) fires on subsequent pushes and maintains the draft release-prep PR. See [runbook step 2](#phase-2--branch-cut-and-pr-generation).
+
+### 2. Start a new patch release cycle on an existing rel branch
+
+No new branch is cut — patch releases continue on the existing rel branch. Land a `$v_patch` bump into `-dev` in `version.php` on the rel branch (e.g. `8.1.0` → `8.1.1-dev` on `rel-810`). [`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml) fires when it sees the `version.php` diff and opens the patch-cycle PRs (rel-side seed + master-side SQL-bridge file-rename dance). See the [patch-prep workflow entry](#lifecycle-event-workflows-siblings).
+
+### 3. Ship the release
+
+Two moves:
+
+1. On the `release-prep/<rel-branch>` PR, mark it ready-for-review (out of draft) and approve it.
+2. Trigger [`ship-release.yml`](../.github/workflows/ship-release.yml) via `workflow_dispatch` — pick version + rel-branch + mode (`semi-auto` default, `full-auto`, or `dry-run`).
+
+In `full-auto` mode, everything downstream (Conductor + Finalize + Docs merges, tag creation, package build + Release object, docker orchestrator cascade, announcements) is automated. In `semi-auto` mode (default), only the Conductor PR merges automatically; the maintainer manually merges Finalize + Docs after review. See [runbook steps 6–15](#release-runbook) for the full sequence.
+
+### 4. Re-run acceptance testing on a stalled release
+
+For confirmed-transient acceptance flakes on a known-good artifact — replaces the ~15 min build-package rerun with a ~5-10 min acceptance-only rerun that also auto-publishes on green:
+
+- **Tarball:** dispatch [`acceptance-only.yml`](../.github/workflows/acceptance-only.yml) with `source_run_id` (the failed `build-release.yml` run's ID — from its URL or `gh run list`) + `version` + `release_tag` + `version_branch` (last three copied from the failed run's dispatch inputs).
+- **Docker:** dispatch [`docker-acceptance-only.yml`](../.github/workflows/docker-acceptance-only.yml) with `source_run_id` (the failed `docker-build-release.yml` run's ID) + `candidate_tag` (from the failed run's `merge-manifest` job outputs) + `docker_tags` (from the failed run's dispatch inputs).
+
+Both **must dispatch from `--ref master`** — workflows reject other refs. See [runbook step 10](#release-runbook) (tarball) + [step 12](#release-runbook) (docker) for guardrails + when to prefer this over "Re-run failed jobs".
+
+### 5. Bypass acceptance testing on a stalled release
+
+**Last-resort escape hatch** for confirmed test-side flakes on a known-good artifact that keeps failing acceptance. Dispatch the same workflow as action 4 with `skip_acceptance=true` + a required non-empty `skip_acceptance_reason` explaining the specific flake being bypassed (empty or whitespace-only reason fails the workflow loudly). Bypass reason lands in the workflow run-name + a `::warning::` annotation + a `GITHUB_STEP_SUMMARY` block for audit.
+
+**Do NOT use** on a first-time / never-validated artifact, or repeatedly on the same flake class (that's a signal to fix the flake, not bypass — the audit trail is designed to make repeat-bypass visible). See [runbook step 10 skip-acceptance paragraph](#release-runbook) + the [acceptance-testing plan's Phase 14 section](artifact-acceptance-testing-plan.md) for the full when-to-use / when-NOT-to-use guidance.
+
 ## Repositories involved
 
 | Repository | Role |
