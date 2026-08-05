@@ -111,16 +111,24 @@ trait PatientAddTrait
             )
         );
 
-        sleep(5); // wait for the form to be ready (sometimes it takes a bit longer)
-
         $this->crawler = $this->client->refreshCrawler();
         $this->crawler->filterXPath(XpathsConstantsPatientAddTrait::CREATE_CONFIRM_PATIENT_BUTTON_PATIENTADD_TRAIT)->click();
 
-        // ensure the patient summary screen is shown
-        $alert = $this->client->getWebDriver()->wait(10)->until(
-            WebDriverExpectedCondition::alertIsPresent()
-        );
-        $alert->accept();
+        // The clinical-reminders widget (library/clinical_rules.php)
+        // used to fire a native browser alert on the newly-created
+        // patient's dashboard load. Prior shape here was:
+        //   sleep(5); // give form time to be ready
+        //   click confirm;
+        //   wait(10)->until(alertIsPresent()); // then accept
+        // The BaseTrait::muzzleBrowserPrompts() CDP install now
+        // overrides window.alert to a no-op globally on every
+        // navigation, so the alert never fires and the wait+accept
+        // are no longer needed. Dropped both.
+        //
+        // If a future OpenEMR change adds an alert we DO want to
+        // assert on, muzzleBrowserPrompts() can be made
+        // per-trait-opt-in instead of BaseTrait-wide -- see comment
+        // in BaseTrait for the design decision.
         $this->client->switchTo()->defaultContent();
         $this->client->waitFor(XpathsConstants::PATIENT_IFRAME);
         $this->switchToIFrame(XpathsConstants::PATIENT_IFRAME);
