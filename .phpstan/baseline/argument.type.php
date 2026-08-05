@@ -20787,7 +20787,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$foreign_id of static method Note\\:\\:notes_factory\\(\\) expects int, mixed given\\.$#',
+    'message' => '#^Parameter \\#1 \\$foreign_id of static method Note\\:\\:notes_factory\\(\\) expects int\\|string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
