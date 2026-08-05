@@ -5,6 +5,7 @@
  *
  * Copyright (C) 2013-2016 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +21,7 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
@@ -924,7 +926,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 if ($patient_id == -1) {
                     // Result is indeterminate.
                     // Make a stringified form of $ptarr to use as a key.
-                    $ptstring = serialize($ptarr);
+                    try {
+                        $ptstring = json_encode($ptarr, JSON_THROW_ON_ERROR);
+                    } catch (\JsonException) {
+                        rhl7LogMsg(xl('Failed to encode patient match key for segment') .
+                            ' ' . $rhl7_segnum, false);
+                        continue;
+                    }
                     // Check if the user has specified the patient.
                     if (isset($matchresp[$ptstring])) {
                         // This will be an existing pid, or 0 to specify creating a patient.
