@@ -23,9 +23,9 @@ Task-oriented cheat sheet for the operations a release maintainer actually perfo
 
 Create the `rel-<MAJOR><MINOR>0` branch off master (e.g. `rel-830` for the 8.3.0 line) and push it. That's the entire trigger — [`branch-cut-automation.yml`](../.github/workflows/branch-cut-automation.yml) fires on the `create` event and opens the rel-side + master-side branch-cut PRs; [`release-prep.yml`](../.github/workflows/release-prep.yml) fires on subsequent pushes and maintains the draft release-prep PR. See [runbook step 2](#phase-2--branch-cut-and-pr-generation).
 
-### 2. Cut a new release branch for a patch release
+### 2. Start a new patch release cycle on an existing rel branch
 
-Land a `$v_patch` bump into `-dev` on the rel branch (e.g. `8.1.0` → `8.1.1-dev` on `rel-810`). [`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml) fires when it sees the `version.php` diff and opens the patch-cycle PRs (rel-side seed + master-side SQL-bridge file-rename dance). See the [patch-prep workflow entry](#lifecycle-event-workflows-siblings).
+No new branch is cut — patch releases continue on the existing rel branch. Land a `$v_patch` bump into `-dev` on the rel branch (e.g. `8.1.0` → `8.1.1-dev` on `rel-810`). [`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml) fires when it sees the `version.php` diff and opens the patch-cycle PRs (rel-side seed + master-side SQL-bridge file-rename dance). See the [patch-prep workflow entry](#lifecycle-event-workflows-siblings).
 
 ### 3. Ship the release
 
