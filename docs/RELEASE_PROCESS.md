@@ -16,7 +16,7 @@ Create the `rel-<MAJOR><MINOR>0` branch off master (e.g. `rel-830` for the 8.3.0
 
 ### 2. Start a new patch release cycle on an existing rel branch
 
-No new branch is cut — patch releases continue on the existing rel branch. Land a `$v_patch` bump into `-dev` on the rel branch (e.g. `8.1.0` → `8.1.1-dev` on `rel-810`). [`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml) fires when it sees the `version.php` diff and opens the patch-cycle PRs (rel-side seed + master-side SQL-bridge file-rename dance). See the [patch-prep workflow entry](#lifecycle-event-workflows-siblings).
+No new branch is cut — patch releases continue on the existing rel branch. Land a `$v_patch` bump into `-dev` in `version.php` on the rel branch (e.g. `8.1.0` → `8.1.1-dev` on `rel-810`). [`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml) fires when it sees the `version.php` diff and opens the patch-cycle PRs (rel-side seed + master-side SQL-bridge file-rename dance). See the [patch-prep workflow entry](#lifecycle-event-workflows-siblings).
 
 ### 3. Ship the release
 
