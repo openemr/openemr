@@ -31,8 +31,8 @@ In `full-auto` mode, everything downstream (Conductor + Finalize + Docs merges, 
 
 For confirmed-transient acceptance flakes on a known-good artifact — replaces the ~15 min build-package rerun with a ~5-10 min acceptance-only rerun that also auto-publishes on green:
 
-- **Tarball:** dispatch [`acceptance-only.yml`](../.github/workflows/acceptance-only.yml) with `source_run_id` + `version` + `release_tag` + `version_branch` (all copied from the failed `build-release.yml` run's dispatch inputs).
-- **Docker:** dispatch [`docker-acceptance-only.yml`](../.github/workflows/docker-acceptance-only.yml) with `source_run_id` + `candidate_tag` + `docker_tags` (copied from the failed `docker-build-release.yml` run).
+- **Tarball:** dispatch [`acceptance-only.yml`](../.github/workflows/acceptance-only.yml) with `source_run_id` (the failed `build-release.yml` run's ID — from its URL or `gh run list`) + `version` + `release_tag` + `version_branch` (last three copied from the failed run's dispatch inputs).
+- **Docker:** dispatch [`docker-acceptance-only.yml`](../.github/workflows/docker-acceptance-only.yml) with `source_run_id` (the failed `docker-build-release.yml` run's ID) + `candidate_tag` (from the failed run's `merge-manifest` job outputs) + `docker_tags` (from the failed run's dispatch inputs).
 
 Both **must dispatch from `--ref master`** — workflows reject other refs. See [runbook step 10](#release-runbook) (tarball) + [step 12](#release-runbook) (docker) for guardrails + when to prefer this over "Re-run failed jobs".
 
