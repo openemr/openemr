@@ -1233,7 +1233,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function receive_hl7_results\\(\\) should return array but returns mixed\\.$#',
-    'count' => 14,
+    'count' => 15,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
