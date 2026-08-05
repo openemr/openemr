@@ -43,7 +43,6 @@ class AtnaSinkTest extends TestCase
         string $comments = 'Test comment',
     ): Event {
         return new Event(
-            isEncrypted: false,
             current_datetime: '2026-03-10 12:00:00',
             event: $event,
             category: 'test',
@@ -53,7 +52,6 @@ class AtnaSinkTest extends TestCase
             user_notes: '',
             patientId: $patientId,
             success: $success,
-            SSL_CLIENT_S_DN_CN: '',
             logFrom: 'open-emr',
             menuItemId: null,
             ccdaDocId: null,

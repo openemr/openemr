@@ -69,11 +69,9 @@ function newpatient_report($pid, $encounter, $cols, $id): void
             'posCode' => $posCode,
             'facility' => $facility_name,
         ];
-        /**
-         * @var OEGlobalsBag $globalsBag
-         */
-        $globalsBag = OEGlobalsBag::getInstance()->get('globalsBag');
-        if ($globalsBag->getInt(GlobalFeaturesEnum::INHOUSE_PHARMACY->value, 0) === 1) {
+        // interface/globals.php stores inhouse_pharmacy as a boolean (true for db
+        // values 1/2/3, false for 0/unset), so getInt() throws on the boolean.
+        if (OEGlobalsBag::getInstance()->getBoolean(GlobalFeaturesEnum::INHOUSE_PHARMACY->value)) {
             $encounterUuid = UuidRegistry::uuidToString($result['uuid']);
             $patientService = new PatientService();
             $patientUuid = UuidRegistry::uuidToString($patientService->getUuid($pid));

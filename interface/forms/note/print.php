@@ -14,17 +14,26 @@
 
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
 require_once("$srcdir/api.inc.php");
 
-use OpenEMR\Core\Header;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", [$_SESSION["authUser"]]);
+$provider_results = sqlQuery("select fname, lname from users where username=?", [$session->get('authUser')]);
 
 /* name of this form */
 $form_name = "note";
 
 // get the record from the database
+$obj = [];
 if ($_GET['id'] != "") {
     $obj = formFetch("form_" . $form_name, $_GET["id"]);
 }

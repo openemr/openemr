@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 
 use Exception;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 
@@ -131,7 +132,8 @@ class PatientPortalService
      */
     public static function isPortalUser($u = null)
     {
-        $user = $u ?: $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $u ?: $session->get('authUserID');
         // test for either id or username
         return sqlQuery("SELECT `portal_user` FROM `users` WHERE `id` = ? OR username = ? LIMIT 1", [$user, $user])['portal_user'];
     }
@@ -158,26 +160,27 @@ class PatientPortalService
     }
 
     /**
-     * @param $param
-     * @param $default
-     * If param not valid then entire super is returned.
-     * @return mixed
+     * Returns a session value by key. The $param is required to prevent callers
+     * from obtaining the raw SessionInterface object and writing to it directly,
+     * which would be silently lost with read_and_close sessions. Use
+     * SessionUtil::setSession() / SessionUtil::unsetSession() for writes.
+     *
+     * @param string $param
+     * @param mixed $default
+     * @return mixed|null
      */
-    public function getSession($param = null, $default = null): mixed
+    public function getSession(string $param, mixed $default = null): mixed
     {
-        if ($param) {
-            return $_SESSION[$param] ?? $default;
-        }
-
-        return $_SESSION;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get($param, $default);
     }
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed|null $default
      * @return mixed
      */
-    public function getRequest($param = null, $default = null): mixed
+    public function getRequest(string $param = null, mixed $default = null): mixed
     {
         if ($param) {
             return $_REQUEST[$param] ?? $default;

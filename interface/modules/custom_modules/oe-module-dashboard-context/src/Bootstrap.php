@@ -41,7 +41,7 @@ class Bootstrap
          */
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->installPath = OEGlobalsBag::getInstance()->get('web_root') . self::MODULE_INSTALLATION_PATH;
+        $this->installPath = OEGlobalsBag::getInstance()->getWebRoot() . self::MODULE_INSTALLATION_PATH;
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
         $this->logger = ServiceContainer::getLogger();

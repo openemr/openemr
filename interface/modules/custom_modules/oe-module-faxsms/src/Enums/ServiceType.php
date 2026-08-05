@@ -22,6 +22,12 @@ enum ServiceType: int
     case EMAIL = 4;
     case CLICKATELL_SMS = 5;
     case SIGNALWIRE = 6;
+    /**
+     * In-browser RingCentral softphone. Unlike the other cases, voice does
+     * NOT run server-side — see {@see \OpenEMR\Modules\FaxSMS\Controller\VoiceClient}
+     * for the full architecture. Removing this case breaks the sponsored
+     * voice integration; see #12230 before touching.
+     */
     case VOICE = 9;
 
     /**

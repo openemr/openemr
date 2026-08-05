@@ -13,7 +13,7 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/interface/clickmap/AbstractClickmapModel.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/interface/clickmap/AbstractClickmapModel.php");
 
 /**
  * @class FormPainMap

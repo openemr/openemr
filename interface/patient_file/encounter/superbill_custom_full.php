@@ -17,19 +17,18 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 require_once("../../../custom/code_types.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // gacl control
 $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
@@ -39,7 +38,7 @@ if (!($thisauthwrite || $thisauthview)) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/superbill: Codes", xl("Codes"));
 }
 // For revenue codes
-$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support') ? true : false;
+$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support');
 
 // Translation for form fields.
 function ffescape($field)
@@ -47,6 +46,9 @@ function ffescape($field)
     $field = add_escape_custom($field);
     return trim((string) $field);
 }
+
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
 
 $alertmsg = '';
 $pagesize = 100;
@@ -57,11 +59,16 @@ $active = 1;
 $reportable = 0;
 $financial_reporting = 0;
 $revenue_code = '';
+$code = '';
+$code_type = '';
+$code_type_name_external = '';
+$modifier = '';
+$taxrates = '';
+$res = false;
+$filter_key = [];
 
 if (isset($mode) && $thisauthwrite) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $code_id = empty($_POST['code_id']) ? '' : $_POST['code_id'] + 0;
     $code = $_POST['code'];
@@ -323,7 +330,7 @@ if ($fend > ($count ?? null)) {
                         response(cache[term]);
                         return;
                     }
-                    $.getJSON("<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
+                    $.getJSON("<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
                         cache[term] = data;
                         response(data);
                     });
@@ -470,7 +477,7 @@ if ($fend > ($count ?? null)) {
 <body class="body_top">
 
 <form method='post' action='superbill_custom_full.php' name='theform'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"/>
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
 
     <input type='hidden' name='mode' value=''/>
 

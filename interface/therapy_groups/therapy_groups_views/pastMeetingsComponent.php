@@ -22,7 +22,7 @@ use OpenEMR\Core\OEGlobalsBag;
 <script>
     function newGroup(){
         top.restoreSession();
-        top.frames['RBot'].location = '<?php echo OEGlobalsBag::getInstance()->get('web_root') . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
+        top.frames['RBot'].location = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/" ?>' + 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=';
         //top.window.parent.left_nav.loadFrame2('nen1','RBot','forms/newGroupEncounter/new.php?autoloaded=1&calenc=')
 
     }

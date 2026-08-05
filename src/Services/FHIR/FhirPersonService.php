@@ -81,7 +81,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * Parses an OpenEMR user record, returning the equivalent FHIR Person Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPractitioner
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
@@ -97,7 +97,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         }
         $person->setMeta($meta);
 
-        $person->setActive($dataRecord['active'] == "1" ? true : false);
+        $person->setActive($dataRecord['active'] == "1");
 
         $narrativeText = '';
         if (isset($dataRecord['fname'])) {

@@ -60,21 +60,21 @@ interface CardInterface
      *
      * Implementing class should consider the user defined preference when setting this value.
      *
-     * @return boolean
+     * @return bool
      */
     public function isInitiallyCollapsed(): bool;
 
     /**
      * Return a boolean indicating if an "add" button should be rendered in the card header
      *
-     * @return boolean
+     * @return bool
      */
     public function canAdd(): bool;
 
     /**
      * Return a boolean indicating if an "edit" button should be rendered in the card header
      *
-     * @return boolean
+     * @return bool
      */
     public function canEdit(): bool;
 
@@ -84,7 +84,7 @@ interface CardInterface
      * This should almost always return true as it removed the ability of the
      * user to set their own preference.
      *
-     * @return boolean
+     * @return bool
      */
     public function canCollapse(): bool;
 

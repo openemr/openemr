@@ -26,15 +26,15 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/LBF_Validation.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/LBF_Validation.php");
 
 /*LBF form take the valude from the global $GLOBALS['new_validate'];*/
 /*Other pages depend if the page in the lists options (page validation)is active and exists)*/
 if ($use_validate_js) {
     ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative') ?>/moment/moment.js"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('rootdir') ?>/../library/js/vendors/validate/validate_modified.js"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('rootdir') ?>/../library/js/vendors/validate/validate_extend.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() ?>/moment/moment.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() ?>/../library/js/vendors/validate/validate_modified.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() ?>/../library/js/vendors/validate/validate_extend.js"></script>
 
     <style type="text/css">
     .error-message {

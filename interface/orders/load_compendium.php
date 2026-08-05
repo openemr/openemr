@@ -46,7 +46,7 @@ $lab_npi = [
  * Get lab's ID from the users table given its NPI.  If none return 0.
  *
  * @param  string  $npi           The lab's NPI number as known to the system
- * @return integer                The numeric value of the lab's address book entry
+ * @return int The numeric value of the lab's address book entry
  */
 function getLabID($npi)
 {
@@ -77,7 +77,7 @@ if (!empty($_POST['form_import'])) {
 $auto_continue = false;
 
 // Set up main paths.
-$EXPORT_FILE = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_config.sql";
+$EXPORT_FILE = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_config.sql";
 ?>
 <html>
 
@@ -213,6 +213,7 @@ $EXPORT_FILE = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/opene
                                                 "ORDER BY procedure_type_id DESC LIMIT 1",
                                                 [$form_group, $acsv[0]]
                                             );
+                                            $ptid = $trow['procedure_type_id'] ?? 0;
                                         if (empty($trow['procedure_type_id']) || $trow['activity'] == 0) {
                                             if (empty($trow['procedure_type_id'])) {
                                                 $ptid = sqlInsert(

@@ -1,0 +1,65 @@
+# Validates that the files which are promised byte-identical across master
+# and every rel-X.Y.Z branch actually stay that way.
+#
+# Source of truth for the file set is .github/byte-identical.yml.
+# Source of truth for the rel branches is .github/release-targets.yml.
+# Both are read at workflow-run time -- this file holds no hardcoded list.
+#
+# This workflow, its config file (.github/byte-identical.yml),
+# and the diff script (.github/scripts/validate-byte-identical.sh) are
+# all in FILES_ALL, so the auto-sync workflow keeps the trio in step
+# across master and every rel branch. That means the canary fires on
+# rel-* PRs against the rel branch's own copy of all three files, and
+# the script has to behave correctly from either context. BATS coverage
+# lives at tests/bats/ci-scripts/validate-byte-identical/ (master only).
+#
+# The orchestrator-driven docker release pipeline (see
+# docker-release-orchestrator.yml + .github/release-targets.yml) leans on
+# the invariant that certain workflow + composite + compose files are
+# character-for-character identical across master and every rel branch.
+# That invariant is structural -- if it drifts, the orchestrator can
+# dispatch the same logical build against two branches and silently get
+# two different behaviors, which defeats the whole "byte-identical build
+# pipeline" property the planning doc (openemr-devops#790) established.
+#
+# Three trigger sources:
+#
+#   1. pull_request on master or any rel-* branch -- catches drift the
+#      moment a PR proposes it. Runs on every PR (the diff check is
+#      fast, fetching N files once); no paths: filter to keep in sync
+#      with the source-of-truth list.
+#
+#   2. schedule, daily at 07:00 UTC -- one hour after the build
+#      orchestrator. Fires only from master (default branch). Catches
+#      latent drift introduced via any other path.
+#
+#   3. workflow_dispatch -- manual dry-run when investigating; can be
+#      run from master or from any rel branch.
+
+name: Validate byte-identical files
+
+on:
+  schedule:
+  - cron: '0 7 * * *'   # 07:00 UTC daily; build orchestrator runs at 06:00
+  workflow_dispatch:
+  pull_request:
+    # Fire on PRs to master AND to any rel branch. The if: gate on the job
+    # restricts execution to the upstream openemr/openemr repository.
+    branches:
+    - master
+    - 'rel-*'
+
+permissions:
+  contents: read
+
+jobs:
+  diff-against-rel-branches:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Diff byte-identical files (master/rel context-aware)
+      run: bash .github/scripts/validate-byte-identical.sh

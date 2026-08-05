@@ -21,7 +21,7 @@ class FormLocatorTest extends TestCase
 
     protected function setUp(): void
     {
-        global $GLOBALS;
+
         // Store original fileroot
         $this->fileRoot = $GLOBALS['fileroot'] ?? '';
         // Set fileroot to the OpenEMR root directory for tests
@@ -32,7 +32,7 @@ class FormLocatorTest extends TestCase
 
     protected function tearDown(): void
     {
-        global $GLOBALS;
+
         // Restore original fileroot
         $GLOBALS['fileroot'] = $this->fileRoot;
     }
@@ -42,7 +42,7 @@ class FormLocatorTest extends TestCase
      */
     public function testFindFileLBFForm(): void
     {
-        global $GLOBALS;
+
         $expectedPath = $GLOBALS['fileroot'] . "/interface/forms/LBF/view.php";
 
         $result = $this->formLocator->findFile('LBFmyform', 'view.php', 'load_form.php');
@@ -56,7 +56,7 @@ class FormLocatorTest extends TestCase
      */
     public function testFindFileLBTForm(): void
     {
-        global $GLOBALS;
+
         $expectedPath = $GLOBALS['fileroot'] . "/interface/forms/LBF/view.php";
 
         $result = $this->formLocator->findFile('LBTref', 'view.php', 'load_form.php');
@@ -69,7 +69,7 @@ class FormLocatorTest extends TestCase
      */
     public function testFindFileLBTbillForm(): void
     {
-        global $GLOBALS;
+
         $expectedPath = $GLOBALS['fileroot'] . "/interface/forms/LBF/view.php";
 
         $result = $this->formLocator->findFile('LBTbill', 'view.php', 'load_form.php');
@@ -82,7 +82,7 @@ class FormLocatorTest extends TestCase
      */
     public function testFindFileLBTptreqForm(): void
     {
-        global $GLOBALS;
+
         $expectedPath = $GLOBALS['fileroot'] . "/interface/forms/LBF/view.php";
 
         $result = $this->formLocator->findFile('LBTptreq', 'view.php', 'load_form.php');
@@ -95,7 +95,7 @@ class FormLocatorTest extends TestCase
      */
     public function testFindFileLBTphreqForm(): void
     {
-        global $GLOBALS;
+
         $expectedPath = $GLOBALS['fileroot'] . "/interface/forms/LBF/view.php";
 
         $result = $this->formLocator->findFile('LBTphreq', 'view.php', 'load_form.php');
@@ -108,7 +108,7 @@ class FormLocatorTest extends TestCase
      */
     public function testFindFileLBTlegalForm(): void
     {
-        global $GLOBALS;
+
         $expectedPath = $GLOBALS['fileroot'] . "/interface/forms/LBF/view.php";
 
         $result = $this->formLocator->findFile('LBTlegal', 'view.php', 'load_form.php');
@@ -121,7 +121,7 @@ class FormLocatorTest extends TestCase
      */
     public function testFindFileRegularForm(): void
     {
-        global $GLOBALS;
+
         $expectedPath = $GLOBALS['fileroot'] . "/interface/forms/vitals/view.php";
 
         $result = $this->formLocator->findFile('vitals', 'view.php', 'load_form.php');
@@ -134,7 +134,7 @@ class FormLocatorTest extends TestCase
      */
     public function testFindFileLBFNewForm(): void
     {
-        global $GLOBALS;
+
         $expectedPath = $GLOBALS['fileroot'] . "/interface/forms/LBF/new.php";
 
         $result = $this->formLocator->findFile('LBFmyform', 'new.php', 'load_form.php');
@@ -147,7 +147,7 @@ class FormLocatorTest extends TestCase
      */
     public function testFindFileLBTNewForm(): void
     {
-        global $GLOBALS;
+
         $expectedPath = $GLOBALS['fileroot'] . "/interface/forms/LBF/new.php";
 
         $result = $this->formLocator->findFile('LBTref', 'new.php', 'load_form.php');

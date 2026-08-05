@@ -31,6 +31,7 @@ use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\ServiceField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -189,7 +190,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
      * Parses an OpenEMR patient record, returning the equivalent FHIR Patient Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPatient
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
@@ -419,7 +420,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     private function parseOpenEMRRaceRecord(FHIRPatient $patientResource, $race)
     {
         $code = 'UNK';
-        $display = xlt("Unknown");
+        $display = xl("Unknown");
         $system = FhirCodeSystemConstants::HL7_NULL_FLAVOR;
         // race is defined as containing 2 required extensions, text & ombCategory
         $raceExtension = new FHIRExtension();
@@ -434,16 +435,18 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             if ($race === 'decline_to_specify' || $race === 'declne_to_specfy') {
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
-                $display = xlt("Asked but no answer");
+                $display = xl("Asked but no answer");
             } elseif (!empty($record)) {
                 $code = $record['notes'];
-                $display = $record['title'];
+                $title = is_string($record['title']) ? $record['title'] : '';
+                // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                $display = xl($title);
                 $system = FhirCodeSystemConstants::OID_RACE_AND_ETHNICITY;
             }
         }
         $ombCategoryCoding->setSystem(new FHIRUri($system));
         $ombCategoryCoding->setCode($code);
-        $ombCategoryCoding->setDisplay(xlt($display));
+        $ombCategoryCoding->setDisplay($display);
         $ombCategory->setValueCoding($ombCategoryCoding);
         $raceExtension->addExtension($ombCategory);
 
@@ -531,6 +534,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     }
     protected function getCachedListOption($list_id, $option_id): ?array
     {
+        if ($option_id === null) {
+            return null;
+        }
         if (!isset($this->cachedListOptions[$list_id])) {
             $this->cachedListOptions[$list_id] = [];
         }
@@ -572,9 +578,12 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $language = new FHIRCoding();
             $language->setSystem(new FHIRUri(FhirCodeSystemConstants::LANGUAGE_BCP_47));
             $language->setCode(new FHIRCode($record['notes']));
-            $language->setDisplay(xlt($record['title']));
+            $languageTitle = is_string($record['title']) ? $record['title'] : '';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            $translatedTitle = xl($languageTitle);
+            $language->setDisplay($translatedTitle);
             $languageConcept->addCoding($language);
-            $languageConcept->setText(xlt($record['title']));
+            $languageConcept->setText($translatedTitle);
             $communication->setLanguage($languageConcept);
             $patientResource->addCommunication($communication);
         }
@@ -918,9 +927,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         // we need to process our gender values here.
         if (isset($openEMRSearchParameters[self::FIELD_NAME_GENDER])) {
-            /**
-             * @var $field ISearchField
-             */
+            /** @var TokenSearchField $field */
             $field = $openEMRSearchParameters[self::FIELD_NAME_GENDER];
 
             $upperCaseCode = function (TokenSearchValue $tokenSearchValue) {

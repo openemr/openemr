@@ -208,7 +208,7 @@ class FHIREpisodeOfCareDiagnosis extends FHIRBackboneElement implements \JsonSer
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

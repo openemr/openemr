@@ -15,6 +15,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceDeleteEvent;
@@ -319,6 +320,8 @@ class AppointmentService extends BaseService
         $endTime = (new \DateTime())->setTimestamp($startUnixTime)->add($endTimeInterval);
         $uuid = (new UuidRegistry())->createUuid();
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
         $sql .= "     uuid=?,";
         $sql .= "     pc_pid=?,";
@@ -354,7 +357,7 @@ class AppointmentService extends BaseService
                 $endTime->format('H:i:s'),
                 $data["pc_facility"],
                 $data["pc_billing_location"],
-                $_SESSION['authUserID'] ?? 1, // Grab authenticated user ID or default to 1
+                $session->get('authUserID') ?? 1, // Grab authenticated user ID or default to 1
                 $data["pc_aid"] ?? null,
                 $data["pc_website"] ?? null,
             ]
@@ -504,7 +507,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public static function isCheckInStatus($option)
+    public static function isCheckInStatus($option): bool
     {
         $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", [$option]);
@@ -520,7 +523,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public static function isCheckOutStatus($option)
+    public static function isCheckOutStatus($option): bool
     {
         $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", [$option]);
@@ -531,7 +534,7 @@ class AppointmentService extends BaseService
         return(true);
     }
 
-    public function isPendingStatus($option)
+    public function isPendingStatus($option): bool
     {
         // TODO: @adunsulag is there ANY way to track this in the database of what statii are pending?
         if ($option == '^') {
@@ -556,7 +559,7 @@ class AppointmentService extends BaseService
      * @param $status_option_id The status to check if its a valid appointment status
      * @return bool True if its valid, false otherwise
      */
-    public function isValidAppointmentStatus($status_option_id)
+    public function isValidAppointmentStatus($status_option_id): bool
     {
         $listService = new ListService();
         $option = $listService->getListOption('apptstat', $status_option_id);

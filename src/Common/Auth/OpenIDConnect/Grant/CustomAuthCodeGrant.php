@@ -105,8 +105,16 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             try {
                 // check to see if we can deserialize the launch token
                 SMARTLaunchToken::deserializeToken($launch);
-            } catch (\Throwable $exception) {
-                $this->getSystemLogger()->error("CustomAuthCodeGrant::validateAuthorizationRequest:Failed to deserialize launch token", ['exception' => $exception, 'launch' => $launch]);
+            } catch (\JsonException | \InvalidArgumentException $exception) {
+                // Avoid logging the raw launch token (opaque bearer-like value). Log only metadata.
+                $this->getSystemLogger()->error(
+                    "CustomAuthCodeGrant::validateAuthorizationRequest:Failed to deserialize launch token",
+                    [
+                        'exception' => $exception,
+                        'launch_len' => strlen($launch),
+                        'launch_sha256' => hash('sha256', $launch),
+                    ]
+                );
                 throw OAuthServerException::invalidRequest('launch', "launch parameter was incorrectly formatted or did not originate from this server");
             }
         }

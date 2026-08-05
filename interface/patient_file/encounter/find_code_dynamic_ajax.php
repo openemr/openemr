@@ -20,8 +20,21 @@
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
+
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
+/** @var array<int, array<int, mixed>> $code_external_tables */
+$code_external_tables = OEGlobalsBag::getInstance()->get('code_external_tables', []);
+
+$codetype = '';
+$sellist = '';
+$source = '';
+$where1 = '';
+$from = '';
+$include_inactive = false;
+$fe_array = [];
 
 // Paging parameters.  -1 means not applicable.
 //
@@ -361,7 +374,7 @@ if ($what == 'fields' && $source == 'V') {
         while ($count < $maxCount && $row = sqlFetchArray($res)) {
             $count += 1;
         }
-        $out['iTotalHasMoreRecords'] = sqlFetchArray($res) ? true : false;
+        $out['iTotalHasMoreRecords'] = (bool) sqlFetchArray($res);
     }
     $out['iTotalDisplayRecords'] = min($maxCount, $start + $count);
     $out['iTotalRecords'] = min($maxCount, $start + $count);

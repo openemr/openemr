@@ -16,7 +16,7 @@ use OpenEMR\Core\OEGlobalsBag;
 require_once(__DIR__ . "/../../globals.php");
 
 /* include api.inc.php. also required. */
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/api.inc.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/api.inc.php');
 
 /* include our smarty derived controller class. */
 require('C_FormPainMap.class.php');
@@ -25,7 +25,7 @@ require('C_FormPainMap.class.php');
 $c = new C_FormPainMap();
 
 /* Save the form contents .*/
-echo $c->default_action_process();
+$c->default_action_process();
 
 /* return to the encounter. */
 @formJump();

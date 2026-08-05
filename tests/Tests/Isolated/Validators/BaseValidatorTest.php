@@ -196,7 +196,7 @@ class BaseValidatorTestStub extends BaseValidator
         return $this->validator;
     }
 
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
 
@@ -288,7 +288,7 @@ class BaseValidatorTestStub extends BaseValidator
     /**
      * Override validateCode to avoid database calls
      */
-    public function validateCode($code, $table, $valueset)
+    public function validateCode($code, $table, $valueset): bool
     {
         // Simulate database lookup - return true for 'valid_code', false for others
         if ($code === 'valid_code') {
@@ -308,7 +308,7 @@ class BaseValidatorCustomStub extends BaseValidator
         return new \OpenEMR\Validators\OpenEMRParticleValidator();
     }
 
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         // Only support insert context, not update
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT);

@@ -15,6 +15,7 @@
 namespace OpenEMR\Tests\Unit\Controllers\Interface\Forms\Observation;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -28,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Twig\Environment;
 
 /**
@@ -48,7 +50,7 @@ class ObservationControllerTest extends TestCase
     private ?int $globalDateFormat;
     private ?Kernel $globalKernelBackup = null;
 
-    private array $sessionBackup = [];
+    private SessionInterface $session;
 
     /**
      * AI Generated: Set up test environment with mocked dependencies
@@ -58,17 +60,16 @@ class ObservationControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Backup and mock session data
-        $this->sessionBackup = $_SESSION ?? [];
-        $_SESSION = [
-            'pid' => 123,
-            'encounter' => 456,
-            'authUser' => 'testuser',
-            'authProvider' => 'testprovider',
-            'userauthorized' => 1
-        ];
+        // Initialize and populate Symfony session
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->session->set('pid', 123);
+        $this->session->set('encounter', 456);
+        $this->session->set('authUser', 'testuser');
+        $this->session->set('authProvider', 'testprovider');
+        $this->session->set('userauthorized', 1);
+
         // setup the csrf so we don't error out
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($this->session);
 
         // Mock global variables that may be used
         $globalsBag = OEGlobalsBag::getInstance();
@@ -76,8 +77,14 @@ class ObservationControllerTest extends TestCase
         $this->globalKernelBackup = $globalsBag->getKernel();
         $this->globalDateFormat = $GLOBALS['date_display_format'] ?? null;
         $GLOBALS['webroot'] = '/openemr';
-        $globalsBag->set('kernel', null);
         $GLOBALS['date_display_format'] = 0; // YYYY-MM-DD
+
+        // Provide a mock Kernel with path stubs instead of nulling
+        $mockKernel = $this->createMock(Kernel::class);
+        $mockKernel->method('getProjectDir')->willReturn(dirname(__DIR__, 7));
+        $mockKernel->method('getWebRoot')->willReturn('/openemr');
+        $mockKernel->method('getEventDispatcher')->willReturn(new \Symfony\Component\EventDispatcher\EventDispatcher());
+        $globalsBag->set('kernel', $mockKernel);
 
         // Create mock dependencies
         $this->mockObservationService = $this->createMock(ObservationService::class);
@@ -99,7 +106,7 @@ class ObservationControllerTest extends TestCase
      */
     protected function tearDown(): void
     {
-        $_SESSION = $this->sessionBackup;
+        $this->session->clear();
         $GLOBALS['webroot'] = $this->globalWebrootBackup;
         OEGlobalsBag::getInstance()->set('kernel', $this->globalKernelBackup);
         $GLOBALS['date_display_format'] = $this->globalDateFormat;
@@ -467,10 +474,10 @@ class ObservationControllerTest extends TestCase
      */
     public function testSaveActionErrorHandling(): void
     {
-        CsrfUtils::setupCsrfKey();
+        CsrfUtils::setupCsrfKey($this->session);
         $request = new Request(
             ['id' => 1],
-            ['csrf_token_form' => CsrfUtils::collectCsrfToken()]
+            ['csrf_token_form' => CsrfUtils::collectCsrfToken($this->session)]
         );
 
         $this->mockFormService

@@ -9,7 +9,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2022 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -65,12 +67,24 @@ class SMARTSessionTokenContextBuilder
             if (!empty($launchToken->getIntent())) {
                 $context['intent'] = $launchToken->getIntent();
             }
+            $fhirContext = [];
             if (!empty($launchToken->getAppointmentUuid())) {
-                $context['fhirContext'] = [UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid())];
+                // Preserve the existing appointment launch context while allowing additional FHIR references.
+                $fhirContext[] = UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid());
+            }
+            foreach ($launchToken->getFhirContext() as $fhirContextReference) {
+                $fhirContext[] = $fhirContextReference;
+            }
+            if ($fhirContext !== []) {
+                $context['fhirContext'] = $fhirContext;
+            }
+            $appContext = $launchToken->getAppContext();
+            if ($appContext !== null && $appContext !== '') {
+                $context['appContext'] = $appContext;
             }
             $context['smart_style_url'] = $this->getSmartStyleURL();
-        } catch (\Throwable $ex) {
-            $this->getSystemLogger()->error("SMARTSessionTokenContextBuilder->getAccessTokenContextParameters() Failed to decode launch context parameter", ['error' => $ex->getMessage()]);
+        } catch (\JsonException | \InvalidArgumentException $ex) {
+            $this->getSystemLogger()->error("SMARTSessionTokenContextBuilder->getEHRLaunchContext() Failed to decode launch context parameter", ['exception' => $ex]);
             throw new OAuthServerException("Invalid launch parameter", 0, 'invalid_launch_context');
         }
         $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() ehr launch context is ", $context);
@@ -93,6 +107,8 @@ class SMARTSessionTokenContextBuilder
             ];
             $populateKeys[] = 'encounter';
             $populateKeys[] = 'intent';
+            $populateKeys[] = 'fhirContext';
+            $populateKeys[] = 'appContext';
         }
 
         // populate any values we have from our orig context into our return array
@@ -109,7 +125,7 @@ class SMARTSessionTokenContextBuilder
      * @return array
      * @throws OAuthServerException
      */
-    public function getContextForScopes($scopes): array
+    public function getContextForScopes(array $scopes): array
     {
         $context = [];
         $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getContextForScopes()");

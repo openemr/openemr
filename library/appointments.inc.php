@@ -18,6 +18,7 @@
 require_once(__DIR__ . "/encounter_events.inc.php");
 require_once(__DIR__ . "/../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php");
 
+use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
 use OpenEMR\Events\BoundFilter;
@@ -74,15 +75,10 @@ $REPEAT_ON_NUM = [
     '5' => xl('Last')
 ];
 
-$REPEAT_ON_DAY = [
-    '0' => xl('Sunday'),
-    '1' => xl('Monday'),
-    '2' => xl('Tuesday'),
-    '3' => xl('Wednesday'),
-    '4' => xl('Thursday'),
-    '5' => xl('Friday'),
-    '6' => xl('Saturday')
-];
+$REPEAT_ON_DAY = array_map(
+    static fn(DayOfWeek $d): string => $d->label(),
+    DayOfWeek::cases(),
+);
 
 function checkEvent($recurrtype, $recurrspec)
 {
@@ -252,7 +248,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
                     if ($excluded == false) {
                         $event['pc_eventDate'] = $occurrence;
-                        $event['pc_endDate'] = '0000-00-00';
+                        $event['pc_endDate'] = null;
                         $events2[] = $event;
                       //////
                         if ($nextX) {
@@ -323,7 +319,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
                         if ($excluded == false) {
                             $event['pc_eventDate'] = $occurrence;
-                            $event['pc_endDate'] = '0000-00-00';
+                            $event['pc_endDate'] = null;
                             $events2[] = $event;
                             //////
                             if ($nextX) {
@@ -567,7 +563,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
             }
         }
 
-        $same_day = ( strtotime((string) $next_appointment_date) == strtotime((string) $date) ) ? true : false;
+        $same_day = strtotime((string) $next_appointment_date) == strtotime((string) $date);
 
         if ($next_appointment_time && $same_day) {
             // check the start time of the next appointment
@@ -799,7 +795,7 @@ function fetchRecurrences($pid)
     return $result_data;
 }
 
-function ends_in_a_week($end_date)
+function ends_in_a_week($end_date): bool
 {
     $timestamp_in_a_week = strtotime('+7 day');
     $timestamp_end_date = strtotime((string) $end_date);
@@ -811,7 +807,7 @@ function ends_in_a_week($end_date)
 }
 
 //Checks if recurrence is current (didn't end yet).
-function recurrence_is_current($end_date)
+function recurrence_is_current($end_date): bool
 {
     $end_date_timestamp = strtotime((string) $end_date);
     $current_timestamp = time();

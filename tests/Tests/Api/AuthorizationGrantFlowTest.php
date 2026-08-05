@@ -71,7 +71,16 @@ class AuthorizationGrantFlowTest extends TestCase
         // set the globals.php kernel which doesn't do much... need to reconicle these two
         // set our site_addr_oath so we use it properly
         $kernel->getGlobalsBag()->set('site_addr_oath', $this->getBaseUrlApi());
-        $kernel->getGlobalsBag()->set('kernel', new Kernel($dispatcher));
+        $projectDir = $GLOBALS['webserver_root'] ?? dirname(__DIR__, 3);
+        $webRoot = $GLOBALS['webroot'] ?? '';
+        if (!is_string($projectDir) || !is_string($webRoot)) {
+            $this->fail('Expected $GLOBALS[webserver_root] and $GLOBALS[webroot] to be strings');
+        }
+        $kernel->getGlobalsBag()->set('kernel', new Kernel(
+            $projectDir,
+            $webRoot,
+            $dispatcher,
+        ));
         [$clientIdentifier, $clientSecret] = $this->requestTestRegistrationEndpoint($kernel, $redirectUri, $scopesString);
 
         // now test the authorization flow
@@ -199,7 +208,7 @@ class AuthorizationGrantFlowTest extends TestCase
             "password" => "pass",
             // this is not to be confused with the other 'role' variables
             "user_role" => "api", // valid options are "api" or "portal-api"
-            "csrf_token_form" => CsrfUtils::collectCsrfToken('oauth2', $session)
+            "csrf_token_form" => CsrfUtils::collectCsrfToken($session, 'oauth2')
         ], [], []);
         // we have to do overrideGlobals since AuthUtils will not work with the HttpRestRequest but instead requires superglobals
         $request->overrideGlobals();
@@ -212,10 +221,11 @@ class AuthorizationGrantFlowTest extends TestCase
         $this->assertEquals(0, $session->get("persist_login"), "Session should not have persist_login set");
         $userService = new UserService();
         $user = $userService->getUserByUsername("admin");
+        $this->assertIsArray($user, "Admin user should exist");
         $this->assertEquals([
             "name" => $user['fname'] . ' ' . $user['lname'],
             "family_name" => $user['lname'],
-            "given_name" => "",
+            "given_name" => $user['fname'],
             "preferred_username" => $user['username'],
             "middle_name" => null,
             "profile" => "",
@@ -243,8 +253,12 @@ class AuthorizationGrantFlowTest extends TestCase
 
     private function getAuthorizationController(Session $session, OEHttpKernel $kernel): AuthorizationController
     {
-        $authController = new AuthorizationController($session, $kernel, true);
-        $authController->setSystemLogger($this->createMock(LoggerInterface::class));
+        $authController = new AuthorizationController(
+            session: $session,
+            kernel: $kernel,
+            providerForm: true,
+            logger: $this->createMock(LoggerInterface::class)
+        );
         return $authController;
     }
 
@@ -280,7 +294,7 @@ class AuthorizationGrantFlowTest extends TestCase
         $scopeArray = array_combine($scope, $scope);
         $originalSessionId = $session->getId();
         $request = HttpRestRequest::create("/oauth2/default" . AuthorizationController::DEVICE_CODE_ENDPOINT, "POST", [
-            "csrf_token_form" => CsrfUtils::collectCsrfToken('oauth2', $session),
+            "csrf_token_form" => CsrfUtils::collectCsrfToken($session, 'oauth2'),
             // this is an array of scopes [scopeIdentifier] => scopeIdentifier
             "scope" => $scopeArray,
             'proceed' => "1",
@@ -365,7 +379,7 @@ class AuthorizationGrantFlowTest extends TestCase
         // now we will make a post request to select a patient
         $patientSelectionSubmissionPage = $authController->authBaseFullUrl . SMARTAuthorizationController::PATIENT_SELECT_CONFIRM_ENDPOINT;
         $request = HttpRestRequest::create($patientSelectionSubmissionPage, "POST", [
-            "csrf_token" => CsrfUtils::collectCsrfToken('oauth2', $session),
+            "csrf_token" => CsrfUtils::collectCsrfToken($session, 'oauth2'),
             "patient_id" => "1", // assuming patient with ID 1 exists
             "proceed" => "1",
         ]);

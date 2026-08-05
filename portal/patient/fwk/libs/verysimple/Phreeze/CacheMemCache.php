@@ -25,12 +25,9 @@ class CacheMemCache implements ICache
     /**
      * Constructor requires a reference to a MemCache object
      *
-     * @param
-     *          Memcache memcache object
-     * @param
-     *          string a unique prefix to use so this app doesn't conflict with any others that may use the same memcache pool
-     * @param
-     *          bool set to true to ignore errors if a connection can't be made to the cache server
+     * @param Memcache $_memcache memcache object
+     * @param string $uniquePrefix a unique prefix to use so this app doesn't conflict with any others that may use the same memcache pool
+     * @param bool $_suppressServerErrors set to true to ignore errors if a connection can't be made to the cache server
      */
     public function __construct(private $_memcache, $uniquePrefix = "CACHE-", private $_suppressServerErrors = false)
     {

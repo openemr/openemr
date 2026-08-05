@@ -15,11 +15,11 @@
  */
 
 require_once '../../globals.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php';
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once $srcdir . '/lists.inc.php';
+require_once $srcdir . '/patient.inc.php';
+require_once $srcdir . '/options.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -31,20 +31,25 @@ use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+$webroot = OEGlobalsBag::getInstance()->getWebRoot();
+$v_js_includes = OEGlobalsBag::getInstance()->getString('v_js_includes');
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+/** @var array<string, array<int, mixed>> $ISSUE_CLASSIFICATIONS */
+$ISSUE_CLASSIFICATIONS = OEGlobalsBag::getInstance()->get('ISSUE_CLASSIFICATIONS', []);
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
 <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script>
-    <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
+    <?php require $srcdir . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
 </script>
 <?php
 
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Following hidden field received in the form will be used to ensure integrity of form values
     // 'issue', 'thispid', 'thisenc'
@@ -61,7 +66,7 @@ if (!empty($_POST['form_save'])) {
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
-        require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ippf_issues.inc.php';
+        require_once $srcdir . '/ippf_issues.inc.php';
     }
 }
 
@@ -198,9 +203,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 // If we are saving, then save and close the window.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $i = 0;
     $text_type = "unknown";
@@ -406,7 +409,7 @@ function getCodeText($code)
     ///////////
     ?>
 
-    <?php require OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"; ?>
+    <?php require $srcdir . "/restoreSession.php"; ?>
 
     ///////////////////////////
     function onActiveCodeSelected() {
@@ -653,7 +656,7 @@ function getCodeText($code)
         param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText(<?php echo xlj('Processing'); ?>);
 
         top.restoreSession();
-        let url = '../../../library/ajax/udi.php?udi=' + encodeURIComponent(udi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('udi', $session->getSymfonySession())); ?>;
+        let url = '../../../library/ajax/udi.php?udi=' + encodeURIComponent(udi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken($session, 'udi')); ?>;
         fetch(url, {
             credentials: 'same-origin',
             method: 'GET',
@@ -723,7 +726,7 @@ function getCodeText($code)
             <?php $datetimepicker_timepicker = true; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+            <?php require $srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
             ?>
         });
@@ -768,7 +771,7 @@ function getCodeText($code)
                     <div class="container-fluid">
                         <div class="row">
                             <div class='col-sm-6'>
-                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                 <?php
                                 // action setting not required in html5.  By default form will submit to itself.
                                 // Provide key values previously passed as part of action string.

@@ -392,7 +392,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param <string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @param array<string, \OpenEMR\Services\Search\ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
@@ -895,6 +895,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             );
     }
 
+    /**
+     * @param literal-string $description
+     */
     private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description): void
     {
         $component = new FHIRObservationComponent();
@@ -933,23 +936,32 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
      * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to True.
      * @return FHIRProvenance|string the FHIR Resource. Returned format is defined using $encode parameter.
      */
-    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string
+    public function createProvenanceResource($dataRecord, $encode = false): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRObservation)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenanceService = new FhirProvenanceService();
         $performer = null;
         if (!empty($dataRecord->getPerformer())) {
             // grab the first one
             $performer = current($dataRecord->getPerformer());
         }
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
+        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord, $performer);
+        if ($fhirProvenance === null) {
+            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
+            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
+            // available" and continues (see issue #13054).
+            return false;
         }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

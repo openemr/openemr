@@ -32,12 +32,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'form_submit\' on non\\-empty\\-array in empty\\(\\) always exists and is not falsy\\.$#',
+    'message' => '#^Offset \'form_submit\' on non\\-empty\\-array\\<mixed\\> in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'id\' on non\\-empty\\-array in empty\\(\\) always exists and is not falsy\\.$#',
+    'message' => '#^Offset \'id\' on non\\-empty\\-array\\<mixed, mixed\\> in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/person_search_ajax.php',
 ];
@@ -45,16 +45,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'samesite\' on array\\{lifetime\\: int\\<0, max\\>, path\\: non\\-falsy\\-string, domain\\: string, secure\\: bool, httponly\\: bool, samesite\\: \'Lax\'\\|\'lax\'\\|\'None\'\\|\'none\'\\|\'Strict\'\\|\'strict\'\\} in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/restoreSession.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'cache_serials\' on array\\{\\} in empty\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'insert_tags\' on array\\{\\} in empty\\(\\) does not exist\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'medication_adherence\' on non\\-empty\\-array in empty\\(\\) always exists and is not falsy\\.$#',

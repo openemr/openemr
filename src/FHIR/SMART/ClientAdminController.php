@@ -78,7 +78,7 @@ class ClientAdminController
         $this->kernel = $this->globalsBag->getKernel();
         $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $this->actionURL, self::CSRF_TOKEN_NAME);
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
-        $this->webroot = $this->globalsBag->getString('web_root');
+        $this->webroot = $this->globalsBag->getKernel()->getWebRoot();
     }
 
     public function setTwig(Environment $twig): void
@@ -116,7 +116,7 @@ class ClientAdminController
     {
         if ($this->shouldCheckCSRFTokenForRequest($action)) {
             $CSRFToken = $this->getCSRFToken();
-            if (!CsrfUtils::verifyCsrfToken($CSRFToken, self::CSRF_TOKEN_NAME, $this->session)) {
+            if (!CsrfUtils::verifyCsrfToken($CSRFToken, $this->session, self::CSRF_TOKEN_NAME)) {
                 throw new CsrfInvalidException(xlt('Authentication Error'));
             }
         }
@@ -439,7 +439,7 @@ class ClientAdminController
             $skipAuthorizationFlow = false; // globals overrides this setting
         }
 
-        $requestMessage = $request->get('message', '');
+        $requestMessage = $request->query->get('message', '');
 
         $formValues = [
             'id' => [
@@ -614,12 +614,10 @@ class ClientAdminController
 
     /**
      * Retrieves the CSRF token string to use
-     * @return false|string
      */
-    private function getCSRFToken(): string|false
+    private function getCSRFToken(): string
     {
-        /** @var string|false */
-        return CsrfUtils::collectCsrfToken(self::CSRF_TOKEN_NAME, $this->session);
+        return CsrfUtils::collectCsrfToken($this->session, self::CSRF_TOKEN_NAME);
     }
 
     /**

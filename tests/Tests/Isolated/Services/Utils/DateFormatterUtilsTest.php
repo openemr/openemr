@@ -8,7 +8,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,6 +26,58 @@ class DateFormatterUtilsTest extends TestCase
             'date_display_format' => $dateFormat,
             'time_display_format' => $timeFormat,
         ]);
+    }
+
+    // ==========================================================================
+    // dbDateToYmd tests
+    // ==========================================================================
+
+    public function testDbDateToYmdWithDatetimeValue(): void
+    {
+        $this->assertSame('2026-05-13', DateFormatterUtils::dbDateToYmd('2026-05-13 14:30:00'));
+    }
+
+    public function testDbDateToYmdWithDateOnlyValue(): void
+    {
+        $this->assertSame('2026-05-13', DateFormatterUtils::dbDateToYmd('2026-05-13'));
+    }
+
+    public function testDbDateToYmdRejectsOverflowDate(): void
+    {
+        // strtotime() would silently roll this over to 2026-03-02;
+        // strict parsing must reject it instead.
+        $this->assertNull(DateFormatterUtils::dbDateToYmd('2026-02-30 10:00:00'));
+    }
+
+    public function testDbDateToYmdRejectsMysqlZeroDate(): void
+    {
+        $this->assertNull(DateFormatterUtils::dbDateToYmd('0000-00-00 00:00:00'));
+        $this->assertNull(DateFormatterUtils::dbDateToYmd('0000-00-00'));
+    }
+
+    public function testDbDateToYmdRejectsGarbage(): void
+    {
+        $this->assertNull(DateFormatterUtils::dbDateToYmd('not-a-date'));
+    }
+
+    public function testDbDateToYmdRejectsEmptyAndWhitespace(): void
+    {
+        $this->assertNull(DateFormatterUtils::dbDateToYmd(''));
+        $this->assertNull(DateFormatterUtils::dbDateToYmd('   '));
+    }
+
+    public function testDbDateToYmdRejectsNonStringInput(): void
+    {
+        $this->assertNull(DateFormatterUtils::dbDateToYmd(null));
+        $this->assertNull(DateFormatterUtils::dbDateToYmd(20260513));
+        $this->assertNull(DateFormatterUtils::dbDateToYmd(['2026-05-13']));
+    }
+
+    public function testDbDateToYmdRejectsPartialTime(): void
+    {
+        // MySQL DATETIME always includes seconds; a truncated time must not
+        // silently pass as valid.
+        $this->assertNull(DateFormatterUtils::dbDateToYmd('2026-05-13 14:30'));
     }
 
     // ==========================================================================

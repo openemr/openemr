@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\FaxSMS\Events;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -43,9 +44,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $this->isEmailEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? 0);
         $this->isVoiceEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? 0);
 
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;
@@ -92,11 +91,20 @@ class NotificationEventListener implements EventSubscriberInterface
         }
     }
 
+    /**
+     * Inject the RingCentral Embeddable softphone into every page.
+     *
+     * This is the execution path for the voice feature — the server-side
+     * `VoiceClient::send*` methods are stubs and are not used. The twig
+     * template (`templates/phone_widget.html.twig`) loads RingCentral
+     * Embeddable and runs the entire softphone client-side using the
+     * credentials passed in here. See {@see VoiceClient} for full context
+     * and #12230 for the open work to make this path testable.
+     */
     public function renderPhoneWidget(RenderEvent $event): void
     {
         $serviceType = 'voice';
         $loginCred = $this->getRCCredentials($serviceType);
-        $moduleBaseUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/custom_modules/oe-module-faxsms";
         $context = [
             'clientId' => $loginCred['appKey'],
             'clientSecret' => $loginCred['appSecret'],
@@ -133,7 +141,8 @@ class NotificationEventListener implements EventSubscriberInterface
     public function onNotifyDocumentRenderOneTime(SendNotificationEvent $event): string
     {
         $status = 'Starting request.' . ' ';
-        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);
@@ -149,7 +158,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $includeEmail = $sendMethod == 'email' || $sendMethod == 'both';
         $parameters = [
             'pid' => $pid,
-            'redirect_link' => OEGlobalsBag::getInstance()->get('web_root') . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
+            'redirect_link' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
                 "&auto_render_id=" . urlencode($document_id) . "&auto_render_name=" . urlencode($document_name) .
                 "&audit_render_id=" . urlencode((string) $audit_id) . "&site=" . urlencode((string) $site_id),
             'email' => '',
@@ -205,7 +214,7 @@ class NotificationEventListener implements EventSubscriberInterface
      *   'expiry_interval' => "P2D", // valid for 2 days.
      *   'text_message' => "Please make a payment for your appointment.",
      *   'html_message' => "",
-     *   'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($_SESSION['site_id']) . "&landOn=MakePayment",
+     *   'redirect_url' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode($session->get('site_id')) . "&landOn=MakePayment",
      *   'actions' => [
      *      'enforce_onetime_use' => true,
      *      'enforce_auth_pin' => true,
@@ -222,9 +231,10 @@ class NotificationEventListener implements EventSubscriberInterface
     {
         // TODO: Move Implement onNotifyUniversalOneTime() method
         $status = 'Starting request.' . ' ';
-        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
-        $defaultUrl = OEGlobalsBag::getInstance()->get('web_root') . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
+        $defaultUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
         $redirectURL = $data['redirect_url'] ?? $defaultUrl;
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);
@@ -317,11 +327,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $recipientPhone = $data['recipient_phone'] ?: $patient['phone'];
         $status = '';
 
-        if (empty($data['alt_content'] ?? '')) {
-            xl("Please follow below link to complete the requested document.");
-        } else {
-            $message = $data['alt_content'];
-        }
+        $message = ($data['alt_content'] ?? '') ?: xl("Please follow below link to complete the requested document.");
 
         if ($patient['hipaa_allowsms'] == 'YES') {
             $clientApp = AppDispatch::getApiService('sms');
@@ -331,11 +337,7 @@ class NotificationEventListener implements EventSubscriberInterface
                 $message,
                 null // will get the "from" phone # from credentials
             );
-            if ($status_api !== true) {
-                $status .= text($status_api);
-            } else {
-                $status .= xlt("Message sent.");
-            }
+            $status .= $status_api === true ? xlt("Message sent.") : text($status_api);
         }
 
         if (!empty($patient['email']) && ($data['include_email'] ?? false) && ($patient['hipaa_allowemail'] == 'YES')) {
@@ -363,7 +365,7 @@ class NotificationEventListener implements EventSubscriberInterface
             $isHtml = (stripos((string) $content, '<html') !== false) || (stripos((string) $content, '<body') !== false);
             $html = !$isHtml ? "<html><body><div class='wrapper'>" . nl2br((string) $content) . "</div></body></html>" : $content;
             $from_name = text($from_name);
-            $from = OEGlobalsBag::getInstance()->get("practice_return_email_path");
+            $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
             $mail->addReplyTo($from, $from_name);
             $mail->setFrom($from, $from);
             $to = $email;

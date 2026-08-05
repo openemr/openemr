@@ -73,7 +73,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 23,
+    'count' => 17,
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
@@ -130,106 +130,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$unique_id on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_caching on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_type on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_force_cache_expire on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$db on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$db on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_debug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../gacl/admin/acl_test2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_items_per_page on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_test2.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../gacl/admin/acl_test3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_items_per_page on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/acl_test3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../gacl/admin/edit_group.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../gacl/admin/edit_object_sections.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_items_per_page on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/edit_object_sections.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../gacl/admin/edit_objects.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_items_per_page on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/edit_objects.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../gacl/admin/group_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_db_table_prefix on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/object_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_max_search_return_items on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/object_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ErrorMessage on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$IsError on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$data on mixed\\.$#',
@@ -300,21 +200,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$result on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$drug on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$start_date on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$code_is_in_fee_sheet on mixed\\.$#',
@@ -495,856 +380,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$keyHandle on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$billedAmount on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$birthDate on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$errorMessage on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$errors on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$memberNumber on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$pFirstName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$pLastName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$patientGender on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerAcceptanceStatusName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerControlNumber on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerFileStatusName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerNumber on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerPaidAmount on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$paymentAdviceStatusName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$providerFirstName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$providerLastName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$providerNpi on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$serviceDate on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$serviceDateEnd on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$statusName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$traceNumber on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/claims.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$billedAmt on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/era.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/era.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$patientResponsibility on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/era.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/era.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerNumber on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/era.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerPaidAmt on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/era.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$receivedDate on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/public/era.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$children on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Bootstrap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$menu_id on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Bootstrap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$originatingSystemId on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityObjectCreator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerResponsibility on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityObjectCreator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payers on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityObjectCreator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$subscriberDob on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityObjectCreator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$subscriberFirstName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityObjectCreator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$subscriberLastName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityObjectCreator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$description on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/PrintProperty.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$followUpActionCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/PrintProperty.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$rejectReasonCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/PrintProperty.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$validRequestIndicator on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/PrintProperty.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$benefitAdditionalInfos on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/additional_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$categoryCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/additional_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$codeListQualifier on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/additional_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$industryCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/additional_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$messageText on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/additional_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$benefitAmount on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$benefitInformation on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$benefitInformationDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$benefitPercent on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$benefitQuantity on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$certificationIndicator on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$coverageLevel on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$inPlanNetworkIndicator on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$insuranceTypeCodeDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$planCoverageDescription on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$quantityQualifierDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$serviceTypeDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$serviceTypes on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$timePeriodQualifierDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/benefit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$dateDescription on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/date_information.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$dates on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/date_information.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$endDate on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/date_information.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$startDate on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/date_information.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$annualAmount on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$coverageLevelCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$coverageLevelDescription on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$deductible on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$deductibleManagementPending on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$deductibleReleaseReason on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$deductibleRemaining on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$deductibles on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$episodeAmount on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$inPlanNetwork on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$insuranceTypeCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$insuranceTypeDescription on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$lifetimeLimit on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$lifetimeLimitRemaining on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$outOfPocket on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$outOfPocketRemaining on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$planName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$remainingAmount on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$serviceTypeCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$serviceTypeDescription on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$spendDownAmount on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/deductibles.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$benefits on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/eligibility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$dependent on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/eligibility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$eligibility on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/eligibility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$informationSourceName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/eligibility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$mapped271 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/eligibility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$receiver on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/eligibility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$subscriber on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/eligibility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$identifiers on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/identifier_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$referenceDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/identifier_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$referenceQualifierDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/identifier_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$referenceValue on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/identifier_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$endDate on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$isMedicarePartAOnly on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$isMedicareReplacementPlan on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$medicarePartADate on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$medicarePartBDate on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$medicareReplacementPayer on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$medicareSupplementalPlanName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$qualifiedMedicareBeneficiary on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$railroadMedicareBeneficiary on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$startDate on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/medicare_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$messages on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$modifier1 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$modifier2 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$modifier3 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$modifier4 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$pointer1 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$pointer2 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$pointer3 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$pointer4 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$procedureCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$procedureInfo on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$serviceIdQualifier on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/procedure_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$endDate on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/quick_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$payerName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/quick_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$startDate on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/quick_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$entityIdentifierCodeQualifier on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$firstName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$identifier on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$lastOrganizationName on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$middleName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$suffix on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$address on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$address1 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$address2 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$city on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$contactMethods on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$contactName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$contactType on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$contactValue on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$contacts on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$entityIdentifierCodeQualifier on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$firstName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$identifier on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$lastOrganizationName on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$middleName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$relatedEntities on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$state on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$suffix on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$taxonomyCode on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$taxonomyProviderCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$zip on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/related_entity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$FrequencyCodeDesc on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$benefitQuantity on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$frequencyCode on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$measurementCodeDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$patternTimeCodeDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$periodCount on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$quantityQualifier on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$quantityQualifierDesc on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$sampleSelectionModulus on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$serviceDeliveries on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$timePeriodDesc on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/service_delivery.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$identifier on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/source.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$lastOrganizationName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/source.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$firstName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$identifier on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$lastOrganizationName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$middleName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$suffix on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/subscriber_patient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$informationSourceName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/validation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$receiver on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/validation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$requestValidations on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/validation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$subscriber on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/validation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$validations on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/templates/validation.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$children on mixed\\.$#',
@@ -2042,18 +1077,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$address on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$attachments on mixed\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$callStatus on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -2062,17 +1087,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$deliveryMode on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$direction on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$eventFilters on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
@@ -2093,7 +1108,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 6,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -2113,7 +1128,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$name on mixed\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -2128,7 +1143,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$phoneNumber on mixed\\.$#',
-    'count' => 6,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -2138,7 +1153,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$records on mixed\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -2152,23 +1167,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$status on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$subject on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$to on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$transportType on mixed\\.$#',
-    'count' => 1,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -2180,111 +1185,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$uri on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$called_number on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$calling_number on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$date on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$dateCreated on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$details_json on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$direction on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$document_id on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$duration on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fax on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$faxes on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$from on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$job_id on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$mediaUrl on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$media_path on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$numPages on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$patient_id on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$sid on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$status on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$to on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$v1 on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$PendingFaxes on mixed\\.$#',
@@ -2427,24 +1327,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$data on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$textContent on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$templateId on SimpleXMLElement\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Controller/DocumentsController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$acl_version on string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$module_id on mixed\\.$#',
@@ -2460,11 +1345,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$modId on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PrescriptionTemplates/src/PrescriptionTemplates/Controller/PrescriptionTemplatesController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$HL7Message on mixed\\.$#',
@@ -2508,11 +1388,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$accountType on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$address_zip on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment_cc.php',
 ];
@@ -2862,36 +1737,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$date_of_birth on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$federal_drug_id on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fname on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 19,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$lname on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$mname on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$id on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
@@ -3037,391 +1882,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/maviq_phone_api.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_filepaths_cache on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assemble_plugin_filepath.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$plugins_dir on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assemble_plugin_filepath.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_smarty_vars on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$request_vars_order on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_dir_perms on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.create_dir_structure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_compile_id on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$debug_tpl on mixed\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$left_delimiter on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$right_delimiter on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$secure_dir on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$security on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_plugins on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$security on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$trusted_dir on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_plugins on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$secure_dir on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$security on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$security_settings on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_plugins on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$trusted_dir on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_plugins on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$security on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$security_settings on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_plugins on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_resource_plugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_inclusion_depth on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_plugins on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_smarty_debug_info on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_smarty_md5 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$debugging on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_cache_including on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_compiled_include.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_cache_info on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_compiled_include.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_cache_info on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$cache_dir on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$cache_handler_func on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$cache_lifetime on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$caching on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$compile_check on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$config_dir on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$force_compile on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$use_sub_dirs on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rm_auto.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_cache_info on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_inclusion_depth on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_plugins on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_smarty_debug_info on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_smarty_md5 on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$caching on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$debugging on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_cache_info on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_cache_serials on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$cache_dir on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$cache_handler_func on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$cache_lifetime on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_cache_serials on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_include.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_version on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_include.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$compile_dir on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_resource.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_file_perms on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_config on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_smarty_debug_info on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_tpl_vars on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_cache_info on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_conf_obj on mixed\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_config on mixed\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_inclusion_depth on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_smarty_debug_info on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$caching on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$compile_check on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$config_booleanize on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$config_class on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$config_dir on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$config_fix_newlines on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$config_overwrite on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$config_read_hidden on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$debugging on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$force_compile on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$_version on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$security on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$request_use_auto_globals on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$close on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
@@ -3432,27 +1892,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ErrorMessage on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$IsError on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$accountNumber on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$accountType on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$address_zip on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
@@ -3515,51 +1960,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$type on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$BootstrapSQL on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Charset on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ConnectionString on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$DBName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Multibyte on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Password on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$TablePrefix on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Type on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$Username on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$ColumnName on mixed\\.$#',
@@ -3667,61 +2067,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ColumnName on array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ColumnName on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$FieldType on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ForeignKeyProperty on array\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ForeignObject on array\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$IsPrimaryKey on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$KeyProperty on array\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$LoadType on array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$PropertyName on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$TableName on array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$TableName on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$FieldType on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
@@ -3755,16 +2100,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$TableName on mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ColumnName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$PropertyName on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$CurrentPage on mixed\\.$#',
@@ -4817,6 +3152,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$bibliographic_citation on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$code on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
@@ -4824,6 +3164,21 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$criteria on mixed\\.$#',
     'count' => 3,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$developer on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$funding_source on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$groupId on OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteria\\|null\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
@@ -4837,13 +3192,83 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$linked_referential_cds on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_dob_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_ethnicity_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_gender_identity_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_health_status_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_language_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_race_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_sex_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_sexual_orientation_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$patient_sodh_usage on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$release on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$rule on mixed\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$ruleTypes on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$title on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$type on mixed\\.$#',
     'count' => 4,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$web_reference on mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
 ];
 $ignoreErrors[] = [
@@ -4893,21 +3318,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$criteriaType on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$guid on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$inclusion on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$optional on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
 ];
@@ -4944,11 +3354,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$guid on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];
 $ignoreErrors[] = [
@@ -5028,7 +3433,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$enums on mixed\\.$#',
-    'count' => 4,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
@@ -5147,11 +3552,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$data on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/CDADocumentService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$length on DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
@@ -5160,16 +3560,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$nodeValue on mixed\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$documentElement on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$textContent on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$code on mixed\\.$#',
@@ -5235,11 +3625,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$populations on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/IndividualResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$observations on false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$authorDatetime on mixed\\.$#',
@@ -6067,6 +4452,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingClaimBatchTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$id on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/FHIR/Export/ExportMemoryStreamWriterTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$box_14_qualifier_options on mixed\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../tests/Tests/Services/Billing/MiscBillingOptionsTest.php',
@@ -6120,11 +4510,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$viewBean on mixed\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/Export/ExportMemoryStreamWriterTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

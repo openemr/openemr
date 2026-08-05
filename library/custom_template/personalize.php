@@ -16,28 +16,33 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $filter_context =  $_REQUEST['filter_context'] ?? '';
 $filter_users = $_REQUEST['filter_users'] ?? '';
 $list_id = $_REQUEST['list_id'] ?: $filter_context;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function Delete_Rows($id): void
 {
-    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$id, $_SESSION['authUserID']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$id, $session->get('authUserID')]);
 }
 
 function Insert_Rows($id, $order = ""): void
 {
-    sqlStatement("REPLACE INTO template_users (tu_template_id,tu_user_id,tu_template_order) VALUES (?,?,?)", [$id, $_SESSION['authUserID'], $order]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    sqlStatement("REPLACE INTO template_users (tu_template_id,tu_user_id,tu_template_order) VALUES (?,?,?)", [$id, $session->get('authUserID'), $order]);
 }
 
 if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     $topersonalized = $_REQUEST['topersonalized'];
     $personalized = $_REQUEST['personalized'];
+    $authUserID = $session->get('authUserID');
     foreach ($topersonalized as $value) {
         $arr = explode("|", (string) $value);
-        $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$arr[0], $_SESSION['authUserID']]);
+        $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$arr[0], $authUserID]);
         if (sqlNumRows($res)) {
             Delete_Rows($arr[0]);
             $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", [$arr[0]]);
@@ -51,7 +56,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
     foreach ($personalized as $value) {
         $arr = explode("|", (string) $value);
         if ($arr[1]) {
-            $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$arr[0], $_SESSION['authUserID']]);
+            $res = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$arr[0], $authUserID]);
             Insert_Rows($arr[0]);
             $qry = sqlStatement("SELECT * FROM customlists WHERE cl_list_id=? AND cl_deleted=0", [$arr[0]]);
             while ($row = sqlFetchArray($qry)) {
@@ -313,7 +318,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         <option value=''><?php echo xlt('Select a User'); ?></option>
                         <?php
                         $user_sql = "SELECT DISTINCT(tu.tu_user_id),u.fname,u.lname FROM template_users AS tu LEFT OUTER JOIN users AS u ON tu.tu_user_id=u.id WHERE tu.tu_user_id!=?";
-                        $user_res = sqlStatement($user_sql, [$_SESSION['authUserID']]);
+                        $user_res = sqlStatement($user_sql, [$session->get('authUserID')]);
                         while ($user_row = sqlFetchArray($user_res)) {
                             echo "<option value='" . attr($user_row['tu_user_id']) . "' ";
                             echo ($filter_users == $user_row['tu_user_id']) ? 'selected' : '';
@@ -353,7 +358,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                     &nbsp;
                 </div>
                 <div class="col-sm-5 text">
-                    <?php $user = sqlQuery("SELECT * FROM users WHERE id=?", [$_SESSION['authUserID']]); ?>
+                    <?php $user = sqlQuery("SELECT * FROM users WHERE id=?", [$session->get('authUserID')]); ?>
                     <?php echo xlt('Categories for') . " " . text($user['fname']) . " " . text($user['lname']); ?>
                 </div>
                 <div class="col-sm-5">
@@ -361,8 +366,8 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         <?php
                         $where = '';
                         $join = '';
-                        $arval = [$_SESSION['authUserID']];
-                        $arval1 = [$filter_users, $_SESSION['authUserID']];
+                        $arval = [$session->get('authUserID')];
+                        $arval1 = [$filter_users, $session->get('authUserID')];
                         if ($filter_context ?? null) {
                             $where .= " AND cl_list_id=?";
                             $arval[] = $filter_context;
@@ -420,7 +425,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                             $sqlbind = [$filter_context];
                         }
                         $sql = "SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_deleted=0 " . $where .  " ORDER BY c.cl_list_item_long";
-                        $resTemplates = sqlStatement($sql, array_merge([$_SESSION['authUserID']], $sqlbind ?? []));
+                        $resTemplates = sqlStatement($sql, array_merge([$session->get('authUserID')], $sqlbind ?? []));
                         while ($rowTemplates = sqlFetchArray($resTemplates)) {
                             $cntxt = '';
                             if (!$filter_context ?? null) {

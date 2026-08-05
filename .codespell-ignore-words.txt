@@ -20,6 +20,7 @@ socio
 # HL7/FHIR/EDI codes and terms
 denex
 denom
+iif
 inforce
 numer
 requestor
@@ -80,6 +81,9 @@ skelton
 # Smarty template modifier names
 spacify
 
+# Software design terminology
+wither
+
 # Third-party library terms
 afterall
 atleast
@@ -109,6 +113,7 @@ cancelled
 # These require separate PRs with proper testing (see SPELLCHECK_BATCHES.md)
 cant
 collapsable
+deriver
 detatch
 durationm
 ect

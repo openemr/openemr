@@ -3,6 +3,11 @@
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$children of method eRxXMLBuilder\\:\\:appendChildren\\(\\) is passed by reference, so it expects variables only\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/eRxPage.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#2 \\$children of method eRxXMLBuilder\\:\\:appendChildren\\(\\) is passed by reference, so it expects variables only\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];

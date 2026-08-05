@@ -633,7 +633,7 @@ class FHIRCoverageEligibilityRequest extends FHIRDomainResource implements \Json
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

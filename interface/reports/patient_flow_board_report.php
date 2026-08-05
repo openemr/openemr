@@ -17,18 +17,18 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/appointments.inc.php";
-require_once("$srcdir/patient_tracker.inc.php");
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php";
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient_tracker.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $patient = $_POST['patient'] ?? null;
@@ -90,7 +90,7 @@ if (empty($form_patient)) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -157,7 +157,7 @@ if (empty($form_patient)) {
 </div>
 
 <form method='post' name='theform' id='theform' action='patient_flow_board_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -438,7 +438,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         }
 
         #if a patient id is entered just get that patient.
-        if (strlen($form_pid) != 0) {
+        if (strlen((string) $form_pid) != 0) {
             if ($appointment['pid'] != $form_pid) {
                 continue;
             }

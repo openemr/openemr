@@ -51,7 +51,7 @@ class CreateClientCredentialsAssertionSymfonyCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $rootPath = OEGlobalsBag::getInstance()->get('fileroot');
+        $rootPath = OEGlobalsBag::getInstance()->getProjectDir();
 
         $keyLocation = $rootPath . DIRECTORY_SEPARATOR . "tests" . DIRECTORY_SEPARATOR . "Tests" . DIRECTORY_SEPARATOR
             . "data" . DIRECTORY_SEPARATOR . "Unit" . DIRECTORY_SEPARATOR . "Common" . DIRECTORY_SEPARATOR . "Auth"

@@ -25,7 +25,7 @@ interface IAuthenticatable
      * Verify if the IAuthenticable object has the requested permission
      * and return either true or false
      *
-     * @param variant $permission
+     * @param mixed $permission
      * @return bool
      */
     public function IsAuthorized($permission);

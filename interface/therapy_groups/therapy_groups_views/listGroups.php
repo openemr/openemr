@@ -16,8 +16,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
+
+/** @var array<int,array<string,mixed>> $groups */
+/** @var array<int,array<string,mixed>> $statuses */
+/** @var array<int,array<string,mixed>> $participations */
+/** @var array<int,array<string,mixed>> $types */
 
 ?>
 <?php $edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');?>
@@ -126,12 +132,12 @@ use OpenEMR\Core\OEGlobalsBag;
             <tbody>
             <?php foreach ($therapyGroups as $group) { ?>
                 <tr>
-                    <td><a href="<?php echo OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($group['group_id']); ?>"><?php echo text($group['group_name']);?></a></td>
+                    <td><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($group['group_id']); ?>"><?php echo text($group['group_name']);?></a></td>
                     <td><?php echo text($group['group_id']);?></td>
                     <td><?php echo xlt($group_types[$group['group_type']]);?></td>
                     <td><?php echo xlt($statuses[$group['group_status']]);?></td>
                     <td><?php echo text(oeFormatShortDate($group['group_start_date']));?></td>
-                    <td><?php echo ($group['group_end_date'] == '0000-00-00' or $group['group_end_date'] == '00-00-0000' or empty($group['group_end_date'])) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
+                    <td><?php echo Utilities::isDateEmpty($group['group_end_date']) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
                     <td>
                         <?php foreach ($group['counselors'] as $counselor) {
                             echo text($counselor) . " <br  /> ";
@@ -142,7 +148,7 @@ use OpenEMR\Core\OEGlobalsBag;
                         <?php
                         //Enable deletion only for groups that weren't yet deleted.
                         if ($group['group_status'] == 10) { ?>
-                            <a href="<?php echo OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr_url($group['group_id']); ?>"><?php
+                            <a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr_url($group['group_id']); ?>"><?php
                             if ($edit) { ?>
                                 <button class="btn btn-danger">&times;</button><?php
                             } ?>
@@ -171,7 +177,7 @@ use OpenEMR\Core\OEGlobalsBag;
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
 
@@ -189,7 +195,7 @@ use OpenEMR\Core\OEGlobalsBag;
                                                           'infoFiltered' => ('(' . xla('filtered from') . ' _MAX_ ' . xla('total records') . ')'),
                                                           'infoPostFix' => (''),
                                                           'url' => ('')]; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
         });
 
         /* Hide/Show filters */
@@ -260,7 +266,7 @@ use OpenEMR\Core\OEGlobalsBag;
     });
 
     /* Bring in the DateToYYYYMMDD_js function */
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/formatting_DateToYYYYMMDD_js.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/formatting_DateToYYYYMMDD_js.js.php'); ?>
 
     /* ========= End Of Data Table & Filters Initialisation ========= */
 

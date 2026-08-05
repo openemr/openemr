@@ -51,7 +51,7 @@ class PatientDAO extends Phreezable
     /** @var string */
     public $Mname;
 
-    /** @var date */
+    /** @var string */
     public $Dob;
 
     /** @var string */
@@ -75,7 +75,7 @@ class PatientDAO extends Phreezable
     /** @var string */
     public $Ss;
 
-    /** @var longtext */
+    /** @var string */
     public $Occupation;
 
     /** @var string */
@@ -99,7 +99,7 @@ class PatientDAO extends Phreezable
     /** @var string */
     public $ContactRelationship;
 
-    /** @var date */
+    /** @var string */
     public $Date;
 
     /** @var string */
@@ -162,7 +162,7 @@ class PatientDAO extends Phreezable
     /** @var string */
     public $HipaaAllowemail;
 
-    /** @var date */
+    /** @var string */
     public $Regdate;
 
     /** @var string */

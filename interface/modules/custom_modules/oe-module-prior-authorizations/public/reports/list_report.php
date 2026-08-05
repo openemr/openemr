@@ -11,6 +11,7 @@
 require_once dirname(__FILE__, 6) . "/globals.php";
 
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
+use OpenEMR\BC\Utilities;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -31,7 +32,7 @@ $patients = $data->listPatientAuths();
         // opens the demographic and encounter screens in a new window
         function openNewTopWindow(newpid) {
             top.restoreSession();
-            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
         }
     </script>
 </head>
@@ -91,7 +92,7 @@ $patients = $data->listPatientAuths();
                     print "<td>" . text($iter['auth_num']) . "</td>";
                     print "<td>" . text($iter['start_date']) . "</td>";
                     print "<td>" . text($iter['end_date']) . "</td>";
-                    if (($iter['end_date'] < date('Y-m-d')) && ($iter['end_date'] !== '0000-00-00') && !empty($iter['auth_num'])) {
+                    if (($iter['end_date'] < date('Y-m-d')) && !Utilities::isDateEmpty($iter['end_date']) && !empty($iter['auth_num'])) {
                         print "<td style='color: red'><strong>" . xlt('Expired') . "</strong></td>";
                         print "<td></td>";
                     } else {

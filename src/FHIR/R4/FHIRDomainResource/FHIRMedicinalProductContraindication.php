@@ -383,7 +383,7 @@ class FHIRMedicinalProductContraindication extends FHIRDomainResource implements
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

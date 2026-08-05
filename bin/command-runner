@@ -15,11 +15,17 @@ require_once $rootPath . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 
 use OpenEMR\Common\Command\Runner\CommandRunner;
+use OpenEMR\Common\Command\RootCliGuard;
 
 if (php_sapi_name() !== 'cli') {
     echo "Only php cli can execute a command\n";
     die();
 }
+
+// Refuse to run as root. Commands dispatched here (CreateAPIDocumentation,
+// etc.) write files the web server reads later; root-owned outputs would
+// brick those flows. See RootCliGuard for details.
+RootCliGuard::assertNotRoot();
 
 $commandRunner = new CommandRunner($rootPath, pathinfo(__FILE__, PATHINFO_FILENAME));
 $commandRunner->run();

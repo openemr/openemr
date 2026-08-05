@@ -15,15 +15,17 @@
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Pharmacy Selector", xl("Pharmacy Selector"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pharmacyService = new PharmacyService();
-$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? false;
-$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? false;
+$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid')) ?? false;
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid')) ?? false;
 
 $primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy['business_name'] . ' - ' . ($prim_pharmacy['address_line_1'] ?? '') .
     ' ' . ($prim_pharmacy['city'] ?? '') . ', ' . ($prim_pharmacy['state'] ?? '')) : '';

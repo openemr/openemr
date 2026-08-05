@@ -16,6 +16,7 @@ require_once(__DIR__ . '/api.inc.php');
 require_once(__DIR__ . '/forms.inc.php');
 require_once(__DIR__ . '/../interface/forms/fee_sheet/codes.php');
 
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -389,7 +390,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
    window.close();
 <?php } else { ?>
    top.restoreSession();
-   location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url') ?>';
+   location='<?php echo FormActionBarSettings::EXIT_URL ?>';
 <?php } ?>
   }
  }
@@ -594,7 +595,7 @@ foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

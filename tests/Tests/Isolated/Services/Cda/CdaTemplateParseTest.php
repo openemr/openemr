@@ -9,7 +9,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,7 +36,7 @@ class CdaTemplateParseTest extends TestCase
 
         $this->codeService = $this->createMock(CodeTypesService::class);
         $this->codeService->method('resolveCode')
-            ->willReturnCallback(fn(?string $code, ?string $codeType, ?string $codeText) => [
+            ->willReturnCallback(fn(?string $code, ?string $codeType, ?string $codeText): array => [
                 'code' => $code ?? '',
                 'formatted_code' => ($code ?? '') . ':' . ($codeType ?? ''),
                 'formatted_code_type' => $codeType ?? '',

@@ -237,7 +237,7 @@ class SmokingStatusType implements IOptionFormType {
                 $showEmpty = false;
                 $empty_title = "Unassigned";
             } else {
-                $empty_title = $frow['empty_title'];
+                $empty_title = is_string($frow['empty_title']) ? $frow['empty_title'] : '';
             }
         } else {
             $empty_title = "Unassigned";

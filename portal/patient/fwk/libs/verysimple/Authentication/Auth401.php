@@ -17,10 +17,8 @@ class Auth401
     /**
      * Send 401 headers to the browser
      *
-     * @param
-     *          string message to output as "Basic realm" text/message (default "Login Required")
-     * @param
-     *          bool true to terminate php after outputting headers (default true)
+     * @param string $realm message to output as "Basic realm" text/message (default "Login Required")
+     * @param bool $terminate true to terminate php after outputting headers (default true)
      */
     static function OutputHeaders($realm = "Login Required", $terminate = true)
     {

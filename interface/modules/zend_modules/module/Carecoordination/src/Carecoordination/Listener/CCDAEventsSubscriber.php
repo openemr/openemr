@@ -35,7 +35,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
 
     public function __construct(private readonly CcdaGenerator $generator)
     {
-        $this->viewCcdaUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
+        $this->viewCcdaUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
     }
 
     public static function getSubscribedEvents()

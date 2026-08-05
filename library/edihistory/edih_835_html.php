@@ -18,33 +18,15 @@
 //require_once("$srcdir/edihistory/codes/edih_271_code_class.php");
 
 /**
- * callback to round floats to 2 digit precision
- *
- * @param float
- * @param string
- * @return float
- */
-function edih_round_cb(&$v, $k)
-{
-    $v = round((int)$v, 2);
-    return $v;
-}
-/**
  * Create summary html string for an x12 835 claim payment
  *
- * @param array
- * @param object
- * @param object
- * @param array
- * @param string
- *
- * @return string
+ * @param array{e: string, s: string, r?: string} $delimiters
  */
-function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $fname = '')
+function edih_835_clp_summary(array $trans_array, edih_271_codes $codes27x, edih_835_codes $codes835, array $delimiters, string $fname = ''): string
 {
     // NM1 CPL
     $str_html = "";
-    if (is_array($trans_array) && count($trans_array)) {
+    if (count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
             $clp_ar = [];
             $clp_ar[] = $trans_array;
@@ -57,8 +39,8 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
         return $str_html;
     }
 
-    $de = $delimiters['e'] ?? "";
-    $ds = $delimiters['s'] ?? "";
+    $de = $delimiters['e'];
+    $ds = $delimiters['s'];
     $dr = $delimiters['r'] ?? "";
     //
     if (!$de || !$ds) {
@@ -68,28 +50,10 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     }
 
     //
-    $fn = ($fname) ? trim((string) $fname) : "";
+    $fn = ($fname) ? trim($fname) : "";
     //
-    // get the code objects right
-    $cd835 = $cd27x = '';
-    if ('edih_835_codes' == $codes835::class) {
-        $cd835 = $codes835;
-    } elseif ('edih_835_codes' == $codes27x::class) {
-        $cd835 = $codes27x;
-    }
-
-    if ('edih_271_codes' == $codes27x::class) {
-        $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == $codes835::class) {
-        $cd27x = $codes835;
-    }
-
-    if (!$cd835 || !$cd27x) {
-        csv_edihist_log('edih_835_payment_html: invalid code class argument');
-        $str_html .= "<p>invalid code class argument</p>" . PHP_EOL;
-        return $str_html;
-    }
-
+    $cd27x = $codes27x;
+    $cd835 = $codes835;
     //
     $tblid = "";
     $capstr = "";
@@ -104,6 +68,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     foreach ($trans_array as $trans) {
         $capstr = "Summary ";
         $loopid = 'NA';
+        $cls = '';
         foreach ($trans as $seg) {
             //
             $test_str = substr((string) $seg, 0, 3);
@@ -292,19 +257,13 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
 /**
  * Create html string for an x12 835 claim payment
  *
- * @param array
- * @param object
- * @param object
- * @param array
- * @param string
- *
- * @return string
+ * @param array{e: string, s: string, r?: string} $delimiters
  */
-function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimiters, $fname = '')
+function edih_835_transaction_html(array $trans_array, edih_271_codes $codes27x, edih_835_codes $codes835, array $delimiters, string $fname = ''): string
 {
     //
     $str_html = "";
-    if (is_array($trans_array) && count($trans_array)) {
+    if (count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
             $clp_ar = [];
             $clp_ar[] = $trans_array;
@@ -317,8 +276,8 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         return $str_html;
     }
 
-    $de = $delimiters['e'] ?? "";
-    $ds = $delimiters['s'] ?? "";
+    $de = $delimiters['e'];
+    $ds = $delimiters['s'];
     $dr = $delimiters['r'] ?? "";
     //
     if (!$de || !$ds) {
@@ -328,28 +287,10 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     }
 
     //
-    $fn = ($fname) ? trim((string) $fname) : "";
+    $fn = ($fname) ? trim($fname) : "";
     //
-    // get the code objects right
-    $cd835 = $cd27x = '';
-    if ('edih_835_codes' == $codes835::class) {
-        $cd835 = $codes835;
-    } elseif ('edih_835_codes' == $codes27x::class) {
-        $cd835 = $codes27x;
-    }
-
-    if ('edih_271_codes' == $codes27x::class) {
-        $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == $codes835::class) {
-        $cd27x = $codes835;
-    }
-
-    if (!$cd835 || !$cd27x) {
-        csv_edihist_log('edih_835_payment_html: invalid code class argument');
-        $str_html .= "<p>invalid code class argument</p>" . PHP_EOL;
-        return $str_html;
-    }
-
+    $cd27x = $codes27x;
+    $cd835 = $codes835;
     //
     $str_html = "";
     //
@@ -363,6 +304,11 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     $svc_html = "";
     $sbr_html = "";
     $moa_html = "";
+    $cls = '';
+    $loopid = '';
+    $cur03 = '';
+    $cur04 = '';
+    $n405 = '';
     //
     foreach ($clp_ar as $trans) {
         $lq_ar = [];
@@ -778,11 +724,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         $str_html .= ($rarc_str) ? "<tr class='svc'><td>&gt;</td><td colspan=3>$rarc_str</td></tr>" . PHP_EOL : "";
         if (count($cas_ar)) {
             foreach ($cas_ar as $key => $cas) {
-                if (!is_array($cas) && !count($cas)) {
-                    continue;
-                }
-
-                if ($key == '2100' && count($cas)) {
+                if ($key == '2100') {
                     $cls = 'remc';
                     $str_html .= "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>Claim Level Adjustments</em></td></tr>" . PHP_EOL;
                 } else {
@@ -795,11 +737,8 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                     //echo '==== cas_ar unwind cas as ky trp '.$ky.PHP_EOL;
                     //var_dump ($trp).PHP_EOL;
                     //
-                    if (!is_array($trp) && !count($trp)) {
-                        continue;
-                    }
-
                     $cg = $cd835->get_835_code('CAS_GROUP', $ky);
+                    $cd = $cr = $ca = $cq = '';
                     foreach ($trp as $tr) {
                         // debug
                         //echo '==== cas_ar unwind trp as tr '.PHP_EOL;
@@ -864,60 +803,24 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
 /**
  * Create an HTML rendition of the 835 check payment transaction.
  *
- *
- * @param array
- * @param object
- * @param object
- * @param array
- * @param string
+ * @param array{e: string, s: string, r?: string} $delimiters
  *
  * @return string     HTML table
  */
-function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fname = '')
+function edih_835_payment_html(array $segments, edih_271_codes $codes27x, edih_835_codes $codes835, array $delimiters, string $fname = ''): string
 {
     //
     $str_html = '';
     $pid = $chk = '';
-    if (is_array($segments) && count($segments)) {
-        $trans_ar = $segments;
-    } else {
-        csv_edihist_log("edih_835_payment_html: invalid segments argument");
-        $str_html .= "<p>invalid segments argument</p>" . PHP_EOL;
-        return $str_html;
-    }
-
-    if (is_array($delimiters) && count($delimiters)) {
-        $de = $delimiters['e'];
-        $ds = $delimiters['s'];
-        $dr = $delimiters['r'];
-    } else {
-        csv_edihist_log("edih_835_payment_html: invalid delimiters argument");
-        $str_html .= "<p>invalid delimiters argument</p>" . PHP_EOL;
-        return $str_html;
-    }
-
+    $trans_ar = $segments;
+    $de = $delimiters['e'];
+    $ds = $delimiters['s'];
+    $dr = $delimiters['r'] ?? '';
     //
-    $fn = ($fname) ? trim((string) $fname) : "";
+    $fn = ($fname) ? trim($fname) : "";
     //
-    // get the code objects right
-    $cd835 = $cd27x = '';
-    if ('edih_835_codes' == $codes835::class) {
-        $cd835 = $codes835;
-    } elseif ('edih_835_codes' == $codes27x::class) {
-        $cd835 = $codes27x;
-    }
-
-    if ('edih_271_codes' == $codes27x::class) {
-        $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == $codes835::class) {
-        $cd27x = $codes835;
-    }
-
-    if (!$cd835 || !$cd27x) {
-        csv_edihist_log('edih_835_payment_html: invalid code class argument');
-        $str_html .= "<p>invalid code class argument</p>" . PHP_EOL;
-        return $str_html;
-    }
+    $cd27x = $codes27x;
+    $cd835 = $codes835;
 
     //
     // collect all strings into this variable
@@ -933,7 +836,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     $clp_html = "";
     $trl_html = "";
     //
-    $acctng = ['pmt' => 0,'fee' => 0,'clmpmt' => 0,'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0,'svcadj' => 0,'plbadj' => 0];
+    $acctng = ['pmt' => 0, 'fee' => 0, 'clmpmt' => 0, 'clmadj' => 0, 'ptrsp' => 0, 'svcptrsp' => 0, 'svcfee' => 0, 'svcpmt' => 0, 'svcadj' => 0, 'plbadj' => 0];
     //
     foreach ($trans_ar as $trans) {
         $clpsegs = [];
@@ -944,6 +847,11 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
         $lxkey = '';
         $capstr = "Remittance ";
         $tblid = "";
+        $loopid = '';
+        $cls = '';
+        $cur03 = '';
+        $cur04 = '';
+        $n405 = '';
         //
         foreach ($trans as $seg) {
             //
@@ -989,7 +897,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 }
 
                 $pmt_html .= ($bpr11) ? "<tr class='" . attr($cls) . "'><td>&gt;</td><td colspan=3><em>Pmt No.</em> " . text($bpr11 . " " . $bpr01) . "</td></tr>" . PHP_EOL : "";
-                $acctng['pmt'] = (isset($sar[2]) && $sar[2]) ? (float)$sar[2] : "";
+                $acctng['pmt'] = (isset($sar[2]) && $sar[2]) ? (float)$sar[2] : 0;
                 //
                 continue;
             }
@@ -1338,6 +1246,10 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 //
                 $plbar = array_slice($sar, 2);
                 $plbar = array_chunk($plbar, 2);
+                $plb_rc = '';
+                $plb_tr = '';
+                $plb_rt = '';
+                $plb_amt = '';
                 // reason code and amount
                 foreach ($plbar as $plb) {
                     foreach ($plb as $k => $p) {
@@ -1374,24 +1286,22 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $loopid = 'trailer';
                 $cls = 'pmt';
                 // include our accounting totals
-                if (is_array($acctng) && count($acctng)) {
-                    array_walk($acctng, edih_round_cb(...));
-                    $bal = ($acctng['fee'] == ($acctng['pmt'] + $acctng['clmadj'] + $acctng['svcadj'] + $acctng['svcptrsp'] + $acctng['plbadj']) ) ? "Balanced" : "Not Balanced";
-                    $acct_str = text($bal) . ": <em>Fee</em> " . text($acctng['fee']) . " <em>Pmt</em> " . text($acctng['pmt']) . " ";
-                    $acct_str .= "<em>ClpAdj</em> " . text($acctng['clmadj']) . " <em>SvcAdj</em> " . text($acctng['svcadj']) . " ";
-                    $acct_str .= "<em>PtRsp</em> " . text($acctng['ptrsp']) . " (<em>svcPtRsp</em> " . text($acctng['svcptrsp']) . ") <em>PlbAdj</em> " . text($acctng['plbadj']) . " ";
-                    //
-                    $pmt_html .= "<tr class='" . attr($cls) . "'><td colspan=4>$acct_str</td></tr>" . PHP_EOL;
-                }
+                // round floats to 2 digit precision
+                $acctng = array_map(static fn($v): float => round((float)$v, 2), $acctng);
+                $bal = \OpenEMR\Billing\EdiHistory\RemitAccounting::isBalanced($acctng) ? "Balanced" : "Not Balanced";
+                // accounting totals are rounded floats; numeric, so no escaping needed
+                $acct_str = text($bal) . ": <em>Fee</em> " . $acctng['fee'] . " <em>Pmt</em> " . $acctng['pmt'] . " ";
+                $acct_str .= "<em>ClpAdj</em> " . $acctng['clmadj'] . " <em>SvcAdj</em> " . $acctng['svcadj'] . " ";
+                $acct_str .= "<em>PtRsp</em> " . $acctng['ptrsp'] . " (<em>svcPtRsp</em> " . $acctng['svcptrsp'] . ") <em>PlbAdj</em> " . $acctng['plbadj'] . " ";
+                //
+                $pmt_html .= "<tr class='" . attr($cls) . "'><td colspan=4>$acct_str</td></tr>" . PHP_EOL;
 
                 //
                 // create the html page
                 $str_html .= "<table id=" . attr($tblid) . " class='h835' columns=4><caption>" . text($capstr) . "</caption>" . PHP_EOL;
                 $str_html .= $hdr_html;
-                if ($pmt_html) {
-                    $str_html .= $pmt_html;
-                    $pmt_html = "";
-                }
+                $str_html .= $pmt_html;
+                $pmt_html = "";
 
                 if ($src_html) {
                     $str_html .= $src_html;
@@ -1484,6 +1394,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $loopid = '2110';
                 $sar = explode($de, (string) $seg);
                 $pmtm = $pmts = 1;
+                $svcfee = 0;
+                $svcpmt = 0;
                 foreach ($sar as $k => $v) {
                     if ($k == 2) {
                         $svcfee = ($v) ? (float)$v : 0;
@@ -1558,8 +1470,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
  * @uses csv_check_x12_obj()
  *
  * @param string  $filename the filename
- * @param string  TRN02 identifier from 835 check ir EFT
- * @param string  CLM01 identifier from 837 CLM
+ * @param string $trace TRN02 identifier from 835 check ir EFT
+ * @param string $clm01 CLM01 identifier from 837 CLM
  *
  * @return string  error message or a table with file information
  */
@@ -1570,7 +1482,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
     //
     if (trim($filename)) {
         $obj835 = csv_check_x12_obj($filename, 'f835');
-        if ($obj835 && 'edih_x12_file' == $obj835::class) {
+        if ($obj835 !== false) {
             $fn = $obj835->edih_filename();
             $delims = $obj835->edih_delimiters();
             $env_ar = $obj835->edih_x12_envelopes();

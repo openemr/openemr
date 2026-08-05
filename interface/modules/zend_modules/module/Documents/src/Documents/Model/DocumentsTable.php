@@ -41,7 +41,7 @@ class DocumentsTable
     /**
      * getCategories - Get Document Categories
      *
-     * @param Integer $categoryParentId
+     * @param int $categoryParentId
      * @return array<int, array{category_id: mixed, category_name: mixed}>
      */
     public function getCategories($categoryParentId)
@@ -62,7 +62,7 @@ class DocumentsTable
     /**
      * getDocument - get Document Data by Id
      *
-     * @param Integer $documentId Document Id
+     * @param int $documentId Document Id
      * @return array<string, mixed>|false
      */
     public function getDocument($documentId)

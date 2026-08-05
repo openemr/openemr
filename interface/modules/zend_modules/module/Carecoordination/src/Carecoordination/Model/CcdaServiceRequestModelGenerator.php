@@ -126,7 +126,7 @@ class CcdaServiceRequestModelGenerator
         $components_list = explode('|', (string) $components);
         $this->createdtime = time();
         $this->data .= "<CCDA>";
-        $this->data .= "<serverRoot>" . OEGlobalsBag::getInstance()->get('webroot') . "</serverRoot>";
+        $this->data .= "<serverRoot>" . OEGlobalsBag::getInstance()->getWebRoot() . "</serverRoot>";
         $this->data .= "<document_location>" . OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "</document_location>";
         $this->data .= "<username></username>";
         $this->data .= "<password></password>";

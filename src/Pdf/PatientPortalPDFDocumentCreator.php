@@ -19,6 +19,7 @@ namespace OpenEMR\Pdf;
 
 use HTMLPurifier_Config;
 use Mpdf\Mpdf;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Pdf\Config_Mpdf;
 
 class PatientPortalPDFDocumentCreator
@@ -27,7 +28,8 @@ class PatientPortalPDFDocumentCreator
     {
         $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf = new Mpdf($config_mpdf);
-        if ($_SESSION['language_direction'] == 'rtl') {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($session->get('language_direction') === 'rtl') {
             $pdf->SetDirectionality('rtl');
         }
 

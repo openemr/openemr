@@ -772,7 +772,7 @@ CREATE TABLE `medex_recalls` (
   `r_facility` int(11) NOT NULL,
   `r_provider` int(11) NOT NULL,
   `r_reason` varchar(255) DEFAULT NULL,
-  `r_created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `r_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`r_ID`),
   UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`)
 ) ENGINE=InnoDB;

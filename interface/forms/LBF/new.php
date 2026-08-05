@@ -26,9 +26,11 @@ use OpenEMR\Core\OEGlobalsBag;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once __DIR__ . "/../../../vendor/autoload.php";
 $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 if ($patientPortalSession) {
+    $session = SessionWrapperFactory::getInstance()->getPortalSession();
     $ignoreAuth_onsite_portal = true;
+} else {
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
 }
 
 require_once "../../globals.php";
@@ -36,7 +38,7 @@ require_once "$srcdir/api.inc.php";
 require_once "$srcdir/forms.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/patient.inc.php";
-require_once OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php';
+require_once OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";
 
 /**
@@ -113,7 +115,6 @@ $from_issue_form = !empty($_REQUEST['from_issue_form']);
 
 $formname = $_GET['formname'] ?? '';
 $formid = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$portalid = isset($_GET['portalid']) ? (int)$_GET['portalid'] : 0;
 // know LBF origin
 $form_origin = isset($_GET['formOrigin']) ? (int)$_GET['formOrigin'] : null;
 $is_portal_module = $form_origin === 2;
@@ -132,7 +133,7 @@ if ($patientPortalSession && !empty($formid)) {
     $pidForm = sqlQuery("SELECT `pid` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, $formname])['pid'];
     if (empty($pidForm) || ($pidForm != $session->get('pid'))) {
         echo xlt("illegal Action");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         exit;
     }
 }
@@ -364,14 +365,6 @@ if (
         }
     }
 
-    if ($portalid) {
-        // Delete the request from the portal.
-        $result = cms_portal_call(['action' => 'delpost', 'postid' => $portalid]);
-        if ($result['errmsg']) {
-            die(text($result['errmsg']));
-        }
-    }
-
     if (isset($fs)) {
         $bill = is_array($_POST['form_fs_bill']) ? $_POST['form_fs_bill'] : null;
         $prod = is_array($_POST['form_fs_prod']) ? $_POST['form_fs_prod'] : null;
@@ -447,7 +440,7 @@ if (
 
     </style>
 
-    <?php require_once OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php"; ?>
+    <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.js.php"; ?>
 
     <!-- LiterallyCanvas support -->
     <?php echo lbf_canvas_head(); ?>
@@ -479,7 +472,7 @@ if (
 
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'; ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -519,7 +512,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -528,7 +521,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -537,7 +530,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -546,7 +539,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -555,7 +548,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -564,7 +557,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -596,11 +589,11 @@ if (
                     const params = new URLSearchParams({
                         code: code,
                         codetype: codetype,
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                         pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
                         selector: selector
                     });
-                    $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+                    $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
                 }
                 return '';
             }
@@ -740,7 +733,7 @@ if (
                 "<td class='text border-top-0'>" + desc + "&nbsp;</td>" +
                 "<td class='text border-top-0'>" +
                 "<select class='form-control' name='form_fs_bill[" + lino + "][provid]'>" +
-                "<?php echo addslashes((string) $fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?>" +
+                <?php echo js_escape((string) $fs->genProviderOptionList('-- ' . xl('Default') . ' --')) ?> +
                 "</select>&nbsp;" +
                 "</td>" +
                 "<td class='text border-top-0 text-right'>" + price + "&nbsp;</td>" +
@@ -817,10 +810,10 @@ if (
             const params = new URLSearchParams({
                 code: a[1],
                 codetype: a[0],
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                 pricelevel: f.form_fs_pricelevel.value
             });
-            $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+            $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -845,11 +838,11 @@ if (
             const params = new URLSearchParams({
                 code: a[1],
                 codetype: a[0],
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                 pricelevel: f.form_fs_pricelevel.value,
                 selector: a[2]
             });
-            $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+            $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -874,10 +867,10 @@ if (
             const params = new URLSearchParams({
                 code: a[1],
                 codetype: a[0],
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                 pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
             });
-            $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+            $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to selecting a package of codes.
@@ -886,11 +879,11 @@ if (
             // The option value is an encoded string of code types and codes.
             if (sel.value) {
                 const params = new URLSearchParams({
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                     list: sel.value,
                     pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
                 });
-                $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
+                $.getScript('<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/ajax/code_attributes_ajax.php?' + params);
             }
             sel.selectedIndex = 0;
         }
@@ -935,7 +928,7 @@ if (
         // small devices. In particular we prefer horizontal arrangement of multiple
         // items in the same row and column.
         echo "<form method='post' class='form-inline' " .
-            "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&portalid=" . attr_url($portalid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
+            "action='$rootdir/forms/LBF/new.php?formname=" . attr_url($formname) . "&id=" . attr_url($formid) . "&formOrigin=" . attr_url($form_origin) . "&isPortal=" . attr_url($patient_portal) . "' " .
             "onsubmit='return validate(this)'>\n";
         ?>
         <!-- row width will size to col content width -->
@@ -943,9 +936,6 @@ if (
         <div class="row w-100 overflow-auto">
             <div class="col-12">
                 <?php
-                $cmsportal_login = '';
-                $portalres = false;
-
                 if (!$from_trend_form) {
                     $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, p.cmsportal_login, " .
                         "fe.date FROM " .
@@ -1008,7 +998,7 @@ if (
                             ?>
                         </div>
                     </div>
-                    <?php $cmsportal_login = $enrow['cmsportal_login'] ?? '';
+                    <?php
                 } // end not from trend form
                 ?>
 
@@ -1078,14 +1068,7 @@ if (
                             $currvalue = $shrow[$field_id];
                         }
                     } else {
-                        if (!$formid && $portalres) {
-                            // Copying CMS Portal form data into this field if appropriate.
-                            $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
-                        }
-
-                        if ($currvalue === '') {
-                            $currvalue = lbf_current_value($frow, $formid, (!empty($is_lbf)) ? 0 : $encounter);
-                        }
+                        $currvalue = lbf_current_value($frow, $formid, (!empty($is_lbf)) ? 0 : $encounter);
 
                         if ($currvalue === false) {
                             continue; // column does not exist, should not happen
@@ -1885,12 +1868,12 @@ if (
 
                 <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>' />
                 <?php if (!$is_core) {
-                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()) . '" />';
+                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken($session) . '" />';
                     echo "\n<input type='hidden' name='bn_save_continue' value='set' />\n";
                 } ?>
 
                 <!-- include support for the list-add selectbox feature -->
-                <?php require OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"; ?>
+                <?php require OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"; ?>
 
                 <script>
                     // Array of action conditions for the checkSkipConditions() function.

@@ -11,11 +11,22 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$web_root = OEGlobalsBag::getInstance()->getWebRoot();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 formHeader("Form: Track anything");
 

@@ -12,31 +12,87 @@
     let translations = {};
     let webroot = null;
 
-    function vitalsFormSubmitted() {
-        var invalid = "";
+    function validateVitalField(element) {
+        let value = element.value.trim();
+        let warningSpan = document.getElementById(element.id + '_warning');
 
-        var elementsToValidate = ['weight_input_usa', 'weight_input_metric', 'height_input_usa', 'height_input_metric', 'bps_input', 'bpd_input'];
-
-        for (var i = 0; i < elementsToValidate.length; i++) {
-            var current_elem_id = elementsToValidate[i];
-            var tag_name = vitalsTranslations[current_elem_id] || "<unknown_tag_name>";
-
-            document.getElementById(current_elem_id).classList.remove('error');
-
-            if (isNaN(document.getElementById(current_elem_id).value)) {
-                invalid += vitalsTranslations['invalidField'] + ":" + vitalsTranslations[current_elem_id] + "\n";
-                document.getElementById(current_elem_id).className = document.getElementById(current_elem_id).className + " error";
-                document.getElementById(current_elem_id).focus();
-            }
-
-            if (invalid.length > 0) {
-                invalid += "\n" + vitalsTranslations['validateFailed'];
-                alert(invalid);
-                return false;
-            } else {
-                return top.restoreSession();
-            }
+        element.classList.remove('error', 'warning');
+        if (warningSpan) {
+            warningSpan.textContent = '';
         }
+
+        if (value === '') {
+            return { valid: true, warning: false };
+        }
+
+        // Special case: weight USA input allows # separator (lbs/oz format e.g. "5#4")
+        if (element.id === 'weight_input_usa' && value.indexOf('#') >= 0) {
+            let parts = value.split('#');
+            let pounds = parseFloat(parts[0]) || 0;
+            let ounces = parseFloat(parts[1]) || 0;
+            value = String(pounds + ounces / 16);
+        }
+
+        let numValue = parseFloat(value);
+
+        if (isNaN(numValue)) {
+            element.classList.add('error');
+            return { valid: false, warning: false };
+        }
+
+        if (numValue < 0) {
+            element.classList.add('error');
+            if (warningSpan) {
+                warningSpan.textContent = vitalsTranslations['invalidNegative'] || '';
+            }
+            return { valid: false, warning: false };
+        }
+
+        let min = parseFloat(element.dataset.min);
+        let max = parseFloat(element.dataset.max);
+        if (!isNaN(min) && !isNaN(max) && (numValue < min || numValue > max)) {
+            element.classList.add('error');
+            if (warningSpan) {
+                warningSpan.textContent = vitalsTranslations['invalidRange'] || '';
+            }
+            return { valid: false, warning: false };
+        }
+
+        let warningMin = parseFloat(element.dataset.warningMin);
+        let warningMax = parseFloat(element.dataset.warningMax);
+        if (!isNaN(warningMin) && !isNaN(warningMax) && (numValue < warningMin || numValue > warningMax)) {
+            element.classList.add('warning');
+            if (warningSpan) {
+                warningSpan.textContent = vitalsTranslations['outsideRange'] || '';
+            }
+            return { valid: true, warning: true };
+        }
+
+        return { valid: true, warning: false };
+    }
+
+    function vitalsFormSubmitted() {
+        let vitalsForm = document.getElementById('vitalsForm');
+        if (!vitalsForm) {
+            return false;
+        }
+
+        let inputs = vitalsForm.querySelectorAll('input[data-min]');
+        let hasErrors = false;
+
+        inputs.forEach(function(input) {
+            let result = validateVitalField(input);
+            if (!result.valid) {
+                hasErrors = true;
+            }
+        });
+
+        if (hasErrors) {
+            alert(vitalsTranslations['validateFailed']);
+            return false;
+        }
+
+        return top.restoreSession();
     }
 
     function convInputElement(evt) {
@@ -117,6 +173,25 @@
         let vitalsConvInputs = vitalsForm.querySelectorAll(".vitals-conv-unit");
         vitalsConvInputs.forEach(function(node) {
             node.addEventListener('change', convInputElement);
+            node.addEventListener('change', function(evt) {
+                validateVitalField(evt.currentTarget);
+                // Also validate the counterpart conversion field
+                let targetConvId = evt.currentTarget.dataset.targetInputConv;
+                if (targetConvId) {
+                    let counterpart = document.getElementById(targetConvId);
+                    if (counterpart && counterpart.dataset.min) {
+                        validateVitalField(counterpart);
+                    }
+                }
+            });
+        });
+
+        // Real-time validation for non-conversion inputs
+        let vitalsValidatedInputs = vitalsForm.querySelectorAll('input[data-min]:not(.vitals-conv-unit)');
+        vitalsValidatedInputs.forEach(function(node) {
+            node.addEventListener('change', function(evt) {
+                validateVitalField(evt.currentTarget);
+            });
         });
     }
     function init(webRootParam, vitalsTranslations) {

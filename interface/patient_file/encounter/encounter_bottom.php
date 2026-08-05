@@ -11,7 +11,7 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/encounter.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/encounter.inc.php");
 ?>
 <html>
 <head>

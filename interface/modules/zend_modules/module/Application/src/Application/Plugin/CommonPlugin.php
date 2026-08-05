@@ -125,6 +125,7 @@ class CommonPlugin extends AbstractPlugin
         $this->listenerObject = new Listener();
         $res = QueryUtils::fetchRecords("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", [$list_id]);
         $i = 0;
+        $rows = [];
         if ($opt == 'search') {
             $rows[$i] = [
                 'value' => 'all',
@@ -142,7 +143,7 @@ class CommonPlugin extends AbstractPlugin
         }
 
         foreach ($res as $row) {
-            $sel = ($row['option_id'] == $selected) ? true : false;
+            $sel = $row['option_id'] == $selected;
             $rows[$i] = [
                 'value' => htmlspecialchars((string) $row['option_id'], ENT_QUOTES),
                 'label' => $this->listenerObject->z_xlt($row['title']),

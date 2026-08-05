@@ -21,6 +21,8 @@
  * @link    https://www.open-emr.org
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 if ($_POST['ccrAction'] == 'generate') {
     if (isset($_POST['show_date'])) {
         $set = "on";
@@ -492,7 +494,8 @@ function getActorData()
     $sql2 = "
 	SELECT * FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
 
-    $result[1] = sqlStatement($sql2, [$_SESSION['authUserID']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $result[1] = sqlStatement($sql2, [$session->get('authUserID')]);
 
     $sql3 = "
   SELECT

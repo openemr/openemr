@@ -17,6 +17,7 @@
 // below brings in autoloader
 require_once "../vendor/autoload.php";
 
+use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\ApiApplication;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 // create the Request object
 try {
     $request = HttpRestRequest::createFromGlobals();
+    FallbackRouter::handleRoutingTestIfRequested($request->getRequestUri(), 'apis');
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);
 } catch (\Throwable $e) {

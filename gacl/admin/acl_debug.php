@@ -13,6 +13,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once('gacl_admin.inc.php');
 
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
+
 $getAction = $_GET['action'] ?? null;
 switch ($getAction) {
     case 'Submit':
@@ -42,7 +46,7 @@ switch ($getAction) {
 											ax.section_value as axo_section_value,
 											ax.value as axo_value',
                                             $result['query']);
-        $rs = $gacl_api->db->Execute($result['query']);
+        $rs = $db->Execute($result['query']);
 
         if (is_object($rs)) {
             while ($row = $rs->FetchRow()) {

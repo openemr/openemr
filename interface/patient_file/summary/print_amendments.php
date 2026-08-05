@@ -13,7 +13,9 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -97,7 +99,7 @@ function printAmendment($amendmentID, $lastAmendment): void
 
     <?php
     for ($i = 0; $i < count($amendmentsList); $i++) {
-        $lastAmendment = ( $i == count($amendmentsList) - 1 ) ? true : false;
+        $lastAmendment = $i == count($amendmentsList) - 1;
         printAmendment($amendmentsList[$i], $lastAmendment);
     }
     ?>

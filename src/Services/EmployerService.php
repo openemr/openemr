@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
@@ -121,8 +122,9 @@ class EmployerService extends BaseService
             $new['industry'] = empty($patientData['industry']) ? '' : $patientData['industry'];
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $new['pid'] = $pid;
-        $createdBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the createdBy
+        $createdBy = $session->get('authUserID'); // we don't let anyone else but the current user be the createdBy
         $new['created_by'] = $createdBy;
 
         if (!$create) {

@@ -12,6 +12,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+
 require_once("$srcdir/../custom/code_types.inc.php");
 
 use OpenEMR\Forms\FeeSheet\Review\CodeInfo;

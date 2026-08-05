@@ -12,16 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Models/TeleHealthUser.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type bool\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/ClickatellSMSClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type bool\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type int\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/AuthorizationService.php',
@@ -52,6 +42,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/reports/AMC_315g_7/Numerator.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type array\\|bool\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type void is incompatible with native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/Error.php',
@@ -65,11 +60,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type string\\|null is incompatible with native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/UserInterface/BaseActionButtonHelper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Events\\\\UserInterface\\\\UserEditRenderEvent is not subtype of native type OpenEMR\\\\Events\\\\UserInterface\\\\PageHeadingRenderEvent\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/UserInterface/PageHeadingRenderEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array\\|null is not subtype of native type array\\.$#',
@@ -90,6 +80,11 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type array\\|bool\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Validators\\\\ProcessingResult is incompatible with native type never\\.$#',
@@ -140,11 +135,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type string\\|null is not subtype of native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type string is incompatible with native type OpenEMR\\\\Services\\\\Search\\\\SearchQueryFragment\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/FhirSearchWhereClauseBuilder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type void\\.$#',

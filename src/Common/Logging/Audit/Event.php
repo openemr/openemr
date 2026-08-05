@@ -32,7 +32,6 @@ readonly class Event
      * @param ?ApiData $api
      */
     public function __construct(
-        public bool $isEncrypted,
         public string $current_datetime,
         public string $event,
         public ?string $category,
@@ -42,7 +41,6 @@ readonly class Event
         public string $user_notes,
         public ?int $patientId,
         public int $success,
-        public string $SSL_CLIENT_S_DN_CN,
         public string $logFrom,
         public ?int $menuItemId,
         public ?int $ccdaDocId,

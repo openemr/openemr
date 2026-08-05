@@ -13,7 +13,7 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -26,7 +26,7 @@ use OpenEMR\Core\OEGlobalsBag;
 function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): void
 {
     global $CPR;
-    require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
     $grparr = [];
     getLayoutProperties($formname, $grparr, '*');

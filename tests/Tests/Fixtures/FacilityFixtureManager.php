@@ -39,7 +39,7 @@ class FacilityFixtureManager extends BaseFixtureManager
     }
 
     /**
-     * @return single/random fhir facility fixture
+     * @return array<string, mixed> a single random fhir facility fixture
      */
     public function getSingleFhirFacilityFixture()
     {
@@ -67,16 +67,6 @@ class FacilityFixtureManager extends BaseFixtureManager
      * Installs Facility Fixtures into the OpenEMR DB.
      */
     public function installFacilityFixtures()
-    {
-        return $this->installFixtures();
-    }
-
-    /**
-     * Installs a single Facility Fixtures into the OpenEMR DB.
-     * @param $facilityFixture - The fixture to install.
-     * @return count of records inserted.
-     */
-    public function installSingleFacilityFixture($facilityFixture)
     {
         return $this->installFixtures();
     }

@@ -9,7 +9,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',
@@ -18,7 +18,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',
-    'count' => 10,
+    'count' => 8,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
@@ -44,22 +44,12 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Ternary operator condition is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Ternary operator condition is always true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',
@@ -70,6 +60,11 @@ $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/templates/telecom_form.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Ternary operator condition is always true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/account/account.lib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',

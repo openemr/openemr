@@ -60,7 +60,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-provenance';
 
     /**
-     * @var
+     * @var mixed
      */
     private $accessTokenScopes;
 

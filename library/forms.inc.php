@@ -2,10 +2,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
-
-OEGlobalsBag::getInstance()->set('form_exit_url', "javascript:parent.closeTab(window.name, false)");
 
 /**
  * @deprecated Use FormService::getFormByEncounter() instead
@@ -137,7 +134,7 @@ function getFormNameByFormdir($formdir)
 
 function getDocumentsByEncounter($patientID = null, $encounterID = null)
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $allDocuments = null;
     $currentEncounter = $encounterID ?: $session->get('encounter');
     $currentPatient = $patientID ?: $session->get('pid');

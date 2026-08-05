@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDosage;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRTiming;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
@@ -125,7 +126,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
      * Parses an OpenEMR prescription record, returning the equivalent FHIR Patient Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRMedicationRequest|string
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRMedicationRequest|string
@@ -211,18 +212,27 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         return $this->getPrescriptionService()->getAll($openEMRSearchParameters);
     }
 
-    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string
+    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRMedicationRequest)) {
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
+        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
+        if ($fhirProvenance === null) {
+            // Provenance can legitimately be unavailable (e.g. no resolvable organization/author
+            // reference); FhirServiceBase::getAll() treats a falsy return as "no provenance
+            // available" and continues (see issue #13054).
+            return false;
         }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
     }
 
     /**
@@ -363,7 +373,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $dateExtension->setUrl("dateAsserted");
         $dateAsserted = $dataRecord['medication_adherence_date_asserted'];
         // empty date
-        if ('0000-00-00 00:00:00' !== $dateAsserted) {
+        if (!Utilities::isDateEmpty($dateAsserted)) {
             $formattedDate = UtilsService::getLocalDateAsUTC($dataRecord['medication_adherence_date_asserted']);
             $dateExtension->setValueDateTime($formattedDate);
             $extension->addExtension($dateExtension);
@@ -469,10 +479,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     public function populateCategory(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
         if (isset($dataRecord['category'])) {
+            $categoryTitle = is_string($dataRecord['category_title'] ?? null) ? $dataRecord['category_title'] : '';
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
                     $dataRecord['category'] =>
-                        ['code' => $dataRecord['category'], 'description' => xlt($dataRecord['category_title'])
+                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                        ['code' => $dataRecord['category'], 'description' => xl($categoryTitle)
                             ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
                 ]
             ));

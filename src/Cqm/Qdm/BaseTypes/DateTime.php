@@ -14,7 +14,7 @@ use OpenEMR\Services\Qrda\Util\DateHelper;
 
 class DateTime extends AbstractType implements \JsonSerializable
 {
-    public $date;
+    public ?string $date = null;
 
     public function jsonSerialize(): mixed
     {

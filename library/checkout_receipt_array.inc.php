@@ -29,6 +29,7 @@
 
 // Get a list item's title, translated if appropriate.
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 function getAdjustTitle($option)
@@ -194,12 +195,14 @@ function generateReceiptArray($patient_id, $encounter = 0, $billtime = '')
 
     $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code');
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     // Get text for the logged-in user's name (first middle last).
-    $username = "UID: " . $_SESSION["authUserID"];
+    $username = "UID: " . $authUserID;
     $userrow = sqlQuery(
         "SELECT id, username, fname, mname, lname FROM users " .
         "WHERE id = ?",
-        [$_SESSION["authUserID"]]
+        [$authUserID]
     );
     if ($userrow['id']) {
         if (!empty($userrow['fname'])) {

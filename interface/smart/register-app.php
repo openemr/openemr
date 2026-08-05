@@ -115,8 +115,6 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     ,"token_endpoint_auth_method": "client_secret_post"
                     ,"contacts": []
                     ,"scope": []
-                    ,"jwks_uri": ""
-                    ,"jwks": ""
                     ,"dsi_type": dsiTypes.DSI_TYPE_NONE
                     ,"dsi_source_attributes": []
                 };
@@ -127,14 +125,19 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                 appRegister.post_logout_redirect_uris.push(document.querySelector("#logoutURI").value);
                 appRegister.initiate_login_uri = document.querySelector("#launchUri").value;
                 appRegister.contacts.push(document.querySelector("#contactEmail").value);
-                appRegister.jwks_uri = document.querySelector("#jwksUri").value;
-                appRegister.jwks = document.querySelector("#jwks").value;
                 appRegister.application_type = document.querySelector("input[name='appType']:checked").value || "private";
                 appRegister.dsi_type = document.querySelector("input[name='dsiType']:checked").value || "";
 
-                if (appRegister.jwks.trim() != "") {
+                const jwksUri = document.querySelector("#jwksUri").value.trim();
+                const jwksText = document.querySelector("#jwks").value.trim();
+
+                if (jwksUri !== "") {
+                    appRegister.jwks_uri = jwksUri;
+                }
+
+                if (jwksText !== "") {
                     try {
-                        appRegister.jwks = JSON.parse(appRegister.jwks);
+                        appRegister.jwks = JSON.parse(jwksText);
                     }
                     catch (error) {
                         console.error(error);
@@ -371,7 +374,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
             <?php if ($extraLogo) { ?>
                 <div class="text-center">
                     <span class="d-inline-block w-40">
-                        <?php echo file_get_contents(OEGlobalsBag::getInstance()->get('images_static_absolute') . "/login-logo.svg"); ?>
+                        <?php echo file_get_contents(OEGlobalsBag::getInstance()->getKernel()->getImagesAbsolute() . "/login-logo.svg"); ?>
                     </span>
                     <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
                     <span class="d-inline-block w-40">
@@ -380,7 +383,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                 </div>
             <?php } else { ?>
                 <div class="mx-auto m-4 w-75">
-                    <?php echo file_get_contents(OEGlobalsBag::getInstance()->get('images_static_absolute') . "/login-logo.svg"); ?>
+                    <?php echo file_get_contents(OEGlobalsBag::getInstance()->getKernel()->getImagesAbsolute() . "/login-logo.svg"); ?>
                 </div>
             <?php } ?>
             <?php if (OEGlobalsBag::getInstance()->getBoolean('show_label_login')) { ?>
@@ -489,7 +492,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                 </div>
                 <div class="row" id="systemSetup">
                     <div class="col">
-                        <h3 class="text-center"><?php echo xlt("The following items are required for System Scopes"); ?></h3>
+                        <h3 class="text-center"><?php echo xlt("A JSON Web Key Set URI or inline JSON Web Key Set is required for System Scopes"); ?></h3>
                         <hr />
                         <div class="form-group">
                             <label for="jwksUri" class="text-right"><?php echo xlt('JSON Web Key Set URI'); ?>:</label>

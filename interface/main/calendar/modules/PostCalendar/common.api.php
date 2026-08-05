@@ -29,6 +29,8 @@
 //=================================================================
 //  define constants used to make the code more readable
 //=================================================================
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 define('_IS_SUNDAY', 0);
 define('_IS_MONDAY', 1);
 define('_IS_SATURDAY', 6);
@@ -133,16 +135,15 @@ define('_SETTING_NOTIFY_EMAIL', pnModGetVar(__POSTCALENDAR__, 'pcNotifyEmail'));
 //  Require and Setup utility classes and functions
 //=========================================================================
 define('DATE_CALC_BEGIN_WEEKDAY', _SETTING_FIRST_DAY_WEEK);
+$pcDir = pnVarPrepForOS(pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__))['directory']);
 require_once("modules/$pcDir/pnincludes/Date/Calc.php");
 //=========================================================================
 //  grab the global language file
 //=========================================================================
 require_once("modules/$pcDir/pnlang/eng/global.php");
 
-//=========================================================================
-//  Setup Smarty defines
-//=========================================================================
-require_once("modules/$pcDir/pcSmarty.class.php");
+// (legacy `require_once("modules/$pcDir/pcSmarty.class.php")` removed —
+//  the Twig conversion deleted pcSmarty along with library/smarty_legacy/.)
 //=========================================================================
 //  utility functions for postcalendar
 //=========================================================================
@@ -192,7 +193,9 @@ function postcalendar_getDate($format = 'Ymd')
             $jumpmonth = substr((string) $jumpdate, 5, 2);
             $jumpday   = substr((string) $jumpdate, 8, 2);
         } else {
-            $time = !empty($_SESSION['lastcaldate']) ? strtotime((string) $_SESSION['lastcaldate']) : time();
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $lastcaldate = $session->get('lastcaldate');
+            $time = !empty($lastcaldate) ? strtotime((string) $lastcaldate) : time();
 
             if (!isset($jumpday)) {
                 $jumpday   = date('d', $time);
@@ -409,7 +412,7 @@ function postcalendar_userapi_buildMonthSelect($args)
 
     for ($c = 0,$i = 1; $i <= 12; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false;
+            $sel = $selected == $i;
         } elseif ($i == $pc_month) {
             $sel = true;
         } else {
@@ -443,7 +446,7 @@ function postcalendar_userapi_buildDaySelect($args)
 
     for ($c = 0,$i = 1; $i <= 31; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false;
+            $sel = $selected == $i;
         } elseif ($i == $pc_day) {
             $sel = true;
         } else {
@@ -481,7 +484,7 @@ function postcalendar_userapi_buildYearSelect($args)
 
     for ($c = 0,$i = $pc_start_year; $i <= $pc_end_year; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false;
+            $sel = $selected == $i;
         } elseif ($i == $pc_year) {
             $sel = true;
         } else {
@@ -765,7 +768,7 @@ function sort_byTimeD($a, $b)
 }
 /**
  *    pc_clean
- *    @param s string text to clean
+ *    @param mixed $s string text to clean
  *    @return string cleaned up text
  */
 function pc_clean($s)

@@ -158,7 +158,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
      * Parses an OpenEMR organization record, returning the equivalent FHIR Organization Resource
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIROrganization
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

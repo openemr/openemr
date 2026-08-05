@@ -4,7 +4,7 @@
  * Internationalization by OpenEMR of the dygraphs asset.
  *
  * Example of use. When using dygraph asset, place following line before inclusion of dygraphs.js:
- *   require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; (php command)
+ *   require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/dygraphs.js.php'; (php command)
  *
  * @package OpenEMR
  * @link    https://www.open-emr.org

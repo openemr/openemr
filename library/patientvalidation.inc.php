@@ -27,7 +27,7 @@
 
 
 //Check if new patient is added to hooks
-function checkIfPatientValidationHookIsActive()
+function checkIfPatientValidationHookIsActive(): bool
 {
     $module_query = sqlStatement("SELECT * FROM modules WHERE mod_name= 'Patientvalidation' and mod_active=1");
 

@@ -2,6 +2,12 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated method act\\(\\) of class Controller\\:
+Use dispatch\\(\\) instead for order\\-independent routing\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../controller.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated method getDbalConnection\\(\\) of class OpenEMR\\\\BC\\\\Database\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
@@ -121,66 +127,6 @@ use setLogger\\(\\)$#',
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\AuthorizationController\\:
-read from the \\-\\>logger property$#',
-    'count' => 63,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomAuthCodeGrant\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomClientCredentialsGrant\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\IdTokenSMARTResponse\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\AccessTokenRepository\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\RefreshTokenRepository\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ScopeRepository\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\UserRepository\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\TokenIntrospectionRestController\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:
 use setLogger\\(\\)$#',
     'count' => 1,
@@ -227,12 +173,6 @@ $ignoreErrors[] = [
 use setLogger\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/AuthorizationListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\AuthorizationController\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Subscriber/OAuth2AuthorizationListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\Subscriber\\\\RoutesExtensionListener\\:
@@ -577,12 +517,6 @@ use setLogger\\(\\)$#',
     'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\AuthorizationController\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:
 use setLogger\\(\\)$#',
     'count' => 1,
@@ -601,16 +535,28 @@ use setLogger\\(\\)$#',
     'path' => __DIR__ . '/../../tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\AuthorizationController\\:
+    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\IdTokenSMARTResponse\\:
 use setLogger\\(\\)$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/Authorization/AuthorizationControllerTest.php',
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Auth/OpenIDConnect/IdTokenSMARTResponseTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\Subscriber\\\\ApiResponseLoggerListener\\:
 use setLogger\\(\\)$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/Subscriber/ApiResponseLoggerListenerTest.php',
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Subscriber/ApiResponseLoggerListenerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method setAccessTokenScopes\\(\\) of class OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:
+use setAccessTokenScopeValidationArray\\(\\) instead which receives a ResourceScopeEntityList\\[\\] that is built from the ScopeRepository\\-\\>buildValidationArray$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Utils/SearchRequestNormalizerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method act\\(\\) of class Controller\\:
+Use dispatch\\(\\) instead for order\\-independent routing\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/RestControllers/ControllerRoutingTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:
@@ -703,12 +649,6 @@ use setLogger\\(\\)$#',
     'path' => __DIR__ . '/../../tests/Tests/Services/Modules/Carecoordination/Model/CcdaServiceDocumentRequestorTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\IdTokenSMARTResponse\\:
-use setLogger\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/IdTokenSMARTResponseTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ScopeRepository\\:
 use setLogger\\(\\)$#',
     'count' => 1,
@@ -725,12 +665,6 @@ $ignoreErrors[] = [
 use setLogger\\(\\)$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Controllers/Interface/Forms/Observation/ObservationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method setAccessTokenScopes\\(\\) of class OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:
-use setAccessTokenScopeValidationArray\\(\\) instead which receives a ResourceScopeEntityList\\[\\] that is built from the ScopeRepository\\-\\>buildValidationArray$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Services/FHIR/Utils/SearchRequestNormalizerTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

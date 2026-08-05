@@ -15,6 +15,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -72,7 +73,7 @@ class ProcedureService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *                         payload.
      */
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         // Query structure: Start from procedure_order (the ServiceRequest)
         // and LEFT JOIN all related data so orders without reports/results still appear
@@ -579,13 +580,13 @@ class ProcedureService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search         search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param  $puuidBind      - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *                         payload.
      */
-    public function getAll($search = [], $isAndCondition = true, $puuidBind = null): ProcessingResult
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null): ProcessingResult
     {
         $sqlBindArray = [];
 
@@ -1203,9 +1204,10 @@ class ProcedureService extends BaseService
             return false;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Add updated_by and timestamp
         $updates[] = "updated_by = ?";
-        $params[] = $_SESSION['authUserID'] ?? null;
+        $params[] = $session->get('authUserID');
 
         $params[] = $specimenId;
 

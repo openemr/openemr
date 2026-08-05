@@ -12,11 +12,18 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
+use OpenEMR\Common\Calendar\Month;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+use OpenEMR\PostCalendar\CalendarRenderer;
+use OpenEMR\PostCalendar\LegacyInputNarrowing;
+use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
+use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
+use OpenEMR\PostCalendar\ViewModel\ViewType;
 use OpenEMR\Services\UserService;
 
 if (!defined('__POSTCALENDAR__')) {
@@ -53,9 +60,9 @@ if (!defined('__POSTCALENDAR__')) {
 //  Require utility classes
 //=========================================================================
 
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/patient.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/group.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/encounter_events.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/group.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
@@ -75,6 +82,10 @@ function postcalendar_userapi_buildView($args)
     $show_days = pnVarCleanFromInput('show_days');
     extract($args);
     unset($args);
+    $cacheid ??= null;
+    $starting_date ??= '';
+    $ending_date ??= '';
+    $viewtype ??= '';
     $schedule_start = OEGlobalsBag::getInstance()->getInt('schedule_start');
     $schedule_end = OEGlobalsBag::getInstance()->getInt('schedule_end');
 
@@ -118,7 +129,8 @@ function postcalendar_userapi_buildView($args)
     //  grab the for post variable
     //=================================================================
     // $pc_username = pnVarCleanFromInput('pc_username');
-    $pc_username = $_SESSION['pc_username'] ?? ''; // from Michael Brinson 2006-09-19
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_username = $session->get('pc_username') ?? ''; // from Michael Brinson 2006-09-19
     $category = pnVarCleanFromInput('pc_category');
     $topic    = pnVarCleanFromInput('pc_topic');
 
@@ -143,23 +155,6 @@ function postcalendar_userapi_buildView($args)
     }
 
     //=================================================================
-    //  Find out what Template View to use
-    //=================================================================
-    $template_view = pnVarCleanFromInput('tplview');
-    if (!isset($template_view)) {
-        $template_view = 'default';
-    }
-
-    //=================================================================
-    //  See if the template view exists
-    //=================================================================
-    if (!file_exists("modules/$pcDir/pntemplates/$template_name/views/$viewtype/$template_view.html")) {
-        $template_view_load = 'default';
-    } else {
-        $template_view_load = pnVarPrepForOS($template_view);
-    }
-
-    //=================================================================
     //  Grab the current theme information
     //=================================================================
     global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5, $bgcolor6, $textcolor1, $textcolor2;
@@ -167,15 +162,11 @@ function postcalendar_userapi_buildView($args)
     //=================================================================
     //  Insert necessary JavaScript into the page
     //=================================================================
-    $output = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
+    $pageSetupResult = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
+    // pnModAPIFunc returns mixed; the @return string on this function
+    // means we have to narrow it before concatenating + returning.
+    $output = is_string($pageSetupResult) ? $pageSetupResult : '';
 
-    //=================================================================
-    //  Setup Smarty Template Engine
-    //=================================================================
-    $tpl = new pcSmarty();
-
-    //if(!$tpl->is_cached("$template_name/views/$viewtype/$template_view_load.html",$cacheid)) {
-    //disable caching completely
     if (true) {
         //=================================================================
         //  Let's just finish setting things up
@@ -242,9 +233,7 @@ function postcalendar_userapi_buildView($args)
         }
 
         // passing the times array to the tpl the times array is for the days schedule
-        $tpl->assign_by_ref("times", $times);
         // load the table width to the template
-        // $tpl->assign("day_td_width",$GLOBALS['day_view_td_width']);
 
         //=================================================================
         //  Week View is a bit of a pain in the ass, so we need to
@@ -320,10 +309,11 @@ function postcalendar_userapi_buildView($args)
                 //==================================
                 //FACILITY FILTERING (CHEMED)
         $userService = new UserService();
-        if ($_SESSION['pc_facility']) {
-            $provinfo = $userService->getUsersForCalendar($_SESSION['pc_facility']);
+        $pc_facility = $session->get('pc_facility');
+        if ($pc_facility) {
+            $provinfo = $userService->getUsersForCalendar($pc_facility);
             if (!$provinfo) {
-                $provinfo = $userService->getUserForCalendar($_SESSION['authUserID']);
+                $provinfo = $userService->getUserForCalendar($session->get('authUserID'));
             }
         } else {
             $provinfo = $userService->getUsersForCalendar();
@@ -406,8 +396,7 @@ function postcalendar_userapi_buildView($args)
             __POSTCALENDAR__,
             'user',
             'view',
-            ['tplview' => $template_view,
-            'viewtype' => 'month',
+            ['viewtype' => 'month',
             'Date' => $prev_month,
             'pc_username' => $pc_username,
             'pc_category' => $category,
@@ -418,8 +407,7 @@ function postcalendar_userapi_buildView($args)
             __POSTCALENDAR__,
             'user',
             'view',
-            ['tplview' => $template_view,
-            'viewtype' => 'month',
+            ['viewtype' => 'month',
             'Date' => $next_month,
             'pc_username' => $pc_username,
             'pc_category' => $category,
@@ -432,8 +420,7 @@ function postcalendar_userapi_buildView($args)
             __POSTCALENDAR__,
             'user',
             'view',
-            ['tplview' => $template_view,
-            'viewtype' => 'day',
+            ['viewtype' => 'day',
             'Date' => $prev_day,
             'pc_username' => $pc_username,
             'pc_category' => $category,
@@ -444,8 +431,7 @@ function postcalendar_userapi_buildView($args)
             __POSTCALENDAR__,
             'user',
             'view',
-            ['tplview' => $template_view,
-            'viewtype' => 'day',
+            ['viewtype' => 'day',
             'Date' => $next_day,
             'pc_username' => $pc_username,
             'pc_category' => $category,
@@ -504,7 +490,6 @@ function postcalendar_userapi_buildView($args)
         $all_categories = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getCategories');
 
         if (isset($calendarView)) {
-            $tpl->assign_by_ref('CAL_FORMAT', $calendarView);
         }
 
         if ($viewtype == "week") {
@@ -522,17 +507,12 @@ function postcalendar_userapi_buildView($args)
                 }
             }
 
-            $tpl->assign("last_blocks", $last_blocks);
         }
 
-        $tpl->assign('STYLE', OEGlobalsBag::getInstance()->get('style'));
-        $tpl->assign('show_days', $show_days);
 
         //$provinfo[count($provinfo) +1] = array("id" => "","lname" => "Other");
-        $tpl->assign_by_ref('providers', $provinfo);
 
         if (pnVarCleanFromInput("show_days") != 1) {
-            $tpl->assign('showdaysurl', "index.php?" . $_SERVER['QUERY_STRING'] . "&show_days=1");
         }
 
         // we fire off events to grab any additional module scripts or css files that desire to adjust the calendar
@@ -544,56 +524,287 @@ function postcalendar_userapi_buildView($args)
         $styleFilterEvent->setContextArgument('viewtype', $viewtype);
         $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
-        $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
-        $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
-        $tpl->assign('interval', OEGlobalsBag::getInstance()->get('calendar_interval'));
-        $tpl->assign_by_ref('VIEW_TYPE', $viewtype);
-        $tpl->assign_by_ref('A_MONTH_NAMES', $pc_month_names);
-        $tpl->assign_by_ref('A_LONG_DAY_NAMES', $pc_long_day_names);
-        $tpl->assign_by_ref('A_SHORT_DAY_NAMES', $pc_short_day_names);
-        $tpl->assign_by_ref('S_LONG_DAY_NAMES', $daynames);
-        $tpl->assign_by_ref('S_SHORT_DAY_NAMES', $sdaynames);
-        $tpl->assign_by_ref('A_EVENTS', $eventsByDate);
-        $tpl->assign_by_ref('A_CATEGORY', $all_categories);
-        $tpl->assign_by_ref('PREV_MONTH_URL', $pc_prev);
-        $tpl->assign_by_ref('NEXT_MONTH_URL', $pc_next);
-        $tpl->assign_by_ref('PREV_DAY_URL', $pc_prev_day);
-        $tpl->assign_by_ref('NEXT_DAY_URL', $pc_next_day);
-        $tpl->assign_by_ref('PREV_WEEK_URL', $pc_prev_week);
-        $tpl->assign_by_ref('NEXT_WEEK_URL', $pc_next_week);
-        $tpl->assign_by_ref('PREV_YEAR_URL', $pc_prev_year);
-        $tpl->assign_by_ref('NEXT_YEAR_URL', $pc_next_year);
-        $tpl->assign_by_ref('WEEK_START_DATE', $week_view_start);
-        $tpl->assign_by_ref('WEEK_END_DATE', $week_view_end);
-        $tpl->assign_by_ref('MONTH_START_DATE', $month_view_start);
-        $tpl->assign_by_ref('MONTH_END_DATE', $month_view_end);
-        $tpl->assign_by_ref('TODAY_DATE', $today_date);
-        $tpl->assign_by_ref('DATE', $Date);
-        $tpl->assign('SCHEDULE_BASE_URL', pnModURL(__POSTCALENDAR__, 'user', 'submit'));
-        $tpl->assign_by_ref('intervals', $intervals);
     };
 
-    //=================================================================
-    //  Parse the template
-    //=================================================================
-    $template = "$template_name/views/$viewtype/$template_view_load.html";
-    if (!$print) {
-            $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
-            $output .= $tpl->fetch($template, $cacheid);    // cache id
-            $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
-    } else {
+    // Year view has no template — it falls through to the page-setup
+    // output without a rendered body, same behavior the legacy "if no
+    // viewtype matches" path had. Everything else (month/week/day,
+    // each in their screen and print variants) goes through the
+    // CalendarRenderer + builder.
+    if (in_array($viewtype, ['month', 'week', 'day'], true)) {
+        // After the in_array guard, $viewtype is 'month'|'week'|'day'.
+        // Array dispatch avoids the cascade-of-tautologies PHPStan
+        // flags when sequential match arms (or if/elseif chains)
+        // narrow each other (by the third arm, $viewtype would
+        // already be the literal value being compared).
+        $isPrint = (bool) $print;
+        $vmTypeMap = [
+            'month' => $isPrint ? ViewType::MonthPrint : ViewType::Month,
+            'week'  => $isPrint ? ViewType::WeekPrint  : ViewType::Week,
+            'day'   => $isPrint ? ViewType::DayPrint   : ViewType::Day,
+        ];
+        // Lookup is guaranteed-present because the in_array guard
+        // above narrows $viewtype to one of the three map keys.
+        $vmType = $vmTypeMap[$viewtype];
+        $vm = new CalendarViewModel(
+            viewType: $vmType,
+            firstDayOfWeek: (int) pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek')
+        );
+        $builder = new CalendarRenderDataBuilder($vm);
+        $apptStyle = OEGlobalsBag::getInstance()->getInt('calendar_appt_style');
+        // The legacy entry-point variables — $eventsByDate, $provinfo,
+        // $times, $Date, $pc_prev*, etc. — all come from extract()'d
+        // $args and pnVarCleanFromInput() and are mixed-typed at the
+        // PHPStan level. Narrow each into the typed shape the builder
+        // methods expect via LegacyInputNarrowing.
+        $aEvents = LegacyInputNarrowing::dateEvents($eventsByDate ?? null);
+        $providersList = LegacyInputNarrowing::rowList($provinfo ?? null);
+        $shortDayNames = LegacyInputNarrowing::stringList($pc_short_day_names);
+        $dateStr = LegacyInputNarrowing::stringValue($Date);
+        // TPL_IMAGE_PATH is what pcSmarty's constructor builds at
+        // pcSmarty.class.php:120. Re-build it here from the same inputs
+        // so the new path doesn't depend on the legacy class.
+        $pcDirStr = LegacyInputNarrowing::stringValue($pcDir);
+        $tplNameStr = LegacyInputNarrowing::stringValue($template_name, 'default');
+        $tplImagePath = OEGlobalsBag::getInstance()->getKernel()->getRootDir()
+            . '/main/calendar/modules/' . $pcDirStr . '/pntemplates/' . $tplNameStr . '/images';
+
+        if ($vmType === ViewType::WeekPrint) {
+            $renderData = $builder->buildWeekPrintRenderData(
+                $aEvents,
+                $providersList,
+                $dateStr,
+                $shortDayNames,
+                $apptStyle,
+                $tplImagePath
+            );
+        } elseif ($vmType === ViewType::DayPrint) {
+            $intervalInt = LegacyInputNarrowing::intValue(
+                OEGlobalsBag::getInstance()->get('calendar_interval'),
+                30
+            );
+            $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
+            $renderData = $builder->buildDayPrintRenderData(
+                $aEvents,
+                $providersList,
+                LegacyInputNarrowing::timeRows($times),
+                $intervalInt,
+                $dateStr,
+                $shortDayNames,
+                $apptStyle,
+                $tplImagePath,
+                $isTwelveHourFormat
+            );
+        } elseif ($vmType === ViewType::Month) {
+            // Screen view — needs the picker + nav scaffolding.
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $languageDirection = $session->get('language_direction');
+            $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+            $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
+            // monthSelector.php is the legacy jump-to-month dropdown.
+            // The Twig template renders it via {{ monthSelectorHtml|raw }}.
+            $caldate = strtotime((string) $Date);
+            $cMonth = $caldate !== false ? date('m', $caldate) : '';
+            $cYear = $caldate !== false ? date('Y', $caldate) : '';
+            $cDay = $caldate !== false ? date('d', $caldate) : '';
+            ob_start();
+            include OEGlobalsBag::getInstance()->getProjectDir() . '/interface'
+                . '/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
+            $monthSelectorHtml = ob_get_clean();
+
+            $facilitiesList = [];
+            $sessionAuthUserID = $session->get('authUserID');
+            $sessionAuthorizedUser = $session->get('authorizeduser');
+            $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
+
+            // Month-screen page header — month name via Month::label() (translated +
+            // statically-extractable), year via text(date('Y')).
+            $currentMonthLabelTs = strtotime((string) $Date);
+            $currentMonthLabel = $currentMonthLabelTs !== false
+                ? text(Month::from((int) date('n', $currentMonthLabelTs))->label())
+                    . ' ' . text(date('Y', $currentMonthLabelTs))
+                : '';
+
+            $renderData = $builder->buildMonthScreenRenderData(
+                $aEvents,
+                $providersList,
+                LegacyInputNarrowing::rowList($provinfo ?? null),
+                LegacyInputNarrowing::rowList($facilitiesList),
+                $dateStr,
+                $shortDayNames,
+                LegacyInputNarrowing::intValue($pc_facility),
+                $apptStyle,
+                $tplImagePath,
+                OEGlobalsBag::getInstance()->getString('webroot'),
+                LegacyInputNarrowing::stringValue($pc_prev),
+                LegacyInputNarrowing::stringValue($pc_next),
+                $chevLeft,
+                $chevRight,
+                LegacyInputNarrowing::stringValue($monthSelectorHtml),
+                !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
+                $currentMonthLabel
+            );
+        } elseif ($vmType === ViewType::Day) {
+            // Day-screen: same scaffolding as month-screen plus timed-view
+            // geometry inputs.
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $languageDirection = $session->get('language_direction');
+            $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+            $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
+            $caldate = strtotime((string) $Date);
+            $cMonth = $caldate !== false ? date('m', $caldate) : '';
+            $cYear = $caldate !== false ? date('Y', $caldate) : '';
+            $cDay = $caldate !== false ? date('d', $caldate) : '';
+            ob_start();
+            include OEGlobalsBag::getInstance()->getProjectDir()
+                . '/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
+            $monthSelectorHtml = ob_get_clean();
+
+            $facilitiesList = [];
+            $sessionAuthUserID = $session->get('authUserID');
+            $sessionAuthorizedUser = $session->get('authorizeduser');
+            $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
+
+            // Day-screen page header — legacy used dateformat(strtotime($atmp[0]), true)
+            // which respects user language for day/month names and date ordering.
+            $dayHeaderTs = strtotime((string) $Date);
+            $dayHeaderLabel = $dayHeaderTs !== false ? dateformat($dayHeaderTs, true) : '';
+
+            $intervalInt = LegacyInputNarrowing::intValue(
+                OEGlobalsBag::getInstance()->get('calendar_interval'),
+                30
+            );
+            $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
+
+            $renderData = $builder->buildDayScreenRenderData(
+                $aEvents,
+                $providersList,
+                LegacyInputNarrowing::rowList($provinfo ?? null),
+                LegacyInputNarrowing::rowList($facilitiesList),
+                LegacyInputNarrowing::timeRows($times),
+                $intervalInt,
+                $dateStr,
+                $shortDayNames,
+                LegacyInputNarrowing::intValue($pc_facility),
+                $apptStyle,
+                $tplImagePath,
+                OEGlobalsBag::getInstance()->getString('webroot'),
+                LegacyInputNarrowing::stringValue($pc_prev_day),
+                LegacyInputNarrowing::stringValue($pc_next_day),
+                $chevLeft,
+                $chevRight,
+                LegacyInputNarrowing::stringValue($monthSelectorHtml),
+                !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
+                $dayHeaderLabel,
+                $isTwelveHourFormat
+            );
+        } elseif ($vmType === ViewType::Week) {
+            // Week-screen: like day-screen but 7 day-columns per provider.
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $languageDirection = $session->get('language_direction');
+            $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+            $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
+            $caldate = strtotime((string) $Date);
+            $cMonth = $caldate !== false ? date('m', $caldate) : '';
+            $cYear = $caldate !== false ? date('Y', $caldate) : '';
+            $cDay = $caldate !== false ? date('d', $caldate) : '';
+            ob_start();
+            include OEGlobalsBag::getInstance()->getProjectDir() . '/interface'
+                . '/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
+            $monthSelectorHtml = ob_get_clean();
+
+            $sessionAuthUserID = $session->get('authUserID');
+            $sessionAuthorizedUser = $session->get('authorizeduser');
+            $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
+
+            // Week-screen page header — legacy emitted "$first_month_name $first_day - $last_month_name $last_day"
+            // where the month-names came from the localized pnModAPIFunc('getmonthname')
+            // helper. Month::label() now provides the same translated month name.
+            $eventDates = array_keys($aEvents);
+            $firstDateTs = !empty($eventDates) ? strtotime($eventDates[0]) : false;
+            $lastDateTs = !empty($eventDates) ? strtotime($eventDates[count($eventDates) - 1]) : false;
+            $weekHeaderLabel = ($firstDateTs !== false && $lastDateTs !== false)
+                ? text(Month::from((int) date('n', $firstDateTs))->label())
+                    . ' ' . text(date('d', $firstDateTs))
+                    . ' - '
+                    . text(Month::from((int) date('n', $lastDateTs))->label())
+                    . ' ' . text(date('d', $lastDateTs))
+                : '';
+
+            $intervalInt = LegacyInputNarrowing::intValue(
+                OEGlobalsBag::getInstance()->get('calendar_interval'),
+                30
+            );
+            $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
+
+            $renderData = $builder->buildWeekScreenRenderData(
+                $aEvents,
+                $providersList,
+                LegacyInputNarrowing::rowList($provinfo ?? null),
+                LegacyInputNarrowing::rowList($facilitiesList),
+                LegacyInputNarrowing::timeRows($times),
+                $intervalInt,
+                $dateStr,
+                $shortDayNames,
+                LegacyInputNarrowing::intValue($pc_facility),
+                $apptStyle,
+                $tplImagePath,
+                OEGlobalsBag::getInstance()->getString('webroot'),
+                LegacyInputNarrowing::stringValue($pc_prev_week),
+                LegacyInputNarrowing::stringValue($pc_next_week),
+                $chevLeft,
+                $chevRight,
+                LegacyInputNarrowing::stringValue($monthSelectorHtml),
+                !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
+                $weekHeaderLabel,
+                $isTwelveHourFormat
+            );
+        } else {
+            $renderData = $builder->buildMonthPrintRenderData(
+                $aEvents,
+                $providersList,
+                $dateStr,
+                $shortDayNames,
+                $apptStyle
+            );
+        }
+        $renderData['PRINT_VIEW'] = $print ? 1 : 0;
+        $renderData['viewtype'] = $viewtype;
+        // body_class for header.html.twig <body> tag — legacy template
+        // read this from session.language_direction inside a [-php-]
+        // block. Pass it explicitly here so the screen views show the
+        // right LTR/RTL class on body.
+        $bodyClassSession = SessionWrapperFactory::getInstance()->getActiveSession()->get('language_direction');
+        $renderData['body_class'] = is_string($bodyClassSession) ? $bodyClassSession : '';
+
+        $newTpl = CalendarRenderer::create();
+        foreach ($renderData as $k => $v) {
+            $newTpl->assign($k, $v);
+        }
+        if ($print) {
             echo "<html><head>";
             echo "</head><body>\n";
             echo $output;
-            $tpl->display($template, $cacheid);
+            echo $newTpl->render("calendar/default/views/$viewtype/default.html.twig");
             echo postcalendar_footer();
             echo "\n</body></html>";
             exit;
+        }
+        $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
+        $output .= $newTpl->render("calendar/default/views/$viewtype/default.html.twig");
+        $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
+        return $output;
     }
 
-    //=================================================================
-    //  Return the output
-    //=================================================================
+    // All renderable viewtypes (day/week/month + their print variants)
+    // run through the CalendarRenderer branch above. Year view has no
+    // template directory in pntemplates/ so it never reached the legacy
+    // fetch/display path either. This unreachable-by-design situation
+    // returns the page-setup output without a template body — same
+    // behavior the legacy "if no viewtype matches" path would have had.
     return $output;
 }
 
@@ -610,6 +821,10 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
 
     $end = '0000-00-00';
     extract($args);
+    $event_status ??= null;
+    $provider_id ??= '';
+    $userid ??= 0;
+    $nuke_users ??= [];
     $eventstatus = 1;
     if (is_numeric($event_status)) {
         $eventstatus = $event_status;
@@ -645,7 +860,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     "LEFT JOIN users as u2 ON a.pc_aid = u2.id " .
     "LEFT JOIN patient_data as pd ON a.pc_pid=pd.pid " .
     "WHERE a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
-    "AND (a.pc_endDate >= '" . pnVarPrepForStore($start) . "' OR a.pc_endDate = '0000-00-00') " .
+    "AND (a.pc_endDate >= '" . pnVarPrepForStore($start) . "' OR a.pc_endDate IS NULL) " .
     "AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "' " .
     "AND (a.pc_aid = '" . pnVarPrepForStore($provider_id) . "' OR a.pc_aid = '')";
 
@@ -802,7 +1017,16 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = unserialize($tmp['location'], ['allowed_classes' => false]);
+                $loc = is_string($tmp['location']) && $tmp['location'] !== '' ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
+                // Fill in any missing keys with empty strings so every field below resolves.
+                $loc = (is_array($loc) ? $loc : []) + [
+                    'event_location' => '',
+                    'event_street1'  => '',
+                    'event_street2'  => '',
+                    'event_city'     => '',
+                    'event_state'    => '',
+                    'event_postal'   => '',
+                ];
                 $events[$i]['location']   = $prepFunction($loc['event_location']);
                 $events[$i]['street1']    = $prepFunction($loc['event_street1']);
                 $events[$i]['street2']    = $prepFunction($loc['event_street2']);
@@ -834,11 +1058,15 @@ function &postcalendar_userapi_pcQueryEvents($args)
 {
     $end = '0000-00-00';
     extract($args);
+    $provider_id ??= '';
+    $userid ??= 0;
+    $nuke_users ??= [];
 
   // echo "<!-- args = "; print_r($args); echo " -->\n"; // debugging
 
   // $pc_username = pnVarCleanFromInput('pc_username');
-    $pc_username = $_SESSION['pc_username'] ?? ''; // from Michael Brinson 2006-09-19
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_username = $session->get('pc_username') ?? ''; // from Michael Brinson 2006-09-19
     if (empty($pc_username) || is_array($pc_username)) {
         $pc_username = "__PC_ALL__";
     }
@@ -898,7 +1126,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "LEFT JOIN therapy_groups as tg ON a.pc_gid = tg.group_id " .
     "WHERE  a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
     "AND ((a.pc_endDate >= '" . pnVarPrepForStore($start) . "' AND a.pc_eventDate <= '" . pnVarPrepForStore($end) . "') OR " .
-    "(a.pc_endDate = '0000-00-00' AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
+    "(a.pc_endDate IS NULL AND a.pc_eventDate >= '" . pnVarPrepForStore($start) . "' AND " .
     "a.pc_eventDate <= '" . pnVarPrepForStore($end) . "')) ";
 
     // Custom filtering
@@ -909,8 +1137,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
   //==================================
   //FACILITY FILTERING (lemonsoftware)(CHEMED)
-    if ($_SESSION['pc_facility']) {
-            $pc_facility = $_SESSION['pc_facility'];
+    $sessionPcFacility = $session->get('pc_facility');
+    if ($sessionPcFacility) {
+            $pc_facility = $sessionPcFacility;
             $sql .= " AND a.pc_facility = '" . pnVarPrepForStore($pc_facility) . "' "; /*
                       AND u.facility_id = $pc_facility
                       AND u2.facility_id = $pc_facility "; */
@@ -926,7 +1155,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
 
   // The above 3 lines replaced these:
-  //   AND (a.pc_endDate >= '$start' OR a.pc_endDate = '0000-00-00')
+  //   AND (a.pc_endDate >= '$start' OR a.pc_endDate IS NULL)
   //   AND a.pc_eventDate <= '$end' ";
 
     if (!empty($providerID)) {
@@ -958,7 +1187,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         }
     } else {
         // get all events for logged in user plus global events
-        $sql .= "AND (a.pc_aid IN (0," . pnVarPrepForStore($_SESSION['authUserID']) . ") OR a.pc_sharing = '" . pnVarPrepForStore(SHARING_GLOBAL) . "') ";
+        $sql .= "AND (a.pc_aid IN (0," . pnVarPrepForStore($session->get('authUserID')) . ") OR a.pc_sharing = '" . pnVarPrepForStore(SHARING_GLOBAL) . "') ";
     }
 
   //======================================================================
@@ -1151,7 +1380,16 @@ function &postcalendar_userapi_pcQueryEvents($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = unserialize($tmp['location'], ['allowed_classes' => false]);
+                $loc = is_string($tmp['location']) && $tmp['location'] !== '' ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
+                // Fill in any missing keys with empty strings so every field below resolves.
+                $loc = (is_array($loc) ? $loc : []) + [
+                    'event_location' => '',
+                    'event_street1'  => '',
+                    'event_street2'  => '',
+                    'event_city'     => '',
+                    'event_state'    => '',
+                    'event_postal'   => '',
+                ];
                 $events[$i]['location']   = $prepFunction($loc['event_location']);
                 $events[$i]['street1']    = $prepFunction($loc['event_street1']);
                 $events[$i]['street2']    = $prepFunction($loc['event_street2']);
@@ -1205,6 +1443,12 @@ function &postcalendar_userapi_pcGetEvents($args)
 {
     $s_keywords = $s_category = $s_topic = '';
     extract($args);
+    $viewtype ??= '';
+    $provider_id ??= '';
+    $event_status ??= null;
+    $stime ??= '';
+    $etime ??= '';
+    $patient_id ??= 0;
 
     $date = postcalendar_getDate();
     $cy = substr((string) $date, 0, 4);
@@ -1283,7 +1527,8 @@ function &postcalendar_userapi_pcGetEvents($args)
     $event->setProviderID($providerID ?? $provider_id ?? null);
 
     $result = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
-    return $result->getEventsByDays();
+    $eventsByDays = $result->getEventsByDays();
+    return $eventsByDays;
 }
 
 //===========================

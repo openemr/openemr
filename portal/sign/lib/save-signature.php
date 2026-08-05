@@ -24,7 +24,6 @@ $isPortal = $data['is_portal'];
 $output = urldecode((string) $data['output']);
 $ignoreAuth = false;
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
@@ -32,43 +31,44 @@ if ($isPortal) {
     // Will start the (patient) portal OpenEMR session/cookie.
     // Need access to classes, so run autoloader now instead of in globals.php.
     require_once(__DIR__ . "/../../../vendor/autoload.php");
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getPortalSession();
 
-    if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
+    if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
         // authorized by patient portal
         $req_pid = $session->get('pid');
         $ignoreAuth_onsite_portal = true;
 
         // Portal users can only create patient signatures, not admin signatures
         if ($type === 'admin-signature') {
-            echo js_escape("error: unauthorized signature type");
+            echo '"error: unauthorized signature type"';
             exit();
         }
 
         // Portal users can only sign for themselves - override any user value from POST
         $user = $req_pid;
     } else {
-        SessionUtil::portalSessionCookieDestroy();
-        echo js_escape("error invalid session,");
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
+        echo '"error invalid session,"';
         exit();
     }
 }
 require_once("../../../interface/globals.php");
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!$isPortal) {
     $userManipulatedFlag = false;
-    if ($user != $_SESSION['authUserID']) {
+    if ($user != $session->get('authUserID')) {
         $userManipulatedFlag = true;
     }
 
     if ($userManipulatedFlag) {
-        echo js_escape("error");
+        echo '"error"';
         exit();
     }
 }
 
 if ($type === 'witness-signature') {
-    echo(js_escape('Done'));
+    echo '"Done"';
     exit();
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

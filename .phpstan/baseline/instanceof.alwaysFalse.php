@@ -11,10 +11,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Instanceof between array and OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIROrganization will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationInsuranceService.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

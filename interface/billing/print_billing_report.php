@@ -13,14 +13,20 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/report.inc.php");
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/forms.inc.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/report.inc.php';
+
+$patient_data_array ??= [];
+$employer_data_array ??= [];
+$insurance_data_array ??= [];
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {

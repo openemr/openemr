@@ -13,9 +13,11 @@
  */
 
     require_once("../../../globals.php");
-    require_once("$srcdir/api.inc.php");
-    require_once("$srcdir/forms.inc.php");
-    require_once("$srcdir/patient.inc.php");
+
+    $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+    require_once($srcdir . "/api.inc.php");
+    require_once($srcdir . "/forms.inc.php");
+    require_once($srcdir . "/patient.inc.php");
 
     $providerID = $_REQUEST['providerID'];
 
@@ -3475,12 +3477,21 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
                                             $DEFAULT_data = sqlStatement($query, ["Eye_defaults_$providerID"]);
+                                            $zones = ['EXT' => [], 'ANTSEG' => [], 'RETINA' => [], 'NEURO' => []];
                                             while ($row = sqlFetchArray($DEFAULT_data)) {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name
                                             //$row['title'] is the default value to use for this provider
-                                                ${$row['notes']}[$row['option_id']] = $row['title']; //This builds each clinical section into its own array (used below)
-                                                echo '$("#' . $row['option_id'] . '").val("' . $row['title'] . '").css("background-color","beige");
+                                                $zone = $row['notes'];
+                                                $optionId = $row['option_id'];
+                                                $title = $row['title'];
+                                                if (!is_string($zone) || !is_string($optionId) || !is_string($title)) {
+                                                    continue;
+                                                }
+                                                if (isset($zones[$zone])) {
+                                                    $zones[$zone][$optionId] = $title;
+                                                }
+                                                echo '$("#' . $optionId . '").val("' . $title . '").css("background-color","beige");
                                             ';
                                             }
                                             function startsWith($str, $needle)
@@ -3492,7 +3503,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             });
                   $("#EXT_defaults_R").on("click", function() {
                         <?php
-                        foreach ($EXT as $item => $value) {
+                        foreach ($zones['EXT'] as $item => $value) {
                             if (startsWith($item, "R")) {
                                 echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                 ';
@@ -3504,7 +3515,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         });
                   $("#EXT_defaults_L").on("click", function() {
                         <?php
-                        foreach ($EXT as $item => $value) {
+                        foreach ($zones['EXT'] as $item => $value) {
                             if (startsWith($item, "L")) {
                                 echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                 ';
@@ -3538,7 +3549,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     });
                     $("#ANTSEG_defaults_OD").on("click", function() {
                     <?php
-                    foreach ($ANTSEG as $item => $value) {
+                    foreach ($zones['ANTSEG'] as $item => $value) {
                         if (startsWith($item, "OD")) {
                             echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                                     ';
@@ -3550,7 +3561,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     });
                     $("#ANTSEG_defaults_OS").on("click", function() {
                             <?php
-                            foreach ($ANTSEG as $item => $value) {
+                            foreach ($zones['ANTSEG'] as $item => $value) {
                                 if (startsWith($item, "OS")) {
                                     echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                                             ';
@@ -3625,7 +3636,7 @@ $("body").on("click","[name^='old_canvas']", function() {
 
                     $("#RETINA_defaults_OD").on("click", function() {
                             <?php
-                            foreach ($RETINA as $item => $value) {
+                            foreach ($zones['RETINA'] as $item => $value) {
                                 if (startsWith($item, "OD")) {
                                     echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                                             ';
@@ -3637,7 +3648,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                             });
                     $("#RETINA_defaults_OS").on("click", function() {
                         <?php
-                        foreach ($RETINA as $item => $value) {
+                        foreach ($zones['RETINA'] as $item => $value) {
                             if (startsWith($item, "OS")) {
                                 echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                                                                                         ';
@@ -3655,7 +3666,7 @@ $("body").on("click","[name^='old_canvas']", function() {
 
                     $("#NEURO_defaults").on("click", function() {
                                                 <?php
-                                                foreach ($NEURO as $item => $value) {
+                                                foreach ($zones['NEURO'] as $item => $value) {
                                                     echo '$("#' . $item . '").val("' . $value . '").css("background-color","beige");
                                              ';
                                                 }

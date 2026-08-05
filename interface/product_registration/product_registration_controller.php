@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
@@ -22,6 +23,7 @@ header("Content-Type: application/json");
 
 // Determine request method
 $method = $_SERVER['REQUEST_METHOD'];
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if ($method === 'GET') {
     // retrieve if allowRegisterDialog
@@ -106,12 +108,12 @@ if ($method === 'POST') {
             $selected_options[] = 'allow_telemetry';
         }
         $options = json_encode($selected_options);
-        $auth_by_id = $_SESSION['authUserID'] ?? null;
+        $auth_by_id = $session->get('authUserID');
 
         // Update the last ask date and version
         $last_ask_date = date("Y-m-d H:i:s");
         $versionService = new VersionService();
-        $last_ask_version = $versionService->asString();
+        $last_ask_version = (string) $versionService->getSoftwareVersion();
 
         // Update the registration record
         //  (note that there will always be a existent record at this point and email registration has already been dealt with, if applicable)

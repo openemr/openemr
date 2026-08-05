@@ -33,11 +33,11 @@ class UserDAO extends Phreezable
     public $Id;
 /** @var string */
     public $Username;
-/** @var longtext */
+/** @var string */
     public $Password;
 /** @var int */
     public $Authorized;
-/** @var longtext */
+/** @var string */
     public $Info;
 /** @var int */
     public $Source;
@@ -123,11 +123,11 @@ class UserDAO extends Phreezable
     public $Calendar;
 /** @var string */
     public $AbookType;
-/** @var date */
+/** @var string */
     public $PwdExpirationDate;
-/** @var longtext */
+/** @var string */
     public $PwdHistory1;
-/** @var longtext */
+/** @var string */
     public $PwdHistory2;
 /** @var string */
     public $DefaultWarehouse;
@@ -145,7 +145,7 @@ class UserDAO extends Phreezable
     public $PortalUser;
 /**
      * Returns a dataset of FormHearing objects with matching ExaminerId
-     * @param Criteria
+     * @param mixed $criteria
      * @return DataSet
      */
     public function GetExaminerFormHearings($criteria = null)
@@ -155,7 +155,7 @@ class UserDAO extends Phreezable
 
     /**
      * Returns a dataset of FormHearing objects with matching ReviewerId
-     * @param Criteria
+     * @param mixed $criteria
      * @return DataSet
      */
     public function GetReviewerFormHearings($criteria = null)

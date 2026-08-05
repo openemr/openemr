@@ -15,13 +15,12 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../../../library/htmlspecialchars.inc.php';
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SafeHrefTest extends TestCase
 {
-    /**
-     * @dataProvider safeUrlProvider
-     */
+    #[DataProvider('safeUrlProvider')]
     public function testSafeUrlsAreAllowed(string $input, string $expected): void
     {
         $this->assertSame($expected, safe_href($input));
@@ -48,9 +47,7 @@ class SafeHrefTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dangerousUrlProvider
-     */
+    #[DataProvider('dangerousUrlProvider')]
     public function testDangerousUrlsAreBlocked(string $input): void
     {
         $this->assertSame('#', safe_href($input));

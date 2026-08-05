@@ -43,14 +43,14 @@ class USPSAddressVerifyV3
         $cryptoGen = ServiceContainer::getCrypto();
 
         $globals = OEGlobalsBag::getInstance();
-        $encryptedClientId = $globals->get('usps_apiv3_client_id');
-        $encryptedClientSecret = $globals->get('usps_apiv3_client_secret');
+        $encryptedClientId = $globals->getString('usps_apiv3_client_id');
+        $encryptedClientSecret = $globals->getString('usps_apiv3_client_secret');
 
         $this->clientId = !empty($encryptedClientId)
-            ? $cryptoGen->decryptStandard($encryptedClientId)
+            ? $cryptoGen->decryptFromDatabase($encryptedClientId)
             : '';
         $this->clientSecret = !empty($encryptedClientSecret)
-            ? $cryptoGen->decryptStandard($encryptedClientSecret)
+            ? $cryptoGen->decryptFromDatabase($encryptedClientSecret)
             : '';
 
         $this->client = new Client([

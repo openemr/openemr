@@ -1,8 +1,7 @@
 <?php
 
 require_once("../globals.php");
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/report_database.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 // TODO: @adunsulag we need to move ALL this AMC stuff into a namespace.  Any AMC classes should use autoloader not requires.
 require_once("../../library/classes/rulesets/library/RsReportIF.php");
 require_once("../../library/classes/rulesets/library/RsUnimplementedIF.php");

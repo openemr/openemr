@@ -24,9 +24,9 @@
 // TODO: Replace tables with BS4 grid classes for GSoC
 
 require_once('../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 // This determines if a particular procedure code corresponds to receipts
 // for the "Clinic" column as opposed to receipts for the practitioner.  Each
 // practice will have its own policies in this regard, so you'll probably
@@ -38,6 +38,7 @@ require_once('../forms/fee_sheet/codes.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -45,6 +46,8 @@ use OpenEMR\Core\OEGlobalsBag;
 if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Cash Receipts by Provider", xl("Cash Receipts by Provider"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function is_clinic($code)
 {
@@ -123,7 +126,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -170,7 +173,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
     <div class="row">
         <div class="col-12">
                <form method='post' action='sl_receipts_report.php' id='theform' onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                 <div id="report_parameters">
 
@@ -214,7 +217,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                                     echo "   </select>\n";
                                 } else {
-                                    echo "<input type='hidden' name='form_doctor' value='" . attr($_SESSION['authUserID']) . "'>";
+                                    echo "<input type='hidden' name='form_doctor' value='" . attr($session->get('authUserID')) . "'>";
                                 }
                                 ?>
                             </td>
@@ -317,9 +320,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                 <?php
                 if (!empty($_POST['form_refresh'])) {
-                    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-                        CsrfUtils::csrfNotVerified();
-                    }
+                    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                     ?>
                 <div id="report_results">
@@ -372,13 +373,19 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         $form_doctor = $_POST['form_doctor'];
                         if (!AclMain::aclCheckCore('acct', 'rep_a')) {
                             // only allow user to see their encounter information
-                            $form_doctor = $_SESSION['authUserID'];
+                            $form_doctor = $session->get('authUserID');
                         }
 
                         $arows = [];
 
                         $ids_to_skip = [];
                         $irow = 0;
+                        $doctotal1 = 0;
+                        $doctotal2 = 0;
+                        $docname = '';
+                        $docnameleft = '';
+                        $thedate = '';
+                        $patient_name = '';
 
                         // Get copays.  These will be ignored if a CPT code was specified.
                         //
@@ -709,10 +716,10 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <!-- TODO: Replace bgcolor with BS4 !-->
                 <tr bgcolor="#ddddff">
                 <td class="detail" colspan="<?php echo ($form_proc_codefull ? 4 : 2) + ($form_procedures ? 2 : 0); ?>">
-                        <?php echo xlt('Totals for ') . text($docname ?? '') ?>
+                        <?php echo xlt('Totals for ') . text($docname) ?>
                 </td>
                 <td>
-                        <?php echo text(FormatMoney::getBucks($doctotal1 ?? '')) ?>
+                        <?php echo text(FormatMoney::getBucks($doctotal1)) ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td>

@@ -23,6 +23,8 @@ require_once("$srcdir/patientvalidation.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Layouts\SearchClass;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -44,21 +46,7 @@ getLayoutProperties('DEM', $grparr, '*');
 
 $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
 
-// Determine layout field search treatment from its data type:
-// 1 = text field
-// 2 = select list
-// 0 = not searchable
-//
-function getSearchClass($data_type)
-{
-    return match ($data_type) {
-        // facilities
-        1, 10, 11, 12, 13, 14, 26, 35 => 2,
-        // date
-        2, 3, 4 => 1,
-        default => 0,
-    };
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $fres = getLayoutRes($SHORT_FORM);
 ?>
@@ -73,7 +61,7 @@ $fres = getLayoutRes($SHORT_FORM);
 }
 </style>
 
-<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.js.php"); ?>
 
 <script><!--
 //Visolve - sync the radio buttons - Start
@@ -319,32 +307,32 @@ function selBlur(elem) {
 // This invokes the patient search dialog.
 function searchme() {
  var f = document.forms[0];
- var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
+ var url = '../main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>';
 
 <?php
 $lres = getLayoutRes($SHORT_FORM);
 
 while ($lrow = sqlFetchArray($lres)) {
-    $field_id  = $lrow['field_id'];
-    if (str_starts_with((string) $field_id, 'em_')) {
+    $field_id = (string) $lrow['field_id'];
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 
-    $data_type = $lrow['data_type'];
-    $fldname = "form_$field_id";
-    switch (getSearchClass($data_type)) {
-        case 1:
-            echo
-            " if (f." . attr($fldname) . ".style.backgroundColor != '' && trimlen(f." . attr($fldname) . ".value) > 0) {\n" .
-            "  url += '&" . attr($field_id) . "=' + encodeURIComponent(f." . attr($fldname) . ".value);\n" .
-            " }\n";
-            break;
-        case 2:
-            echo
-            " if (f." . attr($fldname) . ".style.backgroundColor != '' && f." . attr($fldname) . ".selectedIndex > 0) {\n" .
-            "  url += '&" . attr($field_id) . "=' + encodeURIComponent(f." . attr($fldname) . ".options[f." . attr($fldname) . ".selectedIndex].value);\n" .
-            " }\n";
-            break;
+    $fldname = "form_{$field_id}";
+    $af = attr($fldname);
+    $ai = attr($field_id);
+    [$hasValue, $getValue] = match (SearchClass::fromLayoutRow($lrow)) {
+        SearchClass::NotSearchable => [null, null],
+        SearchClass::TextField => ["trimlen(f.{$af}.value) > 0", "f.{$af}.value"],
+        SearchClass::SelectList => ["f.{$af}.selectedIndex > 0", "f.{$af}.options[f.{$af}.selectedIndex].value"],
+    };
+    if ($hasValue !== null) {
+        printf(<<<'FMT'
+ if (f.%s.style.backgroundColor != '' && %s) {
+  url += '&%s=' + encodeURIComponent(%s);
+ }
+
+FMT, $af, $hasValue, $ai, $getValue);
     }
 }
 ?>
@@ -380,7 +368,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                       method='post'
                       onsubmit='return submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0;?>,event,"DEM",constraints)'>
                     <!--  Was: class='form-inline' -->
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                     <table class='table table-sm w-100' cellspacing='8'>
                     <tr>
@@ -698,14 +686,14 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('SE State') : xlt('SE Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => OEGlobalsBag::getInstance()->get('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_state'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => OEGlobalsBag::getInstance()->getString('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_state'] ?? ''));
                             ?>
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('State') : xlt('Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'), 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => OEGlobalsBag::getInstance()->get('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_state'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'), 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => OEGlobalsBag::getInstance()->getString('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_state'] ?? ''));
                             ?>
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
@@ -722,13 +710,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE Country'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => OEGlobalsBag::getInstance()->get('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_country'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => OEGlobalsBag::getInstance()->getString('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_country'] ?? ''));
                             ?>
                           </div>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Country'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => OEGlobalsBag::getInstance()->get('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_country'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => OEGlobalsBag::getInstance()->getString('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_country'] ?? ''));
                             ?>
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
@@ -787,7 +775,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         </div>
     </div> <!--end of container div -->
 <!-- include support for the list-add selectbox feature -->
-<?php require(OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"); ?>
 <script>
 
 // hard code validation for old validation, in the new validation possible to add match rules
@@ -870,7 +858,7 @@ $(function () {
         ?>
         <?php if ((OEGlobalsBag::getInstance()->get('full_new_patient_form') == '4') && (checkIfPatientValidationHookIsActive())) :?>
             // Use zend module patient validation hook to open the controller and send the dup-checker fields.
-            var url ='<?php echo OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/zend_modules/public/patientvalidation"; ?>';
+            var url ='<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/zend_modules/public/patientvalidation"; ?>';
         <?php else :?>
             // Build and invoke the URL to create the dup-checker dialog.
             var url = 'new_search_popup.php';
@@ -899,19 +887,19 @@ $(function () {
 <?php
 $lres = getLayoutRes($SHORT_FORM);
 while ($lrow = sqlFetchArray($lres)) {
-    $field_id  = $lrow['field_id'];
-    if (str_starts_with((string) $field_id, 'em_')) {
+    $field_id = (string) $lrow['field_id'];
+    if (str_starts_with($field_id, 'em_')) {
         continue;
     }
 
-    switch (getSearchClass($lrow['data_type'])) {
-        case 1:
-            echo "    \$(" . js_escape("#form_" . $field_id) . ").click(function() { toggleSearch(this); });\n";
-            break;
-        case 2:
-            echo "    \$(" . js_escape("#form_" . $field_id) . ").click(function() { selClick(this); });\n";
-            echo "    \$(" . js_escape("#form_" . $field_id) . ").blur(function() { selBlur(this); });\n";
-            break;
+    $bindings = match (SearchClass::fromLayoutRow($lrow)) {
+        SearchClass::NotSearchable => [],
+        SearchClass::TextField => [['click', 'toggleSearch']],
+        SearchClass::SelectList => [['click', 'selClick'], ['blur', 'selBlur']],
+    };
+    $sel = js_escape("#form_" . $field_id);
+    foreach ($bindings as [$event, $handler]) {
+        printf('    $(%s).%s(function() { %s(this); });' . "\n", $sel, $event, $handler);
     }
 }
 ?>
@@ -920,7 +908,7 @@ while ($lrow = sqlFetchArray($lres)) {
         theme: "bootstrap4",
         dropdownAutoWidth: true,
         width: 'resolve',
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
     });
     if (typeof error !== 'undefined') {
         if (error) {
@@ -934,7 +922,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
@@ -943,7 +931,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-past').datetimepicker({
@@ -952,7 +940,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-past').datetimepicker({
@@ -961,7 +949,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-future').datetimepicker({
@@ -970,7 +958,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-future').datetimepicker({
@@ -979,7 +967,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 

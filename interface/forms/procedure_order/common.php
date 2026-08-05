@@ -15,26 +15,38 @@
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2025 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once(__DIR__ . "/../../orders/qoe.inc.php");
-require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\DornLabEvent;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/options.inc.php");
+require_once(__DIR__ . "/../../orders/qoe.inc.php");
+require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 
 if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
@@ -56,6 +68,8 @@ if ($_POST['bn_save_ereq'] ?? null) { //labcorp
 }
 
 $patient = sqlQueryNoLog("SELECT * FROM `patient_data` WHERE `pid` = ?", [$pid]);
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 global $gbl_lab, $gbl_lab_title, $gbl_client_acct;
 $eReqForm = '';
@@ -146,14 +160,12 @@ function normalizeDirectoryName(string $input): string
 $formid = (int)($_REQUEST['id'] ?? 0);
 
 $reload_url = $rootdir . '/patient_file/encounter/view_form.php?formname=procedure_order&id=' . urlencode($formid);
-$req_url = OEGlobalsBag::getInstance()->get('web_root') . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
+$req_url = OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
 $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $ppid = (int)($_POST['form_lab_id'] ?? null);
     if (get_lab_name($ppid) === 'labcorp') {
         if (!empty($_POST['form_account_facility'])) {
@@ -515,7 +527,7 @@ if (!empty($row['lab_id'])) {
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
-                oeUI.reasonCodeWidget.init(<?php echo js_url(OEGlobalsBag::getInstance()->get('webroot')); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
+                oeUI.reasonCodeWidget.init(<?php echo js_url(OEGlobalsBag::getInstance()->getWebRoot()); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
             } else {
                 console.error("Missing required dependency reasonCodeWidget");
                 return;
@@ -593,7 +605,7 @@ if (!empty($row['lab_id'])) {
                         action: 'delete_procedure',
                         order_id: formId,
                         order_seq: orderSeq,
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                     },
                     success: function (response) {
                         if (response.success) {
@@ -648,7 +660,7 @@ if (!empty($row['lab_id'])) {
                     data: {
                         action: 'delete_specimen',
                         specimen_id: specimenId,
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                     },
                     success: function (response) {
                         if (response.success) {
@@ -699,13 +711,13 @@ if (!empty($row['lab_id'])) {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             let datetimepicker = {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             $('.datepicker').datetimepicker(datepicker);
             $('.datetimepicker').datetimepicker(datetimepicker);
@@ -1100,7 +1112,7 @@ if (!empty($row['lab_id'])) {
             const params = new URLSearchParams({
                 action: 'code_detail)',
                 code: code,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             });
             url += "?" + params;
             let title = <?php echo xlj("Test") ?> +": " + code + " " + f[codetitle].value;
@@ -1139,8 +1151,7 @@ if (!empty($row['lab_id'])) {
 
         function createLabels(e) {
             e.preventDefault();
-            let prmt = <?php echo js_escape(xla("How many sets of specimen labels to create?") .
-                "\n" . xla("Each test in order gets a label.")); ?>;
+            let prmt = <?php echo xlj("How many sets of specimen labels to create?"); ?> + "\n" + <?php echo xlj("Each test in order gets a label."); ?>;
             let count = prompt(prmt, '1');
             if (!count) return false;
             let tarray = "";
@@ -1164,7 +1175,7 @@ if (!empty($row['lab_id'])) {
                 acctid: acctid,
                 action: 'print_labels',
                 count: count,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                 dob: dob,
                 order: order,
                 patient: patient,
@@ -1300,7 +1311,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
 
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type='hidden' name='id' value='<?php echo attr($formid) ?>' />
                 <fieldset class="container-xl clearfix">
                     <legend class="lfont1" data-toggle="collapse" data-target="#orderOptions" role="button">
@@ -1893,7 +1904,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         onclick='top.restoreSession();transmitting = true;'><?php echo xlt('Transmit Order'); ?>
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-cancel"
-                                        onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'"><?php echo xlt('Cancel/Exit'); ?>
+                                        onclick="top.restoreSession();location='<?php echo FormActionBarSettings::EXIT_URL; ?>'"><?php echo xlt('Cancel/Exit'); ?>
                                     </button>
                                 </div>
                             </div>

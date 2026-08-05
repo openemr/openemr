@@ -19,6 +19,7 @@ require_once("../../custom/code_types.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
@@ -81,10 +82,9 @@ $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     header("Pragma: public");
     header("Expires: 0");
@@ -93,13 +93,13 @@ if ($_POST['form_csvexport']) {
     header("Content-Disposition: attachment; filename=pending_followup.csv");
     header("Content-Description: File Transfer");
   // CSV headers:
-    echo csvEscape(xl('Patient')) . ',';
-    echo csvEscape(xl('ID')) . ',';
-    echo csvEscape(xl('Ordered')) . ',';
-    echo csvEscape(xl('Procedure')) . ',';
-    echo csvEscape(xl('Provider')) . ',';
-    echo csvEscape(xl('Code')) . ',';
-    echo csvEscape(xl('Service')) . "\n";
+    echo xlc('Patient') . ',';
+    echo xlc('ID') . ',';
+    echo xlc('Ordered') . ',';
+    echo xlc('Procedure') . ',';
+    echo xlc('Provider') . ',';
+    echo xlc('Code') . ',';
+    echo xlc('Service') . "\n";
 } else { // not export
     ?>
 <html>
@@ -118,7 +118,7 @@ if ($_POST['form_csvexport']) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -132,7 +132,7 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('Pending Followup from Results')?></h2>
 
 <form method='post' action='pending_followup.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -195,9 +195,7 @@ if ($_POST['form_csvexport']) {
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $sqlBindArray = [];
 

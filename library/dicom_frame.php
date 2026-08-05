@@ -7,8 +7,10 @@
  * @link    https://www.open-emr.org
  * @author    Victor Kofia <https://kofiav.com> 'Viewer'
  * @author    Jerry Padgett <sjpadgett@gmail.com> 'Viewer wrapper'
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2018 Victor Kofia <https://kofiav.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,6 +23,7 @@ require_once('../interface/globals.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -30,6 +33,14 @@ if (!AclMain::aclCheckCore('patients', 'docs')) {
 
 $web_path = $_REQUEST['web_path'] ?? null;
 if ($web_path) {
+    // CSRF only when the sensitive parameter is present. Bare navigation
+    // (main-menu Dicom Viewer link) has no `web_path` and just renders the
+    // viewer chrome — no token requirement in that case.
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+    if (!is_string($web_path) || !str_starts_with($web_path, OEGlobalsBag::getInstance()->getWebRoot() . '/controller.php?')) {
+        http_response_code(400);
+        exit;
+    }
     $patid = $_REQUEST['patient_id'] ?? null;
     $docid = $_REQUEST['document_id'] ?? $_REQUEST['doc_id'] ?? null;
     $d = new Document(attr($docid));
@@ -37,14 +48,15 @@ if ($web_path) {
     if ($d->get_mimetype() == 'application/dicom+zip') {
         $type = '.zip';
     }
-    $csrf = attr(CsrfUtils::collectCsrfToken());
-    $state_url = OEGlobalsBag::getInstance()->get('web_root') . "/library/ajax/upload.php";
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $csrf = CsrfUtils::collectCsrfToken(session: $session);
+    $state_url = OEGlobalsBag::getInstance()->getWebRoot() . "/library/ajax/upload.php";
     $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
 }
 $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 echo $twig->render("dicom/dicom-viewer.html.twig", [
-    'assets_static_relative' => OEGlobalsBag::getInstance()->get('assets_static_relative')
-    ,'web_root' => $web_root
+    'assets_static_relative' => OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative()
+    ,'web_root' => OEGlobalsBag::getInstance()->getWebRoot()
     ,'web_path' => $web_path
     ,'state_url' => $state_url ?? null
     ,'docid' => $docid ?? null

@@ -774,7 +774,7 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

@@ -64,11 +64,7 @@ class Bootstrap
         ?Kernel $kernel = null,
         ?LoggerInterface $logger = null,
     ) {
-        global $GLOBALS;
-
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
 
         // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
         // it here.
@@ -111,10 +107,6 @@ class Bootstrap
     }
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)
     {
-        // If globals are properly included elsewhere this should not be needed.
-        //  Will leave this here for now to avoid breaking anything.
-        global $GLOBALS;
-
         $service = $event->getGlobalsService();
         $section = xlt("DORN Lab Integration");
         $service->createSection($section, 'Portal');

@@ -15,7 +15,6 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Portal\PortalPatientReportController;
@@ -27,17 +26,17 @@ use Twig\Error\SyntaxError;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // kick out if patient not authenticated
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $user = $session->get('sessionUser');
 } else {
     //landing page definition -- where to go if something goes wrong
     $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
 
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit;
 }

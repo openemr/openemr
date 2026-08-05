@@ -182,7 +182,18 @@ class GenericRouter implements IRouter
     public function GetUri()
     {
         if (! $this->uri) {
-            $this->uri = array_key_exists('_REWRITE_COMMAND', $_REQUEST) ? $_REQUEST ['_REWRITE_COMMAND'] : '';
+            if (array_key_exists('_REWRITE_COMMAND', $_REQUEST)) {
+                $this->uri = $_REQUEST['_REWRITE_COMMAND'];
+            } else {
+                // Front controller fallback: extract path from REQUEST_URI
+                $requestUri = filter_input(INPUT_SERVER, 'REQUEST_URI');
+                if (is_string($requestUri)) {
+                    $parsed = parse_url($requestUri, PHP_URL_PATH);
+                    $this->uri = is_string($parsed) ? $parsed : '';
+                } else {
+                    $this->uri = '';
+                }
+            }
 
             // if a root folder was provided, then we need to strip that out as well
             if ($this->appRootUrl) {

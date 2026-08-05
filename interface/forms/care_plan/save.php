@@ -16,14 +16,24 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -50,7 +60,7 @@ $reasonDateHigh   = $_POST['reasonDateHigh']   ?? [];
 if ($id) {
     sqlStatement(
         "DELETE FROM `form_care_plan` WHERE id=? AND pid=? AND encounter=?",
-        [$id, $_SESSION["pid"], $_SESSION["encounter"]]
+        [$id, $session->get('pid'), $session->get('encounter')]
     );
     $newid = $id;
 } else {
@@ -58,17 +68,18 @@ if ($id) {
     $getMaxid = sqlFetchArray($res2);
     $newid    = $getMaxid['largestId'] ? ($getMaxid['largestId'] + 1) : 1;
 
-    addForm($encounter, "Care Plan Form", $newid, "care_plan", $_SESSION["pid"], $userauthorized);
+    addForm($encounter, "Care Plan Form", $newid, "care_plan", $session->get('pid'), $userauthorized);
 }
 
 $count = array_filter($count);
 if (!empty($count)) {
+    $authUser = $session->get('authUser');
     foreach ($count as $key => $codeval) :
         $code_val           = $code[$key] ?? '';
         $codetext_val       = $code_text[$key] ?? '';
         $description_val    = $code_des[$key] ?? '';
         $care_plan_type_val = $care_plan_type[$key] ?? '';
-        $care_user_val      = $care_plan_user[$key] ?: $_SESSION["authUser"];
+        $care_user_val      = $care_plan_user[$key] ?: $authUser;
 
         // Dates & status normalization
         $start_date_val = trim($code_date[$key] ?? '');
@@ -126,10 +137,10 @@ if (!empty($count)) {
             "INSERT INTO form_care_plan SET " . $sets,
             [
                 $newid,
-                $_SESSION["pid"],
-                $_SESSION["authProvider"],
+                $session->get('pid'),
+                $session->get('authProvider'),
                 $care_user_val,
-                $_SESSION["encounter"],
+                $session->get('encounter'),
                 $userauthorized,
                 $code_val,
                 $codetext_val,

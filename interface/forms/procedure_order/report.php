@@ -13,8 +13,8 @@
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
-require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
-require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 require_once(OEGlobalsBag::getInstance()->get("include_root") . "/orders/single_order_results.inc.php");
 
 function procedure_order_report($pid, $encounter, $cols, $id): void

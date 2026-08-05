@@ -247,7 +247,7 @@ The type is the Canonical URL of Resource Definition that is the type this refer
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

@@ -138,9 +138,9 @@ class ActionRouter implements IRouter
      *
      * @param $value String
      *          mode to check against the current mode
-     * @return boolean TRUE if arg passed in is the current mode
+     * @return bool TRUE if arg passed in is the current mode
      */
-    public function ModeIs($value)
+    public function ModeIs($value): bool
     {
         if (strcmp((string) $this->_mode, (string) $value) == 0) {
             return true;

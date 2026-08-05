@@ -13,6 +13,7 @@
 namespace OpenEMR\Services\DocumentTemplates;
 
 use Exception;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\QuestionnaireService;
 use RuntimeException;
@@ -337,25 +338,25 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function savePatientGroupsByProfile($profile_groups): bool
     {
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
-        try {
-            sqlQuery('DELETE From `document_template_profiles` WHERE `template_id` = 0');
-            $sql = 'INSERT INTO `document_template_profiles` (`id`, `template_id`, `profile`, `template_name`, `category`, `provider`, `modified_date`, `member_of`, `active`) VALUES (NULL, 0, ?, "", "Group", ?, current_timestamp(), ?, ?)';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-            foreach ($profile_groups as $profile => $groups) {
-                foreach ($groups as $group) {
-                    $rtn = sqlInsert($sql, [$profile, $session->get('authUserID'), $group['group'] ?? '', $group['active']]);
+        return QueryUtils::inTransaction(function () use ($profile_groups, $session) {
+            $rtn = 0;
+            try {
+                sqlQuery('DELETE From `document_template_profiles` WHERE `template_id` = 0');
+                $sql = 'INSERT INTO `document_template_profiles` (`id`, `template_id`, `profile`, `template_name`, `category`, `provider`, `modified_date`, `member_of`, `active`) VALUES (NULL, 0, ?, "", "Group", ?, current_timestamp(), ?, ?)';
+
+                foreach ($profile_groups as $profile => $groups) {
+                    foreach ($groups as $group) {
+                        $rtn = sqlInsert($sql, [$profile, $session->get('authUserID'), $group['group'] ?? '', $group['active']]);
+                    }
                 }
+            } catch (\Throwable $e) {
+                throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
             }
-        } catch (\Throwable $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
 
-        return $rtn ?? 0;
+            return $rtn;
+        });
     }
 
     /**
@@ -364,19 +365,19 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function updateGroupsInPatients($patients): bool
     {
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        try {
-            $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` > ?', [null, 0]);
-            foreach ($patients as $id => $groups) {
-                $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` = ?', [$groups, $id]);
+        return QueryUtils::inTransaction(function () use ($patients) {
+            $rtn = false;
+            try {
+                $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` > ?', [null, 0]);
+                foreach ($patients as $id => $groups) {
+                    $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` = ?', [$groups, $id]);
+                }
+            } catch (\Throwable $e) {
+                throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
             }
-        } catch (\Throwable $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
-        return !$rtn;
+
+            return !$rtn;
+        });
     }
 
     /**
@@ -456,7 +457,7 @@ class DocumentTemplateService extends QuestionnaireService
     /**
      * @param null  $category
      * @param mixed $pid
-     * @return
+     * @return mixed
      */
     public function getTemplateListByCategory($category = null, $pid = 0, $name = null): bool|array|null
     {
@@ -578,7 +579,7 @@ class DocumentTemplateService extends QuestionnaireService
             throw new RuntimeException(xlt("Template rejected. JavaScript not allowed"));
         }
 
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         $name = null;
         if (!empty($pid)) {
@@ -602,6 +603,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function setProfileActiveStatus($profiles): int
     {
         sqlQuery("UPDATE `document_template_profiles` SET `active` = '0' WHERE `template_id` = 0");
+        $rtn = true;
         foreach ($profiles as $profile) {
             $rtn = sqlQuery("UPDATE `document_template_profiles` SET `active` = '1' WHERE `profile` = ? AND `template_id` = 0", [$profile]);
         }
@@ -627,38 +629,37 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function sendProfileWithGroups($profiles): int
     {
-        $result = 0;
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        $results = [];
-        try {
-            foreach ($profiles as $profile) {
-                $sql = 'Select pd.pid, ptd.profile, ptd.member_of, tpl.* From `patient_data` pd ' .
-                    "Join `document_template_profiles` as ptd On pd.patient_groups LIKE CONCAT('%',ptd.member_of, '%') And ptd.profile = ? " .
-                    'Join (Select * From `document_template_profiles`) tplId On tplId.profile = ptd.profile ' .
-                    'Join (Select `id`, `category`, `template_name`, `location`, `template_content`, `mime` From `document_templates`) as tpl On tpl.id = tplId.template_id';
-                $query_result = sqlStatement($sql, [$profile]);
-                while ($row = sqlFetchArray($query_result)) {
-                    if (is_array($row)) {
-                        $tid = $row['template_name'];
-                        $result = $this->insertTemplate(
-                            $row['pid'],
-                            $row['category'],
-                            $row['template_name'],
-                            $row['template_content'],
-                            $row['mime'],
-                            $profile
-                        );
-                        //$results[$row['pid']][$row['profile']][$tid] = $row;
+        return QueryUtils::inTransaction(function () use ($profiles) {
+            $result = 0;
+            $results = [];
+            try {
+                foreach ($profiles as $profile) {
+                    $sql = 'Select pd.pid, ptd.profile, ptd.member_of, tpl.* From `patient_data` pd ' .
+                        "Join `document_template_profiles` as ptd On pd.patient_groups LIKE CONCAT('%',ptd.member_of, '%') And ptd.profile = ? " .
+                        'Join (Select * From `document_template_profiles`) tplId On tplId.profile = ptd.profile ' .
+                        'Join (Select `id`, `category`, `template_name`, `location`, `template_content`, `mime` From `document_templates`) as tpl On tpl.id = tplId.template_id';
+                    $query_result = sqlStatement($sql, [$profile]);
+                    while ($row = sqlFetchArray($query_result)) {
+                        if (is_array($row)) {
+                            $tid = $row['template_name'];
+                            $result = $this->insertTemplate(
+                                $row['pid'],
+                                $row['category'],
+                                $row['template_name'],
+                                $row['template_content'],
+                                $row['mime'],
+                                $profile
+                            );
+                            //$results[$row['pid']][$row['profile']][$tid] = $row;
+                        }
                     }
                 }
+            } catch (\Throwable $e) {
+                throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
             }
-        } catch (\Throwable $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
-        return $result;
+
+            return $result;
+        });
     }
 
     /**
@@ -669,28 +670,27 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function sendTemplate($pids, $templates, $category = null): int
     {
-        $result = 0;
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        try {
-            foreach ($templates as $id => $profile) {
-                $template = $this->fetchTemplate($id);
-                $destination_category = $template['category'];
-                if ($destination_category === 'repository') {
-                    $destination_category = $category;
+        return QueryUtils::inTransaction(function () use ($pids, $templates, $category) {
+            $result = 0;
+            try {
+                foreach ($templates as $id => $profile) {
+                    $template = $this->fetchTemplate($id);
+                    $destination_category = $template['category'];
+                    if ($destination_category === 'repository') {
+                        $destination_category = $category;
+                    }
+                    $content = $template['template_content'];
+                    $name = $template['template_name'];
+                    foreach ($pids as $pid) {
+                        $result = $this->insertTemplate($pid, $destination_category, $name, $content, $template['mime'], $profile);
+                    }
                 }
-                $content = $template['template_content'];
-                $name = $template['template_name'];
-                foreach ($pids as $pid) {
-                    $result = $this->insertTemplate($pid, $destination_category, $name, $content, $template['mime'], $profile);
-                }
+            } catch (\Throwable $e) {
+                throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
             }
-        } catch (\Throwable $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
-        return $result;
+
+            return $result;
+        });
     }
 
     /**
@@ -741,31 +741,30 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function saveAllProfileTemplates($profiles_array)
     {
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        try {
-            $session = SessionWrapperFactory::getInstance()->getWrapper();
-            sqlQuery("DELETE FROM `document_template_profiles` WHERE `template_id` > 0");
-            $rtn = false;
-            foreach ($profiles_array as $profile_array) {
-                $form_data = [];
-                foreach ($profile_array['form'] as $form) {
-                    $form_data[$form['name']] = trim($form['value'] ?? '');
-                }
-                $rtn = sqlInsert(
-                    "INSERT INTO `document_template_profiles`
+        return QueryUtils::inTransaction(function () use ($profiles_array) {
+            try {
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                sqlQuery("DELETE FROM `document_template_profiles` WHERE `template_id` > 0");
+                $rtn = false;
+                foreach ($profiles_array as $profile_array) {
+                    $form_data = [];
+                    foreach ($profile_array['form'] as $form) {
+                        $form_data[$form['name']] = trim($form['value'] ?? '');
+                    }
+                    $rtn = sqlInsert(
+                        "INSERT INTO `document_template_profiles`
             (`template_id`, `profile`, `template_name`, `category`, `provider`, `recurring`, `event_trigger`, `period`, `notify_trigger`, `notify_period`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    [$profile_array['id'], $profile_array['profile'],
-                        $profile_array['name'], $profile_array['category'], $session->get('authUserID'),
-                        $form_data['recurring'] ? 1 : 0, $form_data['when'] ?? '', $form_data['days'] ?? '', $form_data['notify_when'] ?? '', $form_data['notify_days'] ?? '']
-                );
+                        [$profile_array['id'], $profile_array['profile'],
+                            $profile_array['name'], $profile_array['category'], $session->get('authUserID'),
+                            $form_data['recurring'] ? 1 : 0, $form_data['when'] ?? '', $form_data['days'] ?? '', $form_data['notify_when'] ?? '', $form_data['notify_days'] ?? '']
+                    );
+                }
+            } catch (\Throwable $e) {
+                throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
             }
-        } catch (\Throwable $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
-        return $rtn;
+
+            return $rtn;
+        });
     }
 
     /**
@@ -774,7 +773,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function fetchDefaultGroups(): array
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', ['Patient_Groupings']);
-        $category_list = [];
+        $group_list = [];
         while ($row = sqlFetchArray($rtn)) {
             $group_list[$row['option_id']] = $row;
         }

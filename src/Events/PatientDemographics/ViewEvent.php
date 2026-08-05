@@ -37,7 +37,7 @@ class ViewEvent extends Event
     /**
      * UpdateEvent constructor.
      *
-     * @param integer $pid Patient Identifier
+     * @param int $pid Patient Identifier
      */
     public function __construct(private $pid)
     {

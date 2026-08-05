@@ -171,9 +171,4 @@ class FormSOAP extends ORDataObject
             $this->plan = $data;
         }
     }
-
-    function persist()
-    {
-        parent::persist();
-    }
 }   // end of Form

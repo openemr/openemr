@@ -21,7 +21,9 @@ class eRxSOAP
     const FLAG_ALLERGY_PRESS        = '3';
     const FLAG_ALLERGY_IMPORT       = '4';
 
+    /** @var ?eRxGlobals */
     private $globals;
+    /** @var ?eRxStore */
     private $store;
 
     private $authUserId;
@@ -67,8 +69,8 @@ class eRxSOAP
 
     /**
      * Set Globals for retrieving eRx global configurations
-     * @param  object  $globals The eRx Globals object to use for processing
-     * @return eRxPage          This object is returned for method chaining
+     * @param  eRxGlobals $globals The eRx Globals object to use for processing
+     * @return eRxSOAP             This object is returned for method chaining
      */
     public function setGlobals($globals)
     {
@@ -79,7 +81,7 @@ class eRxSOAP
 
     /**
      * Get Globals for retrieving eRx global configurations
-     * @return object The eRx Globals object to use for processing
+     * @return eRxGlobals The eRx Globals object to use for processing
      */
     public function getGlobals()
     {
@@ -88,8 +90,8 @@ class eRxSOAP
 
     /**
      * Set Store to handle eRx cashed data
-     * @param  object  $store The eRx Store object to use for processing
-     * @return eRxSOAP        This object is returned for method chaining
+     * @param  eRxStore $store The eRx Store object to use for processing
+     * @return eRxSOAP          This object is returned for method chaining
      */
     public function setStore($store)
     {
@@ -100,7 +102,7 @@ class eRxSOAP
 
     /**
      * Get Store for handling eRx cashed data
-     * @return object The eRx Store object to use for processing
+     * @return eRxStore The eRx Store object to use for processing
      */
     public function getStore()
     {
@@ -158,7 +160,7 @@ class eRxSOAP
 
     /**
      * Set the Id of the authenticated user
-     * @param  integer $user The Id for the authenticated user
+     * @param int $user The Id for the authenticated user
      * @return eRxSOAP       This object is returned for method chaining
      */
     public function setAuthUserId($user)
@@ -170,7 +172,7 @@ class eRxSOAP
 
     /**
      * Get the Id of the authenticated user
-     * @return integer The Id of the authenticated user
+     * @return int The Id of the authenticated user
      */
     public function getAuthUserId()
     {
@@ -179,7 +181,7 @@ class eRxSOAP
 
     /**
      * Set the Id of the current patient
-     * @param  integer $id The Id of the current patient
+     * @param int $id The Id of the current patient
      * @return eRxSOAP     This object is returned for method chaining
      */
     public function setPatientId($id)
@@ -191,7 +193,7 @@ class eRxSOAP
 
     /**
      * Get the Id of the current patient
-     * @return integer The Id of the current patient
+     * @return int The Id of the current patient
      */
     public function getPatientId()
     {
@@ -200,7 +202,7 @@ class eRxSOAP
 
     /**
      * Generate and set a new SOAP client with provided Path Id
-     * @param  integer    $pathId Id for Ensora eRx SOAP path: index [0 = Update, 1 = Patient]
+     * @param int $pathId Id for Ensora eRx SOAP path: index [0 = Update, 1 = Patient]
      * @return SoapClient         Soap Client
      */
     public function initializeSoapClient($pathId)
@@ -271,7 +273,7 @@ class eRxSOAP
     /**
      * Check if TTL of current patient has elapsed for provided SOAP process
      * @param  string  $process SOAP process to check against for elapsed TTL of current patient
-     * @return boolean          True if TTL of current patient has elapsed for provided SOAP process, otherwise false
+     * @return bool True if TTL of current patient has elapsed for provided SOAP process, otherwise false
      */
     public function elapsedTTL($process)
     {
@@ -303,7 +305,7 @@ class eRxSOAP
     /**
      * Check if import status of current patient is set to provided SOAP process(es)
      * @param  string|array $status SOAP process to check against import status of current patient, optionally an array of SOAP processes can be substituted
-     * @return boolean              True if import status of current patient is set to provided SOAP process(es), otherwise false
+     * @return bool True if import status of current patient is set to provided SOAP process(es), otherwise false
      */
     public function checkPatientImportStatus($status)
     {
@@ -493,7 +495,7 @@ class eRxSOAP
 
     /**
      * Trigger Allergy History SOAP call to NewCrop for current patient and update local cached data
-     * @return integer Count of newly cached records
+     * @return int Count of newly cached records
      */
     public function insertUpdateAllergies()
     {
@@ -588,7 +590,7 @@ class eRxSOAP
 
     /**
      * Update eRx uploaded status for current patient allergies
-     * @return boolean True on success, false on failure
+     * @return bool True on success, false on failure
      */
     public function updateUploadedErx()
     {
@@ -616,7 +618,7 @@ class eRxSOAP
 
     /**
      * Insert or update medications for current patient
-     * @return integer Count of newly cached records
+     * @return int Count of newly cached records
      */
     public function insertUpdateMedications()
     {

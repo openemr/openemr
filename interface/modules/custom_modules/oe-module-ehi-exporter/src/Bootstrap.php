@@ -63,9 +63,7 @@ class Bootstrap
         ?Kernel $kernel = null,
         ?LoggerInterface $logger = null,
     ) {
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
 
         // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
         // it here.
@@ -91,7 +89,7 @@ class Bootstrap
 
     public function getAssetPath()
     {
-        return OEGlobalsBag::getInstance()->get('webroot') . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
+        return OEGlobalsBag::getInstance()->getWebRoot() . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
     }
 
     public function getLogger(): LoggerInterface

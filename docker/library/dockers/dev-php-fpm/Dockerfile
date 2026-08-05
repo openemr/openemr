@@ -90,6 +90,8 @@ RUN set -eux; \
 #	fi; \
 	git clone https://github.com/php/php-src php; \
 	cd php; \
+# PHP 8.6 only exists on master today (no 8.6 tag or PHP-8.6 branch yet), so we clone master.
+# The point of this nightly image is to catch breakage against in-development PHP 8.6 early.
 #	git checkout "$( \
 #		git for-each-ref --format='%(refname)' refs/tags \
 #		| grep -E 'refs/tags/php-8\.2[.0-9]+$' \
@@ -154,9 +156,7 @@ RUN set -eux; \
 # https://github.com/docker-library/php/issues/439
 		--with-mhash \
 		\
-# https://github.com/docker-library/php/issues/822
-		--with-pic \
-		\
+# --with-pic removed: newer Libtool rejects it as obsolete. PIC code is already produced via -fpic in PHP_CFLAGS above.
 # --enable-ftp is included here because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
 		--enable-ftp \
 # --enable-mbstring is included here because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)

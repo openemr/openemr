@@ -47,7 +47,7 @@ class OnsiteActivityViewController extends AppBasePortalController
      */
     public function ListView()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user = 0;
         if ($session->has('authUser')) {
             $user = $session->get('authUser');

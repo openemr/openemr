@@ -14,6 +14,7 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -36,7 +37,7 @@ $isForward = ($clientApp->getRequest('mode', false) == 'forward') ? 1 : 0;
 $isFax = ($serviceType == 'fax') ? 1 : 0;
 $isUniversal = (int)$clientApp->getRequest('isUniversal', false);
 
-$isSMTP = !empty(OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? null);
+$isSMTP = !empty(OEGlobalsBag::getInstance()->getString('SMTP_HOST') ?? null);
 $isOnetime = (int)$clientApp->getRequest('isOnetime', false);
 
 if ($isUniversal) {
@@ -51,6 +52,7 @@ $interface_pid = null;
 $file_mime = '';
 $recipient_phone = '';
 $file_name = '';
+$pid = '';
 if (empty($isSMS)) {
 // fax contact form
     $interface_pid = $clientApp->getRequest('pid', '');
@@ -66,12 +68,14 @@ if (empty($isSMS)) {
 } else {
 // SMS contact dialog. Passed in phone or select patient from popup.
     $interface_pid = $clientApp->getRequest('pid', '');
-    $portal_url = OEGlobalsBag::getInstance()->get('portal_onsite_two_address');
+    $portal_url = OEGlobalsBag::getInstance()->getString('portal_onsite_two_address');
     $details = json_decode((string) $clientApp->getRequest('details', ''), true);
     $recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
     $pid = $interface_pid;
 }
 $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html lang="">
@@ -82,7 +86,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
     echo "<script>var pid=" . js_escape($interface_pid ?: $pid) . ";var isFax=" . js_escape($isFax) . ";var isOnetime=" . js_escape($isOnetime) . ";var isEmail=" . js_escape($isEmail) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";var isUniversal=" . js_escape($isUniversal) . ";</script>";
     ?>
     <?php if (OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled')) { ?>
-        <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/CustomTemplateLoader.js"></script>
     <?php } ?>
     <script>
         const serviceType = <?php echo js_escape($serviceType); ?>;
@@ -202,7 +206,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
 
         // callback for patient select dialog
         function setpatient(pid) {
-            let actionUrl = 'getPatientDetails';
+            let actionUrl = 'apiFetchPatientDetails';
             return $.post(actionUrl, {
                 'pid': pid,
                 'type': serviceType
@@ -210,13 +214,13 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
                 $("#wait").remove()
             }, 'json').done(
                 function (data) {
-                    if (recipient && !data['phone_cell']) {
-                        data['phone_cell'] = recipient;
+                    if (recipient && !data['phone']) {
+                        data['phone'] = recipient;
                     }
                     $("#form_pid").val(pid);
                     $("#form_name").val(data['fname']);
                     $("#form_lastname").val(data['lname']);
-                    $("#form_phone").val(data['phone_cell']);
+                    $("#form_phone").val(data['phone']);
                     $("#form_email").val(data['email']);
                     $(".show-detail").removeClass('d-none')
                 });
@@ -265,7 +269,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
 <body>
     <div class="container-fluid">
         <form class="form" id="contact-form" method="post" action="contact.php" role="form">
-            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('contact-form')); ?>" />
+            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'contact-form'); ?>" />
             <input type="hidden" id="form_file" name="file" value='<?php echo attr($the_file ?? ''); ?>'>
             <input type="hidden" id="form_docid" name="docid" value='<?php echo attr($the_docid ?? ''); ?>'>
             <input type="hidden" id="form_isContent" name="isContent" value='<?php echo attr($isContent ?? ''); ?>'>

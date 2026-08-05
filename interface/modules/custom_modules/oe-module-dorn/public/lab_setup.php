@@ -17,6 +17,7 @@ require_once __DIR__ . "/../../../../globals.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 
@@ -27,6 +28,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: DORN Lab Setup", xl("DORN Lab Setup"));
 }
 
+$datas = [];
 if (!empty($_POST)) {
     if (isset($_POST['SubmitButton'])) {
         //check if form was submitted
@@ -37,6 +39,7 @@ if (!empty($_POST)) {
     }
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -118,7 +121,7 @@ if (!empty($_POST)) {
     function createRouteClickEdit(labGuid, labName = '', isEulaRequired = false) {
         // dialog open calls restoreSession()
         let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Create Route"); ?>;
-        let scriptTitle = 'route_edit.php?labGuid=' + encodeURIComponent(labGuid) + '&isEula=' + encodeURIComponent(isEulaRequired) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let scriptTitle = 'route_edit.php?labGuid=' + encodeURIComponent(labGuid) + '&isEula=' + encodeURIComponent(isEulaRequired) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
         // Call the doEULA function then continue with route dialog open if accepted.
         if (isEulaRequired) {
             doLabEULA(labName).then((result) => {
@@ -143,7 +146,7 @@ if (!empty($_POST)) {
 
     function installCompendiumClick(labGuid) {
         let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
-        let scriptTitle = 'compendium_install.php?labGuid=' + encodeURIComponent(labGuid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let scriptTitle = 'compendium_install.php?labGuid=' + encodeURIComponent(labGuid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
         dlgopen(scriptTitle, '_blank', 500, 650, false, addTitle);
     }
 </script>

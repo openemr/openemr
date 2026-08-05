@@ -121,7 +121,7 @@ class FhirValueSetRestController
     /**
      * Queries for FHIR ValueSet resources using various search parameters.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return FHIR bundle with query results, if found
+     * @return \Symfony\Component\HttpFoundation\Response FHIR bundle with query results, if found
      */
     #[OA\Get(
         path: '/fhir/ValueSet',

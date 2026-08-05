@@ -10,7 +10,7 @@ use Laminas\Router\Http\Segment;
 return [
     'controllers' => [
         'factories' => [
-            ImmunizationController::class => fn(ContainerInterface $container, $requestedName): \Immunization\Controller\ImmunizationController => new ImmunizationController($container->get(ImmunizationTable::class))
+            ImmunizationController::class => fn(ContainerInterface $container, $requestedName): ImmunizationController => new ImmunizationController($container->get(ImmunizationTable::class))
         ],
     ],
 
@@ -35,7 +35,7 @@ return [
 
     'service_manager' => [
         'factories' => [
-            ImmunizationTable::class => fn (ContainerInterface $container, $requestedName) => new ImmunizationTable(),
+            ImmunizationTable::class => fn (ContainerInterface $container, $requestedName): ImmunizationTable => new ImmunizationTable(),
         ],
     ],
 

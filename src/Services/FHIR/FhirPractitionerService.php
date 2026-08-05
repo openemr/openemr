@@ -84,7 +84,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      * Parses an OpenEMR practitioner record, returning the equivalent FHIR Practitioner Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPractitioner
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
@@ -100,7 +100,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
         }
         $practitionerResource->setMeta($meta);
 
-        $practitionerResource->setActive($dataRecord['active'] == "1" ? true : false);
+        $practitionerResource->setActive($dataRecord['active'] == "1");
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);

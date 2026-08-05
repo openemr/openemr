@@ -141,7 +141,7 @@ function inventory_mapToTable($row): void
         echo " <tr class='detail'>\n";
         $lastid = $row['drug_id'];
         if ($auth_admin) {
-            echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(addslashes((string) $lastid)) . ")'>" .
+            echo "<td title='" . xla('Click to edit') . "' onclick='dodclick(" . attr(js_escape((string) $lastid)) . ")'>" .
             "<a href='' onclick='return false'>" .
             text($row['name']) . "</a></td>\n";
         } else {
@@ -290,7 +290,7 @@ $(function () {
             stripeClasses:['stripe1','stripe2'],
             orderClasses: false,
             <?php // Bring in the translations ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
         });
 });
 </script>

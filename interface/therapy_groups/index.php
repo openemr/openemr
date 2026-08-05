@@ -49,7 +49,7 @@ switch ($method) {
 
         $controller = new TherapyGroupsController();
         if ($_GET['group_id'] == 'from_session') {
-            $controller->index($therapy_group);
+            $controller->index(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('therapy_group'));
         } else {
             $controller->index($_GET['group_id']);
         }

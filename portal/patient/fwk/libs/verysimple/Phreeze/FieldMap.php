@@ -74,7 +74,7 @@ class FieldMap
     /**
      * Return true if this column is an enum type
      *
-     * @return boolean
+     * @return bool
      */
     function IsEnum()
     {

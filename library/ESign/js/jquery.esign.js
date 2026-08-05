@@ -28,6 +28,10 @@
 
 		var events = $.extend({
 
+            // this functionality is overridden in the interface/patient_file/encounter/forms.php file
+            // as far as I can tell this is only used in the interface/patient_file/encounter/forms.php file but it is
+            // left here as a default for any other implementations that may want to use it
+            // we may want to remove it in the future... (Stephen Nielson - April 8th 2026)
 			afterFormSuccess : function( response ) {
 				var logId = "esign-signature-log-"+response.formDir+"-"+response.formId;
                 top.restoreSession();

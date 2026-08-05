@@ -49,7 +49,7 @@ trait MappedServiceTrait
         $processingResult = new ProcessingResult();
 
         /**
-         * @var $service BaseService
+         * @var FhirServiceBase $service
          */
         foreach ($this->getMappedServices() as $service) {
             $innerResult = $service->getAll($fhirSearchParams, $puuidBind);

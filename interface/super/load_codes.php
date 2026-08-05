@@ -15,11 +15,13 @@
 set_time_limit(0);
 
 require_once '../globals.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -55,12 +57,10 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 <body class="body_top">
 
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if (empty($code_types[$code_type])) {
         die(xlt('Code type not yet defined') . ": '" . text($code_type) . "'");
@@ -99,49 +99,45 @@ if (!empty($_POST['bn_upload'])) {
         }
 
 
-        // Settings to drastically speed up import with InnoDB
-        sqlStatementNoLog("SET autocommit=0");
-        sqlStatementNoLog("START TRANSACTION");
-        while (($line = fgets($eres)) !== false) {
-            if ($code_type == 'RXCUI') {
-                $a = explode('|', $line);
-                if (count($a) < 18) {
-                    continue;
-                }
-
-                if ($a[17] != '4096') {
-                    continue;
-                }
-
-                if ($a[11] != 'RXNORM') {
-                    continue;
-                }
-
-                $code = $a[0];
-                if (isset($seen_codes[$code])) {
-                    continue;
-                }
-
-                $seen_codes[$code] = 1;
-                if (!$form_replace) {
-                    $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1", [$code_type_id, $code]);
-                    if (!empty($tmp)) {
-                        sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?", [$a[14], $code_type_id, $code]);
-                        ++$repcount;
+        // Batching the inserts into one transaction drastically speeds up import with InnoDB
+        QueryUtils::inTransaction(function () use ($eres, $code_type, $code_type_id, $form_replace, $seen_codes, &$inscount, &$repcount): void {
+            while (($line = fgets($eres)) !== false) {
+                if ($code_type == 'RXCUI') {
+                    $a = explode('|', $line);
+                    if (count($a) < 18) {
                         continue;
                     }
+
+                    if ($a[17] != '4096') {
+                        continue;
+                    }
+
+                    if ($a[11] != 'RXNORM') {
+                        continue;
+                    }
+
+                    $code = $a[0];
+                    if (isset($seen_codes[$code])) {
+                        continue;
+                    }
+
+                    $seen_codes[$code] = 1;
+                    if (!$form_replace) {
+                        $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1", [$code_type_id, $code]);
+                        if (!empty($tmp)) {
+                            sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?", [$a[14], $code_type_id, $code]);
+                            ++$repcount;
+                            continue;
+                        }
+                    }
+
+                    sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, fee = 0, units = 0", [$code_type_id, $code, $a[14]]);
+                    ++$inscount;
                 }
 
-                sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, fee = 0, units = 0", [$code_type_id, $code, $a[14]]);
-                ++$inscount;
+                // TBD: Clone/adapt the above for each new code type.
             }
-
-            // TBD: Clone/adapt the above for each new code type.
-        }
-
-        // Settings to drastically speed up import with InnoDB
-        sqlStatementNoLog("COMMIT");
-        sqlStatementNoLog("SET autocommit=1");
+        });
 
         fclose($eres);
         // Cannot close ZIP object if not initialised, catch and do nothing
@@ -162,7 +158,7 @@ if (!empty($_POST['bn_upload'])) {
         <form method='post' action='load_codes.php' enctype='multipart/form-data'
         onsubmit='return top.restoreSession()'>
 
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
             <div class="table-responsive">
                 <table class="table table-bordered">

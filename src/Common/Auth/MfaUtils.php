@@ -13,6 +13,7 @@
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 
@@ -73,7 +74,7 @@ class MfaUtils
      */
     public function isMfaRequired()
     {
-        return !empty($this->types) ? true : false;
+        return !empty($this->types);
     }
 
     public function getType()
@@ -132,7 +133,7 @@ class MfaUtils
      * Check code from TOTP application or device
      * @return bool
      */
-    private function checkTOTP($token)
+    private function checkTOTP($token): bool
     {
         $registrationSecret = false;
         if (!empty($this->var1TOTP)) {
@@ -142,7 +143,11 @@ class MfaUtils
         // Decrypt the secret
         // First, try standard method that uses standard key
         $cryptoGen = ServiceContainer::getCrypto();
-        $secret = $cryptoGen->decryptStandard($registrationSecret);
+        try {
+            $secret = $cryptoGen->decryptFromDatabase(is_string($registrationSecret) ? $registrationSecret : null);
+        } catch (CryptoGenException) {
+            $secret = null;
+        }
         if (empty($secret)) {
             // Second, try the password hash, which was setup during install and is temporary
             $passwordResults = privQuery(
@@ -159,7 +164,7 @@ class MfaUtils
                 if (!empty($secret)) {
                     error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                     // Re-encrypt with the more secure standard key
-                    $secretEncrypt = $cryptoGen->encryptStandard($secret);
+                    $secretEncrypt = $cryptoGen->encryptForDatabase($secret);
                     privStatement(
                         "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
                         [$secretEncrypt, $this->uid]
@@ -186,7 +191,7 @@ class MfaUtils
      * Check code from U2F Key
      * @return bool
      */
-    private function checkU2F($token)
+    private function checkU2F($token): bool
     {
 
         $u2f = new \u2flib_server\U2F($this->appId);
@@ -228,7 +233,7 @@ class MfaUtils
     private function validateToken($token, $type)
     {
         return match ($type) {
-            'TOTP' => strlen((string) $token) === self::TOTP_TOKEN_LENGTH && is_numeric($token) ? true : false,
+            'TOTP' => strlen((string) $token) === self::TOTP_TOKEN_LENGTH && is_numeric($token),
             // todo - USF string validation
             'U2F' => true,
             default => throw new \Exception('MFA type do not supported'),

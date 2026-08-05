@@ -106,7 +106,7 @@ class NumberToText
 
             if ($section > count($big) - 1) {
                 // ran out of names for numbers this big, call recursively
-                $text = NumberToText($int, false, false, $and) . " " . $big[$section - 1] . " " . $text;
+                $text = (new self($int, false, false, $and))->convert() . " " . $big[$section - 1] . " " . $text;
                 $int = 0;
             } else {
                 // we can handle it

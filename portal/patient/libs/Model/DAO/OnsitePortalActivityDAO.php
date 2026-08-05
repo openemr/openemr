@@ -33,7 +33,7 @@ class OnsitePortalActivityDAO extends Phreezable
     /** @var int */
     public $Id;
 
-    /** @var date */
+    /** @var string */
     public $Date;
 
     /** @var int */
@@ -54,21 +54,21 @@ class OnsitePortalActivityDAO extends Phreezable
     /** @var string */
     public $Status;
 
-    /** @var longtext */
+    /** @var string */
     public $Narrative;
 
-    /** @var longtext */
+    /** @var string */
     public $TableAction;
 
-    /** @var longtext */
+    /** @var string */
     public $TableArgs;
 
     /** @var int */
     public $ActionUser;
 
-    /** @var date */
+    /** @var string */
     public $ActionTakenTime;
 
-    /** @var longtext */
+    /** @var string */
     public $Checksum;
 }

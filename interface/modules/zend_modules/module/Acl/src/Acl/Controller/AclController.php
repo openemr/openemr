@@ -53,6 +53,7 @@ class AclController extends AbstractActionController
         $user_group_denied   = $this->createUserGroups("user_group_denied_", "display:none;", "draggable4", "class='class_li'");
 
         $result = $this->getAclTable()->getActiveModules();
+        $array_active_modules = [];
         foreach ($result as $row) {
             $array_active_modules[$row['mod_id']] = $row['mod_name'];
         }

@@ -26,6 +26,11 @@ if (isset($_GET['typeid'])) {
     $grporders = [];
     $typeid = (int) $_GET['typeid'];
     $name = '';
+    $ptrow = [];
+    $codes = '';
+    $transport = '';
+    $testid = '';
+    $proctype_name = '';
     if ($typeid) {
         $ptrow = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = ?", [$typeid]);
         $name = $ptrow['name'];
@@ -43,7 +48,7 @@ if (isset($_GET['typeid'])) {
         }
     }
     ?>
-    <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/main/tabs/js/include_opener.js"></script>
     <script>
         if (opener.closed) {
             alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
@@ -167,6 +172,7 @@ if (isset($_GET['typeid'])) {
                     </thead>
                     <?php
                     $ord = isset($_REQUEST['bn_search']) ? 'ord' : 'fgp';
+                    $sub = '';
                     if ($ord === 'ord') {
                         $sub = "OR procedure_type LIKE 'pro'";
                     }

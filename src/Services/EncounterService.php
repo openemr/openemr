@@ -408,10 +408,10 @@ class EncounterService extends BaseService
                 $record = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_POST_SAVE, $data);
                 $processingResult->setData([$record]);
             } else {
-                $processingResult->addProcessingResult("Failed to retrieve record after insert");
+                $processingResult->addInternalError("Failed to retrieve record after insert");
             }
         } else {
-            $processingResult->addProcessingError("error processing SQL Insert");
+            $processingResult->addInternalError("error processing SQL Insert");
         }
 
         return $processingResult;
@@ -479,7 +479,7 @@ class EncounterService extends BaseService
                 $processingResult->setData([$record]);
             }
         } else {
-            $processingResult->addProcessingError("error processing SQL Update");
+            $processingResult->addInternalError("error processing SQL Update");
         }
 
         return $processingResult;
@@ -559,13 +559,20 @@ class EncounterService extends BaseService
 
     public function updateVital($pid, $eid, $vid, $data)
     {
+        // Verify the vital belongs to this patient/encounter before updating
+        // to prevent IDOR attacks where an attacker supplies another patient's vid.
+        $vitalsService = new VitalsService();
+        $existingVital = $vitalsService->getVitalsForForm($vid);
+        if (empty($existingVital) || $existingVital['pid'] != $pid || $existingVital['eid'] != $eid) {
+            return null;
+        }
+
         $data['date'] = date("Y-m-d H:i:s");
         $data['activity'] = 1;
         $data['id'] = $vid;
         $data['pid'] = $pid;
         $data['eid'] = $eid;
 
-        $vitalsService = new VitalsService();
         $updatedRecords = $vitalsService->save($data);
         return $updatedRecords;
     }

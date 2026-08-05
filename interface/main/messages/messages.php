@@ -21,20 +21,31 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/pnotes.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/gprelations.inc.php");
-require_once "$srcdir/user.inc.php";
-require_once("$srcdir/MedEx/API.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once("$srcDir/patient.inc.php");
+require_once("$srcDir/options.inc.php");
+require_once("$srcDir/MedEx/API.php");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+/** @var int|null $userauthorized */
+$userauthorized ??= null;
+$background = '';
+$body = '';
+$cursor = '';
+$message_legend = '';
+$result = null;
+$sortlink = [];
 
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
@@ -55,12 +66,12 @@ if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 //use $uspfx as the first variable for page/script specific user settings instead of '' (which is like a global but you have to request it).
-$uspfx = substr(__FILE__, strlen((string) $webserver_root)) . '.';
+$uspfx = substr(__FILE__, strlen(OEGlobalsBag::getInstance()->getString('webserver_root'))) . '.';
 $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
-$rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
-$patient_id = prevSetting($uspfx, 'form_patient_id', 'form_patient_id', '');
-$patient_name = prevSetting($uspfx, 'form_patient_name', 'form_patient_name', '');
+$rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $session->get('authUserID'));
+$patient_id = UserSettingsService::prevSetting($uspfx, 'form_patient_id', 'form_patient_id', '');
+$patient_name = UserSettingsService::prevSetting($uspfx, 'form_patient_name', 'form_patient_name', '');
 
 if (
     (array_key_exists('setting_bootstrap_submenu', $_POST)) ||
@@ -76,22 +87,22 @@ if (
     <?php
     //validation library
     $use_validate_js = 1;
-    require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php");
+    require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php");
     ?>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="MedEx Bank" />
     <meta name="author" content="OpenEMR: MedExBank" />
     <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2']); ?>
-    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>">
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/css/reminder_style.css?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>">
 
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
         var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
-        <?php require_once "$srcdir/restoreSession.php"; ?>
+        <?php require_once "$srcDir/restoreSession.php"; ?>
     </script>
 
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
     <style>
         @media only screen and (max-width: 768px) {
             [class*="col-"] {
@@ -299,7 +310,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $datetime = isset($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '';
                             foreach ($assigned_to_list as $assigned_to) {
                                 if ($noteid && $assigned_to != '-patient-') {
-                                    if (checkPnotesNoteId($noteid, $_SESSION['authUser'])) {
+                                    if (checkPnotesNoteId($noteid, $session->get('authUser'))) {
                                         updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status, $datetime);
                                         $noteid = '';
                                     } else {
@@ -337,11 +348,15 @@ if (!empty($_REQUEST['go'])) { ?>
                             // Update alert.
                             $noteid = $_POST['noteid'];
                             $form_message_status = $_POST['form_message_status'];
-                            $reply_to = $_POST['reply_to'];
+                            $reply_to_pid = filter_input(INPUT_POST, 'reply_to', FILTER_VALIDATE_INT) ?: 0;
+                            // IDOR protection: verify note is assigned to current user
+                            if (!checkPnotesNoteId($noteid, $session->get('authUser'))) {
+                                die("Message is not assigned to you. Update is disallowed.");
+                            }
                             if ($task == "save") {
                                 updatePnoteMessageStatus($noteid, $form_message_status);
                             } else {
-                                updatePnotePatient($noteid, $reply_to);
+                                updatePnotePatient($noteid, $reply_to_pid);
                             }
                             $task = "edit";
                             $note = $_POST['note'];
@@ -353,7 +368,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 die("There was an error processing your request.");
                             }
                             // Check to make sure the noteid is assigned to the user
-                            if (!checkPnotesNoteId($noteid, $_SESSION['authUser'])) {
+                            if (!checkPnotesNoteId($noteid, $session->get('authUser'))) {
                                 die("Message is not assigned to you. Viewing is disallowed.");
                             }
                             // Update the message if it already exists; it's appended to an existing note in Patient Notes.
@@ -376,8 +391,12 @@ if (!empty($_REQUEST['go'])) { ?>
                             // Delete selected message(s) from the Messages box (only).
                             $delete_id = $_POST['delete_id'];
                             for ($i = 0; $i < count($delete_id); $i++) {
+                                // IDOR protection: verify note is assigned to current user
+                                if (!checkPnotesNoteId($delete_id[$i], $session->get('authUser'))) {
+                                    continue; // skip notes not assigned to user
+                                }
                                 deletePnote($delete_id[$i]);
-                                EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $delete_id[$i]);
+                                EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "pnotes: id " . $delete_id[$i]);
                             }
                             break;
                     }
@@ -437,7 +456,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             <div class="col-6 col-md-4">
                                                 <?php
                                                 if ($task != "addnew" && $result['pid'] != 0) { ?>
-                                                    <a class="patLink" onclick="goPid('<?php echo attr(addslashes((string) $result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
+                                                    <a class="patLink" onclick="goPid(<?php echo attr(js_escape((string) $result['pid'])); ?>)" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
                                                     <?php
                                                 } else { ?>
                                                     <span class='<?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
@@ -527,7 +546,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked procedure order') . ":</span>\n";
                                             while ($gprow = sqlFetchArray($tmp)) {
                                                 echo "   <a href='";
-                                                echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/orders/single_order_results.php?orderid=";
+                                                echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/orders/single_order_results.php?orderid=";
                                                 echo attr_url($gprow['id1']);
                                                 echo "' target='_blank' onclick='top.restoreSession()'>";
                                                 echo text($gprow['id1']);
@@ -589,7 +608,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         }
                         // Manage page numbering and display beneath the Messages table.
                         $listnumber = 25;
-                        $total = getPnotesByUser($active, $show_all, $_SESSION['authUser'], true);
+                        $total = getPnotesByUser($active, $show_all, $session->get('authUser'), true);
                         if ($begin == "" or $begin == 0) {
                             $begin = 0;
                         }
@@ -598,8 +617,8 @@ if (!empty($_REQUEST['go'])) { ?>
                         $start = $begin + 1;
                         $end = $listnumber + $start - 1;
 
-                        $chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
-                        $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+                        $chevron_icon_left = $session->get('language_direction') == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+                        $chevron_icon_right = $session->get('language_direction') == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
                         if ($end >= $total) {
                             $end = $total;
@@ -638,7 +657,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 </thead>";
                         // Display the Messages table body.
                         $count = 0;
-                        $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
+                        $result = getPnotesByUser($active, $show_all, $session->get('authUser'), false, $sortby, $sortorder, $begin, $listnumber);
                         while ($myrow = sqlFetchArray($result)) {
                             $name = $myrow['user'];
                             $name = $myrow['users_lname'];
@@ -659,7 +678,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <tr id=\"row" . attr($count) . "\" height='24' class='messages-item-row' role='button'>
                                     <td align='center'>
                                         <input type='checkbox' id=\"check" . attr($count) . "\" name=\"delete_id[]\" value=\"" .
-                                        attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow('row" . attr(addslashes($count)) . "'); }else{ deselectRow('row" . attr(addslashes($count)) . "'); }\"></td>
+                                        attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow(" . attr(js_escape('row' . $count)) . "); }else{ deselectRow(" . attr(js_escape('row' . $count)) . "); }\"></td>
                                     <td>
                                         <div>" . text($name) . "</div>
                                     </td>
@@ -821,13 +840,13 @@ if (!empty($_REQUEST['go'])) { ?>
         var collectvalidation = <?php echo $collectthis; ?>;
 
         $(function () {
-            var webRoot = <?php echo js_escape(OEGlobalsBag::getInstance()->get('web_root')); ?>;
+            var webRoot = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>;
 
             $('.datetimepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 ,minDate : 0 //only future
             })
 
@@ -836,7 +855,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 window.top.restoreSession();
                 request = new FormData;
                 request.append("ajax", "1");
-                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                 request.append("background_service", "phimail");
                 request.append("background_force", "1");
                 fetch(webRoot + "/library/ajax/execute_background_services.php", {
@@ -1037,7 +1056,7 @@ if (!empty($_REQUEST['go'])) { ?>
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
             if ($('#reply_to').val() !== '') {
-                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
+                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>';
             }
             dlgopen(url, '_blank', 625, 400);
         }

@@ -16,10 +16,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc type for property OpenEMR\\\\Events\\\\Globals\\\\GlobalsInitializedEvent\\:\\:\\$globalsService with type array is incompatible with native type OpenEMR\\\\Services\\\\Globals\\\\GlobalsService\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Globals/GlobalsInitializedEvent.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

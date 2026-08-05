@@ -17,20 +17,20 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patientvalidation.inc.php");
-require_once("$srcdir/pid.inc.php");
-require_once("$srcdir/patient.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/patientvalidation.inc.php");
+require_once($srcdir . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // make sure permissions are checked before we allow this page to be accessed.
 if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
@@ -99,13 +99,13 @@ echo $twig->render(
         ,'enableSwapSecondaryInsurance' => OEGlobalsBag::getInstance()->getBoolean('enable_swap_secondary_insurance')
         ,'include_employers' => !OEGlobalsBag::getInstance()->getBoolean('omit_employers') === true
         ,'useStateTerminology' => OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1
-        ,'state_list' => OEGlobalsBag::getInstance()->get('state_list')
+        ,'state_list' => OEGlobalsBag::getInstance()->getString('state_list')
         ,'state_data_type' => $state_data_type
         ,'country_data_type' => $country_data_type
-        ,'country_list' => OEGlobalsBag::getInstance()->get('country_list')
+        ,'country_list' => OEGlobalsBag::getInstance()->getString('country_list')
         // policy_types is defined in patient.inc.php
         ,'policy_types' => OEGlobalsBag::getInstance()->get('policy_types')
-        ,'uspsVerifyAddress' => OEGlobalsBag::getInstance()->get('usps_apiv3_client_id')
+        ,'uspsVerifyAddress' => OEGlobalsBag::getInstance()->getString('usps_apiv3_client_id')
         ,'languageDirection' => OEGlobalsBag::getInstance()->get('language_direction') ?? ''
         ,'rightJustifyLabels' => OEGlobalsBag::getInstance()->getBoolean('right_justify_labels_demographics')
     ]

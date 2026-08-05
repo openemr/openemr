@@ -13,14 +13,12 @@
  */
 
 require_once("../../interface/globals.php");
-require_once("../pid.inc.php");
 require_once("../group.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, session: SessionWrapperFactory::getInstance()->getCoreSession(), dieOnFail: true);
 
 //Setpid function is called on receiving an ajax request.
 if (($_POST['func'] == "unset_pid")) {

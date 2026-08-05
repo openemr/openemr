@@ -5,13 +5,12 @@
 namespace OpenEMR\Tests\Unit;
 
 use NumberToText;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class NumberToTextTest extends TestCase
 {
-  /**
-   * @dataProvider cases
-   */
+    #[DataProvider('cases')]
     public function testConvert($numeral, $text): void
     {
         $ntt = new NumberToText($numeral);

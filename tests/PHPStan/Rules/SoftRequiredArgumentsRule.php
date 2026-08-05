@@ -4,7 +4,7 @@
  * @package   openemr
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -71,7 +71,7 @@ final class SoftRequiredArgumentsRule implements Rule
             return [];
         }
 
-        $args = array_values(array_filter($call->args, fn($arg) => $arg instanceof Arg));
+        $args = array_values(array_filter($call->args, fn($arg): bool => $arg instanceof Arg));
         return $this->check($call->name->toString(), $args);
     }
 
@@ -87,7 +87,7 @@ final class SoftRequiredArgumentsRule implements Rule
             return [];
         }
 
-        $args = array_values(array_filter($call->args, fn($arg) => $arg instanceof Arg));
+        $args = array_values(array_filter($call->args, fn($arg): bool => $arg instanceof Arg));
         return $this->check($call->name->toString(), $args);
     }
 

@@ -26,7 +26,7 @@ class ESign
     /**
      * Check if the signable object is locked from further editing
      *
-     * @return boolean
+     * @return bool
      */
     public function isLocked(): bool
     {
@@ -41,7 +41,7 @@ class ESign
     /**
      * Check if the log is viewable
      * @param  string  $mode  Currently supports "default" and "report"
-     * @return boolean
+     * @return bool
      */
     public function isLogViewable($mode = "default"): bool
     {
@@ -65,7 +65,7 @@ class ESign
     /**
      * Check if is signed
      *
-     * @return boolean
+     * @return bool
      */
     public function isSigned(): bool
     {

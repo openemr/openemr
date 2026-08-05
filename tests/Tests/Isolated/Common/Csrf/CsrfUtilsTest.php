@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Csrf;
 
+use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -30,10 +31,9 @@ class CsrfUtilsTest extends TestCase
     {
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
-        $token = CsrfUtils::collectCsrfToken('default', $session);
+        $token = CsrfUtils::collectCsrfToken($session);
 
-        $this->assertIsString($token);
-        $this->assertTrue(CsrfUtils::verifyCsrfToken($token, 'default', $session));
+        $this->assertTrue(CsrfUtils::verifyCsrfToken($token, $session));
     }
 
     public function testWrongTokenRejected(): void
@@ -41,7 +41,7 @@ class CsrfUtilsTest extends TestCase
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
 
-        $this->assertFalse(CsrfUtils::verifyCsrfToken('bad-token', 'default', $session));
+        $this->assertFalse(CsrfUtils::verifyCsrfToken('bad-token', $session));
     }
 
     public function testDifferentSubjectsProduceDifferentTokens(): void
@@ -49,19 +49,18 @@ class CsrfUtilsTest extends TestCase
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
 
-        $default = CsrfUtils::collectCsrfToken('default', $session);
-        $api = CsrfUtils::collectCsrfToken('api', $session);
+        $default = CsrfUtils::collectCsrfToken($session);
+        $api = CsrfUtils::collectCsrfToken($session, 'api');
 
-        $this->assertIsString($default);
-        $this->assertIsString($api);
         $this->assertNotSame($default, $api);
     }
 
-    public function testCollectCsrfTokenReturnsFalseWithoutKey(): void
+    public function testCollectCsrfTokenThrowsWithoutKey(): void
     {
         $session = $this->createSessionStub();
 
-        $this->assertFalse(CsrfUtils::collectCsrfToken('default', $session));
+        $this->expectException(\RuntimeException::class);
+        CsrfUtils::collectCsrfToken($session);
     }
 
     public function testTokenStability(): void
@@ -69,8 +68,8 @@ class CsrfUtilsTest extends TestCase
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
 
-        $first = CsrfUtils::collectCsrfToken('default', $session);
-        $second = CsrfUtils::collectCsrfToken('default', $session);
+        $first = CsrfUtils::collectCsrfToken($session);
+        $second = CsrfUtils::collectCsrfToken($session);
 
         $this->assertSame($first, $second);
     }
@@ -80,11 +79,30 @@ class CsrfUtilsTest extends TestCase
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
 
-        $apiToken = CsrfUtils::collectCsrfToken('api', $session);
+        $apiToken = CsrfUtils::collectCsrfToken($session, 'api');
 
-        $this->assertIsString($apiToken);
-        $this->assertTrue(CsrfUtils::verifyCsrfToken($apiToken, 'api', $session));
-        $this->assertFalse(CsrfUtils::verifyCsrfToken($apiToken, 'default', $session));
+        $this->assertTrue(CsrfUtils::verifyCsrfToken($apiToken, $session, 'api'));
+        $this->assertFalse(CsrfUtils::verifyCsrfToken($apiToken, $session));
+    }
+
+    public function testCheckCsrfInputThrowsWhenTokenMissing(): void
+    {
+        $session = $this->createSessionStub();
+        CsrfUtils::setupCsrfKey($session);
+
+        // filter_input(INPUT_POST, ...) returns null when not in a real request,
+        // so this always throws in a test context — which is the missing-token case.
+        $this->expectException(CsrfInvalidException::class);
+        CsrfUtils::checkCsrfInput(INPUT_POST, $session);
+    }
+
+    public function testCheckCsrfInputThrowsForCustomKey(): void
+    {
+        $session = $this->createSessionStub();
+        CsrfUtils::setupCsrfKey($session);
+
+        $this->expectException(CsrfInvalidException::class);
+        CsrfUtils::checkCsrfInput(INPUT_GET, $session, key: 'csrf_token');
     }
 
     private function createSessionStub(): SessionInterface

@@ -43,7 +43,10 @@
                             precision:field.precision, codes:field.codes, results: results, is_edit: false }
                         %}
                     {% endif %}
-                    {% if field.type == 'template' %}
+                    {# Fields can opt out of the read-only history table by
+                       setting renderInHistory: false in C_FormVitals. Default
+                       is to render. #}
+                    {% if field.type == 'template' and (field.renderInHistory ?? true) %}
                         {% include field.templateName with {vitals: vitals, field: field, results: results, is_edit: false } %}
                     {% endif %}
                 {% endfor %}

@@ -33,7 +33,7 @@ class BillingClaim implements \JsonSerializable
      * but representation of claim using the format
      * pid-encounter
      *
-     * @var
+     * @var mixed
      */
     protected $id;
 
@@ -53,7 +53,7 @@ class BillingClaim implements \JsonSerializable
     /**
      * x-12 partner ID
      *
-     * @var
+     * @var mixed
      */
     protected $partner;
 
@@ -66,7 +66,7 @@ class BillingClaim implements \JsonSerializable
     /**
      * Primary, Secondary or Tertiary insurance
      *
-     * @var
+     * @var mixed
      */
     protected $payor_type;
 

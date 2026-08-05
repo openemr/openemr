@@ -17,20 +17,20 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $first_time = true;
 $group = 1;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
  * @param bool $first_time
@@ -188,9 +188,7 @@ function calculateScores(): int
 }
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -207,7 +205,7 @@ if ($is_csv) {
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
     $today = date('YmdHi');
-    $instance_name = (string) OEGlobalsBag::getInstance()->get('openemr_name');
+    $instance_name = OEGlobalsBag::getInstance()->getString('openemr_name');
     $filename = "duplicate_patients_" . $instance_name . "_" . $today . ".csv";
     header("Content-Disposition: attachment; filename=" . $filename);
     header("Content-Description: File Transfer");
@@ -281,7 +279,7 @@ if ($is_csv) {
             <h2><?php echo xlt('Duplicate Patient Management') ?></h2>
         </div>
         <form class="form" method='post' action='manage_dup_patients.php'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div class="btn-sm-group mb-1 text-center">
                 <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh"><?php echo xla('ReCalculate Scores') ?></button>
                 <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'><?php echo xla('Print'); ?></button>
@@ -291,18 +289,18 @@ if ($is_csv) {
 } // end HTML header
 
 if ($is_csv) {
-    echo csvEscape(xl('Group')) . ',';
-    echo csvEscape(xl('Score')) . ',';
-    echo csvEscape(xl('PID')) . ',';
-    echo csvEscape(xl('Public')) . ',';
-    echo csvEscape(xl('Scope')) . ',';
-    echo csvEscape(xl('Name')) . ',';
-    echo csvEscape(xl('DOB')) . ',';
-    echo csvEscape(xl('Gender')) . ',';
-    echo csvEscape(xl('Email')) . ',';
-    echo csvEscape(xl('Telephone')) . ',';
-    echo csvEscape(xl('Registered')) . ',';
-    echo csvEscape(xl('Address')) . "\n";
+    echo xlc('Group') . ',';
+    echo xlc('Score') . ',';
+    echo xlc('PID') . ',';
+    echo xlc('Public') . ',';
+    echo xlc('Scope') . ',';
+    echo xlc('Name') . ',';
+    echo xlc('DOB') . ',';
+    echo xlc('Gender') . ',';
+    echo xlc('Email') . ',';
+    echo xlc('Telephone') . ',';
+    echo xlc('Registered') . ',';
+    echo xlc('Address') . "\n";
 } else {
     ?>
             <table id='mymaintable' class='table table-sm table-bordered table-hover w-100 table-light'>
@@ -386,9 +384,11 @@ while ($row1 = sqlFetchArray($res1)) {
     }
     // Only display this group if there are actual matches (prevents orphans)
     if (count($matches) > 0) {
+        /** @var array<string, string> $row1 */
         displayRow($first_time, $group, $row1);
         $displayed[$row1['pid']] = true;
         foreach ($matches as $row2) {
+            /** @var array<string, string> $row2 */
             displayRow($first_time, $group, $row2, (string) $row1['pid']);
             $displayed[$row2['pid']] = true;
         }
@@ -407,7 +407,7 @@ if (!$is_csv) {
     <!-- form used to open a new top level window when a patient row is clicked -->
     <form name='fnew' method='post' target='_blank'
         action='../main/main_screen.php?auth=login&site=<?php echo attr_url($session->get('site_id')); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <input type='hidden' name='patientID' value='0' />
     </form>
 </body>

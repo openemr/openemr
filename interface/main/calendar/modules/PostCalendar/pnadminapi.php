@@ -27,7 +27,7 @@ unset($pcModInfo, $pcDir);
 
 
 
-function postcalendar_adminapi_updateCategories($args)
+function postcalendar_adminapi_updateCategories($args): bool
 {
     extract($args);
     if (!isset($updates)) {
@@ -45,7 +45,7 @@ function postcalendar_adminapi_updateCategories($args)
 
     return true;
 }
-function postcalendar_adminapi_deleteCategories($args)
+function postcalendar_adminapi_deleteCategories($args): bool
 {
     extract($args);
     if (!isset($delete)) {
@@ -61,12 +61,28 @@ function postcalendar_adminapi_deleteCategories($args)
 
     return true;
 }
-function postcalendar_adminapi_addCategories($args)
+function postcalendar_adminapi_addCategories($args): bool
 {
     extract($args);
     if (!isset($name)) {
         return false;
     }
+    $constantid ??= '';
+    $desc ??= '';
+    $color ??= '';
+    $repeat ??= '';
+    $spec ??= '';
+    $recurrfreq ??= '';
+    $duration ??= 0;
+    $limitid ??= 0;
+    $end_date_flag ??= 0;
+    $end_date_type ??= 0;
+    $end_date_freq ??= 0;
+    $end_all_day ??= 0;
+    $value_cat_type ??= 0;
+    $active ??= 0;
+    $sequence ??= 0;
+    $aco ??= '';
 
     $conn = pnDBGetConn();
     $pntable = pnDBGetTables();

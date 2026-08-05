@@ -33,13 +33,13 @@ class TrustedUserService
 
     public function getTrustedUser($clientId, $userId): array|false
     {
-        $trusted = sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", [$clientId, $userId]);
+        $trusted = QueryUtils::querySingleRow("SELECT * FROM `oauth_trusted_user` WHERE `client_id`= ? AND `user_id`= ?", [$clientId, $userId], log: false);
         return $trusted;
     }
 
     public function getTrustedUserByCode($code): array|false
     {
-        return sqlQueryNoLog("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", [$code]);
+        return QueryUtils::querySingleRow("SELECT * FROM `oauth_trusted_user` WHERE `code`= ?", [$code], log: false);
     }
 
     /**
@@ -76,6 +76,6 @@ class TrustedUserService
 
     public function deleteTrustedUserById($id)
     {
-        return sqlQueryNoLog("DELETE FROM `oauth_trusted_user` WHERE `oauth_trusted_user`.`id` = ?", [$id]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM `oauth_trusted_user` WHERE `oauth_trusted_user`.`id` = ?", [$id], noLog: true);
     }
 }

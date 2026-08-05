@@ -13,6 +13,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once('gacl_admin.inc.php');
 
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
+
 $object_type = match (strtolower((string) $_GET['object_type'])) {
     'axo' => 'axo',
     default => 'aro',
@@ -24,7 +28,8 @@ switch ($_GET['action']) {
 
         //Function to pass array_walk to trim all entries in an array.
         function array_walk_trim(&$array_field): void {
-            $array_field = $db->qstr(strtolower(trim((string) $array_field)));
+            global $db;
+            $array_field = $db->qStr(strtolower(trim((string) $array_field)));
         }
 
         $value_search_str = trim((string) $_GET['value_search_str']);
@@ -51,13 +56,13 @@ switch ($_GET['action']) {
         $query = '
 			SELECT	section_value,value,name
 			FROM	'. $gacl_api->_db_table_prefix . $object_type .'
-			WHERE	section_value='. $db->qstr($_GET['section_value']) .'
+			WHERE	section_value='. $db->qStr($_GET['section_value']) .'
 			AND		(';
 
         if (count($exploded_value_search_str) > 1) {
             $query .= 'lower(value) IN ('. implode(',', $exploded_value_search_str) .')';
         } else {
-            $query .= 'lower(value) LIKE ' . $db->qstr($value_search_str);
+            $query .= 'lower(value) LIKE ' . $db->qStr($value_search_str);
         }
 
         $query .= ' OR ';
@@ -65,7 +70,7 @@ switch ($_GET['action']) {
         if (count($exploded_name_search_str) > 1) {
             $query .= 'lower(name) IN ('. implode(',', $exploded_name_search_str) .')';
         } else {
-            $query .= 'lower(name) LIKE ' . $db->qstr($name_search_str);
+            $query .= 'lower(name) LIKE ' . $db->qStr($name_search_str);
         }
 
         $query .= ')
@@ -76,7 +81,7 @@ switch ($_GET['action']) {
         $total_rows = 0;
 
         if (is_object($rs)) {
-            $total_rows = $rs->RecordCount();
+            $total_rows = $rs->recordCount();
 
             while ($row = $rs->FetchRow()) {
                 [$section_value, $value, $name] = $row;

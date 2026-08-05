@@ -22,6 +22,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -35,7 +36,7 @@ if (!AclMain::aclCheckForm('fee_sheet')) { ?>
     formJump();
 }
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = OEGlobalsBag::getInstance()->get('ippf_specific') ? " style='display:none'" : "";
@@ -56,7 +57,7 @@ $alertmsg = '';
 $tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pricelevel' AND activity = 1");
 $price_levels_are_used = $tmp['count'] > 1;
 // For revenue codes
-$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support') ? true : false;
+$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support');
 // Helper function for creating drop-lists.
 function endFSCategory(): void
 {
@@ -529,7 +530,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']))
 }
 
 // If Save or Save-and-Close was clicked, save the new and modified billing
-// lines; then if no error, redirect to $GLOBALS['form_exit_url'].
+// lines; then if no error, redirect to FormActionBarSettings::EXIT_URL.
 //
 if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) || !empty($_POST['bn_save_stay']))) {
     $main_provid = (int) ($_POST['ProviderID'] ?? 0);
@@ -580,7 +581,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
             if ($tmp_form_id) {
                 // Contraceptive method does not match existing contraception data for this visit,
                 // or there is no such data.  Open a new or existing Contraception Summary form.
-                $tmpurl = OEGlobalsBag::getInstance()->get('rootdir') . "/patient_file/encounter/view_form.php" .
+                $tmpurl = OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/patient_file/encounter/view_form.php" .
                     "?formname=LBFcontra&id=" . ($tmp_form_id < 0 ? 0 : urlencode((string) $tmp_form_id));
                 if (!empty($_POST['bn_save_close']) && !empty($_POST['form_has_charges'])) {
                     $tmpurl .= "&from_save_and_checkout=1";
@@ -594,7 +595,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
         if ($rapid_data_entry || (!empty($_POST['bn_save_close']) && !empty($_POST['form_has_charges']))) {
             // In rapid data entry mode or if "Save and Checkout" was clicked,
             // we go directly to the Checkout page.
-            formJump(OEGlobalsBag::getInstance()->get('rootdir') . "/patient_file/pos_checkout.php?framed=1" .
+            formJump(OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/patient_file/pos_checkout.php?framed=1" .
             "&ptid=" . urlencode((string) $fs->pid) . "&enid=" . urlencode((string) $fs->encounter) . "&rde=" . urlencode((string) $rapid_data_entry));
         } else {
             // Otherwise return to the normal encounter summary frameset.
@@ -697,7 +698,7 @@ function reinitForm(){
                 response( cache[ term ] );
                 return;
             }
-            $.getJSON( "<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
+            $.getJSON( "<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
                 cache[ term ] = data;
                 response( data );
             })
@@ -1133,7 +1134,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            $search_type = OEGlobalsBag::getInstance()->get('default_search_code_type') ?? null;
+                            $search_type = OEGlobalsBag::getInstance()->getString('default_search_code_type') ?? null;
                             if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }
@@ -1762,7 +1763,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php echo xlt('Add More Items'); ?>
                                     </button>
                                 <?php } // end billed ?>
-                                    <button type='button' class='btn btn-secondary btn-cancel' onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'">
+                                    <button type='button' class='btn btn-secondary btn-cancel' onclick="top.restoreSession();location='<?php echo FormActionBarSettings::EXIT_URL; ?>'">
                                     <?php echo xlt('Cancel');?></button>
                                     <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
                                     <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />

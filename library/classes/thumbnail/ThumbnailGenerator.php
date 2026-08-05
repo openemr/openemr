@@ -36,7 +36,7 @@ class ThumbnailGenerator
      */
     public function __construct()
     {
-        $thumb_size = (OEGlobalsBag::getInstance()->get('thumb_doc_max_size') > 0) ? OEGlobalsBag::getInstance()->get('thumb_doc_max_size') : null;
+        $thumb_size = (OEGlobalsBag::getInstance()->getString('thumb_doc_max_size') > 0) ? OEGlobalsBag::getInstance()->getString('thumb_doc_max_size') : null;
         $this->thumb_obj = new Thumbnail($thumb_size);
     }
 

@@ -144,12 +144,12 @@ class TeleHealthUserRepository extends BaseService
         $cryptoGen = ServiceContainer::getCrypto();
         // we could make this even stronger by using the API password for the encryption password...
         // but this is probably good enough
-        return $cryptoGen->encryptStandard($uuidString);
+        return $cryptoGen->encryptForDatabase($uuidString);
     }
 
     public function decryptPassword($password)
     {
         $cryptoGen = ServiceContainer::getCrypto();
-        return $cryptoGen->decryptStandard($password);
+        return $cryptoGen->decryptFromDatabase(is_string($password) ? $password : null);
     }
 }

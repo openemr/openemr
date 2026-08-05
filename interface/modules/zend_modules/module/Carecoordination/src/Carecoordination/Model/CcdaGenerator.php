@@ -15,6 +15,7 @@ namespace Carecoordination\Model;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcdaGenerator
 {
@@ -71,6 +72,7 @@ class CcdaGenerator
         $date_options = []
     ): GeneratedCcdaResult {
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // we need to make sure we don't accidentally stuff in the debug logs any PHI, so we'll only report on the presence of certain variables
         ServiceContainer::getLogger()->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
                 , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
@@ -85,8 +87,9 @@ class CcdaGenerator
 
         if (!$sections) {
             $components0 = $this->getEncounterccdadispatchTable()->getCCDAComponents(0);
+            $str = '';
             foreach ($components0 as $key => $value) {
-                if ($str ?? '') {
+                if ($str !== '') {
                     $str .= '|';
                 } else {
                     $str = $key;
@@ -99,8 +102,9 @@ class CcdaGenerator
 
         if (!$components) {
             $components1 = $this->getEncounterccdadispatchTable()->getCCDAComponents(1);
+            $str1 = '';
             foreach ($components1 as $key => $value) {
-                if ($str1 ?? '') {
+                if ($str1 !== '') {
                     $str1 .= '|';
                 } else {
                     $str1 = $key;
@@ -141,7 +145,7 @@ class CcdaGenerator
                 base64_encode($unstructured),
                 $this->createdtime,
                 0,
-                $_SESSION['authUserID'] ?? null,
+                $session->get('authUserID'),
                 'unstructured',
                 $view,
                 $send,
@@ -154,7 +158,7 @@ class CcdaGenerator
             base64_encode($content),
             $this->createdtime,
             0,
-            $_SESSION['authUserID'] ?? null,
+            $session->get('authUserID'),
             $document_type,
             $view,
             $send,

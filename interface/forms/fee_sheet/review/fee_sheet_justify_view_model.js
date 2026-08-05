@@ -137,7 +137,8 @@ function update_justify(data, event) {
             encounter: data.encounter_id,
             task: 'update',
             billing_id: data.billing_id,
-            diags: JSON.stringify(justify)
+            diags: JSON.stringify(justify),
+            csrf_token_form: csrf_token_js
         },
         function (data) {
             refresh_codes();
@@ -338,11 +339,13 @@ function fee_sheet_justify_view_model(billing_id, enc_id, pat_id, current_justif
         search_change(data, vm)
     });
     var mode = 'common';
+    top.restoreSession();
     $.post(justify_ajax, {
             pid: pat_id,
             encounter: enc_id,
             mode: mode,
-            task: "retrieve"
+            task: "retrieve",
+            csrf_token_form: csrf_token_js
         }, function (data) {
             setup_justify(vm, data.current, data.patient, data.common);
 

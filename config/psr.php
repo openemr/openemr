@@ -12,9 +12,11 @@
 
 declare(strict_types=1);
 
+use GuzzleHttp\Client;
 use Lcobucci\Clock\SystemClock;
-use OpenEMR\Common\Logging\SystemLogger;
+use Monolog\Logger;
 use Psr\Clock\ClockInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\{
     RequestFactoryInterface,
     ResponseFactoryInterface,
@@ -28,7 +30,7 @@ use OpenEMR\Common\Http\Psr17Factory;
 
 return [
     // PSR-3
-    LoggerInterface::class => SystemLogger::class,
+    LoggerInterface::class => Logger::class,
 
     // PSR-17
     RequestFactoryInterface::class => Psr17Factory::class,
@@ -37,6 +39,9 @@ return [
     StreamFactoryInterface::class => Psr17Factory::class,
     UploadedFileFactoryInterface::class => Psr17Factory::class,
     UriFactoryInterface::class => Psr17Factory::class,
+
+    // PSR-18
+    ClientInterface::class => Client::class,
 
     // PSR-20
     ClockInterface::class => SystemClock::class,
@@ -48,5 +53,4 @@ return [
     // 13: Hypermedia Links
     // 14: Event Dispatcher
     // 15: HTTP Handlers
-    // 18: HTTP Client
 ];

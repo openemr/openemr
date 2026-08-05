@@ -13,6 +13,33 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/**
+ * DISABLED BY DEFAULT — set OPENEMR_ADMIN_PHP_ENABLED=1 as an environment
+ * variable to enable.
+ *
+ *   Apache (vhost or .htaccess):
+ *     SetEnv OPENEMR_ADMIN_PHP_ENABLED 1
+ *
+ *   PHP-FPM (pool config):
+ *     env[OPENEMR_ADMIN_PHP_ENABLED] = 1
+ *
+ *   Shell:
+ *     export OPENEMR_ADMIN_PHP_ENABLED=1
+ *
+ * When enabled, restrict access via network controls — this script performs
+ * no user authentication.
+ */
+
+if (
+    filter_input(INPUT_SERVER, 'OPENEMR_ADMIN_PHP_ENABLED') !== '1'
+    && (getenv('OPENEMR_ADMIN_PHP_ENABLED') ?: '') !== '1'
+) {
+    http_response_code(403);
+    header('Content-Type: text/plain');
+    echo "admin.php is disabled by default. See the header comment in this file to enable.\n";
+    exit;
+}
+
 // Checks if the server's PHP version is compatible with OpenEMR:
 require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
@@ -77,10 +104,10 @@ function adminSqlQuery($statement, $link)
                             die("Cannot read directory '$OE_SITES_BASE'.");
                         }
 
-                        $siteslist = array();
+                        $siteslist = [];
 
                         while (false !== ($sfname = readdir($dh))) {
-                            if (substr($sfname, 0, 1) == '.') {
+                            if (str_starts_with($sfname, '.')) {
                                 continue;
                             }
 
@@ -113,6 +140,7 @@ function adminSqlQuery($statement, $link)
 
                         // Access the site's database.
                             include "$sitedir/sqlconf.php";
+                            $dbase = is_string($dbase ?? null) ? $dbase : '';
 
                             if ($config) {
                                 $dbh = mysqli_connect("$host", "$login", "$pass", $dbase, $port);
@@ -131,7 +159,7 @@ function adminSqlQuery($statement, $link)
                             } else {
                                 // Get site name for display.
                                 $row = adminSqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
-                                $openemr_name = $row ? $row['gl_value'] : '';
+                                $openemr_name = is_string($row['gl_value'] ?? null) ? $row['gl_value'] : '';
 
                                 // Get version indicators from the database.
                                 $row = adminSqlQuery("SHOW TABLES LIKE 'version'", $dbh);

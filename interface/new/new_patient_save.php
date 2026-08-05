@@ -6,17 +6,23 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Patient\PatientCreatedEventNotifier;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // Validation for non-unique external patient identifier.
 if (!empty($_POST["pubpid"])) {
@@ -30,7 +36,6 @@ if (!empty($_POST["pubpid"])) {
     }
 }
 
-require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/patient.inc.php");
 
 //here, we lock the patient data table while we find the most recent max PID
@@ -137,6 +142,20 @@ if ($_POST['form_create']) {
     if ($refsource = trim((string) $_POST["refsource"])) {
         sqlQuery("UPDATE patient_data SET referral_source = ? " .
         "WHERE pid = ?", [$refsource, $pid]);
+    }
+
+    // Dispatch the modern PatientCreatedEvent so listeners that subscribe to
+    // the canonical patient lifecycle event (e.g. those wired through
+    // PatientService::databaseInsert()) see chart-UI patient creates too.
+    if (is_int($pid)) {
+        $newPatientRow = QueryUtils::querySingleRow(
+            "SELECT * FROM patient_data WHERE pid = ?",
+            [$pid]
+        );
+        (new PatientCreatedEventNotifier(
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(),
+            ServiceContainer::getLogger(),
+        ))->notify($pid, $newPatientRow);
     }
 }
 ?>

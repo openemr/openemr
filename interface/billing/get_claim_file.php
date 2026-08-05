@@ -15,12 +15,18 @@
 require_once(__DIR__ . "/../globals.php");
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/config.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
+if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $content_type = "text/plain";
 
@@ -39,8 +45,9 @@ $fname = convert_safe_file_dir_name($_GET['key']);
 // the loc, if set, may tell us where the file is
 $location = $_GET['location'] ?? '';
 $claim_file_found = false;
+$claim_file_dir = '';
 if ($location === 'tmp') {
-    $claim_file_dir = rtrim((string) OEGlobalsBag::getInstance()->get('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    $claim_file_dir = rtrim(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     if (file_exists($claim_file_dir . $fname)) {
         $claim_file_found = true;
     }

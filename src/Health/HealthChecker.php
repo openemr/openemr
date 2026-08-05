@@ -60,6 +60,8 @@ class HealthChecker
 
     /**
      * Get results as an associative array suitable for JSON response
+     *
+     * @return array{status: string, checks: array<string, bool>}
      */
     public function getResultsArray(): array
     {

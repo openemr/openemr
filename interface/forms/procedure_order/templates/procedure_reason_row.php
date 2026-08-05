@@ -9,6 +9,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/** @var int $i (loop index from including file procedure_order/common.php) */
+/** @var array<string, array{code: string, description: string}> $reasonCodeStatii (set in including file) */
+
 ?>
 <tr class="reasonCodeContainer reason_code <?php echo !empty($oprow['reason_code']) ? "" : "d-none"; ?>" id="reason_code_<?php echo attr($i); ?>">
     <td colspan="6" class="border-top-0">

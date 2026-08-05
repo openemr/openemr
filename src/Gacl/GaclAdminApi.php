@@ -29,11 +29,11 @@ class GaclAdminApi extends GaclApi {
      * Administration interface settings
      */
     /** @var int Number of items to display per page in the phpGACL interface. */
-    public $_items_per_page = 100;
+    public int $_items_per_page = 100;
     /** @var int Maximum number of items to display in a select box. Override to manage large collections via ACL Admin */
-    public $_max_select_box_items = 100;
+    public int $_max_select_box_items = 100;
     /** @var int Maximum number of items to return in an ACL Search. */
-    public $_max_search_return_items = 100;
+    public int $_max_search_return_items = 100;
 
     /*
      *
@@ -45,11 +45,11 @@ class GaclAdminApi extends GaclApi {
      * return_page()
      *
      * Sends the user back to a passed URL
-     * @param string URL to return to.
+     * @param string $url URL to return to.
      */
     function return_page($url=""): never {
         $return_page = basename((string) $url);
-        header('Location: ' . OEGlobalsBag::getInstance()->get('web_root') . "/gacl/admin/" . $return_page);
+        header('Location: ' . OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/gacl/admin/" . $return_page);
         exit;
     }
 
@@ -58,7 +58,7 @@ class GaclAdminApi extends GaclApi {
      *
      * Creates a basic array for Smarty to deal with paging large recordsets.
      *
-     * @param ADORecordSet ADODB recordset.
+     * @param mixed $rs ADODB recordset.
      */
     function get_paging_data($rs) {
                 return [

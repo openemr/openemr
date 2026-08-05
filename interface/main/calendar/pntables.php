@@ -29,7 +29,8 @@
 // ----------------------------------------------------------------------
 
 
-$prefix = $pnconfig['prefix'];
+/** @var array<string,string> $pnconfig */
+$prefix = $pnconfig['prefix'] ?? '';
 
 $pntable = [];
 

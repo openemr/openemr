@@ -93,7 +93,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
      * Parses an OpenEMR organization record, returning the equivalent FHIR Organization Resource
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIROrganization
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
@@ -171,14 +171,14 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
     /**
      * Parses a FHIR Organization Resource, returning the equivalent OpenEMR organization record.
      *
-     * @param  array $fhirResource The source FHIR resource
+     * @param  FHIROrganization|array $fhirResource The source FHIR resource
      * @return array a mapped OpenEMR data record (array)
      */
     public function parseFhirResource($fhirResource = [])
     {
         if (!$fhirResource instanceof FHIROrganization) {
-            // we use get class to get the sub class type.
-            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . $fhirResource::class);
+            // get_debug_type handles both objects and arrays; avoids `::class` on non-object.
+            throw new \BadMethodCallException("Resource expected to be of type " . FHIROrganization::class . " but instead was of type " . get_debug_type($fhirResource));
         }
 
         $data = [];

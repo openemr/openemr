@@ -118,7 +118,7 @@ function buildTemplate(?string $pid = null, ?string $encounter = null, $htmlin =
     return $htmlin;
 }
 
-function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = "")
+function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = ""): bool
 {
     $top = $_POST["left_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('left_ubmargin_default');
     $side = $_POST["top_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('top_ubmargin_default');
@@ -248,6 +248,9 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $clm_total_charges = 0;
     $clm_amount_adjusted = 0;
     $clm_amount_paid = $ub04_proc_index ? 0 : $claim->patientPaidAmount();
+    $revcode = [];
+    $revcode2 = [];
+    $revcod = [];
     for ($tlh = 0; $tlh < $proccount; ++$tlh) {
         $tmp = $claim->procs[$tlh]['code_text'];
         $tmpcode = $claim->procs[$tlh]['code_type'] == 'HCPCS' ? '3' : '1';

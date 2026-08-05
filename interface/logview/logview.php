@@ -17,9 +17,11 @@ require_once("../globals.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -28,10 +30,9 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Logs Viewer", xl("Logs Viewer"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 ?>
@@ -131,7 +132,7 @@ if (!empty($_GET)) {
                         <div class="jumbotron jumbotron-fluid bg-light p-1 m-0">
                             <h3 class="text-center"><?php echo xlt('Main Log'); ?></h3>
                             <form method="get" name="theform" id="theform">
-                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                 <input type="hidden" name="direction" id="direction" value="<?php echo !empty($direction) ? attr($direction) : 'asc'; ?>" />
                                 <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
                                 <input type=hidden name="csum" value="" />
@@ -320,6 +321,7 @@ if (!empty($_GET)) {
                                                 $patterns = ['/^success/', '/^failure/', '/ encounter/'];
                                                 $replace = [xl('success'), xl('failure'), sprintf(' %s', xl('encounter'))];
 
+                                                // Note: new data no longer written encrypted. Kept for compatibility. See #12118+12120.
                                                 $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
                                                 $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
@@ -330,13 +332,15 @@ if (!empty($_GET)) {
                                                         $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
                                                     } else {
                                                         // For v1/v2, prepend version prefix. For v3+, data already has it.
-                                                        $comments = $encryptVersion < 3
-                                                            ? KeyVersion::from($encryptVersion)->toPaddedString() . $iter["comments"]
-                                                            : $iter["comments"];
-                                                        $trans_comments = $cryptoGen->decryptStandard($comments);
-                                                        if (is_string($trans_comments)) {
+                                                        $encryptVersionInt = is_numeric($encryptVersion) ? (int) $encryptVersion : 0;
+                                                        $iterComments = is_string($iter["comments"]) ? $iter["comments"] : '';
+                                                        $comments = $encryptVersionInt < 3
+                                                            ? KeyVersion::from($encryptVersionInt)->toPaddedString() . $iterComments
+                                                            : $iterComments;
+                                                        try {
+                                                            $trans_comments = $cryptoGen->decryptFromDatabase($comments);
                                                             $trans_comments = preg_replace($patterns, $replace, $trans_comments);
-                                                        } else {
+                                                        } catch (CryptoGenException) {
                                                             $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
                                                         }
                                                     }
@@ -344,14 +348,14 @@ if (!empty($_GET)) {
                                                     // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
                                                     //  of comments in OpenEMR 6.0.0 and greater when the comments are not encrypted since they hold binary (uuid) elements)
                                                     if ($encryptVersion >= 4) {
-                                                        $iter["comments"] = base64_decode((string) $iter["comments"]);
+                                                        $iter["comments"] = base64_decode(is_string($iter["comments"]) ? $iter["comments"] : '');
                                                     }
-                                                    $trans_comments = preg_replace($patterns, $replace, (string) $iter["comments"]);
+                                                    $trans_comments = preg_replace($patterns, $replace, is_string($iter["comments"]) ? $iter["comments"] : '');
                                                 }
                                                 ?>
                                                 <tr>
                                                     <td><?php echo text(DateFormatterUtils::oeFormatDateTime($iter["date"], 'global', true)); ?></td>
-                                                    <td><?php echo text(preg_replace('/select$/', 'Query', (string) $iter["event"])); //Convert select term to Query for MU2 requirements ?></td>
+                                                    <td><?php echo text(preg_replace('/select$/', 'Query', is_string($iter["event"]) ? $iter["event"] : '')); //Convert select term to Query for MU2 requirements ?></td>
                                                     <td><?php echo text($iter["category"]); ?></td>
                                                     <td><?php echo text($iter["user"]); ?></td>
                                                     <td><?php echo text($iter["crt_user"]); ?></td>
@@ -503,7 +507,7 @@ if (!empty($_GET)) {
                     <?php $datetimepicker_timepicker = true; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });

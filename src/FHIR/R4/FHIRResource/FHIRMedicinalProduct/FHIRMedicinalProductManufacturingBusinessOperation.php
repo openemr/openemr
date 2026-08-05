@@ -313,7 +313,7 @@ class FHIRMedicinalProductManufacturingBusinessOperation extends FHIRBackboneEle
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

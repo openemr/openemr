@@ -20,24 +20,26 @@
 
 require_once "../globals.php";
 require_once "../../custom/code_types.inc.php";
-require_once "$srcdir/patient.inc.php";
-require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php';
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Manager", xl("Billing Manager"));
 }
 
-$EXPORT_INC = "$webserver_root/custom/BillingExport.php";
+$EXPORT_INC = OEGlobalsBag::getInstance()->getString('webserver_root') . '/custom/BillingExport.php';
 // echo $GLOBALS['daysheet_provider_totals'];
 
 $daysheet = false;
@@ -57,11 +59,9 @@ if (OEGlobalsBag::getInstance()->get('use_custom_daysheet') != 0) {
 }
 
 $alertmsg = '';
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (isset($_POST['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['mode'] == 'export') {
         $sql = BillingReport::returnOFXSql();
@@ -101,6 +101,9 @@ if ($left_margin + 0 === 20 && $top_margin + 0 === 24) {
     $left_margin = '24';
     $top_margin = '20';
 }
+$ub04_support = OEGlobalsBag::getInstance()->getBoolean('ub04_support');
+$left_ubmargin = 0;
+$top_ubmargin = 0;
 if ($ub04_support) {
     $left_ubmargin = $_POST["left_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('left_ubmargin_default');
     $top_ubmargin = $_POST["top_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('top_ubmargin_default');
@@ -369,7 +372,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 set_encounterid: enc,
                 set_pid: newpid
             });
-            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?" + params;
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
         function popMBO(pid, enc, mboid) {
@@ -383,7 +386,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 isBilling: '1',
                 pid: pid
             });
-            const href = "<?php echo OEGlobalsBag::getInstance()->get('web_root')?>/interface/patient_file/encounter/view_form.php?" + params;
+            const href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/patient_file/encounter/view_form.php?" + params;
             dlgopen(href, 'mbopop', 'modal-lg', 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });
@@ -398,7 +401,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 enc: enc,
                 pid: pid
             });
-            const href = "<?php echo OEGlobalsBag::getInstance()->get('web_root')?>/interface/billing/ub04_form.php?" + params;
+            const href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/billing/ub04_form.php?" + params;
             dlgopen(href, 'ub04pop', 1175, 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });
@@ -527,10 +530,10 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             return true;
         }
     </script>
-    <?php require_once "$srcdir/../interface/reports/report.script.php"; ?>
+    <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . '/../interface/reports/report.script.php'; ?>
     <!-- Criteria Section common javascript page-->
     <!-- =============Included for Insurance ajax criteria==== -->
-    <?php require_once OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"; ?>
+    <?php require_once OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"; ?>
     <style>
         #ajax_div_insurance {
             position: absolute;
@@ -610,7 +613,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         <div class="hideaway">
             <div>
                 <form class="form" name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input type='hidden' name='mode' value='change' />
                     <!-- Criteria section Starts -->
                     <?php
@@ -729,7 +732,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         }
                         ?>
                     <?php
-                        require_once "$srcdir/../interface/reports/criteria.tab.php";
+                        require_once OEGlobalsBag::getInstance()->getSrcDir() . '/../interface/reports/criteria.tab.php';
                     ?>
                     <!-- end criteria -->
                 </form>
@@ -848,7 +851,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                     <?php } ?>
                 </div>
             </nav>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input name='mode' type='hidden' value="bill" />
             <input name='authorized' type='hidden' value="<?php echo attr($my_authorized); ?>" />
             <input name='unbilled' type='hidden' value="<?php echo attr($unbilled); ?>" />
@@ -924,6 +927,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                         $mmo_num_charges = 0;
                         $encount = 0;
                         $divPut = false;
+                        $CheckBoxBilling = 0;
 
                         foreach ($ret as $iter) {
                         // We include encounters here that have never been billed. However
@@ -1019,6 +1023,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $lcount = 1;
                                 $rcount = 0;
                                 $oldcode = "";
+                                $enc_billing_note ??= [];
+                                $default_x12_partner = null;
 
                                 $ptname = $name['fname'] . " " . $name['lname'];
                                 $raw_encounter_date = date("Y-m-d", strtotime((string) $iter['enc_date']));
@@ -1219,7 +1225,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                         }
 
                                         if ($crow['process_time']) {
-                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['process_time'], 0, 10))) . text(substr((string) $crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
+                                            $lhtml .= "<br />\n&nbsp;" . text(oeFormatShortDate(substr((string) $crow['process_time'], 0, 10))) . text(substr((string) $crow['process_time'], 10, 6)) . " " . xlt("Claim was generated to file") . " " . "<a href='get_claim_file.php?key=" . attr_url($crow['process_file']) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . text($crow['process_file']) . "</a>";
                                             ++$lcount;
                                         }
 
@@ -1319,8 +1325,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 if ($tmpbpr == '0' && $iter['billed']) {
                                     $tmpbpr = '2';
                                 }
-                                $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr(($CheckBoxBilling ?? null) * 1) . "'>&nbsp;</td>\n";
-                                $CheckBoxBilling = ($CheckBoxBilling ?? null) + 1;
+                                $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . $CheckBoxBilling . "'>&nbsp;</td>\n";
+                                $CheckBoxBilling++;
                             } else {
                                 $rhtml .= "<td></td>\n";
                             }
@@ -1368,7 +1374,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             $rhtml2 .= "<td></td>\n";
                                         }
                                         if (!$iter['id'] && $rowcnt == 1) {
-                                            $rhtml2 .= "<td><input type='checkbox' value='0' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr($CheckBoxBilling * 1) . "'>&nbsp;</td>\n";
+                                            $rhtml2 .= "<td><input type='checkbox' value='0' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . $CheckBoxBilling . "'>&nbsp;</td>\n";
                                             $CheckBoxBilling++;
                                         } else {
                                             $rhtml2 .= "<td></td>\n";
@@ -1422,7 +1428,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 var checkstr = confirm(<?php echo xlj("Do you really want to clear the log?"); ?>);
                 if (checkstr == true) {
                     top.restoreSession();
-                    dlgopen("clear_log.php?csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 400);
+                    dlgopen("clear_log.php?csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 500, 400);
                 } else {
                     return false;
                 }
@@ -1452,7 +1458,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             // jquery-ui tooltip converted to bootstrap tooltip

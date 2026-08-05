@@ -923,7 +923,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

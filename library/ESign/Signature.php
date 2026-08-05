@@ -16,8 +16,8 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/SignatureIF.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Utils/Verification.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignatureIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Utils/Verification.php';
 
 class Signature implements SignatureIF
 {
@@ -106,7 +106,7 @@ class Signature implements SignatureIF
         return $this->datetime;
     }
 
-    public function isLock()
+    public function isLock(): bool
     {
         if ($this->isLock > 0) {
             return true;

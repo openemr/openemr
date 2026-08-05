@@ -39,7 +39,7 @@ class IsAcceptedFileFilterEvent extends Event
     const EVENT_FILTER_IS_ACCEPTED_FILE = 'sanitize.isWhiteFile.filterIsAccepted';
 
     /**
-     * @var $array The list of accepted mime types
+     * @var The $array list of accepted mime types
      */
     private $acceptedList;
 

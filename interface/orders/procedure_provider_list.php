@@ -13,11 +13,12 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -27,7 +28,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 
 $form_name = trim($_POST['form_name'] ?? '');
 
-$form_inactive = empty($_POST['form_inactive']) ? false : true;
+$form_inactive = !empty($_POST['form_inactive']);
 
 $query = "SELECT pp.* FROM procedure_providers AS pp";
 
@@ -38,6 +39,7 @@ if (!$form_inactive) {
 $query .= " ORDER BY pp.name";
 $res = sqlStatement($query);
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -59,7 +61,7 @@ function doedclick_add() {
     var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
     const params = new URLSearchParams({
         ppid: '0',
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     const scriptTitle = 'procedure_provider_edit.php?' + params.toString();
     dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
@@ -71,7 +73,7 @@ function doedclick_edit(ppid) {
     var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
     const params = new URLSearchParams({
         ppid: ppid,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     const scriptTitle = 'procedure_provider_edit.php?' + params.toString();
     dlgopen(scriptTitle, '_blank', 800, 750, false, editTitle);
@@ -81,6 +83,7 @@ function doedclick_edit(ppid) {
 </head>
 <body>
     <?php
+    $help_icon = '';
     if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray700)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 2) {

@@ -12,8 +12,8 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/clinical_rules.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/clinical_rules.php";
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 try {
     $request = Request::createFromGlobals();
-    if (empty($request->get('action'))) {
+    if (empty($request->query->get('action'))) {
         $request->query->set('action', 'log!view');
     }
     $controllerRouter = new ControllerRouter();

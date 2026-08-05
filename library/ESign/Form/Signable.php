@@ -17,8 +17,8 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/DbRow/Signable.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/SignableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/DbRow/Signable.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
 
 class Form_Signable extends DbRow_Signable implements SignableIF
 {

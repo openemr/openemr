@@ -19,10 +19,10 @@
 require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // get $_POSTed data
 $titleGraph       = json_decode((string) $_POST['track'], true);
@@ -35,7 +35,7 @@ $the_checked_cols = json_decode((string) $_POST['thecheckboxes'], true);
 // Escape title and item names to prevent XSS - Dygraph renders these via innerHTML
 $titleGraph = attr((string) $titleGraph);
 if (is_array($the_item_names)) {
-    $the_item_names = array_map(fn($name) => attr((string) $name), $the_item_names);
+    $the_item_names = array_map(fn($name): string => attr((string) $name), $the_item_names);
 }
 
 // check if something was sent

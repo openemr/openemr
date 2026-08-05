@@ -22,8 +22,6 @@ interface/main/**/*.css
 interface/main/**/*.scss
 interface/modules/**/*.css
 interface/modules/**/*.scss
-interface/super/**/*.css
-interface/super/**/*.scss
 interface/themes/**/*.css
 interface/themes/**/*.scss
 Documentation/EHI_Export/**/*.css

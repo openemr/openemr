@@ -40,12 +40,6 @@ Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#'
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method toE164\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
-Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>toE164\\(\\) instead$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method createFromPath\\(\\) of class League\\\\Csv\\\\Reader\\:
 since version 9\\.27\\.0
 
@@ -208,6 +202,12 @@ Use random_bytes\\(\\) directly$#',
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/RandomGenUtilsTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
+use createProcessingResultResponse\\(\\) instead\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/HandleProcessingResultTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated method isType\\(\\) of class PHPUnit\\\\Framework\\\\Assert\\:
 https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
     'count' => 1,
@@ -218,12 +218,6 @@ $ignoreErrors[] = [
 https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
     'count' => 7,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/TelemetryServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
-use createProcessingResultResponse\\(\\) instead\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/HandleProcessingResultTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -35,13 +35,13 @@ class TelemetryService
     /**
      * TelemetryService constructor.
      *
-     * @param ?TelemetryRepository     $repository
-     * @param ?VersionServiceInterface $versionService
+     * @param TelemetryRepository     $repository
+     * @param VersionServiceInterface $versionService
      * @param ?LoggerInterface         $logger
      */
     public function __construct(
-        protected ?TelemetryRepository $repository = new TelemetryRepository(),
-        protected ?VersionServiceInterface $versionService = new VersionService(),
+        protected TelemetryRepository $repository = new TelemetryRepository(),
+        protected VersionServiceInterface $versionService = new VersionService(),
         ?LoggerInterface $logger = null,
     ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
@@ -190,7 +190,7 @@ class TelemetryService
             'location' => json_encode($serverGeoData),
             'time_zone' => $time_zone,
             'locale' => locale_get_default(),
-            'version' => $this->versionService->asString(),
+            'version' => (string) $this->versionService->getSoftwareVersion(),
             'environment' => php_uname('s') . ', ' . php_uname('r') . ', ' . phpversion(),
             'distribution' => getenv('OPENEMR_DOCKER_ENV_TAG') ?: '',
             'settings' => json_encode($settings),
@@ -245,7 +245,8 @@ class TelemetryService
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-        $normalized = !empty(OEGlobalsBag::getInstance()->get('webroot')) ? preg_replace('#^(' . OEGlobalsBag::getInstance()->get('webroot') . ')?#', '', $path) : $path;
+        $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
+        $normalized = ($webRoot !== '') ? preg_replace('#^(' . preg_quote($webRoot, '#') . ')?#', '', $path) : $path;
         return ($normalized . $fragment);
     }
 

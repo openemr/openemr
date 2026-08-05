@@ -16,7 +16,7 @@ class C_PatientFinder extends Controller
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
-    function default_action($form_id = '', $form_name = '', $pid = '')
+    function default_action($form_id = '', $form_name = '', $pid = ''): string
     {
         return $this->find_action($form_id, $form_name, $pid);
     }
@@ -25,7 +25,7 @@ class C_PatientFinder extends Controller
     * Function that will display a patient finder widget, allowing
     *   the user to input search parameters to find a patient id.
     */
-    function find_action($form_id, $form_name, $pid = null)
+    function find_action($form_id, $form_name, $pid = null): string
     {
         $isPid = false;
 

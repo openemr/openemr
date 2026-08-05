@@ -31,7 +31,7 @@ interface IDaoMap2
     /**
      * Change the fetching strategy for a KeyMap
      *
-     * @param unknown $property
+     * @param string $property
      * @param int $loadType
      *          (KM_LOAD_LAZY | KM_LOAD_INNER | KM_LOAD_EAGER)
      */

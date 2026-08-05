@@ -43,7 +43,7 @@ class OAuth2DiscoveryController
     public function getDiscoveryResponse(HttpRestRequest $request): Response
     {
         $passwordGrantString = '';
-        if (!empty($this->globalsBag->getInt('oauth_password_grant') > 0)) {
+        if ($this->globalsBag->getInt('oauth_password_grant') > 0) {
             $passwordGrantString = '"password",';
         }
 // PHP is a fickle beast!

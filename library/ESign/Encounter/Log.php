@@ -17,8 +17,8 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/LogIF.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Viewer.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/LogIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Viewer.php';
 
 class Encounter_Log implements LogIF
 {
@@ -31,7 +31,7 @@ class Encounter_Log implements LogIF
      * the constructor because they aren't necessarily available
      * through the SignableIF interface when render() function is called.
      *
-     * @param unknown $encounterId
+     * @param int|string $encounterId
      */
     public function __construct($encounterId)
     {
@@ -56,13 +56,13 @@ class Encounter_Log implements LogIF
 
     public function getViewScript()
     {
-        return OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/views/default/esign_signature_log.php';
+        return OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/views/default/esign_signature_log.php';
     }
 
     /**
      * Check if the log is viewable.
      *
-     * @return boolean
+     * @return bool
      */
     public function isViewable()
     {

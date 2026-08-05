@@ -176,7 +176,7 @@ class FHIRMedicationRequestInitialFill extends FHIRBackboneElement implements \J
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

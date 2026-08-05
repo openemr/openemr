@@ -13,6 +13,7 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -34,6 +35,8 @@ $form_sex       = $_POST['sex'      ] ? trim((string) $_POST['sex'      ]) : '';
 $form_refsource = $_POST['refsource'] ? trim((string) $_POST['refsource']) : '';
 $form_dob       = $_POST['DOB'      ] ? trim((string) $_POST['DOB'      ]) : '';
 $form_regdate   = $_POST['regdate'  ] ? trim((string) $_POST['regdate'  ]) : date('Y-m-d');
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 
@@ -41,7 +44,7 @@ $form_regdate   = $_POST['regdate'  ] ? trim((string) $_POST['regdate'  ]) : dat
 
 <?php
     Header::setupHeader('datetime-picker');
-    include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php");
+    include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.js.php");
 ?>
 
 <script>
@@ -75,14 +78,14 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -95,7 +98,7 @@ $(function () {
 
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <span class='title'><?php echo xlt('Add Patient Record'); ?></span>
 

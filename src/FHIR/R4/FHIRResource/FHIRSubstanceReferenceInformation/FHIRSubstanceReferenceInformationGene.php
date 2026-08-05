@@ -217,7 +217,7 @@ class FHIRSubstanceReferenceInformationGene extends FHIRBackboneElement implemen
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

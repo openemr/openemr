@@ -48,8 +48,8 @@ class ExportCat3Service
         $this->builder = $builder;
         $this->calculator = $calculator;
         $this->request = $request;
-        $this->effectiveDate = trim(OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2022') . '-01-01 00:00:00';
-        $this->effectiveDateEnd = trim(OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2022') . '-12-31 23:59:59';
+        $this->effectiveDate = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2022') . '-01-01 00:00:00';
+        $this->effectiveDateEnd = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2022') . '-12-31 23:59:59';
     }
 
     public function export($measures, $resultOnly = false)
@@ -165,7 +165,7 @@ class ExportCat3Service
         $organizationInfo = $this->getOrganizationInfo();
         $documentId = $this->generateUuid();
         $currentDateTime = date('YmdHis');
-        $reportingPeriod = trim(OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2023');
+        $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');
 
         // XML Header
         $xml = <<<XML
@@ -246,7 +246,7 @@ XML;
      */
     private function generateConsolidatedMeasureSection($measureObjs, $results, $patients)
     {
-        $reportingPeriod = trim(OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2023');
+        $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');
 
         $xml = <<<XML
   <component>
@@ -403,7 +403,7 @@ XML;
     private function generateReportingParameters()
     {
         $parametersId = $this->generateUuid();
-        $reportingPeriod = trim(OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2023');
+        $reportingPeriod = trim(OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? '2023');
 
         return <<<XML
           <entry>
@@ -427,7 +427,7 @@ XML;
     private function getOrganizationInfo()
     {
         return [
-            'name' => OEGlobalsBag::getInstance()->get('openemr_name') ?? 'OpenEMR Practice',
+            'name' => OEGlobalsBag::getInstance()->getString('openemr_name') ?? 'OpenEMR Practice',
             'npi' => OEGlobalsBag::getInstance()->get('practice_npi') ?? '1234567890',
             'tin' => OEGlobalsBag::getInstance()->get('practice_tin') ?? '123456789',
             'address' => [

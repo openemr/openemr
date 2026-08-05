@@ -16,25 +16,25 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'ip_tracker')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'ip_tracker', dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: IP Tracker", xl("IP Tracker"));
 }
 
-$showOnlyWithCount = !empty($_POST['showOnlyWithCount']) ? true : false;
+$showOnlyWithCount = !empty($_POST['showOnlyWithCount']);
 
-$showOnlyManuallyBlocked = !empty($_POST['showOnlyManuallyBlocked']) ? true : false;
+$showOnlyManuallyBlocked = !empty($_POST['showOnlyManuallyBlocked']);
 
-$showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
+$showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']);
 
 ?>
 <html>
@@ -65,8 +65,8 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             request = new FormData;
             request.append("function", func);
             request.append("ipId", ipId);
-            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
-            fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
+            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
+            fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request
@@ -84,8 +84,8 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             request = new FormData;
             request.append("function", func);
             request.append("ipId", ipId);
-            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
-            fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
+            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
+            fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request
@@ -97,8 +97,8 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             request = new FormData;
             request.append("function", "resetIpCounter");
             request.append("ipId", ipId);
-            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
-            fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
+            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
+            fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request
@@ -106,9 +106,9 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             let failCounterElement = document.getElementById('fail-counter-' + ipId);
             failCounterElement.innerHTML = "0";
             let lastFailElement = document.getElementById('last-fail-' + ipId);
-            lastFailElement.innerHTML = jsText(xl("Not Applicable"));
+            lastFailElement.innerHTML = jsXlt("Not Applicable");
             let autoblockElement = document.getElementById('autoblock-' + ipId);
-            autoblockElement.innerHTML = jsText(xl("No"));
+            autoblockElement.innerHTML = jsXlt("No");
         }
 
     </script>
@@ -132,7 +132,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
 <span class='title'><?php echo xlt('IP Tracker'); ?></span>
 
 <form method='post' name='theform' id='theform' action='ip_tracker.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ip_tracker')); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ip_tracker'); ?>" />
 
     <div id="report_parameters">
 

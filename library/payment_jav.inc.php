@@ -252,7 +252,7 @@ use OpenEMR\Core\OEGlobalsBag;
         let ChargeAmount = formatNumber(document.getElementById('HiddenChargeAmount' + CountIndex).value * 1);
         let Remainder = formatNumber(document.getElementById('HiddenRemainderTd' + CountIndex).value * 1);
         if (document.getElementById('Allowed' + CountIndex).id === PassedObject.id) {
-            if (document.getElementById('HiddenIns' + CountIndex).value === 1) {
+            if (parseInt(document.getElementById('HiddenIns' + CountIndex).value, 10) === 1) {
                 document.getElementById('AdjAmount' + CountIndex).value = Math.round((ChargeAmount - Allowed) * 100) / 100;
             } else {
                 document.getElementById('AdjAmount' + CountIndex).value = Math.round((Remainder - Allowed) * 100) / 100;
@@ -261,7 +261,7 @@ use OpenEMR\Core\OEGlobalsBag;
         let AdjustmentAmount = formatNumber(document.getElementById('AdjAmount' + CountIndex).value * 1);
         let CopayAmount = formatNumber(document.getElementById('HiddenCopayAmount' + CountIndex).value * 1);
         let Takeback = formatNumber(document.getElementById('Takeback' + CountIndex).value * 1);
-        if (document.getElementById('HiddenIns' + CountIndex).value === 1 && Allowed !== 0) {//Means it is primary's first payment.
+        if (parseInt(document.getElementById('HiddenIns' + CountIndex).value, 10) === 1 && Allowed !== 0) { //Means it is primary's first payment.
             document.getElementById('RemainderTd' + CountIndex).innerHTML = Math.round((ChargeAmount - AdjustmentAmount - CopayAmount - Payment + Takeback) * 100) / 100;
         } else {//All other case.
             document.getElementById('RemainderTd' + CountIndex).innerHTML = Math.round((Remainder - AdjustmentAmount - Payment + Takeback) * 100) / 100;
@@ -368,7 +368,7 @@ use OpenEMR\Core\OEGlobalsBag;
             });
             document.getElementById('post_to_date').focus();
             return false;
-        } else if (DateCheckGreater(document.getElementById('post_to_date').value, '<?php echo OEGlobalsBag::getInstance()->get('post_to_date_benchmark') == '' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars((string) oeFormatShortDate(OEGlobalsBag::getInstance()->get('post_to_date_benchmark')));?>',
+        } else if (DateCheckGreater(document.getElementById('post_to_date').value, '<?php echo OEGlobalsBag::getInstance()->getString('post_to_date_benchmark') == '' ? date('Y-m-d', time() - (10 * 24 * 60 * 60)) : htmlspecialchars((string) oeFormatShortDate(OEGlobalsBag::getInstance()->getString('post_to_date_benchmark')));?>',
             '<?php echo DateFormatRead();?>')) {
             let message = <?php echo xlj('Post To Date must be greater than the financial close date.') ?>;
             (async (message, time) => {

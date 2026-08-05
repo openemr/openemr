@@ -19,11 +19,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Ternary operator condition is always false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
 ];
 $ignoreErrors[] = [

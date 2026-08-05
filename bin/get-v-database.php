@@ -17,11 +17,17 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use OpenEMR\Common\Command\RootCliGuard;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
+
+// Refuse to run as root — see RootCliGuard. Read-only today, but uniform
+// policy across bin/ scripts avoids the "is this one safe as root" question
+// for future contributors.
+RootCliGuard::assertNotRoot();
 
 $file = $argv[1] ?? __DIR__ . '/../version.php';
 

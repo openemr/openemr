@@ -18,6 +18,7 @@ function diag_code_types($format = 'json', $sqlEscape = false)
     $diagCodes = [];
     foreach ($code_types as $key => $ct) {
         if ($ct['active'] && $ct['diag']) {
+            $entry = null;
             if ($format == 'json') {
                 $entry = ["key" => $key,"id" => $ct['id']];
             } elseif ($format == 'keylist') {
@@ -26,7 +27,9 @@ function diag_code_types($format = 'json', $sqlEscape = false)
                 $entry .= "'";
             }
 
-            array_push($diagCodes, $entry);
+            if ($entry !== null) {
+                array_push($diagCodes, $entry);
+            }
         }
     }
 

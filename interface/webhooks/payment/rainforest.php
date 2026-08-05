@@ -4,7 +4,7 @@
  * Webhook receiver for Rainforest data
  *
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @link      https://docs.rainforestpay.com/docs/payin-webhooks
  * @package   OpenEMR
@@ -39,7 +39,7 @@ if ($mid === '') {
 $crypto = ServiceContainer::getCrypto();
 $whv = new Verifier(
     clock: SystemClock::fromSystemTimezone(),
-    webhookSecret: $crypto->decryptStandard($gb->getString('rainforest_webhook_secret'))
+    webhookSecret: $crypto->decryptFromDatabase($gb->getString('rainforest_webhook_secret'))
 );
 
 $req = (new Psr17Factory())->createServerRequestFromGlobals();

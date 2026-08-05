@@ -36,7 +36,7 @@ class TokenSearchValue implements \Stringable
     /**
      * Given a FHIR code system string, return the FHIR class value.
      * @param $codeSystemValue
-     * @param @isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary
+     * @param mixed $isUuid @isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary
      * @return TokenSearchValue
      */
     public static function buildFromFHIRString($codeSystemValue, $isUuid = false)

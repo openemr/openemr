@@ -25,10 +25,8 @@ class MemCacheProxy extends CacheMemCache
     /**
      * Acts as a proxy for a MemCache server and fails gracefully if it cannot contact the pool
      *
-     * @param
-     *          array in host/port format: array('host1'=>'11211','host2'=>'11211')
-     * @param
-     *          string a unique string. prevents conflicts in case multiple apps are using the same memcached server bank
+     * @param array $server_array in host/port format: array('host1'=>'11211','host2'=>'11211')
+     * @param string $uniquePrefix a unique string. prevents conflicts in case multiple apps are using the same memcached server bank
      */
     public function __construct($server_array = ['localhost' => '11211'], $uniquePrefix = "CACHE-")
     {

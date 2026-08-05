@@ -25,10 +25,10 @@ use OpenEMR\Core\Header;
  * Name:     assetsTemplate<br />
  * Purpose:  assetsTemplate in OpenEMR - Smarty templates<br />
  *
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param mixed $smarty
  */
-function smarty_function_assetsTemplate($params, &$smarty)
+function smarty_function_assetsTemplate($params, &$smarty): string
 {
     $assets = [];
     if (!empty($params['assets'])) {

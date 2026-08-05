@@ -16,14 +16,14 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/ESign.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/FactoryIF.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/ConfigurationIF.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/SignableIF.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Factory.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Configuration.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Factory.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Configuration.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ESign.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/FactoryIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ConfigurationIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Factory.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Configuration.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Factory.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Configuration.php';
 
 class Api
 {

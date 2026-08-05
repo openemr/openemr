@@ -44,16 +44,16 @@ require_once("$srcdir/options.inc.php");
 require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 if ($session->has('register') && $session->get('register') === true) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
 
 if (!$session->has('portal_init')) {
-    $session->set('portal_init', true);
+    SessionUtil::setSession('portal_init', true);
 }
 
 // Example https://localhost/openemr/portal/index.php?site=default&landOn=BillingSummary
@@ -76,12 +76,12 @@ $landOnHref = [
 // TODO sjp - qualify if redirect feature is enabled!
 $whereto = $session->get('whereto', null);
 // set the landOn session variable to the redirected card.
-$session->set('landOn', $_REQUEST['landOn'] ?? null);
+SessionUtil::setSession('landOn', $_REQUEST['landOn'] ?? null);
 $landWhere = $_REQUEST['landOn'] ?? null;
 // Set the landOn href query from lookup.
 $where = $landOnHref[$landWhere] ?? null;
 if (!empty($where)) {
-    $session->set('whereto', $where);
+    SessionUtil::setSession('whereto', $where);
 }
 
 $logoService = new LogoService();
@@ -101,13 +101,9 @@ foreach ($msgs as $i) {
     }
 }
 
-// force to message page if new messages.
-/*if ($newcnt > 0 && $_SESSION['portal_init']) {
-    $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
-}*/
 $messagesURL = "$web_root/portal/messaging/messages.php";
 
-$isEasyPro = $globalsBag->getBoolean('easipro_enable') && !empty($globalsBag->get('easipro_server')) && !empty($globalsBag->get('easipro_name'));
+$isEasyPro = $globalsBag->getBoolean('easipro_enable') && !empty($globalsBag->getString('easipro_server')) && !empty($globalsBag->getString('easipro_name'));
 
 $current_date2 = date('Y-m-d');
 $apptLimit = 10;
@@ -122,10 +118,11 @@ if ($appts) {
     foreach ($appts as $row) {
         $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
         $count++;
+        $startTime = (string) $row['pc_startTime'];
         $dayname = xl(date('l', strtotime((string) $row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = (int)substr((string) $row['pc_startTime'], 0, 2);
-        $dispmin = substr((string) $row['pc_startTime'], 3, 2);
+        $disphour = (int)substr($startTime, 0, 2);
+        $dispmin = substr($startTime, 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';
             if ($disphour > 12) {
@@ -156,10 +153,11 @@ if ($past_appts) {
     foreach ($past_appts as $row) {
         $status_title = getListItemTitle('apptstat', $row['pc_apptstatus']);
         $pastCount++;
+        $startTime = (string) $row['pc_startTime'];
         $dayname = xl(date('l', strtotime((string) $row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = (int)substr((string) $row['pc_startTime'], 0, 2);
-        $dispmin = substr((string) $row['pc_startTime'], 3, 2);
+        $disphour = (int)substr($startTime, 0, 2);
+        $dispmin = substr($startTime, 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';
             if ($disphour > 12) {
@@ -194,7 +192,8 @@ function collectStyles(): array
         if (
             $tfname == 'style_blue.css' ||
             $tfname == 'style_pdf.css' ||
-            !preg_match("/^" . 'style_' . ".*\.css$/", $tfname)
+            !str_starts_with($tfname, 'style_') ||
+            !str_ends_with($tfname, '.css')
         ) {
             continue;
         }
@@ -362,6 +361,7 @@ try {
         'newcnt' => $newcnt,
         'menuLogo' => $logoService->getLogo('portal/menu/primary'),
         'allow_portal_appointments' => $globalsBag->getBoolean('allow_portal_appointments'),
+        'viewOnlyAppointments' => $globalsBag->getBoolean('view_only_portal_appointments'),
         'web_root' => $globalsBag->get('web_root'),
         'payment_gateway' => $globalsBag->get('payment_gateway'),
         'gateway_mode_production' => $globalsBag->getBoolean('gateway_mode_production'),
@@ -372,12 +372,12 @@ try {
         'images_static_relative' => $globalsBag->get('images_static_relative'),
         'youHave' => xl('You have'),
         'navMenu' => $navMenu,
-        'primaryMenuLogoHeight' => $globalsBag->get('portal_primary_menu_logo_height') ?? '30',
-        'pagetitle' => $globalsBag->get('openemr_name') . ' ' . xl('Portal'),
+        'primaryMenuLogoHeight' => $globalsBag->getString('portal_primary_menu_logo_height') ?? '30',
+        'pagetitle' => $globalsBag->getString('openemr_name') . ' ' . xl('Portal'),
         'messagesURL' => $messagesURL,
         'patientID' => $pid,
         'patientName' => $session->get('ptName', null),
-        'csrfUtils' => CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()),
+        'csrfUtils' => CsrfUtils::collectCsrfToken(session: $session),
         'isEasyPro' => $isEasyPro,
         'appointments' => $appointments,
         'pastAppointments' => $past_appointments,

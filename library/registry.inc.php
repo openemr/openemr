@@ -9,7 +9,7 @@ function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
     $check = sqlQuery("select state from registry where directory=?", [$directory]);
     if ($check == false) {
-        $lines = @file(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/$directory/info.txt");
+        $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$directory/info.txt");
         if ($lines) {
             $name = $lines[0];
             $category ??= $lines[1] ?? 'Miscellaneous';
@@ -85,7 +85,7 @@ function getRegistryEntryByDirectory($directory, $cols = "*")
     return sqlQuery($sql, $directory);
 }
 
-function installSQL($dir)
+function installSQL($dir): bool
 {
     $sqltext = $dir . "/table.sql";
     if ($sqlarray = @file($sqltext)) {
@@ -116,7 +116,7 @@ function installSQL($dir)
  *            state => 0=inactive / 1=active
  *  OUTPUT = true or false
  */
-function isRegistered($directory, $state = 1)
+function isRegistered($directory, $state = 1): bool
 {
     $sql = "select id from registry where directory=? and state=?";
     $result = sqlQuery($sql, [$directory, $state]);

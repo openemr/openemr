@@ -54,11 +54,11 @@ class ModulesClassLoader
      * @param string          $prefix  The prefix/namespace, with trailing '\\'
      * @param string[]|string $paths   The PSR-4 base directories to
      *
-     * @return boolean
+     * @return bool
      * @throws \InvalidArgumentException
      *
      */
-    public function registerNamespaceIfNotExists($namespace, $paths)
+    public function registerNamespaceIfNotExists($namespace, $paths): bool
     {
         $prefixes = $this->classLoader->getPrefixesPsr4();
         if (empty($prefixes[$namespace])) {

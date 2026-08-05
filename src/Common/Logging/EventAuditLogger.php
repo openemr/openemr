@@ -19,16 +19,17 @@ use OpenEMR\BC\{
     DatabaseConnectionOptions,
     ServiceContainer,
 };
-use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @phpstan-import-type ApiData from Audit\Event
  */
-class EventAuditLogger
+class EventAuditLogger implements AuditLoggerInterface
 {
     use SingletonTrait;
 
@@ -64,117 +65,156 @@ class EventAuditLogger
             $sinks[] = $atnaSink;
         }
 
+        $enabledEventCategories = array_filter([
+            $bag->getBoolean('audit_events_patient-record') ? EventCategory::PatientRecord : null,
+            $bag->getBoolean('audit_events_scheduling') ? EventCategory::Scheduling : null,
+            $bag->getBoolean('audit_events_order') ? EventCategory::Order : null,
+            $bag->getBoolean('audit_events_lab-order') ? EventCategory::LabOrder : null,
+            $bag->getBoolean('audit_events_lab-results') ? EventCategory::LabResult : null,
+            $bag->getBoolean('audit_events_security-administration') ? EventCategory::SecurityAdministration : null,
+            $bag->getBoolean('audit_events_other') ? EventCategory::Other : null,
+        ]);
         $auditConfig = new AuditConfig(
             enabled: $bag->getBoolean('enable_auditlog'),
             forceBreakglass: $bag->getBoolean('gbl_force_log_breakglass'),
             queryEvents: $bag->getBoolean('audit_events_query'),
             httpRequestEvents: $bag->getBoolean('audit_events_http-request'),
-            eventTypeFlags: [
-                'patient-record' => $bag->getBoolean('audit_events_patient-record'),
-                'scheduling' => $bag->getBoolean('audit_events_scheduling'),
-                'order' => $bag->getBoolean('audit_events_order'),
-                'lab-order' => $bag->getBoolean('audit_events_lab-order'),
-                'lab-results' => $bag->getBoolean('audit_events_lab-results'),
-                'security-administration' => $bag->getBoolean('audit_events_security-administration'),
-                'other' => $bag->getBoolean('audit_events_other'),
-            ],
+            enabledEventTypes: array_values($enabledEventCategories),
         );
 
         return new self(
-            sinks: $sinks,
-            cryptoGen: ServiceContainer::getCrypto(),
-            shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
-            session: SessionWrapperFactory::getInstance()->getWrapper(),
+            sink: new Audit\MultiSink($sinks),
+            session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
+            clock: ServiceContainer::getClock(),
         );
     }
 
-    /**
-     * @param Audit\SinkInterface[] $sinks
-     */
     public function __construct(
-        private readonly array $sinks,
-        private readonly CryptoInterface $cryptoGen,
-        private readonly bool $shouldEncrypt,
-        private readonly SessionWrapperInterface $session,
+        private readonly Audit\SinkInterface $sink,
+        private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
+        private readonly ClockInterface $clock,
     ) {
     }
 
     /**
-     * Keep track of the table mapping in a class constant to prevent reloading the data each time the method is called.
+     * Determines whether a SQL event should be logged based on config settings
+     * and breakglass overrides.
+     */
+    private function shouldLogSqlEvent(string $user, string $querytype, EventCategory $category): bool
+    {
+        // Selects from uncategorized tables are never logged
+        if ($querytype === 'select' && $category === EventCategory::Other) {
+            return false;
+        }
+
+        // Breakglass override: log everything for emergency access users,
+        // except uncategorized reads above (this has been preserved across
+        // refactors, not entirely clear if this was the originally intended
+        // behavior)
+        if ($this->config->forceBreakglass && $this->breakglassChecker->isBreakglassUser($user)) {
+            return true;
+        }
+
+        // Normal path: all config flags must be satisfied
+        return $this->config->enabled
+            && ($querytype !== 'select' || $this->config->queryEvents)
+            && $this->config->isEventCategoryEnabled($category);
+    }
+
+    /**
+     * Matches transaction control statements, which are never auditable: they
+     * name no table, touch no patient data, and carry no bound parameters.
      *
-     * @var array
+     * Both database layers route these through auditSQLEvent(). ADODB's
+     * BeginTrans()/CommitTrans()/RollbackTrans() run BEGIN/COMMIT/ROLLBACK
+     * through the audited ADODB_mysqli_log::Execute() wrapper, and the DBAL
+     * logging middleware synthesizes START TRANSACTION/COMMIT/ROLLBACK for the
+     * driver-level calls plus SAVEPOINT statements for nested transactions.
+     */
+    private const TRANSACTION_CONTROL_PATTERN = '/^(?:'
+        . 'BEGIN\b'
+        . '|START\s+TRANSACTION\b'
+        . '|COMMIT\b'
+        . '|ROLLBACK\b'
+        . '|SAVEPOINT\b'
+        . '|RELEASE\s+SAVEPOINT\b'
+        . '|SET\s+AUTOCOMMIT\s*='
+        . ')/i';
+
+    /**
+     * @var array<string, EventCategory>
      */
     private const LOG_TABLES = [
-        "billing" => "patient-record",
-        "claims" => "patient-record",
-        "employer_data" => "patient-record",
-        "forms" => "patient-record",
-        "form_encounter" => "patient-record",
-        "form_dictation" => "patient-record",
-        "form_misc_billing_options" => "patient-record",
-        "form_reviewofs" => "patient-record",
-        "form_ros" => "patient-record",
-        "form_soap" => "patient-record",
-        "form_vitals" => "patient-record",
-        "history_data" => "patient-record",
-        "immunizations" => "patient-record",
-        "insurance_data" => "patient-record",
-        "issue_encounter" => "patient-record",
-        "lists" => "patient-record",
-        "patient_data" => "patient-record",
-        "payments" => "patient-record",
-        "pnotes" => "patient-record",
-        "onotes" => "patient-record",
-        "prescriptions" => "order",
-        "transactions" => "patient-record",
-        "amendments" => "patient-record",
-        "amendments_history" => "patient-record",
-        "facility" => "security-administration",
-        "pharmacies" => "security-administration",
-        "addresses" => "security-administration",
-        "phone_numbers" => "security-administration",
-        "x12_partners" => "security-administration",
-        "insurance_companies" => "security-administration",
-        "codes" => "security-administration",
-        "registry" => "security-administration",
-        "users" => "security-administration",
-        "groups" => "security-administration",
-        "openemr_postcalendar_events" => "scheduling",
-        "openemr_postcalendar_categories" => "security-administration",
-        "openemr_postcalendar_limits" => "security-administration",
-        "openemr_postcalendar_topics" => "security-administration",
-        "gacl_acl" => "security-administration",
-        "gacl_acl_sections" => "security-administration",
-        "gacl_acl_seq" => "security-administration",
-        "gacl_aco" => "security-administration",
-        "gacl_aco_map" => "security-administration",
-        "gacl_aco_sections" => "security-administration",
-        "gacl_aco_sections_seq" => "security-administration",
-        "gacl_aco_seq" => "security-administration",
-        "gacl_aro" => "security-administration",
-        "gacl_aro_groups" => "security-administration",
-        "gacl_aro_groups_id_seq" => "security-administration",
-        "gacl_aro_groups_map" => "security-administration",
-        "gacl_aro_map" => "security-administration",
-        "gacl_aro_sections" => "security-administration",
-        "gacl_aro_sections_seq" => "security-administration",
-        "gacl_aro_seq" => "security-administration",
-        "gacl_axo" => "security-administration",
-        "gacl_axo_groups" => "security-administration",
-        "gacl_axo_groups_map" => "security-administration",
-        "gacl_axo_map" => "security-administration",
-        "gacl_axo_sections" => "security-administration",
-        "gacl_groups_aro_map" => "security-administration",
-        "gacl_groups_axo_map" => "security-administration",
-        "gacl_phpgacl" => "security-administration",
-        "procedure_order" => "lab-order",
-        "procedure_order_code" => "lab-order",
-        "procedure_report" => "lab-results",
-        "procedure_result" => "lab-results"
+        "billing" => EventCategory::PatientRecord,
+        "claims" => EventCategory::PatientRecord,
+        "employer_data" => EventCategory::PatientRecord,
+        "forms" => EventCategory::PatientRecord,
+        "form_encounter" => EventCategory::PatientRecord,
+        "form_dictation" => EventCategory::PatientRecord,
+        "form_misc_billing_options" => EventCategory::PatientRecord,
+        "form_reviewofs" => EventCategory::PatientRecord,
+        "form_ros" => EventCategory::PatientRecord,
+        "form_soap" => EventCategory::PatientRecord,
+        "form_vitals" => EventCategory::PatientRecord,
+        "history_data" => EventCategory::PatientRecord,
+        "immunizations" => EventCategory::PatientRecord,
+        "insurance_data" => EventCategory::PatientRecord,
+        "issue_encounter" => EventCategory::PatientRecord,
+        "lists" => EventCategory::PatientRecord,
+        "patient_data" => EventCategory::PatientRecord,
+        "payments" => EventCategory::PatientRecord,
+        "pnotes" => EventCategory::PatientRecord,
+        "onotes" => EventCategory::PatientRecord,
+        "prescriptions" => EventCategory::Order,
+        "transactions" => EventCategory::PatientRecord,
+        "amendments" => EventCategory::PatientRecord,
+        "amendments_history" => EventCategory::PatientRecord,
+        "facility" => EventCategory::SecurityAdministration,
+        "pharmacies" => EventCategory::SecurityAdministration,
+        "addresses" => EventCategory::SecurityAdministration,
+        "phone_numbers" => EventCategory::SecurityAdministration,
+        "x12_partners" => EventCategory::SecurityAdministration,
+        "insurance_companies" => EventCategory::SecurityAdministration,
+        "codes" => EventCategory::SecurityAdministration,
+        "registry" => EventCategory::SecurityAdministration,
+        "users" => EventCategory::SecurityAdministration,
+        "groups" => EventCategory::SecurityAdministration,
+        "openemr_postcalendar_events" => EventCategory::Scheduling,
+        "openemr_postcalendar_categories" => EventCategory::SecurityAdministration,
+        "openemr_postcalendar_limits" => EventCategory::SecurityAdministration,
+        "openemr_postcalendar_topics" => EventCategory::SecurityAdministration,
+        "gacl_acl" => EventCategory::SecurityAdministration,
+        "gacl_acl_sections" => EventCategory::SecurityAdministration,
+        "gacl_acl_seq" => EventCategory::SecurityAdministration,
+        "gacl_aco" => EventCategory::SecurityAdministration,
+        "gacl_aco_map" => EventCategory::SecurityAdministration,
+        "gacl_aco_sections" => EventCategory::SecurityAdministration,
+        "gacl_aco_sections_seq" => EventCategory::SecurityAdministration,
+        "gacl_aco_seq" => EventCategory::SecurityAdministration,
+        "gacl_aro" => EventCategory::SecurityAdministration,
+        "gacl_aro_groups" => EventCategory::SecurityAdministration,
+        "gacl_aro_groups_id_seq" => EventCategory::SecurityAdministration,
+        "gacl_aro_groups_map" => EventCategory::SecurityAdministration,
+        "gacl_aro_map" => EventCategory::SecurityAdministration,
+        "gacl_aro_sections" => EventCategory::SecurityAdministration,
+        "gacl_aro_sections_seq" => EventCategory::SecurityAdministration,
+        "gacl_aro_seq" => EventCategory::SecurityAdministration,
+        "gacl_axo" => EventCategory::SecurityAdministration,
+        "gacl_axo_groups" => EventCategory::SecurityAdministration,
+        "gacl_axo_groups_map" => EventCategory::SecurityAdministration,
+        "gacl_axo_map" => EventCategory::SecurityAdministration,
+        "gacl_axo_sections" => EventCategory::SecurityAdministration,
+        "gacl_groups_aro_map" => EventCategory::SecurityAdministration,
+        "gacl_groups_axo_map" => EventCategory::SecurityAdministration,
+        "gacl_phpgacl" => EventCategory::SecurityAdministration,
+        "procedure_order" => EventCategory::LabOrder,
+        "procedure_order_code" => EventCategory::LabOrder,
+        "procedure_report" => EventCategory::LabResult,
+        "procedure_result" => EventCategory::LabResult,
     ];
 
     /**
@@ -222,6 +262,30 @@ class EventAuditLogger
         }
     }
 
+    /**
+     * Log a failed authentication event.
+     *
+     * Collects the client IP internally so callers do not need to repeat the
+     * collectIpAddresses() + comment-formatting boilerplate.
+     *
+     * @param AuthEvent                      $event      The auth event type (e.g. AuthEvent::mfa())
+     * @param string|null                    $username   Username, or null when not yet resolved
+     * @param string                         $authGroup  Auth group name, or '' when not resolved
+     * @param non-empty-string               $reason     Human-readable failure reason
+     * @param int|null                       $patientId  Patient ID for portal auth paths; null otherwise
+     */
+    public function logAuthFailure(
+        AuthEvent $event,
+        ?string $username,
+        string $authGroup,
+        string $reason,
+        ?int $patientId = null,
+    ): void {
+        $ip = collectIpAddresses();
+        $comments = "failure: " . $ip['ip_string'] . ". " . $reason;
+        $this->newEvent($event->value, $username ?? '', $authGroup, 0, $comments, $patientId);
+    }
+
     /******************
      * Get records from the LOG and Extended_Log table
      * using the optional parameters:
@@ -242,14 +306,15 @@ class EventAuditLogger
             $cols = $params['cols'];
         }
 
-        $date1 = date("Y-m-d H:i:s", time());
-        if (isset($params['sdate']) && $params['sdate'] != "") {
-            $date1 = $params['sdate'];
+        $now = $this->clock->now()->format('Y-m-d H:i:s');
+        $date1 = $params['sdate'] ?? $now;
+        if ($date1 === '') {
+            $date1 = $now;
         }
 
-        $date2 = date("Y-m-d H:i:s", time());
-        if (isset($params['edate']) && $params['edate'] != "") {
-            $date2 = $params['edate'];
+        $date2 = $params['edate'] ?? $now;
+        if ($date2 === '') {
+            $date2 = $now;
         }
 
         $user = "";
@@ -360,7 +425,7 @@ class EventAuditLogger
             }
 
             if ($sortby != "") {
-                $sql .= " ORDER BY `" . escape_sql_column_name($sortby, ['log']) . "`  " . escape_sort_order($direction); // descending order
+                $sql .= " ORDER BY " . escape_sql_column_name($sortby, ['log']) . "  " . escape_sort_order($direction); // descending order
             } else {
                 $sql .= " ORDER BY el.`log_id` DESC";
             }
@@ -381,18 +446,13 @@ class EventAuditLogger
      * @param $outcome
      * @param ?array $binds
      */
-    public function auditSQLEvent($statement, $outcome, $binds = null)
+    public function auditSQLEvent($statement, $outcome, $binds = null): void
     {
-        $user = (string) ($this->session->get('authUser') ?? '');
-
-        /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (!$this->config->enabled) {
-            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
-                return;
-            }
-        }
-
         $statement = trim((string) $statement);
+
+        if (preg_match(self::TRANSACTION_CONTROL_PATTERN, $statement) === 1) {
+            return;
+        }
 
         if (
             (stripos($statement, "insert into log") !== false)      // avoid infinite loop
@@ -415,23 +475,16 @@ class EventAuditLogger
             }
         }
 
-        /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !$this->config->queryEvents) {
-            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
-                return;
-            }
-        }
-
         $comments = $statement;
 
         if (is_array($binds) && $binds !== []) {
             // Include the bound variable elements in the logging
-            $quoted = array_map(fn ($v) => "'" . (string) $v . "'", $binds);
+            $quoted = array_map(fn ($v): string => "'" . (string) $v . "'", $binds);
             $comments .= " (" . implode(",", $quoted) . ")";
         }
 
         /* Determine the audit event based on the database tables */
-        $event = "other";
+        $eventCategory = EventCategory::Other;
         $category = "other";
 
         /* When searching for table names, truncate the SQL statement,
@@ -462,41 +515,34 @@ class EventAuditLogger
             }
         }
 
-        foreach (self::LOG_TABLES as $table => $value) {
+        foreach (self::LOG_TABLES as $table => $eventCategoryMatch) {
             if (str_contains($truncated_sql, $table)) {
-                $event = $value;
-                $category = $this->eventCategoryFinder($comments, $event, $table);
+                $eventCategory = $eventCategoryMatch;
+                $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
                 break;
             } elseif (str_contains($truncated_sql, "form_")) {
-                $event = "patient-record";
-                $category = $this->eventCategoryFinder($comments, $event, $table);
+                $eventCategory = EventCategory::PatientRecord;
+                $category = $this->eventCategoryFinder($comments, $eventCategory->value, $table);
                 break;
             }
         }
 
-        /* Avoid filling the audit log with trivial SELECT statements.
-         * Skip SELECTs from unknown tables.
-         */
-        if ($querytype == "select") {
-            if ($event == "other") {
-                return;
-            }
+        // Now that we know _what_ to log, check _if_ it should be logged
+        $user = (string) ($this->session->get('authUser') ?? '');
+        if (!$this->shouldLogSqlEvent($user, $querytype, $eventCategory)) {
+            return;
         }
 
         /* If the event is a patient-record, then note the patient id */
         $pid = 0;
-        if ($event == "patient-record") {
+        if ($eventCategory === EventCategory::PatientRecord) {
             $sessionPid = $this->session->get('pid');
             if ($sessionPid !== null && $sessionPid != '') {
                 $pid = $sessionPid;
             }
         }
 
-        if (!$this->config->isEventTypeEnabled($event) && (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user))) {
-            return;
-        }
-
-        $event = $event . "-" . $querytype;
+        $event = $eventCategory->value . "-" . $querytype;
 
         $group = $this->session->get('authProvider') ?? "";
         $success = (int)($outcome !== false);
@@ -636,24 +682,13 @@ class EventAuditLogger
             $patientId = null;
         }
 
-        if ($this->shouldEncrypt) {
-            $comments = $this->cryptoGen->encryptStandard($comments);
-            if ($api !== null) {
-                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_url']);
-                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_body']);
-                $api['response'] = ($api['response'] === '') ? '' : $this->cryptoGen->encryptStandard($api['response']);
-            }
-        } else {
-            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
-            $comments = base64_encode($comments);
+        // Note: this used to have an encryption path; it was removed as part
+        // of #12118+12120.
 
-            // Should this blank out the api fields? Previous behavior was that
-            // it did not.
-        }
+        // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
+        $comments = base64_encode($comments);
 
-        // Collect timestamp and if pertinent, collect client cert name
-        $current_datetime = date("Y-m-d H:i:s");
-        $SSL_CLIENT_S_DN_CN = $_SERVER['SSL_CLIENT_S_DN_CN'] ?? '';
+        $current_datetime = $this->clock->now()->format('Y-m-d H:i:s');
 
         // Note that no longer using checksum field in log table in OpenEMR 6.0 and onward since using the checksum in log_comment_encrypt table.
         //  Need to keep to maintain backward compatibility since the checksum is used when calculating checksum stored in log_comment_encrypt table
@@ -666,7 +701,6 @@ class EventAuditLogger
         //  4. if atna server is on, then send entry to atna server
         //
         $auditEvent = new Audit\Event(
-            $this->shouldEncrypt,
             $current_datetime,
             $event,
             $category,
@@ -676,16 +710,13 @@ class EventAuditLogger
             $user_notes,
             $patientId,
             $success,
-            $SSL_CLIENT_S_DN_CN,
             $logFrom,
             $menuItemId,
             $ccdaDocId,
             $api,
         );
 
-        foreach ($this->sinks as $sink) {
-            $sink->record($auditEvent);
-        }
+        $this->sink->record($auditEvent);
     }
 
     /**

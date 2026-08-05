@@ -446,7 +446,7 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

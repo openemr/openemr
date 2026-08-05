@@ -32,9 +32,12 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use League\Flysystem\FilesystemOperator;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Storage\Location;
+use OpenEMR\Services\Storage\ManagerInterface;
 
 class BillingLogger
 {
@@ -63,19 +66,26 @@ class BillingLogger
      */
     protected $onLogCompleteCallback;
 
-    protected $cryptoGen;
+    protected CryptoInterface $cryptoGen;
 
-    public function __construct()
-    {
-        $this->cryptoGen = ServiceContainer::getCrypto();
+    private const LOG_PATH = 'edi/process_bills.log';
+
+    private readonly FilesystemOperator $filesystem;
+
+    public function __construct(
+        ?ManagerInterface $storageManager = null,
+        ?CryptoInterface $cryptoGen = null,
+    ) {
+        $cryptoGen ??= ServiceContainer::getCrypto();
+        $storageManager ??= ServiceContainer::getStorageManager();
+        $this->cryptoGen = $cryptoGen;
+        $this->filesystem = $storageManager->getStorage(Location::Documents);
 
         if (OEGlobalsBag::getInstance()->get('billing_log_option') == 1) {
-            if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/process_bills.log")) {
-                $this->hlog = file_get_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/process_bills.log");
+            if ($this->filesystem->fileExists(self::LOG_PATH)) {
+                $this->hlog = $this->filesystem->read(self::LOG_PATH);
             }
-            if ($this->cryptoGen->cryptCheckStandard($this->hlog)) {
-                $this->hlog = $this->cryptoGen->decryptStandard($this->hlog, keySource: KeySource::Database);
-            }
+            $this->hlog = $this->cryptoGen->decryptFromFilesystem($this->hlog);
         } else { // ($GLOBALS['billing_log_option'] == 2)
             $this->hlog = '';
         }
@@ -95,10 +105,8 @@ class BillingLogger
     {
         // If the hlog isn't empty, write the log to disk
         if (!empty($this->hlog)) {
-            if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, keySource: KeySource::Database);
-            }
-            file_put_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/process_bills.log", $this->hlog);
+            $this->hlog = $this->cryptoGen->encryptForFilesystem($this->hlog);
+            $this->filesystem->write(self::LOG_PATH, $this->hlog);
         }
 
         // If the generator set a callback function for when the log completes, call it here

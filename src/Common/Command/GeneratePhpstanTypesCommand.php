@@ -130,25 +130,26 @@ class GeneratePhpstanTypesCommand extends Command
     /**
      * Map SQL types to PHPStan types
      *
-     * Note: ADODB returns all values as strings by default, but we type them
-     * based on their semantic meaning for better static analysis.
+     * ADOdb's FetchRow() returns all scalar values as string|null, regardless
+     * of the underlying SQL column type. The types here reflect runtime
+     * reality, not the SQL schema's logical types.
      */
     private function sqlTypeToPhpType(string $sqlType, bool $nullable): string
     {
         $phpType = match ($sqlType) {
-            'BIGINT', 'INT', 'INTEGER', 'TINYINT', 'SMALLINT', 'MEDIUMINT', 'YEAR' => 'int',
-            'DECIMAL', 'NUMERIC', 'DEC', 'FIXED' => 'string', // PHP/PDO returns decimals as strings
-            'FLOAT', 'DOUBLE', 'DOUBLE PRECISION', 'REAL' => 'float',
-            'VARCHAR', 'CHAR', 'CHARACTER VARYING' => 'string',
-            'TEXT', 'TINYTEXT', 'MEDIUMTEXT', 'LONGTEXT' => 'string',
-            'BLOB', 'TINYBLOB', 'MEDIUMBLOB', 'LONGBLOB' => 'string',
-            'BINARY', 'VARBINARY' => 'string',
-            'DATE', 'DATETIME', 'TIMESTAMP', 'TIME' => 'string',
-            'ENUM', 'SET' => 'string',
+            'BIGINT', 'INT', 'INTEGER', 'TINYINT', 'SMALLINT', 'MEDIUMINT', 'YEAR',
+            'DECIMAL', 'NUMERIC', 'DEC', 'FIXED',
+            'FLOAT', 'DOUBLE', 'DOUBLE PRECISION', 'REAL',
+            'BOOLEAN', 'BOOL',
+            'BIT' => 'numeric-string',
+            'VARCHAR', 'CHAR', 'CHARACTER VARYING',
+            'TEXT', 'TINYTEXT', 'MEDIUMTEXT', 'LONGTEXT',
+            'BLOB', 'TINYBLOB', 'MEDIUMBLOB', 'LONGBLOB',
+            'BINARY', 'VARBINARY',
+            'DATE', 'DATETIME', 'TIMESTAMP', 'TIME',
+            'ENUM', 'SET',
             'JSON' => 'string',
-            'BIT' => 'string',
-            'BOOLEAN', 'BOOL' => 'int', // MySQL stores as TINYINT(1)
-            default => 'mixed',
+            default => 'string',
         };
 
         return $nullable ? "?$phpType" : $phpType;

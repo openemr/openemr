@@ -37,7 +37,7 @@ class ControllerRouter
      */
     public function route(Request $request): Response
     {
-        $actionParam = $request->get('action', '');
+        $actionParam = $request->query->get('action', '');
         $paramParts = explode('!', (string) $actionParam);
         $controller = $paramParts[0] ?? '';
         $action = $paramParts[1] ?? '';

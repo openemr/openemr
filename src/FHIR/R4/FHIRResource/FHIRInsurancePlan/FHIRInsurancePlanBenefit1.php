@@ -185,7 +185,7 @@ class FHIRInsurancePlanBenefit1 extends FHIRBackboneElement implements \JsonSeri
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

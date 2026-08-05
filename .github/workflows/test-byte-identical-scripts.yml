@@ -1,0 +1,64 @@
+# Runs the BATS test suites for the scripts under .github/scripts/.
+#
+# Fires on PR changes to any script, its tests, or this workflow. Fast
+# suites (synthetic in-memory fixtures -- no network, no Docker), so the
+# cost of running on every touch is minimal.
+#
+# Pattern matches docker-test-bats.yml: clone bats-core at the repo-pinned
+# version (v1.13.0) and put it on PATH. No bats-support / bats-assert
+# dependencies -- the tests use plain [[ ]] asserts.
+#
+# Not in any byte-identical set: even where a script under test IS
+# byte-identical-synced to rel branches (e.g. verify-oci-labels.sh syncs
+# to rel-820+, extract-zip.sh syncs to rel-810+ via the
+# tests/Acceptance/** glob), the byte-identical canary guarantees each
+# rel branch runs an exact byte copy of master's script -- so master-
+# side test coverage is enough. Master's script gets exercised on every
+# PR; rel branches inherit the identical bytes, no extra CI needed there.
+
+name: Test byte-identical scripts
+
+on:
+  pull_request:
+    branches:
+    - master
+    paths:
+    - '.github/scripts/**'
+    - 'tests/Acceptance/bin/lib/**'
+    - 'tests/bats/ci-scripts/**'
+    - '.github/workflows/test-byte-identical-scripts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Install Bats
+      run: |
+        git clone --depth 1 --branch v1.13.0 https://github.com/bats-core/bats-core.git /tmp/bats-core
+        /tmp/bats-core/install.sh "$HOME/bats"
+        echo "$HOME/bats/bin" >> "$GITHUB_PATH"
+
+    - name: Run BATS test suites
+      run: |
+        bats tests/bats/ci-scripts/sync-byte-identical/
+        bats tests/bats/ci-scripts/validate-byte-identical/
+        bats tests/bats/ci-scripts/list-manifest-paths/
+        bats tests/bats/ci-scripts/verify-oci-labels/
+        bats tests/bats/ci-scripts/expand-docker-tags/
+        bats tests/bats/ci-scripts/extract-zip/
+        bats tests/bats/ci-scripts/validate-source-run/
+        bats tests/bats/ci-scripts/verify-dockerhub-tag-exists/
+        bats tests/bats/ci-scripts/dockerhub-delete-tag/
+        bats tests/bats/ci-scripts/detect-acceptance-mode/
+        bats tests/bats/ci-scripts/create-release-tag/
+        bats tests/bats/ci-scripts/extract-changelog-section/
+        bats tests/bats/ci-scripts/build-release-body/

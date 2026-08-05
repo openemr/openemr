@@ -165,7 +165,7 @@ class FhirPersonRestController
      * - name (title, first name, middle name, last name)
      * - phone (phone, work, cell)
      * - telecom (email, phone)
-     * @return FHIR bundle with query results, if found
+     * @return \Symfony\Component\HttpFoundation\Response FHIR bundle with query results, if found
      */
     #[OA\Get(
         path: '/fhir/Person',

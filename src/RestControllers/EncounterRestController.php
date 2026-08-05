@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -542,6 +544,9 @@ class EncounterRestController
         }
 
         $serviceResult = $this->encounterService->updateVital($pid, $eid, $vid, $data);
+        if ($serviceResult === null) {
+            return RestControllerHelper::responseHandler(null, null, 404);
+        }
         return RestControllerHelper::responseHandler($serviceResult, ['vid' => $vid], 200);
     }
 

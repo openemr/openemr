@@ -7,11 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_specimen_row.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var with type string\\|false is not subtype of native type non\\-empty\\-array\\<mixed\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var with type OpenEMR\\\\Services\\\\Qdm\\\\PopulationSet is not subtype of native type array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',

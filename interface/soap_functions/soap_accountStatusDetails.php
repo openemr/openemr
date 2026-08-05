@@ -25,23 +25,24 @@
  */
 
 require_once(__DIR__ . '/../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxGlobals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxStore.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/xmltoarray_parser_htmlfix.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/amc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxSOAP.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRx_xml.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxGlobals.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxStore.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/xmltoarray_parser_htmlfix.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRxSOAP.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/interface/eRx_xml.php');
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 set_time_limit(0);
 $GLOBALS_REF = $GLOBALS;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $eRxSOAP = new eRxSOAP();
 $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
     ->setStore(new eRxStore())
-    ->setAuthUserId($_SESSION['authUserID']);
+    ->setAuthUserId($session->get('authUserID'));
 
 if (array_key_exists('patient', $_REQUEST)) {
     $eRxSOAP->setPatientId($_REQUEST['patient']);

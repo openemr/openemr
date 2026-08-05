@@ -2,6 +2,7 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
+use League\Csv\CannotInsertRecord;
 use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 use OpenEMR\BC\ServiceContainer;
@@ -11,6 +12,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,7 +32,8 @@ class ControllerLog extends BaseController
         }
         $this->viewBean->search = Common::post('search', '');
 
-        if (!empty($this->viewBean->search) && !CsrfUtils::verifyCsrfToken(Common::post("csrf_token_form"))) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!empty($this->viewBean->search) && !CsrfUtils::verifyCsrfToken(Common::post("csrf_token_form"), session: $session)) {
             throw new CsrfInvalidException("Invalid CSRF token");
         } else {
             $this->viewBean->search = 1;
@@ -69,7 +72,7 @@ class ControllerLog extends BaseController
                     $record['value'],
                     $record['new_value']
                 ]);
-            } catch (\Throwable $e) {
+            } catch (CannotInsertRecord $e) {
                 // TODO: @adunsulag need to figure out error handling in addition to just logging the error
                 ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
             }

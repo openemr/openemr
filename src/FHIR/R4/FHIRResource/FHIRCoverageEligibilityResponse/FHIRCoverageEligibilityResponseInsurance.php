@@ -249,7 +249,7 @@ class FHIRCoverageEligibilityResponseInsurance extends FHIRBackboneElement imple
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

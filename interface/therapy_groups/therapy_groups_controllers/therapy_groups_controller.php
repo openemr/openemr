@@ -26,10 +26,10 @@
  */
 
 require_once __DIR__ . '/base_controller.php';
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/appointments.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/pid.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class TherapyGroupsController extends BaseController
 {
@@ -119,7 +119,7 @@ class TherapyGroupsController extends BaseController
         $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
         if (isset($_POST['save'])) {
-            $isEdit = empty($_POST['group_id']) ? false : true;
+            $isEdit = !empty($_POST['group_id']);
 
             // for new group - checking if already exist same name
             if ($_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST, $isEdit)) {
@@ -134,13 +134,13 @@ class TherapyGroupsController extends BaseController
             }
 
             $filters = [
-                'group_name' => FILTER_DEFAULT,
+                'group_name' => FILTER_UNSAFE_RAW,
                 'group_start_date' => FILTER_SANITIZE_SPECIAL_CHARS,
                 'group_type' => FILTER_VALIDATE_INT,
                 'group_participation' => FILTER_VALIDATE_INT,
                 'group_status' => FILTER_VALIDATE_INT,
-                'group_notes' => FILTER_DEFAULT,
-                'group_guest_counselors' => FILTER_DEFAULT,
+                'group_notes' => FILTER_UNSAFE_RAW,
+                'group_guest_counselors' => FILTER_UNSAFE_RAW,
                 'counselors' => ['filter'    => FILTER_VALIDATE_INT,
                                       'flags'     => FILTER_FORCE_ARRAY]
             ];
@@ -352,7 +352,7 @@ class TherapyGroupsController extends BaseController
      * @param $group_id
      * @return bool
      */
-    private function checkIfHasApptOrEncounter($group_id)
+    private function checkIfHasApptOrEncounter($group_id): bool
     {
         $therapy_groups_events_model = $this->loadModel('Therapy_Groups_Events');
         $therapy_groups_encounters_model = $this->loadModel('Therapy_Groups_Encounters');
@@ -412,7 +412,8 @@ class TherapyGroupsController extends BaseController
     {
 
         setpid(0);
-        if ($_SESSION['therapy_group'] != $groupId) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($session->get('therapy_group') != $groupId) {
             SessionUtil::setSession('therapy_group', $groupId);
         }
     }

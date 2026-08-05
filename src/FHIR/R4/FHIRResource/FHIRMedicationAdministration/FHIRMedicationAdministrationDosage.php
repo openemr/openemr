@@ -336,7 +336,7 @@ The dosage instructions should reflect the dosage of the medication that was adm
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

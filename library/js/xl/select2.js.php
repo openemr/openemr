@@ -6,7 +6,7 @@
  *
  * Example code in script:
  *    $translationsSelect2Override = array('searching'=>(xla('Search') . ':')) (optional php command)
- *    require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); (php command)
+ *    require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); (php command)
  *
  * Note there is a optional mechanism to override translations via the
  *  $translationsSelect2Override array.
@@ -21,8 +21,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+require_once __DIR__ . '/../../../vendor/autoload.php';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 ?>
-"dir":<?php echo js_escape($_SESSION['language_direction']); ?>,
+"dir":<?php echo js_escape($session->get('language_direction')); ?>,
 "language": {
     errorLoading: function () {
         return <?php echo xlj('The results could not be loaded'); ?> + '.';

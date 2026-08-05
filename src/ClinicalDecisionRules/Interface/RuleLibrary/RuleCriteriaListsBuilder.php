@@ -25,7 +25,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
 {
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
@@ -57,7 +57,7 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
 
     /**
      * @param RuleCriteriaType $ruleCriteriaType
-     * @return RuleCriteria
+     * @return ?RuleCriteria
      */
     function build($ruleCriteriaType, $value, $methodDetail)
     {

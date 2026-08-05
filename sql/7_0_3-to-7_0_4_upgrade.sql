@@ -1309,10 +1309,15 @@ ALTER TABLE `procedure_order`
         COMMENT 'FHIR intent: order, plan, directive, proposal',
     ADD COLUMN `location_id` INT DEFAULT NULL
         COMMENT 'References facility.id for service location (FHIR locationReference)';
-ALTER TABLE `procedure_order`
-    ADD INDEX IF NOT EXISTS `idx_scheduled_date` (`scheduled_date`),
-    ADD INDEX IF NOT EXISTS `idx_order_intent` (`order_intent`),
-    ADD INDEX IF NOT EXISTS `idx_location_id` (`location_id`);
+#EndIf
+#IfNotIndex procedure_order idx_scheduled_date
+ALTER TABLE `procedure_order` ADD INDEX `idx_scheduled_date` (`scheduled_date`);
+#EndIf
+#IfNotIndex procedure_order idx_order_intent
+ALTER TABLE `procedure_order` ADD INDEX `idx_order_intent` (`order_intent`);
+#EndIf
+#IfNotIndex procedure_order idx_location_id
+ALTER TABLE `procedure_order` ADD INDEX `idx_location_id` (`location_id`);
 #EndIf
 
 #IfNotRow2D list_options list_id ord_priority option_id routine

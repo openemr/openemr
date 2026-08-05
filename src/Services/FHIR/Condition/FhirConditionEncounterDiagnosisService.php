@@ -282,7 +282,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
      * Parses an OpenEMR condition record, returning the equivalent FHIR Condition Resource
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCondition|string
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRCondition|string
@@ -373,18 +373,35 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
         return array_merge(...$profileSets);
     }
 
-    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string
+    /**
+     * Creates the Provenance resource for the equivalent FHIR Resource
+     *
+     * @param mixed $dataRecord The FHIRCondition resource to build the Provenance for
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @return FHIRProvenance|string|false The FHIR Provenance resource (or its JSON encoding when $encode
+     *                                     is true), or false when no Provenance can be constructed for the
+     *                                     resource (for example when no author/organization reference can be
+     *                                     resolved). FhirServiceBase::getAll() treats a falsy return as
+     *                                     "no provenance available" and continues the export.
+     */
+    public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string|false
     {
         if (!($dataRecord instanceof FHIRCondition)) {
             throw new BadMethodCallException("Data record should be correct instance class");
         }
-        $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord);
-        if ($encode) {
-            return json_encode($fhirProvenance);
-        } else {
-            return $fhirProvenance;
+        $fhirProvenance = $this->getFhirProvenanceService()->createProvenanceForDomainResource($dataRecord);
+        if ($fhirProvenance === null) {
+            return false;
         }
+        return $encode ? json_encode($fhirProvenance) : $fhirProvenance;
+    }
+
+    /**
+     * Seam so unit tests can substitute the provenance factory.
+     */
+    protected function getFhirProvenanceService(): FhirProvenanceService
+    {
+        return new FhirProvenanceService();
     }
 
     protected function populateRecorder(array $dataRecord, FHIRCondition $conditionResource)

@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Login;
 
+use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\WebDriver;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 
@@ -76,10 +80,40 @@ trait LoginTrait
     private function performLogin(string $name, string $password, bool $goalPass): void
     {
         $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
+        // filter() queries the DOM at a single instant, and form() on an
+        // empty match throws Panther's opaque "The current node list is
+        // empty". Under CI load that instant can precede the login page
+        // finishing its render (or, on the php-fpm configs, catch a
+        // transient upstream error page with no form at all). Wait for the
+        // form explicitly — with a message, because Panther's waitFor()
+        // passes none to WebDriverWait::until() and would time out with an
+        // EMPTY TimeoutException; the explicit condition below fails with
+        // text that names the selector and the likely causes instead.
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('#login_form')),
+            "Login form '#login_form' did not appear within 10s: page still rendering under load, or the webserver served an error page instead of login.php"
+        );
         $form = $this->crawler->filter('#login_form')->form();
         $form['authUser'] = $name;
         $form['clearPass'] = $password;
         $this->crawler = $this->client->submit($form);
+        if ($goalPass) {
+            // The post-login redirect is asynchronous: submit() returns
+            // once the POST responds, but the browser still needs to
+            // follow the redirect and load the main shell before
+            // document.title transitions from 'OpenEMR Login' to
+            // 'OpenEMR'. Under CI load the lag is long enough that
+            // reading getTitle() immediately races the redirect and
+            // fails with "Expected 'OpenEMR'; actual 'OpenEMR Login'".
+            try {
+                $this->client->wait(10)->until(
+                    static fn(WebDriver $driver): bool => $driver->getTitle() === 'OpenEMR'
+                );
+            } catch (TimeoutException) {
+                // Fall through so the assertSame below reports the
+                // actual title for diagnostic purposes.
+            }
+        }
         $title = $this->client->getTitle();
         if ($goalPass) {
             $this->assertSame('OpenEMR', $title, 'Login FAILED');

@@ -40,7 +40,7 @@ class GlobalConfig
      *
      * @return bool
      */
-    public function isConfigured()
+    public function isConfigured(): bool
     {
         // $keys = [self::CONFIG_OPTION_TEXT, self::CONFIG_OPTION_ENCRYPTED];
         // foreach ($keys as $key) {
@@ -59,7 +59,7 @@ class GlobalConfig
     public function getClientSecret()
     {
         $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTSECRET);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
+        return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
     }
 
     public function getClientScope()

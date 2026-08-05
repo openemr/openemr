@@ -18,6 +18,7 @@ use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\SMART\ClientAdminController;
 use OpenEMR\FHIR\SMART\ExternalClinicalDecisionSupport\RouteController;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -56,9 +57,11 @@ class ClientAdminControllerTest extends TestCase
         $mockTwig = $this->createMock(Environment::class);
         $mockTwig->method('render')->willReturn('<html>Mock Template</html>');
 
-        // Mock event dispatcher
+        // Mock event dispatcher and path accessors
         $mockEventDispatcher = new EventDispatcher();
         $this->mockKernel->method('getEventDispatcher')->willReturn($mockEventDispatcher);
+        $this->mockKernel->method('getProjectDir')->willReturn(dirname(__DIR__, 5));
+        $this->mockKernel->method('getWebRoot')->willReturn('');
 
         // Create controller instance
         $this->controller = new ClientAdminController(
@@ -348,9 +351,7 @@ class ClientAdminControllerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider actionDataProvider
-     */
+    #[DataProvider('actionDataProvider')]
     public function testDispatchWithVariousActions(string $action, int $expectedStatusCode): void
     {
         // Arrange
@@ -419,7 +420,7 @@ class ClientAdminControllerTest extends TestCase
     }
 
     /**
-     * @return ClientAdminController|__anonymous@16704
+     * @return ClientAdminController
      */
     private function getAdminController()
     {

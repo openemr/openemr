@@ -42,6 +42,9 @@ class PatientTrackerService extends BaseService
         $tracker_time_calc = strtotime((string) $tracker_to_time) - strtotime((string) $tracker_from_time);
 
         $tracker_time = "";
+        $days = 0;
+        $hours = 0;
+        $minutes = 0;
         if ($tracker_time_calc > 60 * 60 * 24) {
             $days = floor($tracker_time_calc / 60 / 60 / 24);
             if ($days >= 2) {
@@ -306,6 +309,7 @@ class PatientTrackerService extends BaseService
     public static function collect_Tracker_Elements($trackerid)
     {
         $res = sqlStatement("SELECT * FROM patient_tracker_element WHERE pt_tracker_id = ? ORDER BY LENGTH(seq), seq ", [$trackerid]);
+        $returnval = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $returnval[$iter] = $row;
         }

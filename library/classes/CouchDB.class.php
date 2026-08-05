@@ -34,15 +34,16 @@ class CouchDB
 {
     function __construct()
     {
-        $this->host = OEGlobalsBag::getInstance()->get('couchdb_host');
-        $this->user = (OEGlobalsBag::getInstance()->get('couchdb_user') != '') ? OEGlobalsBag::getInstance()->get('couchdb_user') : null;
+        $this->host = OEGlobalsBag::getInstance()->getString('couchdb_host');
+        $this->user = (OEGlobalsBag::getInstance()->getString('couchdb_user') != '') ? OEGlobalsBag::getInstance()->getString('couchdb_user') : null;
         $cryptoGen = ServiceContainer::getCrypto();
-        $this->pass = ($cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('couchdb_pass')) != '') ? $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('couchdb_pass')) : null;
-        $this->port = OEGlobalsBag::getInstance()->get('couchdb_port');
-        $this->dbase = OEGlobalsBag::getInstance()->get('couchdb_dbase');
+        $decryptedPass = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('couchdb_pass'));
+        $this->pass = $decryptedPass !== '' ? $decryptedPass : null;
+        $this->port = OEGlobalsBag::getInstance()->getString('couchdb_port');
+        $this->dbase = OEGlobalsBag::getInstance()->getString('couchdb_dbase');
     }
 
-    function check_connection()
+    function check_connection(): bool
     {
         $resp = $this->send("GET", "/"); // response: string(46) "{"couchdb": "Welcome", "version": "0.7.0a553"}"
         $response = json_decode((string) $resp);
@@ -53,7 +54,7 @@ class CouchDB
         }
     }
 
-    function createDB()
+    function createDB(): bool
     {
         $resp = $this->send("PUT", "/" . $this->dbase);
         return true;
@@ -84,7 +85,7 @@ class CouchDB
         return json_decode((string) $resp);
     }
 
-    function DeleteDoc($docid, $revid)
+    function DeleteDoc($docid, $revid): bool
     {
         $resp = $this->send("DELETE", "/" . $this->dbase . "/" . $docid . "?rev=" . $revid);
         return true;

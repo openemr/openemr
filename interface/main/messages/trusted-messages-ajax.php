@@ -16,10 +16,18 @@ require_once("../../../ccr/transmitCCD.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\PatientService;
 
 $result = ['success' => false];
+$pid = null;
+$documentId = null;
+$message = '';
+$recipient = null;
+$requested_by = null;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // TODO: should we put these mappings into list options so people can configure them?  More versatile, but could fail
 $mimeTypeMappings = [
@@ -30,7 +38,7 @@ $mimeTypeMappings = [
 
 $csrf = $_REQUEST['csrf_token_form'] ?? null;
 $verifyMessageReceived = false;
-if (!CsrfUtils::verifyCsrfToken($csrf)) {
+if (!CsrfUtils::verifyCsrfToken($csrf, session: $session)) {
     $result['errorCode'] = 'invalidCsrf';
     $isValid = false;
 } else {
@@ -47,7 +55,7 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
             throw new InvalidArgumentException("pid is required and must be a valid patient id");
         }
 
-        $requested_by = $_SESSION['authUser'];
+        $requested_by = $session->get('authUser');
         if (empty($requested_by)) {
             throw new AccessDeniedException("patients", "demo", "authUser was missing and could not validate sender");
         }
@@ -72,9 +80,11 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
                 throw new AccessDeniedException("patients", "demo", "Access to patient data is denied");
             }
         }
-        $verifyMessageReceived = intval($_REQUEST['verifyMessageReceived'] ?? 0) == 1;
+        /** @var string|int $rawVerify */
+        $rawVerify = $_REQUEST['verifyMessageReceived'] ?? 0;
+        $verifyMessageReceived = intval($rawVerify) == 1;
         $isValid = true;
-    } catch (AccessDeniedException) {
+    } catch (AccessDeniedException $error) {
         http_response_code(401);
         $result['errorCode'] = 'permissionDenied';
         $isValid = false;

@@ -15,11 +15,11 @@
 require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Reminder\BirthdayReminder;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if (!empty($_POST['pid']) && !empty($_POST['user_id'])) {
     $birthdayReminder = new BirthdayReminder($_POST['pid'], $_POST['user_id']);

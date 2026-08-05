@@ -27,11 +27,11 @@
  *
  * {jsVersionNumber}
  *
- * @param array
+ * @param array $params
 
 use OpenEMR\Core\OEGlobalsBag;
 
- * @param Smarty
+ * @param mixed $smarty
  */
 
 

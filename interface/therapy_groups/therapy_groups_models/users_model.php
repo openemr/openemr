@@ -71,6 +71,7 @@ class Users
     public function getProvidersOfEvent($eid)
     {
 
+        $providers = [];
         $multiple = $this->checkIfMultiple($eid);
         if ($multiple > 0) {
             $sql = "SELECT pc_aid From " . self::EVENTS_TABLE . " WHERE pc_multiple = ?";

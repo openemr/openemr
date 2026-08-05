@@ -18,14 +18,15 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once "$srcdir/options.inc.php";
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -33,10 +34,9 @@ if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding_a: Encounters Report", xl("Encounters Report"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $alertmsg = ''; // not used yet but maybe later
@@ -65,11 +65,11 @@ $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['for
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_provider  = $_POST['form_provider'] ?? null;
 $form_facility  = $_POST['form_facility'] ?? null;
-$form_details   = (!empty($_POST['form_details'])) ? true : false;
-$form_new_patients = (!empty($_POST['form_new_patients'])) ? true : false;
-$form_esigned = (!empty($_POST['form_esigned'])) ? true : false;
-$form_not_esigned = (!empty($_POST['form_not_esigned'])) ? true : false;
-$form_encounter_esigned = (!empty($_POST['form_encounter_esigned'])) ? true : false;
+$form_details   = !empty($_POST['form_details']);
+$form_new_patients = !empty($_POST['form_new_patients']);
+$form_esigned = !empty($_POST['form_esigned']);
+$form_not_esigned = !empty($_POST['form_not_esigned']);
+$form_encounter_esigned = !empty($_POST['form_encounter_esigned']);
 
 $form_orderby = (!empty($_REQUEST['form_orderby']) && $ORDERHASH[$_REQUEST['form_orderby']]) ? $_REQUEST['form_orderby'] : 'doctor';
 $orderby = $ORDERHASH[$form_orderby];
@@ -185,7 +185,7 @@ $res = sqlStatement($query, $sqlBindArray);
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -208,7 +208,7 @@ $res = sqlStatement($query, $sqlBindArray);
                 set_encounterid: enc,
                 set_pid: newpid
             });
-            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?" + params;
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
     </script>
@@ -224,7 +224,7 @@ $res = sqlStatement($query, $sqlBindArray);
 </div>
 
 <form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 <table>

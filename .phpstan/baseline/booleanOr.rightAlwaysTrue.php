@@ -4,11 +4,6 @@ $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Right side of \\|\\| is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/prior_auth/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Right side of \\|\\| is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
@@ -20,11 +15,6 @@ $ignoreErrors[] = [
     'message' => '#^Right side of \\|\\| is always true\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Right side of \\|\\| is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Right side of \\|\\| is always true\\.$#',

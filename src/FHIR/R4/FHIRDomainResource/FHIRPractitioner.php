@@ -500,7 +500,7 @@ Work addresses are not typically entered in this property as they are usually ro
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

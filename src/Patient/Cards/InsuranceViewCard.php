@@ -16,6 +16,7 @@ use InsuranceCompany;
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
@@ -57,7 +58,7 @@ class InsuranceViewCard extends CardModel
                 'btnLabel' => "Edit",
                 'btnLink' => "insurance_edit.php",
                 'linkMethod' => 'html',
-                'initiallyCollapsed' => $initiallyCollapsed ? true : false,
+                'initiallyCollapsed' => $initiallyCollapsed,
                 'enable_eligibility_requests' => OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests'),
                 'auth' => $authCheck
             ]
@@ -132,11 +133,11 @@ class InsuranceViewCard extends CardModel
                 ],
             ];
             $row['policy_type'] = (!empty($row['policy_type'])) ? $policy_types[$row['policy_type']] : false;
-            $row['dispFromDate'] = $row['date'] ? true : false;
+            $row['dispFromDate'] = (bool) $row['date'];
             $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
             $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
         } else {
-            $row['dispFromDate'] = $row['date'] ? true : false;
+            $row['dispFromDate'] = (bool) $row['date'];
             $row['insco'] = [
                 'name' => xl('Self-Pay'),
                 'display_name' => xl('Self-Pay'),
@@ -161,8 +162,7 @@ class InsuranceViewCard extends CardModel
         $output = '';
         $pid = $this->pid;
         if (OEGlobalsBag::getInstance()->getBoolean("enable_eligibility_requests")) {
-            if (($_POST['status_update'] ?? '') === 'true') {
-                unset($_POST['status_update']);
+            if (HttpRestRequest::createFromGlobals()->request->getString('status_update') === 'true') {
                 $showEligibility = true;
                 $ok = EDI270::requestEligibleTransaction($pid);
                 if ($ok === true) {

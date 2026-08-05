@@ -2,7 +2,7 @@
 
 /**
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @link      https://www.open-emr.org
  * @package   OpenEMR
@@ -88,7 +88,7 @@ class GetPayinComponentParameters
             throw new UnexpectedValueException('Payment amount must be positive');
         }
 
-        $encounters = array_map(fn(array $row) => new Rainforest\EncounterData(
+        $encounters = array_map(fn(array $row): Rainforest\EncounterData => new Rainforest\EncounterData(
             id: $row['id'],
             code: $row['code'],
             codeType: $row['codeType'],

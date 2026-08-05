@@ -11,9 +11,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
+use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -31,14 +33,14 @@ class C_FormSOAP extends Controller
      * @throws \Twig\Error\SyntaxError
      * @throws \Twig\Error\LoaderError
      */
-    function default_action()
+    function default_action(): string
     {
         $form = new FormSOAP();
         return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
-                "FORM_ACTION" => OEGlobalsBag::getInstance()->get('web_root'),
-                "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
+                "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),
+                "DONT_SAVE_LINK" => FormActionBarSettings::EXIT_URL,
                 "data" => $form
             ]
         );
@@ -51,8 +53,8 @@ class C_FormSOAP extends Controller
         return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
-                "FORM_ACTION" => OEGlobalsBag::getInstance()->get('web_root'),
-                "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
+                "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),
+                "DONT_SAVE_LINK" => FormActionBarSettings::EXIT_URL,
                 "data" => $form
             ]
         );
@@ -73,13 +75,14 @@ class C_FormSOAP extends Controller
         }
 
         if (empty($_POST['id'])) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(
                 OEGlobalsBag::getInstance()->get('encounter'),
                 "SOAP",
                 $this->form->id,
                 "soap",
                 OEGlobalsBag::getInstance()->get('pid'),
-                $_SESSION['userauthorized']
+                $session->get('userauthorized')
             );
             $_POST['process'] = "";
         }

@@ -15,11 +15,12 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 //=================================
 if (isset($_POST["ajax_mode"])) {
@@ -73,6 +74,10 @@ function AjaxDropDownCode(): void
 
 //===============================================================================
     if ($_POST["ajax_mode"] == "set_patient") {//patient.
+        if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+            http_response_code(403);
+            exit;
+        }
     //From 2 areas this ajax is called.So 2 pairs of functions are used.
         //PlaceValues==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         //PutTheValuesClick==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.

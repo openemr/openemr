@@ -13,14 +13,22 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc.php");
 
-use OpenEMR\Core\Header;
-
 formHeader("Form:Lab Requisition");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $returnurl = 'encounter_top.php';
 
@@ -29,7 +37,7 @@ $obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid ;
 
-$encounter = $_SESSION['encounter'];
+$encounter = $session->get('encounter');
 
 $oid = fetchProcedureId($pid, $encounter);
 

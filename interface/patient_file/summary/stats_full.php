@@ -15,20 +15,27 @@
  */
 
 require_once('../../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+require_once($srcdir . '/lists.inc.php');
+require_once($webserver_root . '/custom/code_types.inc.php');
+require_once($srcdir . '/options.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
 
 // Check if user has permission for any issue type.
 $auth = false;
@@ -54,6 +61,8 @@ if ($auth) {
 // Get patient's preferred language for the patient education URL.
 $tmp = getPatientData($pid, 'language');
 $language = $tmp['language'];
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -126,7 +135,7 @@ function deleteSelectedIssues(tableName) {
 
     const params = new URLSearchParams({
         issue: ids,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
 }
@@ -165,7 +174,7 @@ function newEncounter() {
 </script>
 <script>
 <?php
-require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+require_once($webserver_root . "/interface/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
 ?>
 </script>
 <?php
@@ -197,7 +206,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
-                <?php require_once("$include_root/patient_file/summary/dashboard_header.php") ?>
+                <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php") ?>
             </div>
         </div>
         <?php
@@ -228,10 +237,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // otherwise allow them to add allergies via the normal interface.
                         $userHasErxRole = false;
                         if (in_array($t, ['allergy', 'medications']) && OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
+                            $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             $erxRoleRow = QueryUtils::fetchSingleValue(
                                 "SELECT newcrop_user_role FROM users WHERE id = ?",
                                 'newcrop_user_role',
-                                [$_SESSION['authUserID']]
+                                [$session->get('authUserID')]
                             );
                             $userHasErxRole = $erxRoleRow !== null && $erxRoleRow !== '';
                         }
@@ -341,7 +351,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             } else {
                                 // MU3 criteria, show medical problem's with end dates as a status of Completed.
                                 $statusCompute = ($t == 'medical_problem') ? xlt("Completed") : xlt("Inactive");
-                                $resolved = ($t == "medical_problems") ? true : false;
+                                $resolved = $t == "medical_problems";
                             }
 
                             $click_class = 'statrow';
@@ -370,7 +380,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <button type="button" class="btn btn-outline-text btn-sm collapsed" data-toggle="collapse" data-target="#details_<?php echo attr($row['id']); ?>" aria-expanded="false" aria-controls="details_<?php echo attr($row['id']); ?>"><span aria-hidden="true" class="fa fa-fw fa-chevron-right"></span></button>
                                         <button type="button" class="btn btn-outline-text btn-sm editenc" data-issue-id="<?php echo attr($row['id']); ?>"><span aria-hidden="true" class="fa fa-fw fa-link"></span></button>
                                     </div>
-                                    <a href="#" data-issue-id="<?php echo attr($row['id']); ?>" class="font-weight-bold issue_title" data-toggle="tooltip" data-placement="right" title="<?php echo text(($diag ?? '') . ": " . ($codedesc ?? '')); ?>">
+                                    <a href="#" data-issue-id="<?php echo attr($row['id']); ?>" class="font-weight-bold issue_title" data-toggle="tooltip" data-placement="right" title="<?php echo attr(($diag ?? '') . ": " . ($codedesc ?? '')); ?>">
                                         <?php echo text($disptitle); ?>
                                     </a>&nbsp;(<?php echo $statusCompute; ?><?php echo (!$resolved && $outcome) ? ", $outcome" : ""; ?>)
                                     <?php
@@ -403,7 +413,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php if ($row['begdate']) : ?>
                                             <div class="pr-3">
                                                 <div class="font-weight-bold "><?php echo xlt("Start Date"); ?></div>
-                                                <div class="" title="<?php echo text($fullBegDate); ?>"><?php echo text($shortBegDate); ?></div>
+                                                <div class="" title="<?php echo attr($fullBegDate); ?>"><?php echo text($shortBegDate); ?></div>
                                             </div>
                                         <?php endif; ?>
                                         <?php if ($row['enddate']) : ?>
@@ -479,7 +489,7 @@ $(function () {
           {
               type: this.name,
               patient_id: <?php echo js_escape($pid); ?>,
-              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
           }
       );
       $(this).hide();

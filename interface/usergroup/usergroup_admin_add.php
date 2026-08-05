@@ -12,13 +12,13 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/calendar.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\User\UserEditRenderEvent;
@@ -34,6 +34,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 }
 
 $alertmsg = '';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 <html>
@@ -46,7 +47,7 @@ $alertmsg = '';
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
-<?php  require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php"); ?>
+<?php  require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
@@ -119,6 +120,12 @@ function submitform() {
         return false;
     }
 
+    // Validate email (if provided)
+    if(document.new_user.email.value != "" && !isValidEmail(document.new_user.email.value)) {
+        alert(<?php echo xlj('Email provided is invalid/not properly formatted (e.g. name@example.com)') ?>);
+        return false;
+    }
+
     <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
    alertMsg='';
    f=document.forms[0];
@@ -178,6 +185,8 @@ function submitform() {
         } else {
             dlgclose('reload', false);
         }
+    }).fail(function (xhr, status, error) {
+        alert(<?php echo xlj('Error creating user'); ?> + ': ' + status);
     });
 
     return false;
@@ -218,7 +227,7 @@ function authorized_clicked() {
 <tr>
 <td valign='top'>
 <form name='new_user' id="new_user" method='post' action="usergroup_admin.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <input type='hidden' name='mode' value='new_user'>
 <input type='hidden' name='secure_pwd' value="<?php echo attr((int) OEGlobalsBag::getInstance()->getBoolean('secure_password')); ?>">
@@ -238,7 +247,7 @@ function authorized_clicked() {
 </tr>
 <tr>
 <td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td style="width:220px;"><input type="text" name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
-<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->getString('gbl_ldap_exclusions'))) { ?>
 <td style="width:150px;">
     <span class="text"><?php echo xlt('Password'); ?>:</span>
 </td>
@@ -301,6 +310,7 @@ foreach ($result2 as $iter) {
 <?php
 $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
+    $result = [];
     for ($iter = 0; $iter < count($fres); $iter++) {
         $result[$iter] = $fres[$iter];
     }
@@ -401,6 +411,9 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:120px;" class="form-control" value="<?php echo attr($iter["weno_prov_id"] ?? ''); ?>"></td>
 <td><span class="text"><?php echo xlt('Google Email for Login'); ?>: </span></td><td><input type="text" name="google_signin_email" style="width:150px;" class="form-control" value="<?php echo attr($iter["google_signin_email"] ?? ''); ?>"></td>
 </tr>
+<tr>
+<td><span class="text"><?php echo xlt('Email'); ?>: </span></td><td><input type="email" name="email" style="width:120px;" class="form-control"></td>
+</tr>
 <?php if (OEGlobalsBag::getInstance()->get('inhouse_pharmacy')) { ?>
 <tr>
  <td class="text"><?php echo xlt('Default Warehouse'); ?>: </td>
@@ -484,7 +497,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <?php
 // List the access control groups
 $is_super_user = AclMain::aclCheckCore('admin', 'super');
-$list_acl_groups = AclExtended::aclGetGroupTitleList($is_super_user ? true : false);
+$list_acl_groups = AclExtended::aclGetGroupTitleList($is_super_user);
 $default_acl_group = 'Administrators';
 foreach ($list_acl_groups as $value) {
     if ($is_super_user && $default_acl_group == $value) {
@@ -550,7 +563,7 @@ foreach ($list_acl_groups as $value) {
 <td valign='top'>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <br />
 <input type='hidden' name='mode' value='new_group' />
 <span class="bold"><?php echo xlt('New Group'); ?>:</span>
@@ -562,6 +575,7 @@ foreach ($list_acl_groups as $value) {
 <select name='rumple'>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
+$result = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     $result[$iter] = $row;
 }
@@ -582,7 +596,7 @@ foreach ($result as $iter) {
 <td valign='top'>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type='hidden' name='mode' value='new_group' />
 <span class="bold"><?php echo xlt('Add User To Group'); ?>:</span>
 </td>
@@ -593,6 +607,7 @@ foreach ($result as $iter) {
 <select name='rumple'>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
+$result3 = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     $result3[$iter] = $row;
 }
@@ -628,19 +643,21 @@ foreach ($result2 as $iter) {
 <?php
 if (!OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) {
     $res = sqlStatement("select * from `groups` order by name");
+    $result5 = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result5[$iter] = $row;
     }
 
+    $grouplist = [];
     foreach ($result5 as $iter) {
-        $grouplist[$iter["name"]] .= $iter["user"] .
+        $grouplist[$iter["name"]] = ($grouplist[$iter["name"]] ?? '') . $iter["user"] .
         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
+        attr_url($iter["id"]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
     }
 
     foreach ($grouplist as $groupname => $list) {
         print "<span class='font-weight-bold'>" . text($groupname) . "</span><br />\n<span class='text'>" .
-        text(substr((string) $list, 0, strlen((string) $list) - 2)) . "</span><br />\n";
+        text(substr($list, 0, strlen($list) - 2)) . "</span><br />\n";
     }
 }
 ?>

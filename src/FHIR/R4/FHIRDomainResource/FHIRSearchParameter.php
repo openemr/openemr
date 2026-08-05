@@ -1027,7 +1027,7 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

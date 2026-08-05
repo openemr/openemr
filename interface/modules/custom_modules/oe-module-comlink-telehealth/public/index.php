@@ -14,16 +14,18 @@
 require_once "../../../../globals.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $kernel = OEGlobalsBag::getInstance()->getKernel();
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $roomController = $bootstrap->getTeleconferenceRoomController(false);
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $action = $_REQUEST['action'] ?? '';
 $queryVars = $_REQUEST ?? [];
-$queryVars['pid'] = $_SESSION['pid'] ?? null;
-$queryVars['authUser'] = $_SESSION['authUser'] ?? null;
+$queryVars['pid'] = $session->get('pid');
+$queryVars['authUser'] = $session->get('authUser');
 if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
     $queryVars['csrf_token'] = $_SERVER['HTTP_APICSRFTOKEN'];
 }

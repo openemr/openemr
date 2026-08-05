@@ -135,7 +135,7 @@ trait DatabaseQueryTrait
 
     /**
      * @param string $sqlUpToFromStatement
-     * @param array{
+     * @param mixed $map array{
      *   data?: mixed,
      *   where?: string,
      *   order?: string,

@@ -29,6 +29,7 @@
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RulesPlanMappingEventHandlers;
 
 class ControllerAjax extends BaseController
@@ -41,7 +42,7 @@ class ControllerAjax extends BaseController
 
     public function _action_getRulesOfPlan()
     {
-        $rules = RulesPlanMappingEventHandlers::getRulesInPlan($_GET["plan_id"]);
+        $rules = RulesPlanMappingEventHandlers::getRulesInPlan(Common::get('plan_id'));
         $rules_list = [];
 
         foreach ($rules as $key => $value) {
@@ -54,7 +55,7 @@ class ControllerAjax extends BaseController
 
     public function _action_getRulesNotInPlan()
     {
-        $rules = RulesPlanMappingEventHandlers::getRulesNotInPlan($_GET["plan_id"]);
+        $rules = RulesPlanMappingEventHandlers::getRulesNotInPlan(Common::get('plan_id'));
         $rules_list = [];
 
         foreach ($rules as $key => $value) {
@@ -67,7 +68,8 @@ class ControllerAjax extends BaseController
 
     public function _action_getRulesInAndNotInPlan()
     {
-        $rules = RulesPlanMappingEventHandlers::getRulesInPlan($_GET["plan_id"]);
+        $plan_id = Common::get('plan_id');
+        $rules = RulesPlanMappingEventHandlers::getRulesInPlan($plan_id);
         $rules_list = [];
 
         foreach ($rules as $key => $value) {
@@ -75,7 +77,7 @@ class ControllerAjax extends BaseController
             array_push($rules_list, $rule_info);
         }
 
-        $rules = RulesPlanMappingEventHandlers::getRulesNotInPlan($_GET["plan_id"]);
+        $rules = RulesPlanMappingEventHandlers::getRulesNotInPlan($plan_id);
         foreach ($rules as $key => $value) {
             $rule_info = ['rule_id' => $key, 'rule_title' => $value, 'selected' => 'false'];
             array_push($rules_list, $rule_info);
@@ -123,7 +125,7 @@ class ControllerAjax extends BaseController
 
     public function _action_deletePlan()
     {
-        $plan_id = $_GET["plan_id"];
+        $plan_id = Common::get('plan_id');
         RulesPlanMappingEventHandlers::deletePlan($plan_id);
     }
 
@@ -146,7 +148,7 @@ class ControllerAjax extends BaseController
 
     public function _action_getPlanStatus()
     {
-        $plan_id = $_GET["plan_id"];
+        $plan_id = Common::get('plan_id');
         $isPlanActive = RulesPlanMappingEventHandlers::isPlanActive($plan_id);
         $isPlanActive = ($isPlanActive) ? 1 : 0;
 

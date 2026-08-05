@@ -17,9 +17,11 @@ require_once("../globals.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -29,10 +31,9 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Audit Log Tamper Report", xl("Audit Log Tamper Report"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 ?>
@@ -133,7 +134,7 @@ if (empty($form_patient)) {
 ?>
 <br />
 <FORM METHOD="GET" name="theform" id="theform" onSubmit='top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <?php
 
 $sortby = $_GET['sortby'] ?? null;
@@ -205,6 +206,7 @@ $check_sum = isset($_GET['check_sum']);
     $type_event = "";
     $tevent = "";
     $gev = "";
+    $getevent = "";
     if ($eventname != "" && $type_event != "") {
         $getevent = $eventname . "-" . $type_event;
     }
@@ -248,6 +250,7 @@ $check_sum = isset($_GET['check_sum']);
             }
 
             $checkSumOldApi = $iter['checksum_api'];
+            $checkSumNewApi = '';
             if (!empty($checkSumOldApi)) {
                 $checkSumNewApi = hash('sha3-512', $iter['log_id_api'] . $iter['user_id'] . $iter['patient_id_api'] . $iter['ip_address'] . $iter['method'] . $iter['request'] . $iter['request_url'] . $iter['request_body'] . $iter['response'] . $iter['created_time']);
             }
@@ -276,6 +279,7 @@ $check_sum = isset($_GET['check_sum']);
                 $logType = xl('API');
             }
 
+            // Note: new data no longer written encrypted. Kept for compatibility. See #12118+12120.
             $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
             $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
@@ -285,13 +289,15 @@ $check_sum = isset($_GET['check_sum']);
                     $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
                 } else {
                     // For v1/v2, prepend version prefix. For v3+, data already has it.
-                    $comments = $encryptVersion < 3
-                        ? KeyVersion::from($encryptVersion)->toPaddedString() . $iter["comments"]
-                        : $iter["comments"];
-                    $trans_comments = $cryptoGen->decryptStandard($comments);
-                    if (is_string($trans_comments)) {
+                    $encryptVersionInt = is_numeric($encryptVersion) ? (int) $encryptVersion : 0;
+                    $iterComments = is_string($iter["comments"]) ? $iter["comments"] : '';
+                    $comments = $encryptVersionInt < 3
+                        ? KeyVersion::from($encryptVersionInt)->toPaddedString() . $iterComments
+                        : $iterComments;
+                    try {
+                        $trans_comments = $cryptoGen->decryptFromDatabase($comments);
                         $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
-                    } else {
+                    } catch (CryptoGenException) {
                         $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
                     }
                 }
@@ -299,9 +305,9 @@ $check_sum = isset($_GET['check_sum']);
                 // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
                 //  of comments in OpenEMR 6.0.0 and greater when the comments are not encrypted since they hold binary (uuid) elements)
                 if ($encryptVersion >= 4) {
-                    $iter["comments"] = base64_decode((string) $iter["comments"]);
+                    $iter["comments"] = base64_decode(is_string($iter["comments"]) ? $iter["comments"] : '');
                 }
-                $trans_comments = preg_replace($patterns, $replace, trim((string) $iter["comments"]));
+                $trans_comments = preg_replace($patterns, $replace, trim(is_string($iter["comments"]) ? $iter["comments"] : ''));
             }
 
             //Alter Checksum value records only display here
@@ -387,7 +393,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = true; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });

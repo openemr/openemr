@@ -9,9 +9,11 @@
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Robert Down <robertdown@live.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2023 Providence Healthtech
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -51,7 +53,7 @@ class TemplatePageEvent extends Event
      */
     private $pageName;
 
-    public function __construct(string $pageName, $context = [], $twigTemplate = "", $twigVariables = [])
+    public function __construct(string $pageName, $context = [], string $twigTemplate = "", $twigVariables = [])
     {
         $this->setContext($context);
         $this->setPageName($pageName);
@@ -123,7 +125,7 @@ class TemplatePageEvent extends Event
         $this->twigVariables = [];
     }
 
-    public function setTwigTemplate(string $template)
+    public function setTwigTemplate(string $template): self
     {
         $this->twigTemplate = $template;
         return $this;

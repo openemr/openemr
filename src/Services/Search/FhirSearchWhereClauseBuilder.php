@@ -16,11 +16,11 @@ class FhirSearchWhereClauseBuilder
     /**
      * Given a list of ISearchField objects it constructs a WHERE clause query that can be used in a query statement
      *
-     * @param ISearchField[] $search Hashmap of string => ISearchField where the key is the field name of the search field
+     * @param array<string, ISearchField> $search Hashmap of string => ISearchField where the key is the field name of the search field
      * @param bool $isAndCondition Whether to join each search field with a logical OR or a logical AND.
-     * @return string The where clause query string.
+     * @return SearchQueryFragment The where clause query fragment.
      */
-    public static function build($search, $isAndCondition = true): SearchQueryFragment
+    public static function build(array $search, $isAndCondition = true): SearchQueryFragment
     {
         $sqlBindArray = [];
         $whereClauses = [

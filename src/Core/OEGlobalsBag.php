@@ -6,12 +6,13 @@
  * @link      https://www.open-emr.org
  *
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Core;
 
+use OpenEMR\BC\Deprecation;
 use OpenEMR\Core\Traits\SingletonTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -36,9 +37,34 @@ class OEGlobalsBag extends ParameterBag
 {
     use SingletonTrait;
 
+    /**
+     * Keys being migrated away from OEGlobalsBag. Accessing these via get() or
+     * has() emits a deprecation warning. set() is intentionally omitted at
+     * this time.
+     *
+     * When adding a key to this list, update the tests too.
+     *
+     * @see \OpenEMR\Tests\Isolated\Core\OEGlobalsBagIsolatedTest::deprecatedKeysProvider
+     */
+    private const DEPRECATED_KEYS = [
+        'unit_test_placeholder' => '(placeholder)',
+    ];
+
     protected static function createInstance(): static
     {
+        /** @var array<string, mixed> $GLOBALS */
         return new self($GLOBALS);
+    }
+
+    private static function emitDeprecationIfNeeded(string $key): void
+    {
+        if (array_key_exists($key, self::DEPRECATED_KEYS)) {
+            Deprecation::emit(sprintf(
+                'Key "%s" will be removed from OEGlobalsBag. %s',
+                $key,
+                self::DEPRECATED_KEYS[$key],
+            ));
+        }
     }
 
     public function set(string $key, mixed $value): void
@@ -52,6 +78,8 @@ class OEGlobalsBag extends ParameterBag
 
     public function get(string $key, mixed $default = null): mixed
     {
+        self::emitDeprecationIfNeeded($key);
+
         // During the transition from $GLOBALS to OEGlobalsBag, legacy code may
         // still write to or unset from $GLOBALS directly. For the singleton
         // instance, use $GLOBALS as the sole source of truth.
@@ -68,6 +96,8 @@ class OEGlobalsBag extends ParameterBag
 
     public function has(string $key): bool
     {
+        self::emitDeprecationIfNeeded($key);
+
         if (parent::has($key)) {
             return true;
         }
@@ -95,5 +125,49 @@ class OEGlobalsBag extends ParameterBag
             throw new \RuntimeException('OpenEMR Kernel not initialized');
         }
         return $kernel;
+    }
+
+    /**
+     * Get the project directory, falling back to the 'fileroot' global
+     * when the Kernel is not initialized (e.g. CLI --skip-globals).
+     */
+    public function getProjectDir(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getProjectDir()
+            : $this->getString('fileroot');
+    }
+
+    /**
+     * Get the web root path, falling back to the 'webroot' global
+     * when the Kernel is not initialized.
+     */
+    public function getWebRoot(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getWebRoot()
+            : $this->getString('webroot');
+    }
+
+    /**
+     * Get the src (library) directory, falling back to the 'srcdir' global
+     * when the Kernel is not initialized.
+     */
+    public function getSrcDir(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getSrcDir()
+            : $this->getString('srcdir');
+    }
+
+    /**
+     * Get the include root (project_dir/interface), falling back to the
+     * 'include_root' global when the Kernel is not initialized.
+     */
+    public function getIncludeRoot(): string
+    {
+        return $this->hasKernel()
+            ? $this->getKernel()->getIncludeRoot()
+            : $this->getString('include_root');
     }
 }

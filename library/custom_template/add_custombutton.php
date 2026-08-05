@@ -29,8 +29,11 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$authUserID = $session->get('authUserID');
 if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_POST['form_delete']) && $_POST['form_delete'] == 'Delete')) {
     $count = $_POST['count'];
     $k = 1;
@@ -40,7 +43,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
         if ($_POST['hidid' . $cnt]) {
             if (trimPost('inshort' . $cnt) == '' && trimPost('designation' . $cnt) == '') {
                 sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_slno=?", [$_POST['hidid' . $cnt]]);
-                sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$_POST['hidid' . $cnt], $_SESSION['authUserID']]);
+                sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$_POST['hidid' . $cnt], $authUserID]);
             } else {
                 $sql = "UPDATE customlists SET cl_list_item_short=?,cl_list_item_long=?,cl_order=? WHERE cl_list_slno=?";
                 sqlStatement($sql, [$_POST['inshort' . $cnt], $_POST['designation' . $cnt], $_POST['level' . $cnt], $_POST['hidid' . $cnt]]);
@@ -51,13 +54,13 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
                 $itemID = $rowID['maxID'] ?: 1;
                 $sql = "INSERT INTO customlists (cl_list_item_id,cl_list_type,cl_list_item_short,cl_list_item_long,cl_order) VALUES(?,?,?,?,?)";
                 $newid = sqlInsert($sql, [$itemID, 6, $_POST['inshort' . $cnt], $_POST['designation' . $cnt], $_POST['level' . $cnt]]);
-                sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", [$_SESSION['authUserID'], $newid]);
+                sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", [$authUserID, $newid]);
             }
         }
         if ($_POST['form_delete'] == 'Delete') {
             if ($_POST['chk' . $cnt]) {
                 sqlStatement("UPDATE customlists SET cl_deleted=1 WHERE cl_list_slno=?", [$_POST['chk' . $cnt]]);
-                sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$_POST['chk' . $cnt], $_SESSION['authUserID']]);
+                sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$_POST['chk' . $cnt], $authUserID]);
             }
         }
     }
@@ -109,7 +112,7 @@ if ((isset($_POST['form_save']) && $_POST['form_save'] == 'Save') || (isset($_PO
         <?php
         $i = 1;
         $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno=tu.tu_template_id
-                           WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", [$_SESSION['authUserID']]);
+                           WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", [$authUserID]);
         $sl = 1;
         $start = 1;
         while ($row = sqlFetchArray($res)) {
