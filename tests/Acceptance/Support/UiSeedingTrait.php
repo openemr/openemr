@@ -915,6 +915,16 @@ trait UiSeedingTrait
                     WebDriverBy::xpath("//iframe[@id='modalframe']"),
                 ),
             );
+            // Positive-path breadcrumb. Paired with the recovery-path
+            // breadcrumb in the catch block below — together they let
+            // us confirm the recovery mechanism is running end-to-end
+            // by grepping CI logs. Without the happy-path breadcrumb,
+            // "0 recovery-path breadcrumbs across 18 runs" is ambiguous:
+            // could mean "Bb never flaked" OR "the recovery logic was
+            // wired wrong and always short-circuits." Emitting on the
+            // clean path proves the wait actually completed via the
+            // expected non-catch code path.
+            fwrite(STDERR, "[acceptance/Bb] Modal-close wait passed cleanly.\n");
         } catch (TimeoutException) {
             // STDERR breadcrumb so CI logs show when the recovery
             // path fired — lets us track the flake rate over time
