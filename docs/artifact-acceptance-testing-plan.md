@@ -2254,28 +2254,45 @@ edit + orchestrator GATE-detect swap + docs update. Low risk;
 release-targets.yml is master-only, orchestrator is master-only.
 No byte-identical concern.
 
-### Phase 13 — Back-port candidates for source-side `tests/Tests/E2e/**` *(scope narrowed 2026-08-05 — pursuing only 3 items)*
+### Phase 13 — Back-port candidates for source-side `tests/Tests/E2e/**` *(narrowed scope SHIPPED 2026-08-05; 3 of 3 pursued items landed)*
 
 **Scope decision 2026-08-05** (per user): from the collected candidate
-list below, only the following will be pursued as source-side back-
+list below, only the following were pursued as source-side back-
 ports, chosen because they are the only ones that materially reduce
-false-positive rate (or, for the third, are cheap dead-code cleanup
+false-positive rate (or, for the second, are cheap dead-code cleanup
 that pairs naturally with the first):
 
-1. **CDP `window.alert` muzzle** — real false-positive reducer for
-   the clinical-reminders alert race in PatientAddTrait /
-   EncounterAddTrait. Scope: per-trait, not globally in BaseTrait
-   (some source-side test may deliberately assert on an alert).
-2. **Yank dead `unhandledPromptBehavior=accept`** — two-line
-   cleanup in `E2e/Base/BaseTrait::createChromeClient`. Never
-   observed catching anything; acceptance side yanked both paths
-   (#13358 + #13364) after proving the muzzle is what works.
-   Bundles naturally with #1 since both touch adjacent files.
-3. **Bb row-oracle recovery pattern** — replaces source-side
-   UserAddTrait's 3-retry-whole-test loop with try/catch on
-   modal-close + downstream `isUserExist` DB check. Real
-   false-positive reducer. Bigger refactor than #1/#2 so ships
-   as a separate PR.
+1. **CDP `window.alert` muzzle** — SHIPPED as part of #13398. Real
+   false-positive reducer for the clinical-reminders alert race in
+   PatientAddTrait. Design note: went **global** in BaseTrait
+   rather than per-trait (as originally scoped) because a grep
+   proved no source-side test asserts on alerts (all `alertIsPresent`
+   / `switchTo()->alert()` usages are defensive accept, not
+   assertive). Global was simpler + safer with no cost.
+2. **Yank dead `unhandledPromptBehavior=accept`** — SHIPPED as
+   part of #13398 (paired with #1 since both touch adjacent files).
+   Two-line cleanup in `E2e/Base/BaseTrait::createChromeClient`.
+   Never observed catching anything; acceptance side yanked both
+   paths (#13358 + #13364) after proving the muzzle is what works.
+3. **Bb row-oracle recovery pattern** — SHIPPED as #13397. Replaced
+   source-side UserAddTrait's 3-retry-whole-test loop with a
+   single-shot row-oracle-via-`isUserExist` check + hard-fail on
+   missing-user. Kept the existing diagnostic capture machinery
+   (`gatherModalDiagnostics`, `captureForceRefreshDiagnostics`,
+   `dumpForceRefreshFailure`) intact since source-side has DB
+   access + selenium-videos artifact upload that acceptance-side
+   lacks. Also added the paired positive-path breadcrumb to
+   pair with the recovery-path one, mirroring acceptance-side
+   #13396.
+
+Ripple in #13398: PatientAddTrait's `sleep(5)` + `wait(10)->until(
+alertIsPresent())->accept()` dance around confirm-create was
+simplified — alert-wait dropped (muzzle moots it), sleep(5) briefly
+dropped then restored in the same PR after CI-only failure surfaced
+a separate click-wiring race that sleep(5) was masking (unrelated
+to the alert flake). Sleep now carries an inline comment naming the
+real race + pointing at acceptance-side's direct-form-submit bypass
+(#13372) as the proper follow-up fix if we ever want to drop it.
 
 All other candidates in the list below (per-instance random seed,
 JS-executor return-bool, xpathLiteral, birthday popup) are polish
@@ -4824,3 +4841,47 @@ in acceptance."
 
   RELEASE_PROCESS.md runbook updated same PR with
   paragraphs on both prongs' skip-acceptance path.
+
+- **2026-08-05 (evening) — Phase 13 narrowed-scope
+  complete.** All 3 approved source-side back-ports
+  landed:
+  - #13396 (acceptance-side): paired positive-path
+    breadcrumb on the Bb recovery so future observers
+    can grep logs to confirm the mechanism is running
+    end-to-end regardless of whether the flake fired.
+  - #13397 (source-side): Bb row-oracle recovery
+    pattern replacing the 3-retry-whole-test loop in
+    UserAddTrait.
+  - #13398 (source-side): CDP window.alert muzzle
+    installed globally in BaseTrait + yank dead
+    unhandledPromptBehavior=accept capability + drop
+    PatientAddTrait's now-moot alertIsPresent wait.
+
+  Iteration cost note: #13398's first CI run failed on
+  CcCreatePatientTest because I optimistically dropped
+  PatientAddTrait's sleep(5) alongside the alert wait.
+  Sleep(5) was actually guarding a separate click-wiring
+  race (not the alert race), so restoring it in a follow-
+  up commit fixed CI. Local smoke had passed because
+  local runner speed was above the wiring-race threshold;
+  faster CI runners hit it consistently. Documented in
+  the file with an inline comment.
+
+  All other Phase 13 candidates (per-instance random
+  seed, JS-executor return-bool, xpathLiteral, birthday
+  popup) remain parked in the list for opportunistic
+  pickup during future source-side E2e work; explicit
+  scope decision was to skip them since they don't
+  reduce false-positive rate.
+
+  **Acceptance work is now at its natural end-state.**
+  Phase 14 (skip-acceptance escape hatch) landed as
+  #13394. Phase 13 (narrowed-scope source-side back-
+  ports) all 3 items landed. Suite itself: Small
+  4/4, Medium 3 real-coverage shipped + 3 permanently
+  skipped, Large-equivalent Phase 4g persistence-flow
+  shipped. Plan doc could reasonably move to "merge into
+  codebase" mode now — see user's earlier question about
+  #12811 merge; recommended shape is a cleanup pass that
+  trims the update-log into git history + reshapes
+  phase-in-progress sections into "shipped" form.
