@@ -1257,8 +1257,9 @@ class Document extends ORDataObject
   /**
    * Return note objects associated with this document using Note::notes_factory
    *
+   * @return array<int, Note>
    */
-    function get_notes()
+    function get_notes(): array
     {
         return (Note::notes_factory($this->get_id()));
     }
