@@ -62,10 +62,10 @@ class Note extends ORDataObject
     /**
      * Convenience function to get an array of many document objects
      * For really large numbers of documents there is a way more efficient way to do this by overwriting the populate method
-     * @param int $foreign_id optional id use to limit array on to a specific relation, otherwise every document object is returned
+     * @param int|string $foreign_id optional id use to limit array on to a specific relation, otherwise every document object is returned
      * @return array<int, Note>
      */
-    public static function notes_factory($foreign_id = ""): array
+    public static function notes_factory(int|string $foreign_id = ""): array
     {
         $notes = [];
 
