@@ -34,7 +34,7 @@ Two moves:
 1. On the `release-prep/<rel-branch>` PR, mark it ready-for-review (out of draft) and approve it.
 2. Trigger [`ship-release.yml`](../.github/workflows/ship-release.yml) via `workflow_dispatch` — pick version + rel-branch + mode (`semi-auto` default, `full-auto`, or `dry-run`).
 
-Everything downstream (Conductor + Finalize + Docs merges, tag creation, package build + Release object, docker orchestrator cascade, announcements) is automated. See [runbook steps 6–15](#release-runbook) for the full sequence.
+In `full-auto` mode, everything downstream (Conductor + Finalize + Docs merges, tag creation, package build + Release object, docker orchestrator cascade, announcements) is automated. In `semi-auto` mode (default), only the Conductor PR merges automatically; the maintainer manually merges Finalize + Docs after review. See [runbook steps 6–15](#release-runbook) for the full sequence.
 
 ### 4. Re-run acceptance testing on a stalled release
 
