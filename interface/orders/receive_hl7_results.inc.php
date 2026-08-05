@@ -929,9 +929,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     try {
                         $ptstring = json_encode($ptarr, JSON_THROW_ON_ERROR);
                     } catch (\JsonException) {
-                        rhl7LogMsg(xl('Failed to encode patient match key for segment') .
-                            ' ' . $rhl7_segnum, false);
-                        continue;
+                        return rhl7LogMsg(xl('Failed to encode patient match key for segment') .
+                            ' ' . $rhl7_segnum, true);
                     }
                     // Check if the user has specified the patient.
                     if (isset($matchresp[$ptstring])) {
