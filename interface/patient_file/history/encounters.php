@@ -908,7 +908,7 @@ $(function () {
     $(".billing_note_text").each(function () {
         const noteEl = this;
         const $note = $(this);
-        if (!$note.text().trim()) return; // skip the "+ Add" cells
+        if ($note.find('button.btn-add').length) return; // empty-note cell renders the Add button
 
         $note.addClass('billing_note_clamp');
         // Only offer a toggle if clamping actually hid something
