@@ -137,14 +137,10 @@ if (filter_input(INPUT_POST, 'print_pdf') || filter_input(INPUT_POST, 'print_htm
             /** @var array{content: ?string} $result */
             if ($result = QueryUtils::fetchArrayFromResultSet($query)) {
                 $raw_content = $result['content'] ?? '';
-                if (filter_input(INPUT_POST, 'print_html')) { //do this change to formatting only for html output
-                            $content = preg_replace('|\n|', '<br/>', text($raw_content)) ?? '';
-                            $content = preg_replace('|<br/><br/>|', '<br/>', $content) ?? '';
-                } else {
-                        $content = $raw_content;
-                }
+                $content = preg_replace('|\n|', '<br/>', text($raw_content)) ?? '';
+                $content = preg_replace('|<br/><br/>|', '<br/>', $content) ?? '';
 
-                  array_push($camos_content, $content);
+                array_push($camos_content, $content);
             }
         }
 
