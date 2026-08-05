@@ -2373,7 +2373,7 @@ source-side PR (byte-identical infrastructure doesn't cover
 entries: append here whenever an acceptance-side fix has a
 plausible dev-side twin, so we don't lose the observation.
 
-### Phase 14 — Skip-acceptance escape hatch on the recovery rerun workflows *(proposed 2026-08-03)*
+### Phase 14 — Skip-acceptance escape hatch on the recovery rerun workflows *(SHIPPED 2026-08-05 as #13394; proposed 2026-08-03)*
 
 **Motivation.** The rerun workflows for already-built artifacts —
 `acceptance-only.yml` (tarball) and `docker-acceptance-only.yml`
@@ -4771,3 +4771,27 @@ in acceptance."
   from create-failed — no need for whole-test retry.
   Preserves black-box discipline (no DB queries) +
   regression signal (missing row = hard fail).
+
+- **2026-08-05 — Phase 14 shipped as #13394.** Skip-
+  acceptance escape hatch on both `acceptance-only.yml`
+  (tarball) and `docker-acceptance-only.yml` (docker) rerun
+  workflows. Operator dispatches with `skip_acceptance=true`
+  + required non-empty (non-whitespace-only) reason to bypass
+  the acceptance-gate matrix when a known-good artifact
+  keeps failing on a confirmed test-side flake. Audit trail
+  lands in workflow run-name (Actions UI list view),
+  `::warning::` annotation, and GITHUB_STEP_SUMMARY markdown
+  block. Publish still gates on source-fetch guardrails
+  (48h age, workflow_path check, master-ref) — bypass is
+  scoped strictly to the acceptance matrix.
+
+  Rabbit round-1 caught 3 real issues fixed in the same
+  PR: whitespace-only reasons bypassed the empty check
+  (fixed via ${REASON//[[:space:]]/} strip), publish's
+  `always()` fired through workflow-level cancels (added
+  `!cancelled()`), doc's "jumps straight to publish"
+  overstated the bypass (now names source-fetch
+  prerequisites).
+
+  RELEASE_PROCESS.md runbook updated same PR with
+  paragraphs on both prongs' skip-acceptance path.
