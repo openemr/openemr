@@ -69,7 +69,7 @@
 # for the design rationale.
 
 name: Acceptance-only re-run + publish (docker)
-run-name: "Docker acceptance-only re-run + publish for candidate ${{ inputs.candidate_tag }} (source run ${{ inputs.source_run_id }})"
+run-name: "Docker acceptance-only re-run + publish for candidate ${{ inputs.candidate_tag }} (source run ${{ inputs.source_run_id }})${{ inputs.skip_acceptance && format(' -- SKIP-ACCEPTANCE: {0}', inputs.skip_acceptance_reason) || '' }}"
 
 on:
   workflow_dispatch:
@@ -86,6 +86,22 @@ on:
         description: 'Same comma-separated docker tags list the source run was dispatched with (e.g. "8.2.0,latest" or "next"). Copy from the source run''s dispatch inputs, visible on the failed run''s page under the workflow_dispatch details.'
         required: true
         type: string
+      # Phase 14 (2026-08-04) — escape-hatch for known-good candidate
+      # images where acceptance keeps flaking on a test-side issue.
+      # Mirrors the acceptance-only.yml (tarball) surface one-for-one
+      # so operators dispatching either prong see identical UX. See
+      # the Phase 14 section of docs/artifact-acceptance-testing-plan.md
+      # for the full behavior contract + when-to-use guidance.
+      skip_acceptance:
+        description: 'ESCAPE HATCH -- skip acceptance matrix and publish directly. ONLY use for confirmed test-side flakes on a known-good candidate image. Requires non-empty skip_acceptance_reason. Do NOT use on first-time / never-validated candidates.'
+        required: false
+        type: boolean
+        default: false
+      skip_acceptance_reason:
+        description: 'REQUIRED when skip_acceptance=true. Free-text explanation for the audit trail (appears in run-name, workflow summary). Empty reason with skip=true fails the workflow immediately.'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -123,6 +139,40 @@ jobs:
       image_version: ${{ steps.inspect_candidate.outputs.version }}
       build_date: ${{ steps.inspect_candidate.outputs.created }}
     steps:
+    # Phase 14 guardrail: if the operator dispatched with
+    # skip_acceptance=true, they MUST supply a non-empty
+    # skip_acceptance_reason so the audit trail carries an
+    # accountable "why." Fail loudly + immediately (before doing
+    # any real work) on skip=true + empty reason. Mirrors the
+    # acceptance-only.yml pattern one-for-one.
+    - name: Validate skip-acceptance inputs
+      env:
+        SKIP: ${{ inputs.skip_acceptance }}
+        REASON: ${{ inputs.skip_acceptance_reason }}
+      run: |
+        set -euo pipefail
+        # Strip all whitespace before length check -- a reason that
+        # is only spaces / tabs / newlines is not a real audit trail
+        # entry, so treat it as empty.
+        STRIPPED_REASON="${REASON//[[:space:]]/}"
+        if [ "${SKIP}" = "true" ] && [ -z "${STRIPPED_REASON}" ]; then
+          echo "::error::skip_acceptance=true requires a non-empty skip_acceptance_reason (whitespace-only reasons are rejected). The reason appears in the run-name and workflow summary for audit-trail visibility. Re-dispatch with an explanation of the confirmed test-side flake being bypassed."
+          exit 1
+        fi
+        if [ "${SKIP}" = "true" ]; then
+          echo "::warning title=Acceptance bypassed::Acceptance matrix skipped for this run. Reason: ${REASON}"
+          {
+            echo "## :warning: Acceptance bypassed"
+            echo ""
+            echo "This run skipped the acceptance-scenario matrix and published directly."
+            echo ""
+            echo "**Reason (operator-supplied):** ${REASON}"
+            echo ""
+            echo "Skip-acceptance is intended for known-good candidate images hitting confirmed test-side flakes."
+            echo "If bypasses are repeating on the same failure class, the underlying flake needs a fix, not a bypass."
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
     # Guardrail A: source run must be a docker-build-release.yml run
     # under 48h old AND the operator-supplied candidate_tag must match
     # the run's coordinates. Delegates to the shared validate-source-
@@ -267,6 +317,11 @@ jobs:
   acceptance-gate:
     name: Acceptance gate
     needs: [fetch-source-run-outputs]
+    # Phase 14: bypass the acceptance matrix when the operator
+    # explicitly opts out. The publish-and-cleanup job's if:
+    # absorbs the skipped-result and still fires — see its comment
+    # for the needs/if interaction rationale.
+    if: ${{ inputs.skip_acceptance != true }}
     uses: ./.github/workflows/acceptance-docker.yml
     with:
       to_tag: ${{ needs.fetch-source-run-outputs.outputs.candidate_tag }}
@@ -290,6 +345,20 @@ jobs:
   publish-and-cleanup:
     name: Publish + cleanup
     needs: [fetch-source-run-outputs, acceptance-gate]
+    # Phase 14 needs/if interaction: `acceptance-gate` is gated by
+    # `if: skip_acceptance != true`. Downstream `needs:
+    # [acceptance-gate]` auto-skips when a needed job is
+    # skipped-by-if unless the downstream uses always()/!failure()
+    # to opt out. Here we want publish to fire when acceptance
+    # passed OR was bypassed (skipped-by-if), but NOT when it ran
+    # and failed AND NOT when the workflow run itself was cancelled.
+    # See acceptance-only.yml:publish for the same pattern + full
+    # rationale.
+    if: >-
+      always() && !cancelled()
+      && needs.fetch-source-run-outputs.result == 'success'
+      && needs.acceptance-gate.result != 'failure'
+      && needs.acceptance-gate.result != 'cancelled'
     uses: ./.github/workflows/reusable-docker-publish.yml
     with:
       candidate_tag: ${{ needs.fetch-source-run-outputs.outputs.candidate_tag }}
