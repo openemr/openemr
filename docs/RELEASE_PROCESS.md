@@ -31,7 +31,7 @@ No new branch is cut — patch releases continue on the existing rel branch. Lan
 
 Two moves:
 
-1. Confirm QA sign-off is complete (per the [QA and Release Process wiki page](https://www.open-emr.org/wiki/index.php/QA_and_Release_Process)).
+1. On the `release-prep/<rel-branch>` PR, mark it ready-for-review (out of draft) and approve it.
 2. Trigger [`ship-release.yml`](../.github/workflows/ship-release.yml) via `workflow_dispatch` — pick version + rel-branch + mode (`semi-auto` default, `full-auto`, or `dry-run`).
 
 Everything downstream (Conductor + Finalize + Docs merges, tag creation, package build + Release object, docker orchestrator cascade, announcements) is automated. See [runbook steps 6–15](#release-runbook) for the full sequence.
