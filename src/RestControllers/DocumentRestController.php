@@ -153,13 +153,25 @@ class DocumentRestController
             return $this->invalidPidResponse();
         }
 
-        // insertAtPath() reads tmp_name and name straight off the upload and would fail on a
-        // request that carried no file, so the upload is checked before it gets that far.
-        $tmpName = is_array($fileData) ? ($fileData['tmp_name'] ?? null) : null;
-        $name = is_array($fileData) ? ($fileData['name'] ?? null) : null;
-        if (!is_string($tmpName) || !is_string($name)) {
+        // insertAtPath() reads tmp_name and name straight off the upload, so the upload is
+        // checked before it gets that far. PHP populates those two keys even when the upload
+        // failed -- a partial transfer carries UPLOAD_ERR_PARTIAL alongside whatever bytes did
+        // arrive, and a missing or oversized file leaves tmp_name as an empty string -- so the
+        // error code has to be honoured or a truncated file is stored as though it were whole.
+        $upload = is_array($fileData) ? $fileData : [];
+        $tmpName = $upload['tmp_name'] ?? null;
+        $name = $upload['name'] ?? null;
+        // a caller that built the array itself rather than handing over a $_FILES entry has no
+        // error key, and there is no failed upload to report in that case.
+        $uploadError = $upload['error'] ?? UPLOAD_ERR_OK;
+        if (
+            $uploadError !== UPLOAD_ERR_OK
+            || !is_string($tmpName) || $tmpName === ''
+            || !is_string($name) || $name === ''
+            || !is_file($tmpName)
+        ) {
             return RestControllerHelper::responseHandler(
-                ['validationErrors' => ['document' => ['A document file is required']]],
+                ['validationErrors' => ['document' => ['A valid document file is required']]],
                 null,
                 Response::HTTP_BAD_REQUEST
             );

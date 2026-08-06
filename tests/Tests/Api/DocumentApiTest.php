@@ -210,6 +210,35 @@ class DocumentApiTest extends TestCase
         );
     }
 
+    /**
+     * A MAX_FILE_SIZE field ahead of the file makes PHP reject the upload with
+     * UPLOAD_ERR_FORM_SIZE. This is the shape a failed upload actually takes: $_FILES still
+     * carries the original `name`, and only `tmp_name` comes back empty, so checking that both
+     * keys hold strings is not enough to catch it -- the `error` code has to be read.
+     */
+    #[Test]
+    public function testPostDocumentWithAFailedUpload(): void
+    {
+        $response = $this->testClient->postMultipart(
+            $this->documentEndpoint(),
+            [
+                ['name' => 'MAX_FILE_SIZE', 'contents' => '4'],
+                ['name' => 'document', 'contents' => self::FILE_CONTENTS, 'filename' => self::FILE_NAME],
+            ],
+            ['path' => self::CATEGORY_PATH]
+        );
+
+        $this->assertEquals(
+            400,
+            $response->getStatusCode(),
+            "An upload PHP reported an error for should be a bad request"
+        );
+        $this->assertNull(
+            $this->fetchRow("SELECT `id` FROM `documents` WHERE `foreign_id` = ?", [$this->pid]),
+            "No document should be stored when the upload failed"
+        );
+    }
+
     #[Test]
     public function testPostDocumentWithoutAuthorization(): void
     {
