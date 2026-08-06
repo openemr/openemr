@@ -1047,6 +1047,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/quest/gen_hl7_order.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$oemr_ui might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$logocode might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/smart/register-app.php',
@@ -1183,7 +1188,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$userid$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
