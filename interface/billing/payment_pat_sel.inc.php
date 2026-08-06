@@ -276,11 +276,11 @@ if (isset($_POST["mode"])) {
                         } while ($RowSearch = sqlFetchArray($ResultSearchNew)); ?>
                      <tr class="text">
                         <td class="text-right text-dark text-left" colspan="7"><b><?php echo (xlt("Totals") . ": ") ?></b></td>
-                        <td class="bg-dark text-secondary text-center" id="initialallowtotal">0</td>
-                        <td class="bg-dark text-secondary text-center" id="initialpaymenttotal">0</td>
-                        <td class="bg-dark text-secondary text-center" id="initialAdjAmounttotal" >0</td>
-                        <td class="bg-dark text-secondary text-center" id="initialdeductibletotal">0</td>
-                        <td class="bg-dark text-secondary text-center" id="initialtakebacktotal">0</td>
+                        <td class="bg-dark text-light text-center" id="initialallowtotal">0</td>
+                        <td class="bg-dark text-light text-center" id="initialpaymenttotal">0</td>
+                        <td class="bg-dark text-light text-center" id="initialAdjAmounttotal" >0</td>
+                        <td class="bg-dark text-light text-center" id="initialdeductibletotal">0</td>
+                        <td class="bg-dark text-light text-center" id="initialtakebacktotal">0</td>
                         <td class="text-center">&nbsp;</td>
                         <td class="text-center">&nbsp;</td>
                       </tr>
