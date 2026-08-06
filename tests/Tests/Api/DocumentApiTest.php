@@ -61,12 +61,23 @@ class DocumentApiTest extends TestCase
         $this->pid = $this->intColumn($patient, 'pid');
     }
 
+    /**
+     * PHPUnit runs tearDown() even when setUp() throws part way through, so each cleanup is
+     * guarded on the property it needs. Touching an unassigned typed property would raise an
+     * Error that masks the original setUp() failure and skips the cleanup that could still run.
+     */
     protected function tearDown(): void
     {
-        $this->removeDocumentsForFixturePatient();
-        $this->fixtureManager->removePatientFixtures();
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        if (isset($this->pid)) {
+            $this->removeDocumentsForFixturePatient();
+        }
+        if (isset($this->fixtureManager)) {
+            $this->fixtureManager->removePatientFixtures();
+        }
+        if (isset($this->testClient)) {
+            $this->testClient->cleanupRevokeAuth();
+            $this->testClient->cleanupClient();
+        }
     }
 
     #[Test]
@@ -177,6 +188,26 @@ class DocumentApiTest extends TestCase
         $validationErrors = $body['validationErrors'];
         $this->assertIsArray($validationErrors);
         $this->assertArrayHasKey('pid', $validationErrors);
+    }
+
+    #[Test]
+    public function testPostDocumentWithoutAFile(): void
+    {
+        $response = $this->testClient->postMultipart(
+            $this->documentEndpoint(),
+            [['name' => 'not_the_document_field', 'contents' => self::FILE_CONTENTS]],
+            ['path' => self::CATEGORY_PATH]
+        );
+
+        $this->assertEquals(
+            400,
+            $response->getStatusCode(),
+            "A request that carries no document file should be a bad request"
+        );
+        $this->assertNull(
+            $this->fetchRow("SELECT `id` FROM `documents` WHERE `foreign_id` = ?", [$this->pid]),
+            "No document should be stored when the request carried no file"
+        );
     }
 
     #[Test]
@@ -304,11 +335,15 @@ class DocumentApiTest extends TestCase
     }
 
     /**
-     * A pid that is well formed but has no patient behind it.
+     * A pid that is well formed but has no patient behind it. Derived from the highest stored pid
+     * so that it cannot collide with a patient in a heavily seeded database.
      */
     private function unknownPid(): int
     {
-        return $this->pid + 1000000;
+        $row = $this->fetchRow("SELECT MAX(`pid`) AS `max_pid` FROM `patient_data`", []);
+        $maxPid = $row === null ? null : ($row['max_pid'] ?? null);
+
+        return (is_numeric($maxPid) ? (int)$maxPid : $this->pid) + 1;
     }
 
     /**

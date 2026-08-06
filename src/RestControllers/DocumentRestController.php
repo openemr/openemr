@@ -22,13 +22,13 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class DocumentRestController
 {
-    private $documentService;
+    private readonly DocumentService $documentService;
     private readonly PatientService $patientService;
 
-    public function __construct()
+    public function __construct(?DocumentService $documentService = null, ?PatientService $patientService = null)
     {
-        $this->documentService = new DocumentService();
-        $this->patientService = new PatientService();
+        $this->documentService = $documentService ?? new DocumentService();
+        $this->patientService = $patientService ?? new PatientService();
     }
 
     /**
@@ -153,7 +153,24 @@ class DocumentRestController
             return $this->invalidPidResponse();
         }
 
-        $serviceResult = $this->documentService->insertAtPath($pid, $path, $fileData, $eid);
+        // insertAtPath() reads tmp_name and name straight off the upload and would fail on a
+        // request that carried no file, so the upload is checked before it gets that far.
+        $tmpName = is_array($fileData) ? ($fileData['tmp_name'] ?? null) : null;
+        $name = is_array($fileData) ? ($fileData['name'] ?? null) : null;
+        if (!is_string($tmpName) || !is_string($name)) {
+            return RestControllerHelper::responseHandler(
+                ['validationErrors' => ['document' => ['A document file is required']]],
+                null,
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $serviceResult = $this->documentService->insertAtPath(
+            $pid,
+            $path,
+            ['tmp_name' => $tmpName, 'name' => $name],
+            $eid
+        );
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
