@@ -61,7 +61,10 @@ class WenoLogService
         return true;
     }
 
-    public function scrapeWenoErrorHtml($content)
+    /**
+     * @return bool[]|string[]
+     */
+    public function scrapeWenoErrorHtml($content): array
     {
         $error = ['is_error' => false, 'type' => 'other', 'messageText' => '', 'messageHtml' => ''];
         if (empty($content)) {

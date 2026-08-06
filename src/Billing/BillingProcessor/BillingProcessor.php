@@ -94,7 +94,10 @@ class BillingProcessor
         return $processing_task->getLogger();
     }
 
-    protected function prepareClaims($processing_task_action)
+    /**
+     * @return \OpenEMR\Billing\BillingProcessor\BillingClaim[]
+     */
+    protected function prepareClaims($processing_task_action): array
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $bn_x12 = $session->get('bn_x12') ?? '';

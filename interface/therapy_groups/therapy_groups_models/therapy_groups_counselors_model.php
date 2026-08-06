@@ -29,7 +29,10 @@ class Therapy_Groups_Counselors
 {
     const TABLE = 'therapy_groups_counselors';
 
-    public function getAllCounselors()
+    /**
+     * @return mixed[]
+     */
+    public function getAllCounselors(): array
     {
 
         $sql = 'SELECT * FROM ' . self::TABLE;
@@ -43,7 +46,10 @@ class Therapy_Groups_Counselors
         return $counselors;
     }
 
-    public function getCounselors($groupId)
+    /**
+     * @return mixed[]
+     */
+    public function getCounselors($groupId): array
     {
 
         $sql = 'SELECT user_id FROM ' . self::TABLE . ' WHERE group_id = ?';
@@ -79,7 +85,10 @@ class Therapy_Groups_Counselors
         sqlStatement($sql, $condition);
     }
 
-    public function getAllCounselorsNames($groupId)
+    /**
+     * @return mixed[]
+     */
+    public function getAllCounselorsNames($groupId): array
     {
 
         $counselors = $this->getCounselors($groupId);

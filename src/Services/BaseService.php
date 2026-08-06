@@ -199,7 +199,7 @@ class BaseService implements BaseServiceInterface
      *                  null_value defines what NULL should be stored as in the table, default is empty string ''
      * @return array
      */
-    protected function buildInsertColumns($passed_in = [], $options = [])
+    protected function buildInsertColumns($passed_in = [], $options = []): array
     {
         $keyset = '';
         $bind = [];
@@ -251,7 +251,7 @@ class BaseService implements BaseServiceInterface
      *                       null_value defines what NULL should be stored as in the table, default is empty string ''
      * @return array
      */
-    protected function buildUpdateColumns($passed_in = [], $options = [])
+    protected function buildUpdateColumns($passed_in = [], $options = []): array
     {
         $keyset = '';
         $bind = [];
@@ -310,7 +310,7 @@ class BaseService implements BaseServiceInterface
      * @param $table
      * @return array
      */
-    private static function getAutoIncrements($table)
+    private static function getAutoIncrements($table): array
     {
         $results = [];
         $rtn = sqlStatementNoLog(
@@ -331,7 +331,7 @@ class BaseService implements BaseServiceInterface
      * @param $map                  - Query information (where clause(s), join clause(s), order, data, etc).
      * @return array of associative arrays
      */
-    public function selectHelper($sqlUpToFromStatement, $map)
+    public function selectHelper($sqlUpToFromStatement, $map): array
     {
         $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
         if ($records !== null) {
@@ -413,7 +413,7 @@ class BaseService implements BaseServiceInterface
      * @param string $date             - DateTime String
      * @return array processed prefix with value
      */
-    public static function processDateTime($date)
+    public static function processDateTime($date): array
     {
         $processedDate = [];
         $result = substr($date, 0, 2);
@@ -548,7 +548,7 @@ class BaseService implements BaseServiceInterface
      * @return array Array of Code as Key mapped to an array containing the code,
      *                   code_type, description, and system (URI or OID if found)
      */
-    protected function addCoding($diagnosis)
+    protected function addCoding($diagnosis): array
     {
         if (empty($diagnosis)) {
             return [];
@@ -580,7 +580,7 @@ class BaseService implements BaseServiceInterface
      * @param string $primaryId                 - Name of Primary ID field
      * @return array Array UUIDs
      */
-    protected function splitAndProcessMultipleFields($fields, $table, $primaryId = "id")
+    protected function splitAndProcessMultipleFields($fields, $table, $primaryId = "id"): array
     {
         $fields = explode("|", $fields);
         $result = [];

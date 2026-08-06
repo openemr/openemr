@@ -148,7 +148,7 @@ function cron_GetNotificationSettings(): array|false
  * @param int $trigger_hours Hours before appointment to trigger
  * @return array Array of patient appointment data
  */
-function cron_getPhoneAlertpatientData($type, $trigger_hours)
+function cron_getPhoneAlertpatientData($type, $trigger_hours): array
 {
     $ssql = '';
     $check_date = '';

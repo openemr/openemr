@@ -145,7 +145,6 @@ class AppointmentServiceTest extends TestCase
 
         // Verify the appointment was actually created
         $appointment = $this->appointmentService->getAppointment($insertId);
-        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment, "Should retrieve the inserted appointment");
         $row = $appointment[0];
         $this->assertIsArray($row);
@@ -161,7 +160,6 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
-        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
         $row = $appointment[0];
         $this->assertIsArray($row);
@@ -180,7 +178,6 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $data);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
-        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
         $row = $appointment[0];
         $this->assertIsArray($row);
@@ -204,7 +201,6 @@ class AppointmentServiceTest extends TestCase
         $this->appointmentService->insert($this->testPid, $secondData);
 
         $results = $this->appointmentService->getAppointmentsForPatient($this->testPid);
-        $this->assertIsArray($results);
         $this->assertGreaterThanOrEqual(2, count($results), "Should return at least 2 appointments for the test patient");
 
         // Verify both fixtures are present
@@ -218,7 +214,6 @@ class AppointmentServiceTest extends TestCase
     {
         // Use a PID that has no appointments
         $results = $this->appointmentService->getAppointmentsForPatient(999999999);
-        $this->assertIsArray($results);
         $this->assertEmpty($results, "Should return empty array for patient with no appointments");
     }
 
@@ -392,7 +387,6 @@ class AppointmentServiceTest extends TestCase
 
         // Verify the status was updated
         $appointment = $this->appointmentService->getAppointment($insertId);
-        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
         $row = $appointment[0];
         $this->assertIsArray($row);
@@ -412,7 +406,6 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
-        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
         $row = $appointment[0];
         $this->assertIsArray($row);
@@ -426,7 +419,6 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
-        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
         $row = $appointment[0];
         $this->assertIsArray($row);
@@ -442,7 +434,6 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
-        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
         $row = $appointment[0];
         $this->assertIsArray($row);

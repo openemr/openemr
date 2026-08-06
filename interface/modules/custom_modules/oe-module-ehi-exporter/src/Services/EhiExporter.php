@@ -240,7 +240,7 @@ class EhiExporter
      * @return array
      * @throws \Exception
      */
-    private function createExportTasksFromJob(EhiExportJob $job)
+    private function createExportTasksFromJob(EhiExportJob $job): array
     {
         $hasMorePatients = true;
         $iterations = -1;
@@ -754,7 +754,10 @@ class EhiExporter
         }
     }
 
-    private function createExportTasksFromJobWithoutDocuments(EhiExportJob $job, array &$jobPatientIds, int $jobPatientIdsCount)
+    /**
+     * @return mixed[]
+     */
+    private function createExportTasksFromJobWithoutDocuments(EhiExportJob $job, array &$jobPatientIds, int $jobPatientIdsCount): array
     {
         $tasks = [];
         $currentDocumentSize = 0;

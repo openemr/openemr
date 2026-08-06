@@ -62,7 +62,10 @@ class TeleHealthFrontendSettingsController
         }
         echo $this->twig->render("comlink/telehealth-frontend-settings.js.twig", $data);
     }
-    public function getTranslationSettings()
+    /**
+     * @return array<string, string>
+     */
+    public function getTranslationSettings(): array
     {
         $translations = [
                 'CALL_CONNECT_FAILED' => xl("Failed to connect the call."),

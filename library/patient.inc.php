@@ -79,7 +79,10 @@ function getInsuranceProvider($ins_id)
     return $row['name'] ?? '';
 }
 
-function getInsuranceProviders()
+/**
+ * @return mixed[]
+ */
+function getInsuranceProviders(): array
 {
     $returnval = [];
 
@@ -110,7 +113,10 @@ function getInsuranceProviders()
     return $returnval;
 }
 
-function getInsuranceProvidersExtra()
+/**
+ * @return string[]
+ */
+function getInsuranceProvidersExtra(): array
 {
     $returnval = [];
     // add a global and if for where to allow inactive inscompanies
@@ -512,7 +518,7 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray = []): v
  */
 // To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
 // it needs to be escaped via whitelisting prior to using this function.
-function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
+function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0"): array
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $names = getPatientNameSplit($term);
@@ -639,7 +645,10 @@ function getPatientNameSplit($term)
 
 // To prevent sql injection on this function, if a variable is used for $given OR $orderby parameter, then
 // it needs to be escaped via whitelisting prior to using this function.
-function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
+/**
+ * @return mixed[]
+ */
+function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0"): array
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sqlBindArray = [];
@@ -1471,7 +1480,7 @@ function dateToDB($date)
  * @param string $encdate Date in yyyy-mm-dd format.
  * @return array  Array of 0-3 insurance_data rows.
  */
-function getEffectiveInsurances($patient_id, $encdate)
+function getEffectiveInsurances($patient_id, $encdate): array
 {
     $insarr = [];
     foreach (['primary','secondary','tertiary'] as $instype) {
@@ -1495,9 +1504,9 @@ function getEffectiveInsurances($patient_id, $encdate)
  * Get all requisition insurance companies
  *
  *
+ * @return mixed[]
  */
-
-function getAllinsurances($pid)
+function getAllinsurances($pid): array
 {
     $insarr = [];
     $sql = "SELECT a.type, a.provider, a.plan_name, a.policy_number, a.group_number,

@@ -88,7 +88,6 @@ class FormQuestionnaireAssessmentTest extends TestCase
     public function testGetFormTableDataForSaveExposesExpectedColumns(): void
     {
         $data = $this->makePopulatedForm()->getFormTableDataForSave();
-        $this->assertIsArray($data);
 
         // The key set must match the columns FormService::saveEncounterForm() will INSERT.
         $this->assertEqualsCanonicalizing(
@@ -117,7 +116,6 @@ class FormQuestionnaireAssessmentTest extends TestCase
     public function testGetFormTableDataForSaveMapsValues(): void
     {
         $data = $this->makePopulatedForm()->getFormTableDataForSave();
-        $this->assertIsArray($data);
 
         $this->assertSame('resp-uuid', $data['response_id']);
         $this->assertSame(7, $data['pid']);
@@ -143,7 +141,6 @@ class FormQuestionnaireAssessmentTest extends TestCase
     public function testLformColumnsRemainNull(): void
     {
         $data = $this->makePopulatedForm()->getFormTableDataForSave();
-        $this->assertIsArray($data);
 
         $this->assertArrayHasKey('lform', $data);
         $this->assertArrayHasKey('lform_response', $data);

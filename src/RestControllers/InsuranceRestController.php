@@ -133,6 +133,7 @@ class InsuranceRestController
 
     /**
      * Retrieves a single insurance for a patient.
+     * @return mixed[]
      */
     #[OA\Get(
         path: '/api/patient/{puuid}/insurance/{uuid}',
@@ -154,7 +155,7 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getOne($insuranceUuid, $puuid)
+    public function getOne($insuranceUuid, $puuid): array
     {
         $searchParams = [];
         // we do this again cause we have to handle the 404 result here.
@@ -170,6 +171,7 @@ class InsuranceRestController
 
     /**
      * Updates an existing patient insurance policy.
+     * @return mixed[]
      */
     #[OA\Put(
         path: '/api/patient/{puuid}/insurance/{insuranceUuid}',
@@ -205,7 +207,7 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put($puuid, $insuranceUuid, $data)
+    public function put($puuid, $insuranceUuid, $data): array
     {
         $data['uuid'] = $insuranceUuid;
         $data['type'] ??= 'primary';
@@ -230,6 +232,7 @@ class InsuranceRestController
 
     /**
      * Submits a new patient insurance.
+     * @return mixed[]
      */
     #[OA\Post(
         path: '/api/patient/{puuid}/insurance',
@@ -258,7 +261,7 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function post($puuid, $data)
+    public function post($puuid, $data): array
     {
         $data['type'] ??= 'primary';
 
@@ -291,6 +294,7 @@ class InsuranceRestController
 
     /**
      * Swap insurance operation.
+     * @return mixed[]
      */
     #[OA\Get(
         path: '/api/patient/{puuid}/insurance/$swap-insurance',
@@ -326,7 +330,7 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function operationSwapInsurance(string $puuid, string $type, string $insuranceUuid)
+    public function operationSwapInsurance(string $puuid, string $type, string $insuranceUuid): array
     {
         $processingResult = new ProcessingResult();
         $validationMessages = ['puuid::INVALID_PUUID' => 'Patient uuid invalid'];

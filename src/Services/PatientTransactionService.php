@@ -101,7 +101,10 @@ class PatientTransactionService extends BaseService
         ";
     }
 
-    private function getOneFromDb($tid)
+    /**
+     * @return mixed[]
+     */
+    private function getOneFromDb($tid): array
     {
 
         $sqlBindArray = [];

@@ -201,7 +201,10 @@ class AppointmentService extends BaseService
         return $processingResult;
     }
 
-    public function getAppointmentsForPatient($pid)
+    /**
+     * @return mixed[]
+     */
+    public function getAppointmentsForPatient($pid): array
     {
         $sqlBindArray = [];
 
@@ -256,7 +259,10 @@ class AppointmentService extends BaseService
         return $finalRecords;
     }
 
-    public function getAppointment($eid)
+    /**
+     * @return mixed[]
+     */
+    public function getAppointment($eid): array
     {
         $sql = "SELECT pce.pc_eid,
                        pce.uuid AS pc_uuid,
@@ -547,7 +553,7 @@ class AppointmentService extends BaseService
      * Returns a list of appointment statuses (also used with encounters).
      * @return array
      */
-    public function getAppointmentStatuses()
+    public function getAppointmentStatuses(): array
     {
         $listService = new ListService();
         $options = $listService->getOptionsByListName('apptstat', ['activity' => 1]);

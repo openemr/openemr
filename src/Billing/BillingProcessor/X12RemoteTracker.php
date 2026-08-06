@@ -175,7 +175,10 @@ class X12RemoteTracker extends BaseService
         return $results;
     }
 
-    protected function onlyRealFields($passed_in)
+    /**
+     * @return mixed[]
+     */
+    protected function onlyRealFields($passed_in): array
     {
         $realFields = [];
         foreach ($passed_in as $key => $value) {
@@ -192,7 +195,7 @@ class X12RemoteTracker extends BaseService
      * @param string $status
      * @return array
      */
-    public function fetchByStatus($status = self::STATUS_WAITING)
+    public function fetchByStatus($status = self::STATUS_WAITING): array
     {
         $waiting = self::selectHelper(self::SELECT, [
             'join' => "JOIN x12_partners P ON P.id = R.x12_partner_id",
@@ -204,7 +207,10 @@ class X12RemoteTracker extends BaseService
         return $waiting;
     }
 
-    public function fetchAll()
+    /**
+     * @return mixed[]
+     */
+    public function fetchAll(): array
     {
         $all = self::selectHelper(self::SELECT, [
             'join' => "JOIN x12_partners P ON P.id = R.x12_partner_id",

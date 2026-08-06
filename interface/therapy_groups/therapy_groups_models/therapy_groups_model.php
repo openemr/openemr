@@ -29,7 +29,10 @@ class Therapy_Groups
 {
     const TABLE = 'therapy_groups';
 
-    public function getAllGroups()
+    /**
+     * @return mixed[]
+     */
+    public function getAllGroups(): array
     {
 
         $sql = 'SELECT * FROM ' . self::TABLE . ' ORDER BY ' . self::TABLE . '.group_start_date DESC;';
@@ -114,7 +117,7 @@ class Therapy_Groups
      * @param $column
      * @return array
      */
-    public function getGroupData($search_params, $result_columns, $column, $onlyActive = true)
+    public function getGroupData($search_params, $result_columns, $column, $onlyActive = true): array
     {
         $sql = 'SELECT ' . $result_columns . ' FROM ' . self::TABLE . ' WHERE ' . $column . ' LIKE ? ';
         // status 20 is 'deleted'

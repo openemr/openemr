@@ -1152,7 +1152,7 @@ class Date_Calc
      * @return array $week[$weekday]
      */
 
-    static function getCalendarWeek($day = "", $month = "", $year = "", $format = "%Y%m%d")
+    static function getCalendarWeek($day = "", $month = "", $year = "", $format = "%Y%m%d"): array
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1193,7 +1193,7 @@ class Date_Calc
      * @return array $month[$row][$col]
      */
 
-    static function getCalendarMonth($month = "", $year = "", $format = "%Y%m%d")
+    static function getCalendarMonth($month = "", $year = "", $format = "%Y%m%d"): array
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1251,7 +1251,7 @@ class Date_Calc
      * @return array $year[$month][$row][$col]
      */
 
-    static function getCalendarYear($year = "", $format = "%Y%m%d")
+    static function getCalendarYear($year = "", $format = "%Y%m%d"): array
     {
         if (empty($year)) {
             $year = Date_Calc::dateNow("%Y");
@@ -1634,15 +1634,16 @@ class Date_Calc
     }
 
     /**
-    * Returns an array of month names
-    *
-    * Used to take advantage of the setlocale function to return
-    * language specific month names.
-    * XXX cache values to some global array to avoid preformace hits when called more than once.
-    *
-    * @returns array An array of month names
-    */
-    static function getMonthNames()
+     * Returns an array of month names
+     *
+     * Used to take advantage of the setlocale function to return
+     * language specific month names.
+     * XXX cache values to some global array to avoid preformace hits when called more than once.
+     *
+     * @returns array An array of month names
+     * @return mixed[]
+     */
+    static function getMonthNames(): array
     {
         $months = [];
         for ($i = 1; $i < 13; $i++) {
@@ -1653,15 +1654,16 @@ class Date_Calc
     }
 
     /**
-    * Returns an array of week days
-    *
-    * Used to take advantage of the setlocale function to
-    * return language specific week days
-    * XXX cache values to some global array to avoid preformace hits when called more than once.
-    *
-    * @returns array An array of week day names
-    */
-    static function getWeekDays()
+     * Returns an array of week days
+     *
+     * Used to take advantage of the setlocale function to
+     * return language specific week days
+     * XXX cache values to some global array to avoid preformace hits when called more than once.
+     *
+     * @returns array An array of week day names
+     * @return mixed[]
+     */
+    static function getWeekDays(): array
     {
         $weekdays = [];
         for ($i = 0; $i < 7; $i++) {

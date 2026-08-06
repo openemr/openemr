@@ -131,7 +131,10 @@ class CapabilityStatementTest extends TestCase
         $this->assertProfilesSupported($supportedProfiles, $expectedProfiles, $version);
     }
 
-    protected function getSupportedProfiles()
+    /**
+     * @return string[]
+     */
+    protected function getSupportedProfiles(): array
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: self::DEFAULT_OPENEMR_BASE_URL_API;
         $url = $baseUrl . '/apis/default/fhir/metadata';

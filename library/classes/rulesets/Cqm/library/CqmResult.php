@@ -34,7 +34,10 @@ class CqmResult implements RsResultIF
         }
     }
 
-    public function format()
+    /**
+     * @return mixed[]
+     */
+    public function format(): array
     {
         $concatenated_label = '';
         if ($this->numeratorLabel != "Numerator") {

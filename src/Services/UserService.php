@@ -304,7 +304,7 @@ class UserService
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return array of users that matched the results.
      */
-    public function getAll(array $search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true): array
     {
         $sqlBindArray = [];
 

@@ -123,6 +123,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
 ];

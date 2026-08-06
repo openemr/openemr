@@ -79,13 +79,19 @@ class InsuranceViewCard extends CardModel
         return $templateVars;
     }
 
-    private function getInsuranceTypeArray()
+    /**
+     * @return list<('primary' | 'secondary' | 'tertiary')>
+     */
+    private function getInsuranceTypeArray(): array
     {
         // TODO: @adunsulag should we move this into a class?  It's copied everywhere...
         $insurance_array = OEGlobalsBag::getInstance()->getBoolean('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
         return $insurance_array;
     }
-    private function getInsuranceData()
+    /**
+     * @return non-empty-array<('current' | 'policies'), mixed>[]
+     */
+    private function getInsuranceData(): array
     {
         $pid = $this->pid;
 

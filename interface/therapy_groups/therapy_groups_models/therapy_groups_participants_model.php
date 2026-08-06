@@ -30,7 +30,10 @@ class Therapy_groups_participants
     const TABLE = 'therapy_groups_participants';
     const PATIENT_TABLE = 'patient_data';
 
-    public function getParticipants($groupId, $onlyActive = false)
+    /**
+     * @return mixed[]
+     */
+    public function getParticipants($groupId, $onlyActive = false): array
     {
 
         $sql = "SELECT gp.*, p.fname, p.lname FROM " . self::TABLE . " AS gp ";

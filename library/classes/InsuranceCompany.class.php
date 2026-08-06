@@ -375,7 +375,10 @@ class InsuranceCompany extends ORDataObject
         });
     }
 
-    public function insurance_companies_factory()
+    /**
+     * @return \InsuranceCompany[]
+     */
+    public function insurance_companies_factory(): array
     {
         $insuranceCompanyService = new InsuranceCompanyService();
         $icompanies = [];

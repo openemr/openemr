@@ -144,7 +144,10 @@ function dicom_history_action($action, $doc_id, $json_data = ''): bool|string
     return xlj("Unknown");
 }
 
-function getMultiple()
+/**
+ * @return non-empty-array<non-empty-array<mixed>>[]
+ */
+function getMultiple(): array
 {
     $_FILE = [];
     foreach ($_FILES as $name => $file) {

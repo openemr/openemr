@@ -37,8 +37,12 @@ class TherapyGroupsController extends BaseController
 
     /* Note: Created functions to return arrays so that xl method can be used in array rendering. */
 
-    //list of group statuses
-    public static function prepareStatusesList()
+    /**
+     * list of group statuses
+     *
+     * @return array<int, string>
+     */
+    public static function prepareStatusesList(): array
     {
         $statuses = [
             '10' => xl('Active'),
@@ -48,8 +52,12 @@ class TherapyGroupsController extends BaseController
         return $statuses;
     }
 
-    //list of participant statuses
-    public static function prepareParticipantStatusesList()
+    /**
+     * list of participant statuses
+     *
+     * @return array<int, string>
+     */
+    public static function prepareParticipantStatusesList(): array
     {
         $participant_statuses = [
                 '10' => xl('Active'),
@@ -58,8 +66,12 @@ class TherapyGroupsController extends BaseController
         return $participant_statuses;
     }
 
-    //list of group types
-    public static function prepareGroupTypesList()
+    /**
+     * list of group types
+     *
+     * @return array<int, string>
+     */
+    public static function prepareGroupTypesList(): array
     {
         $group_types = [
             '1' => xl('Closed'),
@@ -69,8 +81,12 @@ class TherapyGroupsController extends BaseController
         return $group_types;
     }
 
-    //list of participation types
-    public static function prepareGroupParticipationList()
+    /**
+     * list of participation types
+     *
+     * @return array<int, string>
+     */
+    public static function prepareGroupParticipationList(): array
     {
         $group_participation = [
             '1' => xl('Mandatory'),
@@ -264,7 +280,7 @@ class TherapyGroupsController extends BaseController
      * @param $counselors
      * @return array
      */
-    private function prepareGroups($therapy_groups, $counselors)
+    private function prepareGroups($therapy_groups, $counselors): array
     {
 
         $new_array = [];
@@ -307,7 +323,7 @@ class TherapyGroupsController extends BaseController
      * @param $counselors
      * @return array
      */
-    private function prepareCounselorsList($counselors)
+    private function prepareCounselorsList($counselors): array
     {
 
         $new_array = [];
@@ -327,7 +343,7 @@ class TherapyGroupsController extends BaseController
      * @param $group_id
      * @return array
      */
-    private function deleteGroup($group_id)
+    private function deleteGroup($group_id): array
     {
 
         $response = [];

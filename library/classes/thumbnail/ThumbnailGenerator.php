@@ -67,7 +67,7 @@ class ThumbnailGenerator
      * Generating all files with match format that still isn't generated
      * @return array $result (count failed/success)
      */
-    public function generate_all()
+    public function generate_all(): array
     {
 
         $feedback = ['sum_success' => 0, 'sum_failed' => 0, 'success' => [], 'failed' => []];

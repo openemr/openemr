@@ -487,7 +487,10 @@ XML;
          */
     }
 
-    private function CqmExecutionCalcExecute($patients, $measures)
+    /**
+     * @return mixed[]
+     */
+    private function CqmExecutionCalcExecute($patients, $measures): array
     {
         $finalResults = [];
         foreach ($measures as $measure) {
@@ -515,7 +518,10 @@ XML;
          */
     }
 
-    private function request_for($patients, Measure $measure)
+    /**
+     * @return mixed[]
+     */
+    private function request_for($patients, Measure $measure): array
     {
 
         $results = $this->calculator->calculateMeasure($patients, $measure, $this->effectiveDate, $this->effectiveDateEnd);
@@ -563,7 +569,10 @@ XML;
          */
     }
 
-    private function aggregate_population_results_from_individual_results($individual_results, $patient_id, Measure $measure)
+    /**
+     * @return \OpenEMR\Services\Qdm\IndividualResult[]
+     */
+    private function aggregate_population_results_from_individual_results($individual_results, $patient_id, Measure $measure): array
     {
         $results = [];
         foreach ($individual_results as $population_set_key => $individual_result) {
