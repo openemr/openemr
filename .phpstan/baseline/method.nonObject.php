@@ -7438,7 +7438,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
@@ -7463,7 +7463,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
 ];
 $ignoreErrors[] = [
@@ -7488,7 +7488,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 9,
+    'count' => 8,
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
@@ -7513,7 +7513,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 16,
+    'count' => 14,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
 ];
 $ignoreErrors[] = [
@@ -7613,7 +7613,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
@@ -7638,7 +7638,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method accept\\(\\) on mixed\\.$#',
-    'count' => 16,
+    'count' => 14,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [

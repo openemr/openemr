@@ -235,12 +235,10 @@ function toencounter(rawdata) {
 
 function todocument(docid) {
   const params = new URLSearchParams({
-    doc_id: docid,
-    document: '',
     patient_id: <?php echo js_escape($pid); ?>,
-    view: ''
+    doc_id: docid
   });
-  h = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/controller.php?' + params;
+  h = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/controller.php?document&view&' + params;
   top.restoreSession();
   location.href = h;
 }
@@ -904,6 +902,26 @@ $(function () {
         dlgopen(url, '', 'modal-sm', 350, false, '', {
             onClosed: 'reload',
         });
+    });
+    $(".billing_note_text").each(function () {
+        const noteEl = this;
+        const $note = $(this);
+        if ($note.find('button.btn-add').length) return; // empty-note cell renders the Add button
+
+        $note.addClass('billing_note_clamp');
+        // Only offer a toggle if clamping actually hid something
+        if (noteEl.scrollHeight > noteEl.clientHeight + 2) {
+            $('<button type="button" class="btn btn-link btn-sm p-0 note-expand-toggle"></button>')
+                .text(<?php echo xlj('More'); ?>)
+                .insertAfter($note)
+                .on('click', function (evt) {
+                    evt.stopPropagation(); // don't trigger row/encounter click
+                    $note.toggleClass('billing_note_clamp');
+                    $(this).text($note.hasClass('billing_note_clamp')
+                        ? <?php echo xlj('More'); ?>
+                        : <?php echo xlj('Less'); ?>);
+                });
+        }
     });
 });
 
