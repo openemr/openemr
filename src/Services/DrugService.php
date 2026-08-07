@@ -23,6 +23,7 @@ use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
 class DrugService extends BaseService
@@ -84,6 +85,100 @@ class DrugService extends BaseService
             'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($uuid, null, false)])
         ];
         return $this->search($search);
+    }
+
+    /**
+     * Inserts a new drugs row (Medication master data). Validates that a `name` is present —
+     * the schema enforces NOT NULL on `name` with no useful default.
+     *
+     * Lot/expiration/manufacturer live on drug_inventory and are not written here.
+     *
+     * @param array<string, mixed> $data
+     */
+    public function insert(array $data): ProcessingResult
+    {
+        $result = new ProcessingResult();
+
+        $name = $data['name'] ?? null;
+        if (!is_string($name) || $name === '') {
+            $result->setValidationMessages(['name' => 'A medication name is required']);
+            return $result;
+        }
+
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::DRUG_TABLE]))->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+
+        /** @var string $setClause */
+        $setClause = $query['set'];
+        /** @var array<int, mixed> $binds */
+        $binds = $query['bind'];
+
+        $sql = "INSERT INTO " . self::DRUG_TABLE . " SET " . $setClause;
+        $newId = QueryUtils::sqlInsert($sql, $binds);
+
+        if ($newId) {
+            $result->addData([
+                'drug_id' => $newId,
+                'uuid' => UuidRegistry::uuidToString($data['uuid']),
+            ]);
+        } else {
+            $result->addInternalError("error processing SQL Insert");
+        }
+
+        return $result;
+    }
+
+    /**
+     * Updates an existing drugs row by uuid.
+     *
+     * @param string $uuid
+     * @param array<string, mixed> $data Column => value pairs. The `uuid` key is ignored.
+     */
+    public function update(string $uuid, array $data): ProcessingResult
+    {
+        $isValid = BaseValidator::validateId('uuid', self::DRUG_TABLE, $uuid, true);
+        if ($isValid instanceof ProcessingResult) {
+            return $isValid;
+        }
+
+        if ($data === []) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['data' => 'No update fields supplied']);
+            return $result;
+        }
+
+        unset($data['uuid']);
+
+        $query = $this->buildUpdateColumns($data);
+
+        /** @var string $setClause */
+        $setClause = $query['set'];
+        /** @var array<int, mixed> $binds */
+        $binds = $query['bind'];
+
+        if ($setClause === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['data' => 'No recognized fields to update']);
+            return $result;
+        }
+
+        $sql = "UPDATE " . self::DRUG_TABLE . " SET " . $setClause . " WHERE uuid = ?";
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $binds[] = $uuidBytes;
+        QueryUtils::sqlStatementThrowException($sql, $binds);
+
+        $result = new ProcessingResult();
+        $row = QueryUtils::querySingleRow(
+            "SELECT drug_id, uuid, name, drug_code, form, active, last_updated AS drug_last_updated "
+            . "FROM drugs WHERE uuid = ?",
+            [$uuidBytes]
+        );
+        if (is_array($row)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $result->addData($row);
+        }
+        return $result;
     }
 
     public function search(array $search, $isAndCondition = true)

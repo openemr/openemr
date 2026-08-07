@@ -1,0 +1,17 @@
+[
+    {
+        "resourceType": "Appointment",
+        "status": "booked",
+        "appointmentType": {
+            "coding": [
+                {
+                    "code": "office_visit",
+                    "display": "Office Visit"
+                }
+            ]
+        },
+        "start": "2026-06-15T10:00:00-05:00",
+        "end": "2026-06-15T10:30:00-05:00",
+        "comment": "test-fixture appointment for FHIR write support"
+    }
+]

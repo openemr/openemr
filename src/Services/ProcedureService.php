@@ -15,6 +15,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\CompositeSearchField;
@@ -801,6 +802,214 @@ class ProcedureService extends BaseService
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      *                   payload.
      */
+    /**
+     * Inserts a new FHIR-shaped order: one procedure_order row plus N procedure_order_code
+     * rows (one per FHIR ServiceRequest.code coding or a single row if only one code).
+     *
+     * Expected $orderData keys:
+     *   - patient_id (int, required)         patient_data.pid
+     *   - provider_id (int, optional)        users.id of the requester
+     *   - encounter_id (int, optional)       form_encounter.encounter
+     *   - procedure_order_type (string)      laboratory_test|imaging|clinical_test|procedure
+     *   - order_status (string)              pending|routed|complete|canceled (default pending)
+     *   - order_priority (string)            routine|urgent|asap|stat
+     *   - date_ordered (string)              Y-m-d H:i:s (default NOW)
+     *   - patient_instructions (string)
+     *   - clinical_hx (string)
+     *
+     * Each $codes[] entry:
+     *   - procedure_code (string, required)
+     *   - procedure_name (string)
+     *   - diagnoses (string, optional)       e.g. "ICD10:E11.9"
+     *
+     * @param array<string, mixed> $orderData
+     * @param array<int, array<string, mixed>> $codes
+     */
+    public function createOrder(array $orderData, array $codes): ProcessingResult
+    {
+        $result = new ProcessingResult();
+
+        if (!isset($orderData['patient_id']) || !is_numeric($orderData['patient_id']) || (int) $orderData['patient_id'] <= 0) {
+            $result->setValidationMessages(['subject' => 'A resolvable patient reference is required']);
+            return $result;
+        }
+        if ($codes === []) {
+            $result->setValidationMessages(['code' => 'At least one ServiceRequest code is required']);
+            return $result;
+        }
+
+        $orderData['date_ordered'] ??= date('Y-m-d H:i:s');
+        $orderData['order_status'] ??= 'pending';
+        $orderData['procedure_order_type'] ??= 'laboratory_test';
+        $orderData['activity'] = 1;
+        $orderData['uuid'] = (new UuidRegistry(['table_name' => self::PROCEDURE_TABLE]))->createUuid();
+
+        try {
+            $out = QueryUtils::inTransaction(function () use ($orderData, $codes): array {
+                $query = $this->buildInsertColumns($orderData);
+                /** @var string $setClause */
+                $setClause = $query['set'];
+                /** @var array<int, mixed> $binds */
+                $binds = $query['bind'];
+
+                $orderId = QueryUtils::sqlInsert(
+                    "INSERT INTO " . self::PROCEDURE_TABLE . " SET " . $setClause,
+                    $binds
+                );
+                if (!$orderId) {
+                    throw new \RuntimeException('Failed to insert procedure_order row');
+                }
+
+                foreach ($codes as $index => $code) {
+                    $procedureCode = is_string($code['procedure_code'] ?? null) ? $code['procedure_code'] : '';
+                    if ($procedureCode === '') {
+                        throw new \RuntimeException("procedure_code is required (entry $index)");
+                    }
+                    QueryUtils::sqlStatementThrowException(
+                        "INSERT INTO procedure_order_code "
+                        . "(procedure_order_id, procedure_order_seq, procedure_code, "
+                        . "procedure_name, procedure_source, diagnoses, procedure_order_title) "
+                        . "VALUES (?, ?, ?, ?, '1', ?, ?)",
+                        [
+                            $orderId,
+                            $index + 1,
+                            $procedureCode,
+                            is_string($code['procedure_name'] ?? null) ? $code['procedure_name'] : '',
+                            is_string($code['diagnoses'] ?? null) ? $code['diagnoses'] : '',
+                            is_string($code['procedure_order_title'] ?? null) ? $code['procedure_order_title'] : '',
+                        ]
+                    );
+                }
+
+                return [
+                    'procedure_order_id' => (int) $orderId,
+                    'uuid' => UuidRegistry::uuidToString($orderData['uuid']),
+                ];
+            });
+
+            $result->addData($out);
+        } catch (\RuntimeException | SqlQueryException $e) {
+            $this->getLogger()->error('ServiceRequest createOrder failed', ['error' => $e->getMessage()]);
+            $result->addInternalError($e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * Replaces the procedure_order_code rows for an existing procedure_order, optionally
+     * updating header fields too. FHIR PUT replace-the-resource semantics.
+     *
+     * @param array<string, mixed> $orderData Partial header fields to update (may be empty)
+     * @param array<int, array<string, mixed>> $codes Full replacement code list (one or more)
+     */
+    /**
+     * @param int|null $expectedPatientId If provided, the existing order's
+     *     patient_id must match — defense-in-depth ownership check so a UUID
+     *     leak cannot be used to mutate orders that belong to a different
+     *     patient than the FHIR caller's resolved subject reference.
+     */
+    public function updateOrder(
+        string $uuid,
+        array $orderData,
+        array $codes,
+        ?int $expectedPatientId = null
+    ): ProcessingResult {
+        $result = new ProcessingResult();
+
+        $isValid = BaseValidator::validateId('uuid', self::PROCEDURE_TABLE, $uuid, true);
+        if ($isValid instanceof ProcessingResult) {
+            return $isValid;
+        }
+
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $orderRow = QueryUtils::querySingleRow(
+            "SELECT procedure_order_id, patient_id FROM procedure_order WHERE uuid = ?",
+            [$uuidBytes]
+        );
+        if (!is_array($orderRow)) {
+            $result->setValidationMessages(['uuid' => 'ServiceRequest not found']);
+            return $result;
+        }
+        $orderId = (int) ($orderRow['procedure_order_id'] ?? 0);
+        $rowPatientId = (int) ($orderRow['patient_id'] ?? 0);
+
+        if ($expectedPatientId !== null && $rowPatientId !== $expectedPatientId) {
+            // Caller's resolved subject doesn't match the order's actual owner —
+            // treat as not-found to avoid leaking existence of other-patient orders.
+            $result->setValidationMessages(['uuid' => 'ServiceRequest not found']);
+            return $result;
+        }
+
+        if ($codes === []) {
+            $result->setValidationMessages(['code' => 'At least one ServiceRequest code is required']);
+            return $result;
+        }
+
+        // patient_id and uuid are not mutable; strip them before building update SQL
+        unset($orderData['patient_id'], $orderData['uuid']);
+
+        try {
+            QueryUtils::inTransaction(function () use ($orderId, $rowPatientId, $orderData, $codes): void {
+                if ($orderData !== []) {
+                    $query = $this->buildUpdateColumns($orderData);
+                    /** @var string $setClause */
+                    $setClause = $query['set'];
+                    /** @var array<int, mixed> $binds */
+                    $binds = $query['bind'];
+                    if ($setClause !== '') {
+                        // Use procedure_order_id + patient_id as the scope.
+                        // patient_id is part of the WHERE for belt-and-braces
+                        // protection if expectedPatientId was not supplied.
+                        $binds[] = $orderId;
+                        $binds[] = $rowPatientId;
+                        QueryUtils::sqlStatementThrowException(
+                            "UPDATE " . self::PROCEDURE_TABLE . " SET " . $setClause
+                            . " WHERE procedure_order_id = ? AND patient_id = ?",
+                            $binds
+                        );
+                    }
+                }
+
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
+                    [$orderId]
+                );
+
+                foreach ($codes as $index => $code) {
+                    $procedureCode = is_string($code['procedure_code'] ?? null) ? $code['procedure_code'] : '';
+                    if ($procedureCode === '') {
+                        throw new \RuntimeException("procedure_code is required (entry $index)");
+                    }
+                    QueryUtils::sqlStatementThrowException(
+                        "INSERT INTO procedure_order_code "
+                        . "(procedure_order_id, procedure_order_seq, procedure_code, "
+                        . "procedure_name, procedure_source, diagnoses, procedure_order_title) "
+                        . "VALUES (?, ?, ?, ?, '1', ?, ?)",
+                        [
+                            $orderId,
+                            $index + 1,
+                            $procedureCode,
+                            is_string($code['procedure_name'] ?? null) ? $code['procedure_name'] : '',
+                            is_string($code['diagnoses'] ?? null) ? $code['diagnoses'] : '',
+                            is_string($code['procedure_order_title'] ?? null) ? $code['procedure_order_title'] : '',
+                        ]
+                    );
+                }
+            });
+
+            $result->addData([
+                'procedure_order_id' => $orderId,
+                'uuid' => $uuid,
+            ]);
+        } catch (\RuntimeException | SqlQueryException $e) {
+            $this->getLogger()->error('ServiceRequest updateOrder failed', ['uuid' => $uuid, 'error' => $e->getMessage()]);
+            $result->addInternalError($e->getMessage());
+        }
+
+        return $result;
+    }
+
     public function getOne($uuid, $puuidBind = null): ProcessingResult
     {
         $processingResult = new ProcessingResult();

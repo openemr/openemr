@@ -1,0 +1,28 @@
+[
+    {
+        "resourceType": "CareTeam",
+        "status": "active",
+        "name": "test-fixture Care Team",
+        "subject": {
+            "reference": "Patient/00000000-0000-0000-0000-000000000000"
+        },
+        "participant": [
+            {
+                "role": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://snomed.info/sct",
+                                "code": "453231000124104",
+                                "display": "Primary care provider"
+                            }
+                        ]
+                    }
+                ],
+                "member": {
+                    "reference": "Practitioner/00000000-0000-0000-0000-000000000000"
+                }
+            }
+        ]
+    }
+]

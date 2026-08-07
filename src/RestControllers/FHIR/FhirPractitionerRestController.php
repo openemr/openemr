@@ -151,7 +151,7 @@ class FhirPractitionerRestController
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
-            return RestControllerHelper::handleFhirProcessingResult($fhirValidate, 400);
+            return RestControllerHelper::responseHandler($fhirValidate, null, 400);
         }
 
         $object = FhirPractitionerSerializer::deserialize($fhirJson);

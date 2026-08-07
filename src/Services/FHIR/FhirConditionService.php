@@ -3,6 +3,9 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionHealthConcernService;
@@ -117,6 +120,155 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $fhirSearchResult;
+    }
+
+    /**
+     * Parses a FHIR Condition resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRCondition)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRCondition resource, got ' . $fhirResource::class
+            );
+        }
+
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        if (!empty($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        // Category -> subtype
+        if (!empty($json['category'][0]['coding'][0]['code'])) {
+            $data['subtype'] = $json['category'][0]['coding'][0]['code'];
+        }
+
+        // Subject -> puuid
+        $subjectRef = $json['subject']['reference'] ?? null;
+        if (is_string($subjectRef) && $subjectRef !== '') {
+            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
+            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
+        }
+
+        // Code -> title and diagnosis
+        if (!empty($json['code']['coding'])) {
+            $codeTypesService = new CodeTypesService();
+            $diagnosisParts = [];
+            foreach ($json['code']['coding'] as $coding) {
+                $system = is_string($coding['system'] ?? null) ? $coding['system'] : '';
+                $codeValue = is_scalar($coding['code'] ?? null) ? $coding['code'] : '';
+                $display = $coding['display'] ?? '';
+                if ($codeValue !== '' && $codeValue !== false) {
+                    $diagnosisParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
+                }
+                if (!empty($display) && empty($data['title'])) {
+                    $data['title'] = $display;
+                }
+            }
+            if (!empty($diagnosisParts)) {
+                $data['diagnosis'] = implode(';', $diagnosisParts);
+            }
+        }
+        if (empty($data['title']) && !empty($json['code']['text'])) {
+            $data['title'] = $json['code']['text'];
+        }
+
+        // ClinicalStatus -> outcome and occurrence
+        if (!empty($json['clinicalStatus']['coding'][0]['code'])) {
+            $statusCode = $json['clinicalStatus']['coding'][0]['code'];
+            $data['outcome'] = match ($statusCode) {
+                'resolved' => '1',
+                'recurrence' => '0',
+                default => '0',
+            };
+            if ($statusCode === 'recurrence') {
+                $data['occurrence'] = '2';
+            }
+        }
+
+        // VerificationStatus -> verification
+        if (!empty($json['verificationStatus']['coding'][0]['code'])) {
+            $data['verification'] = $json['verificationStatus']['coding'][0]['code'];
+        }
+
+        // OnsetDateTime -> begdate (ConditionValidator expects Y-m-d)
+        if (!empty($json['onsetDateTime'])) {
+            $begdate = $this->parseFullDateTimeToDate($json['onsetDateTime']);
+            if ($begdate !== null) {
+                $data['begdate'] = $begdate;
+            }
+        }
+
+        // AbatementDateTime -> enddate
+        if (!empty($json['abatementDateTime'])) {
+            $enddate = $this->parseFullDateTimeToDate($json['abatementDateTime']);
+            if ($enddate !== null) {
+                $data['enddate'] = $enddate;
+            }
+        }
+
+        // Note -> comments
+        if (!empty($json['note'][0]['text'])) {
+            $data['comments'] = $json['note'][0]['text'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Parses a FHIR dateTime that is a full date (YYYY-MM-DD) or full
+     * date-time (YYYY-MM-DDThh:mm:ss±zz:zz) into an OpenEMR Y-m-d string.
+     *
+     * FHIR R4 dateTime also permits partial values (YYYY, YYYY-MM); those are
+     * intentionally rejected here (returns null) rather than silently
+     * truncated, because a year-only onset cannot be represented faithfully as
+     * a calendar date. Full partial-precision handling is tracked separately.
+     *
+     * @see https://build.fhir.org/datatypes.html#dateTime
+     */
+    private function parseFullDateTimeToDate(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        // Require at least a full date; reject YYYY and YYYY-MM partials.
+        if (preg_match('/^\d{4}-\d{2}-\d{2}([T ].*)?$/', $value) !== 1) {
+            return null;
+        }
+        $dt = date_create_immutable($value);
+        return $dt === false ? null : $dt->format('Y-m-d');
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param array $openEmrRecord The OpenEMR record to insert
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        return $this->conditionService->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        return $this->conditionService->update($fhirResourceId, $updatedOpenEMRRecord);
     }
 
     /**

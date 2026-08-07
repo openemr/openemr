@@ -13,6 +13,8 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -20,6 +22,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -789,6 +792,262 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         return $reasonCodes;
+    }
+
+    /**
+     * Parses a FHIR ServiceRequest into a {header, codes} shape consumed by
+     * ProcedureService::createOrder / updateOrder. The header describes the procedure_order
+     * row (patient, requester, encounter, category=procedure_order_type, status, priority,
+     * authoredOn, notes); the codes array becomes procedure_order_code rows (one per
+     * code.coding entry).
+     *
+     * Subject (Patient) reference is required for new orders. The mapping inverts the
+     * mapOrderStatus and mapOrderPriority helpers used by parseOpenEMRRecord, with
+     * 'on-hold'/'draft' falling through to their literal OpenEMR values.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRServiceRequest)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRServiceRequest resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $header = [];
+        $codes = [];
+        $data = ['header' => &$header, 'codes' => &$codes];
+
+        if (!empty($json['id']) && is_string($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        // subject.reference -> patient puuid (resolved downstream)
+        $subjectRef = $json['subject']['reference'] ?? null;
+        if (is_string($subjectRef) && $subjectRef !== '') {
+            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
+        }
+
+        // requester.reference -> provider pruuid (resolved downstream; optional)
+        $requesterRef = $json['requester']['reference'] ?? null;
+        if (is_string($requesterRef) && $requesterRef !== '') {
+            $parsed = UtilsService::parseReferenceString($requesterRef, 'Practitioner');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['pruuid'] = $parsed['uuid'];
+            }
+        }
+
+        // encounter.reference -> encounter euuid (optional)
+        $encounterRef = $json['encounter']['reference'] ?? null;
+        if (is_string($encounterRef) && $encounterRef !== '') {
+            $parsed = UtilsService::parseReferenceString($encounterRef, 'Encounter');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['euuid'] = $parsed['uuid'];
+            }
+        }
+
+        // status -> order_status (inverse of mapOrderStatus)
+        if (!empty($json['status']) && is_string($json['status'])) {
+            $statusReverseMap = [
+                'active' => 'pending',
+                'completed' => 'complete',
+                'revoked' => 'canceled',
+                'draft' => 'pending',
+                'on-hold' => 'pending',
+            ];
+            $header['order_status'] = $statusReverseMap[$json['status']] ?? 'pending';
+            if ($json['status'] === 'entered-in-error') {
+                $header['activity'] = 0;
+            }
+        }
+
+        // intent -> order_intent (FHIR R4 1..1). The list_options 'order_intent' set
+        // holds order/plan/directive/proposal/option; other R4 intents (e.g.
+        // original-order, reflex-order, filler-order, instance-order) fall back to
+        // 'order' since OpenEMR's order workflow has no distinction for those.
+        if (!empty($json['intent']) && is_string($json['intent'])) {
+            $supportedIntents = ['order', 'plan', 'directive', 'proposal', 'option'];
+            $header['order_intent'] = in_array($json['intent'], $supportedIntents, true)
+                ? $json['intent']
+                : 'order';
+        }
+
+        // priority passthrough (matches OpenEMR vocab for routine/urgent/asap/stat)
+        if (!empty($json['priority']) && is_string($json['priority'])) {
+            $header['order_priority'] = $json['priority'];
+        }
+
+        // category[0].coding[0].code (SNOMED) -> procedure_order_type (inverse of CATEGORY_MAP)
+        $categoryCode = $json['category'][0]['coding'][0]['code'] ?? null;
+        if (is_string($categoryCode)) {
+            $categoryReverseMap = [
+                self::CATEGORY_LABORATORY => self::ORDER_TYPE_LABORATORY,
+                self::CATEGORY_IMAGING => self::ORDER_TYPE_IMAGING,
+                self::CATEGORY_CLINICAL_TEST => self::ORDER_TYPE_CLINICAL_TEST,
+                self::CATEGORY_PROCEDURE => self::ORDER_TYPE_PROCEDURE,
+            ];
+            if (isset($categoryReverseMap[$categoryCode])) {
+                $header['procedure_order_type'] = $categoryReverseMap[$categoryCode];
+            }
+        }
+
+        // authoredOn -> date_ordered (Y-m-d H:i:s for DATETIME column)
+        if (!empty($json['authoredOn']) && is_string($json['authoredOn'])) {
+            $dt = date_create_immutable($json['authoredOn']);
+            if ($dt !== false) {
+                $header['date_ordered'] = $dt->format('Y-m-d H:i:s');
+            }
+        }
+
+        // patientInstruction -> patient_instructions
+        if (!empty($json['patientInstruction']) && is_string($json['patientInstruction'])) {
+            $header['patient_instructions'] = $json['patientInstruction'];
+        }
+
+        // note[0].text -> clinical_hx (best-fit free-text field)
+        if (!empty($json['note'][0]['text']) && is_string($json['note'][0]['text'])) {
+            $header['clinical_hx'] = $json['note'][0]['text'];
+        }
+
+        // code.coding[] -> procedure_order_code rows (one per coding, or fallback to text)
+        $codings = $json['code']['coding'] ?? [];
+        $codeText = $json['code']['text'] ?? null;
+        if (is_array($codings)) {
+            foreach ($codings as $coding) {
+                if (!is_array($coding)) {
+                    continue;
+                }
+                $procCode = $coding['code'] ?? '';
+                if (!is_string($procCode) || $procCode === '') {
+                    continue;
+                }
+                $codes[] = [
+                    'procedure_code' => $procCode,
+                    'procedure_name' => is_string($coding['display'] ?? null)
+                        ? $coding['display']
+                        : (is_string($codeText) ? $codeText : ''),
+                    'procedure_order_title' => is_string($coding['display'] ?? null)
+                        ? $coding['display']
+                        : '',
+                ];
+            }
+        }
+        if ($codes === [] && is_string($codeText) && $codeText !== '') {
+            $codes[] = [
+                'procedure_code' => $codeText,
+                'procedure_name' => $codeText,
+                'procedure_order_title' => $codeText,
+            ];
+        }
+
+        // reasonCode[0].coding -> diagnoses on the first procedure code row (string form)
+        $reasonCoding = $json['reasonCode'][0]['coding'][0] ?? null;
+        if (is_array($reasonCoding) && !empty($reasonCoding['code']) && is_string($reasonCoding['code'])) {
+            $system = is_string($reasonCoding['system'] ?? null) ? $reasonCoding['system'] : '';
+            if ($codes !== []) {
+                $codes[0]['diagnoses'] = (new CodeTypesService())
+                    ->getOpenEMRCodeForSystemAndCode($system, $reasonCoding['code']);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $openEmrRecord
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        $puuid = $openEmrRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'FHIR ServiceRequest requires a Patient reference']);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if ($pid === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
+            return $result;
+        }
+
+        $headerRaw = $openEmrRecord['header'] ?? [];
+        $header = is_array($headerRaw) ? $headerRaw : [];
+        $header['patient_id'] = (int) $pid;
+
+        // Optional encounter resolution
+        $euuid = $openEmrRecord['euuid'] ?? null;
+        if (is_string($euuid) && $euuid !== '') {
+            $encounterId = QueryUtils::fetchSingleValue(
+                'SELECT encounter FROM form_encounter WHERE uuid = ?',
+                'encounter',
+                [UuidRegistry::uuidToBytes($euuid)]
+            );
+            if ($encounterId !== null) {
+                $header['encounter_id'] = (int) $encounterId;
+            }
+        }
+
+        // Optional requester resolution
+        $pruuid = $openEmrRecord['pruuid'] ?? null;
+        if (is_string($pruuid) && $pruuid !== '') {
+            $providerId = QueryUtils::fetchSingleValue(
+                'SELECT id FROM users WHERE uuid = ?',
+                'id',
+                [UuidRegistry::uuidToBytes($pruuid)]
+            );
+            if ($providerId !== null) {
+                $header['provider_id'] = (int) $providerId;
+            }
+        }
+
+        $codesRaw = $openEmrRecord['codes'] ?? [];
+        $codes = is_array($codesRaw) ? $codesRaw : [];
+
+        return $this->procedureService->createOrder($header, $codes);
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param array<string, mixed> $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        $headerRaw = $updatedOpenEMRRecord['header'] ?? [];
+        $header = is_array($headerRaw) ? $headerRaw : [];
+        // PUT cannot rebind patient/encounter/requester; drop those resolved ids.
+        unset($header['patient_id']);
+
+        $codesRaw = $updatedOpenEMRRecord['codes'] ?? [];
+        $codes = is_array($codesRaw) ? $codesRaw : [];
+
+        // Defense-in-depth: resolve the body's subject to a pid and require it
+        // to match the stored procedure_order.patient_id. Prevents an attacker
+        // from mutating another patient's order via a leaked uuid.
+        $expectedPatientId = null;
+        $puuid = $updatedOpenEMRRecord['puuid'] ?? null;
+        if (is_string($puuid) && $puuid !== '') {
+            $pid = QueryUtils::fetchSingleValue(
+                'SELECT pid FROM patient_data WHERE uuid = ?',
+                'pid',
+                [UuidRegistry::uuidToBytes($puuid)]
+            );
+            if ($pid !== null) {
+                $expectedPatientId = (int) $pid;
+            }
+        }
+
+        return $this->procedureService->updateOrder($fhirResourceId, $header, $codes, $expectedPatientId);
     }
 
     /**
