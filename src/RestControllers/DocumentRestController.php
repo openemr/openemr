@@ -15,17 +15,43 @@ namespace OpenEMR\RestControllers;
 use OpenApi\Attributes as OA;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\DocumentService;
+use OpenEMR\Services\PatientService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class DocumentRestController
 {
-    private $documentService;
+    private readonly DocumentService $documentService;
+    private readonly PatientService $patientService;
 
-    public function __construct()
+    public function __construct(?DocumentService $documentService = null, ?PatientService $patientService = null)
     {
-        $this->documentService = new DocumentService();
+        $this->documentService = $documentService ?? new DocumentService();
+        $this->patientService = $patientService ?? new PatientService();
+    }
+
+    /**
+     * Every document endpoint is scoped to a patient, so a pid that does not resolve to a patient
+     * is a bad request rather than an empty result. Without this check a document can be uploaded
+     * against a pid that has no patient, leaving a row that no patient chart will ever surface.
+     */
+    private function isValidPid(mixed $pid): bool
+    {
+        if (!is_scalar($pid)) {
+            return false;
+        }
+
+        return $this->patientService->getUuid((string)$pid) !== false;
+    }
+
+    private function invalidPidResponse(): Response
+    {
+        return RestControllerHelper::responseHandler(
+            ['validationErrors' => ['pid' => ['Invalid pid']]],
+            null,
+            Response::HTTP_BAD_REQUEST
+        );
     }
 
     /**
@@ -67,6 +93,10 @@ class DocumentRestController
     )]
     public function getAllAtPath($pid, $path)
     {
+        if (!$this->isValidPid($pid)) {
+            return $this->invalidPidResponse();
+        }
+
         $serviceResult = $this->documentService->getAllAtPath($pid, $path);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
@@ -119,7 +149,40 @@ class DocumentRestController
     )]
     public function postWithPath($pid, $path, $fileData, $eid)
     {
-        $serviceResult = $this->documentService->insertAtPath($pid, $path, $fileData, $eid);
+        if (!$this->isValidPid($pid)) {
+            return $this->invalidPidResponse();
+        }
+
+        // insertAtPath() reads tmp_name and name straight off the upload, so the upload is
+        // checked before it gets that far. PHP populates those two keys even when the upload
+        // failed -- a partial transfer carries UPLOAD_ERR_PARTIAL alongside whatever bytes did
+        // arrive, and a missing or oversized file leaves tmp_name as an empty string -- so the
+        // error code has to be honoured or a truncated file is stored as though it were whole.
+        $upload = is_array($fileData) ? $fileData : [];
+        $tmpName = $upload['tmp_name'] ?? null;
+        $name = $upload['name'] ?? null;
+        // a caller that built the array itself rather than handing over a $_FILES entry has no
+        // error key, and there is no failed upload to report in that case.
+        $uploadError = $upload['error'] ?? UPLOAD_ERR_OK;
+        if (
+            $uploadError !== UPLOAD_ERR_OK
+            || !is_string($tmpName) || $tmpName === ''
+            || !is_string($name) || $name === ''
+            || !is_file($tmpName)
+        ) {
+            return RestControllerHelper::responseHandler(
+                ['validationErrors' => ['document' => ['A valid document file is required']]],
+                null,
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $serviceResult = $this->documentService->insertAtPath(
+            $pid,
+            $path,
+            ['tmp_name' => $tmpName, 'name' => $name],
+            $eid
+        );
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
@@ -155,6 +218,10 @@ class DocumentRestController
     )]
     public function downloadFile($pid, $did)
     {
+        if (!$this->isValidPid($pid)) {
+            return $this->invalidPidResponse();
+        }
+
         $results = $this->documentService->getFile($pid, $did);
 
         if (!empty($results)) {
