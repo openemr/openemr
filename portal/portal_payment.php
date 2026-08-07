@@ -1173,7 +1173,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         </div>
     </div>
     <script>
-        var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
+        var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>;
 
         // In House CC number Validation
         /*$('#cardNumber').validateCreditCard(function (result) {
