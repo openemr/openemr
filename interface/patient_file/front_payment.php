@@ -1582,7 +1582,7 @@ function make_insurance() {
             // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
             ?>
             <script>
-                var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
+                var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>;
                 var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
 
                     // In House CC number Validation
