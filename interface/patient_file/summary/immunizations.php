@@ -202,7 +202,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
 } else {
     if (!empty($_GET['mode']) && ($_GET['mode'] == "edit")) {
         //depends on if a cvx code is enterer already
-        $useCVX = empty($cvx_code) ? false : true;
+        $useCVX = !empty($cvx_code);
     } else { // $_GET['mode'] == "add"
         $useCVX = true;
     }

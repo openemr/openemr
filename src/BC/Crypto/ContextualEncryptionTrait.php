@@ -25,6 +25,7 @@ trait ContextualEncryptionTrait
         if (!$this->shouldEncryptForDatabase) {
             return $value;
         }
+        // @phpstan-ignore method.deprecated (permitted for internal use)
         return $this->encryptStandard($value, keySource: KeySource::Drive);
     }
 
@@ -36,6 +37,7 @@ trait ContextualEncryptionTrait
         if (!$this->shouldEncryptForFilesystem) {
             return $value;
         }
+        // @phpstan-ignore method.deprecated (permitted for internal use)
         return $this->encryptStandard($value, keySource: KeySource::Database);
     }
 
@@ -47,6 +49,7 @@ trait ContextualEncryptionTrait
         if (!$this->cryptCheckStandard($value)) {
             return $value;
         }
+        // @phpstan-ignore method.deprecated (permitted for internal use)
         $result = $this->decryptStandard($value, keySource: KeySource::Drive, minimumVersion: $minimumVersion);
         if ($result === false) {
             throw new CryptoGenException('Decryption failed');
@@ -62,6 +65,7 @@ trait ContextualEncryptionTrait
         if (!$this->cryptCheckStandard($value)) {
             return $value;
         }
+        // @phpstan-ignore method.deprecated (permitted for internal use)
         $result = $this->decryptStandard($value, keySource: KeySource::Database);
         if ($result === false) {
             throw new CryptoGenException('Decryption failed');

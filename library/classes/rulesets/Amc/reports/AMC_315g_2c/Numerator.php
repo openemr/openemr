@@ -49,7 +49,7 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
         return "AMC_315g_2c Numerator";
     }
 
-    public function isValidPatient($date_created, $prevent_portal_access, $beginDate, $endDate)
+    public function isValidPatient($date_created, $prevent_portal_access, $beginDate, $endDate): bool
     {
         if (!empty($date_created)) {
             $creationDate = strtotime((string) $date_created);

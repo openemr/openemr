@@ -14,7 +14,7 @@ class NQF_0041_Exclusions implements CqmFilterIF
         return "NQF 0041 Exclusions";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         $encDates = Helper::fetchEncounterDates(Encounter::ENC_INFLUENZA, $patient);
         foreach ($encDates as $encDate) {

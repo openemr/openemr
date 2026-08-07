@@ -277,7 +277,7 @@ class PractitionerValidatorStub extends PractitionerValidator
     /**
      * Override validateId to avoid database calls
      */
-    public static function validateId($field, $table, $lookupId, $isUuid = false)
+    public static function validateId($field, $table, $lookupId, $isUuid = false): bool
     {
         // For testing purposes, assume all IDs are valid
         return true;

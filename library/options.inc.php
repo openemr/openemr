@@ -57,7 +57,6 @@
  * NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
  */
 
-require_once("user.inc.php");
 require_once("patient.inc.php");
 require_once("lists.inc.php");
 require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
@@ -216,7 +215,7 @@ function generate_select_list(
     $got_selected = false;
     $lang_id = $session->get('language_choice', '1');
     for ($active = 1; $active == 1 || ($active == 0 && $include_inactive); --$active) {
-        $_optgroup = ($include_inactive) ? true : false;
+        $_optgroup = (bool) $include_inactive;
 
         // List order depends on language translation options.
         //  (Note we do not need to worry about the list order in the algorithm
@@ -366,7 +365,7 @@ function generate_select_list(
     $_parsedOptions = [];
     $_og = false;
     foreach ($_options as $o) {
-        $_isOG = (array_key_exists('optGroupOptions', $o) && count($o['optGroupOptions']) > 0) ? true : false;
+        $_isOG = array_key_exists('optGroupOptions', $o) && count($o['optGroupOptions']) > 0;
         $_currOG = $o['optgroupLabel'] ?? false;
 
         // Render only if the current optgroup label is not triple equal to the previous label
@@ -2370,7 +2369,7 @@ function generate_display_field($frow, $currvalue)
     $backup_list = $frow['list_backup_id'] ?? null;
     $show_unchecked_arr = [];
     getLayoutProperties($frow['form_id'] ?? null, $show_unchecked_arr, 'grp_unchecked', "1");
-    $show_unchecked = strval($show_unchecked_arr['']['grp_unchecked'] ?? null) == "0" ? false : true;
+    $show_unchecked = strval($show_unchecked_arr['']['grp_unchecked'] ?? null) != "0";
 
     $s = '';
 

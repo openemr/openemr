@@ -24,15 +24,64 @@
 #     override bakes rel-810 source, which is what a maintainer
 #     testing a branch in isolation typically wants.
 #
+#   gate_with_acceptance
+#     Phase 7c-docker-latest-gate: when true, split build+push into a
+#     three-job flow: (1) build multi-arch and push to a temporary
+#     candidate tag on Docker Hub (openemr/openemr:release-candidate-
+#     <run-id>-<attempt>); (2) workflow_call acceptance-docker.yml with
+#     to_tag pointed at the candidate; (3) on acceptance pass, alias
+#     the candidate's manifest onto each final tag via `docker buildx
+#     imagetools create` (no rebuild — digest-identical across
+#     build/test/publish). A cleanup-candidate job then deletes the
+#     candidate tag from Docker Hub. Default false preserves the
+#     pre-Phase-7c single-step build+push shape for rows that don't
+#     carry the mechanism. Post-Phase-12 (openemr/openemr#13332, 2026-
+#     08-01) the orchestrator sets this true from an explicit per-row
+#     `gate_with_acceptance: true` flag in release-targets.yml (master
+#     + rel-820, plus any future rel-830+ at cut time); rel-800 +
+#     rel-704 leave the flag unset and stay on the non-gated shape.
+#     Pre-Phase-12 the orchestrator auto-detected on "any tag ==
+#     latest" — replaced by the explicit flag when Phase 11 native
+#     arm64 made the ~1h QEMU acceptance cost drop to ~14 min, so
+#     wider gate coverage became affordable.
+#
+#     arm64 coverage: acceptance-gate runs its full 3-scenario matrix on
+#     BOTH ubuntu-24.04 (amd64) and ubuntu-24.04-arm (arm64) runners
+#     (unconditional in acceptance-docker.yml as of 2026-07-29).
+#     `docker pull` on each runner fetches the matching slice from the
+#     candidate's multi-arch manifest, so both platform slices are
+#     validated end-to-end. Publish then aliases the SAME multi-arch
+#     manifest onto each final tag — the digests users pull for both
+#     amd64 and arm64 match what acceptance ran against.
+#
+# Phase 11 (native arm64 release builds): the build stage was
+# restructured from a single QEMU-emulated multi-arch push on an amd64
+# runner into a three-job flow — `prep` (shared metadata), `build-arch`
+# (matrix over runs_on: [ubuntu-24.04, ubuntu-24.04-arm], each pushing
+# a per-arch intermediate tag natively), and `merge-manifest` (unifies
+# the per-arch pushes into the final multi-arch manifest via `docker
+# buildx imagetools create`, then deletes the per-arch intermediates).
+# Motivation: arm64 under QEMU emulation is ~10x slower than native,
+# and QEMU has historically been a reliability drag on this workflow.
+# Both native runner types are free for public repos. Downstream
+# `acceptance-gate` + `publish-and-cleanup` are unchanged in behavior;
+# they just chain off `merge-manifest.outputs.*` instead of the old
+# monolithic `build.outputs.*`. Same output shape, same digests
+# threaded through publish, byte-identical guarantee preserved.
+#
 # Triggered by:
 #   * workflow_dispatch -- driven by the master orchestrator on its
 #     scheduled tick (dispatching against this branch's --ref with both
 #     inputs set from release-targets.yml), or by a maintainer in the
 #     Actions UI.
-#   * push: tags: ['v*'] -- a git tag push fires the build directly with
-#     the tag value driving the docker tag (e.g. pushing v8.1.0 pushes
-#     openemr/openemr:8.1.0 plus the dated sibling), and the tag value
-#     itself is also used as the openemr_version_ref.
+#
+# Note: a `push: tags: ['v*']` trigger was previously wired here but
+# has been removed. Tag pushes now flow exclusively through the
+# orchestrator's release-targets.yml consumer path -- eliminates a
+# double-build race window (tag-push + orchestrator-fanout hitting
+# the same registry tag concurrently) and gives a single trigger
+# surface for post-release build state to reason about. See gaps doc
+# G17 for the design rationale.
 
 name: Docker build release
 
@@ -49,51 +98,94 @@ on:
         required: false
         type: string
         default: ''
-  push:
-    tags: ['v*']
+      gate_with_acceptance:
+        description: 'Phase 7c-docker: gate publish on acceptance-docker.yml passing. Orchestrator sets true from each release-target row''s explicit `gate_with_acceptance` flag (Phase 12).'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+# Candidate tag suffix used to hand the gated build's image from the
+# merge-manifest job (multi-arch imagetools create of the per-arch
+# pushes) to acceptance-gate (which pulls the candidate from Docker
+# Hub) and publish (which aliases the candidate's manifest onto each
+# final tag). Unique per run+attempt so concurrent orchestrator
+# dispatches never collide on the same tag. The `release-candidate-`
+# prefix + GitHub run coordinates make the tag unmistakably temporary;
+# the cleanup-candidate job deletes it once publish finishes (or
+# acceptance fails).
+#
+# ARCH_INTERMEDIATE_PREFIX names the per-arch intermediate tags the
+# build-arch matrix pushes (Phase 11). Each arch push lands at
+# `<prefix>-<amd64|arm64>`; merge-manifest imagetools-creates the
+# final tag(s) from that pair and then deletes the intermediates.
+# Same run-id + attempt scoping as GATE_CANDIDATE_TAG so parallel
+# workflow runs don't collide on the intermediate namespace either.
+env:
+  GATE_CANDIDATE_TAG: release-candidate-${{ github.run_id }}-${{ github.run_attempt }}
+  ARCH_INTERMEDIATE_PREFIX: build-arch-${{ github.run_id }}-${{ github.run_attempt }}
+
+# Serialize per-(branch, docker_tags) builds. Two dispatches with
+# the same ref AND the same docker_tags input (e.g., release-
+# targets.yml push + daily orchestrator cron landing close
+# together, or two rapid manual dispatches) queue instead of
+# racing on the same registry tag pointer. Different refs (master
+# vs rel-820 vs rel-800) still fan out in parallel; different
+# docker_tags on the same branch (multi-row-per-branch case --
+# a rel-* branch with both a `<version>,latest` stable row and
+# an `unreleased: true` next-version row in release-targets.yml)
+# also fan out in parallel because they push different registry
+# tag pointers with no shared surface to race on. cancel-in-
+# progress: false because builds push to a shared registry --
+# cancelling mid-push could leave orphan manifest entries or
+# partial tag updates. See gaps doc G18.
+concurrency:
+  group: docker-build-release-${{ github.ref }}-${{ inputs.docker_tags }}
+  cancel-in-progress: false
+
 jobs:
-  build:
+  # Phase 11 job split (prep -> build-arch matrix -> merge-manifest):
+  #
+  # `prep` computes the shared metadata both arch builds must consume
+  # identically -- BUILD_DATE, resolved openemr_version_ref, extracted
+  # IMAGE_VERSION, expanded final-tag list -- so the amd64 and arm64
+  # builds bake the exact same OCI labels and the merged multi-arch
+  # manifest's per-platform slices are label-consistent. Compute once
+  # here, thread through needs.prep.outputs.* into build-arch and
+  # merge-manifest.
+  #
+  # Cheap ubuntu-24.04 runner: no build work happens here, just
+  # metadata resolution + one gh api call for version.php.
+  prep:
     # Only run from the upstream openemr/openemr repository (not downstream forks).
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
     runs-on: ubuntu-24.04
+    # Downstream jobs (build-arch, merge-manifest -- and via merge-
+    # manifest, acceptance-gate and publish-and-cleanup) look up shared
+    # build metadata from these outputs. `env` doesn't cross job
+    # boundaries so re-surface the tag suffix here even though it
+    # originated from a workflow-level env.
+    outputs:
+      candidate_tag: ${{ env.GATE_CANDIDATE_TAG }}
+      expanded_tags: ${{ steps.expand_docker_tags.outputs.list }}
+      openemr_version_ref: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
+      image_version: ${{ steps.image_version.outputs.value }}
+      build_date: ${{ steps.build_date.outputs.date }}
     steps:
     - name: Checkout
       uses: actions/checkout@v7
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v4
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v4
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Compute build date
       id: build_date
       run: echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
 
-    - name: Resolve docker_tags input (workflow_dispatch input or git tag)
+    - name: Resolve docker_tags input
       id: resolve_docker_tags
       env:
-        EVENT_NAME: ${{ github.event_name }}
         DISPATCH_TAGS: ${{ inputs.docker_tags }}
-        REF_NAME: ${{ github.ref_name }}
       run: |
-        if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
-          echo "raw=${DISPATCH_TAGS}" >> "$GITHUB_OUTPUT"
-        else
-          # push: tags: ['v*'] -- strip leading "v" from the git tag and use
-          # as the single docker tag. Push v8.1.0 -> docker tag 8.1.0.
-          echo "raw=${REF_NAME#v}" >> "$GITHUB_OUTPUT"
-        fi
+        echo "raw=${DISPATCH_TAGS}" >> "$GITHUB_OUTPUT"
 
     - name: Expand docker_tags list (add dated variant for version-number tags)
       id: expand_docker_tags
@@ -103,34 +195,19 @@ jobs:
       run: |
         {
           echo 'list<<EOF'
-          IFS=',' read -ra TAGS <<< "$INPUT_TAGS"
-          for t in "${TAGS[@]}"; do
-            t="${t// /}"   # strip whitespace
-            [ -z "$t" ] && continue
-            echo "openemr/openemr:${t}"
-            # Rule: version-number tags (digits and dots only) also get a dated sibling.
-            # "8.1.0" -> push "8.1.0" + "8.1.0-2026-06-13"
-            # "next" / "dev" / "latest" / "manual-test" -> no dated variant.
-            if [[ "$t" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-              echo "openemr/openemr:${t}-${BUILD_DATE}"
-            fi
-          done
+          .github/scripts/expand-docker-tags.sh
           echo EOF
         } >> "$GITHUB_OUTPUT"
 
-    - name: Resolve openemr_version_ref (input, or fall back to dispatching branch / git tag)
+    - name: Resolve openemr_version_ref (input, or fall back to dispatching branch)
       id: resolve_openemr_version_ref
       env:
-        EVENT_NAME: ${{ github.event_name }}
         INPUT_REF: ${{ inputs.openemr_version_ref }}
         REF_NAME: ${{ github.ref_name }}
       run: |
         if [ -n "$INPUT_REF" ]; then
           # Orchestrator-driven dispatch (or maintainer explicitly set the input).
           echo "ref=$INPUT_REF" >> "$GITHUB_OUTPUT"
-        elif [ "$EVENT_NAME" = 'push' ]; then
-          # push: tags: ['v*'] -- bake the source at the same tag we're pushing the image as.
-          echo "ref=$REF_NAME" >> "$GITHUB_OUTPUT"
         else
           # Manual dispatch with no override -- use the dispatching branch name
           # (master, rel-810, etc.). What a maintainer testing a branch in
@@ -142,12 +219,39 @@ jobs:
       id: image_version
       env:
         REF: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Fetch version.php at the resolved ref via raw.githubusercontent.com.
-        # No git checkout needed; works for branches, tags, and SHAs alike.
-        URL="https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php"
-        if ! curl -fsSL "$URL" -o /tmp/version.php; then
-          echo "::error::Couldn't fetch version.php at openemr@${REF}. The ref likely doesn't exist; check release-targets.yml."
+        # Fetch version.php at the resolved ref via the authenticated
+        # GitHub Contents API. Works for branches, tags, and SHAs alike;
+        # no git checkout needed.
+        #
+        # Previously used anonymous raw.githubusercontent.com. On the
+        # 8.2.0 orchestrator fanout that came back with HTTP 429 (shared-
+        # IP anonymous quota exhausted by 4 parallel per-branch dispatches
+        # hitting the same URL family concurrently) and the error path
+        # here misreported the 429 as "ref likely doesn't exist," sending
+        # operators on wild goose chases through release-targets.yml.
+        # gaps doc G19 has the incident detail. Authenticated GH_TOKEN
+        # gets us the per-token 5000/hr budget instead, which even at
+        # 8-branch fanout is comfortably ahead of any rate-limit floor.
+        #
+        # `Accept: application/vnd.github.raw` returns the file body
+        # directly (no base64 wrapping).
+        if ! gh api "/repos/openemr/openemr/contents/version.php?ref=${REF}" \
+             -H 'Accept: application/vnd.github.raw' \
+             > /tmp/version.php 2> /tmp/gh-api-err; then
+          # Distinguish "ref doesn't resolve" (bad release-targets.yml
+          # entry -- actionable) from every other failure (transient --
+          # worth surfacing verbatim so the operator sees the actual
+          # HTTP status / gh error rather than a wrong "ref doesn't
+          # exist" claim). 404 is the only case that means "check
+          # release-targets.yml"; 429 / 5xx / network errors do not.
+          if grep -qE 'HTTP 404|Not Found' /tmp/gh-api-err; then
+            echo "::error::openemr_version_ref '${REF}' does not resolve in openemr/openemr; check release-targets.yml."
+          else
+            echo "::error::Failed to fetch version.php at openemr@${REF} (not a 404 -- check the underlying gh error below rather than release-targets.yml):"
+            cat /tmp/gh-api-err
+          fi
           exit 1
         fi
 
@@ -170,82 +274,305 @@ jobs:
         echo "value=$VERSION" >> "$GITHUB_OUTPUT"
         echo "✓ Extracted IMAGE_VERSION=$VERSION from openemr@${REF}/version.php"
 
-    - name: Build and push
+  # Phase 11 native-arch build matrix: one native build per arch, each
+  # pushed to a per-arch intermediate tag on Docker Hub. Replaces the
+  # pre-Phase-11 single monolithic QEMU-emulated multi-arch build on
+  # amd64. No setup-qemu-action anywhere -- both runner types build
+  # their own arch natively.
+  #
+  # Same set of build-args in both cells (sourced from needs.prep.outputs)
+  # so amd64 and arm64 bake identical OCI labels; merge-manifest verifies
+  # once against the merged manifest downstream (labels are digest-shared
+  # across arches at that point).
+  #
+  # fail-fast: false so a transient amd64 flake doesn't cancel a
+  # good arm64 run mid-push (or vice versa) -- half a manifest is worse
+  # than seeing both fail independently, since merge-manifest gates on
+  # both succeeding anyway.
+  #
+  # Gated path pushes to `<candidate>-<arch>`; non-gated path pushes to
+  # `<intermediate-prefix>-<arch>`. Both flavors are per-arch single-tag
+  # pushes -- merge-manifest handles the fan-out to the full expanded_tags
+  # list on the non-gated path via imagetools create (one merge per
+  # final tag, all pointing at the same underlying multi-arch digest).
+  build-arch:
+    needs: [prep]
+    runs-on: ${{ matrix.runs_on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runs_on: [ubuntu-24.04, ubuntu-24.04-arm]
+    name: build-arch (${{ matrix.runs_on }})
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Compute arch label
+      # Convert the runs_on runner ref to a stable "amd64" / "arm64"
+      # label -- same pattern as acceptance-docker.yml's build-image
+      # job. Used to name the per-arch intermediate tag so amd64 and
+      # arm64 pushes land at distinct pointers that merge-manifest
+      # can imagetools-create into a single multi-arch manifest.
+      id: arch
+      shell: bash
+      run: |
+        case "$(uname -m)" in
+          x86_64)  echo "label=amd64" >> "$GITHUB_OUTPUT" ;;
+          aarch64) echo "label=arm64" >> "$GITHUB_OUTPUT" ;;
+          *) echo "::error::unsupported runner arch $(uname -m)"; exit 1 ;;
+        esac
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    # Phase 7c-docker gated path (Phase 11-restructured): native per-arch
+    # build+push to `<candidate>-<arch>` intermediate. merge-manifest
+    # imagetools-creates the final `<candidate>` multi-arch manifest
+    # from the amd64/arm64 pair; acceptance-gate then pulls that
+    # multi-arch tag; publish aliases it onto each final tag via
+    # `docker buildx imagetools create` (no rebuild, digest-identical
+    # across build/test/publish); cleanup-candidate deletes the
+    # candidate tag after publish. Per-arch intermediates get cleaned
+    # up by merge-manifest post-merge.
+    - name: Build and push per-arch intermediate — gated path
+      if: inputs.gate_with_acceptance
       uses: docker/build-push-action@v7
       with:
         context: ./docker/release
-        platforms: linux/amd64,linux/arm64
+        platforms: linux/${{ steps.arch.outputs.label }}
         push: true
-        tags: ${{ steps.expand_docker_tags.outputs.list }}
+        tags: openemr/openemr:${{ needs.prep.outputs.candidate_tag }}-${{ steps.arch.outputs.label }}
         build-args: |
-          OPENEMR_VERSION=${{ steps.resolve_openemr_version_ref.outputs.ref }}
-          IMAGE_VERSION=${{ steps.image_version.outputs.value }}
-          BUILD_DATE=${{ steps.build_date.outputs.date }}
+          OPENEMR_VERSION=${{ needs.prep.outputs.openemr_version_ref }}
+          IMAGE_VERSION=${{ needs.prep.outputs.image_version }}
+          BUILD_DATE=${{ needs.prep.outputs.build_date }}
 
-    - name: Verify pushed image OCI labels
+    # Non-gated path (the pre-Phase-7c shape, still every non-latest row):
+    # native per-arch build+push to `<intermediate-prefix>-<arch>`.
+    # merge-manifest imagetools-creates the full expanded_tags list from
+    # the amd64/arm64 intermediate pair -- one multi-arch manifest per
+    # final tag, all pointing at the same underlying digest. The
+    # intermediate tag namespace is disjoint from any user-facing tag,
+    # so a partial fanout (some intermediates pushed, merge-manifest
+    # skipped due to earlier failure) can't confuse users.
+    - name: Build and push per-arch intermediate — non-gated path
+      if: ${{ !inputs.gate_with_acceptance }}
+      uses: docker/build-push-action@v7
+      with:
+        context: ./docker/release
+        platforms: linux/${{ steps.arch.outputs.label }}
+        push: true
+        tags: openemr/openemr:${{ env.ARCH_INTERMEDIATE_PREFIX }}-${{ steps.arch.outputs.label }}
+        build-args: |
+          OPENEMR_VERSION=${{ needs.prep.outputs.openemr_version_ref }}
+          IMAGE_VERSION=${{ needs.prep.outputs.image_version }}
+          BUILD_DATE=${{ needs.prep.outputs.build_date }}
+
+    # Verify OCI labels on the just-pushed per-arch intermediate BEFORE
+    # merge-manifest fans them out. Runs on the matrix runner so each
+    # arch verifies its OWN image natively (docker pull on the single-
+    # arch intermediate tag trivially fetches the runner's arch). Moved
+    # here from merge-manifest (post-Phase-11 review): merge-manifest's
+    # verify only ever inspected the runner's arch (amd64 on ubuntu-
+    # 24.04) via docker pull's platform-selection, leaving arm64 label
+    # drift unverified. Per-arch verify catches both.
+    - name: Verify per-arch OCI labels — gated path
+      if: inputs.gate_with_acceptance
       env:
-        EXPECTED_REVISION: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
-        EXPECTED_VERSION: ${{ steps.image_version.outputs.value }}
-        EXPECTED_BUILD_DATE: ${{ steps.build_date.outputs.date }}
-        TAGS_LIST: ${{ steps.expand_docker_tags.outputs.list }}
+        EXPECTED_REVISION: ${{ needs.prep.outputs.openemr_version_ref }}
+        EXPECTED_VERSION: ${{ needs.prep.outputs.image_version }}
+        EXPECTED_BUILD_DATE: ${{ needs.prep.outputs.build_date }}
+        REF_TAG: openemr/openemr:${{ needs.prep.outputs.candidate_tag }}-${{ steps.arch.outputs.label }}
+      run: .github/scripts/verify-oci-labels.sh
+
+    - name: Verify per-arch OCI labels — non-gated path
+      if: ${{ !inputs.gate_with_acceptance }}
+      env:
+        EXPECTED_REVISION: ${{ needs.prep.outputs.openemr_version_ref }}
+        EXPECTED_VERSION: ${{ needs.prep.outputs.image_version }}
+        EXPECTED_BUILD_DATE: ${{ needs.prep.outputs.build_date }}
+        REF_TAG: openemr/openemr:${{ env.ARCH_INTERMEDIATE_PREFIX }}-${{ steps.arch.outputs.label }}
+      run: .github/scripts/verify-oci-labels.sh
+
+  # Phase 11 merge-manifest: unify the per-arch intermediate pushes
+  # into the final multi-arch manifest(s) via `docker buildx imagetools
+  # create`. This is a metadata-only op on Docker Hub -- no image blobs
+  # are pulled or pushed, just a manifest list pointing at the two
+  # per-arch digests. Same primitive Phase 10c's reusable-docker-publish
+  # uses to alias the candidate onto each final tag; merge-manifest
+  # applies it one level earlier in the pipeline to collapse the
+  # per-arch fanout back into a single multi-arch pointer.
+  #
+  # Outputs mirror the pre-Phase-11 build job's outputs so downstream
+  # `acceptance-gate` + `publish-and-cleanup` see no interface change
+  # -- they just chain off `needs.merge-manifest.outputs.*` now.
+  merge-manifest:
+    needs: [prep, build-arch]
+    runs-on: ubuntu-24.04
+    outputs:
+      candidate_tag: ${{ needs.prep.outputs.candidate_tag }}
+      expanded_tags: ${{ needs.prep.outputs.expanded_tags }}
+      openemr_version_ref: ${{ needs.prep.outputs.openemr_version_ref }}
+      image_version: ${{ needs.prep.outputs.image_version }}
+      build_date: ${{ needs.prep.outputs.build_date }}
+    steps:
+    # Needed so the "Verify pushed image OCI labels" step below can call
+    # .github/scripts/verify-oci-labels.sh, and the cleanup step can call
+    # .github/scripts/dockerhub-delete-tag.sh.
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    # Gated path: single imagetools-create to collapse the two per-arch
+    # intermediates into the multi-arch candidate tag that acceptance-
+    # gate will pull.
+    - name: Merge per-arch intermediates into candidate manifest — gated path
+      if: inputs.gate_with_acceptance
+      env:
+        CANDIDATE_TAG: ${{ needs.prep.outputs.candidate_tag }}
       run: |
-        # Pull the first pushed tag back and inspect its labels.
-        REF_TAG=$(echo "$TAGS_LIST" | head -1)
-        docker pull "$REF_TAG"
+        SRC_AMD64="openemr/openemr:${CANDIDATE_TAG}-amd64"
+        SRC_ARM64="openemr/openemr:${CANDIDATE_TAG}-arm64"
+        DST="openemr/openemr:${CANDIDATE_TAG}"
+        echo "==> merging ${SRC_AMD64} + ${SRC_ARM64} -> ${DST}"
+        docker buildx imagetools create -t "$DST" "$SRC_AMD64" "$SRC_ARM64"
 
-        inspect_label() {
-          # docker's Go-template `index` returns the literal string "<no value>"
-          # when a label key is missing on newer Docker versions, instead of an
-          # empty string. Normalize it back to empty so callers (both the
-          # value-comparison and the presence-checks below) can rely on -z to
-          # mean "label absent."
-          V=$(docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG")
-          if [ "$V" = "<no value>" ]; then
-            echo ""
-          else
-            echo "$V"
-          fi
-        }
-
-        FAIL=0
-
-        # Value checks: the two labels that vary per build and have a
-        # computable expected value.
-        ACTUAL_REVISION=$(inspect_label revision)
-        if [ "$ACTUAL_REVISION" != "$EXPECTED_REVISION" ]; then
-          echo "::error::revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
-          echo "  This means docker/release/Dockerfile either dropped the OPENEMR_VERSION ARG or hardcoded the LABEL value."
-          FAIL=1
-        fi
-
-        ACTUAL_VERSION=$(inspect_label version)
-        if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
-          echo "::error::version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION' (parsed from openemr@${EXPECTED_REVISION}/version.php)"
-          echo "  This means docker/release/Dockerfile either dropped the IMAGE_VERSION ARG or hardcoded the LABEL value."
-          FAIL=1
-        fi
-
-        ACTUAL_CREATED=$(inspect_label created)
-        if [ "$ACTUAL_CREATED" != "$EXPECTED_BUILD_DATE" ]; then
-          echo "::error::created label '$ACTUAL_CREATED' doesn't match expected '$EXPECTED_BUILD_DATE'"
-          echo "  This means docker/release/Dockerfile either dropped the BUILD_DATE ARG or hardcoded the LABEL value."
-          FAIL=1
-        fi
-
-        # Presence checks: the four static labels that don't vary per build.
-        # Catches the "someone truncated the Dockerfile and the whole LABEL
-        # block disappeared" failure mode that the value checks above wouldn't
-        # see if those three ARGs were also gone.
-        for STATIC_LABEL in title source url licenses; do
-          VALUE=$(inspect_label "$STATIC_LABEL")
-          if [ -z "$VALUE" ]; then
-            echo "::error::Image is missing org.opencontainers.image.${STATIC_LABEL} label entirely"
-            echo "  Check that docker/release/Dockerfile's LABEL block at the final stage is intact."
-            FAIL=1
-          else
-            echo "✓ ${STATIC_LABEL}=${VALUE}"
-          fi
+    # Non-gated path: one imagetools-create per entry in expanded_tags,
+    # all pointing at the same underlying digest. Matches the
+    # reusable-docker-publish alias loop shape (same primitive, same
+    # multi-arch preservation semantics).
+    - name: Merge per-arch intermediates onto each final tag — non-gated path
+      if: ${{ !inputs.gate_with_acceptance }}
+      env:
+        INTERMEDIATE_PREFIX: ${{ env.ARCH_INTERMEDIATE_PREFIX }}
+        TAGS_LIST: ${{ needs.prep.outputs.expanded_tags }}
+      run: |
+        SRC_AMD64="openemr/openemr:${INTERMEDIATE_PREFIX}-amd64"
+        SRC_ARM64="openemr/openemr:${INTERMEDIATE_PREFIX}-arm64"
+        for tag in $TAGS_LIST; do
+          [ -z "$tag" ] && continue
+          echo "==> merging ${SRC_AMD64} + ${SRC_ARM64} -> ${tag}"
+          docker buildx imagetools create -t "$tag" "$SRC_AMD64" "$SRC_ARM64"
         done
 
-        [ "$FAIL" -eq 0 ] || exit 1
-        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"
+    # Note: OCI-label verify moved into build-arch (per-arch, native).
+    # The old merge-manifest-side verify only inspected the runner's arch
+    # (amd64 on ubuntu-24.04) via docker pull's platform-selection,
+    # leaving arm64 label drift unverified. Per-arch verify catches
+    # both by running on the matrix runner where docker pull trivially
+    # matches the runner's own arch.
+
+    # Cleanup the per-arch intermediate tags after merge succeeds. The
+    # merged manifests still reference the arch-specific image digests
+    # directly (imagetools create copies the digests into the manifest
+    # list), so deleting the intermediate tag pointers is safe -- the
+    # multi-arch tag(s) keep working. Default step `if: success()`
+    # preserves the per-arch intermediates on merge failure (or on any
+    # earlier build-arch failure that skips merge) so an operator can
+    # inspect them (they're the only surviving reference to the
+    # individual arch digests once the merged manifest is in place).
+    # continue-on-error so a Docker Hub delete failure doesn't tank the
+    # whole workflow run -- a stray build-arch-* or
+    # release-candidate-*-<arch> tag is cosmetically annoying but not
+    # a correctness issue, same rationale as reusable-docker-
+    # publish.yml's cleanup-candidate.
+    - name: Cleanup per-arch intermediate tags from Docker Hub
+      continue-on-error: true
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        GATED: ${{ inputs.gate_with_acceptance }}
+        CANDIDATE_TAG: ${{ needs.prep.outputs.candidate_tag }}
+        INTERMEDIATE_PREFIX: ${{ env.ARCH_INTERMEDIATE_PREFIX }}
+      run: |
+        if [ "$GATED" = "true" ]; then
+          PREFIX="$CANDIDATE_TAG"
+        else
+          PREFIX="$INTERMEDIATE_PREFIX"
+        fi
+        for arch in amd64 arm64; do
+          TAG="${PREFIX}-${arch}" .github/scripts/dockerhub-delete-tag.sh || \
+            echo "::warning::failed to delete intermediate tag openemr/openemr:${PREFIX}-${arch} (non-fatal; manual cleanup may be needed)"
+        done
+
+  # Phase 7c-docker gate: run the full acceptance-docker matrix against
+  # the image build produced + saved as an artifact. Publish only fires
+  # if this passes. Skipped when gate_with_acceptance=false (the pre-
+  # Phase-7c shape). As of Phase 12 (openemr/openemr#13332, 2026-08-01)
+  # the orchestrator sets this true from an explicit per-row
+  # `gate_with_acceptance: true` flag in release-targets.yml — master
+  # + rel-820 (+ future rel-830+) have it; rel-800 + rel-704 don't
+  # (legacy, no acceptance-docker.yml surface via byte-identical).
+  #
+  # Runs against THIS branch's copy of acceptance-docker.yml — matches
+  # the acceptance surface the release branch says is canon. Downside:
+  # acceptance-docker.yml must exist on the target rel-branch (byte-
+  # identical propagation handles this for rel-820+ post-#13236; rel-800
+  # and rel-704 are excluded from the acceptance surface so they'd need
+  # this input kept false anyway).
+  acceptance-gate:
+    name: Acceptance gate
+    needs: [merge-manifest]
+    if: inputs.gate_with_acceptance
+    uses: ./.github/workflows/acceptance-docker.yml
+    with:
+      # acceptance-docker.yml's matrix pulls both fresh-install-to and
+      # the upgrade-target boot from `openemr/openemr:${TO_TAG}`, so
+      # passing the candidate suffix here routes all "to-side" scenarios
+      # at the exact bytes we're gating. fresh-install-from stays on
+      # `latest` (real currently-shipped image) — a secondary smoke of
+      # whether Docker Hub `latest` is currently installable, complementing
+      # the gated candidate assertion.
+      to_tag: ${{ needs.merge-manifest.outputs.candidate_tag }}
+      # (arm64 coverage is now unconditional in acceptance-docker.yml
+      # — matrix runs both ubuntu-24.04 and ubuntu-24.04-arm on every
+      # trigger. The former test_arm64 opt-in input was retired in
+      # favor of always-on since ubuntu-24.04-arm runners are free
+      # for public repos.)
+    # acceptance-docker doesn't currently use org secrets, but forward
+    # for future-proofing (matches build-release.yml -> acceptance-package
+    # workflow_call shape).
+    secrets: inherit
+
+  # Phase 7c-docker publish + cleanup — Phase 10c (openemr/openemr#TBD)
+  # extracted both jobs into .github/workflows/reusable-docker-publish.yml
+  # so docker-acceptance-only.yml can drive the same manifest-alias +
+  # candidate-cleanup flow from its recovery path. Behavior preserved
+  # step-for-step; the two jobs become one reusable-workflow call that
+  # expands back into publish + cleanup-candidate jobs at run time.
+  #
+  # Same gate as before (inputs.gate_with_acceptance) — non-gated path
+  # publishes directly from the merge-manifest job, no reusable involved.
+  #
+  # Phase 9 (skip-build re-run for release recovery, 2026-07-28) is
+  # still honored by the reusable's `cleanup-candidate` job: it fires
+  # only on publish success, preserving the candidate tag on any
+  # earlier-stage failure (acceptance-gate failed, publish failed,
+  # publish cancelled). Phase 10c automates the recovery step this
+  # preservation was designed for — see docker-acceptance-only.yml.
+  publish-and-cleanup:
+    name: Publish + cleanup
+    needs: [merge-manifest, acceptance-gate]
+    if: inputs.gate_with_acceptance
+    uses: ./.github/workflows/reusable-docker-publish.yml
+    with:
+      candidate_tag: ${{ needs.merge-manifest.outputs.candidate_tag }}
+      expanded_tags: ${{ needs.merge-manifest.outputs.expanded_tags }}
+      openemr_version_ref: ${{ needs.merge-manifest.outputs.openemr_version_ref }}
+      image_version: ${{ needs.merge-manifest.outputs.image_version }}
+      build_date: ${{ needs.merge-manifest.outputs.build_date }}
+    secrets: inherit

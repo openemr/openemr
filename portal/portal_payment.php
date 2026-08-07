@@ -56,7 +56,6 @@ if (!isset($pid)) {
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/payment.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
@@ -926,7 +925,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
 
                 // Update running totals before rendering the table row
-                $sum_charges += (float)$value['charges'];
+                $sum_charges += $value['charges'];
                 $sum_ptpaid += -1 * (float)$dpayment_pat;
                 $sum_inspaid += (float)($dpayment + $dadjustment);
                 $sum_duept += (float)$duept;
@@ -1174,7 +1173,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         </div>
     </div>
     <script>
-        var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
+        var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>;
 
         // In House CC number Validation
         /*$('#cardNumber').validateCreditCard(function (result) {

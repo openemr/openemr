@@ -30,7 +30,7 @@ require_once("gacl_admin.inc.php");
 /** @var \ADOConnection $db */
 /** @var \Smarty $smarty */
 
-$smarty->assign("return_page", $_SERVER['PHP_SELF'] );
+$smarty->assign("return_page", filter_input(INPUT_SERVER, 'PHP_SELF'));
 
 $smarty->assign('current','acl_test');
 $smarty->assign('page_title', 'ACL Test');

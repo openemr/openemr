@@ -106,7 +106,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
         $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
         $this->clock = new FrozenClock(new \DateTimeImmutable('2026-01-15 10:30:00'));
@@ -924,7 +924,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Mock newEvent method
@@ -951,7 +951,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: false,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Mock newEvent method to ensure it's not called
@@ -977,7 +977,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Mock newEvent method to ensure it's not called
@@ -1003,7 +1003,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         $methods = [
@@ -1044,7 +1044,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Session with no values
@@ -1717,7 +1717,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Create mock with newEvent - should not be called when audit logging is disabled
@@ -1742,7 +1742,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: false,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Create mock with newEvent - should not be called when http request logging is disabled

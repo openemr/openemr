@@ -152,7 +152,7 @@ jobs:
         } >> "$GITHUB_OUTPUT"
 
     - name: Install npm package
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ steps.parse.outputs.node_version }}
 
@@ -488,7 +488,7 @@ jobs:
 
     - name: Install npm package
       if: ${{ matrix.suite == 'e2e' }}
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ needs.setup.outputs.node_version }}
 
@@ -598,10 +598,60 @@ jobs:
         . ci/ciLibrary.source
         enable_coredumps
 
+    ##
+    # The redis-sentinel e2e failures (#12438: pages hang on "Loading" until
+    # TimeoutException, then the rest of the suite cascades) leave no
+    # evidence after teardown. Sample Redis connection health through the run
+    # so a failure shows whether connected_clients climbed (connection leak),
+    # blocked_clients pinned (lock contention), or Redis was never involved.
+    - name: Start Redis monitor
+      if: ${{ needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        redis_monitor_start redis-monitor.log
+
     - name: Run ${{ matrix.suite }} tests
       run: |
         . ci/ciLibrary.source
         build_test ${{ matrix.suite }}
+
+    ##
+    # Redis post-mortem must run before anything else can disturb the
+    # cluster or delay the snapshot: the redis-failover suite stops and
+    # restarts redis-master, and the coverage/artifact steps below push the
+    # capture minutes past the point of interest. Diagnostics fire on
+    # failure first; the always() stop then finalizes the sampler so
+    # successful runs don't leave it running until runner cleanup
+    # (redis_monitor_stop is idempotent — the pid file guards a double stop).
+    - name: Redis diagnostics
+      if: ${{ failure() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        redis_monitor_stop redis-monitor.log
+        mkdir -p "${RUNNER_TEMP}/redis-diagnostics"
+        cp redis-monitor.log "${RUNNER_TEMP}/redis-diagnostics/" 2>/dev/null || true
+        redis_diagnostics "${RUNNER_TEMP}/redis-diagnostics"
+        echo '=== redis connection trend (last 60 lines) ==='
+        tail -n 60 redis-monitor.log || true
+
+    - name: Stop Redis monitor
+      if: ${{ always() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      run: |
+        . ci/ciLibrary.source
+        redis_monitor_stop redis-monitor.log
+        # Print the workers' first OPcache sample so every run — green or
+        # red — records the JIT config it actually ran with. The diagnostics
+        # artifact only uploads on failure, so without this line a green run
+        # leaves no evidence that the #12438 JIT-off remedy was in effect.
+        grep -m1 '^opcache:' redis-monitor.log || true
+
+    - name: Upload Redis diagnostics
+      if: ${{ failure() && needs.setup.outputs.redis_sentinel_enabled == 'true' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: redis-diagnostics-${{ needs.setup.outputs.docker_dir }}-${{ matrix.suite }}
+        path: ${{ runner.temp }}/redis-diagnostics/
+        if-no-files-found: ignore
 
     ##
     # Coverage conversion for suites that use auto_prepend.php
@@ -630,7 +680,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-${{ matrix.suite }}.xml
-        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && ',upgrade' || '' }}
+        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
         report_type: test_results
 
     ##
@@ -644,7 +694,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}.clover.xml
-        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && ',upgrade' || '' }}
+        flags: ${{ matrix.suite }}-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
 
     # API/E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
     # Verifies the test code itself is executing, separate from server-side coverage.
@@ -654,7 +704,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}-tests.clover.xml
-        flags: ${{ matrix.suite }}-tests,php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && ',upgrade' || '' }}
+        flags: ${{ matrix.suite }}-tests-php${{ needs.setup.outputs.php }}-${{ needs.setup.outputs.webserver }}-${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db != '' && format('-{0}', needs.setup.outputs.db) || '' }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && '-upg' || '' }}
 
     ##
     # Upload JUnit results to GitHub
@@ -731,6 +781,38 @@ jobs:
         dump_error_log apache > "${CRASH_DIAG_DIR}/openemr.error.log" 2>&1 || true
         # Backtrace + gzip'd core for each coredump produced this run.
         capture_coredumps "${CRASH_DIAG_DIR}"
+
+    ##
+    # The kernel logs every segfault with the instruction pointer and the
+    # shared object it landed in (e.g. "segfault at ... ip ... in
+    # opcache.so[...]"), for container processes too — the runner shares its
+    # kernel with the containers. This names the faulting module for every
+    # crash in the run even when the coredump pipeline yields nothing — as
+    # #12438 runs did for weeks (segfault storms, zero cores).
+    - name: Kernel segfault log
+      if: ${{ failure() }}
+      env:
+        CRASH_DIAG_DIR: ${{ runner.temp }}/crash-diagnostics
+      run: |
+        mkdir -p "${CRASH_DIAG_DIR}"
+        sudo dmesg -T 2>/dev/null | grep -iE 'segfault|traps:|core_pattern|coredump' \
+            > "${CRASH_DIAG_DIR}/kernel-segfaults.txt" || true
+        echo "=== kernel segfault/trap lines (tail) ==="
+        tail -n 40 "${CRASH_DIAG_DIR}/kernel-segfaults.txt" || true
+
+    ##
+    # The step above runs for every failed suite, but the crash-diagnostics
+    # artifact that would carry kernel-segfaults.txt only uploads for apache
+    # e2e (below). Upload it separately for every other scope — gated as the
+    # exact complement of the crash-diagnostics condition so the file is
+    # persisted exactly once per failed job, never duplicated.
+    - name: Upload kernel segfault log
+      if: ${{ failure() && !(matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache') }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: kernel-segfaults-${{ needs.setup.outputs.docker_dir }}-${{ matrix.suite }}
+        path: ${{ runner.temp }}/crash-diagnostics/kernel-segfaults.txt
+        if-no-files-found: ignore
 
     - name: Upload crash diagnostics
       if: ${{ failure() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}

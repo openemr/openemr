@@ -62,7 +62,7 @@ class Date_Calc
      * @return bool true/false
      */
 
-    static function isValidDate($day, $month, $year)
+    static function isValidDate($day, $month, $year): bool
     {
 
         if (empty($year) || empty($month) || empty($day)) {
@@ -127,7 +127,7 @@ class Date_Calc
      * @return bool true/false
      */
 
-    static function isFutureDate($day, $month, $year)
+    static function isFutureDate($day, $month, $year): bool
     {
         $this_year = Date_Calc::dateNow("%Y");
         $this_month = Date_Calc::dateNow("%m");
@@ -161,7 +161,7 @@ class Date_Calc
      * @return bool true/false
      */
 
-    static function isPastDate($day, $month, $year)
+    static function isPastDate($day, $month, $year): bool
     {
         $this_year = Date_Calc::dateNow("%Y");
         $this_month = Date_Calc::dateNow("%m");
@@ -210,11 +210,18 @@ class Date_Calc
             $day = Date_Calc::dateNow("%d");
         }
 
+        // Normalize to int so PHP 8.3 arithmetic operators do not trip on
+        // string operands (deprecated) and downstream % / operations narrow
+        // to int rather than mixed.
+        $year = (int) $year;
+        $month = (int) $month;
+        $day = (int) $day;
+
         if ($month > 2) {
             $month -= 2;
         } else {
             $month += 10;
-            $year--;
+            $year -= 1;
         }
 
         $day =     ( floor((13 * $month - 1) / 5) +
@@ -438,16 +445,22 @@ class Date_Calc
             $day = Date_Calc::dateNow("%d");
         }
 
+        // Normalize to int for arithmetic; cast back to string at the
+        // dateFormat call site since that helper is string-typed.
+        $year = (int) $year;
+        $month = (int) $month;
+        $day = (int) $day;
+
         if ($month > 1) {
-            $month--;
+            $month -= 1;
             $day = 1;
         } else {
-            $year--;
+            $year -= 1;
             $month = 12;
             $day = 1;
         }
 
-        return Date_Calc::dateFormat($day, $month, $year, $format);
+        return Date_Calc::dateFormat((string) $day, (string) $month, (string) $year, $format);
     } // end func beginOfPrevMonth
 
     /**
@@ -477,16 +490,22 @@ class Date_Calc
             $day = Date_Calc::dateNow("%d");
         }
 
+        // Normalize to int for arithmetic; cast back to string at the
+        // daysInMonth / dateFormat call sites since those helpers are
+        // string-typed.
+        $year = (int) $year;
+        $month = (int) $month;
+
         if ($month > 1) {
-            $month--;
+            $month -= 1;
         } else {
-            $year--;
+            $year -= 1;
             $month = 12;
         }
 
-        $day = Date_Calc::daysInMonth($month, $year);
+        $day = Date_Calc::daysInMonth((string) $month, (string) $year);
 
-        return Date_Calc::dateFormat($day, $month, $year, $format);
+        return Date_Calc::dateFormat((string) $day, (string) $month, (string) $year, $format);
     } // end func endOfPrevMonth
 
     /**
@@ -1263,18 +1282,18 @@ class Date_Calc
     static function dateToDays($day, $month, $year)
     {
 
-        $century = substr((string) $year, 0, 2);
-        $year = substr((string) $year, 2, 2);
+        $century = (int) substr((string) $year, 0, 2);
+        $year = (int) substr((string) $year, 2, 2);
 
         if ($month > 2) {
             $month -= 3;
         } else {
             $month += 9;
             if ($year) {
-                $year--;
+                $year -= 1;
             } else {
                 $year = 99;
-                $century--;
+                $century -= 1;
             }
         }
 

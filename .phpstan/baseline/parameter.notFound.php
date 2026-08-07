@@ -97,11 +97,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$dir$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$mod$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
@@ -177,11 +172,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$clm01$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$out_str$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
@@ -245,11 +235,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$b64encode$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$msg$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$observer$#',
@@ -335,11 +320,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$context$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/CreateClientCredentialsAssertionSymfonyCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$context$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$interpretation_code$#',

@@ -16,7 +16,6 @@ require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
-require_once($srcdir . "/pnotes.inc.php");
 require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 
@@ -89,7 +88,7 @@ if (isset($_GET['docUpdateId'])) {
                 $body = $iter['body'];
                 $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '', (string) $body);
                 $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}' . $patientname . '${2}', (string) $body);
-                echo " <tr class='text' id=" . text($iter['id']) . ">\n";
+                echo " <tr class='text' id='" . attr($iter['id']) . "'>\n";
 
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                 echo "<td class='text'>" . text($iter['user']) . "</td>\n";

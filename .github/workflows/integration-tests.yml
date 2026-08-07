@@ -52,7 +52,6 @@ jobs:
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
           coverage: true
         php:
-        - version: '8.2'
         - version: '8.3'
         - version: '8.4'
         - version: '8.5'

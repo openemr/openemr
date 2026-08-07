@@ -27,7 +27,6 @@
 
 require_once __DIR__ . '/base_controller.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pid.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -120,7 +119,7 @@ class TherapyGroupsController extends BaseController
         $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
         if (isset($_POST['save'])) {
-            $isEdit = empty($_POST['group_id']) ? false : true;
+            $isEdit = !empty($_POST['group_id']);
 
             // for new group - checking if already exist same name
             if ($_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST, $isEdit)) {
@@ -353,7 +352,7 @@ class TherapyGroupsController extends BaseController
      * @param $group_id
      * @return bool
      */
-    private function checkIfHasApptOrEncounter($group_id)
+    private function checkIfHasApptOrEncounter($group_id): bool
     {
         $therapy_groups_events_model = $this->loadModel('Therapy_Groups_Events');
         $therapy_groups_encounters_model = $this->loadModel('Therapy_Groups_Encounters');

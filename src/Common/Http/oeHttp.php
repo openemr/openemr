@@ -14,9 +14,8 @@
 
 namespace OpenEMR\Common\Http;
 
-use GuzzleHttp\Client;
-
-//use kamermans\OAuth2\GrantType\RefreshToken;
+use GuzzleHttp\ClientInterface;
+use OpenEMR\BC\ServiceContainer;
 
 /**
  * Class oeHttp
@@ -43,15 +42,13 @@ use GuzzleHttp\Client;
  */
 class oeHttp extends oeOAuth
 {
-    public static $client;
-
     public static function __callStatic($method, $args)
     {
-        return oeHttpRequest::newArgs(static::client())->{$method}(...$args);
+        return (new oeHttpRequest(static::client()))->{$method}(...$args);
     }
 
-    public static function client()
+    public static function client(): ClientInterface
     {
-        return static::$client ?: static::$client = new Client();
+        return ServiceContainer::getGuzzle();
     }
 }

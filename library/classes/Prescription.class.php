@@ -496,7 +496,7 @@ class Prescription extends ORDataObject
             'Active' => $this->active,
             'Transmitted' => $this->ntx,
         ];
-        $lines = array_map(fn(string $k, mixed $v) => "{$k}: {$v}", array_keys($fields), array_values($fields));
+        $lines = array_map(fn(string $k, mixed $v): string => "{$k}: {$v}", array_keys($fields), array_values($fields));
         $string = "\n" . implode("\n", $lines);
         return $html ? nl2br($string) : $string;
     }

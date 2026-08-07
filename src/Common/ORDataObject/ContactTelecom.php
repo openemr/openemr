@@ -84,7 +84,7 @@ class ContactTelecom extends ORDataObject implements \JsonSerializable
         parent::populate_array($results);
     }
 
-    public function persist()
+    public function persist(): mixed
     {
         if ($this->getContact()->isObjectModified()) {
             $this->getContact()->persist();

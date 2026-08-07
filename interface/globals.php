@@ -27,6 +27,10 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\CodeTypes\Subscriber\CodeTypeEventsSubscriber;
+use OpenEMR\Services\FHIR\Subscriber\CalculatedObservationEventsSubscriber;
+use OpenEMR\Services\FHIR\Subscriber\UuidMappingEventsSubscriber;
+use OpenEMR\Services\PatientFlowBoard\Subscriber\PatientFlowBoardEventsSubscriber;
 
 // Set up autoloader as early as possible
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -282,10 +286,10 @@ $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
 // Absolute path to the location of documentroot directory for use with include statements:
 $globalsBag->set('webroot', $web_root);
-$globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor"); // @phpstan-ignore nullCoalesce.offset ($GLOBALS key may not exist yet)
+$globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor");
 $globalsBag->set('restRequest', $restRequest);
-$globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites"); // @phpstan-ignore nullCoalesce.offset
-$globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false); // @phpstan-ignore nullCoalesce.offset
+$globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites");
+$globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false);
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
 $read_only = empty($sessionAllowWrite);
@@ -439,19 +443,9 @@ if (!empty($glrow)) {
     // Collect user specific settings from user_settings table.
     //
     $gl_user = [];
-    // Collect the user id first
     $temp_authuserid = '';
     if (!empty($session->get('authUserID'))) {
-        //Set the user id from the session variable
         $temp_authuserid = $session->get('authUserID');
-    } else {
-        if (!empty($_POST['authUser'])) {
-            $temp_sql_ret = sqlQueryNoLog("SELECT `id` FROM `users` WHERE BINARY `username` = ?", [$_POST['authUser']]);
-            if (!empty($temp_sql_ret['id'])) {
-                //Set the user id from the login variable
-                $temp_authuserid = $temp_sql_ret['id'];
-            }
-        }
     }
 
     if (!empty($temp_authuserid)) {
@@ -851,6 +845,15 @@ if ($globalsBag->getBoolean('translation_preload_cache')) {
  * Used by include files to guard against direct HTTP access.
  */
 const OPENEMR_GLOBALS_LOADED = true;
+
+// Core event subscribers.
+// These are always-on behaviour, not optional modules, so they register directly
+// on the kernel dispatcher rather than going through the modules system.
+$coreDispatcher = $globalsBag->getKernel()->getEventDispatcher();
+$coreDispatcher->addSubscriber(new UuidMappingEventsSubscriber());
+$coreDispatcher->addSubscriber(new CalculatedObservationEventsSubscriber());
+$coreDispatcher->addSubscriber(new CodeTypeEventsSubscriber());
+$coreDispatcher->addSubscriber(new PatientFlowBoardEventsSubscriber());
 
 // Module configurations.
 // Runs after OPENEMR_GLOBALS_LOADED is defined so that module class files

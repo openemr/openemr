@@ -144,7 +144,7 @@ class FHIRSearchFieldFactory
         $isUUID = false;
         if ($field instanceof ServiceField) {
             $fieldName = $field->getField();
-            $isUUID = $field->getType() == ServiceField::TYPE_UUID ? true : false;
+            $isUUID = $field->getType() == ServiceField::TYPE_UUID;
         } else {
             $fieldName = $field;
         }

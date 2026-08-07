@@ -412,7 +412,7 @@ function postcalendar_userapi_buildMonthSelect($args)
 
     for ($c = 0,$i = 1; $i <= 12; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false;
+            $sel = $selected == $i;
         } elseif ($i == $pc_month) {
             $sel = true;
         } else {
@@ -446,7 +446,7 @@ function postcalendar_userapi_buildDaySelect($args)
 
     for ($c = 0,$i = 1; $i <= 31; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false;
+            $sel = $selected == $i;
         } elseif ($i == $pc_day) {
             $sel = true;
         } else {
@@ -484,7 +484,7 @@ function postcalendar_userapi_buildYearSelect($args)
 
     for ($c = 0,$i = $pc_start_year; $i <= $pc_end_year; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false;
+            $sel = $selected == $i;
         } elseif ($i == $pc_year) {
             $sel = true;
         } else {

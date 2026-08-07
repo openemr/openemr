@@ -52,13 +52,10 @@ $web_root = $globalsBag->getString('web_root');
 $srcdir = $globalsBag->getString('srcdir');
 require_once('../../interface/globals.php');
 require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/pnotes.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
-require_once("$srcdir/classes/Document.class.php");
-require_once("$srcdir/classes/Note.class.php");
 require_once(__DIR__ . "/../../custom/code_types.inc.php");
 require_once("$srcdir/ESign/Api.php");
 require_once("{$globalsBag->getIncludeRoot()}/orders/single_order_results.inc.php");
@@ -89,7 +86,7 @@ $auth_demo     = true; //AclMain::aclCheckCore('patients'  , 'demo');
 
 $esignApi = new Api();
 
-$printable = empty($_GET['printable']) ? false : true;
+$printable = !empty($_GET['printable']);
 if ($PDF_OUTPUT) {
     $printable = true;
 }

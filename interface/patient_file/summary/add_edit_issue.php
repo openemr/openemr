@@ -20,7 +20,6 @@ require_once $srcdir . '/lists.inc.php';
 require_once $srcdir . '/patient.inc.php';
 require_once $srcdir . '/options.inc.php';
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
-require_once $srcdir . '/csv_like_join.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

@@ -44,7 +44,6 @@
 require_once(__DIR__ . '/../../globals.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/forms.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/calendar.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/encounter_events.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient_tracker.inc.php');
@@ -79,10 +78,10 @@ $default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag:
 
 // form logic fails if not set to boolean
 if (isset($_GET['group'])) {
-    $_GET['group'] = $_GET['group'] == "true" ? true : false;
+    $_GET['group'] = $_GET['group'] == "true";
 }
 if (isset($_GET['prov'])) {
-    $_GET['prov'] = $_GET['prov'] == "true" ? true : false;
+    $_GET['prov'] = $_GET['prov'] == "true";
 }
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
 $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null) ?: null;
@@ -1401,7 +1400,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
  </div> <!-- Done with providers now scheduling -->
 <?php
     //Check if repeat is using the new 'days every week' mechanism.
-function isDaysEveryWeek($repeat)
+function isDaysEveryWeek($repeat): bool
 {
     if ($repeat == 3) {
         return true;
@@ -1410,7 +1409,7 @@ function isDaysEveryWeek($repeat)
     }
 }
     //Check if using the regular repeat mechanism.
-function isRegularRepeat($repeat)
+function isRegularRepeat($repeat): bool
 {
     if ($repeat == 1 || $repeat == 2) {
         return true;

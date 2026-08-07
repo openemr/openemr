@@ -952,11 +952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Crypto/CryptoGenTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) with arguments \'name\', array\\{_REWRITE_COMMAND\\: \'default/fhir…\', name\\: \'john\'\\} and \'Other query…\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Http/HttpRestRequestTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'OpenEMR\\\\\\\\Common\\\\\\\\Logging\\\\\\\\EventAuditLogger\' and OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php',
@@ -980,11 +975,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'Twig\\\\\\\\Environment\' and Twig\\\\Environment will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ClientAdminControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with arguments \'OpenEMR\\\\\\\\FHIR\\\\\\\\SMART\\\\\\\\SMARTLaunchToken\', OpenEMR\\\\FHIR\\\\SMART\\\\SMARTLaunchToken and \'deserializedToken…\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/SMARTLaunchTokenTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

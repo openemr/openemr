@@ -19,7 +19,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/forms.inc.php");
-require_once($srcdir . "/pnotes.inc.php");
 require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/lists.inc.php");
@@ -32,6 +31,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/cont
 
 use ESign\Api;
 use Mpdf\Mpdf;
+use Mpdf\MpdfException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
@@ -40,6 +40,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
@@ -94,7 +96,7 @@ $auth_demo = AclMain::aclCheckCore('patients', 'demo');
 
 $esignApi = new Api();
 
-$printable = empty($_GET['printable']) ? false : true;
+$printable = !empty($_GET['printable']);
 if ($PDF_OUTPUT) {
     $printable = true;
 }
@@ -134,7 +136,7 @@ function getContent()
 ?>
 
 <?php if ($PDF_OUTPUT) { ?>
-    <?php Header::setupAssets(['pdf-style', 'esign-theme-only']); ?>
+    <?php echo Header::setupAssets(['pdf-style', 'esign-theme-only']); ?>
 <?php } else { ?>
 <html>
 <head>
@@ -167,7 +169,7 @@ function getContent()
     <?php if (!$PDF_OUTPUT) { ?>
         <?php // if the track_anything form exists, then include the styling
         if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
-            <?php Header::setupAssets('track-anything'); ?>
+            <?php echo Header::setupAssets(['track-anything']); ?>
         <?php } ?>
 
 </head>
@@ -825,7 +827,7 @@ function getContent()
         try {
             $pdf->writeHTML($content); // convert html
         } catch (MpdfException $exception) {
-            die(text($exception));
+            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, 'Failed to render the patient report HTML into a PDF', $exception);
         }
 
         if ($PDF_FAX === 1) {

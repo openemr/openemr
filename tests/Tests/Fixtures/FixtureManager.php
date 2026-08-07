@@ -38,6 +38,8 @@ class FixtureManager
      */
     private $fhirAllergyIntoleranceFixtures;
 
+    private ?ConditionFixtureManager $conditionFixtureManager = null;
+
     public function __construct()
     {
         $this->addressFixtures = $this->loadPhpFile("addresses.php");
@@ -272,6 +274,37 @@ class FixtureManager
             QueryUtils::sqlStatementThrowException($sqlStatement, $pids);
         }
         $this->removePatientFixtures();
+    }
+
+    /**
+     * Seeds a patient and medical-problem condition for FHIR Condition API tests.
+     *
+     * @return array{patientUuid: string, conditionUuid: string}
+     */
+    public function installConditionFixtures(): array
+    {
+        $this->conditionFixtureManager = new ConditionFixtureManager();
+        $patient = $this->conditionFixtureManager->createTestPatient();
+        $condition = $this->conditionFixtureManager->createTestCondition($patient, [
+            'title' => 'Essential hypertension',
+        ]);
+
+        $patientUuid = $patient['uuid'] ?? null;
+        $conditionUuid = $condition['lists_uuid'] ?? null;
+        if (!is_string($patientUuid) || !is_string($conditionUuid)) {
+            throw new \RuntimeException('installConditionFixtures expected string UUIDs from fixtures');
+        }
+
+        return [
+            'patientUuid' => $patientUuid,
+            'conditionUuid' => $conditionUuid,
+        ];
+    }
+
+    public function removeConditionFixtures(): void
+    {
+        $this->conditionFixtureManager?->removeFixtures();
+        $this->conditionFixtureManager = null;
     }
 
     /**

@@ -38,7 +38,7 @@ if (empty($rejectResults)) {
     $rejectResults = false;
 }
 
-$rejectResults = $rejectResults == "true" ? true : false;
+$rejectResults = $rejectResults == "true";
 if ($resultsGuid) {
     ConnectorApi::sendAck($resultsGuid, $rejectResults, null);
 }

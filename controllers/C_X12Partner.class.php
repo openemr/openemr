@@ -30,7 +30,7 @@ class C_X12Partner extends Controller
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
-    function default_action()
+    function default_action(): string
     {
         return $this->list_action();
     }
@@ -56,9 +56,8 @@ class C_X12Partner extends Controller
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "x12_partners/" . $this->template_mod . "_edit.html");
     }
 
-    function list_action()
+    function list_action(): string
     {
-
         $x = new X12Partner();
         $this->assign("partners", $x->x12_partner_factory());
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "x12_partners/" . $this->template_mod . "_list.html");

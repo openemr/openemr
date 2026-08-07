@@ -27,7 +27,7 @@ class C_InsuranceNumbers extends Controller
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
-    function default_action()
+    function default_action(): string
     {
         return $this->list_action();
     }
@@ -101,7 +101,7 @@ class C_InsuranceNumbers extends Controller
         return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "insurance_numbers/" . $this->template_mod . "_edit.html");
     }
 
-    function list_action()
+    function list_action(): string
     {
 
         $p = new Provider();

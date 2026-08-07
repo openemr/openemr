@@ -29,9 +29,6 @@ set_time_limit(0);
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: External Data Loads", xl("External Data Loads"));
 }
-
-$activeAccordionSection = $_GET['aas'] ?? '0';
-
 ?>
 <html>
 <head>

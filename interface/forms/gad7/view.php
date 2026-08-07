@@ -15,9 +15,9 @@
 require_once("gad7.inc.php");  // common strings, require_once(globals.php), other includes etc
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 
 $form_folder = "gad7";
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -73,7 +73,7 @@ if (changes_made) {
     conf = confirm ( <?php echo js_escape($str_nosave_confirm); ?> );
     }
 if (conf) {
-    window.location.href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>";
+    window.location.href="<?php echo FormActionBarSettings::EXIT_URL; ?>";
     }
 return ( conf );
 }

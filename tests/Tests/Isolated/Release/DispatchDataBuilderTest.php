@@ -3,8 +3,8 @@
 /**
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,25 +25,31 @@ final class DispatchDataBuilderTest extends TestCase
     public function testRelCutBuildsBranchVersionPrev(): void
     {
         $builder = new DispatchDataBuilder($this->reader([
-            '--branch' => 'rel-810',
-            '--release-version' => '8.1.0',
+            '--branch' => 'rel-820',
+            '--release-version' => '8.2.0',
             '--prev-release' => '8.0.0',
         ]));
         self::assertSame(
-            ['branch' => 'rel-810', 'version' => '8.1.0', 'prev_release' => '8.0.0'],
+            ['branch' => 'rel-820', 'version' => '8.2.0', 'prev_release' => '8.0.0'],
             $builder->build(DispatchRequest::EVENT_REL_CUT),
         );
     }
 
-    public function testTagBuildsTagBranchVersion(): void
+    public function testTagBuildsTagBranchVersionPrev(): void
     {
         $builder = new DispatchDataBuilder($this->reader([
-            '--tag' => 'v8_1_0',
-            '--branch' => 'rel-810',
-            '--release-version' => '8.1.0',
+            '--tag' => 'v8_2_0',
+            '--branch' => 'rel-820',
+            '--release-version' => '8.2.0',
+            '--prev-release' => '8.0.0',
         ]));
         self::assertSame(
-            ['tag' => 'v8_1_0', 'branch' => 'rel-810', 'version' => '8.1.0'],
+            [
+                'tag' => 'v8_2_0',
+                'branch' => 'rel-820',
+                'version' => '8.2.0',
+                'prev_release' => '8.0.0',
+            ],
             $builder->build(DispatchRequest::EVENT_TAG),
         );
     }

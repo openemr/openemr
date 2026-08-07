@@ -17,6 +17,23 @@ exports.inputProperty = function (key) {
     };
 };
 
+// Like inputProperty, but returns undefined for empty/whitespace values so the
+// attribute is omitted rather than emitted empty. Used for II @extension, where
+// an empty string is a datatype violation (MDHT IIImpl "bad value"); a root-only
+// II is valid.
+exports.nonEmptyInputProperty = function (key) {
+    return function (input) {
+        var value = input && input[key];
+        if ((value === null) || (value === undefined)) {
+            return undefined;
+        }
+        if (value.toString().trim() === "") {
+            return undefined;
+        }
+        return value;
+    };
+};
+
 exports.docDateProperty = function (key) {
     return function (input, context) {
         return context && context[key];
@@ -49,6 +66,17 @@ exports.codeOnlyFromName = function (OID, key) {
 };
 
 exports.time = translate.time;
+
+// Date/time attribute set for effectiveTime/low/high/center: a value when the
+// date is present and valid, otherwise nullFlavor="UNK" rather than an empty or
+// bogus @value. Keeps missing clinical dates IG-conformant.
+exports.timeAttr = function (input) {
+    var value = translate.time(input);
+    if (value === null || value === undefined || value === "" || value === "Invalid date") {
+        return { nullFlavor: "UNK" };
+    }
+    return { value: value };
+};
 
 exports.use = function (key) {
     return function (input) {

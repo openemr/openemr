@@ -17,6 +17,7 @@ $srcdir ??= ''; // should fatally fail but passes phpstan
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -42,6 +43,10 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $csrfToken = $jsonInput['csrf_token'] ?? $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? null;
 if (!CsrfUtils::verifyCsrfToken($csrfToken, session: $session)) {
     CsrfUtils::csrfNotVerified(); // die
+}
+if (!AclMain::aclCheckCore('patients', 'demo')) {
+    http_response_code(403);
+    exit;
 }
 // Initialize services
 $personService = new PersonService();

@@ -33,8 +33,8 @@ class DiagnosisService extends AbstractQdmService implements QdmServiceInterface
             'prevalencePeriod' => new Interval([
                 'low' => $this->validDateOrNull($record['begdate']),
                 'high' => $this->validDateOrNull($record['enddate']),
-                'lowClosed' => $this->validDateOrNull($record['begdate']) ? true : false,
-                'highClosed' => $this->validDateOrNull($record['enddate']) ? true : false
+                'lowClosed' => (bool) $this->validDateOrNull($record['begdate']),
+                'highClosed' => (bool) $this->validDateOrNull($record['enddate'])
             ])
         ]);
 

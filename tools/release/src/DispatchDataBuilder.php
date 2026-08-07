@@ -8,8 +8,8 @@
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -39,6 +39,7 @@ final readonly class DispatchDataBuilder
                 'tag' => $this->opts->string('tag'),
                 'branch' => $this->opts->string('branch'),
                 'version' => $this->opts->string('release-version'),
+                'prev_release' => $this->opts->string('prev-release'),
             ],
             DispatchRequest::EVENT_RELEASE_TARGETS_CHANGED => [],
             DispatchRequest::EVENT_PROBE => [

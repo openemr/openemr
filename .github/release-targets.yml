@@ -48,6 +48,18 @@
 #     patches without affecting the published image until you bump this
 #     field to a new tag like v8_1_0_1.
 #
+#   gate_with_acceptance (optional, default: false)
+#     Run acceptance-docker.yml's full matrix as a pre-publish gate for
+#     this row. Set on branches that HAVE the acceptance mechanism (any
+#     rel branch with acceptance-docker.yml + the surrounding surface --
+#     rel-820 and above, plus master). Leave unset (or false) on legacy
+#     branches (rel-704 + rel-800) where the acceptance mechanism doesn't
+#     exist. Consumed by docker-release-orchestrator.yml when dispatching
+#     the per-row docker-build-release.yml runs; only rows with this flag
+#     set get `-f gate_with_acceptance=true` passed to the dispatch. See
+#     the orchestrator's fan-out step comment for the pre-Phase-12
+#     "row ships `latest` -> gated" auto-detection this flag replaces.
+#
 #   unreleased (optional, default: false)
 #     Marks the row as "this configuration has never been used to
 #     publish anything." Consumers SKIP these rows -- they don't fan
@@ -99,19 +111,21 @@
   # release cycle (e.g., when version.php switches to 8.3.0-dev).
   # The docker_tag <-> version.php alignment guard in
   # docker-validate-release-targets.yml catches drift on PRs.
-  docker_tags: 8.3.0,dev
+  docker_tags: 8.3.0,dev,next
   openemr_version_ref: master
+  gate_with_acceptance: true
 
 - branch: rel-820
-  docker_tags: 8.2.0,next
-  openemr_version_ref: rel-820
+  docker_tags: 8.2.0,latest
+  openemr_version_ref: v8_2_0
+  gate_with_acceptance: true
 
 - branch: rel-800
   # 8.0.0 is the floating "current latest 8.0.0.x" pointer (always advances
   # with openemr_version_ref); 8.0.0.3 is the specific-patch pointer (only
   # advances when this row bumps to 8.0.0.4+). Both tags get an auto-appended
   # "<tag>-YYYY-MM-DD" sibling for immutable per-build pinning.
-  docker_tags: 8.0.0,8.0.0.3,latest
+  docker_tags: 8.0.0,8.0.0.3
   openemr_version_ref: v8_0_0_3
 
 - branch: rel-704

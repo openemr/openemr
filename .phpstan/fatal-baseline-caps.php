@@ -35,21 +35,21 @@ declare(strict_types=1);
 
 return [
     'all' => [
-        'class.notFound.php' => 156,
+        'class.notFound.php' => 107,
         'classConstant.notFound.php' => 0,
         'constant.notFound.php' => 0,
         'function.notFound.php' => 0,
         'include.fileNotFound.php' => 0,
         'includeOnce.fileNotFound.php' => 0,
         'interface.notFound.php' => 0,
-        'method.notFound.php' => 138,
+        'method.notFound.php' => 137,
         'phpDoc.parseError.php' => 0,
         'require.fileNotFound.php' => 0,
         'requireOnce.fileNotFound.php' => 0,
         'return.missing.php' => 0,
         'staticMethod.notFound.php' => 0,
         'trait.notFound.php' => 0,
-        'variable.undefined.php' => 512,
+        'variable.undefined.php' => 487,
     ],
     'confidentNonObject' => [
         'classConstant.nonObject.php' => 0,

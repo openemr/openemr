@@ -6,18 +6,21 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2018-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Exception;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -25,6 +28,8 @@ use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
+use OpenEMR\Modules\FaxSMS\Service\CredentialsRepository;
+use OpenEMR\Modules\FaxSMS\Service\ServiceFactory;
 use OpenEMR\Services\PatientPortalService;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -38,6 +43,7 @@ use Throwable;
 abstract class AppDispatch
 {
     const ACTION_DEFAULT = 'index';
+
     static $_apiService;
     static mixed $_apiModule;
     public string $authErrorDefault;
@@ -47,6 +53,7 @@ abstract class AppDispatch
     protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies;
     private ?SessionInterface $_session = null;
+    private ?CredentialsRepository $_credentialsRepository = null;
     protected $authUser;
 
     /**
@@ -73,51 +80,155 @@ abstract class AppDispatch
         // so verifyAcl() would always fail and AccessDeniedHelper::deny()
         // would exit(1) before the reminder job could run — the silent
         // background-service failure reported in issue #11827.
-        $ignoreAuth = OEGlobalsBag::getInstance()->getBoolean('ignoreAuth');
+        $ignoreAuth = filter_var(OEGlobalsBag::getInstance()->get('ignoreAuth'), FILTER_VALIDATE_BOOLEAN);
         if (!$ignoreAuth && !$this->verifyAcl()) {
             AccessDeniedHelper::deny('FaxSMS module access denied');
         }
-        $this->dispatchActions();
+        // Construction no longer routes a request. Action routing + rendering
+        // is an explicit step (dispatch()), invoked only by the front
+        // controller (index.php). This keeps the module ACL gate above as the
+        // single protective side effect of construction while preventing a
+        // request-specified action from executing merely because a client was
+        // instantiated in a non-request context (event listeners, background
+        // jobs), and gives us one chokepoint for the action allowlist and CSRF.
+    }
+
+    /**
+     * Allowlist of externally-routable actions.
+     *
+     * Routing previously accepted any method that existed on the resolved
+     * client (method_exists), which made internal helpers
+     * (saveSetup/getSetup/getCredentials/mailEmail/setSession/...) an
+     * HTTP-reachable surface. Only the names below may be dispatched; anything
+     * else is a 404. 'csrf' => true additionally requires a valid
+     * 'contact-form' CSRF token (state-changing actions).
+     *
+     * Keys match exactly what the UI sends. PHP resolves method names
+     * case-insensitively.
+     *
+     * @var array<string, array{csrf: bool}>
+     */
+    private const ROUTABLE_ACTIONS = [
+        // Default action (most clients render nothing here).
+        'index' => ['csrf' => false],
+        // Read-only / idempotent endpoints: module ACL only.
+        'apiFetchPatientDetails' => ['csrf' => false],
+        'getUser' => ['csrf' => false],
+        'getPending' => ['csrf' => false],
+        'fetchSMSList' => ['csrf' => false],
+        'fetchEmailList' => ['csrf' => false],
+        'fetchTextMessage' => ['csrf' => false],
+        'getCallLogs' => ['csrf' => false],
+        'getNotificationLog' => ['csrf' => false],
+        // State-changing endpoints whose emitter (the contact dialog) already
+        // posts the 'contact-form' token: CSRF enforced now.
+        'sendFax' => ['csrf' => true],
+        'sendSMS' => ['csrf' => true],
+        'sendEmail' => ['csrf' => true],
+        'forwardFax' => ['csrf' => true],
+        // State-changing endpoints. Their emitters (the setup pages and
+        // messageUI) now post the 'contact-form' token as 'csrf_token_form',
+        // so CSRF is enforced here. disposeDocument's GET download branch
+        // appends the same token as a query parameter.
+        'saveSetup' => ['csrf' => true],
+        // viewFax has a delete/download branch (getDocument), so it is
+        // state-changing; messageUI posts the token as 'csrf_token_form'.
+        'viewFax' => ['csrf' => true],
+        'assignFax' => ['csrf' => true],
+        'disposeDocument' => ['csrf' => true],
+        'faxProcessUploads' => ['csrf' => true],
+        'install' => ['csrf' => true],
+    ];
+
+    /**
+     * Front-controller entry point. Resolves the route, selects the active
+     * service module, enforces the action allowlist and (for state-changing
+     * actions) CSRF, invokes the action, and renders the scalar response.
+     * Called by index.php after the service has been constructed. Construction
+     * itself no longer routes, so instantiating a client in a non-request
+     * context cannot execute a request-specified action.
+     *
+     * @return void
+     */
+    public function dispatch(): void
+    {
+        [$serviceType, $action] = $this->resolveRoute();
+        if (!empty($serviceType)) {
+            self::setModuleType($serviceType);
+        }
+        $this->_currentAction = $action ?: self::ACTION_DEFAULT;
+        $this->routeAction($this->_currentAction);
         $this->render();
     }
 
     /**
-     * @return void
+     * Derive [serviceType, action] from the request exactly as the legacy
+     * dispatcher did: an optional "service/action" slash form in
+     * _ACTION_COMMAND, otherwise the action verb plus ?type=, falling back to
+     * the session's current module type. Behavior is intentionally unchanged
+     * so the upstream URL rewriting that feeds _ACTION_COMMAND keeps working.
+     *
+     * @return array{0: string|null, 1: string|null}
      */
-    private function dispatchActions(): void
+    private function resolveRoute(): array
     {
         $action = $this->getQuery('_ACTION_COMMAND');
         $route = explode('/', ($action ?? ''));
         $serviceType = $this->getQuery('type');
-        if (count($route ?? []) === 2) {
+        if (count($route) === 2) {
             $serviceType = $route[0];
             $action = $route[1] ?: $action;
         }
         if (empty($serviceType)) {
             $serviceType = $_REQUEST['type'] ?? $this->session()->get('oefax_current_module_type') ?? null;
         }
-        if (!empty($serviceType)) {
-            self::setModuleType($serviceType);
-        }
-        $this->_currentAction = $action;
-        if ($action) {
-            // route it if direct call
-            if (method_exists($this, $action)) {
-                $this->setResponse(
-                    $this->$action()
-                );
-            } else {
-                $this->setHeader("HTTP/1.0 404 Not Found");
-                throw new RuntimeException(
-                    xlt("Requested") . ' ' . text($action) . ' '
-                    . xlt("or service is not found.") . ' ' . xlt("Install or turn service on!")
-                );
-            }
-        } else {
-            // Not an internal route so pass on to current service index action.
-            $this->setResponse(
-                $this->{self::ACTION_DEFAULT}()
+
+        $serviceType = is_scalar($serviceType) ? (string)$serviceType : null;
+        $action = is_scalar($action) ? (string)$action : null;
+
+        return [$serviceType, $action];
+    }
+
+    /**
+     * Invoke a single allowlisted action. The action must be present in
+     * ROUTABLE_ACTIONS AND implemented on the resolved client; anything else
+     * is a 404, so internal helpers are never HTTP-reachable. State-changing
+     * actions additionally require a valid CSRF token.
+     *
+     * @param string $action
+     * @return void
+     */
+    private function routeAction(string $action): void
+    {
+        $spec = self::ROUTABLE_ACTIONS[$action] ?? null;
+        if ($spec === null || !method_exists($this, $action)) {
+            $this->setHeader("HTTP/1.0 404 Not Found");
+            throw new RuntimeException(
+                xlt("Requested") . ' ' . text($action) . ' '
+                . xlt("or service is not found.") . ' ' . xlt("Install or turn service on!")
             );
+        }
+        if ($spec['csrf']) {
+            $this->assertCsrf();
+        }
+        $this->setResponse(
+            $this->$action()
+        );
+    }
+
+    /**
+     * Enforce the module CSRF token for state-changing actions. The contact
+     * dialog posts this token as 'csrf_token_form' bound to the 'contact-form'
+     * id; csrfNotVerified() emits the standard error and exits on mismatch.
+     *
+     * @return void
+     */
+    private function assertCsrf(): void
+    {
+        $tokenRaw = $this->getRequest('csrf_token_form', '');
+        $token = is_string($tokenRaw) ? $tokenRaw : '';
+        if (!CsrfUtils::verifyCsrfToken($token, $this->session(), 'contact-form')) {
+            CsrfUtils::csrfNotVerified();
         }
     }
 
@@ -133,24 +244,21 @@ abstract class AppDispatch
     abstract function authenticate(): string|int|bool;
 
     /**
+     * Channel send operations are no longer part of the base contract. A client
+     * declares the channels it actually supports through the capability
+     * interfaces — FaxChannelInterface (sendFax), SmsChannelInterface (sendSMS)
+     * and EmailChannelInterface (sendEmail) — and implements only those, so a
+     * new vendor is never forced to stub verbs it cannot perform.
+     *
+     * fetchReminderCount() defaults to a no-op so it is likewise optional;
+     * channel clients that surface a pending-reminder count override it.
+     *
      * @return string|bool
      */
-    abstract function sendFax(): string|bool;
-
-    /**
-     * @return mixed
-     */
-    abstract function sendSMS(): mixed;
-
-    /**
-     * @return mixed
-     */
-    abstract function sendEmail(): mixed;
-
-    /**
-     * @return string|bool
-     */
-    abstract function fetchReminderCount(): string|bool;
+    public function fetchReminderCount(): string|bool
+    {
+        return false;
+    }
 
     /**
      * @param string|null $param
@@ -282,36 +390,8 @@ abstract class AppDispatch
 
     static function getServiceInstance($type)
     {
-        $s = self::getServiceType();
-
-        $factoryMap = [
-            'sms' => [
-                ServiceType::RINGCENTRAL->value => fn(): RCFaxClient => new RCFaxClient(),
-                ServiceType::TWILIO_SMS->value => fn(): TwilioSMSClient => new TwilioSMSClient(),
-                ServiceType::CLICKATELL_SMS->value => fn(): ClickatellSMSClient => new ClickatellSMSClient(),
-            ],
-            'fax' => [
-                ServiceType::RINGCENTRAL->value => fn(): RCFaxClient => new RCFaxClient(),
-                ServiceType::ETHERFAX->value => fn(): EtherFaxActions => new EtherFaxActions(),
-                ServiceType::SIGNALWIRE->value => fn(): SignalWireClient => new SignalWireClient(),
-            ],
-            'email' => [
-                ServiceType::EMAIL->value => fn(): EmailClient => new EmailClient(),
-            ],
-            'voice' => [
-                ServiceType::VOICE->value => fn(): VoiceClient => new VoiceClient(),
-            ],
-        ];
-
-        $factory = $factoryMap[$type][$s] ?? null;
-        if (is_callable($factory)) {
-            return $factory();
-        }
-
-        throw new RuntimeException(
-            xlt("Requested") . ' ' . text($type) . ' '
-            . xlt("service is not found.") . ' ' . xlt("Install or turn service on!")
-        );
+        $moduleType = is_scalar($type) ? (string)$type : '';
+        return ServiceFactory::create($moduleType, self::getServiceType());
     }
 
     /**
@@ -402,78 +482,109 @@ abstract class AppDispatch
     }
 
     /**
+     * Resolve the credential owner (auth_user) used for credential reads and
+     * writes. This consolidates logic that was previously duplicated across
+     * saveSetup(), getSetup(), getEmailSetup() and saveEmailSetup(), preserving
+     * the original behavior exactly:
+     *  - Start from the session authUserID.
+     *  - usePrimaryAccount() is evaluated against that original id *before* the
+     *    oerestrict reset (ordering is significant).
+     *  - When per-user restriction (oerestrict_users) is off, ownership
+     *    collapses to the shared account (0).
+     *  - The full resolution then promotes to the configured primary user and
+     *    lets an explicit editingUser override. The email vendor used the
+     *    simpler id-or-shared resolution only; pass false for that path.
+     *
+     * @param bool $resolvePrimaryAndEditing
+     * @return int
+     */
+    private function resolveCredentialOwner(bool $resolvePrimaryAndEditing = true): int
+    {
+        $authUser = (int)$this->getSession('authUserID');
+        $usePrimary = $resolvePrimaryAndEditing && BootstrapService::usePrimaryAccount($authUser);
+        if (!(OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
+            $authUser = 0;
+        }
+        if ($usePrimary) {
+            $authUser = (int)BootstrapService::getPrimaryUser();
+        }
+        if ($resolvePrimaryAndEditing && (int)$this->getSession('editingUser') > 0) {
+            $authUser = (int)$this->getSession('editingUser');
+        }
+
+        return $authUser;
+    }
+
+    /**
      * @param array $setup
      * @return string
      */
     protected function saveSetup(array $setup = []): string
     {
         if (empty($setup)) {
-            $username = $this->getRequest('username');
-            $ext = $this->getRequest('extension');
-            $account = $this->getRequest('account');
-            $phone = $this->formatPhone($this->getRequest('phone') ?? '');
-            $password = $this->getRequest('password');
-            $appkey = $this->getRequest('key');
-            $appsecret = $this->getRequest('secret');
-            $production = $this->getRequest('production');
-            $smsNumber = $this->formatPhone($this->getRequest('smsnumber') ?? '');
-            $smsMessage = $this->getRequest('smsmessage');
-            $smsHours = $this->getRequest('smshours');
-            $jwt = $this->getRequest('jwt');
-            // SignalWire specific fields
-            $spaceUrl = $this->getRequest('space_url');
-            $projectId = $this->getRequest('project_id');
-            $apiToken = $this->getRequest('api_token');
-            $faxNumber = $this->formatPhone($this->getRequest('fax_number') ?? '');
+            $setup = $this->buildSetupFromRequest();
+        }
+        $this->authUser = $this->resolveCredentialOwner();
 
-            $setup = [
-                'username' => "$username",
-                'extension' => "$ext",
-                'account' => $account,
-                'phone' => $phone,
-                'password' => "$password",
-                'appKey' => "$appkey",
-                'appSecret' => "$appsecret",
-                'server' => !$production ? 'https://platform.devtest.ringcentral.com' : "https://platform.ringcentral.com",
-                'portal' => !$production ? "https://service.devtest.ringcentral.com/" : "https://service.ringcentral.com/",
-                'smsNumber' => "$smsNumber",
-                'production' => $production,
-                'redirect_url' => $this->getRequest('redirect_url'),
-                'smsHours' => $smsHours,
-                'smsMessage' => $smsMessage,
-                'jwt' => $jwt ?? '',
-                // SignalWire credentials
-                'space_url' => $spaceUrl ?? '',
-                'project_id' => $projectId ?? '',
-                'api_token' => $apiToken ?? '',
-                'fax_number' => $faxNumber,
-            ];
-        }
+        return $this->credentialsRepository()->storeSetup(self::getModuleVendor(), $this->authUser, $setup);
+    }
 
-        $vendor = self::getModuleVendor();
-        $this->authUser = (int)$this->getSession('authUserID');
-        $use = BootstrapService::usePrimaryAccount($this->authUser);
-        if (!(OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
-            $this->authUser = 0;
-        }
-        if ($use) {
-            $this->authUser = BootstrapService::getPrimaryUser();
-        }
-        if ((int)$this->getSession('editingUser') > 0) {
-            $this->authUser = (int)$this->getSession('editingUser');
-        }
+    /**
+     * Assemble a service-credential set from the current request. Kept on the
+     * controller because it reads request input; persistence is delegated to
+     * CredentialsRepository.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildSetupFromRequest(): array
+    {
+        $username = $this->getRequest('username');
+        $ext = $this->getRequest('extension');
+        $account = $this->getRequest('account');
+        $phone = $this->formatPhone($this->getRequest('phone') ?? '');
+        $password = $this->getRequest('password');
+        $appkey = $this->getRequest('key');
+        $appsecret = $this->getRequest('secret');
+        $production = $this->getRequest('production');
+        // Voice-only: opt-in flag for RingCentral call-event tracking (webhook).
+        // Harmless null for every other vendor whose form does not post it.
+        $enableEvents = $this->getRequest('enable_events');
+        $smsNumber = $this->formatPhone($this->getRequest('smsnumber') ?? '');
+        $smsMessage = $this->getRequest('smsmessage');
+        $smsHours = $this->getRequest('smshours');
+        $jwt = $this->getRequest('jwt');
+        // SignalWire specific fields
+        $spaceUrl = $this->getRequest('space_url');
+        $projectId = $this->getRequest('project_id');
+        $apiToken = $this->getRequest('api_token');
+        $faxNumber = $this->formatPhone($this->getRequest('fax_number') ?? '');
 
-        // encrypt for safety.
-        $jsonSetup = json_encode($setup);
-        $content = $this->crypto->encryptForDatabase($jsonSetup !== false ? $jsonSetup : null);
-        if (empty($vendor) || empty($setup)) {
-            return xlt('Error: Missing vendor, user or credential items');
-        }
-        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`)
-            VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `auth_user`= ?, `vendor` = ?, `credentials`= ?, `updated` = NOW()";
-        sqlStatement($sql, ['', $this->authUser, $vendor, $content, $this->authUser, $vendor, $content]);
-
-        return xlt('Save Success');
+        return [
+            'username' => "$username",
+            'extension' => "$ext",
+            'account' => $account,
+            'phone' => $phone,
+            'password' => "$password",
+            'appKey' => "$appkey",
+            'appSecret' => "$appsecret",
+            // RingCentral retired the devtest sandbox at the end of 2024;
+            // production is the only valid host, and RCFaxClient hardcodes
+            // it regardless of what is stored here.
+            'server' => "https://platform.ringcentral.com",
+            'portal' => "https://service.ringcentral.com/",
+            'smsNumber' => "$smsNumber",
+            'production' => $production,
+            'enable_events' => $enableEvents,
+            'redirect_url' => $this->getRequest('redirect_url'),
+            'smsHours' => $smsHours,
+            'smsMessage' => $smsMessage,
+            'jwt' => $jwt ?? '',
+            // SignalWire credentials
+            'space_url' => $spaceUrl ?? '',
+            'project_id' => $projectId ?? '',
+            'api_token' => $apiToken ?? '',
+            'fax_number' => $faxNumber,
+        ];
     }
 
     /**
@@ -529,57 +640,16 @@ abstract class AppDispatch
 
     public function getEmailSetup(): mixed
     {
-        $vendor = '_email';
-        $this->authUser = (int)$this->getSession('authUserID');
-        if (!(OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
-            $this->authUser = 0;
-        }
-        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$this->authUser, $vendor]);
+        $this->authUser = $this->resolveCredentialOwner(false);
 
-        if (empty($credentials)) {
-            $credentials = [
-                'sender_name' => OEGlobalsBag::getInstance()->getString('patient_reminder_sender_name'),
-                'sender_email' => OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email'),
-                'notification_email' => OEGlobalsBag::getInstance()->getString('practice_return_email_path'),
-                'email_transport' => OEGlobalsBag::getInstance()->get('EMAIL_METHOD'),
-                'smtp_host' => OEGlobalsBag::getInstance()->getString('SMTP_HOST'),
-                'smtp_port' => OEGlobalsBag::getInstance()->getInt('SMTP_PORT'),
-                'smtp_user' => OEGlobalsBag::getInstance()->getString('SMTP_USER'),
-                'smtp_password' => OEGlobalsBag::getInstance()->getString('SMTP_PASS'),
-                'smtp_security' => OEGlobalsBag::getInstance()->get('SMTP_SECURE'),
-                'notification_hours' => OEGlobalsBag::getInstance()->getInt('EMAIL_NOTIFICATION_HOUR'),
-                'email_message' => OEGlobalsBag::getInstance()->get('EMAIL_MESSAGE') ?? '',
-            ];
-            if (empty($credentials['email_message'] ?? '')) {
-                $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
-            }
-            return $credentials;
-        } else {
-            $credentials = $credentials['credentials'];
-        }
-
-        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
-        $credentials = json_decode($decrypt, true);
-        if (empty($credentials['email_message'] ?? '')) {
-            $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
-        }
-        return $credentials;
+        return $this->credentialsRepository()->loadEmailSetup($this->authUser);
     }
 
     public function saveEmailSetup($credentials): void
     {
-        $vendor = '_email';
-        $this->authUser = (int)$this->getSession('authUserID');
-        if (!(OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
-            $this->authUser = 0;
-        }
-        $encoded = json_encode($credentials);
-        $encrypted = $this->crypto->encryptForDatabase($encoded !== false ? $encoded : null);
-        sqlStatement(
-            "INSERT INTO `module_faxsms_credentials` (auth_user, vendor, credentials, updated) VALUES (?, ?, ?, NOW())
-            ON DUPLICATE KEY UPDATE credentials = VALUES(credentials), updated = VALUES(updated)",
-            [$this->authUser, $vendor, $encrypted]
-        );
+        $this->authUser = $this->resolveCredentialOwner(false);
+
+        $this->credentialsRepository()->storeEmailSetup($this->authUser, $credentials);
     }
 
     /**
@@ -590,55 +660,20 @@ abstract class AppDispatch
      */
     protected function getSetup(): mixed
     {
-        $vendor = self::getModuleVendor();
-        $this->authUser = (int)$this->getSession('authUserID');
-        $use = BootstrapService::usePrimaryAccount($this->authUser);
-        if (!(OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
-            $this->authUser = 0;
-        }
-        if ($use) {
-            $this->authUser = BootstrapService::getPrimaryUser();
-        }
-        if ((int)$this->getSession('editingUser') > 0) {
-            $this->authUser = (int)$this->getSession('editingUser');
-        }
+        $this->authUser = $this->resolveCredentialOwner();
 
-        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$this->authUser, $vendor]);
+        return $this->credentialsRepository()->loadSetup(self::getModuleVendor(), $this->authUser);
+    }
 
-        if (empty($credentials)) {
-            return [
-                'username' => '',
-                'extension' => '',
-                'password' => '',
-                'account' => '',
-                'phone' => '+1',
-                'appKey' => '',
-                'appSecret' => '',
-                'server' => '',
-                'portal' => '',
-                'smsNumber' => '+1',
-                'production' => '',
-                'redirect_url' => '',
-                'smsHours' => "50",
-                'smsMessage' => "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.",
-                'jwt' => '',
-                // SignalWire fields
-                'space_url' => '',
-                'project_id' => '',
-                'api_token' => '',
-                'fax_number' => ''
-            ];
-            return $credentials;
-        } else {
-            $credentials = $credentials['credentials'];
-        }
-
-        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
-        $decode = json_decode($decrypt, true);
-        if (empty($decode['smsMessage'])) {
-            $decode['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
-        }
-        return $decode;
+    /**
+     * Lazily resolve the credentials repository. One instance per client is
+     * sufficient; it resolves its own crypto from the service container.
+     *
+     * @return CredentialsRepository
+     */
+    private function credentialsRepository(): CredentialsRepository
+    {
+        return $this->_credentialsRepository ??= new CredentialsRepository();
     }
 
     /**
@@ -731,8 +766,67 @@ abstract class AppDispatch
      */
     public function formatPhone(string $number): string
     {
-        $parsed = PhoneNumber::tryParse($number);
+        $parsed = PhoneNumber::tryParse($number, $this->defaultPhoneRegion());
         return $parsed ? $parsed->toE164() : '';
+    }
+
+    /**
+     * Resolve the default phone region for parsing bare national numbers.
+     *
+     * A number that already carries a "+CC" prefix is self-describing and the
+     * region is ignored; this only governs how a number entered without a
+     * country code is interpreted. The value is sourced from OpenEMR's Locale
+     * global "Telephone Country Code" ($GLOBALS['phone_country_code']), which
+     * historically stores a numeric dialing code (1, 44, ...). That is mapped
+     * to the ISO 3166-1 alpha-2 region libphonenumber expects ("US", "GB").
+     * An already-ISO value is accepted as-is, and anything unset or unmappable
+     * falls back to "US" so existing US installs are unaffected.
+     *
+     * @return string ISO 3166-1 alpha-2 region code
+     */
+    public function defaultPhoneRegion(): string
+    {
+        $configured = trim((string)($GLOBALS['phone_country_code'] ?? ''));
+        if ($configured === '') {
+            return 'US';
+        }
+        // Already an ISO 3166-1 alpha-2 region code (e.g. "US", "GB").
+        if (preg_match('/^[A-Za-z]{2}$/', $configured) === 1) {
+            return strtoupper($configured);
+        }
+        // Otherwise treat it as a numeric dialing code (e.g. "1", "+44").
+        $callingCode = (int)preg_replace('/\D/', '', $configured);
+        if ($callingCode > 0) {
+            $region = PhoneNumberUtil::getInstance()->getRegionCodeForCountryCode($callingCode);
+            if (is_string($region) && $region !== '' && $region !== 'ZZ') {
+                return $region;
+            }
+        }
+        return 'US';
+    }
+
+    /**
+     * Dialing-code prefix for the site's default region, derived (never
+     * hard-coded): "+1" for US, "+44" for GB, and so on. Used as the empty
+     * default for phone inputs so the field nudges toward the right country
+     * without presuming North America.
+     */
+    public function defaultPhonePrefix(): string
+    {
+        $code = PhoneNumberUtil::getInstance()->getCountryCodeForRegion($this->defaultPhoneRegion());
+        return $code > 0 ? '+' . $code : '';
+    }
+
+    /**
+     * A real example phone number for the site's default region, in E.164
+     * (e.g. "+12015550123" for US). Used as input placeholder text so the
+     * expected format is obvious for the configured country.
+     */
+    public function defaultPhoneExample(): string
+    {
+        $util = PhoneNumberUtil::getInstance();
+        $example = $util->getExampleNumber($this->defaultPhoneRegion());
+        return $example !== null ? $util->format($example, PhoneNumberFormat::E164) : '';
     }
 
     /**
@@ -790,5 +884,46 @@ abstract class AppDispatch
     public function getCredentials(): mixed
     {
         return $this->getSetup();
+    }
+
+    /**
+     * Resolve and return the decrypted bytes of a stored document for the
+     * fax/email send path, enforcing access control first.
+     *
+     * The send path accepts a request-supplied document id; without a gate any
+     * user holding the coarse patients/demo ACL could fax or email an arbitrary
+     * document by iterating ids. This requires the patients/docs ACL and that
+     * the document resolves to a real patient via its foreign_id, blocking
+     * orphaned or cross-patient ids from reaching this path.
+     *
+     * @param int $docId
+     * @return string Decrypted document bytes.
+     * @throws RuntimeException When the id is invalid, unauthorized, or unresolved.
+     */
+    protected function readAuthorizedFaxDocument(int $docId): string
+    {
+        if ($docId <= 0) {
+            throw new RuntimeException(xlt('Error: Invalid document reference'));
+        }
+        if (!AclMain::aclCheckCore('patients', 'docs')) {
+            throw new RuntimeException(xlt('Error: Not authorised to access documents'));
+        }
+        // Resolve the owning patient straight from the row so the check does
+        // not depend on a particular Document accessor name.
+        $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", [$docId]);
+        $pid = (int)($row['foreign_id'] ?? 0);
+        if ($pid <= 0) {
+            throw new RuntimeException(xlt('Error: Document is not associated with a patient'));
+        }
+        $patient = sqlQuery("SELECT pid FROM patient_data WHERE pid = ?", [$pid]);
+        if (empty($patient)) {
+            throw new RuntimeException(xlt('Error: Document patient not found'));
+        }
+        $data = (new \Document($docId))->get_data();
+        if (!is_string($data) || $data === '') {
+            throw new RuntimeException(xlt('Error: No content to send.'));
+        }
+
+        return $data;
     }
 }

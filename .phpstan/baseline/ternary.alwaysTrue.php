@@ -9,6 +9,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Ternary operator condition is always true\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogImportBuild.php',
 ];
 $ignoreErrors[] = [
@@ -35,11 +40,6 @@ $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/reports/receipts_by_method_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Ternary operator condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',

@@ -609,7 +609,8 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
             ptid: <?php echo js_escape($patient_id); ?>,
             form_checksum: <?php echo js_escape($current_checksum); ?>,
             form_reason: form_reason,
-            form_notes: form_notes
+            form_notes: form_notes,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         });
         params.append(voidaction, <?php echo js_escape($encounter); ?>);
         <?php if (!empty($_GET['framed'])) { ?>
@@ -967,11 +968,11 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
                     <tr>
                         <td><b><?php echo xlt('Date'); ?></b></td>
                         <td colspan='2'><b><?php echo xlt('Checkout Receipt Ref'); ?></b></td>
-                        <td colspan="<?php echo text($rcpt_num_method_columns); ?>"
+                        <td colspan="<?php echo attr($rcpt_num_method_columns); ?>"
                         align='left'><b><?php echo xlt('Payment Method'); ?></b></td>
-                        <td colspan="<?php echo text($rcpt_num_ref_columns); ?>"
+                        <td colspan="<?php echo attr($rcpt_num_ref_columns); ?>"
                         align='left'><b><?php echo xlt('Ref No'); ?></b></td>
-                        <td colspan='<?php echo text($rcpt_num_amount_columns); ?>'
+                        <td colspan='<?php echo attr($rcpt_num_amount_columns); ?>'
                         align='right'><b><?php echo xlt('Amount'); ?></b></td>
                     </tr>
 
@@ -1480,7 +1481,7 @@ while ($prow = sqlFetchArray($pres)) {
 // "%d" will be replaced by a payment line number on the client side.
 //
 $aCellHTML = [];
-$aCellHTML[] = "<span id='paytitle_%d'>" . text(xl('New Payment')) . "</span>";
+$aCellHTML[] = "<span id='paytitle_%d'>" . xlt('New Payment') . "</span>";
 $aCellHTML[] = strtr(generate_select_list('payment[%d][method]', 'paymethod', '', '', ''), ["\n" => ""]);
 $aCellHTML[] = "<input type='text' name='payment[%d][refno]' size='10' />";
 $aCellHTML[] = "<input type='text' name='payment[%d][amount]' size='6' style='text-align:right' onkeyup='setComputedValues()' />";
@@ -1733,6 +1734,7 @@ $form_notes  = empty($_GET['form_notes' ]) ? '' : $_GET['form_notes'];
 // If "regen" encounter ID was given, then we must generate a new receipt ID.
 //
 if (!$alertmsg && $patient_id && !empty($_GET['regen'])) {
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     BillingUtilities::doVoid(
         $patient_id,
         $encounter_id,
@@ -1772,9 +1774,11 @@ if ($patient_id && !empty($_GET['enc'])) {
 // Or for "voidall" undo all checkouts for the encounter.
 //
 if (!$alertmsg && $patient_id && !empty($_GET['void'])) {
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     BillingUtilities::doVoid($patient_id, $encounter_id, true, '', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
 } elseif (!$alertmsg && $patient_id && !empty($_GET['voidall'])) {
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     BillingUtilities::doVoid($patient_id, $encounter_id, true, 'all', $form_reason, $form_notes);
     $current_checksum = invoiceChecksum($patient_id, $encounter_id);
 }

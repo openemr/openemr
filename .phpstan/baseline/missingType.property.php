@@ -1557,11 +1557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EtherFaxActions\\:\\:\\$baseDir has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EtherFaxActions\\:\\:\\$credentials has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
@@ -1592,11 +1587,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$baseDir has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$cacheDir has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
@@ -1608,7 +1598,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$platform has no type specified\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -1632,27 +1622,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$token has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$uriDir has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$apiToken has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$baseDir has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$client has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];
@@ -2883,11 +2858,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$display has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$events has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
@@ -22632,11 +22602,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_gscount has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_hhmm has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
@@ -22653,11 +22618,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_sendid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_stcount has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
 ];
@@ -22982,17 +22942,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$segments has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$text has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$type has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
@@ -23442,11 +23392,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/SymfonyCommandRunner.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Compatibility\\\\Checker\\:\\:\\$minimumPhpVersion has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Forms\\\\FormVitalDetails\\:\\:\\$id has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/FormVitalDetails.php',
@@ -23605,11 +23550,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\HttpClient\\:\\:\\$system has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\oeHttp\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttp.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\oeOAuth\\:\\:\\$DEBUG_MODE has no type specified\\.$#',
@@ -30222,9 +30162,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\ZendModules\\\\FHIR\\\\Listener\\\\UuidMappingEventsSubscriberTest\\:\\:\\$uuidRecordsToDelete has no type specified\\.$#',
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Services\\\\FHIR\\\\Subscriber\\\\UuidMappingEventsSubscriberTest\\:\\:\\$uuidRecordsToDelete has no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ZendModules/FHIR/Listener/UuidMappingEventsSubscriberTest.php',
+    'path' => __DIR__ . '/../../tests/Tests/Unit/Services/FHIR/Subscriber/UuidMappingEventsSubscriberTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Validators\\\\PatientValidatorTest\\:\\:\\$fixtureManager has no type specified\\.$#',

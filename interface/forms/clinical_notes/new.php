@@ -32,7 +32,6 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/csv_like_join.php");
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
 use OpenEMR\Services\ListService;
@@ -56,7 +55,7 @@ if (empty($formid)) {
 $clinical_notes_type = $clinicalNotesService->getClinicalNoteTypes();
 $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
 $getDefaultValue = function ($items) {
-    $selectedItem = array_filter($items, fn($val) => $val['selected']);
+    $selectedItem = array_filter($items, fn($val): mixed => $val['selected']);
     if (empty($selectedItem)) {
         return ''; // default to an empty value if there is no default option
     } else {

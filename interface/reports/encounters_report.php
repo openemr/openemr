@@ -65,11 +65,11 @@ $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['for
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 $form_provider  = $_POST['form_provider'] ?? null;
 $form_facility  = $_POST['form_facility'] ?? null;
-$form_details   = (!empty($_POST['form_details'])) ? true : false;
-$form_new_patients = (!empty($_POST['form_new_patients'])) ? true : false;
-$form_esigned = (!empty($_POST['form_esigned'])) ? true : false;
-$form_not_esigned = (!empty($_POST['form_not_esigned'])) ? true : false;
-$form_encounter_esigned = (!empty($_POST['form_encounter_esigned'])) ? true : false;
+$form_details   = !empty($_POST['form_details']);
+$form_new_patients = !empty($_POST['form_new_patients']);
+$form_esigned = !empty($_POST['form_esigned']);
+$form_not_esigned = !empty($_POST['form_not_esigned']);
+$form_encounter_esigned = !empty($_POST['form_encounter_esigned']);
 
 $form_orderby = (!empty($_REQUEST['form_orderby']) && $ORDERHASH[$_REQUEST['form_orderby']]) ? $_REQUEST['form_orderby'] : 'doctor';
 $orderby = $ORDERHASH[$form_orderby];

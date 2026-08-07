@@ -44,7 +44,7 @@ if ($is_lbf) {
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in the script called at
 //  the bottom of this script.
-Header::setupAssets(['dygraphs', 'jquery']);
+echo Header::setupAssets(['dygraphs', 'jquery']);
 ?>
 
 <?php

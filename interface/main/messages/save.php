@@ -13,6 +13,8 @@
 require_once "../../globals.php";
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -25,6 +27,10 @@ require_once OEGlobalsBag::getInstance()->getSrcDir() . "/MedEx/API.php";
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_REQUEST['go'] == 'sms_search') {
+    if (!AclMain::aclCheckCore('patients', 'notes')) {
+        http_response_code(403);
+        exit;
+    }
     $param = "%" . $_GET['term'] . "%";
     $query = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ?";
     $result = sqlStatement($query, [$param, $param]);
@@ -162,9 +168,18 @@ if ($_REQUEST['MedEx'] == "start") {
     exit;
 }
 
-if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
+if ($_REQUEST['action'] == "new_recall") {
+    if (!AclMain::aclCheckCore('patients', 'appt')) {
+        http_response_code(403);
+        exit;
+    }
+    $targetPidInput = filter_input(INPUT_POST, 'pid', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    if (!is_int($targetPidInput)) {
+        http_response_code(400);
+        exit;
+    }
     $query = "SELECT * FROM patient_data WHERE pid=?";
-    $result = sqlQuery($query, [$_REQUEST['pid']]);
+    $result = sqlQuery($query, [$targetPidInput]);
     $result['age'] = $MedEx->events->getAge($result['DOB']);
     // uuid is binary and will break json_encode in binary form (not needed, so will remove it from $result array)
     unset($result['uuid']);
@@ -180,13 +195,13 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
      *  The other option is to use Visit Categories here.  Maybe both?  Consensus?
      */
     $query = "SELECT ORDER_DETAILS FROM form_eye_mag_orders WHERE pid=? AND ORDER_DATE_PLACED < NOW() ORDER BY ORDER_DATE_PLACED DESC LIMIT 1";
-    $result2 = sqlQuery($query, [$_REQUEST['pid']]);
+    $result2 = sqlQuery($query, [$targetPidInput]);
     if (!empty($result2)) {
         $result['PLAN'] = $result2['ORDER_DETAILS'];
     }
 
     $query = "SELECT * FROM openemr_postcalendar_events WHERE pc_pid =? ORDER BY pc_eventDate DESC LIMIT 1";
-    $result2 = sqlQuery($query, [$_REQUEST['pid']]);
+    $result2 = sqlQuery($query, [$targetPidInput]);
     if ($result2) { //if they were never actually scheduled this would be blank
         $result['DOLV']     = oeFormatShortDate($result2['pc_eventDate']);
         $result['provider'] = $result2['pc_aid'];
@@ -197,7 +212,7 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
      * If so we need to use that info...
      */
     $query = "SELECT * from medex_recalls where r_pid=?";
-    $result3 = sqlQuery($query, [$_REQUEST['pid']]);
+    $result3 = sqlQuery($query, [$targetPidInput]);
     if ($result3) {
         $result['recall_date']  = $result3['r_eventDate'];
         $result['PLAN']         = $result3['r_reason'];
@@ -209,13 +224,41 @@ if (($_REQUEST['pid']) && ($_REQUEST['action'] == "new_recall")) {
 }
 
 if (($_REQUEST['action'] == 'addRecall') || ($_REQUEST['add_new'])) {
-    $result = $MedEx->events->save_recall($_REQUEST);
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
+        http_response_code(403);
+        exit;
+    }
+    $targetPidInput = filter_input(INPUT_POST, 'new_pid', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    if (!is_int($targetPidInput)) {
+        http_response_code(400);
+        exit;
+    }
+    $MedEx->events->save_recall($targetPidInput, $_REQUEST);
     echo json_encode('saved');
     exit;
 }
 
-if (($_REQUEST['action'] == 'delete_Recall') && ($_REQUEST['pid'])) {
-    $MedEx->events->delete_recall();
+if ($_REQUEST['action'] == 'delete_Recall') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
+        http_response_code(403);
+        exit;
+    }
+    $recallIdInput = filter_input(INPUT_POST, 'r_ID', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    if (!is_int($recallIdInput)) {
+        http_response_code(400);
+        exit;
+    }
+    $recallRow = QueryUtils::querySingleRow(
+        'SELECT r_pid FROM medex_recalls WHERE r_ID = ?',
+        [$recallIdInput],
+    );
+    if (!is_array($recallRow) || !is_numeric($recallRow['r_pid'] ?? null)) {
+        http_response_code(404);
+        exit;
+    }
+    $MedEx->events->delete_Recall((int) $recallRow['r_pid'], $recallIdInput);
     echo json_encode('deleted');
     exit;
 }
@@ -228,6 +271,11 @@ SessionUtil::unsetSession('pidList');
 $pid_list = [];
 
 if ($_REQUEST['action'] == "process") {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    if (!AclMain::aclCheckCore('patients', 'appt', '', ['write', 'wsome'])) {
+        http_response_code(403);
+        exit;
+    }
     $new_pid = json_decode((string) $_POST['parameter'], true);
     $new_pc_eid = json_decode((string) $_POST['pc_eid'], true);
 

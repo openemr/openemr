@@ -42,7 +42,7 @@ class ServiceManagerControllerLocatorIsolatedTest extends TestCase
     {
         $serviceManager = new ServiceManager();
         $serviceManager->setService('EventManager', new EventManager(new SharedEventManager()));
-        $serviceManager->setFactory('ControllerPluginManager', fn($container) => new PluginManager($container));
+        $serviceManager->setFactory('ControllerPluginManager', fn($container): PluginManager => new PluginManager($container));
 
         return new ControllerManager($serviceManager, [
             'factories' => [

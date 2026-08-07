@@ -38,8 +38,11 @@ if (!(function_exists('xl'))) {
      */
     function xl($constant)
     {
+        // Translation engine disabled: skip the cache/DB lookup for performance,
+        // but still run xlCleanup() so {{context}} markers (and newline/quote
+        // normalization) are stripped rather than leaking to the UI.
         if (OEGlobalsBag::getInstance()->getBoolean('disable_translation') || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))) {
-            return $constant;
+            return xlCleanup($constant);
         }
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $language_choice = $session->get('language_choice');
@@ -80,19 +83,31 @@ if (!(function_exists('xl'))) {
         if ($string == '') {
             $string = "$constant";
         }
-        // remove dangerous characters and remove comments
+
+        return xlCleanup((string) $string);
+    }
+}
+
+if (!(function_exists('xlCleanup'))) {
+    /**
+     * Normalize a translated (or untranslated) string for display: collapse
+     * newlines to spaces, drop carriage returns, and strip {{context}}
+     * disambiguation markers. Unless translate_no_safe_apostrophe is set, quotes
+     * and apostrophes are also converted to backticks. Shared by both the
+     * translated and the disable_translation paths of xl().
+     */
+    function xlCleanup(string $string): string
+    {
         if (OEGlobalsBag::getInstance()->getBoolean('translate_no_safe_apostrophe')) {
             $patterns =  ['/\n/','/\r/','/\{\{.*\}\}/'];
             $replace =  [' ','',''];
-            $string = preg_replace($patterns, $replace, (string) $string);
         } else {
             // convert apostrophes and quotes to safe apostrophe
             $patterns =  ['/\n/','/\r/','/"/',"/'/",'/\{\{.*\}\}/'];
             $replace =  [' ','','`','`',''];
-            $string = preg_replace($patterns, $replace, (string) $string);
         }
 
-        return $string;
+        return preg_replace($patterns, $replace, $string) ?? $string;
     }
 }
 

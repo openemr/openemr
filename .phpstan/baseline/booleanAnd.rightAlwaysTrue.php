@@ -8,6 +8,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Right side of && is always true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/main_screen.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Right side of && is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
 ];
@@ -30,16 +35,6 @@ $ignoreErrors[] = [
     'message' => '#^Right side of && is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/manage_site_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Right side of && is always true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Right side of && is always true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Right side of && is always true\\.$#',

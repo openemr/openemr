@@ -264,7 +264,7 @@ Full message response includes:
 
 - [Mailpit Documentation](https://mailpit.axllent.org/)
 - [Mailpit GitHub Repository](https://github.com/axllent/mailpit)
-- [OpenEMR Email Queue System](../../../library/classes/postmaster.php)
+- [OpenEMR Email Queue System](../../../../library/classes/postmaster.php)
 - [PHPUnit Documentation](https://phpunit.de/)
 - [Symfony Panther Documentation](https://github.com/symfony/panther)
 

@@ -204,14 +204,18 @@ class Recorder
     // Note: even in a default-configured DB transaction, this still has
     // a potential race condition. It should either be done as a subquery in
     // the insert, or using a locking read (SELECT...FOR UPDATE may work?)
-    private function getNextSequenceNumber(int|string $patientId, int|string $encounterId): string
+    private function getNextSequenceNumber(int|string $patientId, int|string $encounterId): int
     {
         $result = QueryUtils::querySingleRow(<<<'SQL'
             SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment
             FROM ar_activity
             WHERE pid = ? AND encounter = ?
         SQL, [$patientId, $encounterId]);
-        return $result['increment'];
+        $increment = is_array($result) ? ($result['increment'] ?? null) : null;
+        if (!is_numeric($increment)) {
+            throw new \RuntimeException('Could not determine next ar_activity sequence number');
+        }
+        return (int) $increment;
     }
 
     /**

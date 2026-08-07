@@ -14,6 +14,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/libr
 require_once("FormPriorAuth.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -29,12 +30,12 @@ class C_FormPriorAuth extends Controller
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/prior_auth/";
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->getWebRoot());
-        $this->assign("DONT_SAVE_LINK", OEGlobalsBag::getInstance()->get('form_exit_url'));
+        $this->assign("DONT_SAVE_LINK", FormActionBarSettings::EXIT_URL);
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
     }
 
-    function default_action()
+    function default_action(): string
     {
         $prior_auth = new FormPriorAuth();
         $this->assign("prior_auth", $prior_auth);

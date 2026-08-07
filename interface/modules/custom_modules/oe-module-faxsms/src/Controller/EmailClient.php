@@ -18,12 +18,13 @@ use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\EmailChannelInterface;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 use PHPMailer\PHPMailer\Exception;
 
-class EmailClient extends AppDispatch
+class EmailClient extends AppDispatch implements EmailChannelInterface
 {
     public static $timeZone;
     public $baseDir;
@@ -57,24 +58,6 @@ class EmailClient extends AppDispatch
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
-    }
-
-    /**
-     * @return string
-     */
-    public function sendSMS(): string
-    {
-        // dummy function
-        return text("Not implemented");
-    }
-
-    /**
-     * @return mixed|string
-     */
-    public function sendFax(): string|bool
-    {
-        // dummy function
-        return text("Not implemented");
     }
 
     /**

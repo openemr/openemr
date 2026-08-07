@@ -133,6 +133,6 @@ class InstallCommand extends Command
             GlobalConnectorsEnum::CCDA_ALT_SERVICE_ENABLE->value => $enableCcda ? '3' : null, // Care Coordination + Portal
         ]);
 
-        return array_map(fn($v) => ['value' => $v], $flags);
+        return array_map(fn($v): array => ['value' => $v], $flags);
     }
 }

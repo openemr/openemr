@@ -194,9 +194,9 @@ function addrbook_invalue(string $name): string
     const resultsDiv = $('#npi-lookup-results');
 
     if (loadMore) {
-        resultsDiv.append('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + jsText(xl("Loading more ...")) + '</div>');
+        resultsDiv.append('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + jsXlt("Loading more ...") + '</div>');
     } else {
-        resultsDiv.show().html('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + jsText(xl("Searching...")) + '</div>');
+        resultsDiv.show().html('<div class="npi-loading"><i class="fa fa-spinner fa-spin"></i>' + jsXlt("Searching...") + '</div>');
 
     }
 
@@ -215,7 +215,7 @@ function addrbook_invalue(string $name): string
             })
             .catch(error => {
                 $('.npi-loading').remove();
-                resultsDiv.html('<div class="npi-error">' + jsText(xl("Error")) + ': ' + jsText(xl(error.message)) + '</div>');
+                resultsDiv.html('<div class="npi-error">' + jsXlt("Error") + ': ' + jsXlt(error.message) + '</div>');
             });
     }
 
@@ -234,7 +234,7 @@ function addrbook_invalue(string $name): string
         if (displayOffset === 0) {
             // First display - show header
             html += `<div style="padding: 10px;">
-                <h6>${jsText(xl("Select a Provider"))} (${jsText(totalResultCount)} ${jsText(xl("total results"))})</h6>
+                <h6>${jsXlt("Select a Provider")} (${jsText(totalResultCount)} ${jsXlt("total results")})</h6>
             </div>`;
         }
 
@@ -251,8 +251,8 @@ function addrbook_invalue(string $name): string
                 <h6>${jsText(name)}</h6>
                 <div class="text-muted">
                     <strong>${jsText('NPI')}: </strong>${jsText(result.number)}<br>
-                    ${jsText(taxonomy) ? `<strong>${jsText(xl('Specialty'))}: </strong>${jsText(xl(taxonomy.desc))}<br>` : ''}
-                    ${jsText(addr) ? `<strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)} , ${jsText(addr.state)} ${jsText(addr.postal_code)}` : ''}
+                    ${jsText(taxonomy) ? `<strong>${jsXlt('Specialty')}: </strong>${jsXlt(taxonomy.desc)}<br>` : ''}
+                    ${jsText(addr) ? `<strong>${jsXlt('Address')}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)} , ${jsText(addr.state)} ${jsText(addr.postal_code)}` : ''}
                 </div>
             </div>`;
         });
@@ -263,7 +263,7 @@ function addrbook_invalue(string $name): string
         if (displayOffset < allResults.length || displayOffset < totalResultCount) {
             html += `<div style="padding: 10px; text-align: center;">
                 <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
-                    ${jsText(xl('Load More Results'))} (${jsText(xl('showing'))} ${jsText(displayOffset)} ${jsText(xl('of'))} ${jsText(totalResultCount)})
+                    ${jsXlt('Load More Results')} (${jsXlt('showing')} ${jsText(displayOffset)} ${jsXlt('of')} ${jsText(totalResultCount)})
                 </button>
             </div>`;
         }
@@ -283,7 +283,7 @@ function addrbook_invalue(string $name): string
 
         if (!data.results || data.results.length === 0) {
         if (!append) {
-            resultsDiv.html('<div class="npi-error">' + jsText(xl('No results found')) + '</div>');
+            resultsDiv.html('<div class="npi-error">' + jsXlt('No results found') + '</div>');
             setTimeout(() => resultsDiv.hide(), 3000);
         }
         return;
@@ -293,7 +293,7 @@ function addrbook_invalue(string $name): string
 
         if (!append) {
             html += `<div style="padding: 10px;">
-            <h6>${jsText(xl('Select a Provider'))} (${jsText(data.result_count)} ${jsText(xl('total results'))} , ${jsText(xl('showing'))} ${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
+            <h6>${jsXlt('Select a Provider')} (${jsText(data.result_count)} ${jsXlt('total results')} , ${jsXlt('showing')} ${Math.min(currentSkip + data.results.length, data.result_count)})</h6>
             </div>`;
         }
 
@@ -311,8 +311,8 @@ function addrbook_invalue(string $name): string
                 <h6>${jsText(name)}</h6>
                 <div class="text-muted">
                     <strong>${jsText('NPI')}: </strong>${jsText(result.number)}<br>
-                    ${jsText(taxonomy) ? `<strong>${jsText(xl(Specialty))}: </strong>${jsText(xl(taxonomy.desc))}<br>` : ''}
-                    ${jsText(addr)} ? <strong>${jsText(xl('Address'))}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)}, ${jsText(addr.state)} ${jsText(addr.postal_code)} : ''
+                    ${taxonomy ? `<strong>${jsXlt('Specialty')}: </strong>${jsText(taxonomy.desc)}<br>` : ''}
+                    ${addr ? `<strong>${jsXlt('Address')}: </strong>${jsText(addr.address_1)} , ${jsText(addr.city)}, ${jsText(addr.state)} ${jsText(addr.postal_code)}` : ''}
                 </div>
             </div>`;
         });
@@ -321,7 +321,7 @@ function addrbook_invalue(string $name): string
         if (data.result_count > currentSkip + data.results.length) {
             html += `<div style="padding: 10px; text-align: center;">
                 <button type="button" class="btn btn-sm btn-secondary" onclick="lookupNPI(true)">
-                    ${jsText(xl('Load More Results'))}
+                    ${jsXlt('Load More Results')}
                 </button>
             </div>`;
         }

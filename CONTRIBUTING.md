@@ -87,7 +87,7 @@ If the AI made the commit directly (e.g., Claude Code), the trailer is typically
 You will need a "local" version of OpenEMR to make changes to the source code. Two paths:
 
 - **Recommended:** the [Docker development environment](https://hub.docker.com/r/openemr/openemr/) described below. Single Docker dependency on the host; the openemr container provides PHP, Node, Composer, the test runners, the pre-commit hooks, and all the validation tooling. This is the path most contributors use and the rest of this section walks through.
-- **Alternative:** install OpenEMR's full dependency stack directly on your host (PHP 8.2+, Composer, Node, Python 3, MySQL/MariaDB, etc.) and run everything natively without Docker. See [Working without Docker](#working-without-docker) at the bottom of this document for the host-toolchain workflow.
+- **Alternative:** install OpenEMR's full dependency stack directly on your host (PHP 8.3+, Composer, Node, Python 3 (if using pre-commit over prek), MySQL/MariaDB, etc.) and run everything natively without Docker. See [Working without Docker](#working-without-docker) at the bottom of this document for the host-toolchain workflow.
 
 ---
 
@@ -111,7 +111,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
       - (Recommend using Ubuntu Desktop 22.04 for above video and other videos in the [OpenEMR Easy Docker Development Environment Video Series](https://www.youtube.com/playlist?list=PLFiWG_dDadgQT7zjqvEqbXm1OiuubOVO8). Easiest way to do this is setting up a [Ubuntu Desktop 22.04 Virtual Machine on VirtualBox](https://ubuntu.com/tutorials/how-to-run-ubuntu-desktop-on-a-virtual-machine-using-virtualbox), which recommend configuring with 40GB hard drive, assigning 25% of computer memory, and assigning 25% of cpu cores to the virtual machine.)
 
     - If you haven't already, [install git](https://git-scm.com/downloads) for your system
-	- (optional) If you want to set up the base services(e.g. git, docker, docker compose, openemr-cmd, minkube and kubectl) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
+    - (optional) If you want to set up the base services (e.g. git, docker, docker compose, openemr-cmd, minikube and kubectl) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
     - (optional) It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
 2. Install the development prerequisites:
     - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system.
@@ -227,7 +227,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 
 ---
 
-1. <a name="worktrees"></a>git Worktrees are supported. Developers can work on separate worktrees with docker testing stacks concurrently. This requires use of the `openemr-cmd` command (see above for instructions on installing the `openemr-cmd` command). Recommend running these command in the base directory of the base repo.
+1. <a name="worktrees"></a>git Worktrees are supported. Developers can work on separate worktrees with docker testing stacks concurrently. This requires use of the `openemr-cmd` command (see above for instructions on installing the `openemr-cmd` command). Recommend running these commands in the base directory of the base repo.
 
     - Following will give an overview of the available commands:
       ```sh
@@ -413,7 +413,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           openemr-cmd register-oauth2-client-demo https://eleven.openemr.io/a/openemr
           ```
 5. <a name="other_php_versions"></a>Testing other PHP versions.
-    - The standard `flex` docker used in the easy development environments is PHP 8.5. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.2, then just need to change it to `image: openemr/openemr:flex-3.22-php-8.2`. To use PHP 8.3 then change it to `image: openemr/openemr:flex-3.23-php-8.3`. To use PHP 8.4 then change it to `image: openemr/openemr:flex-3.23-php-8.4`.
+    - The standard `flex` docker used in the easy development environments is PHP 8.5. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.3 then change it to `image: openemr/openemr:flex-3.23-php-8.3`. To use PHP 8.4 then change it to `image: openemr/openemr:flex-3.23-php-8.4`.
 6. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
     - To check PHP error logs:
       ```sh
@@ -723,7 +723,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```
 21. <a name="dev_tools_webroot"></a>Test webroot value.
     - The default setup of the docker development environments are with a blank webroot, however, it is a good idea to also test with a webroot setting. There is an option to set the webroot to openemr.
-    - Note this dev tool requires the use of the openemr-cmd script, which is discussed above and can find instructions to install and use openemr-cmd script at [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd).
+    - Note this dev tool requires the use of the openemr-cmd script, which is discussed above. You can find instructions to install and use openemr-cmd at [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd).
     - Set webroot to blank:
       ```sh
       openemr-cmd change-webroot-blank
@@ -735,7 +735,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 
 ## Working without Docker
 
-The sections above describe the recommended Docker-based workflow. If you maintain a full host toolchain (PHP 8.2+, Composer with `composer install` populated `vendor/`, Node, Python 3), you can run validation, code-quality checks, and isolated tests directly on your machine without invoking the openemr container.
+The sections above describe the recommended Docker-based workflow. If you maintain a full host toolchain (PHP 8.3+, Composer with `composer install` populated `vendor/`, Node, Python 3 (if using pre-commit over prek)), you can run validation, code-quality checks, and isolated tests directly on your machine without invoking the openemr container.
 
 ### Pre-commit hooks on host
 
@@ -746,7 +746,7 @@ pre-commit install --hook-type commit-msg  # Validates commit message format
 pre-commit install                          # Enables all code quality hooks
 ```
 
-This is mutually exclusive with `openemr-cmd prek-install` (both write to the same `.git/hooks/` files; most recent install wins). Requires PHP 8.2+, Composer, `composer install` populated `vendor/`, Python 3 with `pre-commit` (or `prek`) installed, plus a binary for any hook that uses `language: system` outside the composer scripts (e.g. `actionlint`).
+This is mutually exclusive with `openemr-cmd prek-install` (both write to the same `.git/hooks/` files; most recent install wins). Requires PHP 8.3+, Composer, `composer install` populated `vendor/`, Python 3 (if using pre-commit over prek) installed, plus a binary for any hook that uses `language: system` outside the composer scripts (e.g. `actionlint`).
 
 ### Code-quality checks on host
 

@@ -88,21 +88,35 @@ jobs:
         echo "✓ Schema check passed."
 
     - name: Verify every openemr_version_ref resolves in openemr/openemr
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        # Uses the authenticated GitHub Contents API (5000/hr per-token
+        # budget) rather than anonymous raw.githubusercontent.com (60/hr
+        # shared-IP). Same G19 rationale as docker-build-release.yml's
+        # own fetch: an anonymous 429 previously showed up here as "does
+        # not resolve," which lied about the actual cause.
         yq -o=json -I=0 . .github/release-targets.yml | jq -r '.[] | "\(.branch)\t\(.openemr_version_ref)"' | \
         while IFS=$'\t' read -r BRANCH REF; do
-          # raw.githubusercontent.com returns 200 only when the ref resolves.
-          URL="https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php"
-          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$URL")
-          if [ "$STATUS" != "200" ]; then
-            echo "::error::Row '$BRANCH': openemr_version_ref '$REF' does not resolve in openemr/openemr (HTTP $STATUS at $URL)"
+          if err_output=$(gh api "/repos/openemr/openemr/contents/version.php?ref=${REF}" \
+               --silent 2>&1); then
+            echo "✓ $BRANCH: openemr_version_ref '$REF' resolves."
+          elif echo "$err_output" | grep -qE 'HTTP 404|Not Found'; then
+            echo "::error::Row '$BRANCH': openemr_version_ref '$REF' does not resolve in openemr/openemr"
+            exit 1
+          else
+            echo "::error::Row '$BRANCH': failed to check openemr_version_ref '$REF' (not a 404): $err_output"
             exit 1
           fi
-          echo "✓ $BRANCH: openemr_version_ref '$REF' resolves."
         done
 
     - name: Cross-check docker_tag version against version.php at openemr_version_ref
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        # Uses the authenticated GitHub Contents API for the non-master
+        # rows (same G19 rationale as the previous step). Master row keeps
+        # the local checkout for the chicken-and-egg reason detailed below.
         # Use process substitution so the loop body runs in the current shell
         # (no subshell), letting FAIL increments propagate.
         FAIL=0
@@ -138,8 +152,19 @@ jobs:
             # raw URL because their openemr_version_ref is a stable git tag
             # that a PR can't modify locally.
             cp version.php /tmp/v.php
-          elif ! curl -fsSL "https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php" -o /tmp/v.php; then
-            echo "::error::Row '$BRANCH': failed to fetch version.php at ref '$REF' from raw.githubusercontent.com"
+          elif ! gh api "/repos/openemr/openemr/contents/version.php?ref=${REF}" \
+                    -H 'Accept: application/vnd.github.raw' \
+                    > /tmp/v.php 2> /tmp/gh-api-err; then
+            # Distinguish 404 (real bad ref -- release-targets.yml
+            # points at a sha/tag/branch that doesn't resolve) from
+            # transient failures. Same G19 pattern as the sibling step
+            # above and docker-build-release.yml's fetch.
+            if grep -qE 'HTTP 404|Not Found' /tmp/gh-api-err; then
+              echo "::error::Row '$BRANCH': openemr_version_ref '$REF' does not resolve in openemr/openemr"
+            else
+              echo "::error::Row '$BRANCH': failed to fetch version.php at ref '$REF' (not a 404):"
+              cat /tmp/gh-api-err
+            fi
             FAIL=1
             continue
           fi

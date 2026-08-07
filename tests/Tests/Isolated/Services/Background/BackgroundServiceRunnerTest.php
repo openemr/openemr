@@ -465,7 +465,7 @@ class BackgroundServiceRunnerStub extends BackgroundServiceRunner
         if ($serviceName !== null) {
             return array_values(array_filter(
                 $this->services,
-                fn(array $s) => $s['name'] === $serviceName,
+                fn(array $s): bool => $s['name'] === $serviceName,
             ));
         }
         return $this->services;

@@ -63,8 +63,6 @@ if ($isStaticAnalysis) {
     require_once(__DIR__ . "/../library/sql.inc.php");
 }
 
-require_once(__DIR__ . "/../library/csv_like_join.php");
-
 $code_types = [];
 global $code_types;
 
@@ -370,7 +368,7 @@ function check_is_code_type_justify(bool $key): bool
  * @param   array    $filter (array of elements that can include 'active','fee','rel','nofs','diag','claim','proc','term','problem')
  * @return bool
  */
-function check_code_set_filters($key, $filters = [])
+function check_code_set_filters($key, $filters = []): bool
 {
     global $code_types;
 

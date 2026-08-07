@@ -28,7 +28,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 
 $form_name = trim($_POST['form_name'] ?? '');
 
-$form_inactive = empty($_POST['form_inactive']) ? false : true;
+$form_inactive = !empty($_POST['form_inactive']);
 
 $query = "SELECT pp.* FROM procedure_providers AS pp";
 
