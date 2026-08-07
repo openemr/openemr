@@ -410,6 +410,7 @@ final class EventAuditLoggerTest extends TestCase
             '', // crt_user
             [
                 'user_id' => 1,
+                'client_id' => '',
                 'patient_id' => 1,
                 'method' => 'foo',
                 'request' => 'foo',
@@ -540,6 +541,7 @@ final class EventAuditLoggerTest extends TestCase
 
         $apiData = [
             'user_id' => 1,
+            'client_id' => 'test-oauth-client',
             'patient_id' => 123,
             'method' => 'GET',
             'request' => '/api/patient/123',

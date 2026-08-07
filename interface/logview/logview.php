@@ -362,8 +362,17 @@ if (!empty($_GET)) {
                                                     <td><?php echo text($iter["groupname"]); ?></td>
                                                     <td><?php echo text($iter["patient_id"]); ?></td>
                                                     <td><?php echo text($iter["success"]); ?></td>
-                                                    <?php if (!empty($iter["ip_address"])) { ?>
-                                                        <td><?php echo text($iter["ip_address"]) . ", " . text($iter["method"]) . ", " . text($iter["request"]); ?></td>
+                                                    <?php if (!empty($iter["ip_address"])) {
+                                                        // prefer the registered client name; fall back to the raw client id for
+                                                        // clients registered before the client_id column existed or since deleted
+                                                        $apiClientName = $iter["client_name"] ?? null;
+                                                        $apiClientId = $iter["client_id"] ?? null;
+                                                        $apiClient = is_string($apiClientName) ? $apiClientName : '';
+                                                        if ($apiClient === '') {
+                                                            $apiClient = is_string($apiClientId) ? $apiClientId : '';
+                                                        }
+                                                        ?>
+                                                        <td><?php echo text($iter["ip_address"]) . ", " . text($iter["method"]) . ", " . text($iter["request"]) . ($apiClient !== '' ? ", " . xlt('client') . ": " . text($apiClient) : ""); ?></td>
                                                     <?php } else { ?>
                                                         <td></td>
                                                     <?php } ?>
