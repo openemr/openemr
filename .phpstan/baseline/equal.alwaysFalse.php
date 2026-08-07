@@ -102,6 +102,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between int\\<2, max\\> and 1 will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/patient.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between non\\-falsy\\-string and \'\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',

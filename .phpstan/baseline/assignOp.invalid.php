@@ -232,11 +232,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/eRx_xml.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between float\\|int and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
@@ -918,7 +913,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between mixed and \\(float\\|int\\) results in an error\\.$#',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',
 ];
 $ignoreErrors[] = [
@@ -1592,7 +1587,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/reminders.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between string and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between \'\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
 ];
