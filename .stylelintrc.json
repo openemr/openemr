@@ -27,6 +27,7 @@
         "at-rule-empty-line-before": null,
         "scss/at-mixin-pattern": null,
         "max-nesting-depth": null,
-        "scss/at-extend-no-missing-placeholder": null
+        "scss/at-extend-no-missing-placeholder": null,
+        "keyframes-name-pattern": null
     }
 }
