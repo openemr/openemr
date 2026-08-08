@@ -24,11 +24,17 @@ require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Invoice", xl("EOB Posting - Invoice"));
+}
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/patient.inc.php');
