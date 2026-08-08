@@ -116,6 +116,7 @@ class HealthEndpointTest extends TestCase
         self::assertIsArray($body);
 
         $this->assertArrayHasKey('checks', $body, 'readyz response should have checks');
+        self::assertIsArray($body['checks'], 'checks should be an array');
         $this->assertArrayHasKey('installed', $body['checks'], 'readyz checks should include installed');
         $this->assertTrue(
             $body['checks']['installed'],
