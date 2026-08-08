@@ -1,3 +1,6 @@
+/* stylelint-disable no-descending-specificity */
+/* stylelint-disable no-duplicate-selectors */
+
 /* Light Theme Variables */
 :root {
   --background-color: #fff;
@@ -13120,5 +13123,8 @@ textarea.search_field {
   padding-left: 0.25em;
   padding-right: 0.75em;
 }
+
+/* stylelint-enable no-descending-specificity */
+/* stylelint-enable no-duplicate-selectors */
 
 /*# sourceMappingURL=styles.css.map*/
