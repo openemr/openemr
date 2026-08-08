@@ -34,29 +34,26 @@
 
 .rx {
   height: 4.05in;
-  padding-bottom: 0.09in;
-  padding-left: 0.09in;
-  padding-right: 0.09in;
-  padding-top: 0.09in;
+  padding: 0.09in;
   width: 5.3in;
 }
 
 .topheader {
-  font-family: times;
+  font-family: 'Times New Roman', Times, serif;
   font-size: 12px;
   font-weight: bold;
   text-align: center;
 }
 
 .bottomheader {
-  font-family: times;
+  font-family: 'Times New Roman', Times, serif;
   font-size: 12px;
   font-weight: normal;
   text-align: left;
 }
 
 .content {
-  font-family: courier;
+  font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
   font-weight: normal;
   text-align: left;
