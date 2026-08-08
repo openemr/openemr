@@ -493,10 +493,11 @@ final readonly class CalendarRenderDataBuilder
                 'bodyContent' => $bodyContent,
             ];
 
-            // IN events (catid 2) need the time-label DIV above the
-            // body. The label sits one timeslot above the body.
+            // IN events (catid 2) need the time-label DIV over the
+            // event body start slot. Label shares the body's start slot;
+            // IN/OUT paint under appointments + the provider header via CSS.
             if ($catid === 2) {
-                $inLabelTopPx = ($geometry['startInterval'] - 1) * $timeslotHeightVal;
+                $inLabelTopPx = $geometry['startInterval'] * $timeslotHeightVal;
                 $entry['inLabelTop']     = $inLabelTopPx . $timeslotHeightUnit;
                 $entry['inLabelHeight']  = $timeslotHeightVal . $timeslotHeightUnit;
                 $startH = (int) substr($startTime, 0, 2);
@@ -897,6 +898,7 @@ final readonly class CalendarRenderDataBuilder
             'selectedUsernames'       => $selectedUsernames,
             'timeRows'                => $timeRows,
             'timeslotCss'             => $timeslotCss,
+            'timeslotHeightVal'       => $timeslotHeightVal,
             'providers'               => $providersGrid,
             'webroot'                 => $webroot,
         ];
@@ -1057,6 +1059,7 @@ final readonly class CalendarRenderDataBuilder
             'selectedUsernames'       => $selectedUsernames,
             'timeRows'                => $timeRows,
             'timeslotCss'             => $timeslotCss,
+            'timeslotHeightVal'       => $timeslotHeightVal,
             'providers'               => $providersGrid,
             'webroot'                 => $webroot,
         ];
@@ -1196,7 +1199,8 @@ final readonly class CalendarRenderDataBuilder
             ];
 
             if ($catid === 2) {
-                $inLabelTopPx = ($geometry['startInterval'] - 1) * $timeslotHeightVal;
+                // Same start slot as the body; stacking handled in CSS.
+                $inLabelTopPx = $geometry['startInterval'] * $timeslotHeightVal;
                 $entry['inLabelTopCss']    = $inLabelTopPx . $timeslotHeightUnit;
                 $entry['inLabelHeightCss'] = $timeslotHeightVal . $timeslotHeightUnit;
                 $startM = substr($startTime, 3, 2);
@@ -1344,7 +1348,8 @@ final readonly class CalendarRenderDataBuilder
             ];
 
             if ($catid === 2) {
-                $inLabelTopPx = ($geometry['startInterval'] - 1) * $timeslotHeightVal;
+                // Same start slot as the body; stacking handled in CSS.
+                $inLabelTopPx = $geometry['startInterval'] * $timeslotHeightVal;
                 $entry['inLabelTopCss']    = $inLabelTopPx . $timeslotHeightUnit;
                 $entry['inLabelHeightCss'] = $timeslotHeightVal . $timeslotHeightUnit;
                 $startM = substr($startTime, 3, 2);

@@ -109,14 +109,19 @@ $side-calendar-date-padding: 0.3rem !default;
 
   #bigCal {
     background-color: $light;
-    overflow: hidden;
+    /* Horizontal scroll when many providers; times column is sticky. */
+    overflow-x: auto;
+    overflow-y: hidden;
 
     table {
       border: 0;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       margin-top: 0;
+      min-width: 100%;
+      table-layout: auto;
       vertical-align: middle;
-      width: 100%;
+      width: max-content;
     }
 
     td {
@@ -235,11 +240,16 @@ $side-calendar-date-padding: 0.3rem !default;
     }
   }
 
-  /* the DIV of times */
+  /* Sticky time gutter — provider columns scroll underneath. */
   #times {
     background-color: $white;
+    max-width: 3.5rem;
+    min-width: 3.25rem;
     padding: 0.3125rem !important;
-    width: 1%;
+    position: sticky;
+    width: 3.25rem;
+    z-index: 8;
+    #{$left}: 0;
 
     table {
       background-color: $white;
@@ -255,12 +265,14 @@ $side-calendar-date-padding: 0.3rem !default;
       }
     }
     border-#{$right}: 1px solid $gray-300;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.08);
   }
 
   .timeslot {
-    /* height value is tied to two PHP variables in the ajax_*.html files
-     * if you change this value then be sure to change the matching value
-     * in those files */
+    /* Base height matches CalendarRenderDataBuilder::$timeslotHeightVal.
+     * Day/week screen JS (fitCalendarToViewport) may raise this at runtime
+     * so the grid fills unused vertical space in the frame. */
+    box-sizing: border-box;
     height: 20px;
     margin: 0;
     padding: 0;
@@ -275,30 +287,51 @@ $side-calendar-date-padding: 0.3rem !default;
     background-color: $white;
     border: 1px solid $gray-300;
     margin: 0;
+    /* Readable floor width; extra providers extend the table and scroll. */
+    min-width: 11.5rem;
     padding: 0;
+    position: relative;
     vertical-align: top;
-    width: 25rem;
+    width: 11.5rem;
   }
 
   /* for the header row with provider names */
   .providerheader {
+    align-items: center;
     background-color: $primary;
     border-bottom: 1px solid $gray-300;
     color: $white;
+    display: flex;
+    gap: 0.25rem;
+    justify-content: space-between;
     overflow: hidden;
-    text-align: center;
+    padding: 0 0.35rem;
+    /* Sit above IN/OUT fills that may extend under this row so office-hours
+       blocks never paint over the provider name bar. */
+    position: relative;
     white-space: nowrap;
     width: 100%;
+    z-index: 5;
+
+    .provider-name {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   // Based off of BS4's close class
   .providerXbtn {
     color: $white;
-    float: $right;
-    margin-left: 0.25rem;
-    margin-right: 0.25rem;
-    opacity: 0.5;
-    padding: 0;
+    flex: 0 0 auto;
+    float: none;
+    margin-left: 0;
+    margin-right: 0;
+    opacity: 0.9;
+    padding: 0 0.15rem;
     text-shadow: $close-text-shadow;
 
     @include hover() {
@@ -424,6 +457,8 @@ $side-calendar-date-padding: 0.3rem !default;
     &_in {
       border: 1px solid $gray-300;
       overflow: hidden;
+      /* Long IN fill stays under appointments and the provider header. */
+      pointer-events: none;
       text-overflow: ellipsis;
       white-space: nowrap;
       width: 100%;
@@ -432,7 +467,8 @@ $side-calendar-date-padding: 0.3rem !default;
 
     &_out {
       @extend %highlight;
-      z-index: 3;
+      /* Behind appointments (was 3 and covered first-slot appts). */
+      z-index: 1;
     }
 
     &_appointment {
@@ -440,25 +476,30 @@ $side-calendar-date-padding: 0.3rem !default;
       background-color: $white;
       border: 1px solid $black;
       border-radius: 0.25rem;
+      box-sizing: border-box;
+      line-height: 1.15;
       overflow: hidden;
+      padding: 0 0.25rem;
+      /* Allow wrap when auto-fit gives taller slots; ellipsis still applies
+         via overflow:hidden if content exceeds the event box. */
       text-overflow: ellipsis;
-      white-space: nowrap;
+      white-space: normal;
       width: 100%;
-      z-index: 2;
+      z-index: 3;
     }
 
     &_noshow {
       @extend %highlight;
       border-radius: 0.25rem;
       overflow: hidden;
-      z-index: 2;
+      z-index: 3;
     }
 
     &_reserved {
       @extend %highlight;
       border-radius: 0.25rem;
       overflow: hidden;
-      z-index: 2;
+      z-index: 3;
     }
 
     &_holiday {
@@ -466,7 +507,7 @@ $side-calendar-date-padding: 0.3rem !default;
       border-radius: 0.25rem;
       overflow: hidden;
       width: 100% !important;
-      z-index: 2;
+      z-index: 3;
     }
 
     &_time {
@@ -513,7 +554,10 @@ $side-calendar-date-padding: 0.3rem !default;
 
   .in_start {
     background: transparent;
-    z-index: 2;
+    /* Label stays on the start slot but under appointments; still
+       receives clicks so the IN event can be edited. */
+    pointer-events: auto;
+    z-index: 1;
   }
 
   .event_out.event_highlight,
@@ -523,7 +567,7 @@ $side-calendar-date-padding: 0.3rem !default;
     font-weight: bold;
     margin: 0;
     opacity: 1;
-    z-index: 2;
+    z-index: 4;
   }
 
   .pop-up img {
