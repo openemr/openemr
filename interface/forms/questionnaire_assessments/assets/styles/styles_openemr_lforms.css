@@ -385,7 +385,7 @@ span.loading-indicator-container {
   box-sizing: border-box;
   margin: 0 4px 0 2px;
   border-width: 0;
-  border-top: 2px solid white;
+  border-top: 2px solid #fff;
   padding: 4px 2px;
 }
 
@@ -896,7 +896,7 @@ lhc-item-time .ant-picker-input > input::input-placeholder {
   margin: 0 0 0 1px;
   text-align: left;
   border-width: 0;
-  border-top: 2px solid white;
+  border-top: 2px solid #fff;
   padding: 4px 2px;
 }
 
@@ -979,7 +979,7 @@ lhc-item-time .ant-picker-input > input::input-placeholder {
   margin: 0 0 0 1px;
   text-align: left;
   border-width: 0;
-  border-top: 2px solid white;
+  border-top: 2px solid #fff;
   padding: 4px 2px;
 }
 
