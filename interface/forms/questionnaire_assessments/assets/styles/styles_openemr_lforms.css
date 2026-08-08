@@ -412,6 +412,7 @@ div.cdk-overlay-pane {
   white-space: pre-wrap;
 }
 
+/* stylelint-disable-next-line selector-type-no-unknown */
 screen_reader_only {
   height: 0;
   width: 0;
@@ -852,6 +853,7 @@ lhc-item-time .ant-picker-input > input::placeholder {
   opacity: 1;
 }
 
+/* stylelint-disable selector-pseudo-class-no-unknown */
 lhc-item-date .ant-picker-input > input:input-placeholder,
 lhc-item-datetime .ant-picker-input > input:input-placeholder,
 lhc-item-time .ant-picker-input > input:input-placeholder {
@@ -859,7 +861,9 @@ lhc-item-time .ant-picker-input > input:input-placeholder {
   color: #999;
   opacity: 1;
 }
+/* stylelint-enable selector-pseudo-class-no-unknown */
 
+/* stylelint-disable selector-pseudo-element-no-unknown */
 lhc-item-date .ant-picker-input > input::input-placeholder,
 lhc-item-datetime .ant-picker-input > input::input-placeholder,
 lhc-item-time .ant-picker-input > input::input-placeholder {
@@ -867,6 +871,7 @@ lhc-item-time .ant-picker-input > input::input-placeholder {
   color: #999;
   opacity: 1;
 }
+/* stylelint-enable selector-pseudo-element-no-unknown */
 
 .lhc-form input::placeholder,
 .lhc-form textarea::placeholder {
@@ -875,19 +880,23 @@ lhc-item-time .ant-picker-input > input::input-placeholder {
   opacity: 1;
 }
 
+/* stylelint-disable selector-pseudo-class-no-unknown */
 .lhc-form input:input-placeholder,
 .lhc-form textarea:input-placeholder {
   font-weight: 500;
   color: #999;
   opacity: 1;
 }
+/* stylelint-enable selector-pseudo-class-no-unknown */
 
+/* stylelint-disable selector-pseudo-element-no-unknown */
 .lhc-form input::input-placeholder,
 .lhc-form textarea::input-placeholder {
   font-weight: 500;
   color: #999;
   opacity: 1;
 }
+/* stylelint-enable selector-pseudo-element-no-unknown */
 
 .lhc-layout-horizontal .lhc-form-horizontal-table-title {
   background: var(--title-color);
@@ -1268,6 +1277,7 @@ a {
   color: #1890ff;
   background-color: transparent;
   transition: color 0.3s;
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
   text-decoration-skip: objects;
 }
 
