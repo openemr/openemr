@@ -14,10 +14,13 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Response;
 
 class C_FormSOAP extends Controller
 {
@@ -46,9 +49,12 @@ class C_FormSOAP extends Controller
         );
     }
 
-    function view_action($form_id)
+    public function view_action(int|false|null $form_id): string
     {
-        $form = is_numeric($form_id) ? new FormSOAP($form_id) : new FormSOAP();
+        $formId = is_int($form_id) && $form_id >= 0 ? $form_id : 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'soap');
+
+        $form = $formId > 0 ? new FormSOAP($formId) : new FormSOAP();
 
         return $this->twig->getTwig()->render(
             'soap_form.twig',
@@ -66,15 +72,23 @@ class C_FormSOAP extends Controller
             return;
         }
 
-        $this->form = new FormSOAP($_POST['id']);
+        $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($postId === false) {
+            AccessDeniedHelper::deny('Invalid soap form id', 'security-access', Response::HTTP_NOT_FOUND);
+        }
+        $formId = $postId ?? 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'soap');
+
+        $this->form = $formId > 0 ? new FormSOAP($formId) : new FormSOAP();
         parent::populate_object($this->form);
+        EncounterFormAccess::applySessionPidToForm($this->form);
 
         $this->form->persist();
         if (OEGlobalsBag::getInstance()->get('encounter') == "") {
             OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
-        if (empty($_POST['id'])) {
+        if ($formId === 0) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(
                 OEGlobalsBag::getInstance()->get('encounter'),

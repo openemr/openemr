@@ -709,18 +709,19 @@ class EncounterService extends BaseService
 
     /**
      * Returns the sensitivity level for the encounter matching the patient and encounter identifier.
-     *
-     * @param  $pid          The legacy identifier of particular patient
-     * @param  $encounter_id The identifier of a particular encounter
-     * @return string         sensitivity_level of first row of encounter data
+     * Returns null when no matching encounter row exists.
      */
-    public function getSensitivity($pid, $encounter_id)
+    public function getSensitivity(mixed $pid, mixed $encounter_id): ?string
     {
-        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
-        if ($encounterResult->hasData()) {
-            return $encounterResult->getData()[0]['sensitivity'];
+        $encounterResult = $this->search(
+            ['pid' => $pid, 'eid' => $encounter_id],
+            options: ['limit' => 1],
+        );
+        if (!$encounterResult->hasData()) {
+            return null;
         }
-        return [];
+        $sensitivity = $encounterResult->getData()[0]['sensitivity'] ?? null;
+        return is_string($sensitivity) ? $sensitivity : null;
     }
 
     /**

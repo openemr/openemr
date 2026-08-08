@@ -22,4 +22,4 @@ require_once("$srcdir/api.inc.php");
 require("C_FormPriorAuth.class.php");
 
 $c = new C_FormPriorAuth();
-echo $c->view_action($_GET['id']);
+echo $c->view_action(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT));

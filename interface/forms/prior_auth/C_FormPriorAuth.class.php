@@ -13,10 +13,13 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormPriorAuth.class.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Response;
 
 class C_FormPriorAuth extends Controller
 {
@@ -42,9 +45,12 @@ class C_FormPriorAuth extends Controller
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
-    function view_action($form_id)
+    public function view_action(int|false|null $form_id): string
     {
-        $prior_auth = is_numeric($form_id) ? new FormPriorAuth($form_id) : new FormPriorAuth();
+        $formId = is_int($form_id) && $form_id >= 0 ? $form_id : 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'prior_auth');
+
+        $prior_auth = $formId > 0 ? new FormPriorAuth($formId) : new FormPriorAuth();
 
         $this->assign("VIEW", true);
         $this->assign("prior_auth", $prior_auth);
@@ -57,16 +63,23 @@ class C_FormPriorAuth extends Controller
             return;
         }
 
-        $this->form = new FormPriorAuth($_POST['id']);
-        parent::populate_object($this->form);
+        $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($postId === false) {
+            AccessDeniedHelper::deny('Invalid prior_auth form id', 'security-access', Response::HTTP_NOT_FOUND);
+        }
+        $formId = $postId ?? 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'prior_auth');
 
+        $this->form = $formId > 0 ? new FormPriorAuth($formId) : new FormPriorAuth();
+        parent::populate_object($this->form);
+        EncounterFormAccess::applySessionPidToForm($this->form);
 
         $this->form->persist();
         if (OEGlobalsBag::getInstance()->get('encounter') == "") {
             OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
-        if (empty($_POST['id'])) {
+        if ($formId === 0) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(OEGlobalsBag::getInstance()->get('encounter'), "Prior Authorization", $this->form->id, "prior_auth", OEGlobalsBag::getInstance()->get('pid'), $session->get('userauthorized'));
             $_POST['process'] = "";

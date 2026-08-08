@@ -209,7 +209,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \'g10_certification\' and \'us_core_v311\' will always evaluate to false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/CapabilityStatementTest.php',
+    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/Trait/G10ApiTestTrait.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCode and \'11341\\-5\' will always evaluate to false\\.$#',

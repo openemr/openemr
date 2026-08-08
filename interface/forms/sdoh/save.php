@@ -12,6 +12,7 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -42,6 +43,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+
 if (!$encounter) {
     $encounter = date("Ymd");
 }
@@ -52,9 +56,13 @@ if ($_GET["mode"] == "new") {
     addForm($encounter, "Social Screening Tool", $newid, "sdoh", $pid, $userauthorized);
     $formid = $newid;
 } elseif ($_GET["mode"] == "update") {
+    EncounterFormAccess::requirePositiveFormId($formId, 'sdoh');
     // if running from patient portal, then below will ensure patient can only see their forms
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $session->get('pid'));
-    $formid = $_GET["id"];
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $formId, 'sdoh', $session->get('pid'));
+    if (!$patientPortalSession) {
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'sdoh');
+    }
+    $formid = $formId;
     sqlStatement(
         "UPDATE form_sdoh set pid = ?,
             groupname=?,
@@ -324,7 +332,7 @@ WHERE id=?",
         ($_POST["contactotherinput"] ?? ''),
         ($_POST["totalscore"] ?? null),
         ($_POST["additional_notes"] ?? null),
-            $_GET["id"]
+            $formId
         ]
     );
 }
