@@ -14,6 +14,27 @@
   width: 180px;
 }
 
+/* These are ordered ahead of their higher-specificity .pure-form
+ * counterparts below solely to satisfy stylelint's no-descending-specificity
+ * rule; this has no effect on the rendered styles.
+ */
+label {
+  font-size: 11px;
+  padding-left: 3px;
+}
+
+input[type='text'] {
+  display: inline-block;
+  height: 22px;
+  padding: 0.2em 0.4em;
+  text-align: center;
+  width: 45px;
+}
+
+textarea {
+  font-size: 0.9em;
+}
+
 .pure-form input[type='text'],
 .pure-form input[type='password'],
 .pure-form input[type='email'],
@@ -35,7 +56,7 @@
   box-shadow: 0 1px 3px #ddd inset;
   box-sizing: border-box;
   display: inline-block;
-  padding: 0.2em;
+  padding: 0.2em !important;
 }
 
 .pure-form label {
@@ -45,25 +66,6 @@
 
 .pure-form [disabled] {
   color: var(--dark) !important;
-}
-
-.pure-form input[type='text'],
-.pure-form input[type='password'],
-.pure-form input[type='email'],
-.pure-form input[type='url'],
-.pure-form input[type='date'],
-.pure-form input[type='month'],
-.pure-form input[type='time'],
-.pure-form input[type='datetime'],
-.pure-form input[type='datetime-local'],
-.pure-form input[type='week'],
-.pure-form input[type='number'],
-.pure-form input[type='search'],
-.pure-form input[type='tel'],
-.pure-form input[type='color'],
-.pure-form select,
-.pure-form textarea {
-  padding: 0.2em !important;
 }
 
 .eye_mag {
@@ -93,6 +95,187 @@ a:hover {
 /* selected link */
 a:active {
   color: var(--dark);
+}
+
+/* Rules below are ordered ahead of their higher-specificity counterparts
+ * further down this file (#tabs_left, tabs_left-vertical, .text_clinical,
+ * .pure-form, .vitals, #CTL_box, #right-panel, #Visions_A, #EXT_left_1,
+ * #LayerVision_VAHx) solely to satisfy stylelint's no-descending-specificity
+ * rule; this has no effect on the rendered styles. Within this block,
+ * rules are ordered by ascending selector specificity for the same reason.
+ */
+.refraction li {
+  float: left;
+}
+
+.PRIORS a {
+  text-decoration: none;
+}
+
+tabs_left-vertical .ui-tabs-nav {
+  position: absolute;
+  transform: translate(-100%, 0%) rotate(-90deg);
+  transform-origin: 100% 0%;
+  width: 21em;
+}
+
+tabs_left-vertical .ui-tabs-panel {
+  height: 20em;
+  padding-left: 3.5em;
+}
+
+a:hover,
+a:focus {
+  text-decoration: none;
+}
+
+.left_menu_tab a {
+  color: var(--white) !important;
+  font-size: 1em;
+}
+
+.build_PLAN li {
+  background: #eee;
+  margin: 1em;
+  padding: 0.5em;
+  padding-left: 42px;
+  position: relative;
+}
+
+tabs_left-vertical .ui-tabs-nav li {
+  float: right;
+}
+
+.navbar-nav > li > a {
+  color: var(--dark);
+
+  /* just changes the base font color */
+  padding: 6px 20px 4px;
+}
+
+.build_PLAN li:hover {
+  background: var(--warning);
+}
+
+.closeButton:hover a {
+  background-color: var(--warning);
+  text-decoration: none;
+}
+
+.closeButton a:link {
+  color: var(--dark);
+  outline: none;
+}
+
+.nav > li:focus {
+  background-color: #1c5ecf;
+
+  /* this is the "hover" blue */
+  color: var(--white);
+  text-decoration: none;
+
+  /* #33aa33; <--- this is kelly green */
+}
+
+.nav > .active > a {
+  background-color: #c9dbf2;
+}
+
+.text_clinical a:hover {
+  text-decoration: underline;
+}
+
+.navbar-nav > li > li:focus {
+  background-color: #3e76c2;
+  border-radius: 0;
+  color: var(--white);
+  top: 0;
+}
+
+.nav > li > a:focus {
+  background-color: #1c5ecf;
+
+  /* this is the "hover" blue */
+  color: var(--white);
+  text-decoration: none;
+
+  /* #33aa33; <--- this is kelly green */
+}
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  background-color: #1c5ecf;
+  color: var(--white);
+
+  /* #262626; */
+  text-decoration: none;
+
+  /* #3E76C2; */
+  text-shadow: none;
+}
+
+.nav.navbar-right:last-child > li {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.navbar-nav > .active > a:hover,
+.navbar-nav > .active > a:focus {
+  background-color: #c9dbf2;
+}
+
+#tabs li {
+  display: inline;
+}
+
+#header li {
+  background: url('../../../forms/eye_mag/images/tabright.gif') top right no-repeat;
+  float: left;
+  margin: 0;
+}
+
+#header a {
+  background: url('../../../forms/eye_mag/images/tableft.gif') top left no-repeat;
+  color: #ffc;
+  display: block;
+  padding: 0.6em 1em 0.25em;
+  text-decoration: none;
+}
+
+#tabs_vision li {
+  display: inline;
+}
+
+#tabs li a {
+  background-color: #cc9;
+  border: 2px solid #ccc;
+  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  box-shadow: 0 5px 9px #888;
+  color: var(--dark);
+  outline: none;
+  padding: 4px 6px;
+  text-decoration: none;
+}
+
+#tabs_vision li a {
+  background-color: #cc9;
+  border: 2px solid #ccc;
+  border-bottom: 0;
+  border-radius: 5px 5px 0 0;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  box-shadow: 0 5px 9px #888;
+  color: var(--dark);
+  outline: none;
+  padding: 4px 6px;
+  text-decoration: none;
+}
+
+#header a:hover {
+  color: var(--white);
 }
 
 #tabs_left {
@@ -139,25 +322,6 @@ a:active {
   height: 40em;
 }
 
-tabs_left-vertical .ui-tabs-nav {
-  position: absolute;
-  transform: translate(-100%, 0%) rotate(-90deg);
-  transform-origin: 100% 0%;
-  width: 21em;
-}
-
-tabs_left-vertical .ui-tabs-nav li {
-  float: right;
-}
-
-tabs_left-vertical .ui-tabs-panel {
-  padding-left: 3.5em;
-}
-
-tabs_left-vertical .ui-tabs-panel {
-  height: 20em;
-}
-
 .fa {
   cursor: pointer;
 }
@@ -176,16 +340,22 @@ tabs_left-vertical .ui-tabs-panel {
   font-size: 12px;
 }
 
+.refraction b {
+  font-weight: bold;
+}
+
+th {
+  color: var(--dark);
+  font-size: 1em;
+  text-align: center;
+}
+
 .text_clinical {
   text-decoration: none;
 }
 
 .text_clinical a b {
   text-decoration: none;
-}
-
-.text_clinical a:hover {
-  text-decoration: underline;
 }
 
 .text_clinical th {
@@ -253,11 +423,6 @@ textarea.ACT {
   width: 10px;
 }
 
-label {
-  font-size: 11px;
-  padding-left: 3px;
-}
-
 .bigger {
   font-size: 1.1em;
 }
@@ -319,14 +484,6 @@ input[type='checkbox'].hidden:checked + label::before {
   background: #222;
 }
 
-input[type='text'] {
-  display: inline-block;
-  height: 22px;
-  padding: 0.2em 0.4em;
-  text-align: center;
-  width: 45px;
-}
-
 
 /* REFRACTION PANEL */
 
@@ -384,6 +541,18 @@ input[type='text'] {
   font-size: 10px;
 }
 
+/* Ordered ahead of #CTL_box table below solely to satisfy stylelint's
+ * no-descending-specificity rule; this has no effect on the rendered styles.
+ */
+.tab_content table {
+  min-height: 2in;
+  text-align: left;
+}
+
+.data table {
+  width: 100%;
+}
+
 #CTL_box table {
   margin: 0 auto 5px;
 }
@@ -423,10 +592,6 @@ input[type='text'] {
   padding: 2px;
 }
 
-.refraction li {
-  float: left;
-}
-
 .refraction input[type='text'] {
   display: inline-block;
   height: 25px;
@@ -437,10 +602,6 @@ input[type='text'] {
 
 .refraction select {
   width: 110px;
-}
-
-.refraction b {
-  font-weight: bold;
 }
 
 .Guidance {
@@ -502,6 +663,18 @@ input[type='text'] {
 .vitals_right {
   float: right;
   margin-right: 3px;
+}
+
+/* Ordered ahead of .vitals tr td input below solely to satisfy stylelint's
+ * no-descending-specificity rule; this has no effect on the rendered styles.
+ */
+input {
+  background-color: #ccf;
+  color: var(--dark);
+}
+
+.current_W input {
+  background-color: #fff !important;
 }
 
 .vitals tr td input {
@@ -606,7 +779,6 @@ input[type='text'] {
   background-color: #e8eef6;
 }
 
-.current_W input,
 .current_W textarea {
   background-color: #fff !important;
 }
@@ -619,20 +791,9 @@ input[type='text'] {
   background-color: var(--white);
 }
 
-.tab_content table {
-  min-height: 2in;
-  text-align: left;
-}
-
 .tab_content td {
   font-size: 12px;
   padding-left: 5px;
-}
-
-th {
-  color: var(--dark);
-  font-size: 1em;
-  text-align: center;
 }
 
 .QP_not {
@@ -735,8 +896,8 @@ body {
 
 textarea.EXTTEXT {
   font-size: 1em;
-  height: 0.4in;
-  max-height: 0.5in;
+  height: 0.42in;
+  max-height: 0.42in;
   max-width: 1in;
 
   /* narrow_textarea */
@@ -804,26 +965,11 @@ textarea.ANTSEGTEXT {
 }
 
 #tabs {
+  font-size: 1em;
+  line-height: normal;
   list-style: none;
-  margin: 0 0 0 10px;
-}
-
-#tabs li {
-  display: inline;
-}
-
-#tabs li a {
-  background-color: #cc9;
-  border: 2px solid #ccc;
-  border-bottom: 0;
-  border-radius: 5px 5px 0 0;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  box-shadow: 0 5px 9px #888;
-  color: var(--dark);
-  outline: none;
-  padding: 4px 6px;
-  text-decoration: none;
+  margin: 0 auto;
+  width: 95%;
 }
 
 #tabs li a:hover {
@@ -948,12 +1094,6 @@ textarea.ANTSEGTEXT {
 
 .top {
   vertical-align: top;
-}
-
-#tabs {
-  line-height: normal;
-  margin: 0 auto;
-  width: 95%;
 }
 
 #tabs ul {
@@ -1156,17 +1296,6 @@ textarea.ANTSEGTEXT {
   background-color: var(--warning);
 }
 
-textarea {
-  font-size: 0.9em;
-}
-
-textarea.EXTTEXT {
-  height: 0.42in;
-  max-height: 0.42in;
-  max-width: 1in;
-  width: 1in;
-}
-
 .wide_textarea {
   left: 0.1in;
   margin: 0 auto;
@@ -1235,16 +1364,6 @@ textarea.EXTTEXT {
   background-color: var(--warning);
   cursor: pointer;
   text-decoration: none;
-}
-
-.closeButton:hover a {
-  background-color: var(--warning);
-  text-decoration: none;
-}
-
-.closeButton a:link {
-  color: var(--dark);
-  outline: none;
 }
 
 .closeButton_2 {
@@ -1320,24 +1439,6 @@ textarea.EXTTEXT {
   padding: 0;
 }
 
-#header li {
-  background: url('../../../forms/eye_mag/images/tabright.gif') top right no-repeat;
-  float: left;
-  margin: 0;
-}
-
-#header a {
-  background: url('../../../forms/eye_mag/images/tableft.gif') top left no-repeat;
-  color: #ffc;
-  display: block;
-  padding: 0.6em 1em 0.25em;
-  text-decoration: none;
-}
-
-#header a:hover {
-  color: var(--white);
-}
-
 #header #selected {
   background-image: url('images/tabrightactive.gif');
   font-weight: bold;
@@ -1363,7 +1464,7 @@ h1 {
   border-bottom: 2px solid;
   border-color: #89a9c7;
   color: #1775d5;
-  font: small-caps italic bold 1.9em Arial, arial, helvetica, sans-seif;
+  font: small-caps italic bold 1.9em Arial, arial, helvetica, sans-seif, sans-serif;
   letter-spacing: 0.1em;
   margin: 0 0 2px;
   padding: 6px 0 4px;
@@ -1382,7 +1483,6 @@ h1 {
 
 .ACT_selected {
   background-color: var(--white);
-  border-bottom: 9;
   border-radius: 7px 7px 0 0;
   border-left: 1px solid var(--dark);
   border-right: 1px solid var(--dark);
@@ -1515,32 +1615,13 @@ input[type='text'].fullscreen {
 
 }
 
-.PRIORS textarea,
-input {
+.PRIORS textarea {
   background-color: #ccf;
   color: var(--dark);
 }
 
-.PRIORS a {
-  text-decoration: none;
-}
-
 .Draw_class {
   padding: 2px;
-}
-
-.navbar-custom {
-  background-color: #1d62f0;
-  box-shadow: 0 2px 8px #c0c0c0;
-  color: var(--dark);
-}
-
-.navbar-custom,
-.navbar-nav > li > li:focus {
-  background-color: #3e76c2;
-  border-radius: 0;
-  color: var(--white);
-  top: 0;
 }
 
 .ui-widget-header {
@@ -1549,41 +1630,19 @@ input {
 }
 
 .navbar-custom {
+  background-color: #3e76c2;
+  border-radius: 0;
+  box-shadow: 0 2px 8px #c0c0c0;
   color: var(--dark);
   margin: 0;
 
   /* just changes the base font color */
   padding: 2px;
-}
-
-.navbar-nav > li > a {
-  color: var(--dark);
-
-  /* just changes the base font color */
-  padding: 6px 20px 4px;
-}
-
-.nav.navbar-right:last-child > li {
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
-.nav > li > a:focus,
-.nav > li:focus {
-  background-color: #1c5ecf;
-
-  /* this is the "hover" blue */
-  color: var(--white);
-  text-decoration: none;
-
-  /* #33aa33; <--- this is kelly green */
+  top: 0;
 }
 
 .navbar-custom,
-.navbar-nav,
-.nav > .active > a,
-.navbar-nav > .active > a:hover,
-.navbar-nav > .active > a:focus {
+.navbar-nav {
   background-color: #c9dbf2;
 }
 
@@ -1594,18 +1653,6 @@ input {
 
 .dropdown-menu {
   background-color: #dee9f7;
-}
-
-.dropdown-menu > li > a:hover,
-.dropdown-menu > li > a:focus {
-  background-color: #1c5ecf;
-  color: var(--white);
-
-  /* #262626; */
-  text-decoration: none;
-
-  /* #3E76C2; */
-  text-shadow: none;
 }
 
 .navbar-brand {
@@ -1632,11 +1679,6 @@ input {
     background-color:var(--warning);
     height:24px;
     */
-}
-
-a:hover,
-a:focus {
-  text-decoration: none;
 }
 
 .icon-bar {
@@ -1704,6 +1746,24 @@ a:focus {
   width: 140px;
 }
 
+/* Ordered ahead of #right-panel div span / #Visions_A below solely to
+ * satisfy stylelint's no-descending-specificity rule; this has no effect
+ * on the rendered styles.
+ */
+.issues span {
+  margin-right: 5px;
+}
+
+#mid_menu span {
+  margin: 2px 5px;
+  padding: 8px 10px;
+}
+
+#mid_menu span span {
+  margin: 2px;
+  padding: 0;
+}
+
 #right-panel div span {
   margin: 2px;
 }
@@ -1759,11 +1819,6 @@ a:focus {
   position: absolute;
   transform: rotate(90deg);
   z-index: 99;
-}
-
-.left_menu_tab a {
-  color: var(--white) !important;
-  font-size: 1em;
 }
 
 .QP_shorten {
@@ -1837,10 +1892,6 @@ a:focus {
 
 .ui-draggable-dragging {
   box-shadow: 5px 5px 9px var(--danger);
-}
-
-.build_PLAN li:hover {
-  background: var(--warning);
 }
 
 .building_blocks {
@@ -1924,14 +1975,6 @@ a:focus {
   width: 300px;
 }
 
-.build_PLAN li {
-  background: #eee;
-  margin: 1em;
-  padding: 0.5em;
-  padding-left: 42px;
-  position: relative;
-}
-
 li .handle {
   display: inline-block;
   padding: 0.4em;
@@ -1980,11 +2023,6 @@ li .handle {
   width: 100%;
 }
 
-.issues span {
-
-  margin-right: 5px;
-}
-
 .ROS_class {
   width: 100%;
 }
@@ -1992,10 +2030,6 @@ li .handle {
 .ROS_class td {
   padding: 2px;
   vertical-align: baseline;
-}
-
-.data table {
-  width: 100%;
 }
 
 /*
@@ -2119,10 +2153,6 @@ View.php
   width: 4.1in;
 }
 
-#tabs_container {
-  margin-top: 5px;
-}
-
 .count_HPI {
   width: 250px;
 }
@@ -2183,33 +2213,11 @@ View.php
   width: 2.5in;
 }
 
-#tabs {
-  font-size: 1em;
-}
-
 #tabs_vision {
   font-size: 0.5em;
   line-height: normal;
   margin: 3px auto 0;
   list-style: none;
-}
-
-#tabs_vision li {
-  display: inline;
-}
-
-#tabs_vision li a {
-  background-color: #cc9;
-  border: 2px solid #ccc;
-  border-bottom: 0;
-  border-radius: 5px 5px 0 0;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  box-shadow: 0 5px 9px #888;
-  color: var(--dark);
-  outline: none;
-  padding: 4px 6px;
-  text-decoration: none;
 }
 
 #Lyr31 {
@@ -2516,7 +2524,6 @@ View.php
 .pupil_dim_comments {
   border: 0;
   left: 1.55in;
-  padding: auto;
   position: absolute;
   top: 0.2in;
 }
@@ -2547,6 +2554,15 @@ View.php
 
 #LayerVision_VAHx tr:nth-child(even) {
   background-color: #d6eeee;
+}
+
+/* Ordered ahead of #LayerVision_VAHx td below solely to satisfy stylelint's
+ * no-descending-specificity rule; this has no effect on the rendered styles.
+ */
+.PMSFH_table td {
+  min-height: 24px;
+  min-width: 1.6in;
+  padding: 5px;
 }
 
 #LayerVision_VAHx  td {
@@ -2643,16 +2659,6 @@ textarea[name='COMMENTS_W'] {
   font-size: 0.9em;
   margin: 10px;
   white-space: nowrap;
-}
-
-#mid_menu span {
-  margin: 2px 5px;
-  padding: 8px 10px;
-}
-
-#mid_menu span span {
-  margin: 2px;
-  padding: 0;
 }
 
 #IOP_dil {
@@ -2787,6 +2793,14 @@ div[name='prior_selector'] {
   top: 0.1in;
 }
 
+/* Ordered ahead of #EXT_left_1 table:nth-of-type(1) below solely to satisfy
+ * stylelint's no-descending-specificity rule; this has no effect on the
+ * rendered styles.
+ */
+#NEURO_MOTILITY table {
+  width: 100%;
+}
+
 #EXT_left_1 table:nth-of-type(1),
 #ANTSEG_left_1 table:nth-of-type(1),
 #RETINA_left_1 table:nth-of-type(1),
@@ -2815,10 +2829,6 @@ div[name='prior_selector'] {
   margin: 2px;
   padding: 0 15px;
   width: 195px;
-}
-
-#NEURO_MOTILITY table {
-  width: 100%;
 }
 
 #EXT_left_1 table:nth-of-type(2),
@@ -2929,12 +2939,6 @@ input[type='checkbox'] {
   position: relative;
   white-space: nowrap;
   z-index: 10;
-}
-
-.PMSFH_table td {
-  min-height: 24px;
-  min-width: 1.6in;
-  padding: 5px;
 }
 
 .PMSFH_header {
