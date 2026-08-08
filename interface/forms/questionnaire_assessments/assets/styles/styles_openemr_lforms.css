@@ -183,7 +183,7 @@ span {
 .lhc-form .lhc-copyright-button {
   background-color: transparent;
   color: var(--primary-color);
-  border: none;
+  border: 0;
   padding: 0;
   cursor: pointer;
 }
@@ -312,7 +312,7 @@ span.loading-indicator-container {
   vertical-align: middle;
   background-color: transparent;
   color: #066aa0;
-  border: none;
+  border: 0;
 }
 
 .lhc-form .lhc-help-button:hover,
@@ -387,7 +387,7 @@ span.loading-indicator-container {
 }
 
 .lhc-form lhc-item.lhc-first-item > lhc-item-question {
-  border-top: none;
+  border-top: 0;
 }
 
 .lhc-form .prefix {
@@ -832,7 +832,7 @@ lhc-item-datetime .ant-picker-input > input {
 }
 
 lhc-item-time .ant-picker-input > input[type='text'] {
-  border: none;
+  border: 0;
   padding-left: 0;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -910,21 +910,21 @@ lhc-item-time .ant-picker-input > input::input-placeholder {
 
 .lhc-layout-horizontal .lhc-form-horizontal-table td.lhc-de-button {
   padding-left: 2px;
-  border-right: none;
+  border-right: 0;
 }
 
 .lhc-layout-horizontal table.lhc-form-horizontal-table {
-  border: none;
+  border: 0;
   margin: 2px 4px 0 1px;
 }
 
 .lhc-layout-horizontal .lhc-form-horizontal-table tr {
-  border: none;
+  border: 0;
 }
 
 .lhc-layout-horizontal .lhc-form-horizontal-table tr td {
-  border-right: none;
-  border-left: none;
+  border-right: 0;
+  border-left: 0;
 }
 
 .lhc-layout-horizontal .lhc-form-horizontal-table .lhc-de-button {
@@ -2870,7 +2870,7 @@ mark {
 }
 
 .ant-radio-group > .ant-badge:not(:first-child) > .ant-radio-button-wrapper {
-  border-left: none;
+  border-left: 0;
 }
 
 .ant-radio-wrapper {
@@ -10248,7 +10248,7 @@ span.ant-radio + * {
 .ant-picker-input > input-borderless:hover,
 .ant-picker-input > input-borderless[disabled] {
   background-color: transparent;
-  border: none;
+  border: 0;
   box-shadow: none;
 }
 
@@ -11291,7 +11291,7 @@ _:fullscreen .ant-picker-range-wrapper .ant-picker-year-panel .ant-picker-cell {
   right: 6px;
   left: 0;
   border-right: 1px dashed #7ec1ff;
-  border-left: none;
+  border-left: 0;
   border-radius: 0 2px 2px 0;
 }
 
@@ -11301,7 +11301,7 @@ _:fullscreen .ant-picker-range-wrapper .ant-picker-year-panel .ant-picker-cell {
 .ant-picker-panel-rtl tr > .ant-picker-cell-in-view.ant-picker-cell-range-hover:not(.ant-picker-cell-selected):last-child::after {
   right: 0;
   left: 6px;
-  border-right: none;
+  border-right: 0;
   border-left: 1px dashed #7ec1ff;
   border-radius: 2px 0 0 2px;
 }
@@ -11330,7 +11330,7 @@ _:fullscreen .ant-picker-range-wrapper .ant-picker-year-panel .ant-picker-cell {
 
 .ant-picker-inline {
   padding: 0;
-  border: none;
+  border: 0;
 }
 
 .ant-picker-inline .ant-picker-range-arrow {
@@ -11434,7 +11434,7 @@ _:fullscreen .ant-picker-range-wrapper .ant-picker-year-panel .ant-picker-cell {
 .ant-input-affix-wrapper-borderless:hover,
 .ant-input-affix-wrapper-borderless[disabled] {
   background-color: transparent;
-  border: none;
+  border: 0;
   box-shadow: none;
 }
 
@@ -11493,7 +11493,7 @@ textarea.ant-input-affix-wrapper {
 
 .ant-input-affix-wrapper > .ant-input {
   font-size: inherit;
-  border: none;
+  border: 0;
   outline: 0;
 }
 
@@ -11747,7 +11747,7 @@ textarea.ant-input-affix-wrapper {
 .ant-input-borderless:hover,
 .ant-input-borderless[disabled] {
   background-color: transparent;
-  border: none;
+  border: 0;
   box-shadow: none;
 }
 
@@ -12267,7 +12267,7 @@ textarea.ant-input {
 }
 
 .ant-input-affix-wrapper.ant-input-affix-wrapper-rtl > input.ant-input {
-  border: none;
+  border: 0;
   outline: 0;
 }
 
