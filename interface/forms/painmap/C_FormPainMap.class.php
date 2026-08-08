@@ -54,7 +54,7 @@ class C_FormPainMap extends C_AbstractClickmap
         $formId = is_numeric($form_id) ? (int) $form_id : 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, self::$FORM_CODE);
 
-        return parent::view_action($form_id);
+        return parent::view_action((string) $formId);
     }
 
     /**

@@ -25,4 +25,4 @@ require('C_FormPainMap.class.php');
 $c = new C_FormPainMap();
 
 /* Render a 'view/edit form' page. */
-echo $c->view_action(filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT));
+echo $c->view_action((string) filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT));
