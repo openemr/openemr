@@ -27,7 +27,16 @@ Two moves:
 
 In `full-auto` mode, everything downstream (Conductor + Finalize + Docs merges, tag creation, package build + Release object, docker orchestrator cascade, announcements) is automated. In `semi-auto` mode (default), only the Conductor PR merges automatically; the maintainer manually merges Finalize + Docs after review. See [runbook steps 6–15](#release-runbook) for the full sequence.
 
-### 4. Re-run acceptance testing on a stalled release
+### 4. Amend the shipped release with newly-published GHSAs
+
+Only needed when security advisories were held pending the release and get published in the post-ship window (days-to-weeks after the tag). Order matters:
+
+1. Publish each GHSA in `openemr/openemr` with the `Patched versions` field set to the **exact** release string (e.g. `8.2.0` — no ranges, no comma-separated lists; the matcher is strict-exact per [GHSA → CHANGELOG matching](#what-each-pr-contains)).
+2. Trigger [`release-amendment.yml`](../.github/workflows/release-amendment.yml) via `workflow_dispatch` — pick the `version` + `rel_branch` that was just shipped.
+
+The workflow re-runs `ChangelogMutator` + `CompatibilityMutator` against the post-tag state, opens sibling `release-amendment/<version>-<rel_branch>` + `release-amendment/<version>-master` CHANGELOG PRs, and in the same run updates the GitHub Release body (`gh release edit --notes-file`) + the sibling `changelog.md` Release attachment (`gh release upload --clobber`) — so all four surfaces converge without waiting for the CHANGELOG PRs to merge. Idempotent — re-dispatching without new GHSAs produces empty PRs and a no-op Release edit. See the [Release-amendment PRs section](#release-amendment-prs--release-amendmentversion-rel-branch-and-release-amendmentversion-master-in-openemropenemr).
+
+### 5. Re-run acceptance testing on a stalled release
 
 For confirmed-transient acceptance flakes on a known-good artifact — replaces the ~15 min build-package rerun with a ~5-10 min acceptance-only rerun that also auto-publishes on green:
 
@@ -36,9 +45,9 @@ For confirmed-transient acceptance flakes on a known-good artifact — replaces 
 
 Both **must dispatch from `--ref master`** — workflows reject other refs. See [runbook step 10](#release-runbook) (tarball) + [step 12](#release-runbook) (docker) for guardrails + when to prefer this over "Re-run failed jobs".
 
-### 5. Bypass acceptance testing on a stalled release
+### 6. Bypass acceptance testing on a stalled release
 
-**Last-resort escape hatch** for confirmed test-side flakes on a known-good artifact that keeps failing acceptance. Dispatch the same workflow as action 4 with `skip_acceptance=true` + a required non-empty `skip_acceptance_reason` explaining the specific flake being bypassed (empty or whitespace-only reason fails the workflow loudly). Bypass reason lands in the workflow run-name + a `::warning::` annotation + a `GITHUB_STEP_SUMMARY` block for audit.
+**Last-resort escape hatch** for confirmed test-side flakes on a known-good artifact that keeps failing acceptance. Dispatch the same workflow as action 5 with `skip_acceptance=true` + a required non-empty `skip_acceptance_reason` explaining the specific flake being bypassed (empty or whitespace-only reason fails the workflow loudly). Bypass reason lands in the workflow run-name + a `::warning::` annotation + a `GITHUB_STEP_SUMMARY` block for audit.
 
 **Do NOT use** on a first-time / never-validated artifact, or repeatedly on the same flake class (that's a signal to fix the flake, not bypass — the audit trail is designed to make repeat-bypass visible). See [runbook step 10 skip-acceptance paragraph](#release-runbook) + the [acceptance-testing plan's Phase 14 section](artifact-acceptance-testing-plan.md) for the full when-to-use / when-NOT-to-use guidance.
 
