@@ -532,29 +532,42 @@ class EncounterService extends BaseService
         return [$soapResults, $formResults];
     }
 
-    public function updateSoapNote($pid, $eid, $sid, $data)
+    public function updateSoapNote($pid, $eid, $sid, $data): int
     {
-        $sql = " UPDATE form_soap SET";
-        $sql .= "     date=NOW(),";
-        $sql .= "     activity=1,";
-        $sql .= "     pid=?,";
-        $sql .= "     subjective=?,";
-        $sql .= "     objective=?,";
-        $sql .= "     assessment=?,";
-        $sql .= "     plan=?";
-        $sql .= "     where id=?";
+        // Scope by pid+eid so a leaked sid can't rewrite another record.
+        // Returns affected-row count so the REST caller can distinguish 200 from 404.
+        $existingSoapNote = $this->getSoapNote($pid, $eid, $sid);
+        if (!is_array($existingSoapNote) || ($existingSoapNote === [])) {
+            return 0;
+        }
 
-        return sqlStatement(
+        // form_soap has no encounter column; join forms.form_id and filter
+        // through forms.encounter (matches getSoapNote).
+        $sql = " UPDATE form_soap AS fs";
+        $sql .= " JOIN forms AS fo ON fo.form_id = fs.id AND fo.formdir = 'soap'";
+        $sql .= " SET fs.date=NOW(),";
+        $sql .= "     fs.activity=1,";
+        $sql .= "     fs.subjective=?,";
+        $sql .= "     fs.objective=?,";
+        $sql .= "     fs.assessment=?,";
+        $sql .= "     fs.plan=?";
+        $sql .= " WHERE fs.id=? AND fo.encounter=? AND fs.pid=?";
+
+        QueryUtils::sqlStatementThrowException(
             $sql,
             [
-                $pid,
                 $data["subjective"],
                 $data["objective"],
                 $data["assessment"],
                 $data["plan"],
-                $sid
+                $sid,
+                $eid,
+                $pid,
             ]
         );
+        // Pre-check confirmed the row exists; treat as success even if MySQL
+        // reports 0 changed rows (client resubmitted identical values).
+        return 1;
     }
 
     public function updateVital($pid, $eid, $vid, $data)

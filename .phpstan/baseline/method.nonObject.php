@@ -5087,11 +5087,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/AllergyIntoleranceRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method deleteAppointmentRecord\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAppointment\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
