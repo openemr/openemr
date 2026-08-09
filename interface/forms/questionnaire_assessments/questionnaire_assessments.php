@@ -15,6 +15,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -129,6 +130,10 @@ try {
             'questionnaire_assessments',
             $nonNegativeInt($session->get('pid', 0)) ?? 0
         );
+
+        if (!$isPortal) {
+            EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'questionnaire_assessments');
+        }
 
         $questionnaireJson = is_string($form['questionnaire'] ?? null)
             ? $form['questionnaire']

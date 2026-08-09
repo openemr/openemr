@@ -447,8 +447,8 @@ class C_FormVitals
         $vitalsArray = [];
         if (!empty($_POST['id'])) {
             $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
-            // Verify the vital belongs to this patient/encounter to prevent IDOR.
-            // If not, treat as a new form (ignore the supplied id).
+            // If the vital doesn't belong to this patient/encounter, treat
+            // as a new form and ignore the supplied id.
             if (
                 !empty($vitalsArray)
                 && ($vitalsArray['pid'] != $GLOBALS['pid'] || $vitalsArray['eid'] != $GLOBALS['encounter'])
