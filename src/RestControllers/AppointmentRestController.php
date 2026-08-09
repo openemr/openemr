@@ -18,6 +18,7 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Response;
 
 class AppointmentRestController
 {
@@ -290,13 +291,10 @@ class AppointmentRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function delete(mixed $pid, mixed $eid)
+    public function delete(string $pid, string $eid): Response
     {
         try {
-            // Verify the appointment belongs to the patient asserted by the URL
-            // before deleting, so an attacker who knows an eid cannot target a
-            // record on another patient's chart. Mirrors the pre-write ownership
-            // check pattern in EncounterService::updateVital().
+            // Scope deletion by pid so a leaked eid can't reach another patient's chart.
             $service = $this->appointmentService;
             assert($service instanceof AppointmentService);
             $existing = $service->getAppointment($eid);
@@ -306,7 +304,9 @@ class AppointmentRestController
             if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {
                 return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
             }
-            $service->deleteAppointmentRecord($eid);
+            if (!$service->deleteAppointmentRecord($eid, (int) $pid)) {
+                return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
+            }
             $serviceResult = ['message' => 'record deleted'];
         } catch (\Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception, 'eid' => $eid]);

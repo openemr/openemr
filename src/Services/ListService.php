@@ -211,11 +211,10 @@ class ListService
     /**
      * @param array<string, mixed> $data
      */
-    public function update(mixed $pid, mixed $list_id, mixed $list_type, array $data)
+    public function update(string $pid, string $list_id, string $list_type, array $data)
     {
-        // Scope by pid+type so an attacker who knows a list_id cannot rewrite
-        // a record on another patient's chart or under a different list type
-        // (medication vs surgery vs dental). Signature mirrors delete() above.
+        // Scope by pid+type so a leaked list_id can't rewrite a record on
+        // another patient's chart or under a different list type.
         $sql  = " UPDATE lists SET";
         $sql .= "     title=?,";
         $sql .= "     begdate=?,";

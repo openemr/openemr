@@ -482,13 +482,23 @@ class AppointmentService extends BaseService
         }
     }
 
-    public function deleteAppointmentRecord($eid)
+    public function deleteAppointmentRecord($eid, ?int $pid = null): bool
     {
         $servicePreDeleteEvent = new ServiceDeleteEvent($this, $eid);
         $this->getEventDispatcher()->dispatch($servicePreDeleteEvent, ServiceDeleteEvent::EVENT_PRE_DELETE);
-        QueryUtils::sqlStatementThrowException("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
+        if ($pid !== null) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM openemr_postcalendar_events WHERE pc_eid = ? AND pc_pid = ?",
+                [$eid, $pid]
+            );
+        } else {
+            QueryUtils::sqlStatementThrowException("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
+        }
+        $affected = QueryUtils::affectedRows();
+        $deleted = is_int($affected) && $affected > 0;
         $servicePostDeleteEvent = new ServiceDeleteEvent($this, $eid);
         $this->getEventDispatcher()->dispatch($servicePostDeleteEvent, ServiceDeleteEvent::EVENT_POST_DELETE);
+        return $deleted;
     }
 
     /**

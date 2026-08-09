@@ -542,14 +542,17 @@ class EncounterService extends BaseService
             return null;
         }
 
-        $sql = " UPDATE form_soap SET";
-        $sql .= "     date=NOW(),";
-        $sql .= "     activity=1,";
-        $sql .= "     subjective=?,";
-        $sql .= "     objective=?,";
-        $sql .= "     assessment=?,";
-        $sql .= "     plan=?";
-        $sql .= " WHERE id=? AND encounter=? AND pid=?";
+        // form_soap has no encounter column; join forms.form_id and filter
+        // through forms.encounter (matches getSoapNote).
+        $sql = " UPDATE form_soap AS fs";
+        $sql .= " JOIN forms AS fo ON fo.form_id = fs.id AND fo.formdir = 'soap'";
+        $sql .= " SET fs.date=NOW(),";
+        $sql .= "     fs.activity=1,";
+        $sql .= "     fs.subjective=?,";
+        $sql .= "     fs.objective=?,";
+        $sql .= "     fs.assessment=?,";
+        $sql .= "     fs.plan=?";
+        $sql .= " WHERE fs.id=? AND fo.encounter=? AND fs.pid=?";
 
         return sqlStatement(
             $sql,
