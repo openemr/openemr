@@ -327,8 +327,7 @@ class ListRestController
             return $validationHandlerResult;
         }
 
-
-        $serviceResult = $this->listService->update($data);
+        $serviceResult = $this->listService->update($pid, $list_id, $list_type, $data);
         return RestControllerHelper::responseHandler($serviceResult, ['id' => $list_id], 200);
     }
 

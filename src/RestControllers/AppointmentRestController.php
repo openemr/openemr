@@ -290,10 +290,23 @@ class AppointmentRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function delete($eid)
+    public function delete(mixed $pid, mixed $eid)
     {
         try {
-            $this->appointmentService->deleteAppointmentRecord($eid);
+            // Verify the appointment belongs to the patient asserted by the URL
+            // before deleting, so an attacker who knows an eid cannot target a
+            // record on another patient's chart. Mirrors the pre-write ownership
+            // check pattern in EncounterService::updateVital().
+            $service = $this->appointmentService;
+            assert($service instanceof AppointmentService);
+            $existing = $service->getAppointment($eid);
+            $existingPidRaw = (is_array($existing) && isset($existing[0]) && is_array($existing[0]))
+                ? ($existing[0]['pid'] ?? null)
+                : null;
+            if (!is_numeric($existingPidRaw) || !is_numeric($pid) || (int) $existingPidRaw !== (int) $pid) {
+                return RestControllerHelper::responseHandler(['message' => 'record not found'], null, 404);
+            }
+            $service->deleteAppointmentRecord($eid);
             $serviceResult = ['message' => 'record deleted'];
         } catch (\Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception, 'eid' => $eid]);

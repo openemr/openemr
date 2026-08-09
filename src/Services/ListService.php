@@ -208,14 +208,20 @@ class ListService
         );
     }
 
-    public function update($data)
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function update(mixed $pid, mixed $list_id, mixed $list_type, array $data)
     {
+        // Scope by pid+type so an attacker who knows a list_id cannot rewrite
+        // a record on another patient's chart or under a different list type
+        // (medication vs surgery vs dental). Signature mirrors delete() above.
         $sql  = " UPDATE lists SET";
         $sql .= "     title=?,";
         $sql .= "     begdate=?,";
         $sql .= "     enddate=?,";
         $sql .= "     diagnosis=?";
-        $sql .= " WHERE id=?";
+        $sql .= " WHERE id=? AND pid=? AND type=?";
 
         return sqlStatement(
             $sql,
@@ -224,7 +230,9 @@ class ListService
                 $data["begdate"],
                 $data["enddate"],
                 $data["diagnosis"],
-                $data["id"]
+                $list_id,
+                $pid,
+                $list_type,
             ]
         );
     }

@@ -421,7 +421,7 @@ return [
     },
     "DELETE /api/patient/:pid/appointment/:eid" => function ($pid, $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "appt");
-        $return = (new AppointmentRestController())->delete($eid);
+        $return = (new AppointmentRestController())->delete($pid, $eid);
 
         return $return;
     },

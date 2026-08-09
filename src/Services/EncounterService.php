@@ -534,25 +534,33 @@ class EncounterService extends BaseService
 
     public function updateSoapNote($pid, $eid, $sid, $data)
     {
+        // Verify the SOAP note belongs to this patient/encounter before updating
+        // to prevent IDOR where an attacker supplies another record's sid; matches
+        // the ownership pre-check pattern in updateVital().
+        $existingSoapNote = $this->getSoapNote($pid, $eid, $sid);
+        if (!is_array($existingSoapNote) || ($existingSoapNote === [])) {
+            return null;
+        }
+
         $sql = " UPDATE form_soap SET";
         $sql .= "     date=NOW(),";
         $sql .= "     activity=1,";
-        $sql .= "     pid=?,";
         $sql .= "     subjective=?,";
         $sql .= "     objective=?,";
         $sql .= "     assessment=?,";
         $sql .= "     plan=?";
-        $sql .= "     where id=?";
+        $sql .= " WHERE id=? AND encounter=? AND pid=?";
 
         return sqlStatement(
             $sql,
             [
-                $pid,
                 $data["subjective"],
                 $data["objective"],
                 $data["assessment"],
                 $data["plan"],
-                $sid
+                $sid,
+                $eid,
+                $pid,
             ]
         );
     }
