@@ -258,6 +258,9 @@ class ListRestController
         return RestControllerHelper::responseHandler($serviceResult, ['id' => $serviceResult], 201);
     }
 
+    /**
+     * @param array<int|string, mixed> $data
+     */
     #[OA\Put(
         path: '/api/patient/{pid}/dental_issue/{did}',
         description: 'Edit a dental issue',
@@ -315,7 +318,7 @@ class ListRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put($pid, $list_id, $list_type, $data)
+    public function put(string $pid, string $list_id, string $list_type, array $data)
     {
         $data['type'] = $list_type;
         $data['pid'] = $pid;

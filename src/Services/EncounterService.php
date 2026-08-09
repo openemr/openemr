@@ -532,14 +532,13 @@ class EncounterService extends BaseService
         return [$soapResults, $formResults];
     }
 
-    public function updateSoapNote($pid, $eid, $sid, $data)
+    public function updateSoapNote($pid, $eid, $sid, $data): int
     {
-        // Verify the SOAP note belongs to this patient/encounter before updating
-        // to prevent IDOR where an attacker supplies another record's sid; matches
-        // the ownership pre-check pattern in updateVital().
+        // Scope by pid+eid so a leaked sid can't rewrite another record.
+        // Returns affected-row count so the REST caller can distinguish 200 from 404.
         $existingSoapNote = $this->getSoapNote($pid, $eid, $sid);
         if (!is_array($existingSoapNote) || ($existingSoapNote === [])) {
-            return null;
+            return 0;
         }
 
         // form_soap has no encounter column; join forms.form_id and filter
@@ -554,7 +553,7 @@ class EncounterService extends BaseService
         $sql .= "     fs.plan=?";
         $sql .= " WHERE fs.id=? AND fo.encounter=? AND fs.pid=?";
 
-        return sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             $sql,
             [
                 $data["subjective"],
@@ -566,6 +565,8 @@ class EncounterService extends BaseService
                 $pid,
             ]
         );
+        $affected = QueryUtils::affectedRows();
+        return is_int($affected) && $affected > 0 ? $affected : 0;
     }
 
     public function updateVital($pid, $eid, $vid, $data)

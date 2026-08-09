@@ -40022,18 +40022,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
+    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
 ];
 $ignoreErrors[] = [

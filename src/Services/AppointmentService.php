@@ -496,8 +496,10 @@ class AppointmentService extends BaseService
         }
         $affected = QueryUtils::affectedRows();
         $deleted = is_int($affected) && $affected > 0;
-        $servicePostDeleteEvent = new ServiceDeleteEvent($this, $eid);
-        $this->getEventDispatcher()->dispatch($servicePostDeleteEvent, ServiceDeleteEvent::EVENT_POST_DELETE);
+        if ($deleted) {
+            $servicePostDeleteEvent = new ServiceDeleteEvent($this, $eid);
+            $this->getEventDispatcher()->dispatch($servicePostDeleteEvent, ServiceDeleteEvent::EVENT_POST_DELETE);
+        }
         return $deleted;
     }
 

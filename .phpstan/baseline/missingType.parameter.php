@@ -33237,26 +33237,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\ListRestController\\:\\:put\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\ListRestController\\:\\:put\\(\\) has parameter \\$list_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\ListRestController\\:\\:put\\(\\) has parameter \\$list_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\ListRestController\\:\\:put\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\MessageRestController\\:\\:delete\\(\\) has parameter \\$mid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/MessageRestController.php',

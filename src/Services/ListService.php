@@ -211,10 +211,11 @@ class ListService
     /**
      * @param array<string, mixed> $data
      */
-    public function update(string $pid, string $list_id, string $list_type, array $data)
+    public function update(string $pid, string $list_id, string $list_type, array $data): int
     {
         // Scope by pid+type so a leaked list_id can't rewrite a record on
-        // another patient's chart or under a different list type.
+        // another patient's chart or under a different list type. Returns
+        // affected-row count so the REST caller can distinguish 200 from 404.
         $sql  = " UPDATE lists SET";
         $sql .= "     title=?,";
         $sql .= "     begdate=?,";
@@ -222,7 +223,7 @@ class ListService
         $sql .= "     diagnosis=?";
         $sql .= " WHERE id=? AND pid=? AND type=?";
 
-        return sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             $sql,
             [
                 $data["title"],
@@ -234,6 +235,8 @@ class ListService
                 $list_type,
             ]
         );
+        $affected = QueryUtils::affectedRows();
+        return is_int($affected) && $affected > 0 ? $affected : 0;
     }
 
     public function delete($pid, $list_id, $list_type)

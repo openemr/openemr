@@ -22092,11 +22092,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\EncounterService\\:\\:updateSoapNote\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/EncounterService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\EncounterService\\:\\:updateVital\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
@@ -24138,11 +24133,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ListService\\:\\:insert\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ListService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ListService\\:\\:update\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ListService.php',
 ];
