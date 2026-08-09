@@ -15048,7 +15048,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 29,
+    'count' => 28,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
 ];
 $ignoreErrors[] = [
@@ -20787,7 +20787,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$foreign_id of static method Note\\:\\:notes_factory\\(\\) expects int, mixed given\\.$#',
+    'message' => '#^Parameter \\#1 \\$foreign_id of static method Note\\:\\:notes_factory\\(\\) expects int\\|string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
