@@ -7,18 +7,18 @@
  * session's active patient (and optionally, the session's active encounter).
  * Intended to be called at the top of form entry-point scripts
  * (`interface/forms/<form>/save.php`, `view.php`, `new.php`, and equivalents)
- * that accept an attacker-controllable `id` / `formid` request parameter.
+ * that read the form id from the request.
  *
  * Generalization of the portal-only guard previously offered by
  * `CoreFormToPortalUtility::confirmFormBootstrapPatient`. Where a form
  * has additional invariants (e.g. eye_mag's per-encounter binding), the
  * caller can opt into encounter enforcement via the fourth argument.
  *
- * Design: the security-relevant comparison is isolated in the pure
+ * Design: the ownership comparison is isolated in the pure
  * `isFormOwnedBySession()` method (unit-testable, no DB, no session, no
- * process termination) so the trust boundary has direct test coverage.
- * `assertFormBelongsToSessionPatient()` composes the pure check with a DB
- * fetch and terminates the request on mismatch via `AccessDeniedHelper::deny()`.
+ * process termination). `assertFormBelongsToSessionPatient()` composes
+ * the pure check with a DB fetch and terminates the request on mismatch
+ * via `AccessDeniedHelper::deny()`.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

@@ -13,13 +13,11 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormPriorAuth.class.php");
 
-use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
-use Symfony\Component\HttpFoundation\Response;
 
 class C_FormPriorAuth extends Controller
 {
@@ -63,11 +61,9 @@ class C_FormPriorAuth extends Controller
             return;
         }
 
+        // Empty-string POST id is the new-form case; missing/invalid → 0.
         $postId = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-        if ($postId === false) {
-            AccessDeniedHelper::deny('Invalid prior_auth form id', 'security-access', Response::HTTP_NOT_FOUND);
-        }
-        $formId = $postId ?? 0;
+        $formId = is_int($postId) ? $postId : 0;
         EncounterFormAccess::assertFormBelongsToSessionPatient($formId, 'prior_auth');
 
         $this->form = $formId > 0 ? new FormPriorAuth($formId) : new FormPriorAuth();
