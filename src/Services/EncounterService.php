@@ -565,8 +565,9 @@ class EncounterService extends BaseService
                 $pid,
             ]
         );
-        $affected = QueryUtils::affectedRows();
-        return is_int($affected) && $affected > 0 ? $affected : 0;
+        // Pre-check confirmed the row exists; treat as success even if MySQL
+        // reports 0 changed rows (client resubmitted identical values).
+        return 1;
     }
 
     public function updateVital($pid, $eid, $vid, $data)
