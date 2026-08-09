@@ -82,11 +82,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getLabProviders\\(\\) never returns null so it can be removed from the return type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getLabconfig\\(\\) never returns null so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',

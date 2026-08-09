@@ -1757,11 +1757,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getLabProviders\\(\\) should return array\\|null but returns array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getFacilities\\(\\) should return array\\|int but returns mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/patient.inc.php',
