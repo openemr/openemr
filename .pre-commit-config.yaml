@@ -175,7 +175,7 @@ repos:
 # briefly when upstream ships a new version. Dependabot bumps the hook rev
 # to close that window.
 - repo: https://github.com/AleksaC/hadolint-py
-  rev: v2.14.0
+  rev: v2.15.1
   hooks:
   - id: hadolint
     args:
