@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ 'Install Code Set'|xlt }}</title>
+    {{ setupHeader() }}
+
+    <style>
+        .dehead {
+            color: var(--black);
+            font-family: sans-serif;
+            font-size: 0.8125rem;
+            font-weight: bold;
+        }
+        .detail {
+            color: var(--black);
+            font-family: sans-serif;
+            font-size: 0.8125rem;
+            font-weight: normal;
+        }
+    </style>
+
+</head>
+
+<body class="body_top">
+<div class="container">
+    {% if messages %}
+    <div class="row">
+        <div class="col">
+            {% for key, messageList in messages %}
+                {% for message in messageList %}
+                    <p class="text-{{ key == 'success' ? 'success' : 'danger' }}">{{ message|text }}</p>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <form method='post' action='load_codes.php' enctype='multipart/form-data'
+          onsubmit='return top.restoreSession()'>
+
+        <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr class="dehead">
+                    <th colspan="2" class='text-center'>{{ 'Install Code Set'|xlt }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        {{ 'Code Type'|xlt }}
+                    </td>
+                    <td>
+                        <select name='form_code_type'>
+                            {% for codeType in supportedCodeTypes %}
+                                <option value='{{ codeType|attr }}' {% if codeType == selectedCodeType %}selected="selected"{% endif %}
+                                >{{ codeType|text }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="detail">
+                        {{ 'Source File'|xlt }}
+                        <input type="hidden" name="MAX_FILE_SIZE" value="{{ maxFileSize|attr }}" />
+                    </td>
+                    <td class="detail">
+                        <input type="file" name="form_file" size="40" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="detail">
+                        {{ 'Replace entire code set'|xlt }}
+                    </td>
+                    <td class="detail">
+                        <input type='checkbox' name='form_replace' value='1' {% if formReplace %}checked{% endif %} />
+                    </td>
+                </tr>
+                <tr class="bg-secondary">
+                    <td colspan="2" class="text-center detail">
+                        <input type='submit' class='btn btn-primary' name='bn_upload' value='{{ 'Upload and Install'|xla }}' />
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class='font-weight-bold text-center'>
+            {{ 'Be patient, some files can take several minutes to process!'|xlt }}
+        </p>
+
+        <!-- No translation because this text is long and US-specific and quotes other English-only text. -->
+        {% if showRxcuiHelp %}
+        <p class='text'>
+            <span class="font-weight-bold">RXCUI codes</span> may be downloaded from
+            <a href='https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html' rel="noopener" target='_blank'>
+                www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html</a>.
+            Get the "Current Prescribable Content Monthly Release" zip file, marked "no license required".
+            Then you can upload that file as-is here, or extract the file RXNCONSO.RRF from it and upload just
+            that (zipped or not). You may do the same with the weekly updates, but for those uncheck the
+            "{{ 'Replace entire code set'|xlt }}" checkbox above.
+
+            Note you will need to ensure the RXCUI code type is enabled from the Admin -&gt; Forms -&gt; Lists -&gt; Code Types
+            page before you can upload RXCUI codes.
+        </p>
+        {% endif %}
+        <div class="alert alert-info"><p>
+                <i class="fa fa-circle-info"></i> {{ "If your code sets are not loading, verify your php.ini post_max_size value and your upload_max_filesize has been set large enough to handle the file size you are uploading."|xlt }}
+            </p>
+        </div>
+    </form>
+</div>
+</body>
+</html>
