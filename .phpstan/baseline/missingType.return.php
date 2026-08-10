@@ -23907,11 +23907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FormService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FormService\\:\\:hasFormPermission\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FormService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\GlobalSetting\\:\\:addFieldOption\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Globals/GlobalSetting.php',

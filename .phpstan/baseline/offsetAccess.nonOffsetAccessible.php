@@ -4857,51 +4857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/bronchitis/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'value\' on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'largestId\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \\(int\\|string\\) on mixed\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_code\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/templates/careplan_reason_row.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_date_high\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/templates/careplan_reason_row.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_date_low\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/templates/careplan_reason_row.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_description\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/templates/careplan_reason_row.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'reason_status\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/templates/careplan_reason_row.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'examination\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/clinic_note/view.php',

@@ -2447,26 +2447,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/bronchitis/report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function care_plan_report\\(\\) has parameter \\$cols with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function care_plan_report\\(\\) has parameter \\$encounter with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function care_plan_report\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function care_plan_report\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function clinic_note_report\\(\\) has parameter \\$cols with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/clinic_note/report.php',
@@ -38173,11 +38153,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FormService\\:\\:getFormByEncounter\\(\\) has parameter \\$orderby with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FormService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FormService\\:\\:hasFormPermission\\(\\) has parameter \\$formDir with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FormService.php',
 ];
