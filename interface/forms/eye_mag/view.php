@@ -37,8 +37,8 @@ $form_id     = $id;
 $action      = $_REQUEST['action'] ?? null;
 $finalize    = $_REQUEST['finalize'] ?? null;
 $display     = $_REQUEST['display'] ?? null;
-// $pid and $encounter are set by globals.php from the session.
-// Use them instead of request parameters to prevent IDOR.
+// $pid and $encounter are set by globals.php from the session; use them
+// instead of request parameters.
 $pid = (int) $pid; // @phpstan-ignore variable.undefined (set by globals.php)
 $encounter = (int) $encounter; // @phpstan-ignore variable.undefined (set by globals.php)
 $refresh     = $_REQUEST['refresh'] ?? null;
