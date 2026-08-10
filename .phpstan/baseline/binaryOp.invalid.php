@@ -1112,11 +1112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between mixed and 1 results in an error\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/billing/payment_pat_sel.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\*" between mixed and \\-1 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/payment_pat_sel.inc.php',
