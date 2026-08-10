@@ -3187,12 +3187,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/add_edit_drug.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset decimal\\-int\\-string&non\\-falsy\\-string on mixed\\.$#',
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/add_edit_drug.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'message' => '#^Cannot access offset non\\-falsy\\-string&numeric\\-string on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/add_edit_drug.php',
 ];
@@ -7577,13 +7577,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset decimal\\-int\\-string on mixed\\.$#',
-    'count' => 2,
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 9,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 9,
+    'message' => '#^Cannot access offset numeric\\-string on mixed\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
@@ -8418,7 +8418,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'provider_id\' on array\\|false\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
 ];
 $ignoreErrors[] = [
@@ -10332,11 +10332,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms_admin/forms_admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access an offset on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'BGCOLOR1\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/globals.php',
@@ -10527,6 +10522,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pc_catid\' on array\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_endDate\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
@@ -10562,6 +10562,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pc_prefcatid\' on array\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_recurrspec\' on array\\|false\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
@@ -10579,6 +10584,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_startTime\' on array\\|false\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pc_time\' on array\\|false\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
 $ignoreErrors[] = [
@@ -11407,7 +11417,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1 on non\\-empty\\-list\\<string\\>\\|false\\.$#',
+    'message' => '#^Cannot access offset 1 on list\\<string\\>\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
 ];
@@ -20277,7 +20287,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/diagnosis.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset decimal\\-int\\-string&non\\-falsy\\-string on mixed\\.$#',
+    'message' => '#^Cannot access offset non\\-falsy\\-string&numeric\\-string on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/diagnosis.php',
 ];
@@ -24017,6 +24027,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset float\\|int\\<0, 48\\> on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/collections_report.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',
@@ -25472,13 +25487,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset decimal\\-int\\-string&non\\-falsy\\-string on mixed\\.$#',
-    'count' => 4,
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 3,
+    'message' => '#^Cannot access offset non\\-falsy\\-string&numeric\\-string on mixed\\.$#',
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
@@ -26258,7 +26273,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
@@ -28803,7 +28818,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 12,
+    'count' => 8,
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
 ];
 $ignoreErrors[] = [
@@ -28933,7 +28948,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
-    'count' => 29,
+    'count' => 33,
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
 ];
 $ignoreErrors[] = [
@@ -33172,13 +33187,23 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pc_apptstatus\' on array\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pc_catid\' on array\\|false\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_duration\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_eventDate\' on array\\|false\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
 ];
 $ignoreErrors[] = [
@@ -33198,6 +33223,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_pid\' on array\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pc_prefcatid\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
 ];
@@ -36253,7 +36283,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
-    'count' => 69,
+    'count' => 64,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
@@ -38904,6 +38934,26 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'allow\' on mixed\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'query\' on 0\\|0\\.0\\|\'\'\\|\'0\'\\|array\\<\'acl_id\'\\|\'allow\'\\|\'return_value\'\\|int\\<0, max\\>, mixed\\>\\|false\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 2 on mixed\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [
@@ -44212,6 +44262,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset string on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
@@ -44518,6 +44573,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'value_unit\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
 ];

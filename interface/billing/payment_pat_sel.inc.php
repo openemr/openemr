@@ -94,7 +94,7 @@ if (isset($_POST["mode"])) {
                         </div>
                     </fieldset>
                 <?php //New distribution section
-                $CountIndex = 0;
+                $CountIndex ??= 0;
                 $CountIndexBelow = 0;
                 $PreviousEncounter = 0;
                 $PreviousPID = 0;

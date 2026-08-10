@@ -12,16 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$LBF_DIAGS_SECTION in isset\\(\\) always exists and is always null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$LBF_SERVICES_SECTION in isset\\(\\) always exists and is always null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$code_found in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -70,6 +60,11 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$selectedProvider in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/daily_summary_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$oemr_ui in isset\\(\\) always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/pat_ledger.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$observation_description in isset\\(\\) always exists and is not nullable\\.$#',

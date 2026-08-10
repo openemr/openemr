@@ -9,6 +9,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of \\|\\| is always false\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteria.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Result of \\|\\| is always false\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
 ];
 $ignoreErrors[] = [

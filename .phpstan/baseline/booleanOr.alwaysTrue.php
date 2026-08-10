@@ -24,6 +24,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of \\|\\| is always true\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Search/FhirSearchWhereClauseBuilder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Result of \\|\\| is always true\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
 ];
 $ignoreErrors[] = [

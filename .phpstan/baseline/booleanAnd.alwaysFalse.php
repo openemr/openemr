@@ -8,6 +8,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/ListAuthorizations.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Result of && is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/orders/single_order_results.inc.php',
 ];
@@ -49,6 +54,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_image.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Result of && is always false\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionThrower.php',
 ];
 $ignoreErrors[] = [
@@ -60,6 +70,11 @@ $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/Types/BillingCodeType.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Result of && is always false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
