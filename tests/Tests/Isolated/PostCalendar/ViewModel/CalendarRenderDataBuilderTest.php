@@ -523,4 +523,151 @@ final class CalendarRenderDataBuilderTest extends TestCase
 
         self::assertSame([], $result['providers']);
     }
+
+    public function testBuildDayPrintInEventLabelSharesBodyStartSlot(): void
+    {
+        // catid 2 (IN) labels used to sit one timeslot above the body
+        // (startInterval - 1). They now share the body's start slot so
+        // stacking can be handled in CSS.
+        $GLOBALS['disable_translation'] = true;
+        $builder = $this->builder(ViewType::DayPrint);
+
+        // 09:00 with 30-min slots starting at 08:00 → startInterval = 2
+        // timeslotHeightVal is hard-coded to 20 in the builder.
+        $result = $builder->buildDayPrintRenderData(
+            ['2026-03-15' => [$this->makeEvent(catid: 2, eid: 200, startTime: '09:00:00')]],
+            [$this->makeProvider()],
+            $this->makeTimes(),
+            30,
+            '20260315',
+            $this->shortDayNames(),
+            0,
+            '/img',
+            true
+        );
+
+        $providers = $this->arrayAt($result, 'providers');
+        self::assertIsArray($providers[0]);
+        $events = $providers[0]['events'];
+        self::assertIsArray($events);
+        self::assertCount(1, $events);
+        $inEvent = $events[0];
+        self::assertIsArray($inEvent);
+
+        self::assertSame(2, $inEvent['catid']);
+        // startInterval (2) * 20px = 40px — NOT (2 - 1) * 20 = 20px.
+        self::assertSame('40px', $inEvent['evtTop']);
+        self::assertSame('40px', $inEvent['inLabelTop']);
+        self::assertSame('20px', $inEvent['inLabelHeight']);
+        self::assertArrayHasKey('inLabelContent', $inEvent);
+    }
+
+    public function testBuildDayScreenExposesTimeslotHeightValAndInEventLabel(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $this->installDateformatSqlStubs();
+        $builder = $this->builder(ViewType::Day);
+
+        $result = $builder->buildDayScreenRenderData(
+            ['2026-03-15' => [$this->makeEvent(catid: 2, eid: 201, startTime: '09:00:00')]],
+            [$this->makeProvider()],
+            [$this->makeProvider()],
+            [['id' => 1, 'name' => 'Main', 'color' => '#ffffff']],
+            $this->makeTimes(),
+            30,
+            '20260315',
+            $this->shortDayNames(),
+            0,
+            0,
+            '/img',
+            '/openemr',
+            '?prev',
+            '?next',
+            'fa-chevron-left',
+            'fa-chevron-right',
+            '',
+            true,
+            'Sunday, March 15, 2026',
+            true
+        );
+
+        self::assertSame(20, $result['timeslotHeightVal']);
+
+        $providers = $this->arrayAt($result, 'providers');
+        self::assertIsArray($providers[0]);
+        $events = $providers[0]['events'];
+        self::assertIsArray($events);
+        self::assertCount(1, $events);
+        $inEvent = $events[0];
+        self::assertIsArray($inEvent);
+
+        self::assertSame(2, $inEvent['catid']);
+        self::assertSame('40px', $inEvent['evtTopCss']);
+        self::assertSame('40px', $inEvent['inLabelTopCss']);
+        self::assertSame('20px', $inEvent['inLabelHeightCss']);
+        self::assertArrayHasKey('inLabelContent', $inEvent);
+    }
+
+    public function testBuildWeekScreenExposesTimeslotHeightValAndInEventLabel(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $this->installDateformatSqlStubs();
+        $builder = $this->builder(ViewType::Week);
+
+        $result = $builder->buildWeekScreenRenderData(
+            ['2026-03-15' => [$this->makeEvent(catid: 2, eid: 202, startTime: '09:00:00')]],
+            [$this->makeProvider()],
+            [$this->makeProvider()],
+            [['id' => 1, 'name' => 'Main', 'color' => '#ffffff']],
+            $this->makeTimes(),
+            30,
+            '20260315',
+            $this->shortDayNames(),
+            0,
+            0,
+            '/img',
+            '/openemr',
+            '?prev',
+            '?next',
+            'fa-chevron-left',
+            'fa-chevron-right',
+            '',
+            true,
+            'Mar 15 - Mar 21 2026',
+            true
+        );
+
+        self::assertSame(20, $result['timeslotHeightVal']);
+
+        $providers = $this->arrayAt($result, 'providers');
+        self::assertIsArray($providers[0]);
+        $dayColumns = $providers[0]['dayColumns'];
+        self::assertIsArray($dayColumns);
+        self::assertCount(1, $dayColumns);
+        self::assertIsArray($dayColumns[0]);
+        $events = $dayColumns[0]['events'];
+        self::assertIsArray($events);
+        self::assertCount(1, $events);
+        $inEvent = $events[0];
+        self::assertIsArray($inEvent);
+
+        self::assertSame(2, $inEvent['catid']);
+        self::assertSame('40px', $inEvent['evtTopCss']);
+        self::assertSame('40px', $inEvent['inLabelTopCss']);
+        self::assertSame('20px', $inEvent['inLabelHeightCss']);
+        self::assertArrayHasKey('inLabelContent', $inEvent);
+    }
+
+    /**
+     * Screen decorators call dateformat() via addI18nDateDecoration(),
+     * which reaches getLanguageTitle() and needs a SQL layer. Isolated
+     * runs have no DB — install minimal procedural stubs once per process.
+     */
+    private function installDateformatSqlStubs(): void
+    {
+        // Functions are declared in a companion stub file so they live in
+        // the global namespace (not this test's namespace) and are only
+        // defined when the isolated suite has not already loaded sql.inc.php.
+        require_once __DIR__ . '/calendar_render_data_builder_sql_stubs.php';
+    }
 }
