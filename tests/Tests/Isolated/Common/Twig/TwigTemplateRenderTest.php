@@ -361,6 +361,41 @@ class TwigTemplateRenderTest extends TestCase
             ],
             $fixtureDir . '/appointments-with-future.html',
         ];
+
+        // Install Code Set page. The first case covers the post-upload render (messages of both
+        // types, a selected code type, the replace checkbox reflecting an unchecked submission and
+        // the RXCUI help paragraph); the second covers a module-only install where core's own
+        // importers have been filtered out.
+        yield 'super/load_codes with messages' => [
+            'super/load_codes.html.twig',
+            [
+                'csrfToken'          => 'test-csrf-token',
+                'messages'           => [
+                    'success' => ['Code set load successful.', 'Codes inserted: 12, codes updated: 3'],
+                    'error'   => ['The code set could not be imported. Check the system log for details.'],
+                ],
+                'supportedCodeTypes' => ['RXCUI', 'LOINC', 'ICPC2'],
+                'selectedCodeType'   => 'LOINC',
+                'formReplace'        => false,
+                'maxFileSize'        => 350000000,
+                'showRxcuiHelp'      => true,
+            ],
+            $fixtureDir . '/load-codes-with-messages.html',
+        ];
+
+        yield 'super/load_codes without rxcui' => [
+            'super/load_codes.html.twig',
+            [
+                'csrfToken'          => 'test-csrf-token',
+                'messages'           => [],
+                'supportedCodeTypes' => ['ICPC2'],
+                'selectedCodeType'   => '',
+                'formReplace'        => true,
+                'maxFileSize'        => 350000000,
+                'showRxcuiHelp'      => false,
+            ],
+            $fixtureDir . '/load-codes-no-rxcui.html',
+        ];
     }
 
     /**
