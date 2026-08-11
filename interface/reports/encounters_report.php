@@ -202,17 +202,6 @@ $res = sqlStatement($query, $sqlBindArray);
             });
         });
 
-        function dosort(orderby) {
-            var f = document.forms[0];
-            f.form_orderby.value = orderby;
-            f.submit();
-            return false;
-        }
-
-        function refreshme() {
-            document.forms[0].submit();
-        }
-
         // Called to switch to the specified encounter having the specified DOS.
         function toEncounter(newpid, enc) {
             top.restoreSession();
@@ -237,6 +226,11 @@ $res = sqlStatement($query, $sqlBindArray);
             return false;
         }
 
+        function refreshme() {
+            showReportSpinner();
+            document.forms[0].submit();
+        }
+
     </script>
 </head>
 <body class="body_top">
@@ -249,7 +243,8 @@ $res = sqlStatement($query, $sqlBindArray);
 <?php echo text(oeFormatShortDate($form_from_date)) . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatShortDate($form_to_date)); ?>
 </div>
 
-<form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
+<form method='post' name='theform' id='theform' action='encounters_report.php'
+      onsubmit='if (!top.restoreSession()) { return false; } showReportSpinner(); return true;'>
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_loading" class="text-center m-5" style="display:none;">
@@ -355,17 +350,17 @@ $res = sqlStatement($query, $sqlBindArray);
         <tr>
             <td>
                 <div class="text-center">
-          <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-secondary btn-save'
-                          onclick='$("#form_refresh").attr("value","true"); showReportSpinner(); $("#theform").submit();'>
-                          <?php echo xlt('Submit'); ?>
-                      </a>
+                    <div class="btn-group" role="group">
+                        <a href='#' class='btn btn-secondary btn-save'
+                            onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <?php echo xlt('Submit'); ?>
+                        </a>
                         <?php if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) { ?>
-              <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
-                                <?php echo xlt('Print'); ?>
+                        <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
+                            <?php echo xlt('Print'); ?>
                         </a>
                         <?php } ?>
-          </div>
+                    </div>
                 </div>
             </td>
         </tr>
