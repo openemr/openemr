@@ -14,6 +14,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -45,6 +46,8 @@ if (empty($formid)) {
         $formid = $_POST['formid'] ?? null;
     }
 }
+
+EncounterFormAccess::assertFormBelongsToSessionPatient(is_numeric($formid) ? (int) $formid : 0, 'track_anything');
 
 $myprocedureid =  $_POST['procedure2track'] ?? null;
 

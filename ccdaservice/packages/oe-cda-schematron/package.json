@@ -20,8 +20,8 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint": "^10.7.0",
-    "globals": "^17.7.0",
-    "mocha": "^11.7.6"
+    "globals": "^17.9.0",
+    "mocha": "^11.8.0"
   },
   "dependencies": {
     "@xmldom/xmldom": "0.9.10",

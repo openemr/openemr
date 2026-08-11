@@ -362,11 +362,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/smart/ehr-launch-client.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^catch \\(ValueError\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/load_codes.php',
-];
-$ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/rules/index.php',
