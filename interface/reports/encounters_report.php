@@ -223,6 +223,20 @@ $res = sqlStatement($query, $sqlBindArray);
             top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
+        function showReportSpinner() {
+            document.getElementById('report_loading').style.display = 'block';
+            var results = document.getElementById('report_results');
+            if (results) { results.style.display = 'none'; }
+        }
+
+        function dosort(orderby) {
+            var f = document.forms[0];
+            f.form_orderby.value = orderby;
+            showReportSpinner();
+            f.submit();
+            return false;
+        }
+
     </script>
 </head>
 <body class="body_top">
@@ -237,6 +251,11 @@ $res = sqlStatement($query, $sqlBindArray);
 
 <form method='post' name='theform' id='theform' action='encounters_report.php' onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
+
+<div id="report_loading" class="text-center m-5" style="display:none;">
+    <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+    <div class="mt-2"><?php echo xlt('Building report') . xl('...'); ?></div>
+</div>
 
 <div id="report_parameters">
 <table>
@@ -337,8 +356,9 @@ $res = sqlStatement($query, $sqlBindArray);
             <td>
                 <div class="text-center">
           <div class="btn-group" role="group">
-                      <a href='#' class='btn btn-secondary btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-                            <?php echo xlt('Submit'); ?>
+                      <a href='#' class='btn btn-secondary btn-save'
+                          onclick='$("#form_refresh").attr("value","true"); showReportSpinner(); $("#theform").submit();'>
+                          <?php echo xlt('Submit'); ?>
                       </a>
                         <?php if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) { ?>
               <a href='#' class='btn btn-secondary btn-print' id='printbutton'>
