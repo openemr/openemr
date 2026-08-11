@@ -443,47 +443,27 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
                 // Fetch coding and compute billing status.
                 $coded = "";
-                $billed_count = 0;
-                $unbilled_count = 0;
                 if (
                     $billres = BillingUtilities::getBillingByEncounter(
                         $row['pid'],
                         $row['encounter'],
-                        "code_type, code, code_text, billed"
+                        "code_type, code, code_text"
                     )
                 ) {
                     foreach ($billres as $billrow) {
-                        // $title = addslashes($billrow['code_text']);
                         if ($billrow['code_type'] != 'COPAY' && $billrow['code_type'] != 'TAX') {
                             $coded .= $billrow['code'] . ', ';
-                            if ($billrow['billed']) {
-                                ++$billed_count;
-                            } else {
-                                ++$unbilled_count;
-                            }
                         }
                     }
-
                     $coded = substr($coded, 0, strlen($coded) - 2);
                 }
 
-                // Figure product sales into billing status.
-                $sres = sqlStatement("SELECT billed FROM drug_sales " .
-                "WHERE pid = ? AND encounter = ?", [$row['pid'], $row['encounter']]);
-                while ($srow = sqlFetchArray($sres)) {
-                    if ($srow['billed']) {
-                        ++$billed_count;
-                    } else {
-                        ++$unbilled_count;
-                    }
-                }
-
-                // Compute billing status.
-                if ($billed_count && $unbilled_count) {
+                // Compute billing status from the counts already in the row.
+                if ($row['billed_count'] && $row['unbilled_count']) {
                     $status = xl('Mixed');
-                } elseif ($billed_count) {
+                } elseif ($row['billed_count']) {
                     $status = xl('Closed');
-                } elseif ($unbilled_count) {
+                } elseif ($row['unbilled_count']) {
                     $status = xl('Open');
                 } else {
                     $status = xl('Empty');

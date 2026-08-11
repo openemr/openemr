@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 541
+-- v_database: 542
 --
 
 --
@@ -274,7 +274,8 @@ CREATE TABLE `billing` (
   `revenue_code` varchar(6) NOT NULL default '' COMMENT 'Item revenue code',
   `chargecat` varchar(31) default '' COMMENT 'Charge category or customer',
   PRIMARY KEY  (`id`),
-  KEY `pid` (`pid`)
+  KEY `pid` (`pid`),
+  KEY `idx_pid_enc_status` (`pid`, `encounter`, `activity`, `code_type`, `billed`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -1567,7 +1568,8 @@ CREATE TABLE `drug_sales` (
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that last updated this entry',
   `created_by` BIGINT(20) DEFAULT NULL COMMENT 'fk to users.id for user that created this entry',
   PRIMARY KEY  (`sale_id`),
-  UNIQUE INDEX `uuid` (`uuid`)
+  UNIQUE INDEX `uuid` (`uuid`),
+  KEY `idx_pid_enc_status` (`pid`, `encounter`, `billed`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------

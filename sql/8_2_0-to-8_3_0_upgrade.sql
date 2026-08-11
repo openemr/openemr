@@ -112,3 +112,10 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
+#IfMissingIndex billing idx_pid_enc_status
+ALTER TABLE `billing` ADD INDEX `idx_pid_enc_status` (`pid`, `encounter`, `activity`, `code_type`, `billed`);
+#EndIf
+
+#IfMissingIndex drug_sales idx_pid_enc_status
+ALTER TABLE `drug_sales` ADD INDEX `idx_pid_enc_status` (`pid`, `encounter`, `billed`);
+#EndIf
