@@ -118,6 +118,8 @@
 
 namespace OpenEMR\Common\Acl;
 
+require_once dirname(__DIR__, 3) . '/library/registry.inc.php';
+
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Gacl\Gacl;
