@@ -588,7 +588,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, float\\|int\\|string given\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
@@ -12865,11 +12865,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#3 \\$subject of function str_replace expects array\\<string\\>\\|string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$data of function unserialize expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/patient_match_dialog.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr_js expects string, mixed given\\.$#',

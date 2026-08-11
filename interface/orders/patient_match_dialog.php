@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013-2015 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,12 +18,23 @@ require_once("../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$form_key = $_REQUEST['key'];
-$args = unserialize($form_key, ['allowed_classes' => false]);
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render(
+        'core/unauthorized.html.twig',
+        ['pageTitle' => xl('Patient Matching')]
+    );
+    exit;
+}
+
+$form_key = filter_input(INPUT_GET, 'key') ?: '';
+$args = is_array($decoded = json_decode($form_key, true)) ? $decoded : [];
 $form_ss = preg_replace('/[^0-9]/', '', (string) ($args['ss'] ?? ''));
 $argFname = $args['fname'] ?? '';
 $form_fname = is_string($argFname) ? $argFname : '';
