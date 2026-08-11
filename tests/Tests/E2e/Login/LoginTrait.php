@@ -18,6 +18,8 @@ namespace OpenEMR\Tests\E2e\Login;
 
 use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\WebDriver;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 
@@ -78,6 +80,19 @@ trait LoginTrait
     private function performLogin(string $name, string $password, bool $goalPass): void
     {
         $this->crawler = $this->client->request('GET', '/interface/login/login.php?site=default&testing_mode=1');
+        // filter() queries the DOM at a single instant, and form() on an
+        // empty match throws Panther's opaque "The current node list is
+        // empty". Under CI load that instant can precede the login page
+        // finishing its render (or, on the php-fpm configs, catch a
+        // transient upstream error page with no form at all). Wait for the
+        // form explicitly — with a message, because Panther's waitFor()
+        // passes none to WebDriverWait::until() and would time out with an
+        // EMPTY TimeoutException; the explicit condition below fails with
+        // text that names the selector and the likely causes instead.
+        $this->client->wait(10)->until(
+            WebDriverExpectedCondition::presenceOfElementLocated(WebDriverBy::cssSelector('#login_form')),
+            "Login form '#login_form' did not appear within 10s: page still rendering under load, or the webserver served an error page instead of login.php"
+        );
         $form = $this->crawler->filter('#login_form')->form();
         $form['authUser'] = $name;
         $form['clearPass'] = $password;

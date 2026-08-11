@@ -392,6 +392,28 @@ class ApiTestClient
     }
 
     /**
+     * Submits a HTTP POST Request encoded as multipart/form-data.
+     *
+     * Guzzle generates the Content-Type header (including the boundary) for
+     * multipart requests, so the client's default JSON Content-Type is dropped
+     * for this request only.
+     *
+     * @param array<string, mixed>[] $multipart Guzzle multipart entries, each with at least `name` and `contents`
+     * @param array<string, mixed> $query
+     */
+    public function postMultipart(string $url, array $multipart, array $query = []): ResponseInterface
+    {
+        $headers = $this->headers;
+        unset($headers["Content-Type"]);
+
+        return $this->client->post($url, [
+            "headers" => $headers,
+            "query" => $query,
+            "multipart" => $multipart,
+        ]);
+    }
+
+    /**
      * Submits a HTTP PUT Request.
      *
      * @param array<string, mixed> $body

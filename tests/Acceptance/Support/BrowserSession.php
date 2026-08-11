@@ -88,6 +88,11 @@ final class BrowserSession
         // and passing it via $options is silently ignored, which
         // reports as "invalid argument" from ChromeDriver on the first
         // relative-URL request because get() tries to load "/login...").
+        // See the grid-path createGridClient() below for the full
+        // note on unhandledPromptBehavior=accept — neither path sets
+        // it anymore. Muzzling at the JS layer via
+        // UiSeedingTrait::muzzleBrowserPrompts is the single
+        // mechanism.
         return Client::createChromeClient(
             null,
             self::CHROME_ARGS,
@@ -109,10 +114,29 @@ final class BrowserSession
 
         $capabilities = DesiredCapabilities::chrome();
         $capabilities->setCapability('goog:chromeOptions', ['args' => self::CHROME_ARGS]);
-        // Auto-accept unexpected JS alerts — matches E2e BaseTrait's
-        // choice; acceptance tests shouldn't be blocked by a stray
-        // prompt they didn't ask for.
-        $capabilities->setCapability('unhandledPromptBehavior', 'accept');
+        // Note on unhandledPromptBehavior=accept: added here 2026-07-25
+        // in #13196 as a mirror of source-side E2e/Base/BaseTrait's
+        // stance (added there 2025-07-05 in #8555 as a defensive
+        // capability during the Selenium-grid transition). Neither
+        // add was motivated by a specific known-firing alert. The
+        // only alert we've since found in an acceptance-touched flow
+        // is the Medical Record Dashboard's clinical-reminders popup
+        // (library/clinical_rules.php via <img onload=alert(...)>),
+        // and that's now handled at the JS layer via
+        // UiSeedingTrait::muzzleBrowserPrompts — the capability was
+        // never observed catching it (verified in #13355 where the
+        // local-path copy of this capability produced
+        // UnexpectedAlertOpenException in CI regardless).
+        //
+        // The birthday popup at interface/patient_file/summary/
+        // demographics.php uses dlgopen() (Bootstrap modal / iframe
+        // dialog) — DOM-level, not a native browser alert, so
+        // unhandledPromptBehavior wouldn't cover it either.
+        //
+        // Removed from both paths in this commit. Left as a comment
+        // so a future maintainer chasing "should we set
+        // unhandledPromptBehavior?" has the answer without re-
+        // running the experiment.
 
         return Client::createSeleniumClient(
             "http://{$host}:4444/wd/hub",

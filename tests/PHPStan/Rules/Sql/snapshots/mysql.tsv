@@ -1,4 +1,4 @@
-# MySQL reserved-word snapshot. Engine version: 9.7.1.
+# MySQL reserved-word snapshot. Engine version: 26.7.0.
 # Captured by bin/refresh-reserved-word-supplement.php on cron.
 # Do not edit by hand -- changes here are computed.
 WORD	RESERVED
@@ -20,6 +20,9 @@ always	0
 analyze	1
 and	1
 any	0
+applier_event_memory_limit	0
+applier_version	0
+applier_worker_count	0
 array	0
 as	1
 asc	1
@@ -107,7 +110,7 @@ convert	1
 cpu	0
 create	1
 cross	1
-cube	0
+cube	1
 cume_dist	1
 current	0
 current_date	1
@@ -192,7 +195,7 @@ explain	1
 export	0
 extended	0
 extent_size	0
-external	0
+external	1
 external_format	0
 factor	0
 failed_login_attempts	0
@@ -473,7 +476,7 @@ profile	0
 profiles	0
 proxy	0
 purge	1
-qualify	0
+qualify	1
 quarter	0
 query	0
 quick	0
@@ -670,7 +673,7 @@ table	1
 table_checksum	0
 table_name	0
 tables	0
-tablesample	0
+tablesample	1
 tablespace	0
 temporary	0
 temptable	0

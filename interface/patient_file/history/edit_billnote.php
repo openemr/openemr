@@ -71,7 +71,12 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
             <div class="form-group">
                 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-                <textarea class='form-control' name='form_note'><?php echo text($fenote); ?></textarea>
+                <textarea class='form-control' name='form_note' id='form_note' rows='4'><?php echo text($fenote); ?></textarea>
+                <script>
+                    // Size to existing content before dialog.js measures the frame on load.
+                    const ta = document.getElementById('form_note');
+                    ta.style.height = Math.min(ta.scrollHeight + 2, window.parent.innerHeight * 0.7) + 'px';
+                </script>
             </div>
             <div class="form-group">
                 <div class="btn-group btn-group-sm mt-3">

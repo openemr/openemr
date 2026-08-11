@@ -917,7 +917,7 @@ if (! $_REQUEST['form_csvexport']) {
             </div>
         </div>
     </div><!--end of container div-->
-    <?php $oemr_ui->oeBelowContainerDiv();?>
+    <?php assert(isset($oemr_ui)); $oemr_ui->oeBelowContainerDiv();?>
     <script>
         var listId = '#' + <?php echo js_escape($list_id ?? null); ?>;
         $(function () {

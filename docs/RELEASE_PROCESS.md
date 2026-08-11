@@ -6,6 +6,51 @@ The automation core spans three repositories and is driven by `repository_dispat
 
 For background on why the flow is shaped this way, see [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664) (the original workstream 7 umbrella, closed by Phase 6 openemr/openemr-devops#863 on 2026-07-23 alongside the wholesale delete of the devops release-mechanism surface). For the per-slice plan documents, see the [Slice plans](#slice-plans) section below. For the end-to-end ordered checklist a release manager actually walks through, jump to [Release runbook](#release-runbook).
 
+## Quick actions
+
+Task-oriented cheat sheet for the operations a release maintainer actually performs. Every item is the trigger only — no configuration or setting details. Full rationale, guardrails, and recovery paths for each live in the sections and runbook below; cross-links point at the relevant deep-dive.
+
+### 1. Cut a new release branch for a major or minor release
+
+Create the `rel-<MAJOR><MINOR>0` branch off master (e.g. `rel-830` for the 8.3.0 line) and push it. That's the entire trigger — [`branch-cut-automation.yml`](../.github/workflows/branch-cut-automation.yml) fires on the `create` event and opens the rel-side + master-side branch-cut PRs; [`release-prep.yml`](../.github/workflows/release-prep.yml) fires on subsequent pushes and maintains the draft release-prep PR. See [runbook step 2](#phase-2--branch-cut-and-pr-generation).
+
+### 2. Start a new patch release cycle on an existing rel branch
+
+No new branch is cut — patch releases continue on the existing rel branch. Land a `$v_patch` bump into `-dev` in `version.php` on the rel branch (e.g. `8.1.0` → `8.1.1-dev` on `rel-810`). [`patch-prep-automation.yml`](../.github/workflows/patch-prep-automation.yml) fires when it sees the `version.php` diff and opens the patch-cycle PRs (rel-side seed + master-side SQL-bridge file-rename dance). See the [patch-prep workflow entry](#lifecycle-event-workflows-siblings).
+
+### 3. Ship the release
+
+Two moves:
+
+1. On the `release-prep/<rel-branch>` PR, mark it ready-for-review (out of draft) and approve it.
+2. Trigger [`ship-release.yml`](../.github/workflows/ship-release.yml) via `workflow_dispatch` — pick version + rel-branch + mode (`semi-auto` default, `full-auto`, or `dry-run`).
+
+In `full-auto` mode, everything downstream (Conductor + Finalize + Docs merges, tag creation, package build + Release object, docker orchestrator cascade, announcements) is automated. In `semi-auto` mode (default), only the Conductor PR merges automatically; the maintainer manually merges Finalize + Docs after review. See [runbook steps 6–15](#release-runbook) for the full sequence.
+
+### 4. Amend the shipped release with newly-published GHSAs
+
+Only needed when security advisories were held pending the release and get published in the post-ship window (days-to-weeks after the tag). Order matters:
+
+1. Publish each GHSA in `openemr/openemr` with the `Patched versions` field set to the **exact** release string (e.g. `8.2.0` — no ranges, no comma-separated lists; the matcher is strict-exact per [GHSA → CHANGELOG matching](#what-each-pr-contains)).
+2. Trigger [`release-amendment.yml`](../.github/workflows/release-amendment.yml) via `workflow_dispatch` — pick the `version` + `rel_branch` that was just shipped.
+
+The workflow re-runs `ChangelogMutator` + `CompatibilityMutator` against the post-tag state, opens sibling `release-amendment/<version>-<rel_branch>` + `release-amendment/<version>-master` CHANGELOG PRs, and in the same run updates the GitHub Release body (`gh release edit --notes-file`) + the sibling `changelog.md` Release attachment (`gh release upload --clobber`) — so all four surfaces converge without waiting for the CHANGELOG PRs to merge. Idempotent — re-dispatching without new GHSAs is a no-op (peter-evans skips the PR update when there's no diff; the Release edit is a no-op when the extracted section is unchanged). See the [Release-amendment PRs section](#release-amendment-prs--release-amendmentversion-rel-branch-and-release-amendmentversion-master-in-openemropenemr).
+
+### 5. Re-run acceptance testing on a stalled release
+
+For confirmed-transient acceptance flakes on a known-good artifact — replaces the ~15 min build-package rerun with a ~5-10 min acceptance-only rerun that also auto-publishes on green:
+
+- **Tarball:** dispatch [`acceptance-only.yml`](../.github/workflows/acceptance-only.yml) with `source_run_id` (the failed `build-release.yml` run's ID — from its URL or `gh run list`) + `version` + `release_tag` + `version_branch` (last three copied from the failed run's dispatch inputs).
+- **Docker:** dispatch [`docker-acceptance-only.yml`](../.github/workflows/docker-acceptance-only.yml) with `source_run_id` (the failed `docker-build-release.yml` run's ID) + `candidate_tag` (from the failed run's `merge-manifest` job outputs) + `docker_tags` (from the failed run's dispatch inputs).
+
+Both **must dispatch from `--ref master`** — workflows reject other refs. See [runbook step 10](#release-runbook) (tarball) + [step 12](#release-runbook) (docker) for guardrails + when to prefer this over "Re-run failed jobs".
+
+### 6. Bypass acceptance testing on a stalled release
+
+**Last-resort escape hatch** for confirmed test-side flakes on a known-good artifact that keeps failing acceptance. Dispatch the same workflow as action 5 with `skip_acceptance=true` + a required non-empty `skip_acceptance_reason` explaining the specific flake being bypassed (empty or whitespace-only reason fails the workflow loudly). Bypass reason lands in the workflow run-name + a `::warning::` annotation + a `GITHUB_STEP_SUMMARY` block for audit.
+
+**Do NOT use** on a first-time / never-validated artifact, or repeatedly on the same flake class (that's a signal to fix the flake, not bypass — the audit trail is designed to make repeat-bypass visible). See [runbook step 10 skip-acceptance paragraph](#release-runbook) + the [acceptance-testing plan's Phase 14 section](artifact-acceptance-testing-plan.md) for the full when-to-use / when-NOT-to-use guidance.
+
 ## Repositories involved
 
 | Repository | Role |
@@ -59,12 +104,12 @@ flowchart TB
     prepPR -. openemr-rel-cut .-> docsPR
     prepPR -. openemr-rel-update .-> docsPR
     tag -. openemr-tag .-> docsPR
-    oe -. release-targets-changed<br/>(master push touching<br/>.github/release-targets.yml) .-> derivePR
+    oe -. "release-targets-changed<br/>(master push touching<br/>.github/release-targets.yml)" .-> derivePR
 
-    classDef manualStep fill:#fff4cc,stroke:#b58900
-    classDef autoArtifact fill:#e8f0ff,stroke:#3b6fb8
-    classDef autoTag fill:#d4f1d4,stroke:#2a7f2a
-    classDef autoWorkflow fill:#f0e8ff,stroke:#7a3bb8
+    classDef manualStep fill:#fff4cc,stroke:#b58900,color:#000
+    classDef autoArtifact fill:#e8f0ff,stroke:#3b6fb8,color:#000
+    classDef autoTag fill:#d4f1d4,stroke:#2a7f2a,color:#000
+    classDef autoWorkflow fill:#f0e8ff,stroke:#7a3bb8,color:#000
     class cut,edit,sign,trigger manualStep
     class prepPR,docsPR,derivePR autoArtifact
     class tag autoTag
@@ -108,7 +153,7 @@ In short, the conductor rewrites: `version.php`, `docker/production/docker-compo
 
 Async / fire-and-forget: release-prep.yml doesn't block on the acceptance result. The run appears in the Actions tab; any failure is investigated + fixed on the rel-branch, which re-fires release-prep.yml and gets another try. Fallback swallow if the dispatch itself fails (e.g., against a rel-branch whose acceptance-package.yml predates the `build_locally` input) so release-prep flow keeps working on pre-Phase-3.5 backports.
 
-**Sibling docker acceptance dispatch (Phase 7a-docker, openemr/openemr#TBD).** Same push does a second `gh workflow run acceptance-docker.yml --ref release-prep/<rel-branch> -f build_locally=true`, exercising the docker side of the release. `acceptance-docker.yml`'s existing Phase 2.5 `build-image` job builds a fresh docker image from the release-prep tip's `docker/release/Dockerfile`; because `DockerfileOpenemrVersionMutator` bakes `OPENEMR_VERSION=<rel-branch>` into that Dockerfile at branch-cut time, no version-ref override is needed — `docker build docker/release` on release-prep/rel-830 naturally clones rel-830 source during the image build. The built image then runs through `fresh-install-from`, `fresh-install-to`, and `upgrade` scenarios, catching Dockerfile-side regressions on the release-in-flight pre-merge. Same async / fallback-swallow shape as the tarball dispatch.
+**Sibling docker acceptance dispatch (Phase 7a-docker, openemr/openemr#13210).** Same push does a second `gh workflow run acceptance-docker.yml --ref release-prep/<rel-branch> -f build_locally=true`, exercising the docker side of the release. `acceptance-docker.yml`'s existing Phase 2.5 `build-image` job builds a fresh docker image from the release-prep tip's `docker/release/Dockerfile`; because `DockerfileOpenemrVersionMutator` bakes `OPENEMR_VERSION=<rel-branch>` into that Dockerfile at branch-cut time, no version-ref override is needed — `docker build docker/release` on release-prep/rel-830 naturally clones rel-830 source during the image build. The built image then runs through `fresh-install-from`, `fresh-install-to`, and `upgrade` scenarios, catching Dockerfile-side regressions on the release-in-flight pre-merge. Same async / fallback-swallow shape as the tarball dispatch.
 
 **Why there's no acceptance gate inside `docker-build-release.yml` itself (i.e. no Phase 7c-docker to mirror Phase 7c-tarball).** The docker release pipeline is triggered by `docker-release-orchestrator.yml` on a master push touching `.github/release-targets.yml`, which happens when the release-finalize PR merges to master. In **full-auto** ship-release mode, Finalize won't merge until the tarball GitHub Release object exists — and tarball publish is now gated by tarball acceptance (Phase 7c, openemr/openemr#13207). So under full-auto a broken release-cycle codebase blocks tarball publish → blocks finalize merge → blocks docker orchestrator: **the docker publish is transitively gated by tarball acceptance**. In **semi-auto** ship-release (the documented default for the first 1-2 cuts) the transitive gate depends on operator discipline (runbook step 11 asks the operator to verify the Release object exists before merging Finalize), so the guarantee is softer. Either way, the Phase 7a-docker release-prep dispatch (above) makes the softer guarantee moot for release-cycle codebase regressions: those get caught at the release-prep-PR moment, well before Finalize is even reviewable. The dispatch also catches docker-SPECIFIC regressions the tarball transitive gate would never see (Dockerfile edits, docker-runtime-only behavior differences between flex image and real production container). So the docker side gets pre-merge coverage without needing a build → validate → publish refactor of the docker-release pipeline itself.
 
@@ -131,7 +176,7 @@ Two-phase lifecycle:
 
 ### Release-amendment PRs — `release-amendment/<version>-<rel-branch>` and `release-amendment/<version>-master` in `openemr/openemr`
 
-Opened manually via [`.github/workflows/release-amendment.yml`](../.github/workflows/release-amendment.yml) (`workflow_dispatch`) *after* a release has shipped, to pick up security advisories the maintainer published in the days/weeks after the tag. Re-runs the release-prep mutators against the shipped state on both rel-branch and master; every mutator except `ChangelogMutator` + `CompatibilityMutator` is a no-op on a post-tag checkout, so the diff is scoped to `CHANGELOG.md`'s target `## [X.Y.Z]` section — typically the newly-populated `### Security Fixes` block. The workflow also re-extracts the amended section from `CHANGELOG.md` and updates the GitHub Release body (`gh release edit --notes-file`) plus the sibling `changelog.md` Release attachment (`gh release upload --clobber`) in the same run, so all four surfaces (rel-branch CHANGELOG, master CHANGELOG, Release body, Release attachment) converge without waiting for the CHANGELOG PRs to merge. Idempotent by design (mutators + peter-evans no-op detection + strict-string-equal Release body edit): re-dispatching without new GHSAs produces empty PRs and a no-op Release edit.
+Opened manually via [`.github/workflows/release-amendment.yml`](../.github/workflows/release-amendment.yml) (`workflow_dispatch`) *after* a release has shipped, to pick up security advisories the maintainer published in the days/weeks after the tag. Re-runs the release-prep mutators against the shipped state on both rel-branch and master; every mutator except `ChangelogMutator` + `CompatibilityMutator` is a no-op on a post-tag checkout, so the diff is scoped to `CHANGELOG.md`'s target `## [X.Y.Z]` section — typically the newly-populated `### Security Fixes` block. The workflow also re-extracts the amended section from `CHANGELOG.md` and updates the GitHub Release body (`gh release edit --notes-file`) plus the sibling `changelog.md` Release attachment (`gh release upload --clobber`) in the same run, so all four surfaces (rel-branch CHANGELOG, master CHANGELOG, Release body, Release attachment) converge without waiting for the CHANGELOG PRs to merge. Idempotent by design (mutators + peter-evans no-op detection + strict-string-equal Release body edit): re-dispatching without new GHSAs is a no-op — peter-evans skips the PR update when there's no diff, and the Release edit is a no-op when the extracted section is unchanged.
 
 > **Hand-edits do not survive a rerun.** `ChangelogMutator` wholesale-replaces the target `## [X.Y.Z]` section on every run, so any prose edits made to the amendment PR (or committed directly to the amendment branch) will be wiped the next time the workflow is dispatched. This is intentional — the mutator's output is the source of truth, and idempotence is a hard requirement for safely re-running the workflow as additional GHSAs are published. If tone/prose edits are needed, either (a) make them once *and don't re-dispatch*, or (b) apply the edits to the generator's input filters / formatter and rerun from clean.
 
@@ -179,6 +224,72 @@ Whenever hardening `release-prep.yml`, `release-amendment.yml`, or any other rel
 | Release-prep PR merged (annotated tag created) | — | — | `finalize` job; creates tag + refreshes release-finalize PR with post-tag content (including `CHANGELOG.md` regen so both rel-branch and master land the same entry) + flips it draft → ready + emits `openemr-tag` |
 
 The two sibling one-shots handle **discrete lifecycle events** (branch creation, patch-cycle start); `release-prep.yml` handles the **continuous state** (draft PRs following the branch tip during an active dev cycle) plus the tag-time emission on merge. Clean separation of concerns — no overlap on which PRs each workflow owns, and the parallel firing on cut events is by design so the ready-for-review scaffolding and the draft tracking both appear together.
+
+## Docker Hub tag model
+
+The docker publish surface is driven by [`.github/release-targets.yml`](../.github/release-targets.yml). Each row describes one docker publish target and carries three fields the tag model cares about: `branch` (git ref to check out), `docker_tags` (comma-separated Docker Hub tags to push), and `openemr_version_ref` (git ref baked into the image as the `OPENEMR_VERSION` build arg — the source the shipped image actually contains). The optional `unreleased: true` marker suppresses publish for placeholder rows; see the file header for the full field list.
+
+`dev`, `next`, and `latest` are **mutable named tags on Docker Hub** whose owning row changes as the release lifecycle advances (see [Slot promotion at ship time](#slot-promotion-at-ship-time) below). They participate in `docker_tags` alongside numbered tags like `8.2.0` or `8.0.0.3` and get published the same way. A row's `docker_tags` typically pairs a version-numbered tag with its named-slot alias — the numbered tag pins the specific version, the named tag identifies which slot that version occupies in the release lifecycle.
+
+### Slot semantics
+
+The three named tags represent a stable → upcoming → in-dev hierarchy. At-most-one row holds each slot at any time:
+
+| Slot | Meaning | Owner |
+| --- | --- | --- |
+| `latest` | current production GA — what `docker pull openemr/openemr` gives consumers | the most recently released rel branch |
+| `next` | upcoming stable — the version preparing to ship next | the rel branch preparing the next release, or master when master is preparing the next minor without a dedicated rel branch yet |
+| `dev` | active development | always master |
+
+A pre-release row's numbered `docker_tags` entry is not a placeholder. It's the "this is the version we're heading toward" declaration: the numbered tag publishes to Docker Hub *as if* the version were already shipped, sourced from the in-progress branch tip (via `openemr_version_ref: <branch>`) rather than a stable release tag.
+
+### Slot promotion at ship time
+
+When a rel branch ships its release, the slots shuffle across rows in the master-side `release-finalize/<rel-branch>` PR (see [Finalize-on-master PR](#finalize-on-master-pr--release-finalizerel-branch-in-openemropenemr)):
+
+- The branch that just shipped promotes `next` → `latest` in its row.
+- The branch that previously held `latest` drops it (still publishes its version-numbered tags, just no longer the "current GA" alias).
+- The `next` slot moves to wherever the next upcoming stable lives. If a new rel branch has been cut for the next minor, it takes `next`. If no new rel branch exists yet, master acquires `next` alongside `dev` (master is then doubly tagged — `dev` for actively developing, `next` for what's coming next).
+
+Example shuffle when `8.1.1` ships from `rel-810` with no `rel-820` cut yet:
+
+| branch | `docker_tags` before | `docker_tags` after |
+| --- | --- | --- |
+| master | `8.2.0,dev` | `8.2.0,dev,next` (acquired `next`) |
+| rel-810 | `8.1.1,next` | `8.1.1,latest` (`next` → `latest`) |
+| rel-800 | `8.0.0,8.0.0.3,latest` | `8.0.0,8.0.0.3` (lost `latest`) |
+| rel-704 | `7.0.4` | `7.0.4` (unchanged) |
+
+Example shuffle when `rel-820` is later cut from master and master advances to `8.3.0-dev`:
+
+| branch | `docker_tags` before cut | `docker_tags` after cut |
+| --- | --- | --- |
+| master | `8.2.0,dev,next` | `8.3.0,dev` (lost `next` to rel-820) |
+| rel-820 (new) | (didn't exist) | `8.2.0,next` (acquired `next`) |
+| rel-810 | `8.1.1,latest` | `8.1.1,latest` (unchanged — still current GA) |
+
+### `openemr_version_ref`: branch tip vs tag pin
+
+For a given row, `openemr_version_ref` alternates between two shapes across the release cycle:
+
+- **Branch tip** (e.g. `rel-810`, `master`) — daily orchestrator builds pull the branch's HEAD content. Image content moves as commits land. Used for "currently developing this version" state.
+- **Tag pin** (e.g. `v8_1_0`, `v8_0_0_3`) — daily orchestrator builds pull the immutable tag's content. Image content is locked. Used for "this version has been released; no more changes to this stream until next release."
+
+A rel branch's row cycles through three states per release:
+
+1. **Stable** (just after `vX.Y.Z` shipped): `openemr_version_ref: vX_Y_Z`, `docker_tags: X.Y.Z,<name>`. Image locked to released content.
+2. **Pre-release prep** (working toward `X.Y.(Z+1)`): `openemr_version_ref: rel-XYZ`, `docker_tags: X.Y.(Z+1),<name>`. Both updated together — the numbered docker tag advances to the future version AND the ref switches to branch tip. Image moves as commits land on the rel branch; both `X.Y.(Z+1)` and `<name>` publish in-progress content.
+3. **Released `X.Y.(Z+1)`**: `openemr_version_ref: vX_Y_(Z+1)`, `docker_tags: X.Y.(Z+1),<name>`. The ref flips back to a tag and — if the row held `next` — the slot promotes to `latest` per the shuffle above. The numbered docker tag is unchanged. Image relocks to the newly-released content.
+
+Master is always at state 2 (`openemr_version_ref: master`) — master never gets stable-released as itself; its successor versions release from rel branches.
+
+### Multi-row: keeping the prior stable published during a patch cycle
+
+When a rel branch enters its next patch dev cycle (e.g. `rel-810` bumps to `8.1.2-dev` after `8.1.1` ships), the existing row retargets at the new dev (`docker_tags: 8.1.2,next`, `openemr_version_ref: rel-810`) and a **second** row is added on the same branch pinning the prior stable (`docker_tags: 8.1.1,latest`, `openemr_version_ref: v8_1_1`). The prior-stable row keeps `latest` because that alias tracks the currently-shipped GA — 8.1.1 remains GA until 8.1.2 actually ships. Daily builds keep republishing the stable image alongside the new dev. When the new dev ships, the prior-release row is dropped, `latest` promotes to the newly-shipped row per the shuffle above, and the branch returns to a single row. The prior-release row publishes for real during the dev cycle — `unreleased: true` is not set on it. See the [`release-targets.yml` header](../.github/release-targets.yml) for the full multi-row rules.
+
+### Where the shuffle happens in the automation
+
+Slot moves land via the master-side `release-finalize/<rel-branch>` PR — see the [Finalize-on-master PR section](#finalize-on-master-pr--release-finalizerel-branch-in-openemropenemr) for the two-phase (preview during `-dev`, post-tag ref-flip) lifecycle. `branch-cut-automation.yml` handles the new-rel-branch insertion in its own master-side PR (see [Lifecycle-event workflows](#lifecycle-event-workflows-siblings)). Rel-branch rows for the shipping branch itself are also touched here; other rows in the same shuffle (previous `latest` holder, master's `dev`/`next` doubling) are re-written in the same PR since they all live in the one master-side file.
 
 ## Orientation: finding the current release state
 
@@ -235,11 +346,11 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 
 The conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and fires the `openemr-tag` cascade for the Release object). Announcement drafts fire later — on the docs PR merge itself (runbook step 16), not on `openemr-tag`. The conductor PR creates the tag first; the remaining bot-created PRs land after the tag exists, in the following order:
 
-Listed here in the enforced merge order (Conductor → Finalize → Docs). Docs is last because merging it will trigger the future auto-announce pipeline; by then packages + dockers should be as-ready-as-possible. Finalize before Docs so its `release-targets.yml` update starts the docker cascade earlier (dockers publish independently on cron regardless, so this ordering is nice-to-have not strictly required).
+Listed here in the enforced merge order (Conductor → Finalize → Docs). Docs is last because merging it will trigger the announcement-drafts pipeline; by then packages + dockers should be as-ready-as-possible. Finalize before Docs so its `release-targets.yml` update starts the docker cascade earlier (dockers publish independently on cron regardless, so this ordering is nice-to-have not strictly required).
 
 1. **Conductor PR** (`openemr/openemr` `release-prep/<rel-branch>`) — merges to rel-branch, creates the annotated tag. Includes the finalized `CHANGELOG.md` entry for the rel-branch side. *Merged by ship-release (step 9) in every mode except dry-run.*
 2. **Finalize-on-master PR** (`openemr/openemr` `release-finalize/<rel-branch>`) — auto-updated by the `finalize` job post-tag, flipped from draft to ready-for-review with a signal comment; lands the master-side `release-targets.yml` rotation and the matching master-side `CHANGELOG.md` entry (regenerated post-tag against `vNEW` so master and rel-branch land the identical block). Don't merge while it's still in draft state — the draft flag is the "post-tag update hasn't happened yet" indicator. *Merged by ship-release in full-auto mode after waiting for the GitHub Release object to exist (blocks packaging failures from cascading to dockers); in semi-auto mode, marked SKIPPED_BY_MODE and left for the maintainer to merge manually after review.*
-3. **Docs PR** (`openemr/website-openemr` `release-docs/<version>`) — ships the now-FINAL pages on the website. *Merged by ship-release in full-auto mode last (packages already verified to exist per step 2's wait, so download links resolve when the future auto-announce fires); in semi-auto mode, marked SKIPPED_BY_MODE and left for manual merge.*
+3. **Docs PR** (`openemr/website-openemr` `release-docs/<version>`) — ships the now-FINAL pages on the website. *Merged by ship-release in full-auto mode last (packages already verified to exist per step 2's wait, so download links resolve when the announcement-drafts pipeline fires); in semi-auto mode, marked SKIPPED_BY_MODE and left for manual merge.*
 
 The demo-farm reconciliation runs on its own track — see step 15.
 
@@ -250,7 +361,7 @@ The demo-farm reconciliation runs on its own track — see step 15.
    **Modes (`mode` input, default `semi-auto`):**
 
    - **`semi-auto`** (default): merges Conductor PR only. Docs + Finalize PRs marked SKIPPED_BY_MODE (still success — exit 0), left for maintainer to review + merge manually. Use for the first 1-2 releases after wiring up the automation so surprising mutator/EHI/finalize output can be caught in review before committing to full-auto.
-   - **`full-auto`**: merges all three (Conductor → Finalize → Docs). Conductor first, then waits for the GitHub Release object to exist (proxy for build-release-on-tag completing package assembly + upload — **blocks both downstream merges if packaging failed OR if Phase 7c's `acceptance-gate` rejected the tarball so dockers + announcements don't fire on top of a broken release; operator debugs + reruns per the recovery paths under runbook step 10**), then merges Finalize (which triggers the docker cascade via its `release-targets.yml` update on master), then Docs last (which will trigger the future auto-announce pipeline). Waits for each downstream PR's post-tag HEAD SHA update + readiness (asymmetric approval gate: Conductor requires APPROVED, Docs + Finalize don't since they're bot-authored). True "one command go" — the docs PR's post-tag auto-flip (website-openemr `release-docs.yml`) removes the previously-manual mark-Ready step.
+   - **`full-auto`**: merges all three (Conductor → Finalize → Docs). Conductor first, then waits for the GitHub Release object to exist (proxy for build-release-on-tag completing package assembly + upload — **blocks both downstream merges if packaging failed OR if Phase 7c's `acceptance-gate` rejected the tarball so dockers + announcements don't fire on top of a broken release; operator debugs + reruns per the recovery paths under runbook step 10**), then merges Finalize (which triggers the docker cascade via its `release-targets.yml` update on master), then Docs last (which will trigger the announcement-drafts pipeline). Waits for each downstream PR's post-tag HEAD SHA update + readiness (asymmetric approval gate: Conductor requires APPROVED, Docs + Finalize don't since they're bot-authored). True "one command go" — the docs PR's post-tag auto-flip (website-openemr `release-docs.yml`) removes the previously-manual mark-Ready step.
    - **`dry-run`**: preflight + dress-rehearsal build. Probes every PR's readiness and prints a report (merges nothing); on preflight success, the workflow layers a `dry-run-build` job that invokes the reusable `build-release.yml` with `dry_run=true`, pinning its checkout to the Conductor PR head (`release-prep/<rel_branch>`) so the packaged tree carries the pending version bump + `## [X.Y.Z]` CHANGELOG entry that `extract-changelog-section.php` requires. Produces the actual tarball, zip, changelog, and checksums as a workflow-run artifact (named `openemr-release-candidate-<version>`) — no git tag is created, no GitHub Release is published, no downstream dispatches fire, and the Phase 7c `acceptance-gate` + `publish` jobs are skipped on `dry_run` (nothing to publish, so nothing to gate). Download the artifact from the run page to eyeball what would ship before firing a real ship-release. `dry_run: true` still supported as a legacy alias and always wins over `mode` when set.
 
    The workflow locates the 3 sibling PRs by branch convention, posts a `release/ship-approved` commit status on each PR head before merging it, and enforces merge order Conductor → Finalize → Docs with mergeability gates between steps. Already-merged PRs are detected and skipped (so the same trigger handles the replayable PR-merge recovery cases — see [Partial merges and recovery](#partial-merges-and-recovery); docs-first and out-of-band-tag states still need manual handling). In full-auto mode, the docs PR's post-tag auto-flip (see the prerequisite note above) clears the Ready gate without operator input.
@@ -276,6 +387,7 @@ The demo-farm reconciliation runs on its own track — see step 15.
 
     - **Transient infra flake** (docker hub down, GHA runner minute exhaustion, chromedriver install glitch) — most common. "Re-run failed jobs" in the Actions UI. Reuses `build-package`'s already-uploaded artifact.
     - **Fast acceptance-only re-run + publish** (Phase 9 + Phase 10c, 2026-07-28 → 2026-07-30) — for confirmed-transient acceptance flakes on a known-good build, dispatch [`acceptance-only.yml`](../.github/workflows/acceptance-only.yml) with the failed run's ID + version + release_tag + version_branch (all copied from the source build-release run's dispatch inputs, visible on the failed run's page). **Must dispatch against `--ref master`** — the workflow refuses to fire from any other ref. Rationale: acceptance-only uses `uses: ./.github/workflows/acceptance-package.yml` (and `uses: ./.github/workflows/reusable-publish-release.yml`) which resolve against the dispatched ref, so dispatching from master pulls the freshest acceptance harness + publish flow — an acceptance-harness fix on master flows through without waiting for a rel-branch backport. It cross-run-downloads the failed run's `openemr-release-candidate-<version>` artifact and re-runs the acceptance matrix against it — no `build-package` rerun (~15 min saved), fresh acceptance verdict in ~5-10 min. On green, publish fires automatically as part of the acceptance-only run (Phase 10c, 2026-07-30 — was manual pre-10c) — the workflow calls the same `reusable-publish-release.yml` build-release.yml uses, so the tag + Release + upload + Phase 7b sha256 re-verify happen without operator input. Guardrails, source_run_id validation, 48h age ceiling, master-ref requirement — everything else identical to Phase 9. Prefer over "Re-run failed jobs" when you're confident the failure was in acceptance itself, not in the build.
+    - **Skip-acceptance escape hatch** (Phase 14, 2026-08-04) — a last-resort dispatch mode for confirmed test-side flakes on a known-good artifact. Dispatch `acceptance-only.yml` with `skip_acceptance=true` + a required non-empty `skip_acceptance_reason` — the workflow validates + fails loudly on empty (or whitespace-only) reason, then skips the acceptance-gate matrix entirely and publish fires once the source-fetch guardrails pass (48h age ceiling, workflow_path check, master-ref requirement — same guards as normal recovery). Bypass reason lands in the workflow run-name (visible from the Actions UI list) + a `::warning::` annotation + a markdown block in the run summary for audit. **When to use**: acceptance has failed N times in a row on the SAME artifact with failures inspection has confirmed are test-side flakes (specific alerts, timing races, known-broken assertions). **Do NOT use**: on a NEW artifact that hasn't been validated before (first-time failures might be real regressions), or repeatedly on the same flake class (that's a signal to fix the flake, not bypass — the audit trail is designed to make repeat-bypass visible). See the [acceptance-testing plan's Phase 14 section](artifact-acceptance-testing-plan.md) for the full behavior contract.
     - **Bad package build** (npm registry flake produced wrong deps, composer got a corrupt package, phing prune misbehaved, git archive weirdness). **"Re-run all jobs"** — NOT "Re-run failed jobs", which would reuse `build-package`'s bad artifact. Or `workflow_dispatch` on `build-release.yml` with the same `version_branch` + `version` + `release_tag` inputs. Either kicks off a fresh 3-job run that rebuilds from scratch. rel-branch is normally frozen during the release window, so the rebuilt tarball comes from the same commit the annotated tag points at. Publish is idempotent (`git ls-remote` skips existing tag, `gh release view` short-circuits create-if-any, `gh release upload --clobber` overwrites).
     - **Acceptance-harness bug** (false positive). Fix on master, backport to the target rel-branch (or wait for the fix to reach the rel-branch), re-run `build-release`. `acceptance-package.yml` runs from the rel-branch's copy, so the fix has to be on the release branch when re-run. (`acceptance-only.yml` runs from master's copy — an alternate path when the fix is easier to land on master than backport to the rel-branch.)
     - **Real codebase regression that slipped past Phase 3.5's release-prep-PR gate** (rare — would require a rel-branch race after 3.5 passed but before the release-prep PR merged, or a regression in one of the release-finalize's post-Phase-3.5 conductor steps). The tag is on the poisoned merge commit. Version bump: land the fix on rel-branch, wait for a new `release-prep/<rel-branch>` PR at `v_M_m_p+1`, merge that, new tag, new `build-release` attempt. The poisoned tag remains but points at a version with no shipped release — harmless in practice since no one downloaded artifacts. Optionally `git tag -d && git push origin :refs/tags/v_M_m_p` for cleanup.
@@ -296,6 +408,8 @@ The demo-farm reconciliation runs on its own track — see step 15.
     - **publish failure**: merged `<candidate>` still exists; some final tags may have partially aliased before the failure. **Recovery**: same docker-acceptance-only.yml dispatch — the imagetools-alias steps are idempotent (imagetools create is idempotent when the source manifest hasn't moved).
 
     Same guardrails as tarball acceptance-only apply on the recovery dispatch: master-ref only; source run must be a docker-build-release.yml run under 48h old; candidate tag must still exist on Docker Hub. Publish (imagetools-alias onto each final tag) + cleanup (candidate tag deleted from Docker Hub) fire automatically on green via the same `reusable-docker-publish.yml` docker-build-release.yml's gated path uses. Pre-Phase-10c, this whole flow was manual: operator had to dispatch acceptance-docker.yml, then run `docker buildx imagetools create -t openemr/openemr:<final> openemr/openemr:<candidate>` for each expanded tag by hand, then hit the Docker Hub v2 API to delete the candidate. See the [acceptance-testing plan's Phase 9 and Phase 10c sections](artifact-acceptance-testing-plan.md) for the design rationale.
+
+    **Skip-acceptance escape hatch** (Phase 14, 2026-08-04) — mirrors the tarball path above one-for-one. Dispatch `docker-acceptance-only.yml` with `skip_acceptance=true` + non-empty (non-whitespace-only) `skip_acceptance_reason` to bypass the acceptance-gate matrix on a known-good candidate image hitting a confirmed test-side flake. Publish + cleanup fire once the source-fetch guardrails pass (48h age, workflow_path check, candidate tag present on Docker Hub). Same when-to-use / when-NOT-to-use guidance applies. Same audit trail (run-name, `::warning::` annotation, run summary). See the [acceptance-testing plan's Phase 14 section](artifact-acceptance-testing-plan.md).
 
     **arm64 coverage** (Phase 7d-1 openemr/openemr#13254 + Phase 7d-2 openemr/openemr#13259 + arm64-always-on openemr/openemr#13264, 2026-07-29): every acceptance-docker matrix cell runs on both `ubuntu-24.04` (amd64) and `ubuntu-24.04-arm` (arm64) unconditionally — daily 09:00 UTC schedule, every push/PR on the acceptance surface, workflow_dispatch, and workflow_call (release-prep dispatch + docker-build-release gate). GitHub arm64 runners are free for public repos so there's no cost reason to gate. The composite action at `.github/actions/setup-chromedriver-multiarch/` handles Chrome/ChromeDriver install per-arch (nanasess/setup-chromedriver on amd64 where Chrome is pre-installed; xtradeb PPA chromium+chromium-driver on arm64 where Google Chrome ships no arm64 debs and Chrome for Testing hasn't shipped a linux-arm64 platform variant yet).
 
@@ -339,7 +453,7 @@ Historical umbrella issue for the full gap closure: [openemr/openemr-devops#706]
 
 The two PRs are coupled only by `repository_dispatch`. Branch protection should block direct merges and require the [ship-release workflow](https://github.com/openemr/openemr/blob/master/.github/workflows/ship-release.yml) as the only merge path (via the `release/ship-approved` commit status the workflow posts), but admin-overrides and misconfigurations happen — this section documents the recovery path when they do.
 
-**Re-running `ship-release.yml` is the normal recovery mechanism for partial *PR merges*, not a special bootstrap path.** Its idempotency is scoped to PR-merge state: it snapshots both sibling PRs, skips any already merged, and merges the rest in order (conductor → docs) after a readiness check. So re-triggering is safe when one of the PRs merged (by admin-override or a prior interrupted run) and the other is still open and ready. Treat "re-run ship-release and let it reconcile" as the default response to a stuck *PR-merge* state.
+**Re-running `ship-release.yml` is the normal recovery mechanism for partial *PR merges*, not a special bootstrap path.** Its idempotency is scoped to PR-merge state: it snapshots all three sibling PRs, skips any already merged, and merges the rest in order (Conductor → Finalize → Docs) after a readiness check. So re-triggering is safe when one or two of the PRs merged (by admin-override or a prior interrupted run) and the rest are still open and ready. Treat "re-run ship-release and let it reconcile" as the default response to a stuck *PR-merge* state.
 
 What it does **not** do today is inspect the annotated tag or the GitHub Release object — it never reads `refs/tags` or the Release API. The tag is created as a side effect of merging the conductor PR (`release-prep.yml` runs `create-tag.php` on merge), and the Release object follows from the `openemr-tag` dispatch. This matters for one state re-running ship-release cannot fix: a tag that already exists with the conductor PR still open (see the out-of-band-tag row below). The partial-merge table enumerates the states re-running recovers from and the two it does not (docs-first and out-of-band-tag).
 
