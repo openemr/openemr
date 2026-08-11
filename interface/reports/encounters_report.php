@@ -105,11 +105,11 @@ $query = "SELECT " .
   "p.fname, p.mname, p.lname, p.pid, p.pubpid, p.dob, " .
   "u.lname AS ulname, u.fname AS ufname, u.mname AS umname, " .
   "((SELECT COUNT(*) FROM billing AS b WHERE b.pid = fe.pid AND b.encounter = fe.encounter " .
-    "AND b.activity = 1 AND b.code_type NOT IN ('COPAY','TAX') AND b.billed = 1) + " .
+    "AND b.activity = 1 AND (b.code_type IS NULL OR b.code_type NOT IN ('COPAY','TAX')) AND b.billed = 1) + " .
   "(SELECT COUNT(*) FROM drug_sales AS ds WHERE ds.pid = fe.pid AND ds.encounter = fe.encounter " .
     "AND ds.billed = 1)) AS billed_count, " .
   "((SELECT COUNT(*) FROM billing AS b2 WHERE b2.pid = fe.pid AND b2.encounter = fe.encounter " .
-    "AND b2.activity = 1 AND b2.code_type NOT IN ('COPAY','TAX') AND (b2.billed = 0 OR b2.billed IS NULL)) + " .
+    "AND b2.activity = 1 AND (b2.code_type IS NULL OR b2.code_type NOT IN ('COPAY','TAX')) AND (b2.billed = 0 OR b2.billed IS NULL)) + " .
   "(SELECT COUNT(*) FROM drug_sales AS ds2 WHERE ds2.pid = fe.pid AND ds2.encounter = fe.encounter " .
     "AND (ds2.billed = 0 OR ds2.billed IS NULL))) AS unbilled_count " .
   "$esign_fields" .
