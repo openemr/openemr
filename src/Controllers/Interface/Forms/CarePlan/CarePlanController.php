@@ -230,6 +230,10 @@ class CarePlanController
         $endDates = $this->asArray($postData['end_date'] ?? null);
         $proposedDates = $this->asArray($postData['proposed_date'] ?? null);
         $planStatuses = $this->asArray($postData['plan_status'] ?? null);
+        $engagementCategories = $this->asArray($postData['plan_engagement_category'] ?? null);
+        // The select is client-controlled, so the submitted value is checked against the
+        // list rather than trusted. Fetched once per save, not once per row.
+        $validEngagementCategories = $this->carePlanFormService->getEngagementCategoryOptionIds();
         $reasonCodes = $this->asArray($postData['reasonCode'] ?? null);
         $reasonStatuses = $this->asArray($postData['reasonCodeStatus'] ?? null);
         $reasonTexts = $this->asArray($postData['reasonCodeText'] ?? null);
@@ -276,10 +280,40 @@ class CarePlanController
                 'reason_description' => $reasonDescription,
                 'reason_date_low' => $reasonLow,
                 'reason_date_high' => $reasonHigh,
+                'plan_engagement_category' => $this->resolveEngagementCategory(
+                    $this->stringAt($engagementCategories, $key),
+                    $validEngagementCategories
+                ),
             ];
         }
 
         return $rows;
+    }
+
+    /**
+     * Narrow a submitted engagement category to a value the list actually defines.
+     *
+     * Anything else is discarded rather than persisted: an unknown option id has no
+     * localized title, so it would render blank in the form and the report and export as
+     * an unresolvable value in EHI.
+     *
+     * @param list<string> $validOptionIds
+     */
+    private function resolveEngagementCategory(string $submitted, array $validOptionIds): ?string
+    {
+        $value = $this->carePlanFormService->normalizeNullableString($submitted);
+
+        if ($value === null || in_array($value, $validOptionIds, true)) {
+            return $value;
+        }
+
+        // The rejected value is deliberately not logged. It is client-controlled free text
+        // that could carry PHI, and application logs are not an appropriate place for it.
+        $this->logger->warning('Discarded care plan engagement category: value is not a defined list option', [
+            'listId' => CarePlanFormService::ENGAGEMENT_CATEGORY_LIST_ID,
+        ]);
+
+        return null;
     }
 
     /**

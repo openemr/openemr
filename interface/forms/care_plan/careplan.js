@@ -205,6 +205,7 @@
             { cls: 'proposed_date', prefix: 'proposed_date_' },
             { cls: 'end_date', prefix: 'end_date_' },
             { cls: 'plan_status', prefix: 'status_' },
+            { cls: 'plan_engagement_category', prefix: 'engagement_category_' },
             { cls: 'description', prefix: 'description_' },
             // Reason fields carry ids so their <label for> stays associated. They have to
             // reindex with the row or the labels end up pointing at another row's ids.
