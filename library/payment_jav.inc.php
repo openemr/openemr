@@ -337,7 +337,6 @@ use OpenEMR\Core\OEGlobalsBag;
     function FormValidations() {//Screen validations are done here.
         if (document.getElementById('check_date').value == '') {
             let message = <?php echo xlj('Please Fill the Date') ?>;
-            message='<h4 class="bg-light text-danger">'+message+'</h4>';
             // a good use of syncAlertMsg when a promise or an await (then({})) with actions and/or
             // for an alert to time out, is not needed. et al validation alerts.
             (async (message, time) => {

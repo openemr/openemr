@@ -13,7 +13,7 @@
  * @copyright Copyright (c) 2013-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -127,7 +127,7 @@ function openResults(orderid) {
 }
 
 // Invokes the patient matching dialog.
-// args is a PHP-serialized array of patient attributes.
+// args is a JSON-encoded array of patient attributes.
 // The dialog script will directly insert the selected pid value, or 0,
 // into the value of the form field named "[select][$key]".
 //
@@ -266,8 +266,8 @@ function doWait(e){
             $s .= "  <td>&nbsp;</td>\n";
             $s .= "  <td>&nbsp;</td>\n";
                         $s .= "  <td><a href='javascript:openPtMatch(" . attr_js($matchkey) . ")'>";
-                        $tmp = unserialize($matchkey, ['allowed_classes' => false]);
-            $s .= xlt('Click to match patient') . ' "' . text($tmp['lname']) . ', ' . text($tmp['fname']) . '"';
+                        $tmp = is_array($decoded = json_decode((string) $matchkey, true)) ? $decoded : [];
+            $s .= xlt('Click to match patient') . ' "' . text($tmp['lname'] ?? '') . ', ' . text($tmp['fname'] ?? '') . '"';
             $s .= "</a>";
             $s .= "</td>\n";
             $s .= "  <td style='width:1%'><input type='text' name='select[" .

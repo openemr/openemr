@@ -42,6 +42,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $PaymentType = filter_input(INPUT_POST, 'type_name') ?: filter_input(INPUT_GET, 'type_name') ?: '';
 $TypeCode = filter_input(INPUT_POST, 'hidden_type_code') ?: filter_input(INPUT_GET, 'hidden_type_code') ?: '';
 $CountIndexBelow = filter_input(INPUT_POST, '_init_count_index_below', FILTER_VALIDATE_INT) ?: 0;
+$CountIndex = 0; // charge-row counter; payment_pat_sel.inc.php continues from the caller's value
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: New Payment", xl("New Payment"));

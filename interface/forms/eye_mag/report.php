@@ -2550,7 +2550,7 @@ function display_draw_image($zone, $encounter, $pid): void
             echo '<td>' . xlt('Date') . ': ' . text(oeFormatShortDate($note->get_date())) . '</td>';
             echo '</tr>';
             echo '<tr>';
-            echo '<td>' . $note->get_note() . '<br /><br /></td>';
+            echo '<td>' . text($note->get_note()) . '<br /><br /></td>';
             echo '</tr>';
         }
 

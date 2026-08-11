@@ -258,6 +258,9 @@ class ListRestController
         return RestControllerHelper::responseHandler($serviceResult, ['id' => $serviceResult], 201);
     }
 
+    /**
+     * @param array<int|string, mixed> $data
+     */
     #[OA\Put(
         path: '/api/patient/{pid}/dental_issue/{did}',
         description: 'Edit a dental issue',
@@ -274,6 +277,7 @@ class ListRestController
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
         security: [['openemr_auth' => []]]
     )]
@@ -293,6 +297,7 @@ class ListRestController
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
         security: [['openemr_auth' => []]]
     )]
@@ -312,10 +317,11 @@ class ListRestController
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put($pid, $list_id, $list_type, $data)
+    public function put(string $pid, string $list_id, string $list_type, array $data)
     {
         $data['type'] = $list_type;
         $data['pid'] = $pid;
@@ -327,8 +333,7 @@ class ListRestController
             return $validationHandlerResult;
         }
 
-
-        $serviceResult = $this->listService->update($data);
+        $serviceResult = $this->listService->update($pid, $list_id, $list_type, $data);
         return RestControllerHelper::responseHandler($serviceResult, ['id' => $list_id], 200);
     }
 

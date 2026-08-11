@@ -37,10 +37,6 @@ interface/forms/CAMOS/CAMOS.css
 interface/forms/CAMOS/rx.css
 interface/forms/eye_mag/css/report.css
 interface/forms/eye_mag/css/style.css
-interface/forms/fee_sheet/contraception_products/css/contraception_products.css
-interface/forms/observation/observation.css
-interface/forms/questionnaire_assessments/native/openemr_questionnaire.css
-interface/forms/track_anything/style.css
 interface/forms/vitals/vitals.css
 interface/main/messages/css/reminder_style.css
 interface/modules/custom_modules/oe-module-comlink-telehealth/public/assets/css/telehealth.css

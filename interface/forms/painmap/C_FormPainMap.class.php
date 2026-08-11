@@ -11,6 +11,7 @@
 
 /* Include the class we're extending. */
 
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/interface/clickmap/C_AbstractClickmap.php");
@@ -42,6 +43,18 @@ class C_FormPainMap extends C_AbstractClickmap
     public function __construct()
     {
         parent::__construct();
+    }
+
+    /**
+     * @brief Overrides parent to gate the form load on session-patient ownership
+     *  before delegating to parent::view_action().
+     */
+    public function view_action($form_id): string
+    {
+        $formId = is_numeric($form_id) ? (int) $form_id : 0;
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formId, self::$FORM_CODE);
+
+        return parent::view_action((string) $formId);
     }
 
     /**
