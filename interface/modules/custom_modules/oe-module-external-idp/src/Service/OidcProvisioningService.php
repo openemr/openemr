@@ -139,38 +139,45 @@ final class OidcProvisioningService
             throw new \RuntimeException('Unable to generate a local password hash for the shadow user.');
         }
 
-        $uuid = UuidRegistry::getRegistryForTable('users')->createUuid();
-        $userId = sqlInsert(
-            'INSERT INTO `users`
-                (`username`, `password`, `authorized`, `fname`, `lname`, `email`, `active`, `see_auth`, `calendar`, `portal_user`, `facility_id`, `billing_facility_id`, `uuid`)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, 0, ?, ?, ?)',
-            [$username, 'NoLongerUsed', $authorized, $firstName, $lastName, $email !== '' ? $email : null, $active, $facilityId, $facilityId, $uuid]
-        );
-        if (!is_numeric($userId) || (int) $userId < 1) {
-            throw new \RuntimeException('Unable to create the local OpenEMR user.');
-        }
-        $userId = (int) $userId;
-
-        privStatement(
-            'INSERT INTO `users_secure` (`id`, `username`, `password`, `last_update_password`) VALUES (?, ?, ?, NOW())',
-            [$userId, $username, $passwordHash]
-        );
-
-        if ($facilityId > 0) {
-            sqlStatement(
-                'UPDATE `users` u
-                 INNER JOIN `facility` f ON f.`id` = ?
-                 SET u.`facility` = f.`name`, u.`billing_facility` = f.`name`
-                 WHERE u.`id` = ?',
-                [$facilityId, $userId]
+        sqlBeginTrans();
+        try {
+            $uuid = UuidRegistry::getRegistryForTable('users')->createUuid();
+            $userId = sqlInsert(
+                'INSERT INTO `users`
+                    (`username`, `password`, `authorized`, `fname`, `lname`, `email`, `active`, `see_auth`, `calendar`, `portal_user`, `facility_id`, `billing_facility_id`, `uuid`)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, 0, ?, ?, ?)',
+                [$username, 'NoLongerUsed', $authorized, $firstName, $lastName, $email !== '' ? $email : null, $active, $facilityId, $facilityId, $uuid]
             );
+            if (!is_numeric($userId) || (int) $userId < 1) {
+                throw new \RuntimeException('Unable to create the local OpenEMR user.');
+            }
+            $userId = (int) $userId;
+
+            privStatement(
+                'INSERT INTO `users_secure` (`id`, `username`, `password`, `last_update_password`) VALUES (?, ?, ?, NOW())',
+                [$userId, $username, $passwordHash]
+            );
+
+            if ($facilityId > 0) {
+                sqlStatement(
+                    'UPDATE `users` u
+                     INNER JOIN `facility` f ON f.`id` = ?
+                     SET u.`facility` = f.`name`, u.`billing_facility` = f.`name`
+                     WHERE u.`id` = ?',
+                    [$facilityId, $userId]
+                );
+            }
+
+            sqlStatement('INSERT INTO `groups` SET `name` = ?, `user` = ?', [$groupName, $username]);
+            AclExtended::setUserAro([$aclGroup], $username, $firstName, '', $lastName);
+            $this->identityRepository->saveBinding((int) $provider['id'], $subject, $userId);
+
+            sqlCommitTrans();
+            return $userId;
+        } catch (\Throwable $exception) {
+            sqlRollbackTrans();
+            throw $exception;
         }
-
-        sqlStatement('INSERT INTO `groups` SET `name` = ?, `user` = ?', [$groupName, $username]);
-        AclExtended::setUserAro([$aclGroup], $username, $firstName, '', $lastName);
-
-        $this->identityRepository->saveBinding((int) $provider['id'], $subject, $userId);
-        return $userId;
     }
 
     private function requireSubject(object $claims): string
