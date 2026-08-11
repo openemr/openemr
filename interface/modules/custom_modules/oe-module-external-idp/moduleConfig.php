@@ -207,7 +207,7 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $clientId = trim((string) ($_POST['client_id'] ?? ''));
             $bearerAudiences = trim((string) ($_POST['bearer_audiences'] ?? ''));
             $clientSecret = (string) ($_POST['client_secret'] ?? '');
-            $scopes = trim((string) ($_POST['scopes'] ?? 'openid profile email'));
+            $scopes = ProviderRepository::DEFAULT_SCOPES;
             $enabled = !empty($_POST['enabled']);
             $provisioningMode = trim((string) ($_POST['provisioning_mode'] ?? ProviderRepository::DEFAULT_PROVISIONING_MODE));
             $matchClaim = trim((string) ($_POST['match_claim'] ?? 'preferred_username'));
@@ -246,19 +246,14 @@ if ($bootstrapError === '' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 'enable_internal_scope_exchange' => $enableInternalScopeExchange ? 1 : 0,
             ];
 
-            if ($displayName === '' || $clientId === '' || $scopes === '') {
-                throw new \InvalidArgumentException('Display name, client ID, and scopes are required.');
+            if ($displayName === '' || $clientId === '') {
+                throw new \InvalidArgumentException('Display name and client ID are required.');
             }
             if (!in_array($provisioningMode, ProviderRepository::PROVISIONING_MODES, true)) {
                 throw new \InvalidArgumentException('Provisioning mode is invalid.');
             }
             if (($provisioningMode === 'auto_provision' || $provisioningMode === 'auto_bind_or_provision') && ($defaultGroupName === '' || $defaultAclGroup === '')) {
                 throw new \InvalidArgumentException('Shadow-user provisioning requires a local group name and an ACL group.');
-            }
-
-            $scopeList = preg_split('/\s+/', $scopes, -1, PREG_SPLIT_NO_EMPTY);
-            if (!in_array('openid', $scopeList, true)) {
-                throw new \InvalidArgumentException('Scopes must include openid.');
             }
 
             if ($action === 'save') {
@@ -451,7 +446,8 @@ if (!$renderPartial) {
 
                 <div class="form-group">
                     <label for="scopes"><?php echo xlt('Scopes'); ?></label>
-                    <input class="form-control" id="scopes" name="scopes" maxlength="512" required value="<?php echo attr($provider['scopes'] ?? 'openid profile email'); ?>">
+                    <input class="form-control" id="scopes" type="text" readonly value="<?php echo attr(ProviderRepository::DEFAULT_SCOPES); ?>">
+                    <small class="form-text text-muted"><?php echo xlt('OpenEMR uses the fixed OIDC login scopes openid profile email.'); ?></small>
                 </div>
 
                 <h2 class="h5 mt-4"><?php echo xlt('Shadow-user provisioning'); ?></h2>

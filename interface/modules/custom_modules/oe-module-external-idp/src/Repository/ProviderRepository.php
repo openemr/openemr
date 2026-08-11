@@ -17,6 +17,7 @@ final class ProviderRepository
 {
     public const PROVISIONING_MODES = ['manual', 'auto_bind', 'auto_provision', 'auto_bind_or_provision'];
     public const DEFAULT_PROVISIONING_MODE = 'manual';
+    public const DEFAULT_SCOPES = 'openid profile email';
 
     /** @return array<string, mixed>|false */
     public function getForSite(string $siteId): array|false
@@ -138,6 +139,7 @@ final class ProviderRepository
      */
     public function save(string $siteId, string $displayName, string $issuerUrl, string $clientId, string $clientSecret, string $scopes, bool $enabled, array $metadata, array $settings = []): void
     {
+        $scopes = self::DEFAULT_SCOPES;
         $encryptedSecret = $clientSecret === '' ? null : ServiceContainer::getCrypto()->encryptForDatabase($clientSecret);
         $metadataJson = json_encode($metadata, JSON_THROW_ON_ERROR);
         $bearerAudiences = trim((string) ($settings['bearer_audiences'] ?? ''));
@@ -214,6 +216,8 @@ final class ProviderRepository
                 $provider['client_secret'] = '';
             }
         }
+
+        $provider['scopes'] = self::DEFAULT_SCOPES;
 
         return $provider;
     }

@@ -84,7 +84,7 @@ After the module is enabled, open:
 
 In a local development environment, the page is typically reachable at:
 
-- `http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/moduleConfigShell.php`
+- `https://localhost:9300/interface/modules/custom_modules/oe-module-external-idp/moduleConfigShell.php`
 
 ## Fields on the OpenEMR configuration page
 
@@ -218,13 +218,13 @@ This section uses a concrete example.
 Example:
 
 - OpenEMR URL:
-  - `http://localhost:8300`
+  - `https://localhost:9300`
 - Keycloak realm:
   - `ai_gateway`
 - Keycloak client ID:
   - `openemr-client`
 - OpenEMR callback URL:
-  - `http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/callback.php`
+  - `https://localhost:9300/interface/modules/custom_modules/oe-module-external-idp/callback.php`
 
 ### Keycloak client settings
 
@@ -246,16 +246,16 @@ In Keycloak, configure the client like this:
   - usually `Off`
 
 - Root URL:
-  - `http://localhost:8300`
+  - `https://localhost:9300`
 
 - Valid redirect URIs:
-  - `http://localhost:8300/interface/modules/custom_modules/oe-module-external-idp/callback.php`
+  - `https://localhost:9300/interface/modules/custom_modules/oe-module-external-idp/callback.php`
 
 - Web origins:
-  - `http://localhost:8300`
+  - `https://localhost:9300`
 
 - Admin URL:
-  - `http://localhost:8300`
+  - `https://localhost:9300`
 
 Then go to:
 
@@ -286,12 +286,16 @@ Important distinction:
 
 - browser-facing redirect URI uses the OpenEMR URL the browser sees
   - example:
-    - `http://localhost:8300/.../callback.php`
+    - `https://localhost:9300/.../callback.php`
 
 - server-to-server discovery and token endpoint access must use a host reachable
   from the OpenEMR container
   - in Docker-based local testing this may be:
     - `http://host.docker.internal:8002/...`
+
+The redirect URI must match the IdP client registration exactly, including
+scheme, host, port, and path. A client registered for `http://localhost:8300`
+will reject `https://localhost:9300`.
 
 ## Recommended initial configuration
 
