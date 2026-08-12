@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Duplicate Patient Management</title>
+    <!-- setupHeader stub -->
+
+    <style>
+      .table th, .table td {
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      .table tr.highlight {
+        background-color: #ffc10733 !important;
+      }
+
+      .table tr.highlight-master {
+        background-color: #ff000733 !important;
+      }
+    </style>
+    <script>
+        $(function () {
+            // Enable fixed headers when scrolling the report.
+            if (window.oeFixedHeaderSetup) {
+                oeFixedHeaderSetup(document.getElementById('mymaintable'));
+            }
+        });
+
+        function openNewTopWindow(pid) {
+            document.fnew.patientID.value = pid;
+            top.restoreSession();
+            document.fnew.submit();
+        }
+
+        function selectChange(select, toppid, rowpid) {
+            let form = document.forms[0];
+            if (select.value == '') {
+                return;
+            }
+            top.restoreSession();
+            if (select.value == &quot;MK&quot;) {
+                // Keep this row's chart: it becomes the merge target.
+                const params = new URLSearchParams({
+                    pid1: rowpid,
+                    pid2: toppid
+                });
+                window.location = 'merge_patients.php?' + params;
+            } else if (select.value == &quot;MD&quot;) {
+                // Discard this row's chart into the group's chart.
+                const params = new URLSearchParams({
+                    pid1: toppid,
+                    pid2: rowpid
+                });
+                window.location = 'merge_patients.php?' + params;
+            } else {
+                // The remaining actions are handled server side and rowpid is meaningless to them.
+                form.form_action.value = select.value;
+                form.form_toppid.value = toppid;
+                form.form_rowpid.value = rowpid;
+                form.submit();
+            }
+        }
+    </script>
+</head>
+
+<body class="container-fluid bg-light text-dark">
+    <div class="text-center mx-2">
+        <div class="text-center mt-1 w-100">
+            <h2>Duplicate Patient Management</h2>
+        </div>
+        <form class="form" method='post' action='manage_dup_patients.php'>
+            <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+            <div class="btn-sm-group mb-1 text-center">
+                <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh">ReCalculate Scores</button>
+                <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'>Print</button>
+                <button class="btn btn-sm btn-primary btn-file" type='submit' name='form_csvexport' value='CSV'>Generate a spreadsheet</button>
+            </div>
+            <table id='mymaintable' class='table table-sm table-bordered table-hover w-100 table-light'>
+                <thead class="thead-dark text-center">
+                <tr>
+                    <th>
+                        Actions
+                    </th>
+                    <th>
+                        Score
+                    </th>
+                    <th>
+                        Pid
+                    </th>
+                    <th>
+                        Public
+                    </th>
+                    <th>
+                        Scope
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        DOB
+                    </th>
+                    <th>
+                        Gender
+                    </th>
+                    <th>
+                        Email
+                    </th>
+                    <th>
+                        Telephone
+                    </th>
+                    <th>
+                        Registered
+                    </th>
+                    <th>
+                        Address
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="text-center">
+                                                                                <tr class='highlight'>
+                            <td>
+                                <select onchange='selectChange(this, 7, 7)' style='width:100%'>
+                                    <option value=''></option>
+                                                                            <option value='U'>Mark as Unique</option>
+                                        <option value='R'>Recompute Score</option>
+                                                                    </select>
+                            </td>
+                            <td>
+                                20
+                            </td>
+                            <td class="text-warning" onclick="openNewTopWindow(7)"
+                                title="Click to open in a new window or tab" style="cursor:pointer">
+                                7
+                            </td>
+                            <td>
+                                PUB7
+                            </td>
+                            <td>
+                                Merge From                            </td>
+                            <td>
+                                Nakamura, Aiko R
+                            </td>
+                            <td>
+                                1984-11-02
+                            </td>
+                            <td>
+                                Female
+                            </td>
+                            <td>
+                                aiko@example.com
+                            </td>
+                            <td>
+                                555-1000, 555-2000
+                            </td>
+                            <td>
+                                2020-04-01
+                            </td>
+                            <td>
+                                12 Elm St
+                            </td>
+                        </tr>
+                                            <tr class='highlight-master'>
+                            <td>
+                                <select onchange='selectChange(this, 7, 9)' style='width:100%'>
+                                    <option value=''></option>
+                                                                            <option value='MK'>Merge and Keep</option>
+                                        <option value='MD'>Merge and Discard</option>
+                                                                    </select>
+                            </td>
+                            <td>
+                                20
+                            </td>
+                            <td class="text-warning" onclick="openNewTopWindow(9)"
+                                title="Click to open in a new window or tab" style="cursor:pointer">
+                                9
+                            </td>
+                            <td>
+                                PUB9
+                            </td>
+                            <td>
+                                Merge To                            </td>
+                            <td>
+                                Nakamura, Aiko R
+                            </td>
+                            <td>
+                                1984-11-02
+                            </td>
+                            <td>
+                                Female
+                            </td>
+                            <td>
+                                aiko@example.com
+                            </td>
+                            <td>
+                                555-1000, 555-2000
+                            </td>
+                            <td>
+                                2020-04-01
+                            </td>
+                            <td>
+                                12 Elm St
+                            </td>
+                        </tr>
+                                                                                <tr><td class='detail' colspan='12'>&nbsp;</td></tr>
+                                                                <tr class=''>
+                            <td>
+                                <select onchange='selectChange(this, 21, 21)' style='width:100%'>
+                                    <option value=''></option>
+                                                                            <option value='U'>Mark as Unique</option>
+                                        <option value='R'>Recompute Score</option>
+                                                                    </select>
+                            </td>
+                            <td>
+                                13
+                            </td>
+                            <td class="text-warning" onclick="openNewTopWindow(21)"
+                                title="Click to open in a new window or tab" style="cursor:pointer">
+                                21
+                            </td>
+                            <td>
+                                PUB21
+                            </td>
+                            <td>
+                                                            </td>
+                            <td>
+                                O'Brien, Sean R
+                            </td>
+                            <td>
+                                1984-11-02
+                            </td>
+                            <td>
+                                Female
+                            </td>
+                            <td>
+                                aiko@example.com
+                            </td>
+                            <td>
+                                555-1000, 555-2000
+                            </td>
+                            <td>
+                                2020-04-01
+                            </td>
+                            <td>
+                                12 Elm St
+                            </td>
+                        </tr>
+                                            <tr class=''>
+                            <td>
+                                <select onchange='selectChange(this, 21, 22)' style='width:100%'>
+                                    <option value=''></option>
+                                                                            <option value='MK'>Merge and Keep</option>
+                                        <option value='MD'>Merge and Discard</option>
+                                                                    </select>
+                            </td>
+                            <td>
+                                14
+                            </td>
+                            <td class="text-warning" onclick="openNewTopWindow(22)"
+                                title="Click to open in a new window or tab" style="cursor:pointer">
+                                22
+                            </td>
+                            <td>
+                                PUB22
+                            </td>
+                            <td>
+                                                            </td>
+                            <td>
+                                O'Brian, Sean R
+                            </td>
+                            <td>
+                                1984-11-02
+                            </td>
+                            <td>
+                                Female
+                            </td>
+                            <td>
+                                aiko@example.com
+                            </td>
+                            <td>
+                                555-1000, 555-2000
+                            </td>
+                            <td>
+                                2020-04-01
+                            </td>
+                            <td>
+                                12 Elm St
+                            </td>
+                        </tr>
+                                                    </tbody>
+            </table>
+            <input type='hidden' name='form_action' value='' />
+            <input type='hidden' name='form_toppid' value='0' />
+            <input type='hidden' name='form_rowpid' value='0' />
+        </form>
+    </div>
+        <form name='fnew' method='post' target='_blank'
+        action='../main/main_screen.php?auth=login&amp;site=default'>
+        <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+        <input type='hidden' name='patientID' value='0' />
+    </form>
+</body>
+</html>

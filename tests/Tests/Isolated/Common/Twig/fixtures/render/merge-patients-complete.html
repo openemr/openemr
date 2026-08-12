@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Merge Patients</title>
+    <!-- setupHeader stub -->
+
+    <script>
+
+        var el_pt_name;
+        var el_pt_id;
+
+        // Callback target for the find-patient popup.
+        function setpatient(pid, lname, fname, dob) {
+            el_pt_name.value = lname + ', ' + fname + ' (' + pid + ')';
+            el_pt_id.value = pid;
+        }
+
+        // Opens the find-patient popup, remembering which pair of fields it should fill in.
+        function sel_patient(ename, epid) {
+            el_pt_name = ename;
+            el_pt_id = epid;
+            dlgopen('../main/calendar/find_patient_popup.php', '_blank', 600, 400);
+        }
+
+    </script>
+
+</head>
+
+<body class="body_top">
+    <div class="container">
+        <h2>Merge Patients</h2>
+
+
+            <div class="jumbotron jumbotron-fluid m-0 p-0 px-2">
+                                    <div>Changing patient ID for document scan.pdf</div>
+                                    <div>DELETE FROM `history_data` WHERE `pid` = ? (1)</div>
+                                    <div>UPDATE `billing` SET `pid` = ? WHERE `pid` = ? (4)</div>
+                                    <div>Merge complete.</div>
+                                            </div>
+
+            <br />&nbsp;<br />
+            <input type="button" class="btn btn-primary" value="Go to Duplicate Manager"
+                onclick="window.location = 'manage_dup_patients.php'" />
+
+            </div>
+</body>
+</html>

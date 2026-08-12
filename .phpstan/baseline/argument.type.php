@@ -14357,66 +14357,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/letter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$s of function escape_limit expects string, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr_url expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of class Document constructor expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$s of function escape_sql_column_name expects array\\|string, mixed given\\.$#',
-    'count' => 15,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$s of function escape_table_name expects string, mixed given\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr expects string, int\\<min, \\-1\\>\\|int\\<1, max\\>\\|string given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function attr_url expects string, int given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$value of function intval expects array\\|bool\\|float\\|GMP\\|int\\|resource\\|SimpleXMLElement\\|string\\|null, mixed given\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$timestamp of function date expects int\\|null, int\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#5 \\$comments of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#6 \\$patient_id of method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:newEvent\\(\\) expects int\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$code_type of function ippfReceiptDetailLine expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',

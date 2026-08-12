@@ -1,0 +1,198 @@
+{#
+  Duplicate Patient Management report. Rendered by
+  OpenEMR\Controllers\Interface\PatientFile\ManageDuplicatePatientsController.
+
+  Each group is a cluster of suspected duplicates: the primary row first, then the charts that
+  scored against it, separated from the next group by a blank row. The `actions` values come from
+  the controller so the option values, the JavaScript and the server-side dispatch stay in step.
+#}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ 'Duplicate Patient Management'|xlt }}</title>
+    {{ setupHeader(['report-helper']) }}
+
+    <style>
+      .table th, .table td {
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      .table tr.highlight {
+        background-color: #ffc10733 !important;
+      }
+
+      .table tr.highlight-master {
+        background-color: #ff000733 !important;
+      }
+    </style>
+    <script>
+        $(function () {
+            // Enable fixed headers when scrolling the report.
+            if (window.oeFixedHeaderSetup) {
+                oeFixedHeaderSetup(document.getElementById('mymaintable'));
+            }
+        });
+
+        function openNewTopWindow(pid) {
+            document.fnew.patientID.value = pid;
+            top.restoreSession();
+            document.fnew.submit();
+        }
+
+        function selectChange(select, toppid, rowpid) {
+            let form = document.forms[0];
+            if (select.value == '') {
+                return;
+            }
+            top.restoreSession();
+            if (select.value == {{ actions.mergeKeep|attr_js }}) {
+                // Keep this row's chart: it becomes the merge target.
+                const params = new URLSearchParams({
+                    pid1: rowpid,
+                    pid2: toppid
+                });
+                window.location = 'merge_patients.php?' + params;
+            } else if (select.value == {{ actions.mergeDiscard|attr_js }}) {
+                // Discard this row's chart into the group's chart.
+                const params = new URLSearchParams({
+                    pid1: toppid,
+                    pid2: rowpid
+                });
+                window.location = 'merge_patients.php?' + params;
+            } else {
+                // The remaining actions are handled server side and rowpid is meaningless to them.
+                form.form_action.value = select.value;
+                form.form_toppid.value = toppid;
+                form.form_rowpid.value = rowpid;
+                form.submit();
+            }
+        }
+    </script>
+</head>
+
+<body class="container-fluid bg-light text-dark">
+    <div class="text-center mx-2">
+        <div class="text-center mt-1 w-100">
+            <h2>{{ 'Duplicate Patient Management'|xlt }}</h2>
+        </div>
+        <form class="form" method='post' action='manage_dup_patients.php'>
+            <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+            <div class="btn-sm-group mb-1 text-center">
+                <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh">{{ 'ReCalculate Scores'|xla }}</button>
+                <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'>{{ 'Print'|xla }}</button>
+                <button class="btn btn-sm btn-primary btn-file" type='submit' name='form_csvexport' value='CSV'>{{ 'Generate a spreadsheet'|xla }}</button>
+            </div>
+            <table id='mymaintable' class='table table-sm table-bordered table-hover w-100 table-light'>
+                <thead class="thead-dark text-center">
+                <tr>
+                    <th>
+                        {{ 'Actions'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Score'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Pid'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Public'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Scope'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Name'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'DOB'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Gender'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Email'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Telephone'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Registered'|xlt }}
+                    </th>
+                    <th>
+                        {{ 'Address'|xlt }}
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="text-center">
+                {% for group in groups %}
+                    {% if not loop.first %}
+                        <tr><td class='detail' colspan='12'>&nbsp;</td></tr>
+                    {% endif %}
+                    {% for row in group.rows %}
+                        <tr class='{{ row.highlightClass|attr }}'>
+                            <td>
+                                <select onchange='selectChange(this, {{ row.topPid|attr_js }}, {{ row.pid|attr_js }})' style='width:100%'>
+                                    <option value=''></option>
+                                    {% if row.isMatch %}
+                                        <option value='{{ actions.mergeKeep|attr }}'>{{ 'Merge and Keep'|xlt }}</option>
+                                        <option value='{{ actions.mergeDiscard|attr }}'>{{ 'Merge and Discard'|xlt }}</option>
+                                    {% else %}
+                                        <option value='{{ actions.markUnique|attr }}'>{{ 'Mark as Unique'|xlt }}</option>
+                                        <option value='{{ actions.recompute|attr }}'>{{ 'Recompute Score'|xlt }}</option>
+                                    {% endif %}
+                                </select>
+                            </td>
+                            <td>
+                                {{ row.score|text }}
+                            </td>
+                            <td class="text-warning" onclick="openNewTopWindow({{ row.pid|attr_js }})"
+                                title="{{ 'Click to open in a new window or tab'|xla }}" style="cursor:pointer">
+                                {{ row.pid|text }}
+                            </td>
+                            <td>
+                                {{ row.publicId|text }}
+                            </td>
+                            <td>
+                                {% if row.scopeLabel %}{{ row.scopeLabel|xlt }}{% endif %}
+                            </td>
+                            <td>
+                                {{ row.name|text }}
+                            </td>
+                            <td>
+                                {{ row.dateOfBirth|text }}
+                            </td>
+                            <td>
+                                {{ row.sex|text }}
+                            </td>
+                            <td>
+                                {{ row.email|text }}
+                            </td>
+                            <td>
+                                {{ row.phones|text }}
+                            </td>
+                            <td>
+                                {{ row.registeredOn|text }}
+                            </td>
+                            <td>
+                                {{ row.street|text }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+            <input type='hidden' name='form_action' value='' />
+            <input type='hidden' name='form_toppid' value='0' />
+            <input type='hidden' name='form_rowpid' value='0' />
+        </form>
+    </div>
+    {# Opens the selected patient in a new top-level window, which needs a real login post. #}
+    <form name='fnew' method='post' target='_blank'
+        action='../main/main_screen.php?auth=login&amp;site={{ siteId|attr_url }}'>
+        <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+        <input type='hidden' name='patientID' value='0' />
+    </form>
+</body>
+</html>

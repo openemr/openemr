@@ -8,11 +8,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Left side of && is always true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Left side of && is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];

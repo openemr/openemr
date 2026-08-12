@@ -1572,11 +1572,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function resolveTargets\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function filterActiveIssues\\(\\) has parameter \\$i with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',

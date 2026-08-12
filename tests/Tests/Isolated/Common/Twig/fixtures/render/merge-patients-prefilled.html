@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Merge Patients</title>
+    <!-- setupHeader stub -->
+
+    <script>
+
+        var el_pt_name;
+        var el_pt_id;
+
+        // Callback target for the find-patient popup.
+        function setpatient(pid, lname, fname, dob) {
+            el_pt_name.value = lname + ', ' + fname + ' (' + pid + ')';
+            el_pt_id.value = pid;
+        }
+
+        // Opens the find-patient popup, remembering which pair of fields it should fill in.
+        function sel_patient(ename, epid) {
+            el_pt_name = ename;
+            el_pt_id = epid;
+            dlgopen('../main/calendar/find_patient_popup.php', '_blank', 600, 400);
+        }
+
+    </script>
+
+</head>
+
+<body class="body_top">
+    <div class="container">
+        <h2>Merge Patients</h2>
+
+
+            <p>
+            </p>
+            <form method='post' action='merge_patients.php?pid1=7&amp;pid2=12'>
+                <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
+                <div class="table-responsive">
+                    <table class="table w-100">
+                        <tr>
+                            <td>
+                                Target Patient
+                            </td>
+                            <td>
+                                <input type='text' class='form-control' size='30' name='form_target_patient'
+                                    value='O&#039;Brien, Mary (7)'
+                                    onclick='sel_patient(this, this.form.form_target_pid)'
+                                    title='Click to select patient' readonly />
+                                <input type='hidden' name='form_target_pid' value='7' />
+                            </td>
+                            <td>
+                                This is the main chart that is to receive the merged data.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Source Patient
+                            </td>
+                            <td>
+                                <input type='text' class='form-control' size='30' name='form_source_patient'
+                                    value='Obrien, Mary (12)'
+                                    onclick='sel_patient(this, this.form.form_source_pid)'
+                                    title='Click to select patient' readonly />
+                                <input type='hidden' name='form_source_pid' value='12' />
+                            </td>
+                            <td>
+                                This is the chart that is to be merged into the main chart and then deleted.
+                            </td>
+                        </tr>
+                    </table>
+                    <span><button type='submit' class="btn btn-primary" name='form_submit'
+                            value='merge'>Merge</button></span>
+                    <span><button type='submit' class="btn btn-primary" name='form_submit'
+                            value='dedupe'>Merge with Encounter Deduplication</button></span>
+                </div>
+            </form>
+            <div class="jumbotron p-2 m-0 mt-2">
+                <p class="font-weight-bold">Be careful with this feature. Back up your database and documents before using it!</p>
+                                    <p>This will be a `dry run` with no physical data updates.</p>
+
+                <p>This will merge two patient charts into one.  It is useful when a patient has been duplicated by mistake.  If that happens often, fix your office procedures - do not run this routinely!</p>
+
+                <p>The first (`target`) chart is the one that is considered the most complete and accurate. Demographics, history and insurance sections for this one will be retained.</p>
+
+                <p>The second (`source`) chart will have its demographics, history and insurance sections discarded.  Its other data will be merged into the target chart.</p>
+
+                            </div>
+
+            </div>
+</body>
+</html>

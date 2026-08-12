@@ -14317,11 +14317,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function updateDupScore\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function updateHistoryData\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',

@@ -2892,36 +2892,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/letter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:fetchRecordsNoLog\\(\\) instead of sqlStatementNoLog\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
-    'count' => 15,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 15,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
@@ -5363,7 +5333,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 27,
+    'count' => 26,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
@@ -5373,7 +5343,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
-    'count' => 18,
+    'count' => 17,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [

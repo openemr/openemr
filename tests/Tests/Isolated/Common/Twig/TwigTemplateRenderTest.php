@@ -21,6 +21,9 @@ namespace OpenEMR\Tests\Isolated\Common\Twig;
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
+use OpenEMR\Services\Patient\DuplicatePatientGroup;
+use OpenEMR\Services\Patient\DuplicatePatientRow;
+use OpenEMR\Services\Patient\PatientMergeResult;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -396,6 +399,169 @@ class TwigTemplateRenderTest extends TestCase
             ],
             $fixtureDir . '/load-codes-no-rxcui.html',
         ];
+
+        // Merge Patients page. The template has two mutually exclusive states -- the chart-picker
+        // form and the report of a merge that has already run -- and the form itself changes
+        // depending on whether the duplicate manager supplied both charts.
+        yield 'patient_file/merge_patients empty form' => [
+            'patient_file/merge_patients.html.twig',
+            [
+                'csrfToken'            => 'test-csrf-token',
+                'pid1'                 => 0,
+                'pid2'                 => 0,
+                'targetPid'            => 0,
+                'sourcePid'            => 0,
+                'targetLabel'          => 'Click to select',
+                'sourceLabel'          => 'Click to select',
+                'dryRun'               => false,
+                'requireIdentityMatch' => true,
+                'mergeResult'          => null,
+            ],
+            $fixtureDir . '/merge-patients-empty-form.html',
+        ];
+
+        yield 'patient_file/merge_patients prefilled from duplicate manager' => [
+            'patient_file/merge_patients.html.twig',
+            [
+                'csrfToken'            => 'test-csrf-token',
+                'pid1'                 => 7,
+                'pid2'                 => 12,
+                'targetPid'            => 7,
+                'sourcePid'            => 12,
+                'targetLabel'          => "O'Brien, Mary (7)",
+                'sourceLabel'          => 'Obrien, Mary (12)',
+                'dryRun'               => true,
+                // The duplicate manager has already vetted SSN/DOB, so the page does not warn
+                // about them and the merge will not enforce them.
+                'requireIdentityMatch' => false,
+                'mergeResult'          => null,
+            ],
+            $fixtureDir . '/merge-patients-prefilled.html',
+        ];
+
+        // Once a merge has run the controller renders the report state alone -- the form variables
+        // are deliberately absent, because the source chart it would point at no longer exists.
+        yield 'patient_file/merge_patients successful merge' => [
+            'patient_file/merge_patients.html.twig',
+            [
+                'mergeResult' => PatientMergeResult::completed([
+                    'Changing patient ID for document scan.pdf',
+                    'DELETE FROM `history_data` WHERE `pid` = ? (1)',
+                    'UPDATE `billing` SET `pid` = ? WHERE `pid` = ? (4)',
+                    'Merge complete.',
+                ]),
+            ],
+            $fixtureDir . '/merge-patients-complete.html',
+        ];
+
+        yield 'patient_file/merge_patients aborted merge' => [
+            'patient_file/merge_patients.html.twig',
+            [
+                'mergeResult' => PatientMergeResult::failed(
+                    ['Changing patient ID for document scan.pdf'],
+                    'Target and source DOB do not match'
+                ),
+            ],
+            $fixtureDir . '/merge-patients-aborted.html',
+        ];
+
+        // Duplicate Patient Management report. The empty case covers the page chrome an install
+        // with no duplicates sees; the populated case covers group separation, the two different
+        // action menus, and both highlight styles.
+        $dupActions = [
+            'markUnique' => 'U',
+            'recompute' => 'R',
+            'mergeKeep' => 'MK',
+            'mergeDiscard' => 'MD',
+        ];
+
+        yield 'patient_file/manage_dup_patients no duplicates' => [
+            'patient_file/manage_dup_patients.html.twig',
+            [
+                'csrfToken' => 'test-csrf-token',
+                'siteId' => 'default',
+                'groups' => [],
+                'actions' => $dupActions,
+            ],
+            $fixtureDir . '/manage-dup-patients-empty.html',
+        ];
+
+        yield 'patient_file/manage_dup_patients two groups' => [
+            'patient_file/manage_dup_patients.html.twig',
+            [
+                'csrfToken' => 'test-csrf-token',
+                'siteId' => 'default',
+                'groups' => [
+                    new DuplicatePatientGroup(
+                        1,
+                        DuplicatePatientRow::forPrimary(self::duplicatePatientRow([
+                            'pid' => '7',
+                            'pubpid' => 'PUB7',
+                            'dupscore' => '20',
+                        ])),
+                        [
+                            DuplicatePatientRow::forMatch(self::duplicatePatientRow([
+                                'pid' => '9',
+                                'pubpid' => 'PUB9',
+                                'dupscore' => '20',
+                                'myscore' => '20',
+                            ]), 7),
+                        ]
+                    ),
+                    new DuplicatePatientGroup(
+                        2,
+                        DuplicatePatientRow::forPrimary(self::duplicatePatientRow([
+                            'pid' => '21',
+                            'pubpid' => 'PUB21',
+                            'dupscore' => '13',
+                            'lname' => "O'Brien",
+                            'fname' => 'Sean',
+                        ])),
+                        [
+                            DuplicatePatientRow::forMatch(self::duplicatePatientRow([
+                                'pid' => '22',
+                                'pubpid' => 'PUB22',
+                                'dupscore' => '13',
+                                'myscore' => '14',
+                                'lname' => "O'Brian",
+                                'fname' => 'Sean',
+                            ]), 21),
+                        ]
+                    ),
+                ],
+                'actions' => $dupActions,
+            ],
+            $fixtureDir . '/manage-dup-patients-groups.html',
+        ];
+    }
+
+    /**
+     * A patient_data row shaped the way DuplicatePatientRow expects.
+     *
+     * @param array<string, mixed> $overrides
+     *
+     * @return array<string, mixed>
+     *
+     * @codeCoverageIgnore Only reached from the data provider, which runs before instrumentation.
+     */
+    private static function duplicatePatientRow(array $overrides = []): array
+    {
+        return array_merge([
+            'pid' => '1',
+            'pubpid' => 'PUB1',
+            'dupscore' => '13',
+            'lname' => 'Nakamura',
+            'fname' => 'Aiko',
+            'mname' => 'R',
+            'DOB' => '1984-11-02',
+            'sex' => 'Female',
+            'email' => 'aiko@example.com',
+            'phone_home' => '555-1000',
+            'phone_biz' => '',
+            'phone_cell' => '555-2000',
+            'regdate' => '2020-04-01',
+            'street' => '12 Elm St',
+        ], $overrides);
     }
 
     /**

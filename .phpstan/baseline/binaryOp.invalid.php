@@ -5922,41 +5922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/letter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Deleted rows with \' and mixed results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Updated for…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Updated rows with \' and mixed results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'deleted duplicate…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'patient\\-merge\\-\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \', \' results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 24,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "/" between \\(float\\|int\\) and string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
