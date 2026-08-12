@@ -112,7 +112,7 @@ class OnsitePortalActivityController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
-                $onsiteportalactivity->PatientId ?? null,
+                $onsiteportalactivity->PatientId,
                 PortalSessionPidGuard::requireBootstrapPid(),
             );
             $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
@@ -190,7 +190,7 @@ class OnsitePortalActivityController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
-                $onsiteportalactivity->PatientId ?? null,
+                $onsiteportalactivity->PatientId,
                 PortalSessionPidGuard::requireBootstrapPid(),
             );
 
@@ -241,7 +241,7 @@ class OnsitePortalActivityController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
-                $onsiteportalactivity->PatientId ?? null,
+                $onsiteportalactivity->PatientId,
                 PortalSessionPidGuard::requireBootstrapPid(),
             );
 

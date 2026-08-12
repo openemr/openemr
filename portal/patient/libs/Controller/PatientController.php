@@ -192,7 +192,7 @@ class PatientController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid ?? null,
+                $patient->Pid,
                 SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
             );
             $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
@@ -339,7 +339,7 @@ class PatientController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid ?? null,
+                $patient->Pid,
                 SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
             );
 
@@ -450,7 +450,7 @@ class PatientController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid ?? null,
+                $patient->Pid,
                 SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
             );
             $patient->Delete();

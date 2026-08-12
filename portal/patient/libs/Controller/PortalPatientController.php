@@ -146,7 +146,7 @@ class PortalPatientController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid ?? null,
+                $patient->Pid,
                 PortalSessionPidGuard::requireBootstrapPid(),
             );
 
@@ -284,7 +284,7 @@ class PortalPatientController extends AppBasePortalController
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
-                $patient->Pid ?? null,
+                $patient->Pid,
                 PortalSessionPidGuard::requireBootstrapPid(),
             );
 
