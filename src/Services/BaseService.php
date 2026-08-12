@@ -63,7 +63,7 @@ class BaseService implements BaseServiceInterface
      * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
      */
     public function __construct(
-        private string $table,
+        private readonly string $table,
         ?LoggerInterface $logger = null,
     ) {
         $this->fields = QueryUtils::listTableFields($table);
