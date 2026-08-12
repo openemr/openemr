@@ -44,9 +44,6 @@ function dateformat(?int $timestamp = null, bool $with_dow = false): string
     $month = (int) date('m', $timestamp);
     $nom = Month::from($month)->label();
 
-    // English is both the default and the common case, and reaching the English
-    // arms below costs three lang_languages queries per formatted date -- two of
-    // them just to discover that language 1 is called "English". Short-circuit it.
     $day_num = date("d", $timestamp);
     $year = date("Y", $timestamp);
 
