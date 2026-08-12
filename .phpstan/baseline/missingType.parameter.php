@@ -33572,11 +33572,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\BaseService\\:\\:getAutoIncrements\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\BaseService\\:\\:isValidDate\\(\\) has parameter \\$dateString with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/BaseService.php',

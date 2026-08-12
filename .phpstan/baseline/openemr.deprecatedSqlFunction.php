@@ -5177,16 +5177,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/encounter_events.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:fetchRecordsNoLog\\(\\) instead of sqlStatementNoLog\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/formdata.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/formdata.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/forms.inc.php',
@@ -5453,11 +5443,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:fetchRecordsNoLog\\(\\) instead of sqlStatementNoLog\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
@@ -6695,16 +6680,6 @@ $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:fetchRecordsNoLog\\(\\) instead of sqlStatementNoLog\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:fetchRecords\\(\\) or QueryUtils\\:\\:fetchArrayFromResultSet\\(\\) instead of sqlFetchArray\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
