@@ -4702,31 +4702,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/language/language.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function create_tar_archive\\(\\) has parameter \\$archiveName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function create_tar_archive\\(\\) has parameter \\$compressMethod with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function create_tar_archive\\(\\) has parameter \\$itemArray with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function gz_compress_file\\(\\) has parameter \\$source with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function obliterate_dir\\(\\) has parameter \\$dir with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function DOBandEncounter\\(\\) has parameter \\$pc_eid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',

@@ -1065,18 +1065,6 @@
                 "icon": "fa-caret-right",
                 "children": [
                     {
-                        "label": "Backup",
-                        "menu_id": "adm0",
-                        "target": "adm",
-                        "url": "/interface/main/backup.php",
-                        "children": [],
-                        "requirement": 0,
-                        "acl_req": [
-                            "admin",
-                            "super"
-                        ]
-                    },
-                    {
                         "label": "Files",
                         "menu_id": "adm0",
                         "target": "adm",
