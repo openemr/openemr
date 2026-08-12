@@ -358,19 +358,10 @@ class ExternalBearerTokenValidator implements ExternalBearerTokenValidatorInterf
     private function extractScopes(object $claims): array
     {
         $scopes = [];
-        $scopeClaim = $claims->scope ?? null;
-        if (is_string($scopeClaim) && trim($scopeClaim) !== '') {
-            $scopes = preg_split('/\s+/', trim($scopeClaim)) ?: [];
-        } elseif (is_array($scopeClaim)) {
-            $scopes = array_values(array_filter($scopeClaim, 'is_string'));
-        }
-
-        $scpClaim = $claims->scp ?? null;
-        if (is_string($scpClaim) && trim($scpClaim) !== '') {
-            $scopes = array_merge($scopes, preg_split('/\s+/', trim($scpClaim)) ?: []);
-        } elseif (is_array($scpClaim)) {
-            $scopes = array_merge($scopes, array_values(array_filter($scpClaim, 'is_string')));
-        }
+        $scopes = array_merge($scopes, $this->extractStringListClaim($claims->scope ?? null, true));
+        $scopes = array_merge($scopes, $this->extractStringListClaim($claims->scp ?? null, true));
+        $scopes = array_merge($scopes, $this->extractStringListClaim($claims->roles ?? null, false));
+        $scopes = array_merge($scopes, $this->extractStringListClaim($claims->authorities ?? null, false, true));
 
         $scopes = array_values(array_unique(array_filter(array_map(
             static fn($scope): string => trim((string) $scope),
@@ -378,6 +369,32 @@ class ExternalBearerTokenValidator implements ExternalBearerTokenValidatorInterf
         ))));
 
         return $scopes;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function extractStringListClaim(mixed $claim, bool $splitOnWhitespace = false, bool $stripRolePrefix = false): array
+    {
+        $values = [];
+        if (is_string($claim) && trim($claim) !== '') {
+            $values = $splitOnWhitespace
+                ? (preg_split('/\s+/', trim($claim)) ?: [])
+                : [trim($claim)];
+        } elseif (is_array($claim)) {
+            $values = array_values(array_filter($claim, 'is_string'));
+        }
+
+        if ($stripRolePrefix) {
+            $values = array_map(static function (string $value): string {
+                return str_starts_with($value, 'ROLE_') ? substr($value, 5) : $value;
+            }, $values);
+        }
+
+        return array_values(array_filter(array_map(
+            static fn($value): string => trim((string) $value),
+            $values
+        )));
     }
 
     private function extractTokenIdentifier(string $rawToken, object $claims): string
