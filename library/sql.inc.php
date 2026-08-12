@@ -351,14 +351,7 @@ function sqlInsertClean_audit($statement, $binds = false): void
 */
 function sqlListFields($table)
 {
-    $sql = "SHOW COLUMNS FROM " . add_escape_custom($table);
-    $resource = sqlStatementNoLog($sql);
-    $field_list = [];
-    while ($row = sqlFetchArray($resource)) {
-        $field_list[] = $row['Field'];
-    }
-
-    return $field_list;
+    return QueryUtils::listTableFields($table);
 }
 
 /**

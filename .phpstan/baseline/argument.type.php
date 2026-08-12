@@ -23432,11 +23432,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/formdata.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$s of function escape_table_name expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/formdata.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$s of function formDataCore expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/formdata.inc.php',
