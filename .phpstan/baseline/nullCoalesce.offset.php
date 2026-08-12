@@ -182,11 +182,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/patient_groups.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'setting_patient\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/persist.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'modifier\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
