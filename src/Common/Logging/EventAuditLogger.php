@@ -353,6 +353,11 @@ class EventAuditLogger implements AuditLoggerInterface
             $event = $params['event'];
         }
 
+        $apiClientId = "";
+        if (is_array($params) && isset($params['client_id']) && is_string($params['client_id'])) {
+            $apiClientId = $params['client_id'];
+        }
+
         if ($event != "") {
             if ($sortby == "comments") {
                 $sortby = "description";
@@ -423,6 +428,15 @@ class EventAuditLogger implements AuditLoggerInterface
             if ($tevent != "") {
                 $sql .= " AND l.`event` LIKE ?";
                 array_push($sqlBindArray, "%" . $tevent);
+            }
+
+            if ($apiClientId != "") {
+                // equality, not LIKE: client ids are opaque identifiers selected
+                // from the registered-clients dropdown. Also intentionally turns
+                // the api_log LEFT JOIN into a match requirement, restricting
+                // results to API events from this client.
+                $sql .= " AND al.`client_id` = ?";
+                array_push($sqlBindArray, $apiClientId);
             }
 
             if ($sortby != "") {

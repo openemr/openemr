@@ -109,6 +109,7 @@ if (!empty($_GET)) {
 
                         $form_patient = $_GET["form_patient"] ?? '';
                         $form_user = $_REQUEST['form_user'] ?? '';
+                        $form_client_id = filter_input(INPUT_GET, 'form_client_id') ?: '';
                         $form_pid = $_REQUEST['form_pid'] ?? '';
                         if (empty($form_patient)) {
                             $form_pid = '';
@@ -171,6 +172,27 @@ if (!empty($_GET)) {
                                                     echo ", " . text($urow['fname']);
                                                 }
                                                 echo "</option>\n";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <label class="col-sm-1 col-form-label" for="form_client_id"><?php echo xlt('API Client'); ?>:</label>
+                                    <div class="col-sm-3">
+                                        <select name='form_client_id' id='form_client_id' class='form-control'>
+                                            <?php
+                                            echo " <option value=''>" . xlt('All') . "</option>\n";
+                                            $clientRows = \OpenEMR\Common\Database\QueryUtils::fetchRecords("SELECT `client_id`, `client_name` FROM `oauth_clients` ORDER BY `client_name` ASC");
+                                            foreach ($clientRows as $clientRow) {
+                                                $optionClientId = is_string($clientRow['client_id'] ?? null) ? $clientRow['client_id'] : '';
+                                                if ($optionClientId === '') {
+                                                    continue;
+                                                }
+                                                $optionClientName = is_string($clientRow['client_name'] ?? null) ? $clientRow['client_name'] : '';
+                                                echo " <option value='" . attr($optionClientId) . "'";
+                                                if ($optionClientId == $form_client_id) {
+                                                    echo " selected";
+                                                }
+                                                echo ">" . text($optionClientName !== '' ? $optionClientName : $optionClientId) . "</option>\n";
                                             }
                                             ?>
                                         </select>
@@ -307,7 +329,7 @@ if (!empty($_GET)) {
                                             $gev = $getevent;
                                         }
 
-                                        if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction']])) {
+                                        if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' => $gev, 'tevent' => $tevent, 'direction' => $_GET['direction'], 'client_id' => $form_client_id])) {
                                             // Set up crypto object (object will increase performance since caches used keys)
                                             $cryptoGen = ServiceContainer::getCrypto();
 
