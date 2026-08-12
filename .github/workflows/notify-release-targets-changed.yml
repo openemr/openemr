@@ -34,14 +34,22 @@ jobs:
         php-version:
         - '8.5'
     steps:
-    # Sparse checkout of just the composite action so the token-mint
-    # step below can resolve `uses: ./.github/actions/...`. Full
-    # checkout happens later (in this workflow that's just for
-    # setup-php-composer's autoload).
-    - name: Checkout composite action
+    # Sparse checkout of the composite actions this job's workspace-
+    # root uses/... references resolve against — generate-app-token
+    # (Mint step below) and setup-php-composer (Setup PHP step below).
+    # Local composite paths resolve against GITHUB_WORKSPACE at step-
+    # load time; a subsequent full checkout doesn't reliably materialize
+    # files pruned by the first sparse checkout, so include everything
+    # the workspace-root needs in the first sparse pattern. Companion
+    # to the fix in openemr/openemr#13480 (branch-cut + patch-prep) —
+    # this workflow has the same shape and failed identically on the
+    # rel-830 cut's release-targets.yml push.
+    - name: Checkout composite actions
       uses: actions/checkout@v7
       with:
-        sparse-checkout: .github/actions/generate-app-token
+        sparse-checkout: |
+          .github/actions/generate-app-token
+          .github/actions/setup-php-composer
         sparse-checkout-cone-mode: false
         persist-credentials: false
 
