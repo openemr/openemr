@@ -443,7 +443,13 @@ jobs:
         # TO_TAG is already a job-level env, but hoisted here for the
         # zero-splice-in-run: convention.
       run: |
-        LOCAL_TAG="openemr/openemr:pr-built"
+        # Tag portion only — the compose override at
+        # .github/docker/acceptance-docker-compose.yml expands this into
+        # `openemr/openemr:${OPENEMR_TAG:-latest}`. Including
+        # `openemr/openemr:` here doubles the prefix and Docker rejects
+        # the resulting `openemr/openemr:openemr/openemr:pr-built` as an
+        # invalid reference format.
+        LOCAL_TAG="pr-built"
         if [[ "$BUILD_IMAGE_RESULT" == "success" ]]; then
           BUILT="true"
         else

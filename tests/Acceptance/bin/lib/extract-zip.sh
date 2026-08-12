@@ -104,8 +104,22 @@ extract_zip_flattening_single_top_level_dir() {
     # Helper is sourced — save the caller's nullglob+dotglob state so
     # we can restore it before returning. `shopt -p` emits shopt
     # commands that recreate the current state; eval replays them.
+    #
+    # `|| true` because `shopt -p X Y` exits 1 when any listed option
+    # is disabled — the DEFAULT bash state, and the state every real
+    # caller (boot-package.sh, upgrade-package.sh) runs under. Without
+    # `|| true` the caller's `set -e` kills the script silently right
+    # here (stderr is empty because the exit status is the only signal
+    # and stdout of shopt is captured into the variable). Landed in
+    # #13286 (Phase 10d shared helper) + #13287 shopt-leak fix — sat
+    # undetected because the auto-fire acceptance push matrix uses the
+    # published-artifact path and never reaches this helper; only the
+    # build_locally paths (workflow_dispatch, or docker/release/
+    # tools/release/** PRs) do. First exercised on today's rel-830
+    # release-prep dispatch. See extract.bats "caller runs under set
+    # -euo pipefail" for the regression guard.
     local shopt_saved
-    shopt_saved="$(shopt -p nullglob dotglob)"
+    shopt_saved="$(shopt -p nullglob dotglob || true)"
 
     local zip_roots
     shopt -s nullglob dotglob
