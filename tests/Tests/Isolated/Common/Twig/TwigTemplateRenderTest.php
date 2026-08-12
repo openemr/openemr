@@ -20,6 +20,7 @@
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
@@ -38,16 +39,79 @@ class TwigTemplateRenderTest extends TestCase
 {
     private static ?Environment $twig = null;
 
+    /**
+     * The rendering globals as they were before this class first touched them.
+     *
+     * Captured at the first mutation rather than in setUpBeforeClass(), because PHPUnit resolves
+     * data providers before any class fixture runs and this provider has to set them to build the
+     * duplicate-report columns.
+     *
+     * @var array<string, array{present: bool, value: mixed}>|null
+     */
+    private static ?array $globalsSnapshot = null;
+
     /** Mirrors DuplicatePatientService::HIGHLIGHT_THRESHOLD; kept local so fixtures stay stable. */
     private const HIGHLIGHT = 17;
 
     protected function setUp(): void
     {
-        $GLOBALS['fileroot'] ??= self::fileroot();
-        $GLOBALS['date_display_format'] ??= 0;
-        // Bypass database-dependent translation lookups so xl() returns the
-        // original string and xlt()/xla() apply only escaping.
-        $GLOBALS['disable_translation'] = true;
+        self::applyRenderingGlobals();
+    }
+
+    /**
+     * PHPUnit runs these tests in the same process as everything else, so the globals this class
+     * needs must not outlive it.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$globalsSnapshot === null) {
+            return;
+        }
+
+        $globals = OEGlobalsBag::getInstance();
+        foreach (self::$globalsSnapshot as $key => $original) {
+            if ($original['present']) {
+                $globals->set($key, $original['value']);
+                continue;
+            }
+            $globals->remove($key);
+            // The singleton reads $GLOBALS as its source of truth, so restoring a key to "absent"
+            // has to clear it there too -- remove() alone only empties the bag's own array.
+            unset($GLOBALS[$key]);
+        }
+
+        self::$globalsSnapshot = null;
+        self::$twig = null;
+    }
+
+    /**
+     * Set the globals rendering needs, remembering what they were the first time round.
+     *
+     * fileroot and date_display_format keep any value the surrounding suite already established;
+     * disable_translation is forced so xl() returns the source string and xlt()/xla() apply only
+     * escaping, rather than reaching for the translation tables.
+     */
+    private static function applyRenderingGlobals(): void
+    {
+        $globals = OEGlobalsBag::getInstance();
+
+        if (self::$globalsSnapshot === null) {
+            self::$globalsSnapshot = [];
+            foreach (['fileroot', 'date_display_format', 'disable_translation'] as $key) {
+                self::$globalsSnapshot[$key] = [
+                    'present' => $globals->has($key),
+                    'value' => $globals->get($key),
+                ];
+            }
+        }
+
+        if (!$globals->has('fileroot')) {
+            $globals->set('fileroot', self::fileroot());
+        }
+        if (!$globals->has('date_display_format')) {
+            $globals->set('date_display_format', 0);
+        }
+        $globals->set('disable_translation', true);
     }
 
     /**
@@ -100,9 +164,7 @@ class TwigTemplateRenderTest extends TestCase
     {
         // Data providers run before setUp(), and building the duplicate-report columns calls xl().
         // Without this, xl() reaches for the translation tables and fails in an isolated run.
-        $GLOBALS['fileroot'] ??= self::fileroot();
-        $GLOBALS['date_display_format'] ??= 0;
-        $GLOBALS['disable_translation'] = true;
+        self::applyRenderingGlobals();
 
         $fixtureDir = __DIR__ . '/fixtures/render';
 
@@ -710,9 +772,7 @@ class TwigTemplateRenderTest extends TestCase
             return self::$twig;
         }
 
-        $GLOBALS['fileroot'] ??= self::fileroot();
-        $GLOBALS['date_display_format'] ??= 0;
-        $GLOBALS['disable_translation'] = true;
+        self::applyRenderingGlobals();
 
         // Also load interface/ so encounter form templates resolve under the same
         // names they use in production, e.g. /forms/care_plan/templates/x.html.twig.

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Events\Patient;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\DuplicatePatientReportColumnsEvent;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use PHPUnit\Framework\Attributes\Group;
@@ -21,6 +22,14 @@ use PHPUnit\Framework\TestCase;
 #[Group('isolated')]
 class DuplicatePatientReportColumnsEventTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        // DuplicatePatientColumn::defaults() translates its labels, and xl() reaches for the
+        // translation tables unless this is set. Declared here rather than inherited from whichever
+        // class happened to run first.
+        OEGlobalsBag::getInstance()->set('disable_translation', true);
+    }
+
     private static function column(string $key): DuplicatePatientColumn
     {
         return DuplicatePatientColumn::forField($key, ucfirst($key));
