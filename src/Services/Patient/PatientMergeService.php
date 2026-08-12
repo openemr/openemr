@@ -408,19 +408,12 @@ class PatientMergeService
         $promoteSql = "UPDATE $escapedTable SET $escapedColumn = ? WHERE $escapedColumn = ? AND `type` = ?";
 
         $lastSourceType = '';
-        // The target cursor is deliberately not reset between source rows. The original code held a
-        // single result set open across both loops, so the first source row consumed every target
-        // row and later source rows compared against nothing. Resetting it here would change which
-        // rows the merge deletes.
-        $targetIndex = 0;
-        $targetRowCount = count($targetRows);
 
         foreach ($sourceRows as $sourceRow) {
             $sourceType = self::asString($sourceRow['type'] ?? '');
             $lastSourceType = $sourceType;
 
-            for (; $targetIndex < $targetRowCount; $targetIndex++) {
-                $targetRow = $targetRows[$targetIndex];
+            foreach ($targetRows as $targetRow) {
                 if ($sourceType !== self::asString($targetRow['type'] ?? '')) {
                     continue;
                 }
