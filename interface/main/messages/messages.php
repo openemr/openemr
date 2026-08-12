@@ -21,6 +21,7 @@
  */
 
 require_once("../../globals.php");
+require_once(__DIR__ . "/../../../library/pnotes.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
