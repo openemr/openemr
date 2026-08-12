@@ -1907,6 +1907,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$pid might not be defined\\.$#',
+    'count' => 23,
+    'path' => __DIR__ . '/../../portal/portal_payment.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$adj_amt might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',

@@ -187,6 +187,11 @@ class PatientController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
+            // Only allow reads of the caller's own profile.
+            $sessionPid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
+            if (!$sessionPid || $patient->Pid != $sessionPid) {
+                throw new Exception('Unauthorized');
+            }
             $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
@@ -438,6 +443,11 @@ class PatientController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
+            // Only allow deletion of the caller's own profile.
+            $sessionPid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
+            if (!$sessionPid || $patient->Pid != $sessionPid) {
+                throw new Exception('Unauthorized');
+            }
             $patient->Delete();
             $output = new stdClass();
             $this->RenderJSON($output, $this->JSONPCallback());

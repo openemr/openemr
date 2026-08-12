@@ -15,6 +15,7 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -76,11 +77,7 @@ if ($_POST['mode'] === 'Sphere') {
     }
 
     $form_pid = $paymentResult['patient_id'] ?? 0;
-    if ($form_pid <= 0 || $form_pid !== $pid) {
-        http_response_code(403);
-        echo 'Unauthorized';
-        exit;
-    }
+    PortalSessionPidGuard::assertMatchesSession($form_pid);
 
     $cc = [
         'cardHolderName' => $paymentResult['name'] ?? '',
@@ -104,6 +101,7 @@ if ($_POST['mode'] === 'Sphere') {
 
 if ($_POST['mode'] == 'AuthorizeNet') {
     $form_pid = $_POST['form_pid'];
+    PortalSessionPidGuard::assertMatchesSession($form_pid);
     $pay = new PaymentGateway("AuthorizeNetApi_Api");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
@@ -143,6 +141,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
 
 if ($_POST['mode'] == 'Stripe') {
     $form_pid = $_POST['form_pid'];
+    PortalSessionPidGuard::assertMatchesSession($form_pid);
     $pay = new PaymentGateway("Stripe");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
@@ -181,6 +180,7 @@ if ($_POST['mode'] == 'Stripe') {
 
 if ($_POST['mode'] == 'portal-save') {
     $form_pid = $_POST['form_pid'];
+    PortalSessionPidGuard::assertMatchesSession($form_pid);
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim((string) $_POST['form_source']);
     $upay = $_POST['form_upay'] ?? '';
@@ -195,6 +195,7 @@ if ($_POST['mode'] == 'portal-save') {
     echo true;
 } elseif ($_POST['mode'] == 'review-save') {
     $form_pid = $_POST['form_pid'];
+    PortalSessionPidGuard::assertMatchesSession($form_pid);
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim((string) $_POST['form_source']);
     $upay = $_POST['form_upay'] ?? '';

@@ -74,8 +74,9 @@ class PortalPatientController extends AppBasePortalController
     {
         try {
             $criteria = new PatientCriteria();
-            $recnum = RequestUtil::Get('patientId');
-            $criteria->Pid_Equals = $recnum;
+            // Bind the criteria pid to the bootstrap session pid instead of
+            // the request-supplied patientId.
+            $criteria->Pid_Equals = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('bootstrap_pid');
 
             $output = new stdClass();
 
@@ -110,7 +111,8 @@ class PortalPatientController extends AppBasePortalController
         try {
             // not required here but, represents patient rec id, not audit id.
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $ppid = RequestUtil::Get('patientId');
+            // Bind the audit lookup to the bootstrap session pid.
+            $ppid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('bootstrap_pid');
             $appsql = new ApplicationTable();
             $edata = $appsql->getPortalAudit($ppid, 'review');
             $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
@@ -139,6 +141,12 @@ class PortalPatientController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
+
+            // Only allow updates to the caller's own profile.
+            $bootstrapPid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            if (!$bootstrapPid || $patient->Pid != $bootstrapPid) {
+                throw new Exception('Unauthorized');
+            }
 
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
@@ -182,7 +190,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->Homeless = $this->SafeGetVal($json, 'homeless', $patient->Homeless);
             $patient->FinancialReview = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'financialReview', $patient->FinancialReview)));*/
             $patient->Pubpid = $this->SafeGetVal($json, 'pubpid', $patient->Pubpid);
-            $patient->Pid = $this->SafeGetVal($json, 'pid', $patient->Pid);
+            // Never let the body reassign the row's Pid — the ownership check above pins it.
             $patient->HipaaMail = $this->SafeGetVal($json, 'hipaaMail', $patient->HipaaMail);
             $patient->HipaaVoice = $this->SafeGetVal($json, 'hipaaVoice', $patient->HipaaVoice);
             $patient->HipaaNotice = $this->SafeGetVal($json, 'hipaaNotice', $patient->HipaaNotice);
@@ -270,6 +278,12 @@ class PortalPatientController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
+
+            // Only allow deletion of the caller's own profile.
+            $bootstrapPid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            if (!$bootstrapPid || $patient->Pid != $bootstrapPid) {
+                throw new Exception('Unauthorized');
+            }
 
             $patient->Delete();
 

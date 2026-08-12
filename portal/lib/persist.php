@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientPortalService;
@@ -51,7 +52,8 @@ if (!empty($data['where'] ?? null)) {
 
 // Set a patient setting to persist
 if (!empty($data['setting_patient'] ?? null)) {
+    PortalSessionPidGuard::assertMatchesSession($data['setting_patient']);
     if (!empty($data['setting_label'] ?? null)) {
-        PatientPortalService::persistPatientSetting($data['setting_patient'] ?? 0, $data['setting_label'], $data['setting_value'] ?? '');
+        PatientPortalService::persistPatientSetting($data['setting_patient'], $data['setting_label'], $data['setting_value'] ?? '');
     }
 }

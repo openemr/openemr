@@ -188,12 +188,17 @@ class OnsitePortalActivityController extends AppBasePortalController
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
 
-            // only allow patient to update onsiteportalactivity about themself
+            // Compare the LOADED row's owner against the bootstrap session pid.
+            // The body's patientId is not used for authorization — it can be
+            // forged to match session while the URL id targets another row.
             $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            if (!empty($bootstrapPid)) {
-                if ($bootstrapPid != $this->SafeGetVal($json, 'patientId', $onsiteportalactivity->PatientId)) {
-                    throw new Exception('Bad PID');
-                }
+            $ownerPid = $onsiteportalactivity->PatientId ?? null;
+            if (
+                !is_scalar($bootstrapPid) || !is_numeric($bootstrapPid)
+                || !is_scalar($ownerPid) || !is_numeric($ownerPid)
+                || (int) $bootstrapPid !== (int) $ownerPid
+            ) {
+                throw new Exception('Bad PID');
             }
 
             // TODO: any fields that should not be updated by the user should be commented out
@@ -202,7 +207,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             // $onsiteportalactivity->Id = $this->SafeGetVal($json, 'id', $onsiteportalactivity->Id);
 
             $onsiteportalactivity->Date = date('Y-m-d H:i:s', strtotime((string) $this->SafeGetVal($json, 'date', $onsiteportalactivity->Date)));
-            $onsiteportalactivity->PatientId = $this->SafeGetVal($json, 'patientId', $onsiteportalactivity->PatientId);
+            // PatientId is never re-assigned from the body; the ownership check above pins it.
             $onsiteportalactivity->Activity = $this->SafeGetVal($json, 'activity', $onsiteportalactivity->Activity);
             $onsiteportalactivity->RequireAudit = $this->SafeGetVal($json, 'requireAudit', $onsiteportalactivity->RequireAudit);
             $onsiteportalactivity->PendingAction = $this->SafeGetVal($json, 'pendingAction', $onsiteportalactivity->PendingAction);
@@ -239,6 +244,17 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
+
+            // Only allow deletion of rows the caller owns.
+            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            $ownerPid = $onsiteportalactivity->PatientId ?? null;
+            if (
+                !is_scalar($bootstrapPid) || !is_numeric($bootstrapPid)
+                || !is_scalar($ownerPid) || !is_numeric($ownerPid)
+                || (int) $bootstrapPid !== (int) $ownerPid
+            ) {
+                throw new Exception('Bad PID');
+            }
 
             $onsiteportalactivity->Delete();
 
