@@ -1812,6 +1812,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$pid might not be defined\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../portal/lib/paylib.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$response might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',

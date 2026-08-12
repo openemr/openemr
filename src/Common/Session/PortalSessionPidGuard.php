@@ -3,20 +3,23 @@
 /**
  * Portal session-PID guard.
  *
- * The portal binds a request to a single patient via `bootstrap_pid`, set once
- * at portal bootstrap from the authenticated session. Downstream code that
- * consumes any pid-shaped value from the HTTP request must confirm that value
- * agrees with `bootstrap_pid` before using it, otherwise an authenticated
- * portal user can supply another patient's id and read/write cross-chart data.
+ * The portal binds a request to a single patient; downstream code that
+ * consumes any pid-shaped value from the HTTP request (or trusts a loaded
+ * row's owner) must confirm the value agrees with the session pid.
  *
- * Two entry points:
- *   - assertMatchesSession()          — surgical, checks a single request-supplied value
- *   - assertRequestKeysMatchSession() — paranoid, scans request arrays for any
- *                                       key matching /^p(id|atientid)(_|$)/i,
- *                                       catching Phreez ORM variant bypasses
- *                                       (Pid_Equals, PatientId_In, etc.)
+ * Entry points:
+ *   - requireBootstrapPid()           — read + validate bootstrap_pid; caller
+ *                                       uses the returned int for scoping.
+ *   - assertMatchesSession()          — surgical: single request-supplied value
+ *                                       must equal the caller-supplied session pid.
+ *   - assertOwnedBySession()          — surgical: a loaded row's owner pid must
+ *                                       equal the caller-supplied session pid.
+ *   - assertRequestKeysMatchSession() — paranoid: scan request arrays for any
+ *                                       key matching /^p(id|atientid)(_|$)/i
+ *                                       (catches Phreez ORM variant bypasses
+ *                                       like Pid_Equals). Uses bootstrap_pid.
  *
- * Decision logic lives in the pure predicates (`isMatchingRequestPid`,
+ * Decision logic lives in the pure predicates (`isMatchingPid`,
  * `scanRequestSourceForMismatch`) — testable without session, DB, or exit.
  * The assert-wrappers compose the predicate with `AccessDeniedHelper::deny()`.
  *
@@ -44,18 +47,18 @@ final class PortalSessionPidGuard
     private const PID_FAMILY_REGEX = '/^p(?:id|atientid)(?:_|$)/i';
 
     /**
-     * Pure predicate: does the request-supplied value equal the session pid?
-     * Non-scalar / non-numeric / empty values return false without denying.
+     * Pure predicate: do the two pid values equal, once both are validated
+     * as positive numeric scalars?
      */
-    public static function isMatchingRequestPid(mixed $requestPid, int $sessionPid): bool
+    public static function isMatchingPid(mixed $subjectPid, mixed $sessionPid): bool
     {
-        if ($sessionPid <= 0) {
+        if (!is_scalar($sessionPid) || !is_numeric($sessionPid) || (int) $sessionPid <= 0) {
             return false;
         }
-        if ($requestPid === null || $requestPid === '' || !is_scalar($requestPid) || !is_numeric($requestPid)) {
+        if (!is_scalar($subjectPid) || !is_numeric($subjectPid)) {
             return false;
         }
-        return (int) $requestPid === $sessionPid;
+        return (int) $subjectPid === (int) $sessionPid;
     }
 
     /**
@@ -75,7 +78,7 @@ final class PortalSessionPidGuard
             if ($value === '' || $value === null) {
                 return $key;
             }
-            if (!self::isMatchingRequestPid($value, $sessionPid)) {
+            if (!self::isMatchingPid($value, $sessionPid)) {
                 return $key;
             }
         }
@@ -83,48 +86,53 @@ final class PortalSessionPidGuard
     }
 
     /**
-     * Assert a single request-supplied value matches the session pid.
-     * Deny (403 + audit) on mismatch. Session pid defaults to bootstrap_pid.
+     * Read + validate the portal bootstrap pid. Denies on missing / invalid.
      */
-    public static function assertMatchesSession(mixed $requestPid, ?int $sessionPid = null): void
-    {
-        $sessionPid ??= self::getBootstrapPid();
-        if (!self::isMatchingRequestPid($requestPid, $sessionPid)) {
-            AccessDeniedHelper::deny(sprintf(
-                'Portal PID guard: request pid does not match session %d',
-                $sessionPid,
-            ));
-        }
-    }
-
-    /**
-     * Assert every pid-family key across the supplied request sources agrees
-     * with the session pid. Deny (403 + audit) on first offending key.
-     * Session pid defaults to bootstrap_pid.
-     *
-     * @param array<int|string, mixed> ...$sources
-     */
-    public static function assertRequestKeysMatchSession(array ...$sources): void
-    {
-        $sessionPid = self::getBootstrapPid();
-        foreach ($sources as $source) {
-            $badKey = self::scanRequestSourceForMismatch($source, $sessionPid);
-            if ($badKey !== null) {
-                AccessDeniedHelper::deny(sprintf(
-                    "Portal PID guard: request key '%s' fails session %d check",
-                    $badKey,
-                    $sessionPid,
-                ));
-            }
-        }
-    }
-
-    private static function getBootstrapPid(): int
+    public static function requireBootstrapPid(): int
     {
         $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
         if (!is_scalar($bootstrapPid) || !is_numeric($bootstrapPid) || (int) $bootstrapPid <= 0) {
             AccessDeniedHelper::deny('Portal PID guard: no valid bootstrap session pid');
         }
         return (int) $bootstrapPid;
+    }
+
+    /**
+     * Assert a single request-supplied value matches the caller-supplied
+     * session pid. Deny (403 + audit) on mismatch or invalid session pid.
+     */
+    public static function assertMatchesSession(mixed $requestPid, mixed $sessionPid): void
+    {
+        if (!self::isMatchingPid($requestPid, $sessionPid)) {
+            AccessDeniedHelper::deny('Portal PID guard: request pid does not match session');
+        }
+    }
+
+    /**
+     * Assert a loaded record's owner pid matches the caller-supplied session pid.
+     * Deny (403 + audit) on mismatch or invalid session pid.
+     */
+    public static function assertOwnedBySession(mixed $ownerPid, mixed $sessionPid): void
+    {
+        if (!self::isMatchingPid($ownerPid, $sessionPid)) {
+            AccessDeniedHelper::deny('Portal PID guard: row not owned by session');
+        }
+    }
+
+    /**
+     * Assert every pid-family key across the supplied request sources agrees
+     * with the bootstrap session pid. Deny (403 + audit) on first offending key.
+     *
+     * @param array<int|string, mixed> ...$sources
+     */
+    public static function assertRequestKeysMatchSession(array ...$sources): void
+    {
+        $sessionPid = self::requireBootstrapPid();
+        foreach ($sources as $source) {
+            $badKey = self::scanRequestSourceForMismatch($source, $sessionPid);
+            if ($badKey !== null) {
+                AccessDeniedHelper::deny('Portal PID guard: request key fails session pid check');
+            }
+        }
     }
 }

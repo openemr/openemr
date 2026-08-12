@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -187,11 +188,13 @@ class PatientController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-            // Only allow reads of the caller's own profile.
-            $sessionPid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
-            if (!$sessionPid || $patient->Pid != $sessionPid) {
-                throw new Exception('Unauthorized');
+            if (!is_object($patient)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $patient->Pid ?? null,
+                SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
+            );
             $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
@@ -332,13 +335,13 @@ class PatientController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-
-            // Ensure user can only update their own profile
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $sessionPid = $session->get('pid');
-            if (!$sessionPid || $patient->Pid != $sessionPid) {
-                throw new Exception('Unauthorized: You can only update your own profile');
+            if (!is_object($patient)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $patient->Pid ?? null,
+                SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
+            );
 
             // this is a primary key. uncomment if updating is allowed
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
@@ -443,11 +446,13 @@ class PatientController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-            // Only allow deletion of the caller's own profile.
-            $sessionPid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
-            if (!$sessionPid || $patient->Pid != $sessionPid) {
-                throw new Exception('Unauthorized');
+            if (!is_object($patient)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $patient->Pid ?? null,
+                SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'),
+            );
             $patient->Delete();
             $output = new stdClass();
             $this->RenderJSON($output, $this->JSONPCallback());

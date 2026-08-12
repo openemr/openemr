@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\PortalSessionPidGuard;
 use OpenEMR\Core\OEGlobalsBag;
 
 /** import supporting libraries */
@@ -53,14 +54,11 @@ class OnsitePortalActivityController extends AppBasePortalController
         try {
             $criteria = new OnsitePortalActivityCriteria();
 
-            // only allow patient to see their own activity
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            $pid = !empty($bootstrapPid) ? $bootstrapPid : RequestUtil::Get('patientId');
-
+            $bootstrapPid = PortalSessionPidGuard::requireBootstrapPid();
             $activity = RequestUtil::Get('activity');
             $doc = RequestUtil::Get('doc');
             $doc = $doc ?: 0;
-            $criteria->PatientId_Equals = $pid;
+            $criteria->PatientId_Equals = $bootstrapPid;
             $criteria->Activity_Equals = $activity;
             $criteria->TableArgs_Equals = $doc;
 
@@ -110,12 +108,13 @@ class OnsitePortalActivityController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
-            // only allow patient to update onsiteportalactivity about themself
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            if (!empty($bootstrapPid) && $bootstrapPid != $onsiteportalactivity->PatientId) {
-                $error = 'Unauthorized';
-                throw new Exception($error);
+            if (!is_object($onsiteportalactivity)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $onsiteportalactivity->PatientId ?? null,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
             $this->RenderJSON($onsiteportalactivity, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
@@ -187,19 +186,13 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
-
-            // Compare the LOADED row's owner against the bootstrap session pid.
-            // The body's patientId is not used for authorization — it can be
-            // forged to match session while the URL id targets another row.
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            $ownerPid = $onsiteportalactivity->PatientId ?? null;
-            if (
-                !is_scalar($bootstrapPid) || !is_numeric($bootstrapPid)
-                || !is_scalar($ownerPid) || !is_numeric($ownerPid)
-                || (int) $bootstrapPid !== (int) $ownerPid
-            ) {
-                throw new Exception('Bad PID');
+            if (!is_object($onsiteportalactivity)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $onsiteportalactivity->PatientId ?? null,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
 
             // TODO: any fields that should not be updated by the user should be commented out
 
@@ -244,17 +237,13 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
-
-            // Only allow deletion of rows the caller owns.
-            $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            $ownerPid = $onsiteportalactivity->PatientId ?? null;
-            if (
-                !is_scalar($bootstrapPid) || !is_numeric($bootstrapPid)
-                || !is_scalar($ownerPid) || !is_numeric($ownerPid)
-                || (int) $bootstrapPid !== (int) $ownerPid
-            ) {
-                throw new Exception('Bad PID');
+            if (!is_object($onsiteportalactivity)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $onsiteportalactivity->PatientId ?? null,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
 
             $onsiteportalactivity->Delete();
 

@@ -4,10 +4,10 @@
  * Isolated unit tests for the pure predicates of
  * `OpenEMR\Common\Session\PortalSessionPidGuard`.
  *
- * The predicates isMatchingRequestPid() and scanRequestSourceForMismatch()
- * carry the full decision; the assert-* wrappers only compose the predicate
- * result with AccessDeniedHelper::deny() (which calls exit(), so the
- * wrappers are exercised in the integration-testing layer).
+ * The predicates isMatchingPid() and scanRequestSourceForMismatch() carry
+ * the full decision; the assert-* wrappers only compose the predicate result
+ * with AccessDeniedHelper::deny() (which calls exit(), so the wrappers are
+ * exercised in the integration-testing layer).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -26,39 +26,42 @@ use PHPUnit\Framework\TestCase;
 
 final class PortalSessionPidGuardTest extends TestCase
 {
-    #[DataProvider('isMatchingRequestPidCases')]
-    public function testIsMatchingRequestPid(mixed $requestPid, int $sessionPid, bool $expected): void
+    #[DataProvider('isMatchingPidCases')]
+    public function testIsMatchingPid(mixed $subjectPid, mixed $sessionPid, bool $expected): void
     {
         $this->assertSame(
             $expected,
-            PortalSessionPidGuard::isMatchingRequestPid($requestPid, $sessionPid),
+            PortalSessionPidGuard::isMatchingPid($subjectPid, $sessionPid),
         );
     }
 
     /**
-     * @return array<string, array{mixed, int, bool}>
+     * @return array<string, array{mixed, mixed, bool}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
-    public static function isMatchingRequestPidCases(): array
+    public static function isMatchingPidCases(): array
     {
         return [
-            'exact int match'                    => [5, 5, true],
-            'numeric string matches int session' => ['5', 5, true],
-            'int mismatch'                       => [99, 5, false],
-            'numeric string mismatch'            => ['99', 5, false],
-            'zero session pid rejects everything' => [5, 0, false],
-            'negative session pid rejects'       => [5, -1, false],
-            'null request pid'                   => [null, 5, false],
-            'empty string request pid'           => ['', 5, false],
-            'non-numeric string'                 => ['abc', 5, false],
-            'mixed alphanumeric'                 => ['5abc', 5, false],
-            'array as request pid'               => [[5], 5, false],
-            'object as request pid'              => [new \stdClass(), 5, false],
-            'bool true'                          => [true, 5, false],
-            'bool false'                         => [false, 5, false],
-            'float coerces to int for match'     => [5.0, 5, true],
-            'float coerces to int for mismatch'  => [5.9, 5, true],
+            'exact int match'                       => [5, 5, true],
+            'numeric string matches int session'    => ['5', 5, true],
+            'int mismatch'                          => [99, 5, false],
+            'numeric string mismatch'               => ['99', 5, false],
+            'zero session pid rejects everything'   => [5, 0, false],
+            'negative session pid rejects'          => [5, -1, false],
+            'null session pid rejects'              => [5, null, false],
+            'empty-string session pid rejects'      => [5, '', false],
+            'non-numeric session pid rejects'       => [5, 'abc', false],
+            'null request pid'                      => [null, 5, false],
+            'empty-string request pid'              => ['', 5, false],
+            'non-numeric string request pid'        => ['abc', 5, false],
+            'mixed alphanumeric request pid'        => ['5abc', 5, false],
+            'array as request pid'                  => [[5], 5, false],
+            'object as request pid'                 => [new \stdClass(), 5, false],
+            'bool true request pid'                 => [true, 5, false],
+            'bool false request pid'                => [false, 5, false],
+            'float coerces to int for match'        => [5.0, 5, true],
+            'float truncates to matching int'       => [5.9, 5, true],
         ];
     }
 

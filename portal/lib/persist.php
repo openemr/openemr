@@ -23,7 +23,9 @@ require_once(__DIR__ . "/../../vendor/autoload.php");
 $sessionAllowWrite = true;
 SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$isPortal = false;
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $isPortal = true;
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . '/../../interface/globals.php');
@@ -52,7 +54,9 @@ if (!empty($data['where'] ?? null)) {
 
 // Set a patient setting to persist
 if (!empty($data['setting_patient'] ?? null)) {
-    PortalSessionPidGuard::assertMatchesSession($data['setting_patient']);
+    if ($isPortal) {
+        PortalSessionPidGuard::assertMatchesSession($data['setting_patient'], $pid);
+    }
     if (!empty($data['setting_label'] ?? null)) {
         PatientPortalService::persistPatientSetting($data['setting_patient'], $data['setting_label'], $data['setting_value'] ?? '');
     }

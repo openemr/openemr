@@ -267,6 +267,61 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:Delete\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:GetValidationErrors\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:Save\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:Validate\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:Delete\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:GetValidationErrors\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:Save\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:Validate\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:Delete\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:GetValidationErrors\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method object\\:\\:Validate\\(\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Omnipay\\\\Common\\\\GatewayInterface\\:\\:setApiKey\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/PaymentGateway.php',

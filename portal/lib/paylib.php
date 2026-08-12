@@ -28,7 +28,9 @@ $sessionAllowWrite = true;
 SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
+$isPortal = false;
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    $isPortal = true;
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
@@ -77,7 +79,9 @@ if ($_POST['mode'] === 'Sphere') {
     }
 
     $form_pid = $paymentResult['patient_id'] ?? 0;
-    PortalSessionPidGuard::assertMatchesSession($form_pid);
+    if ($isPortal) {
+        PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
+    }
 
     $cc = [
         'cardHolderName' => $paymentResult['name'] ?? '',
@@ -101,7 +105,9 @@ if ($_POST['mode'] === 'Sphere') {
 
 if ($_POST['mode'] == 'AuthorizeNet') {
     $form_pid = $_POST['form_pid'];
-    PortalSessionPidGuard::assertMatchesSession($form_pid);
+    if ($isPortal) {
+        PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
+    }
     $pay = new PaymentGateway("AuthorizeNetApi_Api");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
@@ -141,7 +147,9 @@ if ($_POST['mode'] == 'AuthorizeNet') {
 
 if ($_POST['mode'] == 'Stripe') {
     $form_pid = $_POST['form_pid'];
-    PortalSessionPidGuard::assertMatchesSession($form_pid);
+    if ($isPortal) {
+        PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
+    }
     $pay = new PaymentGateway("Stripe");
     $transaction['amount'] = $_POST['payment'];
     $transaction['currency'] = "USD";
@@ -180,7 +188,9 @@ if ($_POST['mode'] == 'Stripe') {
 
 if ($_POST['mode'] == 'portal-save') {
     $form_pid = $_POST['form_pid'];
-    PortalSessionPidGuard::assertMatchesSession($form_pid);
+    if ($isPortal) {
+        PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
+    }
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim((string) $_POST['form_source']);
     $upay = $_POST['form_upay'] ?? '';
@@ -195,7 +205,9 @@ if ($_POST['mode'] == 'portal-save') {
     echo true;
 } elseif ($_POST['mode'] == 'review-save') {
     $form_pid = $_POST['form_pid'];
-    PortalSessionPidGuard::assertMatchesSession($form_pid);
+    if ($isPortal) {
+        PortalSessionPidGuard::assertMatchesSession($form_pid, $pid);
+    }
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim((string) $_POST['form_source']);
     $upay = $_POST['form_upay'] ?? '';

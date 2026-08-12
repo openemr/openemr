@@ -16,6 +16,8 @@
 require_once("AppBasePortalController.php");
 require_once("Model/Patient.php");
 
+use OpenEMR\Common\Session\PortalSessionPidGuard;
+
 /**
  * PatientController is the controller class for the Patient object.
  * The
@@ -74,9 +76,10 @@ class PortalPatientController extends AppBasePortalController
     {
         try {
             $criteria = new PatientCriteria();
-            // Bind the criteria pid to the bootstrap session pid instead of
-            // the request-supplied patientId.
-            $criteria->Pid_Equals = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('bootstrap_pid');
+            // Bind to the validated bootstrap pid; a null/empty value would
+            // cause PatientReporter to skip its zero-pid branch and return
+            // every patient row.
+            $criteria->Pid_Equals = PortalSessionPidGuard::requireBootstrapPid();
 
             $output = new stdClass();
 
@@ -111,10 +114,8 @@ class PortalPatientController extends AppBasePortalController
         try {
             // not required here but, represents patient rec id, not audit id.
             $pk = $this->GetRouter()->GetUrlParam('id');
-            // Bind the audit lookup to the bootstrap session pid.
-            $ppid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('bootstrap_pid');
             $appsql = new ApplicationTable();
-            $edata = $appsql->getPortalAudit($ppid, 'review');
+            $edata = $appsql->getPortalAudit(PortalSessionPidGuard::requireBootstrapPid(), 'review');
             $changed = !empty($edata['table_args']) ? unserialize($edata['table_args'], ['allowed_classes' => false]) : [];
             $newv = [];
             foreach ($changed as $key => $val) {
@@ -141,12 +142,13 @@ class PortalPatientController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-
-            // Only allow updates to the caller's own profile.
-            $bootstrapPid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            if (!$bootstrapPid || $patient->Pid != $bootstrapPid) {
-                throw new Exception('Unauthorized');
+            if (!is_object($patient)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $patient->Pid ?? null,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
 
             $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
             $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
@@ -278,12 +280,13 @@ class PortalPatientController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-
-            // Only allow deletion of the caller's own profile.
-            $bootstrapPid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('bootstrap_pid');
-            if (!$bootstrapPid || $patient->Pid != $bootstrapPid) {
-                throw new Exception('Unauthorized');
+            if (!is_object($patient)) {
+                throw new Exception('Not found');
             }
+            PortalSessionPidGuard::assertOwnedBySession(
+                $patient->Pid ?? null,
+                PortalSessionPidGuard::requireBootstrapPid(),
+            );
 
             $patient->Delete();
 
