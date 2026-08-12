@@ -35,7 +35,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Patient;
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use Psr\Clock\ClockInterface;
 
@@ -64,18 +63,17 @@ class DuplicatePatientService
      * threshold surfaces more of what is already stored while changing the criteria themselves
      * would require a full rescore.
      */
-    /** Bounds the rescore pass; injected so the deadline is testable. */
-    private readonly ClockInterface $clock;
-
+    /**
+     * @param ClockInterface $clock Bounds the rescore pass. Required rather than resolved here, so
+     *                              the composition root owns the dependency and the deadline stays
+     *                              testable.
+     */
     public function __construct(
+        private readonly ClockInterface $clock,
         private readonly int $displayThreshold = self::DISPLAY_THRESHOLD,
         private readonly int $highlightThreshold = self::HIGHLIGHT_THRESHOLD,
         private readonly int $maxGroups = self::MAX_GROUPS,
-        ?ClockInterface $clock = null,
     ) {
-        // Defaulted rather than required because library/patient.inc.php's updateDupScore() shim
-        // constructs this with no arguments.
-        $this->clock = $clock ?? ServiceContainer::getClock();
     }
 
     /** Patients rescored per batch by {@see self::recalculateAllScores()}. */

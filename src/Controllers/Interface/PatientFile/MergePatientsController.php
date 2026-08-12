@@ -98,25 +98,30 @@ class MergePatientsController
     }
 
     /**
-     * Were both charts listed by the duplicate report this session?
+     * Did the duplicate report score these two charts against each other this session?
      *
-     * The report writes the pids it displayed into the session
-     * ({@see ManageDuplicatePatientsController::SESSION_SCORED_PIDS}). Only a pair drawn from there
-     * skips the SSN/DOB safeguard, so an operator cannot bypass it for two arbitrary charts by
-     * editing the query string. Anyone arriving at this page directly gets the full checks.
+     * The report writes the pairs it compared into the session
+     * ({@see ManageDuplicatePatientsController::SESSION_SCORED_PAIRS}). Only such a pair skips the
+     * SSN/DOB safeguard, so an operator cannot bypass it by editing the query string. Checking the
+     * pair rather than each chart matters: a report showing groups A/B and C/D must not authorise
+     * merging A into C. Anyone arriving at this page directly gets the full checks.
      */
     private function wasScoredAsDuplicate(int $targetPid, int $sourcePid): bool
     {
-        if ($targetPid <= 0 || $sourcePid <= 0) {
+        if ($targetPid <= 0 || $sourcePid <= 0 || $targetPid === $sourcePid) {
             return false;
         }
 
-        $scored = $this->session->get(ManageDuplicatePatientsController::SESSION_SCORED_PIDS);
+        $scored = $this->session->get(ManageDuplicatePatientsController::SESSION_SCORED_PAIRS);
         if (!is_array($scored)) {
             return false;
         }
 
-        return in_array($targetPid, $scored, true) && in_array($sourcePid, $scored, true);
+        return in_array(
+            ManageDuplicatePatientsController::pairKey($targetPid, $sourcePid),
+            $scored,
+            true
+        );
     }
 
     private function renderForm(int $pid1, int $pid2, bool $fromDuplicateManager): Response

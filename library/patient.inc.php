@@ -1676,7 +1676,9 @@ function is_patient_deceased($pid, $date = '')
  */
 function updateDupScore(int|string $pid): int
 {
-    return (new \OpenEMR\Services\Patient\DuplicatePatientService())->recalculateScore((int) $pid);
+    return (new \OpenEMR\Services\Patient\DuplicatePatientService(
+        \OpenEMR\BC\ServiceContainer::getClock()
+    ))->recalculateScore((int) $pid);
 }
 
 function get_unallocated_payment_id($pid)

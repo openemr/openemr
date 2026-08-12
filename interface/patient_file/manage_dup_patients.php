@@ -35,12 +35,14 @@ $globalsBag = OEGlobalsBag::getInstance();
 
 $kernel = $globalsBag->getKernel();
 
+$clock = ServiceContainer::getClock();
+
 $controller = new ManageDuplicatePatientsController(
-    new DuplicatePatientService(),
+    new DuplicatePatientService($clock),
     new DuplicatePatientCsvWriter(),
     (new TwigContainer(null, $kernel))->getTwig(),
     SessionWrapperFactory::getInstance()->getActiveSession(),
-    ServiceContainer::getClock(),
+    $clock,
     $kernel->getEventDispatcher(),
     $globalsBag->getString('openemr_name'),
     ManageDuplicatePatientsController::DEFAULT_ACL,

@@ -40,7 +40,7 @@ $mergeService = new PatientMergeService(
     EventAuditLogger::getInstance(),
     $session,
     ServiceContainer::getLogger(),
-    new DuplicatePatientService(),
+    new DuplicatePatientService(ServiceContainer::getClock()),
     $globalsBag->getString('OE_SITE_DIR') . '/documents',
     true
 );

@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\Patient;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -164,7 +165,7 @@ class PatientMergeListsTouchTest extends TestCase
             EventAuditLogger::getInstance(),
             new Session(new MockArraySessionStorage()),
             new NullLogger(),
-            new DuplicatePatientService(),
+            new DuplicatePatientService(ServiceContainer::getClock()),
             sys_get_temp_dir() . '/openemr-merge-test-documents',
         );
     }

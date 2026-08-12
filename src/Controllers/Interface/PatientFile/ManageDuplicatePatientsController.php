@@ -54,12 +54,13 @@ class ManageDuplicatePatientsController
     public const TEMPLATE = 'patient_file/manage_dup_patients.html.twig';
 
     /**
-     * Session key holding the pids this report last listed.
+     * Session key holding the chart *pairs* this report last scored against each other.
      *
-     * {@see MergePatientsController} reads it to decide whether a pair may skip the SSN/DOB
-     * safeguard: only charts this report actually scored as duplicates qualify.
+     * {@see MergePatientsController} reads it to decide whether a merge may skip the SSN/DOB
+     * safeguard. Pairs rather than a flat list of pids: a report showing groups A/B and C/D must
+     * not authorise merging A into C, which was never scored.
      */
-    public const SESSION_SCORED_PIDS = 'duplicate_patient_scored_pids';
+    public const SESSION_SCORED_PAIRS = 'duplicate_patient_scored_pairs';
 
     /** The access control a user must hold to work through duplicate charts. */
     public const DEFAULT_ACL = ['patients', 'merge'];
@@ -105,7 +106,9 @@ class ManageDuplicatePatientsController
         // display threshold and silently missing from the report. Lifting the limit keeps the pass
         // atomic from the operator's point of view -- the same thing merge_patients.php does for
         // the same reason.
-        if ($this->rescoreOnLoad) {
+        // The Recalculate Scores button must keep working even where the automatic pass is switched
+        // off -- that is exactly what the global's description promises.
+        if ($this->rescoreOnLoad || $request->request->getString('form_refresh') !== '') {
             set_time_limit(0);
             $this->duplicatePatients->recalculateAllScores();
         }
@@ -115,7 +118,7 @@ class ManageDuplicatePatientsController
 
         $columns = $this->resolveColumns();
         $groups = $this->duplicatePatients->findDuplicateGroups($columns);
-        $this->rememberScoredPids($groups);
+        $this->rememberScoredPairs($groups);
 
         if ($request->request->getString('form_csvexport') === 'CSV') {
             return $this->csvResponse($groups, $columns);
@@ -142,24 +145,39 @@ class ManageDuplicatePatientsController
     }
 
     /**
-     * Record which charts this report listed, so the merge page can tell a genuine duplicate pair
-     * from two charts an operator simply named in the URL.
+     * Record which chart pairs this report scored against each other, so the merge page can tell a
+     * genuine duplicate pair from two charts an operator simply named in the URL.
+     *
+     * Only primary-to-match pairs are recorded, because those are the only merges the report offers:
+     * every action posts the group's primary alongside one of its matches. Two matches from the same
+     * group were never compared with each other, so they do not qualify either.
      *
      * @param list<DuplicatePatientGroup> $groups
      */
-    private function rememberScoredPids(array $groups): void
+    private function rememberScoredPairs(array $groups): void
     {
-        $pids = [];
+        $pairs = [];
         foreach ($groups as $group) {
-            foreach ($group->getRows() as $row) {
-                $pids[] = $row->pid;
+            foreach ($group->matches as $match) {
+                $pairs[] = self::pairKey($group->primary->pid, $match->pid);
             }
         }
 
         // SessionUtil rather than $session->set(): OpenEMR serves pages with the session closed for
         // reading, so a direct write is silently dropped -- and the merge page's safeguard depends
         // on this landing.
-        SessionUtil::setSession(self::SESSION_SCORED_PIDS, array_values(array_unique($pids)));
+        SessionUtil::setSession(self::SESSION_SCORED_PAIRS, array_values(array_unique($pairs)));
+    }
+
+    /**
+     * Order-independent key for a chart pair.
+     *
+     * Merge and Keep and Merge and Discard submit the same two charts in opposite roles, so the key
+     * must not depend on which is the target.
+     */
+    public static function pairKey(int $pidA, int $pidB): string
+    {
+        return $pidA <= $pidB ? "$pidA-$pidB" : "$pidB-$pidA";
     }
 
     /**
