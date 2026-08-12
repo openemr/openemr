@@ -22,6 +22,56 @@ use Throwable;
 class QueryUtils
 {
     /**
+     * Schema shape is fixed for the life of a request, but the introspection
+     * below sits behind helpers called once per constructed service, so a page
+     * rendering N records re-asks the same questions N times. These caches make
+     * it once. PHP discards statics at end of request, so staleness cannot
+     * outlive one request; the only code that mutates schema mid-process
+     * (SQLUpgradeService) calls clearSchemaCache() after each upgrade file.
+     *
+     * @var list<string>|null
+     */
+    private static ?array $tableListCache = null;
+
+    /** @var array<string, string[]> */
+    private static array $tableFieldsCache = [];
+
+    /** @var array<string, list<array<mixed>>> */
+    private static array $autoIncrementCache = [];
+
+    /**
+     * Drop memoized schema reads. Required after any DDL executed within the
+     * same request, otherwise subsequent reads report the pre-DDL shape.
+     */
+    public static function clearSchemaCache(): void
+    {
+        self::$tableListCache = null;
+        self::$tableFieldsCache = [];
+        self::$autoIncrementCache = [];
+    }
+
+    /**
+     * Every table name in the current database, used as the allow-list for
+     * identifier escaping.
+     *
+     * @return list<string>
+     */
+    public static function listTables(): array
+    {
+        if (self::$tableListCache === null) {
+            $res = self::sqlStatementThrowException("SHOW TABLES", [], noLog: true);
+            $tables_array = [];
+            while ($row = self::fetchArrayFromResultSet($res)) {
+                $keys_return = array_keys($row);
+                $tables_array[] = $row[$keys_return[0]];
+            }
+            self::$tableListCache = $tables_array;
+        }
+
+        return self::$tableListCache;
+    }
+
+    /**
      * Function that will return an array listing
      * of columns that exist in a table.
      *
@@ -30,14 +80,36 @@ class QueryUtils
      */
     public static function listTableFields($table)
     {
-        $sql = "SHOW COLUMNS FROM " . self::escapeTableName($table);
-        $field_list = [];
-        $records = self::fetchRecords($sql, [], false);
-        foreach ($records as $record) {
-            $field_list[] = $record["Field"];
+        $cacheKey = (string) $table;
+        if (!array_key_exists($cacheKey, self::$tableFieldsCache)) {
+            $sql = "SHOW COLUMNS FROM " . self::escapeTableName($table);
+            $field_list = [];
+            $records = self::fetchRecords($sql, [], false);
+            foreach ($records as $record) {
+                $field_list[] = $record["Field"];
+            }
+
+            self::$tableFieldsCache[$cacheKey] = $field_list;
         }
 
-        return $field_list;
+        return self::$tableFieldsCache[$cacheKey];
+    }
+
+    /**
+     * Rows from SHOW COLUMNS describing a table's auto-increment columns.
+     *
+     * @return list<array<mixed>>
+     */
+    public static function listAutoIncrementColumns(string $table): array
+    {
+        if (!array_key_exists($table, self::$autoIncrementCache)) {
+            self::$autoIncrementCache[$table] = self::fetchRecordsNoLog(
+                "SHOW COLUMNS FROM " . self::escapeTableName($table) . " WHERE extra LIKE ?",
+                ['%auto_increment%'],
+            );
+        }
+
+        return self::$autoIncrementCache[$table];
     }
 
     public static function escapeTableName(string $table): string
@@ -47,15 +119,8 @@ class QueryUtils
             throw new SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . \errorLogEscape($table));
         }
 
-        $res = self::sqlStatementThrowException("SHOW TABLES", [], noLog: true);
-        $tables_array = [];
-        while ($row = self::fetchArrayFromResultSet($res)) {
-            $keys_return = array_keys($row);
-            $tables_array[] = $row[$keys_return[0]];
-        }
-
         // Whitelist against actual tables, then backtick-quote to keep in identifier context
-        $tableName = \escape_identifier($table, $tables_array, true, false);
+        $tableName = \escape_identifier($table, self::listTables(), true, false);
         return sprintf('`%s`', $tableName);
     }
 
