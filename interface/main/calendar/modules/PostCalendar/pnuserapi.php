@@ -13,6 +13,7 @@
 */
 
 use OpenEMR\Common\Calendar\Month;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
@@ -20,6 +21,7 @@ use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\PostCalendar\CalendarRenderer;
+use OpenEMR\PostCalendar\GroupCounselorLookup;
 use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
@@ -1238,6 +1240,16 @@ function &postcalendar_userapi_pcQueryEvents($args)
   // put the information into an array for easy access
     $events = [];
 
+  // Facilities number in the handful, and every event needs one; fetch the set
+  // once rather than per event.
+    $facilityRows = [];
+    foreach (QueryUtils::fetchRecords("SELECT id, name FROM facility") as $facilityRow) {
+        $facilityId = $facilityRow['id'] ?? null;
+        if (is_numeric($facilityId)) {
+            $facilityRows[(int) $facilityId] = $facilityRow;
+        }
+    }
+
     $i = 0;
     foreach ($result->iterateNumeric() as $row) {
         // WHY are we using an array for intermediate storage???  -- Rod
@@ -1332,7 +1344,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['patient_address'] = $tmp['patient_address']; //RM
         $events[$i]['patient_dob'] = $tmp['patient_dob'];
         $events[$i]['patient_age'] = getPatientAge($tmp['patient_dob']);
-        $events[$i]['facility']    = getFacility($tmp['facility']);
+        $events[$i]['facility_row'] = is_numeric($tmp['facility'])
+            ? ($facilityRows[(int) $tmp['facility']] ?? null)
+            : null;
         $events[$i]['sharing']     = $tmp['sharing'];
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
         $events[$i]['aid']         = $tmp['aid'];
@@ -1402,10 +1416,26 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['group_name']   = $tmp['group_name'];
         $events[$i]['group_type']   = $tmp['group_type'];
         $events[$i]['group_status'] = $tmp['group_status'];
-        $counselors = getProvidersOfEvent($tmp['eid']);
-        $events[$i]['group_counselors'] = $counselors;
 
         $i++;
+    }
+
+  // Counselors hang off the therapy group, not the appointment, so one lookup
+  // covers every group on screen -- and none runs when there are no group events.
+    $groupIds = [];
+    foreach ($events as $event) {
+        $gid = $event['gid'] ?? null;
+        if (is_numeric($gid) && (int) $gid > 0) {
+            $groupIds[(int) $gid] = (int) $gid;
+        }
+    }
+
+    $counselorsByGroup = (new GroupCounselorLookup())->namesByGroupId(array_values($groupIds));
+    foreach ($events as $index => $event) {
+        $gid = $event['gid'] ?? null;
+        $events[$index]['group_counselors_text'] = is_numeric($gid)
+            ? ($counselorsByGroup[(int) $gid] ?? '')
+            : '';
     }
 
     return $events;
