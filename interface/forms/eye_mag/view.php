@@ -24,6 +24,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../globals.php");
+require_once(__DIR__ . "/../../../library/user.inc.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/FeeSheetHtml.class.php");
 include_once(__DIR__ . "/php/eye_mag_functions.php");
 

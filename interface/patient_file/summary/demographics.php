@@ -32,6 +32,7 @@ require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 require_once(__DIR__ . "/../../../library/pid.inc.php");
+require_once(__DIR__ . "/../../../library/user.inc.php");
 // fetchNextXAppts() (in library/appointments.inc.php) writes $resNotNull via the
 // global keyword to signal whether the appointments query returned a non-null result.
 $resNotNull = false;

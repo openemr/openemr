@@ -47,6 +47,7 @@ use OpenEMR\Pdf\Config_Mpdf;
 use Symfony\Component\Process\Process;
 
 require_once("../globals.php");
+require_once(__DIR__ . "/../../library/user.inc.php");
 
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/patient.inc.php');
