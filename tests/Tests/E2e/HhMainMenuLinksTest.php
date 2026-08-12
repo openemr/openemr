@@ -100,7 +100,6 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Admin -> Forms -> Layouts menu link' => ['Admin||Forms||Layouts', 'Layout Editor'],
             'Admin -> Forms -> Lists menu link' => ['Admin||Forms||Lists', 'List Editor'],
             'Admin -> Documents -> Document Templates menu link' => ['Admin||Documents||Document Templates', 'Document Template Management'],
-            'Admin -> System -> Backup menu link' => ['Admin||System||Backup', 'Backup'],
             'Admin -> System -> Files menu link' => ['Admin||System||Files', 'File management'],
             'Admin -> System -> Language menu link' => ['Admin||System||Language', 'Multi Language Tool'],
             'Admin -> System -> Logs menu link' => ['Admin||System||Logs', 'Logs Viewer'],

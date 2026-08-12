@@ -60,6 +60,7 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\BillingViewCard;
 use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
+use OpenEMR\Patient\Cards\CarePlanViewCard;
 use OpenEMR\Patient\Cards\CareTeamViewCard;
 use OpenEMR\Patient\Cards\DemographicsViewCard;
 use OpenEMR\Patient\Cards\InsuranceViewCard;
@@ -67,6 +68,8 @@ use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Services\AllergyIntoleranceService;
+use OpenEMR\Services\Forms\CarePlanFormService;
+use OpenEMR\Services\FormService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 
@@ -135,6 +138,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
 }
 //Check to see is only one insurance is allowed
 $insurance_array = OEGlobalsBag::getInstance()->getBoolean('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
+
+// The care plan card takes an int pid, and $pid arrives from the request as mixed.
+$carePlanCardPid = is_numeric($pid) ? (int) $pid : 0;
 
 function getHiddenDashboardCards(): array
 {
@@ -1321,6 +1327,34 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     ];
 
                     // Merge with ViewCard variables and render CARD template (not form!)
+                    echo "<div class='col-12 m-0 p-0 px-2'>";
+                    echo $twig->getTwig()->render(
+                        $card->getTemplateFile(),
+                        array_merge($viewArgs, $card->getTemplateVariables())
+                    );
+                    echo "</div>";
+                }
+
+                // ============================================================================
+                // CARE PLAN CARD
+                // ============================================================================
+                $carePlanFormService = new FormService();
+                $carePlanCard = new CarePlanViewCard(
+                    $carePlanCardPid,
+                    new CarePlanFormService($carePlanFormService),
+                    $carePlanFormService
+                );
+                if (!in_array(CarePlanViewCard::CARD_ID, $hiddenCards) && $carePlanCard->isVisible()) {
+                    $card = $carePlanCard;
+                    $viewArgs = [
+                        'title' => $card->getTitle(),
+                        'id' => $card->getIdentifier(),
+                        'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                        'card_bg_color' => '',
+                        'card_text_color' => '',
+                        'forceAlwaysOpen' => !$card->canCollapse(),
+                        'auth' => false,
+                    ];
                     echo "<div class='col-12 m-0 p-0 px-2'>";
                     echo $twig->getTwig()->render(
                         $card->getTemplateFile(),

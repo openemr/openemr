@@ -597,11 +597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/login_screen.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$end_date \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$encounter \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',

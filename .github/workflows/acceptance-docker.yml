@@ -94,6 +94,19 @@ on:
         type: string
         default: 'next'
   push:
+    # Skip pushes to release-mechanism bot branches (branch-cut/,
+    # patch-prep/, release-prep/, release-finalize/). peter-evans/
+    # create-pull-request pushes to those branches AND opens a PR in
+    # one motion; both events would otherwise fire this workflow,
+    # producing a duplicate run whose "success" is misleading — the
+    # push run resolves build_locally=false and tests against Docker
+    # Hub's currently-published to_tag, not the PR-built code the PR
+    # run actually validates. Keep the pull_request run only.
+    branches-ignore:
+    - 'branch-cut/**'
+    - 'patch-prep/**'
+    - 'release-prep/**'
+    - 'release-finalize/**'
     paths:
     - '.github/workflows/acceptance-docker.yml'
     - '.github/docker/acceptance-docker-compose.yml'
@@ -443,7 +456,13 @@ jobs:
         # TO_TAG is already a job-level env, but hoisted here for the
         # zero-splice-in-run: convention.
       run: |
-        LOCAL_TAG="openemr/openemr:pr-built"
+        # Tag portion only — the compose override at
+        # .github/docker/acceptance-docker-compose.yml expands this into
+        # `openemr/openemr:${OPENEMR_TAG:-latest}`. Including
+        # `openemr/openemr:` here doubles the prefix and Docker rejects
+        # the resulting `openemr/openemr:openemr/openemr:pr-built` as an
+        # invalid reference format.
+        LOCAL_TAG="pr-built"
         if [[ "$BUILD_IMAGE_RESULT" == "success" ]]; then
           BUILT="true"
         else

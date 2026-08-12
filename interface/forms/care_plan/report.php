@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Care plan form report.php
+ * Care plan form report.php - thin entry point delegating to CarePlanController.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -9,58 +9,54 @@
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (C) 2025 Open Plan IT Ltd. <support@openplanit.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\Forms\CarePlan\CarePlanController;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Forms\CarePlanFormService;
+use OpenEMR\Services\FormService;
 
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+/**
+ * Render the care plan report.
+ *
+ * Invoked by name from FormReportRenderer, which forwards loosely typed values from
+ * legacy callers -- hence the permissive signature.
+ *
+ * @param int|string|null $pid
+ * @param int|string|null $encounter
+ * @param int|string|null $cols
+ * @param int|string|null $id
+ */
 function care_plan_report($pid, $encounter, $cols, $id): void
 {
-    $count = 0;
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $encounter = !empty($encounter) ? $encounter : $session->get('encounter') ?? 0;
-    $pid = !empty($pid) ? $pid : $session->get('pid') ?? 0;
+    $toInt = static fn(mixed $value): int => is_numeric($value) ? (int) $value : 0;
 
-    $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, [$id, $pid, $encounter]);
+    $globalsBag = OEGlobalsBag::getInstance();
+    $formService = new FormService();
+    // resolves to openemr/interface/ so that templates are found in /forms/care_plan/templates
+    $twigContainer = new TwigContainer(__DIR__ . '/../../', $globalsBag->getKernel());
 
-    $data = [];
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
-        $data[$iter] = $row;
-    }
+    $controller = new CarePlanController(
+        new CarePlanFormService($formService),
+        $formService,
+        $twigContainer->getTwig(),
+        SessionWrapperFactory::getInstance()->getActiveSession(),
+        ServiceContainer::getLogger(),
+        $globalsBag->getString('rootdir'),
+        $globalsBag->getWebRoot(),
+        $globalsBag->getString('v_js_includes'),
+    );
 
-    if ($data) { ?>
-        <table class="table w-100">
-            <thead>
-            <tr>
-                <th class="border p-1"><?php echo xlt('Author'); ?></th>
-                <th class="border p-1"><?php echo xlt('Type'); ?></th>
-                <th class="border p-1"><?php echo xlt('Code'); ?></th>
-                <th class="border p-1"><?php echo xlt('Code Text'); ?></th>
-                <th class="border p-1"><?php echo xlt('Description'); ?></th>
-                <th class="border p-1"><?php echo xlt('Date'); ?></th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php
-            foreach ($data as $value) { ?>
-                <tr>
-                    <td class="border p-1"><span class='text'><?php echo text($value['user']); ?></span></td>
-                    <td class="border p-1"><span class='text'><?php echo text(getListItemTitle('Plan_of_Care_Type', $value['care_plan_type'])); ?></span></td>
-                    <td class="border p-1"><span class='text'><?php echo text($value['code']); ?></span></td>
-                    <td class="border p-1"><span class='text'><?php echo text($value['codetext']); ?></span></td>
-                    <td class="border p-1"><span class='text'><?php echo nl2br(text($value['description'])); ?></span></td>
-                    <td class="border p-1"><span class='text'><?php echo text($value['date']); ?></span></td>
-                </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-        <?php
-    }
+    $controller->reportAction($toInt($pid), $toInt($encounter), $toInt($cols), $toInt($id))->send();
 }

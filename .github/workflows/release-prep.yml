@@ -248,6 +248,10 @@ jobs:
       env:
         VERSION: ${{ steps.resolve.outputs.version }}
         REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        # ChangelogMutator's GitHubApi shells out to `gh api` for
+        # compare + PR + GHSA lookups; without GH_TOKEN the gh CLI
+        # refuses to run under GitHub Actions.
+        GH_TOKEN: ${{ github.token }}
       run: |
         php bin/console openemr:release-prep \
           --skip-globals \
@@ -454,6 +458,7 @@ jobs:
       env:
         VERSION: ${{ steps.resolve.outputs.version }}
         REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        GH_TOKEN: ${{ github.token }}
       run: |
         php bin/console openemr:release-prep \
           --skip-globals \
@@ -717,6 +722,7 @@ jobs:
       env:
         VERSION: ${{ steps.resolve.outputs.version }}
         REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        GH_TOKEN: ${{ github.token }}
       run: |
         php bin/console openemr:release-prep \
           --skip-globals \

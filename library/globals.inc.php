@@ -89,14 +89,10 @@ use OpenEMR\Services\Globals\GlobalsService;
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
     // MS Windows
-    $mysql_bin_dir = 'C:/xampp/mysql/bin';
-    $perl_bin_dir = 'C:/xampp/perl/bin';
     $temporary_files_dir = 'C:/windows/temp';
     $backup_log_dir = 'C:/windows/temp';
 } else {
     // Everything else
-    $mysql_bin_dir = '/usr/bin';
-    $perl_bin_dir = '/usr/bin';
     $temporary_files_dir = '/tmp';
     $backup_log_dir = '/tmp';
 }
@@ -945,13 +941,6 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '0',                              // default = false
             xl('Display advance directives in the demographics page.')
-        ],
-
-        'configuration_import_export' => [
-            xl('Configuration Export/Import'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Support export/import of configuration data via the Backup page.')
         ],
 
         'restrict_user_facility' => [
@@ -2815,13 +2804,6 @@ $GLOBALS_METADATA = [
             xl('Enable logging of security and administration activities.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
         ],
 
-        'audit_events_backup' => [
-            xl('Audit Logging Backups'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('Enable logging of backup related activities.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
-        ],
-
         'audit_events_other' => [
             xl('Audit Logging Miscellaneous'),
             'bool',                           // data type
@@ -2943,20 +2925,6 @@ $GLOBALS_METADATA = [
             'bool',                           // data type
             '1',                              // default
             xl('Enable Database Connection Pooling')
-        ],
-
-        'mysql_bin_dir' => [
-            xl('Path to MySQL Binaries'),
-            'text',                           // data type
-            $mysql_bin_dir,                   // default
-            xl('Full path to directory containing MySQL executables.')
-        ],
-
-        'perl_bin_dir' => [
-            xl('Path to Perl Binaries'),
-            'text',                           // data type
-            $perl_bin_dir,                    // default
-            xl('Full path to directory containing Perl executables.')
         ],
 
         'temporary_files_dir' => [

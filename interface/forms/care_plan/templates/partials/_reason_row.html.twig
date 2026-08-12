@@ -1,0 +1,57 @@
+{#
+ # _reason_row.html.twig - Reason code section for a care plan row.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (C) 2025 Open Plan IT Ltd. <support@openplanit.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<div class="form-row reasonCodeContainer reason_code {{ row.reason_code is not empty ? '' : 'd-none' }}" id="reason_code_{{ rowIndex|attr }}">
+    <div class="card mt-2 mb-4">
+        <div class="card-header">
+            {{ 'Care Plan Reason Information'|xlt }}
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <p class="col">
+                    {{ 'When recording a reason for the value (or absence of a value) of an observation both the reason code and status of the reason are required'|xlt }}
+                </p>
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    {# The wrapper div above already owns id="reason_code_N" (the reason-code
+                       toggle target), so the input needs its own id or the two collide and
+                       the label binds to the wrapper. #}
+                    <label for="reason_code_input_{{ rowIndex|attr }}">{{ 'Reason Code'|xlt }}</label>
+                    <input class="code-selector-popup form-control reason_code_input"
+                           id="reason_code_input_{{ rowIndex|attr }}"
+                           name="reasonCode[]" type="text" value="{{ row.reason_code|default('')|attr }}"
+                           placeholder="{{ 'Select a reason code'|xla }}"
+                    />
+                    <p class="code-selector-text-display {{ row.reason_description is empty ? 'd-none' : '' }}">{{ row.reason_description|default('')|text }}</p>
+                    <input type="hidden" name="reasonCodeText[]" class="code-selector-text" value="{{ row.reason_description|default('')|attr }}" />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="reason_status_{{ rowIndex|attr }}">{{ 'Reason Status'|xlt }}</label>
+                    <select name="reasonCodeStatus[]" id="reason_status_{{ rowIndex|attr }}" class="form-control reason_status">
+                        {% for code, codeDesc in reasonCodeStatii %}
+                            <option value="{{ code|attr }}"
+                                {% if row.reason_status|default('') == code %}selected{% endif %}>
+                                {{ codeDesc.description|text }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="reason_start_date_{{ rowIndex|attr }}">{{ 'Reason Recording Date'|xlt }}</label>
+                    <input type="text" name="reasonDateLow[]" id="reason_start_date_{{ rowIndex|attr }}" class="form-control reason_start_date datepicker" value="{{ row.reason_date_low|default('')|attr }}" title="{{ 'yyyy-mm-dd HH:MM Reason Recording Date'|xla }}" />
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="reason_end_date_{{ rowIndex|attr }}">{{ 'Reason End Date (Leave empty if there is no end date)'|xlt }}</label>
+                    <input type="text" name="reasonDateHigh[]" id="reason_end_date_{{ rowIndex|attr }}" class="form-control reason_end_date datepicker" value="{{ row.reason_date_high|default('')|attr }}" title="{{ 'yyyy-mm-dd HH:MM Reason End Date'|xla }}" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
