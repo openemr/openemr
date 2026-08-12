@@ -120,28 +120,17 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
 
     // If the $tables is empty, then process them all
     if (empty($tables)) {
-        $res = sqlStatementNoLog("SHOW TABLES");
-        $tables = [];
-        while ($row = sqlFetchArray($res)) {
-            $keys_return = array_keys($row);
-            $tables[] = $row[$keys_return[0]];
-        }
-    }
-
-    // First need to escape the $tables
-    $tables_escaped = [];
-    foreach ($tables as $table) {
-        $tables_escaped[] = escape_table_name($table);
+        $tables = \OpenEMR\Common\Database\QueryUtils::listTables();
     }
 
     // Collect all the possible sql columns from the tables
     $columns_options = [];
-    foreach ($tables_escaped as $table_escaped) {
-        $res = sqlStatementNoLog("SHOW COLUMNS FROM " . $table_escaped);
-        // Strip backticks for whitelist comparison; input won't have them
-        $table_for_whitelist = trim($table_escaped, '`');
-        while ($row = sqlFetchArray($res)) {
-            $columns_options[] = $long ? $table_for_whitelist . "." . $row['Field'] : $row['Field'];
+    foreach ($tables as $table) {
+        // escapeTableName resolves casing differences, so this is the canonical
+        // name; strip backticks for whitelist comparison as input won't have them
+        $table_for_whitelist = trim(\OpenEMR\Common\Database\QueryUtils::escapeTableName($table), '`');
+        foreach (\OpenEMR\Common\Database\QueryUtils::listTableFields($table_for_whitelist) as $field) {
+            $columns_options[] = $long ? $table_for_whitelist . "." . $field : $field;
         }
     }
 
