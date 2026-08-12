@@ -35,11 +35,24 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     $nom = Month::from($month)->label();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    // Date string format
-    // First, get current language title
-    $languageTitle = getLanguageTitle($session->get('language_choice'));
+    $languageChoice = $session->get('language_choice');
+
+    // English is both the default and the common case, and reaching the English
+    // arms below costs three lang_languages queries per formatted date -- two of
+    // them just to discover that language 1 is called "English". Short-circuit it.
+    // getLanguageTitle() treats an empty choice as language 1, so this matches.
+    if (empty($languageChoice) || (int) $languageChoice === 1) {
+        $dt = date("F j, Y", $strtime);
+
+        return $with_dow ? "$dow, $dt" : $dt;
+    }
+
     $day_num = date("d", $strtime);
     $year = date("Y", $strtime);
+
+    // Date string format
+    // First, get current language title
+    $languageTitle = getLanguageTitle($languageChoice);
     $dt = match ($languageTitle) {
         // standard english first
         getLanguageTitle(1) => date("F j, Y", $strtime),
