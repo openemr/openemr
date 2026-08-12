@@ -26,28 +26,27 @@ function dateformat(?int $timestamp = null, bool $with_dow = false): string
         $timestamp = time();
     }
 
-    // name the day of the week for different languages
-    $day = (int) date("w", $timestamp); // 0 sunday -> 6 saturday
-    $dow = DayOfWeek::from($day)->label();
+    // Perf optimization: short-circuit English, see #13497/#13507
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $languageChoice = $session->get('language_choice');
+    // getLanguageTitle() treats an unset choice as language 1, so mirror that.
+    $languageId = is_numeric($languageChoice) ? (int) $languageChoice : 1;
+    if ($languageId === 1) {
+        $dt = date("F j, Y", $timestamp);
+        if ($with_dow) {
+            $dow = DayOfWeek::from((int) date('w', $timestamp))->label();
+            return "$dow, $dt";
+        }
+        return $dt;
+    }
 
     // name of the month in different languages
     $month = (int) date('m', $timestamp);
     $nom = Month::from($month)->label();
 
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $languageChoice = $session->get('language_choice');
-    // getLanguageTitle() treats an unset choice as language 1, so mirror that.
-    $languageId = is_numeric($languageChoice) ? (int) $languageChoice : 1;
-
     // English is both the default and the common case, and reaching the English
     // arms below costs three lang_languages queries per formatted date -- two of
     // them just to discover that language 1 is called "English". Short-circuit it.
-    if ($languageId === 1) {
-        $dt = date("F j, Y", $timestamp);
-
-        return $with_dow ? "$dow, $dt" : $dt;
-    }
-
     $day_num = date("d", $timestamp);
     $year = date("Y", $timestamp);
 
@@ -68,6 +67,10 @@ function dateformat(?int $timestamp = null, bool $with_dow = false): string
     };
 
     if ($with_dow) {
+        // name the day of the week for different languages
+        $day = (int) date("w", $timestamp); // 0 sunday -> 6 saturday
+        $dow = DayOfWeek::from($day)->label();
+
         $separator = match ($languageTitle) {
             getLanguageTitle(1), "Hebrew" => ", ",
             default => " ",
