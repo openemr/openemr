@@ -34,7 +34,9 @@ namespace OpenEMR\Controllers\Interface\PatientFile;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Events\Patient\DuplicatePatientReportColumnsEvent;
+use OpenEMR\Services\Patient\DuplicatePatientAction;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientCsvWriter;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
@@ -51,17 +53,13 @@ class ManageDuplicatePatientsController
 {
     public const TEMPLATE = 'patient_file/manage_dup_patients.html.twig';
 
-    /** Declare the group's chart not a duplicate. Handled here. */
-    public const ACTION_MARK_UNIQUE = 'U';
-
-    /** Rescore the group's chart on its own. Handled here. */
-    public const ACTION_RECOMPUTE = 'R';
-
-    /** Merge the group into this row's chart. Handled in the browser by a link to the merge page. */
-    public const ACTION_MERGE_KEEP = 'MK';
-
-    /** Merge this row's chart away into the group's chart. Also a link to the merge page. */
-    public const ACTION_MERGE_DISCARD = 'MD';
+    /**
+     * Session key holding the pids this report last listed.
+     *
+     * {@see MergePatientsController} reads it to decide whether a pair may skip the SSN/DOB
+     * safeguard: only charts this report actually scored as duplicates qualify.
+     */
+    public const SESSION_SCORED_PIDS = 'duplicate_patient_scored_pids';
 
     /** The access control a user must hold to work through duplicate charts. */
     public const DEFAULT_ACL = ['patients', 'merge'];
@@ -101,7 +99,14 @@ class ManageDuplicatePatientsController
         // Rescoring the whole patient table is what makes the report trustworthy after a bulk
         // import, and it is why this page is slow on large installs. A deployment that keeps scores
         // current on demographics changes can turn it off and drive it from the Recalculate button.
+        //
+        // The pass parks every non-unique chart at SCORE_PENDING before it starts working through
+        // them, so a request killed by max_execution_time would leave those charts below the
+        // display threshold and silently missing from the report. Lifting the limit keeps the pass
+        // atomic from the operator's point of view -- the same thing merge_patients.php does for
+        // the same reason.
         if ($this->rescoreOnLoad) {
+            set_time_limit(0);
             $this->duplicatePatients->recalculateAllScores();
         }
 
@@ -110,6 +115,7 @@ class ManageDuplicatePatientsController
 
         $columns = $this->resolveColumns();
         $groups = $this->duplicatePatients->findDuplicateGroups($columns);
+        $this->rememberScoredPids($groups);
 
         if ($request->request->getString('form_csvexport') === 'CSV') {
             return $this->csvResponse($groups, $columns);
@@ -125,11 +131,35 @@ class ManageDuplicatePatientsController
             return;
         }
 
-        match ($request->request->getString('form_action')) {
-            self::ACTION_MARK_UNIQUE => $this->duplicatePatients->markUnique($pid),
-            self::ACTION_RECOMPUTE => $this->duplicatePatients->recalculateScore($pid),
-            default => null,
+        match (DuplicatePatientAction::tryFrom($request->request->getString('form_action'))) {
+            DuplicatePatientAction::MarkUnique => $this->duplicatePatients->markUnique($pid),
+            DuplicatePatientAction::Recompute => $this->duplicatePatients->recalculateScore($pid),
+            // The merge actions never reach the server: the page turns them into links.
+            DuplicatePatientAction::MergeKeep,
+            DuplicatePatientAction::MergeDiscard,
+            null => null,
         };
+    }
+
+    /**
+     * Record which charts this report listed, so the merge page can tell a genuine duplicate pair
+     * from two charts an operator simply named in the URL.
+     *
+     * @param list<DuplicatePatientGroup> $groups
+     */
+    private function rememberScoredPids(array $groups): void
+    {
+        $pids = [];
+        foreach ($groups as $group) {
+            foreach ($group->getRows() as $row) {
+                $pids[] = $row->pid;
+            }
+        }
+
+        // SessionUtil rather than $session->set(): OpenEMR serves pages with the session closed for
+        // reading, so a direct write is silently dropped -- and the merge page's safeguard depends
+        // on this landing.
+        SessionUtil::setSession(self::SESSION_SCORED_PIDS, array_values(array_unique($pids)));
     }
 
     /**
@@ -158,12 +188,7 @@ class ManageDuplicatePatientsController
             'columns' => $columns,
             // Shared with the page's JavaScript so the option values and the values this controller
             // dispatches on cannot drift apart.
-            'actions' => [
-                'markUnique' => self::ACTION_MARK_UNIQUE,
-                'recompute' => self::ACTION_RECOMPUTE,
-                'mergeKeep' => self::ACTION_MERGE_KEEP,
-                'mergeDiscard' => self::ACTION_MERGE_DISCARD,
-            ],
+            'actions' => DuplicatePatientAction::forTemplate(),
         ]);
 
         return new Response($html, Response::HTTP_OK, ['Content-Type' => 'text/html; charset=utf-8']);

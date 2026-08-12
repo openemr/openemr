@@ -23,6 +23,15 @@
             dlgopen('../main/calendar/find_patient_popup.php', '_blank', 600, 400);
         }
 
+        // The chart fields are readonly, so clicking them is the only way to reach the picker.
+        // Enter and Space give a keyboard user the same route.
+        function sel_patient_key(event, ename, epid) {
+            if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+                event.preventDefault();
+                sel_patient(ename, epid);
+            }
+        }
+
     </script>
 
 </head>

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Patient;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientCsvWriter;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
@@ -25,8 +26,11 @@ class DuplicatePatientCsvWriterTest extends TestCase
 {
     protected function setUp(): void
     {
-        $GLOBALS['date_display_format'] ??= 0;
-        $GLOBALS['disable_translation'] = true;
+        $globals = OEGlobalsBag::getInstance();
+        if (!$globals->has('date_display_format')) {
+            $globals->set('date_display_format', 0);
+        }
+        $globals->set('disable_translation', true);
     }
 
     /**

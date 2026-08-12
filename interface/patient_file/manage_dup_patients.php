@@ -42,7 +42,13 @@ $controller = new ManageDuplicatePatientsController(
     SessionWrapperFactory::getInstance()->getActiveSession(),
     ServiceContainer::getClock(),
     $kernel->getEventDispatcher(),
-    $globalsBag->getString('openemr_name')
+    $globalsBag->getString('openemr_name'),
+    ManageDuplicatePatientsController::DEFAULT_ACL,
+    // Administration -> Globals -> Miscellaneous. interface/globals.php only loads keys present in
+    // the `globals` table -- the metadata default in library/globals.inc.php is what the admin UI
+    // shows, not what runtime sees -- so the default here has to repeat it, or an install that has
+    // never saved this setting would silently stop rescoring.
+    $globalsBag->getBoolean('duplicate_patient_rescore_on_load', true)
 );
 
 $controller->dispatchAction(Request::createFromGlobals())->send();

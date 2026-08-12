@@ -23,6 +23,15 @@
             dlgopen('../main/calendar/find_patient_popup.php', '_blank', 600, 400);
         }
 
+        // The chart fields are readonly, so clicking them is the only way to reach the picker.
+        // Enter and Space give a keyboard user the same route.
+        function sel_patient_key(event, ename, epid) {
+            if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+                event.preventDefault();
+                sel_patient(ename, epid);
+            }
+        }
+
     </script>
 
 </head>
@@ -32,8 +41,6 @@
         <h2>Merge Patients</h2>
 
 
-            <p>
-            </p>
             <form method='post' action='merge_patients.php?pid1=7&amp;pid2=12'>
                 <input type="hidden" name="csrf_token_form" value="test-csrf-token" />
                 <div class="table-responsive">
@@ -46,7 +53,9 @@
                                 <input type='text' class='form-control' size='30' name='form_target_patient'
                                     value='O&#039;Brien, Mary (7)'
                                     onclick='sel_patient(this, this.form.form_target_pid)'
-                                    title='Click to select patient' readonly />
+                                    onkeydown='sel_patient_key(event, this, this.form.form_target_pid)'
+                                    role='button' tabindex='0'
+                                    title='Click or press Enter to select patient' readonly />
                                 <input type='hidden' name='form_target_pid' value='7' />
                             </td>
                             <td>
@@ -61,7 +70,9 @@
                                 <input type='text' class='form-control' size='30' name='form_source_patient'
                                     value='Obrien, Mary (12)'
                                     onclick='sel_patient(this, this.form.form_source_pid)'
-                                    title='Click to select patient' readonly />
+                                    onkeydown='sel_patient_key(event, this, this.form.form_source_pid)'
+                                    role='button' tabindex='0'
+                                    title='Click or press Enter to select patient' readonly />
                                 <input type='hidden' name='form_source_pid' value='12' />
                             </td>
                             <td>

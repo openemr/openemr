@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Patient;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
 use PHPUnit\Framework\Attributes\Group;
@@ -25,8 +26,11 @@ class DuplicatePatientColumnTest extends TestCase
 
     protected function setUp(): void
     {
-        $GLOBALS['date_display_format'] ??= 0;
-        $GLOBALS['disable_translation'] = true;
+        $globals = OEGlobalsBag::getInstance();
+        if (!$globals->has('date_display_format')) {
+            $globals->set('date_display_format', 0);
+        }
+        $globals->set('disable_translation', true);
     }
 
     /**
@@ -140,8 +144,7 @@ class DuplicatePatientColumnTest extends TestCase
     public function prepareRunsOnceOverEveryRowBeforeRendering(): void
     {
         $lookups = 0;
-        /** @var array<string, string> $names */
-        $names = [];
+        $names = self::emptyFacilityNames();
 
         $column = new DuplicatePatientColumn(
             'facility',
@@ -173,6 +176,16 @@ class DuplicatePatientColumnTest extends TestCase
         $this->assertSame('Clinic', $column->render($rows[0]));
         $this->assertSame('Clinic', $column->render($rows[1]));
         $this->assertSame('', $column->render($rows[2]));
+    }
+
+    /**
+     * Types the lookup map at its source, so the closures below need no inline cast.
+     *
+     * @return array<string, string>
+     */
+    private static function emptyFacilityNames(): array
+    {
+        return [];
     }
 
     #[Test]

@@ -5,9 +5,13 @@
  * into the chart that is being kept.
  *
  * The page is reached two ways. On its own it presents two chart pickers and requires the SSN and
- * DOB of both charts to match before it will run. Reached from the duplicate manager, which passes
- * both pids on the query string, those checks are skipped because that tool has already decided the
- * charts are the same person.
+ * DOB of both charts to match before it will run. Reached from the duplicate manager, those checks
+ * are skipped, because that report has already scored the two charts as the same person -- a pair it
+ * surfaces can legitimately differ on SSN.
+ *
+ * That exemption is decided from the session, not from the URL. The duplicate manager records which
+ * charts its report actually listed; only a pair drawn from that set skips the identity checks. The
+ * pids on the query string merely prefill the pickers.
  *
  * The merge itself lives in {@see PatientMergeService}; this controller only parses the request,
  * enforces access, and renders what the service reports.
@@ -68,20 +72,21 @@ class MergePatientsController
             );
         }
 
-        // The duplicate manager passes both charts on the query string, and the form posts back to
-        // the same URL so they survive the round trip. Their presence is what tells us the SSN/DOB
-        // comparison has already been made elsewhere.
+        // Query pids prefill the pickers only. They are user supplied, so they never decide whether
+        // the identity checks apply.
         $pid1 = $request->query->getInt('pid1');
         $pid2 = $request->query->getInt('pid2');
-        $fromDuplicateManager = $pid1 > 0 && $pid2 > 0;
 
         if ($request->request->getString('form_submit') !== '') {
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
+            $targetPid = $request->request->getInt('form_target_pid');
+            $sourcePid = $request->request->getInt('form_source_pid');
+
             $mergeResult = $this->mergeService->merge(new PatientMergeRequest(
-                targetPid: $request->request->getInt('form_target_pid'),
-                sourcePid: $request->request->getInt('form_source_pid'),
-                skipIdentityChecks: $fromDuplicateManager,
+                targetPid: $targetPid,
+                sourcePid: $sourcePid,
+                skipIdentityChecks: $this->wasScoredAsDuplicate($targetPid, $sourcePid),
             ));
 
             // The source chart is gone once a merge succeeds, so the page reports what happened
@@ -89,7 +94,29 @@ class MergePatientsController
             return $this->render(['mergeResult' => $mergeResult]);
         }
 
-        return $this->renderForm($pid1, $pid2, $fromDuplicateManager);
+        return $this->renderForm($pid1, $pid2, $this->wasScoredAsDuplicate($pid1, $pid2));
+    }
+
+    /**
+     * Were both charts listed by the duplicate report this session?
+     *
+     * The report writes the pids it displayed into the session
+     * ({@see ManageDuplicatePatientsController::SESSION_SCORED_PIDS}). Only a pair drawn from there
+     * skips the SSN/DOB safeguard, so an operator cannot bypass it for two arbitrary charts by
+     * editing the query string. Anyone arriving at this page directly gets the full checks.
+     */
+    private function wasScoredAsDuplicate(int $targetPid, int $sourcePid): bool
+    {
+        if ($targetPid <= 0 || $sourcePid <= 0) {
+            return false;
+        }
+
+        $scored = $this->session->get(ManageDuplicatePatientsController::SESSION_SCORED_PIDS);
+        if (!is_array($scored)) {
+            return false;
+        }
+
+        return in_array($targetPid, $scored, true) && in_array($sourcePid, $scored, true);
     }
 
     private function renderForm(int $pid1, int $pid2, bool $fromDuplicateManager): Response

@@ -14,6 +14,11 @@
  * library/patient.inc.php delegate here so CLI tools and legacy callers stay in step with the
  * report and with {@see PatientMergeService}.
  *
+ * Deliberately does not extend {@see \OpenEMR\Services\BaseService}. BaseService models CRUD over
+ * a single table through a UUID-keyed record set; this class owns no records. It builds a SQL
+ * scoring expression, maintains a derived column on patient_data, and assembles a report -- none of
+ * which BaseService's search, insert and update machinery applies to.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  *
@@ -30,7 +35,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Patient;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use Psr\Clock\ClockInterface;
 
 class DuplicatePatientService
 {
@@ -57,11 +64,18 @@ class DuplicatePatientService
      * threshold surfaces more of what is already stored while changing the criteria themselves
      * would require a full rescore.
      */
+    /** Bounds the rescore pass; injected so the deadline is testable. */
+    private readonly ClockInterface $clock;
+
     public function __construct(
         private readonly int $displayThreshold = self::DISPLAY_THRESHOLD,
         private readonly int $highlightThreshold = self::HIGHLIGHT_THRESHOLD,
         private readonly int $maxGroups = self::MAX_GROUPS,
+        ?ClockInterface $clock = null,
     ) {
+        // Defaulted rather than required because library/patient.inc.php's updateDupScore() shim
+        // constructs this with no arguments.
+        $this->clock = $clock ?? ServiceContainer::getClock();
     }
 
     /** Patients rescored per batch by {@see self::recalculateAllScores()}. */
@@ -154,17 +168,20 @@ class DuplicatePatientService
             noLog: true
         );
 
-        $deadline = time() + self::RESCORE_TIME_LIMIT;
+        $deadline = $this->clock->now()->getTimestamp() + self::RESCORE_TIME_LIMIT;
         $updated = 0;
         $finished = false;
 
-        while (!$finished && time() < $deadline) {
+        while (!$finished && $this->clock->now()->getTimestamp() < $deadline) {
+            // p2.dupscore != SCORE_UNIQUE matches recalculateScore(): a chart an operator declared
+            // unique must not contribute to anyone else's score either, or a full rescore and a
+            // single-patient rescore would store different values for the same chart.
             $rows = QueryUtils::fetchRecordsNoLog(
                 "SELECT p1.pid, MAX(" . self::dupScoreSql() . ") AS dupscore" .
                 " FROM patient_data AS p1, patient_data AS p2" .
-                " WHERE p1.dupscore = ? AND p2.pid < p1.pid" .
+                " WHERE p1.dupscore = ? AND p2.pid < p1.pid AND p2.dupscore != ?" .
                 " GROUP BY p1.pid ORDER BY p1.pid LIMIT " . QueryUtils::escapeLimit(self::RESCORE_BATCH_SIZE),
-                [self::SCORE_PENDING]
+                [self::SCORE_PENDING, self::SCORE_UNIQUE]
             );
 
             foreach ($rows as $row) {

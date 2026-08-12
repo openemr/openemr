@@ -230,12 +230,10 @@ class PatientMergeService
             return;
         }
 
-        if ($this->production && !file_exists($targetDir)) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
-            mkdir($targetDir); // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
-        }
-        if ($this->production && !file_exists($targetEncounterDir)) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
-            mkdir($targetEncounterDir); // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
-        }
+        // Aborting here rather than letting a failed mkdir surface later as "Move failed!", which
+        // points at the wrong cause.
+        $this->ensureDirectory($targetDir);
+        $this->ensureDirectory($targetEncounterDir);
 
         // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
         $handle = opendir($sourceEncounterDir);
@@ -273,6 +271,24 @@ class PatientMergeService
         if ($this->production && !rmdir($sourceEncounterDir)) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
             // Leftover files are not worth failing the whole merge over.
             $log->add(xl('Directory delete failed; continuing.'));
+        }
+    }
+
+    /**
+     * Create a documents directory if it is missing, failing loudly if it cannot be created.
+     */
+    private function ensureDirectory(string $directory): void
+    {
+        // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+        if (!$this->production || file_exists($directory)) {
+            return;
+        }
+
+        // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+        if (!mkdir($directory) && !is_dir($directory)) {
+            throw new PatientMergeAbortedException(
+                xl('Could not create directory') . " '" . $directory . "'"
+            );
         }
     }
 
@@ -401,17 +417,14 @@ class PatientMergeService
         $escapedTable = QueryUtils::escapeTableName($tableName);
         $escapedColumn = QueryUtils::escapeColumnName($columnName, [$tableName]);
 
-        $sourceRows = QueryUtils::fetchRecords("SELECT * FROM $escapedTable WHERE `pid` = ?", [$sourcePid]);
-        $targetRows = QueryUtils::fetchRecords("SELECT * FROM $escapedTable WHERE `pid` = ?", [$targetPid]);
+        $sourceRows = QueryUtils::fetchRecords("SELECT * FROM $escapedTable WHERE $escapedColumn = ?", [$sourcePid]);
+        $targetRows = QueryUtils::fetchRecords("SELECT * FROM $escapedTable WHERE $escapedColumn = ?", [$targetPid]);
 
         $deleteSql = "DELETE FROM $escapedTable WHERE $escapedColumn = ? AND `type` = ?";
         $promoteSql = "UPDATE $escapedTable SET $escapedColumn = ? WHERE $escapedColumn = ? AND `type` = ?";
 
-        $lastSourceType = '';
-
         foreach ($sourceRows as $sourceRow) {
             $sourceType = self::asString($sourceRow['type'] ?? '');
-            $lastSourceType = $sourceType;
 
             foreach ($targetRows as $targetRow) {
                 if ($sourceType !== self::asString($targetRow['type'] ?? '')) {
@@ -470,10 +483,12 @@ class PatientMergeService
         }
 
         QueryUtils::sqlStatementThrowException($sql, [$targetPid, $sourcePid]);
+        // No type in this message: the statement moves every remaining source row, which can span
+        // several types.
         $this->logMergeEvent(
             $targetPid,
             'update',
-            "Updated rows with $columnName = $sourcePid and type = $lastSourceType to $targetPid in table $tableName"
+            "Updated rows with $columnName = $sourcePid to $targetPid in table $tableName"
         );
     }
 
@@ -528,13 +543,15 @@ class PatientMergeService
         );
 
         if (!is_array($target) || $target === []) {
-            $sourceTimestamp = strtotime($sourceDate);
-            $sourceDay = $sourceTimestamp === false ? '' : date('Ymd', $sourceTimestamp);
+            // form_encounter.date and date_end are DATETIME, so the anonymous encounter's own
+            // timestamp is what the range has to be tested against. The legacy code reduced it to
+            // midnight with date('Ymd', ...), which missed any counterpart range starting later
+            // that same day.
             $target = QueryUtils::querySingleRow(
                 "SELECT e1.date, e1.date_end, e1.encounter, e1.reason, e1.encounter_type_code, e1.pid
                    FROM `form_encounter` e1
                   WHERE e1.pid = ? AND ? BETWEEN e1.date AND e1.date_end LIMIT 1",
-                [$counterpartPid, $sourceDay]
+                [$counterpartPid, $sourceDate]
             );
         }
 
