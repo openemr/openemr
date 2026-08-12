@@ -63,7 +63,7 @@ class BaseService implements BaseServiceInterface
      * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
      */
     public function __construct(
-        private $table,
+        private string $table,
         ?LoggerInterface $logger = null,
     ) {
         $this->fields = QueryUtils::listTableFields($table);
@@ -310,9 +310,9 @@ class BaseService implements BaseServiceInterface
      * @param $table
      * @return array
      */
-    private static function getAutoIncrements($table)
+    private static function getAutoIncrements(string $table)
     {
-        return QueryUtils::listAutoIncrementColumns((string) $table);
+        return QueryUtils::listAutoIncrementColumns($table);
     }
 
     /**

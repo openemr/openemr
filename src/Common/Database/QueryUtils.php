@@ -63,7 +63,12 @@ class QueryUtils
             $tables_array = [];
             while ($row = self::fetchArrayFromResultSet($res)) {
                 $keys_return = array_keys($row);
-                $tables_array[] = $row[$keys_return[0]];
+                $tableName = $row[$keys_return[0]];
+                // SHOW TABLES only ever yields strings; the guard is what proves
+                // that to static analysis without casting away the row type.
+                if (is_string($tableName)) {
+                    $tables_array[] = $tableName;
+                }
             }
             self::$tableListCache = $tables_array;
         }
@@ -80,19 +85,21 @@ class QueryUtils
      */
     public static function listTableFields($table)
     {
-        $cacheKey = (string) $table;
-        if (!array_key_exists($cacheKey, self::$tableFieldsCache)) {
+        if (!array_key_exists($table, self::$tableFieldsCache)) {
             $sql = "SHOW COLUMNS FROM " . self::escapeTableName($table);
             $field_list = [];
             $records = self::fetchRecords($sql, [], false);
             foreach ($records as $record) {
-                $field_list[] = $record["Field"];
+                $field = $record["Field"] ?? null;
+                if (is_string($field)) {
+                    $field_list[] = $field;
+                }
             }
 
-            self::$tableFieldsCache[$cacheKey] = $field_list;
+            self::$tableFieldsCache[$table] = $field_list;
         }
 
-        return self::$tableFieldsCache[$cacheKey];
+        return self::$tableFieldsCache[$table];
     }
 
     /**

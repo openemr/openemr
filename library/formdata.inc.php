@@ -126,6 +126,10 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     // Collect all the possible sql columns from the tables
     $columns_options = [];
     foreach ($tables as $table) {
+        if (!is_string($table)) {
+            continue;
+        }
+
         // escapeTableName resolves casing differences, so this is the canonical
         // name; strip backticks for whitelist comparison as input won't have them
         $table_for_whitelist = trim(\OpenEMR\Common\Database\QueryUtils::escapeTableName($table), '`');
