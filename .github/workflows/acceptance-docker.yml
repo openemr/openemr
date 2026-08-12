@@ -94,6 +94,19 @@ on:
         type: string
         default: 'next'
   push:
+    # Skip pushes to release-mechanism bot branches (branch-cut/,
+    # patch-prep/, release-prep/, release-finalize/). peter-evans/
+    # create-pull-request pushes to those branches AND opens a PR in
+    # one motion; both events would otherwise fire this workflow,
+    # producing a duplicate run whose "success" is misleading — the
+    # push run resolves build_locally=false and tests against Docker
+    # Hub's currently-published to_tag, not the PR-built code the PR
+    # run actually validates. Keep the pull_request run only.
+    branches-ignore:
+    - 'branch-cut/**'
+    - 'patch-prep/**'
+    - 'release-prep/**'
+    - 'release-finalize/**'
     paths:
     - '.github/workflows/acceptance-docker.yml'
     - '.github/docker/acceptance-docker-compose.yml'
