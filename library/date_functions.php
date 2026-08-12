@@ -11,7 +11,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  * the session's 'language_choice' value. The format varies by language and can optionally
  * include the day of the week.
  *
- * @param string|int $strtime Unix timestamp or date string. If empty, uses current time.
+ * @param ?int $timestamp Unix timestamp, defaulting to now
  * @param bool $with_dow Whether to include the day of the week in the output.
  * @return string The formatted date string.
  *
@@ -19,16 +19,12 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  * @note For Hebrew, displays English calendar, NOT Jewish calendar
  * @note Last modified 10.07.2007 - dateformat accepts now an argument
  */
-function dateformat(string|int $strtime = '', bool $with_dow = false): string
+function dateformat(?int $timestamp = null, bool $with_dow = false): string
 {
     // without an argument, display current date
-    if (!$strtime) {
-        $strtime = strtotime('now');
+    if ($timestamp === null) {
+        $timestamp = time();
     }
-
-    // Callers pass the timestamp as either an int or a numeric string; normalise
-    // once so the date() calls below receive the int they declare.
-    $timestamp = (int) $strtime;
 
     // name the day of the week for different languages
     $day = (int) date("w", $timestamp); // 0 sunday -> 6 saturday
