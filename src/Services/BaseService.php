@@ -312,16 +312,7 @@ class BaseService implements BaseServiceInterface
      */
     private static function getAutoIncrements($table)
     {
-        $results = [];
-        $rtn = sqlStatementNoLog(
-            "SHOW COLUMNS FROM $table Where extra Like ?",
-            ['%auto_increment%']
-        );
-        while ($row = sqlFetchArray($rtn)) {
-            array_push($results, $row);
-        }
-
-        return $results;
+        return QueryUtils::listAutoIncrementColumns((string) $table);
     }
 
     /**
