@@ -183,6 +183,7 @@ if (!empty($_GET)) {
                                             <?php
                                             echo " <option value=''>" . xlt('All') . "</option>\n";
                                             $clientRows = \OpenEMR\Common\Database\QueryUtils::fetchRecords("SELECT `client_id`, `client_name` FROM `oauth_clients` ORDER BY `client_name` ASC");
+                                            $clientOptionFound = false;
                                             foreach ($clientRows as $clientRow) {
                                                 $optionClientId = is_string($clientRow['client_id'] ?? null) ? $clientRow['client_id'] : '';
                                                 if ($optionClientId === '') {
@@ -190,10 +191,19 @@ if (!empty($_GET)) {
                                                 }
                                                 $optionClientName = is_string($clientRow['client_name'] ?? null) ? $clientRow['client_name'] : '';
                                                 echo " <option value='" . attr($optionClientId) . "'";
-                                                if ($optionClientId == $form_client_id) {
+                                                if ($optionClientId === $form_client_id) {
+                                                    $clientOptionFound = true;
                                                     echo " selected";
                                                 }
                                                 echo ">" . text($optionClientName !== '' ? $optionClientName : $optionClientId) . "</option>\n";
+                                            }
+                                            // A filtered client id may no longer exist in oauth_clients
+                                            // (deleted/decommissioned integration reached via a saved URL).
+                                            // Render it as a selected option so the UI reflects the active
+                                            // filter and resubmitting the form preserves it.
+                                            if ($form_client_id !== '' && !$clientOptionFound) {
+                                                echo " <option value='" . attr($form_client_id) . "' selected>"
+                                                    . text($form_client_id) . " (" . xlt('unregistered') . ")</option>\n";
                                             }
                                             ?>
                                         </select>
