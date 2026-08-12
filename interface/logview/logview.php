@@ -109,7 +109,8 @@ if (!empty($_GET)) {
 
                         $form_patient = $_GET["form_patient"] ?? '';
                         $form_user = $_REQUEST['form_user'] ?? '';
-                        $form_client_id = filter_input(INPUT_GET, 'form_client_id') ?: '';
+                        $form_client_id = filter_input(INPUT_GET, 'form_client_id');
+                        $form_client_id = is_string($form_client_id) ? $form_client_id : '';
                         $form_pid = $_REQUEST['form_pid'] ?? '';
                         if (empty($form_patient)) {
                             $form_pid = '';
@@ -410,7 +411,11 @@ if (!empty($_GET)) {
                                             }
                                         }
 
-                                        if (($eventname == "disclosure") || ($gev == "")) {
+                                        // Disclosures live in extended_log, which has no API client
+                                        // attribution -- they are recorded via the UI disclosure feature,
+                                        // never by an API client. When filtering by API client, skip them
+                                        // rather than mixing unfiltered rows into a filtered view.
+                                        if ((($eventname == "disclosure") || ($gev == "")) && $form_client_id === '') {
                                             $eventname = "disclosure";
                                             if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date, 'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' => $eventname])) {
                                                 while ($iter = sqlFetchArray($ret)) {
