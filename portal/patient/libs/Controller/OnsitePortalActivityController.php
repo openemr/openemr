@@ -108,7 +108,7 @@ class OnsitePortalActivityController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
-            if (!is_object($onsiteportalactivity)) {
+            if (!($onsiteportalactivity instanceof OnsitePortalActivity)) {
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
@@ -186,7 +186,7 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
-            if (!is_object($onsiteportalactivity)) {
+            if (!($onsiteportalactivity instanceof OnsitePortalActivity)) {
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
@@ -237,7 +237,7 @@ class OnsitePortalActivityController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
-            if (!is_object($onsiteportalactivity)) {
+            if (!($onsiteportalactivity instanceof OnsitePortalActivity)) {
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(

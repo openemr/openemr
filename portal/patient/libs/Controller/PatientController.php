@@ -188,7 +188,7 @@ class PatientController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-            if (!is_object($patient)) {
+            if (!($patient instanceof Patient)) {
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
@@ -335,7 +335,7 @@ class PatientController extends AppBasePortalController
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-            if (!is_object($patient)) {
+            if (!($patient instanceof Patient)) {
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(
@@ -446,7 +446,7 @@ class PatientController extends AppBasePortalController
         try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
-            if (!is_object($patient)) {
+            if (!($patient instanceof Patient)) {
                 throw new Exception('Not found');
             }
             PortalSessionPidGuard::assertOwnedBySession(

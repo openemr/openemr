@@ -47,18 +47,32 @@ final class PortalSessionPidGuard
     private const PID_FAMILY_REGEX = '/^p(?:id|atientid)(?:_|$)/i';
 
     /**
-     * Pure predicate: do the two pid values equal, once both are validated
-     * as positive numeric scalars?
+     * Pure predicate: do the two pid values equal, once both parse as
+     * strict positive integers (rejects floats, decimal strings, and
+     * scientific notation — no truncation-based coercion)?
      */
     public static function isMatchingPid(mixed $subjectPid, mixed $sessionPid): bool
     {
-        if (!is_scalar($sessionPid) || !is_numeric($sessionPid) || (int) $sessionPid <= 0) {
-            return false;
+        $subject = self::parseStrictPositiveInt($subjectPid);
+        $session = self::parseStrictPositiveInt($sessionPid);
+        return $subject !== null && $session !== null && $subject === $session;
+    }
+
+    /**
+     * Parse a value as a strict positive integer. Accepts int or exact
+     * integer string; rejects floats, decimal strings ("5.5"), scientific
+     * notation ("1e3"), booleans, null, arrays, and non-positive values.
+     */
+    private static function parseStrictPositiveInt(mixed $value): ?int
+    {
+        if (!is_int($value) && !is_string($value)) {
+            return null;
         }
-        if (!is_scalar($subjectPid) || !is_numeric($subjectPid)) {
-            return false;
+        $parsed = filter_var($value, FILTER_VALIDATE_INT);
+        if ($parsed === false || $parsed <= 0) {
+            return null;
         }
-        return (int) $subjectPid === (int) $sessionPid;
+        return $parsed;
     }
 
     /**
@@ -90,11 +104,11 @@ final class PortalSessionPidGuard
      */
     public static function requireBootstrapPid(): int
     {
-        $bootstrapPid = OEGlobalsBag::getInstance()->get('bootstrap_pid');
-        if (!is_scalar($bootstrapPid) || !is_numeric($bootstrapPid) || (int) $bootstrapPid <= 0) {
+        $parsed = self::parseStrictPositiveInt(OEGlobalsBag::getInstance()->get('bootstrap_pid'));
+        if ($parsed === null) {
             AccessDeniedHelper::deny('Portal PID guard: no valid bootstrap session pid');
         }
-        return (int) $bootstrapPid;
+        return $parsed;
     }
 
     /**

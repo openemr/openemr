@@ -60,8 +60,10 @@ final class PortalSessionPidGuardTest extends TestCase
             'object as request pid'                 => [new \stdClass(), 5, false],
             'bool true request pid'                 => [true, 5, false],
             'bool false request pid'                => [false, 5, false],
-            'float coerces to int for match'        => [5.0, 5, true],
-            'float truncates to matching int'       => [5.9, 5, true],
+            'float rejected even when whole'        => [5.0, 5, false],
+            'float rejected (would truncate)'       => [5.9, 5, false],
+            'decimal string rejected'               => ['5.5', 5, false],
+            'scientific-notation string rejected'   => ['1e0', 5, false],
         ];
     }
 

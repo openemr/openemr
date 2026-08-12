@@ -29,6 +29,7 @@ SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $isPortal = false;
+$pid = null;
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $isPortal = true;
     $pid = $session->get('pid');

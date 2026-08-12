@@ -1812,11 +1812,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$response might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
@@ -1909,11 +1904,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$payrow might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 23,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [

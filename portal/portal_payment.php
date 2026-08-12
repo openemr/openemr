@@ -35,6 +35,7 @@ $v_js_includes = $globalsBag->get('v_js_includes');
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $isPortal = false;
+$pid = null;
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
