@@ -9,6 +9,7 @@
 - branch: rel-820
   docker_tags: 8.2.0,next
   openemr_version_ref: rel-820
+  gate_with_acceptance: true
 
 - branch: rel-810
   docker_tags: 8.1.1,latest
