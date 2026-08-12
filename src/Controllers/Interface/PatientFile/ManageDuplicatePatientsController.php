@@ -34,10 +34,13 @@ namespace OpenEMR\Controllers\Interface\PatientFile;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Events\Patient\DuplicatePatientReportColumnsEvent;
+use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientCsvWriter;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientService;
 use Psr\Clock\ClockInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -74,8 +77,10 @@ class ManageDuplicatePatientsController
         private readonly Environment $twig,
         private readonly SessionInterface $session,
         private readonly ClockInterface $clock,
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly string $instanceName,
         private readonly array $requiredAcl = self::DEFAULT_ACL,
+        private readonly bool $rescoreOnLoad = true,
     ) {
     }
 
@@ -93,20 +98,24 @@ class ManageDuplicatePatientsController
             );
         }
 
-        // Every load rescores the whole patient table. That is what makes the report trustworthy
-        // after bulk imports, and it is why this page is slow on large installs.
-        $this->duplicatePatients->recalculateAllScores();
+        // Rescoring the whole patient table is what makes the report trustworthy after a bulk
+        // import, and it is why this page is slow on large installs. A deployment that keeps scores
+        // current on demographics changes can turn it off and drive it from the Recalculate button.
+        if ($this->rescoreOnLoad) {
+            $this->duplicatePatients->recalculateAllScores();
+        }
 
         // Applied after the rescore so the operator's decision is what the report reflects.
         $this->applyRowAction($request);
 
-        $groups = $this->duplicatePatients->findDuplicateGroups();
+        $columns = $this->resolveColumns();
+        $groups = $this->duplicatePatients->findDuplicateGroups($columns);
 
         if ($request->request->getString('form_csvexport') === 'CSV') {
-            return $this->csvResponse($groups);
+            return $this->csvResponse($groups, $columns);
         }
 
-        return $this->htmlResponse($groups);
+        return $this->htmlResponse($groups, $columns);
     }
 
     private function applyRowAction(Request $request): void
@@ -124,14 +133,29 @@ class ManageDuplicatePatientsController
     }
 
     /**
-     * @param list<DuplicatePatientGroup> $groups
+     * Let modules add, remove and reorder the report's columns.
+     *
+     * @return list<DuplicatePatientColumn>
      */
-    private function htmlResponse(array $groups): Response
+    private function resolveColumns(): array
+    {
+        $event = new DuplicatePatientReportColumnsEvent(DuplicatePatientColumn::defaults());
+        $this->eventDispatcher->dispatch($event, DuplicatePatientReportColumnsEvent::EVENT_NAME);
+
+        return $event->getColumns();
+    }
+
+    /**
+     * @param list<DuplicatePatientGroup>  $groups
+     * @param list<DuplicatePatientColumn> $columns
+     */
+    private function htmlResponse(array $groups, array $columns): Response
     {
         $html = $this->twig->render(self::TEMPLATE, [
             'csrfToken' => CsrfUtils::collectCsrfToken(session: $this->session),
             'siteId' => $this->session->get('site_id'),
             'groups' => $groups,
+            'columns' => $columns,
             // Shared with the page's JavaScript so the option values and the values this controller
             // dispatches on cannot drift apart.
             'actions' => [
@@ -146,16 +170,17 @@ class ManageDuplicatePatientsController
     }
 
     /**
-     * @param list<DuplicatePatientGroup> $groups
+     * @param list<DuplicatePatientGroup>  $groups
+     * @param list<DuplicatePatientColumn> $columns
      */
-    private function csvResponse(array $groups): Response
+    private function csvResponse(array $groups, array $columns): Response
     {
         $filename = $this->csvWriter->buildFilename(
             $this->instanceName,
             $this->clock->now()->format('YmdHi')
         );
 
-        $response = new Response($this->csvWriter->write($groups), Response::HTTP_OK, [
+        $response = new Response($this->csvWriter->write($groups, $columns), Response::HTTP_OK, [
             'Content-Type' => 'text/csv; charset=utf-8',
             'Content-Description' => 'File Transfer',
             'Pragma' => 'public',

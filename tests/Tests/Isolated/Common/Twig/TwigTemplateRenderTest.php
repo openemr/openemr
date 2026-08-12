@@ -21,6 +21,7 @@ namespace OpenEMR\Tests\Isolated\Common\Twig;
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\PostCalendar\PostCalendarTwigExtension;
+use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientGroup;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
 use OpenEMR\Services\Patient\PatientMergeResult;
@@ -36,6 +37,9 @@ use Twig\TwigFunction;
 class TwigTemplateRenderTest extends TestCase
 {
     private static ?Environment $twig = null;
+
+    /** Mirrors DuplicatePatientService::HIGHLIGHT_THRESHOLD; kept local so fixtures stay stable. */
+    private const HIGHLIGHT = 17;
 
     protected function setUp(): void
     {
@@ -94,6 +98,12 @@ class TwigTemplateRenderTest extends TestCase
      */
     public static function renderCaseProvider(): iterable
     {
+        // Data providers run before setUp(), and building the duplicate-report columns calls xl().
+        // Without this, xl() reaches for the translation tables and fails in an isolated run.
+        $GLOBALS['fileroot'] ??= self::fileroot();
+        $GLOBALS['date_display_format'] ??= 0;
+        $GLOBALS['disable_translation'] = true;
+
         $fixtureDir = __DIR__ . '/fixtures/render';
 
         yield 'portal/partial/_nav_icon local link (defaults)' => [
@@ -480,6 +490,7 @@ class TwigTemplateRenderTest extends TestCase
             [
                 'csrfToken' => 'test-csrf-token',
                 'siteId' => 'default',
+                'columns' => DuplicatePatientColumn::defaults(),
                 'groups' => [],
                 'actions' => $dupActions,
             ],
@@ -491,21 +502,22 @@ class TwigTemplateRenderTest extends TestCase
             [
                 'csrfToken' => 'test-csrf-token',
                 'siteId' => 'default',
-                'groups' => [
+                'columns' => DuplicatePatientColumn::defaults(),
+                'groups' => self::renderedGroups([
                     new DuplicatePatientGroup(
                         1,
                         DuplicatePatientRow::forPrimary(self::duplicatePatientRow([
                             'pid' => '7',
                             'pubpid' => 'PUB7',
                             'dupscore' => '20',
-                        ])),
+                        ]), self::HIGHLIGHT),
                         [
                             DuplicatePatientRow::forMatch(self::duplicatePatientRow([
                                 'pid' => '9',
                                 'pubpid' => 'PUB9',
                                 'dupscore' => '20',
                                 'myscore' => '20',
-                            ]), 7),
+                            ]), 7, self::HIGHLIGHT),
                         ]
                     ),
                     new DuplicatePatientGroup(
@@ -516,7 +528,7 @@ class TwigTemplateRenderTest extends TestCase
                             'dupscore' => '13',
                             'lname' => "O'Brien",
                             'fname' => 'Sean',
-                        ])),
+                        ]), self::HIGHLIGHT),
                         [
                             DuplicatePatientRow::forMatch(self::duplicatePatientRow([
                                 'pid' => '22',
@@ -525,14 +537,35 @@ class TwigTemplateRenderTest extends TestCase
                                 'myscore' => '14',
                                 'lname' => "O'Brian",
                                 'fname' => 'Sean',
-                            ]), 21),
+                            ]), 21, self::HIGHLIGHT),
                         ]
                     ),
-                ],
+                ]),
                 'actions' => $dupActions,
             ],
             $fixtureDir . '/manage-dup-patients-groups.html',
         ];
+    }
+
+    /**
+     * Render each group's cells against core's default columns, the way the controller does.
+     *
+     * @param list<DuplicatePatientGroup> $groups
+     *
+     * @return list<DuplicatePatientGroup>
+     *
+     * @codeCoverageIgnore Only reached from the data provider, which runs before instrumentation.
+     */
+    private static function renderedGroups(array $groups): array
+    {
+        $columns = DuplicatePatientColumn::defaults();
+        foreach ($groups as $group) {
+            foreach ($group->getRows() as $row) {
+                $row->renderCells($columns);
+            }
+        }
+
+        return $groups;
     }
 
     /**

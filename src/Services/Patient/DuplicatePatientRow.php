@@ -3,8 +3,10 @@
 /**
  * DuplicatePatientRow is one line of the Duplicate Patient Management report.
  *
- * It is a presentation row rather than a patient record: names, phone numbers and dates arrive
- * already assembled and formatted so that the HTML table and the CSV export cannot drift apart.
+ * It carries three things: the control fields that drive behaviour (which chart the merge links
+ * point at, how the row is highlighted), the raw patient_data row that column renderers read, and
+ * the cells those renderers produced. Cells are rendered once, here, so the HTML table and the CSV
+ * export cannot disagree about what a column says.
  *
  * Rows come in two kinds. The first row of a group is the "primary" -- the patient whose stored
  * dupscore put the group on the report -- and offers the Mark Unique / Recompute actions. The rest
@@ -24,7 +26,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Patient;
 
-final readonly class DuplicatePatientRow
+final class DuplicatePatientRow
 {
     /** Scope label for a chart that should be merged away. */
     public const SCOPE_MERGE_FROM = 'Merge From';
@@ -33,29 +35,30 @@ final readonly class DuplicatePatientRow
     public const SCOPE_MERGE_TO = 'Merge To';
 
     /**
-     * @param string $scopeLabel     Untranslated label ('', 'Merge From', 'Merge To'); the view
-     *                               translates it.
-     * @param string $highlightClass CSS class driving the row background ('', 'highlight',
-     *                               'highlight-master').
-     * @param int    $topPid         The pid of the group's primary row. The merge actions need both
-     *                               it and this row's pid to know which chart survives.
-     * @param bool   $isMatch        True for a scored match, false for the group's primary row.
+     * Rendered cells keyed by column key. Populated by {@see self::renderCells()} once the report's
+     * column list is known, because a module can change that list.
+     *
+     * @var array<string, string>
+     */
+    private array $values = [];
+
+    /**
+     * @param array<mixed> $data           The raw patient_data row; what column renderers read.
+     * @param string       $scopeLabel     Untranslated label ('', 'Merge From', 'Merge To').
+     * @param string       $highlightClass CSS class driving the row background ('', 'highlight',
+     *                                     'highlight-master').
+     * @param int          $topPid         The pid of the group's primary row. The merge actions need
+     *                                     both it and this row's pid to know which chart survives.
+     * @param bool         $isMatch        True for a scored match, false for the group's primary row.
      */
     private function __construct(
-        public int $pid,
-        public string $publicId,
-        public int $score,
-        public string $name,
-        public string $dateOfBirth,
-        public string $sex,
-        public string $email,
-        public string $phones,
-        public string $registeredOn,
-        public string $street,
-        public int $topPid,
-        public bool $isMatch,
-        public string $scopeLabel,
-        public string $highlightClass,
+        public readonly int $pid,
+        public readonly int $score,
+        public readonly int $topPid,
+        public readonly bool $isMatch,
+        public readonly string $scopeLabel,
+        public readonly string $highlightClass,
+        public readonly array $data,
     ) {
     }
 
@@ -64,9 +67,9 @@ final readonly class DuplicatePatientRow
      *
      * @param array<mixed> $row A patient_data row.
      */
-    public static function forPrimary(array $row): self
+    public static function forPrimary(array $row, int $highlightThreshold): self
     {
-        return self::fromPatientRow($row, self::intField($row, 'pid'), false);
+        return self::fromPatientRow($row, self::intField($row, 'pid'), false, $highlightThreshold);
     }
 
     /**
@@ -74,16 +77,20 @@ final readonly class DuplicatePatientRow
      *
      * @param array<mixed> $row A patient_data row plus a `myscore` column.
      */
-    public static function forMatch(array $row, int $topPid): self
+    public static function forMatch(array $row, int $topPid, int $highlightThreshold): self
     {
-        return self::fromPatientRow($row, $topPid, true);
+        return self::fromPatientRow($row, $topPid, true, $highlightThreshold);
     }
 
     /**
      * @param array<mixed> $row
      */
-    private static function fromPatientRow(array $row, int $topPid, bool $isMatch): self
-    {
+    private static function fromPatientRow(
+        array $row,
+        int $topPid,
+        bool $isMatch,
+        int $highlightThreshold
+    ): self {
         // The stored dupscore decides the highlight for every row; a match that scores high against
         // this particular primary then overrides it to mark the chart to merge into.
         $storedScore = self::intField($row, 'dupscore');
@@ -91,55 +98,54 @@ final readonly class DuplicatePatientRow
 
         $scopeLabel = '';
         $highlightClass = '';
-        if ($storedScore > DuplicatePatientService::HIGHLIGHT_THRESHOLD) {
+        if ($storedScore > $highlightThreshold) {
             $scopeLabel = self::SCOPE_MERGE_FROM;
             $highlightClass = 'highlight';
         }
-        if ($isMatch && $matchScore > DuplicatePatientService::HIGHLIGHT_THRESHOLD) {
+        if ($isMatch && $matchScore > $highlightThreshold) {
             $scopeLabel = self::SCOPE_MERGE_TO;
             $highlightClass = 'highlight-master';
         }
 
         return new self(
             pid: self::intField($row, 'pid'),
-            publicId: self::stringField($row, 'pubpid'),
             score: $isMatch ? $matchScore : $storedScore,
-            name: self::stringField($row, 'lname') . ', ' . self::stringField($row, 'fname')
-                . ' ' . self::stringField($row, 'mname'),
-            // Times are never shown, and a DOB carrying one would break the short-date format.
-            dateOfBirth: self::formatShortDate(substr(self::stringField($row, 'DOB'), 0, 10)),
-            sex: self::stringField($row, 'sex'),
-            email: self::stringField($row, 'email'),
-            phones: self::joinPhones($row),
-            registeredOn: self::formatShortDate(self::stringField($row, 'regdate')),
-            street: self::stringField($row, 'street'),
             topPid: $topPid,
             isMatch: $isMatch,
             scopeLabel: $scopeLabel,
             highlightClass: $highlightClass,
+            data: $row,
         );
     }
 
-    private static function formatShortDate(string $date): string
+    /**
+     * Render this row's cells for the given columns.
+     *
+     * @param list<DuplicatePatientColumn> $columns
+     */
+    public function renderCells(array $columns): void
     {
-        $formatted = oeFormatShortDate($date);
-        return is_scalar($formatted) ? (string) $formatted : '';
+        $values = [];
+        foreach ($columns as $column) {
+            $values[$column->key] = $column->render($this);
+        }
+        $this->values = $values;
     }
 
     /**
-     * @param array<mixed> $row
+     * @return array<string, string>
      */
-    private static function joinPhones(array $row): string
+    public function getValues(): array
     {
-        $phones = [];
-        foreach (['phone_home', 'phone_biz', 'phone_cell'] as $field) {
-            $phone = trim(self::stringField($row, $field));
-            if ($phone !== '') {
-                $phones[] = $phone;
-            }
-        }
+        return $this->values;
+    }
 
-        return implode(', ', $phones);
+    /**
+     * A single patient_data field as text, for column renderers.
+     */
+    public function field(string $name): string
+    {
+        return self::stringField($this->data, $name);
     }
 
     /**

@@ -49,6 +49,21 @@ class DuplicatePatientService
     /** Groups shown on one page of the report. */
     public const MAX_GROUPS = 100;
 
+    /**
+     * The thresholds are tuned to the scale of {@see self::dupScoreSql()}, whose criteria sum to 27:
+     * the display threshold means "two strong identifiers agree" and the highlight threshold means
+     * "three". A deployment that wants the report to cast a wider net can lower them here rather
+     * than forking the page -- but note that dupscore is a cached value, so lowering the display
+     * threshold surfaces more of what is already stored while changing the criteria themselves
+     * would require a full rescore.
+     */
+    public function __construct(
+        private readonly int $displayThreshold = self::DISPLAY_THRESHOLD,
+        private readonly int $highlightThreshold = self::HIGHLIGHT_THRESHOLD,
+        private readonly int $maxGroups = self::MAX_GROUPS,
+    ) {
+    }
+
     /** Patients rescored per batch by {@see self::recalculateAllScores()}. */
     private const RESCORE_BATCH_SIZE = 5000;
 
@@ -177,16 +192,19 @@ class DuplicatePatientService
      * group are skipped, and a candidate whose every match was already listed produces no group at
      * all rather than an orphan row.
      *
+     * @param list<DuplicatePatientColumn> $columns columns to render each row's cells for
+     * @param ?int                          $limit   overrides the configured group cap
+     *
      * @return list<DuplicatePatientGroup>
      */
-    public function findDuplicateGroups(int $limit = self::MAX_GROUPS): array
+    public function findDuplicateGroups(array $columns = [], ?int $limit = null): array
     {
         $scoreSql = self::dupScoreSql();
 
         $candidates = QueryUtils::fetchRecords(
             "SELECT * FROM patient_data WHERE dupscore > ? ORDER BY dupscore DESC, pid DESC"
-            . " LIMIT " . QueryUtils::escapeLimit($limit),
-            [self::DISPLAY_THRESHOLD]
+            . " LIMIT " . QueryUtils::escapeLimit($limit ?? $this->maxGroups),
+            [$this->displayThreshold]
         );
 
         /** @var array<int, true> $listed */
@@ -206,7 +224,7 @@ class DuplicatePatientService
                 . "FROM patient_data AS p1, patient_data AS p2 "
                 . "WHERE p1.pid = ? AND p2.pid != p1.pid AND p2.dupscore != ? AND ($scoreSql) > ? "
                 . "ORDER BY myscore DESC, p2.pid DESC",
-                [$primaryPid, self::SCORE_UNIQUE, self::DISPLAY_THRESHOLD]
+                [$primaryPid, self::SCORE_UNIQUE, $this->displayThreshold]
             );
 
             /** @var list<array{pid: int, row: array<mixed>}> $fresh */
@@ -229,16 +247,43 @@ class DuplicatePatientService
             $matches = [];
             foreach ($fresh as $match) {
                 $listed[$match['pid']] = true;
-                $matches[] = DuplicatePatientRow::forMatch($match['row'], $primaryPid);
+                $matches[] = DuplicatePatientRow::forMatch($match['row'], $primaryPid, $this->highlightThreshold);
             }
 
             $groups[] = new DuplicatePatientGroup(
                 count($groups) + 1,
-                DuplicatePatientRow::forPrimary($candidate),
+                DuplicatePatientRow::forPrimary($candidate, $this->highlightThreshold),
                 $matches
             );
         }
 
+        $this->renderCells($groups, $columns);
+
         return $groups;
+    }
+
+    /**
+     * Give every column its one shot at the whole report, then render each row's cells.
+     *
+     * @param list<DuplicatePatientGroup>  $groups
+     * @param list<DuplicatePatientColumn> $columns
+     */
+    private function renderCells(array $groups, array $columns): void
+    {
+        $rows = [];
+        foreach ($groups as $group) {
+            foreach ($group->getRows() as $row) {
+                $rows[] = $row;
+            }
+        }
+
+        // prepare() runs before any render() so a lookup column can resolve the whole report in one
+        // query instead of one per row.
+        foreach ($columns as $column) {
+            $column->prepare($rows);
+        }
+        foreach ($rows as $row) {
+            $row->renderCells($columns);
+        }
     }
 }

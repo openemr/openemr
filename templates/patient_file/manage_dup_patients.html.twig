@@ -86,49 +86,24 @@
             </div>
             <table id='mymaintable' class='table table-sm table-bordered table-hover w-100 table-light'>
                 <thead class="thead-dark text-center">
+                {#
+                  Actions is fixed: it renders a <select> and its behaviour, so it belongs to the
+                  template. Everything after it comes from the column list, which a module can
+                  reshape via DuplicatePatientReportColumnsEvent.
+                #}
                 <tr>
                     <th>
                         {{ 'Actions'|xlt }}
                     </th>
-                    <th>
-                        {{ 'Score'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'Pid'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'Public'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'Scope'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'Name'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'DOB'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'Gender'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'Email'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'Telephone'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'Registered'|xlt }}
-                    </th>
-                    <th>
-                        {{ 'Address'|xlt }}
-                    </th>
+                    {% for column in columns %}
+                    <th>{{ column.label|text }}</th>
+                    {% endfor %}
                 </tr>
                 </thead>
                 <tbody class="text-center">
                 {% for group in groups %}
                     {% if not loop.first %}
-                        <tr><td class='detail' colspan='12'>&nbsp;</td></tr>
+                        <tr><td class='detail' colspan='{{ (columns|length + 1)|attr }}'>&nbsp;</td></tr>
                     {% endif %}
                     {% for row in group.rows %}
                         <tr class='{{ row.highlightClass|attr }}'>
@@ -144,40 +119,14 @@
                                     {% endif %}
                                 </select>
                             </td>
-                            <td>
-                                {{ row.score|text }}
-                            </td>
-                            <td class="text-warning" onclick="openNewTopWindow({{ row.pid|attr_js }})"
-                                title="{{ 'Click to open in a new window or tab'|xla }}" style="cursor:pointer">
-                                {{ row.pid|text }}
-                            </td>
-                            <td>
-                                {{ row.publicId|text }}
-                            </td>
-                            <td>
-                                {% if row.scopeLabel %}{{ row.scopeLabel|xlt }}{% endif %}
-                            </td>
-                            <td>
-                                {{ row.name|text }}
-                            </td>
-                            <td>
-                                {{ row.dateOfBirth|text }}
-                            </td>
-                            <td>
-                                {{ row.sex|text }}
-                            </td>
-                            <td>
-                                {{ row.email|text }}
-                            </td>
-                            <td>
-                                {{ row.phones|text }}
-                            </td>
-                            <td>
-                                {{ row.registeredOn|text }}
-                            </td>
-                            <td>
-                                {{ row.street|text }}
-                            </td>
+                            {# The pid cell is the one column that carries behaviour: it opens the chart in a new top-level window. #}
+                            {% for column in columns %}
+                            {% if column.key == 'pid' %}
+                            <td class="text-warning" onclick="openNewTopWindow({{ row.pid|attr_js }})" title="{{ 'Click to open in a new window or tab'|xla }}" style="cursor:pointer">{{ row.values[column.key]|text }}</td>
+                            {% else %}
+                            <td>{{ row.values[column.key]|text }}</td>
+                            {% endif %}
+                            {% endfor %}
                         </tr>
                     {% endfor %}
                 {% endfor %}

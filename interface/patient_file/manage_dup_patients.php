@@ -33,12 +33,15 @@ use Symfony\Component\HttpFoundation\Request;
 
 $globalsBag = OEGlobalsBag::getInstance();
 
+$kernel = $globalsBag->getKernel();
+
 $controller = new ManageDuplicatePatientsController(
     new DuplicatePatientService(),
     new DuplicatePatientCsvWriter(),
-    (new TwigContainer(null, $globalsBag->getKernel()))->getTwig(),
+    (new TwigContainer(null, $kernel))->getTwig(),
     SessionWrapperFactory::getInstance()->getActiveSession(),
     ServiceContainer::getClock(),
+    $kernel->getEventDispatcher(),
     $globalsBag->getString('openemr_name')
 );
 

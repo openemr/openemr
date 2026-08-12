@@ -3,9 +3,12 @@
 /**
  * DuplicatePatientCsvWriter serialises the Duplicate Patient Management report as a spreadsheet.
  *
+ * It walks the same {@see DuplicatePatientColumn} list the HTML table does, so the two views always
+ * carry the same columns in the same order. Only the leading Group column is added here: the table
+ * conveys grouping with a separator row, which a spreadsheet cannot.
+ *
  * Every cell goes through csvEscape(), which strips the characters a spreadsheet would interpret as
- * a formula. The column order matches the HTML table so the two views stay recognisably the same
- * report.
+ * the start of a formula.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -24,43 +27,25 @@ namespace OpenEMR\Services\Patient;
 class DuplicatePatientCsvWriter
 {
     /**
-     * @param list<DuplicatePatientGroup> $groups
+     * @param list<DuplicatePatientGroup>  $groups
+     * @param list<DuplicatePatientColumn> $columns
      */
-    public function write(array $groups): string
+    public function write(array $groups, array $columns): string
     {
-        // Spelled out rather than looped so the translation extractor, which scans for literal
-        // xl() arguments, actually finds these headings.
-        $csv = $this->toLine([
-            xl('Group'),
-            xl('Score'),
-            xl('PID'),
-            xl('Public'),
-            xl('Scope'),
-            xl('Name'),
-            xl('DOB'),
-            xl('Gender'),
-            xl('Email'),
-            xl('Telephone'),
-            xl('Registered'),
-            xl('Address'),
-        ]);
+        $headings = [xl('Group')];
+        foreach ($columns as $column) {
+            $headings[] = $column->label;
+        }
+        $csv = $this->toLine($headings);
 
         foreach ($groups as $group) {
             foreach ($group->getRows() as $row) {
-                $csv .= $this->toLine([
-                    (string) $group->number,
-                    (string) $row->score,
-                    (string) $row->pid,
-                    $row->publicId,
-                    $this->translateScope($row->scopeLabel),
-                    $row->name,
-                    $row->dateOfBirth,
-                    $row->sex,
-                    $row->email,
-                    $row->phones,
-                    $row->registeredOn,
-                    $row->street,
-                ]);
+                $cells = [(string) $group->number];
+                $values = $row->getValues();
+                foreach ($columns as $column) {
+                    $cells[] = $values[$column->key] ?? '';
+                }
+                $csv .= $this->toLine($cells);
             }
         }
 
@@ -70,19 +55,6 @@ class DuplicatePatientCsvWriter
     public function buildFilename(string $instanceName, string $timestamp): string
     {
         return "duplicate_patients_" . $instanceName . "_" . $timestamp . ".csv";
-    }
-
-    /**
-     * The scope label is a closed set, so it is translated by match rather than by passing a
-     * runtime string to xl() -- which would neither type-check nor be found by the extractor.
-     */
-    private function translateScope(string $scopeLabel): string
-    {
-        return match ($scopeLabel) {
-            DuplicatePatientRow::SCOPE_MERGE_FROM => xl('Merge From'),
-            DuplicatePatientRow::SCOPE_MERGE_TO => xl('Merge To'),
-            default => '',
-        };
     }
 
     /**

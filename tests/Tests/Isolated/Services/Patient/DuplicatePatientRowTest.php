@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Services\Patient;
 
+use OpenEMR\Services\Patient\DuplicatePatientColumn;
 use OpenEMR\Services\Patient\DuplicatePatientRow;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -21,9 +22,11 @@ use PHPUnit\Framework\TestCase;
 #[Group('isolated')]
 class DuplicatePatientRowTest extends TestCase
 {
+    /** The score above which a chart is flagged on the report. */
+    private const HIGHLIGHT = 17;
+
     protected function setUp(): void
     {
-        // oeFormatShortDate() consults these; without them it would reach for the database.
         $GLOBALS['date_display_format'] ??= 0;
         $GLOBALS['disable_translation'] = true;
     }
@@ -56,19 +59,22 @@ class DuplicatePatientRowTest extends TestCase
     #[Test]
     public function primaryRowUsesTheStoredScoreAndPointsAtItself(): void
     {
-        $row = DuplicatePatientRow::forPrimary(self::patientRow());
+        $row = DuplicatePatientRow::forPrimary(self::patientRow(), self::HIGHLIGHT);
 
         $this->assertSame(7, $row->pid);
         $this->assertSame(7, $row->topPid, 'a primary row is its own group anchor');
         $this->assertFalse($row->isMatch);
         $this->assertSame(14, $row->score);
-        $this->assertSame('PUB7', $row->publicId);
     }
 
     #[Test]
     public function matchRowUsesItsScoreAgainstThePrimaryAndKeepsTheGroupAnchor(): void
     {
-        $row = DuplicatePatientRow::forMatch(self::patientRow(['pid' => '9', 'myscore' => '20']), 7);
+        $row = DuplicatePatientRow::forMatch(
+            self::patientRow(['pid' => '9', 'myscore' => '20']),
+            7,
+            self::HIGHLIGHT
+        );
 
         $this->assertSame(9, $row->pid);
         $this->assertSame(7, $row->topPid);
@@ -76,28 +82,33 @@ class DuplicatePatientRowTest extends TestCase
         $this->assertSame(20, $row->score, 'a match is scored against the primary, not by its cached dupscore');
     }
 
+    /**
+     * Column renderers read the raw patient_data row through field(), so any column present in the
+     * query is reachable without the row having to know about it.
+     */
     #[Test]
-    public function assemblesTheNameFromItsParts(): void
+    public function exposesRawPatientFieldsToColumnRenderers(): void
     {
-        $row = DuplicatePatientRow::forPrimary(self::patientRow());
+        $row = DuplicatePatientRow::forPrimary(self::patientRow(['ss' => '111-22-3333']), self::HIGHLIGHT);
 
-        $this->assertSame('Nakamura, Aiko R', $row->name);
+        $this->assertSame('Nakamura', $row->field('lname'));
+        $this->assertSame('111-22-3333', $row->field('ss'), 'a field core does not display is still readable');
+        $this->assertSame('', $row->field('no_such_column'));
     }
 
     #[Test]
-    public function joinsOnlyThePhoneNumbersThatArePresent(): void
+    public function rendersCellsKeyedByColumn(): void
     {
-        $row = DuplicatePatientRow::forPrimary(self::patientRow());
+        $row = DuplicatePatientRow::forPrimary(self::patientRow(), self::HIGHLIGHT);
+        $this->assertSame([], $row->getValues(), 'nothing is rendered until the column list is known');
 
-        $this->assertSame('555-1000, 555-2000', $row->phones, 'blank numbers are dropped and the rest trimmed');
-    }
+        $row->renderCells([
+            DuplicatePatientColumn::forField('pubpid', 'Public'),
+            new DuplicatePatientColumn('shouty', 'Shouty', static fn(DuplicatePatientRow $r): string
+                => strtoupper($r->field('lname'))),
+        ]);
 
-    #[Test]
-    public function dropsTheTimeComponentFromTheDateOfBirth(): void
-    {
-        $row = DuplicatePatientRow::forPrimary(self::patientRow());
-
-        $this->assertStringNotContainsString(':', $row->dateOfBirth);
+        $this->assertSame(['pubpid' => 'PUB7', 'shouty' => 'NAKAMURA'], $row->getValues());
     }
 
     /**
@@ -116,8 +127,8 @@ class DuplicatePatientRowTest extends TestCase
     ): void {
         $source = self::patientRow($overrides);
         $row = $isMatch
-            ? DuplicatePatientRow::forMatch($source, 7)
-            : DuplicatePatientRow::forPrimary($source);
+            ? DuplicatePatientRow::forMatch($source, 7, self::HIGHLIGHT)
+            : DuplicatePatientRow::forPrimary($source, self::HIGHLIGHT);
 
         $this->assertSame($expectedClass, $row->highlightClass);
         $this->assertSame($expectedScope, $row->scopeLabel);
@@ -149,16 +160,25 @@ class DuplicatePatientRowTest extends TestCase
         ];
     }
 
+    /**
+     * A deployment that lowers the threshold flags more charts without any other change.
+     */
+    #[Test]
+    public function respectsAConfiguredHighlightThreshold(): void
+    {
+        $source = self::patientRow(['dupscore' => '10']);
+
+        $this->assertSame('', DuplicatePatientRow::forPrimary($source, 17)->highlightClass);
+        $this->assertSame('highlight', DuplicatePatientRow::forPrimary($source, 7)->highlightClass);
+    }
+
     #[Test]
     public function toleratesMissingColumns(): void
     {
-        $row = DuplicatePatientRow::forPrimary(['pid' => 3]);
+        $row = DuplicatePatientRow::forPrimary(['pid' => 3], self::HIGHLIGHT);
 
         $this->assertSame(3, $row->pid);
         $this->assertSame(0, $row->score);
-        // The separators survive even when every name part is missing.
-        $this->assertSame(',  ', $row->name);
-        $this->assertSame('', $row->phones);
-        $this->assertSame('', $row->street);
+        $this->assertSame('', $row->field('street'));
     }
 }
