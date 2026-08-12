@@ -22,13 +22,6 @@ use Throwable;
 class QueryUtils
 {
     /**
-     * Schema shape is fixed for the life of a request, but the introspection
-     * below sits behind helpers called once per constructed service, so a page
-     * rendering N records re-asks the same questions N times. These caches make
-     * it once. PHP discards statics at end of request, so staleness cannot
-     * outlive one request; the only code that mutates schema mid-process
-     * (SQLUpgradeService) calls clearSchemaCache() after each upgrade file.
-     *
      * @var list<string>|null
      */
     private static ?array $tableListCache = null;
@@ -41,7 +34,8 @@ class QueryUtils
 
     /**
      * Drop memoized schema reads. Required after any DDL executed within the
-     * same request, otherwise subsequent reads report the pre-DDL shape.
+     * same request (which really shouldn't happen), otherwise subsequent reads
+     * report the pre-DDL shape.
      */
     public static function clearSchemaCache(): void
     {
