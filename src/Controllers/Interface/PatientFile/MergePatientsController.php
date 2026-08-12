@@ -42,18 +42,28 @@ class MergePatientsController
 {
     public const TEMPLATE = 'patient_file/merge_patients.html.twig';
 
+    /** The access control a user must hold to merge charts. */
+    public const DEFAULT_ACL = ['patients', 'merge'];
+
+    /**
+     * @param array{0: string, 1: string} $requiredAcl ACL section and value gating this page.
+     *                                                 Superusers pass regardless, via the
+     *                                                 admin/super short circuit in aclCheckCore().
+     */
     public function __construct(
         private readonly PatientMergeService $mergeService,
         private readonly Environment $twig,
         private readonly SessionInterface $session,
+        private readonly array $requiredAcl = self::DEFAULT_ACL,
     ) {
     }
 
     public function dispatchAction(Request $request): Response
     {
-        if (!AclMain::aclCheckCore('admin', 'super')) {
+        [$aclSection, $aclValue] = $this->requiredAcl;
+        if (!AclMain::aclCheckCore($aclSection, $aclValue)) {
             AccessDeniedHelper::denyWithTemplate(
-                "ACL check failed for admin/super: Merge Patients",
+                "ACL check failed for $aclSection/$aclValue: Merge Patients",
                 xl("Merge Patients")
             );
         }

@@ -60,6 +60,14 @@ class ManageDuplicatePatientsController
     /** Merge this row's chart away into the group's chart. Also a link to the merge page. */
     public const ACTION_MERGE_DISCARD = 'MD';
 
+    /** The access control a user must hold to work through duplicate charts. */
+    public const DEFAULT_ACL = ['patients', 'merge'];
+
+    /**
+     * @param array{0: string, 1: string} $requiredAcl ACL section and value gating this page.
+     *                                                 Superusers pass regardless, via the
+     *                                                 admin/super short circuit in aclCheckCore().
+     */
     public function __construct(
         private readonly DuplicatePatientService $duplicatePatients,
         private readonly DuplicatePatientCsvWriter $csvWriter,
@@ -67,6 +75,7 @@ class ManageDuplicatePatientsController
         private readonly SessionInterface $session,
         private readonly ClockInterface $clock,
         private readonly string $instanceName,
+        private readonly array $requiredAcl = self::DEFAULT_ACL,
     ) {
     }
 
@@ -76,9 +85,10 @@ class ManageDuplicatePatientsController
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
         }
 
-        if (!AclMain::aclCheckCore('admin', 'super')) {
+        [$aclSection, $aclValue] = $this->requiredAcl;
+        if (!AclMain::aclCheckCore($aclSection, $aclValue)) {
             AccessDeniedHelper::denyWithTemplate(
-                "ACL check failed for admin/super: Duplicate Patient Management",
+                "ACL check failed for $aclSection/$aclValue: Duplicate Patient Management",
                 xl("Duplicate Patient Management")
             );
         }
