@@ -545,6 +545,105 @@ class TwigTemplateRenderTest extends TestCase
             ],
             $fixtureDir . '/manage-dup-patients-groups.html',
         ];
+
+        $reasonCodeStatii = [
+            '' => ['code' => '', 'description' => 'Select a status code'],
+            'negated' => ['code' => 'negated', 'description' => 'Negated'],
+        ];
+
+        yield 'forms/care_plan reason row (empty)' => [
+            '/forms/care_plan/templates/partials/_reason_row.html.twig',
+            [
+                'row' => [],
+                'rowIndex' => 1,
+                'reasonCodeStatii' => $reasonCodeStatii,
+            ],
+            $fixtureDir . '/care-plan-reason-row-empty.html',
+        ];
+
+        yield 'forms/care_plan reason row (populated)' => [
+            '/forms/care_plan/templates/partials/_reason_row.html.twig',
+            [
+                'row' => [
+                    'reason_code' => 'SNOMED-CT:183932001',
+                    'reason_description' => 'Procedure contraindicated',
+                    'reason_status' => 'negated',
+                    'reason_date_low' => '2026-01-05 09:00',
+                    'reason_date_high' => '2026-02-05 09:00',
+                ],
+                'rowIndex' => 2,
+                'reasonCodeStatii' => $reasonCodeStatii,
+            ],
+            $fixtureDir . '/care-plan-reason-row-populated.html',
+        ];
+
+        yield 'forms/care_plan row actions' => [
+            '/forms/care_plan/templates/partials/_actions.html.twig',
+            ['rowIndex' => 1],
+            $fixtureDir . '/care-plan-actions.html',
+        ];
+
+        yield 'forms/care_plan report' => [
+            '/forms/care_plan/templates/care_plan_report.html.twig',
+            [
+                'rows' => [
+                    [
+                        'user' => 'admin',
+                        'care_plan_type' => 'plan_of_care',
+                        'code' => 'SNOMED-CT:168731009',
+                        'codetext' => 'Standard chest x-ray',
+                        'description' => "First line\nSecond line",
+                        'date' => '2026-01-05 09:00:00',
+                    ],
+                ],
+            ],
+            $fixtureDir . '/care-plan-report.html',
+        ];
+
+        yield 'patient/card care plan empty' => [
+            'patient/card/care_plan.html.twig',
+            [
+                'id' => 'card_care_plan',
+                'title' => 'Care Plan',
+                'initiallyCollapsed' => false,
+                'forceAlwaysOpen' => false,
+                'auth' => false,
+                'card_bg_color' => '',
+                'card_text_color' => '',
+                'pid' => 1,
+                'rows' => [],
+                'mostRecentDate' => null,
+                'encounter' => null,
+            ],
+            $fixtureDir . '/care-plan-card-empty.html',
+        ];
+
+        yield 'patient/card care plan populated' => [
+            'patient/card/care_plan.html.twig',
+            [
+                'id' => 'card_care_plan',
+                'title' => 'Care Plan',
+                'initiallyCollapsed' => false,
+                'forceAlwaysOpen' => false,
+                'auth' => false,
+                'card_bg_color' => '',
+                'card_text_color' => '',
+                'pid' => 1,
+                'rows' => [
+                    [
+                        'user' => 'admin',
+                        'care_plan_type' => 'plan_of_care',
+                        'code' => 'SNOMED-CT:168731009',
+                        'codetext' => 'Standard chest x-ray',
+                        'description' => "First line\nSecond line",
+                        'date' => '2026-01-05 09:00:00',
+                    ],
+                ],
+                'mostRecentDate' => '2026-01-05',
+                'encounter' => 12,
+            ],
+            $fixtureDir . '/care-plan-card-populated.html',
+        ];
     }
 
     /**
@@ -615,8 +714,18 @@ class TwigTemplateRenderTest extends TestCase
         $GLOBALS['date_display_format'] ??= 0;
         $GLOBALS['disable_translation'] = true;
 
-        $twigContainer = new TwigContainer();
+        // Also load interface/ so encounter form templates resolve under the same
+        // names they use in production, e.g. /forms/care_plan/templates/x.html.twig.
+        $twigContainer = new TwigContainer(self::fileroot() . '/interface');
         $twig = $twigContainer->getTwig();
+
+        // getListItemTitle() reads list_options from the database. Stub it so
+        // templates resolving list values render isolated, with the lookup visible
+        // in the fixture as [list_id:option_id].
+        $twig->addFunction(new TwigFunction(
+            'getListItemTitle',
+            fn (string $listId, ?string $optionId): string => '[' . $listId . ':' . ($optionId ?? '') . ']',
+        ));
 
         // Override setupHeader() before the first render initializes extensions.
         // The real function requires $kernel for event dispatching; the stub

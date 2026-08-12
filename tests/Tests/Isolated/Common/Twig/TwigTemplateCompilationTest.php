@@ -43,6 +43,7 @@ class TwigTemplateCompilationTest extends TestCase
      * names resolve correctly during compilation.
      */
     private const EXTRA_TEMPLATE_DIRS = [
+        'interface/forms/care_plan/templates',
         'interface/forms/clinical_notes/templates',
         'interface/forms/newpatient/templates',
         'interface/forms/observation/templates',

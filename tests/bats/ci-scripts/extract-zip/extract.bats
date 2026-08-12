@@ -293,3 +293,35 @@ teardown() {
     [[ -f "${DEST_DIR}/marker" ]]
     [[ ! -d "${DEST_DIR}/arbitrary-name" ]]
 }
+
+@test "caller runs under set -euo pipefail with default shopts: extract still succeeds" {
+    # Regression guard for the shopt-p-under-set-e bug: production
+    # callers (boot-package.sh, upgrade-package.sh) source this helper
+    # under `set -euo pipefail` with nullglob + dotglob at their bash-
+    # default OFF state. The helper's `shopt_saved="$(shopt -p nullglob
+    # dotglob)"` capture step used to fail silently there — `shopt -p X
+    # Y` exits 1 when any listed option is disabled, and under set -e
+    # the caller's script died with no stderr (the exit status was the
+    # only signal; stdout of shopt was captured into the variable).
+    #
+    # Reproduces the exact caller shape rather than going through
+    # run_extract() (which invokes bash without set -e) so the guard
+    # actually catches the regression.
+    mkdir -p "${STAGING_DIR}/openemr-8.2.0"
+    echo "x" >"${STAGING_DIR}/openemr-8.2.0/marker"
+    make_zip strict openemr-8.2.0
+
+    run bash -c "
+        set -euo pipefail
+        shopt -u nullglob dotglob
+        source '${EXTRACT_ZIP_LIB}'
+        extract_zip_flattening_single_top_level_dir \
+            '${ZIP_DIR}/strict.zip' \
+            '${DEST_DIR}' \
+            'extract-zip-strict.XXXXXX' \
+            'strict-mode test context'
+    "
+
+    [[ ${status} -eq 0 ]]
+    [[ -f "${DEST_DIR}/marker" ]]
+}

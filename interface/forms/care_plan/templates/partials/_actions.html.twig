@@ -1,0 +1,25 @@
+{#
+ # _actions.html.twig - Action buttons (Add/Delete/Add Reason) for each care plan row.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (C) 2025 Open Plan IT Ltd. <support@openplanit.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-secondary btn-add btn-sm js-careplan-add"
+        title="{{ 'Click here to duplicate the row'|xla }}">
+        {{ 'Add'|xlt }}
+    </button>
+    <button type="button" class="btn btn-secondary btn-delete btn-sm js-careplan-delete"
+        title="{{ 'Click here to delete the row'|xla }}">
+        {{ 'Delete'|xlt }}
+    </button>
+    <button type="button" class="btn btn-secondary reason-code-btn btn-sm"
+            title="{{ 'Click here to provide an explanation for the observation value (or lack of value)'|xla }}"
+            data-toggle-container="reason_code_{{ rowIndex|attr }}">
+        <i class="fa fa-asterisk"></i>
+        {{ 'Add Reason'|xlt }}
+    </button>
+</div>

@@ -364,9 +364,8 @@ messages), [PSR-15](https://www.php-fig.org/psr/psr-15/) (middleware),
 
 ### Database and Global Settings
 
-- **Database:** Use `QueryUtils` for queries. New schema changes use Doctrine
-  Migrations. Do not instantiate database connections directly — use the
-  centralized `DatabaseConnectionFactory`.
+- **Database:** Use `QueryUtils` for queries.
+- **Schema changes:** Use the sql_upgrade.php system. DO NOT use Doctrine Migrations yet, it is experimental and not fully adopted.
 - **Global settings:** Use `OEGlobalsBag` (extends Symfony `ParameterBag`) instead
   of `$GLOBALS`. Prefer typed getters over `get()` + cast:
   - `getString($key)` instead of `(string) get($key)`
