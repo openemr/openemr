@@ -21,9 +21,12 @@ model" section there for the design rationale.
 1. Conductor opens this PR as a draft when the paired
    `release-prep/<REL_BRANCH>` PR opens.
 2. Release manager triggers [ship-release.yml](../../actions/workflows/ship-release.yml)
-   via `workflow_dispatch`; ship-release merges the paired
-   `release-prep/<REL_BRANCH>` PR, which creates the annotated
-   `v<VERSION>` tag.
+   via `workflow_dispatch` in `semi-auto` or `full-auto` mode;
+   ship-release merges the paired `release-prep/<REL_BRANCH>` PR,
+   which creates the annotated `v<VERSION>` tag. **`dry-run` mode**
+   (and the legacy `dry_run=true` input) **stops after readiness
+   checks + a dress-rehearsal package build — no tag is created,
+   this PR stays draft, and steps 3-4 below don't fire.**
 3. The `finalize` job (in `release-prep.yml`) fires on that tag,
    force-pushes the post-tag content to this branch, flips this PR
    out of draft, and posts a signal comment.
