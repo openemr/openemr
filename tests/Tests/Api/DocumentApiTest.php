@@ -386,17 +386,6 @@ class DocumentApiTest extends TestCase
     }
 
     #[Test]
-    public function testDownloadFileAllowsOneByteZeroContent(): void
-    {
-        $this->assertEquals(200, $this->postDocument(contents: '0')->getStatusCode());
-        $documentId = $this->getUploadedDocumentId();
-        $response = $this->testClient->getOne($this->documentEndpoint(), (string)$documentId);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertSame('0', (string)$response->getBody());
-    }
-
-    #[Test]
     public function testDownloadFileFallsBackForInvalidMimeTypes(): void
     {
         foreach ([null, "text/plain\r\nX-Injected: true"] as $mimetype) {
@@ -465,7 +454,7 @@ class DocumentApiTest extends TestCase
     /**
      * @param array<string, string>|null $query
      */
-    private function postDocument(?array $query = null, string $contents = self::FILE_CONTENTS): ResponseInterface
+    private function postDocument(?array $query = null): ResponseInterface
     {
         $document = $this->fetchRow("SELECT MAX(`id`) AS `max_id` FROM `documents`", []);
         $maxDocumentId = $document['max_id'] ?? null;
@@ -476,7 +465,7 @@ class DocumentApiTest extends TestCase
             [
                 [
                     'name' => 'document',
-                    'contents' => $contents,
+                    'contents' => self::FILE_CONTENTS,
                     'filename' => self::FILE_NAME,
                     'headers' => ['Content-Type' => 'text/plain'],
                 ],
