@@ -29,20 +29,20 @@ final class CalendarFacilityResolver
         array $allowedFacilityIds
     ): int|string|null {
         if ($loginIntoFacility) {
-            return self::scalarFacility($loginFacility);
-        }
+            $facility = self::scalarFacility($loginFacility);
+        } else {
+            $facility = self::scalarFacility($currentFacility);
+            if ($facility === null && $facilityCookieEnabled) {
+                $facility = self::scalarFacility($cookieFacility);
+            }
+            $facility ??= 0;
 
-        $facility = self::scalarFacility($currentFacility);
-        if ($facility === null && $facilityCookieEnabled) {
-            $facility = self::scalarFacility($cookieFacility);
-        }
-        $facility ??= 0;
-
-        if (isset($post['pc_facility'])) {
-            $facility = self::scalarFacility($post['pc_facility']) ?? $facility;
-        }
-        if (isset($get['pc_facility'])) {
-            $facility = self::scalarFacility($get['pc_facility']) ?? $facility;
+            if (isset($post['pc_facility'])) {
+                $facility = self::scalarFacility($post['pc_facility']) ?? $facility;
+            }
+            if (isset($get['pc_facility'])) {
+                $facility = self::scalarFacility($get['pc_facility']) ?? $facility;
+            }
         }
 
         if (!$restrictUserFacility) {

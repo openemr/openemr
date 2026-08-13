@@ -78,7 +78,10 @@ SessionUtil::setSession($sessionSetArray);
 
 if ($facilityCookieEnabled && !$loginIntoFacility && $sessionSetArray['pc_facility'] !== null) {
     // Persist the value selected by this request, including 0 (All Facilities).
-    setcookie("pc_facility", (string) $sessionSetArray['pc_facility'], ['expires' => time() + (3600 * 365)]);
+    setcookie("pc_facility", (string) $sessionSetArray['pc_facility'], [
+        'expires' => time() + (3600 * 365),
+        'path' => OEGlobalsBag::getInstance()->getWebRoot(),
+    ]);
 }
 
 // start PN
