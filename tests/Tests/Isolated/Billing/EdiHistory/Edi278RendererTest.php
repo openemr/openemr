@@ -102,9 +102,9 @@ namespace OpenEMR\Tests\Isolated\Billing\EdiHistory {
         }
     }
 
-    final class Edi278RendererX12
+    final readonly class Edi278RendererX12
     {
-        public function __construct(private readonly array $transactions)
+        public function __construct(private array $transactions)
         {
         }
 
