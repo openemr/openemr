@@ -1,0 +1,73 @@
+<html>
+<head>
+    <title>AMC Full Report</title>
+    <!-- setupHeader stub -->
+    <script>
+
+        $(function () {
+            var win = top.printLogSetup ? top : opener.top;
+            win.printLogSetup(document.getElementById('printbutton'));
+        });
+    </script>
+    <style>
+        .amc-action-label {
+            width: 25rem;
+        }
+        .amc-demographic-label {
+            width: 15rem;
+        }
+        @media print {
+            .amc-action-label {
+                width: 20rem;
+            }
+            .amc-demographic-label {
+                width: 10rem;
+            }
+        }
+    </style>
+</head>
+<body class="body_top">
+<div id="container_div" class="container-fluid mt-3">
+    <div class="btn-group float-right mb-2" role="group">
+        <a href='#' class='btn btn-secondary btn-print d-print-none' id='printbutton'>Print</a>
+        <a href='/openemr/interface/reports/cqm.php?report_id=AMC+2026%2FA%26B%3F&back=list' class='btn btn-secondary btn-transmit d-print-none'>Return to Summary</a>
+    </div>
+    <h1 class="title">Report - AMC Full Report - Date of Report: 2026-08-13</h1>
+
+
+        <div id="report_results">
+    <table class="table text-center">
+        <thead class='thead-light'>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Total Patients
+            </th>
+            <th>
+                Denominator
+            </th>
+            <th>
+                Numerator
+            </th>
+            <th>
+                Failed
+            </th>
+            <th>
+                Performance Percentage
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+</tbody>
+
+    </table>
+</div>
+
+    <h3 class='title'>Patient Details Report</h3>
+
+
+</div>
+</body>
+</html>
