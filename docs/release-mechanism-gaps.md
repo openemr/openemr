@@ -2515,7 +2515,7 @@ Implementation notes worth capturing (not obvious from the code):
 
 **STATUS: SHIPPED 2026-08-12** as a same-day batch of 6 fixes (plus
 2 rel-830 cherry-picks and a docs update). Consolidated here because
-the findings share a single trigger event and a common root cause,
+the findings share a single trigger event and related root causes,
 not to hide the individual bugs — see each PR link below for the
 full forensic.
 
