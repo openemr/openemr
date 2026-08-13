@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 final class CalendarFacilityResolverTest extends TestCase
 {
     /**
-     * @return iterable<string, array{int|string, array<string, mixed>, array<string, mixed>, int|string}>
+     * @return iterable<string, array{mixed, array<string, mixed>, array<string, mixed>, int|string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
@@ -33,11 +33,21 @@ final class CalendarFacilityResolverTest extends TestCase
         yield 'integer zero resets selection' => [7, ['pc_facility' => 0], [], 0];
         yield 'string zero resets selection' => [7, [], ['pc_facility' => '0'], '0'];
         yield 'empty selection resets selection' => [7, ['pc_facility' => ''], [], 0];
+        yield 'array POST selection is ignored' => [7, ['pc_facility' => ['9']], [], 7];
+        yield 'array GET selection is ignored' => [7, [], ['pc_facility' => ['11']], 7];
+        yield 'malformed scalar session selection is preserved' => ['facility-seven', [], [], 'facility-seven'];
+        yield 'malformed scalar request selection is preserved' => [
+            7,
+            ['pc_facility' => 'facility-nine'],
+            [],
+            'facility-nine',
+        ];
+        yield 'null session without cookies selects all facilities' => [null, [], [], 0];
     }
 
     #[DataProvider('selectionProvider')]
     public function testExplicitAndImplicitSelection(
-        int|string $currentFacility,
+        mixed $currentFacility,
         array $post,
         array $get,
         int|string $expected
@@ -67,6 +77,36 @@ final class CalendarFacilityResolverTest extends TestCase
             5,
             false,
             []
+        ));
+    }
+
+    public function testRestrictedDisallowedLoginFacilityFallsBackToFirstAllowedFacility(): void
+    {
+        self::assertSame(5, CalendarFacilityResolver::resolve(
+            7,
+            ['pc_facility' => 9],
+            ['pc_facility' => 11],
+            true,
+            3,
+            true,
+            13,
+            true,
+            [5, 7]
+        ));
+    }
+
+    public function testRestrictedAllowedLoginFacilityCannotBeOverriddenByRequestValues(): void
+    {
+        self::assertSame('3', CalendarFacilityResolver::resolve(
+            7,
+            ['pc_facility' => 9],
+            ['pc_facility' => 11],
+            true,
+            '3',
+            true,
+            13,
+            true,
+            [3, 5]
         ));
     }
 
@@ -119,6 +159,51 @@ final class CalendarFacilityResolverTest extends TestCase
             null,
             true,
             [5, 7]
+        ));
+    }
+
+    public function testRestrictedMatchingRetainsLooseNumericCandidateType(): void
+    {
+        self::assertSame('7', CalendarFacilityResolver::resolve(
+            null,
+            ['pc_facility' => '7'],
+            [],
+            false,
+            null,
+            false,
+            null,
+            true,
+            [7]
+        ));
+    }
+
+    public function testRestrictedAllFacilitiesSelectionFallsBackToFirstAllowedFacility(): void
+    {
+        self::assertSame(5, CalendarFacilityResolver::resolve(
+            0,
+            [],
+            [],
+            false,
+            null,
+            false,
+            null,
+            true,
+            [5, 7]
+        ));
+    }
+
+    public function testRestrictedEmptyAllowedListPreservesLegacyNullFallback(): void
+    {
+        self::assertNull(CalendarFacilityResolver::resolve(
+            7,
+            [],
+            [],
+            false,
+            null,
+            false,
+            null,
+            true,
+            []
         ));
     }
 }
