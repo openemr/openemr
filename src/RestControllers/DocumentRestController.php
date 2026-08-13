@@ -16,7 +16,6 @@ use OpenApi\Attributes as OA;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\PatientService;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -225,12 +224,19 @@ class DocumentRestController
         $results = $this->documentService->getFile($pid, $did);
 
         if (!empty($results)) {
-            $response = new BinaryFileResponse($results['file'], Response::HTTP_OK, [], true);
-            $response->setContentDisposition('attachment', $results['filename']);
+            $response = new Response($results['file'], Response::HTTP_OK, [
+                'Content-Type' => $results['mimetype'],
+            ]);
+            $filename = basename(str_replace('\\', '/', $results['filename']));
+            $filename = preg_replace('/[\x00-\x1F\x7F]/', '', $filename) ?: 'unknownName';
+            $fallback = preg_replace('/[^\x20-\x7E]|%/', '_', $filename) ?: 'unknownName';
+            $response->headers->setContentDisposition('attachment', $filename, $fallback);
             // we no longer use pre-check and post-check headers as they are not needed and microsoft even discourages
             // their use at this point.
             $response->setCache([
-                'must_revalidate' => true
+                'private' => true,
+                'no_store' => true,
+                'must_revalidate' => true,
             ]);
             // this used to be Expires: 0 but that is not recommended anymore, we set it to be 1 hour ago so that
             // the browser will not cache the file.
