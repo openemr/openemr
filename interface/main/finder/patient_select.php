@@ -250,7 +250,7 @@ if ($popup) {
     $pass_id = $_REQUEST['pass_id'] ?? "all";
     echo "<input type='hidden' name='pass_id' value='" . attr($pass_id) . "' />\n";
     $print_patients = ($_REQUEST['print_patients'] ?? 0) == 1;
-    echo "<input type='hidden' name='print_patients' value='" . attr($print_patients) . "' />\n";
+    echo "<input type='hidden' name='print_patients' value='" . attr($print_patients ? '1' : '0') . "' />\n";
 
   // Collect patient listing from cdr report
     if ($print_patients) {
