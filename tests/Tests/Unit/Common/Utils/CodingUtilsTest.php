@@ -28,13 +28,24 @@ class CodingUtilsTest extends TestCase
     public static function activeCheckboxProvider(): array
     {
         return [
+            'external modify with false' => [false, 'modify', false],
+            'external modify with empty string' => ['', 'modify', false],
+            'external modify with empty array' => [[], 'modify', false],
             'external modify with integer zero' => [0, 'modify', false],
             'external modify with string zero' => ['0', 'modify', false],
             'external modify with null' => [null, 'modify', true],
             'external modify with active integer' => [1, 'modify', true],
+            'external modify with non-empty string' => ['active', 'modify', true],
+            'external modify with non-empty array' => [[1], 'modify', true],
+            'local edit with false' => [false, 'edit', false],
+            'local edit with empty string' => ['', 'edit', false],
+            'local edit with empty array' => [[], 'edit', false],
             'local edit with integer zero' => [0, 'edit', false],
+            'local edit with string zero' => ['0', 'edit', false],
             'local edit with null' => [null, 'edit', false],
             'local edit with active integer' => [1, 'edit', true],
+            'local edit with non-empty string' => ['active', 'edit', true],
+            'local edit with non-empty array' => [[1], 'edit', true],
         ];
     }
 }
