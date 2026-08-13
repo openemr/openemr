@@ -20,17 +20,44 @@ model" section there for the design rationale.
 
 1. Conductor opens this PR as a draft when the paired
    `release-prep/<REL_BRANCH>` PR opens.
-2. The release manager marks the rel-branch PR Ready and merges it,
-   creating the release tag.
-3. After the tag fires, this PR can be marked Ready and merged. A future
-   refinement may auto-mark Ready / auto-merge it once the tag exists.
+2. Release manager triggers [ship-release.yml](../../actions/workflows/ship-release.yml)
+   via `workflow_dispatch` in `semi-auto` or `full-auto` mode;
+   ship-release merges the paired `release-prep/<REL_BRANCH>` PR,
+   which creates the annotated `v<VERSION>` tag. **`dry-run` mode**
+   (and the legacy `dry_run=true` input) **stops after readiness
+   checks + a dress-rehearsal package build — no tag is created,
+   this PR stays draft, and steps 3-4 below don't fire.**
+3. The `finalize` job (in `release-prep.yml`) fires on that tag,
+   force-pushes the post-tag content to this branch, flips this PR
+   out of draft, and posts a signal comment.
+4. In ship-release.yml `full-auto` mode, this PR is then merged
+   automatically once its post-tag update settles + CI is green
+   (asymmetric approval gate: bot-authored, no APPROVED required).
+   In `semi-auto` mode (default), ship-release marks this PR
+   `SKIPPED_BY_MODE` and leaves the merge to the maintainer once
+   the post-tag flip lands and CI is green. See
+   [RELEASE_PROCESS.md § Quick action 3 — Ship the release](../../docs/RELEASE_PROCESS.md#3-ship-the-release)
+   for the full mode semantics.
 
-## Release manager checklist
+## Verification checklist
 
-- [ ] Confirm the paired `release-prep/<REL_BRANCH>` PR has merged and
-      the `v<VERSION>` tag exists.
-- [ ] Verify the `release-targets.yml` diff matches expectations: rel
-      branch pinned to the new tag, `latest` slot promoted, prior
-      `latest` holder dropped, `next` moved to the next upcoming-stable
-      owner.
-- [ ] Merge this PR.
+Read this after the `finalize` job has flipped the PR out of draft
+(step 3 in the Lifecycle above); the pre-tag draft content is
+provisional and gets fully regenerated post-tag. In `full-auto` mode
+ship-release merges this PR automatically once verification-adjacent
+gates (mergeable + green CI) pass; in `semi-auto` (default) the
+maintainer merges it by hand after these same checks.
+
+- [ ] Draft flag is CLEARED and the `finalize` signal comment is
+      present (both indicate the post-tag regen has landed; merging
+      before this ships pre-tag content).
+- [ ] The `v<VERSION>` tag exists on `<REL_BRANCH>` (the trigger for
+      the post-tag regen; if the tag isn't there, this PR still
+      carries provisional pre-tag content).
+- [ ] `.github/release-targets.yml` diff matches expectations:
+      `<REL_BRANCH>` row pinned to the new tag, `latest` slot
+      promoted, prior `latest` holder dropped, `next` moved to the
+      next upcoming-stable owner.
+- [ ] `CHANGELOG.md` diff for `## [<VERSION>]` matches the rel-branch
+      side byte-for-byte (regenerated post-tag against `v<VERSION>`
+      so both sides land the identical block).
