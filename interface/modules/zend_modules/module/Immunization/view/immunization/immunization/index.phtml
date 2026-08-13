@@ -124,7 +124,11 @@ $form->prepare();
                 ?>
                 <tr>
                         <td style="height: 17px;"><label><?php echo $slno;?>)</label></td>
-                        <td><input class="check_pid check_pid_<?php echo $this->escapeHtml($value['patientid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($value['patientid']); ?>"></td>
+                        <td>
+                            <?php if ($value['isPatientSelectable']) { ?>
+                                <input class="check_pid check_pid_<?php echo $this->escapeHtml($value['patientid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($value['patientid']); ?>" aria-label="<?php echo $this->escapeHtmlAttr($listener->z_xlt('Select patient') . ': ' . $value['patientname']); ?>">
+                            <?php } ?>
+                        </td>
                         <td width="10%"><?php echo $this->escapeHtml($value['patientid']); ?></td>
                         <td><?php echo $this->escapeHtml($value['patientname']); ?></td>
                         <td><?php echo $this->escapeHtml($value['cvx_code']); ?></td>
