@@ -137,11 +137,16 @@ jobs:
     # Sparse checkout of just the composite action so the token-mint
     # step below can resolve `uses: ./.github/actions/...`. Full
     # checkout happens after the token is minted (uses the token).
-    - name: Checkout composite action
+    # setup-php-composer included in the initial sparse pattern too —
+    # subsequent full checkouts don't reliably materialize files pruned
+    # by the first sparse checkout (see openemr/openemr#13480).
+    - name: Checkout composite actions
       if: '!inputs.dry_run'
       uses: actions/checkout@v7
       with:
-        sparse-checkout: .github/actions/generate-app-token
+        sparse-checkout: |
+          .github/actions/generate-app-token
+          .github/actions/setup-php-composer
         sparse-checkout-cone-mode: false
         persist-credentials: false
 
