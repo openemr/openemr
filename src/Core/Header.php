@@ -376,11 +376,20 @@ class Header
         $template = ($type == 'script') ? $script : $link;
         if (!$alreadyBuilt) {
             $v = OEGlobalsBag::getInstance()->get('v_js_includes');
-            // need to handle header elements that may already have a ? in the parameter.
-            if (strrpos($path, "?") !== false) {
-                $path .= "&v={$v}";
+            $fragmentPosition = strpos($path, '#');
+            if ($fragmentPosition === false) {
+                $url = $path;
+                $fragment = '';
             } else {
-                $path .= "?v={$v}";
+                $url = substr($path, 0, $fragmentPosition);
+                $fragment = substr($path, $fragmentPosition);
+            }
+            // Add the cache version to the query, never to the fragment.
+            if (str_contains($url, '?')) {
+                $separator = (str_ends_with($url, '?') || str_ends_with($url, '&')) ? '' : '&';
+                $path = $url . $separator . "v={$v}" . $fragment;
+            } else {
+                $path = $url . "?v={$v}" . $fragment;
             }
         }
         return str_replace("%path%", attr($path), $template);

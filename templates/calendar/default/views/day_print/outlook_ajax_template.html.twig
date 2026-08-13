@@ -26,7 +26,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    {% include 'calendar/default/views/_extension_assets.html.twig' %}
+    {{ setupHeader(['no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_dialog']) }}
     <style>
         a { text-decoration: none; }
         td { font-family: Arial, Helvetica, sans-serif; }
@@ -61,7 +61,7 @@
         .event_noshow      { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
         .event_reserved    { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
     </style>
-    {{ setupHeader(['no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_dialog']) }}
+    {% include 'calendar/default/views/_extension_assets.html.twig' %}
 </head>
 <body>
 

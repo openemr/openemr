@@ -14,7 +14,6 @@ namespace OpenEMR\Tests\Isolated\PostCalendar;
 
 use OpenEMR\Core\Header;
 use OpenEMR\PostCalendar\CalendarRenderer;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -141,49 +140,42 @@ final class CalendarRendererTest extends TestCase
         self::assertSame('1/2/3', $renderer->render('t.twig'));
     }
 
-    /**
-     * @return array<string, array{string}>
-     *
-     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
-     */
-    public static function calendarViewProvider(): array
+    public function testModuleAssetsPreserveOrderVersionFragmentsAndEscaping(): void
     {
-        return [
-            'month screen' => ['month'],
-            'week screen' => ['week'],
-            'day screen' => ['day'],
-            'month print' => ['month_print'],
-            'week print' => ['week_print'],
-            'day print' => ['day_print'],
-        ];
-    }
-
-    #[DataProvider('calendarViewProvider')]
-    public function testEveryCalendarViewRendersSharedExtensionAssetsOnce(string $view): void
-    {
-        $partial = (string) file_get_contents(
-            dirname(__DIR__, 4) . '/templates/calendar/default/views/_extension_assets.html.twig'
+        $html = Header::createModuleAssetElements(
+            [
+                '/modules/example/first.js#fragment',
+                '/modules/example/second.js?mode=compact&name="quoted"#',
+                'https://example.test/third.js?',
+                '/modules/example/fourth.js#fragment?unchanged=yes',
+            ],
+            [
+                '/modules/example/first.css?theme=light#section',
+                '/modules/example/second.css?theme=dark&',
+            ]
         );
-        $renderer = $this->buildRenderer([
-            'calendar/default/views/_extension_assets.html.twig' => $partial,
-            $view . '.twig' => "<head>{% include 'calendar/default/views/_extension_assets.html.twig' %}</head>",
-        ]);
-        $renderer->assign('CALENDAR_EXTENSION_ASSETS', Header::createModuleAssetElements(
-            ['/modules/example/calendar.js?mode=compact&name="quoted"'],
-            ['/modules/example/calendar.css?theme=light&name="quoted"']
-        ));
-
-        $html = $renderer->render($view . '.twig');
 
         self::assertSame(1, substr_count($html, '<!-- Module Scripts Started -->'));
         self::assertSame(1, substr_count($html, '<!-- Module Styles Started -->'));
         self::assertStringContainsString(
-            '<script src="/modules/example/calendar.js?mode=compact&amp;name=&quot;quoted&quot;&amp;v=test-version"></script>',
+            '<script src="/modules/example/first.js?v=test-version#fragment"></script>',
             $html
         );
         self::assertStringContainsString(
-            '<link rel="stylesheet"  href="/modules/example/calendar.css?theme=light&amp;name=&quot;quoted&quot;&amp;v=test-version" />',
+            '<script src="/modules/example/second.js?mode=compact&amp;name=&quot;quoted&quot;&amp;v=test-version#"></script>',
             $html
+        );
+        self::assertStringContainsString('src="https://example.test/third.js?v=test-version"', $html);
+        self::assertStringContainsString('src="/modules/example/fourth.js?v=test-version#fragment?unchanged=yes"', $html);
+        self::assertStringContainsString('href="/modules/example/first.css?theme=light&amp;v=test-version#section"', $html);
+        self::assertStringContainsString('href="/modules/example/second.css?theme=dark&amp;v=test-version"', $html);
+        self::assertLessThan(
+            strpos($html, '/modules/example/second.js'),
+            strpos($html, '/modules/example/first.js')
+        );
+        self::assertLessThan(
+            strpos($html, '/modules/example/second.css'),
+            strpos($html, '/modules/example/first.css')
         );
     }
 
@@ -213,11 +205,36 @@ final class CalendarRendererTest extends TestCase
         self::assertStringContainsString('$calendarScripts->getScripts()', $source);
         self::assertStringContainsString('$calendarStyles->getStyles()', $source);
 
-        foreach (['header', 'month_print/outlook_ajax_template', 'week_print/outlook_ajax_template', 'day_print/outlook_ajax_template'] as $template) {
+        $templates = ['header', 'month_print/outlook_ajax_template', 'week_print/outlook_ajax_template', 'day_print/outlook_ajax_template'];
+        foreach ($templates as $template) {
             $templateSource = (string) file_get_contents(
                 dirname(__DIR__, 4) . '/templates/calendar/default/views/' . $template . '.html.twig'
             );
             self::assertSame(1, substr_count($templateSource, "include 'calendar/default/views/_extension_assets.html.twig'"));
+            $setupPosition = strpos($templateSource, 'setupHeader(');
+            $assetsPosition = strpos($templateSource, "include 'calendar/default/views/_extension_assets.html.twig'");
+            self::assertNotFalse($setupPosition);
+            self::assertNotFalse($assetsPosition);
+            self::assertLessThan(
+                $assetsPosition,
+                $setupPosition,
+                $template . ' must load core assets before extension assets'
+            );
+        }
+
+        foreach (array_slice($templates, 1) as $template) {
+            $templateSource = (string) file_get_contents(
+                dirname(__DIR__, 4) . '/templates/calendar/default/views/' . $template . '.html.twig'
+            );
+            $stylePosition = strpos($templateSource, '</style>');
+            $assetsPosition = strpos($templateSource, "include 'calendar/default/views/_extension_assets.html.twig'");
+            self::assertNotFalse($stylePosition);
+            self::assertNotFalse($assetsPosition);
+            self::assertLessThan(
+                $assetsPosition,
+                $stylePosition,
+                $template . ' must load extension styles after built-in calendar styles'
+            );
         }
     }
 }
