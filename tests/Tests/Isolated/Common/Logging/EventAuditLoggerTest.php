@@ -329,7 +329,7 @@ class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{sql: string, event: string, category: string}>
+     * @return array<string, array{sql: string, expectedEvent: string, expectedCategory: string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
@@ -338,13 +338,13 @@ class EventAuditLoggerTest extends TestCase
         return [
             'mapped form table' => [
                 'sql' => 'INSERT INTO form_vitals (pid) VALUES (1)',
-                'event' => 'patient-record-insert',
-                'category' => 'Vitals',
+                'expectedEvent' => 'patient-record-insert',
+                'expectedCategory' => 'Vitals',
             ],
             'unmapped custom form table' => [
                 'sql' => 'UPDATE form_custom_observation SET value = 1 WHERE id = 1',
-                'event' => 'patient-record-update',
-                'category' => 'Encounter Form',
+                'expectedEvent' => 'patient-record-update',
+                'expectedCategory' => 'Encounter Form',
             ],
         ];
     }
