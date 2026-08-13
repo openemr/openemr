@@ -39812,16 +39812,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'file\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'filename\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'aclPermission\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
@@ -42694,11 +42684,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on array\\|false\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/DocumentService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'mimetype\' on array\\|false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentService.php',
 ];
 $ignoreErrors[] = [
