@@ -38,6 +38,29 @@ describe('calendar patient finder Add Patient navigation', () => {
         expect(closeFinder).toHaveBeenCalledTimes(1);
     });
 
+    test('retains the application window until a delayed tab callback activates the patient tab', () => {
+        const activateTabByName = jest.fn();
+        let afterLoad;
+        const applicationWindow = {
+            navigateTab: jest.fn((url, name, callback) => {
+                afterLoad = callback;
+            }),
+            activateTabByName
+        };
+        const context = {top: applicationWindow};
+        const closeFinder = jest.fn();
+        const helper = loadHelper(context);
+
+        helper.openAddPatient(context, '/interface/new/new.php', closeFinder);
+
+        expect(closeFinder).toHaveBeenCalledTimes(1);
+        expect(activateTabByName).not.toHaveBeenCalled();
+
+        afterLoad();
+
+        expect(activateTabByName).toHaveBeenCalledWith('pat', true);
+    });
+
     test('does not submit or close the appointment while closing the finder', () => {
         const appointmentForm = {submit: jest.fn()};
         const appointmentWindow = {document: {theform: appointmentForm}};
@@ -80,6 +103,69 @@ describe('calendar patient finder Add Patient navigation', () => {
 
         expect(applicationWindow.navigateTab).toHaveBeenCalled();
         expect(applicationWindow.activateTabByName).toHaveBeenCalledWith('pat', true);
+    });
+
+    test('continues to the appointment opener when the top window is inaccessible', () => {
+        const applicationWindow = {navigateTab: jest.fn()};
+        const context = {
+            get top() {
+                throw new DOMException('Blocked', 'SecurityError');
+            },
+            opener: {closed: false, top: applicationWindow}
+        };
+        const helper = loadHelper({});
+
+        expect(helper.findApplicationWindow(context)).toBe(applicationWindow);
+    });
+
+    test('continues when a candidate navigateTab property is inaccessible', () => {
+        const inaccessibleWindow = {
+            get navigateTab() {
+                throw new DOMException('Blocked', 'SecurityError');
+            }
+        };
+        const applicationWindow = {navigateTab: jest.fn()};
+        const context = {
+            top: inaccessibleWindow,
+            opener: {closed: false, top: applicationWindow}
+        };
+        const helper = loadHelper({});
+
+        expect(helper.findApplicationWindow(context)).toBe(applicationWindow);
+    });
+
+    test('continues to the top-level opener when the direct opener is inaccessible', () => {
+        const applicationWindow = {navigateTab: jest.fn()};
+        const context = {
+            top: {opener: {closed: false, top: applicationWindow}},
+            get opener() {
+                throw new DOMException('Blocked', 'SecurityError');
+            }
+        };
+        const helper = loadHelper({});
+
+        expect(helper.findApplicationWindow(context)).toBe(applicationWindow);
+    });
+
+    test('falls back to the finder when every application candidate is inaccessible', () => {
+        const context = {
+            get top() {
+                throw new DOMException('Blocked', 'SecurityError');
+            },
+            get opener() {
+                throw new DOMException('Severed', 'SecurityError');
+            },
+            location: {assign: jest.fn()},
+            restoreSession: jest.fn()
+        };
+        const closeFinder = jest.fn();
+        const helper = loadHelper({});
+
+        helper.openAddPatient(context, '/interface/new/new.php', closeFinder);
+
+        expect(context.location.assign).toHaveBeenCalledWith('/interface/new/new.php');
+        expect(context.restoreSession).toHaveBeenCalledTimes(1);
+        expect(closeFinder).not.toHaveBeenCalled();
     });
 
     test('reuses the current dialog when no application tabs API exists', () => {
