@@ -20,42 +20,42 @@ use PHPUnit\Framework\TestCase;
 final class CalendarFacilityResolverTest extends TestCase
 {
     /**
-     * @return iterable<string, array{mixed, array<string, mixed>, array<string, mixed>, int|string}>
+     * @return iterable<string, array{mixed, mixed, mixed, int|string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function selectionProvider(): iterable
     {
-        yield 'date-only request preserves session selection' => [7, [], ['date' => '20260813'], 7];
-        yield 'POST changes selection' => [7, ['pc_facility' => '9'], [], '9'];
-        yield 'GET changes selection' => [7, [], ['pc_facility' => '11'], '11'];
-        yield 'GET retains precedence over POST' => [7, ['pc_facility' => '9'], ['pc_facility' => '11'], '11'];
-        yield 'integer zero resets selection' => [7, ['pc_facility' => 0], [], 0];
-        yield 'string zero resets selection' => [7, [], ['pc_facility' => '0'], '0'];
-        yield 'empty selection resets selection' => [7, ['pc_facility' => ''], [], 0];
-        yield 'array POST selection is ignored' => [7, ['pc_facility' => ['9']], [], 7];
-        yield 'array GET selection is ignored' => [7, [], ['pc_facility' => ['11']], 7];
-        yield 'malformed scalar session selection is preserved' => ['facility-seven', [], [], 'facility-seven'];
+        yield 'date-only request preserves session selection' => [7, null, null, 7];
+        yield 'POST changes selection' => [7, '9', null, '9'];
+        yield 'GET changes selection' => [7, null, '11', '11'];
+        yield 'GET retains precedence over POST' => [7, '9', '11', '11'];
+        yield 'integer zero resets selection' => [7, 0, null, 0];
+        yield 'string zero resets selection' => [7, null, '0', '0'];
+        yield 'empty selection resets selection' => [7, '', null, 0];
+        yield 'array POST selection is ignored' => [7, ['9'], null, 7];
+        yield 'array GET selection is ignored' => [7, null, ['11'], 7];
+        yield 'malformed scalar session selection is preserved' => ['facility-seven', null, null, 'facility-seven'];
         yield 'malformed scalar request selection is preserved' => [
             7,
-            ['pc_facility' => 'facility-nine'],
-            [],
+            'facility-nine',
+            null,
             'facility-nine',
         ];
-        yield 'null session without cookies selects all facilities' => [null, [], [], 0];
+        yield 'null session without cookies selects all facilities' => [null, null, null, 0];
     }
 
     #[DataProvider('selectionProvider')]
     public function testExplicitAndImplicitSelection(
         mixed $currentFacility,
-        array $post,
-        array $get,
+        mixed $postFacility,
+        mixed $getFacility,
         int|string $expected
     ): void {
         self::assertSame($expected, CalendarFacilityResolver::resolve(
             $currentFacility,
-            $post,
-            $get,
+            $postFacility,
+            $getFacility,
             false,
             3,
             false,
@@ -69,8 +69,8 @@ final class CalendarFacilityResolverTest extends TestCase
     {
         self::assertSame(3, CalendarFacilityResolver::resolve(
             7,
-            ['pc_facility' => 9],
-            ['pc_facility' => 11],
+            9,
+            11,
             true,
             3,
             true,
@@ -84,8 +84,8 @@ final class CalendarFacilityResolverTest extends TestCase
     {
         self::assertSame(5, CalendarFacilityResolver::resolve(
             7,
-            ['pc_facility' => 9],
-            ['pc_facility' => 11],
+            9,
+            11,
             true,
             3,
             true,
@@ -99,8 +99,8 @@ final class CalendarFacilityResolverTest extends TestCase
     {
         self::assertSame('3', CalendarFacilityResolver::resolve(
             7,
-            ['pc_facility' => 9],
-            ['pc_facility' => 11],
+            9,
+            11,
             true,
             '3',
             true,
@@ -114,8 +114,8 @@ final class CalendarFacilityResolverTest extends TestCase
     {
         self::assertSame('5', CalendarFacilityResolver::resolve(
             null,
-            [],
-            [],
+            null,
+            null,
             false,
             null,
             true,
@@ -125,8 +125,8 @@ final class CalendarFacilityResolverTest extends TestCase
         ));
         self::assertSame(0, CalendarFacilityResolver::resolve(
             0,
-            [],
-            [],
+            null,
+            null,
             false,
             null,
             true,
@@ -140,8 +140,8 @@ final class CalendarFacilityResolverTest extends TestCase
     {
         self::assertSame('7', CalendarFacilityResolver::resolve(
             5,
-            ['pc_facility' => '7'],
-            [],
+            '7',
+            null,
             false,
             null,
             true,
@@ -151,8 +151,8 @@ final class CalendarFacilityResolverTest extends TestCase
         ));
         self::assertSame(5, CalendarFacilityResolver::resolve(
             7,
-            ['pc_facility' => 99],
-            [],
+            99,
+            null,
             false,
             null,
             false,
@@ -166,8 +166,8 @@ final class CalendarFacilityResolverTest extends TestCase
     {
         self::assertSame('7', CalendarFacilityResolver::resolve(
             null,
-            ['pc_facility' => '7'],
-            [],
+            '7',
+            null,
             false,
             null,
             false,
@@ -181,8 +181,8 @@ final class CalendarFacilityResolverTest extends TestCase
     {
         self::assertSame(5, CalendarFacilityResolver::resolve(
             0,
-            [],
-            [],
+            null,
+            null,
             false,
             null,
             false,
@@ -196,8 +196,8 @@ final class CalendarFacilityResolverTest extends TestCase
     {
         self::assertNull(CalendarFacilityResolver::resolve(
             7,
-            [],
-            [],
+            null,
+            null,
             false,
             null,
             false,

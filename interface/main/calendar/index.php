@@ -23,11 +23,13 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\CalendarFacilityResolver;
+use Symfony\Component\HttpFoundation\Request;
 
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once 'includes/pnAPI.php';
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = Request::createFromGlobals();
 
 // these will be used in below SessionUtil::setSession to set applicable session variables
 $sessionSetArray = [];
@@ -39,7 +41,7 @@ if (isset($_POST['pc_username'])) {
 
 //(CHEMED) Facility filter
 if (isset($_POST['all_users'])) {
-    $sessionSetArray['pc_username'] = $_POST['all_users'];
+    $sessionSetArray['pc_username'] = $request->request->all()['all_users'];
 }
 
 // bug fix to allow default selection of a provider
@@ -71,8 +73,8 @@ if (is_array($facilities)) {
 
 $sessionSetArray['pc_facility'] = CalendarFacilityResolver::resolve(
     $session->get('pc_facility'),
-    $_POST,
-    $_GET,
+    $request->request->all()['pc_facility'] ?? null,
+    $request->query->all()['pc_facility'] ?? null,
     $loginIntoFacility,
     $session->get('facilityId'),
     $facilityCookieEnabled,

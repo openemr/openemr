@@ -12,15 +12,11 @@ namespace OpenEMR\PostCalendar;
 
 final class CalendarFacilityResolver
 {
-    /**
-     * @param array<string, mixed> $post
-     * @param array<string, mixed> $get
-     * @param list<int|string>     $allowedFacilityIds
-     */
+    /** @param list<int|string> $allowedFacilityIds */
     public static function resolve(
         mixed $currentFacility,
-        array $post,
-        array $get,
+        mixed $postFacility,
+        mixed $getFacility,
         bool $loginIntoFacility,
         mixed $loginFacility,
         bool $facilityCookieEnabled,
@@ -37,11 +33,11 @@ final class CalendarFacilityResolver
             }
             $facility ??= 0;
 
-            if (isset($post['pc_facility'])) {
-                $facility = self::scalarFacility($post['pc_facility']) ?? $facility;
+            if ($postFacility !== null) {
+                $facility = self::scalarFacility($postFacility) ?? $facility;
             }
-            if (isset($get['pc_facility'])) {
-                $facility = self::scalarFacility($get['pc_facility']) ?? $facility;
+            if ($getFacility !== null) {
+                $facility = self::scalarFacility($getFacility) ?? $facility;
             }
         }
 
