@@ -24,6 +24,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\CodingUtils;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
@@ -545,7 +546,7 @@ if ($fend > ($count ?? null)) {
             </div>
             <div class="col-md">
                 <input type='checkbox' name='active'
-                       value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null)) {
+                       value='1'<?php if (CodingUtils::isActiveCheckboxChecked($active, $mode)) {
                             echo ' checked';
                                 } ?> />
                 <?php echo xlt('Active'); ?>
