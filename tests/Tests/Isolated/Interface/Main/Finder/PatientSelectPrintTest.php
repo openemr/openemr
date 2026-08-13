@@ -16,24 +16,22 @@ use PHPUnit\Framework\TestCase;
 class PatientSelectPrintTest extends TestCase
 {
     /**
-     * @return iterable<string, array{string, int|null, bool, bool}>
+     * @return iterable<string, array{string, int|null, bool}>
      */
     public static function printModeProvider(): iterable
     {
-        yield 'ordinary CDR drilldown' => ['cdr_report', 0, true, false];
-        yield 'explicit entire-list print' => ['cdr_report', 1, true, true];
-        yield 'non-CDR patient selector without print variable' => ['', null, false, false];
-        yield 'non-CDR patient selector with disabled print' => ['', 0, true, false];
+        yield 'ordinary CDR drilldown' => ['cdr_report', 0, false];
+        yield 'explicit entire-list print' => ['cdr_report', 1, true];
+        yield 'non-CDR patient selector' => ['', null, false];
     }
 
     #[DataProvider('printModeProvider')]
     public function testAutoPrintOnlyRunsForEnabledCdrPrintMode(
         string $fromPage,
         ?int $printPatients,
-        bool $definePrintPatients,
         bool $expectsAutoPrint
     ): void {
-        $block = $this->extractAutoPrintTemplateBlock();
+        [$initialization, $cdrDispatch, $cdrAssignment, $templateBlock] = $this->extractProductionPrintFlow();
         $errors = [];
         set_error_handler(static function (int $severity, string $message) use (&$errors): bool {
             $errors[] = [$severity, $message];
@@ -42,7 +40,14 @@ class PatientSelectPrintTest extends TestCase
         });
 
         try {
-            $output = $this->renderTemplateBlock($block, $fromPage, $printPatients, $definePrintPatients);
+            $output = $this->renderProductionPrintFlow(
+                $initialization,
+                $cdrDispatch,
+                $cdrAssignment,
+                $templateBlock,
+                $fromPage,
+                $printPatients
+            );
         } finally {
             restore_error_handler();
         }
@@ -51,7 +56,8 @@ class PatientSelectPrintTest extends TestCase
         self::assertSame($expectsAutoPrint, str_contains($output, 'printLogPrint(window)'));
     }
 
-    private function extractAutoPrintTemplateBlock(): string
+    /** @return array{string, string, string, string} */
+    private function extractProductionPrintFlow(): array
     {
         $path = realpath(__DIR__ . '/../../../../../../interface/main/finder/patient_select.php');
         self::assertIsString($path);
@@ -59,7 +65,20 @@ class PatientSelectPrintTest extends TestCase
         $source = file_get_contents($path);
         self::assertIsString($source);
 
-        $printCallPosition = strpos($source, 'printLogPrint(window);');
+        preg_match('/^\$print_patients = false;$/m', $source, $initializationMatches);
+        self::assertCount(1, $initializationMatches);
+
+        $cdrBranchPosition = strpos($source, '} elseif ($from_page == "cdr_report") {');
+        self::assertIsInt($cdrBranchPosition);
+        $cdrDispatch = 'if' . substr($source, $cdrBranchPosition + strlen('} elseif'), strlen(' ($from_page == "cdr_report") {'));
+        preg_match(
+            '/^    \$print_patients = \(\$_REQUEST\[\'print_patients\'\] \?\? 0\) == 1;$/m',
+            substr($source, $cdrBranchPosition),
+            $assignmentMatches
+        );
+        self::assertCount(1, $assignmentMatches);
+
+        $printCallPosition = strpos($source, 'printLogPrint(window);', $cdrBranchPosition);
         self::assertIsInt($printCallPosition);
 
         $blockStart = strrpos(substr($source, 0, $printCallPosition), '<?php if ');
@@ -72,23 +91,29 @@ class PatientSelectPrintTest extends TestCase
         $block = substr($source, $blockStart, $blockEnd + strlen($closingTag) - $blockStart);
         self::assertStringContainsString('printLogPrint(window);', $block);
 
-        return $block;
+        return [$initializationMatches[0], $cdrDispatch, $assignmentMatches[0], $block];
     }
 
-    private function renderTemplateBlock(
-        string $block,
+    private function renderProductionPrintFlow(
+        string $initialization,
+        string $cdrDispatch,
+        string $cdrAssignment,
+        string $templateBlock,
         string $fromPage,
-        ?int $printPatients,
-        bool $definePrintPatients
+        ?int $printPatients
     ): string {
         $temporaryPath = tempnam(sys_get_temp_dir(), 'openemr-patient-select-');
         self::assertIsString($temporaryPath);
-        self::assertIsInt(file_put_contents($temporaryPath, $block));
+        self::assertIsInt(file_put_contents($temporaryPath, "<?php\n" . $initialization));
+        self::assertIsInt(file_put_contents($temporaryPath, "\n" . $cdrDispatch, FILE_APPEND));
+        self::assertIsInt(file_put_contents($temporaryPath, "\n" . $cdrAssignment . "\n}", FILE_APPEND));
+        self::assertIsInt(file_put_contents($temporaryPath, "\n?>\n" . $templateBlock, FILE_APPEND));
 
-        $render = static function () use ($temporaryPath, $fromPage, $printPatients, $definePrintPatients): string {
+        $render = static function () use ($temporaryPath, $fromPage, $printPatients): string {
             $from_page = $fromPage;
-            if ($definePrintPatients) {
-                $print_patients = $printPatients;
+            $_REQUEST = [];
+            if ($printPatients !== null) {
+                $_REQUEST['print_patients'] = $printPatients;
             }
 
             ob_start();
