@@ -156,6 +156,17 @@ jobs:
         gh api repos/openemr/openemr/milestones --jq '.[].title' | head -5
         echo 'App token verified.'
 
+    # Rewrite the origin URL to authenticate git-push with the App
+    # token — the top checkout used github.token (contents:read only)
+    # with persist-credentials=false; without this rewrite, the
+    # `git push origin <tag>` in the tag/release step below fails to
+    # authenticate. Skipped on dry_run since no tag is created.
+    - name: Configure git remote with App token for tag push
+      if: '!inputs.dry_run'
+      env:
+        APP_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${{ github.repository }}.git"
+
     - name: Fetch start tag
       env:
         VERSION_START: ${{ inputs.version_start }}
