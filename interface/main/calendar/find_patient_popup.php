@@ -17,6 +17,7 @@
 require_once('../../globals.php');
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Calendar\PatientFinder;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -110,17 +111,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
       }
     </style>
 
-    <!-- ViSolve: Verify the noresult parameter -->
-    <?php if (isset($_GET["res"])) {
-        echo '<script>
-    // Pass the variable to parent hidden type and submit
-    opener.document.theform.resname.value = "noresult";
-    opener.document.theform.submit();
-    // Close the window
-    window.self.close();
-    </script>';
-    } ?>
-    <!-- ViSolve: Verify the noresult parameter -->
+    <script src="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot()); ?>/library/js/calendar-patient-finder.js"></script>
 </head>
 <body class="body_top">
     <div class="table-responsive-sm">
@@ -162,9 +153,12 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
             <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo xlt('No records found. Please expand your search criteria.'); ?>
                 <br />
                 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
-                <a class="noresult" href='find_patient_popup.php?res=noresult'
+                <a class="noresult" href="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot()); ?>/interface/new/new.php"
                     <?php
-                    if (isset($_GET['pflag']) || (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly']))) {
+                    if (!PatientFinder::canAddPatient(
+                        isset($_GET['pflag']),
+                        AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])
+                    )) {
                         ?> style="display: none;"
                         <?php
                     }
@@ -244,9 +238,11 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                 $(".oneresult").click(function () {
                     SelectPatient(this);
                 });
-                //ViSolve
-                $(".noresult").click(function () {
-                    SubmitForm(this);
+                $(".noresult").click(function (event) {
+                    event.preventDefault();
+                    OpenEMRCalendarPatientFinder.openAddPatient(window, this.href, function () {
+                        dlgclose();
+                    });
                 });
 
                 //$(".event").dblclick(function() { EditEvent(this); });

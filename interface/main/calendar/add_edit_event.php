@@ -1173,24 +1173,10 @@ if (!empty($_GET['prov']) && ($_GET['prov'] == true)) {
 ?>
 <form role="form" method='post' name='<?php echo attr($form_id); ?>' id='<?php echo attr($form_id); ?>' action='add_edit_event.php?eid=<?php echo attr_url($eid) ?>'>
 
-<!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
-<input type='hidden' size='2' name='resname' value='empty' />
 <?php
-if (!empty($_POST["resname"]) && ($_POST["resname"] == "noresult")) {
-    echo '
-<script>
-    // refresh and redirect the parent window
-    if (!opener.closed && opener.refreshme) opener.refreshme();
-    top.restoreSession();
-    opener.document.location="../../new/new.php";
-    // Close the window
-    dlgclose();
-</script>';
-}
 $classprov = 'current';
 $classpati = '';
 ?>
-<!-- ViSolve : Requirement - Redirect to Create New Patient Page -->
 <input type="hidden" name="form_action" id="form_action" value="" />
 <input type="hidden" name="recurr_affect" id="recurr_affect" value="" />
 <!-- used for recurring events -->
