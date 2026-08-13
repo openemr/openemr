@@ -143,7 +143,7 @@ class DocumentService extends BaseService
 
         // Store file in variable
         $file = file_get_contents($fileData["tmp_name"]);
-        if (empty($file)) {
+        if ($file === false || $file === '') {
             error_log("OpenEMR API Error: Patient document was empty, so declined request");
             return false;
         }
@@ -159,21 +159,38 @@ class DocumentService extends BaseService
         return true;
     }
 
+    /**
+     * @return array{filename: string, mimetype: string, file: string}|false
+     */
     public function getFile($pid, $did)
     {
         $filenameSql = sqlQuery("SELECT `name`, `mimetype` FROM `documents` WHERE `id` = ? AND `foreign_id` = ? AND `deleted` = 0", [$did, $pid]);
+        if (empty($filenameSql)) {
+            return false;
+        }
 
-        $filename = empty($filenameSql['name']) ? "unknownName" : $filenameSql['name'];
+        $filename = $filenameSql['name'] ?? null;
+        if (!is_string($filename) || $filename === '') {
+            $filename = "unknownName";
+        }
 
-        $obj = new \C_Document();
+        $mimetype = $filenameSql['mimetype'] ?? null;
+        if (
+            !is_string($mimetype)
+            || preg_match("@\\A[!#$%&'*+.^_`|~0-9A-Za-z-]+/[!#$%&'*+.^_`|~0-9A-Za-z-]+\\z@D", $mimetype) !== 1
+        ) {
+            $mimetype = 'application/octet-stream';
+        }
+
+        $obj = new \C_Document(collectCsrfToken: false);
         $obj->onReturnRetrieveKey();
         $document = $obj->retrieve_action($pid, $did, true, true, true);
-        if (empty($document)) {
+        if (!is_string($document) || $document === '') {
             error_log("OpenEMR API Error: Requested patient document was empty, so declined request");
             return false;
         }
 
-        return ['filename' => $filename, 'mimetype' => $filenameSql['mimetype'], 'file' => $document];
+        return ['filename' => $filename, 'mimetype' => $mimetype, 'file' => $document];
     }
 
     /**
