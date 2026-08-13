@@ -116,3 +116,45 @@
 #IfMissingColumn api_log client_id
 ALTER TABLE `api_log` ADD COLUMN `client_id` varchar(80) NOT NULL DEFAULT '' COMMENT 'oauth_clients.client_id of the API client that made the request' AFTER `user_id`;
 #EndIf
+
+-- Care Plan Engagement Category
+--
+-- Records how intensively the patient should be engaged under this care plan entry.
+-- The option set is deployment specific, so core seeds a neutral engagement-intensity
+-- ladder and leaves seq 70+ free for sites to add their own without renumbering.
+--
+-- Each option is guarded on its own (list_id, option_id) pair rather than on the
+-- `lists` registry row. A single guard around the whole block would stop firing as
+-- soon as the registry row exists, silently skipping every option after it.
+
+#IfMissingColumn form_care_plan plan_engagement_category
+ALTER TABLE `form_care_plan` ADD `plan_engagement_category` VARCHAR(100) DEFAULT '' COMMENT 'Expected engagement category with the patient based upon the care plan type';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id care_plan_engagement_category
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('lists','care_plan_engagement_category','Care Plan Engagement Category',351,0,0,'',NULL,'',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id care_plan_engagement_category option_id intensive
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('care_plan_engagement_category','intensive','Intensive Engagement',10,0,0,'','','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id care_plan_engagement_category option_id active
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('care_plan_engagement_category','active','Active Engagement',20,0,0,'','','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id care_plan_engagement_category option_id routine
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('care_plan_engagement_category','routine','Routine Engagement',30,0,0,'','','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id care_plan_engagement_category option_id monitoring
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('care_plan_engagement_category','monitoring','Monitoring Only',40,0,0,'','','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id care_plan_engagement_category option_id inactive
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('care_plan_engagement_category','inactive','Inactive',50,0,0,'','','',0,0,1,'',1);
+#EndIf
+
+#IfNotRow2D list_options list_id care_plan_engagement_category option_id closed
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('care_plan_engagement_category','closed','Closed',60,0,0,'','','',0,0,1,'',1);
+#EndIf
