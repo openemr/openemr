@@ -14,6 +14,6 @@ class CodingUtils
 {
     public static function isActiveCheckboxChecked(mixed $active, mixed $mode): bool
     {
-        return !empty($active) || ($mode === 'modify' && $active === null);
+        return (bool) $active || ($mode === 'modify' && $active === null);
     }
 }
