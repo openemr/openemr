@@ -7,23 +7,48 @@
 (function (window) {
     'use strict';
 
+    function usableApplicationWindow(candidate) {
+        try {
+            return candidate && typeof candidate.navigateTab === 'function' ? candidate : null;
+        } catch {
+            return null;
+        }
+    }
+
     function findApplicationWindow(context) {
-        if (context.top && typeof context.top.navigateTab === 'function') {
-            return context.top;
+        try {
+            const applicationWindow = usableApplicationWindow(context.top);
+            if (applicationWindow) {
+                return applicationWindow;
+            }
+        } catch {
+            // Cross-origin and closing WindowProxy properties can throw. Try
+            // the remaining supported application-window relationships.
         }
 
         // A patient finder opened as a native window may still have the main
         // application as the top-level window of its appointment opener.
-        if (context.opener && !context.opener.closed && context.opener.top &&
-            typeof context.opener.top.navigateTab === 'function') {
-            return context.opener.top;
+        try {
+            const opener = context.opener;
+            const applicationWindow = opener && !opener.closed ? usableApplicationWindow(opener.top) : null;
+            if (applicationWindow) {
+                return applicationWindow;
+            }
+        } catch {
+            // Continue when the opener is inaccessible or was severed.
         }
 
         // When the appointment itself is a native window, its finder is an
         // iframe whose top-level opener is the main application.
-        if (context.top && context.top.opener && !context.top.opener.closed &&
-            context.top.opener.top && typeof context.top.opener.top.navigateTab === 'function') {
-            return context.top.opener.top;
+        try {
+            const topWindow = context.top;
+            const opener = topWindow && topWindow.opener;
+            const applicationWindow = opener && !opener.closed ? usableApplicationWindow(opener.top) : null;
+            if (applicationWindow) {
+                return applicationWindow;
+            }
+        } catch {
+            // The current-context fallback remains available below.
         }
 
         return null;

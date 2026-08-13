@@ -17,7 +17,6 @@
 require_once('../../globals.php');
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Calendar\PatientFinder;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -155,10 +154,10 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed -->
                 <a class="noresult" href="<?php echo attr(OEGlobalsBag::getInstance()->getWebRoot()); ?>/interface/new/new.php"
                     <?php
-                    if (!PatientFinder::canAddPatient(
-                        isset($_GET['pflag']),
-                        AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])
-                    )) {
+                    if (
+                        isset($_GET['pflag']) ||
+                        !AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])
+                    ) {
                         ?> style="display: none;"
                         <?php
                     }
