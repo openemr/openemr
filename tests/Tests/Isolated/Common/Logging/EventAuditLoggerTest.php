@@ -327,4 +327,67 @@ class EventAuditLoggerTest extends TestCase
 
         $logger->auditSQLEvent('UPDATE patient_data SET committed = 1 WHERE pid = 1', true);
     }
+
+    /**
+     * @return array<string, array{sql: string, event: string, category: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function formTableProvider(): array
+    {
+        return [
+            'mapped form table' => [
+                'sql' => 'INSERT INTO form_vitals (pid) VALUES (1)',
+                'event' => 'patient-record-insert',
+                'category' => 'Vitals',
+            ],
+            'unmapped custom form table' => [
+                'sql' => 'UPDATE form_custom_observation SET value = 1 WHERE id = 1',
+                'event' => 'patient-record-update',
+                'category' => 'Encounter Form',
+            ],
+        ];
+    }
+
+    #[DataProvider('formTableProvider')]
+    public function testAuditSQLEventCategorizesFormTables(
+        string $sql,
+        string $expectedEvent,
+        string $expectedCategory,
+    ): void {
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($this->once())
+            ->method('record')
+            ->with(self::callback(function (Event $event) use ($expectedEvent, $expectedCategory): bool {
+                self::assertSame($expectedEvent, $event->event);
+                self::assertSame($expectedCategory, $event->category);
+                self::assertNotSame('Billing', $event->category);
+                return true;
+            }));
+
+        $this->session->method('get')
+            ->willReturnCallback(fn (string $key): ?string => match ($key) {
+                'authUser' => 'testuser',
+                'authProvider' => 'default',
+                default => null,
+            });
+
+        $config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: false,
+            enabledEventTypes: [EventCategory::PatientRecord],
+        );
+
+        $logger = new EventAuditLogger(
+            sink: $sink,
+            session: $this->session,
+            config: $config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        $logger->auditSQLEvent($sql, true);
+    }
 }
