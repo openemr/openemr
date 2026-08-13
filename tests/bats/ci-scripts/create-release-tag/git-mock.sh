@@ -46,6 +46,17 @@ set -euo pipefail
     printf '\n'
 } >> "${MOCK_CALL_LOG:-/dev/null}"
 
+# Skip real git's `-c KEY=VALUE` prefix args (e.g.,
+# `-c http.https://github.com/.extraheader=Authorization: Basic ...`)
+# before locating the subcommand — matches real git's own parsing.
+# Needed for the APP_TOKEN inline-auth path (create-release-tag.sh
+# uses `git -c http.extraheader=... ls-remote` and `git -c ... push`
+# when APP_TOKEN is set).
+while [[ "${1:-}" == "-c" ]]; do
+    shift  # drop -c
+    shift  # drop KEY=VALUE
+done
+
 subcommand="${1:-}"
 shift || true
 

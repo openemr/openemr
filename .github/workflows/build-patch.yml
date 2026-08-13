@@ -156,16 +156,6 @@ jobs:
         gh api repos/openemr/openemr/milestones --jq '.[].title' | head -5
         echo 'App token verified.'
 
-    # Rewrite the origin URL to authenticate git-push with the App
-    # token — the top checkout used github.token (contents:read only)
-    # with persist-credentials=false; without this rewrite, the
-    # `git push origin <tag>` in the tag/release step below fails to
-    # authenticate. Skipped on dry_run since no tag is created.
-    - name: Configure git remote with App token for tag push
-      if: '!inputs.dry_run'
-      env:
-        APP_TOKEN: ${{ steps.app-token.outputs.token }}
-      run: git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${{ github.repository }}.git"
 
     - name: Fetch start tag
       env:
@@ -292,6 +282,7 @@ jobs:
       if: '!inputs.dry_run'
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        APP_TOKEN: ${{ steps.app-token.outputs.token }}
         RELEASE_TAG: ${{ inputs.release_tag }}
         VERSION_BRANCH: ${{ inputs.version_branch }}
         PATCH_FILENAME: ${{ inputs.patch_filename }}
@@ -305,8 +296,18 @@ jobs:
         if git rev-parse "$tag" > /dev/null 2>&1; then
           echo "Tag $tag already exists, skipping tag creation"
         else
+          # Authenticate git-push with the App token inline (not
+          # persisted in .git/config) — top checkout used
+          # persist-credentials=false so credentials aren't sitting
+          # in the tree during the composer install / npm ci / npm
+          # build / package-assembly steps between checkout and now.
+          # `-c http.extraheader=...` is one-shot: applies to this
+          # push only, never written to .git/config, no leak surface
+          # for a compromised dep or vendor script to read.
+          basic_auth_b64="$(printf 'x-access-token:%s' "$APP_TOKEN" | base64 -w0)"
           git tag -a -m "Patch release $tag" "$tag" "$VERSION_BRANCH"
-          git push origin "$tag"
+          git -c "http.https://github.com/.extraheader=Authorization: Basic ${basic_auth_b64}" \
+            push origin "$tag"
         fi
 
         if ! gh release view "$tag" --repo openemr/openemr > /dev/null 2>&1; then

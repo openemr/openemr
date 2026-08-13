@@ -107,15 +107,6 @@ jobs:
         owner: ${{ github.repository_owner }}
         repositories: openemr
 
-    # Rewrite the origin URL to authenticate git-push with the App
-    # token (github.token's contents:read scope can't push). Runs
-    # AFTER app-token generation; the push happens in
-    # create-release-tag.sh (below).
-    - name: Configure git remote with App token for tag push
-      env:
-        APP_TOKEN: ${{ steps.app-token.outputs.token }}
-      run: git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${{ github.repository }}.git"
-
     # Reconstruct the release-output/ directory that build-package
     # produced, from the workflow-run artifact.
     - name: Download release-output artifact
@@ -125,8 +116,15 @@ jobs:
         path: tools/release/release-output
 
     - name: Create annotated tag and GitHub release
+      # APP_TOKEN passed so create-release-tag.sh uses it inline via
+      # `git -c http.extraheader=...` on ls-remote + push — never
+      # persisted to .git/config. Keeps the token unavailable to
+      # subsequent steps (composer install, task summary, etc.) that
+      # a compromised dep could otherwise exfiltrate from `git config
+      # --get remote.origin.url` or the .git/config extraheader.
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        APP_TOKEN: ${{ steps.app-token.outputs.token }}
         RELEASE_TAG: ${{ inputs.release_tag }}
         RELEASE_VERSION: ${{ inputs.version }}
         VERSION_BRANCH: ${{ inputs.version_branch }}
