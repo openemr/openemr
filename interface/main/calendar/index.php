@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PostCalendar\CalendarFacilityResolver;
 
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once 'includes/pnAPI.php';
@@ -48,47 +49,24 @@ if (isset($_REQUEST['pc_username']) && $_REQUEST['pc_username']) {
 }
 
 // FACILITY FILTERING (lemonsoftware) (CHEMED)
-$sessionSetArray['pc_facility'] = 0;
+$loginIntoFacility = OEGlobalsBag::getInstance()->getBoolean('login_into_facility');
+$facilityCookieEnabled = OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie');
+$restrictUserFacility = $session->get('userauthorized') != 1
+    && OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility');
+$facilities = $restrictUserFacility ? getUserFacilities($session->get('authUserID')) : [];
+$allowedFacilityIds = array_column($facilities, 'id');
 
-if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
-    $sessionSetArray['pc_facility'] = $session->get('facilityId');
-} else {
-    if (isset($_COOKIE['pc_facility']) && OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
-        $sessionSetArray['pc_facility'] = $_COOKIE['pc_facility'];
-    }
-}
-
-// override the cookie if the user doesn't have access to that facility any more
-if ($session->get('userauthorized') != 1 && OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) {
-    $facilities = getUserFacilities($session->get('authUserID'));
-    // use the first facility the user has access to, unless...
-    $sessionSetArray['pc_facility'] = $facilities[0]['id'];
-    // if the cookie is in the users' facilities, use that.
-    foreach ($facilities as $facrow) {
-        if (($facrow['id'] == $_COOKIE['pc_facility']) && OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
-            $sessionSetArray['pc_facility'] = $_COOKIE['pc_facility'];
-        }
-    }
-}
-
-if (isset($_POST['pc_facility'])) {
-    $sessionSetArray['pc_facility'] = $_POST['pc_facility'];
-}
-
-/********************************************************************/
-
-if (isset($_GET['pc_facility'])) {
-    $sessionSetArray['pc_facility'] = $_GET['pc_facility'];
-}
-
-if (OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
-    $pc_facility = $session->get('pc_facility');
-    if (!OEGlobalsBag::getInstance()->getBoolean('login_into_facility') && ($pc_facility ?? 0) > 0) {
-        // If login_into_facility is turn on $_COOKIE['pc_facility'] was saved in the login process.
-        // In the case that login_into_facility is turn on you don't want to save different facility than the selected in the login screen.
-        setcookie("pc_facility", (string) $pc_facility, ['expires' => time() + (3600 * 365)]);
-    }
-}
+$sessionSetArray['pc_facility'] = CalendarFacilityResolver::resolve(
+    $session->get('pc_facility'),
+    $_POST,
+    $_GET,
+    $loginIntoFacility,
+    $session->get('facilityId'),
+    $facilityCookieEnabled,
+    $_COOKIE['pc_facility'] ?? null,
+    $restrictUserFacility,
+    $allowedFacilityIds
+);
 
 // Simplifying by just using request variable instead of checking for both post and get - KHY
 if (isset($_REQUEST['viewtype'])) {
@@ -97,6 +75,11 @@ if (isset($_REQUEST['viewtype'])) {
 
 // Set the session variables
 SessionUtil::setSession($sessionSetArray);
+
+if ($facilityCookieEnabled && !$loginIntoFacility && $sessionSetArray['pc_facility'] !== null) {
+    // Persist the value selected by this request, including 0 (All Facilities).
+    setcookie("pc_facility", (string) $sessionSetArray['pc_facility'], ['expires' => time() + (3600 * 365)]);
+}
 
 // start PN
 pnInit();
