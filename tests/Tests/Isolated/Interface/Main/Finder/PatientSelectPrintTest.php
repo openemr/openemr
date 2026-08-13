@@ -104,32 +104,44 @@ class PatientSelectPrintTest extends TestCase
     ): string {
         $temporaryPath = tempnam(sys_get_temp_dir(), 'openemr-patient-select-');
         self::assertIsString($temporaryPath);
-        self::assertIsInt(file_put_contents($temporaryPath, "<?php\n" . $initialization));
-        self::assertIsInt(file_put_contents($temporaryPath, "\n" . $cdrDispatch, FILE_APPEND));
-        self::assertIsInt(file_put_contents($temporaryPath, "\n" . $cdrAssignment . "\n}", FILE_APPEND));
-        self::assertIsInt(file_put_contents($temporaryPath, "\n?>\n" . $templateBlock, FILE_APPEND));
-
-        $render = static function () use ($temporaryPath, $fromPage, $printPatients): string {
-            $from_page = $fromPage;
-            $_REQUEST = [];
-            if ($printPatients !== null) {
-                $_REQUEST['print_patients'] = $printPatients;
-            }
-
-            ob_start();
-            try {
-                include $temporaryPath;
-
-                $output = ob_get_contents();
-                self::assertIsString($output);
-
-                return $output;
-            } finally {
-                ob_end_clean();
-            }
-        };
 
         try {
+            self::assertIsInt(file_put_contents($temporaryPath, "<?php\n" . $initialization));
+            self::assertIsInt(file_put_contents($temporaryPath, "\n" . $cdrDispatch, FILE_APPEND));
+            self::assertIsInt(file_put_contents($temporaryPath, "\n" . $cdrAssignment . "\n}", FILE_APPEND));
+            self::assertIsInt(file_put_contents($temporaryPath, "\n?>\n" . $templateBlock, FILE_APPEND));
+
+            $render = static function () use ($temporaryPath, $fromPage, $printPatients): string {
+                $from_page = $fromPage;
+                $requestExisted = array_key_exists('_REQUEST', $GLOBALS);
+                $previousRequest = $requestExisted ? $_REQUEST : null;
+
+                try {
+                    $_REQUEST = [];
+                    if ($printPatients !== null) {
+                        $_REQUEST['print_patients'] = $printPatients;
+                    }
+
+                    ob_start();
+                    try {
+                        include $temporaryPath;
+
+                        $output = ob_get_contents();
+                        self::assertIsString($output);
+
+                        return $output;
+                    } finally {
+                        ob_end_clean();
+                    }
+                } finally {
+                    if ($requestExisted) {
+                        $_REQUEST = $previousRequest;
+                    } else {
+                        unset($_REQUEST);
+                    }
+                }
+            };
+
             return $render();
         } finally {
             unlink($temporaryPath);
