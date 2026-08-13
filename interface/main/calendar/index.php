@@ -54,7 +54,20 @@ $facilityCookieEnabled = OEGlobalsBag::getInstance()->getBoolean('set_facility_c
 $restrictUserFacility = $session->get('userauthorized') != 1
     && OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility');
 $facilities = $restrictUserFacility ? getUserFacilities($session->get('authUserID')) : [];
-$allowedFacilityIds = array_column($facilities, 'id');
+/** @var list<int|string> $allowedFacilityIds */
+$allowedFacilityIds = [];
+if (is_array($facilities)) {
+    foreach ($facilities as $facility) {
+        if (!is_array($facility)) {
+            continue;
+        }
+
+        $facilityId = $facility['id'] ?? null;
+        if (is_int($facilityId) || is_string($facilityId)) {
+            $allowedFacilityIds[] = $facilityId;
+        }
+    }
+}
 
 $sessionSetArray['pc_facility'] = CalendarFacilityResolver::resolve(
     $session->get('pc_facility'),
