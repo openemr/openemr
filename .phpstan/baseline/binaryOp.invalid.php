@@ -10782,11 +10782,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/formatting.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/formdata.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\*" between float and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
@@ -11205,11 +11200,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/sql-ccr.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'SHOW COLUMNS FROM \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/secure_sqlconf\\.php\' results in an error\\.$#',

@@ -2782,11 +2782,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:listTableFields\\(\\) should return array\\<string\\> but returns list\\<mixed\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:sqlInsert\\(\\) should return int but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
