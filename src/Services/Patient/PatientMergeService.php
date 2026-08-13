@@ -297,9 +297,14 @@ class PatientMergeService
      */
     private function mergeAllTables(int $sourcePid, int $targetPid, PatientMergeLog $log): void
     {
-        foreach (QueryUtils::fetchRecords("SHOW TABLES") as $row) {
-            $tableName = self::asString(array_values($row)[0] ?? '');
-            if ($tableName === '') {
+        $schemaTables = $this->schemaTables();
+
+        foreach ($schemaTables as $tableName) {
+            if ($this->escapeTableName($tableName, $schemaTables) === null) {
+                // The schema changed underneath us -- something installed or dropped a table while
+                // the merge was running. It cannot hold this patient's rows, so skip it rather than
+                // let the escaping helper terminate the request.
+                $log->add(sprintf(xl('Skipped table that is no longer present: %s'), $tableName));
                 continue;
             }
 
@@ -319,7 +324,7 @@ class PatientMergeService
                 continue;
             } else {
                 $columnRow = QueryUtils::querySingleRow(
-                    "SHOW COLUMNS FROM " . QueryUtils::escapeTableName($tableName)
+                    "SHOW COLUMNS FROM " . $this->escapeTableName($tableName, $schemaTables)
                     . " WHERE `Field` LIKE 'pid' OR `Field` LIKE 'patient_id'"
                 );
                 $columnName = is_array($columnRow) ? self::asString($columnRow['Field'] ?? '') : '';
@@ -330,6 +335,52 @@ class PatientMergeService
                 }
             }
         }
+    }
+
+    /**
+     * Every table in the current schema.
+     *
+     * Read once per merge and threaded through the sweep. QueryUtils::escapeTableName() issues its
+     * own SHOW TABLES on every call, so without this a merge ran one such query per table -- a few
+     * hundred round trips to re-derive a list that cannot usefully change mid-sweep.
+     *
+     * @return list<string>
+     */
+    private function schemaTables(): array
+    {
+        $tables = [];
+        foreach (QueryUtils::fetchRecords("SHOW TABLES") as $row) {
+            $name = self::asString(array_values($row)[0] ?? '');
+            if ($name !== '') {
+                $tables[] = $name;
+            }
+        }
+
+        return $tables;
+    }
+
+    /**
+     * Backtick-quote a table name, or null when it is not in the given schema.
+     *
+     * QueryUtils::escapeTableName() die()s on a name it cannot whitelist, which terminates the
+     * request outright. A merge sweeps the whole schema, so one table appearing or disappearing
+     * underneath it -- a module installing a form, a concurrent session -- would otherwise kill the
+     * merge partway through, after other tables had already been rewritten. Returning null lets the
+     * caller skip it and carry on.
+     *
+     * @param list<string> $schemaTables
+     */
+    private function escapeTableName(string $tableName, array $schemaTables): ?string
+    {
+        // Membership in $schemaTables IS the whitelist check -- the name came straight back from
+        // SHOW TABLES in this request, so it is a real identifier and not user input. Quoting it
+        // here rather than calling QueryUtils::escapeTableName() avoids both that helper's die()
+        // and its repeat SHOW TABLES.
+        if (!in_array($tableName, $schemaTables, true) || str_contains($tableName, '`')) {
+            return null;
+        }
+
+        return sprintf('`%s`', $tableName);
     }
 
     /**

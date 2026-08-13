@@ -38,20 +38,29 @@ class PatientMergeListsTouchTest extends TestCase
     /** @var list<int> */
     private array $createdPids = [];
 
+    /**
+     * Captured when each patient is created, not looked up in tearDown: a successful merge deletes
+     * the source chart, so by then its uuid is unreachable and the registry row would be orphaned.
+     *
+     * @var list<string>
+     */
+    private array $createdUuids = [];
+
     protected function tearDown(): void
     {
         foreach ($this->createdPids as $pid) {
-            $row = QueryUtils::querySingleRow("SELECT uuid FROM patient_data WHERE pid = ?", [$pid]);
-            if (is_array($row) && isset($row['uuid'])) {
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM uuid_registry WHERE table_name = 'patient_data' AND uuid = ?",
-                    [$row['uuid']]
-                );
-            }
             QueryUtils::sqlStatementThrowException("DELETE FROM lists_touch WHERE pid = ?", [$pid]);
             QueryUtils::sqlStatementThrowException("DELETE FROM patient_data WHERE pid = ?", [$pid]);
         }
+        foreach ($this->createdUuids as $uuid) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'patient_data' AND uuid = ?",
+                [$uuid]
+            );
+        }
+
         $this->createdPids = [];
+        $this->createdUuids = [];
     }
 
     /**
@@ -185,18 +194,20 @@ class PatientMergeListsTouchTest extends TestCase
         self::assertIsNumeric($result['next_pid'] ?? null);
         $pid = (int) $result['next_pid'];
 
+        $uuid = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO patient_data (pid, uuid, pubpid, fname, lname, DOB, sex, ss, dupscore)"
             . " VALUES (?, ?, ?, 'ListsTouch', 'MergeTest', '1975-04-04', 'Female', '123-45-6789', ?)",
             [
                 $pid,
-                (new UuidRegistry(['table_name' => 'patient_data']))->createUuid(),
+                $uuid,
                 'test-merge-' . uniqid(),
                 DuplicatePatientService::SCORE_UNIQUE,
             ]
         );
 
         $this->createdPids[] = $pid;
+        $this->createdUuids[] = $uuid;
         return $pid;
     }
 }
