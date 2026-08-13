@@ -120,20 +120,21 @@ jobs:
         printf '::error::release_tag is required when dry_run is false\n'
         exit 1
 
-    # Sparse checkout of just the composite action so the token-mint
-    # step below can resolve `uses: ./.github/actions/...`. Full
-    # checkout happens after the token is minted (uses the token).
-    # setup-php-composer included in the initial sparse pattern too —
-    # subsequent full checkouts don't reliably materialize files pruned
-    # by the first sparse checkout (see openemr/openemr#13480).
-    - name: Checkout composite actions
-      if: '!inputs.dry_run'
+    # Full checkout first — composite actions (generate-app-token,
+    # setup-php-composer) resolve against a real workspace, and
+    # composer.json is present for setup-php-composer's cache/install
+    # steps. The earlier sparse-first pattern (openemr/openemr#13480
+    # + #13509) worked around one bug but not the underlying git-
+    # sparse-then-full-checkout leak: files not in the initial sparse
+    # pattern (like composer.json) still weren't materialized by the
+    # second full checkout. Full-checkout-first sidesteps the leak.
+    - name: Checkout openemr release branch
       uses: actions/checkout@v7
       with:
-        sparse-checkout: |
-          .github/actions/generate-app-token
-          .github/actions/setup-php-composer
-        sparse-checkout-cone-mode: false
+        ref: ${{ inputs.version_branch }}
+        token: ${{ github.token }}
+        filter: blob:none
+        fetch-depth: 1
         persist-credentials: false
 
     - name: Generate app token
@@ -154,14 +155,6 @@ jobs:
         echo "Checking app token can access openemr/openemr milestones..."
         gh api repos/openemr/openemr/milestones --jq '.[].title' | head -5
         echo 'App token verified.'
-
-    - name: Checkout openemr release branch
-      uses: actions/checkout@v7
-      with:
-        ref: ${{ inputs.version_branch }}
-        token: ${{ steps.app-token.outputs.token || github.token }}
-        filter: blob:none
-        fetch-depth: 1
 
     - name: Fetch start tag
       env:

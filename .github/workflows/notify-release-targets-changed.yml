@@ -34,23 +34,18 @@ jobs:
         php-version:
         - '8.5'
     steps:
-    # Sparse checkout of the composite actions this job's workspace-
-    # root uses/... references resolve against — generate-app-token
-    # (Mint step below) and setup-php-composer (Setup PHP step below).
-    # Local composite paths resolve against GITHUB_WORKSPACE at step-
-    # load time; a subsequent full checkout doesn't reliably materialize
-    # files pruned by the first sparse checkout, so include everything
-    # the workspace-root needs in the first sparse pattern. Companion
-    # to the fix in openemr/openemr#13480 (branch-cut + patch-prep) —
-    # this workflow has the same shape and failed identically on the
-    # rel-830 cut's release-targets.yml push.
-    - name: Checkout composite actions
+    # Full checkout first so composite actions (generate-app-token,
+    # setup-php-composer) resolve against a real workspace AND
+    # composer.json is present for setup-php-composer's cache/install
+    # steps. The earlier sparse-first pattern (fixed in
+    # openemr/openemr#13480 + #13509) worked around one bug but not
+    # the underlying git-sparse-then-full-checkout leak: files not in
+    # the initial sparse pattern (like composer.json) still weren't
+    # materialized by the second full checkout. Doing the full checkout
+    # first sidesteps the leak entirely.
+    - name: Checkout
       uses: actions/checkout@v7
       with:
-        sparse-checkout: |
-          .github/actions/generate-app-token
-          .github/actions/setup-php-composer
-        sparse-checkout-cone-mode: false
         persist-credentials: false
 
     - name: Mint App token
@@ -64,11 +59,6 @@ jobs:
         # Repository_dispatch only needs contents:write; without this the
         # token inherits every permission the App installation has.
         permission-contents: write
-
-    - name: Checkout
-      uses: actions/checkout@v7
-      with:
-        persist-credentials: false
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer

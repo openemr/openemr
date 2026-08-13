@@ -77,21 +77,26 @@ jobs:
     # boundaries anyway (writing a token to `$GITHUB_OUTPUT` masks it
     # in logs but the value that reaches the downstream job is often
     # empty). Regenerating is the documented path.
-    # Sparse checkout of the composite actions this job's workspace-
-    # root uses/... references resolve against — generate-app-token
-    # (mint step below) and setup-php-composer (later step). Full
-    # checkout happens after the token is minted (uses the token).
-    # setup-php-composer included in the initial sparse pattern too —
-    # subsequent full checkouts don't reliably materialize files pruned
-    # by the first sparse checkout (see openemr/openemr#13480).
-    - name: Checkout composite actions
+    #
+    # Full checkout first with github.token — composite actions
+    # (generate-app-token, setup-php-composer) resolve against a real
+    # workspace AND composer.json is present for setup-php-composer's
+    # cache/install steps. The earlier sparse-first pattern
+    # (openemr/openemr#13480 + #13509) hit an underlying git leak:
+    # files not in the initial sparse pattern (like composer.json)
+    # weren't materialized by the second full checkout. Full-checkout-
+    # first sidesteps the leak. Persist=true so `git push origin <tag>`
+    # in create-release-tag.sh works — the remote URL is rewritten to
+    # use the App token below (via `git remote set-url`) so
+    # authenticated push against a repo that requires App auth for
+    # writes succeeds; github.token's contents:read scope wouldn't.
+    - name: Checkout openemr release branch
       uses: actions/checkout@v7
       with:
-        sparse-checkout: |
-          .github/actions/generate-app-token
-          .github/actions/setup-php-composer
-        sparse-checkout-cone-mode: false
-        persist-credentials: false
+        ref: ${{ inputs.version_branch }}
+        token: ${{ github.token }}
+        filter: blob:none
+        fetch-depth: 1
 
     - name: Generate app token
       id: app-token
@@ -102,15 +107,14 @@ jobs:
         owner: ${{ github.repository_owner }}
         repositories: openemr
 
-    # Need a checkout for `git tag` + `git push origin <tag>`. Same
-    # minimal fetch shape as build-package.
-    - name: Checkout openemr release branch
-      uses: actions/checkout@v7
-      with:
-        ref: ${{ inputs.version_branch }}
-        token: ${{ steps.app-token.outputs.token }}
-        filter: blob:none
-        fetch-depth: 1
+    # Rewrite the origin URL to authenticate git-push with the App
+    # token (github.token's contents:read scope can't push). Runs
+    # AFTER app-token generation; the push happens in
+    # create-release-tag.sh (below).
+    - name: Configure git remote with App token for tag push
+      env:
+        APP_TOKEN: ${{ steps.app-token.outputs.token }}
+      run: git remote set-url origin "https://x-access-token:${APP_TOKEN}@github.com/${{ github.repository }}.git"
 
     # Reconstruct the release-output/ directory that build-package
     # produced, from the workflow-run artifact.
