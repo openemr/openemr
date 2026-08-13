@@ -383,7 +383,37 @@ class Header
                 $path .= "?v={$v}";
             }
         }
-        return str_replace("%path%", $path, $template);
+        return str_replace("%path%", attr($path), $template);
+    }
+
+    /**
+     * Render module assets that have already passed through the filter events.
+     *
+     * @param array<array-key, mixed> $scripts
+     * @param array<array-key, mixed> $styles
+     */
+    public static function createModuleAssetElements(array $scripts, array $styles): string
+    {
+        $output = '';
+        if ($scripts !== []) {
+            $output .= '<!-- Module Scripts Started -->';
+            foreach ($scripts as $script) {
+                if (is_string($script)) {
+                    $output .= self::createElement($script, 'script', false);
+                }
+            }
+            $output .= '<!-- Module Scripts Ended -->';
+        }
+        if ($styles !== []) {
+            $output .= '<!-- Module Styles Started -->';
+            foreach ($styles as $style) {
+                if (is_string($style)) {
+                    $output .= self::createElement($style, 'style', false);
+                }
+            }
+            $output .= '<!-- Module Styles Ended -->';
+        }
+        return $output;
     }
 
     /**

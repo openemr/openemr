@@ -14,6 +14,7 @@
 
 use OpenEMR\Common\Calendar\Month;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
@@ -779,6 +780,10 @@ function postcalendar_userapi_buildView($args)
         // right LTR/RTL class on body.
         $bodyClassSession = SessionWrapperFactory::getInstance()->getActiveSession()->get('language_direction');
         $renderData['body_class'] = is_string($bodyClassSession) ? $bodyClassSession : '';
+        $renderData['CALENDAR_EXTENSION_ASSETS'] = Header::createModuleAssetElements(
+            $calendarScripts->getScripts(),
+            $calendarStyles->getStyles()
+        );
 
         $newTpl = CalendarRenderer::create();
         foreach ($renderData as $k => $v) {

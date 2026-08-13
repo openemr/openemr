@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\PostCalendar;
 
+use OpenEMR\Core\Header;
 use OpenEMR\PostCalendar\CalendarRenderer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -22,6 +24,23 @@ use Twig\Loader\ArrayLoader;
 #[Group('postcalendar')]
 final class CalendarRendererTest extends TestCase
 {
+    private mixed $versionBackup;
+
+    protected function setUp(): void
+    {
+        $this->versionBackup = $GLOBALS['v_js_includes'] ?? null;
+        $GLOBALS['v_js_includes'] = 'test-version';
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->versionBackup === null) {
+            unset($GLOBALS['v_js_includes']);
+        } else {
+            $GLOBALS['v_js_includes'] = $this->versionBackup;
+        }
+    }
+
     /**
      * @param  array<string, string> $templates
      */
@@ -120,5 +139,85 @@ final class CalendarRendererTest extends TestCase
         $renderer->assign(['b' => '2', 'c' => '3']);
 
         self::assertSame('1/2/3', $renderer->render('t.twig'));
+    }
+
+    /**
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function calendarViewProvider(): array
+    {
+        return [
+            'month screen' => ['month'],
+            'week screen' => ['week'],
+            'day screen' => ['day'],
+            'month print' => ['month_print'],
+            'week print' => ['week_print'],
+            'day print' => ['day_print'],
+        ];
+    }
+
+    #[DataProvider('calendarViewProvider')]
+    public function testEveryCalendarViewRendersSharedExtensionAssetsOnce(string $view): void
+    {
+        $partial = (string) file_get_contents(
+            dirname(__DIR__, 4) . '/templates/calendar/default/views/_extension_assets.html.twig'
+        );
+        $renderer = $this->buildRenderer([
+            'calendar/default/views/_extension_assets.html.twig' => $partial,
+            $view . '.twig' => "<head>{% include 'calendar/default/views/_extension_assets.html.twig' %}</head>",
+        ]);
+        $renderer->assign('CALENDAR_EXTENSION_ASSETS', Header::createModuleAssetElements(
+            ['/modules/example/calendar.js?mode=compact&name="quoted"'],
+            ['/modules/example/calendar.css?theme=light&name="quoted"']
+        ));
+
+        $html = $renderer->render($view . '.twig');
+
+        self::assertSame(1, substr_count($html, '<!-- Module Scripts Started -->'));
+        self::assertSame(1, substr_count($html, '<!-- Module Styles Started -->'));
+        self::assertStringContainsString(
+            '<script src="/modules/example/calendar.js?mode=compact&amp;name=&quot;quoted&quot;&amp;v=test-version"></script>',
+            $html
+        );
+        self::assertStringContainsString(
+            '<link rel="stylesheet"  href="/modules/example/calendar.css?theme=light&amp;name=&quot;quoted&quot;&amp;v=test-version" />',
+            $html
+        );
+    }
+
+    public function testEmptyExtensionListsRenderNoMarkup(): void
+    {
+        $renderer = $this->buildRenderer([
+            'assets.twig' => "before{% include 'calendar/default/views/_extension_assets.html.twig' %}after",
+            'calendar/default/views/_extension_assets.html.twig' => (string) file_get_contents(
+                dirname(__DIR__, 4) . '/templates/calendar/default/views/_extension_assets.html.twig'
+            ),
+        ]);
+        $renderer->assign('CALENDAR_EXTENSION_ASSETS', Header::createModuleAssetElements([], []));
+
+        self::assertSame('beforeafter', trim($renderer->render('assets.twig')));
+    }
+
+    public function testCalendarEntryPointPreservesDispatchContextAndPropagatesAssets(): void
+    {
+        $source = (string) file_get_contents(
+            dirname(__DIR__, 4) . '/interface/main/calendar/modules/PostCalendar/pnuserapi.php'
+        );
+
+        self::assertSame(1, substr_count($source, "new ScriptFilterEvent('pnuserapi.php')"));
+        self::assertSame(1, substr_count($source, "new StyleFilterEvent('pnuserapi.php')"));
+        self::assertSame(2, substr_count($source, "setContextArgument('viewtype', \$viewtype)"));
+        self::assertStringContainsString('Header::createModuleAssetElements(', $source);
+        self::assertStringContainsString('$calendarScripts->getScripts()', $source);
+        self::assertStringContainsString('$calendarStyles->getStyles()', $source);
+
+        foreach (['header', 'month_print/outlook_ajax_template', 'week_print/outlook_ajax_template', 'day_print/outlook_ajax_template'] as $template) {
+            $templateSource = (string) file_get_contents(
+                dirname(__DIR__, 4) . '/templates/calendar/default/views/' . $template . '.html.twig'
+            );
+            self::assertSame(1, substr_count($templateSource, "include 'calendar/default/views/_extension_assets.html.twig'"));
+        }
     }
 }
