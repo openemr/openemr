@@ -17,6 +17,25 @@ use PHPUnit\Framework\TestCase;
 #[Group('postcalendar')]
 final class CalendarIndexFacilityCookieContractTest extends TestCase
 {
+    public function testAllowedFacilityIdsAreSafelyExtractedFromMixedData(): void
+    {
+        $source = file_get_contents(__DIR__ . '/../../../../interface/main/calendar/index.php');
+        self::assertIsString($source);
+
+        self::assertStringNotContainsString('array_column($facilities', $source);
+        self::assertMatchesRegularExpression(
+            '/\/\*\* @var list<int\|string> \$allowedFacilityIds \*\/\s*'
+            . '\$allowedFacilityIds = \[\];\s*'
+            . 'if \(is_array\(\$facilities\)\) \{\s*'
+            . 'foreach \(\$facilities as \$facility\) \{\s*'
+            . 'if \(!is_array\(\$facility\)\).*?'
+            . '\$facilityId = \$facility\[\'id\'\] \?\? null;\s*'
+            . 'if \(is_int\(\$facilityId\) \|\| is_string\(\$facilityId\)\) \{\s*'
+            . '\$allowedFacilityIds\[\] = \$facilityId;/s',
+            $source
+        );
+    }
+
     public function testResolvedFacilityCookieIsWrittenAfterSessionWithApplicationRootPath(): void
     {
         $source = file_get_contents(__DIR__ . '/../../../../interface/main/calendar/index.php');
