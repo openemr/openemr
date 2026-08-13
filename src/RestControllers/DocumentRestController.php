@@ -16,6 +16,7 @@ use OpenApi\Attributes as OA;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\PatientService;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -230,7 +231,10 @@ class DocumentRestController
             $filename = basename(str_replace('\\', '/', $results['filename']));
             $filename = preg_replace('/[\x00-\x1F\x7F]/', '', $filename) ?: 'unknownName';
             $fallback = preg_replace('/[^\x20-\x7E]|%/', '_', $filename) ?: 'unknownName';
-            $response->headers->setContentDisposition('attachment', $filename, $fallback);
+            $response->headers->set(
+                'Content-Disposition',
+                HeaderUtils::makeDisposition('attachment', $filename, $fallback)
+            );
             // we no longer use pre-check and post-check headers as they are not needed and microsoft even discourages
             // their use at this point.
             $response->setCache([

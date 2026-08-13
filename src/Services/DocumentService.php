@@ -143,7 +143,7 @@ class DocumentService extends BaseService
 
         // Store file in variable
         $file = file_get_contents($fileData["tmp_name"]);
-        if ($file === false || $file === '') {
+        if (empty($file)) {
             error_log("OpenEMR API Error: Patient document was empty, so declined request");
             return false;
         }
