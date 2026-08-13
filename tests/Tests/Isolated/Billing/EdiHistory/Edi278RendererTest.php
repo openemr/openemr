@@ -11,40 +11,7 @@
 declare(strict_types=1);
 
 namespace {
-    if (!function_exists('text')) {
-        function text($value): string
-        {
-            return htmlspecialchars((string) $value, ENT_NOQUOTES);
-        }
-    }
-
-    if (!function_exists('attr')) {
-        function attr($value): string
-        {
-            return htmlspecialchars((string) $value, ENT_QUOTES);
-        }
-    }
-
-    if (!function_exists('xlt')) {
-        function xlt($value): string
-        {
-            return (string) $value;
-        }
-    }
-
-    if (!function_exists('edih_format_money')) {
-        function edih_format_money($value): string
-        {
-            return (string) $value;
-        }
-    }
-
-    if (!function_exists('edih_format_date')) {
-        function edih_format_date($value, $format = 'Y-m-d'): string
-        {
-            return (string) $value;
-        }
-    }
+    require_once __DIR__ . '/edi_278_renderer_runtime_stubs.php';
 }
 
 namespace OpenEMR\Tests\Isolated\Billing\EdiHistory {
@@ -75,6 +42,7 @@ namespace OpenEMR\Tests\Isolated\Billing\EdiHistory {
 
             $html = \edih_278_transaction_html($x12, 'DUPLICATE');
 
+            self::assertIsString($html);
             self::assertStringContainsString('SECOND-TRANSACTION-RENDERED', $html);
         }
 
@@ -97,6 +65,7 @@ namespace OpenEMR\Tests\Isolated\Billing\EdiHistory {
 
             $html = \edih_278_transaction_html($x12, 'SV2-LOOKUP');
 
+            self::assertIsString($html);
             self::assertStringContainsString('Minutes', $html);
             self::assertStringContainsString('Nursing Facility (NF)', $html);
         }
@@ -104,15 +73,24 @@ namespace OpenEMR\Tests\Isolated\Billing\EdiHistory {
 
     final readonly class Edi278RendererX12
     {
+        /**
+         * @param list<list<string>> $transactions
+         */
         public function __construct(private array $transactions)
         {
         }
 
+        /**
+         * @return list<list<string>>
+         */
         public function edih_x12_transaction(string $reference): array
         {
             return $this->transactions;
         }
 
+        /**
+         * @return array{e: string, s: string, r: string}
+         */
         public function edih_delimiters(): array
         {
             return ['e' => '*', 's' => ':', 'r' => '^'];

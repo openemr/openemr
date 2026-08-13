@@ -26,6 +26,10 @@ parameters:
     # where phpstan runs. Nothing else references these files at build
     # time, so excluding from analysis is appropriate.
     - tests/Acceptance/bin/*.php
+    # Runtime-only guarded globals for the isolated EDI 278 renderer test.
+    # PHPStan scans their production declarations; analysing these test doubles
+    # would report duplicate global functions that may not be defined.
+    - tests/Tests/Isolated/Billing/EdiHistory/edi_278_renderer_runtime_stubs.php
     analyse:
     # Generated FHIR R4 parser map: a single ~61k-line constant array
     # (PHPFHIRParserMap::$_bigDumbMap) produced by the php-fhir generator and never
