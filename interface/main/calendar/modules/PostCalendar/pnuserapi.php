@@ -21,7 +21,6 @@ use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\PostCalendar\CalendarRenderer;
-use OpenEMR\PostCalendar\GroupCounselorLookup;
 use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
@@ -1420,21 +1419,48 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $i++;
     }
 
-  // Counselors hang off the therapy group, not the appointment, so one lookup
-  // covers every group on screen -- and none runs when there are no group events.
-    $groupIds = [];
+  // Counselors are the providers assigned to the appointment -- the same source
+  // the pre-Twig template used, where each was resolved with its own query. Only
+  // group events display them, so only those are resolved, in one query.
+    $groupEventIds = [];
     foreach ($events as $event) {
+        $eid = $event['eid'] ?? null;
         $gid = $event['gid'] ?? null;
-        if (is_numeric($gid) && (int) $gid > 0) {
-            $groupIds[(int) $gid] = (int) $gid;
+        if (is_numeric($eid) && is_numeric($gid) && (int) $gid > 0) {
+            $groupEventIds[(int) $eid] = (int) $eid;
         }
     }
 
-    $counselorsByGroup = (new GroupCounselorLookup())->namesByGroupId(array_values($groupIds));
+    $counselorsByEvent = [];
+    if ($groupEventIds !== []) {
+        $placeholders = implode(',', array_fill(0, count($groupEventIds), '?'));
+        $counselorRows = QueryUtils::fetchRecords(
+            "SELECT e.pc_eid, CONCAT(u.fname, '   ', u.lname) AS counselor_name "
+            . "FROM openemr_postcalendar_events AS e "
+            . "JOIN openemr_postcalendar_events AS sib "
+            . "ON (e.pc_multiple > 0 AND sib.pc_multiple = e.pc_multiple) "
+            . "OR (e.pc_multiple = 0 AND sib.pc_eid = e.pc_eid) "
+            . "JOIN users AS u ON u.id = sib.pc_aid "
+            . "WHERE e.pc_eid IN ($placeholders) "
+            . "ORDER BY e.pc_eid, sib.pc_eid",
+            array_values($groupEventIds),
+        );
+        foreach ($counselorRows as $counselorRow) {
+            $counselorEventId = $counselorRow['pc_eid'] ?? null;
+            $counselorName = $counselorRow['counselor_name'] ?? null;
+            if (is_numeric($counselorEventId) && is_string($counselorName)) {
+                // The legacy template appended this separator after every name,
+                // including a trailing one; preserved so output is unchanged.
+                $counselorsByEvent[(int) $counselorEventId] ??= '';
+                $counselorsByEvent[(int) $counselorEventId] .= $counselorName . " \n ";
+            }
+        }
+    }
+
     foreach ($events as $index => $event) {
-        $gid = $event['gid'] ?? null;
-        $events[$index]['group_counselors_text'] = is_numeric($gid)
-            ? ($counselorsByGroup[(int) $gid] ?? '')
+        $eid = $event['eid'] ?? null;
+        $events[$index]['group_counselors_text'] = is_numeric($eid)
+            ? ($counselorsByEvent[(int) $eid] ?? '')
             : '';
     }
 
