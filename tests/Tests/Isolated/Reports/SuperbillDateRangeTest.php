@@ -32,14 +32,28 @@ class SuperbillDateRangeTest extends TestCase
     #[Test]
     public function productionQueryUsesAnIndexFriendlyInclusiveEndDate(): void
     {
+        $queryPattern = <<<'REGEX'
+            /\$res_query\s*=\s*
+            "select\s+\*\s+from\s+forms\s+where\s*"\s*\.\s*
+            "form_name\s*=\s*'New\s+Patient\s+Encounter'\s+and\s*"\s*\.\s*
+            .*?;
+            /isx
+            REGEX;
+        $matchCount = preg_match_all($queryPattern, $this->reportSource, $queryMatches, PREG_OFFSET_CAPTURE);
+
+        self::assertSame(1, $matchCount, 'Expected exactly one Superbill forms query construction');
+        [$queryConstruction, $queryOffset] = $queryMatches[0][0];
+
         self::assertMatchesRegularExpression(
             '/date\s*>=\s*\?\s+and\s+date\s*<\s*DATE_ADD\s*\(\s*\?\s*,\s*INTERVAL\s+1\s+DAY\s*\)/i',
-            $this->reportSource
+            $queryConstruction
         );
-        self::assertDoesNotMatchRegularExpression('/DATE\s*\(\s*date\s*\)/i', $this->reportSource);
-        self::assertStringContainsString(
-            'array_push($sqlBindArray, $startdate, $enddate);',
-            $this->reportSource
+        self::assertDoesNotMatchRegularExpression('/DATE\s*\(\s*date\s*\)/i', $queryConstruction);
+
+        $sourceAfterQuery = substr($this->reportSource, $queryOffset + strlen($queryConstruction));
+        self::assertMatchesRegularExpression(
+            '/^\s*array_push\s*\(\s*\$sqlBindArray\s*,\s*\$startdate\s*,\s*\$enddate\s*\)\s*;/',
+            $sourceAfterQuery
         );
     }
 
@@ -48,6 +62,8 @@ class SuperbillDateRangeTest extends TestCase
      * production SQL: [start date, day after end date).
      *
      * @return iterable<string, array{string, string, string, bool}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function dateRangeCases(): iterable
     {
