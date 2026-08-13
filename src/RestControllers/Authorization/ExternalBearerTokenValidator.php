@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\TrustedUserService;
 use Psr\Log\LoggerInterface;
 
 class ExternalBearerTokenValidator implements ExternalBearerTokenValidatorInterface
@@ -55,6 +56,9 @@ class ExternalBearerTokenValidator implements ExternalBearerTokenValidatorInterf
             }
 
             $scopes = $this->extractScopes($claims);
+            if ($scopes === []) {
+                $scopes = $this->loadTrustedUserScopes((string) ($provider['client_id'] ?? ''), (string) $user['uuid']);
+            }
             $this->logger->info('External bearer token validated successfully', [
                 'site_id' => $siteId,
                 'provider_id' => (int) $provider['id'],
@@ -369,6 +373,25 @@ class ExternalBearerTokenValidator implements ExternalBearerTokenValidatorInterf
         ))));
 
         return $scopes;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function loadTrustedUserScopes(string $clientId, string $userUuid): array
+    {
+        $clientId = trim($clientId);
+        $userUuid = trim($userUuid);
+        if ($clientId === '' || $userUuid === '') {
+            return [];
+        }
+
+        $trustedUser = (new TrustedUserService())->getTrustedUser($clientId, $userUuid);
+        if (!is_array($trustedUser) || empty($trustedUser['scope'])) {
+            return [];
+        }
+
+        return $this->extractStringListClaim((string) $trustedUser['scope'], true);
     }
 
     /**

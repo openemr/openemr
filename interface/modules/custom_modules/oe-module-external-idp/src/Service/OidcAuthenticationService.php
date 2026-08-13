@@ -99,6 +99,7 @@ final class OidcAuthenticationService
                 throw new \RuntimeException('No local OpenEMR binding exists for this external identity.');
             }
             $this->provisioningService->syncMappedUser($provider, $userId, $claims);
+            $this->provisioningService->syncTrustedUserScopes($provider, $userId);
 
             $result = new ExternalAuthenticationResult($userId, (string) $provider['id']);
             $completed = (new ExternalAuthenticationService())->complete($result, $pending['login_options']);
@@ -150,6 +151,7 @@ final class OidcAuthenticationService
                 throw new \RuntimeException('No local OpenEMR binding exists for this external identity.');
             }
             $this->provisioningService->syncMappedUser($provider, $userId, $claims);
+            $this->provisioningService->syncTrustedUserScopes($provider, $userId);
 
             $result = new ExternalAuthenticationResult($userId, (string) $provider['id']);
             $completed = (new ExternalAuthenticationService())->complete($result, $request);

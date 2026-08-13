@@ -13,10 +13,12 @@ namespace OpenEMR\Modules\ExternalIdp\Service;
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Modules\ExternalIdp\Repository\IdentityRepository;
 use OpenEMR\Modules\ExternalIdp\Repository\ProviderRepository;
+use OpenEMR\Services\TrustedUserService;
 
 final class OidcProvisioningService
 {
@@ -84,6 +86,49 @@ final class OidcProvisioningService
 
         $params[] = $userId;
         sqlStatement('UPDATE `users` SET ' . implode(', ', $updates) . ' WHERE `id` = ?', $params);
+    }
+
+    /**
+     * Persists a local scope profile for mapped external users so internally
+     * issued or exchanged tokens can fall back to OpenEMR-native scopes.
+     *
+     * @param array<string, mixed> $provider
+     */
+    public function syncTrustedUserScopes(array $provider, int $userId): void
+    {
+        if ($userId < 1) {
+            return;
+        }
+
+        $clientId = trim((string) ($provider['client_id'] ?? ''));
+        if ($clientId === '') {
+            return;
+        }
+
+        $user = sqlQuery('SELECT `uuid` FROM `users` WHERE `id` = ? LIMIT 1', [$userId]);
+        if (!is_array($user) || empty($user['uuid'])) {
+            return;
+        }
+
+        $userUuid = UuidRegistry::uuidToString($user['uuid']);
+        if ($userUuid === '') {
+            return;
+        }
+
+        $scopes = $this->buildTrustedUserScopes();
+        if ($scopes === []) {
+            return;
+        }
+
+        (new TrustedUserService())->saveTrustedUser(
+            $clientId,
+            $userUuid,
+            $scopes,
+            1,
+            '',
+            '{}',
+            'external_idp'
+        );
     }
 
     /**
@@ -243,5 +288,34 @@ final class OidcProvisioningService
     {
         $row = sqlQuery('SELECT `id` FROM `users` WHERE BINARY `username` = ? LIMIT 1', [$username]);
         return !empty($row['id']);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function buildTrustedUserScopes(): array
+    {
+        $scopeCatalog = new ServerScopeListEntity();
+        $supportedScopes = array_merge(
+            $scopeCatalog->fhirResourceScopesV1(),
+            $scopeCatalog->fhirResourceScopesV2(),
+            $scopeCatalog->apiScopes(),
+            $scopeCatalog->getV2ApiScopes()
+        );
+        $trustedScopes = [
+            'openid' => 'openid',
+            'fhirUser' => 'fhirUser',
+            'api:oemr' => 'api:oemr',
+            'api:fhir' => 'api:fhir',
+        ];
+
+        foreach ($supportedScopes as $scope) {
+            $scope = trim((string) $scope);
+            if ($scope !== '' && str_starts_with($scope, 'user/')) {
+                $trustedScopes[$scope] = $scope;
+            }
+        }
+
+        return array_values($trustedScopes);
     }
 }
