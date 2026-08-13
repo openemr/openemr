@@ -47,14 +47,14 @@
                 return;
             }
             top.restoreSession();
-            if (select.value == {{ actions.mergeKeep|attr_js }}) {
+            if (select.value == {{ actions.mergeKeep|js_escape }}) {
                 // Keep this row's chart: it becomes the merge target.
                 const params = new URLSearchParams({
                     pid1: rowpid,
                     pid2: toppid
                 });
                 window.location = 'merge_patients.php?' + params;
-            } else if (select.value == {{ actions.mergeDiscard|attr_js }}) {
+            } else if (select.value == {{ actions.mergeDiscard|js_escape }}) {
                 // Discard this row's chart into the group's chart.
                 const params = new URLSearchParams({
                     pid1: toppid,

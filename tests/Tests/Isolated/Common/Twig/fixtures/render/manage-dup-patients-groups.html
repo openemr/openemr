@@ -39,14 +39,14 @@
                 return;
             }
             top.restoreSession();
-            if (select.value == &quot;MK&quot;) {
+            if (select.value == "MK") {
                 // Keep this row's chart: it becomes the merge target.
                 const params = new URLSearchParams({
                     pid1: rowpid,
                     pid2: toppid
                 });
                 window.location = 'merge_patients.php?' + params;
-            } else if (select.value == &quot;MD&quot;) {
+            } else if (select.value == "MD") {
                 // Discard this row's chart into the group's chart.
                 const params = new URLSearchParams({
                     pid1: toppid,
