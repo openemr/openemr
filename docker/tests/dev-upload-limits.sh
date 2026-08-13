@@ -8,11 +8,11 @@ checked=0
 maximum_post_bytes=0
 
 # Keep these version ranges deliberately narrow. They cover current flex
-# (8.2-8.5), current dev-FPM and dev-FPM-redis pairs (8.1-8.6), and the stock
+# (8.3-8.5), current dev-FPM and dev-FPM-redis pairs (8.1-8.6), and the stock
 # development-easy-redis config. Historical dev-FPM 5.x-8.0 and production
 # binary/release configs are intentionally excluded, as are unrelated generic
 # prebuild data/php.ini files.
-flex_versions="8.2 8.3 8.4 8.5"
+flex_versions="8.3 8.4 8.5"
 dev_fpm_versions="8-1 8-2 8-3 8-4 8-5 8-6"
 
 ini_bytes() {
