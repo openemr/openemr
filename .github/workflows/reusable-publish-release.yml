@@ -85,11 +85,12 @@ jobs:
     # (openemr/openemr#13480 + #13509) hit an underlying git leak:
     # files not in the initial sparse pattern (like composer.json)
     # weren't materialized by the second full checkout. Full-checkout-
-    # first sidesteps the leak. Persist=true so `git push origin <tag>`
-    # in create-release-tag.sh works — the remote URL is rewritten to
-    # use the App token below (via `git remote set-url`) so
-    # authenticated push against a repo that requires App auth for
-    # writes succeeds; github.token's contents:read scope wouldn't.
+    # first sidesteps the leak. `persist-credentials: false` because
+    # `create-release-tag.sh` now uses APP_TOKEN via `git -c
+    # http.extraheader=...` (one-shot, never written to .git/config
+    # — see the script's inline-auth block). Leaving github.token
+    # persisted here would be dead weight in .git/config during the
+    # composer install / task summary steps that follow the tag push.
     - name: Checkout openemr release branch
       uses: actions/checkout@v7
       with:
@@ -97,6 +98,7 @@ jobs:
         token: ${{ github.token }}
         filter: blob:none
         fetch-depth: 1
+        persist-credentials: false
 
     - name: Generate app token
       id: app-token
