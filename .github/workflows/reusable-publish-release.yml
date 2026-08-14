@@ -77,20 +77,27 @@ jobs:
     # boundaries anyway (writing a token to `$GITHUB_OUTPUT` masks it
     # in logs but the value that reaches the downstream job is often
     # empty). Regenerating is the documented path.
-    # Sparse checkout of the composite actions this job's workspace-
-    # root uses/... references resolve against — generate-app-token
-    # (mint step below) and setup-php-composer (later step). Full
-    # checkout happens after the token is minted (uses the token).
-    # setup-php-composer included in the initial sparse pattern too —
-    # subsequent full checkouts don't reliably materialize files pruned
-    # by the first sparse checkout (see openemr/openemr#13480).
-    - name: Checkout composite actions
+    #
+    # Full checkout first with github.token — composite actions
+    # (generate-app-token, setup-php-composer) resolve against a real
+    # workspace AND composer.json is present for setup-php-composer's
+    # cache/install steps. The earlier sparse-first pattern
+    # (openemr/openemr#13480 + #13509) hit an underlying git leak:
+    # files not in the initial sparse pattern (like composer.json)
+    # weren't materialized by the second full checkout. Full-checkout-
+    # first sidesteps the leak. `persist-credentials: false` because
+    # `create-release-tag.sh` now uses APP_TOKEN via `git -c
+    # http.extraheader=...` (one-shot, never written to .git/config
+    # — see the script's inline-auth block). Leaving github.token
+    # persisted here would be dead weight in .git/config during the
+    # composer install / task summary steps that follow the tag push.
+    - name: Checkout openemr release branch
       uses: actions/checkout@v7
       with:
-        sparse-checkout: |
-          .github/actions/generate-app-token
-          .github/actions/setup-php-composer
-        sparse-checkout-cone-mode: false
+        ref: ${{ inputs.version_branch }}
+        token: ${{ github.token }}
+        filter: blob:none
+        fetch-depth: 1
         persist-credentials: false
 
     - name: Generate app token
@@ -102,16 +109,6 @@ jobs:
         owner: ${{ github.repository_owner }}
         repositories: openemr
 
-    # Need a checkout for `git tag` + `git push origin <tag>`. Same
-    # minimal fetch shape as build-package.
-    - name: Checkout openemr release branch
-      uses: actions/checkout@v7
-      with:
-        ref: ${{ inputs.version_branch }}
-        token: ${{ steps.app-token.outputs.token }}
-        filter: blob:none
-        fetch-depth: 1
-
     # Reconstruct the release-output/ directory that build-package
     # produced, from the workflow-run artifact.
     - name: Download release-output artifact
@@ -121,8 +118,15 @@ jobs:
         path: tools/release/release-output
 
     - name: Create annotated tag and GitHub release
+      # APP_TOKEN passed so create-release-tag.sh uses it inline via
+      # `git -c http.extraheader=...` on ls-remote + push — never
+      # persisted to .git/config. Keeps the token unavailable to
+      # subsequent steps (composer install, task summary, etc.) that
+      # a compromised dep could otherwise exfiltrate from `git config
+      # --get remote.origin.url` or the .git/config extraheader.
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        APP_TOKEN: ${{ steps.app-token.outputs.token }}
         RELEASE_TAG: ${{ inputs.release_tag }}
         RELEASE_VERSION: ${{ inputs.version }}
         VERSION_BRANCH: ${{ inputs.version_branch }}
