@@ -40,9 +40,10 @@ acceptance-testing owns the *verification that they work*.
   first release after the migration completed was 8.2.0 (shipped
   2026-07-08 to 2026-07-09 from `rel-820`).
 - **Latest rel-branch cut:** `rel-830` cut from master on 2026-08-12
-  — first exercise of `branch-cut-automation.yml` end-to-end on a
-  new rel branch. Surfaced 6 latent regressions in the release-
-  mechanism surface; all shipped same-day. See [G31](#g31--rel-830-cut-surfaced-6-latent-release-mechanism-regressions-in-cascade--discovered-2026-08-12-all-shipped-2026-08-12)
+  — second exercise of `branch-cut-automation.yml` (rel-820 was the
+  first on 2026-07-02) and first exercise after ~6 weeks of
+  infrastructure refactors. Surfaced 6 latent regressions in the
+  release-mechanism surface; all shipped same-day. See [G31](#g31--rel-830-cut-surfaced-6-latent-release-mechanism-regressions-in-cascade--discovered-2026-08-12-all-shipped-2026-08-12)
   for the full forensic + the systemic lesson (smoketest coverage
   gaps around the branch-cut workflow shape).
 - **Next expected release event:** first ship of `8.3.0` from

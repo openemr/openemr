@@ -22,9 +22,10 @@ Phase 6 SHIPPED 2026-07-23 (wholesale delete of devops surface,
 openemr/openemr-devops#863). Ship-release semi-auto / full-auto modes
 are production-ready; first real ship post-Phase-6 will use `semi-auto`
 as training wheels. rel-830 was cut 2026-08-12 (8.1.x was skipped) —
-the first end-to-end exercise of `branch-cut-automation.yml` on a
-brand-new rel branch. Surfaced 6 latent regressions in the release-
-mechanism surface; all shipped same-day, see G31 in
+the second exercise of `branch-cut-automation.yml` (rel-820 was the
+first on 2026-07-02) and the first exercise after ~6 weeks of
+infrastructure refactors. Surfaced 6 latent regressions in the
+release-mechanism surface; all shipped same-day, see G31 in
 `release-mechanism-gaps.md` for the full forensic. Next scheduled
 event is the first ship of `8.3.0` from `rel-830`.
 
