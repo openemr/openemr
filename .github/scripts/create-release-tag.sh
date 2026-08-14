@@ -38,6 +38,16 @@
 #                        --notes-file`.
 #   GH_TOKEN             gh CLI auth token. Read directly by gh from
 #                        env; not consumed here.
+#   APP_TOKEN (optional) Installation token for the release App. When
+#                        set, used inline via `git -c http.extraheader`
+#                        for git ls-remote and git push — one-shot,
+#                        never written to .git/config. Prevents the
+#                        token from leaking to intermediate steps (npm,
+#                        composer, etc.) that a compromised dep could
+#                        exfiltrate. When unset, git operations use
+#                        whatever credentials the calling checkout
+#                        persisted (backward compat with legacy
+#                        callers).
 #
 # Exit codes
 #   0    Success — tag + release both exist in the expected state
@@ -74,6 +84,18 @@ tag="${RELEASE_TAG}"
 git config user.name 'github-actions[bot]'
 git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
+# If APP_TOKEN is set, build a `-c http.extraheader` arg to inject
+# Basic auth into git ls-remote + git push without writing anything
+# to .git/config. Leaves no residual credentials for any subsequent
+# step (or a compromised dep in the same job) to read. When unset,
+# git commands run bare (backward compat with callers that persist
+# credentials via actions/checkout).
+git_auth_arg=()
+if [[ -n "${APP_TOKEN:-}" ]]; then
+    basic_auth_b64=$(printf 'x-access-token:%s' "${APP_TOKEN}" | base64 -w0)
+    git_auth_arg=(-c "http.https://github.com/.extraheader=Authorization: Basic ${basic_auth_b64}")
+fi
+
 # Check the remote, not the local checkout: the checkout step uses
 # fetch-depth: 1 and does not fetch tags, so a local rev-parse always
 # misses an already-published tag. That made `git push origin "$tag"`
@@ -91,14 +113,14 @@ tag_lookup_status=0
 # etc.) alongside the exit code — speeds up incident triage on the
 # release-critical path. `2>&1 > /dev/null` reorders redirects: stderr
 # to captured stdout, then the original stdout to /dev/null.
-tag_lookup_stderr=$(git ls-remote --tags --exit-code origin "refs/tags/${tag}" 2>&1 > /dev/null) || tag_lookup_status=$?
+tag_lookup_stderr=$(git "${git_auth_arg[@]}" ls-remote --tags --exit-code origin "refs/tags/${tag}" 2>&1 > /dev/null) || tag_lookup_status=$?
 case "${tag_lookup_status}" in
     0)
         echo "Tag ${tag} already exists on origin, skipping tag creation"
         ;;
     2)
         git tag -a -m "Release ${tag}" "${tag}" "${VERSION_BRANCH}"
-        git push origin "${tag}"
+        git "${git_auth_arg[@]}" push origin "${tag}"
         ;;
     *)
         echo "::error::Failed to query origin for tag ${tag} (git ls-remote exit ${tag_lookup_status}): ${tag_lookup_stderr}" >&2
