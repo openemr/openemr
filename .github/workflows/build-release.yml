@@ -134,20 +134,17 @@ jobs:
         printf '::error::release_tag is required when dry_run is false\n'
         exit 1
 
-    # Sparse checkout of just the composite action so the token-mint
-    # step below can resolve `uses: ./.github/actions/...`. Full
-    # checkout happens after the token is minted (uses the token).
-    # setup-php-composer included in the initial sparse pattern too —
-    # subsequent full checkouts don't reliably materialize files pruned
-    # by the first sparse checkout (see openemr/openemr#13480).
-    - name: Checkout composite actions
-      if: '!inputs.dry_run'
+    # Full checkout first — same rationale as build-patch.yml
+    # (composite actions + composer.json need to be on disk; the
+    # sparse-then-full pattern hit a git leak, see
+    # openemr/openemr#13480 + #13509).
+    - name: Checkout openemr release branch
       uses: actions/checkout@v7
       with:
-        sparse-checkout: |
-          .github/actions/generate-app-token
-          .github/actions/setup-php-composer
-        sparse-checkout-cone-mode: false
+        ref: ${{ inputs.version_branch }}
+        token: ${{ github.token }}
+        filter: blob:none
+        fetch-depth: 1
         persist-credentials: false
 
     - name: Generate app token
@@ -168,14 +165,6 @@ jobs:
         echo "Checking app token can access openemr/openemr milestones..."
         gh api repos/openemr/openemr/milestones --jq '.[].title' | head -5
         echo 'App token verified.'
-
-    - name: Checkout openemr release branch
-      uses: actions/checkout@v7
-      with:
-        ref: ${{ inputs.version_branch }}
-        token: ${{ steps.app-token.outputs.token || github.token }}
-        filter: blob:none
-        fetch-depth: 1
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer

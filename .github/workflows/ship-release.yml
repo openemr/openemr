@@ -110,20 +110,21 @@ jobs:
     env:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
-    # Sparse checkout of the composite actions this job's workspace-
-    # root uses/... references resolve against — generate-app-token
-    # (mint step below) and setup-php-composer (later step). Full
-    # checkout happens after the token is minted (uses the token).
-    # setup-php-composer included in the initial sparse pattern too —
-    # subsequent full checkouts don't reliably materialize files pruned
-    # by the first sparse checkout (see openemr/openemr#13480).
-    - name: Checkout composite actions
+    # Full checkout first — composite actions (generate-app-token,
+    # setup-php-composer) resolve against a real workspace AND
+    # composer.json is present for setup-php-composer's cache/install
+    # steps. The earlier sparse-first pattern (openemr/openemr#13480
+    # + #13509) worked around one bug but not the underlying git-
+    # sparse-then-full-checkout leak. github.token here has enough
+    # read scope for the initial checkout; the App token (minted
+    # below) is for the PR-merge operations later, not the checkout.
+    - name: Checkout
       uses: actions/checkout@v7
       with:
-        sparse-checkout: |
-          .github/actions/generate-app-token
-          .github/actions/setup-php-composer
-        sparse-checkout-cone-mode: false
+        token: ${{ github.token }}
+        # ship-release orchestrates via `gh` CLI (which uses GH_TOKEN env);
+        # it never pushes to git. Persisting credentials in the checkout
+        # would leak them to any subsequent step. Defense-in-depth.
         persist-credentials: false
 
     - name: Mint release App token
@@ -151,15 +152,6 @@ jobs:
         permission-metadata: read
         permission-pull-requests: write
         permission-statuses: write
-
-    - name: Checkout
-      uses: actions/checkout@v7
-      with:
-        token: ${{ steps.app-token.outputs.token }}
-        # ship-release orchestrates via `gh` CLI (which uses GH_TOKEN env);
-        # it never pushes to git. Persisting credentials in the checkout
-        # would leak them to any subsequent step. Defense-in-depth.
-        persist-credentials: false
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
