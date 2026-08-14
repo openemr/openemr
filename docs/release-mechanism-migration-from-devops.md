@@ -21,8 +21,12 @@ openemr/website-openemr#210),
 Phase 6 SHIPPED 2026-07-23 (wholesale delete of devops surface,
 openemr/openemr-devops#863). Ship-release semi-auto / full-auto modes
 are production-ready; first real ship post-Phase-6 will use `semi-auto`
-as training wheels. Next scheduled real event is the rel-830 branch cut
-in ~2 weeks (8.1.x was skipped).
+as training wheels. rel-830 was cut 2026-08-12 (8.1.x was skipped) —
+the first end-to-end exercise of `branch-cut-automation.yml` on a
+brand-new rel branch. Surfaced 6 latent regressions in the release-
+mechanism surface; all shipped same-day, see G31 in
+`release-mechanism-gaps.md` for the full forensic. Next scheduled
+event is the first ship of `8.3.0` from `rel-830`.
 
 Fix / support PRs landed alongside the migration (Phase 5.5 verification-
 battery findings): openemr/openemr#13100 (sync-byte-identical double-delete
