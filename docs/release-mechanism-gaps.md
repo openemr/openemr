@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-08-02
+**Last updated:** 2026-08-14
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -39,10 +39,16 @@ acceptance-testing owns the *verification that they work*.
   correct when those entries were written. It never shipped; the
   first release after the migration completed was 8.2.0 (shipped
   2026-07-08 to 2026-07-09 from `rel-820`).
-- **Next real release event:** `rel-830` cut from master, expected
-  in roughly 2 weeks. That will be the first cut exercising the
-  fully-migrated `branch-cut-automation.yml` flow end-to-end on a
-  brand-new rel branch.
+- **Latest rel-branch cut:** `rel-830` cut from master on 2026-08-12
+  — second exercise of `branch-cut-automation.yml` (rel-820 was the
+  first on 2026-07-02) and first exercise after ~6 weeks of
+  infrastructure refactors. Surfaced 6 latent regressions in the
+  release-mechanism surface; all shipped same-day. See [G31](#g31--rel-830-cut-surfaced-6-latent-release-mechanism-regressions-in-cascade--discovered-2026-08-12-all-shipped-2026-08-12)
+  for the full forensic + the systemic lesson (smoketest coverage
+  gaps around the branch-cut workflow shape).
+- **Next expected release event:** first ship of `8.3.0` from
+  `rel-830` (patch-cadence — no fixed date; happens when the QA
+  team signs off + ship-release.yml is triggered).
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
