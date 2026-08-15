@@ -4,7 +4,7 @@
 
   <!-- Runtime settings -->
   <ini name="memory_limit" value="4G" />
-  <arg name="extensions" value="php,inc"/>
+  <arg name="extensions" value="php"/>
   <arg name="tab-width" value="4"/>
   <arg name="report-width" value="120"/>
   <arg name="warning-severity" value="0" />
