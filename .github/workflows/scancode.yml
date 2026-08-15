@@ -159,7 +159,9 @@ jobs:
       run: python3 tools/ci/scancode-summary.py scancode-results.json
 
     - name: Upload artifact
-      if: steps.stage.outputs.has_changes == 'true'
+      # always(): the summary step exits non-zero on a policy violation, and
+      # the scan report is exactly what a reviewer needs in that case.
+      if: always() && steps.stage.outputs.has_changes == 'true'
       uses: actions/upload-artifact@v7
       with:
         name: scancode-results-diff
@@ -304,6 +306,8 @@ jobs:
       run: python3 tools/ci/scancode-summary.py scancode-results.json
 
     - name: Upload final artifact
+      # always(): see the diff job's upload step.
+      if: always()
       uses: actions/upload-artifact@v7
       with:
         name: scancode-results-full
