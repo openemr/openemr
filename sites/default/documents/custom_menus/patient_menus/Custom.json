@@ -41,7 +41,11 @@
         "url": "controller.php?document&list&patient_id=",
         "pid": "true",
         "children": [],
-        "requirement": 0
+        "requirement": 0,
+        "acl_req": [
+            "patients",
+            "docs"
+        ]
     },
     {
         "label": "Transactions",

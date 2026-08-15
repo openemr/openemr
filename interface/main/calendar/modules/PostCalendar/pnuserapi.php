@@ -780,6 +780,9 @@ function postcalendar_userapi_buildView($args)
         $bodyClassSession = SessionWrapperFactory::getInstance()->getActiveSession()->get('language_direction');
         $renderData['body_class'] = is_string($bodyClassSession) ? $bodyClassSession : '';
 
+        $renderData['HEADER_SCRIPTS'] = $calendarScripts->getScripts();
+        $renderData['HEADER_STYLES'] = $calendarStyles->getStyles();
+
         $newTpl = CalendarRenderer::create();
         foreach ($renderData as $k => $v) {
             $newTpl->assign($k, $v);

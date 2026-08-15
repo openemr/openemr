@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-08-02
+**Last updated:** 2026-08-14
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -39,10 +39,16 @@ acceptance-testing owns the *verification that they work*.
   correct when those entries were written. It never shipped; the
   first release after the migration completed was 8.2.0 (shipped
   2026-07-08 to 2026-07-09 from `rel-820`).
-- **Next real release event:** `rel-830` cut from master, expected
-  in roughly 2 weeks. That will be the first cut exercising the
-  fully-migrated `branch-cut-automation.yml` flow end-to-end on a
-  brand-new rel branch.
+- **Latest rel-branch cut:** `rel-830` cut from master on 2026-08-12
+  — second exercise of `branch-cut-automation.yml` (rel-820 was the
+  first on 2026-07-02) and first exercise after ~6 weeks of
+  infrastructure refactors. Surfaced 6 latent regressions in the
+  release-mechanism surface; all shipped same-day. See [G31](#g31--rel-830-cut-surfaced-6-latent-release-mechanism-regressions-in-cascade--discovered-2026-08-12-all-shipped-2026-08-12)
+  for the full forensic + the systemic lesson (smoketest coverage
+  gaps around the branch-cut workflow shape).
+- **Next expected release event:** first ship of `8.3.0` from
+  `rel-830` (patch-cadence — no fixed date; happens when the QA
+  team signs off + ship-release.yml is triggered).
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -2510,6 +2516,158 @@ Implementation notes worth capturing (not obvious from the code):
   - RELEASE_PROCESS.md — release-event chain documentation
     (release-prep → ship-release → build-release → dispatches);
     worth adding a "rate-limit budget" note once these fixes land.
+
+### G31 — rel-830 cut surfaced 6 latent release-mechanism regressions in cascade  *(discovered 2026-08-12, all SHIPPED 2026-08-12)*
+
+**STATUS: SHIPPED 2026-08-12** as a same-day batch of 6 fixes (plus
+2 rel-830 cherry-picks and a docs update). Consolidated here because
+the findings share a single trigger event and related root causes,
+not to hide the individual bugs — see each PR link below for the
+full forensic.
+
+rel-830 was the first branch cut since PR #13287 (composite-action
+extraction, 2026-07-30) and related refactors landed. Multiple latent
+bugs surfaced in cascade as the branch-cut automation, release-prep
+conductor, acceptance dispatches, and downstream byte-identical sync
+fired for the first time against the new rel branch. Two failed cuts
++ a `git push --delete` recovery were needed before rel-830 stayed
+put; both branch-cut PRs eventually merged same day.
+
+**Findings + fixes (in the order they surfaced):**
+
+1. **[#13480](https://github.com/openemr/openemr/pull/13480)** —
+   Sparse-checkout leak in `branch-cut-automation.yml` +
+   `patch-prep-automation.yml`. The initial sparse checkout of only
+   `.github/actions/generate-app-token` left
+   `.github/actions/setup-php-composer/action.yml` unmaterialized,
+   and the subsequent full `actions/checkout@v7` of master didn't
+   reliably restore it (`git sparse-checkout disable` clears the
+   config but files never written on the first pass don't reappear
+   when the second target is byte-identical at those paths). Same
+   PR also added `GH_TOKEN: ${{ github.token }}` to the three
+   `Run release-prep mutators` steps in `release-prep.yml` —
+   `ChangelogMutator`'s `GitHubApi` shells out to `gh api compare`
+   which refuses to run under GitHub Actions without `GH_TOKEN`
+   in env. Both bugs shipped in #13287 (composite-action extraction).
+
+2. **[#13486](https://github.com/openemr/openemr/pull/13486)** —
+   `LOCAL_TAG="openemr/openemr:pr-built"` in `acceptance-docker.yml`
+   combined with the compose override's
+   `image: openemr/openemr:${OPENEMR_TAG:-latest}` to produce
+   `openemr/openemr:openemr/openemr:pr-built` — invalid Docker
+   reference. Same PR also added `branches-ignore` to `push:`
+   triggers on `acceptance-docker.yml` +
+   `acceptance-package.yml` for release-mechanism bot branches
+   (`branch-cut/**`, `patch-prep/**`, `release-prep/**`,
+   `release-finalize/**`) — peter-evans/create-pull-request pushes
+   to those branches AND opens a PR in one motion, and both events
+   were firing the acceptance workflows with different
+   `build_locally` resolutions (the push run silently tested
+   Docker Hub's published image, not the PR-built one).
+   LOCAL_TAG bug shipped in #13163 (Phase 2.5 build-from-codebase).
+
+3. **[#13487](https://github.com/openemr/openemr/pull/13487)** —
+   `shopt -p nullglob dotglob` exits 1 when any listed option is
+   disabled (the default bash state). The
+   `extract_zip_flattening_single_top_level_dir` helper captured
+   stdout of `shopt` into a variable and dropped the exit status
+   on the floor of the command substitution — under caller
+   `set -e` the script terminated silently at that line (stderr
+   was empty because the exit status was the only signal). Every
+   `.zip` cell on the `build_locally` path died silently past the
+   `==> Extracting into ...` echo. Fix: `|| true` on the shopt
+   capture. Added regression test that runs the helper directly
+   under `set -euo pipefail` (bypasses the existing `run_extract`
+   wrapper, which doesn't use `set -e` — the reason 16 prior
+   tests all passed while production died). Bug shipped in #13287
+   (shopt-leak fix that reused #13286's helper).
+
+4. **[#13496](https://github.com/openemr/openemr/pull/13496)** —
+   `BranchCutReleaseTargetsMutator::renderRelRowLines()` never
+   emitted `gate_with_acceptance: true` for freshly-cut rel
+   rows. Omission — Phase 12 (#13332, 2026-08-01) introduced the
+   flag and back-patched every existing row in
+   `release-targets.yml`, but the mutator (2026-06-30) was never
+   updated. #13484's diff showed the new rel-830 row missing the
+   flag; if merged as-is, docker-release-orchestrator would have
+   silently downgraded rel-830's publishes off the acceptance gate.
+
+5. **[#13499](https://github.com/openemr/openemr/pull/13499)** —
+   Byte-identical manifest gap: `src/Common/Command/ReleasePrep/**`
+   was byte-identical enforced, but the parallel isolated-test
+   tree at `tests/Tests/Isolated/Common/Command/ReleasePrep/**`
+   (PSR-4 mirror where every mutator's unit test + fixture lives)
+   was not. Byte-identical sync of the mutator PHP from #13496 to
+   rel-820 (openemr/openemr#13498) propagated only the production
+   file — test + fixture stayed at pre-#13496 content, so
+   rel-820's isolated tests failed on the mismatch. Fix: add the
+   missing manifest entry.
+
+6. **[#13509](https://github.com/openemr/openemr/pull/13509)** —
+   Sparse-checkout leak (same as #13480's finding) also present
+   in `notify-release-targets-changed.yml`, `build-patch.yml`,
+   `build-release.yml`, `ship-release.yml`,
+   `reusable-publish-release.yml`. #13480 only patched the two
+   workflows that were failing at that moment;
+   `notify-release-targets-changed.yml` fired on the rel-830
+   master-side merge later in the day and hit the identical
+   failure. Same fix (expand initial sparse pattern) applied to
+   all 5.
+
+**Cherry-picks + docs update (not counted above):**
+- [#13489](https://github.com/openemr/openemr/pull/13489) —
+  cherry-pick of #13480 + #13486 + #13487 fixes onto rel-830 to
+  unblock the branch-cut PRs (rel-830 was cut before byte-
+  identical sync could target it).
+- [#13503](https://github.com/openemr/openemr/pull/13503) —
+  same, for #13496 mutator fix + #13499 manifest addition.
+- [#13508](https://github.com/openemr/openemr/pull/13508) —
+  documented the branch-cut PR merge order (rel-side first)
+  in RELEASE_PROCESS.md; landing master-side first would silently
+  ship a broken rel-branch docker image because
+  `docker-release-orchestrator.yml` fires on that push and
+  dispatches a rel-branch build against a rel-branch tip that
+  hasn't yet received its rel-side mutations.
+
+**Root causes (all instances):**
+- **#13287 landed structural infrastructure changes** (composite-
+  action extraction; sparse-checkout pattern; shopt-preservation
+  in the extract-zip helper) with a "next release-mechanism firing
+  will validate this" test plan (per its own PR body). That firing
+  was rel-830's cut, ~2 weeks later, and it surfaced 3 distinct
+  bugs at once (findings 1, 3, and 6 above all trace back).
+- **#13332 (Phase 12) added a new mandatory field to
+  release-targets rows** and back-patched existing rows, but never
+  updated `BranchCutReleaseTargetsMutator` to emit the new field
+  going forward (finding 4).
+- **Byte-identical config for release-mechanism tests** never kept
+  pace with production code coverage additions (finding 5).
+
+**Systemic lesson:** every rel-branch cut is an integration event
+that exercises multiple workflow shapes not covered by the daily
+CI. Latent bugs accumulate between cuts (2 weeks to a few months
+apart) and surface as a cascade. The existing
+`release-mechanism-smoketest.yml` covers `openemr:release-prep
+--scope=rel` against rel-820 but not the branch-cut workflow shape
+(sparse checkout + composite resolution), not the acceptance
+dispatch paths (LOCAL_TAG, extract-zip), and not the byte-identical
+enforcement of test fixtures. Expanding smoketest coverage — or
+scheduling a periodic dry-run branch-cut against a throwaway rel
+branch — would catch these bug classes at land time instead of
+next-cut time. Left as a follow-up rather than a same-day fix.
+
+**Also observed (deferred):** flex-image webpack build fails
+intermittently with `Can't find stylesheet to import:
+../../public/assets/bootstrap-rtl/scss/bootstrap-rtl`.
+Root cause: `napa` fetches `bootstrap-rtl` from a GitHub URL
+zip during `postinstall`, silently fails on network flakes,
+leaving `public/assets/bootstrap-rtl/` empty for the webpack
+build inside the flex container.
+`docker-test-container-functionality.yml` on master's daily runs
+has been failing since ~2026-07-02 (over a month at time of
+writing) with cascading test failures (Fresh Install, Manual
+Setup, Redis, k8s-admin) all rooted in the same missing-asset
+issue. Not in rel-830 scope; belongs to its own gap.
 
 ## Timing picture: who does what, when
 

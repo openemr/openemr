@@ -15,6 +15,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -32,10 +33,14 @@ $provider_results = sqlQuery("select fname, lname from users where username=?", 
 /* name of this form */
 $form_name = "note";
 
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formId = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+EncounterFormAccess::assertFormBelongsToSessionPatient($formId, $form_name);
+
 // get the record from the database
 $obj = [];
-if ($_GET['id'] != "") {
-    $obj = formFetch("form_" . $form_name, $_GET["id"]);
+if ($formId > 0) {
+    $obj = formFetch("form_" . $form_name, $formId);
 }
 
 ?>

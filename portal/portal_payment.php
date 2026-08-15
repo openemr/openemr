@@ -17,6 +17,8 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -33,6 +35,7 @@ $v_js_includes = $globalsBag->get('v_js_includes');
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $isPortal = false;
+$pid = null;
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
@@ -53,6 +56,13 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 if (!isset($pid)) {
     throw new \RuntimeException('$pid must be set by globals.php before requiring this script');
 }
+
+if (!$isPortal) {
+    if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Portal Payment", xl("Record Payment"));
+    }
+}
+
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc.php");
@@ -68,11 +78,7 @@ $cryptoGen = ServiceContainer::getCrypto();
 $recorder = new Recorder();
 
 $appsql = new ApplicationTable();
-if (!$isPortal) {
-    $pid = $_REQUEST['pid'] ?? $pid;
-    $pid = ($_REQUEST['hidden_patient_code'] ?? 0) > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
-}
-$recid = isset($_REQUEST['recid']) ? (int) $_REQUEST['recid'] : 0;
+$recid = filter_input(INPUT_GET, 'recid', FILTER_VALIDATE_INT) ?: 0;
 $adminUser = '';
 $portalPatient = '';
 
@@ -109,15 +115,18 @@ if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
 }
 
+$radio_type_of_payment = $_POST['radio_type_of_payment'] ?? '';
+
 // If the Save button was clicked...
 if ($_POST['form_save'] ?? '') {
-    $form_pid = $isPortal ? $pid : $_POST['form_pid'];
+    // Pin the payment to the session patient; ignore any body-supplied form_pid.
+    $form_pid = $pid;
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim((string) $_POST['form_source']);
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
+    if ($radio_type_of_payment == 'pre_payment') {
         $prepayment = $_REQUEST['form_prepayment'] ?? null;
         if (is_numeric($prepayment) && (float) $prepayment > 0) {
             $payment_id = sqlInsert(
@@ -141,7 +150,7 @@ if ($_POST['form_save'] ?? '') {
         }
     }
 
-    if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
+    if (isset($_POST['form_upay']) && is_array($_POST['form_upay']) && $_POST['form_upay'] !== [] && $radio_type_of_payment != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
             if (!is_numeric($payment) || (float) $payment <= 0) {
                 continue;
@@ -168,7 +177,7 @@ if ($_POST['form_save'] ?? '') {
             }
 
             //----------------------------------------------------------------------------------------------------
-            if ($_REQUEST['radio_type_of_payment'] == 'copay') {//copay saving to ar_session and ar_activity tables
+            if ($radio_type_of_payment == 'copay') {//copay saving to ar_session and ar_activity tables
                 $session_id = sqlInsert(
                     "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                     " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
@@ -194,8 +203,8 @@ if ($_POST['form_save'] ?? '') {
                 frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
             }
 
-            if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance' || $_REQUEST['radio_type_of_payment'] == 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
-                if ($_REQUEST['radio_type_of_payment'] == 'cash') {
+            if ($radio_type_of_payment == 'invoice_balance' || $radio_type_of_payment == 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
+                if ($radio_type_of_payment == 'cash') {
                     sqlStatement(
                         "update form_encounter set last_level_closed=? where encounter=? and pid=? ",
                         [4, $enc, $form_pid]
@@ -319,10 +328,10 @@ if ($_POST['form_save'] ?? '') {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
-    if (($_REQUEST['receipt'] ?? null)) {
-        $form_pid = $isPortal ? $pid : $_GET['patient'];
-        $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
+if (($_POST['form_save'] ?? null) || filter_input(INPUT_GET, 'receipt')) {
+    if (filter_input(INPUT_GET, 'receipt')) {
+        $form_pid = $pid;
+        $timestamp = decorateString('....-..-.. ..:..:..', filter_input(INPUT_GET, 'time') ?: '');
     }
 
 // Get details for what we guess is the primary facility.
@@ -925,7 +934,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 }
 
                 // Update running totals before rendering the table row
-                $sum_charges += (float)$value['charges'];
+                $sum_charges += $value['charges'];
                 $sum_ptpaid += -1 * (float)$dpayment_pat;
                 $sum_inspaid += (float)($dpayment + $dadjustment);
                 $sum_duept += (float)$duept;
@@ -1173,7 +1182,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         </div>
     </div>
     <script>
-        var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
+        var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>;
 
         // In House CC number Validation
         /*$('#cardNumber').validateCreditCard(function (result) {

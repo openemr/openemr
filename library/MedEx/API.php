@@ -2705,10 +2705,6 @@ class Display extends Base
                                             $defaultProvider = $firstProvider['id'];
                                         }
                                     }
-                                // if we clicked on a provider's schedule to add the event, use THAT.
-                                    if ($userid) {
-                                        $defaultProvider = $userid;
-                                    }
 
                                     echo "<select class='form-control' name='new_provider' id='new_provider' style='width: 95%;'>";
                                     while ($urow = sqlFetchArray($ures)) {

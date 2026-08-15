@@ -14,6 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -48,18 +50,39 @@ $action = $_POST['action'] ?? null;
 $doc_id = (int)($_POST['doc_id'] ?? null);
 $json_data = $_POST['json_data'] ?? null;
 
-if ($action == 'save') {
-    $pass_it = dicom_history_action($action, $doc_id, $json_data);
-    if ($pass_it === 'false') {
-        // query success. send back a translated message for user.
-        echo xlj("Server says thanks. Images state saved.");
-    } else {
-        echo xlj("Error! Images state save failed.");
+if ($action === 'save' || $action === 'fetch') {
+    $requiredAcl = $action === 'save'
+        ? AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])
+        : AclMain::aclCheckCore('patients', 'docs');
+    if (!$requiredAcl) {
+        AccessDeniedHelper::deny("ACL check failed for patients/docs: DICOM image state");
+    }
+    if ($doc_id <= 0) {
+        AccessDeniedHelper::deny("Invalid document id for DICOM image state");
+    }
+    $doc = new Document($doc_id);
+    $docForeignId = $doc->get_foreign_id();
+    if (
+        !is_numeric($doc->get_id())
+        || !is_numeric($docForeignId)
+        || (int) $docForeignId <= 0
+        || !$doc->can_access()
+    ) {
+        AccessDeniedHelper::deny("Unauthorized attempt to access document $doc_id via DICOM image state");
     }
 
-    exit();
-}
-if ($action == 'fetch') {
+    if ($action === 'save') {
+        $pass_it = dicom_history_action($action, $doc_id, $json_data);
+        if ($pass_it === 'false') {
+            // query success. send back a translated message for user.
+            echo xlj("Server says thanks. Images state saved.");
+        } else {
+            echo xlj("Error! Images state save failed.");
+        }
+
+        exit();
+    }
+
     $json_data = dicom_history_action($action, $doc_id);
     echo $json_data;
 

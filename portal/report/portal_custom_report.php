@@ -661,8 +661,15 @@ foreach ($ar as $key => $val) {
 
             preg_match('/^(.*)_(\d+)$/', (string) $key, $res);
             $rowid = $res[2];
-            $irow = sqlQuery("SELECT type, title, comments, diagnosis " .
-                            "FROM lists WHERE id = ?", [$rowid]);
+            // Bind the lookup to the session patient so a supplied rowid
+            // can only surface issues belonging to this chart.
+            $irow = sqlQuery(
+                "SELECT type, title, comments, diagnosis FROM lists WHERE id = ? AND pid = ?",
+                [$rowid, $pid]
+            );
+            if (empty($irow)) {
+                continue;
+            }
             $diagnosis = $irow['diagnosis'];
             if ($prevIssueType != $irow['type']) {
                 // output a header for each Issue Type we encounter

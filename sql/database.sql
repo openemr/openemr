@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 541
+-- v_database: 543
 --
 
 --
@@ -93,6 +93,7 @@ CREATE TABLE `api_log` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `log_id` int(11) NOT NULL,
   `user_id` bigint(20) NOT NULL,
+  `client_id` varchar(80) NOT NULL DEFAULT '' COMMENT 'oauth_clients.client_id of the API client that made the request',
   `patient_id` bigint(20) NOT NULL,
   `ip_address` varchar(255) NOT NULL,
   `method` varchar(20) NOT NULL,
@@ -7214,6 +7215,14 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_p
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','completed','Completed',50);
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','entered-in-error','Entered in error',60);
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_status','unknown','Unknown',70);
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'care_plan_engagement_category', 'Care Plan Engagement Category', 351);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_engagement_category','intensive','Intensive Engagement',10);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_engagement_category','active','Active Engagement',20);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_engagement_category','routine','Routine Engagement',30);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_engagement_category','monitoring','Monitoring Only',40);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_engagement_category','inactive','Inactive',50);
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`seq`) VALUES ('care_plan_engagement_category','closed','Closed',60);
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `codes`, `notes`) VALUES
     ('lists', 'specimen_type', 'Specimen Type', 1, 0, 0, '', 'FHIR Specimen.type - SNOMED CT preferred');
@@ -12826,6 +12835,7 @@ CREATE TABLE `form_care_plan` (
   `reason_status` varchar(31) DEFAULT NULL,
   `plan_status` varchar(32) DEFAULT NULL COMMENT 'Care Plan status (e.g., draft, active, completed, etc)',
   `proposed_date` DATETIME NULL COMMENT 'Target or Achieve-by date for the goal',
+  `plan_engagement_category` varchar(100) DEFAULT '' COMMENT 'Expected engagement category with the patient based upon the care plan type',
   KEY `idx_status_date` (`plan_status`,`date`,`date_end`)
 ) ENGINE=InnoDB;
 

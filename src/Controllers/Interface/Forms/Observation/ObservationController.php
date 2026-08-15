@@ -253,7 +253,10 @@ class ObservationController
             );
         }
 
-        $formId = $request->query->getInt('id');
+        // The edit template renders `?id=` (empty) for a fresh observation, so
+        // use get()+cast rather than InputBag::getInt() which throws on
+        // present-but-non-int values.
+        $formId = (int) $request->query->get('id', 0);
         $postData = $request->request->all();
 
         try {

@@ -301,7 +301,7 @@ class EventAuditLogger implements AuditLoggerInterface
         // parse the parameters
         $cols = "DISTINCT l.`date`, l.`event`, l.`category`, l.`user`, l.`groupname`, l.`patient_id`, l.`success`, l.`comments`, l.`user_notes`, l.`crt_user`, l.`log_from`, l.`menu_item_id`, l.`ccda_doc_id`, l.`id`,
                  el.`encrypt`, el.`checksum`, el.`checksum_api`, el.`version`, el.`log_id` as `log_id_hash`,
-                 al.`log_id` as log_id_api, al.`user_id`, al.`patient_id` as patient_id_api, al.`ip_address`, al.`method`, al.`request`, al.`request_url`, al.`request_body`, al.`response`, al.`created_time` ";
+                 al.`log_id` as log_id_api, al.`user_id`, al.`client_id`, oc.`client_name`, al.`patient_id` as patient_id_api, al.`ip_address`, al.`method`, al.`request`, al.`request_url`, al.`request_body`, al.`response`, al.`created_time` ";
         if (isset($params['cols']) && $params['cols'] != "") {
             $cols = $params['cols'];
         }
@@ -353,6 +353,11 @@ class EventAuditLogger implements AuditLoggerInterface
             $event = $params['event'];
         }
 
+        $apiClientId = "";
+        if (is_array($params) && isset($params['client_id']) && is_string($params['client_id'])) {
+            $apiClientId = $params['client_id'];
+        }
+
         if ($event != "") {
             if ($sortby == "comments") {
                 $sortby = "description";
@@ -401,6 +406,7 @@ class EventAuditLogger implements AuditLoggerInterface
             $sql = "SELECT $cols FROM `log_comment_encrypt` as el " .
                 "LEFT OUTER JOIN `log` as l ON el.`log_id` = l.`id` " .
                 "LEFT OUTER JOIN `api_log` as al ON el.`log_id` = al.`log_id` " .
+                "LEFT OUTER JOIN `oauth_clients` as oc ON al.`client_id` = oc.`client_id` " .
                 "WHERE (l.`date` IS NULL OR (l.`date` >= ? AND l.`date` <= ?))";
             array_push($sqlBindArray, $date1, $date2);
 
@@ -422,6 +428,15 @@ class EventAuditLogger implements AuditLoggerInterface
             if ($tevent != "") {
                 $sql .= " AND l.`event` LIKE ?";
                 array_push($sqlBindArray, "%" . $tevent);
+            }
+
+            if ($apiClientId != "") {
+                // equality, not LIKE: client ids are opaque identifiers selected
+                // from the registered-clients dropdown. Also intentionally turns
+                // the api_log LEFT JOIN into a match requirement, restricting
+                // results to API events from this client.
+                $sql .= " AND al.`client_id` = ?";
+                array_push($sqlBindArray, $apiClientId);
             }
 
             if ($sortby != "") {

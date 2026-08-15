@@ -15,6 +15,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -38,6 +39,7 @@ if (!$encounter) { // comes from globals.php
 }
 
 $id = (int) ($_GET['id'] ?? '');
+EncounterFormAccess::assertFormBelongsToSessionPatient($id, 'treatment_plan');
 
 $sets = "pid = ?,
   groupname = ?,

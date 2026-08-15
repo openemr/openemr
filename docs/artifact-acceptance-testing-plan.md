@@ -1739,10 +1739,34 @@ drift-bug sources.
   as-is: (a) 8 workflows minted the token BEFORE any checkout, so
   those got a lean `sparse-checkout: .github/actions/generate-app-
   token` prepended (persist-credentials: false); subsequent full
-  checkouts overwrite transparently. (b) `.github/actions/generate-
-  app-token/**` added to byte-identical.yml with same rel-800/
-  rel-704 exclusion as the 7 caller workflows already in that
-  block. Dependabot's github-actions ecosystem scans composite
+  checkouts were assumed to overwrite transparently — that assumption
+  turned out to be wrong (see the follow-up fixes below). (b)
+  `.github/actions/generate-app-token/**` added to byte-identical.yml
+  with same rel-800/rel-704 exclusion as the 7 caller workflows
+  already in that block.
+
+  **Follow-up (SHIPPED 2026-08-12/13, discovered during rel-830
+  cut).** The "subsequent full checkouts overwrite transparently"
+  assumption was invalid: `git sparse-checkout disable` clears the
+  config but files never written on the first sparse pass do not
+  reappear when the second full checkout is byte-identical at those
+  paths. Series of fixes:
+    * `#13480` — expanded sparse to include `setup-php-composer` for
+      branch-cut/patch-prep; added `GH_TOKEN` to release-prep mutator
+      steps (`gh api` inside `ChangelogMutator` needs it).
+    * `#13509` — same sparse expansion applied to the remaining 5
+      workflows in the composite-consumer set (notify-release-
+      targets-changed, build-patch, build-release, ship-release,
+      reusable-publish-release).
+    * `#13517` — dropped the sparse-first pattern entirely in those
+      5 workflows in favor of full-checkout-first (the pattern
+      release-prep.yml has always used and never had this bug).
+      The sparse pattern still couldn't materialize `composer.json`
+      for setup-php-composer's install step; full-checkout-first
+      sidesteps the leak fully. `create-release-tag.sh` gained an
+      APP_TOKEN inline-auth path via `git -c http.extraheader=...`
+      so the git-push credential is never persisted to `.git/config`
+      during intermediate build steps. Dependabot's github-actions ecosystem scans composite
   action.yml files (per config `directory: /`), so future
   create-github-app-token version bumps get a single PR against
   the composite instead of 14 workflow PRs.

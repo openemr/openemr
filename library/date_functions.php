@@ -12,7 +12,7 @@ use OpenEMR\Core\OEGlobalsBag;
  * the session's 'language_choice' value. The format varies by language and can optionally
  * include the day of the week.
  *
- * @param string|int $strtime Unix timestamp or date string. If empty, uses current time.
+ * @param ?int $timestamp Unix timestamp, defaulting to now
  * @param bool $with_dow Whether to include the day of the week in the output.
  * @return string The formatted date string.
  *
@@ -20,47 +20,40 @@ use OpenEMR\Core\OEGlobalsBag;
  * @note For Hebrew, displays English calendar, NOT Jewish calendar
  * @note Last modified 10.07.2007 - dateformat accepts now an argument
  */
-function dateformat(string|int $strtime = '', bool $with_dow = false): string
+function dateformat(?int $timestamp = null, bool $with_dow = false): string
 {
     // without an argument, display current date
-    if (!$strtime) {
-        $strtime = strtotime('now');
+    if ($timestamp === null) {
+        $timestamp = time();
     }
 
-    // Isolated tests / offline callers set disable_translation (same flag xl()
-    // honors) so they can exercise calendar decoration without a DB or an
-    // active session. Short-circuit to English PHP date() formatting and skip
-    // getLanguageTitle() + session lookups that would otherwise require SQL.
-    if (
-        OEGlobalsBag::getInstance()->getBoolean('disable_translation')
-        || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))
-    ) {
-        $dt = date('F j, Y', $strtime);
+    // Perf optimization: short-circuit English, see #13497/#13507
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $languageChoice = $session->get('language_choice');
+    // getLanguageTitle() treats an unset choice as language 1, so mirror that.
+    $languageId = is_numeric($languageChoice) ? (int) $languageChoice : 1;
+    if ($languageId === 1) {
+        $dt = date("F j, Y", $timestamp);
         if ($with_dow) {
-            $dow = DayOfWeek::from((int) date('w', $strtime))->label();
-            $dt = $dow . ', ' . $dt;
+            $dow = DayOfWeek::from((int) date('w', $timestamp))->label();
+            return "$dow, $dt";
         }
-
         return $dt;
     }
 
-    // name the day of the week for different languages
-    $day = (int) date("w", $strtime); // 0 sunday -> 6 saturday
-    $dow = DayOfWeek::from($day)->label();
-
     // name of the month in different languages
-    $month = (int) date('m', $strtime);
+    $month = (int) date('m', $timestamp);
     $nom = Month::from($month)->label();
 
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $day_num = date("d", $timestamp);
+    $year = date("Y", $timestamp);
+
     // Date string format
     // First, get current language title
-    $languageTitle = getLanguageTitle($session->get('language_choice'));
-    $day_num = date("d", $strtime);
-    $year = date("Y", $strtime);
+    $languageTitle = getLanguageTitle($languageId);
     $dt = match ($languageTitle) {
         // standard english first
-        getLanguageTitle(1) => date("F j, Y", $strtime),
+        getLanguageTitle(1) => date("F j, Y", $timestamp),
         "Swedish" => "$year $nom $day_num",
         "Dutch",
         "German",
@@ -72,6 +65,10 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     };
 
     if ($with_dow) {
+        // name the day of the week for different languages
+        $day = (int) date("w", $timestamp); // 0 sunday -> 6 saturday
+        $dow = DayOfWeek::from($day)->label();
+
         $separator = match ($languageTitle) {
             getLanguageTitle(1), "Hebrew" => ", ",
             default => " ",
