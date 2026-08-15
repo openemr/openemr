@@ -35,23 +35,13 @@ class PreCommitSkipListIsolatedTest extends TestCase
     private const CONFIG_FILE = self::REPO_ROOT . '/.pre-commit-config.yaml';
     private const WORKFLOW_FILE = self::REPO_ROOT . '/.github/workflows/pre-commit.yml';
 
-    /**
-     * Hook languages the pre-commit runner satisfies by itself, with no
-     * project toolchain installed. These are safe to run in the workflow, so
-     * they must not appear in SKIP.
-     *
-     * `system` (and anything else) shells out to a binary the workflow does
-     * not install -- php, composer, node -- so it must be skipped there.
-     */
-    private const SELF_CONTAINED_LANGUAGES = ['fail', 'pygrep'];
-
     private const PREK_ACTION = 'j178/prek-action';
 
     public function testSkipListExactlyCoversToolchainDependentLocalHooks(): void
     {
         $expected = array_keys(array_filter(
             $this->localHookLanguages(),
-            static fn(string $language): bool => !in_array($language, self::SELF_CONTAINED_LANGUAGES, true)
+            SelfContainedHookLanguage::requiresToolchain(...)
         ));
         $actual = $this->skipList();
         sort($expected);
@@ -151,7 +141,9 @@ class PreCommitSkipListIsolatedTest extends TestCase
                     continue;
                 }
                 $uses = $step['uses'] ?? null;
-                if (!is_string($uses) || !str_starts_with($uses, self::PREK_ACTION)) {
+                // Require the `@` so a similarly-named repository -- say
+                // `j178/prek-action-fork` -- cannot supply the SKIP list.
+                if (!is_string($uses) || !str_starts_with($uses, self::PREK_ACTION . '@')) {
                     continue;
                 }
                 $env = $step['env'] ?? null;
