@@ -2978,7 +2978,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 17,
+    'count' => 16,
     'path' => __DIR__ . '/../../portal/import_template.php',
 ];
 $ignoreErrors[] = [
