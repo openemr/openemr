@@ -92,12 +92,12 @@ These tests respect the following environment variables (configured in `BaseTrai
 ## Test Data Cleanup
 
 All tests follow these principles:
-1. **Read original values** before making changes
+1. **Read original values** before opening the browser
 2. **Make test changes** and verify they work
-3. **Restore original values** after test completes
-4. **Always quit the browser client** in finally/catch blocks
+3. **Restore original values** in a `finally` block
+4. **Quit the browser client** in the same `finally` block
 
-This ensures tests don't leave the database in a modified state.
+Restoration and browser shutdown belong in `finally`, not after the assertions. A failed save, poll, or assertion aborts the test at that point, so anything placed after the assertions never runs — the modified value would survive into the tests that follow and the browser session would leak. Reading the original value before `base()` keeps the `try` scoped to the work that actually needs the browser.
 
 ## Debugging Tests
 

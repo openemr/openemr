@@ -102,12 +102,9 @@ class KkEditGlobalsTest extends PantherTestCase
             // Verify Search field exists
             $searchField = $this->crawler->filterXPath(XpathsConstantsEditGlobals::SEARCH_INPUT);
             $this->assertCount(1, $searchField, 'Search field not found');
-        } catch (\Throwable $e) {
+        } finally {
             $this->client->quit();
-            throw $e;
         }
-
-        $this->client->quit();
     }
 
     /**
@@ -161,12 +158,9 @@ class KkEditGlobalsTest extends PantherTestCase
                 $activeTab = $this->crawler->filterXPath($tabXpath . '/parent::li[contains(@class, "current")]');
                 $this->assertGreaterThan(0, count($activeTab), "Tab '$tabName' did not become active after clicking");
             }
-        } catch (\Throwable $e) {
+        } finally {
             $this->client->quit();
-            throw $e;
         }
-
-        $this->client->quit();
     }
 
     /**
@@ -220,12 +214,9 @@ class KkEditGlobalsTest extends PantherTestCase
             // Verify search results rows are marked
             $searchResults = $this->crawler->filterXPath(XpathsConstantsEditGlobals::SEARCH_RESULT_ROW);
             $this->assertGreaterThan(0, count($searchResults), 'No search result rows found');
-        } catch (\Throwable $e) {
+        } finally {
             $this->client->quit();
-            throw $e;
         }
-
-        $this->client->quit();
     }
 
     /**
@@ -241,15 +232,15 @@ class KkEditGlobalsTest extends PantherTestCase
     #[Test]
     public function testCanSaveTextGlobalSetting(): void
     {
+        $testSetting = 'num_of_messages_displayed';
+        $originalValue = $this->getGlobalValue($testSetting);
+        // Pick a value that differs from whatever is stored, so the save is
+        // observable regardless of the starting state.
+        $testValue = $originalValue === '7' ? '8' : '7';
+
         $this->base();
         try {
             $this->login(LoginTestData::username, LoginTestData::password);
-
-            $testSetting = 'num_of_messages_displayed';
-            $originalValue = $this->getGlobalValue($testSetting);
-            // Pick a value that differs from whatever is stored, so the save is
-            // observable regardless of the starting state.
-            $testValue = $originalValue === '7' ? '8' : '7';
 
             $this->goToMainMenuLink('Admin||Config');
             $this->assertActiveTab("Configuration");
@@ -269,14 +260,12 @@ class KkEditGlobalsTest extends PantherTestCase
 
             $this->waitForGlobalValue($testSetting, $testValue);
             $this->assertSame($testValue, $this->getGlobalValue($testSetting), 'Global setting was not saved correctly');
-
+        } finally {
+            // Restore in finally: a failed save, poll, or assertion must not
+            // leave the globals table mutated for the tests that follow.
             $this->setGlobalValue($testSetting, $originalValue);
-        } catch (\Throwable $e) {
             $this->client->quit();
-            throw $e;
         }
-
-        $this->client->quit();
     }
 
     /**
@@ -295,14 +284,14 @@ class KkEditGlobalsTest extends PantherTestCase
     #[Test]
     public function testCanSaveCheckboxGlobalSetting(): void
     {
+        $testSetting = 'window_title_add_patient_name';
+        $originalValue = $this->getGlobalValue($testSetting);
+        $checkIt = $originalValue !== '1';
+        $expectedValue = $checkIt ? '1' : '';
+
         $this->base();
         try {
             $this->login(LoginTestData::username, LoginTestData::password);
-
-            $testSetting = 'window_title_add_patient_name';
-            $originalValue = $this->getGlobalValue($testSetting);
-            $checkIt = $originalValue !== '1';
-            $expectedValue = $checkIt ? '1' : '';
 
             $this->goToMainMenuLink('Admin||Config');
             $this->assertActiveTab("Configuration");
@@ -330,14 +319,10 @@ class KkEditGlobalsTest extends PantherTestCase
                 $this->getGlobalValue($testSetting),
                 'Checkbox global setting was not saved correctly'
             );
-
+        } finally {
             $this->setGlobalValue($testSetting, $originalValue);
-        } catch (\Throwable $e) {
             $this->client->quit();
-            throw $e;
         }
-
-        $this->client->quit();
     }
 
     /**
@@ -353,12 +338,12 @@ class KkEditGlobalsTest extends PantherTestCase
     #[Test]
     public function testCanSaveSelectGlobalSetting(): void
     {
+        $testSetting = 'encounter_page_size';
+        $originalValue = $this->getGlobalValue($testSetting);
+
         $this->base();
         try {
             $this->login(LoginTestData::username, LoginTestData::password);
-
-            $testSetting = 'encounter_page_size';
-            $originalValue = $this->getGlobalValue($testSetting);
 
             $this->goToMainMenuLink('Admin||Config');
             $this->assertActiveTab("Configuration");
@@ -394,14 +379,10 @@ class KkEditGlobalsTest extends PantherTestCase
                 $this->getGlobalValue($testSetting),
                 'Select global setting was not saved correctly'
             );
-
+        } finally {
             $this->setGlobalValue($testSetting, $originalValue);
-        } catch (\Throwable $e) {
             $this->client->quit();
-            throw $e;
         }
-
-        $this->client->quit();
     }
 
     /**
@@ -419,19 +400,19 @@ class KkEditGlobalsTest extends PantherTestCase
     #[Test]
     public function testMultipleGlobalsCanBeSavedInOneTransaction(): void
     {
+        $textSetting = 'num_of_messages_displayed';
+        $boolSetting = 'window_title_add_patient_name';
+
+        $originalText = $this->getGlobalValue($textSetting);
+        $originalBool = $this->getGlobalValue($boolSetting);
+
+        $expectedText = $originalText === '9' ? '6' : '9';
+        $checkIt = $originalBool !== '1';
+        $expectedBool = $checkIt ? '1' : '';
+
         $this->base();
         try {
             $this->login(LoginTestData::username, LoginTestData::password);
-
-            $textSetting = 'num_of_messages_displayed';
-            $boolSetting = 'window_title_add_patient_name';
-
-            $originalText = $this->getGlobalValue($textSetting);
-            $originalBool = $this->getGlobalValue($boolSetting);
-
-            $expectedText = $originalText === '9' ? '6' : '9';
-            $checkIt = $originalBool !== '1';
-            $expectedBool = $checkIt ? '1' : '';
 
             $this->goToMainMenuLink('Admin||Config');
             $this->assertActiveTab("Configuration");
@@ -471,15 +452,11 @@ class KkEditGlobalsTest extends PantherTestCase
                 $this->getGlobalValue($boolSetting),
                 "Setting '$boolSetting' was not saved correctly in transaction"
             );
-
+        } finally {
             $this->setGlobalValue($textSetting, $originalText);
             $this->setGlobalValue($boolSetting, $originalBool);
-        } catch (\Throwable $e) {
             $this->client->quit();
-            throw $e;
         }
-
-        $this->client->quit();
     }
 
     // Helper methods
