@@ -17,13 +17,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../../globals.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Core\TemplatePageEvent;
+use OpenEMR\Services\ClinicalNotesService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\PatientService;
+
+require_once("../../globals.php");
 
 // Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
@@ -32,10 +36,6 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/formatting.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-use OpenEMR\Events\Core\TemplatePageEvent;
-use OpenEMR\Services\ClinicalNotesService;
-use OpenEMR\Services\ListService;
-use OpenEMR\Services\PatientService;
 
 $returnurl = 'encounter_top.php';
 $formid = (int)($_GET['id'] ?? 0);
