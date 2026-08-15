@@ -1,8 +1,9 @@
 DO NOT MERGE — Temporary fixture for the ScanCode PoC (PR #11739).
 
-The workflow disallows `proprietary-license` and `commercial-license` so
-this file should trip the policy check, emit a GitHub annotation, and
-fail the job. Revert the commit that introduced this file before merge.
+The license text below is denied by tools/ci/license-policy.json, so this
+file should trip the policy check, emit a GitHub annotation anchored to the
+offending lines, and fail the job. Revert the commit that introduced this
+file before merge.
 
 ---
 

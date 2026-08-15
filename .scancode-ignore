@@ -1,5 +1,7 @@
-# Glob patterns passed to `scancode --ignore`. One pattern per line; blank
-# lines and comments ignored. Used by .github/workflows/scancode.yml.
+# Paths excluded from license scanning. One glob per line; blank lines and
+# comments ignored. Converted to git exclude pathspecs by
+# tools/ci/scancode-pathspecs.py and applied by both scan modes in
+# .github/workflows/scancode.yml.
 
 # Vendored / generated directories.
 vendor/*
@@ -19,3 +21,7 @@ Documentation/*
 .git/*
 scancode-input/*
 scancode-shard-input/*
+
+# The license policy names the licenses it denies, so scanning it would
+# report the policy as a violation of itself.
+tools/ci/license-policy.json

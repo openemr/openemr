@@ -99,15 +99,15 @@ jobs:
         BASE_SHA: ${{ github.event.pull_request.base.sha }}
         HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       # Only scan files added or modified in the PR so the check stays fast.
-      # git-diff already excludes untracked/ignored paths (vendor/,
-      # node_modules/, etc.); only Documentation/ needs an explicit pathspec
-      # since it is tracked.
+      # Exclusions come from .scancode-ignore, the same list the full-repo
+      # shards use, so a path ignored by one mode is ignored by both.
       run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        mapfile -t excludes < <(python3 tools/ci/scancode-pathspecs.py)
         mkdir -p scancode-input
         mapfile -t changed < <(
           git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" \
-            -- ':!Documentation'
+            -- . "${excludes[@]}"
         )
         if (( ${#changed[@]} == 0 )); then
           echo 'No files to scan.'
@@ -136,6 +136,7 @@ jobs:
         rc=0
         scancode \
           --license \
+          --license-references \
           --copyright \
           --package \
           --only-findings \
@@ -153,9 +154,8 @@ jobs:
       env:
         SCAN_MODE: diff
         # Fail the job (and emit per-file annotations) when ScanCode detects
-        # any of these license expressions. Leave empty to run in
-        # report-only mode.
-        SCANCODE_DISALLOWED_LICENSES: 'proprietary-license,commercial-license'
+        # a license the policy denies. Unset to run in report-only mode.
+        SCANCODE_POLICY_FILE: tools/ci/license-policy.json
       run: python3 tools/ci/scancode-summary.py scancode-results.json
 
     - name: Upload artifact
@@ -205,16 +205,7 @@ jobs:
       # partition stable across runs — reruns of shard N scan the same files.
       run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        excludes=()
-        while IFS= read -r line; do
-          line="${line%%#*}"
-          line="${line#"${line%%[![:space:]]*}"}"
-          line="${line%"${line##*[![:space:]]}"}"
-          [[ -z $line ]] && continue
-          # Strip trailing /* for git pathspec (exclude the whole tree).
-          clean="${line%/\*}"
-          excludes+=(":(exclude)${clean}")
-        done < .scancode-ignore
+        mapfile -t excludes < <(python3 tools/ci/scancode-pathspecs.py)
         mkdir -p scancode-shard-input
         mapfile -t files < <(git ls-files -- . "${excludes[@]}")
         count=0
@@ -239,6 +230,7 @@ jobs:
         rc=0
         scancode \
           --license \
+          --license-references \
           --copyright \
           --package \
           --only-findings \
@@ -279,30 +271,37 @@ jobs:
         merge-multiple: true
 
     - name: Merge shard results
-      # ScanCode JSON top-level is {headers:[...], files:[...]}; the files
-      # arrays are disjoint across shards so concatenation is sufficient.
+      # ScanCode JSON top-level is {headers, files, license_references, ...}.
+      # The files arrays are disjoint across shards so concatenation is
+      # sufficient; license_references describes the license catalogue and
+      # repeats across shards, so dedupe it by key.
       shell: python
       run: |
         import glob
         import json
 
-        merged: dict = {'headers': [], 'files': []}
+        merged: dict = {'headers': [], 'files': [], 'license_references': []}
+        references: dict = {}
         for path in sorted(glob.glob('shards/scancode-shard-*.json')):
             with open(path) as fh:
                 data = json.load(fh)
             merged['headers'].extend(data.get('headers', []))
             merged['files'].extend(data.get('files', []))
+            for ref in data.get('license_references', []) or []:
+                references.setdefault(ref['key'], ref)
+        merged['license_references'] = list(references.values())
 
         with open('scancode-results.json', 'w') as fh:
             json.dump(merged, fh)
 
-        print(f'Merged {len(merged["files"])} file entries from '
+        print(f'Merged {len(merged["files"])} file entries and '
+              f'{len(references)} license references from '
               f'{len(merged["headers"])} shard headers.')
 
     - name: Summarize findings
       env:
         SCAN_MODE: full
-        SCANCODE_DISALLOWED_LICENSES: 'proprietary-license,commercial-license'
+        SCANCODE_POLICY_FILE: tools/ci/license-policy.json
       run: python3 tools/ci/scancode-summary.py scancode-results.json
 
     - name: Upload final artifact
