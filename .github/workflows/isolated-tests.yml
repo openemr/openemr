@@ -40,6 +40,11 @@ jobs:
 
     name: PHP ${{ matrix.php-version }} - Isolated Tests
 
+    # PHP 8.6 is not released yet, so it runs against a nightly build that can
+    # regress underneath us. Report those failures as warnings rather than
+    # blocking every PR on an upstream php-src bug. Drop this once 8.6 ships.
+    continue-on-error: ${{ matrix.php-version == '8.6' }}
+
     steps:
     - uses: actions/checkout@v7
 
