@@ -38,4 +38,4 @@ jobs:
 
     - uses: j178/prek-action@v2
       with:
-        extra_args: --all-files forbid-inc-extension
+        extra-args: --all-files forbid-inc-extension
