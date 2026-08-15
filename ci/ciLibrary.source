@@ -470,7 +470,34 @@ build_test_e2e() {
         echo 'No videos directory found locally.'
     fi
 
+    if [[ -f selenium-videos/video.mp4 && -f e2e-timeline.jsonl ]]; then
+        # shellcheck disable=SC2310  # chapters are a convenience; a failure here must not fail the suite
+        chapter_e2e_video || echo 'Could not chapter the E2e video; continuing.'
+    fi
+
     return "${status}"
+}
+
+##
+# Annotate the E2e recording with the test timeline PHPUnit recorded, writing
+# WebVTT and chapter sidecars beside the video so a reviewer can jump straight
+# to the test they care about. Costs the test run nothing: the timeline is
+# recorded from PHPUnit events, not from the browser.
+chapter_e2e_video() {
+    local container image started finished duration
+    container=$(dc ps -aq video)
+    image=$(docker inspect --format '{{.Config.Image}}' "${container}")
+    started=$(docker inspect --format '{{.State.StartedAt}}' "${container}")
+    finished=$(docker inspect --format '{{.State.FinishedAt}}' "${container}")
+    # ffprobe ships in the recorder's own image, so no tooling is assumed of the runner.
+    duration=$(docker run --rm -v "${PWD}/selenium-videos:/videos:ro" --entrypoint ffprobe "${image}" \
+        -v error -show_entries format=duration -of csv=p=0 /videos/video.mp4 || true)
+    _exec php ci/e2e-video-chapters.php \
+        --timeline=e2e-timeline.jsonl \
+        --out-dir=selenium-videos \
+        --recording-started-at="${started}" \
+        --recording-finished-at="${finished}" \
+        --recording-duration="${duration}"
 }
 
 ##
