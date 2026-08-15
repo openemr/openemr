@@ -31,10 +31,7 @@ function dateformat(?int $timestamp = null, bool $with_dow = false): string
     // honors) so calendar decoration can run without a DB or active session.
     // Short-circuit to English PHP date() formatting and skip getLanguageTitle()
     // + session lookups that would otherwise require SQL.
-    if (
-        OEGlobalsBag::getInstance()->getBoolean('disable_translation')
-        || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))
-    ) {
+    if (OEGlobalsBag::getInstance()->getBoolean('disable_translation')) {
         $dt = date('F j, Y', $timestamp);
         if ($with_dow) {
             $dow = DayOfWeek::from((int) date('w', $timestamp))->label();
