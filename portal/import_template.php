@@ -309,8 +309,6 @@ if (($_REQUEST['mode'] ?? '') === 'editor_render_html') {
     } else {
         die(xlt('Invalid File'));
     }
-} elseif (!empty($_GET['templateHtml'] ?? null)) {
-    renderEditorHtml($_REQUEST['docid'], $_GET['templateHtml']);
 }
 
 /**
@@ -321,6 +319,10 @@ function renderEditorHtml($template_id, $content): void
 {
     global $authUploadTemplates;
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+    // Purify on render as well as on write — Summernote loads the textarea
+    // value as HTML, and older rows may pre-date write-time purification.
+    $content = DocumentTemplateService::purifyTemplateContent((string) $content);
 
     $lists = [
         '{ParseAsHTML}', '{ParseAsText}', '{styleBlockStart}', '{styleBlockEnd}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{RadioGroup:option1_many...}', '{RadioGroupInline:option1_many...}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Questionnaire:name or id}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'
