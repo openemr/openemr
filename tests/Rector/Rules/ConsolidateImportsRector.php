@@ -124,12 +124,6 @@ CODE_SAMPLE
             $leading[] = array_shift($rest);
         }
 
-        // With a leading declare the file docblock already sits at the top of
-        // the file, attached to that declare; only hoist when imports lead.
-        if ($leading === []) {
-            $this->hoistFileDocblock($rest, $uses[0]);
-        }
-
         // PSR-12 wants class, then function, then const imports grouped by
         // kind. Partition stably so relative order survives within each group.
         $byType = [];
@@ -141,6 +135,16 @@ CODE_SAMPLE
         }
         ksort($byType);
         $uses = array_merge(...array_values($byType));
+
+        // Hoist only after partitioning: grouping by kind can promote a later
+        // import ahead of the one that led in statement order, and the docblock
+        // has to land on whichever import actually ends up first.
+        //
+        // With a leading declare the file docblock already sits at the top of
+        // the file, attached to that declare; only hoist when imports lead.
+        if ($leading === []) {
+            $this->hoistFileDocblock($rest, $uses[0]);
+        }
 
         // Drop the original-node link so the printer re-emits the imports
         // fresh. Otherwise it preserves the blank line that used to separate
