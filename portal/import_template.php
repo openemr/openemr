@@ -322,7 +322,10 @@ function renderEditorHtml($template_id, $content): void
 
     // Purify on render as well as on write — Summernote loads the textarea
     // value as HTML, and older rows may pre-date write-time purification.
-    $content = DocumentTemplateService::purifyTemplateContent((string) $content);
+    // Look up the stored mime so PDF and other binary templates skip HTML sanitization.
+    $existing = \OpenEMR\Common\Database\QueryUtils::querySingleRow('SELECT `mime` FROM `document_templates` WHERE `id` = ?', [$template_id]);
+    $mimetype = is_array($existing) && is_string($existing['mime'] ?? null) ? $existing['mime'] : null;
+    $content = DocumentTemplateService::purifyTemplateContent((string) $content, $mimetype);
 
     $lists = [
         '{ParseAsHTML}', '{ParseAsText}', '{styleBlockStart}', '{styleBlockEnd}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{RadioGroup:option1_many...}', '{RadioGroupInline:option1_many...}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Questionnaire:name or id}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'

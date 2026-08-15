@@ -703,7 +703,10 @@ class DocumentTemplateService extends QuestionnaireService
     public function updateTemplateContent($id, $content)
     {
         // Same purification as insertTemplate() — see purifyTemplateContent().
-        $content = self::purifyTemplateContent((string) $content);
+        // Look up the stored mime so PDF and other binary templates skip HTML sanitization.
+        $existing = QueryUtils::querySingleRow('SELECT `mime` FROM `document_templates` WHERE `id` = ?', [$id]);
+        $mimetype = is_array($existing) && is_string($existing['mime'] ?? null) ? $existing['mime'] : null;
+        $content = self::purifyTemplateContent((string) $content, $mimetype);
 
         return sqlQuery('UPDATE `document_templates` SET `template_content` = ?, modified_date = NOW() WHERE `id` = ?', [$content, $id]);
     }
