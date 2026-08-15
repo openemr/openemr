@@ -26,6 +26,11 @@ jobs:
     runs-on: ubuntu-24.04
 
     strategy:
+      # A failure on one PHP version says nothing about the others, and 8.6 is
+      # still in development — its nightly builds regress from time to time.
+      # Cancelling the production versions on an 8.6 failure hides whether the
+      # supported versions actually pass.
+      fail-fast: false
       matrix:
         php-version:
         - '8.3'
