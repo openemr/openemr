@@ -9,9 +9,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -127,26 +129,31 @@ if ($_POST['form_save'] ?? '') {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($radio_type_of_payment == 'pre_payment') {
-        $prepayment = $_REQUEST['form_prepayment'] ?? null;
-        if (is_numeric($prepayment) && (float) $prepayment > 0) {
+        $prepayment = filter_input(INPUT_POST, 'form_prepayment', FILTER_VALIDATE_FLOAT);
+        if (!is_float($prepayment) || $prepayment <= 0) {
+            $alertmsg = xl('Prepayment amount must be a positive number.');
+        } else {
             $payment_id = sqlInsert(
-                "insert into ar_session set " .
-                "payer_id = ?" .
-                ", patient_id = ?" .
-                ", user_id = ?" .
-                ", closed = ?" .
-                ", reference = ?" .
-                ", check_date =  now() , deposit_date = now() " .
-                ",  pay_total = ?" .
-                ", payment_type = 'patient'" .
-                ", description = ?" .
-                ", adjustment_code = 'pre_payment'" .
-                ", post_to_date = now() " .
-                ", payment_method = ?",
-                [0, $form_pid, $session->get('authUserID'), 0, $form_source, (float) $prepayment, $NameNew, $form_method]
+                <<<'SQL'
+                INSERT INTO ar_session
+                SET payer_id = ?,
+                    patient_id = ?,
+                    user_id = ?,
+                    closed = ?,
+                    reference = ?,
+                    check_date = now(),
+                    deposit_date = now(),
+                    pay_total = ?,
+                    payment_type = 'patient',
+                    description = ?,
+                    adjustment_code = 'pre_payment',
+                    post_to_date = now(),
+                    payment_method = ?
+                SQL,
+                [0, $form_pid, $session->get('authUserID'), 0, $form_source, $prepayment, $NameNew, $form_method]
             );
 
-            frontPayment($form_pid, 0, $form_method, $form_source, (float) $prepayment, 0, $timestamp);//insertion to 'payments' table.
+            frontPayment($form_pid, 0, $form_method, $form_source, $prepayment, 0, $timestamp);//insertion to 'payments' table.
         }
     }
 
@@ -328,7 +335,8 @@ if ($_POST['form_save'] ?? '') {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if (($_POST['form_save'] ?? null) || filter_input(INPUT_GET, 'receipt')) {
+// Skip the receipt when the payment was rejected; there is nothing to receipt for.
+if ($alertmsg === '' && (($_POST['form_save'] ?? null) || filter_input(INPUT_GET, 'receipt'))) {
     if (filter_input(INPUT_GET, 'receipt')) {
         $form_pid = $pid;
         $timestamp = decorateString('....-..-.. ..:..:..', filter_input(INPUT_GET, 'time') ?: '');
@@ -635,6 +643,13 @@ if (($_POST['form_save'] ?? null) || filter_input(INPUT_GET, 'receipt')) {
             if (authnum != null) {
                 document.getElementById("check_number").value = authnum;
             }
+        }
+
+        let alert_msg = <?php echo js_escape($alertmsg); ?>;
+        if (alert_msg) {
+            document.addEventListener('DOMContentLoaded', function () {
+                alert(alert_msg);
+            });
         }
     </script>
 
