@@ -13,6 +13,7 @@
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -323,7 +324,7 @@ function renderEditorHtml($template_id, $content): void
     // Purify on render as well as on write — Summernote loads the textarea
     // value as HTML, and older rows may pre-date write-time purification.
     // Look up the stored mime so PDF and other binary templates skip HTML sanitization.
-    $existing = \OpenEMR\Common\Database\QueryUtils::querySingleRow('SELECT `mime` FROM `document_templates` WHERE `id` = ?', [$template_id]);
+    $existing = QueryUtils::querySingleRow('SELECT `mime` FROM `document_templates` WHERE `id` = ?', [$template_id]);
     $mimetype = is_array($existing) && is_string($existing['mime'] ?? null) ? $existing['mime'] : null;
     $content = DocumentTemplateService::purifyTemplateContent((string) $content, $mimetype);
 
