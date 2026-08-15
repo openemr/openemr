@@ -3,6 +3,7 @@
 use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Common\Calendar\Month;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Format a date string according to the user's language preference.
@@ -24,6 +25,23 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     // without an argument, display current date
     if (!$strtime) {
         $strtime = strtotime('now');
+    }
+
+    // Isolated tests / offline callers set disable_translation (same flag xl()
+    // honors) so they can exercise calendar decoration without a DB or an
+    // active session. Short-circuit to English PHP date() formatting and skip
+    // getLanguageTitle() + session lookups that would otherwise require SQL.
+    if (
+        OEGlobalsBag::getInstance()->getBoolean('disable_translation')
+        || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))
+    ) {
+        $dt = date('F j, Y', $strtime);
+        if ($with_dow) {
+            $dow = DayOfWeek::from((int) date('w', $strtime))->label();
+            $dt = $dow . ', ' . $dt;
+        }
+
+        return $dt;
     }
 
     // name the day of the week for different languages

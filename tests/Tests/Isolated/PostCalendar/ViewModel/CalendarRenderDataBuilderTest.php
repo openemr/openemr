@@ -564,8 +564,9 @@ final class CalendarRenderDataBuilderTest extends TestCase
 
     public function testBuildDayScreenExposesTimeslotHeightValAndInEventLabel(): void
     {
+        // dateformat() short-circuits when translation is disabled, so
+        // screen decoration can run without a DB or SQL function stubs.
         $GLOBALS['disable_translation'] = true;
-        $this->installDateformatSqlStubs();
         $builder = $this->builder(ViewType::Day);
 
         $result = $builder->buildDayScreenRenderData(
@@ -610,8 +611,9 @@ final class CalendarRenderDataBuilderTest extends TestCase
 
     public function testBuildWeekScreenExposesTimeslotHeightValAndInEventLabel(): void
     {
+        // dateformat() short-circuits when translation is disabled, so
+        // screen decoration can run without a DB or SQL function stubs.
         $GLOBALS['disable_translation'] = true;
-        $this->installDateformatSqlStubs();
         $builder = $this->builder(ViewType::Week);
 
         $result = $builder->buildWeekScreenRenderData(
@@ -658,16 +660,4 @@ final class CalendarRenderDataBuilderTest extends TestCase
         self::assertArrayHasKey('inLabelContent', $inEvent);
     }
 
-    /**
-     * Screen decorators call dateformat() via addI18nDateDecoration(),
-     * which reaches getLanguageTitle() and needs a SQL layer. Isolated
-     * runs have no DB — install minimal procedural stubs once per process.
-     */
-    private function installDateformatSqlStubs(): void
-    {
-        // Functions are declared in a companion stub file so they live in
-        // the global namespace (not this test's namespace) and are only
-        // defined when the isolated suite has not already loaded sql.inc.php.
-        require_once __DIR__ . '/calendar_render_data_builder_sql_stubs.php';
-    }
 }
