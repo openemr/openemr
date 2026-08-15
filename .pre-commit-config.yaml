@@ -202,7 +202,10 @@ repos:
       library helpers) or .php (new code).
     language: fail
     files: \.inc$
-    exclude: ^tests/Rector/Rules/Fixture/[^/]+\.php\.inc$
+    # Rector's fixture format is fixed at .php.inc, and each rule needs its own
+    # fixture directory so one rule's test does not pick up another's fixtures.
+    # These are test data, never served.
+    exclude: ^tests/Rector/Rules/Fixture[^/]*/[^/]+\.php\.inc$
 
   - id: php-syntax-check
     name: PHP Syntax Check
