@@ -12,6 +12,7 @@
 
 require_once('../../globals.php');
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once(__DIR__ . "/../../../library/pid.inc.php");
 require_once($srcdir . '/patient.inc.php');
 require_once($srcdir . '/options.inc.php');
 

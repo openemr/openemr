@@ -102,6 +102,9 @@ class AppointmentService extends BaseService
         $validator->required('pc_billing_location')->numeric();
         $validator->optional('pc_aid')->numeric()
             ->callback(function ($value, $data) {
+                if ((int) $value === 0) {
+                    return true;
+                }
                 $id = QueryUtils::fetchSingleValue('Select id FROM users WHERE id = ? ', 'id', [$value]);
                 if (empty($id)) {
                     throw new InvalidValueException('pc_aid must be for a valid user', 'pc_aid');
@@ -358,7 +361,7 @@ class AppointmentService extends BaseService
                 $data["pc_facility"],
                 $data["pc_billing_location"],
                 $session->get('authUserID') ?? 1, // Grab authenticated user ID or default to 1
-                $data["pc_aid"] ?? null,
+                isset($data["pc_aid"]) ? (int) $data["pc_aid"] : 0,
                 $data["pc_website"] ?? null,
             ]
         );

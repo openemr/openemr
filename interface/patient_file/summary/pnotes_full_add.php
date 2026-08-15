@@ -13,6 +13,7 @@
 require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once(__DIR__ . "/../../../library/pid.inc.php");
 $pid = $session->get('pid', 0);
 $userauthorized = $session->get('userauthorized', 0);
 require_once($srcdir . "/patient.inc.php");

@@ -20,6 +20,7 @@
  */
 
 require_once("../globals.php");
+require_once(__DIR__ . "/../../library/user.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;

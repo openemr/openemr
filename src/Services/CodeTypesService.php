@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Services;
 
+require_once dirname(__DIR__, 2) . '/library/csv_like_join.php';
+
 use InvalidArgumentException;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 

@@ -120,7 +120,10 @@ class RxList
 
     public function tokensToHash($tokens)
     {
+        $all = [];
         $record = false;
+        $type = "";
+        $ending = "";
         $current = 0;
         $hash = [];
         for ($pos = 0, $posMax = count($tokens); $pos < $posMax; $pos++) {
