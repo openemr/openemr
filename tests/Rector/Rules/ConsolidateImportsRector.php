@@ -16,7 +16,9 @@ namespace OpenEMR\Rector\Rules;
 
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
+use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Declare_;
+use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
@@ -41,6 +43,12 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
  * Collecting the imports into one contiguous block makes the sort a no-op
  * hazard-wise, and puts the file docblock back above them. Relative order is
  * preserved -- phpcbf sorts safely once there is a single region.
+ *
+ * Restoring the header is an independent trigger, not a step of the gathering
+ * path. A file that had no imports at all gets exactly one region inserted
+ * above its docblock, so there is nothing to gather and yet the header is
+ * still inverted -- PSR12.Files.FileHeader reports "the file-level docblock
+ * must follow the opening PHP tag in the file header" on its own.
  *
  * @see \OpenEMR\Rector\Rules\ConsolidateImportsRectorTest
  */
@@ -75,6 +83,26 @@ use Vendor\Alpha;
 require_once __DIR__ . '/globals.php';
 CODE_SAMPLE
                 ),
+                new CodeSample(
+                    <<<'CODE_SAMPLE'
+use Vendor\Alpha;
+
+/**
+ * File docblock.
+ */
+
+require_once __DIR__ . '/globals.php';
+CODE_SAMPLE
+                    ,
+                    <<<'CODE_SAMPLE'
+/**
+ * File docblock.
+ */
+use Vendor\Alpha;
+
+require_once __DIR__ . '/globals.php';
+CODE_SAMPLE
+                ),
             ]
         );
     }
@@ -95,26 +123,33 @@ CODE_SAMPLE
         $stmts = $node->stmts;
 
         $useIndexes = [];
+        $uses = [];
+        $rest = [];
         foreach ($stmts as $index => $stmt) {
             if ($this->isImport($stmt)) {
                 $useIndexes[] = $index;
-            }
-        }
-
-        // Nothing to gather, or the imports already form one contiguous run.
-        $count = count($useIndexes);
-        if ($count < 2 || ($useIndexes[$count - 1] - $useIndexes[0] + 1) === $count) {
-            return null;
-        }
-
-        $uses = [];
-        $rest = [];
-        foreach ($stmts as $stmt) {
-            if ($this->isImport($stmt)) {
                 $uses[] = $stmt;
             } else {
                 $rest[] = $stmt;
             }
+        }
+
+        if ($uses === []) {
+            return null;
+        }
+
+        // The imports already form one contiguous run, so there is nothing to
+        // gather -- but the docblock can still be stranded below them, and
+        // only a hoist fixes that. Restrict it to imports that open the file:
+        // behind a leading `declare` the docblock is already at the top,
+        // attached to that declare.
+        $count = count($uses);
+        if (($useIndexes[$count - 1] - $useIndexes[0] + 1) === $count) {
+            if ($useIndexes[0] !== 0) {
+                return null;
+            }
+
+            return $this->hoistFileDocblock($rest, $uses[0]) ? $node : null;
         }
 
         // `declare(strict_types=1)` must remain the very first statement, so
@@ -178,21 +213,44 @@ CODE_SAMPLE
      * describe the statement they sit on and stay with it.
      *
      * @param list<Node\Stmt> $rest
+     *
+     * @return bool whether the docblock moved
      */
-    private function hoistFileDocblock(array $rest, Use_|GroupUse $firstUse): void
+    private function hoistFileDocblock(array $rest, Use_|GroupUse $firstUse): bool
     {
         if ($rest === [] || $firstUse->getComments() !== []) {
-            return;
+            return false;
         }
 
         $first = $rest[0];
         $comments = $first->getComments();
         if ($comments === [] || !$comments[0] instanceof Doc) {
-            return;
+            return false;
+        }
+
+        if ($this->isCodeLevelDocblock($comments[0], $first)) {
+            return false;
         }
 
         $docblock = array_shift($comments);
         $first->setAttribute('comments', $comments);
         $firstUse->setAttribute('comments', [$docblock]);
+
+        return true;
+    }
+
+    /**
+     * A docblock that documents the statement it sits on is not the file
+     * header, and PSR12.Files.FileHeader agrees -- it stops treating a
+     * docblock as file-level once the code it precedes declares a symbol of
+     * its own or the block carries an `@var` annotation. Hoisting one of those
+     * would retitle the file with a class's description and leave the
+     * declaration undocumented.
+     */
+    private function isCodeLevelDocblock(Doc $docblock, Node\Stmt $stmt): bool
+    {
+        return $stmt instanceof ClassLike
+            || $stmt instanceof Function_
+            || str_contains(strtolower($docblock->getText()), '@var');
     }
 }
