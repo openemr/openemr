@@ -5,8 +5,8 @@
  * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2023 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2026 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2024-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -59,7 +59,7 @@ class DownloadWenoPharmacies
         '24HR',
     ];
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     public function __construct(?LoggerInterface $logger = null)
     {

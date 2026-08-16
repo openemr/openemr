@@ -6,7 +6,7 @@
  * @author     Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright  Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright  Copyright (c) 2024-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -53,7 +53,7 @@ function downloadWenoPharmacy(): void
     $status = $localPharmacyJson->storePharmacyData();
 
     // storePharmacyData() returns the imported row count, or false on failure.
-    $importedCount = is_numeric($status) ? (string) (int) $status : '';
+    $importedCount = is_numeric($status) ? (string) $status : '';
     $succeeded = $importedCount !== '';
     $outcome = $succeeded
         ? "Background Initiated Pharmacy Download Imported:" . text($importedCount) . " Pharmacies"
