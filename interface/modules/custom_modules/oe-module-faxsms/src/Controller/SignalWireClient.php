@@ -19,13 +19,16 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxDocumentDisposalInterface;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\Client;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\FaxInstance;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 
-class SignalWireClient extends AppDispatch implements FaxChannelInterface
+class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDocumentDisposalInterface
 {
+    use FaxDocumentDisposalTrait;
+
     const debugLogging = false; // Set to true to enable detailed debug logging in error_log
     /** Max faxes to pull from the SignalWire API in a single check. */
     private const FAX_LIST_LIMIT = 100;
@@ -514,72 +517,6 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
         $filePath = $dir . DIRECTORY_SEPARATOR . 'Fax_' . $jobId . '.pdf';
         file_put_contents($filePath, $this->crypto->encryptForFilesystem($data));
         return $filePath;
-    }
-
-    /**
-     * Download handoff for the shared getDocument() download branch. Mirrors the
-     * vendor contract: action=setup writes/echoes the temp path; action=download
-     * streams the staged file and removes it.
-     *
-     * @return string JSON (setup) or streams the file (download)
-     */
-    public function disposeDocument(): string
-    {
-        $response = ['success' => false, 'message' => '', 'url' => ''];
-        $where = $this->getRequest('file_path') ?: $this->getSession('where');
-
-        if (empty($where)) {
-            die(xlt('Problem with download. Use browser back button'));
-        }
-
-        $content = $this->getRequest('content', '');
-        $action = $this->getRequest('action');
-
-        if ($action == 'download') {
-            // sendFile() streams the file and exits, removing the staged temp
-            // after a successful stream, so no cleanup is reachable here.
-            $this->sendFile((string)$where);
-            exit;
-        }
-
-        if (!empty($content) && $action == 'setup') {
-            $decodedContent = base64_decode((string)$content);
-            if (file_put_contents($where, $this->crypto->encryptForFilesystem($decodedContent)) !== false) {
-                $response['success'] = true;
-                $response['url'] = $where;
-            } else {
-                $response['message'] = 'Failed to write file';
-            }
-        } elseif ($action == 'setup') {
-            // PDF path: viewFax already staged the encrypted file; hand it back.
-            $response['success'] = true;
-            $response['url'] = $where;
-        }
-
-        return json_encode($response);
-    }
-
-    /**
-     * Decrypt the at-rest temp file and stream it to the browser as a download.
-     */
-    private function sendFile(string $filePath): void
-    {
-        $payload = $this->uploadStaging->decryptFileBytes($filePath);
-        if ($payload === null) {
-            http_response_code(500);
-            echo xlt('Failed to read fax file');
-            exit;
-        }
-        ob_end_clean();
-        header("Cache-Control: public");
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=" . basename($filePath));
-        header("Content-Type: application/pdf");
-        header("Content-Transfer-Encoding: binary");
-        header('Content-Length: ' . strlen($payload));
-        echo $payload;
-        @unlink($filePath);
-        exit;
     }
 
     /**
