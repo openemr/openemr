@@ -343,6 +343,50 @@ final class ShipReleaseOrchestratorTest extends TestCase
         self::assertFalse($byRole[self::FINALIZE_REPO . '#404']);
     }
 
+    public function testIgnoreChecksThreadedThroughToEveryReadinessCall(): void
+    {
+        // The orchestrator's ignore-checks list must propagate to both the
+        // initial preflight readiness call and the downstream refresh call.
+        // Downstream refresh path fires when the conductor is merged in
+        // *this* run, so this is a full-auto happy path with docs re-render.
+        $api = new FakePullRequestApi();
+        $targets = $this->targets();
+        $api->setSnapshot(self::CONDUCTOR_REPO, self::CONDUCTOR_BRANCH, $this->openConductor());
+        $api->setSnapshot(self::DOCS_REPO, self::DOCS_BRANCH, $this->open(303, 'sha-docs-old'));
+        $api->setSnapshot(self::FINALIZE_REPO, self::FINALIZE_BRANCH, $this->open(404, 'sha-finalize-old'));
+        $api->setSnapshotAfterFinds(self::DOCS_REPO, self::DOCS_BRANCH, 2, $this->open(303, 'sha-docs-new'));
+        $api->setSnapshotAfterFinds(
+            self::FINALIZE_REPO,
+            self::FINALIZE_BRANCH,
+            2,
+            $this->open(404, 'sha-finalize-new'),
+        );
+        $api->setReadiness(self::CONDUCTOR_REPO, 202, $this->ready('sha-conductor'));
+        $api->setReadiness(self::DOCS_REPO, 303, $this->ready('sha-docs-new'));
+        $api->setReadiness(self::FINALIZE_REPO, 404, $this->ready('sha-finalize-new'));
+        $api->setReleaseExists(self::OPENEMR_REPO, self::RELEASE_TAG, true);
+
+        $ignore = ['PHP 8.6 - Isolated Tests', 'ci/upstream-flake'];
+        $orchestrator = new ShipReleaseOrchestrator(
+            $api,
+            new FakeClock(),
+            self::VERSION,
+            600,
+            Mode::FullAuto,
+            '',
+            $ignore,
+        );
+        $result = $orchestrator->ship($targets);
+
+        self::assertTrue($result->wasSuccessful());
+        // Every readiness call (preflight for all 3, plus downstream
+        // refresh for docs + finalize) must carry the ignore list.
+        self::assertNotEmpty($api->readinessCalls);
+        foreach ($api->readinessCalls as $call) {
+            self::assertSame($ignore, $call['ignoreChecks']);
+        }
+    }
+
     public function testConductorBlockedAtPreflightMergesNothing(): void
     {
         $api = new FakePullRequestApi();
