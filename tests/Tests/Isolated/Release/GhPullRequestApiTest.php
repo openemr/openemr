@@ -396,6 +396,29 @@ final class GhPullRequestApiTest extends TestCase
         self::assertStringContainsString('IN_PROGRESS', $reasons[0]);
     }
 
+    public function testRollupDedupePreservesFirstSeenOrderWhenReplacingNewerAttempt(): void
+    {
+        // Regression: replacing a check with a newer attempt must NOT
+        // overwrite its first-seen sequence position. Order in the rollup:
+        // check A (seq 1), check B (seq 2), check A newer (seq 3, replaces).
+        // Dedupe should emit A before B — A was first seen at seq 1, even
+        // though the winning entry is a later re-run.
+        $rollup = [
+            ['name' => 'A', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:00:00Z'],
+            ['name' => 'B', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:30:00Z'],
+            ['name' => 'A', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T19:00:00Z'],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertCount(2, $reasons);
+        self::assertStringContainsString('A', $reasons[0]);
+        self::assertStringContainsString('B', $reasons[1]);
+    }
+
     public function testRollupDedupeAppliesToLegacyStatusesByContext(): void
     {
         // Legacy commit statuses re-post to the same context. Only the latest

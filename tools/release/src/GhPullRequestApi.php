@@ -240,8 +240,16 @@ final readonly class GhPullRequestApi implements PullRequestApi
                 continue;
             }
             $ts = self::checkTimestamp($check);
-            if (!isset($latest[$key]) || $ts > $latest[$key]['ts']) {
+            if (!isset($latest[$key])) {
                 $latest[$key] = ['check' => $check, 'ts' => $ts, 'seq' => $seq];
+            } elseif ($ts > $latest[$key]['ts']) {
+                // Update check + ts to the newer attempt but preserve the
+                // original first-seen seq so downstream ordering stays
+                // deterministic. Overwriting seq here would shift a re-run's
+                // check to its later position in the rollup, contradicting
+                // the "first-seen sequence per key" ordering rule below.
+                $latest[$key]['check'] = $check;
+                $latest[$key]['ts'] = $ts;
             }
         }
         // Restore original relative order (by first-seen sequence per key) so
