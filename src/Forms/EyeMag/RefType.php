@@ -57,4 +57,52 @@ enum RefType: string
     {
         return $this === self::CTL;
     }
+
+    /**
+     * The prefix the measurements behind this prescription carry on the joined
+     * `form_eye_*` record: `MRODSPH` is the manifest refraction's right-eye
+     * sphere, `CTLOSCYL` the contact lens trial's left-eye cylinder, and so on.
+     *
+     * A wearing prescription is not a refraction at all -- it is the patient's
+     * current glasses read back out of `form_eye_mag_wearing`, whose columns are
+     * unprefixed -- so it has no prefix here.
+     */
+    public function columnPrefix(): ?string
+    {
+        return match ($this) {
+            self::W => null,
+            self::AR, self::MR, self::CR, self::CTL => $this->value,
+        };
+    }
+
+    /**
+     * The column this prescription's comments are read from.
+     *
+     * The three spectacle refractions share the one `CRCOMMENTS` column of the
+     * refraction record. A wearing or contact lens prescription carries its own
+     * unprefixed `COMMENTS` instead.
+     */
+    public function commentsColumn(): string
+    {
+        return match ($this) {
+            self::AR, self::MR, self::CR => 'CRCOMMENTS',
+            self::W, self::CTL => 'COMMENTS',
+        };
+    }
+
+    /**
+     * Whether this prescription records a near-add power alongside the distance
+     * correction, in an `ODADD`/`OSADD` column pair.
+     *
+     * A cycloplegic refraction paralyzes accommodation, so there is no add to
+     * measure; a contact lens trial keeps its add in the `CTLODADD` pair the
+     * lens table reads, not in the spectacle add fields.
+     */
+    public function hasAddPower(): bool
+    {
+        return match ($this) {
+            self::W, self::AR, self::MR => true,
+            self::CR, self::CTL => false,
+        };
+    }
 }

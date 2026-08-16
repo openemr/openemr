@@ -31,4 +31,31 @@ enum RxType: string
      * recognized code.
      */
     public const DEFAULT = self::Single;
+
+    /**
+     * Resolves the label stored in `form_eye_mag_dispense.RXTYPE`.
+     *
+     * The dispense table records the lens type by name rather than by the code
+     * `form_eye_mag_wearing.RX_TYPE` holds, so a dispensed prescription is read
+     * back through here instead of {@see self::tryFrom()}.
+     */
+    public static function fromLabel(string $label): ?self
+    {
+        foreach (self::cases() as $case) {
+            if ($case->name === $label) {
+                return $case;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The `checked` attribute for this lens type's radio button, given the lens
+     * type the prescription was written for.
+     */
+    public function checkedAttribute(?self $selected): string
+    {
+        return $this === $selected ? "checked='checked'" : '';
+    }
 }

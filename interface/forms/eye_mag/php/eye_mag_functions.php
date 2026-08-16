@@ -1694,9 +1694,8 @@ function build_PMSFH($pid)
         }
 
         $issues = $panel->issuesQuery($pid);
-        $pres = sqlStatement($issues->sql, $issues->params);
         $row_counter = '0';
-        while ($row = sqlFetchArray($pres)) {
+        foreach (QueryUtils::fetchRecords($issues->sql, $issues->params) as $row) {
             $rowid = $row['id'];
             $disptitle = text(trim((string) $row['title'])) ? text($row['title']) : "[" . xlt("Missing Title") . "]";
             //  look up the diag codes
@@ -3339,7 +3338,7 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
  */
 function copy_forward(Zone|CopyMode $mode, string $copy_from, string $pid): void
 {
-    $record = sqlQuery(CopyForward::RECORD_QUERY, [$pid, $copy_from]);
+    $record = QueryUtils::querySingleRow(CopyForward::RECORD_QUERY, [$pid, $copy_from]);
     if (!is_array($record)) {
         // No such form for this patient: nothing to carry forward.
         echo json_encode([]);
