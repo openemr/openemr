@@ -50,6 +50,15 @@ use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
  * still inverted -- PSR12.Files.FileHeader reports "the file-level docblock
  * must follow the opening PHP tag in the file header" on its own.
  *
+ * An import block sitting *below* leading code is the third trigger, and the
+ * only one that breaks at runtime rather than in a linter. PHP applies an
+ * import to the code that follows it, not to the whole file, so shortening a
+ * fully-qualified name above the `use` block -- exactly what name importing
+ * does -- turns `\OpenEMR\Core\OEGlobalsBag::getInstance()` in a leading
+ * `require_once` into an unresolvable `OEGlobalsBag` and the file fatals on
+ * load. Moving the block to the top is always safe: imports are resolved at
+ * compile time and have no runtime effect of their own.
+ *
  * @see \OpenEMR\Rector\Rules\ConsolidateImportsRectorTest
  */
 class ConsolidateImportsRector extends AbstractRector
@@ -138,25 +147,26 @@ CODE_SAMPLE
             return null;
         }
 
-        // The imports already form one contiguous run, so there is nothing to
-        // gather -- but the docblock can still be stranded below them, and
-        // only a hoist fixes that. Restrict it to imports that open the file:
-        // behind a leading `declare` the docblock is already at the top,
-        // attached to that declare.
         $count = count($uses);
-        if (($useIndexes[$count - 1] - $useIndexes[0] + 1) === $count) {
-            if ($useIndexes[0] !== 0) {
-                return null;
-            }
-
-            return $this->hoistFileDocblock($rest, $uses[0]) ? $node : null;
-        }
+        $contiguous = ($useIndexes[$count - 1] - $useIndexes[0] + 1) === $count;
 
         // `declare(strict_types=1)` must remain the very first statement, so
         // any leading declares stay ahead of the imports.
         $leading = [];
         while ($rest !== [] && $rest[0] instanceof Declare_) {
             $leading[] = array_shift($rest);
+        }
+
+        // A single run of imports that already opens the file (behind nothing
+        // but declares) needs no reordering -- at most its docblock is
+        // stranded below it. Behind a leading `declare` even that is fine:
+        // the docblock sits at the top already, attached to that declare.
+        if ($contiguous && $useIndexes[0] === count($leading)) {
+            if ($leading !== []) {
+                return null;
+            }
+
+            return $this->hoistFileDocblock($rest, $uses[0]) ? $node : null;
         }
 
         // PSR-12 wants class, then function, then const imports grouped by
