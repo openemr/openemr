@@ -12,7 +12,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\DownloadWenoPharmacies;
-use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
@@ -34,7 +33,6 @@ $encryption_key = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->g
 $baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
 $pharmacyDownloadService = new DownloadWenoPharmacies();
-$pharmacyService = new PharmacyService();
 $wenoLog = new WenoLogService();
 
 $data = [
@@ -71,11 +69,14 @@ EventAuditLogger::getInstance()->newEvent(
     $comment
 );
 
-$wenoLog->insertWenoLog("Pharmacy Directory", 'Start File Download', $fileUrl);
+// Log the endpoint only. $fileUrl carries the admin email and the encrypted
+// credential payload, and data_in_context is readable from the log viewer.
+$wenoLog->insertWenoLog("Pharmacy Directory", 'Start File Download', $baseurl);
 ServiceContainer::getLogger()->debug('Weno pharmacy file download started');
 $wenoLog->insertWenoLog("Pharmacy Directory", $logMessage);
 
-// isInsertOnly=false for daily (upsert); true for full/weekly rebuild after truncate above.
+// isInsertOnly=false for daily (upsert); true for the full/weekly rebuild,
+// which clears the table inside downloadAndImport()'s import transaction.
 $count = $pharmacyDownloadService->downloadAndImport($fileUrl, $isFullDirectory, "Pharmacy Directory");
 
 $wenoLog->insertWenoLog("Pharmacy Directory", 'End File Download');

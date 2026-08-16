@@ -6,7 +6,7 @@
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023-2026 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2024-2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -60,7 +60,13 @@ class DownloadWenoPharmacies
         '24HR',
     ];
 
-    private LoggerInterface $logger;
+    /** Tokens kept upper-case when title-casing an all-caps source value. */
+    private const UPPERCASE_TOKENS = [
+        'CVS', 'RX', 'LLC', 'LLP', 'LP', 'INC', 'PC', 'PA', 'DBA',
+        'USA', 'US', 'NE', 'NW', 'SE', 'SW', 'II', 'III', 'IV',
+    ];
+
+    private readonly LoggerInterface $logger;
 
     public function __construct(?LoggerInterface $logger = null)
     {
@@ -161,8 +167,11 @@ class DownloadWenoPharmacies
             return false;
         }
 
-        $connect->begin_transaction();
         try {
+            if ($connect->begin_transaction() !== true) {
+                throw new Exception('Unable to start the pharmacy import transaction');
+            }
+
             // Full-directory rebuild: clear inside the transaction so a failed
             // import rolls back to the previous directory instead of leaving the
             // table empty. TRUNCATE cannot be used here - it commits implicitly.
@@ -234,16 +243,16 @@ class DownloadWenoPharmacies
                 $imported++;
             }
 
-            // Nothing usable in the payload: roll back so a full-directory run
-            // restores the rows the DELETE above removed.
+            // Nothing usable in the payload. Throw so the catch below performs the
+            // single rollback for this method, restoring the rows the DELETE above
+            // removed on a full-directory run.
             if ($imported === 0) {
-                $connect->rollback();
-                $wenoLog->insertWenoLog('Pharmacy Directory', 'CSV contained no importable pharmacy rows');
-                $this->logger->error('Weno pharmacy import: CSV contained no importable rows', ['file' => $filePath]);
-                return false;
+                throw new Exception('CSV contained no importable pharmacy rows in ' . $filePath);
             }
 
-            $connect->commit();
+            if ($connect->commit() !== true) {
+                throw new Exception('Unable to commit the pharmacy import');
+            }
 
             return $imported;
         } catch (\Throwable $e) {
@@ -312,7 +321,11 @@ class DownloadWenoPharmacies
             $httpCode = $response->getStatusCode();
             $contentType = $response->getHeaderLine('Content-Type');
         } catch (GuzzleException $e) {
-            $transportError = $e->getMessage();
+            // Guzzle puts the full request URI in its exception messages, and the
+            // Weno URL carries useremail plus the encrypted credential blob. That
+            // message ends up in weno_download_log and the app log, so strip the
+            // query string before it travels any further.
+            $transportError = $this->redactUrlQuery($e->getMessage());
         }
 
         clearstatcache(true, $storeLocation);
@@ -834,13 +847,36 @@ class DownloadWenoPharmacies
         return null;
     }
 
+    /**
+     * Strip query strings from any URL in text bound for a log or a status row.
+     */
+    private function redactUrlQuery(string $text): string
+    {
+        $redacted = preg_replace('~(https?://[^\s?"\']+)\?[^\s"\']*~i', '$1?[redacted]', $text);
+
+        return is_string($redacted) ? $redacted : 'Pharmacy download transport failure';
+    }
+
     private function titleCase(string $value): string
     {
         $value = trim($value);
         if ($value === '') {
             return '';
         }
-        return ucwords(strtolower($value));
+        // Weno ships these fields upper-cased, which is why we title-case at all.
+        // Anything already mixed-case is intentional (CVS, McKesson, LLC) and is
+        // left exactly as supplied.
+        if ($value !== mb_strtoupper($value)) {
+            return $value;
+        }
+
+        $titled = ucwords(mb_strtolower($value));
+        // Restore tokens that are conventionally upper-case.
+        return (string) preg_replace_callback(
+            '/\b(' . implode('|', self::UPPERCASE_TOKENS) . ')\b/i',
+            static fn(array $m): string => mb_strtoupper($m[1]),
+            $titled
+        );
     }
 
     private function cleanupExtractedCsvFiles(string $pathToExtract): void

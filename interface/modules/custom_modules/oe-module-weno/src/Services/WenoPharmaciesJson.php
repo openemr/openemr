@@ -67,7 +67,10 @@ class WenoPharmaciesJson
         $downloadWenoPharmacies = new DownloadWenoPharmacies();
 
         $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode((string) $this->providerEmail()) . "&data=" . urlencode($this->encrypted);
-        $wenoLog->insertWenoLog("Pharmacy Directory", "Background Initiated Download started", $url);
+        // Log the endpoint only. The query string carries the admin email and the
+        // encrypted credential payload, and weno_download_log.data_in_context is
+        // readable from the download log viewer.
+        $wenoLog->insertWenoLog("Pharmacy Directory", "Background Initiated Download started", $this->wenoPharmacyDirectoryLink());
         error_log('Background Initiated Pharmacy Download Started.');
 
         // Match the import mode to the payload requested in buildJson(): a daily
