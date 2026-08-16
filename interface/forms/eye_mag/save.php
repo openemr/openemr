@@ -38,6 +38,8 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
 
@@ -1305,7 +1307,14 @@ if ($_REQUEST['canvas'] ?? '') {
 }
 
 if ($_REQUEST['copy']) {
-    copy_forward($_REQUEST['zone'], $_REQUEST['copy_from'], ($session->get('ID') ?? ''), $pid);
+    $requestedZone = $_REQUEST['zone'] ?? '';
+    $copyFrom = $_REQUEST['copy_from'] ?? '';
+    if (is_string($requestedZone) && is_string($copyFrom) && is_scalar($pid)) {
+        $copyMode = Zone::tryFrom($requestedZone) ?? CopyMode::tryFrom($requestedZone);
+        if ($copyMode !== null) {
+            copy_forward($copyMode, $copyFrom, (string) $pid);
+        }
+    }
     return;
 }
 
