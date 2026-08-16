@@ -203,6 +203,7 @@ final readonly class ShipReleaseOrchestrator
                 $snapshot->number,
                 $this->requiresApproval($target->roleLabel),
                 $this->ignoreChecks,
+                $this->requiresNonDraft($target->roleLabel),
             );
             $readiness[$key] = $check;
             if (!$check->isReady()) {
@@ -552,6 +553,7 @@ final readonly class ShipReleaseOrchestrator
             $fresh->number,
             $this->requiresApproval($target->roleLabel),
             $this->ignoreChecks,
+            $this->requiresNonDraft($target->roleLabel),
         );
         if (!$readiness->isReady()) {
             $stopReason = $conductorJustMerged
@@ -595,6 +597,25 @@ final readonly class ShipReleaseOrchestrator
      * checks skip the APPROVED requirement.
      */
     private function requiresApproval(RoleLabel $role): bool
+    {
+        return match ($role) {
+            RoleLabel::Conductor => true,
+            RoleLabel::Docs, RoleLabel::Finalize => false,
+        };
+    }
+
+    /**
+     * Conductor is a human-review artifact -- must be non-draft at preflight
+     * time (undrafted by the maintainer as the ready-to-ship signal). Docs
+     * and Finalize are AUTO-drafted by their generator workflows and only
+     * auto-flipped by post-tag workflows (docs on `openemr-tag`, finalize
+     * by the finalize job), which fire AFTER conductor merges. Preflight
+     * can't require non-draft on downstream targets without deadlocking
+     * the ship. Full-auto re-checks readiness after auto-flip via
+     * refreshDownstreamBeforeMerge, so downstream drafts are re-evaluated
+     * at the actually-safe moment.
+     */
+    private function requiresNonDraft(RoleLabel $role): bool
     {
         return match ($role) {
             RoleLabel::Conductor => true,
