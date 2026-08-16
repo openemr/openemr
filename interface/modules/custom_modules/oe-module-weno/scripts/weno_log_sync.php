@@ -54,12 +54,13 @@ function downloadWenoPharmacy(): void
 
     // storePharmacyData() returns the imported row count, or false on failure.
     $importedCount = is_numeric($status) ? (string) (int) $status : '';
-    $outcome = $importedCount !== ''
+    $succeeded = $importedCount !== '';
+    $outcome = $succeeded
         ? "Background Initiated Pharmacy Download Imported:" . text($importedCount) . " Pharmacies"
         : "Background Initiated Pharmacy Download failed";
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $session->get('authUser'), $session->get('authProvider'), 1, $outcome);
+    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $session->get('authUser'), $session->get('authProvider'), $succeeded ? 1 : 0, $outcome);
     error_log($outcome);
 }
 

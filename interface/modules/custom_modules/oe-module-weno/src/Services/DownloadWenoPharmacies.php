@@ -59,7 +59,7 @@ class DownloadWenoPharmacies
         '24HR',
     ];
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(?LoggerInterface $logger = null)
     {
@@ -141,10 +141,6 @@ class DownloadWenoPharmacies
     {
         $wenoLog = new WenoLogService();
 
-        if (date('l') == 'Monday' && $isInsertOnly) {
-            sqlStatement('TRUNCATE TABLE weno_pharmacy');
-        }
-
         $connect = OEGlobalsBag::getInstance()->get('dbh');
         if ($connect->connect_error) {
             $wenoLog->insertWenoLog('Pharmacy Directory', 'Connection Failed.');
@@ -166,6 +162,13 @@ class DownloadWenoPharmacies
 
         $connect->begin_transaction();
         try {
+            // Full-directory rebuild: clear inside the transaction so a failed
+            // import rolls back to the previous directory instead of leaving the
+            // table empty. TRUNCATE cannot be used here - it commits implicitly.
+            if ($isInsertOnly) {
+                sqlStatement('DELETE FROM weno_pharmacy');
+            }
+
             $csv = Reader::createFromPath($filePath, 'r');
             $csv->setEscape('\\');
             $headerOffset = $this->detectHeaderOffset($filePath);
@@ -468,6 +471,36 @@ class DownloadWenoPharmacies
                 return false;
             }
 
+            // Archive is remote content: reject any entry that would resolve
+            // outside the download directory before extracting anything.
+            $extractRoot = realpath($pathToExtract);
+            if ($extractRoot === false) {
+                $zip->close();
+                $message = 'Pharmacy download extract directory is unavailable';
+                $wenoLog->insertWenoLog($logContext, $message);
+                $this->logger->error($message, ['dir' => $pathToExtract]);
+                return false;
+            }
+            $extractRoot = rtrim(str_replace('\\', '/', $extractRoot), '/') . '/';
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $entry = $zip->getNameIndex($i);
+                $entryPath = $entry === false ? '' : str_replace('\\', '/', $entry);
+                $target = $extractRoot . ltrim($entryPath, '/');
+                if (
+                    $entry === false
+                    || $entryPath === ''
+                    || str_starts_with($entryPath, '/')
+                    || str_contains($entryPath, '../')
+                    || !str_starts_with($target, $extractRoot)
+                ) {
+                    $zip->close();
+                    $message = 'Pharmacy download zip contains an unsafe entry path';
+                    $wenoLog->insertWenoLog($logContext, $message);
+                    $this->logger->error($message, ['entry' => $entryPath]);
+                    return false;
+                }
+            }
+
             if (!$zip->extractTo($pathToExtract)) {
                 $zip->close();
                 $message = 'Pharmacy download zip extract failed';
@@ -479,10 +512,20 @@ class DownloadWenoPharmacies
 
             $files = glob($pathToExtract . '*.csv') ?: [];
             $csvFile = '';
+            // Two passes so the reduced "lite" directory wins over any other
+            // weno_pharmacy* CSV regardless of glob order.
             foreach ($files as $file) {
-                if (stripos($file, 'weno_pharmacy_lite') !== false || stripos($file, 'weno_pharmacy') !== false) {
+                if (stripos($file, 'weno_pharmacy_lite') !== false) {
                     $csvFile = $file;
                     break;
+                }
+            }
+            if ($csvFile === '') {
+                foreach ($files as $file) {
+                    if (stripos($file, 'weno_pharmacy') !== false) {
+                        $csvFile = $file;
+                        break;
+                    }
                 }
             }
             if ($csvFile === '' && $files !== []) {
@@ -674,7 +717,10 @@ class DownloadWenoPharmacies
         $suffix = 0;
         while (isset($usedNcpdp[$ncpdp])) {
             $suffix++;
-            $ncpdp = substr($base, 0, 5) . str_pad((string) $suffix, 2, '0', STR_PAD_LEFT);
+            // Keep the key at 7 chars: the selector query filters on
+            // strlen(ncpdp_safe) < 8, so an 8-char key drops out of search.
+            $suffixText = str_pad((string) $suffix, 2, '0', STR_PAD_LEFT);
+            $ncpdp = substr($base, 0, max(0, 7 - strlen($suffixText))) . $suffixText;
         }
 
         $mailOrderRaw = $normalized['State_Wide_Mail_Order'] ?? ($normalized['Mail Order'] ?? '');

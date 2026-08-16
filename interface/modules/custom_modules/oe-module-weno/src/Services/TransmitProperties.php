@@ -591,10 +591,14 @@ class TransmitProperties
      */
     public function getWenoProviderId($id = null): mixed
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserId = $session->get('authUserID') ?? '';
         if (empty($id)) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $id = $session->get('authUserID') ?? '';
+            $id = $authUserId;
         }
+        // weno_provider_uid is an in-memory value for whoever is logged in, so it
+        // is only a valid fallback when the target user is the session user.
+        $isSessionUser = $id == $authUserId;
         // Read all known sources for Weno UID.
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
         $userSetting = sqlQuery(
@@ -615,7 +619,7 @@ class TransmitProperties
         if ($resolvedUid === '' && $settingsUid !== '') {
             $resolvedUid = $settingsUid;
         }
-        if ($resolvedUid === '' && $globalUid !== '') {
+        if ($resolvedUid === '' && $isSessionUser && $globalUid !== '') {
             $resolvedUid = $globalUid;
         }
 

@@ -17,6 +17,8 @@ use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 class WenoPharmaciesJson
 {
     private readonly string $encrypted;
+    /** True when buildJson() requested a daily delta rather than a full directory. */
+    private bool $isDailyImport = false;
 
     public function __construct(private readonly CryptoInterface $cryptoGen)
     {
@@ -52,10 +54,14 @@ class WenoPharmaciesJson
             // get a weekly
             $jobJson["Daily"] = "N"; // in case table was emptied unintentionally
         }
+        // Remember which payload we asked Weno for; the importer needs the same
+        // mode. A daily delta must upsert, a full directory rebuilds the table.
+        $this->isDailyImport = ($jobJson["Daily"] === "Y");
+
         return text(json_encode($jobJson));
     }
 
-    public function storePharmacyData(): int|false|string|null
+    public function storePharmacyData(): int|false
     {
         $wenoLog = new WenoLogService();
         $downloadWenoPharmacies = new DownloadWenoPharmacies();
@@ -64,8 +70,11 @@ class WenoPharmaciesJson
         $wenoLog->insertWenoLog("Pharmacy Directory", "Background Initiated Download started", $url);
         error_log('Background Initiated Pharmacy Download Started.');
 
-        // Daily/full decision remains in buildJson(); import uses insert-only rebuild semantics for background.
-        return $downloadWenoPharmacies->downloadAndImport($url, true, 'Pharmacy Directory');
+        // Match the import mode to the payload requested in buildJson(): a daily
+        // delta upserts against the unique NCPDP_safe key, a full directory
+        // rebuilds. Passing insert-only for a daily payload makes every repeated
+        // row a duplicate-key failure and rolls the whole import back.
+        return $downloadWenoPharmacies->downloadAndImport($url, !$this->isDailyImport, 'Pharmacy Directory');
     }
 
     private function providerEmail()

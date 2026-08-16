@@ -48,7 +48,8 @@ $logMessage = "User Initiated Daily Pharmacy Update";
 $isFullDirectory = ($data['Daily'] == 'N');
 if ($isFullDirectory) {
     $logMessage = "User Initiated Weekly Pharmacy Update";
-    $pharmacyService->removeWenoPharmacies();
+    // The existing directory is cleared by downloadAndImport() inside its
+    // import transaction, so a failed download leaves the current data intact.
 }
 
 $json_object = json_encode($data);
