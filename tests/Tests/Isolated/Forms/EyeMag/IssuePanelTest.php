@@ -103,6 +103,21 @@ class IssuePanelTest extends TestCase
         }
     }
 
+    public function testIssuesQueryBindsEveryPlaceholder(): void
+    {
+        foreach (PmsfhPanel::cases() as $panel) {
+            $query = $panel->issuesQuery('7');
+
+            $this->assertCount(
+                substr_count($query->sql, '?'),
+                $query->params,
+                "{$panel->value} has a placeholder without a bind",
+            );
+            $this->assertSame(['7', $panel->issueType()], array_slice($query->params, 0, 2));
+            $this->assertStringContainsString($panel->orderBy(), $query->sql);
+        }
+    }
+
     public function testRecentTitlesQueryBindsEveryPlaceholder(): void
     {
         foreach (IssueQuickPick::cases() as $panel) {

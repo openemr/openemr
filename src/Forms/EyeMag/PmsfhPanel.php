@@ -72,4 +72,26 @@ enum PmsfhPanel: string
             self::POH, self::POS, self::EyeMeds, self::PMH, self::Medication, self::Allergy => 'ORDER BY title',
         };
     }
+
+    /**
+     * The issues to list in this panel for one patient.
+     */
+    public function issuesQuery(string $pid): SqlFragment
+    {
+        $subtype = $this->subtypeFilter()->condition();
+
+        // The only interpolation is the subtype predicate and the sort order,
+        // both of which this class and SubtypeFilter build from closed sets of
+        // literals. Every value is bound.
+        $sql = <<<SQL
+            SELECT *
+              FROM lists
+             WHERE pid = ?
+               AND type = ?
+               {$subtype->sql}
+             {$this->orderBy()}
+            SQL;
+
+        return new SqlFragment($sql, [$pid, $this->issueType(), ...$subtype->params]);
+    }
 }

@@ -1693,11 +1693,8 @@ function build_PMSFH($pid)
             continue;
         }
 
-        $subtype = $panel->subtypeFilter()->condition();
-        $pres = sqlStatement(
-            'SELECT * FROM lists WHERE pid = ? AND type = ? ' . $subtype->sql . ' ' . $panel->orderBy(),
-            [$pid, $panel->issueType(), ...$subtype->params],
-        );
+        $issues = $panel->issuesQuery($pid);
+        $pres = sqlStatement($issues->sql, $issues->params);
         $row_counter = '0';
         while ($row = sqlFetchArray($pres)) {
             $rowid = $row['id'];
