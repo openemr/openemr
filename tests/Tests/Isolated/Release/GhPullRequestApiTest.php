@@ -87,4 +87,53 @@ final class GhPullRequestApiTest extends TestCase
         self::assertCount(1, $reasons);
         self::assertStringContainsString('EXPECTED', $reasons[0]);
     }
+
+    public function testRollupSkipsIgnoredCheckByName(): void
+    {
+        $rollup = [
+            ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ['name' => 'green-job', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup(
+            $rollup,
+            ShipReleaseOrchestrator::STATUS_CONTEXT,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testRollupSkipsIgnoredLegacyStatusByContext(): void
+    {
+        $rollup = [
+            ['context' => 'ci/upstream-flake', 'state' => 'FAILURE'],
+            ['context' => 'ci/build', 'state' => 'SUCCESS'],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup(
+            $rollup,
+            ShipReleaseOrchestrator::STATUS_CONTEXT,
+            ['ci/upstream-flake'],
+        );
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testRollupStillBlocksOnCheckNotInIgnoreList(): void
+    {
+        $rollup = [
+            ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup(
+            $rollup,
+            ShipReleaseOrchestrator::STATUS_CONTEXT,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertCount(1, $reasons);
+        self::assertStringContainsString('phpstan', $reasons[0]);
+    }
 }

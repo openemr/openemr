@@ -31,8 +31,22 @@ interface PullRequestApi
      * apply. Docs + Finalize PRs are auto-generated bot content with no
      * meaningful "human review" gate; Conductor is the one meaningful review
      * point and defaults to requiring approval for back-compat.
+     *
+     * $ignoreChecks holds check-run names (or legacy status contexts) that
+     * must be skipped in the status-check rollup. Used to bypass upstream
+     * known-broken jobs (e.g. `PHP 8.6 - Isolated Tests` during an upstream
+     * PHP bug window) so an operator-approved release can still ship.
+     * Matching is an exact string comparison against the check's `name` and
+     * `context` fields as returned by `gh pr view --json statusCheckRollup`.
+     *
+     * @param list<string> $ignoreChecks
      */
-    public function getReadiness(string $repo, int $number, bool $requireApproval = true): PullRequestReadiness;
+    public function getReadiness(
+        string $repo,
+        int $number,
+        bool $requireApproval = true,
+        array $ignoreChecks = [],
+    ): PullRequestReadiness;
 
     /**
      * Whether a GitHub Release object exists for $tag in $repo. Used by the
