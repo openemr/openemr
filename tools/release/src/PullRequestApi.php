@@ -38,6 +38,10 @@ interface PullRequestApi
      * PHP bug window) so an operator-approved release can still ship.
      * Matching is an exact string comparison against the check's `name` and
      * `context` fields as returned by `gh pr view --json statusCheckRollup`.
+     * GitHub reports `mergeStateStatus=UNSTABLE` when a non-required check
+     * is failing; the ignore-list only removes matching failures from the
+     * blocking-reasons list. When it clears every rollup entry, UNSTABLE is
+     * treated as CLEAN.
      *
      * @param list<string> $ignoreChecks
      */
