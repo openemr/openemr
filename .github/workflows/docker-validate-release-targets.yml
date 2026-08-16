@@ -34,6 +34,19 @@
 # stay ready-to-flip-live. Consumers (orchestrator, dockerhub readme
 # pusher, demo_farm bumper) are responsible for skipping these rows -- the
 # validator does not.
+#
+# **release-finalize/* PR special case (openemr/openemr#13580).** The
+# `release-finalize/<rel-branch>` PR (opened by release-prep.yml alongside
+# the conductor PR) proposes adding a row like `openemr_version_ref:
+# v8_3_0` whose tag DOES NOT exist yet -- the conductor merge is what
+# creates the tag. On those PRs, ref-resolution failures degrade from
+# error to warning (the unresolvable row is expected pre-tag), and the
+# row's alignment check is skipped since we can't fetch version.php from
+# a non-existent tag. Every other check (shape, dedup, alignment for
+# resolvable rows, master-row alignment via local checkout) still
+# applies. Detected via `github.head_ref` starting with
+# `release-finalize/`. All non-finalize PRs and master pushes keep the
+# strict "must resolve" gate.
 
 name: Validate release-targets.yml
 
@@ -57,6 +70,23 @@ jobs:
   validate:
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
     runs-on: ubuntu-24.04
+    env:
+      # Detect release-finalize/<rel-branch> PRs so ref-resolution failures
+      # downgrade from error to warning. See workflow header for the full
+      # rationale (openemr/openemr#13580).
+      #
+      # Three-way guard: (1) branch-name prefix, (2) head repo == this repo
+      # (blocks fork PRs spoofing the prefix), (3) opener is the release-App
+      # bot (blocks an org member manually pushing a `release-finalize/foo`
+      # branch to get lax validation). Legitimate finalize PRs are always
+      # opened by openemr-release-bot from the openemr/openemr repository
+      # itself -- see release-prep.yml's `peter-evans/create-pull-request`
+      # step. All three signals must line up before the lax-validation
+      # exception fires.
+      IS_FINALIZE_PR: >-
+        ${{ startsWith(github.head_ref, 'release-finalize/')
+            && github.event.pull_request.head.repo.full_name == github.repository
+            && github.event.pull_request.user.login == 'openemr-release-bot[bot]' }}
     steps:
     - uses: actions/checkout@v7
 
@@ -102,8 +132,17 @@ jobs:
                --silent 2>&1); then
             echo "✓ $BRANCH: openemr_version_ref '$REF' resolves."
           elif echo "$err_output" | grep -qE 'HTTP 404|Not Found'; then
-            echo "::error::Row '$BRANCH': openemr_version_ref '$REF' does not resolve in openemr/openemr"
-            exit 1
+            # The lax "unresolvable is a warning" branch only applies to
+            # non-master rows on finalize PRs. Master row's ref should
+            # always be `master` (which cannot 404); a master row with a
+            # non-master ref is a real bug that must be caught even on a
+            # finalize PR.
+            if [ "${IS_FINALIZE_PR}" = "true" ] && [ "$BRANCH" != "master" ]; then
+              echo "::warning::Row '$BRANCH': openemr_version_ref '$REF' not yet resolvable — expected on release-finalize PR (tag will be created by conductor merge)."
+            else
+              echo "::error::Row '$BRANCH': openemr_version_ref '$REF' does not resolve in openemr/openemr"
+              exit 1
+            fi
           else
             echo "::error::Row '$BRANCH': failed to check openemr_version_ref '$REF' (not a 404): $err_output"
             exit 1
@@ -160,6 +199,20 @@ jobs:
             # transient failures. Same G19 pattern as the sibling step
             # above and docker-build-release.yml's fetch.
             if grep -qE 'HTTP 404|Not Found' /tmp/gh-api-err; then
+              # release-finalize/* PR carrying a not-yet-created tag: skip
+              # this row's alignment check with a warning instead of failing.
+              # The sibling ref-resolution step above already downgrades the
+              # 404 to a warning on finalize PRs -- this keeps the two steps
+              # in lockstep. Guarded to non-master rows only: master row is
+              # handled by the local-checkout path above (REF == "master"),
+              # and any 404 that reaches here for a `branch: master` row
+              # means someone put a non-master ref there, which is a real
+              # bug even on a finalize PR. See workflow header
+              # (openemr/openemr#13580).
+              if [ "${IS_FINALIZE_PR}" = "true" ] && [ "$BRANCH" != "master" ]; then
+                echo "::warning::Row '$BRANCH': openemr_version_ref '$REF' not yet resolvable — skipping alignment check on release-finalize PR."
+                continue
+              fi
               echo "::error::Row '$BRANCH': openemr_version_ref '$REF' does not resolve in openemr/openemr"
             else
               echo "::error::Row '$BRANCH': failed to fetch version.php at ref '$REF' (not a 404):"
