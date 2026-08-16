@@ -6,7 +6,7 @@
  * @package Demo
  */
 
-require_once Vendor\Alpha::bootstrapPath();
+require_once Alpha::bootstrapPath();
 
 use Vendor\Alpha;
 
@@ -22,7 +22,7 @@ echo Alpha::run();
  * @package Demo
  */
 use Vendor\Alpha;
-require_once Vendor\Alpha::bootstrapPath();
+require_once Alpha::bootstrapPath();
 
 echo Alpha::run();
 

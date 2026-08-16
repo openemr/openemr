@@ -16,12 +16,20 @@ namespace OpenEMR\Rector\Rules;
 
 use PhpParser\Comment\Doc;
 use PhpParser\Node;
+use PhpParser\Node\Expr\ClassConstFetch;
+use PhpParser\Node\Expr\Instanceof_;
+use PhpParser\Node\Expr\New_;
+use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\StaticPropertyFetch;
+use PhpParser\Node\Name;
+use PhpParser\Node\Stmt\Catch_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\Declare_;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
+use PhpParser\NodeFinder;
 use Rector\NodeTypeResolver\Node\AttributeKey;
 use Rector\PhpParser\Node\FileNode;
 use Rector\Rector\AbstractRector;
@@ -169,6 +177,24 @@ CODE_SAMPLE
             return $this->hoistFileDocblock($rest, $uses[0]) ? $node : null;
         }
 
+        // A single run of imports parked below leading code only has to move
+        // when that leading code depends on one of those imports to resolve --
+        // an unqualified name matching something in the block below it. That
+        // is the shape name importing leaves behind and the one that fatals.
+        //
+        // A fully-qualified leading name resolves on its own and a bootstrap
+        // `require_once` of a string literal names nothing at all; relocating
+        // either would churn hundreds of files that are in no danger.
+        // Non-contiguous imports are exempt from this test: that shape is the
+        // phpcbf data-loss hazard and has to be gathered regardless of what
+        // precedes it.
+        if (
+            $contiguous
+            && !$this->dependsOnImports(array_slice($stmts, 0, $useIndexes[0]), $uses)
+        ) {
+            return null;
+        }
+
         // PSR-12 wants class, then function, then const imports grouped by
         // kind. Partition stably so relative order survives within each group.
         $byType = [];
@@ -205,6 +231,97 @@ CODE_SAMPLE
         $node->stmts = [...$leading, ...$uses, ...$rest];
 
         return $node;
+    }
+
+    /**
+     * Whether any statement resolves a class through one of the imports below
+     * it. Only unqualified names qualify: `\Vendor\Alpha::run()` stands on its
+     * own, `Alpha::run()` needs the `use Vendor\Alpha` that follows it -- and
+     * PHP will not look ahead for it.
+     *
+     * Only class positions are inspected. A `ConstFetch` for `true` and a call
+     * to a global function both carry a Name node too, and neither resolves
+     * through an import.
+     *
+     * @param list<Node\Stmt>          $stmts
+     * @param list<Use_|GroupUse>      $uses
+     */
+    private function dependsOnImports(array $stmts, array $uses): bool
+    {
+        $aliases = $this->importedAliases($uses);
+        if ($aliases === []) {
+            return false;
+        }
+
+        $found = (new NodeFinder())->findFirst(
+            $stmts,
+            function (Node $node) use ($aliases): bool {
+                if ($node instanceof Catch_) {
+                    foreach ($node->types as $type) {
+                        if ($this->isImportedAlias($type, $aliases)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+                if (
+                    $node instanceof New_
+                    || $node instanceof StaticCall
+                    || $node instanceof StaticPropertyFetch
+                    || $node instanceof ClassConstFetch
+                    || $node instanceof Instanceof_
+                ) {
+                    return $node->class instanceof Name
+                        && $this->isImportedAlias($node->class, $aliases);
+                }
+
+                return false;
+            }
+        );
+
+        return $found instanceof Node;
+    }
+
+    /**
+     * Rector resolves every Name to its fully-qualified form before a rule
+     * sees it and keeps the name as written under `originalName`. This test
+     * is about what the source says, not what it means, so read the original
+     * -- against the resolved name every leading class reference looks
+     * qualified and nothing would ever match.
+     *
+     * @param array<string, true> $aliases
+     */
+    private function isImportedAlias(Name $name, array $aliases): bool
+    {
+        $written = $name->getAttribute('originalName');
+        if ($written instanceof Name) {
+            $name = $written;
+        }
+
+        return $name->isUnqualified()
+            && isset($aliases[strtolower($name->toString())]);
+    }
+
+    /**
+     * The short name each import binds, keyed lowercase because PHP resolves
+     * class names case-insensitively.
+     *
+     * @param list<Use_|GroupUse> $uses
+     *
+     * @return array<string, true>
+     */
+    private function importedAliases(array $uses): array
+    {
+        $aliases = [];
+        foreach ($uses as $use) {
+            foreach ($use->uses as $useUse) {
+                $aliases[strtolower($useUse->getAlias()->toString())] = true;
+            }
+        }
+
+        return $aliases;
     }
 
     /**
