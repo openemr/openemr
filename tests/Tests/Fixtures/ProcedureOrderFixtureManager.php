@@ -25,15 +25,17 @@ use OpenEMR\Common\Database\QueryUtils;
  */
 class ProcedureOrderFixtureManager extends BaseFixtureManager
 {
-    /** Default ordering provider when no fixture user is present. */
-    private const DEFAULT_PROVIDER_ID = 1;
-
     private readonly EncounterFixtureManager $encounterFixtureManager;
 
     private readonly ProcedureProviderFixtureManager $procedureProviderFixtureManager;
 
+    private readonly PractitionerFixtureManager $practitionerFixtureManager;
+
     /** @var list<int> Procedure order IDs created by this manager */
     private array $installedOrderIds = [];
+
+    /** True once this manager installed the practitioner fixtures itself. */
+    private bool $ownsPractitionerFixtures = false;
 
     /**
      * Initialize the fixture manager for procedure orders
@@ -58,12 +60,17 @@ class ProcedureOrderFixtureManager extends BaseFixtureManager
             ?? new EncounterFixtureManager(null, $patientFixtureManager ?? new FixtureManager());
         $this->procedureProviderFixtureManager = $procedureProviderFixtureManager
             ?? new ProcedureProviderFixtureManager();
+        // The ordering provider has to be a real practitioner with an NPI, and nothing
+        // else in this dependency chain installs one: the encounter manager brings the
+        // patient and facility fixtures only. This manager therefore owns the
+        // practitioner fixtures itself.
+        $this->practitionerFixtureManager = new PractitionerFixtureManager();
     }
 
     /**
      * Install procedure order fixtures into the database
      *
-     * Installs patient, encounter, and provider dependencies first,
+     * Installs patient, encounter, lab, and practitioner dependencies first,
      * then creates procedure orders with associated codes and form entries.
      *
      * @return int Number of fixtures installed
@@ -101,16 +108,12 @@ class ProcedureOrderFixtureManager extends BaseFixtureManager
         }
         $encounterId = self::requireId($encounterRecords[0]['encounter'] ?? null, 'an encounter fixture');
 
-        $orderingProviderId = QueryUtils::fetchSingleValue(
-            <<<'SQL'
-            SELECT id FROM users WHERE username LIKE ? ORDER BY id LIMIT 1
-            SQL,
-            'id',
-            [self::FIXTURE_PREFIX . '-%']
-        );
-        $orderingProviderId = is_numeric($orderingProviderId)
-            ? (int) $orderingProviderId
-            : self::DEFAULT_PROVIDER_ID;
+        $orderingProviderId = $this->findFixturePractitionerId();
+        if ($orderingProviderId === null) {
+            $this->practitionerFixtureManager->installPractitionerFixtures();
+            $this->ownsPractitionerFixtures = true;
+            $orderingProviderId = self::requireId($this->findFixturePractitionerId(), 'a practitioner fixture');
+        }
 
         $providers = $this->procedureProviderFixtureManager->getInstalledProviders();
 
@@ -138,6 +141,35 @@ class ProcedureOrderFixtureManager extends BaseFixtureManager
         }
 
         return $insertCount;
+    }
+
+    /**
+     * Find the fixture practitioner to record as the ordering provider
+     *
+     * PractitionerFixtureManager stamps the fixture prefix onto `fname`, not
+     * `username` — the fixture usernames are plain (kperez, lcohen, jmoses,
+     * cjones, ajenane) — and its own teardown deletes by `fname` for the same
+     * reason. Matching on `username` never selects a row.
+     *
+     * The NPI filter is what makes the result usable: HL7 order generation reads
+     * the ordering provider's NPI, and the built-in admin user has none.
+     *
+     * @return int|null The practitioner's users.id, or null when no fixture practitioner is installed
+     */
+    private function findFixturePractitionerId(): ?int
+    {
+        $practitionerId = QueryUtils::fetchSingleValue(
+            <<<'SQL'
+            SELECT id FROM users
+            WHERE fname LIKE ? AND npi IS NOT NULL AND npi <> ''
+            ORDER BY id
+            LIMIT 1
+            SQL,
+            'id',
+            [self::FIXTURE_PREFIX . '-%']
+        );
+
+        return is_numeric($practitionerId) ? (int) $practitionerId : null;
     }
 
     /**
@@ -246,8 +278,8 @@ class ProcedureOrderFixtureManager extends BaseFixtureManager
      * Delete all test fixture order records from the database
      *
      * Removes procedure orders, procedure order codes, and associated
-     * form entries. Also cleans up dependent fixtures (providers,
-     * encounters, patients).
+     * form entries. Also cleans up dependent fixtures (practitioners,
+     * labs, encounters, patients).
      *
      * @throws \OpenEMR\Common\Database\SqlQueryException If a database deletion fails
      */
@@ -286,6 +318,12 @@ class ProcedureOrderFixtureManager extends BaseFixtureManager
 
             $this->installedOrderIds = [];
         } finally {
+            // Only tear down the practitioners this manager put there. When the
+            // caller installed them first, they belong to the caller.
+            if ($this->ownsPractitionerFixtures) {
+                $this->practitionerFixtureManager->removePractitionerFixtures();
+                $this->ownsPractitionerFixtures = false;
+            }
             $this->procedureProviderFixtureManager->removeFixtures();
             // Removes the patient and facility fixtures along with the encounters.
             $this->encounterFixtureManager->removeFixtures();
