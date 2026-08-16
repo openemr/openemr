@@ -25,6 +25,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
@@ -129,8 +130,8 @@ if ($_POST['form_save'] ?? '') {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($radio_type_of_payment == 'pre_payment') {
-        $prepayment = filter_input(INPUT_POST, 'form_prepayment', FILTER_VALIDATE_FLOAT);
-        if (!is_float($prepayment) || $prepayment <= 0) {
+        $prepayment = ValidationUtils::parsePositiveAmount(filter_input(INPUT_POST, 'form_prepayment'));
+        if ($prepayment === null) {
             $alertmsg = xl('Prepayment amount must be a positive number.');
         } else {
             $payment_id = sqlInsert(
