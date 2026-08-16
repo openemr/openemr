@@ -208,8 +208,11 @@ if (!is_string($requestedRefType)) {
 }
 $refType = RefType::tryFrom($requestedRefType);
 
-if ($requestedRefType) {
-    $REFTYPE = $requestedRefType;
+// A REFTYPE the form doesn't recognize used to reach the dispense insert below
+// with every field still at its blank default, writing an empty prescription
+// record. Only a known refraction method gets that far.
+if ($refType !== null) {
+    $REFTYPE = $refType->value;
 
     // Map the rx_type numeric code passed from view.php to a display string and
     // set the corresponding checkbox state. Default to Single (0) if the value
