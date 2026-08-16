@@ -70,8 +70,12 @@ use OpenEMR\Services\Forms\CarePlanFormService;
 use OpenEMR\Services\FormService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
+use Symfony\Component\HttpFoundation\Request;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+// Parse the incoming request once at this entry point and pass it to the cards
+// that need it, rather than having each card rebuild one from the superglobals.
+$request = Request::createFromGlobals();
 
 if (!isset($pid)) {
     $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
@@ -1255,7 +1259,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="row">
                 <?php
                 if (!in_array('card_care_team', $hiddenCards)) {
-                    $card = new CareTeamViewCard($pid, ['dispatcher' => $ed]);
+                    $card = new CareTeamViewCard($pid, $request, ['dispatcher' => $ed]);
                     $btnLabel = false;
                     if ($card->canAdd()) {
                         $btnLabel = 'Add';
@@ -1283,7 +1287,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // TREATMENT INTERVENTION PREFERENCES CARD
                 // ============================================================================
                 if (!in_array('card_treatment_preferences', $hiddenCards)) {
-                    $card = new TreatmentPreferenceViewCard($pid);
+                    $card = new TreatmentPreferenceViewCard($pid, $request);
                     $viewArgs = [
                         'title' => xl('Treatment Intervention Preferences'),
                         'id' => 'card_treatment_preferences',
@@ -1309,7 +1313,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // CARE EXPERIENCE PREFERENCES CARD
                 // ============================================================================
                 if (!in_array('card_care_experience', $hiddenCards)) {
-                    $card = new CareExperiencePreferenceViewCard($pid);
+                    $card = new CareExperiencePreferenceViewCard($pid, $request);
 
                     $viewArgs = [
                         'title' => xl('Care Experience Preferences'),
@@ -1377,7 +1381,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     if (!in_array('card_insurance', $hiddenCards)) {
-                        $sectionRenderEvents->addCard(new InsuranceViewCard($pid, ['dispatcher' => $ed]));
+                        $sectionRenderEvents->addCard(new InsuranceViewCard($pid, $request, ['dispatcher' => $ed]));
                     }
 
                     // Get the cards to render
