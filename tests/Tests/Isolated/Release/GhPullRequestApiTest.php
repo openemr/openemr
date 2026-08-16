@@ -136,4 +136,167 @@ final class GhPullRequestApiTest extends TestCase
         self::assertCount(1, $reasons);
         self::assertStringContainsString('phpstan', $reasons[0]);
     }
+
+    /**
+     * @param  list<array<string, mixed>>                                            $statusCheckRollup
+     * @param  list<array{state: string, author?: array{login?: string}}>            $latestReviews
+     * @return array{
+     *     isDraft: bool,
+     *     mergeable: string,
+     *     mergeStateStatus: string,
+     *     reviewDecision: ?string,
+     *     statusCheckRollup: list<array<string, mixed>>,
+     *     latestReviews: list<array{state: string, author?: array{login?: string}}>,
+     * }
+     */
+    private static function prData(
+        bool $isDraft = false,
+        string $mergeable = 'MERGEABLE',
+        string $mergeStateStatus = 'CLEAN',
+        ?string $reviewDecision = 'APPROVED',
+        array $statusCheckRollup = [],
+        array $latestReviews = [],
+    ): array {
+        return [
+            'isDraft' => $isDraft,
+            'mergeable' => $mergeable,
+            'mergeStateStatus' => $mergeStateStatus,
+            'reviewDecision' => $reviewDecision,
+            'statusCheckRollup' => $statusCheckRollup,
+            'latestReviews' => $latestReviews,
+        ];
+    }
+
+    public function testReadinessAcceptsCleanMergeStateWithNoBlockers(): void
+    {
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(self::prData(), true, []);
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessAcceptsUnstableWhenIgnoreListClearsRollup(): void
+    {
+        // Regression: pre-#13570-followup ship-release preflight rejected any
+        // mergeStateStatus != CLEAN, so UNSTABLE (= non-required check failing)
+        // caused by an ignored check still blocked. Now UNSTABLE passes when
+        // the rollup evaluation returned no blockers.
+        $data = self::prData(
+            mergeStateStatus: 'UNSTABLE',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessBlocksUnstableWhenRollupHasUnignoredFailure(): void
+    {
+        // UNSTABLE is only accepted when the ignore-list fully clears the
+        // rollup. A failing check outside the ignore-list keeps mergeStateStatus
+        // as a blocker AND surfaces the check itself.
+        $data = self::prData(
+            mergeStateStatus: 'UNSTABLE',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertContains('mergeStateStatus=UNSTABLE (need CLEAN)', $reasons);
+        self::assertTrue(
+            (bool) array_filter($reasons, static fn (string $r): bool => str_contains($r, 'phpstan')),
+            'phpstan failure must still surface as a blocking reason',
+        );
+    }
+
+    public function testReadinessBlocksBlockedMergeStateEvenWithCleanRollup(): void
+    {
+        // BLOCKED means a REQUIRED check failed (or review missing) —
+        // fundamentally different from UNSTABLE and never ignorable via the
+        // check-name list. Preserve the hard block.
+        $data = self::prData(
+            mergeStateStatus: 'BLOCKED',
+            statusCheckRollup: [
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertContains('mergeStateStatus=BLOCKED (need CLEAN)', $reasons);
+    }
+
+    public function testReadinessBlocksDirtyMergeStateEvenWhenIgnoreListIsPresent(): void
+    {
+        // DIRTY means merge conflicts — not something an operator-supplied
+        // check ignore-list can plausibly clear. Any non-CLEAN + non-UNSTABLE
+        // state stays blocking.
+        $data = self::prData(
+            mergeStateStatus: 'DIRTY',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertContains('mergeStateStatus=DIRTY (need CLEAN)', $reasons);
+    }
+
+    public function testReadinessBlocksDraftPr(): void
+    {
+        $data = self::prData(isDraft: true, mergeStateStatus: 'BLOCKED');
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertContains('PR is a draft', $reasons);
+    }
+
+    public function testReadinessSkipsApprovalCheckWhenNotRequired(): void
+    {
+        $data = self::prData(reviewDecision: null);
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, false, []);
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessBlocksMissingApprovalWhenRequired(): void
+    {
+        $data = self::prData(reviewDecision: null);
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertContains('reviewDecision=null (need APPROVED)', $reasons);
+    }
+
+    public function testReadinessFlagsChangesRequestedReview(): void
+    {
+        $data = self::prData(latestReviews: [
+            ['state' => 'CHANGES_REQUESTED', 'author' => ['login' => 'gatekeeper']],
+            ['state' => 'APPROVED', 'author' => ['login' => 'other']],
+        ]);
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertContains('CHANGES_REQUESTED review by gatekeeper', $reasons);
+    }
 }
