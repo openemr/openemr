@@ -238,7 +238,7 @@ if ($refType !== null) {
         // A wearing prescription re-prescribes the patient's current glasses, so
         // it is read back out of form_eye_mag_wearing rather than the refraction.
         // We have rx_number 1-5 to process...
-        $wearing = QueryUtils::querySingleRow(
+        $wearingRow = QueryUtils::querySingleRow(
             <<<'SQL'
             SELECT *
               FROM form_eye_mag_wearing
@@ -250,20 +250,20 @@ if ($refType !== null) {
             [$encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']],
         );
 
-        // No such wearing prescription: every field stays at its blank default.
-        if (is_array($wearing)) {
-            $ODSPH = $wearing['ODSPH'];
-            $ODAXIS = $wearing['ODAXIS'];
-            $ODCYL = $wearing['ODCYL'];
-            $OSSPH = $wearing['OSSPH'];
-            $OSCYL = $wearing['OSCYL'];
-            $OSAXIS = $wearing['OSAXIS'];
-            $COMMENTS = $wearing[$refType->commentsColumn()];
-            $ODMIDADD = $wearing['ODMIDADD'];
-            $ODADD2 = $wearing['ODADD'];
-            $OSMIDADD = $wearing['OSMIDADD'];
-            $OSADD2 = $wearing['OSADD'];
-        }
+        // A field the wearing prescription does not carry reads null, so the
+        // dispense insert below leaves it out rather than recording it blank.
+        $wearing = is_array($wearingRow) ? $wearingRow : [];
+        $ODSPH = $wearing['ODSPH'] ?? null;
+        $ODAXIS = $wearing['ODAXIS'] ?? null;
+        $ODCYL = $wearing['ODCYL'] ?? null;
+        $OSSPH = $wearing['OSSPH'] ?? null;
+        $OSCYL = $wearing['OSCYL'] ?? null;
+        $OSAXIS = $wearing['OSAXIS'] ?? null;
+        $COMMENTS = $wearing[$refType->commentsColumn()] ?? null;
+        $ODMIDADD = $wearing['ODMIDADD'] ?? null;
+        $ODADD2 = $wearing['ODADD'] ?? null;
+        $OSMIDADD = $wearing['OSMIDADD'] ?? null;
+        $OSADD2 = $wearing['OSADD'] ?? null;
 
         //do LT and Lens materials
     } else {

@@ -1313,7 +1313,9 @@ if ($_REQUEST['copy']) {
         ? Zone::tryFrom($requestedZone) ?? CopyMode::tryFrom($requestedZone)
         : null;
 
-    if ($copyMode !== null && is_string($copyFrom) && is_scalar($pid)) {
+    // A patient id reaches here as either the session's int or a request string;
+    // anything else is not a patient and must not be stringified into the query.
+    if ($copyMode !== null && is_string($copyFrom) && (is_string($pid) || is_int($pid))) {
         copy_forward($copyMode, $copyFrom, (string) $pid);
     } else {
         // The browser asked for this with dataType: 'json'; an empty body is a parse error.

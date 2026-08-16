@@ -68,8 +68,8 @@ final class CopyForward
      * Reads the named fields out of an exam record, defaulting anything the
      * record does not carry to null.
      *
-     * The record comes straight from sqlQuery(), which promises nothing about
-     * its keys, so this takes the row as loosely as the database hands it over.
+     * The record is a raw database row, which promises nothing about its keys,
+     * so this takes it as loosely as the database hands it over.
      *
      * @param array<array-key, mixed> $record
      * @param list<string> $fields
