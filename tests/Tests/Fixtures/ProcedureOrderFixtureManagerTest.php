@@ -39,8 +39,14 @@ class ProcedureOrderFixtureManagerTest extends TestCase
     /** Number of labs declared in procedure-providers.php. */
     private const EXPECTED_PROVIDER_COUNT = 4;
 
-    /** Username of the throwaway users row that stands in for a fixture-installed provider. */
-    private const FIXTURE_USERNAME = 'test-fixture-ordering-provider';
+    /** Number of practitioners declared in practitioners.php. */
+    private const EXPECTED_PRACTITIONER_COUNT = 5;
+
+    /** NPI carried by every practitioner in practitioners.php. */
+    private const EXPECTED_PRACTITIONER_NPI = '0123456789';
+
+    /** The built-in administrator: has no NPI, and is what a broken practitioner lookup used to select. */
+    private const ADMIN_USER_ID = 1;
 
     /** Names declared in procedure-providers.php. */
     private const EXPECTED_PROVIDER_NAMES = [
@@ -54,20 +60,25 @@ class ProcedureOrderFixtureManagerTest extends TestCase
 
     private ProcedureOrderFixtureManager $fixtureManager;
 
+    private PractitionerFixtureManager $practitionerFixtureManager;
+
     protected function setUp(): void
     {
         $this->providerFixtureManager = new ProcedureProviderFixtureManager();
         $this->fixtureManager = new ProcedureOrderFixtureManager(null, null, $this->providerFixtureManager);
+        $this->practitionerFixtureManager = new PractitionerFixtureManager();
         // Any fixture rows left behind by an earlier failure would corrupt the
         // counts asserted below, so start every test from a known-clean table set.
         $this->fixtureManager->removeFixtures();
-        self::removeFixtureUser();
+        // The manager only removes practitioners it installed itself, so clear any
+        // strays here rather than relying on that ownership check.
+        $this->practitionerFixtureManager->removePractitionerFixtures();
     }
 
     protected function tearDown(): void
     {
         $this->fixtureManager->removeFixtures();
-        self::removeFixtureUser();
+        $this->practitionerFixtureManager->removePractitionerFixtures();
     }
 
     public function testInstallFixturesCreatesOrdersCodesFormsAndProviders(): void
@@ -165,23 +176,64 @@ class ProcedureOrderFixtureManagerTest extends TestCase
         self::assertSame($order['date_ordered'], $formDate);
     }
 
-    public function testOrderingProviderPrefersAFixtureUserOverTheDefault(): void
+    public function testOrderingProviderIsAFixturePractitionerCarryingAnNpi(): void
     {
-        $userId = self::toInt(QueryUtils::sqlInsert(
-            'INSERT INTO users SET username = ?, fname = ?, lname = ?, authorized = ?, active = ?',
-            [self::FIXTURE_USERNAME, 'Fixture', 'Provider', 1, 1]
-        ));
+        $this->fixtureManager->installFixtures();
+
+        self::assertSame(
+            self::EXPECTED_PRACTITIONER_COUNT,
+            $this->countPractitioners(),
+            'installFixtures() did not install the practitioner fixtures'
+        );
+
+        $provider = $this->fetchRow(
+            <<<'SQL'
+            SELECT u.id, u.fname, u.npi
+            FROM procedure_order po
+            JOIN users u ON u.id = po.provider_id
+            WHERE po.procedure_order_id = ?
+            SQL,
+            [$this->firstInstalledOrderId()]
+        );
+
+        self::assertNotSame(
+            self::ADMIN_USER_ID,
+            self::toInt($provider['id']),
+            'the ordering provider fell back to the admin user instead of a fixture practitioner'
+        );
+        $fname = $provider['fname'];
+        self::assertIsString($fname);
+        self::assertStringStartsWith(PractitionerFixtureManager::FIXTURE_PREFIX, $fname);
+        // A populated NPI is the whole point: HL7 order generation reads it, and a
+        // null there is what produced the str_replace() deprecations.
+        self::assertSame(self::EXPECTED_PRACTITIONER_NPI, $provider['npi']);
+    }
+
+    public function testInstallReusesPractitionersTheCallerAlreadyInstalled(): void
+    {
+        $this->practitionerFixtureManager->installPractitionerFixtures();
 
         $this->fixtureManager->installFixtures();
 
-        $orderId = $this->firstInstalledOrderId();
-        $providerId = self::toInt(QueryUtils::fetchSingleValue(
-            'SELECT provider_id FROM procedure_order WHERE procedure_order_id = ?',
-            'provider_id',
-            [$orderId]
-        ));
+        self::assertSame(
+            self::EXPECTED_PRACTITIONER_COUNT,
+            $this->countPractitioners(),
+            'installFixtures() installed a second copy of the practitioner fixtures'
+        );
 
-        self::assertSame($userId, $providerId);
+        // Practitioners this manager did not install are not its to remove.
+        $this->fixtureManager->removeFixtures();
+        self::assertSame(self::EXPECTED_PRACTITIONER_COUNT, $this->countPractitioners());
+    }
+
+    public function testRemoveFixturesTearsDownThePractitionersItInstalled(): void
+    {
+        $this->fixtureManager->installFixtures();
+        self::assertSame(self::EXPECTED_PRACTITIONER_COUNT, $this->countPractitioners());
+
+        $this->fixtureManager->removeFixtures();
+
+        self::assertSame(0, $this->countPractitioners(), 'practitioner rows survived removeFixtures()');
     }
 
     public function testProviderManagerExposesEveryInstalledLab(): void
@@ -359,15 +411,14 @@ class ProcedureOrderFixtureManagerTest extends TestCase
     }
 
     /**
-     * Clear by the same prefix the manager looks up with, not by the exact
-     * username. The manager takes the lowest-id `test-fixture-%` user, so a
-     * row left behind by another suite would win the lookup and this test
-     * would assert against the wrong provider.
+     * Count practitioner fixtures by `fname`, the column that actually carries the
+     * prefix. PractitionerFixtureManager leaves `username` plain (kperez, lcohen,
+     * ...), so counting by username always returns zero.
      */
-    private static function removeFixtureUser(): void
+    private function countPractitioners(): int
     {
-        QueryUtils::sqlStatementThrowException(
-            'DELETE FROM users WHERE username LIKE ?',
+        return $this->countRows(
+            'SELECT COUNT(*) AS cnt FROM users WHERE fname LIKE ?',
             [self::FIXTURE_LIKE]
         );
     }
