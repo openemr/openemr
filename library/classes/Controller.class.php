@@ -51,8 +51,18 @@ class Controller extends Smarty implements ControllerInterface
      */
     private const CONTROLLER_ACL_MAP = [
         'document' => ['patients', 'docs', 'Documents'],
+        'document_category' => ['admin', 'practice', 'Practice Settings'],
+        'hl7' => ['admin', 'practice', 'Practice Settings'],
+        'insurance_company' => ['admin', 'practice', 'Practice Settings'],
+        'insurance_numbers' => ['admin', 'practice', 'Practice Settings'],
+        // patient_finder's only caller is the document-move destination picker
+        // (templates/documents/general_view.html), so it requires the same
+        // write-level documents ACL as the reassignment it feeds.
+        'patient_finder' => ['patients', 'docs', 'Documents', ['write', 'addonly']],
+        'pharmacy' => ['admin', 'practice', 'Practice Settings'],
         'practice_settings' => ['admin', 'practice', 'Practice Settings'],
         'prescription' => ['patients', 'rx', 'Prescriptions'],
+        'x12_partner' => ['admin', 'practice', 'Practice Settings'],
     ];
 
     public $template_mod;
@@ -129,14 +139,22 @@ class Controller extends Smarty implements ControllerInterface
     /**
      * Check ACL for a controller and deny access if not authorized.
      */
-    private function checkControllerAcl(string $controllerName): void
+    protected function checkControllerAcl(string $controllerName): void
     {
         if (!isset(self::CONTROLLER_ACL_MAP[$controllerName])) {
-            return;
+            // Fail closed. Every controller reachable through dispatch() must
+            // declare an explicit ACL requirement; adding an entry to
+            // VALID_CONTROLLERS without a corresponding CONTROLLER_ACL_MAP entry
+            // must not silently skip authorization.
+            $this->throwAccessDenied(
+                "No ACL mapping defined for controller: $controllerName",
+                xl('Access Denied')
+            );
         }
 
         [$section, $value, $displayName] = self::CONTROLLER_ACL_MAP[$controllerName];
-        if (!AclMain::aclCheckCore($section, $value)) {
+        $returnValue = self::CONTROLLER_ACL_MAP[$controllerName][3] ?? '';
+        if (!AclMain::aclCheckCore($section, $value, '', $returnValue)) {
             $this->throwAccessDenied(
                 "ACL check failed for $section/$value: $displayName",
                 xl($displayName)
