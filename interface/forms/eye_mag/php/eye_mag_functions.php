@@ -1672,26 +1672,18 @@ function build_PMSFH($pid)
 
     $PMSFH = [];
     $PMSFH['CHRONIC'] = [];
-    //Define the PMSFH array elements as you need them:
-    $PMSFH_labels = ["POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS"];
-    foreach ($PMSFH_labels as $panel_type) {
+    /*
+     *  Each of these panels is one stock ISSUE_TYPE narrowed by a subtype. This
+     *  is an "eye" form: providers would like ophthalmic medical problems listed
+     *  separately, so the ISSUE_TYPE 'medical_problem' is split using subtype
+     *  "eye" -- but it could be "GYN", "ONC", "GU" etc for whoever wants to
+     *  extend this with their own specific "sub"-lists. The same concept covers
+     *  Past Ocular Surgery, Oncology Medications, and so on; add a case to
+     *  PmsfhPanel rather than another branch here.
+     */
+    foreach (PmsfhPanel::cases() as $panel) {
+        $panel_type = $panel->value;
         $PMSFH[$panel_type] = [];
-        /*
-         *  SocHx, FH and ROS have no PmsfhPanel case: they don't feed off of the
-         *  pre-existing ISSUE_TYPE array and are built separately below.
-         *
-         *  The remaining panels are one stock ISSUE_TYPE narrowed by a subtype.
-         *  This is an "eye" form: providers would like ophthalmic medical problems
-         *  listed separately, so the ISSUE_TYPE 'medical_problem' is split using
-         *  subtype "eye" -- but it could be "GYN", "ONC", "GU" etc for whoever wants
-         *  to extend this with their own specific "sub"-lists. The same concept
-         *  covers Past Ocular Surgery, Oncology Medications, and so on; add a case
-         *  to PmsfhPanel rather than another branch here.
-         */
-        $panel = PmsfhPanel::tryFrom($panel_type);
-        if ($panel === null) {
-            continue;
-        }
 
         $issues = $panel->issuesQuery($pid);
         $row_counter = '0';
@@ -1773,6 +1765,16 @@ function build_PMSFH($pid)
             $row_counter++;
         }
     }
+
+    /*
+     *  SocHx, FH and ROS are PMSFH panels too, but they are assembled from the
+     *  history and layout tables rather than from the ISSUE_TYPE array, so they
+     *  have no PmsfhPanel case. Declaring their keys here keeps them in the
+     *  order the form renders them, after the issue-list panels above.
+     */
+    $PMSFH['SOCH'] = [];
+    $PMSFH['FH'] = [];
+    $PMSFH['ROS'] = [];
 
     //Build the SocHx portion of $PMSFH for this patient.
     //$given ="coffee,tobacco,alcohol,sleep_patterns,exercise_patterns,seatbelt_use,counseling,hazardous_activities,recreational_drugs";
