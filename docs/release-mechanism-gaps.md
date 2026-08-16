@@ -2669,6 +2669,30 @@ writing) with cascading test failures (Fresh Install, Manual
 Setup, Redis, k8s-admin) all rooted in the same missing-asset
 issue. Not in rel-830 scope; belongs to its own gap.
 
+### G32 — Branch-cut PR content pins at open time and doesn't rebase; long-blocker windows drop intervening master commits from the new rel branch  *(discovered 2026-08-16, follow-up)*
+
+**STATUS: partial remedy via [#13589](https://github.com/openemr/openemr/pull/13589)** (migration-file moves to unbreak the shipped-8.3.0 → 8.4.0 upgrade path); root-cause auto-rebase / post-cut sweep still to design.
+
+Surfaced during post-rel-830 review of two apparent bugs:
+
+- **#13490** (feat(care-plan): engagement category, merged 2026-08-13 09:43 PDT) targeted `sql/8_2_0-to-8_3_0_upgrade.sql` even though master was already 8.4.0-dev by then. Reasonable at author-time — the file was left populated on master because the rel-830 branch-cut kept it in place; the empty template for the new dev cycle was created as `sql/8_3_0-to-8_4_0_upgrade.sql` in the same cut, but that file was silently the correct target and the misdirection wasn't caught in review.
+- **#13374** (feat(audit): api_log.client_id) and **#13504** (perf(db): memoize schema introspection) merged to master on 2026-08-12 at 21:35 and 22:24 UTC respectively — BEFORE the rel-830 cut PRs merged (22:44/22:46) but AFTER the cut PRs' fork point from master (`49e903f3ac`, 08:12 UTC on 2026-08-12). Both authors also targeted `sql/8_2_0-to-8_3_0_upgrade.sql` (correct for master AT their merge time), but neither commit made it to rel-830.
+
+**Root cause (the reason #13374 + #13504 were lost):** the branch-cut PRs (rel-side #13482 + master-side #13484) snapshot master's tip at PR-open time and don't auto-rebase against master. On 2026-08-12 both cut PRs opened at 08:21-08:22 UTC based on the tip of master at that moment. They then sat for ~14 hours while G31's cascade of 6 blocker PRs shipped, and merged at 22:44/22:46 UTC without a rebase against the master commits that had landed in the interim. Result: every master commit merged between 08:22 UTC and 22:44 UTC exists on master but NOT on rel-830, unless separately backported.
+
+Verified via `git merge-base --is-ancestor` + PR-number grep + cherry-pick trailer search: neither #13374 nor #13504 has any presence on rel-830. Both are truly missing.
+
+**Related root cause (the reason #13490 was misfiled):** the "file-rename dance" at rel-830 cut created the empty `sql/8_3_0-to-8_4_0_upgrade.sql` correctly but left `sql/8_2_0-to-8_3_0_upgrade.sql` populated on master (that's the intended shape — it's what shipped to rel-830). Post-cut PRs authored against master saw an existing populated file for `8_3_0` and reasonably targeted it without noticing the new empty template was the correct scheduling. There's no review-time signal (lint, CI check, or PR template reminder) that redirects post-cut migration authors to the newly-created next-cycle file.
+
+**Impact:** all three PRs' SQL migrations ended up in the wrong file on master. This creates a **shipped-8.3.0 → 8.4.0 upgrade path gap**: users upgrading from the shipped 8.3.0 to 8.4.0 will run only `sql/8_3_0-to-8_4_0_upgrade.sql`, which was empty. Their 8.4.0 code (which has #13374's api_log usage and #13490's care_plan column reference) would attempt to INSERT into columns that don't exist. Not a bug on 8.3.0 itself (rel-830 has neither the code nor the schema for either feature, so nothing tries to use non-existent columns), but a real bug on the 8.3.0 → 8.4.0 upgrade path.
+
+**Fix directions:**
+- **Auto-rebase the branch-cut PR when it stays open more than N minutes.** If the cut PR sits waiting on blocker fixes, its snapshot goes stale — a rebase (or a re-run of the branch-cut mutator against master's fresh tip) before final merge would carry the intervening commits into the new rel branch. Complication: the cut PR is opened by `peter-evans/create-pull-request` which force-pushes; a rebase would require re-running the branch-cut workflow with the same target-version input.
+- **Post-cut backport sweep.** Immediately after the cut merges, enumerate the commits merged to master between the cut PR's open-time SHA and the cut merge and open cherry-pick PRs for any that touch `sql/`, `docker/`, or other 8.3.0-scoped surfaces. Could be a manual runbook step or an automated `post-cut-sweep.yml` workflow.
+- **Post-cut PR template / lint** that redirects migration authors to the newly-created next-cycle upgrade file. A commit-time check that compares `version.php`'s current `$v_minor` against the target file's version prefix would catch the misfile at PR-open time.
+
+Left as a follow-up rather than a same-day fix. #13589 partially remedies the shipped-8.3.0 → 8.4.0 upgrade path for the three specific PRs (by moving their migrations from `sql/8_2_0-to-8_3_0_upgrade.sql` to `sql/8_3_0-to-8_4_0_upgrade.sql` on master), but doesn't address the systemic gap in branch-cut automation.
+
 ## Timing picture: who does what, when
 
 Consolidates "what the conductor handles automatically" vs "what's
