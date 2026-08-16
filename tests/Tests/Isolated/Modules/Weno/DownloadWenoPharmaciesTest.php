@@ -89,7 +89,6 @@ namespace OpenEMR\Tests\Isolated\Modules\Weno {
         private function invoke(string $method, mixed ...$args): mixed
         {
             $ref = new ReflectionMethod(DownloadWenoPharmacies::class, $method);
-            $ref->setAccessible(true);
 
             return $ref->invokeArgs($this->service, $args);
         }
@@ -266,7 +265,6 @@ namespace OpenEMR\Tests\Isolated\Modules\Weno {
         private function invokeMapRecord(array $normalized, array &$usedNcpdp): ?array
         {
             $ref = new ReflectionMethod(DownloadWenoPharmacies::class, 'mapRecordToTableRow');
-            $ref->setAccessible(true);
             $args = [$normalized, true, &$usedNcpdp];
 
             /** @var array<string, string|null>|null $result */
