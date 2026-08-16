@@ -18,7 +18,7 @@ use OpenEMR\BC\Deprecation;
 use OpenEMR\BC\DeprecationMode;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
@@ -255,9 +255,12 @@ $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 *   scope of this globals instance. Goal is to unlock session file as quickly as possible
 *   instead of waiting for calling script to complete before releasing flock.
  */
-if (empty($restRequest)) {
-    $restRequest = HttpRestRequest::createFromGlobals();
-}
+// Adopt the request the entry point published, or build one on first use for a
+// plain web request. In the REST and OAuth2 paths this file is included from
+// SiteSetupListener, whose scope cannot see the dispatcher's $request — reading
+// through CurrentRequest is what keeps this from becoming a second instance
+// without the api type, token scopes, and session the run has attached.
+$restRequest = CurrentRequest::get();
 // OEGlobalsBag is a singleton; reassigning here is safe even if an earlier
 // include already populated it. Selected values are re-set onto the bag
 // throughout the rest of this file.

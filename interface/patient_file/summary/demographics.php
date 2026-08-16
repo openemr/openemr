@@ -44,6 +44,7 @@ require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -70,12 +71,11 @@ use OpenEMR\Services\Forms\CarePlanFormService;
 use OpenEMR\Services\FormService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
-use Symfony\Component\HttpFoundation\Request;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-// Parse the incoming request once at this entry point and pass it to the cards
-// that need it, rather than having each card rebuild one from the superglobals.
-$request = Request::createFromGlobals();
+// Pass the request to the cards that need it rather than having each card reach
+// for one itself.
+$request = CurrentRequest::get();
 
 if (!isset($pid)) {
     $pid = $session->get('pid') ?? $_GET['pid'] ?? null;

@@ -21,13 +21,13 @@ set_time_limit(0);
 require_once '../globals.php';
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\Super\LoadCodesController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypes\Importer\LOINCImportService;
 use OpenEMR\Services\CodeTypes\Importer\RXCUIImportService;
-use Symfony\Component\HttpFoundation\Request;
 
 $kernel = OEGlobalsBag::getInstance()->getKernel();
 
@@ -42,4 +42,4 @@ $controller = new LoadCodesController(
     ]
 );
 
-$controller->dispatchAction(Request::createFromGlobals())->send();
+$controller->dispatchAction(CurrentRequest::get())->send();
