@@ -343,6 +343,33 @@ final class ShipReleaseOrchestratorTest extends TestCase
         self::assertFalse($byRole[self::FINALIZE_REPO . '#404']);
     }
 
+    public function testDraftGateAsymmetricConductorRequiresNonDraftDocsAndFinalizeDoNot(): void
+    {
+        // Docs + Finalize PRs are auto-drafted by their generator workflows
+        // and auto-flipped by post-tag workflows. Preflight blocking them on
+        // draft state would deadlock the ship: drafts don't flip until
+        // conductor merges, and conductor won't merge until preflight passes.
+        // The orchestrator must pass requireNonDraft=false for downstream
+        // targets (symmetric with requireApproval).
+        $api = new FakePullRequestApi();
+        $api->setSnapshot(self::CONDUCTOR_REPO, self::CONDUCTOR_BRANCH, $this->openConductor());
+        $api->setSnapshot(self::DOCS_REPO, self::DOCS_BRANCH, $this->open(303, 'sha-docs'));
+        $api->setSnapshot(self::FINALIZE_REPO, self::FINALIZE_BRANCH, $this->open(404, 'sha-finalize'));
+        $api->setReadiness(self::CONDUCTOR_REPO, 202, $this->ready('sha-conductor'));
+        $api->setReadiness(self::DOCS_REPO, 303, $this->ready('sha-docs'));
+        $api->setReadiness(self::FINALIZE_REPO, 404, $this->ready('sha-finalize'));
+
+        $this->semiAuto($api, new FakeClock())->ship($this->targets());
+
+        $byRole = [];
+        foreach ($api->readinessCalls as $call) {
+            $byRole[$call['repo'] . '#' . $call['number']] = $call['requireNonDraft'];
+        }
+        self::assertTrue($byRole[self::CONDUCTOR_REPO . '#202']);
+        self::assertFalse($byRole[self::DOCS_REPO . '#303']);
+        self::assertFalse($byRole[self::FINALIZE_REPO . '#404']);
+    }
+
     public function testIgnoreChecksThreadedThroughToEveryReadinessCall(): void
     {
         // The orchestrator's ignore-checks list must propagate to both the

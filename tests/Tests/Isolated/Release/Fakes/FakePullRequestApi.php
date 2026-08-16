@@ -57,7 +57,7 @@ class FakePullRequestApi implements PullRequestApi
     /** @var array<string, int> */
     private array $releaseExistsCalls = [];
 
-    /** @var list<array{repo: string, number: int, requireApproval: bool, ignoreChecks: list<string>}> */
+    /** @var list<array{repo: string, number: int, requireApproval: bool, ignoreChecks: list<string>, requireNonDraft: bool}> */
     public array $readinessCalls = [];
 
     public function setSnapshot(string $repo, string $branch, ?PullRequestSnapshot $snapshot): void
@@ -130,12 +130,14 @@ class FakePullRequestApi implements PullRequestApi
         int $number,
         bool $requireApproval = true,
         array $ignoreChecks = [],
+        bool $requireNonDraft = true,
     ): PullRequestReadiness {
         $this->readinessCalls[] = [
             'repo' => $repo,
             'number' => $number,
             'requireApproval' => $requireApproval,
             'ignoreChecks' => $ignoreChecks,
+            'requireNonDraft' => $requireNonDraft,
         ];
         $key = $this->prKey($repo, $number);
         if (isset($this->readinessQueue[$key]) && $this->readinessQueue[$key] !== []) {

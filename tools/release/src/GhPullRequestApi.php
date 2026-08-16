@@ -54,6 +54,7 @@ final readonly class GhPullRequestApi implements PullRequestApi
         int $number,
         bool $requireApproval = true,
         array $ignoreChecks = [],
+        bool $requireNonDraft = true,
     ): PullRequestReadiness {
         $process = new Process([
             'gh', 'pr', 'view', (string) $number,
@@ -78,7 +79,7 @@ final readonly class GhPullRequestApi implements PullRequestApi
 
         return new PullRequestReadiness(
             $data['headRefOid'],
-            self::reasonsFromPullRequestData($data, $requireApproval, $ignoreChecks),
+            self::reasonsFromPullRequestData($data, $requireApproval, $ignoreChecks, $requireNonDraft),
         );
     }
 
@@ -97,6 +98,17 @@ final readonly class GhPullRequestApi implements PullRequestApi
      * a REQUIRED check failed or review is missing, DIRTY means merge
      * conflicts, BEHIND means head is behind base, etc.
      *
+     * $requireNonDraft gates the isDraft check. Conductor PRs must be non-
+     * draft at preflight (they're the meaningful human-review artifact).
+     * Docs + Finalize PRs are bot-generated and are AUTO-drafted by their
+     * generator workflows, then auto-flipped by post-tag workflows —
+     * meaning they're structurally draft at preflight time. Blocking on
+     * that would deadlock (drafts don't flip until conductor merges, and
+     * conductor won't merge until preflight clears). The full-auto path
+     * re-checks readiness after the auto-flip via
+     * refreshDownstreamBeforeMerge, so relaxing preflight for downstream
+     * targets is safe.
+     *
      * @param array{
      *     isDraft: bool,
      *     mergeable: string,
@@ -112,9 +124,10 @@ final readonly class GhPullRequestApi implements PullRequestApi
         array $data,
         bool $requireApproval,
         array $ignoreChecks,
+        bool $requireNonDraft = true,
     ): array {
         $reasons = [];
-        if ($data['isDraft']) {
+        if ($requireNonDraft && $data['isDraft']) {
             $reasons[] = 'PR is a draft';
         }
         if ($data['mergeable'] !== 'MERGEABLE') {
@@ -155,12 +168,23 @@ final readonly class GhPullRequestApi implements PullRequestApi
     }
 
     /**
-     * Convert gh's statusCheckRollup into a list of blocking reasons. Skips
-     * any check whose context matches $ownContext — a prior ship-release run
-     * may have posted a failure status there, and the orchestrator must not
-     * gate itself on its own marker. Also skips any check whose name or
-     * context appears in $ignoreChecks (operator-supplied bypass for
-     * upstream known-broken jobs).
+     * Convert gh's statusCheckRollup into a list of blocking reasons.
+     *
+     * Deduplicates by check name (or legacy status context) first, keeping
+     * only the LATEST entry per key. GitHub returns re-run attempts as
+     * additional rollup entries — a stale FAILURE from an earlier attempt
+     * on the same head SHA would otherwise block preflight even after a
+     * successful re-run, because the enumeration would see both. Ordering
+     * uses `completedAt` (present on finished check-runs and legacy
+     * statuses via `createdAt`), falling back to `startedAt` for in-progress
+     * runs, so an in-progress newer attempt correctly wins over an older
+     * completed one.
+     *
+     * Skips any check whose context matches $ownContext — a prior ship-
+     * release run may have posted a failure status there, and the
+     * orchestrator must not gate itself on its own marker. Also skips any
+     * check whose name or context appears in $ignoreChecks (operator-
+     * supplied bypass for upstream known-broken jobs).
      *
      * @param  list<array<string, mixed>> $rollup
      * @param  list<string>               $ignoreChecks
@@ -173,7 +197,7 @@ final readonly class GhPullRequestApi implements PullRequestApi
     ): array {
         $ignore = array_flip($ignoreChecks);
         $reasons = [];
-        foreach ($rollup as $check) {
+        foreach (self::latestPerCheckKey($rollup) as $check) {
             if (($check['context'] ?? null) === $ownContext) {
                 continue;
             }
@@ -185,6 +209,68 @@ final readonly class GhPullRequestApi implements PullRequestApi
             $reasons = array_merge($reasons, self::checkBlockingReason($check));
         }
         return $reasons;
+    }
+
+    /**
+     * Collapse repeated check entries in the rollup down to the latest per
+     * name/context. `gh pr view --json statusCheckRollup` returns every
+     * check-run attempt on the head SHA, including re-runs — so an old
+     * FAILURE and a fresh SUCCESS both show up. Ordering uses `completedAt`
+     * (present on completed check-runs) falling back to `startedAt` (present
+     * on in-progress runs). Legacy commit statuses have `createdAt` (also
+     * timestamp-shaped and lexicographically ordered), which fits the same
+     * ordering rule. Entries without a resolvable timestamp compare as
+     * empty string and lose to any timestamped entry, but preserve their
+     * insertion-order relative position vs each other.
+     *
+     * @param  list<array<string, mixed>>  $rollup
+     * @return list<array<string, mixed>>
+     */
+    private static function latestPerCheckKey(array $rollup): array
+    {
+        /** @var array<string, array{check: array<string, mixed>, ts: string, seq: int}> $latest */
+        $latest = [];
+        $seq = 0;
+        foreach ($rollup as $check) {
+            $seq++;
+            $name = is_string($check['name'] ?? null) ? $check['name'] : null;
+            $context = is_string($check['context'] ?? null) ? $check['context'] : null;
+            $key = $name ?? $context;
+            if ($key === null) {
+                continue;
+            }
+            $ts = self::checkTimestamp($check);
+            if (!isset($latest[$key])) {
+                $latest[$key] = ['check' => $check, 'ts' => $ts, 'seq' => $seq];
+            } elseif ($ts > $latest[$key]['ts']) {
+                // Update check + ts to the newer attempt but preserve the
+                // original first-seen seq so downstream ordering stays
+                // deterministic. Overwriting seq here would shift a re-run's
+                // check to its later position in the rollup, contradicting
+                // the "first-seen sequence per key" ordering rule below.
+                $latest[$key]['check'] = $check;
+                $latest[$key]['ts'] = $ts;
+            }
+        }
+        // Restore original relative order (by first-seen sequence per key) so
+        // downstream error messages remain stable across otherwise-equivalent
+        // rollups.
+        uasort($latest, static fn (array $a, array $b): int => $a['seq'] <=> $b['seq']);
+        return array_values(array_map(static fn (array $entry): array => $entry['check'], $latest));
+    }
+
+    /**
+     * @param array<string, mixed> $check
+     */
+    private static function checkTimestamp(array $check): string
+    {
+        foreach (['completedAt', 'startedAt', 'createdAt'] as $field) {
+            $value = $check[$field] ?? null;
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+        return '';
     }
 
     public function postCommitStatus(
