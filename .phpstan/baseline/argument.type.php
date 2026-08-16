@@ -3967,11 +3967,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$r of function sqlFetchArray expects ADORecordSet\\|false, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$string of function htmlspecialchars expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
@@ -3993,7 +3988,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function attr expects string, mixed given\\.$#',
-    'count' => 52,
+    'count' => 48,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
 ];
 $ignoreErrors[] = [
@@ -4094,6 +4089,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$r of function sqlFetchArray expects ADORecordSet\\|false, mixed given\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$record of static method OpenEMR\\\\Forms\\\\EyeMag\\\\CopyForward\\:\\:pick\\(\\) expects array\\<string, mixed\\>, array given\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -4203,7 +4203,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$form_id of function build_IMPPLAN_items expects string, mixed given\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -4442,11 +4442,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$zone of function copy_forward expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$zone of function display_PRIOR_section expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
@@ -4489,11 +4484,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#4 \\$error of function addNewDocument expects string, int given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#4 \\$pid of function copy_forward expects string, mixed given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [

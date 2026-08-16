@@ -2597,16 +2597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function copy_forward\\(\\) has parameter \\$copy_from with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function copy_forward\\(\\) has parameter \\$copy_to with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function display_PRIOR_section\\(\\) has parameter \\$id_to_show with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
