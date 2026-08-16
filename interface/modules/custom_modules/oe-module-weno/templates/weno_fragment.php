@@ -30,7 +30,7 @@ $validate = new TransmitProperties(true);
 $validate_errors = "";
 $cite = '';
 
-if (stripos((string) $validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
+if (stripos((string)$validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
     echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings or Weno Administrator to configure Weno Prescriber Id.");
     return "Fail";
 }
@@ -44,7 +44,7 @@ $cite = <<<CITE
     <span>$status</span>
 </cite>
 CITE;
-if (str_starts_with((string) $pharmacyLog['status'], 'Success')) {
+if (str_starts_with((string)$pharmacyLog['status'], 'Success')) {
     $cite = '';
 }
 
@@ -84,7 +84,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     // parse user weno id and location. If location is present, it is separated by a colon
     // $provider_id is the user id that was passed in the prescription when prescribed.
     // If all else fails then use logged in user id;
-    $match = explode(":", (string) $external_id);
+    $match = explode(":", (string)$external_id);
     if (is_countable($match) && count($match) > 1) {
         $external_id = $match[0];
     }
@@ -107,15 +107,16 @@ while ($row = sqlFetchArray($list)) {
 $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL ORDER BY `date_added` DESC", [$pid]);
 
 ?>
-<script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+<script
+    src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
 <style>
-  .dialog-alert {
-    font-size: 14px;
-  }
+    .dialog-alert {
+        font-size: 14px;
+    }
 
-  div.row div section div.section-header-dynamic {
-    margin-left: 0.5rem;
-  }
+    div.row div section div.section-header-dynamic {
+        margin-left: 0.5rem;
+    }
 </style>
 <script>
     function setPrescribeLocation() {
@@ -131,11 +132,12 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
     }
 </script>
 
-<input type="hidden" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
+<input type="hidden" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
 
 <div>
     <span id="widget-button-set" class="float-right mr-2" style="font-size: 1.1rem;">
-        <a role="button" id="prescribeLink" class="text-primary" onclick="top.restoreSession(); setPrescribeLocation();">
+        <a role="button" id="prescribeLink" class="text-primary"
+           onclick="top.restoreSession(); setPrescribeLocation();">
             <span><i class="fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span>
         </a>
         <a role="button" class="text-primary" onclick="top.restoreSession(); sync_weno();">
@@ -146,7 +148,7 @@ $resDrugs = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND i
         </a>
     </span>
 </div>
-<br />
+<br/>
 <?php
 if ($reSync === true) {
     // Trigger the sync_report function to sync the patient's prescriptions
@@ -165,10 +167,13 @@ if ($reSync === true) {
 if ($hasErrors) { ?>
     <div class="container-fluid m-0 p-0">
         <div id="error-alert" class="col alert alert-danger mt-2 px-0 py-1" role="alert">
-            <span class="text-danger"><span><?php echo xlt("Problems!"); ?></span></span> <span class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
-            <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
+            <span class="text-danger"><span><?php echo xlt("Problems!"); ?></span></span> <span
+                class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
+            <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i
+                    class="fa fa-question-circle close"></i></a>
             <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 small d-none">
-                <div id="dialog-content" class="dialog-content text-danger" style="background-color: #fff"><?php echo $validate_errors; ?></div>
+                <div id="dialog-content" class="dialog-content text-danger"
+                     style="background-color: #fff"><?php echo $validate_errors; ?></div>
             </div>
         </div>
     </div>
@@ -181,12 +186,16 @@ if ($hasErrors) { ?>
     ?>
     <div id="trigger-debug" class="form-group mb-0">
         <div class="input-group small">
-            <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+            <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary"
+                   title="<?php echo $titleMessage ?>" data-toggle="popover"
+                   data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Primary"); ?>:</b>
             </label>
-            <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe'] ?? ''); ?>" />
+            <input type="hidden" id="prim_ncpdp" name="prim_ncpdp"
+                   value="<?php echo attr($prim_pharmacy['ncpdp_safe'] ?? ''); ?>"/>
             <cite>
-                <span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span>
+                <span role="button" id="primary-pharmacy"
+                      title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span>
             </cite>
             <select id="select-primary" class="d-none">
                 <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
@@ -197,17 +206,22 @@ if ($hasErrors) { ?>
                     $primary = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
                     $isSelected = ($pharmacy['ncpdp_safe'] == $prim_pharmacy['ncpdp_safe']) ? 'selected' : '';
                     ?>
-                    <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
+                    <option
+                        value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
                 <?php } ?>
             </select>
         </div>
         <div class="input-group small">
-            <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>" data-toggle="popover" data-content="<?php echo $popoverContent ?>">
+            <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate"
+                   title="<?php echo $titleMessage ?>" data-toggle="popover"
+                   data-content="<?php echo $popoverContent ?>">
                 <b><?php echo xlt("Assigned Alternate"); ?>:</b>
             </label>
-            <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe'] ?? ''); ?>" />
+            <input type="hidden" id="alt_ncpdp" name="alt_ncpdp"
+                   value="<?php echo attr($alt_pharmacy['ncpdp_safe'] ?? ''); ?>"/>
             <cite>
-                <span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span>
+                <span role="button" id="alternate-pharmacy"
+                      title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span>
             </cite>
             <select id="select-alternate" class="d-none">
                 <option value=""><?php echo xlt("Select for No Pharmacy or Click for a list"); ?></option>
@@ -218,12 +232,15 @@ if ($hasErrors) { ?>
                     $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
                     $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
                     ?>
-                    <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
+                    <option
+                        value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
                 <?php } ?>
             </select>
         </div>
         <div class="form-group">
-            <label role="button" id="label-location" class="text-primary mb-1 mr-1" for="facilitySelect" title="<?php echo $titleLocation ?>" data-toggle="popover" data-content="<?php echo $popoverLocation ?>">
+            <label role="button" id="label-location" class="text-primary mb-1 mr-1" for="facilitySelect"
+                   title="<?php echo $titleLocation ?>" data-toggle="popover"
+                   data-content="<?php echo $popoverLocation ?>">
                 <b><?php echo xlt("Use Location"); ?>:</b>
             </label>
             <select id="facilitySelect" name="facilitySelect" class="form-control-sm mt-2 border-0 bg-light text-dark">
@@ -254,6 +271,7 @@ if ($hasErrors) { ?>
             });
         }
     });
+
     function refreshDemographics() {
         top.restoreSession();
         window.location.href = './demographics.php';
@@ -325,14 +343,28 @@ if ($hasErrors) { ?>
             const select = document.getElementById(selectId);
             const input = document.getElementById(inputId);
 
-            label.addEventListener("click", function () {
+            if (!span || !select) {
+                console.warn("Unable to initialize field listeners:", {
+                    labelId,
+                    spanId,
+                    selectId,
+                    inputId,
+                    missingSpan: !span,
+                    missingSelect: !select
+                });
+                return;
+            }
+
+            label?.addEventListener("click", function () {
                 handleLabelClick(span, select);
             });
             span.addEventListener("click", function () {
                 handleLabelClick(span, select);
             });
             select.addEventListener("change", function () {
-                handleSelectChange(span, select, input);
+                if (input) {
+                    handleSelectChange(span, select, input);
+                }
             });
             select.addEventListener("blur", function () {
                 handleSelectBlur(span, select);

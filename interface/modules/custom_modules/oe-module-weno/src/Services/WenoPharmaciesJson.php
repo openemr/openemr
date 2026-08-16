@@ -55,19 +55,17 @@ class WenoPharmaciesJson
         return text(json_encode($jobJson));
     }
 
-    public function storePharmacyData(): ?string
+    public function storePharmacyData(): int|false|string|null
     {
         $wenoLog = new WenoLogService();
         $downloadWenoPharmacies = new DownloadWenoPharmacies();
 
         $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode((string) $this->providerEmail()) . "&data=" . urlencode($this->encrypted);
-        $storageLocation = $storeLocation = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
-        $path_to_extract = $storageLocation;
-        $storeLocation .= "weno_pharmacy.zip";
-        $wenoLog->insertWenoLog("Pharmacy Directory", "'Background Initiated Download started", $url);
+        $wenoLog->insertWenoLog("Pharmacy Directory", "Background Initiated Download started", $url);
         error_log('Background Initiated Pharmacy Download Started.');
-        $downloadWenoPharmacies->retrieveDataFile($url, $storageLocation);
-        return $downloadWenoPharmacies->extractFile($path_to_extract, $storeLocation);
+
+        // Daily/full decision remains in buildJson(); import uses insert-only rebuild semantics for background.
+        return $downloadWenoPharmacies->downloadAndImport($url, true, 'Pharmacy Directory');
     }
 
     private function providerEmail()

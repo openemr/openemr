@@ -18,8 +18,13 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
+// This template is embedded in demographics dashboard rendering via
+// RenderPharmacySectionEvent. Do not hard-exit the parent page when the
+// user lacks patients/rx — Front Office and other non-clinical roles need
+// demographics/appointments without prescription access.
 if (!AclMain::aclCheckCore('patients', 'rx')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Pharmacy Selector", xl("Pharmacy Selector"));
+    AccessDeniedHelper::logDenial('ACL check failed for patients/rx: Pharmacy Selector');
+    return;
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

@@ -42,9 +42,39 @@ global $pid; // we need to grab our pid from our global settings.
 $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$wenoDiagnostics = is_array($wenoDiagnostics ?? null) ? $wenoDiagnostics : [];
+$configuredGate = ($wenoDiagnostics['configured'] ?? false) === true;
+$userGate = ($wenoDiagnostics['user'] ?? false) === true;
+// The patients/rx ACL is already enforced at the top of this template, so the
+// diagnostic flag from the caller is the only thing left to evaluate here.
+$aclGate = ($wenoDiagnostics['acl'] ?? false) === true;
 
 $logService = new WenoLogService();
+// Normalize to an array so the status/created_at reads below are offset-safe.
 $pharmacy_log = $logService->getLastPharmacyDownloadStatus('Success');
+$pharmacy_log = is_array($pharmacy_log) ? $pharmacy_log : [];
+$pharmacyCountRaw = $pharmacy_log['count'] ?? 0;
+$pharmacyCount = is_numeric($pharmacyCountRaw) ? (int) $pharmacyCountRaw : 0;
+$logGate = $pharmacyCount > 0;
+$showSelector = $configuredGate && $userGate && $aclGate && $logGate;
+$failedGates = [];
+$gateRecommendations = [];
+if (!$configuredGate) {
+    $failedGates[] = xlt('configured');
+    $gateRecommendations[] = xlt('Open Weno eRx Service Setup and complete required primary credentials (enable, admin username/password, encryption key), then validate and save.');
+}
+if (!$userGate) {
+    $failedGates[] = xlt('user');
+    $gateRecommendations[] = xlt('Set a Weno Provider ID for the currently logged-in user in the users table/profile so the prescriber is recognized as a Weno user.');
+}
+if (!$aclGate) {
+    $failedGates[] = xlt('ACL');
+    $gateRecommendations[] = xlt('Grant patients/rx ACL permission to this user/role so pharmacy selector access is authorized.');
+}
+if (!$logGate) {
+    $failedGates[] = xlt('log');
+    $gateRecommendations[] = xlt('Run/complete Pharmacy Directory download in Weno Downloads Management and wait for Success with populated pharmacy records.');
+}
 
 $activeStatus = sqlQuery("SELECT `active` FROM background_services WHERE `name` = 'WenoExchangePharmacies'");
 
@@ -105,6 +135,26 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
 <div id="weno_form"></div>
 
 <template id="weno_template">
+    <?php if ($failedGates !== []) { ?>
+        <div class="alert alert-warning p-2 mb-2" role="alert">
+            <strong><?php echo xlt('Weno pharmacy selector diagnostics'); ?>:</strong>
+            <?php echo xlt('Gate check failed for'); ?>
+            <code><?php echo text(implode(', ', $failedGates)); ?></code>.
+            <?php echo xlt('Status'); ?>:
+            <?php echo xlt('configured'); ?>=<?php echo text($configuredGate ? 'PASS' : 'FAIL'); ?>,
+            <?php echo xlt('user'); ?>=<?php echo text($userGate ? 'PASS' : 'FAIL'); ?>,
+            <?php echo xlt('ACL'); ?>=<?php echo text($aclGate ? 'PASS' : 'FAIL'); ?>,
+            <?php echo xlt('log'); ?>=<?php echo text($logGate ? 'PASS' : 'FAIL'); ?>.
+            <?php if ($gateRecommendations !== []) { ?>
+                <div class="mt-2"><strong><?php echo xlt('Recommended actions'); ?>:</strong></div>
+                <ul class="mb-0 pl-3">
+                    <?php foreach ($gateRecommendations as $recommendation) { ?>
+                        <li><?php echo text($recommendation); ?></li>
+                    <?php } ?>
+                </ul>
+            <?php } ?>
+        </div>
+    <?php } ?>
     <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
@@ -113,7 +163,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
         <div class="h4 text-primary">
             <?php echo xlt("Weno Pharmacy"); ?>
         </div>
-        <?php if (!empty($pharmacy_log['count'] ?? 0)) {
+        <?php if ($pharmacyCount > 0) {
             $error = false; ?>
             <cite class="text-primary p-1">
                 <?php
@@ -129,7 +179,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
             </cite>
         <?php } ?>
     </div>
-    <?php if (!$error) { ?>
+    <?php if ($showSelector) { ?>
         <div class="row col-12 m-0 p-0 mb-1">
             <div>
                 <label class="bg-light text-success mb-1">
@@ -553,19 +603,19 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
                 let html = '';
                 data = JSON.parse(data);
                 if (data === null || data.length === 0) { // Check for no data or empty array
-                    html += '<option value="">' + jsXlt("No Pharmacy Found") + '</option>';
-                    let msg = jsXlt('No results found.');
+                    html += '<option value="">' + jsText(xl("No Pharmacy Found")) + '</option>';
+                    let msg = jsText(xl('No results found.'));
                     $("#searchResults").text(msg);
                 } else {
                     if (testPharmacies) {
-                        html += '<option value="' + '">' + jsXlt("Select a Test Pharmacy Here") + '</option>';
+                        html += '<option value="' + '">' + jsText(xl("Select a Test Pharmacy Here")) + '</option>';
                     } else {
-                        html += '<option value="' + '">' + jsXlt("Select a Pharmacy Here") + '</option>';
+                        html += '<option value="' + '">' + jsText(xl("Select a Pharmacy Here")) + '</option>';
                     }
                     $.each(data, function (i, value) {
                         html += '<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>';
                     });
-                    let msg = jsAttr(data.length) + ' ' + jsXlt('result(s) found.');
+                    let msg = jsAttr(data.length) + ' ' + jsText(xl('result(s) found.'));
                     $("#searchResults").text(msg);
                 }
                 $("#weno_pharmacy").html(html); // Write HTML options to the select elementresult(s) found

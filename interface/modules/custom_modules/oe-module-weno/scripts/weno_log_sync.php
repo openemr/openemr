@@ -52,9 +52,15 @@ function downloadWenoPharmacy(): void
     // The breadwinner!
     $status = $localPharmacyJson->storePharmacyData();
 
+    // storePharmacyData() returns the imported row count, or false on failure.
+    $importedCount = is_numeric($status) ? (string) (int) $status : '';
+    $outcome = $importedCount !== ''
+        ? "Background Initiated Pharmacy Download Imported:" . text($importedCount) . " Pharmacies"
+        : "Background Initiated Pharmacy Download failed";
+
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $session->get('authUser'), $session->get('authProvider'), 1, "Background Initiated Pharmacy Download Imported:" . text($status) . " Pharmacies");
-    error_log('Background Initiated Weno pharmacies Updated:' . text($status) . " Pharmacies");
+    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $session->get('authUser'), $session->get('authProvider'), 1, $outcome);
+    error_log($outcome);
 }
 
 /**
