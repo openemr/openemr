@@ -65,7 +65,10 @@ use Symfony\Component\Filesystem\Filesystem;
         . ' status-check rollup. Operator escape hatch for upstream known-broken jobs whose'
         . ' failure would otherwise block ship-release preflight (e.g. `PHP 8.6 - Isolated Tests`'
         . ' during an upstream PHP bug window). Names are matched exactly against the'
-        . ' `name`/`context` fields returned by `gh pr view --json statusCheckRollup`.',
+        . ' `name`/`context` fields returned by `gh pr view --json statusCheckRollup`.'
+        . ' GitHub reports mergeStateStatus=UNSTABLE when a non-required check is failing;'
+        . ' the ignore-list only removes matching failures from the blocking-reasons list.'
+        . ' When it clears every rollup entry, UNSTABLE is treated as CLEAN.',
         '',
     )
     ->setCode(function (InputInterface $input, OutputInterface $output): int {

@@ -76,6 +76,43 @@ final readonly class GhPullRequestApi implements PullRequestApi
          */
         $data = $this->decodeJson(trim($process->getOutput()), "gh pr view {$repo}#{$number}");
 
+        return new PullRequestReadiness(
+            $data['headRefOid'],
+            self::reasonsFromPullRequestData($data, $requireApproval, $ignoreChecks),
+        );
+    }
+
+    /**
+     * Pure evaluation of gh's `pr view` data into a list of blocking reasons.
+     * Extracted from getReadiness() so the rules can be unit-tested directly
+     * without shelling out to `gh`.
+     *
+     * mergeStateStatus rule: CLEAN passes unconditionally. UNSTABLE
+     * ("mergeable, all required checks green, but one or more non-required
+     * checks failing") passes IF the status-check rollup evaluation
+     * returned no blocking reasons — i.e. the only reason GitHub reports
+     * UNSTABLE is check failures the operator has told us to ignore via
+     * $ignoreChecks. Every other state (BLOCKED, DIRTY, BEHIND, HAS_HOOKS,
+     * UNKNOWN) still blocks because those aren't ignorable: BLOCKED means
+     * a REQUIRED check failed or review is missing, DIRTY means merge
+     * conflicts, BEHIND means head is behind base, etc.
+     *
+     * @param array{
+     *     isDraft: bool,
+     *     mergeable: string,
+     *     mergeStateStatus: string,
+     *     reviewDecision: ?string,
+     *     statusCheckRollup: list<array<string, mixed>>,
+     *     latestReviews: list<array{state: string, author?: array{login?: string}}>,
+     * } $data
+     * @param list<string> $ignoreChecks
+     * @return list<string>
+     */
+    public static function reasonsFromPullRequestData(
+        array $data,
+        bool $requireApproval,
+        array $ignoreChecks,
+    ): array {
         $reasons = [];
         if ($data['isDraft']) {
             $reasons[] = 'PR is a draft';
@@ -83,7 +120,20 @@ final readonly class GhPullRequestApi implements PullRequestApi
         if ($data['mergeable'] !== 'MERGEABLE') {
             $reasons[] = sprintf('mergeable=%s (need MERGEABLE)', $data['mergeable']);
         }
-        if ($data['mergeStateStatus'] !== 'CLEAN') {
+
+        // Evaluate the status-check rollup up-front so the mergeStateStatus
+        // rule below can consult it — UNSTABLE is accepted only when the
+        // ignore-list has fully cleared the rollup.
+        $checkReasons = self::reasonsFromStatusRollup(
+            $data['statusCheckRollup'],
+            ShipReleaseOrchestrator::STATUS_CONTEXT,
+            $ignoreChecks,
+        );
+
+        if (
+            $data['mergeStateStatus'] !== 'CLEAN'
+            && !($data['mergeStateStatus'] === 'UNSTABLE' && $checkReasons === [])
+        ) {
             $reasons[] = sprintf('mergeStateStatus=%s (need CLEAN)', $data['mergeStateStatus']);
         }
         if ($requireApproval && ($data['reviewDecision'] ?? null) !== 'APPROVED') {
@@ -100,15 +150,8 @@ final readonly class GhPullRequestApi implements PullRequestApi
                 );
             }
         }
-        $reasons = array_merge(
-            $reasons,
-            self::reasonsFromStatusRollup(
-                $data['statusCheckRollup'],
-                ShipReleaseOrchestrator::STATUS_CONTEXT,
-                $ignoreChecks,
-            ),
-        );
-        return new PullRequestReadiness($data['headRefOid'], $reasons);
+
+        return array_merge($reasons, $checkReasons);
     }
 
     /**
