@@ -1312,9 +1312,9 @@ if ($_REQUEST['canvas'] ?? '') {
     exit;
 }
 
-if ($_REQUEST['copy']) {
-    // Both copy-forward callers post these; the typed getters hand back strings,
-    // so the enums are the only thing that still has to recognize the value.
+// Both copy-forward callers post these; the typed getters hand back strings, so
+// the enums are the only thing that still has to recognize the value.
+if ($request->request->getString('copy') !== '') {
     $requestedZone = $request->request->getString('zone');
     $copyFrom = $request->request->getString('copy_from');
     $copyMode = Zone::tryFrom($requestedZone) ?? CopyMode::tryFrom($requestedZone);
