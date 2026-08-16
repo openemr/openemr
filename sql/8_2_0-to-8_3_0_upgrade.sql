@@ -112,7 +112,3 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
-
-#IfMissingColumn api_log client_id
-ALTER TABLE `api_log` ADD COLUMN `client_id` varchar(80) NOT NULL DEFAULT '' COMMENT 'oauth_clients.client_id of the API client that made the request' AFTER `user_id`;
-#EndIf
