@@ -83,6 +83,19 @@ class CopyForwardTest extends TestCase
         $this->assertSame(array_values(array_unique($all)), $all);
     }
 
+    /**
+     * Drawings and photos live in the documents table, not in a `form_eye_*`
+     * column, so naming them here would only ever copy nulls forward.
+     */
+    public function testNoZoneCarriesDrawingsOrPhotos(): void
+    {
+        foreach (Zone::cases() as $zone) {
+            foreach (['ODPIC', 'OSPIC', 'ODDRAWING', 'OSDRAWING'] as $absent) {
+                $this->assertNotContains($absent, $zone->fields(), "{$zone->value} carries {$absent}");
+            }
+        }
+    }
+
     public function testRecordQueryBindsThePatientAndFormRatherThanInterpolatingThem(): void
     {
         $this->assertStringContainsString('forms.pid = ?', CopyForward::RECORD_QUERY);

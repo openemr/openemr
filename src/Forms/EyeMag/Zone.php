@@ -18,6 +18,9 @@ namespace OpenEMR\Forms\EyeMag;
  * The four field-bearing zones of the exam. Each case knows which columns of the
  * joined `form_eye_*` record belong to it, which is what makes copy-forward a
  * table lookup instead of a branch per zone.
+ *
+ * Drawings are not listed here. They live in the documents table, not in a
+ * `form_eye_*` column, and copy-forward does not carry them.
  */
 enum Zone: string
 {
@@ -41,7 +44,7 @@ enum Zone: string
                 'RTEMPART', 'LTEMPART', 'RCNV', 'LCNV', 'RCNVII', 'LCNVII',
                 'ODSCHIRMER1', 'OSSCHIRMER1', 'ODSCHIRMER2', 'OSSCHIRMER2',
                 'ODTBUT', 'OSTBUT', 'ODHERTEL', 'OSHERTEL', 'HERTELBASE',
-                'ODPIC', 'OSPIC', 'EXT_COMMENTS',
+                'EXT_COMMENTS',
             ],
             self::ANTSEG => [
                 'OSCONJ', 'ODCONJ', 'ODCORNEA', 'OSCORNEA', 'ODAC', 'OSAC',
@@ -53,7 +56,7 @@ enum Zone: string
             self::RETINA => [
                 'ODDISC', 'OSDISC', 'ODCUP', 'OSCUP', 'ODMACULA', 'OSMACULA',
                 'ODVESSELS', 'OSVESSELS', 'ODVITREOUS', 'OSVITREOUS',
-                'ODPERIPH', 'OSPERIPH', 'ODDRAWING', 'OSDRAWING',
+                'ODPERIPH', 'OSPERIPH',
                 'ODCMT', 'OSCMT', 'RETINA_COMMENTS',
             ],
             self::NEURO => [

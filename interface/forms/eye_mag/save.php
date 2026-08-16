@@ -1309,11 +1309,15 @@ if ($_REQUEST['canvas'] ?? '') {
 if ($_REQUEST['copy']) {
     $requestedZone = $_REQUEST['zone'] ?? '';
     $copyFrom = $_REQUEST['copy_from'] ?? '';
-    if (is_string($requestedZone) && is_string($copyFrom) && is_scalar($pid)) {
-        $copyMode = Zone::tryFrom($requestedZone) ?? CopyMode::tryFrom($requestedZone);
-        if ($copyMode !== null) {
-            copy_forward($copyMode, $copyFrom, (string) $pid);
-        }
+    $copyMode = is_string($requestedZone)
+        ? Zone::tryFrom($requestedZone) ?? CopyMode::tryFrom($requestedZone)
+        : null;
+
+    if ($copyMode !== null && is_string($copyFrom) && is_scalar($pid)) {
+        copy_forward($copyMode, $copyFrom, (string) $pid);
+    } else {
+        // The browser asked for this with dataType: 'json'; an empty body is a parse error.
+        echo json_encode([]);
     }
     return;
 }

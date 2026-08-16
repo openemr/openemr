@@ -200,8 +200,13 @@ $CTLSUPPLIEROS = '';
 $insert_this_id = null;
 
 // Parsed once here; $REFTYPE stays a string because the form posts it back verbatim.
+// Anything that is not a string (REFTYPE[]=W) is treated as absent rather than
+// flowing on to be echoed into the form markup.
 $requestedRefType = $_REQUEST['REFTYPE'] ?? '';
-$refType = is_string($requestedRefType) ? RefType::tryFrom($requestedRefType) : null;
+if (!is_string($requestedRefType)) {
+    $requestedRefType = '';
+}
+$refType = RefType::tryFrom($requestedRefType);
 
 if ($requestedRefType) {
     $REFTYPE = $requestedRefType;
@@ -209,7 +214,8 @@ if ($requestedRefType) {
     // Map the rx_type numeric code passed from view.php to a display string and
     // set the corresponding checkbox state. Default to Single (0) if the value
     // is missing or not one of the four expected codes.
-    $rxType = RxType::tryFrom((string) ($_REQUEST['rx_type'] ?? '')) ?? RxType::DEFAULT;
+    $requestedRxType = $_REQUEST['rx_type'] ?? '';
+    $rxType = is_string($requestedRxType) ? RxType::tryFrom($requestedRxType) ?? RxType::DEFAULT : RxType::DEFAULT;
     $RXTYPE = $rxType->name;
 
     $Single = ($rxType === RxType::Single) ? "checked='checked'" : '';

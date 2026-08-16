@@ -24,6 +24,7 @@ TODO: Code cleanup */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -148,14 +149,14 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
             }
 
             $recent = $panel->recentTitlesQuery($quickPickProviderId);
-            $qry = sqlStatement($recent->sql, $recent->params);
-            if (sqlNumRows($qry) < IssueQuickPick::MIN_RECENT_TITLES) {
+            $picks = QueryUtils::fetchRecords($recent->sql, $recent->params);
+            if (count($picks) < IssueQuickPick::MIN_RECENT_TITLES) {
                 // The provider is just starting out; offer the stock list instead.
                 $stock = $panel->stockTitlesQuery();
-                $qry = sqlStatement($stock->sql, $stock->params);
+                $picks = QueryUtils::fetchRecords($stock->sql, $stock->params);
             }
 
-            while ($res = sqlFetchArray($qry)) { //Should we take the top 10 and display alphabetically?
+            foreach ($picks as $res) { //Should we take the top 10 and display alphabetically?
                 echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length] = new Option(" . js_escape(xl_list_label(trim((string) $res['title']))) . ", " . js_escape(trim((string) $res['option_id'])) . ", false, false);\n";
                 if ($res['codes']) {
                     echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length-1].setAttribute('data-code','" . attr(trim((string) $res['codes'])) . "');\n";
