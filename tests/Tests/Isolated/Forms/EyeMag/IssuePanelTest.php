@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Forms\EyeMag;
 use OpenEMR\Forms\EyeMag\IssueQuickPick;
 use OpenEMR\Forms\EyeMag\PmsfhPanel;
 use OpenEMR\Forms\EyeMag\SubtypeFilter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class IssuePanelTest extends TestCase
@@ -25,12 +26,21 @@ class IssuePanelTest extends TestCase
      * Panels built from other sources have no case, so callers can recognize
      * them by a null lookup.
      */
-    public function testDerivedPanelsHaveNoCase(): void
+    #[DataProvider('derivedPanelProvider')]
+    public function testDerivedPanelsHaveNoCase(string $derived): void
     {
-        foreach (['FH', 'SOCH', 'ROS'] as $derived) {
-            $this->assertNull(PmsfhPanel::tryFrom($derived));
-            $this->assertNull(IssueQuickPick::tryFrom($derived));
-        }
+        $this->assertNull(PmsfhPanel::tryFrom($derived));
+        $this->assertNull(IssueQuickPick::tryFrom($derived));
+    }
+
+    /**
+     * @return list<array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function derivedPanelProvider(): array
+    {
+        return [['FH'], ['SOCH'], ['ROS'], ['CHRONIC']];
     }
 
     public function testEveryFilterBindsItsSubtypeRatherThanInterpolatingIt(): void
@@ -38,9 +48,9 @@ class IssuePanelTest extends TestCase
         foreach (SubtypeFilter::cases() as $filter) {
             $condition = $filter->condition();
 
-            $this->assertSame(
+            $this->assertCount(
                 substr_count($condition->sql, '?'),
-                count($condition->params),
+                $condition->params,
                 "{$filter->name} has a placeholder without a bind",
             );
         }
@@ -98,9 +108,9 @@ class IssuePanelTest extends TestCase
         foreach (IssueQuickPick::cases() as $panel) {
             $query = $panel->recentTitlesQuery(42);
 
-            $this->assertSame(
+            $this->assertCount(
                 substr_count($query->sql, '?'),
-                count($query->params),
+                $query->params,
                 "{$panel->value} has a placeholder without a bind",
             );
             $this->assertSame($panel->issueType(), $query->params[0]);
@@ -116,7 +126,8 @@ class IssuePanelTest extends TestCase
         $query = IssueQuickPick::PMH->recentTitlesQuery(1);
 
         $this->assertStringContainsString('LIMIT ?', $query->sql);
-        $this->assertSame(20, $query->params[array_key_last($query->params)]);
+        $this->assertNotEmpty($query->params);
+        $this->assertSame(20, $query->params[count($query->params) - 1]);
     }
 
     public function testStockTitlesQuerySplitsOphthalmicFromGeneralLists(): void

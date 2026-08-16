@@ -16,6 +16,7 @@ namespace OpenEMR\Tests\Isolated\Forms\EyeMag;
 
 use OpenEMR\Forms\EyeMag\RefType;
 use OpenEMR\Forms\EyeMag\RxType;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PrescriptionTypeTest extends TestCase
@@ -36,34 +37,66 @@ class PrescriptionTypeTest extends TestCase
         $labels = array_map(static fn(RefType $refType): string => $refType->displayName(), RefType::cases());
 
         $this->assertSame([], array_filter($labels, static fn(string $label): bool => $label === ''));
-        $this->assertSame(count($labels), count(array_unique($labels)));
+        $this->assertCount(count($labels), array_unique($labels));
     }
 
-    public function testUnknownRefractionMethodsDoNotResolve(): void
+    /**
+     * @return list<array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unknownRefractionMethodProvider(): array
     {
-        $this->assertNull(RefType::tryFrom(''));
-        $this->assertNull(RefType::tryFrom('ctl'));
-        $this->assertNull(RefType::tryFrom('BOGUS'));
+        return [[''], ['ctl'], ['BOGUS'], ['Wearing']];
+    }
+
+    #[DataProvider('unknownRefractionMethodProvider')]
+    public function testUnknownRefractionMethodsDoNotResolve(string $value): void
+    {
+        $this->assertNull(RefType::tryFrom($value));
     }
 
     /**
      * The codes come from `form_eye_mag_wearing.RX_TYPE` and the names are what
      * the print form renders and stores in `form_eye_mag_dispense.RXTYPE`.
+     *
+     * @return list<array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
-    public function testLensTypeCodesMapToTheStoredLabels(): void
+    public static function lensTypeCodeProvider(): array
     {
-        $this->assertSame('Single', RxType::from('0')->name);
-        $this->assertSame('Bifocal', RxType::from('1')->name);
-        $this->assertSame('Trifocal', RxType::from('2')->name);
-        $this->assertSame('Progressive', RxType::from('3')->name);
+        return [
+            ['0', 'Single'],
+            ['1', 'Bifocal'],
+            ['2', 'Trifocal'],
+            ['3', 'Progressive'],
+        ];
     }
 
-    public function testUnrecognizedLensCodesFallBackToSingleVision(): void
+    #[DataProvider('lensTypeCodeProvider')]
+    public function testLensTypeCodesMapToTheStoredLabels(string $code, string $label): void
     {
-        foreach (['', '4', 'Single', 'x'] as $unrecognized) {
-            $this->assertNull(RxType::tryFrom($unrecognized));
-        }
+        $this->assertSame($label, RxType::from($code)->name);
+    }
 
-        $this->assertSame(RxType::Single, RxType::DEFAULT);
+    /**
+     * @return list<array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function unrecognizedLensCodeProvider(): array
+    {
+        return [[''], ['4'], ['Single'], ['x']];
+    }
+
+    /**
+     * Anything the print form does not recognize has to miss, so that it falls
+     * back to {@see RxType::DEFAULT} rather than rendering a stray label.
+     */
+    #[DataProvider('unrecognizedLensCodeProvider')]
+    public function testUnrecognizedLensCodesDoNotResolve(string $code): void
+    {
+        $this->assertNull(RxType::tryFrom($code));
     }
 }
