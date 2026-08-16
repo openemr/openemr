@@ -22,6 +22,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -59,7 +60,7 @@ class DownloadWenoPharmacies
         '24HR',
     ];
 
-    private readonly LoggerInterface $logger;
+    private LoggerInterface $logger;
 
     public function __construct(?LoggerInterface $logger = null)
     {
@@ -166,7 +167,7 @@ class DownloadWenoPharmacies
             // import rolls back to the previous directory instead of leaving the
             // table empty. TRUNCATE cannot be used here - it commits implicitly.
             if ($isInsertOnly) {
-                sqlStatement('DELETE FROM weno_pharmacy');
+                QueryUtils::sqlStatementThrowException('DELETE FROM weno_pharmacy');
             }
 
             $csv = Reader::createFromPath($filePath, 'r');
@@ -233,12 +234,16 @@ class DownloadWenoPharmacies
                 $imported++;
             }
 
-            $connect->commit();
+            // Nothing usable in the payload: roll back so a full-directory run
+            // restores the rows the DELETE above removed.
             if ($imported === 0) {
+                $connect->rollback();
                 $wenoLog->insertWenoLog('Pharmacy Directory', 'CSV contained no importable pharmacy rows');
                 $this->logger->error('Weno pharmacy import: CSV contained no importable rows', ['file' => $filePath]);
                 return false;
             }
+
+            $connect->commit();
 
             return $imported;
         } catch (\Throwable $e) {
