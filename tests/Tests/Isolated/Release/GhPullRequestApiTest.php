@@ -299,4 +299,145 @@ final class GhPullRequestApiTest extends TestCase
 
         self::assertContains('CHANGES_REQUESTED review by gatekeeper', $reasons);
     }
+
+    public function testReadinessToleratesDraftWhenRequireNonDraftIsFalse(): void
+    {
+        // Docs + Finalize PRs are auto-drafted by their generator workflows
+        // and auto-flipped by post-tag workflows. Blocking downstream targets
+        // on draft state at preflight would deadlock the ship. The orchestrator
+        // passes requireNonDraft=false for those roles.
+        $data = self::prData(isDraft: true);
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, false, [], false);
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testRollupDedupesStaleFailureWhenLatestSuccessExists(): void
+    {
+        // Regression: rerunning a workflow leaves the older attempt in the
+        // rollup alongside the newer one. Ship-release must only consider the
+        // latest per check name; otherwise a stale FAILURE from before a fix
+        // landed keeps blocking preflight even after a green re-run.
+        $rollup = [
+            [
+                'name' => 'validate',
+                'status' => 'COMPLETED',
+                'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:56:00Z',
+            ],
+            [
+                'name' => 'validate',
+                'status' => 'COMPLETED',
+                'conclusion' => 'SUCCESS',
+                'completedAt' => '2026-08-16T20:14:19Z',
+            ],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testRollupDedupeKeepsLatestFailureOverStaleSuccess(): void
+    {
+        // Symmetric: if the newest run is FAILURE and an older SUCCESS exists,
+        // the FAILURE must still block. Prevents "hide bug by re-running until
+        // green" logic errors and confirms dedupe is timestamp-based, not
+        // biased toward SUCCESS.
+        $rollup = [
+            [
+                'name' => 'phpstan',
+                'status' => 'COMPLETED',
+                'conclusion' => 'SUCCESS',
+                'completedAt' => '2026-08-16T18:00:00Z',
+            ],
+            [
+                'name' => 'phpstan',
+                'status' => 'COMPLETED',
+                'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T19:00:00Z',
+            ],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertCount(1, $reasons);
+        self::assertStringContainsString('phpstan', $reasons[0]);
+        self::assertStringContainsString('FAILURE', $reasons[0]);
+    }
+
+    public function testRollupDedupeUsesStartedAtWhenCompletedAtMissing(): void
+    {
+        // In-progress reruns have startedAt but no completedAt. A new
+        // IN_PROGRESS re-run of an old FAILURE should win the dedupe (it's
+        // the more recent attempt) and block preflight as pending, so the
+        // operator waits for it to complete rather than acting on a stale
+        // result.
+        $rollup = [
+            [
+                'name' => 'validate',
+                'status' => 'COMPLETED',
+                'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:56:00Z',
+                'startedAt' => '2026-08-16T18:55:00Z',
+            ],
+            [
+                'name' => 'validate',
+                'status' => 'IN_PROGRESS',
+                'conclusion' => null,
+                'startedAt' => '2026-08-16T20:14:00Z',
+            ],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertCount(1, $reasons);
+        self::assertStringContainsString('IN_PROGRESS', $reasons[0]);
+    }
+
+    public function testRollupDedupePreservesFirstSeenOrderWhenReplacingNewerAttempt(): void
+    {
+        // Regression: replacing a check with a newer attempt must NOT
+        // overwrite its first-seen sequence position. Order in the rollup:
+        // check A (seq 1), check B (seq 2), check A newer (seq 3, replaces).
+        // Dedupe should emit A before B — A was first seen at seq 1, even
+        // though the winning entry is a later re-run.
+        $rollup = [
+            ['name' => 'A', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:00:00Z'],
+            ['name' => 'B', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:30:00Z'],
+            ['name' => 'A', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T19:00:00Z'],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertCount(2, $reasons);
+        self::assertStringContainsString('A', $reasons[0]);
+        self::assertStringContainsString('B', $reasons[1]);
+    }
+
+    public function testRollupDedupeAppliesToLegacyStatusesByContext(): void
+    {
+        // Legacy commit statuses re-post to the same context. Only the latest
+        // by createdAt should be considered.
+        $rollup = [
+            [
+                'context' => 'codecov/project',
+                'state' => 'FAILURE',
+                'createdAt' => '2026-08-16T18:00:00Z',
+            ],
+            [
+                'context' => 'codecov/project',
+                'state' => 'SUCCESS',
+                'createdAt' => '2026-08-16T20:00:00Z',
+            ],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertSame([], $reasons);
+    }
 }
