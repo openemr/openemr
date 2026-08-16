@@ -335,10 +335,7 @@ class GenHl7OrderIntegrationTest extends TestCase
             'Record types and their order'
         );
 
-        $byType = array_combine(
-            array_map(static fn (string $record): string => substr($record, 0, 1), $records),
-            $records
-        );
+        $byType = self::requisitionRecordsByType($requisition);
 
         $this->assertStringContainsString(
             strtoupper($this->patientColumn('lname')),
@@ -354,6 +351,52 @@ class GenHl7OrderIntegrationTest extends TestCase
         $this->assertStringContainsString('E78.5', $byType['D'], 'D record carries the order diagnosis');
         $this->assertMatchesRegularExpression('/^L\|\d+\|$/', $byType['L'], 'L record carries the record length');
         $this->assertSame('E|0|', $byType['E']);
+    }
+
+    /**
+     * An order carrying no diagnosis at all — neither `order_diagnosis` on the
+     * order nor `diagnoses` on any of its codes — still has to produce a
+     * requisition, with an empty diagnosis field on the D record.
+     *
+     * Regression test for #13546. The D and M record arrays were omitted from
+     * the loop that seeds every other record array, so on this path `$D[1]` was
+     * never created and trimming its trailing '^' separator passed null to
+     * strlen() and substr(). PHP reports that as a deprecation rather than an
+     * exception, so the requisition string itself was unaffected — the only
+     * symptom was the diagnostics, which under `failOnDeprecation` take the
+     * PHPUnit process exit code to 1 without marking any test failed. Assert on
+     * the diagnostics directly so a regression is a red test rather than an
+     * exit code nobody reads.
+     */
+    #[Test]
+    public function testLabCorpRequisitionIsDiagnosticFreeForAnOrderWithNoDiagnoses(): void
+    {
+        $this->setOrderColumns(['order_diagnosis' => '']);
+        QueryUtils::sqlStatementThrowException(
+            'UPDATE procedure_order_code SET diagnoses = ? WHERE procedure_order_id = ?',
+            ['', $this->orderId]
+        );
+
+        /** @var list<string> $diagnostics */
+        $diagnostics = [];
+        set_error_handler(
+            static function (int $severity, string $message) use (&$diagnostics): bool {
+                $diagnostics[] = $severity . ': ' . $message;
+                return true;
+            },
+            E_WARNING | E_DEPRECATED
+        );
+        try {
+            $requisition = labcorp_gen_hl7_order($this->orderId)->requisitionData;
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $diagnostics, 'Generating the requisition must raise no warnings or deprecations');
+
+        $byType = self::requisitionRecordsByType($requisition);
+        $this->assertSame('D|||', $byType['D'], 'The D record carries an empty diagnosis list');
+        $this->assertSame('M||||||', $byType['M'], 'The M record is empty but still has all six of its fields');
     }
 
     #[Test]
@@ -510,6 +553,21 @@ class GenHl7OrderIntegrationTest extends TestCase
             $segments,
             static fn (string $segment): bool => str_starts_with($segment, $segmentId . '|')
         ));
+    }
+
+    /**
+     * Index the records of a LabCorp 2D barcode requisition by their leading
+     * record-type letter.
+     *
+     * @return array<string, string>
+     */
+    private static function requisitionRecordsByType(string $requisition): array
+    {
+        $records = self::segments($requisition);
+        return array_combine(
+            array_map(static fn (string $record): string => substr($record, 0, 1), $records),
+            $records
+        );
     }
 
     /**
