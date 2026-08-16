@@ -15997,43 +15997,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\(\' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' BETWEEN \\? AND \\? \' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' IN \\(\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' NOT BETWEEN \\? AND …\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' \\= \\?\' results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'%%\' results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
 ];
 $ignoreErrors[] = [

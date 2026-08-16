@@ -53,6 +53,28 @@ class SearchFieldStatementResolver
     }
 
     /**
+     * Search field names are concatenated into the generated SQL as column
+     * identifiers and therefore cannot be parameter bound.  Restrict them to a
+     * simple `column` or `table.column` identifier so a maliciously constructed
+     * field name can never be used to inject SQL.
+     *
+     * @param ISearchField $searchField
+     * @return string The validated field identifier
+     * @throws SearchFieldException if the field name is not a valid identifier
+     */
+    private static function assertValidFieldIdentifier(ISearchField $searchField): string
+    {
+        $field = $searchField->getField();
+        // getField() is untyped on ISearchField; the phpdoc says string but nothing
+        // enforces it at runtime, so keep the defensive check.
+        // @phpstan-ignore function.alreadyNarrowedType
+        if (!is_string($field) || !preg_match('/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)?$/', $field)) {
+            throw new SearchFieldException('invalid search field', "invalid search field identifier");
+        }
+        return $field;
+    }
+
+    /**
      * Given a DateSearchField with a list of SearchFieldComparableValue objects in the search field a SQL query fragment
      * is generated that handles the date field searching.
      * @param DateSearchField $searchField
@@ -60,8 +82,10 @@ class SearchFieldStatementResolver
      */
     public static function resolveDateField(DateSearchField $searchField)
     {
+        $field = self::assertValidFieldIdentifier($searchField);
+
         if (empty($searchField->getValues())) {
-            throw new SearchFieldException($searchField->getField(), " field does not have a value to search on");
+            throw new SearchFieldException($field, " field does not have a value to search on");
         }
 
         $clauses = [];
@@ -122,17 +146,17 @@ class SearchFieldStatementResolver
             // for equality and also inequality (!=) we have to make sure we deal with the fuzzy ranges since search can
             // specify date ranges of just Year, Year+Month, Year+month+day, Year+month+day+hour&minute, Year+month+day+hour&minute+second
             if ($operator === '=') {
-                array_push($clauses, $searchField->getField() . ' BETWEEN ? AND ? ');
+                array_push($clauses, $field . ' BETWEEN ? AND ? ');
                 $searchFragment->addBoundValue($lowerBoundDateRange->format($dateFormat));
                 $searchFragment->addBoundValue($upperBoundDateRange->format($dateFormat));
             } else if ($operator === '!=') {
                 // we have to make sure we deal with the fuzzy range when we have an = operator since the user
                 // can specify date ranges of just Year, Year+Month, Year+month+day, Year+month+day+hour&minute, Year+month+day+hour&minute+second
-                array_push($clauses, $searchField->getField() . ' NOT BETWEEN ? AND ? ');
+                array_push($clauses, $field . ' NOT BETWEEN ? AND ? ');
                 $searchFragment->addBoundValue($lowerBoundDateRange->format($dateFormat));
                 $searchFragment->addBoundValue($upperBoundDateRange->format($dateFormat));
             } else {
-                array_push($clauses, $searchField->getField() . ' ' . $operator . ' ?');
+                array_push($clauses, $field . ' ' . $operator . ' ?');
                 $searchFragment->addBoundValue($dateSearchString);
             }
         }
@@ -179,8 +203,10 @@ class SearchFieldStatementResolver
      */
     public static function resolveReferenceField(ReferenceSearchField $searchField)
     {
+        $field = self::assertValidFieldIdentifier($searchField);
+
         if (empty($searchField->getValues())) {
-            throw new SearchFieldException($searchField->getField(), "field does not have a value to search on");
+            throw new SearchFieldException($field, "field does not have a value to search on");
         }
 
         $searchFragment = new SearchQueryFragment();
@@ -189,7 +215,7 @@ class SearchFieldStatementResolver
 
         foreach ($values as $value) {
             /** @var ReferenceSearchValue $value  */
-            $clauses[] = $searchField->getField() . ' = ?';
+            $clauses[] = $field . ' = ?';
             $searchFragment->addBoundValue($value->getId());
         }
 
@@ -209,8 +235,10 @@ class SearchFieldStatementResolver
      */
     public static function resolveTokenField(TokenSearchField $searchField)
     {
+        $field = self::assertValidFieldIdentifier($searchField);
+
         if (empty($searchField->getValues())) {
-            throw new SearchFieldException($searchField->getField(), "field does not have a value to search on");
+            throw new SearchFieldException($field, "field does not have a value to search on");
         }
 
         $searchFragment = new SearchQueryFragment();
@@ -224,12 +252,12 @@ class SearchFieldStatementResolver
             if ($modifier === SearchModifier::MISSING) {
                 if ($value->getCode() === false) {
                     // often our tokens get treated as string values so we will do this here also
-                    $clauses[] = "(" . $searchField->getField() . " IS NOT NULL AND CAST(" . $searchField->getField() . " AS CHAR) != '') ";
+                    $clauses[] = "(" . $field . " IS NOT NULL AND CAST(" . $field . " AS CHAR) != '') ";
                 } else {
                     // TODO: @adunsulag do we want to compare token values to empty strings... it seems like that would be a missing value but
                     // could we get an inaccurate result here? or will we end up with a case with a number to string conversion on a field
                     // if the value is not a string?
-                    $clauses[] = "(" . $searchField->getField() . " IS NULL OR CAST(" . $searchField->getField() . " AS CHAR) = '') ";
+                    $clauses[] = "(" . $field . " IS NULL OR CAST(" . $field . " AS CHAR) = '') ";
                 }
             // if we have other modifiers we would handle them here
             } else {
@@ -245,10 +273,10 @@ class SearchFieldStatementResolver
                         $value->getCode()
                     );
                     $placeholders = implode(',', array_fill(0, count($codes), '?'));
-                    $clauses[] = $searchField->getField() . ' IN (' . $placeholders . ')';
+                    $clauses[] = $field . ' IN (' . $placeholders . ')';
                 }
                 else {
-                    $clauses[] = $searchField->getField() . ' = ?';
+                    $clauses[] = $field . ' = ?';
                     $code = $codeTypesService->getOpenEMRCodeForSystemAndCode(
                         $value->getSystem(),
                         $value->getCode()
@@ -277,21 +305,16 @@ class SearchFieldStatementResolver
      */
     public static function resolveStringSearchField(StringSearchField $searchField)
     {
+        $field = self::assertValidFieldIdentifier($searchField);
+
         if (empty($searchField->getValues())) {
-            throw new SearchFieldException($searchField->getField(), "does not have a value to search on");
+            throw new SearchFieldException($field, "does not have a value to search on");
         }
 
         $clauses = [];
         $searchFragment = new SearchQueryFragment();
         $modifier = $searchField->getModifier();
         $values = $searchField->getValues();
-
-        // Guard: getField() is concatenated into SQL as a column identifier and
-        // cannot be parameter-bound.
-        $field = $searchField->getField();
-        if (!is_string($field) || !preg_match('/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)?$/', $field)) {
-            throw new SearchFieldException('invalid search field', "invalid search field identifier");
-        }
 
         foreach ($values as $value) {
             $result = match ($modifier) {
