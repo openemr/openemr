@@ -96,6 +96,11 @@ on:
         required: false
         type: string
         default: '600'
+      ignore_checks:
+        description: 'Comma-separated check names to bypass in preflight (escape hatch for upstream known-broken jobs, e.g. `PHP 8.6 - Isolated Tests`). Exact-match against the `name`/`context` fields on the PR status-check rollup.'
+        required: false
+        type: string
+        default: ''
 
 permissions: {}
 
@@ -173,6 +178,7 @@ jobs:
         TIMEOUT_SECONDS: ${{ inputs.timeout_seconds }}
         DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         STATUS_TARGET_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        IGNORE_CHECKS: ${{ inputs.ignore_checks }}
       run: >-
         task ship-release
         VERSION="${VERSION}"
@@ -182,6 +188,7 @@ jobs:
         STATUS_TARGET_URL="${STATUS_TARGET_URL}"
         SUMMARY_FILE="${GITHUB_STEP_SUMMARY}"
         DRY_RUN="${DRY_RUN}"
+        IGNORE_CHECKS="${IGNORE_CHECKS}"
 
   # Dry-run "dress rehearsal" builder. Fires only when the operator picked
   # dry-run mode (or the legacy dry_run flag) and only after the ship job

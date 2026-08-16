@@ -46,6 +46,11 @@ final readonly class ShipReleaseOrchestrator
     private const POLL_INTERVAL_SECONDS = 15;
     private const STATUS_DESCRIPTION_MAX = 140;
 
+    /**
+     * @param list<string> $ignoreChecks operator-supplied check names to skip during
+     *                                   the status-check rollup evaluation (bypass
+     *                                   for upstream known-broken jobs)
+     */
     public function __construct(
         private PullRequestApi $api,
         private Clock $clock,
@@ -53,6 +58,7 @@ final readonly class ShipReleaseOrchestrator
         private int $downstreamTimeoutSeconds = 600,
         private Mode $mode = Mode::SemiAuto,
         private string $statusTargetUrl = '',
+        private array $ignoreChecks = [],
     ) {
     }
 
@@ -196,6 +202,7 @@ final readonly class ShipReleaseOrchestrator
                 $target->repo,
                 $snapshot->number,
                 $this->requiresApproval($target->roleLabel),
+                $this->ignoreChecks,
             );
             $readiness[$key] = $check;
             if (!$check->isReady()) {
@@ -544,6 +551,7 @@ final readonly class ShipReleaseOrchestrator
             $target->repo,
             $fresh->number,
             $this->requiresApproval($target->roleLabel),
+            $this->ignoreChecks,
         );
         if (!$readiness->isReady()) {
             $stopReason = $conductorJustMerged

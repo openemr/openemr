@@ -57,6 +57,17 @@ use Symfony\Component\Filesystem\Filesystem;
     )
     ->addOption('status-target-url', null, InputOption::VALUE_REQUIRED, 'target_url for the ship-approved status', '')
     ->addOption('summary-file', null, InputOption::VALUE_REQUIRED, 'Write a Markdown run summary to this path', '')
+    ->addOption(
+        'ignore-checks',
+        null,
+        InputOption::VALUE_REQUIRED,
+        'Comma-separated list of check names (or legacy status contexts) to skip in the'
+        . ' status-check rollup. Operator escape hatch for upstream known-broken jobs whose'
+        . ' failure would otherwise block ship-release preflight (e.g. `PHP 8.6 - Isolated Tests`'
+        . ' during an upstream PHP bug window). Names are matched exactly against the'
+        . ' `name`/`context` fields returned by `gh pr view --json statusCheckRollup`.',
+        '',
+    )
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $version = ShipReleaseOptions::asString($input, 'release-version');
         $relBranch = ShipReleaseOptions::asString($input, 'rel-branch');
@@ -83,6 +94,17 @@ use Symfony\Component\Filesystem\Filesystem;
             $mode = Mode::DryRun;
         }
 
+        $ignoreChecksRaw = ShipReleaseOptions::asString($input, 'ignore-checks');
+        $ignoreChecks = [];
+        if ($ignoreChecksRaw !== '') {
+            foreach (explode(',', $ignoreChecksRaw) as $name) {
+                $trimmed = trim($name);
+                if ($trimmed !== '') {
+                    $ignoreChecks[] = $trimmed;
+                }
+            }
+        }
+
         $orchestrator = new ShipReleaseOrchestrator(
             new GhPullRequestApi(),
             new SystemClock(),
@@ -90,6 +112,7 @@ use Symfony\Component\Filesystem\Filesystem;
             (int) $timeoutRaw,
             $mode,
             ShipReleaseOptions::asString($input, 'status-target-url'),
+            $ignoreChecks,
         );
         $result = $orchestrator->ship(PullRequestTarget::forRelease($version, $relBranch));
         ShipReleaseRenderer::render($output, $result);

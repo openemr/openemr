@@ -49,8 +49,12 @@ final readonly class GhPullRequestApi implements PullRequestApi
         );
     }
 
-    public function getReadiness(string $repo, int $number, bool $requireApproval = true): PullRequestReadiness
-    {
+    public function getReadiness(
+        string $repo,
+        int $number,
+        bool $requireApproval = true,
+        array $ignoreChecks = [],
+    ): PullRequestReadiness {
         $process = new Process([
             'gh', 'pr', 'view', (string) $number,
             '--repo', $repo,
@@ -98,7 +102,11 @@ final readonly class GhPullRequestApi implements PullRequestApi
         }
         $reasons = array_merge(
             $reasons,
-            self::reasonsFromStatusRollup($data['statusCheckRollup'], ShipReleaseOrchestrator::STATUS_CONTEXT),
+            self::reasonsFromStatusRollup(
+                $data['statusCheckRollup'],
+                ShipReleaseOrchestrator::STATUS_CONTEXT,
+                $ignoreChecks,
+            ),
         );
         return new PullRequestReadiness($data['headRefOid'], $reasons);
     }
@@ -107,16 +115,28 @@ final readonly class GhPullRequestApi implements PullRequestApi
      * Convert gh's statusCheckRollup into a list of blocking reasons. Skips
      * any check whose context matches $ownContext — a prior ship-release run
      * may have posted a failure status there, and the orchestrator must not
-     * gate itself on its own marker.
+     * gate itself on its own marker. Also skips any check whose name or
+     * context appears in $ignoreChecks (operator-supplied bypass for
+     * upstream known-broken jobs).
      *
      * @param  list<array<string, mixed>> $rollup
+     * @param  list<string>               $ignoreChecks
      * @return list<string>
      */
-    public static function reasonsFromStatusRollup(array $rollup, string $ownContext): array
-    {
+    public static function reasonsFromStatusRollup(
+        array $rollup,
+        string $ownContext,
+        array $ignoreChecks = [],
+    ): array {
+        $ignore = array_flip($ignoreChecks);
         $reasons = [];
         foreach ($rollup as $check) {
             if (($check['context'] ?? null) === $ownContext) {
+                continue;
+            }
+            $name = is_string($check['name'] ?? null) ? $check['name'] : null;
+            $context = is_string($check['context'] ?? null) ? $check['context'] : null;
+            if (($name !== null && isset($ignore[$name])) || ($context !== null && isset($ignore[$context]))) {
                 continue;
             }
             $reasons = array_merge($reasons, self::checkBlockingReason($check));
