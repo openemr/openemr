@@ -18,6 +18,7 @@
 require_once "../vendor/autoload.php";
 
 use OpenEMR\BC\FallbackRouter;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\ApiApplication;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,6 +26,11 @@ use Symfony\Component\HttpFoundation\Response;
 // create the Request object
 try {
     $request = HttpRestRequest::createFromGlobals();
+    // Publish before anything downstream can reach for a request. globals.php is
+    // included much later (SiteSetupListener::loadApplicationGlobals) from a scope
+    // that cannot see $request, so without this it would build a second, bare
+    // instance missing the api type, scopes, and session set during the run.
+    CurrentRequest::set($request);
     FallbackRouter::handleRoutingTestIfRequested($request->getRequestUri(), 'apis');
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);

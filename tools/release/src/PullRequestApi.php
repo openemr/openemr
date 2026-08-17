@@ -38,6 +38,20 @@ interface PullRequestApi
      * PHP bug window) so an operator-approved release can still ship.
      * Matching is an exact string comparison against the check's `name` and
      * `context` fields as returned by `gh pr view --json statusCheckRollup`.
+     * GitHub reports `mergeStateStatus=UNSTABLE` when a non-required check
+     * is failing; the ignore-list only removes matching failures from the
+     * blocking-reasons list. When it clears every rollup entry, UNSTABLE is
+     * treated as CLEAN.
+     *
+     * $requireNonDraft gates the isDraft check. Defaults to true (Conductor
+     * PRs must be non-draft at preflight -- they're the meaningful human-
+     * review artifact). Docs + Finalize PRs pass false: those are auto-
+     * drafted by their generator workflows and only auto-flipped by post-
+     * tag workflows (docs on `openemr-tag`; finalize by the finalize job),
+     * so they're structurally draft at preflight time. Blocking on that
+     * would deadlock -- no way for downstream to un-draft before conductor
+     * merges. Full-auto re-checks readiness after auto-flip via
+     * refreshDownstreamBeforeMerge, so the relaxation is safe.
      *
      * @param list<string> $ignoreChecks
      */
@@ -46,6 +60,7 @@ interface PullRequestApi
         int $number,
         bool $requireApproval = true,
         array $ignoreChecks = [],
+        bool $requireNonDraft = true,
     ): PullRequestReadiness;
 
     /**

@@ -15,36 +15,30 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;
 
 class Common
 {
-    private static ?Request $request = null;
-
     /**
-     * Cache the Symfony Request built from the current globals so that the
-     * many `get()`/`post()` helper invocations in CDR controllers do not
-     * each rebuild the parameter bags from scratch. The cache is bound to
-     * a single PHP process; in tests that mutate `$_GET`/`$_POST` between
-     * cases, call {@see self::resetRequestCache()} to drop the snapshot.
+     * The request being served. Previously this class kept its own cached
+     * Request; it now defers to the process-wide holder so the CDR helpers
+     * read the same instance as the rest of the request.
      */
     private static function request(): Request
     {
-        if (self::$request === null) {
-            self::$request = Request::createFromGlobals();
-        }
-        return self::$request;
+        return CurrentRequest::get();
     }
 
     /**
-     * Drop the cached Symfony Request. Tests that mutate `$_GET`/`$_POST`
-     * between cases should call this in their setUp/tearDown so subsequent
-     * `get()`/`post()` calls re-read the freshly-mutated globals.
+     * Drop the held request. Tests that mutate `$_GET`/`$_POST` between cases
+     * should call this in their setUp/tearDown so subsequent `get()`/`post()`
+     * calls re-read the freshly-mutated globals.
      */
     public static function resetRequestCache(): void
     {
-        self::$request = null;
+        CurrentRequest::reset();
     }
 
     /**

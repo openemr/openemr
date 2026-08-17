@@ -18,13 +18,13 @@ require_once __DIR__ . '/../globals.php';
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Process;
 
@@ -36,7 +36,7 @@ require_once "$srcdir/forms.inc.php";
 require_once "$srcdir/options.inc.php";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$request = Request::createFromGlobals();
+$request = CurrentRequest::get();
 $filesystem = new Filesystem();
 $userauthorized = $globalsBag->getInt('userauthorized');
 

@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\BC\FallbackRouter;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\ApiApplication;
 
@@ -21,6 +22,9 @@ require_once "../vendor/autoload.php";
 // create the Request object
 try {
     $request = HttpRestRequest::createFromGlobals();
+    // See the note in apis/dispatch.php: globals.php loads later from a scope that
+    // cannot see $request, so publish it here or it builds a second, bare instance.
+    CurrentRequest::set($request);
     FallbackRouter::handleRoutingTestIfRequested($request->getRequestUri(), 'oauth2');
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);

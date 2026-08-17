@@ -20,6 +20,7 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -28,7 +29,6 @@ use OpenEMR\Controllers\Interface\Forms\CarePlan\CarePlanController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Forms\CarePlanFormService;
 use OpenEMR\Services\FormService;
-use Symfony\Component\HttpFoundation\Request;
 
 $globalsBag = OEGlobalsBag::getInstance();
 $srcdir = $globalsBag->getSrcDir();
@@ -55,7 +55,7 @@ $controller = new CarePlanController(
     $globalsBag->getString('v_js_includes'),
 );
 
-$controller->saveAction(Request::createFromGlobals(), PatientSessionUtil::getUserAuthorized())->send();
+$controller->saveAction(CurrentRequest::get(), PatientSessionUtil::getUserAuthorized())->send();
 
 formHeader("Redirecting....");
 formJump();
