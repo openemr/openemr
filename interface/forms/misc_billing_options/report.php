@@ -1,5 +1,6 @@
 <?php
 
+use OpenEMR\BC\Utilities;
 /*
  * report.php displays the misc_billing_form in the encounter view
  *
@@ -12,9 +13,7 @@
  * @copyright Copyright (C) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
-use OpenEMR\BC\Utilities;
+use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
@@ -22,7 +21,7 @@ require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 function misc_billing_options_report($pid, $encounter, $cols, $id): void
 {
-    $MBO = new OpenEMR\Billing\MiscBillingOptions();
+    $MBO = new MiscBillingOptions();
     $count = 0;
     $data = formFetch("form_misc_billing_options", $id);
     if ($data) {

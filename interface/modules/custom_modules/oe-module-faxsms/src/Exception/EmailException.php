@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Modules\FaxSMS\Exception;
 
-class EmailException extends \RuntimeException
+use RuntimeException;
+
+class EmailException extends RuntimeException
 {
 }

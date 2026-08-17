@@ -23,6 +23,7 @@ use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 use PHPMailer\PHPMailer\Exception;
+use RuntimeException;
 
 class EmailClient extends AppDispatch implements EmailChannelInterface
 {
@@ -38,7 +39,7 @@ class EmailClient extends AppDispatch implements EmailChannelInterface
     public function __construct()
     {
         if (empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null)) {
-            throw new \RuntimeException(xlt("Access denied! Module not enabled"));
+            throw new RuntimeException(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = ServiceContainer::getCrypto();
         $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');

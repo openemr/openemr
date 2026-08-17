@@ -31,6 +31,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use MedExApi\MedEx;
+
 $ignoreAuth = true;
 
 require_once(__DIR__ . "/../../interface/globals.php");
@@ -39,7 +41,7 @@ require_once(__DIR__ . "/../patient.inc.php");
 
 function start_MedEx(): void
 {
-    $MedEx = new MedExApi\MedEx('MedExBank.com');
+    $MedEx = new MedEx('MedExBank.com');
     $logged_in = $MedEx->login('2');
     if ($logged_in) {
         echo "Completed @ " . date("Y-m-d H:i:s") . "\n";

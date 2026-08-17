@@ -14,6 +14,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
+use DateTime;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Services\AppointmentService;
@@ -48,7 +49,7 @@ class TeleHealthPatientPortalController
         $dbRecord = $event->getDbRecord();
         $appointment = $event->getAppointment();
         // 'appointmentDate' => $dayname . ', ' . $row['pc_eventDate'] . ' ' . $disphour . ':' . $dispmin . ' ' . $dispampm,
-        $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $dbRecord['pc_eventDate']
+        $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $dbRecord['pc_eventDate']
             . " " . $dbRecord['pc_startTime']);
 
         $apptService = new AppointmentService();

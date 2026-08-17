@@ -25,12 +25,10 @@
     $row = sqlFetchArray($result);
     $pCount = 0;
     //while ($row = sqlFetchArray($result)) {
-
 /**
- * @var \DOMDocument $ccr (created in createCCR.php)
- * @var \DOMDocument $e_Problems (created in createCCR.php)
+ * @var DOMDocument $ccr (created in createCCR.php)
+ * @var DOMDocument $e_Problems (created in createCCR.php)
  */
-
 do {
     $pCount++;
 

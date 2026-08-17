@@ -13,11 +13,13 @@
 
 namespace OpenEMR\Modules\EhiExporter\Services;
 
+use Document;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Validators\ProcessingResult;
+use Throwable;
 
 class EhiExportJobTaskService extends BaseService
 {
@@ -42,7 +44,7 @@ class EhiExportJobTaskService extends BaseService
             $ehiExportJobTask->error_message = $taskRecord['error_message'];
             $ehiExportJobTask->setStatus($taskRecord['status']);
             if (isset($ehiExportJobTask->export_document_id)) {
-                $ehiExportJobTask->document = new \Document($ehiExportJobTask->export_document_id);
+                $ehiExportJobTask->document = new Document($ehiExportJobTask->export_document_id);
             }
 
             if (isset($taskRecord['exported_result'])) {
@@ -81,7 +83,7 @@ class EhiExportJobTaskService extends BaseService
                 QueryUtils::sqlInsert($patientJoinSql, $joinBind);
                 QueryUtils::commitTransaction();
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             QueryUtils::rollbackTransaction();
             // roll it up
             throw $exception;
@@ -124,7 +126,7 @@ class EhiExportJobTaskService extends BaseService
         try {
             QueryUtils::sqlStatementThrowException($sql, $bind);
             QueryUtils::commitTransaction();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             QueryUtils::rollbackTransaction();
             // roll it up
             throw $exception;

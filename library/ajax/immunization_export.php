@@ -37,7 +37,7 @@ try {
     if (!empty($spreadsheet->buildSpreadsheet())) {
         $spreadsheet->downloadSpreadsheet('Xls');
     }
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $logger = ServiceContainer::getLogger();
     $logger->logError($e->getMessage());
 }

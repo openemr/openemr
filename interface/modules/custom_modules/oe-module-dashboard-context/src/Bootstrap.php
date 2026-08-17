@@ -21,6 +21,7 @@ use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\DashboardContext\Controller\ContextWidgetController;
 use stdClass;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 
 class Bootstrap
 {
@@ -90,7 +91,7 @@ class Bootstrap
      * @param RenderEvent $event
      * @return void
      */
-    public function renderDashboardWidget(RenderEvent $event): void
+    public function renderDashboardWidget(pRenderEvent $event): void
     {
         $pid = $event->getPid();
         if (empty($pid)) {
@@ -105,7 +106,7 @@ class Bootstrap
         try {
             $controller = new ContextWidgetController();
             echo $controller->renderWidget();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error("DashboardContext: Error rendering widget", ['error' => $e->getMessage()]);
         }
     }
@@ -145,7 +146,7 @@ class Bootstrap
             // This will appear between the page title and the action buttons
             // Let modules be modules ...
             $event->appendTitleNavContent($navHtml);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->error("DashboardContext: Error rendering navbar widget", ['error' => $e->getMessage()]);
         }
 

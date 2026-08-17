@@ -10,11 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/reminders.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(__DIR__ . "/../../globals.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/reminders.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);

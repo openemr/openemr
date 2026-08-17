@@ -12,6 +12,7 @@
 
 namespace Carecoordination\Model;
 
+use Application\Plugin\CommonPlugin;
 use OpenEMR\Common\Database\QueryUtils;
 
 class CcdTable
@@ -44,7 +45,7 @@ class CcdTable
 
 
         // TODO: this should be created through DI
-        $audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccd_data_array);
+        $audit_master_id = CommonPlugin::insert_ccr_into_audit_data($this->ccd_data_array);
         $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status);
     }
 

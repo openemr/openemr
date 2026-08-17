@@ -13,6 +13,11 @@
 
 namespace Carecoordination\Model;
 
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use DOMXPath;
+
 class CcdaUserPreferencesTransformer
 {
     /**
@@ -55,10 +60,10 @@ class CcdaUserPreferencesTransformer
 
     public function transform($content)
     {
-        $ccdaDoc = new \DOMDocument();
+        $ccdaDoc = new DOMDocument();
         $ccdaDoc->loadXML($content);
 
-        $xpath = new \DOMXPath($ccdaDoc);
+        $xpath = new DOMXPath($ccdaDoc);
         $xpath->registerNamespace('n1', "urn:hl7-org:v3");
         $maxChildren = $this->maxSections;
 
@@ -73,7 +78,7 @@ class CcdaUserPreferencesTransformer
         $structuredBodies = $xpath->query($query);
 
         foreach ($structuredBodies as $body) {
-            if (!$body instanceof \DOMElement) {
+            if (!$body instanceof DOMElement) {
                 continue;
             }
             if (!empty($sortedSections)) {
@@ -81,7 +86,7 @@ class CcdaUserPreferencesTransformer
                     $foundSectionNodes = $xpath->query("n1:component[n1:section/n1:templateId/@root = '" . $section . "']", $body);
                     if ($foundSectionNodes !== false && $foundSectionNodes->length > 0) {
                         foreach ($foundSectionNodes as $node) {
-                            if (!$node instanceof \DOMNode) {
+                            if (!$node instanceof DOMNode) {
                                 continue;
                             }
                             // if our found node is already the first child we will just leave it alone and skip over.
@@ -152,7 +157,7 @@ class CcdaUserPreferencesTransformer
      * given an array of user preferences per document type we search through the given document and determine from
      * the templateId what type of document we are dealing with.  We can then grab our sorted section array values
      * that have been set by the user.
-     * @param \DOMXPath $xpath
+     * @param DOMXPath $xpath
      * @param array $sortedSections
      */
     private function getDocumentSortPreferencesForCcda(&$xpath, $sortedSections)

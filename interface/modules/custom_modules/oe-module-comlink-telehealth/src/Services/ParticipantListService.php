@@ -2,6 +2,8 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
+use DateInterval;
+use DateTime;
 use Exception;
 use Twig\Environment;
 
@@ -125,10 +127,10 @@ class ParticipantListService
             !empty($session[$userKey . '_start_time']) &&
             !empty($session[$userKey . '_last_update'])
         ) {
-            $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $session[$userKey . '_last_update']);
-            $currentDateTime = new \DateTime();
+            $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $session[$userKey . '_last_update']);
+            $currentDateTime = new DateTime();
             // odd that this statement returns an empty string instead of false
-            if ($currentDateTime < $dateTime->add(new \DateInterval("PT15S"))) {
+            if ($currentDateTime < $dateTime->add(new DateInterval("PT15S"))) {
                 return "Y";
             }
         }

@@ -14,12 +14,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../library/forms.inc.php");
-require_once(__DIR__ . "/../library/patient.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
@@ -33,6 +31,9 @@ use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+
+require_once(__DIR__ . "/../library/forms.inc.php");
+require_once(__DIR__ . "/../library/patient.inc.php");
 
 class C_Document extends Controller
 {
@@ -286,7 +287,7 @@ class C_Document extends Controller
                         $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
                         try {
                             $filetext = $passwordCrypto->decrypt((string) $filetext, (string) $passphrase);
-                        } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
+                        } catch (CryptoGenException) {
                             error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                             $filetext = "";
                         }

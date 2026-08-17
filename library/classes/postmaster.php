@@ -83,7 +83,7 @@ class MyMailer extends PHPMailer
             $body = json_encode($templateData);
             QueryUtils::sqlInsert("INSERT into `email_queue` (`sender`, `recipient`, `subject`, `body`,  `template_name`, `datetime_queued`) VALUES (?, ?, ?, ?, ?, NOW())", [$sender, $recipient, $subject, $body, $template]);
             return true;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             ServiceContainer::getLogger()->error("Failed to add email to queue notification error " . $e->getMessage(), ['exception' => $e]);
         }
         return false;
@@ -153,22 +153,22 @@ class MyMailer extends PHPMailer
                         if (!$mail->send()) {
                             $mail->smtpClose();
                             error_log("Failed to send email" . ': ' . errorLogEscape($mail->ErrorInfo));
-                            throw new \Exception("Email sending failed" . ': ' . errorLogEscape($mail->ErrorInfo));
+                            throw new Exception("Email sending failed" . ': ' . errorLogEscape($mail->ErrorInfo));
                         } else {
                             $mail->smtpClose();
                         }
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         ServiceContainer::getLogger()->error("Failed to generate email contents: " . $e->getMessage(), ['exception' => $e, 'id' => $ret['id']]);
                         throw $e; // Ensure rollback in case of failure
                     }
                 } else {
                     error_log("Email method not configured");
-                    throw new \Exception("Email method not configured");
+                    throw new Exception("Email method not configured");
                 }
             }
             // Success so Commit transaction.
             QueryUtils::commitTransaction();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Failed so Rollback transaction.
             QueryUtils::rollbackTransaction();
             ServiceContainer::getLogger()->error("Failed to send email" . ': ' . $e->getMessage(), ['exception' => $e]);

@@ -44,7 +44,7 @@ if (isset($_GET['term'])) {
         $code_type = sqlQuery("SELECT ct_id FROM `code_types` WHERE `ct_key` = ? AND `ct_active` = 1", ['RXCUI']);
         $val = [$term . '%', $code_type['ct_id']];
         if (empty($code_type['ct_id'])) {
-            throw new \Exception(xlt('Install RxCUI monthly via Native Load or enable in Lists!'));
+            throw new Exception(xlt('Install RxCUI monthly via Native Load or enable in Lists!'));
         }
     }
     $res = sqlStatement($sql, $val);

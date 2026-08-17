@@ -9,9 +9,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
-
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\QuestionnaireResponseService;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 /**
  * @throws Exception
@@ -31,7 +32,7 @@ function questionnaire_assessments_report($pid, $encounter, $cols, $id): void
         }
         $html = $responseService->buildQuestionnaireResponseHtml($qr);
         echo $html;
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         echo xlt("Error") . " " . text($e->getMessage());
     }
 }

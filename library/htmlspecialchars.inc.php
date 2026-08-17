@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\BC\ServiceContainer;
+
 /**
  * Escaping Functions
  *
@@ -117,7 +119,7 @@ function safe_href(?string $url): string
     }
 
     // Disallowed scheme — log and return safe fallback
-    \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+    ServiceContainer::getLogger()->warning(
         "safe_href(): blocked disallowed URL scheme",
         ['scheme' => $scheme]
     );
@@ -259,7 +261,7 @@ function text($text): string
 function textArray(array $arr, $depth = 0)
 {
     if ($depth > 50) {
-        throw new \InvalidArgumentException("array was nested too deep for escaping.  Max limit reached");
+        throw new InvalidArgumentException("array was nested too deep for escaping.  Max limit reached");
     }
 
     $newArray = [];

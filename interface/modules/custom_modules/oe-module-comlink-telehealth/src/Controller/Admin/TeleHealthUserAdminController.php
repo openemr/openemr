@@ -15,6 +15,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller\Admin;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthPersonSettingsRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
+use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\User\UserCreatedEvent;
@@ -43,7 +44,7 @@ class TeleHealthUserAdminController
     public function render(UserEditRenderEvent $event)
     {
         if (!$this->isTelehealthRenderEvent($event)) {
-            throw new \InvalidArgumentException("render() called with invalid event object");
+            throw new InvalidArgumentException("render() called with invalid event object");
         }
         $userAdminTwigData = [
             'forceTelehealthEnabled' => $this->config->shouldAutoProvisionProviders()
@@ -94,7 +95,7 @@ class TeleHealthUserAdminController
     public function saveTelehealthUserAction($event)
     {
         if (!$this->isTelehealthUserEvent($event)) {
-            throw new \InvalidArgumentException("saveTelehealthUserAction called with invalid event object");
+            throw new InvalidArgumentException("saveTelehealthUserAction called with invalid event object");
         }
         // need to check our global settings
 
@@ -105,7 +106,7 @@ class TeleHealthUserAdminController
 
         $userId = $this->getUserIdFromEvent($event);
         if (empty($userId)) {
-            throw new \InvalidArgumentException("No user id found to save telehealth settings from event");
+            throw new InvalidArgumentException("No user id found to save telehealth settings from event");
         }
 
         // we need to save our data that holds the user settings.

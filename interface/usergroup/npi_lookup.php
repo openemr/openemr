@@ -144,7 +144,7 @@ try {
         'message' => OEGlobalsBag::getInstance()->get('debug_mode') ? $e->getMessage() : 'Registry error'
     ]);
     exit;
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     // Other errors
     error_log("NPI Lookup Error: " . $e->getMessage());
     http_response_code(500);

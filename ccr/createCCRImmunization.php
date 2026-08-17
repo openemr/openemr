@@ -27,10 +27,9 @@ use OpenEMR\BC\ServiceContainer;
     $row = sqlFetchArray($result);
 
 /**
- * @var \DOMDocument $ccr (created in createCCR.php)
- * @var \DOMDocument $e_Immunizations (created in createCCR.php)
+ * @var DOMDocument $ccr (created in createCCR.php)
+ * @var DOMDocument $e_Immunizations (created in createCCR.php)
  */
-
 do {
     $e_Immunization = $ccr->createElement('Immunization');
     $e_Immunizations->appendChild($e_Immunization);

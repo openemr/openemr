@@ -3,6 +3,7 @@
 namespace Carecoordination\Factory;
 
 use Carecoordination\Controller\SetupController;
+use Carecoordination\Model\SetupTable;
 use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
@@ -14,6 +15,6 @@ class SetupControllerFactory implements FactoryInterface
 {
     public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
     {
-        return new SetupController($container->get(\Carecoordination\Model\SetupTable::class));
+        return new SetupController($container->get(SetupTable::class));
     }
 }

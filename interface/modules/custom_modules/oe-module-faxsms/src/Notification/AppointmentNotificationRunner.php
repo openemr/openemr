@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Modules\FaxSMS\Notification;
 
+use DateTimeImmutable;
+use LogicException;
 use OpenEMR\Appointment\Reminder\ReminderRunResult;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -39,6 +41,7 @@ use PHPMailer\PHPMailer\Exception as PHPMailerException;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use RuntimeException;
 
 class AppointmentNotificationRunner
 {
@@ -69,9 +72,9 @@ class AppointmentNotificationRunner
     ) {
         $this->logger = $logger ?? new NullLogger();
         $this->clock = $clock ?? new class implements ClockInterface {
-            public function now(): \DateTimeImmutable
+            public function now(): DateTimeImmutable
             {
-                return new \DateTimeImmutable();
+                return new DateTimeImmutable();
             }
         };
     }
@@ -315,7 +318,7 @@ class AppointmentNotificationRunner
                 $message,
                 self::stringFromRow($logData, 'email_sender'),
             );
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             // Per-appointment delivery is best-effort: a runtime
             // failure for one recipient (vendor ACL gate, transport
             // error) records a Failed outcome and lets the batch keep
@@ -353,7 +356,7 @@ class AppointmentNotificationRunner
     {
         $emailClient = $this->client;
         if (!$emailClient instanceof EmailClient) {
-            throw new \LogicException('Email channel requires an EmailClient instance.');
+            throw new LogicException('Email channel requires an EmailClient instance.');
         }
 
         $email = self::stringFromRow($row, 'email');

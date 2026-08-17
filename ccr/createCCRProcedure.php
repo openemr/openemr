@@ -27,10 +27,9 @@ use OpenEMR\BC\ServiceContainer;
     $row = sqlFetchArray($result);
 
 /**
- * @var \DOMDocument $ccr (created in createCCR.php)
- * @var \DOMDocument $e_Procedures (created in createCCR.php)
+ * @var DOMDocument $ccr (created in createCCR.php)
+ * @var DOMDocument $e_Procedures (created in createCCR.php)
  */
-
 do {
     $e_Procedure = $ccr->createElement('Procedure');
     $e_Procedures->appendChild($e_Procedure);

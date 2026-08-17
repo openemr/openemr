@@ -12,6 +12,8 @@
 
 namespace Carecoordination\Model;
 
-class CcdaServiceConnectionException extends \Exception
+use Exception;
+
+class CcdaServiceConnectionException extends Exception
 {
 }

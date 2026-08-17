@@ -124,7 +124,7 @@ try {
             $relatedPersons[] = $relatedPerson;
         }
     }
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $logger->error("Error loading relations for display", [
         'foreign_table' => $foreign_table,
         'foreign_id' => $foreign_id,

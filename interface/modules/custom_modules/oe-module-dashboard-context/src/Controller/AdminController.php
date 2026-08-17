@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\DashboardContext\Services\DashboardContextAdminService;
 use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
+use Throwable;
 
 class AdminController
 {
@@ -84,7 +85,7 @@ class AdminController
                 'get_audit_log' => $this->getAuditLog(),
                 default => $this->sendError('Invalid action'),
             };
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->sendError($e->getMessage());
         }
     }

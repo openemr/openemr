@@ -13,8 +13,9 @@
 
 namespace Installer;
 
-// Add these import statements:
+use Laminas\Loader\StandardAutoloader;
 
+// Add these import statements:
 /**
  * Handles the initial module load.  Any configuration should in the module.config.php file
  * instead of overloading methods here if at all possible
@@ -26,7 +27,7 @@ class Module
         return [
             // TODO: The zf3 autoloader should handle autoloading these classes by default but it's not right now
             // we need to figure out why that is so we can remove this unnecessary piece.
-            \Laminas\Loader\StandardAutoloader::class => [
+            StandardAutoloader::class => [
                 'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ],

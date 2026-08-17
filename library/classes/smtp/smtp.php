@@ -1,12 +1,13 @@
 <?php
 
+use OpenEMR\Common\Utils\ValidationUtils;
+
 /*
  * smtp.php
  *
  * @(#) $Header$
  *
  */
-
 class smtp_class
 {
     public $user="";
@@ -220,7 +221,7 @@ class smtp_class
             || !extension_loaded("openssl"))
                 return("establishing SSL connections requires the OpenSSL extension enabled");
         }
-        if (\OpenEMR\Common\Utils\ValidationUtils::isValidIpAddress((string) $domain, FILTER_FLAG_IPV4)) {
+        if (ValidationUtils::isValidIpAddress((string) $domain, FILTER_FLAG_IPV4)) {
             $ip = $domain;
         }
         else
@@ -830,6 +831,4 @@ class smtp_class
         return($success);
     }
 
-};
-
-?>
+}

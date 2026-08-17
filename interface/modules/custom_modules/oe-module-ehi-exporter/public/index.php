@@ -2,10 +2,12 @@
 
 namespace OpenEMR\Modules\EhiExporter;
 
+use InvalidArgumentException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use Throwable;
 
 require_once(__DIR__ . "/../../../../globals.php");
 
@@ -32,7 +34,7 @@ if (isset($_POST['submit'])) {
     try {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!CsrfUtils::verifyCsrfToken($_POST['_token'] ?? '', session: $session)) {
-            throw new \InvalidArgumentException(xl("Invalid CSRF token"));
+            throw new InvalidArgumentException(xl("Invalid CSRF token"));
         }
         $memoryLimitUpdated = ini_set("memory_limit", "-1"); // set the memory limit to be unlimited so we can run the export.
         $pid = intval($_POST['pid'] ?? 0);
@@ -62,7 +64,7 @@ if (isset($_POST['submit'])) {
             try {
                 $task = $exporter->runExportTask($taskId);
                 echo json_encode($task->getJSON());
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $errorMessage = $exception->getMessage();
                 $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
@@ -74,14 +76,14 @@ if (isset($_POST['submit'])) {
                 $task = $exporter->getExportTaskForStatusUpdate($taskId);
                 // will already have the encoded progress results in the task
                 echo json_encode($task->getJSON());
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $errorMessage = $exception->getMessage();
                 $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
         }
-    } catch (\Throwable $exception) {
+    } catch (Throwable $exception) {
         $errorMessage = $exception->getMessage();
         $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
     }

@@ -12,6 +12,9 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Util;
 
+use DateInterval;
+use DateTime;
+use Exception;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 
@@ -19,28 +22,28 @@ class CalendarUtils
 {
     /**
      * Checks if the given date is within the two hour safe range for a TeleHealth appointment
-     * @param \DateTime $dateTime
+     * @param DateTime $dateTime
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public static function isAppointmentDateTimeInSafeRange(\DateTime $dateTime)
+    public static function isAppointmentDateTimeInSafeRange(DateTime $dateTime)
     {
-        $beforeTime = (new \DateTime())->sub(new \DateInterval("PT2H"));
-        $afterTime = (new \DateTime())->add(new \DateInterval("PT2H"));
+        $beforeTime = (new DateTime())->sub(new DateInterval("PT2H"));
+        $afterTime = (new DateTime())->add(new DateInterval("PT2H"));
         return $dateTime >= $beforeTime && $dateTime <= $afterTime;
     }
 
     public static function isTelehealthSessionInActiveTimeRange(array $session)
     {
-        $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $session['provider_last_update']);
+        $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $session['provider_last_update']);
         return CalendarUtils::isUserLastSeenTimeInActiveRange($dateTime);
     }
 
-    public static function isUserLastSeenTimeInActiveRange(\DateTime $dateTime)
+    public static function isUserLastSeenTimeInActiveRange(DateTime $dateTime)
     {
-        $currentDateTime = new \DateTime();
+        $currentDateTime = new DateTime();
         ServiceContainer::getLogger()->debug("checking time ", ['user_last_update_time' => $currentDateTime->format("Y-m-d H:i:s"), 'now' => $currentDateTime->format("Y-m-d H:i:s")]);
-        return $currentDateTime < $dateTime->add(new \DateInterval("PT15S"));
+        return $currentDateTime < $dateTime->add(new DateInterval("PT15S"));
     }
 
     public static function getCalendarCategory($id)

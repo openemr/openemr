@@ -20,6 +20,7 @@ use Carecoordination\Model\CcdaServiceConnectionException;
 use Carecoordination\Model\EncounterccdadispatchTable;
 use DOMDocument;
 use Exception;
+use Laminas\Http\Request;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
@@ -28,10 +29,11 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
+use Throwable;
 use XSLTProcessor;
 
 /**
- * @method \Laminas\Http\Request getRequest()
+ * @method Request getRequest()
  */
 class EncounterccdadispatchController extends AbstractActionController
 {
@@ -344,7 +346,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
             // Use the enhanced downloadQrdaIII method with consolidated flag
             $xmlController->downloadQrdaIII($pids, $measures, [], true); // true = consolidated
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log("Consolidated QRDA III download failed: " . $e->getMessage());
 
             // Follow your existing error handling pattern
@@ -384,7 +386,7 @@ class EncounterccdadispatchController extends AbstractActionController
             );
 
             return $content;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             ServiceContainer::getLogger()->error("EncounterccdadispatchController: Error generating consolidated QRDA III content: {message}", [
                 'message' => $e->getMessage(),
                 'exception' => $e

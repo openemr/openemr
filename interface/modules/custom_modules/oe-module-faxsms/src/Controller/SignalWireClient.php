@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
+use DateTimeZone;
 use Document;
 use Exception;
 use OpenEMR\BC\ServiceContainer;
@@ -24,6 +25,7 @@ use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\Client;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\FaxInstance;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
+use Throwable;
 
 class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDocumentDisposalInterface
 {
@@ -80,7 +82,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
             }
 
             $this->portalUrl = "https://" . ($this->credentials['space_url'] ?? 'example.signalwire.com');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('SignalWire initialization error: ' . $e->getMessage());
             // Continue anyway to allow setup
         }
@@ -284,7 +286,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
             }
 
             return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('SignalWire Fax Error: ' . $e->getMessage());
             return 'Error: ' . text(js_escape($e->getMessage()));
         } finally {
@@ -381,7 +383,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
                 error_log("SignalWireClient.uploadFileForFax(): DEBUG - mediaUrl {$mediaUrl}");
             }
             return $mediaUrl;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('SignalWireClient.uploadFileForFax(): ERROR - ' . $e->getMessage());
             return null;
         }
@@ -410,7 +412,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
                 }
             }
             return json_encode(['count' => $count]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('SignalWireClient.fetchReminderCount(): ERROR - ' . $e->getMessage());
             return json_encode(['count' => 0]);
         }
@@ -496,7 +498,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
                 'mime' => $mime,
                 'filename' => 'Fax_' . $sid . '.pdf',
             ]));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log('SignalWireClient.viewFax(): ERROR - ' . $e->getMessage());
             return text(json_encode(['error' => xlt('Error retrieving fax')]));
         }
@@ -547,7 +549,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
                 return json_encode(['error' => xlt('Fax media not available from provider')]);
             }
 
-            $faxService = new \OpenEMR\Modules\FaxSMS\Controller\FaxDocumentService();
+            $faxService = new FaxDocumentService();
             $result = $faxService->downloadAndStoreFromUrl($sid, $mediaUrl, $from, $this->projectId, $this->apiToken, $patientId);
 
             if (empty($result['success'])) {
@@ -558,7 +560,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
             $this->deleteUpstreamFax($sid);
 
             return json_encode(['success' => true, 'document_id' => $result['document_id'] ?? null]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log("SignalWireClient.assignFax(): ERROR - " . $e->getMessage());
             return json_encode(['error' => xlt('Failed to assign fax')]);
         }
@@ -623,7 +625,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
                     $to = $fax->to ?? '';
                     $numPages = (int)($fax->numPages ?? 0);
                     $dateLocal = $fax->dateCreated
-                        ? $fax->dateCreated->setTimezone(new \DateTimeZone(date_default_timezone_get()))->format('M j, Y g:i:sa T')
+                        ? $fax->dateCreated->setTimezone(new DateTimeZone(date_default_timezone_get()))->format('M j, Y g:i:sa T')
                         : '';
 
                     if ($this::debugLogging) {
@@ -671,7 +673,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
 
                     $responseMsg[0] .= "<tr><td>" . text($dateLocal) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($resultCol) . "</td><td>" . text($statusCol) . "</td><td class='text-left'>" . $actions . "</td></tr>";
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 error_log("SignalWireClient.getPending(): ERROR - " . $e->getMessage());
             }
         }
@@ -699,7 +701,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
         }
         try {
             return $this->client->fax->v1->faxes->getContext($sid)->fetch();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log("SignalWireClient.fetchUpstreamFax(): ERROR - " . $e->getMessage());
             return null;
         }
@@ -716,7 +718,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
         }
         try {
             return $this->client->fax->v1->faxes->getContext($sid)->delete();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log("SignalWireClient.deleteUpstreamFax(): ERROR - " . $e->getMessage());
             return false;
         }
@@ -755,7 +757,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface, FaxDo
 
             $response = (new \GuzzleHttp\Client(['timeout' => 30]))->request('GET', $mediaUrl, $options);
             return (string)$response->getBody();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log("SignalWireClient.downloadFaxMediaContent(): ERROR - " . $e->getMessage());
             return null;
         }

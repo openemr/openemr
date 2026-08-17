@@ -19,7 +19,7 @@ if (
         if (!empty($displaySection)) {
             echo $displaySection;
         }
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         ob_end_clean();
         ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
         echo xlt("Error in rendering html display section.")

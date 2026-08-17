@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
+use Throwable;
+
 class LogDataInsert
 {
     public function __construct()
@@ -49,7 +51,7 @@ class LogDataInsert
                 $insertdata['provider_id'],
                 $insertdata['prescriptionguid']
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return $e->getMessage();
         }
     }
@@ -86,7 +88,7 @@ class LogDataInsert
                 $updatedata['provider_id'],
                 $updatedata['prescriptionguid']
             ]);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return $e->getMessage();
         }
     }

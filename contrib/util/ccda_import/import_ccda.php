@@ -184,7 +184,7 @@ foreach (glob($dir) as $file) {
                 continue;
             }
         }
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         echo "Error: " . $e->getMessage();
     }
     //  1. import ccda document (bypassed in development-mode)
@@ -211,7 +211,7 @@ foreach (glob($dir) as $file) {
             // move the C-CDA XML to the processed directory
             CdaComponentParseHelpers::moveToDuplicateDir($file, $processedDir);
         }
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         outputMessage("Error moving file: " . $e->getMessage() . "\n");
     }
     // Keep alive the notifications

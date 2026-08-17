@@ -20,6 +20,8 @@ use Application\Plugin\CommonPlugin;
 use Carecoordination\Model\CarecoordinationTable;
 use Document;
 use Documents\Controller\DocumentsController;
+use Documents\Plugin\Documents;
+use Laminas\Http\Request;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
@@ -27,11 +29,13 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
+use RuntimeException;
+use ZipArchive;
 
 /**
- * @method \Application\Plugin\CommonPlugin CommonPlugin()
- * @method \Documents\Plugin\Documents Documents()
- * @method \Laminas\Http\Request getRequest()
+ * @method CommonPlugin CommonPlugin()
+ * @method Documents Documents()
+ * @method Request getRequest()
  */
 class CarecoordinationController extends AbstractActionController
 {
@@ -51,7 +55,7 @@ class CarecoordinationController extends AbstractActionController
      * @param int    $id   menu id
      *                     $param array $data   menu details
      * @param string $slug controller name
-     * @return \Laminas\View\Model\ViewModel
+     * @return ViewModel
      */
     public function indexAction()
     {
@@ -826,7 +830,7 @@ class CarecoordinationController extends AbstractActionController
     /**
      * Table gateway
      *
-     * @return \Carecoordination\Model\CarecoordinationTable
+     * @return CarecoordinationTable
      */
     public function getCarecoordinationTable()
     {
@@ -861,7 +865,7 @@ class CarecoordinationController extends AbstractActionController
         // should have sanitization settings and let someone filter them...
         // event response should have a boolean for skipSanitization in case a module has already done the sanitization
 
-        $z = new \ZipArchive();
+        $z = new ZipArchive();
         // if a zip file exist we want to overwrite it when we save
         $z->open($zipLocation);
         $z->setArchiveComment(""); // remove any comments so we don't deal with buffer overflows on the zip extraction
@@ -932,7 +936,7 @@ class CarecoordinationController extends AbstractActionController
 
     private function printZipContents($zipLocation)
     {
-        $z = new \ZipArchive();
+        $z = new ZipArchive();
         $z->open($zipLocation);
         for ($i = 0; $i < $z->numFiles; $i++) {
             $stat = $z->statIndex($i);
@@ -952,7 +956,7 @@ class CarecoordinationController extends AbstractActionController
         // we will limit our docsToImport to 500
         // we will limit our patientsToImport to 500
 
-        $z = new \ZipArchive();
+        $z = new ZipArchive();
         $tmpFile = reset($_FILES);
         $tmpFileName = $tmpFile['tmp_name'];
         $this->printZipContents($tmpFileName);
@@ -963,7 +967,7 @@ class CarecoordinationController extends AbstractActionController
         $category_details = $this->getCarecoordinationTable()->fetch_cat_id('CCDA');
         $catId = $category_details[0]['id'] ?? null;
         if (empty($catId)) {
-            throw new \RuntimeException("Could not find document category id for category of CCDA");
+            throw new RuntimeException("Could not find document category id for category of CCDA");
         }
         $auditMasterRecordByPatients = [];
         for ($i = 0; $i < $z->numFiles; $i++) {
@@ -984,7 +988,7 @@ class CarecoordinationController extends AbstractActionController
                 if (stripos($file_name, '.xml') !== false) {
                     $ret = $ob->createDocument($pid, $catId, $file_name, 'text/xml', $contents);
                     if (!empty($ret)) {
-                        throw new \RuntimeException("Failed to create document from zip file " . $file_name . " error returned was " . $ret);
+                        throw new RuntimeException("Failed to create document from zip file " . $file_name . " error returned was " . $ret);
                     }
 
                     $auditMasterRecordId = $this->getCarecoordinationTable()->import($ob->get_id());

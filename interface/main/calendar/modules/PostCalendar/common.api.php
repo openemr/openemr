@@ -26,9 +26,11 @@
  *
  */
 
+use Doctrine\DBAL\Exception;
 //=================================================================
 //  define constants used to make the code more readable
 //=================================================================
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 define('_IS_SUNDAY', 0);
@@ -217,7 +219,7 @@ function postcalendar_getDate($format = 'Ymd')
     $y = substr((string) $Date, 0, 4);
     $m = substr((string) $Date, 4, 2);
     $d = substr((string) $Date, 6, 2);
-    OpenEMR\Common\Session\SessionUtil::setSession('lastcaldate', "$y-$m-$d"); // remember the last chosen date
+    SessionUtil::setSession('lastcaldate', "$y-$m-$d"); // remember the last chosen date
     return date($format, mktime(0, 0, 0, $m, $d, $y));
 }
 
@@ -511,7 +513,7 @@ function &postcalendar_userapi_getCategories()
             ORDER BY pc_catname";
     try {
         $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Exception) {
         $categories = [];
         return $categories;
     }
@@ -562,7 +564,7 @@ function &postcalendar_userapi_getTopics()
             ORDER BY $topics_column[topictext]";
     try {
         $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Exception) {
         $data = false;
         return $data;
     }

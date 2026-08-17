@@ -30,8 +30,8 @@ return [
 
     'controllers' => [
         'factories' => [
-            HtmlTemplatesController::class => fn(ContainerInterface $container, $requestedName): \PrescriptionTemplates\Controller\HtmlTemplatesController => new HtmlTemplatesController(),
-            PdfTemplatesController::class => fn(ContainerInterface $container, $requestedName): \PrescriptionTemplates\Controller\PdfTemplatesController => new PdfTemplatesController($container)
+            HtmlTemplatesController::class => fn(ContainerInterface $container, $requestedName): HtmlTemplatesController => new HtmlTemplatesController(),
+            PdfTemplatesController::class => fn(ContainerInterface $container, $requestedName): PdfTemplatesController => new PdfTemplatesController($container)
         ]
     ],
     'router' => [

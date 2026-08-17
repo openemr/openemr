@@ -43,7 +43,7 @@ try {
     $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
     $response = $controller->deleteAction($request);
     $response->send();
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     // Handle any exceptions that may occur
     $logger->error("Failed to create new observation form", ['exception' => $e]);
     echo xlt("An error occurred while trying to create a new observation form. Please try again later.");

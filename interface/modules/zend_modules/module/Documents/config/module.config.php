@@ -14,13 +14,14 @@ namespace Documents;
 
 use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
+use Documents\Plugin\Documents;
 use Interop\Container\ContainerInterface;
 use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [
         'factories' => [
-            DocumentsController::class => fn(ContainerInterface $container, $requestedName): \Documents\Controller\DocumentsController => new DocumentsController($container->get(DocumentsTable::class))
+            DocumentsController::class => fn(ContainerInterface $container, $requestedName): DocumentsController => new DocumentsController($container->get(DocumentsTable::class))
         ],
 
     ],
@@ -68,7 +69,7 @@ return [
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
     'controller_plugins' => [
         'factories' => [
-            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new Plugin\Documents()
+            'Documents' => fn(ContainerInterface $container, $requestedName): Documents => new Documents()
         ]
     ],
     'service_manager' => [
@@ -79,7 +80,7 @@ return [
             },
             // this class is used in other places such as the CCR module, etc so we have to expose it again.
             // TODO: we can turn this into a factory so we don't have the dup code here...
-            DocumentsController::class => fn(ContainerInterface $container, $requestedName): \Documents\Controller\DocumentsController => new DocumentsController($container->get(DocumentsTable::class))
+            DocumentsController::class => fn(ContainerInterface $container, $requestedName): DocumentsController => new DocumentsController($container->get(DocumentsTable::class))
         ]
 
 

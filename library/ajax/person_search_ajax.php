@@ -97,7 +97,7 @@ try {
                 ]
             ], JSON_PRETTY_PRINT);
     }
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $logger->error("Person search AJAX error", [
         'action' => $action,
         'error' => $e->getMessage(),
@@ -518,7 +518,7 @@ function handleCreatePerson(array $input, PersonService $personService, $contact
 //                'email' => $email
 //            ]);
 //        }
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         $logger->error("Exception adding telecoms", [
             'contact_id' => $contactId,
             'error' => $e->getMessage()

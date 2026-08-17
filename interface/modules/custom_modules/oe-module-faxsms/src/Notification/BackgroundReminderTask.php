@@ -46,6 +46,7 @@ use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
 use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
 use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
+use RuntimeException;
 
 final class BackgroundReminderTask
 {
@@ -69,7 +70,7 @@ final class BackgroundReminderTask
 
         $client = AppDispatch::getApiService($channel === NotificationChannel::EMAIL ? 'email' : 'sms');
         if (!$client instanceof AppDispatch) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Failed to resolve %s client for appointment reminders.',
                 $channel->value,
             ));
@@ -113,7 +114,7 @@ final class BackgroundReminderTask
         $result = $runner->run();
 
         if ($result->hasFailures()) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Appointment reminder run for %s completed with %d failure(s); see log for details.',
                 $channel->value,
                 $result->failed,

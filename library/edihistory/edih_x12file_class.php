@@ -18,4 +18,6 @@
 
 declare(strict_types=1);
 
-class_alias(\OpenEMR\Billing\EdiHistory\X12File::class, 'edih_x12_file');
+use OpenEMR\Billing\EdiHistory\X12File;
+
+class_alias(X12File::class, 'edih_x12_file');

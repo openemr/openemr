@@ -25,14 +25,14 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use phpseclib3\Net\SFTP;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
 
 $rhl7_return = [];
 
@@ -928,7 +928,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     // Make a stringified form of $ptarr to use as a key.
                     try {
                         $ptstring = json_encode($ptarr, JSON_THROW_ON_ERROR);
-                    } catch (\JsonException) {
+                    } catch (JsonException) {
                         return rhl7LogMsg(xl('Failed to encode patient match key for segment') .
                             ' ' . $rhl7_segnum, true);
                     }

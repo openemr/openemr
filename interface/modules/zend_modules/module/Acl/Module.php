@@ -14,6 +14,7 @@
 namespace Acl;
 
 use Acl\Model\AclTable;
+use Laminas\Loader\StandardAutoloader;
 use Laminas\ModuleManager\ModuleManager;
 
 class Module
@@ -22,7 +23,7 @@ class Module
     {
         // TODO: verify that we need this namespace autoloader... it should be on by default...
         return [
-            \Laminas\Loader\StandardAutoloader::class => [
+            StandardAutoloader::class => [
                 'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ],
