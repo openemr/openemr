@@ -484,10 +484,39 @@ dependencies.
 - **Clock injection (PSR-20):** Inject `ClockInterface` instead of calling
   `new \DateTimeImmutable()` or `time()` directly. This makes time-dependent
   code deterministically testable.
-- **No direct superglobal access** in application code. Use PSR-7 request
-  objects, framework session abstractions, and container-provided configuration.
-  In legacy code where this is unavoidable, confine superglobal reads to the
-  outermost entry point and parse into typed objects immediately.
+- **No direct superglobal access** in application code. Use the Symfony
+  `Request` object, framework session abstractions, and container-provided
+  configuration. In legacy code where this is unavoidable, confine superglobal
+  reads to the outermost entry point and parse into typed objects immediately.
+
+### Request Input
+
+Read request input through the Symfony `Request` object. It covers every
+superglobal — `query` (`$_GET`), `request` (`$_POST`), `files` (`$_FILES`),
+`cookies` (`$_COOKIE`), `server` (`$_SERVER`) — and its `InputBag` getters
+return honest scalar types.
+
+```php
+$request->query->getString('name');
+$request->request->getInt('id');
+$request->query->getBoolean('flag');
+$request->request->all('items');   // arrays
+$request->files->get('upload');
+$request->getMethod();             // prefer named accessors over server->get()
+```
+
+Classes take a `Request` through the constructor — see `src/Patient/Cards/`
+for the shape. Procedural entry points that have nowhere to inject call
+`OpenEMR\Common\Http\CurrentRequest::get()`, which returns the one request
+object for the process. `CurrentRequest` is a transitional seam for legacy
+scripts, not a target architecture; do not call it from a class that could
+accept a constructor parameter instead.
+
+**Do not use `filter_input()`.** It reaches only four of the six superglobals
+and only top-level scalars, and it returns `string|false|null` — requiring
+`?:` rather than `??` at every call site, since `??` catches only `null` and
+lets `false` through. Existing `filter_input()` calls are legacy to be
+converted, not a pattern to copy.
 
 ### Null Safety
 
