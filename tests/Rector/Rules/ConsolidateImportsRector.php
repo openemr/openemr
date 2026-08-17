@@ -171,7 +171,9 @@ CODE_SAMPLE
         // the docblock sits at the top already, attached to that declare.
         if ($contiguous && $useIndexes[0] === count($leading)) {
             if ($leading !== []) {
-                return null;
+                // PSR-12 puts the file header above `declare`, so a docblock
+                // left on an import belongs on the declare, not on $uses[0].
+                return $this->hoistDocblockOnto($leading[0], $uses, 0) ? $node : null;
             }
 
             if ($this->hoistDocblockFromLaterImport($uses)) {
@@ -371,12 +373,22 @@ CODE_SAMPLE
      */
     private function hoistDocblockFromLaterImport(array $uses): bool
     {
-        $first = $uses[0];
-        if ($first->getComments() !== []) {
+        return $this->hoistDocblockOnto($uses[0], $uses, 1);
+    }
+
+    /**
+     * Move the first stranded docblock found among `$uses` (from `$offset` on)
+     * onto `$target`, which must not already carry comments of its own.
+     *
+     * @param list<Use_|GroupUse> $uses
+     */
+    private function hoistDocblockOnto(Node\Stmt $target, array $uses, int $offset): bool
+    {
+        if ($target->getComments() !== []) {
             return false;
         }
 
-        foreach (array_slice($uses, 1) as $use) {
+        foreach (array_slice($uses, $offset) as $use) {
             $comments = $use->getComments();
             if ($comments === [] || !$comments[0] instanceof Doc) {
                 continue;
@@ -388,7 +400,7 @@ CODE_SAMPLE
 
             $docblock = array_shift($comments);
             $use->setAttribute('comments', $comments);
-            $first->setAttribute('comments', [$docblock]);
+            $target->setAttribute('comments', [$docblock]);
 
             return true;
         }
