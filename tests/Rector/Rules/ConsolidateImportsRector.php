@@ -174,6 +174,10 @@ CODE_SAMPLE
                 return null;
             }
 
+            if ($this->hoistDocblockFromLaterImport($uses)) {
+                return $node;
+            }
+
             return $this->hoistFileDocblock($rest, $uses[0]) ? $node : null;
         }
 
@@ -213,7 +217,7 @@ CODE_SAMPLE
         //
         // With a leading declare the file docblock already sits at the top of
         // the file, attached to that declare; only hoist when imports lead.
-        if ($leading === []) {
+        if ($leading === [] && !$this->hoistDocblockFromLaterImport($uses)) {
             $this->hoistFileDocblock($rest, $uses[0]);
         }
 
@@ -347,6 +351,56 @@ CODE_SAMPLE
     private function isImport(Node $stmt): bool
     {
         return $stmt instanceof Use_ || $stmt instanceof GroupUse;
+    }
+
+    /**
+     * Move a docblock stranded on a later import up onto the first one.
+     *
+     * Nothing documents a `use` statement, so a docblock attached to one is
+     * the file header that ended up in the wrong place. phpcbf produces this:
+     * once the header is a single block it sorts the imports alphabetically,
+     * and a docblock riding on the import that sorts last lands in the middle
+     * of the block, which `PSR12.Files.FileHeader` then rejects.
+     *
+     * An analyser annotation is the exception -- it is aimed at the import it
+     * sits on and moving it would silently retarget the suppression.
+     *
+     * @param list<Use_|GroupUse> $uses
+     *
+     * @return bool whether a docblock moved
+     */
+    private function hoistDocblockFromLaterImport(array $uses): bool
+    {
+        $first = $uses[0];
+        if ($first->getComments() !== []) {
+            return false;
+        }
+
+        foreach (array_slice($uses, 1) as $use) {
+            $comments = $use->getComments();
+            if ($comments === [] || !$comments[0] instanceof Doc) {
+                continue;
+            }
+
+            if ($this->isAnalyserAnnotation($comments[0])) {
+                continue;
+            }
+
+            $docblock = array_shift($comments);
+            $use->setAttribute('comments', $comments);
+            $first->setAttribute('comments', [$docblock]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isAnalyserAnnotation(Doc $docblock): bool
+    {
+        $text = strtolower($docblock->getText());
+
+        return str_contains($text, '@phpstan-') || str_contains($text, '@psalm-');
     }
 
     /**
