@@ -21,12 +21,12 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Request;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$request = Request::createFromGlobals();
+$request = CurrentRequest::get();
 
 // Check authorization.
 if (!AclMain::aclCheckCore('admin', 'super')) {
