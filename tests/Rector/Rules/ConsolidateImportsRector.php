@@ -305,8 +305,18 @@ CODE_SAMPLE
     }
 
     /**
-     * The short name each import binds, keyed lowercase because PHP resolves
-     * class names case-insensitively.
+     * The short name each *class* import binds, keyed lowercase because PHP
+     * resolves class names case-insensitively.
+     *
+     * Function and constant imports bind into their own symbol tables, so a
+     * `use function Vendor\Alpha` does nothing for a leading `Alpha::run()` --
+     * that still means global `\Alpha`, and relocating the block on its
+     * account would be a false trigger.
+     *
+     * A mixed group (`use Vendor\{Beta, function Alpha}`) carries
+     * TYPE_UNKNOWN on the group and the real type on each entry, so the entry
+     * wins where it says anything; a group with no keyword at all leaves both
+     * unknown, which means a plain class import.
      *
      * @param list<Use_|GroupUse> $uses
      *
@@ -317,6 +327,11 @@ CODE_SAMPLE
         $aliases = [];
         foreach ($uses as $use) {
             foreach ($use->uses as $useUse) {
+                $type = $useUse->type === Use_::TYPE_UNKNOWN ? $use->type : $useUse->type;
+                if ($type === Use_::TYPE_FUNCTION || $type === Use_::TYPE_CONSTANT) {
+                    continue;
+                }
+
                 $aliases[strtolower($useUse->getAlias()->toString())] = true;
             }
         }
