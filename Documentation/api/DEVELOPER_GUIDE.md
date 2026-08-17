@@ -767,33 +767,29 @@ Portal Routes are added to _rest_routes_portal.inc.php
 use OpenEMR\RestControllers\MyResourceRestController;
 
 // Add to existing routes array
-"GET /api/myresource" => function () {
-    RestConfig::authorization_check("admin", "users");
-    $return = (new MyResourceRestController())->getAll($_GET);
-    RestConfig::apiLog($return);
+"GET /api/myresource" => function (HttpRestRequest $request) {
+    RestConfig::request_authorization_check($request, "admin", "users");
+    $return = (new MyResourceRestController())->getAll($request->query->all());
     return $return;
 },
 
-"GET /api/myresource/:uuid" => function ($uuid) {
-    RestConfig::authorization_check("admin", "users");
+"GET /api/myresource/:uuid" => function ($uuid, HttpRestRequest $request) {
+    RestConfig::request_authorization_check($request, "admin", "users");
     $return = (new MyResourceRestController())->getOne($uuid);
-    RestConfig::apiLog($return);
     return $return;
 },
 
-"POST /api/myresource" => function () {
-    RestConfig::authorization_check("admin", "users");
+"POST /api/myresource" => function (HttpRestRequest $request) {
+    RestConfig::request_authorization_check($request, "admin", "users");
     $data = (array)(json_decode(file_get_contents("php://input")));
     $return = (new MyResourceRestController())->post($data);
-    RestConfig::apiLog($return, $data);
     return $return;
 },
 
-"PUT /api/myresource/:uuid" => function ($uuid) {
-    RestConfig::authorization_check("admin", "users");
+"PUT /api/myresource/:uuid" => function ($uuid, HttpRestRequest $request) {
+    RestConfig::request_authorization_check($request, "admin", "users");
     $data = (array)(json_decode(file_get_contents("php://input")));
     $return = (new MyResourceRestController())->put($uuid, $data);
-    RestConfig::apiLog($return, $data);
     return $return;
 }
 ```
@@ -1020,14 +1016,14 @@ use OpenEMR\RestControllers\FHIR\FhirMyResourceRestController;
 
 // Add to FHIR routes
 "GET /fhir/MyResource" => function (HttpRestRequest $request) {
+    RestConfig::request_authorization_check($request, "patients", "demo");
     $return = (new FhirMyResourceRestController())->getAll($request->getQueryParams());
-    RestConfig::apiLog($return);
     return $return;
 },
 
 "GET /fhir/MyResource/:id" => function ($id, HttpRestRequest $request) {
+    RestConfig::request_authorization_check($request, "patients", "demo");
     $return = (new FhirMyResourceRestController())->getOne($id);
-    RestConfig::apiLog($return);
     return $return;
 }
 ```
@@ -1321,20 +1317,22 @@ public function updateWithRelated($id, $data, $related)
 ```php
 <?php
 return [
-    "METHOD /path" => function ($param) {
-        // Authorization
-        RestConfig::authorization_check("scope", "acl");
+    "METHOD /path" => function ($param, HttpRestRequest $request) {
+        // Authorization — ACL section and value, checked against the
+        // authenticated user on the request
+        RestConfig::request_authorization_check($request, "patients", "demo");
 
         // Controller call
-        $return = (new Controller())->method($param);
-
-        // Logging
-        RestConfig::apiLog($return);
+        $return = (new Controller())->method($param, $request);
 
         return $return;
     }
 ];
 ```
+
+Named URL parameters come first in the closure signature; the
+`HttpRestRequest` is appended last. Audit logging is not called from the
+route — it happens automatically for every REST call.
 
 ### Route Parameters
 
@@ -1347,9 +1345,11 @@ return [
 
 **Query parameters:**
 ```php
-"GET /api/patient" => function () {
-    // Access via $_GET
-    $search = $_GET;
+"GET /api/patient" => function (HttpRestRequest $request) {
+    // Read query parameters off the request, never $_GET
+    $search = $request->query->all();
+    $name = $request->query->getString('name');
+    $limit = $request->query->getInt('limit');
 }
 ```
 
