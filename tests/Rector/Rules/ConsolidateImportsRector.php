@@ -171,7 +171,13 @@ CODE_SAMPLE
         // the docblock sits at the top already, attached to that declare.
         if ($contiguous && $useIndexes[0] === count($leading)) {
             if ($leading !== []) {
-                return null;
+                // PSR-12 puts the file header above `declare`, so a docblock
+                // left on an import belongs on the declare, not on $uses[0].
+                return $this->hoistDocblockOnto($leading[0], $uses, 0) ? $node : null;
+            }
+
+            if ($this->hoistDocblockFromLaterImport($uses)) {
+                return $node;
             }
 
             return $this->hoistFileDocblock($rest, $uses[0]) ? $node : null;
@@ -213,7 +219,7 @@ CODE_SAMPLE
         //
         // With a leading declare the file docblock already sits at the top of
         // the file, attached to that declare; only hoist when imports lead.
-        if ($leading === []) {
+        if ($leading === [] && !$this->hoistDocblockFromLaterImport($uses)) {
             $this->hoistFileDocblock($rest, $uses[0]);
         }
 
@@ -347,6 +353,66 @@ CODE_SAMPLE
     private function isImport(Node $stmt): bool
     {
         return $stmt instanceof Use_ || $stmt instanceof GroupUse;
+    }
+
+    /**
+     * Move a docblock stranded on a later import up onto the first one.
+     *
+     * Nothing documents a `use` statement, so a docblock attached to one is
+     * the file header that ended up in the wrong place. phpcbf produces this:
+     * once the header is a single block it sorts the imports alphabetically,
+     * and a docblock riding on the import that sorts last lands in the middle
+     * of the block, which `PSR12.Files.FileHeader` then rejects.
+     *
+     * An analyser annotation is the exception -- it is aimed at the import it
+     * sits on and moving it would silently retarget the suppression.
+     *
+     * @param list<Use_|GroupUse> $uses
+     *
+     * @return bool whether a docblock moved
+     */
+    private function hoistDocblockFromLaterImport(array $uses): bool
+    {
+        return $this->hoistDocblockOnto($uses[0], $uses, 1);
+    }
+
+    /**
+     * Move the first stranded docblock found among `$uses` (from `$offset` on)
+     * onto `$target`, which must not already carry comments of its own.
+     *
+     * @param list<Use_|GroupUse> $uses
+     */
+    private function hoistDocblockOnto(Node\Stmt $target, array $uses, int $offset): bool
+    {
+        if ($target->getComments() !== []) {
+            return false;
+        }
+
+        foreach (array_slice($uses, $offset) as $use) {
+            $comments = $use->getComments();
+            if ($comments === [] || !$comments[0] instanceof Doc) {
+                continue;
+            }
+
+            if ($this->isAnalyserAnnotation($comments[0])) {
+                continue;
+            }
+
+            $docblock = array_shift($comments);
+            $use->setAttribute('comments', $comments);
+            $target->setAttribute('comments', [$docblock]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isAnalyserAnnotation(Doc $docblock): bool
+    {
+        $text = strtolower($docblock->getText());
+
+        return str_contains($text, '@phpstan-') || str_contains($text, '@psalm-');
     }
 
     /**
