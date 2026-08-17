@@ -12,8 +12,10 @@
 
 namespace OpenEMR\Common\Http;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
+use GuzzleHttp\{
+    Client,
+    HandlerStack,
+};
 use kamermans\OAuth2\GrantType\AuthorizationCode;
 use kamermans\OAuth2\GrantType\RefreshToken;
 use kamermans\OAuth2\OAuth2Middleware;

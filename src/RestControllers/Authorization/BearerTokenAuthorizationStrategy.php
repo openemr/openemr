@@ -174,7 +174,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
                 "invalid Trusted User.  Refresh Token revoked or logged out",
                 ['clientId' => $clientId, 'userId' => $userId]
             );
-            throw new OAuthServerException('Refresh Token revoked or logged out', 0, 'invalid _request', 400);
+            throw new OAuthServerException('Refresh Token revoked or logged out', 0, 'invalid_request', 400);
         }
 
         // TODO: @adunsulag this seems redundant since the access token should already be verified on the expiration date
@@ -362,7 +362,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
         return $raw;
     }
 
-    private function isValidRequestForUserRole(Request $request, array $oauthScopes, string $userRole)
+    private function isValidRequestForUserRole(Request $request, array $oauthScopes, string $userRole): bool
     {
         $resource = $request->getPathInfo();
         if (

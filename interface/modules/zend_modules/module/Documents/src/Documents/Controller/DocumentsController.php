@@ -150,7 +150,7 @@ class DocumentsController extends AbstractActionController
 
         $request = $this->getRequest();
         $documentId = $this->params()->fromRoute('id');
-        $doEncryption = ($this->params()->fromRoute('doencryption') == '1') ? true : false;
+        $doEncryption = $this->params()->fromRoute('doencryption') == '1';
         $encryptionKey = $this->params()->fromRoute('key');
         $type = ($this->params()->fromRoute('download') == '1') ? "attachment" : "inline";
 

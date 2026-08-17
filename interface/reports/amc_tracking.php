@@ -13,7 +13,6 @@
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/amc.php";
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

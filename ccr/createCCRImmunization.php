@@ -21,6 +21,8 @@
  * @link    https://www.open-emr.org
  */
 
+use OpenEMR\BC\ServiceContainer;
+
     $result = getImmunizationData();
     $row = sqlFetchArray($result);
 
@@ -33,7 +35,7 @@ do {
     $e_Immunization = $ccr->createElement('Immunization');
     $e_Immunizations->appendChild($e_Immunization);
 
-    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', getUuid());
+    $e_CCRDataObjectID = $ccr->createElement('CCRDataObjectID', ServiceContainer::getUuidFactory()->uuid4()->toString());
     $e_Immunization->appendChild($e_CCRDataObjectID);
 
     $e_DateTime = $ccr->createElement('DateTime');

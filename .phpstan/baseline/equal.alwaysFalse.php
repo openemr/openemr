@@ -102,9 +102,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between null and \'email\' will always evaluate to false\\.$#',
+    'message' => '#^Loose comparison using \\=\\= between int\\<2, max\\> and 1 will always evaluate to false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
+    'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between non\\-falsy\\-string and \'\' will always evaluate to false\\.$#',
@@ -140,11 +140,6 @@ $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between 0\\|0\\.0\\|\'\'\\|\'0\'\\|array\\{\\}\\|false\\|null and \\-1 will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between \'us_core_v311\' and \'g10_certification\' will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/US_Core_311/InfernoSinglePatientAPITest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -18,12 +18,13 @@ use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\EmailChannelInterface;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 use PHPMailer\PHPMailer\Exception;
 
-class EmailClient extends AppDispatch
+class EmailClient extends AppDispatch implements EmailChannelInterface
 {
     public static $timeZone;
     public $baseDir;
@@ -53,31 +54,10 @@ class EmailClient extends AppDispatch
     {
         $credentials = AppDispatch::getSetup();
 
-        $this->sid = $credentials['username'];
-        $this->appKey = $credentials['appKey'];
-        $this->appSecret = $credentials['appSecret'];
         $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
-    }
-
-    /**
-     * @return string
-     */
-    public function sendSMS(): string
-    {
-        // dummy function
-        return text("Not implemented");
-    }
-
-    /**
-     * @return mixed|string
-     */
-    public function sendFax(): string|bool
-    {
-        // dummy function
-        return text("Not implemented");
     }
 
     /**
@@ -163,6 +143,7 @@ class EmailClient extends AppDispatch
             throw new EmailSendFailedException($mail->ErrorInfo);
         }
     }
+
     /**
      * @return false|string
      */
@@ -212,5 +193,13 @@ class EmailClient extends AppDispatch
     public function fetchEmailList($uiDateRangeFlag = true): false|string|null
     {
         return "[]"; // Caller expects JSON result, not HTML;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCallLogs()
+    {
+        return xlt('Not Implemented');
     }
 }

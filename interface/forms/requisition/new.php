@@ -14,6 +14,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -32,7 +33,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $returnurl = 'encounter_top.php';
 
-$formid = (int) ($_GET['id'] ?? 0);
+$formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$formid = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'requisition');
 $obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid;

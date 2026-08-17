@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
 use Lcobucci\Clock\FrozenClock;
+use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -105,7 +106,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
         $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
         $this->clock = new FrozenClock(new \DateTimeImmutable('2026-01-15 10:30:00'));
@@ -132,7 +133,7 @@ final class EventAuditLoggerTest extends TestCase
 
         // Get EventAuditLogger instance (works with existing singleton)
         $this->eventAuditLogger = new EventAuditLogger(
-            sinks: [],
+            sink: $this->createStub(SinkInterface::class),
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -178,7 +179,6 @@ final class EventAuditLoggerTest extends TestCase
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/test/script.php',
             'QUERY_STRING' => 'param=value',
-            'SSL_CLIENT_S_DN_CN' => 'test-client',
             'REMOTE_ADDR' => '127.0.0.1'
         ];
 
@@ -254,9 +254,9 @@ final class EventAuditLoggerTest extends TestCase
             ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
 
         // Return positional array matching constructor parameter order:
-        // sinks, cryptoGen,  session, config, breakglassChecker, clock
+        // sink, session, config, breakglassChecker, clock
         return [
-            [],                                         // sinks
+            $this->createStub(SinkInterface::class),
             $sessionMock,                               // session
             $config ?? $this->config,                   // config
             $this->breakglassChecker,                   // breakglassChecker
@@ -410,6 +410,7 @@ final class EventAuditLoggerTest extends TestCase
             '', // crt_user
             [
                 'user_id' => 1,
+                'client_id' => '',
                 'patient_id' => 1,
                 'method' => 'foo',
                 'request' => 'foo',
@@ -508,7 +509,7 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog'] = false;
 
         $eventAuditLogger = new EventAuditLogger(
-            sinks: [],
+            sink: $this->createStub(SinkInterface::class),
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -540,6 +541,7 @@ final class EventAuditLoggerTest extends TestCase
 
         $apiData = [
             'user_id' => 1,
+            'client_id' => 'test-oauth-client',
             'patient_id' => 123,
             'method' => 'GET',
             'request' => '/api/patient/123',
@@ -924,7 +926,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Mock newEvent method
@@ -951,7 +953,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: false,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Mock newEvent method to ensure it's not called
@@ -977,7 +979,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Mock newEvent method to ensure it's not called
@@ -1003,7 +1005,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         $methods = [
@@ -1044,7 +1046,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Session with no values
@@ -1717,7 +1719,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Create mock with newEvent - should not be called when audit logging is disabled
@@ -1742,7 +1744,7 @@ final class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: false,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
 
         // Create mock with newEvent - should not be called when http request logging is disabled

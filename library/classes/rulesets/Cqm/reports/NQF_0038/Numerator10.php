@@ -14,7 +14,7 @@ class NQF_0038_Numerator10 implements CqmFilterIF
         return "Numerator 10";
     }
 
-    public function test(CqmPatient $patient, $beginDate, $endDate)
+    public function test(CqmPatient $patient, $beginDate, $endDate): bool
     {
         if (Immunizations::checkInfluenza($patient, $beginDate, $endDate)) {
             return true;

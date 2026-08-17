@@ -6,6 +6,14 @@
  * forces $v_tag back to '-dev' so master keeps marking development
  * builds.
  *
+ * Status (Phase A, workstream 3): currently DORMANT. The class is
+ * defined but no workflow invokes it — `ReleasePrepCommand`'s
+ * `--scope=master` is release-time only in Phase A and runs
+ * `PostReleaseTargetsMutator` instead. Workstream 2 (G4) will add a
+ * branch-cut workflow that wires this mutator into its own invocation
+ * path (master version bump happens at rel-branch cut time, not at
+ * release time).
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>

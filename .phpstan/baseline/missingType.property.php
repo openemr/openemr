@@ -1192,436 +1192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Holidays_Controller\\:\\:\\$last_error has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Holidays_Controller\\:\\:\\$storage has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Holidays_Controller\\:\\:\\$target_file has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimSearchModel\\:\\:\\$patientFirstName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimSearchModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimSearchModel\\:\\:\\$patientLastName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimSearchModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimSearchModel\\:\\:\\$receivedDateEnd has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimSearchModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimSearchModel\\:\\:\\$receivedDateStart has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimSearchModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimSearchModel\\:\\:\\$serviceDateEnd has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimSearchModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimSearchModel\\:\\:\\$serviceDateStart has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimSearchModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimUpload\\:\\:\\$validationMessages has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimUpload\\:\\:\\$x12_partner_field_keys has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$industryCode has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$originatingSystemId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$payerName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$payerNumber has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$payerResponsibility has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$provider has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$relationship has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$serviceTypeCodes has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/EligibilityInquiryRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\FileSearchModel\\:\\:\\$accountNumber has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/FileSearchModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\FileSearchModel\\:\\:\\$receivedDateEnd has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/FileSearchModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\FileSearchModel\\:\\:\\$receivedDateStart has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/FileSearchModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$address1 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$address2 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$city has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$firstName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$groupName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$lastName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$middleName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$providerNpi has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$receiverType has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$signature has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$state has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$suffix has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\InformationReceiver\\:\\:\\$zip has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/InformationReceiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsPayer\\:\\:\\$payerName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsPayer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsPayer\\:\\:\\$payerNumber has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsPayer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsPayer\\:\\:\\$subscriberNumber has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsPayer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$accountNumber has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$clientId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$createDate has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$diagnosisCodes has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$includeCredit has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$npi has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$originatingSystemId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientAddress1 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientAddress2 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientCity has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientDob has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientEmailAddress has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientEmployer has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientEmployerState has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientFirstName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientGender has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientLastName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientSsn has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientState has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$patientZip has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$payerResponsibility has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$payers has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$pinCode has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$practiceName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$practiceState has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$procedureCodes has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$productsToRun has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$requestingSoftware has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$serviceBeginDate has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$serviceEndDate has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$serviceTypeCodes has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$subscriberDob has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$subscriberFirstName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$subscriberId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$subscriberLastName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\RevenueToolsRequest\\:\\:\\$uniqueTransactionNumber has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/RevenueToolsRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$address1 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$address2 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$city has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$dateOfBirth has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$firstName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$gender has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$lastName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$memberId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$middleName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$state has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$suffix has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\SubscriberPatientEligibilityRequest\\:\\:\\$zip has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SubscriberPatientEligibilityRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Bootstrap\\:\\:\\$moduleDirectoryName has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Bootstrap.php',
@@ -1987,11 +1557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EtherFaxActions\\:\\:\\$baseDir has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EtherFaxActions\\:\\:\\$credentials has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
@@ -2022,11 +1587,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$baseDir has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$cacheDir has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
@@ -2038,7 +1598,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$platform has no type specified\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -2062,27 +1622,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$token has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:\\$uriDir has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$apiToken has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$baseDir has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$client has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];
@@ -2155,6 +1700,61 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\TwilioSMSClient\\:\\:\\$uriDir has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/TwilioSMSClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$apiBase has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$baseDir has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$cacheDir has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$credentials has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$platform has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$portalUrl has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$rcsdk has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$redirectUrl has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$serverUrl has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$timeZone has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$uriDir has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\EtherFax\\\\EtherFaxClient\\:\\:\\$auth has no type specified\\.$#',
@@ -3262,11 +2862,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$events has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$lastError has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
@@ -3643,11 +3238,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Note\\:\\:\\$foreign_id has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Note.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Note\\:\\:\\$note has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
 ];
@@ -4905,256 +4495,6 @@ $ignoreErrors[] = [
     'message' => '#^Property RestResponse\\:\\:\\$Url has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/maviq_phone_api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Config_File_Legacy\\:\\:\\$_config_data has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Config_File_Legacy\\:\\:\\$_config_path has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Config_File_Legacy\\:\\:\\$booleanize has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Config_File_Legacy\\:\\:\\$fix_newlines has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Config_File_Legacy\\:\\:\\$overwrite has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Config_File_Legacy\\:\\:\\$read_hidden has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_additional_newline has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_avar_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_cache_attrs_count has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_cache_serial has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_cacheable_state has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_capture_stack has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_current_file has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_current_line_no has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_cvar_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_db_qstr_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_dvar_guts_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_dvar_math_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_dvar_math_var_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_dvar_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_folded_blocks has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_func_call_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_func_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_init_smarty_vars has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_mod_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_nocache_count has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_num_const_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_obj_call_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_obj_ext_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_obj_params_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_obj_restricted_param_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_obj_single_param_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_obj_start_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_param_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_parenth_param_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_permitted_tokens has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_plugin_info has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_plugins_code has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_qstr_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_reg_obj_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_si_qstr_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_strip_depth has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_svar_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_var_bracket_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Compiler_Legacy\\:\\:\\$_var_regexp has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$_cache_include_info has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$config_booleanize has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$config_fix_newlines has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$config_overwrite has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$config_read_hidden has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property xmltoarray_parser_htmlfix\\:\\:\\$index has no type specified\\.$#',
@@ -23257,11 +22597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_gscount has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_hhmm has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
@@ -23278,11 +22613,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_sendid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\BillingProcessor\\\\BillingClaimBatch\\:\\:\\$bat_stcount has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
 ];
@@ -23607,17 +22937,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$segments has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$text has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:\\$type has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
@@ -24067,11 +23387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/SymfonyCommandRunner.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Compatibility\\\\Checker\\:\\:\\$minimumPhpVersion has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Forms\\\\FormVitalDetails\\:\\:\\$id has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Forms/FormVitalDetails.php',
@@ -24230,11 +23545,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\HttpClient\\:\\:\\$system has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\oeHttp\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttp.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\oeOAuth\\:\\:\\$DEBUG_MODE has no type specified\\.$#',
@@ -29682,11 +28992,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\DocumentRestController\\:\\:\\$documentService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\DrugRestController\\:\\:\\$drugService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/DrugRestController.php',
@@ -30847,9 +30152,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\ZendModules\\\\FHIR\\\\Listener\\\\UuidMappingEventsSubscriberTest\\:\\:\\$uuidRecordsToDelete has no type specified\\.$#',
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Services\\\\FHIR\\\\Subscriber\\\\UuidMappingEventsSubscriberTest\\:\\:\\$uuidRecordsToDelete has no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ZendModules/FHIR/Listener/UuidMappingEventsSubscriberTest.php',
+    'path' => __DIR__ . '/../../tests/Tests/Unit/Services/FHIR/Subscriber/UuidMappingEventsSubscriberTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Validators\\\\PatientValidatorTest\\:\\:\\$fixtureManager has no type specified\\.$#',

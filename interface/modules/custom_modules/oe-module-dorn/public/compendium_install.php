@@ -14,9 +14,15 @@
 
 require_once __DIR__ . "/../../../../globals.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\Dorn\LabCompendiumInstall;
+
+if (!AclMain::aclCheckCore('admin', 'users')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: DORN Compendium Install", xl("DORN Compendium Install"));
+}
 
 if (!empty($_GET)) {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();

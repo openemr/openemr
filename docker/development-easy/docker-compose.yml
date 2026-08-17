@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.8.7@sha256:78185355dd49b54dd6909072531ce8d7e06aa0eccd7aa5b23c93ebb7e34c5aaa
+    image: mariadb:11.8.8@sha256:d9f7eb2637296652f24b484afd5d246f759f49f5babcadc6a9e344c9acb75fbf
     command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - "${WT_MYSQL_PORT:-8320}:3306"
@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:5946921460790b58f22df70c2858e4abe8faded17d0e8b9ed47513881a93a4f1
+    image: openemr/openemr:flex@sha256:5a9f1ce09a313206f675cb397fea58f5f4780ed4c1256deb395b2e4395061122
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -39,11 +39,23 @@ services:
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - phpstanvolume:/var/www/localhost/htdocs/openemr/tmp-phpstan:rw
+    - webpackcachevolume:/var/www/localhost/htdocs/openemr/.webpack-cache:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
     environment:
+      # HOST_UID/HOST_GID let the entrypoint adopt the host user's uid for
+      # apache (see docker/flex/openemr.sh — adoption is a no-op when these
+      # default to 1000). Without override, behavior matches the original
+      # Dockerfile-baked uid=1000. Override (e.g. `HOST_UID=$(id -u)
+      # docker compose up`) so apache writes bind-mount files as your host
+      # user — eliminates the uid-mismatch class of bugs for any host whose
+      # uid != 1000 (CI runners, multi-user dev boxes, distros that start
+      # uids at 1001+, macOS via Docker Desktop). Always exported by
+      # openemr-cmd, optional everywhere else.
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: "true"
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -113,7 +125,7 @@ services:
       retries: 3
   selenium:
     restart: always
-    image: selenium/standalone-chromium:147.0.7727.55@sha256:e80834f17556d310d92f114c38df84a4c09bfa9564d428c770ea122346c0932c
+    image: selenium/standalone-chromium:151.0.7922.108@sha256:1d3d834a2ce93f26cc0d0ae3c61abd189755b32649f5c356c6c5cf9502aa397e
     ports:
     - "${WT_SELENIUM_PORT:-4444}:4444"
     - "${WT_VNC_PORT:-7900}:7900"
@@ -133,7 +145,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:85a2b4eb2da6ca24d8966b211f83906bf9c3cc57f53f1d4f729b4b85395d389d
+    image: phpmyadmin:5.2.3@sha256:6db6e0bc9959eb00395f5d927cc786cb63530a265663950ecb9faf5955419c37
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -143,7 +155,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb:3.5.1@sha256:ccea1e8035bf7afd68336e24056a1ca9c1c46d7abe42da686322c0ac7218e5c2
+    image: couchdb:3.5.2@sha256:b80216f643e99d31df318c740dbc556ac08b56444030ed1d5e6d7b0d4e625213
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
@@ -166,7 +178,7 @@ services:
       LDAP_TLS_KEY_FILENAME: server-key.pem
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:v1.30.0@sha256:0059ef81e492a7192af3816281eed6859eb078bd7bdc58b76757c13e10e53a7d
+    image: axllent/mailpit:v1.30.7@sha256:d5ecbb067db3705fa953d79e1b7f81ef84038df67aba6c52825d8c02a1ea748a
     ports:
     - "${WT_MAILPIT_UI_PORT:-8025}:8025"
     - "${WT_MAILPIT_SMTP_PORT:-1025}:1025"
@@ -191,6 +203,7 @@ volumes:
   nodemodules: {}
   vendordir: {}
   phpstanvolume: {}
+  webpackcachevolume: {}
   ccdanodemodules: {}
   ccdanodemodules2: {}
   logvolume: {}

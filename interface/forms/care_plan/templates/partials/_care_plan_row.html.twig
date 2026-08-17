@@ -1,0 +1,91 @@
+{#
+ # _care_plan_row.html.twig - Single care plan row.
+ #
+ # Rendered once per persisted row, and once more (rowIndex 0) inside the hidden
+ # <template> the JS clones when the user adds a row.
+ #
+ # @package   OpenEMR
+ # @link      https://www.open-emr.org
+ # @author    Jacob T Paul <jacob@zhservices.com>
+ # @author    Vinish K <vinish@zhservices.com>
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ # @copyright Copyright (c) 2018-2025 Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (C) 2025 Open Plan IT Ltd. <support@openplanit.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ #}
+<div class="tb_row" id="tb_row_{{ rowIndex|attr }}">
+    <div class="form-row">
+        <div class="forms col-md-4">
+            <label for="code_{{ rowIndex|attr }}" class="h5">{{ 'Code'|xlt }}:</label>
+            <input type="text" id="code_{{ rowIndex|attr }}" name="code[]" class="form-control code js-careplan-code"
+                value="{{ row.code|default('')|attr }}"
+                data-toggle="tooltip" data-placement="bottom" title="{{ row.code|default('')|attr }}" />
+            <span id="displaytext_{{ rowIndex|attr }}" class="displaytext help-block">{{ row.codetext|default('')|text }}</span>
+            <input type="hidden" id="codetext_{{ rowIndex|attr }}" name="codetext[]" class="codetext" value="{{ row.codetext|default('')|attr }}" />
+            <input type="hidden" id="user_{{ rowIndex|attr }}" name="user[]" class="user" value="{{ row.user|default(authUser)|attr }}" />
+        </div>
+        <div class="forms col-md-4">
+            <label for="code_date_{{ rowIndex|attr }}" class="h5">{{ 'Date'|xlt }}:</label>
+            <input type="text" id="code_date_{{ rowIndex|attr }}" name="code_date[]" class="form-control code_date datepicker" value="{{ row.date|default('')|attr }}" title="{{ 'yyyy-mm-dd HH:MM Date of service'|xla }}" />
+        </div>
+        <div class="forms col-md-4">
+            <label for="care_plan_type_{{ rowIndex|attr }}" class="h5">{{ 'Type'|xlt }}:</label>
+            {{ selectList('care_plan_type[]', 'Plan_of_Care_Type', row.care_plan_type|default(''), '', {
+                tag_id: 'care_plan_type_' ~ rowIndex,
+                class: 'form-control care_plan_type',
+                empty_name: 'Select Type'|xl
+            }) }}
+        </div>
+
+        <div class="form-row w-100 my-2">
+            <div class="forms col-md-3">
+                <label for="proposed_date_{{ rowIndex|attr }}" class="h5">{{ 'Target Date'|xlt }}:</label>
+                <input type="text"
+                    id="proposed_date_{{ rowIndex|attr }}"
+                    name="proposed_date[]"
+                    class="form-control proposed_date datepicker"
+                    value="{{ row.proposed_date|default('')|attr }}"
+                    title="{{ 'yyyy-mm-dd HH:MM Target or Achieve-by date'|xla }}" />
+            </div>
+            <div class="forms col-md-3">
+                <label for="end_date_{{ rowIndex|attr }}" class="h5">{{ 'End Date'|xlt }}:</label>
+                <input type="text"
+                    id="end_date_{{ rowIndex|attr }}"
+                    name="end_date[]"
+                    class="form-control end_date datepicker"
+                    value="{{ row.date_end|default('')|attr }}"
+                    title="{{ 'yyyy-mm-dd HH:MM planned end date'|xla }}" />
+            </div>
+            <div class="forms col-md-3">
+                <label for="engagement_category_{{ rowIndex|attr }}" class="h5">{{ 'Engagement Category'|xlt }}:</label>
+                {{ selectList('plan_engagement_category[]', 'care_plan_engagement_category', row.plan_engagement_category|default(''), '', {
+                    tag_id: 'engagement_category_' ~ rowIndex,
+                    class: 'form-control plan_engagement_category',
+                    empty_name: 'Select Engagement Category'|xl
+                }) }}
+            </div>
+            <div class="forms col-md-3">
+                <label for="status_{{ rowIndex|attr }}" class="h5">{{ 'Status'|xlt }}:</label>
+                {{ selectList('plan_status[]', 'care_plan_status', row.plan_status|default(''), '', {
+                    tag_id: 'status_' ~ rowIndex,
+                    class: 'form-control plan_status'
+                }) }}
+            </div>
+        </div>
+
+        <div class="forms col-md-12">
+            <label for="description_{{ rowIndex|attr }}" class="h5">{{ 'Description'|xlt }}:</label>
+            <textarea name="description[]" id="description_{{ rowIndex|attr }}" data-textcontext="{{ getListItemTitle('Plan_of_Care_Type', row.care_plan_type|default(''))|attr }}" class="form-control description" rows="6">{{ row.description|default('')|text }}</textarea>
+        </div>
+    </div>
+    <div class="form-row mt-2">
+        <div class="forms col-md-12 d-flex flex-row-reverse">
+            {% include '/forms/care_plan/templates/partials/_actions.html.twig' with { rowIndex: rowIndex } only %}
+        </div>
+        <input type="hidden" name="count[]" id="count_{{ rowIndex|attr }}" class="count" value="{{ rowIndex|attr }}" />
+    </div>
+    {% include '/forms/care_plan/templates/partials/_reason_row.html.twig' with { row: row, rowIndex: rowIndex, reasonCodeStatii: reasonCodeStatii } only %}
+    <hr />
+</div>

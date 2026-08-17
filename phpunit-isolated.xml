@@ -42,14 +42,33 @@ This file configures the kind that does not require initialization.
       <directory>.</directory>
     </include>
     <exclude>
+      <directory>bin</directory>
+      <directory>ccdaservice</directory>
+      <directory>ccr</directory>
+      <directory>ci</directory>
       <directory>config</directory>
+      <directory>contrib</directory>
+      <directory>db</directory>
+      <directory>meta/health</directory>
+      <directory>public</directory>
+      <directory>sphere</directory>
+      <directory>templates/super/rules</directory>
+      <directory>tools/release</directory>
       <directory>vendor</directory>
+      <file>rector-bootstrap.php</file>
+      <file>rector-globals.php</file>
+      <file>rector.php</file>
     </exclude>
   </source>
 
   <testsuites>
     <testsuite name="isolated">
       <directory>tests/Tests/Isolated</directory>
+    </testsuite>
+
+    <!-- Custom Rector rules: pure AST transformations, no database needed -->
+    <testsuite name="rector-rules">
+      <directory>tests/Rector</directory>
     </testsuite>
 
     <!-- Include existing unit tests that don't require database but haven't been moved yet -->

@@ -44,11 +44,9 @@
 require_once(__DIR__ . '/../../globals.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/forms.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/calendar.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/encounter_events.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient_tracker.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/main/holidays/Holidays_Controller.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/group.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
@@ -63,6 +61,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
+use OpenEMR\Services\HolidayService;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
@@ -79,10 +78,10 @@ $default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag:
 
 // form logic fails if not set to boolean
 if (isset($_GET['group'])) {
-    $_GET['group'] = $_GET['group'] == "true" ? true : false;
+    $_GET['group'] = $_GET['group'] == "true";
 }
 if (isset($_GET['prov'])) {
-    $_GET['prov'] = $_GET['prov'] == "true" ? true : false;
+    $_GET['prov'] = $_GET['prov'] == "true";
 }
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
 $_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null) ?: null;
@@ -1401,7 +1400,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
  </div> <!-- Done with providers now scheduling -->
 <?php
     //Check if repeat is using the new 'days every week' mechanism.
-function isDaysEveryWeek($repeat)
+function isDaysEveryWeek($repeat): bool
 {
     if ($repeat == 3) {
         return true;
@@ -1410,7 +1409,7 @@ function isDaysEveryWeek($repeat)
     }
 }
     //Check if using the regular repeat mechanism.
-function isRegularRepeat($repeat)
+function isRegularRepeat($repeat): bool
 {
     if ($repeat == 1 || $repeat == 2) {
         return true;
@@ -1692,6 +1691,9 @@ function are_days_checked(){
 var collectvalidation = <?php echo $collectthis; ?>;
 function validateform(event,value){
     let allDay = document.getElementById('rballday1').checked;
+    let catValue = document.forms[0].form_category.value;
+    let isInOffice = catValue == IN_OFFICE_CAT_ID;
+    let isOutOfOffice = catValue == OUT_OF_OFFICE_CAT_ID;
     collectvalidation.form_hour = {
         numericality: {
             onlyInteger: true,
@@ -1718,7 +1720,7 @@ function validateform(event,value){
         }
     };
 
-    if ( allDay == true) {
+    if (allDay == true || isInOffice == true || isOutOfOffice == true) {
         collectvalidation.form_duration ={};
     } else {
     collectvalidation.form_duration = {
@@ -1856,14 +1858,14 @@ function SubmitForm() {
     <?php } else { ?>
         <?php
     /*Support Multi-Provider Events in features*/
-        $sdate = $date;
-        $edate = new DateTime($date);
+        $sdate = (string) $date;
+        $edate = new DateTime($sdate);
         $edate->modify('tomorrow');
         $edate = $edate->format('Y-m-d');
         $is_holiday = false;
-        $holidays_controller = new Holidays_Controller();
-        $holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
-        if (in_array($sdate, $holidays)) {
+        $holidayService = HolidayService::createForLegacyContext();
+        $holidays = $holidayService->getHolidaysByDateRange($sdate, $edate);
+        if (in_array($sdate, $holidays, true)) {
             $is_holiday = true;
         }?>
     if (f.form_action.value != 'delete') {

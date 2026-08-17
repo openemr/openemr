@@ -137,6 +137,6 @@ abstract class BaseValidator
             $sql,
             [$valueset, $code]
         );
-        return $result['option_id'] ? true : false;
+        return (bool) $result['option_id'];
     }
 }

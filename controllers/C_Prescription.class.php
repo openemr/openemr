@@ -16,8 +16,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/registry.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/amc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -120,7 +118,7 @@ class C_Prescription extends Controller
         }
     }
 
-    function default_action(): void
+    function default_action(): string
     {
         $prescription = $this->prescriptions[0];
         $this->assign("prescription", $prescription);
@@ -136,7 +134,7 @@ class C_Prescription extends Controller
             $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
         }
         $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
-        echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
+        return $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
     function edit_action($id = "", $patient_id = "")
@@ -170,7 +168,7 @@ class C_Prescription extends Controller
         $isNewPrescription = empty($this->prescriptions[0]->id);
         $this->assign("isNewPrescription", $isNewPrescription);
 
-        $this->default_action();
+        return $this->default_action();
     }
 
     function list_action($id, $sort = "", $printPrescriptionId = null)
@@ -712,7 +710,7 @@ class C_Prescription extends Controller
         return $this->multiprint_footer($pdf);
     }
 
-    function current_user_has_signature()
+    function current_user_has_signature(): bool
     {
         if (!empty($this->pconfig['signature'])) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -957,13 +955,13 @@ class C_Prescription extends Controller
             $address = trim($address);
         }
 
-        echo ($address);
+        echo $address;
         echo "\n";
-        echo (xl('Date of Birth')) . " ";
-        echo ($p->patient->date_of_birth );
+        echo xl('Date of Birth') . " ";
+        echo $p->patient->date_of_birth;
         echo "\n";
         echo xl('Medical Record #');
-        echo (str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT));
+        echo str_pad((string) $p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT);
         echo "\n\n";
         echo xl('Prescriptions') . "\n";
     }

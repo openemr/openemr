@@ -55,9 +55,7 @@ if ( file_exists($config_file) ) {
 /** @var array<string, mixed>|null $gacl_options */
 $gacl_api = new GaclAdminApi(is_array($gacl_options ?? null) ? $gacl_options : null);
 
-$gacl = &$gacl_api;
-
-$db = &$gacl->db;
+$db = $gacl_api->db;
 
 $smarty = new Smarty;
 $smarty->setCompileCheck(true);

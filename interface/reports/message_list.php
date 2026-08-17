@@ -185,16 +185,16 @@ if (!empty($_POST['form_csvexport'])) {
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     if ($_POST['form_csvexport']) {
         // CSV headers:
-        echo csvEscape(xl('Date')) . ',';
-        echo csvEscape(xl('User')) . ',';
-        echo csvEscape(xl('Last Name')) . ',';
-        echo csvEscape(xl('First Name')) . ',';
-        echo csvEscape(xl('PID')) . ',';
-        echo csvEscape(xl('DOB')) . ',';
-        echo csvEscape(xl('Type')) . ',';
-        echo csvEscape(xl('Status')) . ',';
-        echo csvEscape(xl('Updated By')) . ',';
-        echo csvEscape(xl('Last Update')) . "\n";
+        echo xlc('Date') . ',';
+        echo xlc('User') . ',';
+        echo xlc('Last Name') . ',';
+        echo xlc('First Name') . ',';
+        echo xlc('PID') . ',';
+        echo xlc('DOB') . ',';
+        echo xlc('Type') . ',';
+        echo xlc('Status') . ',';
+        echo xlc('Updated By') . ',';
+        echo xlc('Last Update') . "\n";
     } else {
         ?>
 <div id="report_results">
@@ -263,9 +263,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             echo csvEscape($patient_id) . ',';
             echo csvEscape($patient_dob) . ',';
             // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
-            echo csvEscape(xl($msg_type)) . ',';
+            echo xlc($msg_type) . ',';
             // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
-            echo csvEscape(xl($msg_status)) . ',';
+            echo xlc($msg_status) . ',';
             echo csvEscape($update_by) . ',';
             echo csvEscape(oeFormatShortDate(substr((string) $update_date, 0, 10))) . "\n";
         } else {

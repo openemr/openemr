@@ -206,7 +206,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         // callback for patient select dialog
         function setpatient(pid) {
-            let actionUrl = 'getPatientDetails';
+            let actionUrl = 'apiFetchPatientDetails';
             return $.post(actionUrl, {
                 'pid': pid,
                 'type': serviceType
@@ -214,13 +214,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 $("#wait").remove()
             }, 'json').done(
                 function (data) {
-                    if (recipient && !data['phone_cell']) {
-                        data['phone_cell'] = recipient;
+                    if (recipient && !data['phone']) {
+                        data['phone'] = recipient;
                     }
                     $("#form_pid").val(pid);
                     $("#form_name").val(data['fname']);
                     $("#form_lastname").val(data['lname']);
-                    $("#form_phone").val(data['phone_cell']);
+                    $("#form_phone").val(data['phone']);
                     $("#form_email").val(data['email']);
                     $(".show-detail").removeClass('d-none')
                 });

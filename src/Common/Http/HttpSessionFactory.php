@@ -4,6 +4,7 @@ namespace OpenEMR\Common\Http;
 
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
+use OpenEMR\Common\Session\SessionConfiguration;
 use OpenEMR\Common\Session\SessionConfigurationBuilder;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
@@ -61,10 +62,8 @@ class HttpSessionFactory implements SessionFactoryInterface
     {
         return $this->lastCreatedStorage;
     }
-    /**
-     * @return array<string, mixed>
-     */
-    private function getSessionSettings(): array
+
+    private function getSessionSettings(): SessionConfiguration
     {
         return match ($this->sessionType) {
             self::SESSION_TYPE_OAUTH => SessionConfigurationBuilder::forOAuth($this->web_root),
@@ -84,13 +83,14 @@ class HttpSessionFactory implements SessionFactoryInterface
             default => SessionUtil::CORE_SESSION_ID,
         };
     }
-    private function getSessionHandlerInterface(array $settings): ?\SessionHandlerInterface
+
+    private function getSessionHandlerInterface(SessionConfiguration $settings): ?\SessionHandlerInterface
     {
         $sessionHandler = null;
         if (!empty(getenv('SESSION_STORAGE_MODE', true))  && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
             $this->getSystemLogger()->debug("SessionUtil: using predis sentinel session storage mode");
             try {
-                $sessionHandler = (new SentinelUtil())->configure($settings['gc_maxlifetime']);
+                $sessionHandler = (new SentinelUtil())->configure($settings->gcMaxLifetime);
             } catch (\Throwable $e) {
                 // we want to log the error and throw a runtime exception, since we don't want to fail silently when sessions are not working
                 $this->getSystemLogger()->error(

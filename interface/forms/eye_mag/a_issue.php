@@ -24,10 +24,12 @@ TODO: Code cleanup */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\IssueQuickPick;
 
 $form_folder = "eye_mag";
 require_once('../../globals.php');
@@ -37,7 +39,6 @@ require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
 
@@ -135,101 +136,32 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
 // If the provider has more 2 items already defined in the last month, they are collated
 // and ranked by frequency, sort alphabetically and <=10 are listed.
 // If not, we use the defaults from list_options/
-        $i = '0';
         $providerID = $session->get('providerID');
+        $quickPickProviderId = is_numeric($providerID) ? (int) $providerID : 0;
         foreach ($PMSFH[0] as $key => $value) {
             echo " aopts['" . attr($key) . "'] = [];\n";
-            $local = '1';
             echo " aitypes['" . attr($key) . "'] = '0';\n";
-            if ($key == "PMH") { // "0" = medical_problem_issue_list leave out Dental "4"
-                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 20", [
-                    "medical_problem",
-                    $providerID
-                ]);
 
-                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
-                        "medical_problem_issue_list"
-                    ]);
-                }
-            } elseif ($key == "Medication") {
-                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
-                    "medication",
-                    $providerID
-                ]);
-                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
-                        "medication_issue_list"
-                    ]);
-                }
-            } elseif ($key == "Surgery") {
-                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
-    subtype = '' and pid in (select pid from form_encounter where provider_id =?
-    and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
-                    "surgery",
-                    $providerID
-                ]);
-
-                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
-                        "surgery_issue_list"
-                    ]);
-                }
-            } elseif ($key == "Allergy") {
-                $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
-                    "allergy",
-                    $providerID
-                ]);
-                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
-                        "allergy_issue_list"
-                    ]);
-                }
-            } elseif ($key == "POH") { // POH medical group
-                $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-                $qry = sqlStatement($query, [
-                    $providerID
-                ]);
-                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
-                }
-            } elseif ($key == "POS") { // POS surgery group
-                $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-                $qry = sqlStatement($query, [
-                    $providerID
-                ]);
-
-                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'surgery_issue_list' and subtype = 'eye'");
-                }
-            } elseif ($key == "Eye Meds") { // POS surgery group
-                $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq FROM `lists` WHERE `type` LIKE 'medication' and subtype = 'eye' and pid in ( select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-                $qry = sqlStatement($query, [
-                    $providerID
-                ]);
-                if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medication_issue_list' and subtype = 'eye'");
-                }
-            } elseif ($key == "FH") {
-                $local = "";
-                $qry = "";
-            } elseif ($key == "SOCH") {
-                $local = "";
-                $qry = "";
-            } elseif ($key == "ROS") {
-                $local = "";
-                $qry = "";
+            // FH, SocHx and ROS have no quick-pick list of their own; they are built below.
+            $panel = is_string($key) ? IssueQuickPick::tryFrom($key) : null;
+            if ($panel === null) {
+                continue;
             }
 
-            if ($local == "1") { // leave FH/SocHx/ROS for later - done below separately
-                while ($res = sqlFetchArray($qry ?? '')) { //Should we take the top 10 and display alphabetically?
-                    echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length] = new Option(" . js_escape(xl_list_label(trim((string) $res['title']))) . ", " . js_escape(trim((string) $res['option_id'])) . ", false, false);\n";
-                    if ($res['codes']) {
-                        echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length-1].setAttribute('data-code','" . attr(trim((string) $res['codes'])) . "');\n";
-                    }
+            $recent = $panel->recentTitlesQuery($quickPickProviderId);
+            $picks = QueryUtils::fetchRecords($recent->sql, $recent->params);
+            if (count($picks) < IssueQuickPick::MIN_RECENT_TITLES) {
+                // The provider is just starting out; offer the stock list instead.
+                $stock = $panel->stockTitlesQuery();
+                $picks = QueryUtils::fetchRecords($stock->sql, $stock->params);
+            }
+
+            foreach ($picks as $res) { //Should we take the top 10 and display alphabetically?
+                echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length] = new Option(" . js_escape(xl_list_label(trim((string) $res['title']))) . ", " . js_escape(trim((string) $res['option_id'])) . ", false, false);\n";
+                if ($res['codes']) {
+                    echo " aopts['" . attr($key) . "'][aopts['" . attr($key) . "'].length-1].setAttribute('data-code','" . attr(trim((string) $res['codes'])) . "');\n";
                 }
             }
-            ++$i;
         }
 
         ?>

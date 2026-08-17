@@ -18,7 +18,7 @@ class CareGoal extends ClinicalType
         return 'Clinical_Rules_Care_Goal_Types';
     }
 
-    public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null)
+    public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null): bool
     {
         return true;
     }

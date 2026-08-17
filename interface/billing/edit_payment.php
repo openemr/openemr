@@ -22,8 +22,12 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\RawPostParser;
+use OpenEMR\Common\Http\RawPostParserException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -32,7 +36,6 @@ use OpenEMR\PaymentProcessing\Recorder;
 $srcDir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/options.inc.php');
-require_once($srcDir . '/payment.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $CountIndexAbove = 0;
@@ -50,10 +53,14 @@ $screen = 'edit_payment';
 
 $recorder = new Recorder();
 
+/** @var string|null $saveError User-visible error when the body could not be re-parsed. */
+$saveError = null;
+
 // Deletion of payment distribution code
 
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePaymentDistribution") {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
         $DeletePaymentDistributionId = (isset($_POST['DeletePaymentDistributionId']) ? trim((string) $_POST['DeletePaymentDistributionId']) : '');
         $DeletePaymentDistributionIdArray = explode('_', $DeletePaymentDistributionId);
         $payment_id = $DeletePaymentDistributionIdArray[0];
@@ -84,7 +91,34 @@ if (isset($_POST["mode"])) {
 //Modify Payment Code.
 //===============================================================================
 
-if (isset($_POST["mode"])) {
+// CSRF + raw-body re-parse for the two mutating modes. Done in a top
+// guard block so a parser failure can fail closed: $saveError is set, the
+// existing write block below short-circuits on it, and the page renders
+// the banner instead of silently committing a partial post.
+$paymentMode = filter_input(INPUT_POST, 'mode');
+if (in_array($paymentMode, ['ModifyPayments', 'FinishPayments'], true)) {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    try {
+        // ModifyPayments posts one Payment$CountRow, AdjAmount$CountRow,
+        // etc. set per encounter row. For patients with many encounters
+        // this exceeds PHP's max_input_vars and silently truncates $_POST.
+        // applyToGlobals re-parses the raw body and also rebuilds $_REQUEST
+        // so loop-bound reads (CountIndexAbove/Below) see the full payload.
+        RawPostParser::fromGlobals()->applyToGlobals();
+    } catch (RawPostParserException $e) {
+        $saveError = xl('Save did not complete: the form data could not be re-parsed. Please contact your administrator. No payments were modified.');
+        ServiceContainer::getLogger()->error('raw POST parse failed', [
+            'component' => 'edit_payment',
+            'mode' => $paymentMode,
+            'payment_id' => filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT),
+            'content_length' => filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT),
+            'max_input_vars' => filter_var(ini_get('max_input_vars'), FILTER_VALIDATE_INT),
+            'exception' => $e,
+        ]);
+    }
+}
+
+if ($saveError === null && isset($_POST["mode"])) {
     if ($_POST["mode"] == "ModifyPayments" || $_POST["mode"] == "FinishPayments") {
         $payment_id = $_REQUEST['payment_id'];
         //ar_session Code
@@ -132,10 +166,12 @@ if (isset($_POST["mode"])) {
 
         // This becomes MUCH more straightforward with actual dbal, but this is
         // still safe from SQLI since the keys are all string literals.
-        $query = 'UPDATE ar_session SET ';
-        $updates = array_map(fn ($col) => sprintf('`%s`=?', $col), array_keys($updatedValues));
-        $query .= implode(', ', $updates);
-        $query .= 'WHERE session_id = ?';
+        $updates = array_map(fn ($col): string => sprintf('`%s` = ?', $col), array_keys($updatedValues));
+        $query = implode(' ', [
+            'UPDATE ar_session SET',
+            implode(', ', $updates),
+            'WHERE session_id = ?',
+        ]);
         $params = array_values($updatedValues);
         $params[] = $payment_id;
         sqlStatement($query, $params);
@@ -584,6 +620,11 @@ $ResultSearchSub = sqlStatement(
 </head>
 <body class="body_top" onload="OnloadAction()">
     <div class="container-fluid">
+        <?php if ($saveError !== null) { ?>
+            <div class="alert alert-danger m-2" role="alert" id="payment-save-error">
+                <?php echo text($saveError); ?>
+            </div>
+        <?php } ?>
         <?php
         if (($_REQUEST['ParentPage'] ?? '') == 'new_payment') {
             ?>
@@ -619,6 +660,7 @@ $ResultSearchSub = sqlStatement(
         $onclick = empty($payment_id) ? "top.restoreSession();return SavePayment();" : "return false;";
         ?>
         <form class="form" name='new_payment' method='post' action="edit_payment.php" onsubmit='<?php echo $onclick; ?>'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <?php
             if (!empty($payment_id)) { ?>
             <fieldset>
@@ -997,11 +1039,11 @@ $ResultSearchSub = sqlStatement(
                         if ($Table == 'yes') { ?>
                             <tr>
                                 <td class="text-right text-dark" align="left" colspan="9"><b><?php echo (xlt("Totals") . ": ") ?></b></td>
-                                <td class="bg-dark text-secondary" align="center" id="allowtotal"><?php echo text(number_format($allowedtot, 2)); ?></td>
-                                <td class="bg-dark text-secondary" align="center" id="paymenttotal"><?php echo text(number_format($paymenttot, 2)); ?></td>
-                                <td class="bg-dark text-secondary" align="center" id="AdjAmounttotal"><?php echo text(number_format($adjamttot, 2)); ?></td>
-                                <td class="bg-dark text-secondary" align="center" id="deductibletotal"><?php echo text(number_format($deductibletot, 2)); ?></td>
-                                <td class="bg-dark text-secondary" align="center" id="takebacktotal"><?php echo text(number_format($takebacktot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="allowtotal"><?php echo text(number_format($allowedtot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="paymenttotal"><?php echo text(number_format($paymenttot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="AdjAmounttotal"><?php echo text(number_format($adjamttot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="deductibletotal"><?php echo text(number_format($deductibletot, 2)); ?></td>
+                                <td class="bg-dark text-light" align="center" id="takebacktotal"><?php echo text(number_format($takebacktot, 2)); ?></td>
                                 <td align="center" colspan="2">&nbsp;</td>
                                 <td align="right">
                                     <button type="button" class="btn btn-sm btn-secondary btn-refresh pull-right"

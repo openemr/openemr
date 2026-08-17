@@ -1072,7 +1072,7 @@ class InstallerTest extends TestCase
             ->willReturnCallback(function ($sql) use (&$expectedSqlCalls, &$callCount) {
                 $this->assertStringContainsString($expectedSqlCalls[$callCount], $sql);
                 $callCount++;
-                return $callCount === 1 ? true : false; // First succeeds, second fails
+                return $callCount === 1; // First succeeds, second fails
             });
 
         $mockInstaller->expects($this->once())
@@ -1121,7 +1121,7 @@ class InstallerTest extends TestCase
             ->willReturnCallback(function ($sql) use (&$expectedSqlCalls, &$callCount) {
                 $this->assertStringContainsString($expectedSqlCalls[$callCount], $sql);
                 $callCount++;
-                return $callCount <= 2 ? true : false; // First two succeed, third fails
+                return $callCount <= 2; // First two succeed, third fails
             });
 
         $mockInstaller->expects($this->once())

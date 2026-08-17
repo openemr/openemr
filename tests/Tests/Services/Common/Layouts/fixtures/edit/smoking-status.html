@@ -1,0 +1,25 @@
+<table class='table'><tr><td><input type='text' name='form_text_test_smoking_status' id='form_text_test_smoking_status' size='20' class='form-control' maxlength='255' value='449868002'  />&nbsp;</td></tr><td><select name="form_test_smoking_status"
+id="form_test_smoking_status"
+class="form-control"
+onchange="radioChange(this.options[this.selectedIndex].value)"
+title="Test description"><option value="" selected>Unassigned</option>
+<option value="1" >Current every day smoker</option>
+<option value="2" >Current some day smoker</option>
+<option value="3" >Former smoker</option>
+<option value="4" >Never smoker</option>
+<option value="5" >Smoker, current status unknown</option>
+<option value="9" >Unknown if ever smoked</option>
+<option value="15" >Heavy tobacco smoker</option>
+<option value="16" >Light tobacco smoker</option></select></td><td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status:&nbsp;&nbsp;</td><td class='text'><input type='radio' name='radio_test_smoking_status' id='radio_test_smoking_status[current]' class='form-check-inline' value='currenttest_smoking_status' onchange='checkSkipConditions();' onClick='smoking_statusClicked(this)' />Current&nbsp;</td><td class='text'><input type='radio' name='radio_test_smoking_status' id='radio_test_smoking_status[quit]' class='form-check-inline' value='quittest_smoking_status' onchange='checkSkipConditions();' onClick='smoking_statusClicked(this)'  />Quit&nbsp;</td><td class='text'><input type='text' size='6' class='form-control datepicker' name='date_test_smoking_status' id='date_test_smoking_status' value='2026-01-15' title='Test description'  />&nbsp;</td><td class='text'><input type='radio' name='radio_test_smoking_status' class='form-check-inline' id='radio_test_smoking_status[never]' value='nevertest_smoking_status' onchange='checkSkipConditions();' onClick='smoking_statusClicked(this)' />Never&nbsp;</td><td class='text'><input type='radio' class='form-check-inline'  name='radio_test_smoking_status' id='radio_test_smoking_status[not_applicable]' value='not_applicabletest_smoking_status' onchange='checkSkipConditions();' onClick='smoking_statusClicked(this)'  />N/A&nbsp;</td><td class='text'><div id='smoke_code'></div></td></tr>        <tr class="row-smoking-status-year-packs " >
+            <td>
+                <label for="pack_years">Cigarette pack-years (Number of packs per day multiplied by number of years smoked)            </td>
+            <td>
+                <td class='text'>
+                    <input type='text' class='form-control '
+                            name='form_packyears_test_smoking_status'
+                            id='form_packyears_test_smoking_status'
+                            value='0'
+                            onchange='checkSkipConditions();'                                                />
+            </td>
+        </tr>
+        </table>

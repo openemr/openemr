@@ -21,7 +21,6 @@
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/globals.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php");
 
 /** @var array<string,array<string,array<int,mixed>>> $GLOBALS_METADATA */
 /** @var list<string> $USER_SPECIFIC_GLOBALS */
@@ -32,6 +31,8 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -56,7 +57,7 @@ if (!$userMode) {
     }
 }
 
-function checkCreateCDB()
+function checkCreateCDB(): bool
 {
     $globalsres = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
   ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')");
@@ -232,73 +233,70 @@ function checkBackgroundServices(): void
 
         // Get all the globals from DB
         $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', [], true);
-        // start transaction
-        sqlStatementNoLog('SET autocommit=0');
-        sqlStatementNoLog('START TRANSACTION');
-        $i = 0;
-        foreach ($GLOBALS_METADATA as $grparr) {
-            foreach ($grparr as $fldid => $fldarr) {
-                [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
-                /* Multiple choice fields - do not compare , overwrite */
-                if (!is_array($fldtype) && str_starts_with((string)$fldtype, 'm_')) {
-                    if (isset($_POST["form_$i"])) {
-                        $fldindex = 0;
+        $postedGlobals = CurrentRequest::get()->request;
+        QueryUtils::inTransaction(function () use ($GLOBALS_METADATA, $old_globals, $cryptoGen, $postedGlobals): void {
+            $i = 0;
+            foreach ($GLOBALS_METADATA as $grparr) {
+                foreach ($grparr as $fldid => $fldarr) {
+                    [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
+                    /* Multiple choice fields - do not compare , overwrite */
+                    if (!is_array($fldtype) && str_starts_with((string)$fldtype, 'm_')) {
+                        if ($postedGlobals->has("form_$i")) {
+                            $fldindex = 0;
 
-                        sqlStatement("DELETE FROM globals WHERE gl_name = ?", [$fldid]);
+                            sqlStatement("DELETE FROM globals WHERE gl_name = ?", [$fldid]);
 
-                        foreach ($_POST["form_$i"] as $fldvalue) {
-                            $fldvalue = trim((string)$fldvalue);
-                            sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', [$fldid, $fldindex, $fldvalue]);
-                            ++$fldindex;
-                        }
-                    }
-                } else {
-                    /* check value of single field. Don't update if the database holds the same value */
-                    $fldvalue = isset($_POST["form_$i"]) ? trim($_POST["form_$i"]) : "";
-
-                    if ($fldtype == 'encrypted') {
-                        $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptForDatabase($fldvalue);
-                    } elseif ($fldtype == 'encrypted_hash') {
-                        $tmpValue = trim($fldvalue);
-                        if (empty($tmpValue)) {
-                            $fldvalue = '';
-                        } else {
-                            if (!AuthHash::hashValid($tmpValue)) {
-                                // a new value has been inputted, so create the hash that will then be stored
-                                $tmpValue = (new AuthHash())->passwordHash($tmpValue);
+                            foreach ($postedGlobals->all("form_$i") as $fldvalue) {
+                                $fldvalue = trim((string)$fldvalue);
+                                sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', [$fldid, $fldindex, $fldvalue]);
+                                ++$fldindex;
                             }
-                            $fldvalue = $cryptoGen->encryptForDatabase(is_string($tmpValue) ? $tmpValue : null);
                         }
-                    }
-
-                    // We rely on the fact that set of keys in globals.inc.php === set of keys in `globals` table!
-                    if (
-                        !isset($old_globals[$fldid]) // if the key not found in database - update database
-                        ||
-                        (isset($old_globals[$fldid]) && $old_globals[$fldid]['gl_value'] !== $fldvalue) // if the value in database is different
-                    ) {
-                        // special treatment for some vars
-                        switch ($fldid) {
-                            case 'first_day_week':
-                                // update PostCalendar config as well
-                                sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", [$fldvalue]);
-                                break;
-                        }
-
-                        // Replace old values
-                        sqlStatement('DELETE FROM `globals` WHERE gl_name = ?', [$fldid]);
-                        sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', [$fldid, 0, $fldvalue]);
                     } else {
-                        //error_log("No need to update $fldid");
-                    }
-                }
+                        /* check value of single field. Don't update if the database holds the same value */
+                        $fldvalue = trim($postedGlobals->getString("form_$i"));
 
-                ++$i;
+                        if ($fldtype == 'encrypted') {
+                            $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptForDatabase($fldvalue);
+                        } elseif ($fldtype == 'encrypted_hash') {
+                            $tmpValue = trim($fldvalue);
+                            if (empty($tmpValue)) {
+                                $fldvalue = '';
+                            } else {
+                                if (!AuthHash::hashValid($tmpValue)) {
+                                    // a new value has been inputted, so create the hash that will then be stored
+                                    $tmpValue = (new AuthHash())->passwordHash($tmpValue);
+                                }
+                                $fldvalue = $cryptoGen->encryptForDatabase(is_string($tmpValue) ? $tmpValue : null);
+                            }
+                        }
+
+                        // We rely on the fact that set of keys in globals.inc.php === set of keys in `globals` table!
+                        if (
+                            !isset($old_globals[$fldid]) // if the key not found in database - update database
+                            ||
+                            (isset($old_globals[$fldid]) && $old_globals[$fldid]['gl_value'] !== $fldvalue) // if the value in database is different
+                        ) {
+                            // special treatment for some vars
+                            switch ($fldid) {
+                                case 'first_day_week':
+                                    // update PostCalendar config as well
+                                    sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", [$fldvalue]);
+                                    break;
+                            }
+
+                            // Replace old values
+                            sqlStatement('DELETE FROM `globals` WHERE gl_name = ?', [$fldid]);
+                            sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', [$fldid, 0, $fldvalue]);
+                        } else {
+                            //error_log("No need to update $fldid");
+                        }
+                    }
+
+                    ++$i;
+                }
             }
-        }
-        // end of transaction
-        sqlStatementNoLog('COMMIT');
-        sqlStatementNoLog('SET autocommit=1');
+        });
 
         checkCreateCDB();
         checkBackgroundServices();
@@ -656,8 +654,9 @@ function checkBackgroundServices(): void
                                                         ['card_abrev' => 'card_care_team', 'card_name' => 'Care Team'],
                                                         ['card_abrev' => 'card_care_experience', 'card_name' => 'Care Experience Preferences'],
                                                         ['card_abrev' => 'card_treatment_preferences', 'card_name' => 'Treatment Intervention Preferences'],
+                                                        ['card_abrev' => 'card_care_plan', 'card_name' => 'Care Plan'],
                                                     ];
-                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='13'>\n";
+                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='14'>\n";
                                                     foreach ($res as $row) {
                                                         echo "   <option value='" . attr($row['card_abrev']) . "'";
                                                         foreach ($glarr as $glrow) {

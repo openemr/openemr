@@ -424,7 +424,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $n->get_foreign_id());
     }
 
-    public function default_action()
+    public function default_action(): string
     {
         return $this->list_action();
     }
@@ -668,8 +668,14 @@ class C_Document extends Controller
             }
 
             // Verify the document belongs to the requested patient to prevent IDOR.
+            // Internal callers that pre-validate context set returnRetrieveKey and may
+            // omit patient_id; everyone else must pass a matching non-empty numeric pid.
             $doc_pid = $d->get_foreign_id();
-            if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
+            $hasPid = $patient_id !== null && $patient_id !== '' && ctype_digit($patient_id);
+            if (!$hasPid && !$this->isReturnRetrieveKey()) {
+                AccessDeniedHelper::deny("Missing or invalid patient_id for document retrieve");
+            }
+            if ($hasPid && (int)$doc_pid !== (int)$patient_id) {
                 AccessDeniedHelper::deny("Unauthorized attempt to retrieve document $document_id belonging to pid $doc_pid");
             }
         }
@@ -960,13 +966,33 @@ class C_Document extends Controller
             return;
         }
 
+        if (!is_numeric($document_id)) {
+            $this->throwAccessDenied("Invalid document id for move", xl("Documents"));
+        }
+        $docIdInt = (int) $document_id;
+
+        // Require write authorization plus per-doc access before mutating any state.
+        if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
+            $this->throwAccessDenied("ACL check failed for patients/docs write|addonly: Documents", xl("Documents"));
+        }
+        $sourceDoc = new Document($docIdInt);
+        $sourceDocForeignId = $sourceDoc->get_foreign_id();
+        if (
+            !is_numeric($sourceDoc->get_id())
+            || !is_numeric($sourceDocForeignId)
+            || (int) $sourceDocForeignId <= 0
+            || !$sourceDoc->can_access()
+        ) {
+            AccessDeniedHelper::deny("Unauthorized attempt to move document $docIdInt");
+        }
+
         $messages = '';
 
         $new_category_id = $_POST['new_category_id'];
         $new_patient_id = $_POST['new_patient_id'];
 
         //move to new category
-        if (is_numeric($new_category_id) && is_numeric($document_id)) {
+        if (is_numeric($new_category_id)) {
             $sql = "UPDATE categories_to_documents set category_id = ? where document_id = ?";
             $messages .= sprintf("%s '%s' %s\n", xl('Document moved to new category'), $this->tree->_id_name[$new_category_id]['name'], xl('successfully.'));
             //echo $sql;
@@ -974,8 +1000,8 @@ class C_Document extends Controller
         }
 
         //move to new patient
-        if (is_numeric($new_patient_id) && is_numeric($document_id)) {
-            $d = new Document($document_id);
+        if (is_numeric($new_patient_id)) {
+            $d = new Document((int) $document_id);
             $sql = "SELECT pid from patient_data where pid = ?";
             $result = QueryUtils::querySingleRow($sql, [$new_patient_id]);
 
@@ -1124,7 +1150,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    public function list_action($patient_id = "")
+    public function list_action($patient_id = ""): string
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->_last_node = null;

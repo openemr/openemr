@@ -5,6 +5,7 @@
  *
  * Copyright (C) 2013-2016 Rod Roark <rod@sunsetsystems.com>
  * Copyright (C) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,11 +21,11 @@
  * @package OpenEMR
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pnotes.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
@@ -497,9 +498,8 @@ function match_patient($ptarr)
  * Look for a lab matching the given XCN field from some segment.
  *
  * @param array $seg MSH seg identifying a provider.
- * @return mixed        TRUE, or FALSE if no match.
  */
-function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = '')
+function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = ''): bool
 {
     if (empty($hl7)) {
         return false;
@@ -926,7 +926,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 if ($patient_id == -1) {
                     // Result is indeterminate.
                     // Make a stringified form of $ptarr to use as a key.
-                    $ptstring = serialize($ptarr);
+                    try {
+                        $ptstring = json_encode($ptarr, JSON_THROW_ON_ERROR);
+                    } catch (\JsonException) {
+                        return rhl7LogMsg(xl('Failed to encode patient match key for segment') .
+                            ' ' . $rhl7_segnum, true);
+                    }
                     // Check if the user has specified the patient.
                     if (isset($matchresp[$ptstring])) {
                         // This will be an existing pid, or 0 to specify creating a patient.

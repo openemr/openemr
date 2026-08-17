@@ -5,8 +5,8 @@
   "actor": "openemr-release-bot",
   "dispatched_at": "2026-04-29T12:15:30Z",
   "data": {
-    "branch": "rel-810",
-    "version": "8.1.0",
+    "branch": "rel-820",
+    "version": "8.2.0",
     "prev_release": "8.0.0"
   }
 }

@@ -285,7 +285,11 @@ class ApiTestClient
         $clientRepository = new ClientRepository();
         $clientRepository->setSystemLogger(new NullLogger());
         $clientEntity = $clientRepository->getClientEntity($this->client_id);
-        assert($clientEntity instanceof ClientEntity);
+        // @codeCoverageIgnoreStart Defensive guard against ClientRepository contract drift.
+        if (!$clientEntity instanceof ClientEntity) {
+            throw new \RuntimeException('Expected ' . ClientEntity::class . ' from ClientRepository::getClientEntity');
+        }
+        // @codeCoverageIgnoreEnd
         $clientRepository->saveIsEnabled($clientEntity, true);
     }
 
@@ -385,6 +389,28 @@ class ApiTestClient
             ]);
         }
         return $postResponse;
+    }
+
+    /**
+     * Submits a HTTP POST Request encoded as multipart/form-data.
+     *
+     * Guzzle generates the Content-Type header (including the boundary) for
+     * multipart requests, so the client's default JSON Content-Type is dropped
+     * for this request only.
+     *
+     * @param array<string, mixed>[] $multipart Guzzle multipart entries, each with at least `name` and `contents`
+     * @param array<string, mixed> $query
+     */
+    public function postMultipart(string $url, array $multipart, array $query = []): ResponseInterface
+    {
+        $headers = $this->headers;
+        unset($headers["Content-Type"]);
+
+        return $this->client->post($url, [
+            "headers" => $headers,
+            "query" => $query,
+            "multipart" => $multipart,
+        ]);
     }
 
     /**

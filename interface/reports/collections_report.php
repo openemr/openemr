@@ -83,18 +83,18 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $form_cb_err      = false;
         $form_cb_group_number = false;
     } else {
-        $form_cb_ssn      = (!empty($_POST['form_cb_ssn']))      ? true : false;
-        $form_cb_dob      = (!empty($_POST['form_cb_dob']))      ? true : false;
-        $form_cb_pubpid   = (!empty($_POST['form_cb_pubpid']))   ? true : false;
-        $form_cb_adate    = (!empty($_POST['form_cb_adate']))    ? true : false;
-        $form_cb_policy   = (!empty($_POST['form_cb_policy']))   ? true : false;
-        $form_cb_phone    = (!empty($_POST['form_cb_phone']))    ? true : false;
-        $form_cb_city     = (!empty($_POST['form_cb_city']))     ? true : false;
-        $form_cb_ins1     = (!empty($_POST['form_cb_ins1']))     ? true : false;
-        $form_cb_referrer = (!empty($_POST['form_cb_referrer'])) ? true : false;
-        $form_cb_idays    = (!empty($_POST['form_cb_idays']))    ? true : false;
-        $form_cb_err      = (!empty($_POST['form_cb_err']))      ? true : false;
-        $form_cb_group_number      = (!empty($_POST['form_cb_group_number']))      ? true : false;
+        $form_cb_ssn      = !empty($_POST['form_cb_ssn']);
+        $form_cb_dob      = !empty($_POST['form_cb_dob']);
+        $form_cb_pubpid   = !empty($_POST['form_cb_pubpid']);
+        $form_cb_adate    = !empty($_POST['form_cb_adate']);
+        $form_cb_policy   = !empty($_POST['form_cb_policy']);
+        $form_cb_phone    = !empty($_POST['form_cb_phone']);
+        $form_cb_city     = !empty($_POST['form_cb_city']);
+        $form_cb_ins1     = !empty($_POST['form_cb_ins1']);
+        $form_cb_referrer = !empty($_POST['form_cb_referrer']);
+        $form_cb_idays    = !empty($_POST['form_cb_idays']);
+        $form_cb_err      = !empty($_POST['form_cb_err']);
+        $form_cb_group_number      = !empty($_POST['form_cb_group_number']);
     }
 } else {
     $form_cb_ssn      = false;
@@ -172,7 +172,7 @@ if ($form_payer_id) {
 }
 
 $final_colspan = $form_cb_adate ? 6 : 5;
-$form_cb_with_debt = (!empty($_POST['form_cb_with_debt'])) ? true : false;
+$form_cb_with_debt = !empty($_POST['form_cb_with_debt']);
 $grand_total_charges     = 0;
 $grand_total_adjustments = 0;
 $grand_total_paid        = 0;
@@ -997,49 +997,49 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     } elseif ($_POST['form_csvexport']) {
         # CSV headers added conditions if they are checked to display then export them (TLH)
         if (true) {
-            echo csvEscape(xl('Insurance')) . ',';
-            echo csvEscape(xl('Name')) . ',';
+            echo xlc('Insurance') . ',';
+            echo xlc('Name') . ',';
             if ($form_cb_ssn) {
-                echo csvEscape(xl('SSN')) . ',';
+                echo xlc('SSN') . ',';
             }
 
             if ($form_cb_dob) {
-                echo csvEscape(xl('DOB')) . ',';
+                echo xlc('DOB') . ',';
             }
 
             if ($form_cb_pubpid) {
-                echo csvEscape(xl('Pubpid')) . ',';
+                echo xlc('Pubpid') . ',';
             }
 
             if ($form_cb_policy) {
-                echo csvEscape(xl('Policy')) . ',';
+                echo xlc('Policy') . ',';
             }
             if ($form_cb_group_number) {
-                echo csvEscape(xl('Group Number')) . ',';
+                echo xlc('Group Number') . ',';
             }
             if ($form_cb_phone) {
-                echo csvEscape(xl('Phone')) . ',';
+                echo xlc('Phone') . ',';
             }
 
             if ($form_cb_city) {
-                echo csvEscape(xl('City')) . ',';
+                echo xlc('City') . ',';
             }
 
-            echo csvEscape(xl('Invoice')) . ',';
-            echo csvEscape(xl('DOS')) . ',';
-            echo csvEscape(xl('Referrer')) . ',';
-            echo csvEscape(xl('Provider')) . ',';
-            echo csvEscape(xl('Charge')) . ',';
-            echo csvEscape(xl('Adjust')) . ',';
-            echo csvEscape(xl('Paid')) . ',';
-            echo csvEscape(xl('Balance')) . ',';
+            echo xlc('Invoice') . ',';
+            echo xlc('DOS') . ',';
+            echo xlc('Referrer') . ',';
+            echo xlc('Provider') . ',';
+            echo xlc('Charge') . ',';
+            echo xlc('Adjust') . ',';
+            echo xlc('Paid') . ',';
+            echo xlc('Balance') . ',';
 
             if ($form_cb_idays) {
-                echo csvEscape(xl('Aging Days')) . ',';
+                echo xlc('Aging Days') . ',';
             }
 
             if ($form_cb_err) {
-                echo csvEscape(xl('Error')) . "\n";
+                echo xlc('Error') . "\n";
             } else {
                 echo "\n";
             }

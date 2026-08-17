@@ -22,17 +22,15 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\FHIR\SMART\ClientAdminController;
-use Symfony\Component\HttpFoundation\Request;
 
 try {
     // TODO: @adunsulag at some point we'd like to have a CoreApplication like the ApiApplication that will dispatch controllers, refactor this once we have that
-    $request = HttpRestRequest::createFromGlobals();
+    $request = CurrentRequest::get();
     $sessionFactory = new HttpSessionFactory($request, $oeGlobals->getString('web_root'), HttpSessionFactory::SESSION_TYPE_CORE);
     $session = $sessionFactory->createSession();
-    $request = Request::createFromGlobals();
     $router = new ClientAdminController(
         $oeGlobals,
         $session,

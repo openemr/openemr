@@ -23,7 +23,6 @@ use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
-require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php");
 
 $report_id = 0;
 $itemized_test_id = 0;
@@ -138,7 +137,7 @@ form {
 </style>
 
 <?php if ($popup) { ?>
-    <?php Header::setupAssets('topdialog'); ?>
+    <?php echo Header::setupAssets(['topdialog']); ?>
 <?php } ?>
 
 <script>

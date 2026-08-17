@@ -444,7 +444,7 @@ class RequestUtil
      * Sets a value as if it was sent from the browser - primarily used for unit testing
      *
      * @param string $key
-     * @param variant $val
+     * @param mixed $val
      */
     public static function Set($key, $val)
     {

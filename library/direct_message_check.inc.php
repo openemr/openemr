@@ -24,9 +24,7 @@
  * @link    https://www.open-emr.org
  */
 
-require_once(__DIR__ . "/pnotes.inc.php");
 require_once(__DIR__ . "/documents.php");
-require_once(__DIR__ . "/gprelations.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;

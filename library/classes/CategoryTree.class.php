@@ -16,7 +16,7 @@ class CategoryTree extends Tree
         parent::__construct($root, $root_type);
     }
 
-    public function should_translate_name()
+    public function should_translate_name(): bool
     {
         return true;
     }

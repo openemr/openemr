@@ -20,6 +20,7 @@ require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
@@ -65,6 +66,7 @@ if (Utilities::isDateEmpty($_POST["hospitalization_date_from"])) {
 }
 
 $id = (int)($_GET['id'] ?? '');
+EncounterFormAccess::assertFormBelongsToSessionPatient($id, 'misc_billing_options');
 
 $sets = "pid = ?,
     groupname = ?,

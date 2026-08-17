@@ -14,6 +14,7 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
@@ -35,7 +36,6 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
 
     $selectedService = $_POST['selected_service'] ?? null;
     $selectedAction = $_POST['action'] ?? null;
-    $status = $taskManager->getServiceStatus($selectedService);
 
     $period = $_POST['period'] ?? null;
     if (empty($period)) {
@@ -66,11 +66,9 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
     }
 }
 
-$currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : null;
-
 if ($_POST['form_save'] ?? null) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    $session->set('editingUser', ($_POST['editingUser'] ?? 0));
+    SessionUtil::setSession('editingUser', ($_POST['editingUser'] ?? 0));
     $boot->saveVendorGlobals($_POST);
 }
 
@@ -82,7 +80,7 @@ if ($_POST['form_save_permissions'] ?? null) {
     $users_query = "SELECT id, username FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL";
     $users_result = sqlStatement($users_query);
 
-    $services = ['fax', 'sms', 'email'];
+    $services = ['fax', 'sms', 'email', 'voice'];
     $primary_user_id = $_POST['primary_user'] ?? null;
 
     // Handle primary user reset (when value is "0" or empty)
@@ -199,13 +197,16 @@ $vendors = $boot->getVendorGlobals();
         $boot->createVendorGlobals();
         $vendors = $boot->getVendorGlobals();
     }
+    $selectedService ??= '';
     $isSmsEnabled = $vendors['oefax_enable_sms'] > 0 ? 'sms' : '';
     $isEmailEnable = $vendors['oe_enable_email'] > 0 ? 'email' : '';
     $services = [$isSmsEnabled, $isEmailEnable];
+    $currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : false;
 
     $smsVendor = ServiceType::fromValue($vendors['oefax_enable_sms']);
     $faxVendor = ServiceType::fromValue($vendors['oefax_enable_fax']);
     $emailVendor = ServiceType::fromValue($vendors['oe_enable_email']);
+    $voiceVendor = ServiceType::fromValue($vendors['oe_enable_voice']);
 
     $setupUrl = ($faxVendor === ServiceType::RINGCENTRAL || $smsVendor === ServiceType::RINGCENTRAL)
         ? './../setup_rc.php' : './../setup.php';
@@ -236,7 +237,7 @@ $vendors = $boot->getVendorGlobals();
         }
 
         function toggleUserAllServices(userId, checked) {
-            const services = ['fax', 'sms', 'email'];
+            const services = ['fax', 'sms', 'email', 'voice'];
             services.forEach(service => {
                 const checkbox = document.getElementById(`user_${userId}_${service}`);
                 if (checkbox) {
@@ -250,6 +251,7 @@ $vendors = $boot->getVendorGlobals();
         let ServiceFax = <?php echo js_escape($faxVendor->stringValue()); ?>;
         let ServiceSMS = <?php echo js_escape($smsVendor->stringValue()); ?>;
         let ServiceEmail = <?php echo js_escape($emailVendor->stringValue()); ?>;
+        let ServiceVoice = <?php echo js_escape($voiceVendor->stringValue()); ?>;
 
         function toggleHelpCard() {
             const helpCard = document.getElementById('helpCard');
@@ -258,6 +260,9 @@ $vendors = $boot->getVendorGlobals();
 
         function toggleSetup(id, type = 'single') {
             let url = ServiceFax === ServiceType.RINGCENTRAL ? '../setup_rc.php' : '../setup.php';
+            if (ServiceVoice === ServiceType.VOICE) {
+                url = '../setup_voice.php';
+            }
             let dialog = $("#dialog").is(':checked');
             if (!dialog || id === 'set-service') {
                 $(".frame").addClass("d-none");
@@ -301,6 +306,17 @@ $vendors = $boot->getVendorGlobals();
                 }
                 return dlgopen('', '', 'modal-lg', '', '', title, params);
             }
+            if (id === 'set-voice') {
+                let title = 'Voice Module Credentials';
+                let params = {
+                    buttons: [{text: 'Cancel', close: true, style: 'default btn-sm'}],
+                    sizeHeight: 'full',
+                    allowDrag: false,
+                    type: 'iframe',
+                    url: './../setup_voice.php?type=voice&module_config=-1'
+                }
+                return dlgopen('', '', 'modal-lg', '', '', title, params);
+            }
         }
 
         $(function () {
@@ -332,6 +348,9 @@ $vendors = $boot->getVendorGlobals();
             <?php }
             if (!empty($vendors['oefax_enable_fax'])) { ?>
                 <button class="btn btn-outline-light" onclick="toggleSetup('set-fax')"><?php echo xlt("Setup Fax"); ?><span class="caret"></span></button>
+            <?php }
+            if (!empty($vendors['oe_enable_voice'])) { ?>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-voice')"><?php echo xlt("Setup Voice"); ?><span class="caret"></span></button>
             <?php }
             if (!empty($vendors['oe_enable_email'])) { ?>
                 <button class="btn btn-outline-light" onclick="toggleSetup('set-email')"><?php echo xlt("Setup Email"); ?><span class="caret"></span></button>
@@ -410,8 +429,8 @@ $vendors = $boot->getVendorGlobals();
                     <hr>
                     <div class="clearfix"></div>
                     <div class="row form-group">
-                        <label for="allow_dialog" class="col-sm-6"><?php echo xlt("Enable User Permission Management (Recommended)"); ?></label>
-                        <div class="col-sm-6" title=<?php echo xla("Enable User Permission Management. Allows setting individual user access to modules.") ?> >
+                        <label for="oeenable_users_permissions" class="col-sm-6"><?php echo xlt("Enable User Permission Management (Recommended)"); ?></label>
+                        <div class="col-sm-6" title="<?php echo xla("Enable User Permission Management. Allows setting individual user access to modules.") ?>">
                             <input type="checkbox" class="checkbox persist" name="oeenable_users_permissions" id="oeenable_users_permissions" value="1" <?php echo $vendors['oeenable_users_permissions'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
@@ -436,6 +455,14 @@ $vendors = $boot->getVendorGlobals();
                         <div class="col-sm-6" title="Enable Email Client Support.">
                             <select class="form-control persist" name="email_vendor" id="email_vendor">
                                 <?php echo ServiceType::renderSelectOptions('email', $emailVendor); ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label for="voice_vendor" class="col-sm-6"><?php echo xlt("Enable Voice Widgets") ?></label>
+                        <div class="col-sm-6" title="Enable Voice Widgets Support.">
+                            <select class="form-control persist" name="voice_vendor" id="voice_vendor">
+                                <?php echo ServiceType::renderSelectOptions('voice', $voiceVendor); ?>
                             </select>
                         </div>
                     </div>
@@ -497,8 +524,8 @@ $vendors = $boot->getVendorGlobals();
                                 <button type="button" class="btn btn-info" onclick="toggleHelpCard()"><?php echo xlt('Help'); ?></button>
                             </span>
                             </div>
-                            <?php if ($currentStatus !== null && isset($currentStatus[$selectedService])) { ?>
-                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string) $selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
+                            <?php if ($currentStatus && ($currentStatus[$selectedService] ?? false) !== false) { ?>
+                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string)$selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
                                 <ul>
                                     <li><strong><?php echo xlt('Service Status'); ?>: </strong><?php echo text($currentStatus[$selectedService]['active']) ? xlt('Enabled to Run.') : xlt('Disabled or not Created.'); ?></li>
                                     <li><strong><?php echo xlt('Execution Run Interval'); ?>: </strong><?php echo text($currentStatus[$selectedService]['execute_interval']) . ' ' . xlt('Minutes'); ?></li>
@@ -535,6 +562,12 @@ $vendors = $boot->getVendorGlobals();
                 <iframe src="<?php echo attr('./../setup_email.php?type=email&module_config=1&mode=flat'); ?>" style="border:none;height:100vh;width:100%;"></iframe>
             </div>
         <?php } ?>
+        <?php if (!empty($vendors['oe_enable_voice'])) { ?>
+            <div id="set-voice" class="frame d-none">
+                <h3 class="text-center"><?php echo xlt("Setup Voice Account"); ?></h3>
+                <iframe src="<?php echo attr('./../setup_voice.php?type=voice&module_config=1&mode=flat'); ?>" style="border:none;height:100vh;width:100%;"></iframe>
+            </div>
+        <?php } ?>
         <?php if (($vendors['oeenable_users_permissions'] ?? '0') == '1') { ?>
             <div class="frame col-12 d-none" id="set-user-permissions">
                 <form id="user_permissions_form" name="user_permissions_form" class="form" role="form" method="post" action="">
@@ -542,7 +575,7 @@ $vendors = $boot->getVendorGlobals();
                     <div class="container-fluid">
                         <div class="title text-center"><?php echo xlt("User Service Permissions"); ?></div>
                         <div class="small text-center mb-2">
-                            <span><?php echo xlt("Set individual user permissions for Fax, SMS, and Email services."); ?></span>
+                            <span><?php echo xlt("Set individual user permissions for Fax, SMS, Email, and Voice services."); ?></span>
                         </div>
 
                         <?php if (isset($permissions_saved) && $permissions_saved) { ?>
@@ -575,6 +608,11 @@ $vendors = $boot->getVendorGlobals();
                                         <?php echo xlt("Email"); ?>
                                         <br>
                                         <input type="checkbox" onchange="toggleAllPermissions('email', this.checked)" title="<?php echo xla('Toggle all Email permissions'); ?>">
+                                    </th>
+                                    <th class="text-center">
+                                        <?php echo xlt("Voice"); ?>
+                                        <br>
+                                        <input type="checkbox" onchange="toggleAllPermissions('voice', this.checked)" title="<?php echo xla('Toggle all Voice permissions'); ?>">
                                     </th>
                                     <th class="text-center">
                                         <?php echo xlt("Use Primary"); ?>
@@ -632,6 +670,13 @@ $vendors = $boot->getVendorGlobals();
                                                 id="user_<?php echo attr($user_id); ?>_email"
                                                 value="1"
                                                 <?php echo BootstrapService::getUserPermission($user_id, 'email') == '1' ? 'checked' : ''; ?>>
+                                        </td>
+                                        <td class="text-center">
+                                            <input type="checkbox"
+                                                name="user_<?php echo attr($user_id); ?>_voice"
+                                                id="user_<?php echo attr($user_id); ?>_voice"
+                                                value="1"
+                                                <?php echo BootstrapService::getUserPermission($user_id, 'voice') == '1' ? 'checked' : ''; ?>>
                                         </td>
                                         <td class="text-center">
                                             <input type="checkbox"

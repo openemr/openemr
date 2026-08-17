@@ -14,6 +14,76 @@ patientName.attributes = {
     use: "L"
 };
 
+// US Realm organization address. Emit fielded parts only when populated, and a
+// nullFlavor address when the meaningful parts (street/city/state/zip) are all
+// empty. Otherwise a bare <country> with empty <state/><city/> etc. fails the
+// ADXP validateST datatype invariant and the US Realm Address content
+// constraints. country alone does not count as content.
+var orgAddressHasContent = function (input) {
+    if (!input) {
+        return false;
+    }
+    var hasValue = function (value) {
+        return (value !== null) && (value !== undefined) && (value.toString().trim() !== "");
+    };
+    if (hasValue(input.city) || hasValue(input.state) || hasValue(input.zip)) {
+        return true;
+    }
+    var lines = input.street_lines;
+    if (Array.isArray(lines)) {
+        for (var i = 0; i < lines.length; ++i) {
+            if (hasValue(lines[i])) {
+                return true;
+            }
+        }
+    } else if (hasValue(lines)) {
+        return true;
+    }
+    return false;
+};
+
+var orgAddress = {
+    key: "addr",
+    attributes: {
+        use: leafLevel.use("use")
+    },
+    content: [{
+        key: "country",
+        text: leafLevel.inputProperty("country"),
+        existsWhen: condition.propertyNotEmpty("country")
+    }, {
+        key: "state",
+        text: leafLevel.inputProperty("state"),
+        existsWhen: condition.propertyNotEmpty("state")
+    }, {
+        key: "city",
+        text: leafLevel.inputProperty("city"),
+        existsWhen: condition.propertyNotEmpty("city")
+    }, {
+        key: "postalCode",
+        text: leafLevel.inputProperty("zip"),
+        existsWhen: condition.propertyNotEmpty("zip")
+    }, {
+        key: "streetAddressLine",
+        text: leafLevel.input,
+        dataKey: "street_lines",
+        existsWhen: condition.propertyNotEmpty("street_lines[0]")
+    }],
+    dataKey: "address",
+    existsWhen: orgAddressHasContent
+};
+
+var orgAddressNullFlavor = {
+    key: "addr",
+    attributes: {
+        nullFlavor: "NI"
+    },
+    dataKey: "address",
+    existsWhen: function (input) {
+        return input && !orgAddressHasContent(input);
+    }
+};
+
 var patient = exports.patient = {
     key: "patient",
     content: [
@@ -179,7 +249,7 @@ var provider = exports.provider = [{
                 key: "id",
                 attributes: {
                     root: leafLevel.inputProperty("root"),
-                    extension: leafLevel.inputProperty("extension")
+                    extension: leafLevel.nonEmptyInputProperty("extension")
                 },
                 dataKey: "identity"
             }, {
@@ -250,7 +320,7 @@ var attributed_provider = exports.attributed_provider = {
         key: "id",
         attributes: {
             root: leafLevel.inputProperty("root"),
-            extension: leafLevel.inputProperty("extension")
+            extension: leafLevel.nonEmptyInputProperty("extension")
         },
         dataKey: "identity"
     }, {
@@ -265,31 +335,9 @@ var attributed_provider = exports.attributed_provider = {
                 return input.number;
             }
         }],
-        dataKey: "phone"
-    }, {
-        key: "addr",
-        attributes: {
-            use: leafLevel.use("use")
-        },
-        content: [{
-            key: "country",
-            text: leafLevel.inputProperty("country")
-        }, {
-            key: "state",
-            text: leafLevel.inputProperty("state")
-        }, {
-            key: "city",
-            text: leafLevel.inputProperty("city")
-        }, {
-            key: "postalCode",
-            text: leafLevel.inputProperty("zip")
-        }, {
-            key: "streetAddressLine",
-            text: leafLevel.input,
-            dataKey: "street_lines"
-        }],
-        dataKey: "address"
-    }],
+        dataKey: "phone",
+        existsWhen: condition.propertyValueNotEmpty("number")
+    }, orgAddress, orgAddressNullFlavor],
     dataKey: "attributed_provider"
 };
 
@@ -317,7 +365,7 @@ var headerAuthor = exports.headerAuthor = {
                 key: "id",
                 attributes: {
                     root: leafLevel.inputProperty("identifier"),
-                    extension: leafLevel.inputProperty("extension")
+                    extension: leafLevel.nonEmptyInputProperty("extension")
                 },
                 dataKey: 'identifiers',
             }, {
@@ -325,30 +373,7 @@ var headerAuthor = exports.headerAuthor = {
                 attributes: leafLevel.code,
                 existsWhen: condition.propertyNotEmpty('code'),
                 dataKey: "code"
-            }, {
-                key: "addr",
-                attributes: {
-                    use: leafLevel.use("use")
-                },
-                content: [{
-                    key: "country",
-                    text: leafLevel.inputProperty("country")
-                }, {
-                    key: "state",
-                    text: leafLevel.inputProperty("state")
-                }, {
-                    key: "city",
-                    text: leafLevel.inputProperty("city")
-                }, {
-                    key: "postalCode",
-                    text: leafLevel.inputProperty("zip")
-                }, {
-                    key: "streetAddressLine",
-                    text: leafLevel.input,
-                    dataKey: "street_lines"
-                }],
-                dataKey: "address"
-            }, {
+            }, orgAddress, orgAddressNullFlavor, {
                 key: "telecom",
                 attributes: {
                     value: leafLevel.inputProperty("value"),
@@ -399,30 +424,7 @@ var headerAuthor = exports.headerAuthor = {
                         dataTransform: translate.telecom,
                         datakey: "phone"
                     },
-                    {
-                        key: "addr",
-                        attributes: {
-                            use: leafLevel.use("use")
-                        },
-                        content: [{
-                            key: "country",
-                            text: leafLevel.inputProperty("country")
-                        }, {
-                            key: "state",
-                            text: leafLevel.inputProperty("state")
-                        }, {
-                            key: "city",
-                            text: leafLevel.inputProperty("city")
-                        }, {
-                            key: "postalCode",
-                            text: leafLevel.inputProperty("zip")
-                        }, {
-                            key: "streetAddressLine",
-                            text: leafLevel.input,
-                            dataKey: "street_lines"
-                        }],
-                        dataKey: "address"
-                    }
+                    orgAddress, orgAddressNullFlavor
                 ],
                 dataKey: "organization"
             }
@@ -472,7 +474,7 @@ var headerCustodian = exports.headerCustodian = {
                     key: "id",
                     attributes: {
                         root: leafLevel.inputProperty("root"),
-                        extension: leafLevel.inputProperty("extension")
+                        extension: leafLevel.nonEmptyInputProperty("extension")
                     },
                     dataKey: "identity"
                 }, {
@@ -489,30 +491,7 @@ var headerCustodian = exports.headerCustodian = {
                     dataTransform: translate.telecom,
                     datakey: "phone"
                 },
-                {
-                    key: "addr",
-                    attributes: {
-                        use: leafLevel.use("use")
-                    },
-                    content: [{
-                        key: "country",
-                        text: leafLevel.inputProperty("country")
-                    }, {
-                        key: "state",
-                        text: leafLevel.inputProperty("state")
-                    }, {
-                        key: "city",
-                        text: leafLevel.inputProperty("city")
-                    }, {
-                        key: "postalCode",
-                        text: leafLevel.inputProperty("zip")
-                    }, {
-                        key: "streetAddressLine",
-                        text: leafLevel.input,
-                        dataKey: "street_lines"
-                    }],
-                    dataKey: "address"
-                }
+                orgAddress, orgAddressNullFlavor
             ],
         }]
     },

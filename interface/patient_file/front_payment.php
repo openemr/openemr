@@ -23,7 +23,6 @@ $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActi
 $encounter = $session->get('encounter', 0);
 $pid = $session->get('pid', 0);
 require_once($srcdir . "/patient.inc.php");
-require_once($srcdir . "/payment.inc.php");
 require_once($srcdir . "/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once($srcdir . "/options.inc.php");
@@ -693,7 +692,7 @@ function toencounter(enc, datestr, topframe) {
     document.onclick=HideTheAjaxDivs;
 </script>
 
-    <?php Header::setupAssets('topdialog'); ?>
+    <?php echo Header::setupAssets(['topdialog']); ?>
 
 <script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
 
@@ -1583,7 +1582,7 @@ function make_insurance() {
             // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
             ?>
             <script>
-                var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
+                var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>;
                 var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
 
                     // In House CC number Validation

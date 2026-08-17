@@ -68,9 +68,18 @@ services:
 - class: OpenEMR\PHPStan\Rules\ForbiddenRequestGlobalsRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenSessionSuperglobalRule
+  tags:
+  - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenShellExecutionRule
   tags:
   - phpstan.rules.rule
 - class: OpenEMR\PHPStan\Rules\ForbiddenEvalRule
+  tags:
+  - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\Sql\ReservedWordRegistry
+- class: OpenEMR\PHPStan\Rules\Sql\SqlSinkResolver
+- class: OpenEMR\PHPStan\Rules\Sql\SchemaColumnRegistry
+- class: OpenEMR\PHPStan\Rules\Sql\SqlReservedWordRule
   tags:
   - phpstan.rules.rule

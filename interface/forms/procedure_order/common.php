@@ -22,6 +22,8 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Session\EncounterSessionUtil;
@@ -165,6 +167,9 @@ $reqStr = "";
 // If Save or Transmit was clicked, save the info.
 if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    if ($formid) {
+        EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'procedure_order');
+    }
     $ppid = (int)($_POST['form_lab_id'] ?? null);
     if (get_lab_name($ppid) === 'labcorp') {
         if (!empty($_POST['form_account_facility'])) {
@@ -1903,7 +1908,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         onclick='top.restoreSession();transmitting = true;'><?php echo xlt('Transmit Order'); ?>
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-cancel"
-                                        onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'"><?php echo xlt('Cancel/Exit'); ?>
+                                        onclick="top.restoreSession();location='<?php echo FormActionBarSettings::EXIT_URL; ?>'"><?php echo xlt('Cancel/Exit'); ?>
                                     </button>
                                 </div>
                             </div>

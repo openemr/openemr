@@ -332,7 +332,7 @@ class AclMain
     // Permissions check for an ACO in "section|aco" format.
     // Note $return_value may be an array of return values.
     //
-    public static function aclCheckAcoSpec($aco_spec, $user = '', $return_value = '')
+    public static function aclCheckAcoSpec($aco_spec, $user = '', $return_value = ''): bool
     {
         if (empty($aco_spec)) {
             return true;
@@ -354,7 +354,6 @@ class AclMain
     //
     public static function aclCheckForm($formdir, $user = '', $return_value = '')
     {
-        require_once(__DIR__ . '/../../../library/registry.inc.php');
         $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
         return self::aclCheckAcoSpec($tmp['aco_spec'], $user, $return_value);
     }

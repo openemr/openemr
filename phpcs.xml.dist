@@ -4,7 +4,7 @@
 
   <!-- Runtime settings -->
   <ini name="memory_limit" value="4G" />
-  <arg name="extensions" value="php,inc"/>
+  <arg name="extensions" value="php"/>
   <arg name="tab-width" value="4"/>
   <arg name="report-width" value="120"/>
   <arg name="warning-severity" value="0" />
@@ -62,6 +62,14 @@
   <file>.</file>
 
   <exclude-pattern>*/gacl/gacl.ini.php</exclude-pattern>
+  <!--
+      oe-module-claimrev-connect is a Composer dependency
+      (claimrevolution/oe-module-claimrev-connect), relocated into this path by
+      the oe-module-installer-plugin during `composer install`. It is
+      third-party code, not maintained in this repo, so exclude it from style
+      checks the same way vendor/ is excluded.
+  -->
+  <exclude-pattern>*/interface/modules/custom_modules/oe-module-claimrev-connect/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>*/public/assets/*</exclude-pattern>
   <exclude-pattern>*/sites/default/documents/*</exclude-pattern>

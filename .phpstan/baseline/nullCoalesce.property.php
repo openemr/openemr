@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\Bootstrap\\:\\:\\$moduleDirectoryName \\(string\\) on left side of \\?\\? is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Bootstrap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\Dorn\\\\Bootstrap\\:\\:\\$moduleDirectoryName \\(string\\) on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/Bootstrap.php',
@@ -20,11 +15,6 @@ $ignoreErrors[] = [
     'message' => '#^Property HTML_TreeMenu_Listbox\\:\\:\\$promoText \\(string\\) on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$error_reporting \\(int\\) on left side of \\?\\? is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Events\\\\Core\\\\TemplatePageEvent\\:\\:\\$twigTemplate \\(string\\) on left side of \\?\\? is not nullable\\.$#',

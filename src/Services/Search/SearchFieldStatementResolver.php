@@ -285,13 +285,21 @@ class SearchFieldStatementResolver
         $searchFragment = new SearchQueryFragment();
         $modifier = $searchField->getModifier();
         $values = $searchField->getValues();
+
+        // Guard: getField() is concatenated into SQL as a column identifier and
+        // cannot be parameter-bound.
+        $field = $searchField->getField();
+        if (!is_string($field) || !preg_match('/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)?$/', $field)) {
+            throw new SearchFieldException('invalid search field', "invalid search field identifier");
+        }
+
         foreach ($values as $value) {
             $result = match ($modifier) {
-                SearchModifier::PREFIX => [$searchField->getField() . ' LIKE ?', $value . '%'],
-                SearchModifier::SUFFIX => [$searchField->getField() . ' LIKE ?', '%' . $value],
-                SearchModifier::CONTAINS => [$searchField->getField() . ' LIKE ?', '%' . $value . '%'],
-                SearchModifier::EXACT => ["BINARY " . $searchField->getField() . ' = ?', $value],
-                SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $searchField->getField() . ' != ?', $value],
+                SearchModifier::PREFIX => [$field . ' LIKE ?', $value . '%'],
+                SearchModifier::SUFFIX => [$field . ' LIKE ?', '%' . $value],
+                SearchModifier::CONTAINS => [$field . ' LIKE ?', '%' . $value . '%'],
+                SearchModifier::EXACT => ["BINARY " . $field . ' = ?', $value],
+                SearchModifier::NOT_EQUALS_EXACT => ["BINARY " . $field . ' != ?', $value],
                 default => null,
             };
             if ($result !== null) {

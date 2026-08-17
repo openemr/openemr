@@ -14,6 +14,14 @@ var labels = [];
 var postcards = [];
 var show_just;
 
+var translations = {
+    patient_required: jsXlt('Please select a patient'),
+    date_required: jsXlt('Please select a recall date'),
+    provider_required: jsXlt('Please select a provider'),
+    facility_required: jsXlt('Please select a facility'),
+    no_recalls_found: jsXlt('No Recalls Found')
+};
+
 /**
  * Function to find a patient in the DB
  * This pop-up is the standard openEMR file find_patient_popup.php
@@ -29,7 +37,7 @@ function recall_name_click(field) {
  * Function to insert patient data into addRecall fields
  * pid is sent to server for the data to display
  */
-function setpatient(pid, lname='', fname='', dob='') {
+function setpatient(pid, lname = '', fname = '', dob = '') {
     top.restoreSession();
     $.ajax({
         type: "POST",
@@ -48,7 +56,7 @@ function setpatient(pid, lname='', fname='', dob='') {
             var dolv = moment(obj.DOLV); // another date
             var duration = dolv.diff(now, 'days');
             if (duration > '0') { //it's a future appt dude!
-                alert(xljs_NOTE + ': ' + xljs_PthsApSched + ' ' + obj.DOLV );
+                alert(xljs_NOTE + ': ' + xljs_PthsApSched + ' ' + obj.DOLV);
             }
         }
         $(".news").removeClass('nodisplay');
@@ -129,7 +137,7 @@ function add_this_recall(e) {
     }
 
     var url = "save.php";
-    formData = JSON.stringify($("form#addRecall").serialize());
+    formData = $("form#addRecall").serialize();
     top.restoreSession();
     $.ajax({
         type: 'POST',
@@ -192,7 +200,7 @@ function checkAll(chk, set) {
 /**
  * This function sends a list of checked items to the server for processing.
  */
-function process_this(material, id, eid='') {
+function process_this(material, id, eid = '') {
     var make_this = [];
     var make_that = [];
     var make_all = [];
@@ -222,7 +230,8 @@ function process_this(material, id, eid='') {
             'uid_pc_eid': all_Data,
             'msg_notes': notes,
             'action': 'process',
-            'item': material
+            'item': material,
+            'csrf_token_form': $("input[name='csrf_token_form']").first().val()
         }
     }).done(function (result) {
         if (material === 'labels') window.open("../../patient_file/addr_appt_label.php", "_blank");
@@ -233,15 +242,11 @@ function process_this(material, id, eid='') {
             var dateval = $.datepicker.formatDate('mm/dd/yy', new Date());
             if (material !== 'phone') {
                 $(this).parents('.' + material).append(' ' + dateval);
-                $("#remind_" + r_uid).removeClass('whitish')
-                    .removeClass('reddish')
-                    .removeClass('greenish')
-                    .removeClass('yellowish')
-                    .addClass('yellowish');
+                $("#remind_" + r_uid).removeClass('whitish').removeClass('reddish').removeClass('greenish').removeClass('yellowish').addClass('yellowish');
             } else {
                 $("#msg_phone_" + r_uid).append('<br />' + dateval);
             }
-         });
+        });
     });
     //
 
@@ -293,6 +298,7 @@ function newEvt(pid, pc_eid) {
     dlgopen(url, '_blank', 800, 480);
     return false;
 }
+
 // AI-generated code end
 
 function delete_Recall(pid, r_ID) {
@@ -305,7 +311,8 @@ function delete_Recall(pid, r_ID) {
             data: {
                 'action': 'delete_Recall',
                 'pid': pid,
-                'r_ID': r_ID
+                'r_ID': r_ID,
+                'csrf_token_form': $("input[name='csrf_token_form']").first().val()
             }
 
         }).done(function (result) {
@@ -324,12 +331,13 @@ function refresh_me() {
 // Process click to pop up the edit window.
 function doRecallclick_edit(goHere) {
     top.restoreSession();
+    let zone;
     if (window.location.pathname.match(/patient_tracker/)) {
-        zone ='main/';
+        zone = 'main/';
     } else {
         zone = '';
     }
-    dlgopen('../'+zone+'messages/messages.php?nomenu=1&go=' + goHere, '_blank', 900, 400);
+    dlgopen('../' + zone + 'messages/messages.php?nomenu=1&go=' + goHere, '_blank', 900, 400);
 }
 
 function goReminderRecall(choice) {
@@ -373,7 +381,7 @@ function toISODate(val) {
     }
 }
 
-function show_this(colorish='') {
+function show_this(colorish = '') {
     var facV = $("#form_facility").val();
     var provV = $("#form_provider").val();
     var pidV = $("#form_patient_id").val();
@@ -474,11 +482,11 @@ $(function () {
         var url = "save.php";
         top.restoreSession();
         $.ajax({
-                   type: 'POST',
-                   url: url,
-                   data: formData,
-                   action: 'save_prefs'
-               }).done(function (result) {
+            type: 'POST',
+            url: url,
+            data: formData,
+            action: 'save_prefs'
+        }).done(function (result) {
             $("#div_response").html('<span class="text-danger">' + xljs1 + '.</span>');
             setTimeout(function () {
                 $("#div_response").html('<br />');
@@ -489,23 +497,23 @@ $(function () {
     if (bs_interval < '1') {
         $("#active_sync").hide();
         $("#paused").show();
-    }  else {
+    } else {
         $("#paused").hide();
         $("#active_sync").show();
     }
-    $("#execute_interval").change(function() {
+    $("#execute_interval").change(function () {
         var bs_interval = $("#execute_interval").val();
-        if (bs_interval <'1') {
+        if (bs_interval < '1') {
             $("#active_sync").hide();
             $("#paused").show();
-        }  else {
+        } else {
             $("#display_interval").text(bs_interval);
             $("#paused").hide();
             $("#active_sync").show();
         }
     });
 
-    $("#form_from_date, #form_to_date").on('change', function() {
+    $("#form_from_date, #form_to_date").on('change', function () {
         show_this();
     });
 });

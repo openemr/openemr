@@ -19,6 +19,11 @@ if (php_sapi_name() !== 'cli') {
 $fileRoot = dirname(__DIR__);
 require_once "{$fileRoot}/vendor/autoload.php";
 
+// Refuse to run as root. The `--skip-globals` path below would bypass the
+// guard in interface/globals.php; enforce here so all console commands are
+// covered regardless of bootstrap mode.
+OpenEMR\Common\Command\RootCliGuard::assertNotRoot();
+
 $skipGlobals = in_array('--skip-globals', $argv, true);
 // Don't pass --skip-globals to Symfony, and reindex array
 $argv = array_values(array_diff($argv, ['--skip-globals']));

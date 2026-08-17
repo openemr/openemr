@@ -97,7 +97,7 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
         }
         $person->setMeta($meta);
 
-        $person->setActive($dataRecord['active'] == "1" ? true : false);
+        $person->setActive($dataRecord['active'] == "1");
 
         $narrativeText = '';
         if (isset($dataRecord['fname'])) {

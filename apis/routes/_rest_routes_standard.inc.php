@@ -309,7 +309,7 @@ return [
 
         return $return;
     },
-    "PUT /api/patient/:pid/medication/:mid" => function ($pid, $mid, HttpRestRequest $request) {
+    "PUT /api/patient/:pid/medication/:mid" => function (string $pid, string $mid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ListRestController())->put($pid, $mid, "medication", $data);
@@ -354,7 +354,7 @@ return [
 
         return $return;
     },
-    "PUT /api/patient/:pid/surgery/:sid" => function ($pid, $sid, HttpRestRequest $request) {
+    "PUT /api/patient/:pid/surgery/:sid" => function (string $pid, string $sid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ListRestController())->put($pid, $sid, "surgery", $data);
@@ -387,7 +387,7 @@ return [
 
         return $return;
     },
-    "PUT /api/patient/:pid/dental_issue/:did" => function ($pid, $did, HttpRestRequest $request) {
+    "PUT /api/patient/:pid/dental_issue/:did" => function (string $pid, string $did, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "med");
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new ListRestController())->put($pid, $did, "dental", $data);
@@ -419,9 +419,9 @@ return [
 
         return $return;
     },
-    "DELETE /api/patient/:pid/appointment/:eid" => function ($pid, $eid, HttpRestRequest $request) {
+    "DELETE /api/patient/:pid/appointment/:eid" => function (string $pid, string $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "appt");
-        $return = (new AppointmentRestController())->delete($eid);
+        $return = (new AppointmentRestController())->delete($pid, $eid);
 
         return $return;
     },
@@ -713,5 +713,5 @@ return [
     // segment, so OAuth2 scope checks resolve to `<scope>/background_service.c`
     // rather than `<scope>/run.c`.
     'POST /api/background_service/$run'
-        => fn(HttpRestRequest $request) => (new BackgroundServiceRestController())->runAllDue(),
+        => fn(HttpRestRequest $request): \Symfony\Component\HttpFoundation\Response => (new BackgroundServiceRestController())->runAllDue(),
 ];

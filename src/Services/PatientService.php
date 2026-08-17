@@ -783,31 +783,27 @@ class PatientService extends BaseService
 
 
     /**
-     * @param string $dob
-     * @param ?string $date
      * @return array containing
      *      age - decimal age in years
      *      age_in_months - decimal age in months
      *      ageinYMD - formatted string #y #m #d
      */
-    public function getPatientAgeYMD($dob, $date = null)
+    public function getPatientAgeYMD(string $dob, ?string $date = null)
     {
-        if ($date == null) {
+        if ($date === null) {
             $daynow = date("d");
             $monthnow = date("m");
             $yearnow = date("Y");
             $datenow = $yearnow . $monthnow . $daynow;
         } else {
-            $datenow = preg_replace("/-/", "", $date);
-            assert(is_string($datenow));
+            $datenow = str_replace('-', '', $date);
             $yearnow = substr($datenow, 0, 4);
             $monthnow = substr($datenow, 4, 2);
             $daynow = substr($datenow, 6, 2);
             $datenow = $yearnow . $monthnow . $daynow;
         }
 
-        $dob = preg_replace("/-/", "", $dob);
-        assert(is_string($dob));
+        $dob = str_replace('-', '', $dob);
         $dobyear = substr($dob, 0, 4);
         $dobmonth = substr($dob, 4, 2);
         $dobday = substr($dob, 6, 2);

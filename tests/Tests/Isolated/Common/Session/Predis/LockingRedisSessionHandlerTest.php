@@ -119,8 +119,7 @@ class LockingRedisSessionHandlerTest extends TestCase
     private static function argArray(array $call, int $index): array
     {
         $val = $call['args'][$index];
-        assert(is_array($val));
-        /** @var array<array-key, mixed> $val */
+        self::assertIsArray($val);
         return $val;
     }
 

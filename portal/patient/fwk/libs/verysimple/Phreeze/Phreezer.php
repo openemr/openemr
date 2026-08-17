@@ -202,7 +202,7 @@ class Phreezer extends Observable
 * be stored in the cache.
 *
 * @param string $key cache key
-* @param variant $val value to cache
+* @param mixed $val value to cache
 * @param ?int $timeout cache timeout in seconds (default: Phreezer->ValueCacheTimeout, 0 to disable)
 * @return bool true if cache was set, false if not
 */
@@ -228,7 +228,7 @@ class Phreezer extends Observable
 * Retrieves an object or value that was persisted using SetValueCache
 *
 * @param string $key
-* @return variant
+* @return mixed
 */
     public function GetValueCache($key)
     {
@@ -479,7 +479,7 @@ class Phreezer extends Observable
 * @access public
 * @param string $objectclass
 *          to query
-* @param variant $id
+* @param string $id
 *          the value of the primary key
 * @param int $cache_timeout cache timeout (in seconds). Default is Phreezer->ObjectCacheTimeout. Set to 0 for no cache
 * @return Phreezable
@@ -952,7 +952,7 @@ class Phreezer extends Observable
 /**
 * Utility method that calls DataAdapter::Escape($val)
 *
-* @param variant $val
+* @param string $val
 *          to be escaped
 * @return string
 */
@@ -964,7 +964,7 @@ class Phreezer extends Observable
 /**
 * Utility method that calls DataAdapter::GetQuotedSql($val)
 *
-* @param variant $val
+* @param string $val
 *          to be quoted
 * @return string
 */

@@ -1,0 +1,255 @@
+# Reusable release-publish workflow — the tarball side of Phase 10c
+# (openemr/openemr#TBD). Extracts what was inline in build-release.yml's
+# `publish` job so both build-release.yml (the primary release path)
+# and acceptance-only.yml (the Phase 9 recovery path) can call the
+# same publish flow without duplicating ~100 lines of app-token +
+# checkout + download-artifact + tag + release + upload + sha256
+# verify + summary logic.
+#
+# Behavior is identical to build-release.yml's pre-refactor publish
+# job step-for-step. Inputs replace what was previously read from
+# inputs.* / needs.build-package.outputs.* at the caller site:
+#
+#   version          - human-readable version (e.g. 8.2.0), used for
+#                      asset filenames + release title + summary step
+#   release_tag      - annotated git tag (e.g. v8_2_0), used for
+#                      `git tag`, `gh release create/view/upload`, and
+#                      cross-run recovery idempotency
+#   version_branch   - rel-branch to check out for `git tag` (e.g.
+#                      rel-820) — tag is created against that branch's
+#                      tip in checkout, not the ref this workflow was
+#                      dispatched against
+#   artifact_name    - workflow-run artifact name to download (e.g.
+#                      openemr-release-candidate-8.2.0) — the caller
+#                      is responsible for making sure this artifact
+#                      exists in the calling run's context (either
+#                      because the caller produced it via
+#                      actions/upload-artifact, or because it was
+#                      re-uploaded from a source-run cross-fetch as in
+#                      acceptance-only.yml)
+#
+# `secrets: inherit` on the caller side forwards RELEASE_APP_CLIENT_ID
+# (vars) + RELEASE_APP_PRIVATE_KEY (secrets) into this workflow — no
+# extra secrets: block needed here.
+#
+# The four caller-facing inputs mirror the shape build-release.yml
+# already had internally, so this refactor is refactor-in-place: no
+# behavior change, just moving code across a workflow_call boundary.
+
+name: Reusable — Publish release
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Human-readable version (e.g., 8.2.0)
+        required: true
+        type: string
+      release_tag:
+        description: Git tag (e.g., v8_2_0)
+        required: true
+        type: string
+      version_branch:
+        description: Release branch (e.g., rel-820)
+        required: true
+        type: string
+      artifact_name:
+        description: Name of the workflow-run artifact carrying the release-output bundle (e.g., openemr-release-candidate-8.2.0)
+        required: true
+        type: string
+      milestone:
+        description: GitHub milestone name used in the summary step's rendered output (e.g., 8.2.0). Optional — callers that don't have a milestone context (e.g. acceptance-only recovery) can omit.
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    name: Publish release
+    timeout-minutes: 30
+    steps:
+    # App-token regenerated here rather than passed as an output from
+    # build-package — GitHub Actions redacts token outputs across job
+    # boundaries anyway (writing a token to `$GITHUB_OUTPUT` masks it
+    # in logs but the value that reaches the downstream job is often
+    # empty). Regenerating is the documented path.
+    #
+    # Full checkout first with github.token — composite actions
+    # (generate-app-token, setup-php-composer) resolve against a real
+    # workspace AND composer.json is present for setup-php-composer's
+    # cache/install steps. The earlier sparse-first pattern
+    # (openemr/openemr#13480 + #13509) hit an underlying git leak:
+    # files not in the initial sparse pattern (like composer.json)
+    # weren't materialized by the second full checkout. Full-checkout-
+    # first sidesteps the leak. `persist-credentials: false` because
+    # `create-release-tag.sh` now uses APP_TOKEN via `git -c
+    # http.extraheader=...` (one-shot, never written to .git/config
+    # — see the script's inline-auth block). Leaving github.token
+    # persisted here would be dead weight in .git/config during the
+    # composer install / task summary steps that follow the tag push.
+    - name: Checkout openemr release branch
+      uses: actions/checkout@v7
+      with:
+        ref: ${{ inputs.version_branch }}
+        token: ${{ github.token }}
+        filter: blob:none
+        fetch-depth: 1
+        persist-credentials: false
+
+    - name: Generate app token
+      id: app-token
+      uses: ./.github/actions/generate-app-token
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        owner: ${{ github.repository_owner }}
+        repositories: openemr
+
+    # Reconstruct the release-output/ directory that build-package
+    # produced, from the workflow-run artifact.
+    - name: Download release-output artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: tools/release/release-output
+
+    - name: Create annotated tag and GitHub release
+      # APP_TOKEN passed so create-release-tag.sh uses it inline via
+      # `git -c http.extraheader=...` on ls-remote + push — never
+      # persisted to .git/config. Keeps the token unavailable to
+      # subsequent steps (composer install, task summary, etc.) that
+      # a compromised dep could otherwise exfiltrate from `git config
+      # --get remote.origin.url` or the .git/config extraheader.
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        RELEASE_VERSION: ${{ inputs.version }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        RELEASE_NOTES_FILE: ${{ github.workspace }}/tools/release/release-output/changelog.md
+      run: .github/scripts/create-release-tag.sh
+
+    - name: Upload package and checksums to release
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
+
+        gh release upload "$tag" \
+          --repo openemr/openemr \
+          --clobber \
+          "${output_dir}/openemr-${RELEASE_VERSION}.tar.gz" \
+          "${output_dir}/openemr-${RELEASE_VERSION}.zip" \
+          "${output_dir}"/*.md5 \
+          "${output_dir}"/*.sha256 \
+          "${output_dir}"/*.sha512 \
+          "${output_dir}/changelog.md"
+
+    # Phase 7b (openemr/openemr#TBD): re-fetch the just-uploaded
+    # tarball + zip from the GitHub Release page and byte-compare
+    # against the local artifacts. Catches the one class of failure
+    # Phase 7c-tarball's acceptance-gate can't see — corruption
+    # between the tested-bytes-on-disk and the bytes-on-release-page:
+    #   * `gh release upload` HTTPS transfer corruption (rare —
+    #     HTTPS has integrity, but not impossible with proxy
+    #     interception or transient network artifacts)
+    #   * GitHub Releases post-upload storage corruption
+    #     (never observed but the failure mode is real)
+    #   * Someone / something manually replacing the release asset
+    #     between our upload and this verify step (would need to
+    #     race a very small window and defeat our app-token
+    #     auth, but the check is essentially free)
+    # sha256 comparison is O(size-of-artifact) which is ~seconds for
+    # a ~200 MB tarball. Simpler than downloading + sha256 -c against
+    # the .sha256 file (which would also need verification of the
+    # .sha256 file's own integrity — turtles).
+    #
+    # On mismatch: fail the job. Publish is atomic-per-step but not
+    # cross-step: the tag already exists, the Release object exists,
+    # and the assets are uploaded (possibly corrupted). Recovery is
+    # "Re-run failed jobs" in the Actions UI — the upload step re-runs
+    # (gh release upload --clobber is idempotent) and this verify
+    # step re-runs. Idempotent all the way down.
+    - name: Verify uploaded assets byte-match local copies
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        RELEASE_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        tag="$RELEASE_TAG"
+        output_dir="$GITHUB_WORKSPACE/tools/release/release-output"
+        verify_dir="$RUNNER_TEMP/publish-verify"
+        rm -rf "$verify_dir"
+        mkdir -p "$verify_dir"
+
+        assets=(
+          "openemr-${RELEASE_VERSION}.tar.gz"
+          "openemr-${RELEASE_VERSION}.zip"
+        )
+
+        for asset in "${assets[@]}"; do
+          local_path="${output_dir}/${asset}"
+          remote_path="${verify_dir}/${asset}"
+          if [[ ! -f "$local_path" ]]; then
+            echo "::error::local asset missing: $local_path"
+            exit 1
+          fi
+          echo "==> Re-fetching $asset from release $tag for byte-verify"
+          gh release download "$tag" \
+            --repo openemr/openemr \
+            --pattern "$asset" \
+            --dir "$verify_dir"
+          local_sha="$(sha256sum "$local_path" | awk '{print $1}')"
+          remote_sha="$(sha256sum "$remote_path" | awk '{print $1}')"
+          if [[ "$local_sha" != "$remote_sha" ]]; then
+            echo "::error::sha256 mismatch on $asset"
+            echo "::error::  local  = $local_sha"
+            echo "::error::  remote = $remote_sha"
+            echo "::error::The uploaded release asset does not match the tested build output. Re-run this job to re-upload; investigate if the mismatch persists."
+            exit 1
+          fi
+          echo "    OK: $asset sha256=$local_sha"
+        done
+
+        rm -rf "$verify_dir"
+        echo "==> All published release assets byte-match the local build output."
+
+    # Summary step needs task on the runner + the checked-out repo (for
+    # the Taskfile) — restore both.
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.5'
+
+    - name: Install Taskfile
+      uses: arduino/setup-task@v3
+      with:
+        version: 3.x
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build summary
+      working-directory: tools/release
+      env:
+        MILESTONE: ${{ inputs.milestone }}
+        VERSION_BRANCH: ${{ inputs.version_branch }}
+        RELEASE_TAG: ${{ inputs.release_tag }}
+      # Preserves the exact task-invocation shape build-release.yml
+      # used pre-Phase-10c. DRY_RUN is hard-coded false because this
+      # reusable is only ever called on the publish path (both callers
+      # gate on !dry_run).
+      run: >-
+        task summary
+        TYPE=full
+        MILESTONE="$MILESTONE"
+        VERSION_BRANCH="$VERSION_BRANCH"
+        RELEASE_TAG="$RELEASE_TAG"
+        DRY_RUN="false"

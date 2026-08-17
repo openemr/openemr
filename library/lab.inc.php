@@ -100,28 +100,12 @@ function getProcedureProvider($prov_id): array
  */
 function getLabProviders($prov_id): ?array
 {
-    $res = QueryUtils::querySingleRow(
-        "SELECT fname, lname FROM users
-         WHERE authorized = 1 AND active = 1 AND username != '' AND id = ?",
-        [$prov_id]
-    );
+    $sql = "select fname, lname from users where authorized = 1 and active = 1 and username != '' and id = ?";
+    $rez = sqlQuery($sql, [$prov_id]);
 
-    // querySingleRow returns false when no row matches; normalize to null.
-    return $res ?: null;
-}
-
-/**
- * Returns the lab provider configuration row for the given procedure provider.
- *
- * @param int $ppid procedure_providers.ppid
- * @return array|false
- */
-function getLabconfig(int $ppid): array|false
-{
-    return QueryUtils::querySingleRow(
-        "SELECT recv_app_id, recv_fac_id FROM procedure_providers WHERE ppid = ?",
-        [$ppid]
-    );
+    // sqlQuery returns false when no row matches; the declared return type is
+    // ?array, so coerce to null.
+    return is_array($rez) ? $rez : null;
 }
 
 /**

@@ -252,7 +252,7 @@ use OpenEMR\Core\OEGlobalsBag;
         let ChargeAmount = formatNumber(document.getElementById('HiddenChargeAmount' + CountIndex).value * 1);
         let Remainder = formatNumber(document.getElementById('HiddenRemainderTd' + CountIndex).value * 1);
         if (document.getElementById('Allowed' + CountIndex).id === PassedObject.id) {
-            if (document.getElementById('HiddenIns' + CountIndex).value === 1) {
+            if (parseInt(document.getElementById('HiddenIns' + CountIndex).value, 10) === 1) {
                 document.getElementById('AdjAmount' + CountIndex).value = Math.round((ChargeAmount - Allowed) * 100) / 100;
             } else {
                 document.getElementById('AdjAmount' + CountIndex).value = Math.round((Remainder - Allowed) * 100) / 100;
@@ -261,7 +261,7 @@ use OpenEMR\Core\OEGlobalsBag;
         let AdjustmentAmount = formatNumber(document.getElementById('AdjAmount' + CountIndex).value * 1);
         let CopayAmount = formatNumber(document.getElementById('HiddenCopayAmount' + CountIndex).value * 1);
         let Takeback = formatNumber(document.getElementById('Takeback' + CountIndex).value * 1);
-        if (document.getElementById('HiddenIns' + CountIndex).value === 1 && Allowed !== 0) {//Means it is primary's first payment.
+        if (parseInt(document.getElementById('HiddenIns' + CountIndex).value, 10) === 1 && Allowed !== 0) { //Means it is primary's first payment.
             document.getElementById('RemainderTd' + CountIndex).innerHTML = Math.round((ChargeAmount - AdjustmentAmount - CopayAmount - Payment + Takeback) * 100) / 100;
         } else {//All other case.
             document.getElementById('RemainderTd' + CountIndex).innerHTML = Math.round((Remainder - AdjustmentAmount - Payment + Takeback) * 100) / 100;
@@ -337,7 +337,6 @@ use OpenEMR\Core\OEGlobalsBag;
     function FormValidations() {//Screen validations are done here.
         if (document.getElementById('check_date').value == '') {
             let message = <?php echo xlj('Please Fill the Date') ?>;
-            message='<h4 class="bg-light text-danger">'+message+'</h4>';
             // a good use of syncAlertMsg when a promise or an await (then({})) with actions and/or
             // for an alert to time out, is not needed. et al validation alerts.
             (async (message, time) => {

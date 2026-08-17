@@ -30,7 +30,6 @@ $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/encounter.inc.php");
 require_once($srcdir . "/group.inc.php");
 require_once($srcdir . "/patient.inc.php");
-require_once($srcdir . "/amc.php");
 require_once($srcdir . '/ESign/Api.php');
 require_once($srcdir . "/../controllers/C_Document.class.php");
 
@@ -58,7 +57,7 @@ if (!empty($_REQUEST['review_id'])) {
     $encounter = sanitizeNumber($_REQUEST['review_id']);
 }
 
-$is_group = ($attendant_type == 'gid') ? true : false;
+$is_group = $attendant_type == 'gid';
 $groupId = ($attendant_type == 'gid') ? $therapy_group : null;
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
 if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, ['view', 'write'])) {
@@ -528,8 +527,6 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 <body>
 <nav>
     <?php //DYNAMIC FORM RETRIEVAL
-    require_once($srcdir . "/registry.inc.php");
-
     $reg = getFormsByCategory();
     $old_category = '';
     $DivId = 1;
@@ -921,7 +918,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
                 $form_class_list = (strtolower(substr((string) $iter['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
                 echo '<div id="' . attr($formdir) . '~' . attr($iter['form_id']) . '" title="' . xla("Edit Form") . '" class="form-holder ' . $form_class_list . '">';
 
-                $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write') ? true : false;
+                $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write');
                 $user = (new UserService())->getUserByUsername($iter['user']);
 
                 $form_name = ($formdir == 'newpatient') ? xl('Visit Summary') : xl_form_title($iter['form_name']);

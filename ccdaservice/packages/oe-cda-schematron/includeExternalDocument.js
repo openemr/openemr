@@ -4,7 +4,7 @@ module.exports = modifyTest;
 
 var fs = require('fs');
 var xpath = require('xpath');
-const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
+const { DOMParser } = require('@xmldom/xmldom');
 var path_module = require('path');
 
 var loadedExternalDocuments = {};

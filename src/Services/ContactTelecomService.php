@@ -213,7 +213,7 @@ class ContactTelecomService extends BaseService
             $sql .= " AND status = 'A'";
         }
 
-        $sql .= " ORDER BY rank ASC, is_primary DESC";
+        $sql .= " ORDER BY `rank` ASC, is_primary DESC";
 
         return QueryUtils::fetchRecords($sql, [$contactId]) ?? [];
     }
@@ -230,7 +230,7 @@ class ContactTelecomService extends BaseService
     {
         $sql = "SELECT * FROM contact_telecom
                 WHERE contact_id = ?
-                AND system = ?
+                AND `system` = ?
                 AND is_primary = 'Y'
                 AND status = 'A'
                 LIMIT 1";
@@ -254,7 +254,7 @@ class ContactTelecomService extends BaseService
             // Unset all other primary telecoms for this contact and system
             $sql = "UPDATE contact_telecom SET is_primary = 'N'
                     WHERE contact_id = ?
-                    AND system = ?";
+                    AND `system` = ?";
             QueryUtils::sqlStatementThrowException($sql, [$contactId, $system]);
 
             // Set the specified telecom as primary
@@ -329,13 +329,13 @@ class ContactTelecomService extends BaseService
     public function getTelecomsBySystem(int $contactId, string $system, bool $includeInactive = false): array
     {
         $sql = "SELECT * FROM contact_telecom
-                WHERE contact_id = ? AND system = ?";
+                WHERE contact_id = ? AND `system` = ?";
 
         if (!$includeInactive) {
             $sql .= " AND status = 'A'";
         }
 
-        $sql .= " ORDER BY rank ASC";
+        $sql .= " ORDER BY `rank` ASC";
 
         return QueryUtils::fetchRecords($sql, [$contactId, $system]) ?? [];
     }
@@ -357,7 +357,7 @@ class ContactTelecomService extends BaseService
             $sql .= " AND status = 'A'";
         }
 
-        $sql .= " ORDER BY rank ASC";
+        $sql .= " ORDER BY `rank` ASC";
 
         return QueryUtils::fetchRecords($sql, [$contactId, $use]) ?? [];
     }

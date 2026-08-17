@@ -29,11 +29,11 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 <p class="form-row">
     <span class="left_col colhead req" data-field="fld_table"><?php echo xlt('Table'); ?></span>
     <span class="end_col">
-        <?php echo RuleTemplateExtension::render_select(array( "id"       =>  "fld_table",
+        <?php echo RuleTemplateExtension::render_select([ "id"       =>  "fld_table",
                                          "target"   =>  "fld_table",
                                          "name"     =>  "fld_table",
                                          "options"  =>  $criteria->getTableNameOptions(),
-                                         "value"    =>  $criteria->table)); ?>
+                                         "value"    =>  $criteria->table]); ?>
     </span>
 </p>
 
@@ -41,11 +41,11 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 <p class="form-row">
     <span class="left_col colhead" data-field="fld_table"><?php echo xlt('Column'); ?></span>
     <span class="end_col">
-        <?php echo RuleTemplateExtension::render_select(array( "id"       =>  "fld_column",
+        <?php echo RuleTemplateExtension::render_select([ "id"       =>  "fld_column",
                                          "target"   =>  "fld_column",
                                          "name"     =>  "fld_column",
-                                         "options"  =>  array(),
-                                         "value"    =>  null )); ?>
+                                         "options"  =>  [],
+                                         "value"    =>  null ]); ?>
     </span>
 </p>
 
@@ -88,4 +88,4 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 <br/>
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo RuleTemplateExtension::common_fields(array( "criteria" => $criteria)); ?>
+<?php echo RuleTemplateExtension::common_fields([ "criteria" => $criteria]); ?>

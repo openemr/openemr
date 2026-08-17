@@ -1,0 +1,631 @@
+# Artifact acceptance testing against the openemr release tarball.
+#
+# Black-box validation of the two production-critical entry points end
+# users experience with the tarball artifact:
+#
+#   1. Fresh install of the target version  — the installer path most
+#      new tarball users traverse (setup.php wizard walkthrough is
+#      Phase 4's wizard-UI coverage; this exercises the underlying
+#      Installer class via install-helper.php, matching what real
+#      users hit at the end of the wizard)
+#   2. Upgrade from prior version — the migration path existing users
+#      traverse when moving from an older tarball install. Runs
+#      sql_upgrade.php in CLI mode with --from=<prior> (equivalent
+#      to selecting the prior version in the sql_upgrade.php web form)
+#
+# All scenarios exercise the same test classes in tests/Acceptance/ as
+# the docker workflow — the "artifact endpoint" abstraction
+# (ACCEPTANCE_ARTIFACT_URL env var) is agnostic to whether the artifact
+# is a Docker image (Phase 2) or a tarball-mounted stack (this one).
+#
+# Docker vs tarball distinction:
+#   - Docker artifact = openemr/openemr:<tag> image; ships own PHP+Apache
+#   - Tarball artifact = openemr-<version>.tar.gz; user provides own stack
+# Tarball testing uses a generic PHP+Apache stack (flex image with
+# EMPTY=yes) that mirrors what a real user would set up per the wiki
+# install instructions.
+#
+# Triggers:
+#
+#   1. schedule daily at 10:00 UTC — catches GitHub release page
+#      availability drift (rare but possible if a release asset gets
+#      unpublished or the release page 404s) and any downstream
+#      infrastructure regressions in the flex image or MariaDB base.
+#
+#   2. workflow_dispatch — manual dispatch to test arbitrary
+#      from/to version pairs (e.g. 7.0.4 → 8.2.0 for a large-jump
+#      upgrade test).
+#
+#   3. push / pull_request on the acceptance-package surface itself
+#      (workflow, compose override, install-helper, boot/upgrade/down
+#      scripts, tests/Acceptance/**, composer.json / composer.lock).
+#      Also fires on tools/release/** — Phase 3.5 auto-enables the
+#      build_locally path so any PR touching PackageAssembler gets
+#      its actual tarball validated pre-merge.
+#
+# No branches: filter on push/PR — same rationale as acceptance-docker.yml.
+
+name: Acceptance test (package)
+
+on:
+  workflow_dispatch:
+    inputs:
+      from_version:
+        description: 'Prior openemr version for the upgrade scenario (release tag suffix, e.g. 8.2.0)'
+        required: true
+        type: string
+        default: '8.2.0'
+      to_version:
+        description: 'Target openemr version (release tag suffix, e.g. 8.2.0)'
+        required: true
+        type: string
+        default: '8.2.0'
+      build_locally:
+        description: 'Build target tarball from the PR checkout via PackageAssembler instead of downloading to_version from the GitHub release page (Phase 3.5 PR-tarball validation)'
+        type: boolean
+        default: false
+  # Phase 7c: called by build-release.yml as a pre-publish gate. The
+  # caller has already built the release tarball, uploads it as a
+  # workflow-run artifact, and dispatches this workflow with the
+  # artifact name + version label. When these inputs are set, the
+  # build-tarball job self-skips (tarball already exists) and the
+  # acceptance matrix downloads the caller's artifact instead.
+  # Enables build-release.yml to gate GitHub-releases publish on
+  # acceptance success. See workflow_call block below.
+  workflow_call:
+    inputs:
+      from_version:
+        description: 'Prior openemr version for the upgrade scenario. Defaults to 8.2.0.'
+        required: false
+        type: string
+        default: '8.2.0'
+      to_version:
+        description: 'Version label for the caller-supplied tarball (drives artifact filename lookup + upgrade guards). Required when caller_tarball_artifact is set.'
+        required: false
+        type: string
+        default: ''
+      caller_tarball_artifact:
+        description: 'Name of the workflow-run artifact holding the caller-supplied tarball (openemr-<to_version>.tar.gz). When set, skips this workflow build-tarball job and treats the caller-supplied tarball as if it were PR-built.'
+        required: false
+        type: string
+        default: ''
+      caller_zip_artifact:
+        description: 'Name of the workflow-run artifact holding the caller-supplied ZIP (openemr-<to_version>.zip). When set, skips this workflow build-tarball job and treats the caller-supplied ZIP as if it were PR-built. Phase 3.6 companion to caller_tarball_artifact — build-release.yml passes both since its release-output bundle contains both formats under the same artifact name.'
+        required: false
+        type: string
+        default: ''
+  push:
+    # Skip pushes to release-mechanism bot branches (branch-cut/,
+    # patch-prep/, release-prep/, release-finalize/). peter-evans/
+    # create-pull-request pushes to those branches AND opens a PR in
+    # one motion; both events would otherwise fire this workflow,
+    # producing a duplicate run whose "success" is misleading — the
+    # push run resolves build_locally=false and tests against the
+    # published to_version tarball, not the PR-built one the PR run
+    # actually validates. Keep the pull_request run only.
+    branches-ignore:
+    - 'branch-cut/**'
+    - 'patch-prep/**'
+    - 'release-prep/**'
+    - 'release-finalize/**'
+    paths:
+    - '.github/workflows/acceptance-package.yml'
+    - '.github/docker/acceptance-package-compose.yml'
+    - 'tests/Acceptance/**'
+    - 'composer.json'
+    - 'composer.lock'
+    # tools/release/** triggers the workflow AND auto-enables the
+    # build_locally path (see detect-mode job) — pre-merge answer
+    # to "will this PR ship a broken tarball?" Also captures the
+    # supporting files PackageAssembler consumes at build time.
+    - 'tools/release/**'
+    - 'build.xml'
+    - '.gitattributes'
+  pull_request:
+    paths:
+    - '.github/workflows/acceptance-package.yml'
+    - '.github/docker/acceptance-package-compose.yml'
+    - 'tests/Acceptance/**'
+    - 'composer.json'
+    - 'composer.lock'
+    - 'tools/release/**'
+    - 'build.xml'
+    - '.gitattributes'
+  schedule:
+  - cron: '0 10 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  # Same split-by-trigger-type rationale as acceptance-docker.yml:
+  # schedule runs shouldn't get cancelled by push/PR runs on the
+  # same ref (they'd share group otherwise).
+  group: acceptance-package-${{ github.ref }}-${{ github.event_name == 'schedule' && 'schedule' || 'ondemand' }}
+  cancel-in-progress: ${{ github.event_name != 'schedule' }}
+
+jobs:
+  # Phase 3.5: decide whether to build the target tarball from the PR's
+  # tools/release/PackageAssembler + current checkout instead of pulling
+  # to_version from the GitHub release page. Two triggers:
+  #
+  #   1. workflow_dispatch with `build_locally: true` -- explicit
+  #      opt-in for maintainer-driven validation runs.
+  #
+  #   2. push/pull_request that touched tools/release/**, build.xml, or
+  #      .gitattributes -- auto-enable so any PR modifying the tarball-
+  #      build path gets its actual output validated pre-merge. Detected
+  #      via `git diff` against the event's base ref (branch's before-SHA
+  #      for push; PR's base sha for pull_request). Skips gracefully on
+  #      branch-creation events where `before` is all-zeros.
+  #
+  # Otherwise defaults to false, and the acceptance matrix uses the
+  # GitHub-released tarball (Phase 3 behavior — unchanged for scheduled
+  # runs and acceptance-surface-only PRs).
+  #
+  # Mirrors the detect-mode job in acceptance-docker.yml (Phase 2.5) —
+  # keep them in sync if the logic evolves.
+  detect-mode:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    outputs:
+      build_locally: ${{ steps.decide.outputs.build_locally }}
+      # to_version resolved once here so build-tarball's artifact
+      # filename, the acceptance job's env, and the bootflags step's
+      # LOCAL_PATH all agree on the same value. On the build_locally
+      # path with no explicit dispatch input, this becomes 99.99.99 so
+      # the upgrade + wizard-upgrade scenarios (unblocked when
+      # build_locally=true) receive distinct FROM (8.2.0) / TO values
+      # rather than upgrade-package.sh's identical-version reject. The
+      # version string is a naming label only (drives filenames + the
+      # scratch-dir name; sql_upgrade.php reads --from=FROM_VERSION,
+      # not the to side), so any semver-shaped > 8.2.0 works and
+      # 99.99.99 is unmistakably synthetic in logs.
+      to_version: ${{ steps.decide.outputs.to_version }}
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - id: decide
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        DISPATCH_BUILD_LOCALLY: ${{ inputs.build_locally }}
+        DISPATCH_TO_VERSION: ${{ inputs.to_version }}
+        CALLER_TARBALL_ARTIFACT: ${{ inputs.caller_tarball_artifact }}
+        CALLER_ZIP_ARTIFACT: ${{ inputs.caller_zip_artifact }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        PUSH_BEFORE_SHA: ${{ github.event.before }}
+        PUSH_HEAD_SHA: ${{ github.sha }}
+        PUSH_REF: ${{ github.ref }}
+      run: .github/scripts/detect-acceptance-mode.sh
+
+  # Build the target tarball from the PR's PackageAssembler + checkout.
+  # Runs only when detect-mode resolved build_locally=true.
+  #
+  # Output: openemr-<version>.tar.gz uploaded as a workflow artifact.
+  # Each downstream acceptance matrix job downloads the artifact and
+  # passes its path to boot-package.sh --local-tarball, bypassing the
+  # GitHub release-page download entirely — nothing goes to a public
+  # registry or release page. Self-contained to this workflow run.
+  build-tarball:
+    needs: [detect-mode]
+    # Skip when the caller (Phase 7c workflow_call gate) already
+    # supplied the tarball (or ZIP) as an artifact — no point re-running
+    # PackageAssembler when the caller just did that against the exact
+    # tree being validated. The bootflags step downloads the caller's
+    # artifact by name in that case. Either caller_* input being set
+    # is enough to skip since build-release.yml passes both.
+    if: >-
+      needs.detect-mode.outputs.build_locally == 'true'
+      && inputs.caller_tarball_artifact == ''
+      && inputs.caller_zip_artifact == ''
+    runs-on: ubuntu-24.04
+    env:
+      # Single source of truth for the to_version label — see the
+      # detect-mode.outputs.to_version comment for why the auto-fire
+      # path resolves this to 99.99.99.
+      TO_VERSION: ${{ needs.detect-mode.outputs.to_version }}
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        # No git ops after checkout except PackageAssembler's `git
+        # archive HEAD` (which reads the ref, not the credentials).
+        persist-credentials: false
+
+    # PackageAssembler needs PHP + composer + Node + npm on the runner.
+    # More toolchain than the acceptance job needs (which only needs
+    # vendor/ for the harness), so break the build into its own job
+    # rather than bloat every matrix leg.
+    - name: Set up PHP + composer for PackageAssembler
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+        tools: composer:v2
+        # Extensions PackageAssembler + Symfony Process + composer's
+        # own runtime need. Explicit rather than transitive so a future
+        # composer.json change doesn't silently rely on an extension
+        # the runner happens to ship today.
+        extensions: curl, dom, mbstring, tokenizer, xml, zip
+
+    - name: Set up Node for `npm ci` + `npm run build`
+      uses: actions/setup-node@v7
+      with:
+        # Match build-release.yml (the canonical release-time tarball
+        # builder) — this job is validating what that same shape would
+        # produce, so drifting node-version between them defeats the
+        # point. Also matches styling.yml + js-test.yml + inferno-test.
+        node-version: '24'
+
+    - name: Install harness composer deps (autoloader for PackageAssembler)
+      # tools/release/bin/package-assemble.php requires vendor/autoload.php
+      # to bring in the OpenEMR\Release\PackageAssembler class + its
+      # symfony/console + symfony/process deps.
+      run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
+
+    - name: Build package from PR checkout via PackageAssembler
+      # --release-version uses the workflow's to_version so the output
+      # filename matches what boot-package.sh's VERSION arg + downstream
+      # scratch-dir naming expects. Version string doesn't get baked
+      # into the packaged codebase — it's a naming label only.
+      #
+      # --openemr-dir is the PR checkout itself; --output-dir writes
+      # under /tmp so the artifact upload step can grab it by known path.
+      # PackageAssembler produces BOTH openemr-<version>.tar.gz AND
+      # openemr-<version>.zip in one pass — both are uploaded below for
+      # the Phase 3.6 matrix's `format` dimension.
+      run: |
+        mkdir -p /tmp/release-output
+        php tools/release/bin/package-assemble.php \
+          --release-version="${TO_VERSION}" \
+          --openemr-dir=. \
+          --output-dir=/tmp/release-output
+        ls -lh \
+          "/tmp/release-output/openemr-${TO_VERSION}.tar.gz" \
+          "/tmp/release-output/openemr-${TO_VERSION}.zip"
+
+    - name: Upload PR-built tarball artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: openemr-pr-built-tarball
+        path: /tmp/release-output/openemr-${{ needs.detect-mode.outputs.to_version }}.tar.gz
+        retention-days: 1
+
+    # Phase 3.6: upload the ZIP under a distinct artifact name so the
+    # acceptance matrix's `format: zip` cells can download it in parallel
+    # with the tarball cells. Distinct artifact-per-format keeps each
+    # matrix leg's download step size-minimal (a single file) and lets
+    # the workflow_call gate reference each format independently
+    # (caller_tarball_artifact / caller_zip_artifact).
+    - name: Upload PR-built zip artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: openemr-pr-built-zip
+        path: /tmp/release-output/openemr-${{ needs.detect-mode.outputs.to_version }}.zip
+        retention-days: 1
+
+  acceptance:
+    needs: [detect-mode, build-tarball]
+    # Run whether build-tarball succeeded OR was skipped. Skip
+    # acceptance only if build-tarball itself failed (no point running
+    # the fresh-install / upgrade scenarios if their target tarball
+    # failed to build) or if detect-mode failed (shouldn't happen —
+    # trivial job).
+    if: >-
+      always()
+      && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+      && needs.detect-mode.result == 'success'
+      && (needs.build-tarball.result == 'success' || needs.build-tarball.result == 'skipped')
+    runs-on: ubuntu-24.04
+    strategy:
+      # Don't fail-fast: distinguish "target-version installer broken"
+      # from "upgrade path broken" (different code paths).
+      fail-fast: false
+      matrix:
+        # Scenarios × formats. Two dimensions folded into an `include`
+        # list because the cartesian isn't uniform — see below.
+        #
+        # Scenarios:
+        #   fresh-install   — CLI install-helper.php then acceptance suite
+        #   wizard-install  — no install-helper; InstallWizardUiTest
+        #                     drives setup.php via Panther instead
+        #   upgrade         — CLI install then CLI sql_upgrade
+        #   wizard-upgrade  — CLI install then upgrade-package
+        #                     --skip-sql-upgrade to leave the artifact
+        #                     pre-migration; UpgradeWizardUiTest walks
+        #                     sql_upgrade.php via Panther
+        #
+        # Formats (Phase 3.6):
+        #   tar   — extracts openemr-<version>.tar.gz via tar -xzf
+        #   zip   — extracts openemr-<version>.zip via unzip
+        # Matrix cells (per Phase 3.6 + Phase 3.5 gating rules — see
+        # the plan doc's Phase 3.6 section for the full rationale):
+        #   default (acceptance-surface push/PR/schedule):
+        #     fresh-install × [tar, zip] + wizard-install × [tar, zip] = 4
+        #   expanded (dispatch, build_locally, or workflow_call gate):
+        #     above 4 + upgrade × [tar, zip] + wizard-upgrade × [tar, zip] = 8
+        # All 4 scenarios now cover both formats (Phase 3.6 slice 2 added
+        # upgrade-package.sh --to-local-zip alongside boot-package.sh's
+        # --local-zip).
+        include: ${{ (github.event_name == 'workflow_dispatch' || inputs.caller_tarball_artifact != '' || inputs.caller_zip_artifact != '' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"},{"scenario":"upgrade","format":"tar"},{"scenario":"upgrade","format":"zip"},{"scenario":"wizard-upgrade","format":"tar"},{"scenario":"wizard-upgrade","format":"zip"}]') || fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"}]') }}
+    env:
+      FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}
+      # Single source of truth for to_version — see the
+      # detect-mode.outputs.to_version comment for why the auto-fire
+      # path resolves this to 99.99.99.
+      TO_VERSION: ${{ needs.detect-mode.outputs.to_version }}
+      ACCEPTANCE_ARTIFACT_URL: http://localhost:8680
+    name: ${{ matrix.scenario }} (${{ matrix.format }})
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+
+    - name: Set up PHP + composer for the acceptance harness
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+        tools: composer:v2
+        extensions: curl, dom, mbstring, tokenizer, xml
+
+    # ChromeDriver for the E2eCriticalPathTest — see acceptance-docker.yml
+    # for the rationale on nanasess/setup-chromedriver over
+    # browser-actions/setup-chrome (avoids Chrome/ChromeDriver version
+    # drift from independent release channels).
+    - name: Set up matching ChromeDriver for Panther-driven acceptance tests
+      uses: nanasess/setup-chromedriver@v3
+
+    - name: Install acceptance-suite composer dependencies
+      run: composer install --prefer-dist --no-progress --no-scripts --no-interaction
+
+    # ==== Load PR-built or caller-supplied artifact + resolve boot flags ====
+    # Two source paths × two formats converge here:
+    #   Phase 3.5 (PR validation): build-tarball job uploaded either
+    #     openemr-pr-built-tarball OR openemr-pr-built-zip depending
+    #     on matrix.format. Download the format-matching one.
+    #   Phase 7c (workflow_call gate): caller (build-release.yml)
+    #     already uploaded a release-candidate bundle containing BOTH
+    #     formats under inputs.caller_{tarball,zip}_artifact — build-
+    #     tarball self-skipped. Download the caller's format-matching
+    #     artifact name instead.
+    #
+    # All four permutations land the artifact under
+    # /tmp/pr-built-tarball/openemr-<TO_VERSION>.{tar.gz,zip}, so the
+    # bootflags step below only needs to switch on matrix.format.
+    #
+    # upgrade + wizard-upgrade cells never fire the zip-download steps —
+    # their matrix entries pin format=tar (upgrade-package.sh does not
+    # yet accept --to-local-zip; Phase 3.6 follow-up).
+    - name: Download PR-built tarball (Phase 3.5, tar)
+      if: needs.build-tarball.result == 'success' && inputs.caller_tarball_artifact == '' && matrix.format == 'tar'
+      uses: actions/download-artifact@v8
+      with:
+        name: openemr-pr-built-tarball
+        path: /tmp/pr-built-tarball
+
+    - name: Download PR-built zip (Phase 3.5, zip)
+      if: needs.build-tarball.result == 'success' && inputs.caller_zip_artifact == '' && matrix.format == 'zip'
+      uses: actions/download-artifact@v8
+      with:
+        name: openemr-pr-built-zip
+        path: /tmp/pr-built-tarball
+
+    - name: Download caller-supplied tarball (Phase 7c gate, tar)
+      if: inputs.caller_tarball_artifact != '' && matrix.format == 'tar'
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.caller_tarball_artifact }}
+        path: /tmp/pr-built-tarball
+
+    - name: Download caller-supplied zip (Phase 7c gate, zip)
+      if: inputs.caller_zip_artifact != '' && matrix.format == 'zip'
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ inputs.caller_zip_artifact }}
+        path: /tmp/pr-built-tarball
+
+    - name: Resolve boot flags for to_version
+      # `to_local_flag` is spliced into every boot-package.sh
+      # invocation that boots the to_version artifact;
+      # `to_upgrade_local_flag` is spliced into upgrade-package.sh
+      # (different flag name, same file). When either the build-tarball
+      # job ran OR the caller supplied an artifact via workflow_call,
+      # both point at the local .tar.gz / .zip (downloaded above) and
+      # the underlying script skips its GitHub-release download entirely.
+      # Otherwise both are empty and the scripts do their normal curl.
+      #
+      # Format switching (Phase 3.6): `to_local_flag` becomes
+      # --local-tarball=<path> for tar cells and --local-zip=<path> for
+      # zip cells. `to_upgrade_local_flag` stays --to-local-tarball only
+      # — upgrade-package.sh doesn't yet accept --to-local-zip, and the
+      # upgrade + wizard-upgrade matrix entries pin format=tar so the
+      # zip branch is unreachable for those scenarios.
+      #
+      # There is intentionally no `from_local_flag` — the upgrade
+      # scenarios always boot the shipped from_version from GitHub
+      # (that's the whole point of testing "install the
+      # currently-shipped tarball, then upgrade to the PR-built one").
+      id: bootflags
+      env:
+        BUILD_TARBALL_RESULT: ${{ needs.build-tarball.result }}
+        CALLER_TARBALL_ARTIFACT: ${{ inputs.caller_tarball_artifact }}
+        CALLER_ZIP_ARTIFACT: ${{ inputs.caller_zip_artifact }}
+        MATRIX_FORMAT: ${{ matrix.format }}
+        TO_VERSION: ${{ needs.detect-mode.outputs.to_version }}
+      run: |
+        set -euo pipefail
+        # detect-mode already validated the version shape, but re-check
+        # here so a future workflow_dispatch input change can't sneak
+        # unvalidated caller input into the LOCAL_PATH construction
+        # below (defense-in-depth against ${TO_VERSION} splicing into
+        # $GITHUB_OUTPUT with crafted newline payloads).
+        if [[ ! "$TO_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "::error::TO_VERSION '${TO_VERSION}' does not match required X.Y.Z"
+          exit 1
+        fi
+        # Which caller_* input is relevant for this matrix cell — used
+        # only to decide "did the caller supply an artifact for this
+        # format" for the log-message + presence-check below.
+        case "$MATRIX_FORMAT" in
+          tar) CALLER_ARTIFACT_FOR_FORMAT="$CALLER_TARBALL_ARTIFACT" ;;
+          zip) CALLER_ARTIFACT_FOR_FORMAT="$CALLER_ZIP_ARTIFACT" ;;
+          *)
+            echo "::error::unknown matrix.format value: '${MATRIX_FORMAT}' (expected tar or zip)"
+            exit 1
+            ;;
+        esac
+        # Local-artifact sources: either build-tarball job (Phase 3.5)
+        # or workflow_call caller-supplied artifact (Phase 7c). Both
+        # download to /tmp/pr-built-tarball/openemr-<TO_VERSION>.{tar.gz,zip}.
+        if [[ "$BUILD_TARBALL_RESULT" == "success" || -n "$CALLER_ARTIFACT_FOR_FORMAT" ]]; then
+          case "$MATRIX_FORMAT" in
+            tar)
+              LOCAL_PATH="/tmp/pr-built-tarball/openemr-${TO_VERSION}.tar.gz"
+              LOCAL_FLAG="--local-tarball=${LOCAL_PATH}"
+              ;;
+            zip)
+              LOCAL_PATH="/tmp/pr-built-tarball/openemr-${TO_VERSION}.zip"
+              LOCAL_FLAG="--local-zip=${LOCAL_PATH}"
+              ;;
+          esac
+          if [[ ! -f "$LOCAL_PATH" ]]; then
+            echo "::error::local-artifact path expected but $LOCAL_PATH is not present"
+            exit 1
+          fi
+          if [[ -n "$CALLER_ARTIFACT_FOR_FORMAT" ]]; then
+            echo "==> Using caller-supplied ${MATRIX_FORMAT} (Phase 7c): $LOCAL_PATH"
+          else
+            echo "==> Using PR-built ${MATRIX_FORMAT} (Phase 3.5): $LOCAL_PATH"
+          fi
+          echo "to_local_flag=${LOCAL_FLAG}" >> "$GITHUB_OUTPUT"
+          # upgrade-package.sh --to-local-tarball / --to-local-zip
+          # symmetric with boot-package.sh's --local-{tarball,zip}
+          # (Phase 3.6 slice 2). Emit whichever flag matches the
+          # matrix format so upgrade + wizard-upgrade[zip] cells
+          # exercise the zip extraction path in upgrade-package.sh.
+          case "$MATRIX_FORMAT" in
+            tar)
+              echo "to_upgrade_local_flag=--to-local-tarball=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
+              ;;
+            zip)
+              echo "to_upgrade_local_flag=--to-local-zip=${LOCAL_PATH}" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+        else
+          echo "==> No local artifact; to_version will be fetched from the GitHub release page"
+          echo "to_local_flag=" >> "$GITHUB_OUTPUT"
+          echo "to_upgrade_local_flag=" >> "$GITHUB_OUTPUT"
+        fi
+
+    # ==== fresh-install scenario ====
+    - name: Boot tarball artifact (to_version)
+      if: matrix.scenario == 'fresh-install'
+      run: tests/Acceptance/bin/boot-package.sh ${{ steps.bootflags.outputs.to_local_flag }} "${TO_VERSION}"
+
+    - name: Run acceptance suite (fresh-install of to_version)
+      if: matrix.scenario == 'fresh-install'
+      run: composer acceptance -- --group=fresh-install
+
+    # api-enable bootstrap fires AFTER the fresh-install group. Order
+    # matters: OAuth2SmokeTest's fresh-install-tagged assertions verify
+    # the API-disabled 404 gate that ships by default; the bootstrap
+    # then flips those globals so the api-enabled group can assert the
+    # opposite behavior (endpoints return 200 with real content).
+    - name: Bootstrap API via admin panel
+      if: matrix.scenario == 'fresh-install'
+      env:
+        OPENEMR_ENABLE_API_BOOTSTRAP: '1'
+      run: php tests/Acceptance/bin/api-enable.php
+
+    - name: Run acceptance suite (api-enabled of to_version)
+      if: matrix.scenario == 'fresh-install'
+      run: composer acceptance -- --group=api-enabled
+
+    # ==== wizard-install scenario ====
+    # Boots the artifact WITHOUT running install-helper.php so the
+    # artifact serves setup.php on /. InstallWizardUiTest then drives
+    # the wizard via Panther end-to-end (state 0 → 3 + verify / now
+    # redirects to login). Covers what Phase 3's CLI install path
+    # bypasses: setup.php's browser-facing state machine, form
+    # rendering, CSRF, cookie-based state.
+    - name: Boot tarball artifact (to_version, no install-helper)
+      if: matrix.scenario == 'wizard-install'
+      run: tests/Acceptance/bin/boot-package.sh --skip-install-helper ${{ steps.bootflags.outputs.to_local_flag }} "${TO_VERSION}"
+
+    - name: Run acceptance suite (wizard-install of to_version)
+      if: matrix.scenario == 'wizard-install'
+      run: composer acceptance -- --group=wizard-install
+
+    # ==== upgrade scenario ====
+    # from_version is always the shipped GitHub-release tarball (no
+    # --local-tarball flag — testing "install the currently-shipped
+    # tarball" is the whole point of the from side). to_version can
+    # be either the shipped GitHub-release tarball OR the PR-built
+    # one (controlled by --to-local-tarball via steps.bootflags —
+    # empty string when build-tarball didn't run).
+    - name: Boot tarball artifact (from_version)
+      if: matrix.scenario == 'upgrade'
+      run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
+
+    - name: Run acceptance suite (fresh-install of from_version)
+      if: matrix.scenario == 'upgrade'
+      run: composer acceptance -- --group=fresh-install
+
+    - name: Upgrade from_version -> to_version
+      if: matrix.scenario == 'upgrade'
+      run: tests/Acceptance/bin/upgrade-package.sh ${{ steps.bootflags.outputs.to_upgrade_local_flag }} "${FROM_VERSION}" "${TO_VERSION}"
+
+    - name: Run post-upgrade suite against to_version
+      if: matrix.scenario == 'upgrade'
+      run: composer acceptance -- --group=post-upgrade
+
+    # ==== wizard-upgrade scenario ====
+    # Boots the from-version normally (install-helper.php runs, DB
+    # populated), then swaps to the to-version bind mount via
+    # upgrade-package.sh --skip-sql-upgrade — leaving the artifact in
+    # the classic "user just extracted new tarball, hasn't run the
+    # upgrade script yet" state. UpgradeWizardUiTest then drives
+    # sql_upgrade.php via Panther end-to-end (form load → version
+    # select → submit → verify / redirects to login).
+    - name: Boot tarball artifact (from_version)
+      if: matrix.scenario == 'wizard-upgrade'
+      run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
+
+    - name: Swap bind mount to to_version without running CLI upgrade
+      if: matrix.scenario == 'wizard-upgrade'
+      run: tests/Acceptance/bin/upgrade-package.sh --skip-sql-upgrade ${{ steps.bootflags.outputs.to_upgrade_local_flag }} "${FROM_VERSION}" "${TO_VERSION}"
+
+    - name: Run acceptance suite (wizard-upgrade)
+      if: matrix.scenario == 'wizard-upgrade'
+      run: composer acceptance -- --group=wizard-upgrade
+
+    # ==== debug + teardown (all scenarios) ====
+    - name: Capture container state (on failure)
+      if: failure()
+      env:
+        TARBALL_DIR: /dev/null
+        HELPER_PATH: /dev/null
+      run: |
+        echo "=== docker compose ps ==="
+        docker compose \
+          -f .github/docker/acceptance-package-compose.yml \
+          -p openemr-acceptance-package \
+          ps || true
+
+    - name: Capture openemr container logs (on failure)
+      if: failure()
+      env:
+        TARBALL_DIR: /dev/null
+        HELPER_PATH: /dev/null
+      run: |
+        docker compose \
+          -f .github/docker/acceptance-package-compose.yml \
+          -p openemr-acceptance-package \
+          logs openemr || true
+
+    - name: Teardown
+      if: always()
+      run: tests/Acceptance/bin/down-package.sh || true

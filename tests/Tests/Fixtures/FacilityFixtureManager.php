@@ -72,16 +72,6 @@ class FacilityFixtureManager extends BaseFixtureManager
     }
 
     /**
-     * Installs a single Facility Fixtures into the OpenEMR DB.
-     * @param $facilityFixture - The fixture to install.
-     * @return count of records inserted.
-     */
-    public function installSingleFacilityFixture($facilityFixture)
-    {
-        return $this->installFixtures();
-    }
-
-    /**
      * Removes Facility Fixtures from the OpenEMR DB.
      */
     public function removeInstalledFixtures()

@@ -25,13 +25,18 @@ require_once("$srcdir/patient.inc.php");
 
 // Check permission to create encounters.
 $tmp = getPatientData($pid, "squad");
-if (($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) || !AclMain::aclCheckForm('newpatient', '', ['write', 'addonly'])) {
-    // TODO: why is this reversed?
-    echo "<body>\n<html>\n";
-    echo "<p>(" . xlt('New encounters not authorized') . ")</p>\n";
-    echo "</body>\n</html>\n";
-    exit();
-}
+$squad = $tmp['squad'] ?? '';
+$squad = is_string($squad) ? $squad : '';
 
-$viewmode = false;
-require_once("common.php");
+if (($squad === '' || AclMain::aclCheckCore('squads', $squad)) && AclMain::aclCheckForm('newpatient', '', ['write', 'addonly'])) {
+    $viewmode = false;
+    require_once("common.php");
+    return;
+}
+http_response_code(403);
+$notAuthorizedText = xlt('New encounters not authorized');
+?>
+<html>
+    <head><title><?php echo $notAuthorizedText; ?></title></head>
+    <body><p><?php echo $notAuthorizedText; ?></p></body>
+</html>

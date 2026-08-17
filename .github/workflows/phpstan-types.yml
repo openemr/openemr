@@ -43,12 +43,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Setup PHP
       uses: ./.github/actions/setup-php-composer
       with:
-        php-version: '8.2'
+        php-version: '8.3'
 
     - name: Regenerate TableTypes.php
       run: |

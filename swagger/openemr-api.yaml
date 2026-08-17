@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: 'OpenEMR API'
-  version: 8.0.1
+  version: 8.4.0
 servers:
   -
     url: /apis/default/
@@ -1556,6 +1556,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: {  }
@@ -1730,6 +1732,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: {  }
@@ -1981,6 +1985,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: {  }
@@ -2270,6 +2276,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: {  }
@@ -2509,6 +2517,8 @@ paths:
           $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
+        404:
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: {  }

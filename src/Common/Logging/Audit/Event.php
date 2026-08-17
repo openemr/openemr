@@ -18,6 +18,7 @@ namespace OpenEMR\Common\Logging\Audit;
  * (inferred from ApiResponseLoggerListener)
  * @phpstan-type ApiData array{
  *   user_id: int,
+ *   client_id?: string,
  *   patient_id: int,
  *   method: string,
  *   request: string,
@@ -41,7 +42,6 @@ readonly class Event
         public string $user_notes,
         public ?int $patientId,
         public int $success,
-        public string $SSL_CLIENT_S_DN_CN,
         public string $logFrom,
         public ?int $menuItemId,
         public ?int $ccdaDocId,

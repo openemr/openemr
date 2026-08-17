@@ -6,6 +6,8 @@
 require_once dirname(__DIR__, 4) . "/globals.php";
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -14,7 +16,14 @@ use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
-//Ensure user has proper access permissions. Will automatically reset encryption key if needed.
+// Gate: match the ACL enforced on the calling page (download_log_viewer.php).
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    http_response_code(403);
+    exit;
+}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
+
+// Ensure the stored Weno encryption key is valid; auto-reset if needed.
 $wenoValidate = new WenoValidate();
 $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
 

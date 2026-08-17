@@ -26,7 +26,6 @@ use XSLTProcessor;
 
 // TODO: we need to refactor all of this so it can go into a class for this functionality
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/ccr/transmitCCD.php');
-require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/library/amc.php');
 
 class EncountermanagerTable
 {
@@ -253,7 +252,7 @@ class EncountermanagerTable
             return ("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
 
-        $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? true : false;
+        $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable');
 
         $elec_sent = [];
         try {

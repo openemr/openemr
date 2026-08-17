@@ -1,5 +1,0 @@
-services:
-  openemr:
-    image: openemr/openemr:8.1.0@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-    ports:
-    - 80:80

@@ -53,13 +53,14 @@ require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/appointments.inc.php');
 require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
 // statement.inc.php sets $STMT_TEMP_FILE
-assert(isset($STMT_TEMP_FILE));
+if (!isset($STMT_TEMP_FILE)) {
+    throw new \RuntimeException('$STMT_TEMP_FILE must be set by statement.inc.php');
+}
 require_once($srcDir . '/api.inc.php');
 require_once($srcDir . '/forms.inc.php');
 require_once($srcDir . '/../controllers/C_Document.class.php');
 require_once($srcDir . '/documents.php');
 require_once($srcDir . '/options.inc.php');
-require_once($srcDir . '/user.inc.php');
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));
@@ -80,7 +81,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
     require_once("../../portal/lib/portal_mail.inc.php");
     require_once("../../portal/lib/appsql.class.php");
 
-    function is_auth_portal($pid = 0)
+    function is_auth_portal($pid = 0): bool
     {
         $rows = QueryUtils::fetchRecords("SELECT id, allow_patient_portal, fname FROM `patient_data` WHERE `pid` = ?", [$pid]);
         $pData = $rows[0] ?? null;
@@ -92,7 +93,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
         return false;
     }
 
-    function notify_portal($thispid, array $invoices, $template, $invid)
+    function notify_portal($thispid, array $invoices, $template, $invid): bool
     {
         $builddir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/onsite_portal_documents/templates/' . $thispid;
         if (!is_dir($builddir)) {
@@ -119,7 +120,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
         return true;
     }
 
-    function fixup_invoice($template, $ifile)
+    function fixup_invoice($template, $ifile): bool
     {
         $data = file_get_contents($template);
         if ($data == "") {

@@ -308,7 +308,7 @@ function tagProcedure() {
 			 $file->get_mimetype() eq "application/pdf" }
 			<iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></iframe>
       {elseif $file->get_mimetype() eq "application/dicom" or $file->get_mimetype() eq "application/dicom+zip"}
-      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?web_path={$web_path|attr}as_file=false"></iframe>
+      <iframe style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$webroot}/library/dicom_frame.php?csrf_token_form={$csrf_token_form|attr_url}&web_path={$web_path|attr}as_file=false"></iframe>
       {elseif $file->get_mimetype() eq "audio/ogg" or $file->get_mimetype() eq "audio/wav" or $file->get_mimetype() eq "audio/mpeg"}
       <audio class="w-100" preload="metadata" controls="true" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false">{xlt t='Your browser does not support HTML5 audio'}</audio>
       {elseif $file->get_ccr_type($file->get_id()) ne "CCR" and $file->get_ccr_type($file->get_id()) ne "CCD"}

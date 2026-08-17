@@ -268,7 +268,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
                 ,"ob_status" => 'final' // we always set this to final as there's no in-between state
                 ,"puuid" => $record['uuid']
                 ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
-                ,"user_uuid" => 'provider_uuid'
+                ,"user_uuid" => $record['provider_uuid'] ?? null
                 ,"date" => $record['date']
                 ,"last_updated" => $record['date']
                 ,"profiles" => $profiles

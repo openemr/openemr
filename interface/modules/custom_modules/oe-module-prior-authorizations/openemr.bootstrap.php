@@ -64,6 +64,7 @@ function oe_module_priorauth_patient_menu_item(PatientMenuEvent $menuEvent)
     $menuItem->url = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-prior-authorizations/public/index.php";
     $menuItem->menu_id = "mod_pa";
     $menuItem->target = "mod";
+    $menuItem->acl_req = ["patients", "docs", "write", "addonly"];
 
     $existingMenu[] = $menuItem;
 

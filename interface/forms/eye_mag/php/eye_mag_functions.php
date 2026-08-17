@@ -8,7 +8,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <rmagauran@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016- Raymond Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +18,10 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\CopyForward;
+use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\PmsfhPanel;
+use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -1666,64 +1672,22 @@ function build_PMSFH($pid)
 
     $PMSFH = [];
     $PMSFH['CHRONIC'] = [];
-    //Define the PMSFH array elements as you need them:
-    $PMSFH_labels = ["POH", "POS", "Eye Meds", "PMH", "Surgery", "Medication", "Allergy", "SOCH", "FH", "ROS"];
-    foreach ($PMSFH_labels as $panel_type) {
+    /*
+     *  Each of these panels is one stock ISSUE_TYPE narrowed by a subtype. This
+     *  is an "eye" form: providers would like ophthalmic medical problems listed
+     *  separately, so the ISSUE_TYPE 'medical_problem' is split using subtype
+     *  "eye" -- but it could be "GYN", "ONC", "GU" etc for whoever wants to
+     *  extend this with their own specific "sub"-lists. The same concept covers
+     *  Past Ocular Surgery, Oncology Medications, and so on; add a case to
+     *  PmsfhPanel rather than another branch here.
+     */
+    foreach (PmsfhPanel::cases() as $panel) {
+        $panel_type = $panel->value;
         $PMSFH[$panel_type] = [];
-        $subtype = " and (subtype is NULL or subtype ='' )";
-        $order = "ORDER BY title";
-        if (in_array($panel_type, ["FH", "SOCH", "ROS"])) {
-            /*
-             *  We are going to build SocHx, FH and ROS separately below since they don't feed off of
-             *  the pre-existing ISSUE_TYPE array - so for now do nothing
-             */
-            continue;
-        } elseif ($panel_type == 'POH') {
-            $focusISSUE = "medical_problem"; //openEMR ISSUE_TYPE
-            $subtype = " and subtype ='eye'";
-            /* This is an "eye" form: providers would like ophthalmic medical problems listed separately.
-             * Thus we split the ISSUE_TYPE 'medical_problem' using subtype "eye"
-             * but it could be "GYN", "ONC", "GU" etc - for whoever wants to
-             * extend this for their own specific "sub"-lists.
-             * Similarly, consider Past Ocular Surgery, or Past GYN Surgery, etc for specialty-specific
-             * surgery lists.  They would be subtypes of the ISSUE_TYPE 'surgery'...
-             * eg.
-             *   if ($panel_type =='POS') { //Past Ocular Surgery
-             *   $focusISSUE = "surgery";
-             *   $subtype=" and subtype ='eye'";
-             *   }
-             * The concept is extensible to sub lists for Allergies & Medications too.
-             * eg.
-             *   if ($panel_type =='OncMeds') {
-             *      $focusISSUE = "medication";
-             *      $subtype=" and subtype ='onc'";
-             *   }
-             */
-        } elseif ($panel_type == 'POS') {
-            $focusISSUE = "surgery"; //openEMR ISSUE_TYPE
-            $subtype = " and subtype ='eye'";
-        } elseif ($panel_type == 'PMH') {
-            $focusISSUE = "medical_problem"; //openEMR ISSUE_TYPE
-            $subtype = " and (subtype = '' OR subtype IS NULL)"; //fee_sheet makes subtype=
-        } elseif ($panel_type == 'Surgery') {
-            $focusISSUE = "surgery"; //openEMR ISSUE_TYPE
-            $subtype = "  and (subtype = '' OR subtype IS NULL)";
-            $order = "ORDER BY begdate DESC";
-        } elseif ($panel_type == 'Allergy') {
-            $focusISSUE = "allergy"; //openEMR ISSUE_TYPE
-            $subtype = "";
-        } elseif ($panel_type == 'Medication') {
-            $focusISSUE = "medication"; //openEMR ISSUE_TYPE
-            $subtype = "";
-        } elseif ($panel_type == 'Eye Meds') {
-            $focusISSUE = "medication"; //openEMR ISSUE_TYPE
-            $subtype = "and subtype = 'eye'";// and subtype ='eye' ";
-        }
 
-        $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
-            $subtype . " " . $order, [$pid,$focusISSUE]);
+        $issues = $panel->issuesQuery($pid);
         $row_counter = '0';
-        while ($row = sqlFetchArray($pres)) {
+        foreach (QueryUtils::fetchRecords($issues->sql, $issues->params) as $row) {
             $rowid = $row['id'];
             $disptitle = text(trim((string) $row['title'])) ? text($row['title']) : "[" . xlt("Missing Title") . "]";
             //  look up the diag codes
@@ -1801,6 +1765,16 @@ function build_PMSFH($pid)
             $row_counter++;
         }
     }
+
+    /*
+     *  SocHx, FH and ROS are PMSFH panels too, but they are assembled from the
+     *  history and layout tables rather than from the ISSUE_TYPE array, so they
+     *  have no PmsfhPanel case. Declaring their keys here keeps them in the
+     *  order the form renders them, after the issue-list panels above.
+     */
+    $PMSFH['SOCH'] = [];
+    $PMSFH['FH'] = [];
+    $PMSFH['ROS'] = [];
 
     //Build the SocHx portion of $PMSFH for this patient.
     //$given ="coffee,tobacco,alcohol,sleep_patterns,exercise_patterns,seatbelt_use,counseling,hazardous_activities,recreational_drugs";
@@ -3355,433 +3329,36 @@ function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = 
 }
 
 /**
- *  This function returns a JSON object to replace a requested section with copy_forward values (3 input values)
+ *  Echoes the JSON payload the browser applies to today's chart when copying a
+ *  section (or the whole record) forward from a prior encounter.
  *  It will not replace the drawings with older encounter drawings... Not yet anyway.
  *
- * @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO, EXT_DRAW, ANTSEG_DRAW, RETINA_DRAW, NEURO_DRAW
- * @param string $form_id is the form_eye_*.id where the data to carry forward is located
+ * @param Zone|CopyMode $mode what to copy: a single exam zone, or a whole-form operation
+ * @param string $copy_from is the form_eye_*.id where the data to carry forward is located
  * @param string $pid value = patient id
- * @return void : outputs the ZONE specific HTML for a prior record + widget for the desired zone
+ * @return void : echoes the values of the requested zone as JSON
  */
-function copy_forward($zone, $copy_from, $copy_to, $pid): void
+function copy_forward(Zone|CopyMode $mode, string $copy_from, string $pid): void
 {
-    global $form_id;
-
-    $query = "select  *,form_encounter.date as encounter_date
-
-               from forms,form_encounter,form_eye_base,
-                form_eye_hpi,form_eye_ros,form_eye_vitals,
-                form_eye_acuity,form_eye_refraction,form_eye_biometrics,
-                form_eye_external,form_eye_antseg,form_eye_postseg,
-                form_eye_neuro,form_eye_locking
-                    where
-                    forms.deleted != '1'  and
-                    forms.formdir='eye_mag' and
-                    forms.encounter=form_encounter.encounter and
-                    forms.form_id=form_eye_base.id and
-                    forms.form_id=form_eye_hpi.id and
-                    forms.form_id=form_eye_ros.id and
-                    forms.form_id=form_eye_vitals.id and
-                    forms.form_id=form_eye_acuity.id and
-                    forms.form_id=form_eye_refraction.id and
-                    forms.form_id=form_eye_biometrics.id and
-                    forms.form_id=form_eye_external.id and
-                    forms.form_id=form_eye_antseg.id and
-                    forms.form_id=form_eye_postseg.id and
-                    forms.form_id=form_eye_neuro.id and
-                    forms.form_id=form_eye_locking.id and
-                    forms.pid =? and
-                    forms.form_id =? ";
-
-    $objQuery = sqlQuery($query, [$pid,$copy_from]);
-    if ($zone == "EXT") {
-        $result['RUL'] = $objQuery['RUL'];
-        $result['LUL'] = $objQuery['LUL'];
-        $result['RLL'] = $objQuery['RLL'];
-        $result['LLL'] = $objQuery['LLL'];
-        $result['RBROW'] = $objQuery['RBROW'];
-        $result['LBROW'] = $objQuery['LBROW'];
-        $result['RMCT'] = $objQuery['RMCT'];
-        $result['LMCT'] = $objQuery['LMCT'];
-        $result['RADNEXA'] = $objQuery['RADNEXA'];
-        $result['LADNEXA'] = $objQuery['LADNEXA'];
-        $result['RMRD'] = $objQuery['RMRD'];
-        $result['LMRD'] = $objQuery['LMRD'];
-        $result['RLF'] = $objQuery['RLF'];
-        $result['LLF'] = $objQuery['LLF'];
-        $result['RVFISSURE'] = $objQuery['RVFISSURE'];
-        $result['LVFISSURE'] = $objQuery['LVFISSURE'];
-        $result['RCAROTID'] = $objQuery['RCAROTID'];
-        $result['LCAROTID'] = $objQuery['LCAROTID'];
-        $result['RTEMPART'] = $objQuery['RTEMPART'];
-        $result['LTEMPART'] = $objQuery['LTEMPART'];
-        $result['RCNV'] = $objQuery['RCNV'];
-        $result['LCNV'] = $objQuery['LCNV'];
-        $result['RCNVII'] = $objQuery['RCNVII'];
-        $result['LCNVII'] = $objQuery['LCNVII'];
-        $result['ODSCHIRMER1'] = $objQuery['ODSCHIRMER1'];
-        $result['OSSCHIRMER1'] = $objQuery['OSSCHIRMER1'];
-        $result['ODSCHIRMER2'] = $objQuery['ODSCHIRMER2'];
-        $result['OSSCHIRMER2'] = $objQuery['OSSCHIRMER2'];
-        $result['ODTBUT'] = $objQuery['ODTBUT'];
-        $result['OSTBUT'] = $objQuery['OSTBUT'];
-        $result['OSHERTEL'] = $objQuery['OSHERTEL'];
-        $result['HERTELBASE'] = $objQuery['HERTELBASE'];
-        $result['ODPIC'] = $objQuery['ODPIC'];
-        $result['OSPIC'] = $objQuery['OSPIC'];
-        $result['EXT_COMMENTS'] = $objQuery['EXT_COMMENTS'];
-        $result["json"] = json_encode($result);
-        echo json_encode($result);
-    } elseif ($zone == "ANTSEG") {
-        $result['OSCONJ'] = $objQuery['OSCONJ'];
-        $result['ODCONJ'] = $objQuery['ODCONJ'];
-        $result['ODCORNEA'] = $objQuery['ODCORNEA'];
-        $result['OSCORNEA'] = $objQuery['OSCORNEA'];
-        $result['ODAC'] = $objQuery['ODAC'];
-        $result['OSAC'] = $objQuery['OSAC'];
-        $result['ODLENS'] = $objQuery['ODLENS'];
-        $result['OSLENS'] = $objQuery['OSLENS'];
-        $result['ODIRIS'] = $objQuery['ODIRIS'];
-        $result['OSIRIS'] = $objQuery['OSIRIS'];
-        $result['ODKTHICKNESS'] = $objQuery['ODKTHICKNESS'];
-        $result['OSKTHICKNESS'] = $objQuery['OSKTHICKNESS'];
-        $result['ODGONIO'] = $objQuery['ODGONIO'];
-        $result['OSGONIO'] = $objQuery['OSGONIO'];
-        $result['ODSCHIRMER1'] = $objQuery['ODSCHIRMER1'];
-        $result['OSSCHIRMER1'] = $objQuery['OSSCHIRMER1'];
-        $result['ODSCHIRMER2'] = $objQuery['ODSCHIRMER2'];
-        $result['OSSCHIRMER2'] = $objQuery['OSSCHIRMER2'];
-        $result['ODTBUT'] = $objQuery['ODTBUT'];
-        $result['OSTBUT'] = $objQuery['OSTBUT'];
-        $result['ANTSEG_COMMENTS'] = $objQuery['ANTSEG_COMMENTS'];
-        $result["json"] = json_encode($result);
-        echo json_encode($result);
-    } elseif ($zone == "RETINA") {
-        $result['ODDISC'] = $objQuery['ODDISC'];
-        $result['OSDISC'] = $objQuery['OSDISC'];
-        $result['ODCUP'] = $objQuery['ODCUP'];
-        $result['OSCUP'] = $objQuery['OSCUP'];
-        $result['ODMACULA'] = $objQuery['ODMACULA'];
-        $result['OSMACULA'] = $objQuery['OSMACULA'];
-        $result['ODVESSELS'] = $objQuery['ODVESSELS'];
-        $result['OSVESSELS'] = $objQuery['OSVESSELS'];
-        $result['ODVITREOUS'] = $objQuery['ODVITREOUS'];
-        $result['OSVITREOUS'] = $objQuery['OSVITREOUS'];
-        $result['ODPERIPH'] = $objQuery['ODPERIPH'];
-        $result['OSPERIPH'] = $objQuery['OSPERIPH'];
-        $result['ODDRAWING'] = $objQuery['ODDRAWING'];
-        $result['OSDRAWING'] = $objQuery['OSDRAWING'];
-        $result['ODCMT'] = $objQuery['ODCMT'];
-        $result['OSCMT'] = $objQuery['OSCMT'];
-        $result['RETINA_COMMENTS'] = $objQuery['RETINA_COMMENTS'];
-        $result["json"] = json_encode($result);
-        echo json_encode($result);
-    } elseif ($zone == "NEURO") {
-        $result['ACT'] = $objQuery['ACT'];
-        $result['ACT5CCDIST'] = $objQuery['ACT5CCDIST'];
-        $result['ACT1CCDIST'] = $objQuery['ACT1CCDIST'];
-        $result['ACT2CCDIST'] = $objQuery['ACT2CCDIST'];
-        $result['ACT3CCDIST'] = $objQuery['ACT3CCDIST'];
-        $result['ACT4CCDIST'] = $objQuery['ACT4CCDIST'];
-        $result['ACT6CCDIST'] = $objQuery['ACT6CCDIST'];
-        $result['ACT7CCDIST'] = $objQuery['ACT7CCDIST'];
-        $result['ACT8CCDIST'] = $objQuery['ACT8CCDIST'];
-        $result['ACT9CCDIST'] = $objQuery['ACT9CCDIST'];
-        $result['ACT10CCDIST'] = $objQuery['ACT10CCDIST'];
-        $result['ACT11CCDIST'] = $objQuery['ACT11CCDIST'];
-        $result['ACT1SCDIST'] = $objQuery['ACT1SCDIST'];
-        $result['ACT2SCDIST'] = $objQuery['ACT2SCDIST'];
-        $result['ACT3SCDIST'] = $objQuery['ACT3SCDIST'];
-        $result['ACT4SCDIST'] = $objQuery['ACT4SCDIST'];
-        $result['ACT5SCDIST'] = $objQuery['ACT5SCDIST'];
-        $result['ACT6SCDIST'] = $objQuery['ACT6SCDIST'];
-        $result['ACT7SCDIST'] = $objQuery['ACT7SCDIST'];
-        $result['ACT8SCDIST'] = $objQuery['ACT8SCDIST'];
-        $result['ACT9SCDIST'] = $objQuery['ACT9SCDIST'];
-        $result['ACT10SCDIST'] = $objQuery['ACT10SCDIST'];
-        $result['ACT11SCDIST'] = $objQuery['ACT11SCDIST'];
-        $result['ACT1SCNEAR'] = $objQuery['ACT1SCNEAR'];
-        $result['ACT2SCNEAR'] = $objQuery['ACT2SCNEAR'];
-        $result['ACT3SCNEAR'] = $objQuery['ACT3SCNEAR'];
-        $result['ACT4SCNEAR'] = $objQuery['ACT4SCNEAR'];
-        $result['ACT5CCNEAR'] = $objQuery['ACT5CCNEAR'];
-        $result['ACT6CCNEAR'] = $objQuery['ACT6CCNEAR'];
-        $result['ACT7CCNEAR'] = $objQuery['ACT7CCNEAR'];
-        $result['ACT8CCNEAR'] = $objQuery['ACT8CCNEAR'];
-        $result['ACT9CCNEAR'] = $objQuery['ACT9CCNEAR'];
-        $result['ACT10CCNEAR'] = $objQuery['ACT10CCNEAR'];
-        $result['ACT11CCNEAR'] = $objQuery['ACT11CCNEAR'];
-        $result['ACT5SCNEAR'] = $objQuery['ACT5SCNEAR'];
-        $result['ACT6SCNEAR'] = $objQuery['ACT6SCNEAR'];
-        $result['ACT7SCNEAR'] = $objQuery['ACT7SCNEAR'];
-        $result['ACT8SCNEAR'] = $objQuery['ACT8SCNEAR'];
-        $result['ACT9SCNEAR'] = $objQuery['ACT9SCNEAR'];
-        $result['ACT10SCNEAR'] = $objQuery['ACT10SCNEAR'];
-        $result['ACT11SCNEAR'] = $objQuery['ACT11SCNEAR'];
-        $result['ACT1CCNEAR'] = $objQuery['ACT1CCNEAR'];
-        $result['ACT2CCNEAR'] = $objQuery['ACT2CCNEAR'];
-        $result['ACT3CCNEAR'] = $objQuery['ACT3CCNEAR'];
-        $result['ACT4CCNEAR'] = $objQuery['ACT4CCNEAR'];
-        $result['ODVF1'] = $objQuery['ODVF1'];
-        $result['ODVF2'] = $objQuery['ODVF2'];
-        $result['ODVF3'] = $objQuery['ODVF3'];
-        $result['ODVF4'] = $objQuery['ODVF4'];
-        $result['OSVF1'] = $objQuery['OSVF1'];
-        $result['OSVF2'] = $objQuery['OSVF2'];
-        $result['OSVF3'] = $objQuery['OSVF3'];
-        $result['OSVF4'] = $objQuery['OSVF4'];
-        $result['MOTILITY_RS'] = $objQuery['MOTILITY_RS'];
-        $result['MOTILITY_RI'] = $objQuery['MOTILITY_RI'];
-        $result['MOTILITY_RR'] = $objQuery['MOTILITY_RR'];
-        $result['MOTILITY_RL'] = $objQuery['MOTILITY_RL'];
-        $result['MOTILITY_LS'] = $objQuery['MOTILITY_LS'];
-        $result['MOTILITY_LI'] = $objQuery['MOTILITY_LI'];
-        $result['MOTILITY_LR'] = $objQuery['MOTILITY_LR'];
-        $result['MOTILITY_LL'] = $objQuery['MOTILITY_LL'];
-        $result['NEURO_COMMENTS'] = $objQuery['NEURO_COMMENTS'];
-        $result['STEREOPSIS'] = $objQuery['STEREOPSIS'];
-        $result['ODNPA'] = $objQuery['ODNPA'];
-        $result['OSNPA'] = $objQuery['OSNPA'];
-        $result['VERTFUSAMPS'] = $objQuery['VERTFUSAMPS'];
-        $result['DIVERGENCEAMPS'] = $objQuery['DIVERGENCEAMPS'];
-        $result['NPC'] = $objQuery['NPC'];
-        $result['DACCDIST'] = $objQuery['DACCDIST'];
-        $result['DACCNEAR'] = $objQuery['DACCNEAR'];
-        $result['CACCDIST'] = $objQuery['CACCDIST'];
-        $result['CACCNEAR'] = $objQuery['CACCNEAR'];
-        $result['ODCOLOR'] = $objQuery['ODCOLOR'];
-        $result['OSCOLOR'] = $objQuery['OSCOLOR'];
-        $result['ODCOINS'] = $objQuery['ODCOINS'];
-        $result['OSCOINS'] = $objQuery['OSCOINS'];
-        $result['ODREDDESAT'] = $objQuery['ODREDDESAT'];
-        $result['OSREDDESAT'] = $objQuery['OSREDDESAT'];
-        $result['ODPUPILSIZE1'] = $objQuery['ODPUPILSIZE1'];
-        $result['ODPUPILSIZE2'] = $objQuery['ODPUPILSIZE2'];
-        $result['ODPUPILREACTIVITY'] = $objQuery['ODPUPILREACTIVITY'];
-        $result['ODAPD'] = $objQuery['ODAPD'];
-        $result['OSPUPILSIZE1'] = $objQuery['OSPUPILSIZE1'];
-        $result['OSPUPILSIZE2'] = $objQuery['OSPUPILSIZE2'];
-        $result['OSPUPILREACTIVITY'] = $objQuery['OSPUPILREACTIVITY'];
-        $result['OSAPD'] = $objQuery['OSAPD'];
-        $result['DIMODPUPILSIZE1'] = $objQuery['DIMODPUPILSIZE1'];
-        $result['DIMODPUPILSIZE2'] = $objQuery['DIMODPUPILSIZE2'];
-        $result['DIMODPUPILREACTIVITY'] = $objQuery['DIMODPUPILREACTIVITY'];
-        $result['DIMOSPUPILSIZE1'] = $objQuery['DIMOSPUPILSIZE1'];
-        $result['DIMOSPUPILSIZE2'] = $objQuery['DIMOSPUPILSIZE2'];
-        $result['DIMOSPUPILREACTIVITY'] = $objQuery['DIMOSPUPILREACTIVITY'];
-        $result['PUPIL_COMMENTS'] = $objQuery['PUPIL_COMMENTS'];
-        $result["json"] = json_encode($result);
-        echo json_encode($result);
-    } elseif ($zone == "IMPPLAN") {
-        $result['IMPPLAN'] = build_IMPPLAN_items($pid, $copy_from);
-        echo json_encode($result);
-    } elseif ($zone == "ALL") {
-        $result['RUL'] = $objQuery['RUL'];
-        $result['LUL'] = $objQuery['LUL'];
-        $result['RLL'] = $objQuery['RLL'];
-        $result['LLL'] = $objQuery['LLL'];
-        $result['RBROW'] = $objQuery['RBROW'];
-        $result['LBROW'] = $objQuery['LBROW'];
-        $result['RMCT'] = $objQuery['RMCT'];
-        $result['LMCT'] = $objQuery['LMCT'];
-        $result['RADNEXA'] = $objQuery['RADNEXA'];
-        $result['LADNEXA'] = $objQuery['LADNEXA'];
-        $result['RMRD'] = $objQuery['RMRD'];
-        $result['LMRD'] = $objQuery['LMRD'];
-        $result['RLF'] = $objQuery['RLF'];
-        $result['LLF'] = $objQuery['LLF'];
-        $result['RVFISSURE'] = $objQuery['RVFISSURE'];
-        $result['LVFISSURE'] = $objQuery['LVFISSURE'];
-        $result['ODHERTEL'] = $objQuery['ODHERTEL'];
-        $result['OSHERTEL'] = $objQuery['OSHERTEL'];
-        $result['HERTELBASE'] = $objQuery['HERTELBASE'];
-        $result['ODPIC'] = $objQuery['ODPIC'];
-        $result['OSPIC'] = $objQuery['OSPIC'];
-        $result['EXT_COMMENTS'] = $objQuery['EXT_COMMENTS'];
-
-        $result['OSCONJ'] = $objQuery['OSCONJ'];
-        $result['ODCONJ'] = $objQuery['ODCONJ'];
-        $result['ODCORNEA'] = $objQuery['ODCORNEA'];
-        $result['OSCORNEA'] = $objQuery['OSCORNEA'];
-        $result['ODAC'] = $objQuery['ODAC'];
-        $result['OSAC'] = $objQuery['OSAC'];
-        $result['ODLENS'] = $objQuery['ODLENS'];
-        $result['OSLENS'] = $objQuery['OSLENS'];
-        $result['ODIRIS'] = $objQuery['ODIRIS'];
-        $result['OSIRIS'] = $objQuery['OSIRIS'];
-        $result['ODKTHICKNESS'] = $objQuery['ODKTHICKNESS'];
-        $result['OSKTHICKNESS'] = $objQuery['OSKTHICKNESS'];
-        $result['ODGONIO'] = $objQuery['ODGONIO'];
-        $result['OSGONIO'] = $objQuery['OSGONIO'];
-        $result['ANTSEG_COMMENTS'] = $objQuery['ANTSEG_COMMENTS'];
-
-        $result['ODDISC'] = $objQuery['ODDISC'];
-        $result['OSDISC'] = $objQuery['OSDISC'];
-        $result['ODCUP'] = $objQuery['ODCUP'];
-        $result['OSCUP'] = $objQuery['OSCUP'];
-        $result['ODMACULA'] = $objQuery['ODMACULA'];
-        $result['OSMACULA'] = $objQuery['OSMACULA'];
-        $result['ODVESSELS'] = $objQuery['ODVESSELS'];
-        $result['OSVESSELS'] = $objQuery['OSVESSELS'];
-        $result['ODVITREOUS'] = $objQuery['ODVITREOUS'];
-        $result['OSVITREOUS'] = $objQuery['OSVITREOUS'];
-        $result['ODPERIPH'] = $objQuery['ODPERIPH'];
-        $result['OSPERIPH'] = $objQuery['OSPERIPH'];
-        $result['ODDRAWING'] = $objQuery['ODDRAWING'];
-        $result['OSDRAWING'] = $objQuery['OSDRAWING'];
-        $result['ODCMT'] = $objQuery['ODCMT'];
-        $result['OSCMT'] = $objQuery['OSCMT'];
-        $result['RETINA_COMMENTS'] = $objQuery['RETINA_COMMENTS'];
-
-        $result['ACT'] = $objQuery['ACT'];
-        $result['ACT5CCDIST'] = $objQuery['ACT5CCDIST'];
-        $result['ACT1CCDIST'] = $objQuery['ACT1CCDIST'];
-        $result['ACT2CCDIST'] = $objQuery['ACT2CCDIST'];
-        $result['ACT3CCDIST'] = $objQuery['ACT3CCDIST'];
-        $result['ACT4CCDIST'] = $objQuery['ACT4CCDIST'];
-        $result['ACT6CCDIST'] = $objQuery['ACT6CCDIST'];
-        $result['ACT7CCDIST'] = $objQuery['ACT7CCDIST'];
-        $result['ACT8CCDIST'] = $objQuery['ACT8CCDIST'];
-        $result['ACT9CCDIST'] = $objQuery['ACT9CCDIST'];
-        $result['ACT10CCDIST'] = $objQuery['ACT10CCDIST'];
-        $result['ACT11CCDIST'] = $objQuery['ACT11CCDIST'];
-        $result['ACT1SCDIST'] = $objQuery['ACT1SCDIST'];
-        $result['ACT2SCDIST'] = $objQuery['ACT2SCDIST'];
-        $result['ACT3SCDIST'] = $objQuery['ACT3SCDIST'];
-        $result['ACT4SCDIST'] = $objQuery['ACT4SCDIST'];
-        $result['ACT5SCDIST'] = $objQuery['ACT5SCDIST'];
-        $result['ACT6SCDIST'] = $objQuery['ACT6SCDIST'];
-        $result['ACT7SCDIST'] = $objQuery['ACT7SCDIST'];
-        $result['ACT8SCDIST'] = $objQuery['ACT8SCDIST'];
-        $result['ACT9SCDIST'] = $objQuery['ACT9SCDIST'];
-        $result['ACT10SCDIST'] = $objQuery['ACT10SCDIST'];
-        $result['ACT11SCDIST'] = $objQuery['ACT11SCDIST'];
-        $result['ACT1SCNEAR'] = $objQuery['ACT1SCNEAR'];
-        $result['ACT2SCNEAR'] = $objQuery['ACT2SCNEAR'];
-        $result['ACT3SCNEAR'] = $objQuery['ACT3SCNEAR'];
-        $result['ACT4SCNEAR'] = $objQuery['ACT4SCNEAR'];
-        $result['ACT5CCNEAR'] = $objQuery['ACT5CCNEAR'];
-        $result['ACT6CCNEAR'] = $objQuery['ACT6CCNEAR'];
-        $result['ACT7CCNEAR'] = $objQuery['ACT7CCNEAR'];
-        $result['ACT8CCNEAR'] = $objQuery['ACT8CCNEAR'];
-        $result['ACT9CCNEAR'] = $objQuery['ACT9CCNEAR'];
-        $result['ACT10CCNEAR'] = $objQuery['ACT10CCNEAR'];
-        $result['ACT11CCNEAR'] = $objQuery['ACT11CCNEAR'];
-        $result['ACT5SCNEAR'] = $objQuery['ACT5SCNEAR'];
-        $result['ACT6SCNEAR'] = $objQuery['ACT6SCNEAR'];
-        $result['ACT7SCNEAR'] = $objQuery['ACT7SCNEAR'];
-        $result['ACT8SCNEAR'] = $objQuery['ACT8SCNEAR'];
-        $result['ACT9SCNEAR'] = $objQuery['ACT9SCNEAR'];
-        $result['ACT10SCNEAR'] = $objQuery['ACT10SCNEAR'];
-        $result['ACT11SCNEAR'] = $objQuery['ACT11SCNEAR'];
-        $result['ACT1CCNEAR'] = $objQuery['ACT1CCNEAR'];
-        $result['ACT2CCNEAR'] = $objQuery['ACT2CCNEAR'];
-        $result['ACT3CCNEAR'] = $objQuery['ACT3CCNEAR'];
-        $result['ACT4CCNEAR'] = $objQuery['ACT4CCNEAR'];
-        $result['ODVF1'] = $objQuery['ODVF1'];
-        $result['ODVF2'] = $objQuery['ODVF2'];
-        $result['ODVF3'] = $objQuery['ODVF3'];
-        $result['ODVF4'] = $objQuery['ODVF4'];
-        $result['OSVF1'] = $objQuery['OSVF1'];
-        $result['OSVF2'] = $objQuery['OSVF2'];
-        $result['OSVF3'] = $objQuery['OSVF3'];
-        $result['OSVF4'] = $objQuery['OSVF4'];
-        $result['MOTILITY_RS'] = $objQuery['MOTILITY_RS'];
-        $result['MOTILITY_RI'] = $objQuery['MOTILITY_RI'];
-        $result['MOTILITY_RR'] = $objQuery['MOTILITY_RR'];
-        $result['MOTILITY_RL'] = $objQuery['MOTILITY_RL'];
-        $result['MOTILITY_LS'] = $objQuery['MOTILITY_LS'];
-        $result['MOTILITY_LI'] = $objQuery['MOTILITY_LI'];
-        $result['MOTILITY_LR'] = $objQuery['MOTILITY_LR'];
-        $result['MOTILITY_LL'] = $objQuery['MOTILITY_LL'];
-        $result['NEURO_COMMENTS'] = $objQuery['NEURO_COMMENTS'];
-        $result['STEREOPSIS'] = $objQuery['STEREOPSIS'];
-        $result['ODNPA'] = $objQuery['ODNPA'];
-        $result['OSNPA'] = $objQuery['OSNPA'];
-        $result['VERTFUSAMPS'] = $objQuery['VERTFUSAMPS'];
-        $result['DIVERGENCEAMPS'] = $objQuery['DIVERGENCEAMPS'];
-        $result['NPC'] = $objQuery['NPC'];
-        $result['DACCDIST'] = $objQuery['DACCDIST'];
-        $result['DACCNEAR'] = $objQuery['DACCNEAR'];
-        $result['CACCDIST'] = $objQuery['CACCDIST'];
-        $result['CACCNEAR'] = $objQuery['CACCNEAR'];
-        $result['ODCOLOR'] = $objQuery['ODCOLOR'];
-        $result['OSCOLOR'] = $objQuery['OSCOLOR'];
-        $result['ODCOINS'] = $objQuery['ODCOINS'];
-        $result['OSCOINS'] = $objQuery['OSCOINS'];
-        $result['ODREDDESAT'] = $objQuery['ODREDDESAT'];
-        $result['OSREDDESAT'] = $objQuery['OSREDDESAT'];
-        $result['ODPUPILSIZE1'] = $objQuery['ODPUPILSIZE1'];
-        $result['ODPUPILSIZE2'] = $objQuery['ODPUPILSIZE2'];
-        $result['ODPUPILREACTIVITY'] = $objQuery['ODPUPILREACTIVITY'];
-        $result['ODAPD'] = $objQuery['ODAPD'];
-        $result['OSPUPILSIZE1'] = $objQuery['OSPUPILSIZE1'];
-        $result['OSPUPILSIZE2'] = $objQuery['OSPUPILSIZE2'];
-        $result['OSPUPILREACTIVITY'] = $objQuery['OSPUPILREACTIVITY'];
-        $result['OSAPD'] = $objQuery['OSAPD'];
-        $result['DIMODPUPILSIZE1'] = $objQuery['DIMODPUPILSIZE1'];
-        $result['DIMODPUPILSIZE2'] = $objQuery['DIMODPUPILSIZE2'];
-        $result['DIMODPUPILREACTIVITY'] = $objQuery['DIMODPUPILREACTIVITY'];
-        $result['DIMOSPUPILSIZE1'] = $objQuery['DIMOSPUPILSIZE1'];
-        $result['DIMOSPUPILSIZE2'] = $objQuery['DIMOSPUPILSIZE2'];
-        $result['DIMOSPUPILREACTIVITY'] = $objQuery['DIMOSPUPILREACTIVITY'];
-        $result['PUPIL_COMMENTS'] = $objQuery['PUPIL_COMMENTS'];
-        $result['IMP'] = $objQuery['IMP'];
-        $result["json"] = json_encode($result);
-        echo json_encode($result);
-    } elseif ($zone == "READONLY") {
-        $result = $objQuery;
-        $count_rx = '0';
-        $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $wear = sqlStatement($query1, [$pid,$session->get('encounter')]);
-        while ($wearing = sqlFetchArray($wear)) {
-            ${"display_W_$count_rx"}        = '';
-                  ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
-                  ${"ODCYL_$count_rx"}            = $wearing['ODCYL'];
-                  ${"ODAXIS_$count_rx"}           = $wearing['ODAXIS'];
-                  ${"OSSPH_$count_rx"}            = $wearing['OSSPH'];
-                  ${"OSCYL_$count_rx"}            = $wearing['OSCYL'];
-                  ${"OSAXIS_$count_rx"}           = $wearing['OSAXIS'];
-                  ${"ODMIDADD_$count_rx"}         = $wearing['ODMIDADD'];
-                  ${"OSMIDADD_$count_rx"}         = $wearing['OSMIDADD'];
-                  ${"ODADD_$count_rx"}            = $wearing['ODADD'];
-                  ${"OSADD_$count_rx"}            = $wearing['OSADD'];
-                  ${"ODVA_$count_rx"}             = $wearing['ODVA'];
-                  ${"OSVA_$count_rx"}             = $wearing['OSVA'];
-                  ${"ODNEARVA_$count_rx"}         = $wearing['ODNEARVA'];
-                  ${"OSNEARVA_$count_rx"}         = $wearing['OSNEARVA'];
-                  ${"ODPRISM_$count_rx"}          = $wearing['ODPRISM'] ?? '';
-                  ${"OSPRISM_$count_rx"}          = $wearing['OSPRISM'] ?? '';
-                  ${"W_$count_rx"}                = '1';
-                  ${"RX_TYPE_$count_rx"}          = $wearing['RX_TYPE'];
-                  ${"ODHPD_$count_rx"}            = $wearing['ODHPD'];
-                  ${"ODHBASE_$count_rx"}          = $wearing['ODHBASE'];
-                  ${"ODVPD_$count_rx"}            = $wearing['ODVPD'];
-                  ${"ODVBASE_$count_rx"}          = $wearing['ODVBASE'];
-                  ${"ODSLABOFF_$count_rx"}        = $wearing['ODSLABOFF'];
-                  ${"ODVERTEXDIST_$count_rx"}     = $wearing['ODVERTEXDIST'];
-                  ${"OSHPD_$count_rx"}            = $wearing['OSHPD'];
-                  ${"OSHBASE_$count_rx"}          = $wearing['OSHBASE'];
-                  ${"OSVPD_$count_rx"}            = $wearing['OSVPD'];
-                  ${"OSVBASE_$count_rx"}          = $wearing['OSVBASE'];
-                  ${"OSSLABOFF_$count_rx"}        = $wearing['OSSLABOFF'];
-                  ${"OSVERTEXDIST_$count_rx"}     = $wearing['OSVERTEXDIST'];
-                  ${"ODMPDD_$count_rx"}           = $wearing['ODMPDD'];
-                  ${"ODMPDN_$count_rx"}           = $wearing['ODMPDN'];
-                  ${"OSMPDD_$count_rx"}           = $wearing['OSMPDD'];
-                  ${"OSMPDN_$count_rx"}           = $wearing['OSMPDN'];
-                  ${"BPDD_$count_rx"}             = $wearing['BPDD'];
-                  ${"BPDN_$count_rx"}             = $wearing['BPDN'];
-                  ${"LENS_MATERIAL_$count_rx"}    = $wearing['LENS_MATERIAL'];
-                  ${"LENS_TREATMENTS_$count_rx"}  = $wearing['LENS_TREATMENTS'];
-                  ${"COMMENTS_$count_rx"}         = $wearing['COMMENTS'];
-        }
-        $result['IMPPLAN'] = build_IMPPLAN_items($pid, $copy_from);
-        $result['query'] = $query;
-        $result["json"] = json_encode($result);
-        echo json_encode($result);
+    $record = QueryUtils::querySingleRow(CopyForward::RECORD_QUERY, [$pid, $copy_from]);
+    if (!is_array($record)) {
+        // No such form for this patient: nothing to carry forward.
+        echo json_encode([]);
+        return;
     }
+
+    if ($mode instanceof Zone) {
+        echo json_encode(CopyForward::pick($record, $mode->fields()));
+        return;
+    }
+
+    $result = match ($mode) {
+        CopyMode::IMPPLAN => ['IMPPLAN' => build_IMPPLAN_items($pid, $copy_from)],
+        CopyMode::ALL => CopyForward::pick($record, CopyForward::allFields()),
+        CopyMode::READONLY => $record + ['IMPPLAN' => build_IMPPLAN_items($pid, $copy_from)],
+    };
+
+    echo json_encode($result);
 }
 
 /**
@@ -6773,7 +6350,7 @@ function display_refractive_data($encounter_data): void
               <td><?php echo text($OSLT); ?></td>
               <td><?php echo text($OSW2W); ?></td>
               <td><?php echo text($OSECL); ?></td>
-              <!--  <td><input type=text id="pend" name="pend" value="<?php echo text($pend); ?>"></td> -->
+              <!--  <td><input type=text id="pend" name="pend" value="<?php echo attr($pend); ?>"></td> -->
             </tr>
           </table>
           </td>
@@ -6792,7 +6369,7 @@ function display_refractive_data($encounter_data): void
  * @param bool $strict
  * @return bool
  */
-function in_array_r($needle, $haystack, $strict = false)
+function in_array_r($needle, $haystack, $strict = false): bool
 {
     if (empty($haystack)) {
         return false;

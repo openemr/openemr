@@ -79,7 +79,7 @@ class FHIRNarrative extends FHIRElement implements \JsonSerializable
 
     /**
      * The actual narrative content, a stripped down version of XHTML.
-     * @var \string
+     * @var string
      */
     public $div = null;
 
@@ -110,7 +110,7 @@ class FHIRNarrative extends FHIRElement implements \JsonSerializable
 
     /**
      * The actual narrative content, a stripped down version of XHTML.
-     * @return \string
+     * @return string
      */
     public function getDiv()
     {
@@ -119,7 +119,7 @@ class FHIRNarrative extends FHIRElement implements \JsonSerializable
 
     /**
      * The actual narrative content, a stripped down version of XHTML.
-     * @param \string $div
+     * @param string $div
      * @return $this
      */
     public function setDiv($div)

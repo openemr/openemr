@@ -26,9 +26,13 @@ jobs:
     runs-on: ubuntu-24.04
 
     strategy:
+      # A failure on one PHP version says nothing about the others, and 8.6 is
+      # still in development — its nightly builds regress from time to time.
+      # Cancelling the production versions on an 8.6 failure hides whether the
+      # supported versions actually pass.
+      fail-fast: false
       matrix:
         php-version:
-        - '8.2'
         - '8.3'
         - '8.4'
         - '8.5'
@@ -36,8 +40,13 @@ jobs:
 
     name: PHP ${{ matrix.php-version }} - Isolated Tests
 
+    # PHP 8.6 is not released yet, so it runs against a nightly build that can
+    # regress underneath us. Report those failures as warnings rather than
+    # blocking every PR on an upstream php-src bug. Drop this once 8.6 ships.
+    continue-on-error: ${{ matrix.php-version == '8.6' }}
+
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
@@ -53,7 +62,7 @@ jobs:
 
     - name: Upload test results to Codecov
       if: ${{ !cancelled() }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit.xml
@@ -75,7 +84,7 @@ jobs:
 
     - name: Upload coverage reports to Codecov
       if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: clover.xml

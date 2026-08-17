@@ -41,10 +41,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/ResultsCalculator.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between \'us_core_v311\' and \'us_core_v311\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/US_Core_311/InfernoSinglePatientAPITest.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

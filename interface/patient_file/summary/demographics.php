@@ -44,6 +44,7 @@ require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -58,6 +59,7 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\BillingViewCard;
 use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
+use OpenEMR\Patient\Cards\CarePlanViewCard;
 use OpenEMR\Patient\Cards\CareTeamViewCard;
 use OpenEMR\Patient\Cards\DemographicsViewCard;
 use OpenEMR\Patient\Cards\InsuranceViewCard;
@@ -65,10 +67,15 @@ use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Services\AllergyIntoleranceService;
+use OpenEMR\Services\Forms\CarePlanFormService;
+use OpenEMR\Services\FormService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+// Pass the request to the cards that need it rather than having each card reach
+// for one itself.
+$request = CurrentRequest::get();
 
 if (!isset($pid)) {
     $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
@@ -82,7 +89,6 @@ $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
-    require_once($srcdir . "/pid.inc.php");
     setpid($_GET['set_pid']);
     $ptService = new PatientService();
     $newPatient = $ptService->findByPid($pid);
@@ -134,6 +140,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
 }
 //Check to see is only one insurance is allowed
 $insurance_array = OEGlobalsBag::getInstance()->getBoolean('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
+
+// The care plan card takes an int pid, and $pid arrives from the request as mixed.
+$carePlanCardPid = is_numeric($pid) ? (int) $pid : 0;
 
 function getHiddenDashboardCards(): array
 {
@@ -1122,10 +1131,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                         'id' => $id,
                         'forceAlwaysOpen' => false,
-                        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                        'initiallyCollapsed' => getUserSetting($id) == 0,
                         'linkMethod' => "javascript",
                         'list' => $_rawAllergies,
-                        'listTouched' => (!empty(getListTouch($pid, 'allergy'))) ? true : false,
+                        'listTouched' => !empty(getListTouch($pid, 'allergy')),
                         'auth' => true,
                         'btnLabel' => 'Edit',
                         'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
@@ -1146,10 +1155,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                         'id' => $id,
                         'forceAlwaysOpen' => false,
-                        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                        'initiallyCollapsed' => getUserSetting($id) == 0,
                         'linkMethod' => "javascript",
                         'list' => filterActiveIssues($_rawPL),
-                        'listTouched' => (!empty(getListTouch($pid, 'medical_problem'))) ? true : false,
+                        'listTouched' => !empty(getListTouch($pid, 'medical_problem')),
                         'auth' => true,
                         'btnLabel' => 'Edit',
                         'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
@@ -1168,10 +1177,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                         'id' => $id,
                         'forceAlwaysOpen' => false,
-                        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                        'initiallyCollapsed' => getUserSetting($id) == 0,
                         'linkMethod' => "javascript",
                         'list' => filterActiveIssues($_rawMedList),
-                        'listTouched' => (!empty(getListTouch($pid, 'medication'))) ? true : false,
+                        'listTouched' => !empty(getListTouch($pid, 'medication')),
                         'auth' => true,
                         'btnLabel' => 'Edit',
                         'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
@@ -1200,7 +1209,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'title' => xl('Current Medications'),
                             'id' => $id,
                             'forceAlwaysOpen' => false,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'auth' => false,
                             'rxList' => $rxArr,
                         ];
@@ -1214,7 +1223,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                         'id' => $id,
                         'forceAlwaysOpen' => false,
-                        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                        'initiallyCollapsed' => getUserSetting($id) == 0,
                         'btnLabel' => "Edit",
                         'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
                     ];
@@ -1250,7 +1259,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="row">
                 <?php
                 if (!in_array('card_care_team', $hiddenCards)) {
-                    $card = new CareTeamViewCard($pid, ['dispatcher' => $ed]);
+                    $card = new CareTeamViewCard($pid, $request, ['dispatcher' => $ed]);
                     $btnLabel = false;
                     if ($card->canAdd()) {
                         $btnLabel = 'Add';
@@ -1278,7 +1287,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // TREATMENT INTERVENTION PREFERENCES CARD
                 // ============================================================================
                 if (!in_array('card_treatment_preferences', $hiddenCards)) {
-                    $card = new TreatmentPreferenceViewCard($pid);
+                    $card = new TreatmentPreferenceViewCard($pid, $request);
                     $viewArgs = [
                         'title' => xl('Treatment Intervention Preferences'),
                         'id' => 'card_treatment_preferences',
@@ -1304,7 +1313,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // CARE EXPERIENCE PREFERENCES CARD
                 // ============================================================================
                 if (!in_array('card_care_experience', $hiddenCards)) {
-                    $card = new CareExperiencePreferenceViewCard($pid);
+                    $card = new CareExperiencePreferenceViewCard($pid, $request);
 
                     $viewArgs = [
                         'title' => xl('Care Experience Preferences'),
@@ -1320,6 +1329,34 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     ];
 
                     // Merge with ViewCard variables and render CARD template (not form!)
+                    echo "<div class='col-12 m-0 p-0 px-2'>";
+                    echo $twig->getTwig()->render(
+                        $card->getTemplateFile(),
+                        array_merge($viewArgs, $card->getTemplateVariables())
+                    );
+                    echo "</div>";
+                }
+
+                // ============================================================================
+                // CARE PLAN CARD
+                // ============================================================================
+                $carePlanFormService = new FormService();
+                $carePlanCard = new CarePlanViewCard(
+                    $carePlanCardPid,
+                    new CarePlanFormService($carePlanFormService),
+                    $carePlanFormService
+                );
+                if (!in_array(CarePlanViewCard::CARD_ID, $hiddenCards) && $carePlanCard->isVisible()) {
+                    $card = $carePlanCard;
+                    $viewArgs = [
+                        'title' => $card->getTitle(),
+                        'id' => $card->getIdentifier(),
+                        'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                        'card_bg_color' => '',
+                        'card_text_color' => '',
+                        'forceAlwaysOpen' => !$card->canCollapse(),
+                        'auth' => false,
+                    ];
                     echo "<div class='col-12 m-0 p-0 px-2'>";
                     echo $twig->getTwig()->render(
                         $card->getTemplateFile(),
@@ -1344,7 +1381,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     if (!in_array('card_insurance', $hiddenCards)) {
-                        $sectionRenderEvents->addCard(new InsuranceViewCard($pid, ['dispatcher' => $ed]));
+                        $sectionRenderEvents->addCard(new InsuranceViewCard($pid, $request, ['dispatcher' => $ed]));
                     }
 
                     // Get the cards to render
@@ -1390,7 +1427,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'id' => $id,
                             'btnLabel' => "Edit",
                             'btnLink' => "pnotes_full.php?form_active=1",
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'linkMethod' => "html",
                             'bodyClass' => "notab",
                             'auth' => AclMain::aclCheckCore('patients', 'notes', '', 'write'),
@@ -1407,7 +1444,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'title' => xl('Patient Reminders'),
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => 'Edit',
                             'btnLink' => '../reminder/patient_reminders.php?mode=simple&patient_id=' . attr_url($pid),
                             'linkMethod' => 'html',
@@ -1430,7 +1467,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'title' => xl('Disclosures'),
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => 'Edit',
                             'btnLink' => 'disclosure_full.php',
                             'linkMethod' => 'html',
@@ -1458,7 +1495,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'title' => xl('Amendments'),
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => 'Edit',
                             'btnLink' => OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/list_amendments.php?id=" . attr_url($pid),
                             'btnCLass' => '',
@@ -1484,13 +1521,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             WHERE procedure_order.patient_id = ?
                             ORDER BY procedure_report.date_collected DESC";
                         $existLabdata = sqlQuery($spruch, [$pid]);
-                        $widgetAuth = ($existLabdata) ? true : false;
+                        $widgetAuth = (bool) $existLabdata;
 
                         $id = "labdata_ps_expand";
                         $viewArgs = [
                             'title' => xl('Labs'),
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => 'Trend',
                             'btnLink' => "../summary/labdata.php",
                             'linkMethod' => 'html',
@@ -1509,13 +1546,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // vitals expand collapse widget
                         // check to see if any vitals exist
                         $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", [$pid]);
-                        $widgetAuth = ($existVitals) ? true : false;
+                        $widgetAuth = (bool) $existVitals;
 
                         $id = "vitals_ps_expand";
                         $viewArgs = [
                             'title' => xl('Vitals'),
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => 'Trend',
                             'btnLink' => "../encounter/trend_form.php?formname=vitals&context=dashboard",
                             'linkMethod' => 'html',
@@ -1563,7 +1600,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'title' => xl($gfrow['title']),
                             'id' => $vitals_form_id,
-                            'initiallyCollapsed' => (getUserSetting($vitals_form_id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($vitals_form_id) == 0,
                             'btnLabel' => 'Trend',
                             'btnLink' => "../encounter/trend_form.php?formname=vitals&context=dashboard",
                             'linkMethod' => 'html',
@@ -1644,7 +1681,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'title' => xl("ID Card / Photos"),
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => 'Edit',
                             'linkMethod' => "javascript",
                             'bodyClass' => 'collapse show',
@@ -1707,7 +1744,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $viewArgs = [
                                 'title' => xl("Advance Directives"),
                                 'id' => $id,
-                                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                                'initiallyCollapsed' => getUserSetting($id) == 0,
                                 'btnLabel' => 'Edit',
                                 'linkMethod' => "javascript",
                                 'btnLink' => "return advdirconfigure();",
@@ -1733,7 +1770,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs = [
                             'title' => xl("Clinical Reminders"),
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => "Edit",
                             'btnLink' => "../reminder/clinical_reminders.php?patient_id=" . attr_url($pid),
                             'linkMethod' => "html",
@@ -1913,7 +1950,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             echo $twig->getTwig()->render('patient/card/recall.html.twig', [
                                 'title' => xl('Recall'),
                                 'id' => $id,
-                                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                                'initiallyCollapsed' => getUserSetting($id) == 0,
                                 'recalls' => $recallArr,
                                 'recallsAvailable' => ($count < 1 && empty($count2)) ? false : true,
                                 'prependedInjection' => $dispatchResult->getPrependedInjection(),
@@ -2002,7 +2039,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
                             'title' => xl("Appointments"),
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLabel' => "Add",
                             'btnLink' => "return newEvt()",
                             'linkMethod' => "javascript",
@@ -2035,7 +2072,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', [
                             'title' => xl("Tracks"),
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => getUserSetting($id) == 0,
                             'btnLink' => "../../forms/track_anything/create.php",
                             'linkMethod' => "html",
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),

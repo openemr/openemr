@@ -35,7 +35,13 @@ final readonly class SqlUpgradeSkeletonMutator implements MutatorInterface
     public function apply(MutatorContext $context): MutatorResult
     {
         $sqlDir = $context->projectDir . '/sql';
-        $fromVersion = $this->readVersionPhp($context->projectDir);
+        // Patch-prep paths supply an explicit from-version via context
+        // because version.php has either been bumped past the anchor we
+        // want (rel side, $v_patch already at the new value) or doesn't
+        // describe the right line at all (master side, where the patch
+        // sits on a rel branch master never reads). Branch-cut keeps the
+        // historical read-from-version.php behavior.
+        $fromVersion = $context->fromVersion ?? $this->readVersionPhp($context->projectDir);
         $toVersion = $context->versionString();
         if ($fromVersion === $toVersion) {
             // Master is already at the target version; nothing to scaffold.
@@ -135,6 +141,16 @@ final readonly class SqlUpgradeSkeletonMutator implements MutatorInterface
      * blank lines. The first non-comment, non-blank line ends the
      * header; everything after it is real upgrade SQL from the source
      * release that we don't want to copy.
+     *
+     * The output ends with exactly one trailing newline. A double
+     * trailing newline breaks the `end-of-file-fixer` pre-commit hook
+     * on the generated file. That can happen when either
+     *   (a) the source file is 100% comment/blank lines and ends `\n`,
+     *       so split leaves a trailing empty element, or
+     *   (b) the header run itself ends with one or more blank lines
+     *       before the first SQL statement.
+     * Trim any trailing blanks from the kept run and append a single
+     * `\n` so the emitted file is always canonical.
      */
     private function extractCommentHeader(string $contents): string
     {
@@ -149,6 +165,9 @@ final readonly class SqlUpgradeSkeletonMutator implements MutatorInterface
                 continue;
             }
             break;
+        }
+        while ($kept !== [] && end($kept) === '') {
+            array_pop($kept);
         }
         return implode("\n", $kept) . "\n";
     }

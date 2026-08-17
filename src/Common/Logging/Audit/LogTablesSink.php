@@ -35,7 +35,7 @@ readonly class LogTablesSink implements SinkInterface
     ) {
     }
 
-    public function record(Event $event): bool
+    public function record(Event $event): void
     {
         $api = $event->api;
 
@@ -50,7 +50,9 @@ readonly class LogTablesSink implements SinkInterface
             'user_notes' => $event->user_notes,
             'patient_id' => $event->patientId,
             'success' => $event->success,
-            'crt_user' => $event->SSL_CLIENT_S_DN_CN,
+            // crt_user stored SSL client certificate CN for ATNA compliance (2010).
+            // Client cert auth was never integrated with login; column is vestigial.
+            'crt_user' => '',
             'log_from' => $event->logFrom,
             'menu_item_id' => $event->menuItemId,
             'ccda_doc_id' => $event->ccdaDocId,
@@ -69,6 +71,9 @@ readonly class LogTablesSink implements SinkInterface
             $apiLogData = [
                 'log_id' => $lastLogId,
                 'user_id' => $api['user_id'],
+                // Empty-string default keeps checksums of rows logged before the
+                // client_id column existed verifiable by the tamper report.
+                'client_id' => $api['client_id'] ?? '',
                 'patient_id' => $api['patient_id'],
                 'ip_address' => $ipAddress,
                 'method' => $api['method'],
@@ -95,7 +100,5 @@ readonly class LogTablesSink implements SinkInterface
         if ($api !== null) {
             $this->conn->insert('api_log', $apiLogData);
         }
-
-        return true;
     }
 }

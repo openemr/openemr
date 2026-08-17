@@ -127,7 +127,7 @@ class GaclApi extends Gacl {
      * @param string $aro_value ARO Value
      * @param string $return_value Return Value of ACL
      */
-    function consolidated_edit_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value, $return_value) {
+    function consolidated_edit_acl($aco_section_value, $aco_value, $aro_section_value, $aro_value, $return_value): bool {
 
         $this->debug_text("consolidated_edit_acl(): ACO Section Value: $aco_section_value ACO Value: $aco_value ARO Section Value: $aro_section_value ARO Value: $aro_value Return Value: $return_value");
 
@@ -764,7 +764,7 @@ class GaclApi extends Gacl {
      * @param array $ignore_acl_ids Array of ACL IDs to ignore from the result set.
      *
      */
-    function is_conflicting_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $ignore_acl_ids=NULL) {
+    function is_conflicting_acl($aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $ignore_acl_ids=NULL): bool {
         //Check for potential conflicts. Ignore groups, as groups will almost always have "conflicting" ACLs.
         //That's part of inheritance.
 
@@ -1137,7 +1137,7 @@ class GaclApi extends Gacl {
      * @param string $note Note
      * @param string $section_value ACL Section Value
      */
-    function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL, $section_value=NULL) {
+    function edit_acl($acl_id, $aco_array, $aro_array, $aro_group_ids=NULL, $axo_array=NULL, $axo_group_ids=NULL, $allow=1, $enabled=1, $return_value=NULL, $note=NULL, $section_value=NULL): bool {
 
         $this->debug_text("edit_acl():");
 
@@ -1181,7 +1181,7 @@ class GaclApi extends Gacl {
      *
      * @param int $acl_id ACL ID # to delete
      */
-    function del_acl($acl_id) {
+    function del_acl($acl_id): bool {
 
         $this->debug_text("del_acl(): ID: $acl_id");
 
@@ -1869,7 +1869,7 @@ class GaclApi extends Gacl {
      * @param string $object_value Object Value
      * @param string $group_type Group Type, either 'ARO' or 'AXO'
      */
-    function add_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
+    function add_group_object($group_id, $object_section_value, $object_value, $group_type='ARO'): bool {
 
         switch(strtolower(trim((string) $group_type))) {
             case 'axo':
@@ -1961,7 +1961,7 @@ class GaclApi extends Gacl {
      * @param string $object_value Object Value
      * @param string $group_type Group Type, either 'ARO' or 'AXO'
      */
-    function del_group_object($group_id, $object_section_value, $object_value, $group_type='ARO') {
+    function del_group_object($group_id, $object_section_value, $object_value, $group_type='ARO'): bool {
 
         switch(strtolower(trim((string) $group_type))) {
             case 'axo':
@@ -2020,7 +2020,7 @@ class GaclApi extends Gacl {
      * @param int $parent_id Parent ID #
      * @param string $group_type Group Type, either 'ARO' or 'AXO'
      */
-    function edit_group($group_id, $value=NULL, $name=NULL, $parent_id=NULL, $group_type='ARO') {
+    function edit_group($group_id, $value=NULL, $name=NULL, $parent_id=NULL, $group_type='ARO'): bool {
         $this->debug_text("edit_group(): ID: $group_id Name: $name Value: $value Parent ID: $parent_id Group Type: $group_type");
 
         switch(strtolower(trim((string) $group_type))) {
@@ -2144,7 +2144,7 @@ class GaclApi extends Gacl {
      * @param int $group_id Group ID #
      * @param int $left Left value of Group
      */
-    function rebuild_tree($group_type = 'ARO', $group_id = NULL, $left = 1) {
+    function rebuild_tree($group_type = 'ARO', $group_id = NULL, $left = 1): bool {
         $this->debug_text("rebuild_tree(): Group Type: $group_type Group ID: $group_id Left: $left");
 
         switch (strtolower(trim((string) $group_type))) {
@@ -2244,7 +2244,7 @@ class GaclApi extends Gacl {
      * @param bool $reparent_children If TRUE, child groups of this group will be reparented to the current group's parent.
      * @param string $group_type Group Type, either 'ARO' or 'AXO'
      */
-    function del_group($group_id, $reparent_children=TRUE, $group_type='ARO') {
+    function del_group($group_id, $reparent_children=TRUE, $group_type='ARO'): bool {
 
         switch(strtolower(trim((string) $group_type))) {
             case 'axo':
@@ -3054,7 +3054,7 @@ class GaclApi extends Gacl {
      * @param int $hidden Hidden Flag, either 1 to hide, or 0 to show
      * @param string $object_type Object Type, either 'ACO', 'ARO', or 'AXO'
      */
-    function edit_object($object_id, $section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
+    function edit_object($object_id, $section_value, $name, $value=0, $order=0, $hidden=0, $object_type=NULL): bool {
 
         switch(strtolower(trim((string) $object_type))) {
             case 'aco':
@@ -3159,7 +3159,7 @@ class GaclApi extends Gacl {
      * @param string $object_type Object Type, either 'ACO', 'ARO', or 'AXO'
      * @param bool $erase Erases all referencing objects if TRUE, leaves them alone otherwise.
      */
-    function del_object($object_id, $object_type=NULL, $erase=FALSE) {
+    function del_object($object_id, $object_type=NULL, $erase=FALSE): bool {
 
         switch(strtolower(trim((string) $object_type))) {
             case 'aco':
@@ -3521,7 +3521,7 @@ class GaclApi extends Gacl {
      * @param int $hidden Hidden Flag, hide object section if 1, show if 0
      * @param string $object_type Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'
      */
-    function edit_object_section($object_section_id, $name, $value=0, $order=0, $hidden=0, $object_type=NULL) {
+    function edit_object_section($object_section_id, $name, $value=0, $order=0, $hidden=0, $object_type=NULL): bool {
 
         switch(strtolower(trim((string) $object_type))) {
             case 'aco':
@@ -3658,7 +3658,7 @@ class GaclApi extends Gacl {
      * @param string $object_type Object Type, either 'ACO', 'ARO', 'AXO', or 'ACL'
      * @param bool $erase Erases all section objects assigned to the section
      */
-    function del_object_section($object_section_id, $object_type=NULL, $erase=FALSE) {
+    function del_object_section($object_section_id, $object_type=NULL, $erase=FALSE): bool {
 
         switch(strtolower(trim((string) $object_type))) {
             case 'aco':
@@ -3805,7 +3805,7 @@ class GaclApi extends Gacl {
      * @return bool Returns TRUE if successful, FALSE otherwise
      *
      */
-    function clear_database(){
+    function clear_database(): bool{
 
             $tablesToClear = [
                     $this->_db_table_prefix.'acl',

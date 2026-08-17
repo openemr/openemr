@@ -7,7 +7,16 @@
 .github/                       export-ignore
 .phpstan/                      export-ignore
 ci/                            export-ignore
-docker/                        export-ignore
+docker/*                       export-ignore
+# Selective carve-out: docker/production/ ships as a reference-production
+# compose template so tarball users have a blessed starting point for a
+# self-hosted Docker deployment (its image ref gets pinned by the release-
+# prep conductor before tag time). Development docker stacks (docker/
+# development-easy*, docker/flex, docker/dockerhub, docker/binary,
+# docker/container_benchmarking) stay excluded — they carry no user-facing
+# artifacts for the released tarball.
+docker/production/            -export-ignore
+docker/production/**          -export-ignore
 tests/                         export-ignore
 tools/                         export-ignore
 .gitattributes                 export-ignore
@@ -35,3 +44,18 @@ semgrep.yaml                   export-ignore
 CLAUDE.md                      export-ignore
 DOCKER_README.md               export-ignore
 README-Isolated-Testing.md     export-ignore
+
+# Exclude the very large generated EHI schema documentation (~140M of
+# SchemaSpy HTML, diagrams, jars) from release archives; it is published to
+# the website instead of shipped in the install package. The EHI exporter
+# only reads two descriptors at runtime, so keep just those via single-*
+# globs (which match immediate children only, leaving the parent dirs
+# walkable) plus -export-ignore carve-outs for the two files.
+Documentation/EHI_Export/docs/* export-ignore
+Documentation/EHI_Export/docs/openemr.openemr.xml -export-ignore
+Documentation/EHI_Export/schemaspy/* export-ignore
+Documentation/EHI_Export/schemaspy/schemas -export-ignore
+Documentation/EHI_Export/schemaspy/schemas/* export-ignore
+Documentation/EHI_Export/schemaspy/schemas/openemr.meta.xml -export-ignore
+.phpstan/**/*.* text eol=lf
+.phpstan/*.* text eol=lf

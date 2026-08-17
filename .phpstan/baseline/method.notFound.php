@@ -73,7 +73,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:addListener\\(\\)\\.$#',
-    'count' => 5,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
 ];
 $ignoreErrors[] = [
@@ -158,7 +158,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 24,
+    'count' => 16,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
@@ -220,21 +220,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:Start\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/smtp/sasl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:_compile_file\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:get\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:set_file_contents\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:htmlAttribs\\(\\)\\.$#',
@@ -330,11 +315,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Lcobucci\\\\JWT\\\\Token\\:\\:claims\\(\\)\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/Validation/UniqueID.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method GuzzleHttp\\\\Exception\\\\GuzzleException\\:\\:getResponse\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:getBody\\(\\)\\.$#',

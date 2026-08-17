@@ -18,14 +18,14 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 <p class="form-row">
     <span class="left_col colhead req" data-fld="fld_sex"><?php echo xlt('Sex');?></span>
     <span class="end_col">
-    <?php echo RuleTemplateExtension::render_select(array( "target"   =>  "fld_sex",
+    <?php echo RuleTemplateExtension::render_select([ "target"   =>  "fld_sex",
                                      "name"     =>  "fld_sex",
                                      "value"    =>  $criteria->value,
-                                     "options"  =>  $criteria->getOptions() )); ?>
+                                     "options"  =>  $criteria->getOptions() ]); ?>
     </span>
 </p>
 
 <br/>
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo RuleTemplateExtension::common_fields(array( "criteria" => $criteria)); ?>
+<?php echo RuleTemplateExtension::common_fields([ "criteria" => $criteria]); ?>

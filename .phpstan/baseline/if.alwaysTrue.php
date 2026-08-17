@@ -34,16 +34,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_receipts_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/add_edit_lot.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
 ];
 $ignoreErrors[] = [
@@ -89,11 +79,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
@@ -110,6 +95,11 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
@@ -193,18 +183,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/prescriptions_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/receipts_by_method_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/referrals_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
@@ -254,16 +234,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
@@ -278,23 +248,13 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
@@ -415,11 +375,6 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/EncounterService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',

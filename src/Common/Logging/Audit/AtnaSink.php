@@ -65,10 +65,10 @@ MSG;
     ) {
     }
 
-    public function record(Event $event): bool
+    public function record(Event $event): void
     {
         if (!$this->isEnabled()) {
-            return false;
+            return;
         }
 
         $message = $this->createRfc3881Msg(
@@ -79,7 +79,7 @@ MSG;
             $event->success,
             $event->comments,
         );
-        return $this->writer->writeMessage($message);
+        $this->writer->writeMessage($message);
     }
 
     /**
