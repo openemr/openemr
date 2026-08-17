@@ -1,6 +1,5 @@
 <?php
 
-use OpenEMR\BC\Utilities;
 /*
  * report.php displays the misc_billing_form in the encounter view
  *
@@ -13,6 +12,8 @@ use OpenEMR\BC\Utilities;
  * @copyright Copyright (C) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Core\OEGlobalsBag;
 

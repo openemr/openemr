@@ -1,13 +1,14 @@
 <?php
 
-use OpenEMR\Common\Utils\ValidationUtils;
-
 /*
  * smtp.php
  *
  * @(#) $Header$
  *
  */
+
+use OpenEMR\Common\Utils\ValidationUtils;
+
 class smtp_class
 {
     public $user="";

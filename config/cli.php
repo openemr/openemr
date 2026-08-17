@@ -14,10 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Console\Command;
 
-use OpenEMR\Console\Command\Codes\UpdateMappingsCommand;
-
 return [
-    UpdateMappingsCommand::class,
+    Codes\UpdateMappingsCommand::class,
     InstallCommand::class,
     ShellCommand::class,
 ];

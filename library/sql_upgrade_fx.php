@@ -1,7 +1,5 @@
 <?php
 
-use OpenEMR\Services\Utils\SQLUpgradeService;
-
 /**
  * Upgrading and patching functions of database.
  *
@@ -29,6 +27,7 @@ use OpenEMR\Services\Utils\SQLUpgradeService;
  * @link      https://www.open-emr.org
  */
 
+use OpenEMR\Services\Utils\SQLUpgradeService;
 
 /**
  * Upgrade or patch the database with a selected upgrade/patch file.

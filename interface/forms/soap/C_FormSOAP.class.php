@@ -1,14 +1,5 @@
 <?php
 
-use OpenEMR\Common\Forms\EncounterFormAccess;
-use OpenEMR\Common\Forms\FormActionBarSettings;
-use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
-
 /*
  * soap form
  * @package   OpenEMR
@@ -19,6 +10,15 @@ use Twig\Error\SyntaxError;
  * @copyright Copyright (c) 2022 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");

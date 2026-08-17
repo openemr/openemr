@@ -12,7 +12,6 @@
 
 declare(strict_types=1);
 
-use OpenEMR\Services\CodeTypes\CodeTypeMappingUpdater;
 use Firehed\Container\TypedContainerInterface as TC;
 use GuzzleHttp\{
     Client,
@@ -35,6 +34,7 @@ use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Installer\InstallerInterface;
 use OpenEMR\Core\ErrorHandler;
+use OpenEMR\Services;
 use OpenEMR\Services\Storage\{
     Location,
     Manager,
@@ -112,5 +112,5 @@ return [
     SystemClock::class => fn (): SystemClock => SystemClock::fromSystemTimezone(),
 
     // General services
-    CodeTypeMappingUpdater::class,
+    Services\CodeTypes\CodeTypeMappingUpdater::class,
 ];

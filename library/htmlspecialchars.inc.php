@@ -1,7 +1,5 @@
 <?php
 
-use OpenEMR\BC\ServiceContainer;
-
 /**
  * Escaping Functions
  *
@@ -38,6 +36,8 @@ use OpenEMR\BC\ServiceContainer;
  *   warnings disappear. That throws away the signal everywhere else and
  *   re-hides the dead-escape sites this file is trying to surface.
  */
+
+use OpenEMR\BC\ServiceContainer;
 
 /**
  * Escape a javascript literal.
