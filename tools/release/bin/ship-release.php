@@ -68,7 +68,9 @@ use Symfony\Component\Filesystem\Filesystem;
         . ' `name`/`context` fields returned by `gh pr view --json statusCheckRollup`.'
         . ' GitHub reports mergeStateStatus=UNSTABLE when a non-required check is failing;'
         . ' the ignore-list only removes matching failures from the blocking-reasons list.'
-        . ' When it clears every rollup entry, UNSTABLE is treated as CLEAN.',
+        . ' When it clears every rollup entry, UNSTABLE is treated as CLEAN, and BLOCKED'
+        . ' is also treated as CLEAN when mergeable=MERGEABLE (App-token perspective on'
+        . ' mergeStateStatus can be more restrictive than a human UI session).',
         '',
     )
     ->setCode(function (InputInterface $input, OutputInterface $output): int {

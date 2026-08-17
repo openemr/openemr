@@ -97,7 +97,7 @@ on:
         type: string
         default: '600'
       ignore_checks:
-        description: 'Comma-separated check names to bypass in preflight (escape hatch for upstream known-broken jobs, e.g. `PHP 8.6 - Isolated Tests`). Exact-match against the `name`/`context` fields on the PR status-check rollup. When the ignore-list clears every rollup entry, mergeStateStatus=UNSTABLE is treated as CLEAN.'
+        description: 'Comma-separated check names to bypass in preflight (escape hatch for upstream known-broken jobs, e.g. `PHP 8.6 - Isolated Tests`). Exact-match against the `name`/`context` fields on the PR status-check rollup. When the ignore-list clears every rollup entry, mergeStateStatus=UNSTABLE is treated as CLEAN, and mergeStateStatus=BLOCKED is also treated as CLEAN when mergeable=MERGEABLE.'
         required: false
         type: string
         default: ''
