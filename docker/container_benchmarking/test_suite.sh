@@ -1467,10 +1467,16 @@ EOF
     cd "${test_dir}"
     # shellcheck disable=SC2310  # Stop/rm may no-op if container already exited
     run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml stop openemr 2>&1 | tee -a "${LOG_FILE}" || true
-    # shellcheck disable=SC2310 # rm may no-op if container was never created
+    # shellcheck disable=SC2310  # rm may no-op if container was never created
     run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml rm -f openemr 2>&1 | tee -a "${LOG_FILE}" || true
-    # shellcheck disable=SC2310  # Error surfaces via wait_for_healthy below
-    run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml up -d openemr 2>&1 | tee -a "${LOG_FILE}" || true
+    # shellcheck disable=SC2310  # Error handling is explicit via if/return
+    if ! run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml up -d openemr 2>&1 | tee -a "${LOG_FILE}"; then
+        log_test_result "${test_name}" "FAIL" "Failed to recreate container"
+        # shellcheck disable=SC2310  # Cleanup should not fail the test
+        run_docker_compose "${PROJECT_NAME}-upgrade" -f docker-compose.yml down --volumes >/dev/null 2>&1 || true
+        cd - >/dev/null
+        return 1
+    fi
     cd - >/dev/null
 
     # Wait a moment for container to recreate
