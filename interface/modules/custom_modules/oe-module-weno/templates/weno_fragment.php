@@ -36,16 +36,40 @@ if (stripos((string)$validate->getWenoProviderId(), 'Weno User Id missing') !== 
 }
 
 $logService = new WenoLogService();
-$pharmacyLog = $logService->getLastPharmacyDownloadStatus('Success');
+$pharmacyHealth = $logService->getPharmacyDirectoryHealth();
+$pharmacyCount = $pharmacyHealth['count'];
 
-$status = xlt("Last pharmacy update") . ": " . text($pharmacyLog['status'] ?? '') . ". " . xlt("Pharmacies available") . ": " . text($pharmacyLog['count'] ?? 0);
-$cite = <<<CITE
-<cite class="h6 text-danger p-1 mt-1">
-    <span>$status</span>
+// Silence is the healthy state. A banner on every successful nightly run trains
+// people to stop reading it, so this only speaks up when prescribing is either
+// blocked or working from data that may be behind.
+$cite = '';
+if (!$pharmacyHealth['isHealthy']) {
+    $lastUpdateRaw = $pharmacyHealth['lastSuccess'] !== ''
+        ? oeFormatShortDate($pharmacyHealth['lastSuccess'])
+        : xl('never');
+    $lastUpdate = is_scalar($lastUpdateRaw) ? (string) $lastUpdateRaw : '';
+
+    if ($pharmacyCount === 0) {
+        $tone = 'text-danger';
+        $message = xl('No pharmacies available. Run a pharmacy directory download before prescribing.');
+    } elseif ($pharmacyHealth['lastRunFailed']) {
+        $tone = 'text-warning';
+        $message = xl('Last pharmacy download did not complete. Using the directory from')
+            . ' ' . $lastUpdate;
+    } else {
+        $tone = 'text-warning';
+        $message = xl('Pharmacy directory may be out of date. Last full update') . ' ' . $lastUpdate;
+    }
+
+    $safeMessage = text($message);
+    $countNote = $pharmacyCount > 0
+        ? ' <span class="text-muted">(' . text((string) $pharmacyCount) . ' ' . xlt('pharmacies') . ')</span>'
+        : '';
+    $cite = <<<CITE
+<cite class="h6 {$tone} p-1 mt-1">
+    <span>{$safeMessage}</span>{$countNote}
 </cite>
 CITE;
-if (str_starts_with((string)$pharmacyLog['status'], 'Success')) {
-    $cite = '';
 }
 
 $hasErrors = !empty($validate->errors['errors']);
@@ -159,9 +183,10 @@ if ($reSync === true) {
     echo '<div class="alert alert-success">' . xlt('Checking Sync Report, please wait! Prescriptions may not be ready for 30 minutes or more.') . '</div>';
 }
 ?>
-<div id="sync-alert" class=""><?php echo $cite; ?></div>
+<?php // One #sync-alert only - the id was duplicated, so JS targeting it hit the
+      // first element and the second silently did nothing. ?>
+<div id="sync-alert" class="<?php echo $cite === '' ? 'd-none' : ''; ?>"><?php echo $cite; ?></div>
 <?php if (!$hasErrors) { ?>
-    <div id="sync-alert" class="d-none"></div>
     <br>
 <?php }
 if ($hasErrors) { ?>

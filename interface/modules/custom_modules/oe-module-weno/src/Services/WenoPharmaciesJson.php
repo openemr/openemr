@@ -16,8 +16,12 @@ use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 class WenoPharmaciesJson
 {
+    /** A full rebuild older than this forces the next run to rebuild. */
+    private const FULL_REBUILD_MAX_AGE_DAYS = 7;
+
     private readonly string $encrypted;
-    /** True when buildJson() requested a daily delta rather than a full directory. */
+
+    /** True when buildJson() asked Weno for a daily delta rather than the full directory. */
     private bool $isDailyImport = false;
 
     public function __construct(private readonly CryptoInterface $cryptoGen)
@@ -40,25 +44,59 @@ class WenoPharmaciesJson
 
     private function buildJson(): string
     {
-        $checkWenoDb = new PharmacyService();
-        $has_data = $checkWenoDb->checkWenoDb();
+        // Weno's flag is inverted from how we think about it: Daily = "N" asks
+        // for the whole directory, "Y" asks for that day's delta.
+        $needsFullRebuild = $this->needsFullRebuild();
+
         $jobJson = [
             "UserEmail" => $this->providerEmail(),
             "MD5Password" => $this->providerPassword(),
             "ExcludeNonWenoTest" => "N",
-            "Daily" => 'N'
+            "Daily" => $needsFullRebuild ? 'N' : 'Y',
         ];
-        if (date("l") != "Monday" && $has_data) {
-            $jobJson["Daily"] = "Y";
-        } elseif (date("l") != "Monday" && !$has_data) {
-            // get a weekly
-            $jobJson["Daily"] = "N"; // in case table was emptied unintentionally
-        }
-        // Remember which payload we asked Weno for; the importer needs the same
-        // mode. A daily delta must upsert, a full directory rebuilds the table.
-        $this->isDailyImport = ($jobJson["Daily"] === "Y");
+
+        // Remember which payload we asked for; the importer has to match it. A
+        // daily delta must upsert, a full directory rebuilds the table.
+        $this->isDailyImport = !$needsFullRebuild;
 
         return text(json_encode($jobJson));
+    }
+
+    /**
+     * Decide whether this run rebuilds the whole directory.
+     *
+     * Rebuild when any of these hold:
+     *   - the pharmacy table is empty (nothing to apply a delta to),
+     *   - it is Monday (the normal weekly rebase),
+     *   - no full rebuild has succeeded within FULL_REBUILD_MAX_AGE_DAYS.
+     *
+     * That last one is the recovery path. Deltas never remove pharmacies Weno
+     * dropped, so if Monday's rebuild failed the table drifts all week. Checking
+     * the log means the next run picks the rebuild back up instead of waiting
+     * for the following Monday.
+     */
+    private function needsFullRebuild(): bool
+    {
+        $wenoLog = new WenoLogService();
+
+        if (!(new PharmacyService())->checkWenoDb()) {
+            return true;
+        }
+
+        if (date("l") === "Monday") {
+            return true;
+        }
+
+        if ($wenoLog->isFullRebuildOverdue(self::FULL_REBUILD_MAX_AGE_DAYS)) {
+            $lastRebuild = $wenoLog->getLastFullRebuildDate() ?? 'never';
+            $wenoLog->insertWenoLog(
+                "Pharmacy Directory",
+                "Full rebuild overdue (last: " . $lastRebuild . ") - forcing a full directory download"
+            );
+            return true;
+        }
+
+        return false;
     }
 
     public function storePharmacyData(): int|false

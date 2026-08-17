@@ -69,17 +69,18 @@ EventAuditLogger::getInstance()->newEvent(
     $comment
 );
 
-// Log the endpoint only. $fileUrl carries the admin email and the encrypted
-// credential payload, and data_in_context is readable from the log viewer.
-$wenoLog->insertWenoLog("Pharmacy Directory", 'Start File Download', $baseurl);
+// No 'Start'/'End File Download' breadcrumb rows: they were the newest rows in
+// weno_download_log, so the widgets that read the last row saw a breadcrumb
+// instead of the import result. The debug log below covers the same ground.
 ServiceContainer::getLogger()->debug('Weno pharmacy file download started');
 $wenoLog->insertWenoLog("Pharmacy Directory", $logMessage);
 
-// isInsertOnly=false for daily (upsert); true for the full/weekly rebuild,
-// which clears the table inside downloadAndImport()'s import transaction.
-$count = $pharmacyDownloadService->downloadAndImport($fileUrl, $isFullDirectory, "Pharmacy Directory");
+$count = $pharmacyDownloadService->downloadAndImport(
+    $fileUrl,
+    isFullRebuild: $isFullDirectory,
+    logContext: "Pharmacy Directory"
+);
 
-$wenoLog->insertWenoLog("Pharmacy Directory", 'End File Download');
 ServiceContainer::getLogger()->debug('Weno pharmacy file download finished');
 
 if ($count === false) {

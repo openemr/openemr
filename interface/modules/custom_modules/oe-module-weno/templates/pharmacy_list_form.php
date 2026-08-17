@@ -50,11 +50,8 @@ $userGate = ($wenoDiagnostics['user'] ?? false) === true;
 $aclGate = ($wenoDiagnostics['acl'] ?? false) === true;
 
 $logService = new WenoLogService();
-// Normalize to an array so the status/created_at reads below are offset-safe.
-$pharmacy_log = $logService->getLastPharmacyDownloadStatus('Success');
-$pharmacy_log = is_array($pharmacy_log) ? $pharmacy_log : [];
-$pharmacyCountRaw = $pharmacy_log['count'] ?? 0;
-$pharmacyCount = is_numeric($pharmacyCountRaw) ? (int) $pharmacyCountRaw : 0;
+$pharmacyHealth = $logService->getPharmacyDirectoryHealth();
+$pharmacyCount = $pharmacyHealth['count'];
 $logGate = $pharmacyCount > 0;
 $showSelector = $configuredGate && $userGate && $aclGate && $logGate;
 $failedGates = [];
@@ -163,21 +160,37 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
         <div class="h4 text-primary">
             <?php echo xlt("Weno Pharmacy"); ?>
         </div>
-        <?php if ($pharmacyCount > 0) {
-            $error = false; ?>
-            <cite class="text-primary p-1">
-                <?php
-                echo xlt("Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
-                ?>
-            </cite>
-        <?php } else {
-            $error = true; ?>
-            <cite class="h6 text-danger p-1 mt-1">
-                <?php
-                echo xlt("Currently No Pharmacies. Last Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . xlt("Last Downloaded") . " " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
-                ?>
-            </cite>
-        <?php } ?>
+        <?php
+        // Report the directory the prescriber is actually searching - a row count
+        // and when it was last refreshed - rather than the importer's internal
+        // status wording. Colour carries the severity so the text can stay short.
+        $error = $pharmacyCount === 0;
+        $lastUpdateRaw = $pharmacyHealth['lastSuccess'] !== ''
+            ? oeFormatShortDate($pharmacyHealth['lastSuccess'])
+            : xl('never');
+        $lastUpdate = is_scalar($lastUpdateRaw) ? (string) $lastUpdateRaw : '';
+        if ($pharmacyCount === 0) {
+            $citeTone = 'h6 text-danger';
+            $citeText = xl('No pharmacies loaded. Last successful download:') . ' ' . $lastUpdate;
+        } elseif (!$pharmacyHealth['isHealthy']) {
+            $citeTone = 'text-warning';
+            $citeText = sprintf(
+                xl('%1$s pharmacies, last updated %2$s - refresh recommended'),
+                (string) $pharmacyCount,
+                $lastUpdate
+            );
+        } else {
+            $citeTone = 'text-primary';
+            $citeText = sprintf(
+                xl('%1$s pharmacies, updated %2$s'),
+                (string) $pharmacyCount,
+                $lastUpdate
+            );
+        }
+        ?>
+        <cite class="<?php echo attr($citeTone); ?> p-1">
+            <?php echo text($citeText); ?>
+        </cite>
     </div>
     <?php if ($showSelector) { ?>
         <div class="row col-12 m-0 p-0 mb-1">

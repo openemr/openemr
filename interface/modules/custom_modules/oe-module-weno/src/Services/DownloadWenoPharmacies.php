@@ -90,7 +90,14 @@ class DownloadWenoPharmacies
      *
      * @return int|false Imported row count, or false on failure
      */
-    public function downloadAndImport(string $url, bool $isInsertOnly = true, string $logContext = 'Pharmacy Directory'): int|false
+    /**
+     * @param bool $isFullRebuild true replaces the whole directory (clears the
+     *                            table inside the import transaction and plain
+     *                            INSERTs); false upserts a daily delta. No
+     *                            default - the destructive mode must be asked
+     *                            for explicitly.
+     */
+    public function downloadAndImport(string $url, bool $isFullRebuild, string $logContext = 'Pharmacy Directory'): int|false
     {
         $wenoLog = new WenoLogService();
         $storeLocation = $this->getDownloadFilePath();
@@ -110,7 +117,7 @@ class DownloadWenoPharmacies
         }
 
         $wenoLog->insertWenoLog($logContext, 'Pharmacy file ready for import');
-        $count = $this->processWenoPharmacyCsv($csvFile, $isInsertOnly);
+        $count = $this->processWenoPharmacyCsv($csvFile, $isFullRebuild);
         $this->cleanupExtractedCsvFiles($pathToExtract);
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -122,7 +129,10 @@ class DownloadWenoPharmacies
                 1,
                 "Pharmacy Download Imported $count Pharmacies Successfully."
             );
-            $wenoLog->insertWenoLog($logContext, "Success $count pharmacies Updated");
+            // The status prefix is how getLastFullRebuildDate() finds the last
+            // rebuild, and 'Success%' stays intact for the dashboard widgets.
+            $mode = $isFullRebuild ? WenoLogService::FULL_REBUILD_STATUS : WenoLogService::DAILY_UPDATE_STATUS;
+            $wenoLog->insertWenoLog($logContext, "$mode: $count pharmacies Updated");
             $this->logger->info('Weno pharmacy import completed', ['imported' => $count]);
             return $count;
         }
@@ -141,10 +151,10 @@ class DownloadWenoPharmacies
 
     /**
      * @param string $filePath
-     * @param bool   $isInsertOnly
+     * @param bool   $isFullRebuild
      * @return false|int
      */
-    public function processWenoPharmacyCsv($filePath, bool $isInsertOnly = true): false|int
+    public function processWenoPharmacyCsv($filePath, bool $isFullRebuild = false): false|int
     {
         $wenoLog = new WenoLogService();
 
@@ -175,7 +185,7 @@ class DownloadWenoPharmacies
             // Full-directory rebuild: clear inside the transaction so a failed
             // import rolls back to the previous directory instead of leaving the
             // table empty. TRUNCATE cannot be used here - it commits implicitly.
-            if ($isInsertOnly) {
+            if ($isFullRebuild) {
                 QueryUtils::sqlStatementThrowException('DELETE FROM weno_pharmacy');
             }
 
@@ -196,7 +206,7 @@ class DownloadWenoPharmacies
             $columnsSql = implode(', ', array_map(static fn(string $col): string => '`' . str_replace('`', '``', $col) . '`', $insertColumns));
             $placeholders = implode(', ', array_fill(0, count($insertColumns), '?'));
 
-            if ($isInsertOnly) {
+            if ($isFullRebuild) {
                 $sql = "INSERT INTO weno_pharmacy ($columnsSql) VALUES ($placeholders)";
             } else {
                 $updates = [];
