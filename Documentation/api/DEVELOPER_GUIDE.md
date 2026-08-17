@@ -1317,7 +1317,7 @@ public function updateWithRelated($id, $data, $related)
 ```php
 <?php
 return [
-    "METHOD /path" => function ($param, HttpRestRequest $request) {
+    "METHOD /path/:param" => function ($param, HttpRestRequest $request) {
         // Authorization — ACL section and value, checked against the
         // authenticated user on the request
         RestConfig::request_authorization_check($request, "patients", "demo");
