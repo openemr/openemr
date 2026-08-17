@@ -7,14 +7,23 @@
  * $_SERVER in favor of Symfony's Request object.
  *
  * Raw superglobals bypass validation, type narrowing, and testing seams. The
- * Request object's typed InputBag getters provide all three, and cover every
- * superglobal this rule forbids — including arrays and uploaded files.
+ * Request object's typed InputBag getters provide all three, with a dedicated
+ * bag per superglobal — query, request, cookies, files, server — including
+ * arrays and uploaded files.
+ *
+ * $_REQUEST is the one exception: Symfony keeps query and body data separate
+ * and has no merged bag, so converting a $_REQUEST read means choosing the
+ * source it actually came from. That choice depends on the request_order ini
+ * setting and must be made per call site, not mechanically.
  *
  * filter_input() is not an acceptable target. It reaches only four of the six
- * superglobals and only top-level scalars, and it returns string|false|null,
- * which needs `?:` rather than `??` at every call site to keep `false` from
- * slipping through. Converting a superglobal to filter_input() silences this
- * rule while moving the problem to a surface with no rule covering it.
+ * superglobals (no INPUT_REQUEST, no $_FILES equivalent), addresses only
+ * top-level keys, and needs an explicit FILTER_REQUIRE_ARRAY flag to return an
+ * array at all. Its string|false|null return is the deeper problem: `??` lets
+ * the `false` failure value through, while `?:` swallows legitimate falsy
+ * input like '0', so every call site needs an explicit === false / === null
+ * check. Converting a superglobal to filter_input() silences this rule while
+ * moving the problem to a surface with no rule covering it.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -100,7 +109,7 @@ class ForbiddenRequestGlobalsRule implements Rule
                 ),
             )
                 ->identifier('openemr.forbiddenRequestGlobals')
-                ->tip('Get the request with OpenEMR\Common\Http\CurrentRequest::get(), or take one as a constructor parameter. Then: $request->query->getString(), $request->request->getInt(), $request->request->all() for arrays, $request->files->get(), $request->cookies->getString(), $request->getMethod(). Do not convert to filter_input() — it is not a valid target for this rule.')
+                ->tip('Get the request with OpenEMR\Common\Http\CurrentRequest::get(), or take one as a constructor parameter. Then read the bag matching the superglobal: $_GET -> $request->query->getString(), $_POST -> $request->request->getInt(), arrays -> $request->request->all(), $_FILES -> $request->files->get(), $_COOKIE -> $request->cookies->getString(), $_SERVER -> $request->server->getString() or a named accessor such as $request->getMethod(), HTTP headers -> $request->headers->get(). $_REQUEST has no equivalent bag: decide whether the value comes from the query string or the body and read that bag directly. Do not convert to filter_input() — it is not a valid target for this rule.')
                 ->build(),
         ];
     }

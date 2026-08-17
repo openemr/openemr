@@ -764,6 +764,7 @@ Standard routes are added to _rest_routes_standard.inc.php
 Portal Routes are added to _rest_routes_portal.inc.php
 ```php
 <?php
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\MyResourceRestController;
 
 // Add to existing routes array
@@ -1345,6 +1346,8 @@ route — it happens automatically for every REST call.
 
 **Query parameters:**
 ```php
+use OpenEMR\Common\Http\HttpRestRequest;
+
 "GET /api/patient" => function (HttpRestRequest $request) {
     // Read query parameters off the request, never $_GET
     $search = $request->query->all();

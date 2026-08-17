@@ -491,19 +491,38 @@ dependencies.
 
 ### Request Input
 
-Read request input through the Symfony `Request` object. It covers every
-superglobal — `query` (`$_GET`), `request` (`$_POST`), `files` (`$_FILES`),
-`cookies` (`$_COOKIE`), `server` (`$_SERVER`) — and its `InputBag` getters
-return honest scalar types.
+Read request input through the Symfony `Request` object. Each superglobal maps
+to its own bag, and the `InputBag` getters return honest scalar types.
+
+| Superglobal | Request accessor |
+|-------------|------------------|
+| `$_GET` | `$request->query` |
+| `$_POST` | `$request->request` |
+| `$_COOKIE` | `$request->cookies` |
+| `$_FILES` | `$request->files` |
+| `$_SERVER` | `$request->server`, or a named accessor |
+| `$_REQUEST` | **no equivalent — pick a source, see below** |
 
 ```php
 $request->query->getString('name');
 $request->request->getInt('id');
 $request->query->getBoolean('flag');
-$request->request->all('items');   // arrays
+$request->request->all('items');          // arrays
 $request->files->get('upload');
-$request->getMethod();             // prefer named accessors over server->get()
+$request->server->getString('SERVER_NAME');
+$request->headers->get('Content-Type');   // headers, not the raw server bag
+$request->getMethod();                    // prefer named accessors where they exist
 ```
+
+Symfony deliberately keeps query and body data separate and has no merged
+`$_REQUEST` bag. Converting a `$_REQUEST` read therefore requires deciding
+which source the value actually comes from and reading that bag directly —
+`$request->query` or `$request->request`. This is not mechanical: which
+superglobals `$_REQUEST` contains, and in what precedence, depends on the
+`request_order` ini setting, so the existing behavior has to be checked per
+call site rather than assumed. (`Request::get()` does search attributes, then
+query, then body — but it is **deprecated as of Symfony 7.4** precisely because
+it hides that ambiguity. Do not reach for it to paper over the conversion.)
 
 Classes take a `Request` through the constructor — see `src/Patient/Cards/`
 for the shape. Procedural entry points that have nowhere to inject call
@@ -513,10 +532,21 @@ scripts, not a target architecture; do not call it from a class that could
 accept a constructor parameter instead.
 
 **Do not use `filter_input()`.** It reaches only four of the six superglobals
-and only top-level scalars, and it returns `string|false|null` — requiring
-`?:` rather than `??` at every call site, since `??` catches only `null` and
-lets `false` through. Existing `filter_input()` calls are legacy to be
-converted, not a pattern to copy.
+(`INPUT_GET`, `INPUT_POST`, `INPUT_COOKIE`, `INPUT_SERVER` — there is no
+`INPUT_REQUEST` and no `$_FILES` equivalent), it addresses only top-level keys,
+and reading an array out of it requires an explicit `FILTER_REQUIRE_ARRAY` flag
+that is easy to omit — without it, an array input silently returns `false`.
+
+Its return type is the deeper problem: `string|false|null`, where `false` means
+"filter failed" and `null` means "not set". Neither shorthand is safe as a
+fallback — `??` catches only `null` and lets `false` through as a value, while
+`?:` swallows legitimate falsy input such as `'0'` and `''`. Correct handling
+requires an explicit `=== false` / `=== null` check, or a type check matching
+the filter, at every call site. The `InputBag` getters have none of these
+problems: `getInt()` returns `int`, `getString()` returns `string`.
+
+Existing `filter_input()` calls are legacy to be converted, not a pattern to
+copy.
 
 ### Null Safety
 
