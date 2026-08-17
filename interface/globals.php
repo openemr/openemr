@@ -244,26 +244,19 @@ $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
 $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 
 /*
-* If a session does not yet exist, then will start the core OpenEMR session.
-* If a session already exists, then this means portal or oauth2 or api is being used, which
-*   has already created a portal session/cookie, so will bypass setting of
-*   the core OpenEMR session/cookie.
-* $sessionAllowWrite = 1 | true | string then normal operation
-* $sessionAllowWrite = undefined | null | 0  session start for read only then auto
-*   immediate session_write_close.
-* Unless $sessionAllowWrite is true, ensure no session writes are used within the calling
-*   scope of this globals instance. Goal is to unlock session file as quickly as possible
-*   instead of waiting for calling script to complete before releasing flock.
+ * Adopt the request the entry point published, or build one on first use for a
+ * plain web request. In the REST and OAuth2 paths this file is included from
+ * SiteSetupListener, whose scope cannot see the dispatcher's $request — reading
+ * through CurrentRequest is what keeps this from becoming a second instance
+ * without the api type, token scopes, and session the run has attached.
  */
-// Adopt the request the entry point published, or build one on first use for a
-// plain web request. In the REST and OAuth2 paths this file is included from
-// SiteSetupListener, whose scope cannot see the dispatcher's $request — reading
-// through CurrentRequest is what keeps this from becoming a second instance
-// without the api type, token scopes, and session the run has attached.
 $restRequest = CurrentRequest::get();
-// OEGlobalsBag is a singleton; reassigning here is safe even if an earlier
-// include already populated it. Selected values are re-set onto the bag
-// throughout the rest of this file.
+
+/*
+ * OEGlobalsBag is a singleton; reassigning here is safe even if an earlier
+ * include already populated it. Selected values are re-set onto the bag
+ * throughout the rest of this file.
+ */
 $globalsBag = OEGlobalsBag::getInstance();
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
@@ -275,6 +268,19 @@ $globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/
 $globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false);
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
+
+/*
+ * If a session does not yet exist, then will start the core OpenEMR session.
+ * If a session already exists, then this means portal or oauth2 or api is being used, which
+ *   has already created a portal session/cookie, so will bypass setting of
+ *   the core OpenEMR session/cookie.
+ * $sessionAllowWrite = 1 | true | string then normal operation
+ * $sessionAllowWrite = undefined | null | 0  session start for read only then auto
+ *   immediate session_write_close.
+ * Unless $sessionAllowWrite is true, ensure no session writes are used within the calling
+ *   scope of this globals instance. Goal is to unlock session file as quickly as possible
+ *   instead of waiting for calling script to complete before releasing flock.
+ */
 $read_only = empty($sessionAllowWrite);
 SessionWrapperFactory::getInstance()->setSessionReadOnly($read_only);
 
