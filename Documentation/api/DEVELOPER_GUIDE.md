@@ -150,13 +150,24 @@ if (!$hasAccess) {
 ```
 
 #### Get Current User
+
+Read session values through the session wrapper. Direct `$_SESSION` access is
+rejected by the `ForbiddenSessionSuperglobalRule` PHPStan rule.
+
 ```php
 <?php
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 // Get current user ID
-$userId = $_SESSION['authUserID'] ?? null;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$userId = $session->get('authUserID');
 
 // Get current user data
-$userData = sqlQuery("SELECT * FROM users WHERE id = ?", [$userId]);
+$userData = QueryUtils::querySingleRow(
+    'SELECT id, username, fname, lname, facility_id FROM users WHERE id = ?',
+    [$userId]
+);
 ```
 
 ## Multisite Support
@@ -233,14 +244,25 @@ The site is determined by:
 2. **Default** - If not specified, uses `default`
 
 **Site Context in Code:**
+
+Neither `$_SESSION` nor `$GLOBALS` may be read directly — the
+`ForbiddenSessionSuperglobalRule` and `ForbiddenGlobalsAccessRule` PHPStan
+rules reject both. Use the session wrapper for session values and
+`OEGlobalsBag` for globals.
+
 ```php
 <?php
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 // Get current site
-$site = $_SESSION['site_id'] ?? 'default';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$site = $session->get('site_id', 'default');
 
 // Site-specific paths
-$documentPath = $GLOBALS['OE_SITE_DIR'] . '/documents/';
-$sqlConf = $GLOBALS['OE_SITE_DIR'] . '/sqlconf.php';
+$siteDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+$documentPath = $siteDir . '/documents/';
+$sqlConf = $siteDir . '/sqlconf.php';
 ```
 
 ## Security Best Practices
@@ -525,7 +547,7 @@ class MyResourceService extends BaseService
     public function getOne($uuid)
     {
         $sql = "SELECT * FROM " . self::TABLE_NAME . " WHERE uuid = ?";
-        $result = QueryUtils::sqlQueryThrowException($sql, [$uuid]);
+        $result = QueryUtils::querySingleRow($sql, [$uuid]);
 
         $processingResult = new ProcessingResult();
         if (!empty($result)) {
@@ -1333,19 +1355,53 @@ return [
 
 ### Authorization Checks
 
-**Scope-based:**
-```php
-RestConfig::authorization_check("patients", "demo");
-```
+Authorization is an ACL check, not a username comparison. Every route closure
+receives an `HttpRestRequest` — pass it to
+`RestConfig::request_authorization_check()`, which resolves the authenticated
+user from the request's session and runs the ACL check for you:
 
-**Role-based:**
 ```php
-// Check user role
-if ($_SESSION['authUser'] !== 'admin') {
-    http_response_code(403);
-    exit;
+"GET /api/patient" => function (HttpRestRequest $request) {
+    RestConfig::request_authorization_check($request, "patients", "demo");
+    // ...
 }
 ```
+
+The second and third arguments are the ACL section and value. Common pairs:
+
+| Section | Value | Grants |
+|---------|-------|--------|
+| `patients` | `demo` | Demographics |
+| `patients` | `med` | Medical records and history |
+| `patients` | `appt` | Appointments |
+| `encounters` | `notes` | Encounter notes — my encounters |
+| `encounters` | `auth_a` | Authorize any encounter |
+| `acct` | `bill` | Billing |
+| `admin` | `users` | User and facility administration |
+| `admin` | `super` | Full administrative access |
+
+The full section/value list is documented in the class docblock of
+`src/Common/Acl/AclMain.php`. An optional fourth argument narrows the
+permission further (`'write'`, `'addonly'`).
+
+Outside a route closure — in a service or a controller that has no request —
+call the ACL layer directly:
+
+```php
+use OpenEMR\Common\Acl\AclMain;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    throw new AccessDeniedHttpException('Insufficient permissions');
+}
+```
+
+Do **not** authorize by comparing `authUser` against a literal username. The
+`admin` account is an ordinary user whose name happens to be `admin`; the
+comparison grants access to that one account and denies every other
+administrator, while missing the ACL groups that actually carry the
+permission. Reading `$_SESSION` directly is separately rejected by the
+`ForbiddenSessionSuperglobalRule` PHPStan rule.
 
 ## Validation
 
