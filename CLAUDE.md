@@ -537,13 +537,21 @@ accept a constructor parameter instead.
 and reading an array out of it requires an explicit `FILTER_REQUIRE_ARRAY` flag
 that is easy to omit — without it, an array input silently returns `false`.
 
-Its return type is the deeper problem: `string|false|null`, where `false` means
-"filter failed" and `null` means "not set". Neither shorthand is safe as a
-fallback — `??` catches only `null` and lets `false` through as a value, while
-`?:` swallows legitimate falsy input such as `'0'` and `''`. Correct handling
-requires an explicit `=== false` / `=== null` check, or a type check matching
-the filter, at every call site. The `InputBag` getters have none of these
-problems: `getInt()` returns `int`, `getString()` returns `string`.
+Its return type is the deeper problem. It is `mixed`, and what you actually get
+back depends on the filter you passed: a `string` by default, an `int` or
+`float` or `bool` from a validation filter, an array with `FILTER_REQUIRE_ARRAY`.
+Failure is signalled in-band by sentinel values rather than by type — `false`
+for "filter failed", `null` for "not set", and `FILTER_NULL_ON_FAILURE`
+*reverses* those two. So the caller has to know which filter was used before it
+can tell a rejected value from an absent one.
+
+Neither shorthand is safe as a fallback: `??` catches only `null` and lets
+`false` through as a value, while `?:` swallows legitimate falsy input such as
+`'0'`, `0`, and `''`. Correct handling requires an explicit `=== false` /
+`=== null` check, or a type check matching the chosen filter, at every call
+site. The `InputBag` getters have none of this: `getInt()` returns `int`,
+`getString()` returns `string`, and a missing key yields the declared default
+rather than a sentinel.
 
 Existing `filter_input()` calls are legacy to be converted, not a pattern to
 copy.

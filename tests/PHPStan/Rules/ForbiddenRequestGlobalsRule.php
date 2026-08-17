@@ -19,10 +19,13 @@
  * filter_input() is not an acceptable target. It reaches only four of the six
  * superglobals (no INPUT_REQUEST, no $_FILES equivalent), addresses only
  * top-level keys, and needs an explicit FILTER_REQUIRE_ARRAY flag to return an
- * array at all. Its string|false|null return is the deeper problem: `??` lets
- * the `false` failure value through, while `?:` swallows legitimate falsy
- * input like '0', so every call site needs an explicit === false / === null
- * check. Converting a superglobal to filter_input() silences this rule while
+ * array at all. Its return type is the deeper problem: mixed, varying with the
+ * filter passed, with failure signalled in-band by sentinels rather than by
+ * type — false for "filter failed", null for "not set", and
+ * FILTER_NULL_ON_FAILURE reverses the two. `??` lets the false failure value
+ * through, while `?:` swallows legitimate falsy input like '0', so every call
+ * site needs an explicit === false / === null check against the filter it
+ * chose. Converting a superglobal to filter_input() silences this rule while
  * moving the problem to a surface with no rule covering it.
  *
  * @package   OpenEMR
