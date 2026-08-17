@@ -1149,7 +1149,9 @@ function updatePatientData($pid, $new, $create = false)
         $pid === null
     ) {
         $result = $patientService->databaseInsert($new);
-        updateDupScore($result['pid']);
+        if (is_int($result['pid']) || is_string($result['pid'])) {
+            updateDupScore($result['pid']);
+        }
     } else {
         $new['pid'] = $pid;
         $result = $patientService->databaseUpdate($new);
@@ -1666,25 +1668,17 @@ function is_patient_deceased($pid, $date = '')
     }
 }
 
-// Compute dupscore for a single patient using symmetric comparison (p2.pid != p1.pid).
-// This is required for single-patient updates (e.g., after demographics change) to detect
-// matches with higher-PID patients. Batch operations in dupscore.cli.php and calculateScores()
-// intentionally use asymmetric comparison (p2.pid < p1.pid) as a performance optimization
-// that works correctly when processing all patients.
-function updateDupScore($pid)
+/**
+ * Compute and store the duplication score for a single patient.
+ *
+ * Prefer OpenEMR\Services\Patient\DuplicatePatientService::recalculateScore() in new code; this
+ * remains for legacy callers that cannot inject a service.
+ */
+function updateDupScore(int|string $pid): int
 {
-    $row = sqlQuery(
-        "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
-        "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-        "p1.pid = ? AND p2.pid != p1.pid AND p2.dupscore != -1",
-        [$pid]
-    );
-    $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];
-    sqlStatement(
-        "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
-        [$dupscore, $pid]
-    );
-    return $dupscore;
+    return (new \OpenEMR\Services\Patient\DuplicatePatientService(
+        \OpenEMR\BC\ServiceContainer::getClock()
+    ))->recalculateScore((int) $pid);
 }
 
 function get_unallocated_payment_id($pid)
