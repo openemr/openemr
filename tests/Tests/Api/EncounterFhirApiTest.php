@@ -199,6 +199,10 @@ class EncounterFhirApiTest extends TestCase
             $this->fixtureManager->getUnregisteredUuid()
         );
         $this->assertEquals(Response::HTTP_NOT_FOUND, $result->getStatusCode());
+
+        $body = json_decode((string) $result->getBody()->getContents(), true);
+        $this->assertIsArray($body);
+        $this->assertEmpty($body);
     }
 
     /**
@@ -212,5 +216,9 @@ class EncounterFhirApiTest extends TestCase
             "not-a-valid-uuid"
         );
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $result->getStatusCode());
+
+        $body = json_decode((string) $result->getBody()->getContents(), true);
+        $this->assertIsArray($body);
+        $this->assertArrayHasKey("validationErrors", $body);
     }
 }
