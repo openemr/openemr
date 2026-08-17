@@ -44,6 +44,10 @@ if (php_sapi_name() === 'cli') {
 require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
+    if ($cliFromVersion !== null) {
+        fwrite(STDERR, $response . "\n");
+        exit(1);
+    }
     die(htmlspecialchars($response));
 }
 
@@ -110,7 +114,11 @@ $versions = [];
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
 if (!$dh) {
-    die("Cannot read $sqldir");
+    if ($cliFromVersion !== null) {
+        fwrite(STDERR, "Cannot read $sqldir\n");
+        exit(1);
+    }
+    die("Cannot read " . htmlspecialchars($sqldir));
 }
 
 while (false !== ($sfname = readdir($dh))) {
