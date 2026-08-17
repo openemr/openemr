@@ -32,6 +32,7 @@ for dirdata in /var/www/localhost/htdocs/openemr/sites/*/; do
         cat /var/www/localhost/htdocs/openemr/sql_upgrade.php
     } > /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php; then
         echo "ERROR: could not stage sql_upgrade.php for ${sitename} (file missing?)" >&2
+        rm -f /var/www/localhost/htdocs/openemr/TEMPsql_upgrade.php
         exit 1
     fi
     # Drop privileges to apache: RootCliGuard (openemr#12267) refuses root for OpenEMR CLI scripts.

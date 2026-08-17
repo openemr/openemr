@@ -290,6 +290,8 @@ upgradeOpenEMR() {
         cat /var/www/localhost/htdocs/openemr/sql_upgrade.php
     } > /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
     # Execute the upgrade script with the from-version argument
+    # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
+    if ! run_php_as_apache /usr/local/bin/php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php -- --from="${1}"; then
     if ! run_php_as_apache /usr/local/bin/php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php -- --from="${1}"; then
         echo "ERROR: Database upgrade failed (from ${1})" >&2
         rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
