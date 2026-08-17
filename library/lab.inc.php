@@ -100,11 +100,14 @@ function getProcedureProvider($prov_id): array
  */
 function getLabProviders($prov_id): ?array
 {
-    return QueryUtils::querySingleRow(
+    $res = QueryUtils::querySingleRow(
         "SELECT fname, lname FROM users
          WHERE authorized = 1 AND active = 1 AND username != '' AND id = ?",
         [$prov_id]
     );
+
+    // querySingleRow returns false when no row matches; normalize to null.
+    return $res ?: null;
 }
 
 /**
@@ -210,6 +213,41 @@ function buildResponsibleParty(string $billingType, array $facility, array $pdat
     }
 
     return [];
+}
+
+/**
+ * Returns AOE (Ask On Entry) question/answer pairs for a procedure order code row.
+ *
+ * @param int|string $oid procedure_order_id
+ * @param int|string $labId procedure_order.lab_id / procedure_providers.ppid
+ * @param int|string $procedureCode procedure_order_code.procedure_code
+ * @param int|string $procedureOrderSeq procedure_order_code.procedure_order_seq
+ * @return array<int, array{question_text: string, answer: string}>
+ */
+function getProcedureOrderAnswers($oid, $labId, $procedureCode, $procedureOrderSeq): array
+{
+    $rows = QueryUtils::fetchRecords(
+        "SELECT q.question_text, a.answer
+         FROM procedure_answers AS a
+         LEFT JOIN procedure_questions AS q
+           ON q.lab_id = ?
+          AND q.procedure_code = ?
+          AND q.question_code = a.question_code
+         WHERE a.procedure_order_id = ?
+           AND a.procedure_order_seq = ?
+         ORDER BY q.seq, a.answer_seq",
+        [$labId, $procedureCode, $oid, $procedureOrderSeq]
+    );
+
+    $answers = [];
+    foreach ($rows as $row) {
+        $answers[] = [
+            'question_text' => (string) ($row['question_text'] ?? ''),
+            'answer' => (string) ($row['answer'] ?? ''),
+        ];
+    }
+
+    return $answers;
 }
 
 /**

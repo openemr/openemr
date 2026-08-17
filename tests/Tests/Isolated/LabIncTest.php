@@ -172,4 +172,15 @@ class LabIncTest extends TestCase
         $this->assertSame('', $result['relationship']);
         $this->assertTrue($result['relationship_is_list']);
     }
+
+    /**
+     * Test getProcedureOrderAnswers is defined for requisition AOE rendering.
+     */
+    public function testGetProcedureOrderAnswersFunctionExists(): void
+    {
+        $this->assertTrue(function_exists('getProcedureOrderAnswers'));
+        $this->assertTrue(function_exists('getLabconfig'));
+        $this->assertTrue(function_exists('getProcedureBillingType'));
+        $this->assertTrue(function_exists('buildResponsibleParty'));
+    }
 }

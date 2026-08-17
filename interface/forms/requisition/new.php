@@ -35,346 +35,835 @@ $returnurl = 'encounter_top.php';
 $formid = (int) ($_GET['id'] ?? 0);
 $obj = $formid ? formFetch("form_requisition", $formid) : [];
 
-global $pid ;
+global $pid;
 
-$encounter = $session->get('encounter');
+// Narrow mixed session/global values before helper calls (PHPStan).
+if (is_int($pid)) {
+    $safePid = $pid;
+} elseif (is_string($pid) && ctype_digit($pid)) {
+    $safePid = (int) $pid;
+} else {
+    $safePid = 0;
+}
 
-$oid = fetchProcedureId($pid, $encounter);
+$encounterRaw = $session->get('encounter');
+if (is_int($encounterRaw)) {
+    $encounter = $encounterRaw;
+} elseif (is_string($encounterRaw) && ctype_digit($encounterRaw)) {
+    $encounter = (int) $encounterRaw;
+} else {
+    $encounter = 0;
+}
 
+$oidRaw = fetchProcedureId($safePid, $encounter);
+if (is_int($oidRaw)) {
+    $oid = $oidRaw;
+} elseif (is_string($oidRaw) && ctype_digit($oidRaw)) {
+    $oid = (int) $oidRaw;
+} else {
+    $oid = 0;
+}
 
+$patient_id = $safePid;
+$pdata = getPatientData($safePid);
+$facility = getFacility();
+$ins = getAllinsurances($safePid);
+if (!is_array($ins)) {
+    $ins = [];
+}
+$orders = $oid > 0 ? getProceduresInfo($oid, $encounter) : [];
+// Order-level fields are identical across rows; read from the first row.
+$firstRow = $orders[0] ?? [];
 
-    $patient_id = $pid;
-    $pdata      = getPatientData($pid);
-    $facility   = getFacility();
-    $ins        = getAllinsurances($pid);
-    $orders     = getProceduresInfo($oid, $encounter);
-    // Order-level fields are identical across rows; read from the first row.
-    $firstRow  = $orders[0] ?? [];
+$provIdRaw = $firstRow['provider_id'] ?? null;
+if (is_int($provIdRaw)) {
+    $prov_id = $provIdRaw;
+} elseif (is_string($provIdRaw) && $provIdRaw !== '') {
+    $prov_id = $provIdRaw;
+} else {
+    $prov_id = '';
+}
 
-    $prov_id   = $firstRow['provider_id'] ?? '';
-    $lab       = $firstRow['lab_id'] ?? '';
-    $provider  = getLabProviders($prov_id);
-    $npi       = getNPI($prov_id);
-    $pp        = getProcedureProvider($lab);
-    $provLabId = $lab ? getLabconfig((int) $lab) : false;
+$labRaw = $firstRow['lab_id'] ?? null;
+if (is_int($labRaw)) {
+    $lab = $labRaw;
+} elseif (is_string($labRaw) && ctype_digit($labRaw)) {
+    $lab = (int) $labRaw;
+} else {
+    $lab = null;
+}
 
-    // Determine responsible party from the procedure order billing_type.
-    // 'C' = Client/Clinic, 'P' = Patient, 'T' = Third Party/Insurance
-    $billingType      = $oid ? getProcedureBillingType((int) $oid) : '';
-    $responsibleParty = buildResponsibleParty($billingType, $facility, $pdata, $ins[0] ?? []);
+$provider = $prov_id !== '' ? (getLabProviders($prov_id) ?? []) : [];
+$npi = $prov_id !== '' ? getNPI($prov_id) : ['', ''];
+$pp = $lab !== null ? getProcedureProvider($lab) : [];
+$provLabId = $lab !== null ? getLabconfig($lab) : false;
+
+// Collect AOE Q&A pairs across all ordered procedure codes.
+$aoeAnswers = [];
+if ($oid > 0 && $lab !== null) {
+    foreach ($orders as $codeRow) {
+        $code = $codeRow['procedure_code'] ?? '';
+        $seq = $codeRow['procedure_order_seq'] ?? '';
+        if ($code === '' || $seq === '') {
+            continue;
+        }
+        foreach (getProcedureOrderAnswers($oid, $lab, $code, $seq) as $aoeRow) {
+            $aoeAnswers[] = $aoeRow;
+        }
+    }
+}
+
+// Determine responsible party from the procedure order billing_type.
+// 'C' = Client/Clinic, 'P' = Patient, 'T' = Third Party/Insurance
+$billingType = $oid > 0 ? getProcedureBillingType($oid) : '';
+$facilityData = is_array($facility) ? $facility : [];
+$patientData = is_array($pdata) ? $pdata : [];
+$responsibleParty = buildResponsibleParty($billingType, $facilityData, $patientData, $ins[0] ?? []);
 ?>
 
+<?php
+$bar = '';
+$clientNumber = '';
+$facilityCityLine = '';
+$labCityLine = '';
+$providerName = '';
+$patientName = '';
+$patientDob = '';
+$collectionDate = '';
+$orderDate = '';
+$relationshipDisplay = '/';
+$billingLabel = xl('Not Specified');
+
+if (!empty($orders) && !empty($oid)) {
+    /**
+     * Persist the requisition barcode the first time the form is viewed.
+     */
+    $lab_id = $firstRow['procedure_order_id'] ?? $oid;
+    $storeBar = getBarId($lab_id, $safePid);
+
+    if (!empty($storeBar) && is_array($storeBar)) {
+        $bar = (string) ($storeBar['req_id'] ?? '');
+    } else {
+        $bar = (string) random_int(1000, 999999);
+        saveBarCode($bar, $safePid, $lab_id);
+    }
+
+    $clientNumber = is_array($provLabId) ? (string) ($provLabId['recv_fac_id'] ?? '') : '';
+    $facilityCityLine = trim(
+        ($facilityData['city'] ?? '') .
+        (!empty($facilityData['city']) && !empty($facilityData['state']) ? ', ' : '') .
+        ($facilityData['state'] ?? '') .
+        ' ' .
+        ($facilityData['postal_code'] ?? '')
+    );
+    $labCityLine = trim(
+        ($pp['city'] ?? '') .
+        (!empty($pp['city']) && !empty($pp['state']) ? ', ' : '') .
+        ($pp['state'] ?? '') .
+        ' ' .
+        ($pp['zip'] ?? '')
+    );
+    $providerName = trim(($provider['fname'] ?? '') . ' ' . ($provider['lname'] ?? ''));
+    $patientName = trim(($patientData['fname'] ?? '') . ' ' . ($patientData['lname'] ?? ''));
+    $patientDob = !empty($patientData['DOB']) ? oeFormatShortDate($patientData['DOB']) : '';
+    $collectionDate = !empty($firstRow['date_collected'])
+        ? oeFormatDateTime($firstRow['date_collected'])
+        : '';
+    $orderDate = !empty($firstRow['date_ordered'])
+        ? oeFormatDateTime($firstRow['date_ordered'])
+        : '';
+
+    if (!empty($responsibleParty['relationship'])) {
+        $relationshipDisplay = ($responsibleParty['relationship_is_list'] ?? false)
+            ? text(getListItemTitle('sub_relation', $responsibleParty['relationship']))
+            : xlt($responsibleParty['relationship']);
+    }
+
+    $billingLabel = match ($billingType) {
+        'C' => xl('Clinic Billing'),
+        'P' => xl('Patient Billing'),
+        'T' => xl('Third Party / Insurance'),
+        default => xl('Not Specified'),
+    };
+}
+?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <?php Header::setupHeader(); ?>
-<style>
-table, th, td {
-     border: 1px solid black;
-     border-collapse: collapse;
- }
+    <title><?php echo xlt('Lab Requisition'); ?></title>
+    <style>
+        :root {
+            --req-ink: #111;
+            --req-muted: #555;
+            --req-line: #222;
+            --req-soft: #f2f2f2;
+            --req-accent: #1f3a5f;
+            --req-band: #e8eef5;
+        }
 
- .req {
-     margin: auto;
-     width: 90%;
-     padding: 10px;
- }
+        body.requisition-page {
+            background: #e9ecef;
+            color: var(--req-ink);
+            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            line-height: 1.35;
+        }
 
- .reqHeader {
-     margin: auto;
-     width: 90%;
-     padding: 10px;
- }
+        .req-toolbar {
+            max-width: 960px;
+            margin: 1rem auto 0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            padding: 0 0.75rem;
+        }
 
- .cinfo {
-     float: left;
+        .req-sheet {
+            max-width: 960px;
+            margin: 0.75rem auto 2rem;
+            background: #fff;
+            border: 1px solid #c5c9d0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            padding: 1.25rem 1.5rem 1.75rem;
+        }
 
- }
+        .req-titlebar {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            align-items: flex-start;
+            border-bottom: 3px solid var(--req-accent);
+            padding-bottom: 0.85rem;
+            margin-bottom: 0.85rem;
+        }
 
- .pdata {
+        .req-brand h1 {
+            margin: 0;
+            color: var(--req-accent);
+            font-size: 1.55rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
 
-     position: relative;
-     right: -205px;
-     z-index: -5;
+        .req-brand .req-subtitle {
+            margin: 0.2rem 0 0;
+            color: var(--req-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
 
- }
+        .req-barcode {
+            text-align: right;
+            min-width: 180px;
+        }
 
- #printable { display: none; }
+        .req-barcode img {
+            max-height: 54px;
+            width: auto;
+        }
 
-    @media print
-    {
-        #non-printable { display: none; }
-        #printable { display: block; }
-    }
+        .req-barcode .req-bar-number {
+            margin-top: 0.25rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
 
-   .notes {
-       padding: 5px;
-       position: relative;
-       float: left;
-       width: 255px;
-       height: 125px;
-   }
+        .req-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem 1rem;
+            margin-bottom: 0.85rem;
+        }
 
-  .dx {
-      padding: 5px;
-      position: relative;
-      float: right;
-      border-style: solid;
-      border-width: 1px;
-      width: 130px;
-      height: 125px;
-  }
+        .req-meta-card {
+            border: 1px solid var(--req-line);
+            background: var(--req-soft);
+            padding: 0.65rem 0.75rem;
+            min-height: 5.5rem;
+        }
 
-  .plist {
-      padding: 5px;
-      position: relative;
-      float: left;
+        .req-meta-card h2 {
+            margin: 0 0 0.35rem;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--req-accent);
+            border-bottom: 1px solid #c9d0d9;
+            padding-bottom: 0.25rem;
+        }
 
-  }
+        .req-meta-card p {
+            margin: 0;
+            font-size: 0.92rem;
+        }
 
-  .pFill {
-      float: left;
+        .req-id-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.85rem;
+        }
 
-  }
+        .req-id-box {
+            border: 1px solid var(--req-line);
+            padding: 0.45rem 0.55rem;
+        }
 
-</style>
-    <title><?php echo xlt('Lab Requisition') . ' ' . text($lab ?? ''); ?></title>
+        .req-id-box .label {
+            display: block;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--req-muted);
+            margin-bottom: 0.15rem;
+        }
+
+        .req-id-box .value {
+            display: block;
+            font-size: 0.98rem;
+            font-weight: 600;
+            min-height: 1.2rem;
+            word-break: break-word;
+        }
+
+        .req-section {
+            border: 1px solid var(--req-line);
+            margin-bottom: 0.75rem;
+            page-break-inside: avoid;
+        }
+
+        .req-section-title {
+            margin: 0;
+            padding: 0.4rem 0.65rem;
+            background: var(--req-band);
+            border-bottom: 1px solid var(--req-line);
+            color: var(--req-accent);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .req-section-body {
+            padding: 0.55rem 0.65rem 0.7rem;
+        }
+
+        .req-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .req-fields {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .req-fields th,
+        .req-fields td {
+            border: 0;
+            padding: 0.22rem 0.3rem;
+            vertical-align: top;
+            font-size: 0.9rem;
+        }
+
+        .req-fields th {
+            width: 38%;
+            color: var(--req-muted);
+            font-weight: 600;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .req-fields td {
+            border-bottom: 1px dotted #b7b7b7;
+            font-weight: 500;
+            min-width: 4rem;
+        }
+
+        .req-empty {
+            color: #888;
+            font-style: italic;
+        }
+
+        .req-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        .req-table th,
+        .req-table td {
+            border: 1px solid #9aa3ad;
+            padding: 0.4rem 0.5rem;
+            vertical-align: top;
+            font-size: 0.9rem;
+        }
+
+        .req-table thead th {
+            background: #f7f8fa;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--req-accent);
+        }
+
+        .req-table tbody tr:nth-child(even) {
+            background: #fbfbfc;
+        }
+
+        .req-notes-box {
+            min-height: 3.5rem;
+            border: 1px solid #c5c9d0;
+            background: #fafafa;
+            padding: 0.5rem 0.65rem;
+            white-space: pre-wrap;
+        }
+
+        .req-aoe-list {
+            margin: 0;
+            padding-left: 1.1rem;
+        }
+
+        .req-aoe-list li {
+            margin-bottom: 0.35rem;
+        }
+
+        .req-signatures {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.85rem;
+        }
+
+        .req-sign-box {
+            border: 1px solid var(--req-line);
+            min-height: 4.5rem;
+            padding: 0.45rem 0.55rem;
+        }
+
+        .req-sign-box .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--req-muted);
+            margin-bottom: 1.8rem;
+        }
+
+        .req-sign-box .line {
+            border-top: 1px solid #333;
+            margin-top: 1.6rem;
+            padding-top: 0.25rem;
+            font-size: 0.72rem;
+            color: var(--req-muted);
+        }
+
+        .req-footer {
+            margin-top: 0.9rem;
+            border-top: 2px solid var(--req-accent);
+            padding-top: 0.55rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            color: var(--req-muted);
+            font-size: 0.78rem;
+        }
+
+        .req-alert {
+            max-width: 720px;
+            margin: 3rem auto;
+            background: #fff;
+            border: 1px solid #d0d5dd;
+            border-radius: 0.35rem;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        @media print {
+            body.requisition-page {
+                background: #fff;
+            }
+
+            .req-toolbar,
+            .d-print-none {
+                display: none !important;
+            }
+
+            .req-sheet {
+                max-width: none;
+                margin: 0;
+                border: 0;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .req-section,
+            .req-meta-card,
+            .req-id-box,
+            .req-sign-box,
+            .req-table tr {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            a[href]::after {
+                content: none !important;
+            }
+        }
+
+        @media screen and (max-width: 800px) {
+            .req-meta,
+            .req-grid-2,
+            .req-id-row,
+            .req-signatures {
+                grid-template-columns: 1fr;
+            }
+
+            .req-titlebar {
+                flex-direction: column;
+            }
+
+            .req-barcode {
+                text-align: left;
+            }
+        }
+    </style>
 </head>
+<body class="requisition-page">
+<?php if (empty($orders) || empty($oid)) : ?>
+    <div class="req-alert">
+        <h2 class="h5 mb-2"><?php echo xlt('Lab Requisition Unavailable'); ?></h2>
+        <p class="mb-0">
+            <?php
+            echo empty($oid)
+                ? xlt('No order found. Please enter a procedure order first.')
+                : xlt('Procedure order not found in database. Contact technical support.');
+            ?>
+        </p>
+    </div>
+<?php else : ?>
+    <div class="req-toolbar d-print-none">
+        <button type="button" class="btn btn-primary btn-print" onclick="window.print()">
+            <?php echo xlt('Print Requisition'); ?>
+        </button>
+    </div>
 
-<body>
-<div class="container">
-    <?php
-    if (empty($orders)) {
-            echo "<div class='text-center mt-5'><span>" .
-                xlt('procedure order not found in database contact tech support') . "</span></div></div></body></html>";
-            exit;
-    }
-    if (empty($oid)) {
-            print "<div class='text-center mt-5'><span>" .
-         xlt('No Order found, please enter procedure order first') . "</span></div></div></body></html>";
-            exit;
-    }
-    ?>
-        <div class="text-center mt-3">
-                <?php
-                /**
-                 *  This is to store the requisition bar code number to use again if the form needs to be printed or viewed again
-                 *  But save it the first time through.
-                 */
-                   $lab_id = $firstRow['procedure_order_id'];
-                   $storeBar = getBarId($lab_id, $pid);
+    <main class="req-sheet" id="printableArea">
+        <header class="req-titlebar">
+            <div class="req-brand">
+                <h1><?php echo xlt('Laboratory Requisition'); ?></h1>
+                <p class="req-subtitle"><?php echo xlt('Official Order Document'); ?></p>
+            </div>
+            <div class="req-barcode">
+                <img src="../../forms/requisition/barcode.php?text=<?php echo attr_url($bar); ?>" alt="<?php echo xla('Requisition barcode'); ?>" />
+                <div class="req-bar-number"><?php echo text($bar); ?></div>
+            </div>
+        </header>
 
-                if (!empty($storeBar)) {
-                    $bar = $storeBar['req_id'];
-                } else {
-                    $bar = random_int(1000, 999999);
-                    saveBarCode($bar, $pid, $firstRow['procedure_order_id']);
-                }
+        <section class="req-meta">
+            <div class="req-meta-card">
+                <h2><?php echo xlt('Ordering Facility'); ?></h2>
+                <p><strong><?php echo text($facilityData['name'] ?? ''); ?></strong></p>
+                <p><?php echo text($facilityData['street'] ?? ''); ?></p>
+                <p><?php echo text($facilityCityLine); ?></p>
+                <p><?php echo text($facilityData['phone'] ?? ''); ?></p>
+            </div>
+            <div class="req-meta-card">
+                <h2><?php echo xlt('Performing Laboratory'); ?></h2>
+                <p><strong><?php echo text($pp['organization'] ?? ''); ?></strong></p>
+                <p><?php echo text($pp['street'] ?? ''); ?></p>
+                <p><?php echo text($labCityLine); ?></p>
+                <p>
+                    <?php echo xlt('Phone'); ?>: <?php echo text($pp['phone'] ?? ''); ?>
+                    &nbsp;|&nbsp;
+                    <?php echo xlt('Fax'); ?>: <?php echo text($pp['fax'] ?? ''); ?>
+                </p>
+            </div>
+        </section>
 
-                ?>
-                <img  src="../../forms/requisition/barcode.php?text=<?php echo attr_url($bar); ?>" alt="barcode" /><br />
-             <h3><?php echo text($bar); ?></h3>
-        </div>
-        <div class="reqHeader" id="printableArea">
-        <p><span class="fs-4"><b><?php print xlt('Requisition Number') ?>:</b> <?php echo text($bar); ?>  &#160;&#160;&#160;&#160;&#160;&#160;<b><?php print xlt('Client Number') ?>:</b> <?php echo text($provLabId['recv_fac_id']); ?></span></p>
-           <div class="cinfo">
-           <span class="fs-3">
-                <?php echo text($facility['name']) . "<br />" . text($facility['street']) . "<br />" .
-                          text($facility['city']) . "," . text($facility['state']) . "," . text($facility['postal_code']) . "<br />" .
-                          text($facility['phone']); ?>
-                          </span>
-           </div>
-           <div class="pdata">
-                 <p><span class="fs-3">
-            <?php echo text($pp['organization']) . "<br />" .
-            text($pp['street']) . " | " . text($pp['city']) . ", " . text($pp['state']) . " " . text($pp['zip']) . "<br />" .
-            "O:" . text($pp['phone']) . " | F:" . text($pp['fax']) . "<br />";
-            ?></span></p>
+        <section class="req-id-row">
+            <div class="req-id-box">
+                <span class="label"><?php echo xlt('Requisition Number'); ?></span>
+                <span class="value"><?php echo text($bar); ?></span>
+            </div>
+            <div class="req-id-box">
+                <span class="label"><?php echo xlt('Client Number'); ?></span>
+                <span class="value"><?php echo text($clientNumber !== '' ? $clientNumber : '—'); ?></span>
+            </div>
+            <div class="req-id-box">
+                <span class="label"><?php echo xlt('Lab Reference ID'); ?></span>
+                <span class="value"><?php echo text((string) ($firstRow['procedure_order_id'] ?? $oid)); ?></span>
+            </div>
+            <div class="req-id-box">
+                <span class="label"><?php echo xlt('Billing Type'); ?></span>
+                <span class="value"><?php echo text($billingLabel); ?></span>
+            </div>
+        </section>
 
-           </div>
-        </div>
-        <div class="req" id="printableArea">
-            <table class="table" style="width:800px border=1">
-               <tr style="height:125px;">
-                   <td style="vertical-align:top; width:400px;" >
-                   <div class="plist">
-                       <b><?php echo xlt('Collection Date/Time')?>:</b><br />
-                       <b><?php echo xlt('Lab Reference ID') ?>:</b><br />
-                       <b><?php echo xlt('Fasting')?>:</b><br />
-                       <b><?php echo xlt('Hours')?>:</b><br />
-                     </div>
-                    <div class="pFill">
-                        <?php echo text($firstRow['date_collected'] ?? ''); ?> <br />
-                        <?php echo text($firstRow['procedure_order_id'] ?? ''); ?>
+        <section class="req-section">
+            <h2 class="req-section-title"><?php echo xlt('Patient Information'); ?></h2>
+            <div class="req-section-body">
+                <div class="req-grid-2">
+                    <table class="req-fields">
+                        <tr>
+                            <th><?php echo xlt('Patient Name'); ?></th>
+                            <td><?php echo text($patientName !== '' ? $patientName : '—'); ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('Patient ID'); ?></th>
+                            <td><?php echo text((string) $safePid); ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('Date of Birth'); ?></th>
+                            <td><?php echo text($patientDob !== '' ? $patientDob : '—'); ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('Sex'); ?></th>
+                            <td><?php echo text(getListItemTitle('sex', $patientData['sex'] ?? '') ?: '—'); ?></td>
+                        </tr>
+                    </table>
+                    <table class="req-fields">
+                        <tr>
+                            <th><?php echo xlt('Collection Date/Time'); ?></th>
+                            <td><?php echo text($collectionDate !== '' ? $collectionDate : '—'); ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('Order Date/Time'); ?></th>
+                            <td><?php echo text($orderDate !== '' ? $orderDate : '—'); ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('Specimen Type'); ?></th>
+                            <td><?php echo text((string) ($firstRow['specimen_type'] ?? '') ?: '—'); ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('Specimen Location'); ?></th>
+                            <td><?php echo text((string) ($firstRow['specimen_location'] ?? '') ?: '—'); ?></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="req-section">
+            <h2 class="req-section-title"><?php echo xlt('Ordering Physician & Responsible Party'); ?></h2>
+            <div class="req-section-body">
+                <div class="req-grid-2">
+                    <table class="req-fields">
+                        <tr>
+                            <th><?php echo xlt('Physician Name'); ?></th>
+                            <td><?php echo text($providerName !== '' ? $providerName : '—'); ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('NPI'); ?></th>
+                            <td><?php echo text((string) ($npi[0] ?? '') ?: '—'); ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('UPIN'); ?></th>
+                            <td><?php echo text((string) ($npi[1] ?? '') ?: '—'); ?></td>
+                        </tr>
+                    </table>
+                    <table class="req-fields">
+                        <tr>
+                            <th><?php echo xlt('Name'); ?></th>
+                            <td><?php echo !empty($responsibleParty['name']) ? text($responsibleParty['name']) : '<span class="req-empty">/</span>'; ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('Address'); ?></th>
+                            <td><?php echo !empty($responsibleParty['address']) ? text($responsibleParty['address']) : '<span class="req-empty">/</span>'; ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('City, St, Zip'); ?></th>
+                            <td><?php echo !empty($responsibleParty['city_st_zip']) ? text($responsibleParty['city_st_zip']) : '<span class="req-empty">/</span>'; ?></td>
+                        </tr>
+                        <tr>
+                            <th><?php echo xlt('Relationship'); ?></th>
+                            <td><?php echo $relationshipDisplay === '/' ? '<span class="req-empty">/</span>' : $relationshipDisplay; ?></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="req-section">
+            <h2 class="req-section-title"><?php echo xlt('Insurance Information'); ?></h2>
+            <div class="req-section-body">
+                <div class="req-grid-2">
+                    <div>
+                        <strong><?php echo xlt('Primary Insurance'); ?></strong>
+                        <?php if ($billingType === 'T' && !empty($ins[0])) : ?>
+                            <table class="req-fields mt-1">
+                                <tr>
+                                    <th><?php echo xlt('Bill Type'); ?></th>
+                                    <td><?php echo xlt('Insurance'); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Insurance Name'); ?></th>
+                                    <td><?php echo text($ins[0]['name'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Insurance Address'); ?></th>
+                                    <td><?php echo text($ins[0]['line1'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('City, St, Zip'); ?></th>
+                                    <td><?php echo text(trim(($ins[0]['city'] ?? '') . ', ' . ($ins[0]['state'] ?? '') . ' ' . ($ins[0]['zip'] ?? ''))); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Subscriber/Policy #'); ?></th>
+                                    <td><?php echo text($ins[0]['policy_number'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Group #'); ?></th>
+                                    <td><?php echo text($ins[0]['group_number'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Employer'); ?></th>
+                                    <td><?php echo text($ins[0]['subscriber_employer'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Relationship'); ?></th>
+                                    <td><?php echo text(getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'] ?? '')); ?></td>
+                                </tr>
+                            </table>
+                        <?php else : ?>
+                            <p class="mb-0 mt-1"><?php echo $billingType === 'C' ? xlt('Clinic Billing') : xlt('Patient Billing'); ?></p>
+                        <?php endif; ?>
                     </div>
-                   </td>
-                   <td style="vertical-align:top width: 800px">
-                    <div class="plist">
-                       <b><?php echo xlt('Patient ID') ?>: </b>  <br />
-                       <b><?php echo xlt('DOB') ?>: </b> <br />
-                       <b><?php echo xlt('Sex') ?>: </b>    <br />
-                       <b><?php echo xlt('Patient Name') ?>: </b>  <br />
+                    <div>
+                        <strong><?php echo xlt('Secondary Insurance'); ?></strong>
+                        <?php if ($billingType === 'T' && !empty($ins[1])) : ?>
+                            <table class="req-fields mt-1">
+                                <tr>
+                                    <th><?php echo xlt('Bill Type'); ?></th>
+                                    <td><?php echo xlt('Insurance'); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Insurance Name'); ?></th>
+                                    <td><?php echo text($ins[1]['name'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Insurance Address'); ?></th>
+                                    <td><?php echo text($ins[1]['line1'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('City, St, Zip'); ?></th>
+                                    <td><?php echo text(trim(($ins[1]['city'] ?? '') . ', ' . ($ins[1]['state'] ?? '') . ' ' . ($ins[1]['zip'] ?? ''))); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Subscriber/Policy #'); ?></th>
+                                    <td><?php echo text($ins[1]['policy_number'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Group #'); ?></th>
+                                    <td><?php echo text($ins[1]['group_number'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Employer'); ?></th>
+                                    <td><?php echo text($ins[1]['subscriber_employer'] ?? ''); ?></td>
+                                </tr>
+                                <tr>
+                                    <th><?php echo xlt('Relationship'); ?></th>
+                                    <td><?php echo text(getListItemTitle('sub_relation', $ins[1]['subscriber_relationship'] ?? '')); ?></td>
+                                </tr>
+                            </table>
+                        <?php else : ?>
+                            <p class="mb-0 mt-1 req-empty"><?php echo xlt('None'); ?></p>
+                        <?php endif; ?>
                     </div>
-                    <div class="pFill">
-                        <?php echo text($pid); ?><br />
-                        <?php echo text($pdata['DOB']); ?><br />
-                        <?php echo text(getListItemTitle('sex', $pdata['sex'])); ?><br />
-                        <?php echo text($pdata['fname']) . " " . text($pdata['lname']); ?><br />
-                    </div>
-                   </td>
-               </tr>
+                </div>
+            </div>
+        </section>
 
-               <tr style="height:125px">
-                   <td style="vertical-align:top; width:400px;">
-                      <span class="fs-4"><strong><?php print xlt("Ordering Physician") ?>:</strong></span><br />
-                      <div class="plist">
-                        <?php echo xlt('Name') ?>:        <br />
-                        <?php echo xlt('NPI') ?>:         <br />
-                        <?php echo xlt('UPIN') ?>:        <br />
-                       </div>
-                     <div class="pFill"><?php echo text($provider['fname']) . " " . text($provider['lname']); ?><br />
-                        <?php echo text($npi[0]); ?><br />
-                        <?php echo text($npi[1]); ?><br />
-
-                       </div>
-                   </td>
-                   <td style="vertical-align:top">
-                     <span class="fs-4"><strong><?php print xlt("Responsible Party") ?>:</strong></span><br />
-                      <div class="plist">
-                        <?php echo xlt('Name') ?>:             <br />
-                        <?php echo xlt('Address') ?>:          <br />
-                        <?php echo xlt('City,St,Zip') ?>:      <br />
-                        <?php echo xlt('Relationship') ?>:     <br />
-                       </div>
-                       <div class="pFill">
-                        <?php echo !empty($responsibleParty['name'])        ? text($responsibleParty['name'])        : '/'; ?><br />
-                        <?php echo !empty($responsibleParty['address'])     ? text($responsibleParty['address'])     : '/'; ?><br />
-                        <?php echo !empty($responsibleParty['city_st_zip']) ? text($responsibleParty['city_st_zip']) : '/'; ?><br />
-                        <?php
-                        if (!empty($responsibleParty['relationship'])) {
-                            echo ($responsibleParty['relationship_is_list'] ?? false)
-                                ? text(getListItemTitle('sub_relation', $responsibleParty['relationship']))
-                                : xlt($responsibleParty['relationship']);
-                        } else {
-                            echo '/';
-                        }
-                        ?><br />
-                       </div>
-                   </td>
-
-
-               </tr>
-                  <tr style="height:125px">
-                   <td style="vertical-align:top; width:400px;">
-                      <span class="fs-4"><strong><?php print xlt("Primary Insurance") ?>:</strong></span><br />
-                      <?php if ($billingType === 'T' && !empty($ins[0])): ?>
-                      <div class="plist">
-                        <?php echo xlt('Bill Type') ?>:<br />
-                        <?php echo xlt('Payor/Carrier Code') ?>:<br />
-                        <?php echo xlt('Insurance Name') ?>:<br />
-                        <?php echo xlt('Insurance Address') ?>:<br />
-                        <?php echo xlt('City,St,Zip') ?>:<br />
-                        <?php echo xlt('Subscriber/Policy') ?>#:<br />
-                        <?php echo xlt('Group') ?> #:<br />
-                        <?php echo xlt('Physician\'s UPIN') ?>:<br />
-                        <?php echo xlt('Employer') ?>:<br />
-                        <?php echo xlt('Relationship') ?>:<br />
-                      </div>
-                      <div class="pFill">
-                        <?php echo xlt('Insurance'); ?><br />
-                        <?php echo '/'; ?><br />
-                        <?php echo text($ins[0]['name']); ?><br />
-                        <?php echo text($ins[0]['line1']); ?><br />
-                        <?php echo text($ins[0]['city']) . ', ' . text($ins[0]['state']) . ' ' . text($ins[0]['zip']); ?><br />
-                        <?php echo text($ins[0]['policy_number']); ?><br />
-                        <?php echo text($ins[0]['group_number']); ?><br />
-                        <?php echo '/'; ?><br />
-                        <?php echo text($ins[0]['subscriber_employer']); ?><br />
-                        <?php echo text(getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'] ?? '')); ?><br />
-                      </div>
-                      <?php else: ?>
-                      <p><?php echo $billingType === 'C' ? xlt('Clinic Billing') : xlt('Patient Billing'); ?></p>
-                      <?php endif; ?>
-                   </td>
-                   <td style="vertical-align:top">
-                      <span class="fs-4"><strong><?php print xlt("Secondary Insurance") ?>:</strong></span><br />
-                      <?php if ($billingType === 'T' && !empty($ins[1])): ?>
-                      <div class="plist">
-                        <?php echo xlt('Bill Type') ?>:<br />
-                        <?php echo xlt('Payor/Carrier Code') ?>:<br />
-                        <?php echo xlt('Insurance Name') ?>:<br />
-                        <?php echo xlt('Insurance Address') ?>:<br />
-                        <?php echo xlt('City,St,Zip') ?>:<br />
-                        <?php echo xlt('Subscriber/Policy') ?>#:<br />
-                        <?php echo xlt('Group') ?> #:<br />
-                        <?php echo xlt('Physician\'s UPIN') ?>:<br />
-                        <?php echo xlt('Employer') ?>:<br />
-                        <?php echo xlt('Relationship') ?>:<br />
-                       </div>
-                      <div class="pFill">
-                        <?php echo xlt('Insurance'); ?><br />
-                        <?php echo '/'; ?><br />
-                        <?php echo text($ins[1]['name']); ?><br />
-                        <?php echo text($ins[1]['line1']); ?><br />
-                        <?php echo text($ins[1]['city']) . ', ' . text($ins[1]['state']) . ' ' . text($ins[1]['zip']); ?><br />
-                        <?php echo text($ins[1]['policy_number']); ?><br />
-                        <?php echo text($ins[1]['group_number']); ?><br />
-                        <?php echo '/'; ?><br />
-                        <?php echo text($ins[1]['subscriber_employer']); ?><br />
-                        <?php echo text(getListItemTitle('sub_relation', $ins[1]['subscriber_relationship'] ?? '')); ?><br />
-                      </div>
-                      <?php else: ?>
-                      <p><?php echo xlt('None'); ?></p>
-                      <?php endif; ?>
-                   </td>
-               </tr>
-
-               <tr style="height:125px">
-                   <td style="vertical-align:top; width:400px;">
-                       <div class="notes">
-                         <span class="fs-4"><strong><?php echo xlt('Test Ordered') ?>:</strong></span><br />
-                            <?php foreach ($orders as $codeRow): ?>
-                            <?php echo text($codeRow['procedure_code'] ?? '') . ' ' . text($codeRow['procedure_name'] ?? ''); ?><br />
-                            <?php endforeach; ?>
-                       </div>
-                   </td>
-                   <td style="vertical-align:top">
-                    <div class="notes">
-                     <span class="fs-4"><strong><?php echo xlt('Order Notes') ?>:</strong></span><br />
-                        <?php echo text($firstRow['clinical_hx'] ?? ''); ?>
-                     </div>
-                   <div class="dx">
-                     <span class="fs-4"><strong><?php echo xlt('Dx Codes') ?>:</strong></span><br />
-                        <?php foreach ($orders as $codeRow): ?>
-                        <?php echo text($codeRow['diagnoses'] ?? ''); ?><br />
+        <section class="req-section">
+            <h2 class="req-section-title"><?php echo xlt('Tests Ordered'); ?></h2>
+            <div class="req-section-body p-0">
+                <table class="req-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;"><?php echo xlt('Code'); ?></th>
+                            <th><?php echo xlt('Test / Procedure'); ?></th>
+                            <th style="width: 28%;"><?php echo xlt('Diagnosis Codes'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($orders as $codeRow) : ?>
+                            <tr>
+                                <td><?php echo text($codeRow['procedure_code'] ?? ''); ?></td>
+                                <td><?php echo text($codeRow['procedure_name'] ?? ''); ?></td>
+                                <td><?php echo text($codeRow['diagnoses'] ?? ''); ?></td>
+                            </tr>
                         <?php endforeach; ?>
-                   </div>
-                   </td>
-               </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
 
-            </table>
-            <?php if (!empty($firstRow['question_text'])) { // display this table only if there are questions ?>
-            <table style="width:800px; border=1">
-               <tr style="height:125px">
-                  <td style="vertical-align:top">
-                       <span class="fs-4"><strong><?php echo xlt('AOE Q&A') ?>: </strong></span><br />
-                       <b>Question:</b> <?php print text($firstRow['question_text']); ?><br />
-                       <b>Answer:</b> <?php print text($firstRow['answer']); ?>
-                  </td>
-               </tr>
-            </table>
-            <?php } ?>
-            <br />
-            <br />
-            <span class="text-center"><?php echo xlt('End of Requisition') ?> #:  <?php echo text($bar); ?></span>
-        </div>
-</div>
-<div class="reqHeader" id="non-printable">
-     <input type="button" onclick="window.print()" value="<?php echo xla('Print'); ?>">
-</div>
-<script>
-// Print is handled via window.print() directly.
-// The @media print CSS above hides #non-printable and shows #printable.
-</script>
+        <section class="req-section">
+            <h2 class="req-section-title"><?php echo xlt('Clinical History / Order Notes'); ?></h2>
+            <div class="req-section-body">
+                <div class="req-notes-box">
+                    <?php
+                    $clinicalHx = trim((string) ($firstRow['clinical_hx'] ?? ''));
+                    $patientInstructions = trim((string) ($firstRow['patient_instructions'] ?? ''));
+                    if ($clinicalHx === '' && $patientInstructions === '') {
+                        echo '<span class="req-empty">' . xlt('No clinical notes provided.') . '</span>';
+                    } else {
+                        if ($clinicalHx !== '') {
+                            echo text($clinicalHx);
+                        }
+                        if ($clinicalHx !== '' && $patientInstructions !== '') {
+                            echo "\n\n";
+                        }
+                        if ($patientInstructions !== '') {
+                            echo '<strong>' . xlt('Patient Instructions') . ':</strong> ' . text($patientInstructions);
+                        }
+                    }
+                    ?>
+                </div>
+            </div>
+        </section>
+
+        <?php if (!empty($aoeAnswers)) : ?>
+        <section class="req-section">
+            <h2 class="req-section-title"><?php echo xlt('AOE Questions & Answers'); ?></h2>
+            <div class="req-section-body">
+                <ol class="req-aoe-list">
+                    <?php foreach ($aoeAnswers as $aoeRow) : ?>
+                        <li>
+                            <strong><?php echo text($aoeRow['question_text'] !== '' ? $aoeRow['question_text'] : xl('Question')); ?>:</strong>
+                            <?php echo text($aoeRow['answer'] !== '' ? $aoeRow['answer'] : '—'); ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
+            </div>
+        </section>
+        <?php endif; ?>
+
+        <section class="req-signatures">
+            <div class="req-sign-box">
+                <div class="label"><?php echo xlt('Collector Signature'); ?></div>
+                <div class="line"><?php echo xlt('Signature / Date'); ?></div>
+            </div>
+            <div class="req-sign-box">
+                <div class="label"><?php echo xlt('Ordering Provider Signature'); ?></div>
+                <div class="line"><?php echo xlt('Signature / Date'); ?></div>
+            </div>
+            <div class="req-sign-box">
+                <div class="label"><?php echo xlt('Lab Receipt'); ?></div>
+                <div class="line"><?php echo xlt('Received By / Date-Time'); ?></div>
+            </div>
+        </section>
+
+        <footer class="req-footer">
+            <div><?php echo xlt('End of Requisition'); ?> #<?php echo text($bar); ?></div>
+            <div><?php echo xlt('Generated'); ?>: <?php echo text(oeFormatDateTime(date('Y-m-d H:i:s'))); ?></div>
+        </footer>
+    </main>
+<?php endif; ?>
 </body>
 </html>
