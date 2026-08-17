@@ -267,6 +267,15 @@ files:
   exclude-branches: [rel-800, rel-704]
 - path: tests/Tests/Isolated/Release/**
   exclude-branches: [rel-800, rel-704]
+# Isolated tests + fixtures for src/Common/Command/ReleasePrep/**
+# (mirrors the production namespace under PSR-4). Kept in sync so
+# byte-identical propagation of a mutator change (e.g. #13496 adding
+# gate_with_acceptance: true) doesn't strand rel branches with a
+# stale expected-output fixture — that shape broke rel-820's sync PR
+# (openemr/openemr#13498) when the mutator PHP synced without its
+# fixture/test file.
+- path: tests/Tests/Isolated/Common/Command/ReleasePrep/**
+  exclude-branches: [rel-800, rel-704]
 
 # Artifact acceptance surface (added 2026-07-24 -- see
 # docs/artifact-acceptance-testing-plan.md for the full architecture

@@ -27,5 +27,6 @@ CREATE TABLE IF NOT EXISTS `form_care_plan` (
   `reason_status` varchar(31) DEFAULT NULL,
   `plan_status` varchar(32) DEFAULT NULL COMMENT 'Care Plan status (e.g., draft, active, completed, etc)',
   `proposed_date` datetime DEFAULT NULL COMMENT 'Target or Achieve-by date for the goal',
+  `plan_engagement_category` varchar(100) DEFAULT '' COMMENT 'Expected engagement category with the patient based upon the care plan type',
   KEY `idx_status_date` (`plan_status`,`date`,`date_end`)
 ) ENGINE=InnoDB;

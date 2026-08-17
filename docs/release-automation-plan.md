@@ -822,6 +822,24 @@ correctly, and downstream artifacts all landed on schedule.
   auto-refresh on master pushes" gap held as documented — the
   release-finalize PR will re-render on the next natural rel-820 push.
 
+## Second production exercise — 2026-08-12
+
+The `rel-830` cut on 2026-08-12 was the second end-to-end exercise
+and the first exercise after ~6 weeks of infrastructure refactors
+(composite-action extraction #13287, Phase 12 acceptance-gate
+extension #13332, Phase 10d extract-zip helper #13286, etc.). Two
+`git push --delete + re-cut` cycles were needed before the branch
+stayed put. Six latent regressions in the release-mechanism surface
+surfaced in cascade; all shipped same day as PRs #13480, #13486,
+#13487, #13496, #13499, and #13509 — plus a follow-up #13517 for a
+class of sparse-checkout leak the earlier fixes only patched
+around, and rel-830 cherry-picks #13489 + #13503 to unblock
+in-flight branch-cut PRs. Full forensic + systemic lesson in
+[`release-mechanism-gaps.md` G31](release-mechanism-gaps.md#g31--rel-830-cut-surfaced-6-latent-release-mechanism-regressions-in-cascade--discovered-2026-08-12-all-shipped-2026-08-12).
+Follow-up documentation landed in #13508 (branch-cut PR merge order
+in RELEASE_PROCESS.md), #13510 (G31 itself), #13514 (release-prep +
+release-finalize PR template rewrites).
+
 ## Status
 
 **Live.** The initial three release-flow workflows (branch-cut, patch-prep,

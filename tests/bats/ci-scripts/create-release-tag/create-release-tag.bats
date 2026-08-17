@@ -202,3 +202,41 @@ teardown() {
     [[ ${status} -eq 1 ]]
     [[ "${output}" == *"::error::RELEASE_NOTES_FILE is missing or unreadable"* ]]
 }
+
+@test "APP_TOKEN set -> injected inline via git -c http.extraheader, never persisted" {
+    # Security: APP_TOKEN authenticates ls-remote + push via one-shot
+    # -c http.extraheader=..., NOT via `git remote set-url` /
+    # persist-credentials which would leave the token in .git/config
+    # readable by any subsequent step (composer install, npm ci, task
+    # summary, etc.) or a compromised dep. Verifies the token appears
+    # in the git command invocation itself (mock records the full
+    # argv) but the script does no `git config` / `git remote
+    # set-url` that would persist it.
+    export APP_TOKEN='ghs_testFAKEtoken12345'
+    run bash "${CREATE_RELEASE_TAG_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local calls
+    calls="$(mock_calls)"
+    # Base64 of "x-access-token:ghs_testFAKEtoken12345" (no newline).
+    local expected_b64
+    expected_b64="$(printf 'x-access-token:%s' "${APP_TOKEN}" | base64 -w0)"
+    # Both ls-remote and push must carry the extraheader arg.
+    [[ "${calls}" == *"git -c http.https://github.com/.extraheader=Authorization: Basic ${expected_b64} ls-remote"* ]]
+    [[ "${calls}" == *"git -c http.https://github.com/.extraheader=Authorization: Basic ${expected_b64} push origin"* ]]
+    # NO `git remote set-url` that would persist token into .git/config.
+    [[ "${calls}" != *"git remote set-url"* ]]
+}
+
+@test "APP_TOKEN unset -> git commands run bare (backward compat)" {
+    # Legacy callers configure origin credentials via actions/checkout's
+    # persist-credentials=true; the script should not require APP_TOKEN.
+    unset APP_TOKEN
+    run bash "${CREATE_RELEASE_TAG_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local calls
+    calls="$(mock_calls)"
+    # git operations run without the extraheader injection.
+    [[ "${calls}" == *"git ls-remote --tags --exit-code origin"* ]]
+    [[ "${calls}" == *"git push origin v8_2_0"* ]]
+    [[ "${calls}" != *"http.https://github.com/.extraheader"* ]]
+}

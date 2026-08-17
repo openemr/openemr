@@ -22,6 +22,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -37,6 +38,23 @@ if (!AclMain::aclCheckForm('fee_sheet')) { ?>
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+// CSRF protection for every state-changing POST to this endpoint (saving the
+// fee sheet, the AJAX save/dx-update variants, and reopening a checked-out
+// visit).  The token is emitted as a hidden field in the fee sheet form below,
+// so the normal submit and the form-derived AJAX posts (jQuery serialize() and
+// FormData) all carry it.  Read-only refreshes (running_as_ajax without a save
+// flag) change nothing and are intentionally not gated.
+$postFieldPresent = static fn(string $name): bool => filter_input(INPUT_POST, $name) !== null;
+$isStateChangingPost = $postFieldPresent('bn_save')
+    || $postFieldPresent('bn_save_close')
+    || $postFieldPresent('bn_save_stay')
+    || $postFieldPresent('bn_reopen')
+    || $postFieldPresent('form_reopen')
+    || ($postFieldPresent('running_as_ajax') && $postFieldPresent('dx_update'));
+if ($isStateChangingPost) {
+    CsrfUtils::checkCsrfInput(INPUT_POST, $session, dieOnFail: true);
+}
 
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = OEGlobalsBag::getInstance()->get('ippf_specific') ? " style='display:none'" : "";
@@ -1005,6 +1023,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <form method="post" name="fee_sheet_form" id="fee_sheet_form" action="<?php echo $rootdir; ?>/forms/fee_sheet/new.php?<?php
                 echo "rde=" . attr_url($rapid_data_entry) . "&addmore=" . attr_url($add_more_items); ?>"
                 onsubmit="return validate(this)">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken($session)); ?>" />
                     <input type='hidden' name='newcodes' value='' />
                     <?php
                     $isBilled = !$add_more_items && BillingUtilities::isEncounterBilled($fs->pid, $fs->encounter);

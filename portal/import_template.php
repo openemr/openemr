@@ -6,13 +6,16 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016-2026 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -309,8 +312,6 @@ if (($_REQUEST['mode'] ?? '') === 'editor_render_html') {
     } else {
         die(xlt('Invalid File'));
     }
-} elseif (!empty($_GET['templateHtml'] ?? null)) {
-    renderEditorHtml($_REQUEST['docid'], $_GET['templateHtml']);
 }
 
 /**
@@ -321,6 +322,13 @@ function renderEditorHtml($template_id, $content): void
 {
     global $authUploadTemplates;
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+    // Purify on render as well as on write — Summernote loads the textarea
+    // value as HTML, and older rows may pre-date write-time purification.
+    // Look up the stored mime so PDF and other binary templates skip HTML sanitization.
+    $existing = QueryUtils::querySingleRow('SELECT `mime` FROM `document_templates` WHERE `id` = ?', [$template_id]);
+    $mimetype = is_array($existing) && is_string($existing['mime'] ?? null) ? $existing['mime'] : null;
+    $content = DocumentTemplateService::purifyTemplateContent((string) $content, $mimetype);
 
     $lists = [
         '{ParseAsHTML}', '{ParseAsText}', '{styleBlockStart}', '{styleBlockEnd}', '{SignaturesRequired}', '{TextInput}', '{sizedTextInput:120px}', '{smTextInput}', '{TextBox:03x080}', '{CheckMark}', '{RadioGroup:option1_many...}', '{RadioGroupInline:option1_many...}', '{ynRadioGroup}', '{TrueFalseRadioGroup}', '{DatePicker}', '{DateTimePicker}', '{StandardDatePicker}', '{CurrentDate:"global"}', '{CurrentTime}', '{DOS}', '{ReferringDOC}', '{PatientID}', '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{Address}', '{City}', '{State}', '{Zip}', '{PatientSignature}', '{AdminSignature}', '{WitnessSignature}', '{AcknowledgePdf:pdf name or id:title}', '{EncounterForm:LBF}', '{Questionnaire:name or id}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}', '{DEM: }', '{HIS: }', '{LBF: }', '{GRP}{/GRP}'

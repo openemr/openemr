@@ -65,22 +65,7 @@ class AuthorizationGrantFlowTest extends TestCase
         $scopesString = implode(" ", $scopes);
 //        $scopesString = ApiTestClient::ALL_SCOPES;
         $redirectUri = "http://localhost:8080/oauth2/callback";
-        $dispatcher = new EventDispatcher();
-        $controller = $this->createMock(ControllerResolverInterface::class);
-        $kernel = new OEHttpKernel($dispatcher, $controller);
-        // set the globals.php kernel which doesn't do much... need to reconicle these two
-        // set our site_addr_oath so we use it properly
-        $kernel->getGlobalsBag()->set('site_addr_oath', $this->getBaseUrlApi());
-        $projectDir = $GLOBALS['webserver_root'] ?? dirname(__DIR__, 3);
-        $webRoot = $GLOBALS['webroot'] ?? '';
-        if (!is_string($projectDir) || !is_string($webRoot)) {
-            $this->fail('Expected $GLOBALS[webserver_root] and $GLOBALS[webroot] to be strings');
-        }
-        $kernel->getGlobalsBag()->set('kernel', new Kernel(
-            $projectDir,
-            $webRoot,
-            $dispatcher,
-        ));
+        $kernel = $this->createTestKernel();
         [$clientIdentifier, $clientSecret] = $this->requestTestRegistrationEndpoint($kernel, $redirectUri, $scopesString);
 
         // now test the authorization flow
@@ -112,6 +97,99 @@ class AuthorizationGrantFlowTest extends TestCase
             $scopesString,
             $kernel
         );
+    }
+
+    public function testScopeAuthorizeConfirmWithMissingClientIdRendersErrorPage(): void
+    {
+        $session = $this->getMockSession();
+        $session->set('scopes', 'openid profile');
+        // intentionally do NOT set 'client_id' — this is the reproduction
+
+        $body = $this->requestScopeAuthorizeConfirm($session);
+
+        $this->assertErrorPageRendered($body);
+        $this->assertStringNotContainsStringIgnoringCase(
+            'bulkBind',
+            $body,
+            'Response must not surface the ADOdb bulkBind error from passing a non-string client_id'
+        );
+    }
+
+    public function testScopeAuthorizeConfirmWithUnknownClientIdRendersErrorPage(): void
+    {
+        $session = $this->getMockSession();
+        $session->set('scopes', 'openid profile');
+        // a well-formed client_id that has no row in oauth_clients
+        $session->set('client_id', 'no-such-client-' . bin2hex(random_bytes(8)));
+
+        $body = $this->requestScopeAuthorizeConfirm($session);
+
+        $this->assertErrorPageRendered($body);
+    }
+
+    /**
+     * Drive scopeAuthorizeConfirm() against the given session and return the rendered body.
+     */
+    private function requestScopeAuthorizeConfirm(Session $session): string
+    {
+        $authController = $this->getAuthorizationController($session, $this->createTestKernel());
+        $request = HttpRestRequest::create('/oauth2/default' . AuthorizationController::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM);
+        $response = $authController->scopeAuthorizeConfirm($request);
+
+        $this->assertEquals(
+            Response::HTTP_OK,
+            $response->getStatusCode(),
+            'Error template is rendered with HTTP 200 by renderTwigPage; statusCode is conveyed via the page body'
+        );
+        return (string) $response->getBody();
+    }
+
+    /**
+     * Assert the general HTTP error page rendered with the 400 the guard passes, rather than the
+     * scope authorization form or renderTwigPage()'s 500 fallback for a template that threw.
+     */
+    private function assertErrorPageRendered(string $body): void
+    {
+        $this->assertStringContainsString(
+            '<body class="error">',
+            $body,
+            'error/general_http_error.html.twig should have rendered'
+        );
+        $this->assertStringContainsString(
+            (string) Response::HTTP_BAD_REQUEST,
+            $body,
+            'The error page should report the 400 passed by the guard, not the 500 renderTwigPage() falls back to'
+        );
+        $this->assertStringNotContainsString(
+            'id="userLogin"',
+            $body,
+            'The scope authorization form must not render when the client cannot be resolved'
+        );
+    }
+
+    private function createTestKernel(): OEHttpKernel
+    {
+        $dispatcher = new EventDispatcher();
+        $controller = $this->createMock(ControllerResolverInterface::class);
+        $kernel = new OEHttpKernel($dispatcher, $controller);
+        // set our site_addr_oath so we use it properly
+        $kernel->getGlobalsBag()->set('site_addr_oath', $this->getBaseUrlApi());
+        $projectDir = $GLOBALS['webserver_root'] ?? dirname(__DIR__, 3);
+        $webRoot = $GLOBALS['webroot'] ?? '';
+        if (!is_string($projectDir) || !is_string($webRoot)) {
+            // @codeCoverageIgnoreStart
+            // Defensive — these globals are strings once globals.php has bootstrapped,
+            // which is not a condition real CI exercises.
+            $this->fail('Expected $GLOBALS[webserver_root] and $GLOBALS[webroot] to be strings');
+            // @codeCoverageIgnoreEnd
+        }
+        // set the globals.php kernel which doesn't do much... need to reconicle these two
+        $kernel->getGlobalsBag()->set('kernel', new Kernel(
+            $projectDir,
+            $webRoot,
+            $dispatcher,
+        ));
+        return $kernel;
     }
 
     /**
