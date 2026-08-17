@@ -290,7 +290,11 @@ upgradeOpenEMR() {
         cat /var/www/localhost/htdocs/openemr/sql_upgrade.php
     } > /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
     # Execute the upgrade script with the from-version argument
-    run_php_as_apache /usr/local/bin/php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php -- --from="${1}"
+    if ! run_php_as_apache /usr/local/bin/php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php -- --from="${1}"; then
+        echo "ERROR: Database upgrade failed (from ${1})" >&2
+        rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+        return 1
+    fi
 
     # Clean up temporary file
     rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
