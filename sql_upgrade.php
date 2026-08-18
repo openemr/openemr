@@ -22,7 +22,8 @@
 $GLOBALS['ongoing_sql_upgrade'] = true;
 
 $cliFromVersion = null;
-if (php_sapi_name() === 'cli') {
+$isCli = php_sapi_name() === 'cli';
+if ($isCli) {
     // setting for when running as command line script
     // need this for output to be readable when running as command line
     $GLOBALS['force_simple_sql_upgrade'] = true;
@@ -44,6 +45,10 @@ if (php_sapi_name() === 'cli') {
 require_once(__DIR__ . "/src/Common/Compatibility/Checker.php");
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
+    if ($isCli) {
+        fwrite(STDERR, $response . "\n");
+        exit(1);
+    }
     die(htmlspecialchars($response));
 }
 
@@ -110,7 +115,11 @@ $versions = [];
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
 if (!$dh) {
-    die("Cannot read $sqldir");
+    if ($isCli) {
+        fwrite(STDERR, "Cannot read $sqldir\n");
+        exit(1);
+    }
+    die("Cannot read " . htmlspecialchars($sqldir));
 }
 
 while (false !== ($sfname = readdir($dh))) {

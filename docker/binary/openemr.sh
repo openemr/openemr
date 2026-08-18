@@ -504,6 +504,8 @@ check_upgrade() {
     if [[ "${docker_version_root}" = "${docker_version_code}" ]] &&
        [[ "${docker_version_root}" -gt "${docker_version_sites}" ]]; then
         echo "Upgrade detected: ${docker_version_sites} -> ${docker_version_root}"
+        # run_upgrade failure aborts the entrypoint via set -e -- do not
+        # wrap this call in a conditional or the failure will be swallowed.
         run_upgrade
         return 0
     fi
@@ -546,7 +548,11 @@ run_upgrade() {
             echo "Start: Processing fsupgrade-${c}.sh upgrade script"
             # Update heartbeat before each upgrade script
             [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
-            sh "/root/fsupgrade-${c}.sh"
+            if ! sh "/root/fsupgrade-${c}.sh"; then
+                echo "ERROR: fsupgrade-${c}.sh failed; aborting upgrade." >&2
+                echo "Version marker NOT advanced; the upgrade will re-run on next container recreation (redeploy from image)." >&2
+                return 1
+            fi
             echo "Completed: Processing fsupgrade-${c}.sh upgrade script"
             # Update heartbeat after each upgrade script
             [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
