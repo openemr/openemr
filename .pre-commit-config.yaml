@@ -266,9 +266,15 @@ repos:
     language: system
     stages:
     - commit-msg
-#
 - repo: https://github.com/shellcheck-py/shellcheck-py
-  rev: v0.10.0.1
+  rev: v0.9.0.6   # shellcheck 0.9.0 — matches ubuntu-24.04's package, which CI uses
   hooks:
   - id: shellcheck
-    args: [--enable=all]   # match CI's flags exactly
+      # Match CI's invocation (.github/workflows/shellcheck.yml). enable=all
+      # comes from .shellcheckrc, which this hook reads too — don't repeat it.
+    args: [--check-sourced, --external-sources]
+      # Mirror CI's coverage: its path list skips docker/openemr/obsolete/ and
+      # never included tests/bats/ (**.sh / **.source / named scripts only).
+      # The bats suite carries an enable=all backlog (SC2250 etc.); bringing it
+      # under shellcheck is follow-up work, not part of mirroring CI.
+    exclude: (^docker/openemr/obsolete/|^tests/bats/)
