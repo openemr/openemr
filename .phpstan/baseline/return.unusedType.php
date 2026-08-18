@@ -77,11 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_csv_order\\(\\) never returns bool so it can be removed from the return type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function get_patient_balance\\(\\) never returns float so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',

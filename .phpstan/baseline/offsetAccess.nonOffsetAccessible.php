@@ -7857,121 +7857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/requisition/barcode.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'city\' on array\\|bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'city\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fax\' on array\\|bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'group_number\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'line1\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'organization\' on array\\|bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone\' on array\\|bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'policy_number\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'postal_code\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'recv_fac_id\' on array\\|bool\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'req_id\' on non\\-empty\\-array\\|non\\-falsy\\-string\\|true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'state\' on array\\|bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'state\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'street\' on array\\|bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'street\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'subscriber_employer\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'subscriber_relationship\' on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'zip\' on array\\|bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'zip\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1 on mixed\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'addison_syndrom\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/reviewofs/view.php',
@@ -18282,47 +18167,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'city\' on non\\-empty\\-array\\|true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'deleted\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/orders_results.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fname\' on non\\-empty\\-array\\|true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lname\' on non\\-empty\\-array\\|true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'organization\' on non\\-empty\\-array\\|true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'state\' on non\\-empty\\-array\\|true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'street\' on non\\-empty\\-array\\|true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/orders_results.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'title\' on non\\-empty\\-array\\|true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/orders_results.php',
 ];
@@ -30460,26 +30310,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'npi\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'procedure_order_id\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'subscriber_relationship\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'upin\' on array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',

@@ -5783,7 +5783,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$text of function text expects string, mixed given\\.$#',
-    'count' => 58,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
 ];
 $ignoreErrors[] = [
@@ -70113,7 +70113,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$field of class OpenEMR\\\\Services\\\\Search\\\\SearchFieldException constructor expects string, mixed given\\.$#',
-    'count' => 6,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
 ];
 $ignoreErrors[] = [

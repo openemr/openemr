@@ -122,16 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/procedure_order/templates/procedure_specimen_row.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'fname\' might not exist on array\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'lname\' might not exist on array\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'DOB\' might not exist on \'\'\\|array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',

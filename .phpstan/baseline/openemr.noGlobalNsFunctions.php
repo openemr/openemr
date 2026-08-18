@@ -5017,6 +5017,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function buildResponsibleParty may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function fetchProcedureId may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
@@ -5047,6 +5052,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function getProcedureBillingType may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function getProcedureOrderAnswers may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function getProcedureProvider may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
@@ -5058,26 +5073,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getSelfPay may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function saveBarCode may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function buildResponsibleParty may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getProcedureBillingType may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getProcedureOrderAnswers may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
@@ -5098,6 +5093,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function lab_normalize_rows may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function saveBarCode may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
