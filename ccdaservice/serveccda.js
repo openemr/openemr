@@ -2907,6 +2907,9 @@ function getMeta(pd) {
  */
 function generateCcda(pd) {
     if (!pd) return "";
+    if (!pd.patient) {
+        throw new Error("generateCcda: input data is missing required 'patient' element");
+    }
 
     let doc = {};
     let data = {};
@@ -3687,8 +3690,8 @@ function processConnection(connection) {
                 conn.write(String.fromCharCode(28) + "\r\r" + "");
                 conn.end();
             } catch (error) {
-                console.log("XML parsing error:", error);
-                //conn.write("ERROR: " + error.message);
+                console.error("XML parsing/generation error:", error);
+                conn.write("ERROR: " + error.message + String.fromCharCode(28) + "\r\r");
                 conn.end();
             }
         }
@@ -3711,7 +3714,15 @@ function processConnection(connection) {
         received.push(data);
         while (!received.endOfCcda() && data.length > 0) {
             data = "";
-            eventData(received.returnData());
+            eventData(received.returnData()).catch(err => {
+                console.error("Unhandled error in eventData:", err);
+                try {
+                    conn.write("ERROR: " + err.message + String.fromCharCode(28) + "\r\r");
+                    conn.end();
+                } catch (_) {
+                    conn.destroy();
+                }
+            });
         }
     });
 
