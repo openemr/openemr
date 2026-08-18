@@ -55,6 +55,10 @@ class SearchFieldStatementResolverTest extends TestCase
             'hyphenated fhir param'     => ["questionnaire-code"],
             'wildcard'                  => ["*"],
             'parenthesized function'    => ["LOWER(name)"],
+            'numeric literal'           => ["42"],
+            'decimal numeric literal'   => ["1.2"],
+            'digit-leading identifier'  => ["9col"],
+            'digit-leading dotted part' => ["patient.9col"],
         ];
     }
 
@@ -136,11 +140,18 @@ class SearchFieldStatementResolverTest extends TestCase
             );
             $this->fail('Expected SearchFieldException was not thrown');
         } catch (SearchFieldException $exception) {
-            $this->assertStringNotContainsString(
-                $fieldName === '' ? "\u{0}" : $fieldName,
+            $this->assertSame(
+                'invalid search field',
                 $exception->getField(),
-                'Raw hostile field name must not be reflected in the exception'
+                'Exception field must be the generic label, not the hostile input'
             );
+            if ($fieldName !== '') {
+                $this->assertStringNotContainsString(
+                    $fieldName,
+                    $exception->getMessage(),
+                    'Raw hostile field name must not be reflected in the exception message'
+                );
+            }
         }
     }
 

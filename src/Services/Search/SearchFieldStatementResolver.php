@@ -68,7 +68,7 @@ class SearchFieldStatementResolver
         // getField() is untyped on ISearchField; the phpdoc says string but nothing
         // enforces it at runtime, so keep the defensive check.
         // @phpstan-ignore function.alreadyNarrowedType
-        if (!is_string($field) || !preg_match('/^[A-Za-z0-9_]+(\.[A-Za-z0-9_]+)?$/', $field)) {
+        if (!is_string($field) || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', $field)) {
             throw new SearchFieldException('invalid search field', "invalid search field identifier");
         }
         return $field;
