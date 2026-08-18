@@ -223,11 +223,16 @@ final class GhPullRequestApiTest extends TestCase
         );
     }
 
-    public function testReadinessBlocksBlockedMergeStateEvenWithCleanRollup(): void
+    public function testReadinessAcceptsBlockedWhenMergeableAndRollupClean(): void
     {
-        // BLOCKED means a REQUIRED check failed (or review missing) —
-        // fundamentally different from UNSTABLE and never ignorable via the
-        // check-name list. Preserve the hard block.
+        // mergeStateStatus is computed per-token by GitHub; the release App
+        // token's perspective can return BLOCKED on the same PR at the same
+        // head SHA that a human's UI session sees as UNSTABLE (empirically
+        // observed on the 8.3.0 conductor). When we've independently
+        // confirmed mergeable=MERGEABLE (GitHub says the PR can technically
+        // merge) AND our rollup enumeration is clean (all failures accounted
+        // for by the ignore-list), BLOCKED reflects the App-vs-user
+        // perspective difference, not a real mergeability blocker. Accept.
         $data = self::prData(
             mergeStateStatus: 'BLOCKED',
             statusCheckRollup: [
@@ -237,7 +242,75 @@ final class GhPullRequestApiTest extends TestCase
 
         $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
 
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessAcceptsBlockedWhenIgnoreListClearsRollup(): void
+    {
+        // Same as UNSTABLE-with-ignore-list, extended to BLOCKED.
+        $data = self::prData(
+            mergeStateStatus: 'BLOCKED',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessBlocksBlockedWhenRollupHasUnignoredFailure(): void
+    {
+        // BLOCKED-accept requires the rollup to be clean via ignore-list. A
+        // failing check outside the ignore-list keeps mergeStateStatus as a
+        // blocker (in addition to surfacing the check itself) -- guards the
+        // "hide a real regression by getting to BLOCKED" case.
+        $data = self::prData(
+            mergeStateStatus: 'BLOCKED',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
         self::assertContains('mergeStateStatus=BLOCKED (need CLEAN)', $reasons);
+        self::assertTrue(
+            (bool) array_filter($reasons, static fn (string $r): bool => str_contains($r, 'phpstan')),
+            'phpstan failure must still surface as a blocking reason',
+        );
+    }
+
+    public function testReadinessBlocksBlockedWhenMergeableNotMergeable(): void
+    {
+        // BLOCKED-accept requires mergeable=MERGEABLE. If GitHub reports the
+        // PR as UNKNOWN or CONFLICTING (can't actually merge), BLOCKED stays
+        // a hard block regardless of the rollup state -- the App-vs-user
+        // perspective loosening only applies when mergeability itself is
+        // confirmed.
+        $data = self::prData(
+            mergeable: 'CONFLICTING',
+            mergeStateStatus: 'BLOCKED',
+            statusCheckRollup: [
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertContains('mergeStateStatus=BLOCKED (need CLEAN)', $reasons);
+        self::assertContains('mergeable=CONFLICTING (need MERGEABLE)', $reasons);
     }
 
     public function testReadinessBlocksDirtyMergeStateEvenWhenIgnoreListIsPresent(): void
