@@ -20,13 +20,13 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\Forms\CarePlan\CarePlanController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Forms\CarePlanFormService;
 use OpenEMR\Services\FormService;
-use Symfony\Component\HttpFoundation\Request;
 
 $globalsBag = OEGlobalsBag::getInstance();
 $srcdir = $globalsBag->getSrcDir();
@@ -51,4 +51,4 @@ $controller = new CarePlanController(
     $globalsBag->getString('v_js_includes'),
 );
 
-$controller->newAction(Request::createFromGlobals())->send();
+$controller->newAction(CurrentRequest::get())->send();

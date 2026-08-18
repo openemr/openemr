@@ -41,6 +41,21 @@ class InsuranceService extends BaseService
     private const COVERAGE_TABLE = "insurance_data";
     private const PATIENT_TABLE = "patient_data";
     private const INSURANCE_TABLE = "insurance_companies";
+    private const SEARCHABLE_FIELDS = [
+        'id',
+        'uuid',
+        'pid',
+        'type',
+        'provider',
+        'plan_name',
+        'policy_number',
+        'group_number',
+        'date',
+        'date_end',
+        'policy_type',
+        'accept_assignment',
+        'copay',
+    ];
     /**
      * @var CoverageValidator $coverageValidator
      */
@@ -193,6 +208,9 @@ class InsuranceService extends BaseService
             $sql .= ' WHERE ';
             $whereClauses = [];
             foreach ($search as $fieldName => $fieldValue) {
+                if (!in_array($fieldName, self::SEARCHABLE_FIELDS, true)) {
+                    throw new \InvalidArgumentException("Invalid search field: " . $fieldName);
+                }
                 array_push($whereClauses, $fieldName . ' = ?');
                 array_push($sqlBindArray, $fieldValue);
             }

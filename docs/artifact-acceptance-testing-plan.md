@@ -1739,10 +1739,34 @@ drift-bug sources.
   as-is: (a) 8 workflows minted the token BEFORE any checkout, so
   those got a lean `sparse-checkout: .github/actions/generate-app-
   token` prepended (persist-credentials: false); subsequent full
-  checkouts overwrite transparently. (b) `.github/actions/generate-
-  app-token/**` added to byte-identical.yml with same rel-800/
-  rel-704 exclusion as the 7 caller workflows already in that
-  block. Dependabot's github-actions ecosystem scans composite
+  checkouts were assumed to overwrite transparently — that assumption
+  turned out to be wrong (see the follow-up fixes below). (b)
+  `.github/actions/generate-app-token/**` added to byte-identical.yml
+  with same rel-800/rel-704 exclusion as the 7 caller workflows
+  already in that block.
+
+  **Follow-up (SHIPPED 2026-08-12/13, discovered during rel-830
+  cut).** The "subsequent full checkouts overwrite transparently"
+  assumption was invalid: `git sparse-checkout disable` clears the
+  config but files never written on the first sparse pass do not
+  reappear when the second full checkout is byte-identical at those
+  paths. Series of fixes:
+    * `#13480` — expanded sparse to include `setup-php-composer` for
+      branch-cut/patch-prep; added `GH_TOKEN` to release-prep mutator
+      steps (`gh api` inside `ChangelogMutator` needs it).
+    * `#13509` — same sparse expansion applied to the remaining 5
+      workflows in the composite-consumer set (notify-release-
+      targets-changed, build-patch, build-release, ship-release,
+      reusable-publish-release).
+    * `#13517` — dropped the sparse-first pattern entirely in those
+      5 workflows in favor of full-checkout-first (the pattern
+      release-prep.yml has always used and never had this bug).
+      The sparse pattern still couldn't materialize `composer.json`
+      for setup-php-composer's install step; full-checkout-first
+      sidesteps the leak fully. `create-release-tag.sh` gained an
+      APP_TOKEN inline-auth path via `git -c http.extraheader=...`
+      so the git-push credential is never persisted to `.git/config`
+      during intermediate build steps. Dependabot's github-actions ecosystem scans composite
   action.yml files (per config `directory: /`), so future
   create-github-app-token version bumps get a single PR against
   the composite instead of 14 workflow PRs.
@@ -2369,6 +2393,43 @@ pattern, audit trail, and when-to-use guidance.
 demand ever appears): release-description trailer noting the
 bypass on the published release object; automated bypass-count
 budgeting.
+
+### Production validation — 8.3.0 ship 2026-08-18
+
+The 8.3.0 ship on 2026-08-18 was the first end-to-end automated
+release through the ship-release semi-auto path and the first time
+the Phase 7c pre-publish acceptance gates (both `build-release-on-tag`
+tarball gate and `docker-release-orchestrator` per-branch docker
+gates) fired against a real production release rather than a
+release-prep-PR dry run.
+
+**Tarball gate (build-release-on-tag Phase 7c):** all 8 matrix cells
+passed against the shipped `openemr-8.3.0.tar.gz` + `openemr-8.3.0.zip`
+before the publish job fired — fresh-install + wizard-install +
+upgrade + wizard-upgrade × tar + zip. GitHub Release object only
+came into existence after acceptance-gate returned green (per Phase
+7c design: publish requires acceptance).
+
+**Docker gates (Phase 7c + Phase 12 extension):** 3 modern
+per-branch acceptance gates fired (master, rel-820, rel-830), each
+covering fresh-install-from + fresh-install-to + upgrade on both
+amd64 + arm64 runners (6 cells per branch, 18 gated cells total).
+rel-820 and rel-830 passed all 6 cells cleanly (12/12) and published:
+rel-820 promoted to `openemr/openemr:latest`; rel-830 published
+`openemr/openemr:8.3.0`. Master's gate FAILED on the arm64
+`Fresh install of from_tag` cell (5/6 on that branch); per Phase 7c
+design the master publish job was skipped, so `openemr/openemr:next`
+/ `dev` did not refresh on this ship-day dispatch (they refresh on
+the next scheduled orchestrator run or `docker-acceptance-only.yml`
+recovery dispatch). rel-800 + rel-704 legacy single-job builds
+completed successfully; those branches are `gate_with_acceptance`
+unset per Phase 12 exclusion (they use the pre-Phase-7c single-step
+build+push shape, no acceptance gate).
+
+The single arm64 from_tag failure was on the master line only — not
+blocking 8.3.0 since master's `next` image is separate from rel-830's
+shipped image. Documented here as a data point on gate surface area:
+1 fail out of 18 gated cells (~5.6%), all-master-side, all-arm64-side.
 
 ## Test-coverage philosophy
 

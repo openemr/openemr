@@ -111,12 +111,17 @@
   # release cycle (e.g., when version.php switches to 8.3.0-dev).
   # The docker_tag <-> version.php alignment guard in
   # docker-validate-release-targets.yml catches drift on PRs.
-  docker_tags: 8.3.0,dev,next
+  docker_tags: 8.4.0,dev,next
   openemr_version_ref: master
   gate_with_acceptance: true
 
+- branch: rel-830
+  docker_tags: 8.3.0,latest
+  openemr_version_ref: v8_3_0
+  gate_with_acceptance: true
+
 - branch: rel-820
-  docker_tags: 8.2.0,latest
+  docker_tags: 8.2.0
   openemr_version_ref: v8_2_0
   gate_with_acceptance: true
 

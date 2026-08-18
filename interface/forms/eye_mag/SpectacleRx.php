@@ -8,15 +8,20 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\RefType;
+use OpenEMR\Forms\EyeMag\RxType;
 use OpenEMR\Services\FacilityService;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
@@ -195,20 +200,32 @@ $CTLSUPPLIEROD = '';
 $CTLSUPPLIEROS = '';
 $insert_this_id = null;
 
-if ($_REQUEST['REFTYPE'] ?? '') {
-    $REFTYPE = $_REQUEST['REFTYPE'];
+// Parsed once here; $REFTYPE stays a string because the form posts it back verbatim.
+// Anything that is not a string (REFTYPE[]=W) is treated as absent rather than
+// flowing on to be echoed into the form markup.
+$requestedRefType = $_REQUEST['REFTYPE'] ?? '';
+if (!is_string($requestedRefType)) {
+    $requestedRefType = '';
+}
+$refType = RefType::tryFrom($requestedRefType);
+
+// A REFTYPE the form doesn't recognize used to reach the dispense insert below
+// with every field still at its blank default, writing an empty prescription
+// record. Only a known refraction method gets that far.
+if ($refType !== null) {
+    $REFTYPE = $refType->value;
 
     // Map the rx_type numeric code passed from view.php to a display string and
     // set the corresponding checkbox state. Default to Single (0) if the value
     // is missing or not one of the four expected codes.
-    $valid_rx_types = ['0' => 'Single', '1' => 'Bifocal', '2' => 'Trifocal', '3' => 'Progressive'];
-    $rx_type_raw    = (string) ($_REQUEST['rx_type'] ?? '');
-    $RXTYPE         = $valid_rx_types[$rx_type_raw] ?? 'Single';
+    $requestedRxType = $_REQUEST['rx_type'] ?? '';
+    $rxType = is_string($requestedRxType) ? RxType::tryFrom($requestedRxType) ?? RxType::DEFAULT : RxType::DEFAULT;
+    $RXTYPE = $rxType->name;
 
-    $Single     = ($RXTYPE === 'Single')      ? "checked='checked'" : '';
-    $Bifocal    = ($RXTYPE === 'Bifocal')     ? "checked='checked'" : '';
-    $Trifocal   = ($RXTYPE === 'Trifocal')    ? "checked='checked'" : '';
-    $Progressive = ($RXTYPE === 'Progressive') ? "checked='checked'" : '';
+    $Single = RxType::Single->checkedAttribute($rxType);
+    $Bifocal = RxType::Bifocal->checkedAttribute($rxType);
+    $Trifocal = RxType::Trifocal->checkedAttribute($rxType);
+    $Progressive = RxType::Progressive->checkedAttribute($rxType);
 
     $id = $_REQUEST['id'] ?? null;
     $table_name = "form_eye_mag";
@@ -216,105 +233,94 @@ if ($_REQUEST['REFTYPE'] ?? '') {
 
 
 
-    if ($REFTYPE == "W") {
-        //we have rx_number 1-5 to process...
-        $query = "select * from form_eye_mag_wearing where ENCOUNTER=? and FORM_ID=? and PID=? and RX_NUMBER=?";
-        $wear = sqlStatement($query, [$encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']]);
-        $wearing = sqlFetchArray($wear);
-        $ODSPH = $wearing['ODSPH'];
-        $ODAXIS = $wearing['ODAXIS'];
-        $ODCYL = $wearing['ODCYL'];
-        $OSSPH = $wearing['OSSPH'];
-        $OSCYL = $wearing['OSCYL'];
-        $OSAXIS = $wearing['OSAXIS'];
-        $COMMENTS = $wearing['COMMENTS'];
-        $ODMIDADD = $wearing['ODMIDADD'];
-        $ODADD2 = $wearing['ODADD'];
-        $OSMIDADD = $wearing['OSMIDADD'];
-        $OSADD2 = $wearing['OSADD'];
+    $prefix = $refType->columnPrefix();
+    if ($prefix === null) {
+        // A wearing prescription re-prescribes the patient's current glasses, so
+        // it is read back out of form_eye_mag_wearing rather than the refraction.
+        // We have rx_number 1-5 to process...
+        $wearingRow = QueryUtils::querySingleRow(
+            <<<'SQL'
+            SELECT *
+              FROM form_eye_mag_wearing
+             WHERE ENCOUNTER = ?
+               AND FORM_ID = ?
+               AND PID = ?
+               AND RX_NUMBER = ?
+            SQL,
+            [$encounter, $_REQUEST['form_id'], $_REQUEST['pid'], $_REQUEST['rx_number']],
+        );
+
+        // A field the wearing prescription does not carry reads null, so the
+        // dispense insert below leaves it out rather than recording it blank.
+        $wearing = is_array($wearingRow) ? $wearingRow : [];
+        $ODSPH = $wearing['ODSPH'] ?? null;
+        $ODAXIS = $wearing['ODAXIS'] ?? null;
+        $ODCYL = $wearing['ODCYL'] ?? null;
+        $OSSPH = $wearing['OSSPH'] ?? null;
+        $OSCYL = $wearing['OSCYL'] ?? null;
+        $OSAXIS = $wearing['OSAXIS'] ?? null;
+        $COMMENTS = $wearing[$refType->commentsColumn()] ?? null;
+        $ODMIDADD = $wearing['ODMIDADD'] ?? null;
+        $ODADD2 = $wearing['ODADD'] ?? null;
+        $OSMIDADD = $wearing['OSMIDADD'] ?? null;
+        $OSADD2 = $wearing['OSADD'] ?? null;
 
         //do LT and Lens materials
-    } elseif ($REFTYPE == "AR") {
-        $ODSPH      = $data['ARODSPH'];
-        $ODAXIS     = $data['ARODAXIS'];
-        $ODCYL      = $data['ARODCYL'];
-        $ODPRISM    = $data['ARODPRISM'];
-        $OSSPH      = $data['AROSSPH'];
-        $OSCYL      = $data['AROSCYL'];
-        $OSAXIS     = $data['AROSAXIS'];
-        $OSPRISM    = $data['AROSPRISM'];
-        $COMMENTS   = $data['CRCOMMENTS'];
-        $ODADD2     = $data['ARODADD'];
-        $OSADD2     = $data['AROSADD'];
-    } elseif ($REFTYPE == "MR") {
-        $ODSPH      = $data['MRODSPH'];
-        $ODAXIS     = $data['MRODAXIS'];
-        $ODCYL      = $data['MRODCYL'];
-        $ODPRISM    = $data['MRODPRISM'];
-        $OSSPH      = $data['MROSSPH'];
-        $OSCYL      = $data['MROSCYL'];
-        $OSAXIS     = $data['MROSAXIS'];
-        $OSPRISM    = $data['MROSPRISM'];
-        $COMMENTS   = $data['CRCOMMENTS'];
-        $ODADD2     = $data['MRODADD'];
-        $OSADD2     = $data['MROSADD'];
-    } elseif ($REFTYPE == "CR") {
-        $ODSPH      = $data['CRODSPH'];
-        $ODAXIS     = $data['CRODAXIS'];
-        $ODCYL      = $data['CRODCYL'];
-        $ODPRISM    = $data['CRODPRISM'];
-        $OSSPH      = $data['CROSSPH'];
-        $OSCYL      = $data['CROSCYL'];
-        $OSAXIS     = $data['CROSAXIS'];
-        $OSPRISM    = $data['CROSPRISM'];
-        $COMMENTS   = $data['CRCOMMENTS'];
-    } elseif ($REFTYPE == "CTL") {
-        $ODSPH      = $data['CTLODSPH'];
-        $ODAXIS     = $data['CTLODAXIS'];
-        $ODCYL      = $data['CTLODCYL'];
-        $ODPRISM    = $data['CTLODPRISM'];
+    } else {
+        // Every refraction stores the same eight measurements on the joined
+        // record under its own column prefix, so the method picks the columns
+        // instead of a branch per method.
+        $ODSPH      = $data[$prefix . 'ODSPH'];
+        $ODAXIS     = $data[$prefix . 'ODAXIS'];
+        $ODCYL      = $data[$prefix . 'ODCYL'];
+        $ODPRISM    = $data[$prefix . 'ODPRISM'];
+        $OSSPH      = $data[$prefix . 'OSSPH'];
+        $OSCYL      = $data[$prefix . 'OSCYL'];
+        $OSAXIS     = $data[$prefix . 'OSAXIS'];
+        $OSPRISM    = $data[$prefix . 'OSPRISM'];
+        $COMMENTS   = $data[$refType->commentsColumn()];
 
-        $OSSPH      = $data['CTLOSSPH'];
-        $OSCYL      = $data['CTLOSCYL'];
-        $OSAXIS     = $data['CTLOSAXIS'];
-        $OSPRISM    = $data['CTLOSPRISM'];
+        if ($refType->hasAddPower()) {
+            $ODADD2 = $data[$prefix . 'ODADD'];
+            $OSADD2 = $data[$prefix . 'OSADD'];
+        }
 
-        $ODBC       = $data['CTLODBC'];
-        $ODDIAM     = $data['CTLODDIAM'];
-        $ODADD      = $data['CTLODADD'];
-        $ODVA       = $data['CTLODVA'];
+        // A contact lens is fitted, not just refracted, so it carries the lens
+        // geometry and the brand/supplier list selections as well.
+        if ($refType->isContactLens()) {
+            $ODBC       = $data[$prefix . 'ODBC'];
+            $ODDIAM     = $data[$prefix . 'ODDIAM'];
+            $ODADD      = $data[$prefix . 'ODADD'];
+            $ODVA       = $data[$prefix . 'ODVA'];
 
-        $OSBC       = $data['CTLOSBC'];
-        $OSDIAM     = $data['CTLOSDIAM'];
-        $OSADD      = $data['CTLOSADD'];
-        $OSVA       = $data['CTLOSVA'];
+            $OSBC       = $data[$prefix . 'OSBC'];
+            $OSDIAM     = $data[$prefix . 'OSDIAM'];
+            $OSADD      = $data[$prefix . 'OSADD'];
+            $OSVA       = $data[$prefix . 'OSVA'];
 
-        $COMMENTS   = $data['COMMENTS'];//in form_eye_mag_dispense there is no leading 'CTL_'
-
-        $CTLMANUFACTUREROD  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROD']);
-        $CTLMANUFACTUREROS  = getListItemTitle('CTLManufacturer', $data['CTLMANUFACTUREROS']);
-        $CTLSUPPLIEROD      = getListItemTitle('CTLManufacturer', $data['CTLSUPPLIEROD']);
-        $CTLSUPPLIEROS      = getListItemTitle('CTLManufacturer', $data['CTLSUPPLIEROS']);
-        $CTLBRANDOD         = getListItemTitle('CTLManufacturer', $data['CTLBRANDOD']);
-        $CTLBRANDOS         = getListItemTitle('CTLManufacturer', $data['CTLBRANDOS']);
+            $CTLMANUFACTUREROD  = getListItemTitle('CTLManufacturer', $data[$prefix . 'MANUFACTUREROD']);
+            $CTLMANUFACTUREROS  = getListItemTitle('CTLManufacturer', $data[$prefix . 'MANUFACTUREROS']);
+            $CTLSUPPLIEROD      = getListItemTitle('CTLManufacturer', $data[$prefix . 'SUPPLIEROD']);
+            $CTLSUPPLIEROS      = getListItemTitle('CTLManufacturer', $data[$prefix . 'SUPPLIEROS']);
+            $CTLBRANDOD         = getListItemTitle('CTLManufacturer', $data[$prefix . 'BRANDOD']);
+            $CTLBRANDOS         = getListItemTitle('CTLManufacturer', $data[$prefix . 'BRANDOS']);
+        }
     }
 
     //Since we selected the Print Icon, we must be dispensing this - add to dispensed table now
     $table_name      = "form_eye_mag_dispense";
-    $query           = "show columns from " . $table_name;
-    $dispense_fields = sqlStatement($query);
+    $dispense_fields = QueryUtils::listTableFields($table_name);
     $fields          = [];
 
-    if (sqlNumRows($dispense_fields) > 0) {
-        while ($row = sqlFetchArray($dispense_fields)) {
-            //exclude critical columns/fields, define below as needed
-            if (
-                in_array($row['Field'], ['id', 'pid', 'user', 'groupname', 'authorized', 'activity', 'RXTYPE', 'REFDATE', 'date'])
-            ) {
+    if (count($dispense_fields) > 0) {
+        //exclude critical columns/fields, define below as needed
+        $reserved = ['id', 'pid', 'user', 'groupname', 'authorized', 'activity', 'RXTYPE', 'REFDATE', 'date'];
+        foreach ($dispense_fields as $dispense_field) {
+            if (in_array($dispense_field, $reserved, true)) {
                 continue;
             }
-            if (isset(${$row['Field']})) {
-                $fields[$row['Field']] = ${$row['Field']};
+            if (isset(${$dispense_field})) {
+                $fields[$dispense_field] = ${$dispense_field};
             }
         }
 
@@ -325,8 +331,10 @@ if ($_REQUEST['REFTYPE'] ?? '') {
 }
 
 if ($_REQUEST['dispensed'] ?? '') {
-    $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
-    $dispensed = sqlStatement($query, [$_REQUEST['pid']]);
+    $dispensed = QueryUtils::fetchRecords(
+        'SELECT * FROM form_eye_mag_dispense WHERE pid = ? ORDER BY date DESC',
+        [$_REQUEST['pid']],
+    );
     ?><html>
     <title><?php echo xlt('Rx Dispensed History'); ?></title>
     <head>
@@ -448,37 +456,27 @@ if ($_REQUEST['dispensed'] ?? '') {
                     <td colspan="2"><h4 class="underline"><?php echo xlt('Rx History'); ?></h4></td>
                 </tr>
                 <?php
-                if (sqlNumRows($dispensed) == 0) {
+                if (count($dispensed) === 0) {
                     echo "<tr><td colspan='2' class='text-center p-3' style='font-size:1.2em;'>" . xlt('There are no Glasses or Contact Lens Presciptions on file for this patient') . "</td></tr>";
                 }
                 ?>
             </table>
             <?php
             $i = 0;
-            while ($row = sqlFetchArray($dispensed)) {
+            foreach ($dispensed as $row) {
                 $i++;
-                $Single = '';
-                $Bifocal = '';
-                $Trifocal = '';
-                $Progressive = '';
-                if ($row['RXTYPE'] == "Single") {
-                    $Single = "checked='checked'";
-                }
+                // The dispense table records the lens type by name, so it reads
+                // back through fromLabel() rather than the numeric-code tryFrom().
+                $rowRxType = is_string($row['RXTYPE']) ? RxType::fromLabel($row['RXTYPE']) : null;
+                $Single = RxType::Single->checkedAttribute($rowRxType);
+                $Bifocal = RxType::Bifocal->checkedAttribute($rowRxType);
+                $Trifocal = RxType::Trifocal->checkedAttribute($rowRxType);
+                $Progressive = RxType::Progressive->checkedAttribute($rowRxType);
 
-                if ($row['RXTYPE'] == "Bifocal") {
-                    $Bifocal = "checked='checked'";
-                }
-
-                if ($row['RXTYPE'] == "Trifocal") {
-                    $Trifocal = "checked='checked'";
-                }
-
-                if ($row['RXTYPE'] == "Progressive") {
-                    $Progressive = "checked='checked'";
-                }
+                $rowRefType = is_string($row['REFTYPE']) ? RefType::tryFrom($row['REFTYPE']) : null;
 
                 $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime((string) $row['date'])));
-                if ($row['REFTYPE'] == "CTL") {
+                if ($rowRefType?->isContactLens()) {
                     $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $row['REFDATE'])));
                 } else {
                     $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $row['REFDATE'])));
@@ -515,25 +513,13 @@ if ($_REQUEST['dispensed'] ?? '') {
                                 <tr>
                                     <td class="text-right align-middle font-weight-bold"><?php echo xlt('Refraction Method'); ?>:</td>
                                     <td>&nbsp;&nbsp;<?php
-                                    if ($row['REFTYPE'] == "W") {
-                                        echo xlt('Duplicate Rx -- unchanged from current Rx{{The refraction did not change, New Rx=old Rx}}');
-                                    } elseif ($row['REFTYPE'] == "CR") {
-                                        echo xlt('Cycloplegic (Wet) Refraction');
-                                    } elseif ($row['REFTYPE'] == "MR") {
-                                        echo xlt('Manifest (Dry) Refraction');
-                                    } elseif ($row['REFTYPE'] == "AR") {
-                                        echo xlt('Auto-Refraction');
-                                    } elseif ($row['REFTYPE'] == "CTL") {
-                                        echo xlt('Contact Lens');
-                                    } else {
-                                        echo text($row['REFTYPE']);
-                                    } ?>
+                                    echo $rowRefType?->displayName() ?? text($row['REFTYPE']); ?>
                                         <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td colspan="2" class="text-center"> <?php
-                                    if ($row['REFTYPE'] != "CTL") { ?>
+                                    if (!$rowRefType?->isContactLens()) { ?>
                                                 <table id="SpectacleRx" name="SpectacleRx" class="refraction" style="top:0px;">
                                                     <tr class="font-weight-bold">
                                                         <td></td>
@@ -951,7 +937,7 @@ if ($_REQUEST['dispensed'] ?? '') {
 <?php echo report_header($pid, "web");  ?>
 <br/><br/>
 <?php
-if ($REFTYPE == "CTL") {
+if ($refType?->isContactLens()) {
     $expir = date("Y-m-d", strtotime($CTL_expir, strtotime((string) $data['date'])));
 } else {
     $expir = date("Y-m-d", strtotime($RX_expir, strtotime((string) $data['date'])));
@@ -977,7 +963,7 @@ if ($REFTYPE == "CTL") {
             <tr>
                 <td>
                     <?php
-                    if ($REFTYPE != "CTL") { ?>
+                    if (!$refType?->isContactLens()) { ?>
                             <table id="SpectacleRx" name="SpectacleRx" class="refraction bordershadow"
                                    style="min-width:610px;top:0px;">
                                 <tr class="font-weight-bold text-center">

@@ -20,14 +20,14 @@ use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 try {
-    $request = Request::createFromGlobals();
+    $request = CurrentRequest::get();
     if (empty($request->query->get('action'))) {
         $request->query->set('action', 'log!view');
     }

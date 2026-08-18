@@ -838,6 +838,11 @@ class SQLUpgradeService implements ISQLUpgradeService
 
         $this->flush();
 
+        // This file just ran DDL, so any schema memoized before now describes
+        // the old shape. Cleared before the POST event so listeners -- which may
+        // construct services -- read the post-upgrade schema.
+        QueryUtils::clearSchemaCache();
+
         // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
         // or any manual processing that needs to occur.
         if ($globalsBag->hasKernel()) {

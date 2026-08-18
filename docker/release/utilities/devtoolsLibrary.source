@@ -284,18 +284,13 @@ demoData() {
 #
 # ----------------------------------------------------------------------------
 upgradeOpenEMR() {
-    # Create a modified version of sql_upgrade.php that auto-submits
-    # Replace form submission check with 'true' to bypass user interaction
-    sed -e "s@!empty(\$_POST\['form_submit'\])@true@" < /var/www/localhost/htdocs/openemr/sql_upgrade.php > /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
-
-    # Set the old version parameter directly instead of reading from POST
-    sed -i "s@\$form_old_version = \$_POST\['form_old_version'\];@\$form_old_version = '${1}';@" /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
-
-    # Inject site context at the beginning of the file
-    sed -i "1s@^@<?php \$_GET['site'] = 'default'; ?>@" /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
-
-    # Execute the modified upgrade script
-    run_php_as_apache php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+    # Inject site context, then run the standard upgrade via its CLI interface
+    {
+        echo "<?php \$_GET['site'] = 'default'; ?>"
+        cat /var/www/localhost/htdocs/openemr/sql_upgrade.php
+    } > /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+    # Execute the upgrade script with the from-version argument
+    run_php_as_apache /usr/local/bin/php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php -- --from="${1}"
 
     # Clean up temporary file
     rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php

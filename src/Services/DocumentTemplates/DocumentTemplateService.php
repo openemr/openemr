@@ -6,15 +6,20 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2021-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services\DocumentTemplates;
 
 use Exception;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\QuestionnaireService;
 use RuntimeException;
 
@@ -574,10 +579,9 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function insertTemplate($pid, $category, $template, $content, $mimetype = null, $profile = null): int
     {
-        // prevent template save if unsafe. Check for escaped and unescaped content.
-        if (stripos((string) $content, text('<script')) !== false || stripos((string) $content, '<script') !== false) {
-            throw new RuntimeException(xlt("Template rejected. JavaScript not allowed"));
-        }
+        // Purify template content before persistence — Summernote loads the
+        // stored value into a textarea as HTML. See purifyTemplateContent().
+        $content = self::purifyTemplateContent((string) $content, $mimetype);
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -593,7 +597,7 @@ class DocumentTemplateService extends QuestionnaireService
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE `pid` = ?, `provider`= ?, `template_content`= ?, `size`= ?, `modified_date` = NOW(), `mime` = ?";
 
-        return sqlInsert($sql, [$pid, $session->get('authUserID'), ($profile ?: ''), $category ?: '', $template, $name, 'New', $content, strlen((string) $content), $mimetype, $pid, $session->get('authUserID'), $content, strlen((string) $content), $mimetype]);
+        return sqlInsert($sql, [$pid, $session->get('authUserID'), ($profile ?: ''), $category ?: '', $template, $name, 'New', $content, strlen($content), $mimetype, $pid, $session->get('authUserID'), $content, strlen($content), $mimetype]);
     }
 
     /**
@@ -700,12 +704,49 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function updateTemplateContent($id, $content)
     {
-        // prevent template save if unsafe. Check for escaped and unescaped content.
-        if (stripos((string) $content, text('<script')) !== false || stripos((string) $content, '<script') !== false) {
-            throw new RuntimeException(xlt("Template rejected. JavaScript not allowed"));
-        }
+        // Same purification as insertTemplate() — see purifyTemplateContent().
+        // Look up the stored mime so PDF and other binary templates skip HTML sanitization.
+        $existing = QueryUtils::querySingleRow('SELECT `mime` FROM `document_templates` WHERE `id` = ?', [$id]);
+        $mimetype = is_array($existing) && is_string($existing['mime'] ?? null) ? $existing['mime'] : null;
+        $content = self::purifyTemplateContent((string) $content, $mimetype);
 
         return sqlQuery('UPDATE `document_templates` SET `template_content` = ?, modified_date = NOW() WHERE `id` = ?', [$content, $id]);
+    }
+
+    /**
+     * Sanitize document-template content with HTMLPurifier.
+     *
+     * Strips <script>, event-handler attributes, and javascript: URLs while
+     * preserving the rich-text markup the WYSIWYG editor needs. PDF and other
+     * binary mime types are returned untouched — purifying them would corrupt
+     * the file. Template directives written as {DirectiveName} are restored
+     * after purification, since HTMLPurifier URL-encodes braces inside URIs.
+     */
+    public static function purifyTemplateContent(?string $content, ?string $mimetype = null): string
+    {
+        $content ??= '';
+
+        if ($content === '' || $mimetype === 'application/pdf') {
+            return $content;
+        }
+
+        $config = HTMLPurifier_Config::createDefault();
+        $config->set('Core.Encoding', 'UTF-8');
+        $purifyTempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir')
+            . DIRECTORY_SEPARATOR . 'htmlpurifier';
+        if (is_dir($purifyTempDir) || mkdir($purifyTempDir, 0700, true) || is_dir($purifyTempDir)) {
+            $config->set('Cache.SerializerPath', $purifyTempDir);
+        } else {
+            // Skip caching rather than fall back to HTMLPurifier's default path,
+            // which writes inside vendor/ — typically read-only and noisy.
+            $config->set('Cache.DefinitionImpl', null);
+        }
+
+        $purified = (new HTMLPurifier($config))->purify($content);
+
+        // HTMLPurifier percent-encodes braces that appear in URIs; the renderer
+        // expects literal {Directive} markers, so swap them back.
+        return str_replace(['%7B', '%7D'], ['{', '}'], $purified);
     }
 
     /**

@@ -41,8 +41,11 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Forms\EyeMag\CopyMode;
+use OpenEMR\Forms\EyeMag\Zone;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
+use Symfony\Component\HttpFoundation\Request;
 
 $srcdir = OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/api.inc.php");
@@ -57,6 +60,11 @@ require_once($srcdir . "/report.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid');
+
+// Captured here, at the top, because the form-save paths below rewrite $_POST
+// and $_REQUEST in place as they normalize fields. Reading the request through
+// this object gets the values the browser actually sent.
+$request = Request::createFromGlobals();
 
 $returnurl = 'encounter_top.php';
 
@@ -1307,8 +1315,21 @@ if ($_REQUEST['canvas'] ?? '') {
     exit;
 }
 
-if ($_REQUEST['copy']) {
-    copy_forward($_REQUEST['zone'], $_REQUEST['copy_from'], ($session->get('ID') ?? ''), $pid);
+// Both copy-forward callers post these; the typed getters hand back strings, so
+// the enums are the only thing that still has to recognize the value.
+if ($request->request->getString('copy') !== '') {
+    $requestedZone = $request->request->getString('zone');
+    $copyFrom = $request->request->getString('copy_from');
+    $copyMode = Zone::tryFrom($requestedZone) ?? CopyMode::tryFrom($requestedZone);
+
+    // A patient id reaches here as either the session's int or a request string;
+    // anything else is not a patient and must not be stringified into the query.
+    if ($copyMode !== null && (is_string($pid) || is_int($pid))) {
+        copy_forward($copyMode, $copyFrom, (string) $pid);
+    } else {
+        // The browser asked for this with dataType: 'json'; an empty body is a parse error.
+        echo json_encode([]);
+    }
     return;
 }
 

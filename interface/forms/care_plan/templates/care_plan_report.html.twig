@@ -17,6 +17,7 @@
     <tr>
         <th class="border p-1">{{ 'Author'|xlt }}</th>
         <th class="border p-1">{{ 'Type'|xlt }}</th>
+        <th class="border p-1">{{ 'Engagement'|xlt }}</th>
         <th class="border p-1">{{ 'Code'|xlt }}</th>
         <th class="border p-1">{{ 'Code Text'|xlt }}</th>
         <th class="border p-1">{{ 'Description'|xlt }}</th>
@@ -28,6 +29,7 @@
         <tr>
             <td class="border p-1"><span class="text">{{ row.user|default('')|text }}</span></td>
             <td class="border p-1"><span class="text">{{ getListItemTitle('Plan_of_Care_Type', row.care_plan_type|default(''))|text }}</span></td>
+            <td class="border p-1"><span class="text">{{ getListItemTitle('care_plan_engagement_category', row.plan_engagement_category|default(''))|text }}</span></td>
             <td class="border p-1"><span class="text">{{ row.code|default('')|text }}</span></td>
             <td class="border p-1"><span class="text">{{ row.codetext|default('')|text }}</span></td>
             <td class="border p-1"><span class="text">{{ row.description|default('')|text|nl2br }}</span></td>
