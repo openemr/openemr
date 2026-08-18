@@ -28,6 +28,7 @@ $report_id = 0;
 $itemized_test_id = 0;
 $pass_id = "all";
 $numerator_label = '';
+$print_patients = false;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_REQUEST)) {
@@ -248,8 +249,8 @@ if ($popup) {
     echo "<input type='hidden' name='numerator_label' value='" . attr($numerator_label) . "' />\n";
     $pass_id = $_REQUEST['pass_id'] ?? "all";
     echo "<input type='hidden' name='pass_id' value='" . attr($pass_id) . "' />\n";
-    $print_patients = $_REQUEST['print_patients'] ?? 0;
-    echo "<input type='hidden' name='print_patients' value='" . attr($print_patients) . "' />\n";
+    $print_patients = ($_REQUEST['print_patients'] ?? 0) == 1;
+    echo "<input type='hidden' name='print_patients' value='" . attr($print_patients ? '1' : '0') . "' />\n";
 
   // Collect patient listing from cdr report
     if ($print_patients) {
@@ -529,7 +530,7 @@ $(function () {
     $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
     // $(".event").dblclick(function() { EditEvent(this); });
-    <?php if (isset($print_patients)) { ?>
+    <?php if ($from_page === "cdr_report" && $print_patients) { ?>
       var win = top.printLogPrint ? top : opener.top;
       win.printLogPrint(window);
     <?php } ?>
