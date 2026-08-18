@@ -1,0 +1,169 @@
+<svg width="100%" viewBox="0 0 680 620" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      text { font-family: sans-serif; fill: #2c2c2a; }
+      .th { font-size: 14px; font-weight: 500; }
+      .ts { font-size: 12px; font-weight: 400; }
+      .c-gray rect { fill: #F1EFE8; stroke: #5F5E5A; }
+      .c-gray text { fill: #444441; }
+      .c-teal rect { fill: #E1F5EE; stroke: #0F6E56; }
+      .c-teal text { fill: #085041; }
+      .c-purple rect { fill: #EEEDFE; stroke: #534AB7; }
+      .c-purple text { fill: #3C3489; }
+      .c-blue rect { fill: #E6F1FB; stroke: #185FA5; }
+      .c-blue text { fill: #0C447C; }
+      .c-coral rect { fill: #FAECE7; stroke: #993C1D; }
+      .c-coral text { fill: #712B13; }
+      .c-amber rect { fill: #FAEEDA; stroke: #854F0B; }
+      .c-amber text { fill: #633806; }
+    </style>
+  </defs>
+
+  <g class="c-gray">
+    <rect x="20" y="20" width="640" height="580" rx="16" stroke-width="0.5"/>
+    <text class="th" x="40" y="48">Host Linux</text>
+    <text class="ts" x="40" y="64">LXC daemon, lxcbr0 NAT, /etc/hosts</text>
+  </g>
+
+  <g class="c-amber">
+    <rect x="40" y="78" width="160" height="56" rx="8" stroke-width="0.5"/>
+    <text class="th" x="120" y="99" text-anchor="middle">lxcbr0 (NAT)</text>
+    <text class="ts" x="120" y="115" text-anchor="middle">host-only, no LAN presence</text>
+    <text class="ts" x="120" y="128" text-anchor="middle">internet via host NAT</text>
+  </g>
+
+  <g class="c-gray">
+    <rect x="40" y="148" width="160" height="44" rx="8" stroke-width="0.5"/>
+    <text class="th" x="120" y="166" text-anchor="middle">/etc/hosts</text>
+    <text class="ts" x="120" y="182" text-anchor="middle">10.0.3.100 → claude-appliance.local</text>
+  </g>
+
+  <g class="c-teal">
+    <rect x="40" y="208" width="160" height="130" rx="8" stroke-width="0.5"/>
+    <text class="th" x="120" y="232" text-anchor="middle">&lt;git-dir&gt;/</text>
+    <text class="ts" x="120" y="248" text-anchor="middle">openemr/</text>
+    <text class="ts" x="120" y="264" text-anchor="middle">openemr-wt-1/</text>
+    <text class="ts" x="120" y="280" text-anchor="middle">openemr-wt-2/</text>
+    <text class="ts" x="120" y="296" text-anchor="middle">openemr-wt-3/</text>
+    <text class="ts" x="120" y="312" text-anchor="middle">.worktrees.json</text>
+  </g>
+
+  <g class="c-gray">
+    <rect x="40" y="356" width="160" height="44" rx="8" stroke-width="0.5"/>
+    <text class="th" x="120" y="374" text-anchor="middle">GitHub</text>
+    <text class="ts" x="120" y="390" text-anchor="middle">PRs, branches, issues</text>
+  </g>
+
+  <g class="c-gray">
+    <rect x="40" y="416" width="160" height="56" rx="8" stroke-width="0.5"/>
+    <text class="th" x="120" y="437" text-anchor="middle">Host browser</text>
+    <text class="ts" x="120" y="453" text-anchor="middle">claude-appliance.local</text>
+    <text class="ts" x="120" y="469" text-anchor="middle">:9301, :9302 etc.</text>
+  </g>
+
+  <g class="c-purple">
+    <rect x="230" y="75" width="410" height="510" rx="14" stroke-width="0.5"/>
+    <text class="th" x="435" y="100" text-anchor="middle">LXC: claude-appliance</text>
+    <text class="ts" x="435" y="116" text-anchor="middle">hostname: claude-appliance · static IP 10.0.3.100 · NAT only</text>
+  </g>
+
+  <g class="c-gray">
+    <rect x="248" y="128" width="374" height="56" rx="8" stroke-width="0.5"/>
+    <text class="th" x="435" y="147" text-anchor="middle">Lean toolchain</text>
+    <text class="ts" x="435" y="163" text-anchor="middle">openemr-cmd · git · gh · docker · jq</text>
+    <text class="ts" x="435" y="178" text-anchor="middle">kubectl · kind · helm</text>
+  </g>
+
+  <g class="c-teal">
+    <rect x="248" y="200" width="174" height="56" rx="8" stroke-width="0.5"/>
+    <text class="th" x="335" y="222" text-anchor="middle">&lt;git-dir&gt;/ (rw)</text>
+    <text class="ts" x="335" y="238" text-anchor="middle">same path as host</text>
+  </g>
+
+  <g class="c-blue">
+    <rect x="440" y="200" width="182" height="56" rx="8" stroke-width="0.5"/>
+    <text class="th" x="531" y="222" text-anchor="middle">dockerd</text>
+    <text class="ts" x="531" y="238" text-anchor="middle">own daemon, no host socket</text>
+  </g>
+
+  <g class="c-coral">
+    <rect x="248" y="276" width="110" height="56" rx="8" stroke-width="0.5"/>
+    <text class="th" x="303" y="298" text-anchor="middle">agent-1</text>
+    <text class="ts" x="303" y="314" text-anchor="middle">openemr-wt-1</text>
+  </g>
+  <g class="c-coral">
+    <rect x="375" y="276" width="110" height="56" rx="8" stroke-width="0.5"/>
+    <text class="th" x="430" y="298" text-anchor="middle">agent-2</text>
+    <text class="ts" x="430" y="314" text-anchor="middle">openemr-wt-2</text>
+  </g>
+  <g class="c-coral">
+    <rect x="502" y="276" width="110" height="56" rx="8" stroke-width="0.5"/>
+    <text class="th" x="557" y="298" text-anchor="middle">agent-3 (k8s)</text>
+    <text class="ts" x="557" y="314" text-anchor="middle">devops/kubernetes</text>
+  </g>
+
+  <g class="c-blue">
+    <rect x="248" y="354" width="110" height="80" rx="8" stroke-width="0.5"/>
+    <text class="th" x="303" y="374" text-anchor="middle">demo stack 1</text>
+    <text class="ts" x="303" y="390" text-anchor="middle">PHP · Composer</text>
+    <text class="ts" x="303" y="406" text-anchor="middle">Node · MySQL</text>
+    <text class="ts" x="303" y="422" text-anchor="middle">CouchDB</text>
+  </g>
+  <g class="c-blue">
+    <rect x="375" y="354" width="110" height="80" rx="8" stroke-width="0.5"/>
+    <text class="th" x="430" y="374" text-anchor="middle">demo stack 2</text>
+    <text class="ts" x="430" y="390" text-anchor="middle">PHP · Composer</text>
+    <text class="ts" x="430" y="406" text-anchor="middle">Node · MySQL</text>
+    <text class="ts" x="430" y="422" text-anchor="middle">CouchDB</text>
+  </g>
+  <g class="c-blue">
+    <rect x="502" y="354" width="110" height="80" rx="8" stroke-width="0.5"/>
+    <text class="th" x="557" y="374" text-anchor="middle">kind cluster</text>
+    <text class="ts" x="557" y="390" text-anchor="middle">OpenEMR · MariaDB</text>
+    <text class="ts" x="557" y="406" text-anchor="middle">Redis · Sentinel</text>
+    <text class="ts" x="557" y="422" text-anchor="middle">cert-manager</text>
+  </g>
+
+  <g class="c-gray">
+    <rect x="248" y="452" width="234" height="44" rx="8" stroke-width="0.5"/>
+    <text class="th" x="365" y="470" text-anchor="middle">openemr-cmd</text>
+    <text class="ts" x="365" y="486" text-anchor="middle">PHP/JS/CSS ops via docker exec</text>
+  </g>
+
+  <g class="c-gray">
+    <rect x="494" y="452" width="118" height="44" rx="8" stroke-width="0.5"/>
+    <text class="th" x="553" y="470" text-anchor="middle">kub-up / kub-down</text>
+    <text class="ts" x="553" y="486" text-anchor="middle">kubectl · kind · helm</text>
+  </g>
+
+  <g class="c-amber">
+    <rect x="248" y="514" width="364" height="44" rx="8" stroke-width="0.5"/>
+    <text class="th" x="430" y="532" text-anchor="middle">NAT jail</text>
+    <text class="ts" x="430" y="548" text-anchor="middle">no LAN presence · invisible outside host · hotspot-safe</text>
+  </g>
+
+  <line x1="200" y1="99" x2="228" y2="99" stroke="#BA7517" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="228" y1="112" x2="200" y2="125" stroke="#BA7517" stroke-width="1" marker-end="url(#arrow)"/>
+  <text font-family="sans-serif" font-size="12" x="213" y="95" text-anchor="middle" fill="#BA7517">NAT</text>
+
+  <line x1="200" y1="170" x2="228" y2="170" stroke="#5F5E5A" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+  <text font-family="sans-serif" font-size="12" x="212" y="164" text-anchor="middle" fill="#5F5E5A">name</text>
+
+  <line x1="200" y1="262" x2="246" y2="242" stroke="#1D9E75" stroke-width="1" marker-end="url(#arrow)"/>
+  <text font-family="sans-serif" font-size="12" x="196" y="255" text-anchor="end" fill="#1D9E75">bind</text>
+  <text font-family="sans-serif" font-size="12" x="196" y="269" text-anchor="end" fill="#1D9E75">mount</text>
+
+  <line x1="246" y1="376" x2="202" y2="376" stroke="#5F5E5A" stroke-width="1" marker-end="url(#arrow)"/>
+  <text font-family="sans-serif" font-size="12" x="222" y="369" text-anchor="middle" fill="#5F5E5A">gh cli</text>
+
+  <path d="M200 444 L220 444 L220 534 L246 534" fill="none" stroke="#5F5E5A" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+  <text font-family="sans-serif" font-size="12" x="185" y="494" text-anchor="middle" fill="#5F5E5A">.local</text>
+  <text font-family="sans-serif" font-size="12" x="185" y="508" text-anchor="middle" fill="#5F5E5A">ports</text>
+
+  <line x1="303" y1="332" x2="303" y2="352" stroke="#5F5E5A" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="430" y1="332" x2="430" y2="352" stroke="#5F5E5A" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="557" y1="332" x2="557" y2="352" stroke="#5F5E5A" stroke-width="1" marker-end="url(#arrow)"/>
+</svg>
