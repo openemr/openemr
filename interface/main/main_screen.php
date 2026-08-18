@@ -35,6 +35,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
+use OpenEMR\Tabs\PatientDashboardTab;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -472,18 +473,15 @@ if ($is_expired) {
         "label" => xl("Password Reset"),
     ]);
 } elseif (!empty($_POST['patientID'])) {
-    // Patient is open, so add this to the list of tabs, at the end
+    // Patient is open, so make the dashboard the active (first) tab.
     $patientID = (int) $_POST['patientID'];
-    $_notes = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
+    // Tab notes are resolved from the project root by DefaultTabsFilter.
+    $_notes = "interface/patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
     if (!empty($_POST['encounterID'])) {
         $encounterID = (int) $_POST['encounterID'];
         $_notes = $_notes . "&set_encounterid=" . attr_url($encounterID);
     }
-    $_tabs[] = [
-        'notes' => $_notes,
-        'id' => "pat",
-        'label' => xl("Dashboard"),
-    ];
+    $_tabs = PatientDashboardTab::prepend($_tabs, $_notes, xl("Dashboard"));
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     // Load the calendar, at the end
     $_notes = "calendar/index.php?pid=" . attr_url($_GET['pid']);
