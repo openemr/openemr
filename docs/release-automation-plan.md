@@ -853,11 +853,16 @@ Release publish → docker-release-orchestrator multi-branch build
 cascade → finalize auto-flip → docs auto-flip → announcement-drafts
 render). All acceptance surfaces green: 8/8 build-release-on-tag
 acceptance cells (fresh-install + wizard-install + upgrade +
-wizard-upgrade × tar + zip); all 5 modern docker build+acceptance
-runs green (master, rel-820, rel-830, plus rel-800 + rel-704 legacy
-single-job builds); release-amendment post-ship picked up the 52
-published GHSAs in a single 50KB CHANGELOG regeneration under the
-124KB truncation limit (no hybrid pointer needed).
+wizard-upgrade × tar + zip); rel-820 + rel-830 docker builds passed
+their 6-cell acceptance gates cleanly and published to Docker Hub
+(rel-820 → `latest`, rel-830 → `8.3.0`); rel-800 + rel-704 legacy
+single-job builds completed without acceptance (per Phase 12
+exclusion); master's docker acceptance gate failed on one arm64 cell
+so master's `next`/`dev` refresh was skipped this ship-day dispatch
+(recovery via next scheduled orchestrator run or
+`docker-acceptance-only.yml`); release-amendment post-ship picked up
+the 52 published GHSAs in a single 50KB CHANGELOG regeneration under
+the 124KB truncation limit (no hybrid pointer needed).
 
 **Seven latent ship-release preflight-deadlock gates surfaced in
 cascade** — same shape as G31 but for the SHIP path rather than the

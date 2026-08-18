@@ -2410,24 +2410,26 @@ upgrade + wizard-upgrade × tar + zip. GitHub Release object only
 came into existence after acceptance-gate returned green (per Phase
 7c design: publish requires acceptance).
 
-**Docker gates (Phase 7c + Phase 12 extension):** all 3 modern
-per-branch acceptance gates passed (master, rel-820, rel-830), each
+**Docker gates (Phase 7c + Phase 12 extension):** 3 modern
+per-branch acceptance gates fired (master, rel-820, rel-830), each
 covering fresh-install-from + fresh-install-to + upgrade on both
-amd64 + arm64 runners. rel-800 + rel-704 legacy single-job builds
-also completed successfully (no acceptance gate — those branches are
-`gate_with_acceptance` unset per Phase 12 exclusion). The rel-820
-build promoted to `openemr/openemr:latest`; rel-830 published
-`openemr/openemr:8.3.0`; master refreshed `openemr/openemr:next` /
-`dev`.
+amd64 + arm64 runners (6 cells per branch, 18 gated cells total).
+rel-820 and rel-830 passed all 6 cells cleanly (12/12) and published:
+rel-820 promoted to `openemr/openemr:latest`; rel-830 published
+`openemr/openemr:8.3.0`. Master's gate FAILED on the arm64
+`Fresh install of from_tag` cell (5/6 on that branch); per Phase 7c
+design the master publish job was skipped, so `openemr/openemr:next`
+/ `dev` did not refresh on this ship-day dispatch (they refresh on
+the next scheduled orchestrator run or `docker-acceptance-only.yml`
+recovery dispatch). rel-800 + rel-704 legacy single-job builds
+completed successfully; those branches are `gate_with_acceptance`
+unset per Phase 12 exclusion (they use the pre-Phase-7c single-step
+build+push shape, no acceptance gate).
 
-One flake surfaced: master's `Fresh install of from_tag
-(ubuntu-24.04-arm)` acceptance cell failed on the master-line docker
-build. Not blocking for 8.3.0 (that failure is on the master `next`
-image, not rel-830's shipped image); recovery path is a `docker-
-acceptance-only.yml` dispatch or wait for the next scheduled
-orchestrator run. Documented here as a data point on flake surface
-area under the Phase 7c gate — a single-cell flake on one of 24 total
-matrix cells across all 5 branches (~4% flake rate on this ship).
+The single arm64 from_tag failure was on the master line only — not
+blocking 8.3.0 since master's `next` image is separate from rel-830's
+shipped image. Documented here as a data point on gate surface area:
+1 fail out of 18 gated cells (~5.6%), all-master-side, all-arm64-side.
 
 ## Test-coverage philosophy
 
