@@ -16,7 +16,9 @@
 #
 # What it captures:
 #   1. Full MySQL/MariaDB dump (--single-transaction, includes routines/triggers)
-#   2. The sites/ directory (documents, config, custom code, SSL material)
+#   2. The full OpenEMR webroot -- sites/ (documents, config, SSL material)
+#      plus custom modules, UI-installed modules, and any local code changes
+#      (matching the scope of the removed backup.php routine)
 #   3. The Compose configuration (original files, .env, and the fully
 #      resolved config as compose-resolved.yml)
 #   4. A manifest recording image versions in use at backup time
@@ -98,9 +100,14 @@ DB_USER="root"
 DB_PASS_ENV="MYSQL_ROOT_PASSWORD"   # env var name INSIDE the db container
 DB_NAME="openemr"
 
-# Path to the sites directory INSIDE the app container.
-# Official images: /var/www/localhost/htdocs/openemr/sites
-SITES_PATH="/var/www/localhost/htdocs/openemr/sites"
+# Path INSIDE the app container to archive. Default is the full OpenEMR
+# webroot, which captures sites/ AND custom/UI-installed modules
+# (interface/modules/custom_modules), composer changes, and local patches --
+# the same scope as the removed backup.php. If your deployment is strictly
+# stock (no modules, no local changes), you can narrow this to
+# .../openemr/sites for much smaller backups, at the cost of losing anything
+# you later install outside sites/ and forget about.
+FILES_PATH="/var/www/localhost/htdocs/openemr"
 
 # Stop the app container during the backup for a strictly coordinated
 # point-in-time snapshot (see CONSISTENCY NOTE above). Users cannot access
@@ -216,10 +223,11 @@ DB_SIZE="$(stat -c%s "${BACKUP_DIR}/openemr-db.sql.gz")"
 log "database dump complete ($(human_size "${DB_SIZE}"))"
 
 # ---------------------------------------------------------------------------
-# 2. sites/ directory
+# 2. OpenEMR files (webroot)
 # ---------------------------------------------------------------------------
-# This contains sqlconf.php, uploaded documents, letter templates, custom
-# forms, and per-site SSL material. It is the other half of your PHI.
+# sites/ holds sqlconf.php, uploaded documents, letter templates, and per-site
+# SSL material -- the other half of your PHI. The rest of the webroot holds
+# custom modules and local code changes that a fresh image will NOT contain.
 # Taken immediately after the dump to keep the inconsistency window small
 # when QUIESCE_APP=false (see CONSISTENCY NOTE in the header).
 # Note: 'compose exec' works against a stopped service's container only via
@@ -227,22 +235,22 @@ log "database dump complete ($(human_size "${DB_SIZE}"))"
 # read the files through the container filesystem with 'docker compose cp'
 # fallback if exec fails while quiesced.
 
-log "archiving sites directory from service '${APP_SERVICE}'"
+log "archiving OpenEMR files (${FILES_PATH}) from service '${APP_SERVICE}'"
 if [[ "${APP_STOPPED}" == "true" ]]; then
     # Container is stopped: exec is unavailable. Copy out via the engine, then tar.
     STAGING_DIR="$(mktemp -d)"
-    ${COMPOSE} cp "${APP_SERVICE}:${SITES_PATH}" "${STAGING_DIR}/sites"
-    tar -czf "${BACKUP_DIR}/openemr-sites.tar.gz" -C "${STAGING_DIR}" sites
+    ${COMPOSE} cp "${APP_SERVICE}:${FILES_PATH}" "${STAGING_DIR}/openemr-files"
+    tar -czf "${BACKUP_DIR}/openemr-files.tar.gz" -C "${STAGING_DIR}" openemr-files
     rm -rf "${STAGING_DIR}"
 else
     ${COMPOSE} exec -T "${APP_SERVICE}" sh -c \
-        "tar -czf - -C '$(dirname "${SITES_PATH}")' '$(basename "${SITES_PATH}")'" \
-        > "${BACKUP_DIR}/openemr-sites.tar.gz"
+        "tar -czf - -C '$(dirname "${FILES_PATH}")' '$(basename "${FILES_PATH}")'" \
+        > "${BACKUP_DIR}/openemr-files.tar.gz"
 fi
 
-SITES_SIZE="$(stat -c%s "${BACKUP_DIR}/openemr-sites.tar.gz")"
-[[ "${SITES_SIZE}" -gt 10240 ]] || fail "sites archive suspiciously small (${SITES_SIZE} bytes)"
-log "sites archive complete ($(human_size "${SITES_SIZE}"))"
+FILES_SIZE="$(stat -c%s "${BACKUP_DIR}/openemr-files.tar.gz")"
+[[ "${FILES_SIZE}" -gt 10240 ]] || fail "files archive suspiciously small (${FILES_SIZE} bytes)"
+log "files archive complete ($(human_size "${FILES_SIZE}"))"
 
 # Restart the app as early as possible if we quiesced; nothing below needs it stopped.
 if [[ "${APP_STOPPED}" == "true" ]]; then
@@ -293,7 +301,7 @@ fi
 # ---------------------------------------------------------------------------
 
 gzip -t "${BACKUP_DIR}/openemr-db.sql.gz"    || fail "db dump failed gzip integrity check"
-gzip -t "${BACKUP_DIR}/openemr-sites.tar.gz" || fail "sites archive failed gzip integrity check"
+gzip -t "${BACKUP_DIR}/openemr-files.tar.gz" || fail "files archive failed gzip integrity check"
 
 ( cd "${BACKUP_DIR}" && sha256sum ./* > SHA256SUMS )
 log "integrity checks passed"
@@ -330,12 +338,17 @@ log "backup finished successfully"
 #          docker compose exec -T mysql sh -c \
 #            'exec mysql -uroot -p"$MYSQL_ROOT_PASSWORD" openemr'
 #
-#   3. Bring up the app container, then restore sites/ over the top:
+#   3. Bring up the app container (pin the image tag to the version in
+#      manifest.txt), then restore the archived files over the top. The
+#      archive's top-level directory matches the webroot's name, so extract
+#      into the webroot's PARENT:
 #        docker compose up -d openemr
 #        docker compose exec -T openemr sh -c \
-#          'tar -xzf - -C /var/www/localhost/htdocs/openemr' \
-#          < openemr-sites.tar.gz
+#          'tar -xzf - -C /var/www/localhost/htdocs' \
+#          < openemr-files.tar.gz
 #        docker compose restart openemr
+#      (If you narrowed FILES_PATH to sites/, extract into the webroot
+#      itself instead: -C /var/www/localhost/htdocs/openemr)
 #
 #   4. Verify: log in, open a recent patient, open a recent document,
 #      and check Administration -> Other -> Logs for errors.
@@ -351,7 +364,7 @@ log "backup finished successfully"
 #   push ${BACKUP_ROOT} to encrypted offsite storage. Local-only backups do
 #   not survive the ransomware scenario they exist for.
 # * CouchDB: if you enabled CouchDB document storage, add a couchdb dump
-#   step (or snapshot its volume) -- the sites/ tarball will not include
+#   step (or snapshot its volume) -- the files tarball will not include
 #   those documents.
 # * Encryption at rest: backup files are created mode 600 under a mode-700
 #   directory (umask 077). If ${BACKUP_ROOT} is not on an encrypted
