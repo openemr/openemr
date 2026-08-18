@@ -79,13 +79,8 @@ $facilityData = is_array($facilityRaw) ? lab_normalize_array_row($facilityRaw) :
 $insRaw = getAllinsurances($safePid);
 /** @var list<array<string, mixed>> $ins */
 $ins = [];
-if (is_iterable($insRaw)) {
-    foreach ($insRaw as $insRow) {
-        if (!is_array($insRow)) {
-            continue;
-        }
-        $ins[] = lab_normalize_array_row($insRow);
-    }
+foreach ((array) $insRaw as $insRow) {
+    $ins[] = lab_normalize_array_row((array) $insRow);
 }
 
 $hasOrder = $oid > 0;
