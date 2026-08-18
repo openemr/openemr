@@ -14,17 +14,73 @@
 use OpenEMR\Common\Database\QueryUtils;
 
 /**
+ * Convert mixed values from DB/legacy helpers into a string for display/logic.
+ */
+function lab_as_string(mixed $value): string
+{
+    if (is_string($value)) {
+        return $value;
+    }
+    if (is_int($value) || is_float($value)) {
+        return (string) $value;
+    }
+    if (is_bool($value)) {
+        return $value ? '1' : '';
+    }
+
+    return '';
+}
+
+/**
+ * Normalize a QueryUtils row (array<mixed>) into array<string, mixed>.
+ *
+ * @param array<mixed>|false $row
+ * @return array<string, mixed>|false
+ */
+function lab_normalize_row(array|false $row): array|false
+{
+    if ($row === false) {
+        return false;
+    }
+
+    $normalized = [];
+    foreach ($row as $key => $value) {
+        $normalized[lab_as_string($key)] = $value;
+    }
+
+    return $normalized;
+}
+
+/**
+ * @param list<array<mixed>> $rows
+ * @return list<array<string, mixed>>
+ */
+function lab_normalize_rows(array $rows): array
+{
+    $normalized = [];
+    foreach ($rows as $row) {
+        $item = lab_normalize_row($row);
+        if ($item !== false) {
+            $normalized[] = $item;
+        }
+    }
+
+    return $normalized;
+}
+
+/**
  * @param int|string $pid
  * @param int|string $encounter
  * @return mixed
  */
 function fetchProcedureId($pid, $encounter): mixed
 {
-    $res = QueryUtils::querySingleRow(
+    $res = lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT procedure_order_id FROM procedure_order WHERE patient_id = ? AND encounter_id = ?",
         [$pid, $encounter]
-    );
-    return $res['procedure_order_id'] ?? null;
+    ));
+
+    return is_array($res) ? ($res['procedure_order_id'] ?? null) : null;
 }
 
 /**
@@ -49,17 +105,7 @@ function getProceduresInfo($oid, $encounter): array
        AND po.encounter_id = ?
        AND po.procedure_order_id = ?";
 
-    /** @var list<array<string, mixed>> $rows */
-    $rows = [];
-    foreach (QueryUtils::fetchRecords($sql, [$oid, $encounter, $oid]) as $row) {
-        $typed = [];
-        foreach ($row as $key => $value) {
-            $typed[(string) $key] = $value;
-        }
-        $rows[] = $typed;
-    }
-
-    return $rows;
+    return lab_normalize_rows(QueryUtils::fetchRecords($sql, [$oid, $encounter, $oid]));
 }
 
 /**
@@ -68,12 +114,21 @@ function getProceduresInfo($oid, $encounter): array
  */
 function getSelfPay($pid): ?string
 {
-    $res = QueryUtils::querySingleRow(
+    $res = lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT subscriber_relationship FROM insurance_data WHERE pid = ?",
         [$pid]
-    );
-    $relationship = $res['subscriber_relationship'] ?? null;
-    return $relationship === null ? null : (string) $relationship;
+    ));
+    if (!is_array($res) || !array_key_exists('subscriber_relationship', $res)) {
+        return null;
+    }
+
+    $relationship = $res['subscriber_relationship'];
+    if ($relationship === null) {
+        return null;
+    }
+
+    $asString = lab_as_string($relationship);
+    return $asString === '' && !is_scalar($relationship) ? null : $asString;
 }
 
 /**
@@ -82,11 +137,15 @@ function getSelfPay($pid): ?string
  */
 function getNPI($prov_id): array
 {
-    $res = QueryUtils::querySingleRow(
+    $res = lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT npi, upin FROM users WHERE id = ?",
         [$prov_id]
-    );
-    return [(string) ($res['npi'] ?? ''), (string) ($res['upin'] ?? '')];
+    ));
+    if (!is_array($res)) {
+        return ['', ''];
+    }
+
+    return [lab_as_string($res['npi'] ?? ''), lab_as_string($res['upin'] ?? '')];
 }
 
 /**
@@ -95,14 +154,15 @@ function getNPI($prov_id): array
  */
 function getProcedureProvider($prov_id): array
 {
-    $res = QueryUtils::querySingleRow(
+    $res = lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT i.organization, i.street, i.city, i.state, i.zip, i.fax, i.phone, pi.lab_director
          FROM users AS i
          JOIN procedure_providers AS pi ON pi.lab_director = i.id
          WHERE pi.ppid = ?",
         [$prov_id]
-    );
-    return is_array($res) ? $res : [];
+    ));
+
+    return $res === false ? [] : $res;
 }
 
 /**
@@ -111,14 +171,13 @@ function getProcedureProvider($prov_id): array
  */
 function getLabProviders($prov_id): ?array
 {
-    $res = QueryUtils::querySingleRow(
+    $res = lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT fname, lname FROM users
          WHERE authorized = 1 AND active = 1 AND username != '' AND id = ?",
         [$prov_id]
-    );
+    ));
 
-    // querySingleRow returns false when no row matches; normalize to null.
-    return is_array($res) ? $res : null;
+    return $res === false ? null : $res;
 }
 
 /**
@@ -129,11 +188,10 @@ function getLabProviders($prov_id): ?array
  */
 function getLabconfig(int $ppid): array|false
 {
-    $res = QueryUtils::querySingleRow(
+    return lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT recv_app_id, recv_fac_id FROM procedure_providers WHERE ppid = ?",
         [$ppid]
-    );
-    return is_array($res) ? $res : false;
+    ));
 }
 
 /**
@@ -145,11 +203,12 @@ function getLabconfig(int $ppid): array|false
  */
 function getProcedureBillingType(int $oid): string
 {
-    $res = QueryUtils::querySingleRow(
+    $res = lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT billing_type FROM procedure_order WHERE procedure_order_id = ?",
         [$oid]
-    );
-    return trim((string) ($res['billing_type'] ?? ''));
+    ));
+
+    return is_array($res) ? trim(lab_as_string($res['billing_type'] ?? '')) : '';
 }
 
 function saveBarCode($bar, $pid, $order): void
@@ -168,12 +227,13 @@ function saveBarCode($bar, $pid, $order): void
 function getBarId($lab_id, $pid): array|string
 {
     // If the associated procedure order was deleted, clean up the orphaned requisition row.
-    $isOrder = QueryUtils::querySingleRow(
+    $isOrder = lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT procedure_order_id FROM procedure_order WHERE procedure_order_id = ? AND patient_id = ?",
         [$lab_id, $pid]
-    );
+    ));
 
-    if (!is_array($isOrder) || !isset($isOrder['procedure_order_id']) || $isOrder['procedure_order_id'] === '' || $isOrder['procedure_order_id'] === null) {
+    $orderId = is_array($isOrder) ? lab_as_string($isOrder['procedure_order_id'] ?? '') : '';
+    if ($orderId === '') {
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM requisition WHERE lab_id = ? AND pid = ?",
             [$lab_id, $pid]
@@ -181,70 +241,80 @@ function getBarId($lab_id, $pid): array|string
         return '';
     }
 
-    $req = QueryUtils::querySingleRow(
+    $req = lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT req_id FROM requisition WHERE lab_id = ? AND pid = ?",
         [$lab_id, $pid]
-    );
+    ));
 
-    return is_array($req) ? $req : '';
+    return $req === false ? '' : $req;
 }
 
 /**
  * Builds the responsible party array from billing type and context data.
  * Pure function — no database access — suitable for unit testing.
  *
+ * Always returns a complete shape so callers can read keys without empty-array unions.
+ *
  * @param string $billingType  'C' = Clinic, 'P' = Patient, 'T' = Third Party/Insurance
- * @param array<string, mixed> $facility Facility data (name, street, city, state, postal_code)
- * @param array<string, mixed> $pdata Patient data (fname, lname, street, city, state, postal_code)
- * @param array<string, mixed> $primaryIns Primary insurance data (subscriber_fname, subscriber_lname, line1, city, state, zip, subscriber_relationship)
- * @return array{name: string, address: string, city_st_zip: string, relationship: string, relationship_is_list: bool}|array{}
+ * @param array<mixed> $facility Facility data (name, street, city, state, postal_code)
+ * @param array<mixed> $pdata Patient data (fname, lname, street, city, state, postal_code)
+ * @param array<mixed> $primaryIns Primary insurance data
+ * @return array{name: string, address: string, city_st_zip: string, relationship: string, relationship_is_list: bool}
  */
 function buildResponsibleParty(string $billingType, array $facility, array $pdata, array $primaryIns): array
 {
+    $empty = [
+        'name' => '',
+        'address' => '',
+        'city_st_zip' => '',
+        'relationship' => '',
+        'relationship_is_list' => false,
+    ];
+
     if ($billingType === 'C') {
-        $city = (string) ($facility['city'] ?? '');
-        $state = (string) ($facility['state'] ?? '');
-        $postal = (string) ($facility['postal_code'] ?? '');
+        $city = lab_as_string($facility['city'] ?? '');
+        $state = lab_as_string($facility['state'] ?? '');
+        $postal = lab_as_string($facility['postal_code'] ?? '');
         return [
-            'name'            => (string) ($facility['name'] ?? ''),
-            'address'         => (string) ($facility['street'] ?? ''),
-            'city_st_zip'     => trim($city . ', ' . $state . ' ' . $postal),
-            'relationship'    => 'Client Billing',
+            'name' => lab_as_string($facility['name'] ?? ''),
+            'address' => lab_as_string($facility['street'] ?? ''),
+            'city_st_zip' => trim($city . ', ' . $state . ' ' . $postal),
+            'relationship' => 'Client Billing',
             'relationship_is_list' => false,
         ];
     }
 
     if ($billingType === 'P') {
-        $fname = (string) ($pdata['fname'] ?? '');
-        $lname = (string) ($pdata['lname'] ?? '');
-        $city = (string) ($pdata['city'] ?? '');
-        $state = (string) ($pdata['state'] ?? '');
-        $postal = (string) ($pdata['postal_code'] ?? '');
+        $fname = lab_as_string($pdata['fname'] ?? '');
+        $lname = lab_as_string($pdata['lname'] ?? '');
+        $city = lab_as_string($pdata['city'] ?? '');
+        $state = lab_as_string($pdata['state'] ?? '');
+        $postal = lab_as_string($pdata['postal_code'] ?? '');
         return [
-            'name'            => trim($fname . ' ' . $lname),
-            'address'         => (string) ($pdata['street'] ?? ''),
-            'city_st_zip'     => trim($city . ', ' . $state . ' ' . $postal),
-            'relationship'    => 'Self',
+            'name' => trim($fname . ' ' . $lname),
+            'address' => lab_as_string($pdata['street'] ?? ''),
+            'city_st_zip' => trim($city . ', ' . $state . ' ' . $postal),
+            'relationship' => 'Self',
             'relationship_is_list' => false,
         ];
     }
 
     if ($billingType === 'T' && $primaryIns !== []) {
-        $fname = (string) ($primaryIns['subscriber_fname'] ?? '');
-        $lname = (string) ($primaryIns['subscriber_lname'] ?? '');
-        $city = (string) ($primaryIns['city'] ?? '');
-        $state = (string) ($primaryIns['state'] ?? '');
-        $zip = (string) ($primaryIns['zip'] ?? '');
+        $fname = lab_as_string($primaryIns['subscriber_fname'] ?? '');
+        $lname = lab_as_string($primaryIns['subscriber_lname'] ?? '');
+        $city = lab_as_string($primaryIns['city'] ?? '');
+        $state = lab_as_string($primaryIns['state'] ?? '');
+        $zip = lab_as_string($primaryIns['zip'] ?? '');
         return [
-            'name'            => trim($fname . ' ' . $lname),
-            'address'         => (string) ($primaryIns['line1'] ?? ''),
-            'city_st_zip'     => trim($city . ', ' . $state . ' ' . $zip),
-            'relationship'    => (string) ($primaryIns['subscriber_relationship'] ?? ''),
+            'name' => trim($fname . ' ' . $lname),
+            'address' => lab_as_string($primaryIns['line1'] ?? ''),
+            'city_st_zip' => trim($city . ', ' . $state . ' ' . $zip),
+            'relationship' => lab_as_string($primaryIns['subscriber_relationship'] ?? ''),
             'relationship_is_list' => true,
         ];
     }
 
-    return [];
+    return $empty;
 }
 
 /**
@@ -258,7 +328,7 @@ function buildResponsibleParty(string $billingType, array $facility, array $pdat
  */
 function getProcedureOrderAnswers($oid, $labId, $procedureCode, $procedureOrderSeq): array
 {
-    $rows = QueryUtils::fetchRecords(
+    $rows = lab_normalize_rows(QueryUtils::fetchRecords(
         "SELECT q.question_text, a.answer
          FROM procedure_answers AS a
          LEFT JOIN procedure_questions AS q
@@ -269,13 +339,13 @@ function getProcedureOrderAnswers($oid, $labId, $procedureCode, $procedureOrderS
            AND a.procedure_order_seq = ?
          ORDER BY q.seq, a.answer_seq",
         [$labId, $procedureCode, $oid, $procedureOrderSeq]
-    );
+    ));
 
     $answers = [];
     foreach ($rows as $row) {
         $answers[] = [
-            'question_text' => (string) ($row['question_text'] ?? ''),
-            'answer' => (string) ($row['answer'] ?? ''),
+            'question_text' => lab_as_string($row['question_text'] ?? ''),
+            'answer' => lab_as_string($row['answer'] ?? ''),
         ];
     }
 
@@ -288,14 +358,14 @@ function getProcedureOrderAnswers($oid, $labId, $procedureCode, $procedureOrderS
  */
 function getFacilityInfo($facilityID): array|false
 {
-    $parts = explode('_', (string) $facilityID);
+    $parts = explode('_', $facilityID);
     if (count($parts) < 2) {
         return false;
     }
-    $res = QueryUtils::querySingleRow(
+
+    return lab_normalize_row(QueryUtils::querySingleRow(
         "SELECT title, fname, lname, street, city, state, zip, organization, phone
          FROM users WHERE id = ?",
         [$parts[1]]
-    );
-    return is_array($res) ? $res : false;
+    ));
 }

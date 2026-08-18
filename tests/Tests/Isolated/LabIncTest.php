@@ -100,7 +100,13 @@ class LabIncTest extends TestCase
     {
         $result = buildResponsibleParty('T', [], [], []);
 
-        $this->assertSame([], $result);
+        $this->assertSame([
+            'name' => '',
+            'address' => '',
+            'city_st_zip' => '',
+            'relationship' => '',
+            'relationship_is_list' => false,
+        ], $result);
     }
 
     /**
@@ -110,7 +116,13 @@ class LabIncTest extends TestCase
     {
         $result = buildResponsibleParty('X', [], [], []);
 
-        $this->assertSame([], $result);
+        $this->assertSame([
+            'name' => '',
+            'address' => '',
+            'city_st_zip' => '',
+            'relationship' => '',
+            'relationship_is_list' => false,
+        ], $result);
     }
 
     /**
@@ -120,7 +132,13 @@ class LabIncTest extends TestCase
     {
         $result = buildResponsibleParty('', [], [], []);
 
-        $this->assertSame([], $result);
+        $this->assertSame([
+            'name' => '',
+            'address' => '',
+            'city_st_zip' => '',
+            'relationship' => '',
+            'relationship_is_list' => false,
+        ], $result);
     }
 
     /**
@@ -182,5 +200,7 @@ class LabIncTest extends TestCase
         $this->assertTrue(function_exists('getLabconfig'));
         $this->assertTrue(function_exists('getProcedureBillingType'));
         $this->assertTrue(function_exists('buildResponsibleParty'));
+        $this->assertTrue(function_exists('lab_as_string'));
+        $this->assertTrue(function_exists('lab_normalize_row'));
     }
 }
