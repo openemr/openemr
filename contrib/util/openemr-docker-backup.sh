@@ -17,11 +17,21 @@
 # What it captures:
 #   1. Full MySQL/MariaDB dump (--single-transaction, includes routines/triggers)
 #   2. The sites/ directory (documents, config, custom code, SSL material)
-#   3. A manifest recording image versions in use at backup time
+#   3. The Compose configuration (original files, .env, and the fully
+#      resolved config as compose-resolved.yml)
+#   4. A manifest recording image versions in use at backup time
 #
 # What it does NOT capture:
 #   - CouchDB document storage (only if you have enabled it; see notes at bottom)
 #   - The containers/images themselves (they are reproducible from the registry)
+#
+# CONSISTENCY NOTE: by default the database dump and the sites/ archive are
+# taken back-to-back while the application stays online, so a chart uploaded
+# in the seconds between the two can appear in one but not the other. For
+# most practices running this at 2 AM that window is acceptable. If you need
+# a strictly coordinated point-in-time backup, set QUIESCE_APP=true below:
+# the app container is stopped for the duration of the backup (users see an
+# outage) and restarted afterward -- even if the backup fails mid-way.
 #
 # Usage:
 #   ./openemr-docker-backup.sh [/path/to/compose/directory]
@@ -61,18 +71,22 @@
 
 set -euo pipefail
 
+# Backup artifacts contain PHI: make every file we create private to the
+# invoking user (root) regardless of the host's default umask.
+umask 077
+
 # ---------------------------------------------------------------------------
 # Configuration -- adjust these for your deployment
 # ---------------------------------------------------------------------------
 
-# Directory containing your docker-compose.yml
+# Directory containing your Compose configuration
 COMPOSE_DIR="${1:-/opt/openemr}"
 
 # Where backups are written. Should be on a different disk/volume than the
 # Docker data if at all possible, and MUST be included in your offsite sync.
 BACKUP_ROOT="/var/backups/openemr"
 
-# Compose service names as defined in your docker-compose.yml.
+# Compose service names as defined in your Compose file.
 # The official openemr-devops examples use "mysql" and "openemr".
 DB_SERVICE="mysql"
 APP_SERVICE="openemr"
@@ -88,6 +102,11 @@ DB_NAME="openemr"
 # Official images: /var/www/localhost/htdocs/openemr/sites
 SITES_PATH="/var/www/localhost/htdocs/openemr/sites"
 
+# Stop the app container during the backup for a strictly coordinated
+# point-in-time snapshot (see CONSISTENCY NOTE above). Users cannot access
+# OpenEMR while the backup runs.
+QUIESCE_APP="false"
+
 # How many days of local backups to keep.
 RETENTION_DAYS=14
 
@@ -101,15 +120,50 @@ COMPOSE="docker compose"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="${BACKUP_ROOT}/${TIMESTAMP}"
 LOCKFILE="/var/run/openemr-backup.lock"
+APP_STOPPED="false"
 
-log() { printf '%s %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"; }
+log() {
+    local now
+    now="$(date '+%Y-%m-%d %H:%M:%S')"
+    printf '%s %s\n' "${now}" "$*"
+}
+
+# Human-readable byte count; falls back to raw bytes if numfmt is absent.
+human_size() {
+    local pretty
+    if pretty="$(numfmt --to=iec "$1" 2>/dev/null)"; then
+        printf '%s' "${pretty}"
+    else
+        printf '%s bytes' "$1"
+    fi
+}
 
 fail() {
     log "ERROR: $*"
-    # Leave a marker so monitoring can detect a failed run.
-    touch "${BACKUP_ROOT}/LAST_BACKUP_FAILED" 2>/dev/null || true
     exit 1
 }
+
+# Runs on EVERY exit. Guarantees that (a) a quiesced app container is
+# restarted no matter what, and (b) monitoring markers reflect reality even
+# when set -e aborts us before fail() is ever called.
+on_exit() {
+    local status=$?
+    if [[ "${APP_STOPPED}" == "true" ]]; then
+        log "restarting app service '${APP_SERVICE}' after backup"
+        ${COMPOSE} start "${APP_SERVICE}" || log "ERROR: could not restart '${APP_SERVICE}' -- intervene manually"
+    fi
+    if [[ ${status} -ne 0 ]]; then
+        log "backup FAILED (exit ${status})"
+        date '+%Y-%m-%d %H:%M:%S' > "${BACKUP_ROOT}/LAST_BACKUP_FAILED" 2>/dev/null || true
+    fi
+}
+
+# Backup root must exist (with tight permissions) before anything can fail,
+# so the failure marker always has somewhere to land.
+mkdir -p "${BACKUP_ROOT}"
+chmod 700 "${BACKUP_ROOT}"
+
+trap on_exit EXIT
 
 # Prevent overlapping runs (a slow dump colliding with the next cron fire).
 exec 9>"${LOCKFILE}"
@@ -118,7 +172,7 @@ if ! flock -n 9; then
 fi
 
 command -v docker >/dev/null 2>&1 || fail "docker not found in PATH"
-[ -d "${COMPOSE_DIR}" ] || fail "compose directory not found: ${COMPOSE_DIR}"
+[[ -d "${COMPOSE_DIR}" ]] || fail "compose directory not found: ${COMPOSE_DIR}"
 cd "${COMPOSE_DIR}"
 
 # Verify the services exist and are running before we do anything.
@@ -130,6 +184,16 @@ done
 
 mkdir -p "${BACKUP_DIR}"
 log "backup started -> ${BACKUP_DIR}"
+
+# ---------------------------------------------------------------------------
+# 0. Optional quiesce for a coordinated point-in-time snapshot
+# ---------------------------------------------------------------------------
+
+if [[ "${QUIESCE_APP}" == "true" ]]; then
+    log "QUIESCE_APP=true: stopping '${APP_SERVICE}' for the duration of the backup"
+    ${COMPOSE} stop "${APP_SERVICE}"
+    APP_STOPPED="true"
+fi
 
 # ---------------------------------------------------------------------------
 # 1. Database dump
@@ -147,52 +211,95 @@ ${COMPOSE} exec -T "${DB_SERVICE}" sh -c \
 
 # gzip of an empty/failed stream is ~20 bytes; a real OpenEMR dump is never
 # this small. Guard against silently archiving nothing.
-DB_SIZE=$(stat -c%s "${BACKUP_DIR}/openemr-db.sql.gz")
-[ "${DB_SIZE}" -gt 10240 ] || fail "database dump suspiciously small (${DB_SIZE} bytes) -- check credentials"
-log "database dump complete ($(numfmt --to=iec ${DB_SIZE} 2>/dev/null || echo ${DB_SIZE} bytes))"
+DB_SIZE="$(stat -c%s "${BACKUP_DIR}/openemr-db.sql.gz")"
+[[ "${DB_SIZE}" -gt 10240 ]] || fail "database dump suspiciously small (${DB_SIZE} bytes) -- check credentials"
+log "database dump complete ($(human_size "${DB_SIZE}"))"
 
 # ---------------------------------------------------------------------------
 # 2. sites/ directory
 # ---------------------------------------------------------------------------
 # This contains sqlconf.php, uploaded documents, letter templates, custom
 # forms, and per-site SSL material. It is the other half of your PHI.
+# Taken immediately after the dump to keep the inconsistency window small
+# when QUIESCE_APP=false (see CONSISTENCY NOTE in the header).
+# Note: 'compose exec' works against a stopped service's container only via
+# 'docker run --volumes-from' semantics on some engines; to stay portable we
+# read the files through the container filesystem with 'docker compose cp'
+# fallback if exec fails while quiesced.
 
 log "archiving sites directory from service '${APP_SERVICE}'"
-${COMPOSE} exec -T "${APP_SERVICE}" sh -c \
-    "tar -czf - -C '$(dirname "${SITES_PATH}")' '$(basename "${SITES_PATH}")'" \
-    > "${BACKUP_DIR}/openemr-sites.tar.gz"
+if [[ "${APP_STOPPED}" == "true" ]]; then
+    # Container is stopped: exec is unavailable. Copy out via the engine, then tar.
+    STAGING_DIR="$(mktemp -d)"
+    ${COMPOSE} cp "${APP_SERVICE}:${SITES_PATH}" "${STAGING_DIR}/sites"
+    tar -czf "${BACKUP_DIR}/openemr-sites.tar.gz" -C "${STAGING_DIR}" sites
+    rm -rf "${STAGING_DIR}"
+else
+    ${COMPOSE} exec -T "${APP_SERVICE}" sh -c \
+        "tar -czf - -C '$(dirname "${SITES_PATH}")' '$(basename "${SITES_PATH}")'" \
+        > "${BACKUP_DIR}/openemr-sites.tar.gz"
+fi
 
-SITES_SIZE=$(stat -c%s "${BACKUP_DIR}/openemr-sites.tar.gz")
-[ "${SITES_SIZE}" -gt 10240 ] || fail "sites archive suspiciously small (${SITES_SIZE} bytes)"
-log "sites archive complete ($(numfmt --to=iec ${SITES_SIZE} 2>/dev/null || echo ${SITES_SIZE} bytes))"
+SITES_SIZE="$(stat -c%s "${BACKUP_DIR}/openemr-sites.tar.gz")"
+[[ "${SITES_SIZE}" -gt 10240 ]] || fail "sites archive suspiciously small (${SITES_SIZE} bytes)"
+log "sites archive complete ($(human_size "${SITES_SIZE}"))"
+
+# Restart the app as early as possible if we quiesced; nothing below needs it stopped.
+if [[ "${APP_STOPPED}" == "true" ]]; then
+    log "restarting app service '${APP_SERVICE}'"
+    ${COMPOSE} start "${APP_SERVICE}"
+    APP_STOPPED="false"
+fi
 
 # ---------------------------------------------------------------------------
-# 3. Manifest -- record what was running, so restores match versions
+# 3. Compose configuration -- archive what Compose ACTUALLY uses
+# ---------------------------------------------------------------------------
+# Deployments variously use docker-compose.yml, compose.yaml, override files,
+# COMPOSE_FILE, and .env. 'compose config' resolves all of that (including
+# interpolated values -- which is why umask 077 above matters: the rendered
+# file can contain passwords). We archive the rendered config plus any
+# original files present, so the restore procedure always has what it needs.
+
+log "archiving compose configuration"
+if ! ${COMPOSE} config > "${BACKUP_DIR}/compose-resolved.yml" 2>/dev/null; then
+    log "WARNING: 'compose config' failed; only copying original files"
+    rm -f "${BACKUP_DIR}/compose-resolved.yml"
+fi
+for f in docker-compose.yml docker-compose.yaml compose.yml compose.yaml \
+         docker-compose.override.yml docker-compose.override.yaml .env; do
+    if [[ -f "${f}" ]]; then
+        cp "${f}" "${BACKUP_DIR}/${f}"
+    fi
+done
+if [[ ! -f "${BACKUP_DIR}/compose-resolved.yml" ]] && \
+   ! ls "${BACKUP_DIR}"/*compose*.y*ml >/dev/null 2>&1; then
+    fail "no compose configuration could be archived -- restore would be incomplete"
+fi
+
+# ---------------------------------------------------------------------------
+# 4. Manifest -- record what was running, so restores match versions
 # ---------------------------------------------------------------------------
 
 {
     echo "backup_timestamp: ${TIMESTAMP}"
     echo "compose_dir: ${COMPOSE_DIR}"
+    echo "quiesced: ${QUIESCE_APP}"
     echo "images:"
     ${COMPOSE} images 2>/dev/null || docker ps --format '  {{.Names}}: {{.Image}}'
 } > "${BACKUP_DIR}/manifest.txt"
 
-# Keep a copy of the compose file itself -- it IS your infrastructure config.
-cp docker-compose.yml "${BACKUP_DIR}/docker-compose.yml" 2>/dev/null || \
-    log "note: docker-compose.yml not found to archive (compose v2 project?)"
-
 # ---------------------------------------------------------------------------
-# 4. Verify integrity of what we just wrote
+# 5. Verify integrity of what we just wrote
 # ---------------------------------------------------------------------------
 
-gzip -t "${BACKUP_DIR}/openemr-db.sql.gz"   || fail "db dump failed gzip integrity check"
+gzip -t "${BACKUP_DIR}/openemr-db.sql.gz"    || fail "db dump failed gzip integrity check"
 gzip -t "${BACKUP_DIR}/openemr-sites.tar.gz" || fail "sites archive failed gzip integrity check"
 
 ( cd "${BACKUP_DIR}" && sha256sum ./* > SHA256SUMS )
 log "integrity checks passed"
 
 # ---------------------------------------------------------------------------
-# 5. Retention
+# 6. Retention
 # ---------------------------------------------------------------------------
 
 log "pruning backups older than ${RETENTION_DAYS} days"
@@ -209,8 +316,12 @@ log "backup finished successfully"
 #
 # On a fresh host with Docker installed:
 #
-#   1. Restore the compose file and bring up ONLY the database:
-#        cp docker-compose.yml /opt/openemr/ && cd /opt/openemr
+#   1. Restore the compose configuration and bring up ONLY the database.
+#      Prefer the original files (docker-compose.yml / compose.yaml plus
+#      .env if archived); compose-resolved.yml is the fallback when the
+#      originals are missing -- note it contains interpolated secrets, so
+#      keep its permissions tight:
+#        cp docker-compose.yml .env /opt/openemr/ 2>/dev/null; cd /opt/openemr
 #        docker compose up -d mysql
 #        # wait for it to be healthy: docker compose logs -f mysql
 #
@@ -242,6 +353,8 @@ log "backup finished successfully"
 # * CouchDB: if you enabled CouchDB document storage, add a couchdb dump
 #   step (or snapshot its volume) -- the sites/ tarball will not include
 #   those documents.
-# * Encryption at rest: if ${BACKUP_ROOT} is not on an encrypted filesystem,
-#   consider piping the archives through gpg/age. The dump contains PHI.
+# * Encryption at rest: backup files are created mode 600 under a mode-700
+#   directory (umask 077). If ${BACKUP_ROOT} is not on an encrypted
+#   filesystem, consider additionally piping the archives through gpg/age.
+#   The dump contains PHI.
 # ===========================================================================
