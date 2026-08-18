@@ -93,10 +93,20 @@ final readonly class GhPullRequestApi implements PullRequestApi
      * checks failing") passes IF the status-check rollup evaluation
      * returned no blocking reasons — i.e. the only reason GitHub reports
      * UNSTABLE is check failures the operator has told us to ignore via
-     * $ignoreChecks. Every other state (BLOCKED, DIRTY, BEHIND, HAS_HOOKS,
-     * UNKNOWN) still blocks because those aren't ignorable: BLOCKED means
-     * a REQUIRED check failed or review is missing, DIRTY means merge
-     * conflicts, BEHIND means head is behind base, etc.
+     * $ignoreChecks. BLOCKED passes under the same rollup-clean condition
+     * AND when mergeable is MERGEABLE: mergeStateStatus is computed per-
+     * token by GitHub, and the release App's token perspective can be
+     * more restrictive than a human's UI session (empirically observed
+     * to return BLOCKED when the human's session sees UNSTABLE, on the
+     * same PR at the same head SHA — likely because App tokens interpret
+     * "no review completed" more strictly regardless of branch protection
+     * config). If GitHub confirms `mergeable=MERGEABLE` (the PR can
+     * technically merge, no conflicts) AND our own rollup enumeration is
+     * clean, BLOCKED here reflects the App-vs-user perspective difference,
+     * not a real mergeability blocker. Every other state (DIRTY, BEHIND,
+     * HAS_HOOKS, UNKNOWN) still blocks — those are objective states
+     * unaffected by token perspective (DIRTY = merge conflicts, BEHIND =
+     * head is behind base, etc.).
      *
      * $requireNonDraft gates the isDraft check. Conductor PRs must be non-
      * draft at preflight (they're the meaningful human-review artifact).
@@ -135,18 +145,23 @@ final readonly class GhPullRequestApi implements PullRequestApi
         }
 
         // Evaluate the status-check rollup up-front so the mergeStateStatus
-        // rule below can consult it — UNSTABLE is accepted only when the
-        // ignore-list has fully cleared the rollup.
+        // rule below can consult it — UNSTABLE and BLOCKED are both accepted
+        // only when the ignore-list has fully cleared the rollup.
         $checkReasons = self::reasonsFromStatusRollup(
             $data['statusCheckRollup'],
             ShipReleaseOrchestrator::STATUS_CONTEXT,
             $ignoreChecks,
         );
 
-        if (
-            $data['mergeStateStatus'] !== 'CLEAN'
-            && !($data['mergeStateStatus'] === 'UNSTABLE' && $checkReasons === [])
-        ) {
+        $rollupClean = $checkReasons === [];
+        $mergeStateAcceptable = $data['mergeStateStatus'] === 'CLEAN'
+            || ($data['mergeStateStatus'] === 'UNSTABLE' && $rollupClean)
+            || (
+                $data['mergeStateStatus'] === 'BLOCKED'
+                && $data['mergeable'] === 'MERGEABLE'
+                && $rollupClean
+            );
+        if (!$mergeStateAcceptable) {
             $reasons[] = sprintf('mergeStateStatus=%s (need CLEAN)', $data['mergeStateStatus']);
         }
         if ($requireApproval && ($data['reviewDecision'] ?? null) !== 'APPROVED') {
