@@ -18,14 +18,13 @@ use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
-// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
-$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lab.inc.php");
+// Prefer absolute require paths so PHPStan can resolve library includes.
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/lab.inc.php");
 
 formHeader("Form:Lab Requisition");
 
@@ -105,8 +104,10 @@ $provLabId = $lab !== null ? getLabconfig($lab) : false;
 $aoeAnswers = [];
 if ($oid > 0 && $lab !== null) {
     foreach ($orders as $codeRow) {
-        $code = $codeRow['procedure_code'] ?? '';
-        $seq = $codeRow['procedure_order_seq'] ?? '';
+        $codeRaw = $codeRow['procedure_code'] ?? '';
+        $seqRaw = $codeRow['procedure_order_seq'] ?? '';
+        $code = is_int($codeRaw) || is_string($codeRaw) ? (string) $codeRaw : '';
+        $seq = is_int($seqRaw) || is_string($seqRaw) ? (string) $seqRaw : '';
         if ($code === '' || $seq === '') {
             continue;
         }
@@ -121,7 +122,10 @@ if ($oid > 0 && $lab !== null) {
 $billingType = $oid > 0 ? getProcedureBillingType($oid) : '';
 $facilityData = is_array($facility) ? $facility : [];
 $patientData = is_array($pdata) ? $pdata : [];
-$responsibleParty = buildResponsibleParty($billingType, $facilityData, $patientData, $ins[0] ?? []);
+$primaryIns = (isset($ins[0]) && is_array($ins[0])) ? $ins[0] : [];
+$secondaryIns = (isset($ins[1]) && is_array($ins[1])) ? $ins[1] : [];
+$responsibleParty = buildResponsibleParty($billingType, $facilityData, $patientData, $primaryIns);
+$hasResponsibleParty = $responsibleParty !== [];
 ?>
 
 <?php
@@ -137,49 +141,64 @@ $orderDate = '';
 $relationshipDisplay = '/';
 $billingLabel = xl('Not Specified');
 
-if (!empty($orders) && !empty($oid)) {
+if ($orders !== [] && $oid > 0) {
     /**
      * Persist the requisition barcode the first time the form is viewed.
      */
-    $lab_id = $firstRow['procedure_order_id'] ?? $oid;
+    $labIdRaw = $firstRow['procedure_order_id'] ?? $oid;
+    $lab_id = is_int($labIdRaw) || is_string($labIdRaw) ? $labIdRaw : $oid;
     $storeBar = getBarId($lab_id, $safePid);
 
-    if (!empty($storeBar) && is_array($storeBar)) {
-        $bar = (string) ($storeBar['req_id'] ?? '');
+    if (is_array($storeBar) && isset($storeBar['req_id']) && $storeBar['req_id'] !== '' && $storeBar['req_id'] !== null) {
+        $bar = (string) $storeBar['req_id'];
     } else {
         $bar = (string) random_int(1000, 999999);
         saveBarCode($bar, $safePid, $lab_id);
     }
 
     $clientNumber = is_array($provLabId) ? (string) ($provLabId['recv_fac_id'] ?? '') : '';
+
+    $facilityCity = (string) ($facilityData['city'] ?? '');
+    $facilityState = (string) ($facilityData['state'] ?? '');
+    $facilityZip = (string) ($facilityData['postal_code'] ?? '');
     $facilityCityLine = trim(
-        ($facilityData['city'] ?? '') .
-        (!empty($facilityData['city']) && !empty($facilityData['state']) ? ', ' : '') .
-        ($facilityData['state'] ?? '') .
+        $facilityCity .
+        ($facilityCity !== '' && $facilityState !== '' ? ', ' : '') .
+        $facilityState .
         ' ' .
-        ($facilityData['postal_code'] ?? '')
+        $facilityZip
     );
+
+    $labCity = (string) ($pp['city'] ?? '');
+    $labState = (string) ($pp['state'] ?? '');
+    $labZip = (string) ($pp['zip'] ?? '');
     $labCityLine = trim(
-        ($pp['city'] ?? '') .
-        (!empty($pp['city']) && !empty($pp['state']) ? ', ' : '') .
-        ($pp['state'] ?? '') .
+        $labCity .
+        ($labCity !== '' && $labState !== '' ? ', ' : '') .
+        $labState .
         ' ' .
-        ($pp['zip'] ?? '')
+        $labZip
     );
-    $providerName = trim(($provider['fname'] ?? '') . ' ' . ($provider['lname'] ?? ''));
-    $patientName = trim(($patientData['fname'] ?? '') . ' ' . ($patientData['lname'] ?? ''));
-    $patientDob = !empty($patientData['DOB']) ? oeFormatShortDate($patientData['DOB']) : '';
-    $collectionDate = !empty($firstRow['date_collected'])
-        ? oeFormatDateTime($firstRow['date_collected'])
+
+    $providerName = trim((string) ($provider['fname'] ?? '') . ' ' . (string) ($provider['lname'] ?? ''));
+    $patientName = trim((string) ($patientData['fname'] ?? '') . ' ' . (string) ($patientData['lname'] ?? ''));
+    $patientDobRaw = $patientData['DOB'] ?? '';
+    $patientDob = is_string($patientDobRaw) && $patientDobRaw !== ''
+        ? (string) DateFormatterUtils::oeFormatShortDate($patientDobRaw)
         : '';
-    $orderDate = !empty($firstRow['date_ordered'])
-        ? oeFormatDateTime($firstRow['date_ordered'])
+    $collectionRaw = $firstRow['date_collected'] ?? null;
+    $collectionDate = is_string($collectionRaw) && $collectionRaw !== ''
+        ? DateFormatterUtils::oeFormatDateTime($collectionRaw)
+        : '';
+    $orderRaw = $firstRow['date_ordered'] ?? null;
+    $orderDate = is_string($orderRaw) && $orderRaw !== ''
+        ? DateFormatterUtils::oeFormatDateTime($orderRaw)
         : '';
 
-    if (!empty($responsibleParty['relationship'])) {
+    if ($hasResponsibleParty && ($responsibleParty['relationship'] ?? '') !== '') {
         $relationshipDisplay = ($responsibleParty['relationship_is_list'] ?? false)
-            ? text(getListItemTitle('sub_relation', $responsibleParty['relationship']))
-            : xlt($responsibleParty['relationship']);
+            ? text(getListItemTitle('sub_relation', (string) $responsibleParty['relationship']))
+            : text((string) xl((string) $responsibleParty['relationship']));
     }
 
     $billingLabel = match ($billingType) {
@@ -538,12 +557,12 @@ if (!empty($orders) && !empty($oid)) {
     </style>
 </head>
 <body class="requisition-page">
-<?php if (empty($orders) || empty($oid)) : ?>
+<?php if ($orders === [] || $oid <= 0) : ?>
     <div class="req-alert">
         <h2 class="h5 mb-2"><?php echo xlt('Lab Requisition Unavailable'); ?></h2>
         <p class="mb-0">
             <?php
-            echo empty($oid)
+            echo $oid <= 0
                 ? xlt('No order found. Please enter a procedure order first.')
                 : xlt('Procedure order not found in database. Contact technical support.');
             ?>
@@ -571,20 +590,20 @@ if (!empty($orders) && !empty($oid)) {
         <section class="req-meta">
             <div class="req-meta-card">
                 <h2><?php echo xlt('Ordering Facility'); ?></h2>
-                <p><strong><?php echo text($facilityData['name'] ?? ''); ?></strong></p>
-                <p><?php echo text($facilityData['street'] ?? ''); ?></p>
+                <p><strong><?php echo text((string) ($facilityData['name'] ?? '')); ?></strong></p>
+                <p><?php echo text((string) ($facilityData['street'] ?? '')); ?></p>
                 <p><?php echo text($facilityCityLine); ?></p>
-                <p><?php echo text($facilityData['phone'] ?? ''); ?></p>
+                <p><?php echo text((string) ($facilityData['phone'] ?? '')); ?></p>
             </div>
             <div class="req-meta-card">
                 <h2><?php echo xlt('Performing Laboratory'); ?></h2>
-                <p><strong><?php echo text($pp['organization'] ?? ''); ?></strong></p>
-                <p><?php echo text($pp['street'] ?? ''); ?></p>
+                <p><strong><?php echo text((string) ($pp['organization'] ?? '')); ?></strong></p>
+                <p><?php echo text((string) ($pp['street'] ?? '')); ?></p>
                 <p><?php echo text($labCityLine); ?></p>
                 <p>
-                    <?php echo xlt('Phone'); ?>: <?php echo text($pp['phone'] ?? ''); ?>
+                    <?php echo xlt('Phone'); ?>: <?php echo text((string) ($pp['phone'] ?? '')); ?>
                     &nbsp;|&nbsp;
-                    <?php echo xlt('Fax'); ?>: <?php echo text($pp['fax'] ?? ''); ?>
+                    <?php echo xlt('Fax'); ?>: <?php echo text((string) ($pp['fax'] ?? '')); ?>
                 </p>
             </div>
         </section>
@@ -627,7 +646,7 @@ if (!empty($orders) && !empty($oid)) {
                         </tr>
                         <tr>
                             <th><?php echo xlt('Sex'); ?></th>
-                            <td><?php echo text(getListItemTitle('sex', $patientData['sex'] ?? '') ?: '—'); ?></td>
+                            <td><?php echo text(getListItemTitle('sex', (string) ($patientData['sex'] ?? '')) ?: '—'); ?></td>
                         </tr>
                     </table>
                     <table class="req-fields">
@@ -673,15 +692,15 @@ if (!empty($orders) && !empty($oid)) {
                     <table class="req-fields">
                         <tr>
                             <th><?php echo xlt('Name'); ?></th>
-                            <td><?php echo !empty($responsibleParty['name']) ? text($responsibleParty['name']) : '<span class="req-empty">/</span>'; ?></td>
+                            <td><?php echo $hasResponsibleParty && ($responsibleParty['name'] ?? '') !== '' ? text((string) $responsibleParty['name']) : '<span class="req-empty">/</span>'; ?></td>
                         </tr>
                         <tr>
                             <th><?php echo xlt('Address'); ?></th>
-                            <td><?php echo !empty($responsibleParty['address']) ? text($responsibleParty['address']) : '<span class="req-empty">/</span>'; ?></td>
+                            <td><?php echo $hasResponsibleParty && ($responsibleParty['address'] ?? '') !== '' ? text((string) $responsibleParty['address']) : '<span class="req-empty">/</span>'; ?></td>
                         </tr>
                         <tr>
                             <th><?php echo xlt('City, St, Zip'); ?></th>
-                            <td><?php echo !empty($responsibleParty['city_st_zip']) ? text($responsibleParty['city_st_zip']) : '<span class="req-empty">/</span>'; ?></td>
+                            <td><?php echo $hasResponsibleParty && ($responsibleParty['city_st_zip'] ?? '') !== '' ? text((string) $responsibleParty['city_st_zip']) : '<span class="req-empty">/</span>'; ?></td>
                         </tr>
                         <tr>
                             <th><?php echo xlt('Relationship'); ?></th>
@@ -698,7 +717,7 @@ if (!empty($orders) && !empty($oid)) {
                 <div class="req-grid-2">
                     <div>
                         <strong><?php echo xlt('Primary Insurance'); ?></strong>
-                        <?php if ($billingType === 'T' && !empty($ins[0])) : ?>
+                        <?php if ($billingType === 'T' && $primaryIns !== []) : ?>
                             <table class="req-fields mt-1">
                                 <tr>
                                     <th><?php echo xlt('Bill Type'); ?></th>
@@ -706,31 +725,31 @@ if (!empty($orders) && !empty($oid)) {
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Insurance Name'); ?></th>
-                                    <td><?php echo text($ins[0]['name'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($primaryIns['name'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Insurance Address'); ?></th>
-                                    <td><?php echo text($ins[0]['line1'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($primaryIns['line1'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('City, St, Zip'); ?></th>
-                                    <td><?php echo text(trim(($ins[0]['city'] ?? '') . ', ' . ($ins[0]['state'] ?? '') . ' ' . ($ins[0]['zip'] ?? ''))); ?></td>
+                                    <td><?php echo text(trim((string) ($primaryIns['city'] ?? '') . ', ' . (string) ($primaryIns['state'] ?? '') . ' ' . (string) ($primaryIns['zip'] ?? ''))); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Subscriber/Policy #'); ?></th>
-                                    <td><?php echo text($ins[0]['policy_number'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($primaryIns['policy_number'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Group #'); ?></th>
-                                    <td><?php echo text($ins[0]['group_number'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($primaryIns['group_number'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Employer'); ?></th>
-                                    <td><?php echo text($ins[0]['subscriber_employer'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($primaryIns['subscriber_employer'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Relationship'); ?></th>
-                                    <td><?php echo text(getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'] ?? '')); ?></td>
+                                    <td><?php echo text(getListItemTitle('sub_relation', (string) ($primaryIns['subscriber_relationship'] ?? ''))); ?></td>
                                 </tr>
                             </table>
                         <?php else : ?>
@@ -739,7 +758,7 @@ if (!empty($orders) && !empty($oid)) {
                     </div>
                     <div>
                         <strong><?php echo xlt('Secondary Insurance'); ?></strong>
-                        <?php if ($billingType === 'T' && !empty($ins[1])) : ?>
+                        <?php if ($billingType === 'T' && $secondaryIns !== []) : ?>
                             <table class="req-fields mt-1">
                                 <tr>
                                     <th><?php echo xlt('Bill Type'); ?></th>
@@ -747,31 +766,31 @@ if (!empty($orders) && !empty($oid)) {
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Insurance Name'); ?></th>
-                                    <td><?php echo text($ins[1]['name'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($secondaryIns['name'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Insurance Address'); ?></th>
-                                    <td><?php echo text($ins[1]['line1'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($secondaryIns['line1'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('City, St, Zip'); ?></th>
-                                    <td><?php echo text(trim(($ins[1]['city'] ?? '') . ', ' . ($ins[1]['state'] ?? '') . ' ' . ($ins[1]['zip'] ?? ''))); ?></td>
+                                    <td><?php echo text(trim((string) ($secondaryIns['city'] ?? '') . ', ' . (string) ($secondaryIns['state'] ?? '') . ' ' . (string) ($secondaryIns['zip'] ?? ''))); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Subscriber/Policy #'); ?></th>
-                                    <td><?php echo text($ins[1]['policy_number'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($secondaryIns['policy_number'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Group #'); ?></th>
-                                    <td><?php echo text($ins[1]['group_number'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($secondaryIns['group_number'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Employer'); ?></th>
-                                    <td><?php echo text($ins[1]['subscriber_employer'] ?? ''); ?></td>
+                                    <td><?php echo text((string) ($secondaryIns['subscriber_employer'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo xlt('Relationship'); ?></th>
-                                    <td><?php echo text(getListItemTitle('sub_relation', $ins[1]['subscriber_relationship'] ?? '')); ?></td>
+                                    <td><?php echo text(getListItemTitle('sub_relation', (string) ($secondaryIns['subscriber_relationship'] ?? ''))); ?></td>
                                 </tr>
                             </table>
                         <?php else : ?>
@@ -796,9 +815,9 @@ if (!empty($orders) && !empty($oid)) {
                     <tbody>
                         <?php foreach ($orders as $codeRow) : ?>
                             <tr>
-                                <td><?php echo text($codeRow['procedure_code'] ?? ''); ?></td>
-                                <td><?php echo text($codeRow['procedure_name'] ?? ''); ?></td>
-                                <td><?php echo text($codeRow['diagnoses'] ?? ''); ?></td>
+                                <td><?php echo text((string) ($codeRow['procedure_code'] ?? '')); ?></td>
+                                <td><?php echo text((string) ($codeRow['procedure_name'] ?? '')); ?></td>
+                                <td><?php echo text((string) ($codeRow['diagnoses'] ?? '')); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -831,7 +850,7 @@ if (!empty($orders) && !empty($oid)) {
             </div>
         </section>
 
-        <?php if (!empty($aoeAnswers)) : ?>
+        <?php if ($aoeAnswers !== []) : ?>
         <section class="req-section">
             <h2 class="req-section-title"><?php echo xlt('AOE Questions & Answers'); ?></h2>
             <div class="req-section-body">
@@ -864,7 +883,7 @@ if (!empty($orders) && !empty($oid)) {
 
         <footer class="req-footer">
             <div><?php echo xlt('End of Requisition'); ?> #<?php echo text($bar); ?></div>
-            <div><?php echo xlt('Generated'); ?>: <?php echo text(oeFormatDateTime(date('Y-m-d H:i:s'))); ?></div>
+            <div><?php echo xlt('Generated'); ?>: <?php echo text(DateFormatterUtils::oeFormatDateTime(date('Y-m-d H:i:s'))); ?></div>
         </footer>
     </main>
 <?php endif; ?>

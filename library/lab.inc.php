@@ -36,7 +36,7 @@ function fetchProcedureId($pid, $encounter): mixed
  *
  * @param int|string $oid
  * @param int|string $encounter
- * @return array<int, array<string, mixed>>
+ * @return list<array<string, mixed>>
  */
 function getProceduresInfo($oid, $encounter): array
 {
@@ -49,7 +49,17 @@ function getProceduresInfo($oid, $encounter): array
        AND po.encounter_id = ?
        AND po.procedure_order_id = ?";
 
-    return QueryUtils::fetchRecords($sql, [$oid, $encounter, $oid]);
+    /** @var list<array<string, mixed>> $rows */
+    $rows = [];
+    foreach (QueryUtils::fetchRecords($sql, [$oid, $encounter, $oid]) as $row) {
+        $typed = [];
+        foreach ($row as $key => $value) {
+            $typed[(string) $key] = $value;
+        }
+        $rows[] = $typed;
+    }
+
+    return $rows;
 }
 
 /**
@@ -62,12 +72,13 @@ function getSelfPay($pid): ?string
         "SELECT subscriber_relationship FROM insurance_data WHERE pid = ?",
         [$pid]
     );
-    return $res['subscriber_relationship'] ?? null;
+    $relationship = $res['subscriber_relationship'] ?? null;
+    return $relationship === null ? null : (string) $relationship;
 }
 
 /**
  * @param int|string $prov_id
- * @return array
+ * @return array{0: string, 1: string}
  */
 function getNPI($prov_id): array
 {
@@ -75,12 +86,12 @@ function getNPI($prov_id): array
         "SELECT npi, upin FROM users WHERE id = ?",
         [$prov_id]
     );
-    return [$res['npi'] ?? '', $res['upin'] ?? ''];
+    return [(string) ($res['npi'] ?? ''), (string) ($res['upin'] ?? '')];
 }
 
 /**
  * @param int|string $prov_id
- * @return array
+ * @return array<string, mixed>
  */
 function getProcedureProvider($prov_id): array
 {
@@ -91,21 +102,38 @@ function getProcedureProvider($prov_id): array
          WHERE pi.ppid = ?",
         [$prov_id]
     );
-    return $res ?: [];
+    return is_array($res) ? $res : [];
 }
 
 /**
  * @param int|string $prov_id
- * @return array|null
+ * @return array<string, mixed>|null
  */
 function getLabProviders($prov_id): ?array
 {
-    $sql = "select fname, lname from users where authorized = 1 and active = 1 and username != '' and id = ?";
-    $rez = sqlQuery($sql, [$prov_id]);
+    $res = QueryUtils::querySingleRow(
+        "SELECT fname, lname FROM users
+         WHERE authorized = 1 AND active = 1 AND username != '' AND id = ?",
+        [$prov_id]
+    );
 
-    // sqlQuery returns false when no row matches; the declared return type is
-    // ?array, so coerce to null.
-    return is_array($rez) ? $rez : null;
+    // querySingleRow returns false when no row matches; normalize to null.
+    return is_array($res) ? $res : null;
+}
+
+/**
+ * Returns the lab provider configuration row for the given procedure provider.
+ *
+ * @param int $ppid procedure_providers.ppid
+ * @return array<string, mixed>|false
+ */
+function getLabconfig(int $ppid): array|false
+{
+    $res = QueryUtils::querySingleRow(
+        "SELECT recv_app_id, recv_fac_id FROM procedure_providers WHERE ppid = ?",
+        [$ppid]
+    );
+    return is_array($res) ? $res : false;
 }
 
 /**
@@ -132,7 +160,12 @@ function saveBarCode($bar, $pid, $order): void
     );
 }
 
-function getBarId($lab_id, $pid): array|string|false
+/**
+ * @param int|string $lab_id
+ * @param int|string $pid
+ * @return array<string, mixed>|string
+ */
+function getBarId($lab_id, $pid): array|string
 {
     // If the associated procedure order was deleted, clean up the orphaned requisition row.
     $isOrder = QueryUtils::querySingleRow(
@@ -140,7 +173,7 @@ function getBarId($lab_id, $pid): array|string|false
         [$lab_id, $pid]
     );
 
-    if (empty($isOrder['procedure_order_id'])) {
+    if (!is_array($isOrder) || !isset($isOrder['procedure_order_id']) || $isOrder['procedure_order_id'] === '' || $isOrder['procedure_order_id'] === null) {
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM requisition WHERE lab_id = ? AND pid = ?",
             [$lab_id, $pid]
@@ -148,10 +181,12 @@ function getBarId($lab_id, $pid): array|string|false
         return '';
     }
 
-    return QueryUtils::querySingleRow(
+    $req = QueryUtils::querySingleRow(
         "SELECT req_id FROM requisition WHERE lab_id = ? AND pid = ?",
         [$lab_id, $pid]
-    ) ?: '';
+    );
+
+    return is_array($req) ? $req : '';
 }
 
 /**
@@ -159,39 +194,52 @@ function getBarId($lab_id, $pid): array|string|false
  * Pure function — no database access — suitable for unit testing.
  *
  * @param string $billingType  'C' = Clinic, 'P' = Patient, 'T' = Third Party/Insurance
- * @param array  $facility     Facility data (name, street, city, state, postal_code)
- * @param array  $pdata        Patient data (fname, lname, street, city, state, postal_code)
- * @param array  $primaryIns   Primary insurance data (subscriber_fname, subscriber_lname, line1, city, state, zip, subscriber_relationship)
+ * @param array<string, mixed> $facility Facility data (name, street, city, state, postal_code)
+ * @param array<string, mixed> $pdata Patient data (fname, lname, street, city, state, postal_code)
+ * @param array<string, mixed> $primaryIns Primary insurance data (subscriber_fname, subscriber_lname, line1, city, state, zip, subscriber_relationship)
  * @return array{name: string, address: string, city_st_zip: string, relationship: string, relationship_is_list: bool}|array{}
  */
 function buildResponsibleParty(string $billingType, array $facility, array $pdata, array $primaryIns): array
 {
     if ($billingType === 'C') {
+        $city = (string) ($facility['city'] ?? '');
+        $state = (string) ($facility['state'] ?? '');
+        $postal = (string) ($facility['postal_code'] ?? '');
         return [
-            'name'            => $facility['name'] ?? '',
-            'address'         => $facility['street'] ?? '',
-            'city_st_zip'     => trim(($facility['city'] ?? '') . ', ' . ($facility['state'] ?? '') . ' ' . ($facility['postal_code'] ?? '')),
+            'name'            => (string) ($facility['name'] ?? ''),
+            'address'         => (string) ($facility['street'] ?? ''),
+            'city_st_zip'     => trim($city . ', ' . $state . ' ' . $postal),
             'relationship'    => 'Client Billing',
             'relationship_is_list' => false,
         ];
     }
 
     if ($billingType === 'P') {
+        $fname = (string) ($pdata['fname'] ?? '');
+        $lname = (string) ($pdata['lname'] ?? '');
+        $city = (string) ($pdata['city'] ?? '');
+        $state = (string) ($pdata['state'] ?? '');
+        $postal = (string) ($pdata['postal_code'] ?? '');
         return [
-            'name'            => trim(($pdata['fname'] ?? '') . ' ' . ($pdata['lname'] ?? '')),
-            'address'         => $pdata['street'] ?? '',
-            'city_st_zip'     => trim(($pdata['city'] ?? '') . ', ' . ($pdata['state'] ?? '') . ' ' . ($pdata['postal_code'] ?? '')),
+            'name'            => trim($fname . ' ' . $lname),
+            'address'         => (string) ($pdata['street'] ?? ''),
+            'city_st_zip'     => trim($city . ', ' . $state . ' ' . $postal),
             'relationship'    => 'Self',
             'relationship_is_list' => false,
         ];
     }
 
-    if ($billingType === 'T' && !empty($primaryIns)) {
+    if ($billingType === 'T' && $primaryIns !== []) {
+        $fname = (string) ($primaryIns['subscriber_fname'] ?? '');
+        $lname = (string) ($primaryIns['subscriber_lname'] ?? '');
+        $city = (string) ($primaryIns['city'] ?? '');
+        $state = (string) ($primaryIns['state'] ?? '');
+        $zip = (string) ($primaryIns['zip'] ?? '');
         return [
-            'name'            => trim(($primaryIns['subscriber_fname'] ?? '') . ' ' . ($primaryIns['subscriber_lname'] ?? '')),
-            'address'         => $primaryIns['line1'] ?? '',
-            'city_st_zip'     => trim(($primaryIns['city'] ?? '') . ', ' . ($primaryIns['state'] ?? '') . ' ' . ($primaryIns['zip'] ?? '')),
-            'relationship'    => $primaryIns['subscriber_relationship'] ?? '',
+            'name'            => trim($fname . ' ' . $lname),
+            'address'         => (string) ($primaryIns['line1'] ?? ''),
+            'city_st_zip'     => trim($city . ', ' . $state . ' ' . $zip),
+            'relationship'    => (string) ($primaryIns['subscriber_relationship'] ?? ''),
             'relationship_is_list' => true,
         ];
     }
@@ -206,7 +254,7 @@ function buildResponsibleParty(string $billingType, array $facility, array $pdat
  * @param int|string $labId procedure_order.lab_id / procedure_providers.ppid
  * @param int|string $procedureCode procedure_order_code.procedure_code
  * @param int|string $procedureOrderSeq procedure_order_code.procedure_order_seq
- * @return array<int, array{question_text: string, answer: string}>
+ * @return list<array{question_text: string, answer: string}>
  */
 function getProcedureOrderAnswers($oid, $labId, $procedureCode, $procedureOrderSeq): array
 {
@@ -236,7 +284,7 @@ function getProcedureOrderAnswers($oid, $labId, $procedureCode, $procedureOrderS
 
 /**
  * @param string $facilityID Format: XX_YY where YY is the users.id for the facility
- * @return array|false
+ * @return array<string, mixed>|false
  */
 function getFacilityInfo($facilityID): array|false
 {
@@ -244,10 +292,10 @@ function getFacilityInfo($facilityID): array|false
     if (count($parts) < 2) {
         return false;
     }
-    return QueryUtils::querySingleRow(
+    $res = QueryUtils::querySingleRow(
         "SELECT title, fname, lname, street, city, state, zip, organization, phone
          FROM users WHERE id = ?",
         [$parts[1]]
     );
+    return is_array($res) ? $res : false;
 }
-
