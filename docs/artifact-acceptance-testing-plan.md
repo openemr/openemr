@@ -2394,6 +2394,41 @@ demand ever appears): release-description trailer noting the
 bypass on the published release object; automated bypass-count
 budgeting.
 
+### Production validation — 8.3.0 ship 2026-08-18
+
+The 8.3.0 ship on 2026-08-18 was the first end-to-end automated
+release through the ship-release semi-auto path and the first time
+the Phase 7c pre-publish acceptance gates (both `build-release-on-tag`
+tarball gate and `docker-release-orchestrator` per-branch docker
+gates) fired against a real production release rather than a
+release-prep-PR dry run.
+
+**Tarball gate (build-release-on-tag Phase 7c):** all 8 matrix cells
+passed against the shipped `openemr-8.3.0.tar.gz` + `openemr-8.3.0.zip`
+before the publish job fired — fresh-install + wizard-install +
+upgrade + wizard-upgrade × tar + zip. GitHub Release object only
+came into existence after acceptance-gate returned green (per Phase
+7c design: publish requires acceptance).
+
+**Docker gates (Phase 7c + Phase 12 extension):** all 3 modern
+per-branch acceptance gates passed (master, rel-820, rel-830), each
+covering fresh-install-from + fresh-install-to + upgrade on both
+amd64 + arm64 runners. rel-800 + rel-704 legacy single-job builds
+also completed successfully (no acceptance gate — those branches are
+`gate_with_acceptance` unset per Phase 12 exclusion). The rel-820
+build promoted to `openemr/openemr:latest`; rel-830 published
+`openemr/openemr:8.3.0`; master refreshed `openemr/openemr:next` /
+`dev`.
+
+One flake surfaced: master's `Fresh install of from_tag
+(ubuntu-24.04-arm)` acceptance cell failed on the master-line docker
+build. Not blocking for 8.3.0 (that failure is on the master `next`
+image, not rel-830's shipped image); recovery path is a `docker-
+acceptance-only.yml` dispatch or wait for the next scheduled
+orchestrator run. Documented here as a data point on flake surface
+area under the Phase 7c gate — a single-cell flake on one of 24 total
+matrix cells across all 5 branches (~4% flake rate on this ship).
+
 ## Test-coverage philosophy
 
 Guidelines for where a new test belongs, once both surfaces exist:
