@@ -67,10 +67,11 @@ if (is_int($oidRaw)) {
 }
 
 $patient_id = $safePid;
-$pdataRaw = getPatientData($safePid);
+// getPatientData() is documented to return array.
 /** @var array<string, mixed> $patientData */
-$patientData = is_array($pdataRaw) ? lab_normalize_array_row($pdataRaw) : [];
+$patientData = lab_normalize_array_row((array) getPatientData($safePid));
 
+// getFacility() may return null when no facility is resolved.
 $facilityRaw = getFacility();
 /** @var array<string, mixed> $facilityData */
 $facilityData = is_array($facilityRaw) ? lab_normalize_array_row($facilityRaw) : [];

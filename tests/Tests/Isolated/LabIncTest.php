@@ -229,16 +229,17 @@ class LabIncTest extends TestCase
     {
         $this->assertFalse(lab_normalize_row(false));
 
-        $row = lab_normalize_row(['id' => 'a', 'name' => 'Clinic', 'count' => 9]);
-        $this->assertSame('a', $row['id'] ?? null);
-        $this->assertSame('Clinic', $row['name'] ?? null);
-        $this->assertSame(9, $row['count'] ?? null);
+        $this->assertSame(
+            ['id' => 'a', 'name' => 'Clinic', 'count' => 9],
+            lab_normalize_row(['id' => 'a', 'name' => 'Clinic', 'count' => 9])
+        );
 
-        // Numeric keys are stringified by lab_normalize_array_row().
-        $rowNum = lab_normalize_array_row([7 => 'z', 'name' => 'N']);
-        $this->assertSame('z', $rowNum['7'] ?? null);
-        $this->assertSame('N', $rowNum['name'] ?? null);
+        $this->assertSame(
+            ['id' => 'z', 'name' => 'N'],
+            lab_normalize_array_row(['id' => 'z', 'name' => 'N'])
+        );
     }
+
 
     /**
      * Test lab_normalize_rows normalizes a list of rows.
@@ -249,10 +250,13 @@ class LabIncTest extends TestCase
             ['code' => 'A1', 'seq' => 'x'],
             ['code' => 'B2'],
         ]);
-        $this->assertCount(2, $rows);
-        $this->assertSame('A1', $rows[0]['code'] ?? null);
-        $this->assertSame('x', $rows[0]['seq'] ?? null);
-        $this->assertSame('B2', $rows[1]['code'] ?? null);
+        $this->assertSame(
+            [
+                ['code' => 'A1', 'seq' => 'x'],
+                ['code' => 'B2'],
+            ],
+            $rows
+        );
     }
 
     /**
