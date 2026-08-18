@@ -5087,6 +5087,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function lab_normalize_array_row may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function lab_normalize_row may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',

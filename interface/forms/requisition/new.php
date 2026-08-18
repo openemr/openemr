@@ -69,35 +69,23 @@ if (is_int($oidRaw)) {
 $patient_id = $safePid;
 $pdataRaw = getPatientData($safePid);
 /** @var array<string, mixed> $patientData */
-$patientData = [];
-if (is_array($pdataRaw)) {
-    foreach ($pdataRaw as $key => $value) {
-        $patientData[lab_as_string($key)] = $value;
-    }
-}
+$patientData = is_array($pdataRaw) ? lab_normalize_array_row($pdataRaw) : [];
 
 $facilityRaw = getFacility();
 /** @var array<string, mixed> $facilityData */
-$facilityData = [];
-if (is_array($facilityRaw)) {
-    foreach ($facilityRaw as $key => $value) {
-        $facilityData[lab_as_string($key)] = $value;
-    }
-}
+$facilityData = is_array($facilityRaw) ? lab_normalize_array_row($facilityRaw) : [];
 
-// getAllinsurances() always returns an array.
+// getAllinsurances() returns an array of rows; normalize keys for typed access.
 $insRaw = getAllinsurances($safePid);
 /** @var list<array<string, mixed>> $ins */
 $ins = [];
-foreach ($insRaw as $insRow) {
-    if (!is_array($insRow)) {
-        continue;
+if (is_iterable($insRaw)) {
+    foreach ($insRaw as $insRow) {
+        if (!is_array($insRow)) {
+            continue;
+        }
+        $ins[] = lab_normalize_array_row($insRow);
     }
-    $normalizedIns = [];
-    foreach ($insRow as $key => $value) {
-        $normalizedIns[lab_as_string($key)] = $value;
-    }
-    $ins[] = $normalizedIns;
 }
 
 $hasOrder = $oid > 0;

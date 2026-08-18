@@ -202,6 +202,8 @@ class LabIncTest extends TestCase
         $this->assertTrue(function_exists('buildResponsibleParty'));
         $this->assertTrue(function_exists('lab_as_string'));
         $this->assertTrue(function_exists('lab_normalize_row'));
+        $this->assertTrue(function_exists('lab_normalize_array_row'));
+        $this->assertTrue(function_exists('lab_normalize_rows'));
     }
 
     // ── lab_as_string / lab_normalize_* ────────────────────────────────
@@ -227,25 +229,36 @@ class LabIncTest extends TestCase
     {
         $this->assertFalse(lab_normalize_row(false));
 
-        $row = lab_normalize_row([0 => 'a', 'name' => 'Clinic', 2 => 9]);
+        $row = lab_normalize_row(['0' => 'a', 'name' => 'Clinic', '2' => 9]);
         $this->assertIsArray($row);
+        $this->assertArrayHasKey('0', $row);
+        $this->assertArrayHasKey('name', $row);
+        $this->assertArrayHasKey('2', $row);
         $this->assertSame('a', $row['0']);
         $this->assertSame('Clinic', $row['name']);
         $this->assertSame(9, $row['2']);
+
+        // Numeric keys are stringified.
+        $rowNum = lab_normalize_array_row([0 => 'z', 'name' => 'N']);
+        $this->assertArrayHasKey('0', $rowNum);
+        $this->assertSame('z', $rowNum['0']);
+        $this->assertSame('N', $rowNum['name']);
     }
 
     /**
-     * Test lab_normalize_rows normalizes a list of mixed-key rows.
+     * Test lab_normalize_rows normalizes a list of rows.
      */
     public function testLabNormalizeRows(): void
     {
         $rows = lab_normalize_rows([
-            ['code' => 'A1', 1 => 'x'],
+            ['code' => 'A1', 'seq' => 'x'],
             ['code' => 'B2'],
         ]);
         $this->assertCount(2, $rows);
+        $this->assertArrayHasKey('code', $rows[0]);
+        $this->assertArrayHasKey('seq', $rows[0]);
         $this->assertSame('A1', $rows[0]['code']);
-        $this->assertSame('x', $rows[0]['1']);
+        $this->assertSame('x', $rows[0]['seq']);
         $this->assertSame('B2', $rows[1]['code']);
     }
 

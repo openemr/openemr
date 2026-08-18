@@ -32,7 +32,23 @@ function lab_as_string(mixed $value): string
 }
 
 /**
- * Normalize a QueryUtils row (array<mixed>) into array<string, mixed>.
+ * Normalize associative/list keys on a DB row to strings.
+ *
+ * @param array<mixed> $row
+ * @return array<string, mixed>
+ */
+function lab_normalize_array_row(array $row): array
+{
+    $normalized = [];
+    foreach ($row as $key => $value) {
+        $normalized[lab_as_string($key)] = $value;
+    }
+
+    return $normalized;
+}
+
+/**
+ * Normalize a QueryUtils single-row result (array<mixed>|false).
  *
  * @param array<mixed>|false $row
  * @return array<string, mixed>|false
@@ -43,12 +59,7 @@ function lab_normalize_row(array|false $row): array|false
         return false;
     }
 
-    $normalized = [];
-    foreach ($row as $key => $value) {
-        $normalized[lab_as_string($key)] = $value;
-    }
-
-    return $normalized;
+    return lab_normalize_array_row($row);
 }
 
 /**
@@ -59,8 +70,7 @@ function lab_normalize_rows(array $rows): array
 {
     $normalized = [];
     foreach ($rows as $row) {
-        // Rows are arrays; normalize keys only (never false for array input).
-        $normalized[] = lab_normalize_row($row);
+        $normalized[] = lab_normalize_array_row($row);
     }
 
     return $normalized;
