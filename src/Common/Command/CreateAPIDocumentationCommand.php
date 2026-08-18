@@ -86,9 +86,13 @@ class CreateAPIDocumentationCommand extends Command
             );
         }
 
+        // Empty security requirements must serialize as arrays ([]) and HTTP status-code keys as
+        // strings. Without these flags Symfony's dumper renders empty arrays as {} and integer-like
+        // keys as bare integers, both of which are invalid OpenAPI (an empty security requirement is
+        // an array of scope names, and a Responses Object key is a string status code).
         $resultYaml = file_put_contents(
             $fileDestinationYaml,
-            Yaml::dump($data, 20, 2)
+            Yaml::dump($data, 20, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE | Yaml::DUMP_NUMERIC_KEY_AS_STRING)
         );
 
         if ($resultYaml === false) {

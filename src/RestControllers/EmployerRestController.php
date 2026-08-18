@@ -36,7 +36,7 @@ class EmployerRestController
         tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: 'pid',
+                name: 'puuid',
                 in: 'path',
                 description: 'The uuid for the patient.',
                 required: true,

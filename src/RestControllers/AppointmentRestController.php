@@ -47,7 +47,7 @@ class AppointmentRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resourceList'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -85,7 +85,7 @@ class AppointmentRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -105,7 +105,7 @@ class AppointmentRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -126,7 +126,7 @@ class AppointmentRestController
         description: 'Retrieves all appointments',
         tags: ['standard'],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resourceList'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -143,7 +143,7 @@ class AppointmentRestController
         description: 'Retrieves all appointments for a patient',
         tags: ['standard-patient'],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resourceList'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -176,7 +176,7 @@ class AppointmentRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resourceList'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -240,7 +240,7 @@ class AppointmentRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -285,7 +285,7 @@ class AppointmentRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/resource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
             new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
