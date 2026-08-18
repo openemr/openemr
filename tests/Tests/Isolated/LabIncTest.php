@@ -203,4 +203,70 @@ class LabIncTest extends TestCase
         $this->assertTrue(function_exists('lab_as_string'));
         $this->assertTrue(function_exists('lab_normalize_row'));
     }
+
+    // ── lab_as_string / lab_normalize_* ────────────────────────────────
+
+    /**
+     * Test lab_as_string converts scalars and rejects non-scalars.
+     */
+    public function testLabAsStringConvertsScalars(): void
+    {
+        $this->assertSame('hello', lab_as_string('hello'));
+        $this->assertSame('42', lab_as_string(42));
+        $this->assertSame('3.5', lab_as_string(3.5));
+        $this->assertSame('1', lab_as_string(true));
+        $this->assertSame('', lab_as_string(false));
+        $this->assertSame('', lab_as_string(null));
+        $this->assertSame('', lab_as_string(['x']));
+    }
+
+    /**
+     * Test lab_normalize_row false passthrough and key stringification.
+     */
+    public function testLabNormalizeRow(): void
+    {
+        $this->assertFalse(lab_normalize_row(false));
+
+        $row = lab_normalize_row([0 => 'a', 'name' => 'Clinic', 2 => 9]);
+        $this->assertIsArray($row);
+        $this->assertSame('a', $row['0']);
+        $this->assertSame('Clinic', $row['name']);
+        $this->assertSame(9, $row['2']);
+    }
+
+    /**
+     * Test lab_normalize_rows normalizes a list of mixed-key rows.
+     */
+    public function testLabNormalizeRows(): void
+    {
+        $rows = lab_normalize_rows([
+            ['code' => 'A1', 1 => 'x'],
+            ['code' => 'B2'],
+        ]);
+        $this->assertCount(2, $rows);
+        $this->assertSame('A1', $rows[0]['code']);
+        $this->assertSame('x', $rows[0]['1']);
+        $this->assertSame('B2', $rows[1]['code']);
+    }
+
+    /**
+     * Test buildResponsibleParty city/state/zip spacing with partial insurance.
+     */
+    public function testBuildResponsiblePartyInsuranceCityStZipFormatting(): void
+    {
+        $ins = [
+            'subscriber_fname' => 'Pat',
+            'subscriber_lname' => 'Lee',
+            'line1' => '1 Main',
+            'city' => 'Austin',
+            'state' => 'TX',
+            'zip' => '78701',
+            'subscriber_relationship' => 'self',
+        ];
+        $result = buildResponsibleParty('T', [], [], $ins);
+        $this->assertSame('Austin, TX 78701', $result['city_st_zip']);
+        $this->assertSame('1 Main', $result['address']);
+        $this->assertTrue($result['relationship_is_list']);
+    }
+
 }

@@ -59,10 +59,8 @@ function lab_normalize_rows(array $rows): array
 {
     $normalized = [];
     foreach ($rows as $row) {
-        $item = lab_normalize_row($row);
-        if ($item !== false) {
-            $normalized[] = $item;
-        }
+        // Rows are arrays; normalize keys only (never false for array input).
+        $normalized[] = lab_normalize_row($row);
     }
 
     return $normalized;
@@ -80,7 +78,7 @@ function fetchProcedureId($pid, $encounter): mixed
         [$pid, $encounter]
     ));
 
-    return is_array($res) ? ($res['procedure_order_id'] ?? null) : null;
+    return $res === false ? null : ($res['procedure_order_id'] ?? null);
 }
 
 /**
@@ -118,7 +116,7 @@ function getSelfPay($pid): ?string
         "SELECT subscriber_relationship FROM insurance_data WHERE pid = ?",
         [$pid]
     ));
-    if (!is_array($res) || !array_key_exists('subscriber_relationship', $res)) {
+    if ($res === false || !array_key_exists('subscriber_relationship', $res)) {
         return null;
     }
 
@@ -127,8 +125,7 @@ function getSelfPay($pid): ?string
         return null;
     }
 
-    $asString = lab_as_string($relationship);
-    return $asString === '' && !is_scalar($relationship) ? null : $asString;
+    return lab_as_string($relationship);
 }
 
 /**
@@ -141,7 +138,7 @@ function getNPI($prov_id): array
         "SELECT npi, upin FROM users WHERE id = ?",
         [$prov_id]
     ));
-    if (!is_array($res)) {
+    if ($res === false) {
         return ['', ''];
     }
 
@@ -208,7 +205,7 @@ function getProcedureBillingType(int $oid): string
         [$oid]
     ));
 
-    return is_array($res) ? trim(lab_as_string($res['billing_type'] ?? '')) : '';
+    return $res === false ? '' : trim(lab_as_string($res['billing_type'] ?? ''));
 }
 
 function saveBarCode($bar, $pid, $order): void
@@ -232,7 +229,7 @@ function getBarId($lab_id, $pid): array|string
         [$lab_id, $pid]
     ));
 
-    $orderId = is_array($isOrder) ? lab_as_string($isOrder['procedure_order_id'] ?? '') : '';
+    $orderId = $isOrder === false ? '' : lab_as_string($isOrder['procedure_order_id'] ?? '');
     if ($orderId === '') {
         QueryUtils::sqlStatementThrowException(
             "DELETE FROM requisition WHERE lab_id = ? AND pid = ?",

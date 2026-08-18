@@ -85,20 +85,19 @@ if (is_array($facilityRaw)) {
     }
 }
 
+// getAllinsurances() always returns an array.
 $insRaw = getAllinsurances($safePid);
 /** @var list<array<string, mixed>> $ins */
 $ins = [];
-if (is_array($insRaw)) {
-    foreach ($insRaw as $insRow) {
-        if (!is_array($insRow)) {
-            continue;
-        }
-        $normalizedIns = [];
-        foreach ($insRow as $key => $value) {
-            $normalizedIns[lab_as_string($key)] = $value;
-        }
-        $ins[] = $normalizedIns;
+foreach ($insRaw as $insRow) {
+    if (!is_array($insRow)) {
+        continue;
     }
+    $normalizedIns = [];
+    foreach ($insRow as $key => $value) {
+        $normalizedIns[lab_as_string($key)] = $value;
+    }
+    $ins[] = $normalizedIns;
 }
 
 $hasOrder = $oid > 0;
@@ -169,7 +168,7 @@ $orderDate = '';
 $relationshipDisplay = '/';
 $billingLabel = xl('Not Specified');
 
-if ($orders !== [] && $hasOrder) {
+if ($orders !== []) {
     /**
      * Persist the requisition barcode the first time the form is viewed.
      */
@@ -600,14 +599,16 @@ if ($orders !== [] && $hasOrder) {
     </style>
 </head>
 <body class="requisition-page">
-<?php if ($orders === [] || !$hasOrder) : ?>
+<?php if ($orders === []) : ?>
     <div class="req-alert">
         <h2 class="h5 mb-2"><?php echo xlt('Lab Requisition Unavailable'); ?></h2>
         <p class="mb-0">
             <?php
-            echo !$hasOrder
-                ? xlt('No order found. Please enter a procedure order first.')
-                : xlt('Procedure order not found in database. Contact technical support.');
+            if (!$hasOrder) {
+                echo xlt('No order found. Please enter a procedure order first.');
+            } else {
+                echo xlt('Procedure order not found in database. Contact technical support.');
+            }
             ?>
         </p>
     </div>
