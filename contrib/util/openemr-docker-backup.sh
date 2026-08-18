@@ -338,12 +338,16 @@ log "backup finished successfully"
 #
 #   1. Restore the compose configuration and bring up ONLY the database.
 #      The backup directory contains whichever Compose file(s) your
-#      deployment actually used (docker-compose.yml, docker-compose.yaml,
-#      compose.yml, or compose.yaml, plus .env and any override file).
-#      Copy the archived original(s) UNDER THEIR ORIGINAL NAMES:
-#        cp compose.yaml .env /opt/openemr/   # use the name(s) present in your backup
-#      If only compose-resolved.yml exists, copy it as compose.yaml -- and
-#      keep its permissions tight, it contains interpolated secrets:
+#      deployment actually used. From inside the backup directory, copy
+#      every archived original -- preserving each filename -- with the
+#      same file list the backup step uses:
+#        for f in docker-compose.yml docker-compose.yaml compose.yml compose.yaml \
+#                 docker-compose.override.yml docker-compose.override.yaml .env; do
+#            [ -f "$f" ] && cp "$f" /opt/openemr/
+#        done
+#      If NONE of the originals were archived and only compose-resolved.yml
+#      exists, copy it as compose.yaml -- and keep its permissions tight,
+#      it contains interpolated secrets:
 #        install -m 600 compose-resolved.yml /opt/openemr/compose.yaml
 #      Then:
 #        cd /opt/openemr
