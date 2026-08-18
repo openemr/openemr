@@ -171,8 +171,8 @@
                 {% for provider in providers %}
                     <td class="schedule {{ provider.classForWeekend|attr }}" title="{{ provider.fname|attr }} {{ provider.lname|attr }}" date="{{ Date|attr }}" provider="{{ provider.id|attr }}">
                         <div class="providerheader providerday">
-                            {{ provider.fname|text }} {{ provider.lname|text }}
-                            <a class="providerXbtn userClose" data-username="{{ provider.username|attr }}"></a>
+                            <span class="provider-name" title="{{ provider.fname|attr }} {{ provider.lname|attr }}">{{ provider.fname|text }} {{ provider.lname|text }}</span>
+                            <a class="providerXbtn userClose" data-username="{{ provider.username|attr }}" title="{{ 'Remove provider'|xla }}"></a>
                         </div>
                         <div class="calendar_day">
                             {% for event in provider.events %}

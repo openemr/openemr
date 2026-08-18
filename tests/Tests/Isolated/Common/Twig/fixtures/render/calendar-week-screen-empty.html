@@ -157,6 +157,7 @@
 <script>
         var tsHeight="20px";
     var tsHeightNum=20;
+        var tsHeightBase = tsHeightNum;
     var pcWebroot="";
     var pcViewtype="week";
     var pcDate="20260315";
@@ -239,8 +240,202 @@
     $("#menu-toggle").click(function(e) {
         e.preventDefault();
         $("#wrapper").toggleClass("toggled");
+        // Sidebar width animates; re-fit after the transition settles.
+        window.setTimeout(fitCalendarToViewport, 280);
+    });
+
+    /**
+     * Stretch day/week timeslots (and absolutely-positioned events) so the
+     * schedule uses the visible frame instead of leaving empty page below
+     * a fixed 20px grid. Geometry stays aligned because every event's top
+     * and height are scaled from the original server pixel values.
+     */
+    function fitCalendarToViewport() {
+        if (pcViewtype !== 'day' && pcViewtype !== 'week') {
+            return;
+        }
+
+        var $times = $('#bigCal').find('#times').first();
+        var $slotCells = $('#bigCal').find('#times td.timeslot');
+        if (!$slotCells.length || !$times.length) {
+            return;
+        }
+
+        // One grid's row count (day = one times column; week repeats the
+        // same count per provider — use the first column as the measure).
+        var slotCount = $times.find('td.timeslot').length;
+        if (!slotCount || !tsHeightBase) {
+            return;
+        }
+
+        // Capture original px geometry once (from the PHP-rendered styles).
+        $('#bigCal .calendar_day .event').each(function () {
+            if (this.hasAttribute('data-base-top')) {
+                return;
+            }
+            this.setAttribute('data-base-top', String(parseFloat(this.style.top) || 0));
+            this.setAttribute('data-base-height', String(parseFloat(this.style.height) || 0));
+        });
+
+        var toolbar = document.getElementById('topToolbarRight');
+        var topOffset = toolbar ? toolbar.getBoundingClientRect().bottom : 0;
+        // Prefer the calendar frame height when embedded in OpenEMR tabs.
+        var frameHeight = window.innerHeight;
+        try {
+            if (window.frameElement && window.frameElement.clientHeight) {
+                frameHeight = window.frameElement.clientHeight;
+            }
+        } catch (ignore) {
+            // Cross-origin frame access is not expected in OpenEMR.
+        }
+        // Small bottom pad so the last slot isn't flush against the frame.
+        var available = Math.floor(frameHeight - topOffset - 10);
+        var minH = tsHeightBase;
+        // Cap so a short clinic day on a tall monitor doesn't create huge rows.
+        var maxH = 48;
+        var fitted = Math.floor(available / slotCount);
+        var newH = Math.max(minH, Math.min(maxH, fitted));
+        var scale = newH / tsHeightBase;
+
+        $slotCells.css('height', newH + 'px');
+        // Day-view provider name row sits beside the first timeslot spacer.
+        $('#bigCal .providerheader.providerday').css({
+            height: newH + 'px',
+            lineHeight: newH + 'px',
+            boxSizing: 'border-box'
+        });
+
+        $('#bigCal .calendar_day .event').each(function () {
+            var baseTop = parseFloat(this.getAttribute('data-base-top')) || 0;
+            var baseHeight = parseFloat(this.getAttribute('data-base-height')) || 0;
+            this.style.top = (baseTop * scale) + 'px';
+            this.style.height = (baseHeight * scale) + 'px';
+        });
+
+        // Keep click-to-create marker math in sync with the live row height.
+        tsHeightNum = newH;
+        tsHeight = newH + 'px';
+    }
+
+    $(function () {
+        fitCalendarToViewport();
+        // Second pass after layout/fonts settle inside the tab iframe.
+        window.setTimeout(fitCalendarToViewport, 50);
+        $(window).on('resize.calendarFit', fitCalendarToViewport);
     });
 </script>
+
+<style>
+    /* Scroll container: providers overflow to the right; times stay pinned. */
+    #bigCal {
+        overflow-x: auto !important;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+    }
+    #bigCal > .table-responsive {
+        overflow: visible !important;
+    }
+    #bigCal > .table-responsive > table.table {
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+        min-width: 100%;
+        table-layout: auto;
+        width: max-content;
+    }
+
+    /* Sticky time gutter — schedule columns slide under this while scrolling. */
+    #bigCal td#times {
+        background-color: var(--white, #fff);
+        border-right: 1px solid var(--gray300, #dee2e6);
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.08);
+        left: 0;
+        padding: 0.3125rem !important;
+        position: sticky;
+        vertical-align: top;
+        width: 3.25rem;
+        min-width: 3.25rem;
+        max-width: 3.5rem;
+        z-index: 8;
+    }
+    #bigCal td#times .table-responsive {
+        overflow: visible !important;
+    }
+    #bigCal td#times table {
+        width: 100%;
+    }
+    #bigCal td.timeslot {
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
+
+    /* Each provider keeps a readable min width; more columns => horizontal scroll. */
+    #bigCal td.schedule {
+        min-width: 11.5rem;
+        padding: 0 !important;
+        position: relative;
+        vertical-align: top;
+        width: 11.5rem;
+    }
+
+    /* Header: name truncates, close (X) always visible. */
+    #bigCal .providerheader {
+        align-items: center;
+        box-sizing: border-box;
+        display: flex;
+        gap: 0.25rem;
+        justify-content: space-between;
+        overflow: hidden;
+        padding: 0 0.35rem;
+        position: relative;
+        white-space: nowrap;
+        z-index: 5;
+    }
+    #bigCal .providerheader .provider-name {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #bigCal .providerheader .providerXbtn {
+        flex: 0 0 auto;
+        float: none;
+        line-height: 1;
+        margin: 0;
+        opacity: 0.9;
+        padding: 0 0.15rem;
+    }
+
+    #bigCal .calendar_day .event_in {
+        pointer-events: none;
+        z-index: 1;
+    }
+    #bigCal .calendar_day .event_out {
+        z-index: 1;
+    }
+    #bigCal .calendar_day .in_start {
+        pointer-events: auto;
+        z-index: 1;
+    }
+    #bigCal .calendar_day .event_appointment,
+    #bigCal .calendar_day .event_reserved,
+    #bigCal .calendar_day .event_noshow,
+    #bigCal .calendar_day .event_holiday {
+        box-sizing: border-box;
+        line-height: 1.15;
+        overflow: hidden;
+        padding: 0 0.25rem;
+        white-space: normal;
+        z-index: 3;
+    }
+    #bigCal .calendar_day .event_out.event_highlight,
+    #bigCal .calendar_day .in_start.event_highlight {
+        z-index: 4;
+    }
+</style>
 
 <script>
     $(function () { if (typeof setupDirectTime === 'function') { setupDirectTime(); } });
