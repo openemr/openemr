@@ -128,6 +128,7 @@ TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="${BACKUP_ROOT}/${TIMESTAMP}"
 LOCKFILE="/var/run/openemr-backup.lock"
 APP_STOPPED="false"
+STAGING_DIR=""   # tracked globally so on_exit can clean it up on failure
 
 log() {
     local now
@@ -155,6 +156,12 @@ fail() {
 # when set -e aborts us before fail() is ever called.
 on_exit() {
     local status=$?
+    # The staging copy contains PHI; never leave it behind under /tmp,
+    # even when set -e aborts us mid-archive.
+    if [[ -n "${STAGING_DIR}" && -d "${STAGING_DIR}" ]]; then
+        rm -rf "${STAGING_DIR}"
+        STAGING_DIR=""
+    fi
     if [[ "${APP_STOPPED}" == "true" ]]; then
         log "restarting app service '${APP_SERVICE}' after backup"
         ${COMPOSE} start "${APP_SERVICE}" || log "ERROR: could not restart '${APP_SERVICE}' -- intervene manually"
@@ -236,15 +243,20 @@ log "database dump complete ($(human_size "${DB_SIZE}"))"
 # fallback if exec fails while quiesced.
 
 log "archiving OpenEMR files (${FILES_PATH}) from service '${APP_SERVICE}'"
+FILES_BASE="$(basename "${FILES_PATH}")"
 if [[ "${APP_STOPPED}" == "true" ]]; then
-    # Container is stopped: exec is unavailable. Copy out via the engine, then tar.
+    # Container is stopped: exec is unavailable. Copy out via the engine,
+    # then tar. The archive root must keep the webroot's own basename so
+    # both branches produce identically-structured archives and the restore
+    # procedure's extract-into-parent step works for either.
     STAGING_DIR="$(mktemp -d)"
-    ${COMPOSE} cp "${APP_SERVICE}:${FILES_PATH}" "${STAGING_DIR}/openemr-files"
-    tar -czf "${BACKUP_DIR}/openemr-files.tar.gz" -C "${STAGING_DIR}" openemr-files
+    ${COMPOSE} cp "${APP_SERVICE}:${FILES_PATH}" "${STAGING_DIR}/${FILES_BASE}"
+    tar -czf "${BACKUP_DIR}/openemr-files.tar.gz" -C "${STAGING_DIR}" "${FILES_BASE}"
     rm -rf "${STAGING_DIR}"
+    STAGING_DIR=""
 else
     ${COMPOSE} exec -T "${APP_SERVICE}" sh -c \
-        "tar -czf - -C '$(dirname "${FILES_PATH}")' '$(basename "${FILES_PATH}")'" \
+        "tar -czf - -C '$(dirname "${FILES_PATH}")' '${FILES_BASE}'" \
         > "${BACKUP_DIR}/openemr-files.tar.gz"
 fi
 
@@ -325,11 +337,16 @@ log "backup finished successfully"
 # On a fresh host with Docker installed:
 #
 #   1. Restore the compose configuration and bring up ONLY the database.
-#      Prefer the original files (docker-compose.yml / compose.yaml plus
-#      .env if archived); compose-resolved.yml is the fallback when the
-#      originals are missing -- note it contains interpolated secrets, so
-#      keep its permissions tight:
-#        cp docker-compose.yml .env /opt/openemr/ 2>/dev/null; cd /opt/openemr
+#      The backup directory contains whichever Compose file(s) your
+#      deployment actually used (docker-compose.yml, docker-compose.yaml,
+#      compose.yml, or compose.yaml, plus .env and any override file).
+#      Copy the archived original(s) UNDER THEIR ORIGINAL NAMES:
+#        cp compose.yaml .env /opt/openemr/   # use the name(s) present in your backup
+#      If only compose-resolved.yml exists, copy it as compose.yaml -- and
+#      keep its permissions tight, it contains interpolated secrets:
+#        install -m 600 compose-resolved.yml /opt/openemr/compose.yaml
+#      Then:
+#        cd /opt/openemr
 #        docker compose up -d mysql
 #        # wait for it to be healthy: docker compose logs -f mysql
 #
