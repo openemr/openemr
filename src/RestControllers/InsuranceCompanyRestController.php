@@ -17,6 +17,11 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Validators\ProcessingResult;
 
 #[OA\Schema(
     schema: 'api_insurance_company_request',
@@ -55,7 +60,7 @@ use OpenEMR\Services\InsuranceCompanyService;
 )]
 class InsuranceCompanyRestController
 {
-    private $insuranceCompanyService;
+    private readonly InsuranceCompanyService $insuranceCompanyService;
     private $addressService;
 
     public function __construct()
@@ -64,10 +69,21 @@ class InsuranceCompanyRestController
         $this->addressService = new AddressService();
     }
 
+    /**
+     * @param array<string, mixed> $searchParams
+     */
     #[OA\Get(
         path: '/api/insurance_company',
-        description: 'Retrieves all insurance companies',
+        description: 'Retrieves all insurance companies, optionally filtered by search parameters',
         tags: ['standard'],
+        parameters: [
+            new OA\Parameter(name: 'uuid', in: 'query', description: 'The uuid of the insurance company.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'name', in: 'query', description: 'Partial match on the insurance company name.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'cms_id', in: 'query', description: 'Exact match on the cms id.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'alt_cms_id', in: 'query', description: 'Exact match on the alternate cms id.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'ins_type_code', in: 'query', description: 'The insurance type code.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'inactive', in: 'query', description: 'Whether the insurance company is inactive (0 or 1).', required: false, schema: new OA\Schema(type: 'string')),
+        ],
         responses: [
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
@@ -75,10 +91,29 @@ class InsuranceCompanyRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getAll()
+    public function getAll(array $searchParams = [])
     {
-        $serviceResult = $this->insuranceCompanyService->getAll();
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        $processingResult = new ProcessingResult();
+        try {
+            $search = [];
+            foreach ($searchParams as $key => $value) {
+                if (!is_string($value) && !is_array($value)) {
+                    throw new SearchFieldException('search', 'unsupported search parameter');
+                }
+                $search[$key] = match ($key) {
+                    'uuid' => new TokenSearchField('uuid', $value, true),
+                    'name' => new StringSearchField('name', $value, SearchModifier::CONTAINS),
+                    'cms_id', 'alt_cms_id' => new StringSearchField($key, $value, SearchModifier::EXACT),
+                    'ins_type_code', 'inactive' => new TokenSearchField($key, $value),
+                    default => throw new SearchFieldException('search', 'unsupported search parameter'),
+                };
+            }
+            $processingResult = $this->insuranceCompanyService->search($search);
+        } catch (SearchFieldException | \InvalidArgumentException) {
+            // do not reflect raw parameter names or values back to the caller
+            $processingResult->setValidationMessages(['search' => ['invalid or unsupported search parameter']]);
+        }
+        return RestControllerHelper::handleProcessingResult($processingResult, null, 200);
     }
 
     #[OA\Get(

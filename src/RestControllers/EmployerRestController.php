@@ -14,8 +14,13 @@ namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\Services\EmployerService;
+use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\ProcessingResult;
 
 class EmployerRestController
 {
@@ -28,7 +33,7 @@ class EmployerRestController
 
     /**
      * Retrieves all employer data for a patient.
-     * @param array $searchParams - Search parameters including puuid.
+     * @param array<string, mixed> $searchParams - Search parameters including puuid.
      */
     #[OA\Get(
         path: '/api/patient/{puuid}/employer',
@@ -50,18 +55,30 @@ class EmployerRestController
         ],
         security: [['openemr_auth' => ['user/employer.read', 'patient/employer.read']]]
     )]
-    public function getAll($searchParams)
+    public function getAll(array $searchParams)
     {
-        if (isset($searchParams['id'])) {
-            $searchParams['id'] = new TokenSearchField('id', new TokenSearchValue($searchParams['id']), false);
+        $processingResult = new ProcessingResult();
+        try {
+            $search = [];
+            foreach ($searchParams as $key => $value) {
+                if (!is_string($value) && !is_array($value)) {
+                    throw new SearchFieldException('search', 'unsupported search parameter');
+                }
+                $search[$key] = match ($key) {
+                    'id' => new TokenSearchField('id', new TokenSearchValue($value), false),
+                    'puuid' => new TokenSearchField('puuid', $value, true),
+                    'pid' => new TokenSearchField('pid', $value, true),
+                    'name' => new StringSearchField('name', $value, SearchModifier::CONTAINS),
+                    'occupation', 'industry' => new TokenSearchField($key, $value),
+                    'start_date', 'end_date' => new DateSearchField($key, $value, DateSearchField::DATE_TYPE_DATETIME),
+                    default => throw new SearchFieldException('search', 'unsupported search parameter'),
+                };
+            }
+            $processingResult = $this->employerService->search($search);
+        } catch (SearchFieldException | \InvalidArgumentException) {
+            // do not reflect raw parameter names or values back to the caller
+            $processingResult->setValidationMessages(['search' => ['invalid or unsupported search parameter']]);
         }
-        if (isset($searchParams['puuid'])) {
-            $searchParams['puuid'] = new TokenSearchField('puuid', $searchParams['puuid'], true);
-        }
-        if (isset($searchParams['pid'])) {
-            $searchParams['pid'] = new TokenSearchField('pid', $searchParams['pid'], true);
-        }
-        $serviceResult = $this->employerService->search($searchParams);
-        return RestControllerHelper::handleProcessingResult($serviceResult, null, 200);
+        return RestControllerHelper::handleProcessingResult($processingResult, null, 200);
     }
 }

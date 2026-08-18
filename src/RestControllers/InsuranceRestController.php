@@ -18,6 +18,10 @@ use OpenApi\Attributes as OA;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -98,6 +102,7 @@ class InsuranceRestController
 
     /**
      * Retrieves all insurances for a patient.
+     * @param array<string, mixed> $searchParams
      */
     #[OA\Get(
         path: '/api/patient/{puuid}/insurance',
@@ -111,6 +116,13 @@ class InsuranceRestController
                 required: true,
                 schema: new OA\Schema(type: 'string')
             ),
+            new OA\Parameter(name: 'type', in: 'query', description: 'The insurance type (primary, secondary, tertiary).', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'plan_name', in: 'query', description: 'Partial match on the plan name.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'policy_number', in: 'query', description: 'Exact match on the policy number.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'group_number', in: 'query', description: 'Exact match on the group number.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'policy_type', in: 'query', description: 'The policy type.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'date', in: 'query', description: 'The coverage effective date, supports FHIR prefixes e.g. ge2024-01-01.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'date_end', in: 'query', description: 'The coverage end date, supports FHIR prefixes e.g. lt2025-01-01.', required: false, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
@@ -119,16 +131,31 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getAll($searchParams)
+    public function getAll(array $searchParams)
     {
-        if (isset($searchParams['uuid'])) {
-            $searchParams['uuid'] = new TokenSearchField('uuid', $searchParams['uuid'], true);
+        $processingResult = new ProcessingResult();
+        try {
+            $search = [];
+            foreach ($searchParams as $key => $value) {
+                if (!is_string($value) && !is_array($value)) {
+                    throw new SearchFieldException('search', 'unsupported search parameter');
+                }
+                $search[$key] = match ($key) {
+                    'uuid' => new TokenSearchField('uuid', $value, true),
+                    'puuid' => new TokenSearchField('puuid', $value, true),
+                    'type', 'policy_type' => new TokenSearchField($key, $value),
+                    'plan_name' => new StringSearchField('plan_name', $value, SearchModifier::CONTAINS),
+                    'policy_number', 'group_number' => new StringSearchField($key, $value, SearchModifier::EXACT),
+                    'date', 'date_end' => new DateSearchField($key, $value, DateSearchField::DATE_TYPE_DATE),
+                    default => throw new SearchFieldException('search', 'unsupported search parameter'),
+                };
+            }
+            $processingResult = $this->insuranceService->search($search);
+        } catch (SearchFieldException | \InvalidArgumentException) {
+            // do not reflect raw parameter names or values back to the caller
+            $processingResult->setValidationMessages(['search' => ['invalid or unsupported search parameter']]);
         }
-        if (isset($searchParams['puuid'])) {
-            $searchParams['puuid'] = new TokenSearchField('puuid', $searchParams['puuid'], true);
-        }
-        $serviceResult = $this->insuranceService->search($searchParams);
-        return RestControllerHelper::handleProcessingResult($serviceResult, null, 200);
+        return RestControllerHelper::handleProcessingResult($processingResult, null, 200);
     }
 
     /**

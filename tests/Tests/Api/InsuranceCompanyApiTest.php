@@ -6,9 +6,11 @@
  * The insurance company REST API has pre-existing bugs:
  * - POST/PUT: InsuranceCompanyService::validate() does not exist
  * - GET one: Binary UUID in raw row causes JSON encoding error
- * - GET all: ProcessingResult is not handled by responseHandler()
+ * (GET all previously did not handle ProcessingResult; fixed by wiring
+ * search parameters through to InsuranceCompanyService::search().
+ * InsuranceEmployerSearchApiTest covers the GET all search behavior.)
  *
- * These tests document the broken state and verify the one working endpoint.
+ * These tests document the remaining broken state.
  * Service-layer tests in InsuranceCompanyServiceTest and AddressServiceTest
  * cover the AddressData DTO integration that this PR introduces.
  *

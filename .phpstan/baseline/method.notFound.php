@@ -347,6 +347,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:validate\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:getHeader\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/CORSListener.php',
