@@ -397,6 +397,19 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/load-codes-no-rxcui.html',
         ];
 
+        yield 'reports/cqm/amc-full-report with non-root webroot' => [
+            'reports/cqm/amc-full-report.html.twig',
+            [
+                'webroot' => '/openemr',
+                'report_id' => 'AMC 2026/A&B?',
+                'title' => 'AMC Full Report',
+                'reportDate' => '2026-08-13',
+                'subTitle' => '',
+                'datasheet' => [],
+            ],
+            $fixtureDir . '/amc-full-report-non-root-webroot.html',
+        ];
+
         $reasonCodeStatii = [
             '' => ['code' => '', 'description' => 'Select a status code'],
             'negated' => ['code' => 'negated', 'description' => 'Negated'],
