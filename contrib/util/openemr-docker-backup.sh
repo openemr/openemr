@@ -103,10 +103,14 @@ DB_NAME="openemr"
 # Path INSIDE the app container to archive. Default is the full OpenEMR
 # webroot, which captures sites/ AND custom/UI-installed modules
 # (interface/modules/custom_modules), composer changes, and local patches --
-# the same scope as the removed backup.php. If your deployment is strictly
-# stock (no modules, no local changes), you can narrow this to
-# .../openemr/sites for much smaller backups, at the cost of losing anything
-# you later install outside sites/ and forget about.
+# the same scope as the removed backup.php. Note: in the official images
+# only sites/ lives on a persistent volume; the rest of the webroot is the
+# image's own layer and is replaced on every container recreation/upgrade.
+# This backup captures that state for disaster recovery, but modules
+# installed outside sites/ still need reinstalling after an image upgrade
+# (or bake them into a custom image layer / bind mount). If your deployment
+# is strictly stock (no modules, no local changes), you can narrow this to
+# .../openemr/sites for much smaller backups.
 FILES_PATH="/var/www/localhost/htdocs/openemr"
 
 # Stop the app container during the backup for a strictly coordinated
@@ -227,7 +231,8 @@ ${COMPOSE} exec -T "${DB_SERVICE}" sh -c \
 # this small. Guard against silently archiving nothing.
 DB_SIZE="$(stat -c%s "${BACKUP_DIR}/openemr-db.sql.gz")"
 [[ "${DB_SIZE}" -gt 10240 ]] || fail "database dump suspiciously small (${DB_SIZE} bytes) -- check credentials"
-log "database dump complete ($(human_size "${DB_SIZE}"))"
+DB_SIZE_HUMAN="$(human_size "${DB_SIZE}")"
+log "database dump complete (${DB_SIZE_HUMAN})"
 
 # ---------------------------------------------------------------------------
 # 2. OpenEMR files (webroot)
@@ -262,7 +267,8 @@ fi
 
 FILES_SIZE="$(stat -c%s "${BACKUP_DIR}/openemr-files.tar.gz")"
 [[ "${FILES_SIZE}" -gt 10240 ]] || fail "files archive suspiciously small (${FILES_SIZE} bytes)"
-log "files archive complete ($(human_size "${FILES_SIZE}"))"
+FILES_SIZE_HUMAN="$(human_size "${FILES_SIZE}")"
+log "files archive complete (${FILES_SIZE_HUMAN})"
 
 # Restart the app as early as possible if we quiesced; nothing below needs it stopped.
 if [[ "${APP_STOPPED}" == "true" ]]; then
