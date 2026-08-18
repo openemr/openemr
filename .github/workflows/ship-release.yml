@@ -149,11 +149,15 @@ jobs:
           website-openemr
         # Explicit permission grants (least-privilege). Ship-release
         # needs: read PR state (pull-requests:read via metadata), merge
-        # PRs (pull-requests:write), post commit statuses on PR heads
-        # (statuses:write), read repo contents (contents:read). The
-        # App itself may be installed with broader permissions; scoping
-        # the minted token narrows what a compromised runner can do.
-        permission-contents: read
+        # PRs (contents:write -- GitHub's mergePullRequest mutation
+        # writes to the base branch, so contents:write is the required
+        # grant even though the *trigger* is a PR action; pull-requests:
+        # write alone returns "Resource not accessible by integration
+        # (mergePullRequest)"), post commit statuses on PR heads
+        # (statuses:write). The App itself may be installed with broader
+        # permissions; scoping the minted token narrows what a
+        # compromised runner can do.
+        permission-contents: write
         permission-metadata: read
         permission-pull-requests: write
         permission-statuses: write
