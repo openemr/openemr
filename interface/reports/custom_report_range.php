@@ -274,7 +274,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         $sqlBindArray = [];
         $res_query =    "select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
-                        "date between ? and ? " ;
+                        "date >= ? and date < DATE_ADD(?, INTERVAL 1 DAY) " ;
                 array_push($sqlBindArray, $startdate, $enddate);
     if ($form_pid) {
         $res_query .= " and pid=? ";
