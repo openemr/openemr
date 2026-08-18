@@ -40,8 +40,11 @@ interface PullRequestApi
      * `context` fields as returned by `gh pr view --json statusCheckRollup`.
      * GitHub reports `mergeStateStatus=UNSTABLE` when a non-required check
      * is failing; the ignore-list only removes matching failures from the
-     * blocking-reasons list. When it clears every rollup entry, UNSTABLE is
-     * treated as CLEAN.
+     * blocking-reasons list. When it clears every rollup entry, both
+     * UNSTABLE and BLOCKED are treated as CLEAN (BLOCKED requires the
+     * additional guard `mergeable=MERGEABLE` since it's a broader state;
+     * see reasonsFromPullRequestData docblock for the App-vs-user token
+     * perspective rationale). DIRTY/BEHIND/HAS_HOOKS/UNKNOWN always block.
      *
      * $requireNonDraft gates the isDraft check. Defaults to true (Conductor
      * PRs must be non-draft at preflight -- they're the meaningful human-
