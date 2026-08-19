@@ -24,12 +24,14 @@
 
 namespace OpenEMR\Tests\Api;
 
+use OpenEMR\Common\Database\QueryUtils;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 class InsuranceCompanyApiTest extends TestCase
 {
     private const API_ENDPOINT = "/apis/default/api/insurance_company";
+    private const FIXTURE_NAME_PREFIX = "test-fixture-Validate";
 
     private ApiTestClient $testClient;
 
@@ -38,6 +40,23 @@ class InsuranceCompanyApiTest extends TestCase
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
         $this->testClient = new ApiTestClient($baseUrl, false);
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+    }
+
+    protected function tearDown(): void
+    {
+        // remove any insurance companies this test class created (the prefix
+        // match also sweeps rows leaked by earlier runs)
+        $rows = QueryUtils::fetchRecords(
+            "SELECT `id` FROM `insurance_companies` WHERE `name` LIKE ?",
+            [self::FIXTURE_NAME_PREFIX . "%"]
+        );
+        foreach ($rows as $row) {
+            QueryUtils::fetchRecordsNoLog("DELETE FROM `addresses` WHERE `foreign_id` = ?", [$row['id']]);
+            QueryUtils::fetchRecordsNoLog("DELETE FROM `phone_numbers` WHERE `foreign_id` = ?", [$row['id']]);
+            QueryUtils::fetchRecordsNoLog("DELETE FROM `insurance_companies` WHERE `id` = ?", [$row['id']]);
+        }
+        $this->testClient->cleanupRevokeAuth();
+        $this->testClient->cleanupClient();
     }
 
     #[Test]
@@ -68,7 +87,7 @@ class InsuranceCompanyApiTest extends TestCase
         // (empty-string optionals are omitted: the validator applies length
         // rules to present-but-empty values)
         $response = $this->testClient->post(self::API_ENDPOINT, [
-            'name' => 'test-fixture-Validate Restored Insurance',
+            'name' => self::FIXTURE_NAME_PREFIX . " Restored Insurance " . uniqid(),
             'ins_type_code' => '1',
         ]);
 
