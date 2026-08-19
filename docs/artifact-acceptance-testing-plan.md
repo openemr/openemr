@@ -671,26 +671,31 @@ last cross-line predecessor). But it breaks on rel-820: 8.2.0 is
 rel-820's own line, not an upgrade-from, so rel-820's wizard dropdown
 stops at 8.1.1 and the acceptance test's dropdown-membership assertion
 fails when tested with FROM=8.2.0. Auto-firing acceptance runs on
-rel-820 sync PRs hit this consistently. Fix: derive `from_version`
-at detect-mode time by cross-referencing two signals:
+rel-820 sync PRs hit this consistently. Fix: derive `from_version` at detect-mode time via:
 
-1. **Enumerate the checkout's `sql/*-to-*_upgrade.sql` filenames** —
-   take the MAX from-version (before-`-to-`), guaranteed to appear
-   in that branch's `sql_upgrade.php` wizard dropdown. Same
-   convention `SqlUpgradeSkeletonMutator` + `DockerUpgradeScaffoldMutator`
-   use for prior-version derivation during release-prep (see
-   `src/Common/Command/ReleasePrep/Mutator/`) — the sql-filename
-   pattern is the project-wide "shipped-predecessors" source.
-2. **Intersect with the website-openemr `data/releases.json`
-   manifest** (the authoritative "which versions have actually
-   shipped tarballs on GitHub Releases" source of truth, filtered
-   to `status: FINAL`). Neither signal alone is sufficient:
-   sql-only would return a version scaffolded by patch-prep before
-   it ships (e.g., `8_3_1-to-8_4_0_upgrade.sql` on master mid-8.3.1-
-   prep would return 8.3.1, and boot-package.sh would 404 trying
-   to download `openemr-8.3.1.tar.gz`). Manifest-only would return
-   a released version that isn't in the current branch's dropdown
-   (e.g., a rel-830 test with from=8.3.0 fails dropdown-membership).
+1. **Enumerate all from-version candidates** from the checkout's
+   `sql/*-to-*_upgrade.sql` filenames (the value before `-to-` on
+   each file). Same convention `SqlUpgradeSkeletonMutator` +
+   `DockerUpgradeScaffoldMutator` use for prior-version derivation
+   during release-prep (see `src/Common/Command/ReleasePrep/Mutator/`)
+   — the sql-filename pattern is the project-wide
+   "shipped-predecessors" source; every entry is guaranteed to
+   appear in the branch's `sql_upgrade.php` wizard dropdown.
+2. **Intersect** that candidate set with the website-openemr
+   `data/releases.json` manifest (the authoritative "which
+   versions have actually shipped tarballs on GitHub Releases"
+   source of truth, filtered to `status: FINAL`).
+3. **Take the MAX** of the intersection — the newest from-version
+   that BOTH satisfies dropdown-membership AND has a downloadable
+   tarball.
+
+Neither the sql set nor the manifest set alone is sufficient.
+sql-only would return a version scaffolded by patch-prep before
+it ships (e.g., `8_3_1-to-8_4_0_upgrade.sql` on master mid-8.3.1-
+prep would return 8.3.1, and boot-package.sh would 404 trying to
+download `openemr-8.3.1.tar.gz`). Manifest-only would return a
+released version that isn't in the current branch's dropdown
+(e.g., a rel-830 test with from=8.3.0 fails dropdown-membership).
 
 Operator can still override via explicit `from_version` input on
 dispatch or `workflow_call` — the override skips both derivation
