@@ -51,10 +51,10 @@ on:
   workflow_dispatch:
     inputs:
       from_version:
-        description: 'Prior openemr version for the upgrade scenario (release tag suffix, e.g. 8.2.0)'
-        required: true
+        description: 'Prior openemr version for the upgrade scenario (release tag suffix, e.g. 8.2.0). Leave empty to auto-derive from the checkout''s sql/*-to-*_upgrade.sql files — the derived version is guaranteed to appear in the branch''s sql_upgrade.php wizard dropdown regardless of which branch fires the workflow. See openemr/openemr#13573.'
+        required: false
         type: string
-        default: '8.2.0'
+        default: ''
       to_version:
         description: 'Target openemr version (release tag suffix, e.g. 8.2.0)'
         required: true
@@ -75,10 +75,10 @@ on:
   workflow_call:
     inputs:
       from_version:
-        description: 'Prior openemr version for the upgrade scenario. Defaults to 8.2.0.'
+        description: 'Prior openemr version for the upgrade scenario. Defaults to empty, which triggers auto-derive from the checkout''s sql/*-to-*_upgrade.sql files — the derived version is guaranteed to appear in the branch''s sql_upgrade.php wizard dropdown. See openemr/openemr#13573.'
         required: false
         type: string
-        default: '8.2.0'
+        default: ''
       to_version:
         description: 'Version label for the caller-supplied tarball (drives artifact filename lookup + upgrade guards). Required when caller_tarball_artifact is set.'
         required: false
@@ -175,13 +175,20 @@ jobs:
       # LOCAL_PATH all agree on the same value. On the build_locally
       # path with no explicit dispatch input, this becomes 99.99.99 so
       # the upgrade + wizard-upgrade scenarios (unblocked when
-      # build_locally=true) receive distinct FROM (8.2.0) / TO values
+      # build_locally=true) receive distinct FROM / TO values
       # rather than upgrade-package.sh's identical-version reject. The
       # version string is a naming label only (drives filenames + the
       # scratch-dir name; sql_upgrade.php reads --from=FROM_VERSION,
-      # not the to side), so any semver-shaped > 8.2.0 works and
-      # 99.99.99 is unmistakably synthetic in logs.
+      # not the to side), so any semver-shaped > from_version works
+      # and 99.99.99 is unmistakably synthetic in logs.
       to_version: ${{ steps.decide.outputs.to_version }}
+      # from_version resolved once here so the acceptance job's env
+      # gets the same value the detect-mode step logged. Explicit
+      # DISPATCH_FROM_VERSION overrides; otherwise derived from the
+      # checkout's `sql/*-to-*_upgrade.sql` filenames so the
+      # resulting version is guaranteed to be in the branch's
+      # sql_upgrade.php wizard dropdown (openemr/openemr#13573).
+      from_version: ${{ steps.decide.outputs.from_version }}
     steps:
     - uses: actions/checkout@v7
       with:
@@ -192,6 +199,7 @@ jobs:
         EVENT_NAME: ${{ github.event_name }}
         DISPATCH_BUILD_LOCALLY: ${{ inputs.build_locally }}
         DISPATCH_TO_VERSION: ${{ inputs.to_version }}
+        DISPATCH_FROM_VERSION: ${{ inputs.from_version }}
         CALLER_TARBALL_ARTIFACT: ${{ inputs.caller_tarball_artifact }}
         CALLER_ZIP_ARTIFACT: ${{ inputs.caller_zip_artifact }}
         PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -352,7 +360,11 @@ jobs:
         # --local-zip).
         include: ${{ (github.event_name == 'workflow_dispatch' || inputs.caller_tarball_artifact != '' || inputs.caller_zip_artifact != '' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"},{"scenario":"upgrade","format":"tar"},{"scenario":"upgrade","format":"zip"},{"scenario":"wizard-upgrade","format":"tar"},{"scenario":"wizard-upgrade","format":"zip"}]') || fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"}]') }}
     env:
-      FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}
+      # detect-mode's from_version output already honors the operator
+      # override (inputs.from_version), else derives from the checkout's
+      # sql/*-to-*_upgrade.sql files. Route the resolved value through
+      # here so the matrix job doesn't re-implement the derivation.
+      FROM_VERSION: ${{ needs.detect-mode.outputs.from_version }}
       # Single source of truth for to_version — see the
       # detect-mode.outputs.to_version comment for why the auto-fire
       # path resolves this to 99.99.99.
