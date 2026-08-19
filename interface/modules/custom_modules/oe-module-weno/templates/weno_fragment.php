@@ -47,7 +47,7 @@ if (!$pharmacyHealth['isHealthy']) {
     $lastUpdateRaw = $pharmacyHealth['lastSuccess'] !== ''
         ? oeFormatShortDate($pharmacyHealth['lastSuccess'])
         : xl('never');
-    $lastUpdate = is_scalar($lastUpdateRaw) ? (string) $lastUpdateRaw : '';
+    $lastUpdate = is_scalar($lastUpdateRaw) ? (string)$lastUpdateRaw : '';
 
     if ($pharmacyCount === 0) {
         $tone = 'text-danger';
@@ -63,7 +63,7 @@ if (!$pharmacyHealth['isHealthy']) {
 
     $safeMessage = text($message);
     $countNote = $pharmacyCount > 0
-        ? ' <span class="text-muted">(' . text((string) $pharmacyCount) . ' ' . xlt('pharmacies') . ')</span>'
+        ? ' <span class="text-muted">(' . text((string)$pharmacyCount) . ' ' . xlt('pharmacies') . ')</span>'
         : '';
     $cite = <<<CITE
 <cite class="h6 {$tone} p-1 mt-1">
@@ -184,7 +184,7 @@ if ($reSync === true) {
 }
 ?>
 <?php // One #sync-alert only - the id was duplicated, so JS targeting it hit the
-      // first element and the second silently did nothing. ?>
+// first element and the second silently did nothing. ?>
 <div id="sync-alert" class="<?php echo $cite === '' ? 'd-none' : ''; ?>"><?php echo $cite; ?></div>
 <?php if (!$hasErrors) { ?>
     <br>
