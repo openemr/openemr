@@ -59,6 +59,24 @@ setup_test_dir() {
     export EVENT_NAME=""
     export DISPATCH_BUILD_LOCALLY=""
     export DISPATCH_TO_VERSION=""
+    # DISPATCH_FROM_VERSION defaults to a fixed value here (not empty)
+    # so tests that don't specifically exercise the derivation-from-
+    # checkout path skip it — an empty DISPATCH_FROM_VERSION would
+    # force derive_from_version to enumerate `sql/*-to-*_upgrade.sql`
+    # in the test's temp working dir (empty by default), which the
+    # derivation correctly fails loudly on. Tests that DO exercise
+    # the derivation path set this explicitly back to "" and call
+    # seed_sql_upgrade_fixtures below to populate the sql/ dir.
+    export DISPATCH_FROM_VERSION="8.2.0"
+    # MOCK_SHIPPED_VERSIONS bypasses fetch_shipped_versions' real curl
+    # against the website-openemr manifest — see the script for the
+    # env-var contract. Default is a realistic-ish shipped-versions
+    # list covering the versions the derivation tests exercise. Tests
+    # that don't hit derive_from_version at all still benefit (the mock
+    # short-circuits any accidental network call, keeping the suite
+    # deterministic + offline). Tests exercising the fetch-failure
+    # path override this to "__FAIL__" (see fetch_shipped_versions).
+    export MOCK_SHIPPED_VERSIONS=$'7.0.4\n8.0.0\n8.1.0\n8.1.1\n8.2.0\n8.3.0'
     export CALLER_TARBALL_ARTIFACT=""
     export CALLER_ZIP_ARTIFACT=""
     export PR_BASE_SHA=""
@@ -71,13 +89,27 @@ setup_test_dir() {
     export MOCK_GIT_DIFF_OUTPUT=""
 }
 
+# Populate the test's temp working dir with a set of empty
+# `sql/<from>-to-<to>_upgrade.sql` files matching the shape the script
+# scans for. Each arg is a "<from>-to-<to>" pair in underscore-shape
+# (e.g. `8_1_0-to-8_1_1`), matching the on-disk convention. Called by
+# tests that exercise the derive_from_version path; noop otherwise.
+seed_sql_upgrade_fixtures() {
+    mkdir -p sql
+    local pair
+    for pair in "$@"; do
+        touch "sql/${pair}_upgrade.sql"
+    done
+}
+
 teardown_test_dir() {
     cd /
     # Restore PATH first so a subsequent shell command uses real binaries.
     export PATH="${PATH#"${CWD}/.git-mock":}"
     rm -rf "${CWD}"
     unset GITHUB_OUTPUT
-    unset EVENT_NAME DISPATCH_BUILD_LOCALLY DISPATCH_TO_VERSION
+    unset EVENT_NAME DISPATCH_BUILD_LOCALLY DISPATCH_TO_VERSION DISPATCH_FROM_VERSION
+    unset MOCK_SHIPPED_VERSIONS SHIPPED_VERSIONS_MANIFEST_URL
     unset CALLER_TARBALL_ARTIFACT CALLER_ZIP_ARTIFACT
     unset PR_BASE_SHA PR_HEAD_SHA PR_HEAD_REF PR_TITLE
     unset PUSH_BEFORE_SHA PUSH_HEAD_SHA PUSH_REF

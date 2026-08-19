@@ -509,11 +509,11 @@ Both flags `realpath`-normalize the input before the `cd $REPO_ROOT`
 so a caller-supplied relative path resolves correctly at extraction.
 
 Also unblocks CI's `upgrade` + `wizard-upgrade` scenarios: they
-were workflow_dispatch-only because from_version defaults would
-need a shipped earlier tarball (only 8.2.0 has one today). With
-PR-built acting as to_version and 8.2.0 as from_version, those
-scenarios now fire whenever `build_locally=true` via
-`github.event_name == 'workflow_dispatch' || needs.detect-mode.outputs.build_locally == 'true'`.
+were workflow_dispatch-only because from_version needed a shipped
+earlier tarball as its input. With PR-built acting as to_version
+and the derived shipped predecessor (see #13573, described below)
+as from_version, those scenarios now fire whenever `build_locally=true`
+via `github.event_name == 'workflow_dispatch' || needs.detect-mode.outputs.build_locally == 'true'`.
 The synthetic `99.99.99` label default satisfies `upgrade-package.sh`'s
 equality/downgrade guards without needing a real version bump; it's a
 naming-only label (drives artifact filename + scratch-dir name),
@@ -644,22 +644,67 @@ Testing surface for the tarball/zip artifact split by trigger:
 Both tar and zip validated across ALL of these — full parity
 for the format dimension.
 
-**Default-matrix upgrade coverage post-8.3.0.** Today's default
-matrix (push / schedule / non-`tools/release/**` PR) is install-
-only because `from_version` and `to_version` both default to
-`8.2.0`, and upgrade-package.sh rejects a same-version upgrade.
-Upgrade cells only exist when `from != to`, which happens on
-dispatch (operator provides differing inputs), build_locally
-paths (from=8.2.0 shipped; to=99.99.99 synthetic PR-built), and
-workflow_call gate (from=8.2.0 shipped; to=the version being
-shipped). Once 8.3.0 releases and the default `from_version`
-becomes 8.2.0 → default `to_version` becomes 8.3.0, upgrade
-scenarios can move into the default matrix and daily/scheduled
-runs will exercise the shipped upgrade path continuously —
-would catch a base-image regression or release-page availability
-issue against the actual `latest-1 → latest` upgrade end users
-perform, without needing an operator to dispatch. Small
-follow-up (input default bump), not a full phase.
+**Default-matrix upgrade coverage.** Today's default matrix (push
+/ schedule / non-`tools/release/**` PR) is install-only. Upgrade
+cells only exist when `from != to`. With post-#13573 auto-
+derivation, that condition holds automatically on any branch whose
+newest `sql/*-to-*_upgrade.sql` maxes out below the workflow's
+`to_version` default (which stays static — the target under test
+doesn't depend on the checkout's shape). On the build_locally path
+the pair is derived-predecessor → 99.99.99 (PR-built synthetic
+label); on workflow_call it's derived-predecessor → the version
+being shipped. Moving upgrade scenarios into the plain scheduled
+default matrix — so daily runs exercise the shipped `latest-1 →
+latest` path continuously and would catch a base-image regression
+or release-page availability issue without needing operator
+dispatch — would additionally require a mechanism that keeps
+`to_version` aligned with the latest shipped release, since the
+current static default drifts stale as new versions ship. Small
+follow-up scoping question, not a full phase.
+
+**`from_version` auto-derivation from checkout (openemr/openemr#13573,
+SHIPPED post-8.3.0).** Historically `FROM_VERSION` defaulted to a
+hardcoded `8.2.0` in the workflow. That works on master (currently
+8.4.0-dev — 8.2.0 is a valid predecessor in master's `sql_upgrade.php`
+wizard dropdown) and on rel-830 (8.3.x line — 8.2.0 is that line's
+last cross-line predecessor). But it breaks on rel-820: 8.2.0 is
+rel-820's own line, not an upgrade-from, so rel-820's wizard dropdown
+stops at 8.1.1 and the acceptance test's dropdown-membership assertion
+fails when tested with FROM=8.2.0. Auto-firing acceptance runs on
+rel-820 sync PRs hit this consistently. Fix: derive `from_version` at detect-mode time via:
+
+1. **Enumerate all from-version candidates** from the checkout's
+   `sql/*-to-*_upgrade.sql` filenames (the value before `-to-` on
+   each file). Same convention `SqlUpgradeSkeletonMutator` +
+   `DockerUpgradeScaffoldMutator` use for prior-version derivation
+   during release-prep (see `src/Common/Command/ReleasePrep/Mutator/`)
+   — the sql-filename pattern is the project-wide
+   "shipped-predecessors" source; every entry is guaranteed to
+   appear in the branch's `sql_upgrade.php` wizard dropdown.
+2. **Intersect** that candidate set with the website-openemr
+   `data/releases.json` manifest (the authoritative "which
+   versions have actually shipped tarballs on GitHub Releases"
+   source of truth, filtered to `status: FINAL`).
+3. **Take the MAX** of the intersection — the newest from-version
+   that BOTH satisfies dropdown-membership AND has a downloadable
+   tarball.
+
+Neither the sql set nor the manifest set alone is sufficient.
+sql-only would return a version scaffolded by patch-prep before
+it ships (e.g., `8_3_1-to-8_4_0_upgrade.sql` on master mid-8.3.1-
+prep would return 8.3.1, and boot-package.sh would 404 trying to
+download `openemr-8.3.1.tar.gz`). Manifest-only would return a
+released version that isn't in the current branch's dropdown
+(e.g., a rel-830 test with from=8.3.0 fails dropdown-membership).
+
+Operator can still override via explicit `from_version` input on
+dispatch or `workflow_call` — the override skips both derivation
+steps and only shape-validates the value. See
+`.github/scripts/detect-acceptance-mode.sh` + its bats tests for
+the shape. Fetch is retried 3× with a 30s hard timeout; a
+persistent fetch failure exits the run loudly rather than
+silently falling back to sql-only derivation, since the whole
+point of the filter is to guarantee shipped-status.
 
 **Original scoping (as-scoped 2026-07-29, preserved for
 context):**
