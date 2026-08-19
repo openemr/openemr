@@ -59882,11 +59882,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$processingResult of static method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:createProcessingResultResponse\\(\\) expects OpenEMR\\\\Validators\\\\ProcessingResult, Particle\\\\Validator\\\\ValidationResult given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$processingResult of static method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:handleProcessingResult\\(\\) expects OpenEMR\\\\Validators\\\\ProcessingResult, mixed given\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',

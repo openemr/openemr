@@ -95,6 +95,21 @@ class InsuranceCompanyApiTest extends TestCase
     }
 
     #[Test]
+    public function testPostWithInvalidAddressReturns400(): void
+    {
+        // company fields valid, address invalid: exercises the second
+        // validation branch, which converts a Particle ValidationResult
+        // into a ProcessingResult for the 400 response
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            'name' => self::FIXTURE_NAME_PREFIX . " Bad Address " . uniqid(),
+            'ins_type_code' => '1',
+            'line1' => 'X',
+        ]);
+
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    #[Test]
     public function testPostWithMissingNameReturns400(): void
     {
         $response = $this->testClient->post(self::API_ENDPOINT, [

@@ -188,7 +188,11 @@ class InsuranceCompanyRestController
 
         $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
         if (!$addressValidationResult->isValid()) {
-            return RestControllerHelper::createProcessingResultResponse($request, $addressValidationResult, 400);
+            // AddressService::validate() returns a Particle ValidationResult;
+            // convert so the response helper receives a ProcessingResult
+            $addressProcessingResult = new ProcessingResult();
+            $addressProcessingResult->setValidationMessages($addressValidationResult->getMessages());
+            return RestControllerHelper::createProcessingResultResponse($request, $addressProcessingResult, 400);
         }
 
         $serviceResult = $this->insuranceCompanyService->insert($data);
@@ -231,7 +235,11 @@ class InsuranceCompanyRestController
 
         $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
         if (!$addressValidationResult->isValid()) {
-            return RestControllerHelper::createProcessingResultResponse($request, $addressValidationResult, 400);
+            // AddressService::validate() returns a Particle ValidationResult;
+            // convert so the response helper receives a ProcessingResult
+            $addressProcessingResult = new ProcessingResult();
+            $addressProcessingResult->setValidationMessages($addressValidationResult->getMessages());
+            return RestControllerHelper::createProcessingResultResponse($request, $addressProcessingResult, 400);
         }
 
         $serviceResult = $this->insuranceCompanyService->update($data, $iid);
