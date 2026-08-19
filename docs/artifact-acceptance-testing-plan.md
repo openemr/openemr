@@ -509,11 +509,11 @@ Both flags `realpath`-normalize the input before the `cd $REPO_ROOT`
 so a caller-supplied relative path resolves correctly at extraction.
 
 Also unblocks CI's `upgrade` + `wizard-upgrade` scenarios: they
-were workflow_dispatch-only because from_version defaults would
-need a shipped earlier tarball (only 8.2.0 has one today). With
-PR-built acting as to_version and 8.2.0 as from_version, those
-scenarios now fire whenever `build_locally=true` via
-`github.event_name == 'workflow_dispatch' || needs.detect-mode.outputs.build_locally == 'true'`.
+were workflow_dispatch-only because from_version needed a shipped
+earlier tarball as its input. With PR-built acting as to_version
+and the derived shipped predecessor (see #13573, described below)
+as from_version, those scenarios now fire whenever `build_locally=true`
+via `github.event_name == 'workflow_dispatch' || needs.detect-mode.outputs.build_locally == 'true'`.
 The synthetic `99.99.99` label default satisfies `upgrade-package.sh`'s
 equality/downgrade guards without needing a real version bump; it's a
 naming-only label (drives artifact filename + scratch-dir name),
@@ -644,22 +644,23 @@ Testing surface for the tarball/zip artifact split by trigger:
 Both tar and zip validated across ALL of these — full parity
 for the format dimension.
 
-**Default-matrix upgrade coverage post-8.3.0.** Today's default
-matrix (push / schedule / non-`tools/release/**` PR) is install-
-only because `from_version` and `to_version` both default to
-`8.2.0`, and upgrade-package.sh rejects a same-version upgrade.
-Upgrade cells only exist when `from != to`, which happens on
-dispatch (operator provides differing inputs), build_locally
-paths (from=derived shipped predecessor; to=99.99.99 synthetic
-PR-built), and workflow_call gate (from=derived shipped
-predecessor; to=the version being shipped). Once 8.3.0 releases
-and the default `from_version` becomes 8.2.0 → default
-`to_version` becomes 8.3.0, upgrade scenarios can move into the
-default matrix and daily/scheduled runs will exercise the shipped
-upgrade path continuously — would catch a base-image regression
-or release-page availability issue against the actual `latest-1 →
-latest` upgrade end users perform, without needing an operator to
-dispatch. Small follow-up (input default bump), not a full phase.
+**Default-matrix upgrade coverage.** Today's default matrix (push
+/ schedule / non-`tools/release/**` PR) is install-only. Upgrade
+cells only exist when `from != to`. With post-#13573 auto-
+derivation, that condition holds automatically on any branch whose
+newest `sql/*-to-*_upgrade.sql` maxes out below the workflow's
+`to_version` default (which stays static — the target under test
+doesn't depend on the checkout's shape). On the build_locally path
+the pair is derived-predecessor → 99.99.99 (PR-built synthetic
+label); on workflow_call it's derived-predecessor → the version
+being shipped. Moving upgrade scenarios into the plain scheduled
+default matrix — so daily runs exercise the shipped `latest-1 →
+latest` path continuously and would catch a base-image regression
+or release-page availability issue without needing operator
+dispatch — would additionally require a mechanism that keeps
+`to_version` aligned with the latest shipped release, since the
+current static default drifts stale as new versions ship. Small
+follow-up scoping question, not a full phase.
 
 **`from_version` auto-derivation from checkout (openemr/openemr#13573,
 SHIPPED post-8.3.0).** Historically `FROM_VERSION` defaulted to a
