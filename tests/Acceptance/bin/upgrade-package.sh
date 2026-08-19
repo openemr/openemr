@@ -313,9 +313,11 @@ done
 # upgrade replayed from 2.9.0 on every run). Skipped in
 # --skip-sql-upgrade mode: that path exits before this point (line
 # ~281) because the Panther wizard test runs the upgrade later.
+# `mariadb` (not `mysql`) — the mariadb 11.8 image ships only the
+# `mariadb` client binary; `mysql` is not on $PATH.
 echo "==> Asserting DB version matches ${TO_VERSION}"
 DB_VERSION="$(docker compose exec -T mysql \
-    mysql -uroot -proot openemr -sN \
+    mariadb -uroot -proot openemr -sN \
     -e "SELECT CONCAT(v_major,'.',v_minor,'.',v_patch) FROM version" \
     2>/dev/null || echo "query-failed")"
 if [[ "${DB_VERSION}" != "${TO_VERSION}" ]]; then

@@ -295,9 +295,11 @@ done
 # Root creds `root/root` are the acceptance stack default
 # (`.github/docker/acceptance-package-compose.yml:MYSQL_ROOT_PASSWORD`).
 # `-sN` = silent + no column headers; direct scalar output.
+# `mariadb` (not `mysql`) — the mariadb 11.8 image ships only the
+# `mariadb` client binary; `mysql` is not on $PATH.
 echo "==> Asserting DB version matches ${VERSION}"
 DB_VERSION="$(docker compose exec -T mysql \
-    mysql -uroot -proot openemr -sN \
+    mariadb -uroot -proot openemr -sN \
     -e "SELECT CONCAT(v_major,'.',v_minor,'.',v_patch) FROM version" \
     2>/dev/null || echo "query-failed")"
 if [[ "${DB_VERSION}" != "${VERSION}" ]]; then
