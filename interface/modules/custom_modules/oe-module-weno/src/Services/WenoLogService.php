@@ -102,7 +102,7 @@ class WenoLogService
     /**
      * The staleness arithmetic, split out so it can be tested without a database.
      *
-     * A missing or unparseable date counts as stale: if we cannot prove a rebuild
+     * A missing or unparsable date counts as stale: if we cannot prove a rebuild
      * happened recently, rebuilding is the safe answer.
      *
      * @param int|null $now Unix time to measure against; defaults to time().
