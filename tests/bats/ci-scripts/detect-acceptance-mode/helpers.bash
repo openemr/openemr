@@ -59,6 +59,15 @@ setup_test_dir() {
     export EVENT_NAME=""
     export DISPATCH_BUILD_LOCALLY=""
     export DISPATCH_TO_VERSION=""
+    # DISPATCH_FROM_VERSION defaults to a fixed value here (not empty)
+    # so tests that don't specifically exercise the derivation-from-
+    # checkout path skip it — an empty DISPATCH_FROM_VERSION would
+    # force derive_from_version to enumerate `sql/*-to-*_upgrade.sql`
+    # in the test's temp working dir (empty by default), which the
+    # derivation correctly fails loudly on. Tests that DO exercise
+    # the derivation path set this explicitly back to "" and call
+    # seed_sql_upgrade_fixtures below to populate the sql/ dir.
+    export DISPATCH_FROM_VERSION="8.2.0"
     export CALLER_TARBALL_ARTIFACT=""
     export CALLER_ZIP_ARTIFACT=""
     export PR_BASE_SHA=""
@@ -71,13 +80,26 @@ setup_test_dir() {
     export MOCK_GIT_DIFF_OUTPUT=""
 }
 
+# Populate the test's temp working dir with a set of empty
+# `sql/<from>-to-<to>_upgrade.sql` files matching the shape the script
+# scans for. Each arg is a "<from>-to-<to>" pair in underscore-shape
+# (e.g. `8_1_0-to-8_1_1`), matching the on-disk convention. Called by
+# tests that exercise the derive_from_version path; noop otherwise.
+seed_sql_upgrade_fixtures() {
+    mkdir -p sql
+    local pair
+    for pair in "$@"; do
+        touch "sql/${pair}_upgrade.sql"
+    done
+}
+
 teardown_test_dir() {
     cd /
     # Restore PATH first so a subsequent shell command uses real binaries.
     export PATH="${PATH#"${CWD}/.git-mock":}"
     rm -rf "${CWD}"
     unset GITHUB_OUTPUT
-    unset EVENT_NAME DISPATCH_BUILD_LOCALLY DISPATCH_TO_VERSION
+    unset EVENT_NAME DISPATCH_BUILD_LOCALLY DISPATCH_TO_VERSION DISPATCH_FROM_VERSION
     unset CALLER_TARBALL_ARTIFACT CALLER_ZIP_ARTIFACT
     unset PR_BASE_SHA PR_HEAD_SHA PR_HEAD_REF PR_TITLE
     unset PUSH_BEFORE_SHA PUSH_HEAD_SHA PUSH_REF

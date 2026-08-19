@@ -29,6 +29,9 @@
 #   DISPATCH_BUILD_LOCALLY   inputs.build_locally (workflow_dispatch)
 #   DISPATCH_TO_VERSION      inputs.to_version    (workflow_dispatch /
 #                            workflow_call)
+#   DISPATCH_FROM_VERSION    inputs.from_version  (workflow_dispatch /
+#                            workflow_call) — empty triggers
+#                            derive-from-checkout via sql/*.sql files
 #   CALLER_TARBALL_ARTIFACT  inputs.caller_tarball_artifact
 #                            (workflow_call gate)
 #   CALLER_ZIP_ARTIFACT      inputs.caller_zip_artifact
@@ -45,11 +48,14 @@
 # Outputs (written to $GITHUB_OUTPUT)
 #   build_locally=<true|false>
 #   to_version=<X.Y.Z>
+#   from_version=<X.Y.Z>
 #
 # Exit codes
 #   0   Decision emitted successfully.
 #   1   Invalid input (workflow_call gate half-set, missing to_version
-#       on workflow_call, or resolved to_version not in X.Y.Z shape).
+#       on workflow_call, resolved to_version/from_version not in
+#       X.Y.Z shape, or no sql/*-to-*_upgrade.sql files found for
+#       from_version derivation).
 
 # shellcheck disable=SC2154
 # All env vars listed in the header are set by the caller workflow's
@@ -85,6 +91,100 @@ emit_to_version() {
     fi
     echo "to_version=${candidate}" >> "${GITHUB_OUTPUT}"
     echo "==> resolved to_version=${candidate}"
+}
+
+# derive_from_version — picks the latest "from-version" from the
+# checkout's `sql/*-to-*_upgrade.sql` filenames. Each filename
+# encodes an upgrade hop (e.g. `sql/8_1_1-to-8_2_0_upgrade.sql`
+# = "from 8.1.1 to 8.2.0"). The MAX from-version across all these
+# files is the newest upgrade-from the current branch's
+# `sql_upgrade.php` will offer in its wizard dropdown, so it's
+# guaranteed to satisfy the wizard-upgrade acceptance test's
+# dropdown-membership assertion regardless of which branch the
+# checkout is on.
+#
+# Rationale — historically `FROM_VERSION` defaulted to a hardcoded
+# `8.2.0`. That works on master (currently 8.4.0-dev, has 8.2.0 in
+# its upgrade dropdown) and rel-830 (8.3.0 line, has 8.2.0 in
+# dropdown), but breaks on rel-820 (8.2.0 line — 8.2.0 is not in
+# rel-820's own dropdown because you don't upgrade from your own
+# version). Deriving from the checkout's own `sql/` files sidesteps
+# the "hardcoded default drifts as branches diverge" trap entirely
+# and works on any branch without config maintenance. See
+# openemr/openemr#13573 for the full symptom trace.
+derive_from_version() {
+    local latest
+    # Guard the `find` on directory existence first — under `set -e`
+    # a bare `find sql` when sql/ doesn't exist returns 1 and would
+    # tear down the whole script before our empty-result check
+    # below could emit a useful error message. Same shape as the
+    # `[[ ! -f ]]` guards elsewhere in this script.
+    if [[ ! -d sql ]]; then
+        echo "::error::derive_from_version: no sql/*-to-*_upgrade.sql files found in checkout" >&2
+        exit 1
+    fi
+    # Enumerate `sql/*-to-*_upgrade.sql` (filenames like
+    # `sql/8_1_0-to-8_1_1_upgrade.sql`) via `find` rather than `ls`
+    # (shellcheck SC2012; also more robust to non-alphanumeric
+    # names should the convention ever drift). Strip the `sql/`
+    # prefix and the `-to-<version>_upgrade.sql` suffix to get the
+    # from-version in underscore-shape (`8_1_1`), swap underscores
+    # to dots, sort semver-aware, take the max. Empty result → no
+    # matching files in checkout (sql/ exists but empty, or the
+    # upgrade-file naming convention drifted); fail loudly rather
+    # than silently emitting an empty string that downstream
+    # `--from=""` would accept as "no filter" and skip the wizard
+    # step entirely.
+    latest=$(find sql -maxdepth 1 -name '*-to-*_upgrade.sql' -type f 2>/dev/null \
+        | sed -E 's|^sql/||; s|-to-[0-9_]+_upgrade\.sql$||' \
+        | tr '_' '.' \
+        | sort -V \
+        | tail -1)
+    if [[ -z "${latest}" ]]; then
+        echo "::error::derive_from_version: no sql/*-to-*_upgrade.sql files found in checkout" >&2
+        exit 1
+    fi
+    if [[ ! "${latest}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "::error::derive_from_version: derived from-version '${latest}' does not match required X.Y.Z" >&2
+        exit 1
+    fi
+    printf '%s' "${latest}"
+}
+
+# emit_from_version — honors DISPATCH_FROM_VERSION when set (operator
+# override via workflow_dispatch, or explicit caller pass on
+# workflow_call), else auto-derives via derive_from_version. Shape-
+# validates either way (same defense-in-depth as emit_to_version).
+emit_from_version() {
+    local candidate
+    if [[ -n "${DISPATCH_FROM_VERSION}" ]]; then
+        candidate="${DISPATCH_FROM_VERSION}"
+    else
+        # Explicit exit-code check on the command substitution.
+        # `set -e` in the outer scope doesn't reliably propagate
+        # a `$()`-in-assignment nonzero exit in bash, and
+        # derive_from_version's `::error::` lines go to stderr
+        # (not captured by `$()`), so we can't rely on catching
+        # the failure via candidate's content either. Explicit `if !`
+        # is the durable pattern here. SC2310 warns that `if !` on a
+        # function call disables `set -e` inside the function — that
+        # applies in general but not here: derive_from_version's
+        # failure modes are all explicit `exit 1` (dir-missing,
+        # empty-result, shape-check) that propagate regardless of
+        # `set -e`, and the empty-result check catches any silent
+        # pipeline failure that the disabled `set -e` would have
+        # otherwise masked.
+        # shellcheck disable=SC2310
+        if ! candidate=$(derive_from_version); then
+            exit 1
+        fi
+    fi
+    if [[ ! "${candidate}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "::error::resolved from_version '${candidate}' does not match required X.Y.Z" >&2
+        exit 1
+    fi
+    echo "from_version=${candidate}" >> "${GITHUB_OUTPUT}"
+    echo "==> resolved from_version=${candidate}"
 }
 
 # Phase 7c workflow_call gate — caller (build-release.yml)
@@ -123,6 +223,7 @@ if [[ -n "${CALLER_TARBALL_ARTIFACT}" || -n "${CALLER_ZIP_ARTIFACT}" ]]; then
     echo "==> workflow_call gate mode (tarball=${CALLER_TARBALL_ARTIFACT}, zip=${CALLER_ZIP_ARTIFACT}): forcing build_locally=true"
     echo "build_locally=true" >> "${GITHUB_OUTPUT}"
     emit_to_version "true"
+    emit_from_version
     exit 0
 fi
 
@@ -180,6 +281,7 @@ if [[ "${HEAD_REF}" == release-prep/* ]]; then
         echo "==> parsed release version from PR title: ${preferred}"
     fi
     emit_to_version "true" "${preferred}"
+    emit_from_version
     exit 0
 fi
 
@@ -188,6 +290,7 @@ if [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
     echo "build_locally=${DISPATCH_BUILD_LOCALLY}" >> "${GITHUB_OUTPUT}"
     echo "==> dispatch mode: build_locally=${DISPATCH_BUILD_LOCALLY}"
     emit_to_version "${DISPATCH_BUILD_LOCALLY}"
+    emit_from_version
     exit 0
 fi
 # Resolve the diff range for push/pull_request.
@@ -198,6 +301,7 @@ case "${EVENT_NAME}" in
         echo "==> ${EVENT_NAME} event: defaulting build_locally=false"
         echo "build_locally=false" >> "${GITHUB_OUTPUT}"
         emit_to_version "false"
+        emit_from_version
         exit 0
         ;;
 esac
@@ -206,6 +310,7 @@ if [[ -z "${BASE}" || "${BASE}" == "0000000000000000000000000000000000000000" ]]
     echo "==> branch-creation event (no base ref): defaulting build_locally=false"
     echo "build_locally=false" >> "${GITHUB_OUTPUT}"
     emit_to_version "false"
+    emit_from_version
     exit 0
 fi
 # Verify BASE is reachable in the local clone. If the branch was
@@ -235,6 +340,7 @@ if ! git cat-file -e "${BASE}^{commit}" 2>/dev/null; then
         fi
         echo "build_locally=false" >> "${GITHUB_OUTPUT}"
         emit_to_version "false"
+        emit_from_version
         exit 0
     fi
 fi
@@ -259,8 +365,10 @@ if grep -qE '^(tools/release/|build\.xml$|\.gitattributes$)' <<< "${changed_file
     echo "==> tarball-build surface changed between ${BASE} and ${HEAD}: build_locally=true"
     echo "build_locally=true" >> "${GITHUB_OUTPUT}"
     emit_to_version "true"
+    emit_from_version
 else
     echo "==> tarball-build surface unchanged between ${BASE} and ${HEAD}: build_locally=false"
     echo "build_locally=false" >> "${GITHUB_OUTPUT}"
     emit_to_version "false"
+    emit_from_version
 fi

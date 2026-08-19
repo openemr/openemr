@@ -650,16 +650,34 @@ only because `from_version` and `to_version` both default to
 `8.2.0`, and upgrade-package.sh rejects a same-version upgrade.
 Upgrade cells only exist when `from != to`, which happens on
 dispatch (operator provides differing inputs), build_locally
-paths (from=8.2.0 shipped; to=99.99.99 synthetic PR-built), and
-workflow_call gate (from=8.2.0 shipped; to=the version being
-shipped). Once 8.3.0 releases and the default `from_version`
-becomes 8.2.0 → default `to_version` becomes 8.3.0, upgrade
-scenarios can move into the default matrix and daily/scheduled
-runs will exercise the shipped upgrade path continuously —
-would catch a base-image regression or release-page availability
-issue against the actual `latest-1 → latest` upgrade end users
-perform, without needing an operator to dispatch. Small
-follow-up (input default bump), not a full phase.
+paths (from=derived shipped predecessor; to=99.99.99 synthetic
+PR-built), and workflow_call gate (from=derived shipped
+predecessor; to=the version being shipped). Once 8.3.0 releases
+and the default `from_version` becomes 8.2.0 → default
+`to_version` becomes 8.3.0, upgrade scenarios can move into the
+default matrix and daily/scheduled runs will exercise the shipped
+upgrade path continuously — would catch a base-image regression
+or release-page availability issue against the actual `latest-1 →
+latest` upgrade end users perform, without needing an operator to
+dispatch. Small follow-up (input default bump), not a full phase.
+
+**`from_version` auto-derivation from checkout (openemr/openemr#13573,
+SHIPPED post-8.3.0).** Historically `FROM_VERSION` defaulted to a
+hardcoded `8.2.0` in the workflow. That works on master (currently
+8.4.0-dev — 8.2.0 is a valid predecessor in master's `sql_upgrade.php`
+wizard dropdown) and on rel-830 (8.3.x line — 8.2.0 is that line's
+last cross-line predecessor). But it breaks on rel-820: 8.2.0 is
+rel-820's own line, not an upgrade-from, so rel-820's wizard dropdown
+stops at 8.1.1 and the acceptance test's dropdown-membership assertion
+fails when tested with FROM=8.2.0. Auto-firing acceptance runs on
+rel-820 sync PRs hit this consistently. Fix: derive `from_version`
+at detect-mode time from the checkout's own `sql/*-to-*_upgrade.sql`
+filenames — take the MAX from-version (before-`-to-`) across all such
+files, guaranteed to appear in that branch's `sql_upgrade.php`
+dropdown regardless of which branch fires the workflow. Operator can
+still override via explicit `from_version` input on dispatch or
+`workflow_call`. See `.github/scripts/detect-acceptance-mode.sh` +
+its bats tests for the shape.
 
 **Original scoping (as-scoped 2026-07-29, preserved for
 context):**

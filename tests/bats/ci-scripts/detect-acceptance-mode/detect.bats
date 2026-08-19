@@ -302,3 +302,108 @@ teardown() {
     [[ "${emitted}" == *"to_version=8.3.0"* ]]
     [[ "${emitted}" != *"to_version=8.2.1"* ]]
 }
+
+# --- from_version derivation from sql/*-to-*_upgrade.sql (openemr/openemr#13573) ---
+
+@test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (rel-820 shape)" {
+    # rel-820 shape: upgrade files stop at 8_1_1-to-8_2_0, so the
+    # max from-version is 8.1.1 -- guaranteed to be in the branch's
+    # sql_upgrade.php dropdown.
+    seed_sql_upgrade_fixtures \
+        7_0_4-to-8_0_0 \
+        8_0_0-to-8_1_0 \
+        8_1_0-to-8_1_1 \
+        8_1_1-to-8_2_0
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"from_version=8.1.1"* ]]
+    [[ "${output}" == *"resolved from_version=8.1.1"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (rel-830 shape)" {
+    # rel-830 shape: upgrade files include 8_2_0-to-8_3_0, so the
+    # max from-version is 8.2.0.
+    seed_sql_upgrade_fixtures \
+        8_1_0-to-8_1_1 \
+        8_1_1-to-8_2_0 \
+        8_2_0-to-8_3_0
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"from_version=8.2.0"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (master shape)" {
+    # Master (post-8.3.0 cut) shape: upgrade files include
+    # 8_3_0-to-8_4_0 (the empty template for the next dev cycle),
+    # so the max from-version is 8.3.0.
+    seed_sql_upgrade_fixtures \
+        8_1_1-to-8_2_0 \
+        8_2_0-to-8_3_0 \
+        8_3_0-to-8_4_0
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"from_version=8.3.0"* ]]
+}
+
+@test "explicit DISPATCH_FROM_VERSION overrides derivation" {
+    # Operator explicitly passes a version; derivation skipped even
+    # when sql/*.sql files exist and would derive something different.
+    seed_sql_upgrade_fixtures 8_1_0-to-8_1_1 8_1_1-to-8_2_0
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="false"
+    export DISPATCH_TO_VERSION="8.2.0"
+    export DISPATCH_FROM_VERSION="7.0.4"
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"from_version=7.0.4"* ]]
+    [[ "${emitted}" != *"from_version=8.1.1"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION + no sql/ dir -> exit 1 with fail-loud error" {
+    # No sql/*.sql files means the checkout is either a branch older
+    # than the upgrade-file convention or genuinely broken. Fail
+    # loudly rather than emit an empty from_version that would
+    # bypass the wizard-step assertion downstream.
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::derive_from_version: no sql/*-to-*_upgrade.sql files found in checkout"* ]]
+}
+
+@test "malformed derivation output rejected by shape validator" {
+    # Fixture with a non-X.Y.Z from-version (impossible in practice
+    # but the validator guards against a hypothetical filename-format
+    # drift that would break the assumption).
+    mkdir -p sql
+    touch sql/8_1-to-8_2_0_upgrade.sql
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::derive_from_version: derived from-version '8.1' does not match required X.Y.Z"* ]]
+}
+
+@test "malformed DISPATCH_FROM_VERSION rejected by shape validator" {
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="false"
+    export DISPATCH_TO_VERSION="8.2.0"
+    export DISPATCH_FROM_VERSION="8.2"
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::resolved from_version '8.2' does not match required X.Y.Z"* ]]
+}
