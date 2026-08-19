@@ -57,9 +57,8 @@ class InsuranceEmployerSearchApiTest extends TestCase
     }
 
     /**
-     * Seeds through the service layer because POST /api/insurance_company is
-     * currently broken (missing InsuranceCompanyService::validate(), see
-     * InsuranceCompanyApiTest); the endpoint under test here is GET.
+     * Seeds through the service layer to keep this test focused on GET
+     * behavior; POST coverage lives in InsuranceCompanyApiTest.
      */
     private function createCompany(string $nameSuffix, string $cmsId): void
     {

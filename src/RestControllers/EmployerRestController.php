@@ -19,7 +19,6 @@ use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
 
 class EmployerRestController
@@ -47,6 +46,11 @@ class EmployerRestController
                 required: true,
                 schema: new OA\Schema(type: 'string')
             ),
+            new OA\Parameter(name: 'name', in: 'query', description: 'Partial match on the employer name.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'occupation', in: 'query', description: 'The ODH occupation code.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'industry', in: 'query', description: 'The ODH industry code.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'start_date', in: 'query', description: 'The employment start date, supports FHIR prefixes e.g. ge2024-01-01.', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'end_date', in: 'query', description: 'The employment end date, supports FHIR prefixes e.g. lt2025-01-01.', required: false, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
@@ -65,7 +69,7 @@ class EmployerRestController
                     throw new SearchFieldException('search', 'unsupported search parameter');
                 }
                 $search[$key] = match ($key) {
-                    'id' => new TokenSearchField('id', new TokenSearchValue($value), false),
+                    'id' => new TokenSearchField('id', $value, false),
                     'puuid' => new TokenSearchField('puuid', $value, true),
                     'pid' => new TokenSearchField('pid', $value, true),
                     'name' => new StringSearchField('name', $value, SearchModifier::CONTAINS),

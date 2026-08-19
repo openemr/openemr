@@ -59882,6 +59882,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$insuranceCompanyData of method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:validate\\(\\) expects array\\<string, mixed\\>, mixed given\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$processingResult of static method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:handleProcessingResult\\(\\) expects OpenEMR\\\\Validators\\\\ProcessingResult, mixed given\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
@@ -68522,11 +68527,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of method OpenEMR\\\\Services\\\\BaseService\\:\\:getUuidById\\(\\) expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$row of method OpenEMR\\\\Services\\\\BaseService\\:\\:createResultRecordFromDatabaseResult\\(\\) expects array\\<string, mixed\\>, array given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
@@ -68534,11 +68534,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$search of method OpenEMR\\\\Services\\\\InsuranceService\\:\\:search\\(\\) expects array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>, array\\<string, mixed\\> given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function strlen expects string, string\\|false given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
 ];
 $ignoreErrors[] = [

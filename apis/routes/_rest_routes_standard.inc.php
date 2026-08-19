@@ -462,7 +462,7 @@ return [
     },
     "GET /api/insurance_company" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "acct", "bill");
-        $return = (new InsuranceCompanyRestController())->getAll($request->getQueryParams());
+        $return = (new InsuranceCompanyRestController())->getAll($request);
 
         return $return;
     },

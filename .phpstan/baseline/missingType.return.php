@@ -21222,11 +21222,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/ImmunizationRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\InsuranceCompanyRestController\\:\\:getAll\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\InsuranceCompanyRestController\\:\\:getInsuranceTypes\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',

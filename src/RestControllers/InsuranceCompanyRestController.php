@@ -13,6 +13,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\AddressService;
@@ -22,6 +23,7 @@ use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Http\Message\ResponseInterface;
 
 #[OA\Schema(
     schema: 'api_insurance_company_request',
@@ -70,7 +72,7 @@ class InsuranceCompanyRestController
     }
 
     /**
-     * @param array<string, mixed> $searchParams
+     * Search parameters are read from the request query string.
      */
     #[OA\Get(
         path: '/api/insurance_company',
@@ -91,12 +93,12 @@ class InsuranceCompanyRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getAll(array $searchParams = [])
+    public function getAll(HttpRestRequest $request): ResponseInterface
     {
         $processingResult = new ProcessingResult();
         try {
             $search = [];
-            foreach ($searchParams as $key => $value) {
+            foreach ($request->getQueryParams() as $key => $value) {
                 if (!is_string($value) && !is_array($value)) {
                     throw new SearchFieldException('search', 'unsupported search parameter');
                 }
@@ -113,7 +115,7 @@ class InsuranceCompanyRestController
             // do not reflect raw parameter names or values back to the caller
             $processingResult->setValidationMessages(['search' => ['invalid or unsupported search parameter']]);
         }
-        return RestControllerHelper::handleProcessingResult($processingResult, null, 200);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200, true);
     }
 
     #[OA\Get(

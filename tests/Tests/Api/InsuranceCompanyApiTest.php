@@ -3,9 +3,10 @@
 /**
  * InsuranceCompany API Endpoint Tests
  *
- * The insurance company REST API has pre-existing bugs:
- * - POST/PUT: InsuranceCompanyService::validate() does not exist
+ * The insurance company REST API has a pre-existing bug:
  * - GET one: Binary UUID in raw row causes JSON encoding error
+ * (POST/PUT previously fataled on a missing InsuranceCompanyService::validate();
+ * restored alongside the search parameter support.)
  * (GET all previously did not handle ProcessingResult; fixed by wiring
  * search parameters through to InsuranceCompanyService::search().
  * InsuranceEmployerSearchApiTest covers the GET all search behavior.)
@@ -60,19 +61,27 @@ class InsuranceCompanyApiTest extends TestCase
     }
 
     #[Test]
-    public function testPostReturns500DueMissingValidateMethod(): void
+    public function testPostWithValidDataCreatesCompany(): void
     {
-        // Pre-existing bug: InsuranceCompanyRestController::post() calls
-        // $this->insuranceCompanyService->validate() which does not exist.
+        // regression test: post() previously fataled because
+        // InsuranceCompanyService::validate() did not exist
+        // (empty-string optionals are omitted: the validator applies length
+        // rules to present-but-empty values)
         $response = $this->testClient->post(self::API_ENDPOINT, [
-            'name' => 'test-fixture-Bug Test Insurance',
-            'attn' => '',
-            'cms_id' => '',
+            'name' => 'test-fixture-Validate Restored Insurance',
             'ins_type_code' => '1',
-            'x12_receiver_id' => '',
-            'alt_cms_id' => '',
         ]);
 
-        $this->assertEquals(500, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function testPostWithMissingNameReturns400(): void
+    {
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            'ins_type_code' => '1',
+        ]);
+
+        $this->assertEquals(400, $response->getStatusCode());
     }
 }
