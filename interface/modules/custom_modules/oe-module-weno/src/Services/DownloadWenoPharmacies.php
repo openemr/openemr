@@ -60,6 +60,9 @@ class DownloadWenoPharmacies
         '24HR',
     ];
 
+    /** Give up minting synthetic keys past this many collisions on one seed. */
+    private const MAX_NCPDP_COLLISION_SUFFIX = 999;
+
     /** Tokens kept upper-case when title-casing an all-caps source value. */
     private const UPPERCASE_TOKENS = [
         'CVS', 'RX', 'LLC', 'LLP', 'LP', 'INC', 'PC', 'PA', 'DBA',
@@ -276,6 +279,13 @@ class DownloadWenoPharmacies
     /**
      * Download remote content into weno_pharmacy.zip (legacy filename retained).
      *
+     * $url and $storelocation are intentionally untyped: adding string types here
+     * would push type errors onto out-of-tree callers. Both are narrowed with
+     * is_scalar() below instead.
+     *
+     * @param mixed $url
+     * @param mixed $storelocation
+     *
      * @return array{success:bool,message:string,bytes?:int,http_code?:int,content_type?:string}
      */
     public function retrieveDataFile($url, $storelocation): array
@@ -317,7 +327,10 @@ class DownloadWenoPharmacies
         $transportError = '';
         try {
             $client = new Client([
-                'timeout' => 1000,
+                // 5 minutes, down from the 1000s carried over from CURLOPT_TIMEOUT.
+                // Guzzle blocks the calling script for the whole window, and the
+                // background service should not sit on a hung socket for 17 minutes.
+                'timeout' => 300,
                 'connect_timeout' => 60,
                 'allow_redirects' => true,
                 // Weno signals failures with an HTML error page and a 200/4xx mix,
@@ -476,7 +489,13 @@ class DownloadWenoPharmacies
         if ($kind === 'csv') {
             $csvPath = $pathToExtract . 'weno_pharmacy_import.csv';
             if (!@copy($storeLocation, $csvPath)) {
-                $csvPath = $storeLocation;
+                // Returning $storeLocation here would parse, but the file keeps its
+                // .zip name: cleanupExtractedCsvFiles() only globs *.csv, so it
+                // would leak, and every log line would name the wrong file.
+                $message = 'Unable to stage the direct CSV pharmacy payload for import';
+                $wenoLog->insertWenoLog($logContext, $message);
+                $this->logger->error($message, ['source' => $storeLocation, 'target' => $csvPath]);
+                return false;
             }
             $wenoLog->insertWenoLog($logContext, 'Detected direct CSV pharmacy payload (not ZIP)');
             return $csvPath;
@@ -745,6 +764,16 @@ class DownloadWenoPharmacies
         $suffix = 0;
         while (isset($usedNcpdp[$ncpdp])) {
             $suffix++;
+            if ($suffix > self::MAX_NCPDP_COLLISION_SUFFIX) {
+                // Past this the suffix eats so much of the seed that the key stops
+                // identifying the pharmacy. Drop the row loudly instead of minting
+                // a key that could collide with a different pharmacy next import.
+                $this->logger->warning(
+                    'Weno pharmacy import: exhausted synthetic NCPDP suffixes, row skipped',
+                    ['base' => $base, 'business_name' => $businessName]
+                );
+                return null;
+            }
             // Keep the key at 7 chars: the selector query filters on
             // strlen(ncpdp_safe) < 8, so an 8-char key drops out of search.
             $suffixText = str_pad((string) $suffix, 2, '0', STR_PAD_LEFT);
@@ -862,7 +891,7 @@ class DownloadWenoPharmacies
      */
     private function redactUrlQuery(string $text): string
     {
-        $redacted = preg_replace('~(https?://[^\s?"\']+)\?[^\s"\']*~i', '$1?[redacted]', $text);
+        $redacted = preg_replace('~(https?://[^\s?"\'<>]+)\?[^\s"\'<>]*~i', '$1?[redacted]', $text);
 
         return is_string($redacted) ? $redacted : 'Pharmacy download transport failure';
     }

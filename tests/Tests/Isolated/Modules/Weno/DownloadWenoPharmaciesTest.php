@@ -30,15 +30,19 @@
 declare(strict_types=1);
 
 namespace {
-    spl_autoload_register(static function (string $class): void {
+    $wenoModuleSrc = dirname(__DIR__, 5) . '/interface/modules/custom_modules/oe-module-weno/src/';
+    if (!is_dir($wenoModuleSrc)) {
+        throw new RuntimeException(
+            'Weno module source not found at ' . $wenoModuleSrc
+            . ' - this test moved and the relative path needs updating.'
+        );
+    }
+    spl_autoload_register(static function (string $class) use ($wenoModuleSrc): void {
         $prefix = 'OpenEMR\\Modules\\WenoModule\\';
         if (!str_starts_with($class, $prefix)) {
             return;
         }
-        $relative = str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-        $file = __DIR__
-            . '/../../../../../interface/modules/custom_modules/oe-module-weno/src/'
-            . $relative;
+        $file = $wenoModuleSrc . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
         if (is_file($file)) {
             require_once $file;
         }
@@ -48,6 +52,7 @@ namespace {
 namespace OpenEMR\Tests\Isolated\Modules\Weno {
 
     use OpenEMR\Modules\WenoModule\Services\DownloadWenoPharmacies;
+    use OpenEMR\Modules\WenoModule\Services\WenoLogService;
     use PHPUnit\Framework\Attributes\DataProvider;
     use PHPUnit\Framework\Attributes\Group;
     use PHPUnit\Framework\Attributes\Test;
@@ -441,6 +446,50 @@ namespace OpenEMR\Tests\Isolated\Modules\Weno {
             $junk = $this->tempFileWith(random_bytes(64) . "\x00\x01\x02");
 
             self::assertSame('unknown', $this->invoke('detectFileKind', $junk));
+        }
+
+        // ------------------------------------------------------------------
+        // full-rebuild staleness - the recovery path for a missed Monday
+        // ------------------------------------------------------------------
+
+        /**
+         * @return array<string, array{?string, int, bool}>
+         */
+        public static function rebuildStalenessProvider(): array
+        {
+            $now = 1773792000; // fixed clock so these never drift
+
+            return [
+                'never rebuilt is stale' => [null, 7, true],
+                'empty date is stale' => ['', 7, true],
+                'whitespace date is stale' => ['   ', 7, true],
+                'unparseable date is stale' => ['not a date', 7, true],
+                'rebuilt today is fresh' => [date('Y-m-d H:i:s', $now - 3600), 7, false],
+                'rebuilt six days ago is fresh' => [date('Y-m-d H:i:s', $now - (6 * 86400)), 7, false],
+                'rebuilt exactly seven days ago is fresh' => [date('Y-m-d H:i:s', $now - (7 * 86400)), 7, false],
+                'rebuilt eight days ago is stale' => [date('Y-m-d H:i:s', $now - (8 * 86400)), 7, true],
+                'shorter window trips sooner' => [date('Y-m-d H:i:s', $now - (2 * 86400)), 1, true],
+            ];
+        }
+
+        #[Test]
+        #[DataProvider('rebuildStalenessProvider')]
+        public function fullRebuildStaleness(?string $lastRebuild, int $maxAgeDays, bool $expected): void
+        {
+            self::assertSame(
+                $expected,
+                WenoLogService::isRebuildDateStale($lastRebuild, $maxAgeDays, 1773792000)
+            );
+        }
+
+        #[Test]
+        public function persistedStatusPrefixesStayMatchableByTheDashboardWidgets(): void
+        {
+            // Both constants are written to weno_download_log.status and the widgets
+            // look for 'Success%'. Renaming either without a migration silently
+            // orphans the history.
+            self::assertStringStartsWith('Success', WenoLogService::FULL_REBUILD_STATUS);
+            self::assertStringStartsWith('Success', WenoLogService::DAILY_UPDATE_STATUS);
         }
 
         // ------------------------------------------------------------------

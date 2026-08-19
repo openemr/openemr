@@ -28,8 +28,13 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
-if (!AclMain::aclCheckCore('patients', 'rx')) {
-    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Pharmacy Selector", xl("Pharmacy Selector"));
+// Log the denial but let the request continue: this template is embedded in the
+// demographics dashboard, so terminating here kills the whole page for roles that
+// legitimately have demographics without prescribing (front office). The selector
+// is gated by $aclGate below and the diagnostic reports ACL=FAIL.
+$hasRxAcl = AclMain::aclCheckCore('patients', 'rx');
+if (!$hasRxAcl) {
+    AccessDeniedHelper::logDenial("ACL check failed for patients/rx: Pharmacy Selector");
 }
 
 $widgetConstants = [
@@ -45,9 +50,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $wenoDiagnostics = is_array($wenoDiagnostics ?? null) ? $wenoDiagnostics : [];
 $configuredGate = ($wenoDiagnostics['configured'] ?? false) === true;
 $userGate = ($wenoDiagnostics['user'] ?? false) === true;
-// The patients/rx ACL is already enforced at the top of this template, so the
-// diagnostic flag from the caller is the only thing left to evaluate here.
-$aclGate = ($wenoDiagnostics['acl'] ?? false) === true;
+// Both the caller's diagnostic flag and the live ACL have to hold. The live check
+// is no longer redundant now that a failure above logs and continues.
+$aclGate = (($wenoDiagnostics['acl'] ?? false) === true) && $hasRxAcl;
 
 $logService = new WenoLogService();
 $pharmacyHealth = $logService->getPharmacyDirectoryHealth();

@@ -598,7 +598,10 @@ class TransmitProperties
         }
         // weno_provider_uid is an in-memory value for whoever is logged in, so it
         // is only a valid fallback when the target user is the session user.
-        $isSessionUser = $id == $authUserId;
+        // Compared as strings: a loose == would treat 0 == '' as a match.
+        $targetId = is_scalar($id) ? (string) $id : '';
+        $sessionId = is_scalar($authUserId) ? (string) $authUserId : '';
+        $isSessionUser = $targetId !== '' && $targetId === $sessionId;
         // Read all known sources for Weno UID.
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
         $userSetting = sqlQuery(

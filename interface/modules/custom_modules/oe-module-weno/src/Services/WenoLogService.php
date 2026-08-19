@@ -16,10 +16,17 @@ use OpenEMR\Common\Database\QueryUtils;
 
 class WenoLogService
 {
-    /** Status prefix written by a successful full-directory rebuild. */
+    /**
+     * Status prefix written by a successful full-directory rebuild.
+     *
+     * These values are persisted to weno_download_log.status and are read back by
+     * getLastFullRebuildDate(). Changing either string orphans every historical
+     * row, so treat them as frozen: a rename needs a data migration. Both keep the
+     * 'Success' prefix that the dashboard widgets match on.
+     */
     public const FULL_REBUILD_STATUS = 'Success full rebuild';
 
-    /** Status prefix written by a successful daily delta import. */
+    /** @see self::FULL_REBUILD_STATUS - persisted, effectively frozen. */
     public const DAILY_UPDATE_STATUS = 'Success daily update';
 
     public function __construct()
@@ -89,16 +96,28 @@ class WenoLogService
      */
     public function isFullRebuildOverdue(int $maxAgeDays = 7): bool
     {
-        $last = $this->getLastFullRebuildDate();
-        if ($last === null) {
+        return self::isRebuildDateStale($this->getLastFullRebuildDate(), $maxAgeDays);
+    }
+
+    /**
+     * The staleness arithmetic, split out so it can be tested without a database.
+     *
+     * A missing or unparseable date counts as stale: if we cannot prove a rebuild
+     * happened recently, rebuilding is the safe answer.
+     *
+     * @param int|null $now Unix time to measure against; defaults to time().
+     */
+    public static function isRebuildDateStale(?string $lastRebuild, int $maxAgeDays = 7, ?int $now = null): bool
+    {
+        if ($lastRebuild === null || trim($lastRebuild) === '') {
             return true;
         }
-        $lastTime = strtotime($last);
+        $lastTime = strtotime($lastRebuild);
         if ($lastTime === false) {
             return true;
         }
 
-        return (time() - $lastTime) > ($maxAgeDays * 86400);
+        return (($now ?? time()) - $lastTime) > ($maxAgeDays * 86400);
     }
 
     /**
