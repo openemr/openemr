@@ -68,6 +68,15 @@ setup_test_dir() {
     # the derivation path set this explicitly back to "" and call
     # seed_sql_upgrade_fixtures below to populate the sql/ dir.
     export DISPATCH_FROM_VERSION="8.2.0"
+    # MOCK_SHIPPED_VERSIONS bypasses fetch_shipped_versions' real curl
+    # against the website-openemr manifest — see the script for the
+    # env-var contract. Default is a realistic-ish shipped-versions
+    # list covering the versions the derivation tests exercise. Tests
+    # that don't hit derive_from_version at all still benefit (the mock
+    # short-circuits any accidental network call, keeping the suite
+    # deterministic + offline). Tests exercising the fetch-failure
+    # path override this to "__FAIL__" (see fetch_shipped_versions).
+    export MOCK_SHIPPED_VERSIONS=$'7.0.4\n8.0.0\n8.1.0\n8.1.1\n8.2.0\n8.3.0'
     export CALLER_TARBALL_ARTIFACT=""
     export CALLER_ZIP_ARTIFACT=""
     export PR_BASE_SHA=""
@@ -100,6 +109,7 @@ teardown_test_dir() {
     rm -rf "${CWD}"
     unset GITHUB_OUTPUT
     unset EVENT_NAME DISPATCH_BUILD_LOCALLY DISPATCH_TO_VERSION DISPATCH_FROM_VERSION
+    unset MOCK_SHIPPED_VERSIONS SHIPPED_VERSIONS_MANIFEST_URL
     unset CALLER_TARBALL_ARTIFACT CALLER_ZIP_ARTIFACT
     unset PR_BASE_SHA PR_HEAD_SHA PR_HEAD_REF PR_TITLE
     unset PUSH_BEFORE_SHA PUSH_HEAD_SHA PUSH_REF

@@ -32,6 +32,8 @@
 #   DISPATCH_FROM_VERSION    inputs.from_version  (workflow_dispatch /
 #                            workflow_call) — empty triggers
 #                            derive-from-checkout via sql/*.sql files
+#                            cross-referenced against the shipped-
+#                            versions manifest (see fetch_shipped_versions)
 #   CALLER_TARBALL_ARTIFACT  inputs.caller_tarball_artifact
 #                            (workflow_call gate)
 #   CALLER_ZIP_ARTIFACT      inputs.caller_zip_artifact
@@ -54,8 +56,9 @@
 #   0   Decision emitted successfully.
 #   1   Invalid input (workflow_call gate half-set, missing to_version
 #       on workflow_call, resolved to_version/from_version not in
-#       X.Y.Z shape, or no sql/*-to-*_upgrade.sql files found for
-#       from_version derivation).
+#       X.Y.Z shape, no sql/*-to-*_upgrade.sql files found for
+#       from_version derivation, releases manifest fetch/parse failed,
+#       or no derivation candidate matched the shipped-versions manifest).
 
 # shellcheck disable=SC2154
 # All env vars listed in the header are set by the caller workflow's
@@ -93,27 +96,87 @@ emit_to_version() {
     echo "==> resolved to_version=${candidate}"
 }
 
-# derive_from_version — picks the latest "from-version" from the
-# checkout's `sql/*-to-*_upgrade.sql` filenames. Each filename
-# encodes an upgrade hop (e.g. `sql/8_1_1-to-8_2_0_upgrade.sql`
-# = "from 8.1.1 to 8.2.0"). The MAX from-version across all these
-# files is the newest upgrade-from the current branch's
-# `sql_upgrade.php` will offer in its wizard dropdown, so it's
-# guaranteed to satisfy the wizard-upgrade acceptance test's
-# dropdown-membership assertion regardless of which branch the
-# checkout is on.
+# SHIPPED_VERSIONS_MANIFEST_URL — canonical location of the openemr
+# release manifest. Written by three dispatch events from
+# openemr/openemr (openemr-rel-cut → DRAFT, openemr-tag → flip to
+# FINAL). Read here as the authoritative "which versions have
+# actually shipped tarballs" signal. See
+# tools/release/src/BranchVersionResolver.php in this repo for the
+# other CI consumer.
 #
-# Rationale — historically `FROM_VERSION` defaulted to a hardcoded
-# `8.2.0`. That works on master (currently 8.4.0-dev, has 8.2.0 in
-# its upgrade dropdown) and rel-830 (8.3.0 line, has 8.2.0 in
-# dropdown), but breaks on rel-820 (8.2.0 line — 8.2.0 is not in
+# `:=` default so tests can override with an unreachable URL for
+# fetch-failure coverage. Not readonly for the same reason.
+: "${SHIPPED_VERSIONS_MANIFEST_URL:=https://raw.githubusercontent.com/openemr/website-openemr/master/data/releases.json}"
+
+# fetch_shipped_versions — pulls the openemr/website-openemr
+# releases manifest and returns the FINAL-status version keys,
+# newline-separated. Filtered to FINAL because DRAFT entries mean
+# "release-prep dispatched but not yet shipped" — the tarball
+# isn't downloadable from GitHub Releases until the openemr-tag
+# dispatch flips status to FINAL.
+#
+# MOCK_SHIPPED_VERSIONS env override — when set, bypasses the real
+# fetch and emits its content verbatim. BATS uses this to keep the
+# tests offline (mirrors the MOCK_GIT_DIFF_OUTPUT pattern). The
+# sentinel value `__FAIL__` simulates a fetch failure (mirrors the
+# MOCK_GIT_DIFF_EXIT pattern) — tests use it to cover the
+# error-surface branch.
+fetch_shipped_versions() {
+    if [[ "${MOCK_SHIPPED_VERSIONS:-}" == "__FAIL__" ]]; then
+        echo "::error::fetch_shipped_versions: (mocked) simulated fetch failure" >&2
+        return 1
+    fi
+    if [[ -n "${MOCK_SHIPPED_VERSIONS:-}" ]]; then
+        printf '%s' "${MOCK_SHIPPED_VERSIONS}"
+        return 0
+    fi
+    local manifest
+    if ! manifest=$(curl -fsSL --retry 3 --retry-delay 2 --max-time 30 "${SHIPPED_VERSIONS_MANIFEST_URL}" 2>&1); then
+        echo "::error::fetch_shipped_versions: curl failed for ${SHIPPED_VERSIONS_MANIFEST_URL}: ${manifest}" >&2
+        return 1
+    fi
+    local final_versions
+    if ! final_versions=$(jq -re 'to_entries | .[] | select(.value.status == "FINAL") | .key' <<< "${manifest}"); then
+        echo "::error::fetch_shipped_versions: failed to parse releases.json as JSON (fetched ${#manifest} bytes from ${SHIPPED_VERSIONS_MANIFEST_URL})" >&2
+        return 1
+    fi
+    printf '%s' "${final_versions}"
+}
+
+# derive_from_version — picks the latest "from-version" from the
+# checkout's `sql/*-to-*_upgrade.sql` filenames, intersected with
+# the shipped-versions manifest. Each filename encodes an upgrade
+# hop (e.g. `sql/8_1_1-to-8_2_0_upgrade.sql` = "from 8.1.1 to
+# 8.2.0"), and the MAX from-version that ALSO appears in the
+# manifest is the newest upgrade-from we can be sure has a
+# downloadable tarball on GitHub Releases.
+#
+# Two-signal rationale — the sql/ enumeration alone guarantees the
+# result is in the current branch's `sql_upgrade.php` wizard
+# dropdown (satisfies the acceptance test's dropdown-membership
+# assertion). The manifest filter guarantees the result was
+# actually released (satisfies boot-package.sh's tarball download
+# from GitHub Releases). Neither signal alone is sufficient:
+#
+#   - sql-only would return a version scaffolded by patch-prep
+#     before it ships (e.g., `8_3_1-to-8_4_0_upgrade.sql` added
+#     to master mid-8.3.1-prep would break the download).
+#   - manifest-only would return a released version that isn't in
+#     the current branch's dropdown (e.g., a rel-830 test with
+#     from=8.3.0 would fail dropdown-membership since 8.3.0 is
+#     that line's own version).
+#
+# Historically `FROM_VERSION` defaulted to a hardcoded `8.2.0`.
+# That worked on master (currently 8.4.0-dev, has 8.2.0 in its
+# upgrade dropdown) and rel-830 (8.3.0 line, has 8.2.0 in
+# dropdown), but broke on rel-820 (8.2.0 line — 8.2.0 is not in
 # rel-820's own dropdown because you don't upgrade from your own
-# version). Deriving from the checkout's own `sql/` files sidesteps
-# the "hardcoded default drifts as branches diverge" trap entirely
-# and works on any branch without config maintenance. See
-# openemr/openemr#13573 for the full symptom trace.
+# version). Deriving from the checkout's own `sql/` files
+# sidesteps that trap entirely and works on any branch without
+# config maintenance. See openemr/openemr#13573 for the full
+# symptom trace.
 derive_from_version() {
-    local latest
+    local candidates
     # Guard the `find` on directory existence first — under `set -e`
     # a bare `find sql` when sql/ doesn't exist returns 1 and would
     # tear down the whole script before our empty-result check
@@ -129,26 +192,58 @@ derive_from_version() {
     # names should the convention ever drift). Strip the `sql/`
     # prefix and the `-to-<version>_upgrade.sql` suffix to get the
     # from-version in underscore-shape (`8_1_1`), swap underscores
-    # to dots, sort semver-aware, take the max. Empty result → no
-    # matching files in checkout (sql/ exists but empty, or the
-    # upgrade-file naming convention drifted); fail loudly rather
-    # than silently emitting an empty string that downstream
-    # `--from=""` would accept as "no filter" and skip the wizard
-    # step entirely.
-    latest=$(find sql -maxdepth 1 -name '*-to-*_upgrade.sql' -type f 2>/dev/null \
+    # to dots.
+    # Post-strip grep filters out any candidate that isn't in strict
+    # X.Y.Z shape — defense against a hypothetical drift in the
+    # sql/*-to-*_upgrade.sql filename convention (e.g., a stray
+    # `sql/8_1-to-8_2_0_upgrade.sql` two-segment left-side would
+    # otherwise slip through to the manifest intersect and silently
+    # exclude itself with a confusing "no candidate matched" error).
+    # Explicit shape enforcement here surfaces the drift cleanly at
+    # the enumeration step.
+    #
+    # `|| true` on the pipeline because grep exits 1 when nothing
+    # matches (all candidates malformed). The empty-check below
+    # handles that case with a specific error message.
+    candidates=$(find sql -maxdepth 1 -name '*-to-*_upgrade.sql' -type f 2>/dev/null \
         | sed -E 's|^sql/||; s|-to-[0-9_]+_upgrade\.sql$||' \
         | tr '_' '.' \
-        | sort -V \
-        | tail -1)
-    if [[ -z "${latest}" ]]; then
-        echo "::error::derive_from_version: no sql/*-to-*_upgrade.sql files found in checkout" >&2
+        | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+        | sort -uV || true)
+    if [[ -z "${candidates}" ]]; then
+        echo "::error::derive_from_version: no well-formed sql/*-to-*_upgrade.sql files found in checkout (expected X_Y_Z-to-A_B_C shape)" >&2
         exit 1
     fi
-    if [[ ! "${latest}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "::error::derive_from_version: derived from-version '${latest}' does not match required X.Y.Z" >&2
+    # Fetch the shipped-versions manifest and intersect. See
+    # fetch_shipped_versions for rationale + failure modes. Same
+    # SC2310 pattern used at emit_from_version's derive_from_version
+    # call — fetch_shipped_versions' failure modes are explicit
+    # `return 1` after emitting an ::error:: line, so the disabled
+    # `set -e` inside the function doesn't mask anything.
+    local shipped
+    # shellcheck disable=SC2310
+    if ! shipped=$(fetch_shipped_versions); then
         exit 1
     fi
-    printf '%s' "${latest}"
+    # grep -Fxf reads pattern file (shipped set), matches whole lines
+    # literally against candidates — clean set-intersection primitive.
+    # `|| true` because grep exits 1 on no-match, which we handle
+    # explicitly below with an actionable error.
+    local matched
+    matched=$(grep -Fxf <(printf '%s\n' "${shipped}") <<< "${candidates}" || true)
+    if [[ -z "${matched}" ]]; then
+        # `|| true` on the format-collapse `tr` calls to satisfy
+        # SC2312 — tr can't fail on this input, but the linter can't
+        # prove that.
+        local candidates_line shipped_line
+        candidates_line=$(tr '\n' ' ' <<< "${candidates}" || true)
+        shipped_line=$(tr '\n' ' ' <<< "${shipped}" || true)
+        echo "::error::derive_from_version: no sql-derived from-version candidate matches the shipped-versions manifest. Candidates from sql/: ${candidates_line}. Shipped per manifest: ${shipped_line}. See ${SHIPPED_VERSIONS_MANIFEST_URL}." >&2
+        exit 1
+    fi
+    # Candidates are already X.Y.Z-shaped (see grep filter above);
+    # no post-max shape check needed.
+    sort -V <<< "${matched}" | tail -1
 }
 
 # emit_from_version — honors DISPATCH_FROM_VERSION when set (operator
