@@ -63,7 +63,7 @@ use Psr\Http\Message\ResponseInterface;
 class InsuranceCompanyRestController
 {
     private readonly InsuranceCompanyService $insuranceCompanyService;
-    private $addressService;
+    private readonly AddressService $addressService;
 
     public function __construct()
     {
@@ -179,18 +179,16 @@ class InsuranceCompanyRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function post($data)
+    public function post(HttpRestRequest $request, $data)
     {
         $insuranceCompanyValidationResult = $this->insuranceCompanyService->validate($data);
-        $insuranceCompanyValidationHandlerResult = RestControllerHelper::validationHandler($insuranceCompanyValidationResult);
-        if (is_array($insuranceCompanyValidationHandlerResult)) {
-            return $insuranceCompanyValidationHandlerResult;
+        if (!$insuranceCompanyValidationResult->isValid()) {
+            return RestControllerHelper::createProcessingResultResponse($request, $insuranceCompanyValidationResult, 400);
         }
 
         $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
-        $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
-        if (is_array($addressValidationHandlerResult)) {
-            return $addressValidationHandlerResult;
+        if (!$addressValidationResult->isValid()) {
+            return RestControllerHelper::createProcessingResultResponse($request, $addressValidationResult, 400);
         }
 
         $serviceResult = $this->insuranceCompanyService->insert($data);
@@ -224,18 +222,16 @@ class InsuranceCompanyRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put($iid, $data)
+    public function put(HttpRestRequest $request, $iid, $data)
     {
         $insuranceCompanyValidationResult = $this->insuranceCompanyService->validate($data);
-        $insuranceCompanyValidationHandlerResult = RestControllerHelper::validationHandler($insuranceCompanyValidationResult);
-        if (is_array($insuranceCompanyValidationHandlerResult)) {
-            return $insuranceCompanyValidationHandlerResult;
+        if (!$insuranceCompanyValidationResult->isValid()) {
+            return RestControllerHelper::createProcessingResultResponse($request, $insuranceCompanyValidationResult, 400);
         }
 
         $addressValidationResult = $this->addressService->validate(AddressData::fromArray($data));
-        $addressValidationHandlerResult = RestControllerHelper::validationHandler($addressValidationResult);
-        if (is_array($addressValidationHandlerResult)) {
-            return $addressValidationHandlerResult;
+        if (!$addressValidationResult->isValid()) {
+            return RestControllerHelper::createProcessingResultResponse($request, $addressValidationResult, 400);
         }
 
         $serviceResult = $this->insuranceCompanyService->update($data, $iid);

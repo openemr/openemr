@@ -13,6 +13,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\EmployerService;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -20,10 +21,11 @@ use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Http\Message\ResponseInterface;
 
 class EmployerRestController
 {
-    private $employerService;
+    private readonly EmployerService $employerService;
 
     public function __construct()
     {
@@ -59,7 +61,7 @@ class EmployerRestController
         ],
         security: [['openemr_auth' => ['user/employer.read', 'patient/employer.read']]]
     )]
-    public function getAll(array $searchParams)
+    public function getAll(HttpRestRequest $request, array $searchParams): ResponseInterface
     {
         $processingResult = new ProcessingResult();
         try {
@@ -83,6 +85,6 @@ class EmployerRestController
             // do not reflect raw parameter names or values back to the caller
             $processingResult->setValidationMessages(['search' => ['invalid or unsupported search parameter']]);
         }
-        return RestControllerHelper::handleProcessingResult($processingResult, null, 200);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200, true);
     }
 }

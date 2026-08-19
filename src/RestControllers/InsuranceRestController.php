@@ -15,6 +15,7 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\PatientService;
@@ -24,6 +25,7 @@ use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Http\Message\ResponseInterface;
 
 #[OA\Schema(
     schema: 'api_insurance_request',
@@ -93,7 +95,7 @@ use OpenEMR\Validators\ProcessingResult;
 )]
 class InsuranceRestController
 {
-    private $insuranceService;
+    private readonly InsuranceService $insuranceService;
 
     public function __construct()
     {
@@ -131,7 +133,7 @@ class InsuranceRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getAll(array $searchParams)
+    public function getAll(HttpRestRequest $request, array $searchParams): ResponseInterface
     {
         $processingResult = new ProcessingResult();
         try {
@@ -155,7 +157,7 @@ class InsuranceRestController
             // do not reflect raw parameter names or values back to the caller
             $processingResult->setValidationMessages(['search' => ['invalid or unsupported search parameter']]);
         }
-        return RestControllerHelper::handleProcessingResult($processingResult, null, 200);
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200, true);
     }
 
     /**
