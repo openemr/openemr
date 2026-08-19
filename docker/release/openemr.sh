@@ -114,12 +114,24 @@ wait_for_mysql() {
     echo "Waiting for MySQL at ${MYSQL_HOST}:${MYSQL_PORT}..."
 
     # Try immediate connection first (MySQL might already be ready)
+    # Honor the same mysql-ca convention as DatabaseConnectionOptions::inferSslPaths():
+    # if the site provides a CA bundle at sites/default/documents/certificates/mysql-ca,
+    # verify the server against it. The MariaDB 11.4+ client verifies certificates by
+    # default and otherwise rejects servers whose CA is not in the system trust store
+    # (e.g. Amazon RDS), which breaks these readiness checks.
+    MYSQL_CA_FILE="/var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca"
+    MYSQL_SSL_OPTS=()
+    if [[ -f "${MYSQL_CA_FILE}" ]]; then
+        MYSQL_SSL_OPTS=(--ssl-ca="${MYSQL_CA_FILE}")
+    fi
+
     # Use mysqladmin ping for more efficient health check
     if mysqladmin ping \
         --host="${MYSQL_HOST}" \
         --port="${MYSQL_PORT}" \
         --user="${MYSQL_ROOT_USER}" \
         --password="${MYSQL_ROOT_PASS}" \
+        "${MYSQL_SSL_OPTS[@]}" \
         --silent >/dev/null 2>&1; then
         echo "MySQL is ready!"
         return 0
@@ -132,6 +144,7 @@ wait_for_mysql() {
             --port="${MYSQL_PORT}" \
             --user="${MYSQL_ROOT_USER}" \
             --password="${MYSQL_ROOT_PASS}" \
+            "${MYSQL_SSL_OPTS[@]}" \
             --silent >/dev/null 2>&1; then
             echo "MySQL is ready!"
             return 0
