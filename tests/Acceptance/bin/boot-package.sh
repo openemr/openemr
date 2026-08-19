@@ -285,6 +285,27 @@ for attempt in $(seq 1 60); do
     sleep 5
 done
 
+# Post-install DB version assertion (openemr/openemr#13634).
+# install-helper.php ran install-time SQL population; the `version` row
+# should now match the tarball's shipped version. Catches the class of
+# bug where install "succeeded" (helper exited 0) but the version row
+# wasn't seeded correctly. Same signal /api/version reads later, but
+# available immediately without needing the REST API bootstrap.
+#
+# Root creds `root/root` are the acceptance stack default
+# (`.github/docker/acceptance-package-compose.yml:MYSQL_ROOT_PASSWORD`).
+# `-sN` = silent + no column headers; direct scalar output.
+echo "==> Asserting DB version matches ${VERSION}"
+DB_VERSION="$(docker compose exec -T mysql \
+    mysql -uroot -proot openemr -sN \
+    -e "SELECT CONCAT(v_major,'.',v_minor,'.',v_patch) FROM version" \
+    2>/dev/null || echo "query-failed")"
+if [[ "${DB_VERSION}" != "${VERSION}" ]]; then
+    echo "::error::post-install DB version '${DB_VERSION}' does not match expected '${VERSION}' (see openemr/openemr#13634)" >&2
+    exit 1
+fi
+echo "    DB version=${DB_VERSION}"
+
 echo ""
 echo "==> Boot complete."
 echo "    Artifact URL:  http://localhost:8680"
