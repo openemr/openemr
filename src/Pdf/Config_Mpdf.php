@@ -36,6 +36,7 @@ class Config_Mpdf
             'use_kwt' => true,
             'autoScriptToLang' => true,
             'keep_table_proportions' => true,
+            'CSSselectMedia' => 'screen',
         ];
     }
 }
