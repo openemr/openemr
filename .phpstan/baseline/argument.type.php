@@ -87,7 +87,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$fhirSearchParameters of method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirMediaRestController\\:\\:getAll\\(\\) expects array\\<string\\>, array given\\.$#',
+    'message' => '#^Parameter \\#1 \\$fhirSearchParameters of method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirMediaRestController\\:\\:getAll\\(\\) expects array\\<string\\>, array\\<string, mixed\\> given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php',
 ];
@@ -97,7 +97,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$searchParams of method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirMedicationDispenseRestController\\:\\:getAll\\(\\) expects array\\<string, int\\|string\\>, array given\\.$#',
+    'message' => '#^Parameter \\#1 \\$searchParams of method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirMedicationDispenseRestController\\:\\:getAll\\(\\) expects array\\<string, int\\|string\\>, array\\<string, mixed\\> given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php',
 ];
@@ -59487,11 +59487,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/DrugRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$processingResult of static method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:handleProcessingResult\\(\\) expects OpenEMR\\\\Validators\\\\ProcessingResult, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EmployerRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$value of function count expects array\\|Countable, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
@@ -59882,8 +59877,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$insuranceCompanyData of method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:validate\\(\\) expects array\\<string, mixed\\>, mixed given\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$processingResult of static method OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:\\:handleProcessingResult\\(\\) expects OpenEMR\\\\Validators\\\\ProcessingResult, mixed given\\.$#',
-    'count' => 7,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
 ];
 $ignoreErrors[] = [
@@ -59917,7 +59917,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$search of method OpenEMR\\\\Services\\\\PrescriptionService\\:\\:getAll\\(\\) expects array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\|string\\>, array\\<mixed, mixed\\> given\\.$#',
+    'message' => '#^Parameter \\#1 \\$search of method OpenEMR\\\\Services\\\\PrescriptionService\\:\\:getAll\\(\\) expects array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\|string\\>, array\\<string, mixed\\> given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
 ];
@@ -68522,11 +68522,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of method OpenEMR\\\\Services\\\\BaseService\\:\\:getUuidById\\(\\) expects string, mixed given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$row of method OpenEMR\\\\Services\\\\BaseService\\:\\:createResultRecordFromDatabaseResult\\(\\) expects array\\<string, mixed\\>, array given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
@@ -68534,11 +68529,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$search of method OpenEMR\\\\Services\\\\InsuranceService\\:\\:search\\(\\) expects array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>, array\\<string, mixed\\> given\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function strlen expects string, string\\|false given\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
 ];
 $ignoreErrors[] = [

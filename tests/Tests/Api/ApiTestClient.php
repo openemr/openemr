@@ -132,6 +132,7 @@ class ApiTestClient
         'user/facility.read',
         'user/facility.write',
         'user/immunization.read',
+        'user/employer.read',
         'user/insurance.read',
         'user/insurance.write',
         'user/insurance_company.read',

@@ -33062,11 +33062,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\InsuranceRestController\\:\\:getAll\\(\\) has parameter \\$searchParams with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\InsuranceRestController\\:\\:getOne\\(\\) has parameter \\$insuranceUuid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
@@ -38363,11 +38358,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceService\\:\\:doesInsuranceTypeHaveEntry\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceService\\:\\:getAll\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
 ];

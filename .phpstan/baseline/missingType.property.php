@@ -28997,11 +28997,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/DrugRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\EmployerRestController\\:\\:\\$employerService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EmployerRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirAllergyIntoleranceRestController\\:\\:\\$fhirAllergyIntoleranceService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
@@ -29165,21 +29160,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\ImmunizationRestController\\:\\:\\$immunizationService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ImmunizationRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\InsuranceCompanyRestController\\:\\:\\$addressService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\InsuranceCompanyRestController\\:\\:\\$insuranceCompanyService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\InsuranceRestController\\:\\:\\$insuranceService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\ListRestController\\:\\:\\$listService has no type specified\\.$#',
@@ -29363,11 +29343,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:\\$addressService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:\\$insuranceCompanyValidator has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
