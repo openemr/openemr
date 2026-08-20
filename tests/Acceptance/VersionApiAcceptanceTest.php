@@ -62,6 +62,18 @@ use PHPUnit\Framework\TestCase;
 #[Group('version-api')]
 final class VersionApiAcceptanceTest extends TestCase
 {
+    /**
+     * `/apis/default/api/version` — the REST dispatcher strips the
+     * `/apis/default/` prefix before matching routes, so
+     * `AuthorizationListener`'s `/api/version` skip-list entry
+     * matches on the tail. Same shape ApiSmokeTest uses for
+     * `/apis/default/api/facility`. Single constant so every
+     * assertion diagnostic reports the exact URL actually requested
+     * (single source of truth — avoids CI-triage drift where a
+     * failure message names a different endpoint than the test hit).
+     */
+    private const VERSION_ENDPOINT = '/apis/default/api/version';
+
     public function testVersionEndpointReturnsExpectedVersion(): void
     {
         $expected = getenv('ACCEPTANCE_EXPECTED_VERSION');
@@ -75,19 +87,14 @@ final class VersionApiAcceptanceTest extends TestCase
             "ACCEPTANCE_EXPECTED_VERSION='{$expected}' does not match required X.Y.Z shape",
         );
 
-        // URL is `/apis/default/api/version` — the REST dispatcher
-        // strips the `/apis/default/` prefix before matching routes,
-        // so `AuthorizationListener`'s `/api/version` skip-list entry
-        // matches on the tail. Same shape ApiSmokeTest uses for
-        // `/apis/default/api/facility`.
         $browser = ArtifactBrowser::create();
-        $browser->request('GET', ArtifactBrowser::baseUrl() . '/apis/default/api/version');
+        $browser->request('GET', ArtifactBrowser::baseUrl() . self::VERSION_ENDPOINT);
         $response = $browser->getResponse();
 
         self::assertSame(
             200,
             $response->getStatusCode(),
-            '/apis/default/api/version must return 200 on an api-enabled install — a 404 means the REST API bootstrap (api-enable.php) did not flip the rest_api global before this test ran, a 500 means VersionRestController itself is broken, and any 3xx means the auth-skip allowlist regressed',
+            self::VERSION_ENDPOINT . ' must return 200 on an api-enabled install — a 404 means the REST API bootstrap (api-enable.php) did not flip the rest_api global before this test ran, a 500 means VersionRestController itself is broken, and any 3xx means the auth-skip allowlist regressed',
         );
 
         // Assert JSON media type BEFORE json_decode — a JSON-shaped
@@ -97,24 +104,24 @@ final class VersionApiAcceptanceTest extends TestCase
         self::assertStringStartsWith(
             'application/json',
             ResponseHeaders::first($response, 'Content-Type'),
-            '/api/version must be served as application/json — a different media type means RestControllerHelper::responseHandler has regressed',
+            self::VERSION_ENDPOINT . ' must be served as application/json — a different media type means RestControllerHelper::responseHandler has regressed',
         );
 
         $body = json_decode($response->getContent(), true);
         self::assertIsArray(
             $body,
-            '/apis/default/api/version body must be a JSON object — a non-array decode result means the endpoint returned an empty body, a scalar, or malformed JSON',
+            self::VERSION_ENDPOINT . ' body must be a JSON object — a non-array decode result means the endpoint returned an empty body, a scalar, or malformed JSON',
         );
 
         foreach (['v_major', 'v_minor', 'v_patch'] as $key) {
             self::assertArrayHasKey(
                 $key,
                 $body,
-                "/api/version payload must include '{$key}' — missing key means VersionService->fetch() shape regressed",
+                self::VERSION_ENDPOINT . " payload must include '{$key}' — missing key means VersionService->fetch() shape regressed",
             );
             self::assertIsInt(
                 $body[$key],
-                "/api/version payload '{$key}' must be an integer — the DB stores these as ints and VersionService casts to int; a non-int here means the response shape or cast regressed",
+                self::VERSION_ENDPOINT . " payload '{$key}' must be an integer — the DB stores these as ints and VersionService casts to int; a non-int here means the response shape or cast regressed",
             );
         }
 
@@ -122,7 +129,7 @@ final class VersionApiAcceptanceTest extends TestCase
         self::assertSame(
             $expected,
             $actual,
-            "/api/version returned version '{$actual}' does not match expected '{$expected}'. "
+            self::VERSION_ENDPOINT . " returned version '{$actual}' does not match expected '{$expected}'. "
             . 'Currently this endpoint reads the `version` DB row, so a mismatch here means '
             . 'either sql_upgrade.php did not bump the version row (silent-no-op class, see '
             . '#13586/#13587 for the shape) OR install-helper.php seeded the wrong row. See '
