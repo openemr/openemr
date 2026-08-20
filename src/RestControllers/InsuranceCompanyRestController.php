@@ -84,7 +84,13 @@ class InsuranceCompanyRestController
             new OA\Parameter(name: 'cms_id', in: 'query', description: 'Exact match on the cms id.', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'alt_cms_id', in: 'query', description: 'Exact match on the alternate cms id.', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'ins_type_code', in: 'query', description: 'The insurance type code.', required: false, schema: new OA\Schema(type: 'string')),
-            new OA\Parameter(name: 'inactive', in: 'query', description: 'Whether the insurance company is inactive (0 or 1).', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(
+                name: 'inactive',
+                in: 'query',
+                description: 'Whether the insurance company is inactive (0 or 1).',
+                required: false,
+                schema: new OA\Schema(type: 'string', enum: ['0', '1'])
+            ),
         ],
         responses: [
             new OA\Response(response: '200', ref: '#/components/responses/standard'),

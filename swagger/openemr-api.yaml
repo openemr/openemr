@@ -1076,6 +1076,9 @@ paths:
           required: false
           schema:
             type: string
+            enum:
+              - '0'
+              - '1'
       responses:
         200:
           $ref: '#/components/responses/standard'
@@ -3043,10 +3046,14 @@ paths:
         -
           name: type
           in: query
-          description: 'The insurance type (primary, secondary, tertiary).'
+          description: 'The insurance type (primary, secondary, or tertiary).'
           required: false
           schema:
             type: string
+            enum:
+              - primary
+              - secondary
+              - tertiary
         -
           name: plan_name
           in: query

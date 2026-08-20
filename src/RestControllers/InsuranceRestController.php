@@ -118,7 +118,13 @@ class InsuranceRestController
                 required: true,
                 schema: new OA\Schema(type: 'string')
             ),
-            new OA\Parameter(name: 'type', in: 'query', description: 'The insurance type (primary, secondary, tertiary).', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(
+                name: 'type',
+                in: 'query',
+                description: 'The insurance type (primary, secondary, or tertiary).',
+                required: false,
+                schema: new OA\Schema(type: 'string', enum: ['primary', 'secondary', 'tertiary'])
+            ),
             new OA\Parameter(name: 'plan_name', in: 'query', description: 'Partial match on the plan name.', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'policy_number', in: 'query', description: 'Exact match on the policy number.', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'group_number', in: 'query', description: 'Exact match on the group number.', required: false, schema: new OA\Schema(type: 'string')),
