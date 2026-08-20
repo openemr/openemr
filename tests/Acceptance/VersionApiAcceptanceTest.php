@@ -75,14 +75,19 @@ final class VersionApiAcceptanceTest extends TestCase
             "ACCEPTANCE_EXPECTED_VERSION='{$expected}' does not match required X.Y.Z shape",
         );
 
+        // URL is `/apis/default/api/version` — the REST dispatcher
+        // strips the `/apis/default/` prefix before matching routes,
+        // so `AuthorizationListener`'s `/api/version` skip-list entry
+        // matches on the tail. Same shape ApiSmokeTest uses for
+        // `/apis/default/api/facility`.
         $browser = ArtifactBrowser::create();
-        $browser->request('GET', ArtifactBrowser::baseUrl() . '/api/version');
+        $browser->request('GET', ArtifactBrowser::baseUrl() . '/apis/default/api/version');
         $response = $browser->getResponse();
 
         self::assertSame(
             200,
             $response->getStatusCode(),
-            '/api/version must return 200 on an api-enabled install — a 404 means the REST API bootstrap (api-enable.php) did not flip the rest_api global before this test ran, a 500 means VersionRestController itself is broken, and any 3xx means the auth-skip allowlist regressed',
+            '/apis/default/api/version must return 200 on an api-enabled install — a 404 means the REST API bootstrap (api-enable.php) did not flip the rest_api global before this test ran, a 500 means VersionRestController itself is broken, and any 3xx means the auth-skip allowlist regressed',
         );
 
         // Assert JSON media type BEFORE json_decode — a JSON-shaped
@@ -98,7 +103,7 @@ final class VersionApiAcceptanceTest extends TestCase
         $body = json_decode($response->getContent(), true);
         self::assertIsArray(
             $body,
-            '/api/version body must be a JSON object — a non-array decode result means the endpoint returned an empty body, a scalar, or malformed JSON',
+            '/apis/default/api/version body must be a JSON object — a non-array decode result means the endpoint returned an empty body, a scalar, or malformed JSON',
         );
 
         foreach (['v_major', 'v_minor', 'v_patch'] as $key) {
