@@ -47,7 +47,7 @@ if (!$pharmacyHealth['isHealthy']) {
     $lastUpdateRaw = $pharmacyHealth['lastSuccess'] !== ''
         ? oeFormatShortDate($pharmacyHealth['lastSuccess'])
         : xl('never');
-    $lastUpdate = is_scalar($lastUpdateRaw) ? (string)$lastUpdateRaw : '';
+    $lastUpdate = is_scalar($lastUpdateRaw) ? (string) $lastUpdateRaw : '';
 
     if ($pharmacyCount === 0) {
         $tone = 'text-danger';
@@ -63,7 +63,7 @@ if (!$pharmacyHealth['isHealthy']) {
 
     $safeMessage = text($message);
     $countNote = $pharmacyCount > 0
-        ? ' <span class="text-muted">(' . text((string)$pharmacyCount) . ' ' . xlt('pharmacies') . ')</span>'
+        ? ' <span class="text-muted">(' . text((string) $pharmacyCount) . ' ' . xlt('pharmacies') . ')</span>'
         : '';
     $cite = <<<CITE
 <cite class="h6 {$tone} p-1 mt-1">
@@ -77,8 +77,15 @@ $validate_errors = $validate->errors['string'];
 
 $pid = ($pid ?? '') ?: $session->get('pid') ?? '';
 $pharmacyService = new PharmacyService();
-$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid')) ?? false;
-$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid')) ?? false;
+$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid'));
+$prim_pharmacy = is_array($prim_pharmacy) ? $prim_pharmacy : [];
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid'));
+$alt_pharmacy = is_array($alt_pharmacy) ? $alt_pharmacy : [];
+
+// NCPDP keys are numeric strings: a loose == would compare them numerically and
+// make '0012345' match '12345'. Compare as strings.
+$altNcpdpRaw = $alt_pharmacy['ncpdp_safe'] ?? '';
+$altNcpdp = is_scalar($altNcpdpRaw) ? (string) $altNcpdpRaw : '';
 
 $primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy['business_name'] . ' - ' .
     ($prim_pharmacy['address_line_1'] ?? '') . ' ' . ($prim_pharmacy['city'] ?? '') .
@@ -86,7 +93,7 @@ $primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy
 
 $alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy['business_name'] . ' - ' .
 ($alt_pharmacy['address_line_1'] ?? '') . ' ' . ($alt_pharmacy['city'] ?? '') .
-', ' . $alt_pharmacy['state'] ?? '') : '';
+', ' . ($alt_pharmacy['state'] ?? '')) : '';
 
 // get only pharmacies that are assigned to patients
 $res = sqlStatement(
@@ -184,7 +191,7 @@ if ($reSync === true) {
 }
 ?>
 <?php // One #sync-alert only - the id was duplicated, so JS targeting it hit the
-// first element and the second silently did nothing. ?>
+      // first element and the second silently did nothing. ?>
 <div id="sync-alert" class="<?php echo $cite === '' ? 'd-none' : ''; ?>"><?php echo $cite; ?></div>
 <?php if (!$hasErrors) { ?>
     <br>
@@ -255,7 +262,9 @@ if ($hasErrors) { ?>
                         continue;
                     }
                     $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
-                    $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
+                    $rowNcpdpRaw = $pharmacy['ncpdp_safe'] ?? '';
+                    $rowNcpdp = is_scalar($rowNcpdpRaw) ? (string) $rowNcpdpRaw : '';
+                    $isSelected = ($altNcpdp !== '' && $rowNcpdp === $altNcpdp) ? 'selected' : '';
                     ?>
                     <option
                         value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>

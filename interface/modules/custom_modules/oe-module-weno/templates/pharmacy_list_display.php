@@ -29,13 +29,15 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $pharmacyService = new PharmacyService();
-$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid')) ?? false;
-$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid')) ?? false;
+$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($session->get('pid'));
+$prim_pharmacy = is_array($prim_pharmacy) ? $prim_pharmacy : [];
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($session->get('pid'));
+$alt_pharmacy = is_array($alt_pharmacy) ? $alt_pharmacy : [];
 
 $primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy['business_name'] . ' - ' . ($prim_pharmacy['address_line_1'] ?? '') .
     ' ' . ($prim_pharmacy['city'] ?? '') . ', ' . ($prim_pharmacy['state'] ?? '')) : '';
 $alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy['business_name'] . ' - ' . ($alt_pharmacy['address_line_1'] ?? '') .
-    ' ' . ($alt_pharmacy['city'] ?? '') . ', ' . $alt_pharmacy['state'] ?? '') : '';
+    ' ' . ($alt_pharmacy['city'] ?? '') . ', ' . ($alt_pharmacy['state'] ?? '')) : '';
 ?>
 
 <div class="row col-12">
