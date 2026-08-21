@@ -57,6 +57,14 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
     const LAB_CATEGORY = "LAB";
 
     /**
+     * Official LOINC display values for laboratory report codes.
+     * @see https://loinc.org
+     */
+    private const LOINC_DISPLAY = [
+        '24357-6' => 'Urinalysis macro (dipstick) panel - Urine',
+    ];
+
+    /**
      * @see list_options order_types (Order Types)
      */
     const PROCEDURE_ORDER_TEST_TYPE = "laboratory_test";
@@ -181,9 +189,11 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
         // note we use standard_code instead of code as we require a LOINC code here and standard_code is for LOINC
         // codes in the system.  @see procedure_type table if you are confused by the difference between procedure_code
         // and standard_code
-        if (!empty($dataRecord['standard_code'])) {
-            $code = UtilsService::createCodeableConcept([$dataRecord['standard_code'] =>
-                ['code' => $dataRecord['standard_code'], 'description' => $dataRecord['name'], 'system' => FhirCodeSystemConstants::LOINC]
+        if (!empty($dataRecord['standard_code']) && is_string($dataRecord['standard_code'])) {
+            $loincCode = $dataRecord['standard_code'];
+            $display = self::LOINC_DISPLAY[$loincCode] ?? $dataRecord['name'];
+            $code = UtilsService::createCodeableConcept([$loincCode =>
+                ['code' => $loincCode, 'description' => $display, 'system' => FhirCodeSystemConstants::LOINC]
             ]);
             $report->setCode($code);
         } else {
