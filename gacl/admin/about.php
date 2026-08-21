@@ -24,12 +24,6 @@ function get_system_info(GaclAdminApi $gacl_api): string
     $system_info .= '  phpGACL Version: '.$gacl_api->get_version()."\n";
     $system_info .= '  phpGACL Schema Version: '.$gacl_api->get_schema_version()."\n";
 
-    // $caching = $gacl_api->_caching == TRUE ? 'True' : 'False';
-    // $system_info .= '  Caching Enabled: '. $caching ."\n";
-
-    // $force_cache_expire = $gacl_api->_force_cache_expire == TRUE ? 'True' : 'False';
-    // $system_info .= '  Force Cache Expire: '.$force_cache_expire."\n";
-
     $system_info .= '  Database Prefix: \''.$gacl_api->_db_table_prefix."'\n";
     // $system_info .= '  Database Type: '.$gacl_api->_db_type."\n";
 
