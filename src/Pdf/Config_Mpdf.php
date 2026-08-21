@@ -17,6 +17,9 @@ use OpenEMR\Services\Storage\CacheDirectory;
 
 class Config_Mpdf
 {
+    /**
+     * @return array<string, mixed>
+     */
     public static function getConfigMpdf()
     {
         return [
