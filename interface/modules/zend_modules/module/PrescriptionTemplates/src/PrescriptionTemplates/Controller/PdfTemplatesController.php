@@ -22,6 +22,7 @@
 namespace PrescriptionTemplates\Controller;
 
 use Interop\Container\ContainerInterface;
+use Laminas\View\Renderer\PhpRenderer;
 use Mpdf\Mpdf;
 use OpenEMR\Services\Storage\CacheDirectory;
 
@@ -39,7 +40,7 @@ class PdfTemplatesController extends PrescriptionTemplatesController
 
     public function __construct(ContainerInterface $container)
     {
-        $this->renderer = $container->get(\Laminas\View\Renderer\PhpRenderer::class);
+        $this->renderer = $container->get(PhpRenderer::class);
     }
 
     /**

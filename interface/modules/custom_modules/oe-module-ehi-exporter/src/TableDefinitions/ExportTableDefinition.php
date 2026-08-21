@@ -20,6 +20,7 @@ namespace OpenEMR\Modules\EhiExporter\TableDefinitions;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
+use RuntimeException;
 
 class ExportTableDefinition
 {
@@ -143,7 +144,7 @@ class ExportTableDefinition
                 // key has already been escaped when we created the table definitions so we can just search against the valid
                 // table columns, if it exists we are good to go, otherwise we fail.
                 if (array_search($key, $this->tableColumnNames) === false) {
-                    throw new \RuntimeException("Invalid key column name for table " . $this->table . ": $key");
+                    throw new RuntimeException("Invalid key column name for table " . $this->table . ": $key");
                 }
                 $whereClause = "($key IN (" . str_repeat('?,', $fetchSize - 1) . "?))";
                 $bindColumns = array_slice($items, $pos, $fetchSize);

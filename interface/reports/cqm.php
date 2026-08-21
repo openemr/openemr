@@ -12,14 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// TODO: This needs a complete makeover
-
-
-require_once("../globals.php");
-require_once("../../library/patient.inc.php");
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/clinical_rules.php";
-
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -29,6 +21,12 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+// TODO: This needs a complete makeover
+require_once("../globals.php");
+require_once("../../library/patient.inc.php");
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/clinical_rules.php";
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Report", xl("Report"));

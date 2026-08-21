@@ -14,6 +14,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Orders\Hl7OrderResult;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use phpseclib3\Net\SFTP;
+
 if (!defined('OPENEMR_GLOBALS_LOADED')) {
     http_response_code(404);
     exit();
@@ -35,11 +41,6 @@ if (!defined('OPENEMR_GLOBALS_LOADED')) {
 */
 
 require_once("$webserver_root/custom/code_types.inc.php");
-
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Orders\Hl7OrderGenerationException;
-use OpenEMR\Common\Orders\Hl7OrderResult;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 function hl7Race($s)
 {
@@ -700,7 +701,7 @@ function labcorp_send_hl7_order($ppid, $out)
         }
 
         // Connect to the server and write the file.
-        $sftp = new \phpseclib3\Net\SFTP($remote_host);
+        $sftp = new SFTP($remote_host);
         if (!$sftp->login($pprow['login'], $pprow['password'])) {
             return xl('Login to this remote host failed') . ": '$remote_host'";
         }

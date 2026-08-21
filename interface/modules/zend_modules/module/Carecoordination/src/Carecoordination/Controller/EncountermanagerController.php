@@ -16,12 +16,18 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
+use Application\Plugin\CommonPlugin;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use Carecoordination\Model\EncountermanagerTable;
+use Document;
 use DOMDocument;
+use FilesystemIterator;
+use InvalidArgumentException;
+use Laminas\Http\Request;
 use Laminas\Hydrator\Exception\RuntimeException;
 use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\Stdlib\ResponseInterface;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
@@ -32,11 +38,16 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use OpenEMR\Validators\ProcessingResult;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
+use Throwable;
 use XSLTProcessor;
+use ZipArchive;
 
 /**
- * @method \Application\Plugin\CommonPlugin CommonPlugin()
- * @method \Laminas\Http\Request getRequest()
+ * @method CommonPlugin CommonPlugin()
+ * @method Request getRequest()
  */
 class EncountermanagerController extends AbstractActionController
 {
@@ -239,7 +250,7 @@ class EncountermanagerController extends AbstractActionController
         $request = $this->getRequest();
         $docId = $request->getQuery("docId");
 
-        $document = new \Document($docId);
+        $document = new Document($docId);
         try {
             $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
             // can_access will check session if no params are passed.
@@ -280,7 +291,7 @@ class EncountermanagerController extends AbstractActionController
             $proc->importStylesheet($ss);
             $updatedContent = $proc->transformToXml($xmlDom);
             echo $updatedContent;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             echo "Failed to generate preview for docId " . text($docId);
             ServiceContainer::getLogger()->error(
                 "Failed to generate preview for ccda document",
@@ -309,7 +320,7 @@ class EncountermanagerController extends AbstractActionController
         $id = $this->getRequest()->getQuery('id');
         // Validate that id is numeric to prevent path traversal
         if (!is_numeric($id)) {
-            throw new \InvalidArgumentException('Invalid document ID');
+            throw new InvalidArgumentException('Invalid document ID');
         }
         $id = (int)$id;
 
@@ -327,7 +338,7 @@ class EncountermanagerController extends AbstractActionController
         $zip_dir = sys_get_temp_dir() . "/";
         $zip_name = "CCDA_$id.zip";
 
-        $ccdaDocument = new \Document($id);
+        $ccdaDocument = new Document($id);
         $content = $ccdaDocument->get_data();
         $f = fopen($dir . $filename, "w");
         fwrite($f, $content);
@@ -385,7 +396,7 @@ class EncountermanagerController extends AbstractActionController
                 foreach ($ids as $row_inner) {
                     $id = $row_inner['id'];
                     // xml version for parsing or transfer.
-                    $ccdaDocuments = \Document::getDocumentsForForeignReferenceId('ccda', $id);
+                    $ccdaDocuments = Document::getDocumentsForForeignReferenceId('ccda', $id);
                     $content = !empty($ccdaDocuments) ? $ccdaDocuments[0]->get_data() : ""; // nothing here to export
                     // From header oid for an unstructured document.
                     // used if the auto create patient document export is on in ccda service.
@@ -460,9 +471,8 @@ class EncountermanagerController extends AbstractActionController
     }
 
     // note this gets called from the frontend javascript (see public/js/application/sendTo.js::send()
-
     /**
-     * @return \Laminas\Stdlib\ResponseInterface
+     * @return ResponseInterface
      */
     public function transmitCCDAction()
     {
@@ -520,12 +530,12 @@ class EncountermanagerController extends AbstractActionController
         if (!is_dir($dir)) {
             return;
         }
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
         );
         foreach ($iterator as $file) {
-            /** @var \SplFileInfo $file */
+            /** @var SplFileInfo $file */
             if ($file->isDir()) {
                 rmdir($file->getPathname());
             } else {
@@ -544,23 +554,23 @@ class EncountermanagerController extends AbstractActionController
      */
     private function zipDirectory(string $sourceDir, string $zipFilePath): void
     {
-        $zip = new \ZipArchive();
-        if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+        $zip = new ZipArchive();
+        if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
             throw new \RuntimeException(sprintf('Unable to create ZIP archive "%s"', $zipFilePath));
         }
 
         $sourceDir = rtrim($sourceDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator(
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator(
                 $sourceDir,
-                \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS
+                FilesystemIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS
             ),
-            \RecursiveIteratorIterator::SELF_FIRST
+            RecursiveIteratorIterator::SELF_FIRST
         );
 
         foreach ($iterator as $fileInfo) {
-            /** @var \SplFileInfo $fileInfo */
+            /** @var SplFileInfo $fileInfo */
             $filePath = $fileInfo->getPathname();
             $localName = substr($filePath, strlen($sourceDir));
 

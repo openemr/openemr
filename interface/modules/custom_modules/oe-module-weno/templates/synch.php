@@ -33,7 +33,7 @@ $task = $_REQUEST['key'] ?? $_POST['key'] ?? '';
 if ($task == 'downloadStatusLog') {
     try {
         $result = downloadWenoLogCsvAndZip();
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         $result = false;
         $wenoLog->insertWenoLog("log download", text($e->getMessage()));
         error_log('Error downloading log: ' . errorLogEscape($e->getMessage()));
@@ -53,7 +53,7 @@ if ($task == 'downloadStatusLog') {
 // Check if the task is to sync the log
 try {
     $result = $logProperties->logSync($task);
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $result = false;
     $wenoLog->insertWenoLog("Sync Report", $e->getMessage());
     error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));

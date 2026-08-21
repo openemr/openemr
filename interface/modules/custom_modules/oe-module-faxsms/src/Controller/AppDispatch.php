@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
+use Document;
 use Exception;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
@@ -32,6 +33,7 @@ use OpenEMR\Modules\FaxSMS\Service\CredentialsRepository;
 use OpenEMR\Modules\FaxSMS\Service\ServiceFactory;
 use OpenEMR\Services\PatientPortalService;
 use RuntimeException;
+use stdClass;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Throwable;
 
@@ -605,8 +607,8 @@ abstract class AppDispatch
             : null;
 
         try {
-            return json_encode($result ?: new \stdClass(), JSON_THROW_ON_ERROR);
-        } catch (\Throwable $e) {
+            return json_encode($result ?: new stdClass(), JSON_THROW_ON_ERROR);
+        } catch (Throwable $e) {
             ServiceContainer::getLogger()->error(
                 'apiFetchPatientDetails: failed to encode response',
                 ['exception' => $e]
@@ -919,7 +921,7 @@ abstract class AppDispatch
         if (empty($patient)) {
             throw new RuntimeException(xlt('Error: Document patient not found'));
         }
-        $data = (new \Document($docId))->get_data();
+        $data = (new Document($docId))->get_data();
         if (!is_string($data) || $data === '') {
             throw new RuntimeException(xlt('Error: No content to send.'));
         }

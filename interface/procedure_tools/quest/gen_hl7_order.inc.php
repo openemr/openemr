@@ -12,6 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Orders\Hl7OrderResult;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use phpseclib3\Net\SFTP;
+
 /*
 * A bit of documentation that will need to go into the manual:
 *
@@ -26,13 +32,7 @@
 *
 * Then export as a CSV file and read it into your favorite spreadsheet app.
 */
-
 require_once("$webserver_root/custom/code_types.inc.php");
-
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Orders\Hl7OrderGenerationException;
-use OpenEMR\Common\Orders\Hl7OrderResult;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Get array of insurance payers for the specified patient as of the specified
@@ -452,7 +452,7 @@ function quest_send_hl7_order($ppid, $out)
         }
 
         // Connect to the server and write the file.
-        $sftp = new \phpseclib3\Net\SFTP($remote_host);
+        $sftp = new SFTP($remote_host);
         if (!$sftp->login($pprow['login'], $pprow['password'])) {
             return xl('Login to this remote host failed') . ": '$remote_host'";
         }

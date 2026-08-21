@@ -17,7 +17,7 @@ use OpenEMR\Core\OEGlobalsBag;
  * class PriorAuth
  *
  */
-class FormPriorAuth extends ORDataObject implements \Stringable
+class FormPriorAuth extends ORDataObject implements Stringable
 {
     /**
      *

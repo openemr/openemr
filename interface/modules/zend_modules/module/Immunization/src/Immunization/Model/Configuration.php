@@ -12,6 +12,7 @@
 
 namespace Immunization\Model;
 
+use Exception;
 use Laminas\Form\Form;
 use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterAwareInterface;
@@ -38,7 +39,7 @@ class Configuration extends Form implements InputFilterAwareInterface
 
     public function setInputFilter(InputFilterInterface $inputFilter)
     {
-        throw new \Exception("Not used");
+        throw new Exception("Not used");
     }
 
     public function getInputFilter(): InputFilterInterface

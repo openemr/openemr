@@ -23,7 +23,9 @@ use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 use OpenEMR\Services\CDADocumentService;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Throwable;
 use XSLTProcessor;
 
 class CCDAEventsSubscriber implements EventSubscriberInterface
@@ -92,7 +94,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 $fileUrl = $cdaResult->getData()[0]['ccda_data'];
                 $event->setFileUrl($fileUrl);
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception
                 , 'pid' => $event->getPid(), 'components' => $event->getComponentsAsString(), 'sections' => $event->getSectionsAsString()
                 , 'from' => $event->getDateFrom(), 'to' => $event->getDateTo()]);
@@ -136,7 +138,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                     $stylesheet .= "cda.xsl";
                 }
                 if (!file_exists($stylesheet)) {
-                    throw new \RuntimeException("Could not find stylesheet file at location: " . $stylesheet);
+                    throw new RuntimeException("Could not find stylesheet file at location: " . $stylesheet);
                 }
                 $xmlDom = new DOMDocument();
                 $xmlDom->loadXML($updatedContent);
@@ -149,7 +151,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
             }
             $event->setContent($updatedContent);
             return $event;
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception
                 , 'documentId' => $event->getDocumentId(), 'ccdaId' => $event->getCcdaId(), 'type' => $event->getCcdaType()]);
         }

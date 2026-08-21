@@ -27,6 +27,7 @@
  * @link      https://www.open-emr.org
  */
 
+use OpenEMR\Services\Utils\SQLUpgradeService;
 
 /**
  * Upgrade or patch the database with a selected upgrade/patch file.
@@ -139,6 +140,6 @@
  */
 function upgradeFromSqlFile($filename, $path = ''): void
 {
-    $sqlUpgradeService = new \OpenEMR\Services\Utils\SQLUpgradeService();
+    $sqlUpgradeService = new SQLUpgradeService();
     $sqlUpgradeService->upgradeFromSqlFile($filename, $path);
 } // end function

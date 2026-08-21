@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
+use Doctrine\DBAL\Exception;
 use OpenEMR\Common\Calendar\Month;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -909,7 +910,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   //echo "<Br />sql: $sql<br />";
     try {
         $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Exception $e) {
         die(text($e->getMessage()));
     }
 
@@ -1234,7 +1235,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     try {
         $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Exception $e) {
         die(text($e->getMessage()));
     }
 

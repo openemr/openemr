@@ -63,7 +63,7 @@ try {
         exit;
     }
     echo $updatedViewCCDAEvent->getContent();
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     ServiceContainer::getLogger()->error(
         "Failed to generate ccda for view",
         ['exception' => $exception, 'type' => $type, 'document_id' => $document_id]

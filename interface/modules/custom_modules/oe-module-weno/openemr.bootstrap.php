@@ -13,15 +13,16 @@
 
 namespace OpenEMR\Modules\WenoModule;
 
-/**
- * @var \OpenEMR\Core\ModulesClassLoader $classLoader
- */
+use OpenEMR\Core\ModulesClassLoader;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @var ModulesClassLoader $classLoader
+ */
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\WenoModule\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 /**
- * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
+ * @var EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
  */
-
 $bootstrap = new Bootstrap($eventDispatcher);
 $bootstrap->subscribeToEvents();

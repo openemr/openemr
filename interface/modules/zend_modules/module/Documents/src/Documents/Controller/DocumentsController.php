@@ -19,10 +19,12 @@ use Document;
 use Documents\Model\DocumentsTable;
 use DOMDocument;
 use Laminas\Mvc\Controller\AbstractActionController;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use RuntimeException;
 use XSLTProcessor;
 
 class DocumentsController extends AbstractActionController
@@ -111,7 +113,7 @@ class DocumentsController extends AbstractActionController
                     $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
                     try {
                         $plaintext = $passwordCrypto->decrypt((string) $filetext, (string) $encryption_key);
-                    } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
+                    } catch (CryptoGenException) {
                         error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                         $plaintext = "";
                     }
@@ -169,7 +171,7 @@ class DocumentsController extends AbstractActionController
                 $categoryIds['CCD'] => 'ccd.xsl',
                 $categoryIds['CCR'] => 'ccr.xsl',
                 $categoryIds['CCDA'] => 'cda.xsl',
-                default => throw new \RuntimeException("Unsupported category for XSL transform"),
+                default => throw new RuntimeException("Unsupported category for XSL transform"),
             };
 
             if ($qrda == '2.16.840.1.113883.10.20.24.1.2') {

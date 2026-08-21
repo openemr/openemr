@@ -2,6 +2,8 @@
 
 namespace Immunization;
 
+use Laminas\Loader\ClassMapAutoloader;
+use Laminas\Loader\StandardAutoloader;
 use Laminas\ModuleManager\ModuleManager;
 
 class Module
@@ -9,10 +11,10 @@ class Module
     public function getAutoloaderConfig()
     {
         return [
-            \Laminas\Loader\ClassMapAutoloader::class => [
+            ClassMapAutoloader::class => [
                 __DIR__ . '/autoload_classmap.php',
             ],
-            \Laminas\Loader\StandardAutoloader::class => [
+            StandardAutoloader::class => [
                 'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
 

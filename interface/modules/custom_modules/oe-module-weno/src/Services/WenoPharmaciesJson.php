@@ -13,6 +13,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
+use RuntimeException;
 
 class WenoPharmaciesJson
 {
@@ -90,7 +91,7 @@ class WenoPharmaciesJson
     {
         $key = OEGlobalsBag::getInstance()->getString('weno_encryption_key');
         if ($key === '') {
-            throw new \RuntimeException('Weno key missing');
+            throw new RuntimeException('Weno key missing');
         }
         return $this->cryptoGen->decryptFromDatabase($key);
     }

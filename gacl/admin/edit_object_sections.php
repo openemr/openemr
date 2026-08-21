@@ -22,8 +22,7 @@ require_once("gacl_admin.inc.php");
 
 /** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
 /** @var \ADOConnection $db */
-/** @var \Smarty $smarty */
-
+/** @var Smarty $smarty */
 //GET takes precedence.
 if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
     $object_type = $_GET['object_type'];

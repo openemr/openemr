@@ -10,19 +10,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-if (!defined('OPENEMR_GLOBALS_LOADED')) {
-    http_response_code(404);
-    exit();
-}
-
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
-require_once("FormROS.class.php");
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\EncounterFormAccess;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
+
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
+require_once("FormROS.class.php");
 
 class C_FormROS extends Controller
 {

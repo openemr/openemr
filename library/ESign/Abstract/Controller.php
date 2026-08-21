@@ -15,6 +15,7 @@
 
 namespace ESign;
 
+use Exception;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Viewer.php';
@@ -80,7 +81,7 @@ abstract class Abstract_Controller implements ViewableIF
         if (method_exists($this, $this->_method)) {
             $this->{$this->_method}();
         } else {
-            throw new \Exception("The method " . $this->_method . " does not exist and cannot be executed");
+            throw new Exception("The method " . $this->_method . " does not exist and cannot be executed");
         }
     }
 

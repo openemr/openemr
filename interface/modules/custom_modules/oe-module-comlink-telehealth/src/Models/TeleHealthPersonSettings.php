@@ -10,23 +10,25 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Models;
 
+use DateTime;
+
 class TeleHealthPersonSettings
 {
     private $id;
     private $isPatient;
     private $dbRecordId;
     /**
-     * @var \DateTime
+     * @var DateTime
      */
     private $dateCreated;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
     private $dateRegistered;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
     private $dateUpdated;
 
@@ -102,54 +104,54 @@ class TeleHealthPersonSettings
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateCreated(): \DateTime
+    public function getDateCreated(): DateTime
     {
         return $this->dateCreated;
     }
 
     /**
-     * @param \DateTime $dateCreated
+     * @param DateTime $dateCreated
      * @return TeleHealthPersonSettings
      */
-    public function setDateCreated(\DateTime $dateCreated): TeleHealthPersonSettings
+    public function setDateCreated(DateTime $dateCreated): TeleHealthPersonSettings
     {
         $this->dateCreated = $dateCreated;
         return $this;
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateRegistered(): \DateTime
+    public function getDateRegistered(): DateTime
     {
         return $this->dateRegistered;
     }
 
     /**
-     * @param \DateTime $dateRegistered
+     * @param DateTime $dateRegistered
      * @return TeleHealthPersonSettings
      */
-    public function setDateRegistered(\DateTime $dateRegistered): TeleHealthPersonSettings
+    public function setDateRegistered(DateTime $dateRegistered): TeleHealthPersonSettings
     {
         $this->dateRegistered = $dateRegistered;
         return $this;
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getDateUpdated(): \DateTime
+    public function getDateUpdated(): DateTime
     {
         return $this->dateUpdated;
     }
 
     /**
-     * @param \DateTime $dateUpdated
+     * @param DateTime $dateUpdated
      * @return TeleHealthPersonSettings
      */
-    public function setDateUpdated(\DateTime $dateUpdated): TeleHealthPersonSettings
+    public function setDateUpdated(DateTime $dateUpdated): TeleHealthPersonSettings
     {
         $this->dateUpdated = $dateUpdated;
         return $this;

@@ -12,6 +12,8 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Models;
 
+use InvalidArgumentException;
+
 class UserVideoRegistrationRequest
 {
     /**
@@ -118,7 +120,7 @@ class UserVideoRegistrationRequest
     public function setUsername(string $username): UserVideoRegistrationRequest
     {
         if (strlen($username) > 64) {
-            throw new \InvalidArgumentException("username must be 64 characters or less");
+            throw new InvalidArgumentException("username must be 64 characters or less");
         }
         $this->username = $username;
         return $this;
@@ -139,7 +141,7 @@ class UserVideoRegistrationRequest
     public function setPassword(string $password): UserVideoRegistrationRequest
     {
         if (strlen($password) > 256) {
-            throw new \InvalidArgumentException("password must be 256 characters or less");
+            throw new InvalidArgumentException("password must be 256 characters or less");
         }
         $this->password = $password;
         return $this;
@@ -160,7 +162,7 @@ class UserVideoRegistrationRequest
     public function setInstituationId(string $instituationId): UserVideoRegistrationRequest
     {
         if (strlen($instituationId) > 64) {
-            throw new \InvalidArgumentException("InstitutionId must be 64 characters or less");
+            throw new InvalidArgumentException("InstitutionId must be 64 characters or less");
         }
         $this->instituationId = $instituationId;
         return $this;
@@ -181,7 +183,7 @@ class UserVideoRegistrationRequest
     public function setInstitutionName(string $institutionName): UserVideoRegistrationRequest
     {
         if (strlen($institutionName) > 255) {
-            throw new \InvalidArgumentException("institutionName must be 255 characters or less");
+            throw new InvalidArgumentException("institutionName must be 255 characters or less");
         }
         $this->institutionName = $institutionName;
         return $this;
@@ -202,7 +204,7 @@ class UserVideoRegistrationRequest
     public function setFirstName(string $firstName): UserVideoRegistrationRequest
     {
         if (strlen($firstName) > 255) {
-            throw new \InvalidArgumentException("firstName must be 255 characters or less");
+            throw new InvalidArgumentException("firstName must be 255 characters or less");
         }
         $this->firstName = $firstName;
         return $this;
@@ -223,7 +225,7 @@ class UserVideoRegistrationRequest
     public function setLastName(string $lastName): UserVideoRegistrationRequest
     {
         if (strlen($lastName) > 255) {
-            throw new \InvalidArgumentException("lastName must be 255 characters or less");
+            throw new InvalidArgumentException("lastName must be 255 characters or less");
         }
         $this->lastName = $lastName;
         return $this;

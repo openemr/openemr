@@ -9,6 +9,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 class TelehealthConfigurationVerifier
 {
@@ -59,7 +60,7 @@ class TelehealthConfigurationVerifier
                 $resultObject['message'] = xlt('Settings verified');
                 $resultObject['status'] = 'success';
                 $resultObject['bridgeSettings'] = $bridgeSettings;
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $this->logger->error(
                     "Failed to verify telehealth connection settings" . $exception->getMessage(),
                     ['exception' => $exception]

@@ -14,6 +14,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
+use finfo;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
@@ -30,6 +31,7 @@ use OpenEMR\Modules\FaxSMS\Utils\SignalWireWebhookValidator;
 use OpenEMR\Services\PhoneNumberService;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
+use Throwable;
 
 class FaxDocumentService
 {
@@ -195,7 +197,7 @@ class FaxDocumentService
 
             // Determine mime type from the decrypted bytes — finfo on the
             // file path would inspect the encrypted blob.
-            $mimeType = (new \finfo(FILEINFO_MIME_TYPE))->buffer($mediaContent);
+            $mimeType = (new finfo(FILEINFO_MIME_TYPE))->buffer($mediaContent);
             if ($mimeType === false) {
                 throw new FaxDocumentException("Failed to detect MIME type for fax media");
             }
@@ -485,7 +487,7 @@ class FaxDocumentService
             error_log("FaxDocumentService.insertInboundFaxToQueue(): Successfully stored fax {$jobId} (patient_id={$patientId}, document_id={$documentId})");
 
             return (int)$recordId;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log("FaxDocumentService.insertInboundFaxToQueue(): ERROR - " . $e->getMessage());
             throw new FaxDocumentException("Failed to insert inbound fax to queue: " . $e->getMessage(), 0, $e);
         }
@@ -595,7 +597,7 @@ class FaxDocumentService
                     $body
                 ),
             ];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log("FaxDocumentService.fetchMediaBytes(): HTTP request failed: " . $e->getMessage());
             return null;
         }

@@ -24,7 +24,7 @@ try {
 } catch (HttpExceptionInterface $e) {
     http_response_code($e->getStatusCode());
     echo htmlspecialchars($e->getMessage());
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $errorRef = bin2hex(random_bytes(8));
     ServiceContainer::getLogger()->error("controller.php error", [
         'ref' => $errorRef,

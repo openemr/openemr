@@ -123,7 +123,7 @@ if ($mode !== 'new' && !$isRegistering) {
             $_POST['response_id'] = $saved['response_id'] ?? $_POST['response_id'];
             $qrid = $_POST['response_id'];
         }
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         ServiceContainer::getLogger()->error(
             'QuestionnaireResponse save failed; using backed up form answers.',
             ['exception' => $e]
@@ -153,7 +153,7 @@ if ($isRegistering) {
                 is_string($category) ? $category : null
             );
             $qid = $formForeignId;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             ServiceContainer::getLogger()->error(
                 'Questionnaire registration failed.',
                 ['exception' => $e]

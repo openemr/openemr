@@ -3,6 +3,7 @@
 // TODO: missing header
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
+use DateTime;
 use InvalidArgumentException;
 use OpenEMR\Services\Address\AddressRecord;
 use OpenEMR\Services\AddressService;
@@ -21,7 +22,7 @@ class FormattedPatientService
         }
 
         $patientResult = $patientResult[0];
-        $date = \DateTime::createFromFormat("Y-m-d", $patientResult['DOB']);
+        $date = DateTime::createFromFormat("Y-m-d", $patientResult['DOB']);
         $dobYmd = $date->format("Ymd");
         $patientResult['dobFormatted'] = $dobYmd;
         $patientResult['age'] = $patientService->getPatientAgeDisplay($dobYmd);

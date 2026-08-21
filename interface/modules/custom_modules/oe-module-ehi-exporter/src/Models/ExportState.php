@@ -16,7 +16,6 @@
 namespace OpenEMR\Modules\EhiExporter\Models;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Modules\EhiExporter\Models;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use OpenEMR\Modules\EhiExporter\Models\ExportTableResult;
@@ -33,11 +32,14 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use SimpleXMLElement;
+use SplQueue;
 
 class ExportState
 {
-    private readonly \SplQueue $queue;
-    private readonly Models\ExportResult $result;
+    private readonly SplQueue $queue;
+    private readonly ExportResult $result;
     private array $tableDefinitionsMap;
 
     // we use this to make sure if we are scheduled to hit an item again
@@ -54,12 +56,12 @@ class ExportState
 
     public function __construct(
         private readonly LoggerInterface $logger,
-        public \SimpleXMLElement $rootNode,
-        private readonly \SimpleXMLElement $metaNode,
+        public SimpleXMLElement $rootNode,
+        private readonly SimpleXMLElement $metaNode,
         private readonly EhiExportJobTask $jobTask
     ) {
-        $this->queue = new \SplQueue();
-        $this->result = new Models\ExportResult();
+        $this->queue = new SplQueue();
+        $this->result = new ExportResult();
         $this->tableDefinitionsMap = [];
         $this->dataFilterer = new ExportTableDataFilterer();
         $this->keyFilterer = new ExportKeyDefinitionFilterer();
@@ -74,7 +76,7 @@ class ExportState
             }
             mkdir($this->tempDir);
             if (!is_dir($this->tempDir)) {
-                throw new \RuntimeException("Failed to make temporary directory for export in temp directory");
+                throw new RuntimeException("Failed to make temporary directory for export in temp directory");
             }
         }
         return $this->tempDir;
@@ -124,7 +126,7 @@ class ExportState
             }
             return $item;
         }
-        throw new \RuntimeException("Invalid item in queue");
+        throw new RuntimeException("Invalid item in queue");
     }
 
     public function hasTableDefinitions()
@@ -132,7 +134,7 @@ class ExportState
         return !$this->queue->isEmpty();
     }
 
-    public function addTableDefinition(\OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition $tableDefinition)
+    public function addTableDefinition(ExportTableDefinition $tableDefinition)
     {
         // should exist already, but double check
         if (!isset($this->tableDefinitionsMap[$tableDefinition->table])) {
@@ -210,14 +212,14 @@ class ExportState
         return $keyData;
     }
 
-    private function hasDenormalizedKeys(\OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition $tableDefinition)
+    private function hasDenormalizedKeys(ExportTableDefinition $tableDefinition)
     {
         if ($tableDefinition->table === 'patient_data' || $tableDefinition->table === 'patient_history') {
             return true;
         }
     }
 
-    private function getDenormalizedKeys(\OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition $tableDefinition)
+    private function getDenormalizedKeys(ExportTableDefinition $tableDefinition)
     {
         // these columns are denormalized data and have the ids separated by a pipe (|)
         if ($tableDefinition->table === 'patient_data' || $tableDefinition->table == 'patient_history') {

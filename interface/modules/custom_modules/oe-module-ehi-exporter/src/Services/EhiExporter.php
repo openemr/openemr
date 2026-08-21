@@ -13,6 +13,9 @@
 
 namespace OpenEMR\Modules\EhiExporter\Services;
 
+use Document;
+use Exception;
+use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
@@ -23,7 +26,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\Modules\EhiExporter\Bootstrap;
-use OpenEMR\Modules\EhiExporter\Models;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJob;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
@@ -42,8 +44,11 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDef
 use OpenEMR\Services\DocumentService;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Throwable;
 use Twig\Environment;
+use ZipArchive;
 
 use function xl;
 
@@ -93,12 +98,12 @@ class EhiExporter
         $job = null;
         try {
             $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             if ($job !== null) {
                 $job->setStatus("failed");
                 try {
                     $this->jobService->update($job);
-                } catch (\Throwable $exception) {
+                } catch (Throwable $exception) {
                     $this->logger->error("Failed to mark job as failed ", ['exception' => $exception]);
                     return $job;
                 }
@@ -115,12 +120,12 @@ class EhiExporter
             $sql = "SELECT pid FROM patient_data"; // We do everything here
             $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
             $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             if ($job !== null) {
                 $job->setStatus("failed");
                 try {
                     $this->jobService->update($job);
-                } catch (\Throwable $exception) {
+                } catch (Throwable $exception) {
                     $this->logger->error("Failed to mark job as failed ", ['exception' => $exception]);
                     return $job;
                 }
@@ -137,12 +142,12 @@ class EhiExporter
         try {
             $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
             return $this->processJob($job);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             if ($job !== null) {
                 $job->setStatus("failed");
                 try {
                     $this->jobService->update($job);
-                } catch (\Throwable $exception) {
+                } catch (Throwable $exception) {
                     $this->logger->error("Failed to mark job as failed ", ['exception' => $exception]);
                     return $job;
                 }
@@ -158,12 +163,12 @@ class EhiExporter
             $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
             $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
             return $this->processJob($job);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             if ($job !== null) {
                 $job->setStatus("failed");
                 try {
                     $this->jobService->update($job);
-                } catch (\Throwable $exception) {
+                } catch (Throwable $exception) {
                     $this->logger->error("Failed to mark job as failed ", ['exception' => $exception]);
                     return $job;
                 }
@@ -177,7 +182,7 @@ class EhiExporter
      * @param bool $includePatientDocuments
      * @param int $defaultZipSize
      * @return EhiExportJob
-     * @throws \Exception
+     * @throws Exception
      */
     private function createJobForRequest(array &$patientPids, bool $includePatientDocuments, $defaultZipSize)
     {
@@ -187,7 +192,7 @@ class EhiExporter
         // which would be around 1818 patients assuming a patient average doc size of 2.2MB.  96MB of export data should
         // fairly easily cover the DB data for 1818 patients which is highly compressible.
         if ($defaultZipSize > 4000) {
-            throw new \InvalidArgumentException("Zip size is too large, please reduce the size to be less than 4000MB");
+            throw new InvalidArgumentException("Zip size is too large, please reduce the size to be less than 4000MB");
         }
 
         $job = new EhiExportJob();
@@ -213,7 +218,7 @@ class EhiExporter
      * @param $job
      * @param $patientPids
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     private function processJob(EhiExportJob $job)
     {
@@ -238,7 +243,7 @@ class EhiExporter
      * @param EhiExportJob $job
      * @param array $patientPids
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     private function createExportTasksFromJob(EhiExportJob $job)
     {
@@ -336,7 +341,7 @@ class EhiExporter
             $updatedJobTask = $this->exportBreadthAlgorithm($jobTask);
             $updatedJobTask->setStatus("completed"); // we've finished the task
             $updatedJobTask = $this->taskService->update($updatedJobTask);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $updatedJobTask->error_message = $exception->getMessage();
             $updatedJobTask->setStatus('failed');
         }
@@ -347,7 +352,7 @@ class EhiExporter
     {
         $contents = file_get_contents($path);
         if ($contents === false) {
-            throw new \RuntimeException("Failed to find file " . $path);
+            throw new RuntimeException("Failed to find file " . $path);
         }
         return XmlUtils::loadString($contents);
     }
@@ -358,9 +363,9 @@ class EhiExporter
         $xmlTableStructure = $this->getXmlNode($this->xmlConfigPath . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml');
         $xmlMetaStructure = $this->getXmlNode($this->xmlConfigPath . DIRECTORY_SEPARATOR . 'schemaspy'
             . DIRECTORY_SEPARATOR . 'schemas' . DIRECTORY_SEPARATOR . 'openemr.meta.xml');
-        $exportState = new Models\ExportState($this->logger, $xmlTableStructure, $xmlMetaStructure, $jobTask);
+        $exportState = new ExportState($this->logger, $xmlTableStructure, $xmlMetaStructure, $jobTask);
 
-        $pidKey = new Models\ExportKeyDefinition();
+        $pidKey = new ExportKeyDefinition();
         $pidKey->foreignKeyTable = "patient_data";
         $pidKey->foreignKeyColumn = "pid";
 
@@ -431,7 +436,7 @@ class EhiExporter
             if (!empty($keyDefinitions)) {
                 foreach ($keyDefinitions['keys'] as $keyDefinition) {
                     if (!($keyDefinition instanceof ExportKeyDefinition)) {
-                        throw new \RuntimeException("Invalid key definition");
+                        throw new RuntimeException("Invalid key definition");
                     }
                     $foreignKeyTableDefinition = $keyDefinitions['tables'][$keyDefinition->foreignKeyTable];
                     // we process ALL parent keys, or if it is a child key we only process a select few of these keys.
@@ -460,7 +465,7 @@ class EhiExporter
         }
         $this->exportCustomTables($jobTask, $exportState);
         if ($iterations > $maxCycleLimit) {
-            throw new \RuntimeException("Max iterations reached, check for cyclic dependencies");
+            throw new RuntimeException("Max iterations reached, check for cyclic dependencies");
         }
         $exportedResult = $exportState->getExportResult();
         $document = $this->generateZipfile($jobTask, $exportedResult, $exportState);
@@ -477,18 +482,18 @@ class EhiExporter
 
     private function generateZipfile(EhiExportJobTask $jobTask, $exportedResult, ExportState $exportState)
     {
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
 
         $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         if (!file_exists($tempDir)) {
-            throw new \RuntimeException("Could not access globals temporary_files_dir location. Verify the property is set correctly and the webserver has write access to the location.");
+            throw new RuntimeException("Could not access globals temporary_files_dir location. Verify the property is set correctly and the webserver has write access to the location.");
         }
 
         $zipName = uniqid('ehi-export-') . '.zip';
         $zipOutput = $tempDir . DIRECTORY_SEPARATOR . $zipName;
-        $openStatus = $zip->open($zipOutput, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $openStatus = $zip->open($zipOutput, ZipArchive::CREATE | ZipArchive::OVERWRITE);
         if ($openStatus == false) {
-            throw new \RuntimeException("Failed to open zip archive at location " . $zipOutput);
+            throw new RuntimeException("Failed to open zip archive at location " . $zipOutput);
         }
         foreach ($exportedResult->exportedTables as $result) {
             if ($this->shouldExportAdditionalAssets($result->tableName)) {
@@ -498,7 +503,7 @@ class EhiExporter
             $addedToZip = $zip->addFromString($result->tableName . '.csv', $taskResultContents);
             if (!$addedToZip) {
                 $this->logger->error("EhiExporter: Failed to add {tableName} to zip file", ['tableName' => $result->tableName]);
-                throw new \Exception("Failed to add " . $result->tableName . " to zip file");
+                throw new Exception("Failed to add " . $result->tableName . " to zip file");
             }
         }
         if ($jobTask->ehiExportJob->include_patient_documents) {
@@ -508,7 +513,7 @@ class EhiExporter
         $saved = $zip->close();
         if (!$saved) {
             $this->logger->error("EhiExporter: Failed to save zip file {zipName}", ['zipName' => $zipName]);
-            throw new \Exception("Failed to generate zip file for job " . $jobTask->ehi_task_id . " zip status is " . $zip->status);
+            throw new Exception("Failed to generate zip file for job " . $jobTask->ehi_task_id . " zip status is " . $zip->status);
         }
         unset($zip);
         $document = $this->createDatabaseDocumentFromZip($jobTask, $zipOutput, $zipName);
@@ -548,7 +553,7 @@ class EhiExporter
         return "";
     }
 
-    private function createDatabaseDocumentFromZip(EhiExportJobTask $jobTask, string $zipLocation, string $zipName): \Document
+    private function createDatabaseDocumentFromZip(EhiExportJobTask $jobTask, string $zipLocation, string $zipName): Document
     {
         $folder = self::EHI_DOCUMENT_FOLDER;
         $categoryId = QueryUtils::fetchSingleValue('Select `id` FROM categories WHERE name=?', 'id', [self::EHI_DOCUMENT_CATEGORY]);
@@ -563,7 +568,7 @@ class EhiExporter
         $thumbnailTmpLocation = null;
         $dateExpires = null;
         $data = file_get_contents($zipLocation);
-        $document = new \Document();
+        $document = new Document();
         // I don't like how we use the $patient_id for the folder... but it is what it is
         $result = $document->createDocument(
             $folder,
@@ -580,17 +585,17 @@ class EhiExporter
             EhiExportJobTaskService::TABLE_NAME
         );
         if (!empty($result)) {
-            throw new \RuntimeException("Failed to save document for task. Message: " . $result);
+            throw new RuntimeException("Failed to save document for task. Message: " . $result);
         }
         return $document;
     }
 
-    private function exportCustomTables(EhiExportJobTask $jobTask, Models\ExportState $state)
+    private function exportCustomTables(EhiExportJobTask $jobTask, ExportState $state)
     {
         // if we have to do anything custom that is different than our custom table definition
     }
 
-    private function shouldProcessForeignKey(Models\ExportKeyDefinition $definition)
+    private function shouldProcessForeignKey(ExportKeyDefinition $definition)
     {
         // we don't want to traverse keys that are not unique as we risk jeopardizing patient data following the references
         if ($this->isNonUniqueKey($definition)) {
@@ -629,7 +634,7 @@ class EhiExporter
         $additionalAssets = ['form_painmap'];
         return in_array($tableName, $additionalAssets);
     }
-    private function exportAdditionalAssets(\ZipArchive $zip, $tableName)
+    private function exportAdditionalAssets(ZipArchive $zip, $tableName)
     {
         $additionalAssets = [
             'form_painmap' => [
@@ -680,13 +685,13 @@ class EhiExporter
         $fileName = $outputLocation . DIRECTORY_SEPARATOR . $tableName . '.csv';
         $contentsWritten = file_put_contents($fileName, $encryptedContents);
         if ($contentsWritten === false) {
-            throw new \RuntimeException("Failed to write csv file to disk");
+            throw new RuntimeException("Failed to write csv file to disk");
         }
 
         return $recordCount;
     }
 
-    private function addPatientDocuments(ExportState $exportState, ExportResult $exportedResult, \ZipArchive $zip, array $patientPids)
+    private function addPatientDocuments(ExportState $exportState, ExportResult $exportedResult, ZipArchive $zip, array $patientPids)
     {
         $tableDef = $exportState->getTableDefinitionForTable('documents');
         $documentRecords = $tableDef->getRecords();
@@ -694,7 +699,7 @@ class EhiExporter
         $docFolder = "documents/";
         foreach ($documentRecords as $documentRecord) {
             $documentId = $documentRecord['id'];
-            $documentObj = new \Document($documentId);
+            $documentObj = new Document($documentId);
             // we don't export document files that are deleted or expired documents
             if ($documentObj->is_deleted() || $documentObj->has_expired()) {
                 continue;
@@ -709,7 +714,7 @@ class EhiExporter
                 } else {
                     $docCount++;
                 }
-            } catch (\RuntimeException $exception) {
+            } catch (RuntimeException $exception) {
                 // if the file contents can not be retrieved we get a runtime exception
                 $this->logger->error(
                     "EhiExporter: Failed to add document {document} to zip file as document contents could not be retrieved",
@@ -742,7 +747,7 @@ class EhiExporter
         ];
     }
 
-    private function addDocumentationReadme(\ZipArchive $zip)
+    private function addDocumentationReadme(ZipArchive $zip)
     {
         $readmeContents = $this->twig->render(Bootstrap::MODULE_NAME . '/README.text.twig', [
             'webBaseUrl' => OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->getWebRoot()
@@ -801,11 +806,11 @@ class EhiExporter
     {
         $task = $this->taskService->getTaskFromId($taskId);
         if (empty($task)) {
-            throw new \InvalidArgumentException("Invalid task id");
+            throw new InvalidArgumentException("Invalid task id");
         }
         $job = $this->jobService->getJobById($task->ehi_export_job_id);
         if (empty($job)) {
-            throw new \InvalidArgumentException("Invalid job id.  This should never happen and indicates there is a system error");
+            throw new InvalidArgumentException("Invalid job id.  This should never happen and indicates there is a system error");
         }
         $task->ehiExportJob = $job;
         if ($task->getStatus() == 'completed') {
@@ -821,7 +826,7 @@ class EhiExporter
     {
         $task = $this->taskService->getTaskFromId($taskId);
         if (empty($task)) {
-            throw new \InvalidArgumentException("Invalid task id");
+            throw new InvalidArgumentException("Invalid task id");
         }
         return $task;
     }

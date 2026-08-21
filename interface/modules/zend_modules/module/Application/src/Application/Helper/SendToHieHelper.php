@@ -16,7 +16,7 @@ use Application\Controller\SendtoController;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\View\Helper\AbstractHelper;
 
-class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
+class SendToHieHelper extends AbstractHelper
 {
     public function __construct(private readonly SendtoController $sendController)
     {
@@ -65,11 +65,10 @@ class SendToHieHelper extends \Laminas\View\Helper\AbstractHelper
     }
 
   /**
-   * Get the service locator.
-   *
-   * @return \Laminas\ServiceManager\ServiceLocatorInterface
-   *
-   */
+     * Get the service locator.
+     *
+     * @return ServiceLocatorInterface
+     */
     public function getServiceLocator()
     {
         return $this->serviceLocator;

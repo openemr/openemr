@@ -12,9 +12,10 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Exception;
 
+use Exception;
 use Throwable;
 
-class TelehealthProvisioningServiceRequestException extends \Exception
+class TelehealthProvisioningServiceRequestException extends Exception
 {
     public function __construct($message = "", $code = 0, ?Throwable $previous = null)
     {

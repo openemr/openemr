@@ -1,5 +1,7 @@
 <?php
 
+use Doctrine\DBAL\Exception;
+
 // $Id$
 // ----------------------------------------------------------------------
 // POST-NUKE Content Management System
@@ -56,7 +58,7 @@ function pnModGetVar($modname, $name)
               AND $modulevarscolumn[name] = ?";
     try {
         $value = $conn->fetchOne($query, [$modname, $name]);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Exception) {
         return;
     }
 
@@ -104,7 +106,7 @@ function pnModSetVar($modname, $name, $value)
                       AND $modulevarscolumn[name] = ?";
             $conn->executeStatement($query, [$value, $modname, $name]);
         }
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Exception) {
         return;
     }
 
@@ -140,7 +142,7 @@ function pnModGetIDFromName($module)
               WHERE $modulescolumn[name] = ?";
     try {
         $id = $conn->fetchOne($query, [$module]);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Exception) {
         return;
     }
 
@@ -187,7 +189,7 @@ function pnModGetInfo($modid)
               WHERE $modulescolumn[id] = ?";
     try {
         $row = $conn->fetchNumeric($query, [$modid]);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Exception) {
         return;
     }
 
@@ -235,7 +237,7 @@ function pnModAPILoad($modname, $type = 'user')
               WHERE $modulescolumn[name] = ?";
     try {
         $row = $conn->fetchNumeric($query, [$modname]);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Exception $e) {
         return;
     }
 
@@ -293,7 +295,7 @@ function pnModDBInfoLoad($modname, $directory = ''): bool
                 WHERE $modulescolumn[name] = ?";
         try {
             $directory = $conn->fetchOne($sql, [$modname]);
-        } catch (Doctrine\DBAL\Exception) {
+        } catch (Exception) {
             return false;
         }
         if ($directory === false) {
@@ -348,7 +350,7 @@ function pnModLoad($modname, $type = 'user')
               WHERE $modulescolumn[name] = ?";
     try {
         $row = $conn->fetchNumeric($query, [$modname]);
-    } catch (Doctrine\DBAL\Exception $e) {
+    } catch (Exception $e) {
         return;
     }
 
@@ -539,7 +541,7 @@ function pnModAvailable($modname)
               WHERE $modulescolumn[name] = ?";
     try {
         $state = $conn->fetchOne($query, [$modname]);
-    } catch (Doctrine\DBAL\Exception) {
+    } catch (Exception) {
         return;
     }
 

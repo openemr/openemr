@@ -28,7 +28,7 @@ require_once("gacl_admin.inc.php");
 
 /** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
 /** @var \ADOConnection $db */
-/** @var \Smarty $smarty */
+/** @var Smarty $smarty */
 /*
 $query = '
     SELECT      a.value AS a_value, a.name AS a_name,
@@ -41,7 +41,6 @@ $query = '
     LEFT JOIN   '. $gacl_api->_db_table_prefix .'aro d ON c.value=d.section_value
     ORDER BY    a.value, b.value, c.value, d.value';
 */
-
 $query = '
 	SELECT		a.value AS a_value, a.name AS a_name,
 				b.value AS b_value, b.name AS b_name,

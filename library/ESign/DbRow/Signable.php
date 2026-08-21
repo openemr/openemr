@@ -15,6 +15,7 @@
 
 namespace ESign;
 
+use Exception;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
@@ -132,7 +133,7 @@ abstract class DbRow_Signable implements SignableIF
         $id = sqlInsert($statement, $signature);
 
         if ($id === false) {
-            throw new \Exception("Error occurred while attempting to insert a signature into the database.");
+            throw new Exception("Error occurred while attempting to insert a signature into the database.");
         }
 
         return $id;

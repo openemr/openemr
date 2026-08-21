@@ -22,6 +22,8 @@
 
 namespace OpenEMR\Forms\NewPatient;
 
+use Exception;
+use InvalidArgumentException;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -29,6 +31,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -39,8 +42,13 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\UserService;
+use POSRef;
+use RuntimeException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\TwigFunction;
 
 use function sqlFetchArray;
@@ -61,7 +69,7 @@ class C_EncounterVisitForm
      * @param array $issueTypes
      * @param string $rootdir
      * @param string $pageName The name to use when firing off any events for this page
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct(
         $templatePath,
@@ -85,7 +93,7 @@ class C_EncounterVisitForm
         if (in_array($mode, ['new', 'edit', 'followup'])) {
             $this->mode = $mode;
         } else {
-            throw new \InvalidArgumentException('Invalid mode provided');
+            throw new InvalidArgumentException('Invalid mode provided');
         }
     }
 
@@ -431,7 +439,7 @@ class C_EncounterVisitForm
 
     function getPosOptionsForTemplate($facilityPosCode = null)
     {
-        $pc = new \POSRef();
+        $pc = new POSRef();
         $options = [];
         foreach ($pc->get_pos_ref() as $pos) {
             $options[] = [
@@ -468,9 +476,9 @@ class C_EncounterVisitForm
     /**
      * @param $pid
      * @return void
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function render($pid)
     {
@@ -508,7 +516,7 @@ class C_EncounterVisitForm
             $id = $_REQUEST['id'] ?? '';
             $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", [$id]);
             if (!is_array($result)) {
-                throw new \RuntimeException('Encounter not found for id ' . var_export($id, true));
+                throw new RuntimeException('Encounter not found for id ' . var_export($id, true));
             }
             $encounter = $result;
             // it won't encode in the JSON if we don't convert this.
@@ -582,7 +590,7 @@ class C_EncounterVisitForm
             $validationConstraints = json_decode((string) $validationConstraints["new_encounter"]["rules"], true);
             if ($validationConstraints === false) {
                 $validationConstraints = [];
-                (new \OpenEMR\Common\Logging\SystemLogger())->error("C_EncounterVisitForm: Error decoding validation constraints for encounter form");
+                (new SystemLogger())->error("C_EncounterVisitForm: Error decoding validation constraints for encounter form");
             }
         }
 
@@ -736,7 +744,7 @@ class C_EncounterVisitForm
         $templatePageEvent = new TemplatePageEvent('newpatient/common.php', [], $layout, $viewArgs);
         $event = $this->eventDispatcher->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
         if (!$event instanceof TemplatePageEvent) {
-            throw new \RuntimeException('Invalid event returned from template page event');
+            throw new RuntimeException('Invalid event returned from template page event');
         }
 // Render template
         echo $this->twig->render($event->getTwigTemplate(), $event->getTwigVariables());
