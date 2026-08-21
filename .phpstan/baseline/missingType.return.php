@@ -522,46 +522,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Hashed_Cache_Lite\\:\\:_create_dir_structure\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Hashed_Cache_Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Hashed_Cache_Lite\\:\\:_setFileName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Hashed_Cache_Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:_memoryCacheAdd\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:_setFileName\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:getMemoryCachingState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:saveMemoryCachingState\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:setLifeTime\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:setToDebug\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Profiler\\:\\:__resumeTimer\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
@@ -18817,11 +18777,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Acl/AclMain.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclMain\\:\\:clearGaclCache\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Acl/AclMain.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclMain\\:\\:collectGaclObject\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclMain.php',
@@ -20648,16 +20603,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_get_groups\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:clear_cache\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:put_cache\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];

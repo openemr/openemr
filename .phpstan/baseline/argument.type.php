@@ -1292,66 +1292,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$directory of function opendir expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Hashed_Cache_Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$string of function substr expects string, int given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Hashed_Cache_Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$data of function unserialize expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$data of method Cache_Lite\\:\\:_hash\\(\\) expects string, string\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$id of method Cache_Lite\\:\\:get\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$stream of function flock expects resource, resource\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$controlType of method Cache_Lite\\:\\:_hash\\(\\) expects string, bool given\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$group of method Cache_Lite\\:\\:get\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$id of method Cache_Lite\\:\\:save\\(\\) expects string\\|null, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#2 \\$length of function fread expects int\\<1, max\\>, int\\<\\-32, max\\>\\|false given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$doNotTestCacheValidity of method Cache_Lite\\:\\:get\\(\\) expects bool, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#3 \\$group of method Cache_Lite\\:\\:save\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$array of function implode expects array, list\\<string\\>\\|false given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/about.php',

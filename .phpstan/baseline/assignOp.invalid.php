@@ -82,16 +82,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+\\=" between mixed and 1 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-\\=" between mixed and 1 results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+\\=" between \\(float\\|int\\) and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',

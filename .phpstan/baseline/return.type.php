@@ -12,31 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:_read\\(\\) should return string but returns false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:_read\\(\\) should return string but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:get\\(\\) should return string but returns false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:get\\(\\) should return string but returns mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:lastModified\\(\\) should return int but returns int\\<0, max\\>\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function sellDrug\\(\\) should return bool\\|int\\|void but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
@@ -7909,11 +7884,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) should return array but returns false\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [

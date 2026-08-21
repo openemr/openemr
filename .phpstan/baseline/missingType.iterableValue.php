@@ -97,16 +97,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Cache_Lite\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Cache_Lite\\:\\:\\$_memoryCachingArray type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function era_payments_callback\\(\\) has parameter \\$out with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/era_payments.php',

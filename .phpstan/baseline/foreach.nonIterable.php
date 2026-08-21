@@ -97,11 +97,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Argument of an invalid type list\\<string\\>\\|false supplied for foreach, only iterables are supported\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Hashed_Cache_Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
