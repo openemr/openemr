@@ -83,7 +83,8 @@ jobs:
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
       with:
-        coverage: ${{ env.COLLECT_COVERAGE }}
+        # Action inputs are strings; map the env flag to a supported driver.
+        coverage: ${{ env.COLLECT_COVERAGE == 'true' && 'xdebug' || 'none' }}
         php-version: ${{ matrix.php.version }}
 
     - name: Run CLI installer
