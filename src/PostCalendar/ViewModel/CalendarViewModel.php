@@ -450,11 +450,12 @@ final readonly class CalendarViewModel
      * scan from day/week/day_print main loops.
      *
      * Algorithm (preserves legacy semantics):
-     *  - For each timeslot, build the list of events overlapping it
-     *    (start-in, end-in, or span). Skip events flagged by
-     *    shouldSkipForOverlap. Skip events with empty eid. Skip
-     *    events whose aid is for another provider (aid 0 = clinic-wide
-     *    and never skipped).
+     *  - Reduce the list to this provider's events once up front. Skip
+     *    events flagged by shouldSkipForOverlap. Skip events with empty
+     *    eid. Skip events whose aid is for another provider (aid 0 =
+     *    clinic-wide and never skipped).
+     *  - For each timeslot, build the list of those events overlapping
+     *    it (start-in, end-in, or span).
      *  - In day view, OUT events (catid 3) get pop-then-unshift'd to
      *    the front of the slot so they render leftmost.
      *  - Each event's recorded width is the SMALLEST it needs across
@@ -475,6 +476,49 @@ final readonly class CalendarViewModel
         int $intervalMinutes,
         int $providerId
     ): array {
+        // Callers hand the whole day's events to this method once per provider
+        // column, so narrowing, provider filtering and time arithmetic run once
+        // per event here rather than once per event per timeslot.
+        $candidates = [];
+        foreach ($eventsForProvider as $event) {
+            $rawEid = $event['eid'] ?? null;
+            if (!is_int($rawEid) && !is_string($rawEid)) {
+                continue;
+            }
+            if ($rawEid === '' || $rawEid === 0) {
+                continue;
+            }
+
+            $catid = $event['catid'] ?? 0;
+            $catidInt = is_int($catid) ? $catid : (is_string($catid) ? (int) $catid : 0);
+
+            if ($this->shouldSkipForOverlap($catidInt)) {
+                continue;
+            }
+
+            $aid = $event['aid'] ?? 0;
+            $aidInt = is_int($aid) ? $aid : (is_string($aid) ? (int) $aid : 0);
+            if ($aidInt !== $providerId && $aidInt !== 0) {
+                continue;
+            }
+
+            $startTime = $event['startTime'] ?? '00:00:00';
+            if (!is_string($startTime)) {
+                continue;
+            }
+            $eStart = $this->startTimeToMinutes($startTime);
+
+            $durationSec = $event['duration'] ?? 0;
+            $durationSecInt = is_int($durationSec) ? $durationSec : (is_string($durationSec) ? (int) $durationSec : 0);
+
+            $candidates[] = [
+                'eid'   => $rawEid,
+                'isOut' => $catidInt === 3,
+                'start' => $eStart,
+                'end'   => $eStart + (int) ($durationSecInt / 60),
+            ];
+        }
+
         $positions = [];
 
         foreach ($timeSlots as $slot) {
@@ -483,38 +527,9 @@ final readonly class CalendarViewModel
 
             $eidsInSlot = [];
 
-            foreach ($eventsForProvider as $event) {
-                $rawEid = $event['eid'] ?? null;
-                if (!is_int($rawEid) && !is_string($rawEid)) {
-                    continue;
-                }
-                if ($rawEid === '' || $rawEid === 0) {
-                    continue;
-                }
-                $eid = $rawEid;
-
-                $catid = $event['catid'] ?? 0;
-                $catidInt = is_int($catid) ? $catid : (is_string($catid) ? (int) $catid : 0);
-
-                if ($this->shouldSkipForOverlap($catidInt)) {
-                    continue;
-                }
-
-                $aid = $event['aid'] ?? 0;
-                $aidInt = is_int($aid) ? $aid : (is_string($aid) ? (int) $aid : 0);
-                if ($aidInt !== $providerId && $aidInt !== 0) {
-                    continue;
-                }
-
-                $startTime = $event['startTime'] ?? '00:00:00';
-                if (!is_string($startTime)) {
-                    continue;
-                }
-                $eStart = $this->startTimeToMinutes($startTime);
-
-                $durationSec = $event['duration'] ?? 0;
-                $durationSecInt = is_int($durationSec) ? $durationSec : (is_string($durationSec) ? (int) $durationSec : 0);
-                $eEnd = $eStart + (int) ($durationSecInt / 60);
+            foreach ($candidates as $candidate) {
+                $eStart = $candidate['start'];
+                $eEnd = $candidate['end'];
 
                 $overlaps = ($eStart >= $slotStartMin && $eStart < $slotEndMin)
                     || ($eEnd > $slotStartMin && $eEnd <= $slotEndMin)
@@ -524,11 +539,11 @@ final readonly class CalendarViewModel
                     continue;
                 }
 
-                $eidsInSlot[] = $eid;
-                if ($this->viewType === ViewType::Day && $catidInt === 3) {
-                    // OUT event in day view: pop-then-unshift to render leftmost.
-                    array_pop($eidsInSlot);
-                    array_unshift($eidsInSlot, $eid);
+                if ($this->viewType === ViewType::Day && $candidate['isOut']) {
+                    // OUT event in day view renders leftmost.
+                    array_unshift($eidsInSlot, $candidate['eid']);
+                } else {
+                    $eidsInSlot[] = $candidate['eid'];
                 }
             }
 
