@@ -32,12 +32,13 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use SessionHandlerInterface;
+use SessionIdInterface;
 use SessionUpdateTimestampHandlerInterface;
 
 class LockingRedisSessionHandlerTest extends TestCase
 {
     private \Redis&MockObject $redis;
-    private SessionHandlerInterface&SessionUpdateTimestampHandlerInterface&MockObject $inner;
+    private SessionIdInterface&SessionHandlerInterface&SessionUpdateTimestampHandlerInterface&MockObject $inner;
     private LockingRedisSessionHandler $handler;
 
     protected function setUp(): void
@@ -51,6 +52,7 @@ class LockingRedisSessionHandlerTest extends TestCase
         $this->redis = $this->createMock(\Redis::class);
         $this->inner = $this->createMockForIntersectionOfInterfaces([
             SessionHandlerInterface::class,
+            SessionIdInterface::class,
             SessionUpdateTimestampHandlerInterface::class,
         ]);
 
@@ -415,30 +417,29 @@ class LockingRedisSessionHandlerTest extends TestCase
 
     public function testCreateSidDelegatesToInnerWhenItImplementsSessionIdInterface(): void
     {
-        $innerWithSessionId = $this->createMockForIntersectionOfInterfaces([
-            \SessionHandlerInterface::class,
-            \SessionUpdateTimestampHandlerInterface::class,
-            \SessionIdInterface::class,
-        ]);
-        $innerWithSessionId->expects($this->once())
+        $this->inner->expects($this->once())
             ->method('create_sid')
             ->willReturn('inner-generated-id');
 
-        $handler = new LockingRedisSessionHandler(
-            $this->redis,
-            $innerWithSessionId,
-            logger: new NullLogger(),
-        );
-
-        $result = $handler->create_sid();
+        $result = $this->handler->create_sid();
 
         $this->assertSame('inner-generated-id', $result, 'should delegate to inner when it implements SessionIdInterface');
     }
 
     public function testCreateSidUsesSessionCreateIdWhenInnerDoesNotImplementSessionIdInterface(): void
     {
-        // $this->inner does not implement SessionIdInterface
-        $result = $this->handler->create_sid();
+        $innerWithoutSessionId = $this->createMockForIntersectionOfInterfaces([
+            \SessionHandlerInterface::class,
+            \SessionUpdateTimestampHandlerInterface::class,
+        ]);
+
+        $handler = new LockingRedisSessionHandler(
+            $this->redis,
+            $innerWithoutSessionId,
+            logger: new NullLogger(),
+        );
+
+        $result = $handler->create_sid();
 
         $this->assertNotEmpty($result, 'session ID should not be empty');
     }
