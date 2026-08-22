@@ -201,8 +201,11 @@ class RestControllerHelper
      * @return array[]
      * @deprecated use createProcessingResultResponse() instead.
      */
-    public static function handleProcessingResult(ProcessingResult $processingResult, $successStatusCode, $isMultipleResultResponse = false): array
-    {
+    public static function handleProcessingResult(
+        ProcessingResult $processingResult,
+        int $successStatusCode,
+        bool $isMultipleResultResponse = false,
+    ): array {
         $httpResponseBody = [
             "validationErrors" => [],
             "internalErrors" => [],
@@ -218,7 +221,7 @@ class RestControllerHelper
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
             ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
         } else {
-            header('HTTP/1.1 ' . ($successStatusCode ?? 200), true, $successStatusCode ?? 200);
+            header('HTTP/1.1 ' . $successStatusCode, true, $successStatusCode);
             $dataResult = $processingResult->getData();
             $recordsCount = count($dataResult);
             ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);

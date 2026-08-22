@@ -38,8 +38,15 @@ namespace OpenEMR\Common\Session\Predis;
 
 use OpenEMR\BC\ServiceContainer;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use SessionHandlerInterface;
+use SessionIdInterface;
+use SessionUpdateTimestampHandlerInterface;
 
-class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUpdateTimestampHandlerInterface
+class LockingRedisSessionHandler implements
+    SessionHandlerInterface,
+    SessionIdInterface,
+    SessionUpdateTimestampHandlerInterface
 {
     /**
      * Prefix prepended to the session ID to form the Redis lock key.
@@ -179,7 +186,11 @@ class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUp
         if ($this->inner instanceof \SessionIdInterface) {
             return $this->inner->create_sid();
         }
-        return session_create_id();
+        $id = session_create_id();
+        if ($id === false) {
+            throw new RuntimeException('Could not create session id');
+        }
+        return $id;
     }
 
     /**
