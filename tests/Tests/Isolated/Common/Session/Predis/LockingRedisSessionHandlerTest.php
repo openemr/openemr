@@ -31,17 +31,13 @@ use OpenEMR\Common\Session\Predis\LockingRedisSessionHandler;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-
-/**
- * Combined inner-handler interface as used by LockingRedisSessionHandler.
- */
-interface InnerHandlerInterface extends \SessionHandlerInterface, \SessionUpdateTimestampHandlerInterface {}
-
+use SessionHandlerInterface;
+use SessionUpdateTimestampHandlerInterface;
 
 class LockingRedisSessionHandlerTest extends TestCase
 {
     private \Redis&MockObject $redis;
-    private InnerHandlerInterface&MockObject $inner;
+    private SessionHandlerInterface&SessionUpdateTimestampHandlerInterface&MockObject $inner;
     private LockingRedisSessionHandler $handler;
 
     protected function setUp(): void
@@ -53,7 +49,10 @@ class LockingRedisSessionHandlerTest extends TestCase
         parent::setUp();
 
         $this->redis = $this->createMock(\Redis::class);
-        $this->inner = $this->createMock(InnerHandlerInterface::class);
+        $this->inner = $this->createMockForIntersectionOfInterfaces([
+            SessionHandlerInterface::class,
+            SessionUpdateTimestampHandlerInterface::class,
+        ]);
 
         $this->handler = new LockingRedisSessionHandler(
             $this->redis,
@@ -441,7 +440,6 @@ class LockingRedisSessionHandlerTest extends TestCase
         // $this->inner does not implement SessionIdInterface
         $result = $this->handler->create_sid();
 
-        $this->assertIsString($result, 'should return a string session ID');
         $this->assertNotEmpty($result, 'session ID should not be empty');
     }
 }

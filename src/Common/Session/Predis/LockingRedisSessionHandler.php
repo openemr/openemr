@@ -183,7 +183,10 @@ class LockingRedisSessionHandler implements
 
     public function create_sid(): string
     {
-        if ($this->inner instanceof \SessionIdInterface) {
+        // We use Symfony's implemenations in practice which don't implement
+        // this, so it can't be required in the constructor. Hopefully future
+        // versions will add it since create_sid will become required in PHP9.
+        if ($this->inner instanceof SessionIdInterface) {
             return $this->inner->create_sid();
         }
         $id = session_create_id();
