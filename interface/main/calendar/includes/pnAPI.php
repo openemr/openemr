@@ -131,11 +131,11 @@ function pnConfigInit(): bool
 
 /**
  * get a configuration variable
- * @param mixed $name the name of the variable
+ * @param string $name the name of the variable
  * @returns data
  * @return value of the variable, or false on failure
  */
-function pnConfigGetVar($name)
+function pnConfigGetVar(string $name)
 {
     global $pnconfig;
     // array_key_exists, not isset: a variable that is absent or stores null
