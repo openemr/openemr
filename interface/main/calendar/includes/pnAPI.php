@@ -138,9 +138,13 @@ function pnConfigInit(): bool
 function pnConfigGetVar(string $name)
 {
     global $pnconfig;
+    if (!is_array($pnconfig)) {
+        $pnconfig = [];
+    }
+
     // array_key_exists, not isset: a variable that is absent or stores null
     // must still be answered from cache rather than re-queried every call.
-    if (is_array($pnconfig) && array_key_exists($name, $pnconfig)) {
+    if (array_key_exists($name, $pnconfig)) {
         $result = $pnconfig[$name];
     } else {
         /*
