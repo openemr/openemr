@@ -53,8 +53,12 @@ class PdfPrintMediaCssTest extends TestCase
         'pdf_layout' => 'P',
     ];
 
+    /** @var array<string, mixed> */
+    private array $originalPdfGlobals = [];
+
     protected function setUp(): void
     {
+        $this->originalPdfGlobals = array_intersect_key($GLOBALS, self::PDF_GLOBALS);
         foreach (self::PDF_GLOBALS as $key => $value) {
             $GLOBALS[$key] = $value;
         }
@@ -64,6 +68,9 @@ class PdfPrintMediaCssTest extends TestCase
     {
         foreach (array_keys(self::PDF_GLOBALS) as $key) {
             unset($GLOBALS[$key]);
+        }
+        foreach ($this->originalPdfGlobals as $key => $value) {
+            $GLOBALS[$key] = $value;
         }
     }
 
