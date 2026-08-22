@@ -143,50 +143,42 @@ function pnConfigGetVar(string $name)
         $pnconfig = [];
     }
 
-    // array_key_exists, not isset: a variable that is absent or stores null
-    // must still be answered from cache rather than re-queried every call.
+    // Check cache first
     if (array_key_exists($name, $pnconfig)) {
-        $result = $pnconfig[$name];
-    } else {
-        /*
-         * Fetch base data
-         */
-        $conn = pnDBGetConn();
-        $pntable = pnDBGetTables();
-
-        $table = $pntable['module_vars'];
-        $columns = &$pntable['module_vars_column'];
-
-        /*
-         * Make query and go
-         */
-        $query = "SELECT $columns[value]
-                  FROM $table
-                  WHERE $columns[modname]= ?
-                    AND $columns[name]= ?";
-        try {
-            $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
-        } catch (Doctrine\DBAL\Exception) {
-            return false;
-        }
-
-        if ($value === false) {
-            // Cache the miss too. Without this, every lookup of a variable the
-            // table does not hold repeats the query for the life of the request.
-            $pnconfig[$name] = false;
-            return false;
-        }
-
-        /*
-         * Get data
-         */
-        $result = unserialize($value, ['allowed_classes' => false]);
-
-        /*
-         * Some caching
-         */
-        $pnconfig[$name] = $result;
+        return $pnconfig[$name];
     }
+
+    /*
+     * Fetch base data
+     */
+    $conn = pnDBGetConn();
+    $pntable = pnDBGetTables();
+
+    $table = $pntable['module_vars'];
+    $columns = &$pntable['module_vars_column'];
+
+    /*
+     * Make query and go
+     */
+    $query = "SELECT $columns[value]
+              FROM $table
+              WHERE $columns[modname]= ?
+                AND $columns[name]= ?";
+    try {
+        $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
+    } catch (Doctrine\DBAL\Exception) {
+        return false;
+    }
+
+    if ($value === false) {
+        // Cache the miss too. Without this, every lookup of a variable the
+        // table does not hold repeats the query for the life of the request.
+        $pnconfig[$name] = false;
+        return false;
+    }
+
+    $result = unserialize($value, ['allowed_classes' => false]);
+    $pnconfig[$name] = $result;
 
     return $result;
 }
