@@ -131,52 +131,54 @@ function pnConfigInit(): bool
 
 /**
  * get a configuration variable
- * @param mixed $name the name of the variable
- * @returns data
- * @return value of the variable, or false on failure
+ *
+ * @param  string $name the name of the variable
+ * @return mixed  the value of the variable, or false when no such variable
+ *                exists or the query fails
  */
-function pnConfigGetVar($name)
+function pnConfigGetVar(string $name)
 {
     global $pnconfig;
-    if (isset($pnconfig[$name])) {
-        $result = $pnconfig[$name];
-    } else {
-        /*
-         * Fetch base data
-         */
-        $conn = pnDBGetConn();
-        $pntable = pnDBGetTables();
-
-        $table = $pntable['module_vars'];
-        $columns = &$pntable['module_vars_column'];
-
-        /*
-         * Make query and go
-         */
-        $query = "SELECT $columns[value]
-                  FROM $table
-                  WHERE $columns[modname]= ?
-                    AND $columns[name]= ?";
-        try {
-            $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
-        } catch (Doctrine\DBAL\Exception) {
-            return false;
-        }
-
-        if ($value === false) {
-            return false;
-        }
-
-        /*
-         * Get data
-         */
-        $result = unserialize($value, ['allowed_classes' => false]);
-
-        /*
-         * Some caching
-         */
-        $pnconfig[$name] = $result;
+    if (!is_array($pnconfig)) {
+        $pnconfig = [];
     }
+
+    // Check cache first
+    if (array_key_exists($name, $pnconfig)) {
+        return $pnconfig[$name];
+    }
+
+    /*
+     * Fetch base data
+     */
+    $conn = pnDBGetConn();
+    $pntable = pnDBGetTables();
+
+    $table = $pntable['module_vars'];
+    $columns = &$pntable['module_vars_column'];
+
+    /*
+     * Make query and go
+     */
+    $query = "SELECT $columns[value]
+              FROM $table
+              WHERE $columns[modname]= ?
+                AND $columns[name]= ?";
+    try {
+        $value = $conn->fetchOne($query, [_PN_CONFIG_MODULE, $name]);
+    } catch (Doctrine\DBAL\Exception) {
+        return false;
+    }
+
+    if ($value === false) {
+        // Cache the miss too. Without this, every lookup of a variable the
+        // table does not hold repeats the query for the life of the request.
+        $pnconfig[$name] = false;
+        return false;
+    }
+
+    $result = unserialize($value, ['allowed_classes' => false]);
+    $pnconfig[$name] = $result;
 
     return $result;
 }
