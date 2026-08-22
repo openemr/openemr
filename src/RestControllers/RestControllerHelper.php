@@ -171,7 +171,7 @@ class RestControllerHelper
     public static function validationHandler($validationResult)
     {
         if (property_exists($validationResult, 'isValid') && !$validationResult->isValid()) {
-            http_response_code(400);
+            header('HTTP/1.1 400 Bad Request', true, 400);
             $validationMessages = null;
             if (property_exists($validationResult, 'getValidationMessages')) {
                 $validationMessages = $validationResult->getValidationMessages();
@@ -210,15 +210,15 @@ class RestControllerHelper
             "links" => []
         ];
         if (!$processingResult->isValid()) {
-            http_response_code(400);
+            header('HTTP/1.1 400 Bad Request', true, 400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
             ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif ($processingResult->hasInternalErrors()) {
-            http_response_code(500);
+            header('HTTP/1.1 500 Internal Server Error', true, 500);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
             ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
         } else {
-            http_response_code($successStatusCode ?? 0);
+            header('HTTP/1.1 ' . ($successStatusCode ?? 200), true, $successStatusCode ?? 200);
             $dataResult = $processingResult->getData();
             $recordsCount = count($dataResult);
             ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
