@@ -1108,7 +1108,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     $table      =  $pntable['postcalendar_events'];
     $cattable   =  $pntable['postcalendar_categories'];
 
-    $sql = "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, " .
+    $sql = "SELECT a.pc_eid,  a.pc_informant, a.pc_catid, " .
     "a.pc_title, a.pc_time, a.pc_hometext, a.pc_eventDate, a.pc_duration, " .
     "a.pc_endDate, a.pc_startTime, a.pc_recurrtype, a.pc_recurrfreq, " .
     "a.pc_recurrspec, a.pc_topic, a.pc_alldayevent, a.pc_location, " .
@@ -1117,14 +1117,13 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "b.pc_catdesc, a.pc_pid, a.pc_apptstatus, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
-    "concat(u2.fname, ' ', u2.lname) as owner_name, " .
+    "concat(u.fname, ' ', u.lname) as owner_name, " .
     "concat (pd.street, ', ', pd.street_line_2) as patient_address," .
     "DOB as patient_dob, a.pc_facility, pd.pubpid, a.pc_gid, " .
     "tg.group_name, tg.group_type, tg.group_status " .
     "FROM $table AS a " .
     "LEFT JOIN $cattable AS b ON b.pc_catid = a.pc_catid " .
     "LEFT JOIN users as u ON a.pc_aid = u.id " .
-    "LEFT JOIN users as u2 ON a.pc_aid = u2.id " .
     "LEFT JOIN patient_data as pd ON a.pc_pid = pd.pid " .
     "LEFT JOIN therapy_groups as tg ON a.pc_gid = tg.group_id " .
     "WHERE  a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
