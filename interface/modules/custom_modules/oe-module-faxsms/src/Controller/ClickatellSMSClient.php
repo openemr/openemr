@@ -20,6 +20,7 @@ class ClickatellSMSClient extends AppDispatch implements SmsChannelInterface
         if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
+        $this->credentials = $this->getCredentials();
         parent::__construct();
     }
 
