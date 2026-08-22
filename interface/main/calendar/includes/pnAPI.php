@@ -138,7 +138,9 @@ function pnConfigInit(): bool
 function pnConfigGetVar($name)
 {
     global $pnconfig;
-    if (isset($pnconfig[$name])) {
+    // array_key_exists, not isset: a variable that is absent or stores null
+    // must still be answered from cache rather than re-queried every call.
+    if (is_array($pnconfig) && array_key_exists($name, $pnconfig)) {
         $result = $pnconfig[$name];
     } else {
         /*
@@ -164,6 +166,9 @@ function pnConfigGetVar($name)
         }
 
         if ($value === false) {
+            // Cache the miss too. Without this, every lookup of a variable the
+            // table does not hold repeats the query for the life of the request.
+            $pnconfig[$name] = false;
             return false;
         }
 
