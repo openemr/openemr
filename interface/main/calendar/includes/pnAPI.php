@@ -131,9 +131,10 @@ function pnConfigInit(): bool
 
 /**
  * get a configuration variable
- * @param string $name the name of the variable
- * @returns data
- * @return value of the variable, or false on failure
+ *
+ * @param  string $name the name of the variable
+ * @return mixed  the value of the variable, or false when no such variable
+ *                exists or the query fails
  */
 function pnConfigGetVar(string $name)
 {
