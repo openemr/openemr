@@ -35,6 +35,7 @@ class CodeTypesService
     const CODE_TYPE_RXNORM = "RXNORM";
     const CODE_TYPE_RXCUI = "RXCUI";
     const CODE_TYPE_ICD10 = 'ICD10';
+    const CODE_TYPE_ICD9 = 'ICD9';
     const CODE_TYPE_ICD10PCS = 'ICD10PCS';
     const CODE_TYPE_CPT = 'CPT';
     const CODE_TYPE_CVX = 'CVX';
@@ -278,7 +279,8 @@ class CodeTypesService
             FhirCodeSystemConstants::NDC => [self::CODE_TYPE_NDC],
             FhirCodeSystemConstants::NCI_THESAURUS => [self::CODE_TYPE_NCI],
             FhirCodeSystemConstants::AMA_CPT => [self::CODE_TYPE_CPT4],
-            FhirCodeSystemConstants::HL7_ICD10 => [self::CODE_TYPE_ICD10],
+            FhirCodeSystemConstants::HL7_ICD10, FhirCodeSystemConstants::HL7_ICD10_CM => [self::CODE_TYPE_ICD10],
+            FhirCodeSystemConstants::HL7_ICD9_CM => [self::CODE_TYPE_ICD9],
             FhirCodeSystemConstants::DATA_ABSENT_REASON_CODE_SYSTEM => [self::CODE_TYPE_DATE_ABSENT_REASON],
             FHIRCodeSystemConstants::HL7_ROLE_CODE => [self::CODE_TYPE_HL7_ROLE_CODE],
             FHIRCodeSystemConstants::HL7_PARTICIPATION_TYPE => [self::CODE_TYPE_HL7_PARTICIPATION_FUNCTION],

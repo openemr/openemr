@@ -253,8 +253,35 @@ class ImmunizationService extends BaseService
      */
     public function insert($data)
     {
-        $processingResult = new ProcessingResult();
-        $processingResult->addInternalError("Method not implemented yet.");
+        $processingResult = $this->immunizationValidator->validate(
+            $data,
+            ImmunizationValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::IMMUNIZATION_TABLE]))->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+        $sql  = " INSERT INTO immunizations SET";
+        $sql .= "     create_date=NOW(),";
+        $sql .= $query['set'];
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        if ($results) {
+            $processingResult->addData([
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ]);
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
         return $processingResult;
     }
 
@@ -269,8 +296,35 @@ class ImmunizationService extends BaseService
      */
     public function update($uuid, $data)
     {
-        $processingResult = new ProcessingResult();
-        $processingResult->addInternalError("Method not implemented yet.");
+        if (empty($data)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages("Invalid Data");
+            return $processingResult;
+        }
+
+        $data["uuid"] = $uuid;
+        $processingResult = $this->immunizationValidator->validate(
+            $data,
+            ImmunizationValidator::DATABASE_UPDATE_CONTEXT
+        );
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE immunizations SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE `uuid` = ?";
+
+        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
+        array_push($query['bind'], $uuidBinary);
+        $sqlResult = sqlStatement($sql, $query['bind']);
+
+        if (!$sqlResult) {
+            $processingResult->addErrorMessage("error processing SQL Update");
+        } else {
+            $processingResult = $this->getOne($uuid);
+        }
         return $processingResult;
     }
 }

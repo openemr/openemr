@@ -2,11 +2,14 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitionerRole;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PractitionerRoleService;
@@ -151,6 +154,121 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->practitionerRoleService->search($openEMRSearchParameters);
+    }
+
+    /**
+     * Parses a FHIR PractitionerRole resource. Practitioner and Organization references
+     * are required (resolved to numeric ids in insertOpenEMRRecord). For code/specialty,
+     * we look for the first coding whose `code` exists in OpenEMR's list_options under
+     * `us-core-provider-role` / `us-core-provider-specialty` respectively; without a
+     * direct match, the raw code string is passed through and the validator will reject
+     * it at insert time.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRPractitionerRole)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRPractitionerRole resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        if (!empty($json['id']) && is_string($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        $practitionerRef = $json['practitioner']['reference'] ?? null;
+        if (is_string($practitionerRef) && $practitionerRef !== '') {
+            $parsed = UtilsService::parseReferenceString($practitionerRef, 'Practitioner');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['provider_uuid'] = $parsed['uuid'];
+            }
+        }
+
+        $organizationRef = $json['organization']['reference'] ?? null;
+        if (is_string($organizationRef) && $organizationRef !== '') {
+            $parsed = UtilsService::parseReferenceString($organizationRef, 'Organization');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['facility_uuid'] = $parsed['uuid'];
+            }
+        }
+
+        // code[0].coding[0].code -> role_code
+        $codeCoding = $json['code'][0]['coding'][0]['code'] ?? null;
+        if (is_string($codeCoding) && $codeCoding !== '') {
+            $data['role_code'] = $codeCoding;
+        }
+
+        // specialty[0].coding[0].code -> specialty_code
+        $specialtyCoding = $json['specialty'][0]['coding'][0]['code'] ?? null;
+        if (is_string($specialtyCoding) && $specialtyCoding !== '') {
+            $data['specialty_code'] = $specialtyCoding;
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $openEmrRecord
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        $practitionerUuid = $openEmrRecord['provider_uuid'] ?? null;
+        if (!is_string($practitionerUuid) || $practitionerUuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['practitioner' => 'FHIR PractitionerRole requires a Practitioner reference']);
+            return $result;
+        }
+        $providerId = QueryUtils::fetchSingleValue(
+            'SELECT id FROM users WHERE uuid = ?',
+            'id',
+            [UuidRegistry::uuidToBytes($practitionerUuid)]
+        );
+        if ($providerId === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['practitioner' => 'Practitioner reference could not be resolved: ' . $practitionerUuid]);
+            return $result;
+        }
+
+        $facilityUuid = $openEmrRecord['facility_uuid'] ?? null;
+        if (!is_string($facilityUuid) || $facilityUuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['organization' => 'FHIR PractitionerRole requires an Organization reference']);
+            return $result;
+        }
+        $facilityId = QueryUtils::fetchSingleValue(
+            'SELECT id FROM facility WHERE uuid = ?',
+            'id',
+            [UuidRegistry::uuidToBytes($facilityUuid)]
+        );
+        if ($facilityId === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['organization' => 'Organization reference could not be resolved: ' . $facilityUuid]);
+            return $result;
+        }
+
+        $openEmrRecord['provider_id'] = (int) $providerId;
+        $openEmrRecord['facility_id'] = (int) $facilityId;
+        unset($openEmrRecord['provider_uuid'], $openEmrRecord['facility_uuid']);
+
+        return $this->practitionerRoleService->insert($openEmrRecord);
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param array<string, mixed> $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        // FHIR PUT cannot rebind the practitioner or organization; drop those uuids from
+        // the update payload to keep PractitionerRoleService::update focused on role/specialty.
+        unset($updatedOpenEMRRecord['provider_uuid'], $updatedOpenEMRRecord['facility_uuid']);
+        return $this->practitionerRoleService->update($fhirResourceId, $updatedOpenEMRRecord);
     }
 
     /**

@@ -15,6 +15,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\ORDataObject\ContactRelation;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -43,6 +44,333 @@ class ContactRelationService extends BaseService
     public function getUuidFields(): array
     {
         return ['uuid', 'puuid', 'person_uuid'];
+    }
+
+    /**
+     * High-level orchestrator for FHIR RelatedPerson POST. Atomically creates: a `person`
+     * row (via PersonService), the related person's `contact` row, telecom + address
+     * rows for the new contact, and the contact_relation link to the patient's own contact.
+     *
+     * Expected $data shape:
+     *   - pid (int, required)            patient_data.pid
+     *   - relationship (string, required) HL7 v3 RoleCode (MTH/FTH/SPS/etc.) — must match
+     *                                     a list_options.option_id under related_person_relationship
+     *   - first_name, last_name (one of, required)
+     *   - middle_name, gender, birth_date, active (optional)
+     *   - telecoms[]  (each: system, use, value)
+     *   - addresses[] (each: line1, line2, city, state, postal_code, country, use)
+     *
+     * @param array<string, mixed> $data
+     */
+    public function insertRelatedPerson(array $data): ProcessingResult
+    {
+        $result = new ProcessingResult();
+
+        if (!isset($data['pid']) || !is_numeric($data['pid']) || (int) $data['pid'] <= 0) {
+            $result->setValidationMessages(['patient' => 'A resolvable patient reference is required']);
+            return $result;
+        }
+        $relationship = $data['relationship'] ?? null;
+        if (!is_string($relationship) || $relationship === '') {
+            $result->setValidationMessages(['relationship' => 'relationship code is required']);
+            return $result;
+        }
+        $firstName = $data['first_name'] ?? '';
+        $lastName = $data['last_name'] ?? '';
+        if (!is_string($firstName) || !is_string($lastName) || ($firstName === '' && $lastName === '')) {
+            $result->setValidationMessages(['name' => 'at least one of first_name/last_name is required']);
+            return $result;
+        }
+
+        $pid = (int) $data['pid'];
+        $rawTelecoms = $data['telecoms'] ?? null;
+        $telecoms = is_array($rawTelecoms) ? $rawTelecoms : [];
+        $rawAddresses = $data['addresses'] ?? null;
+        $addresses = is_array($rawAddresses) ? $rawAddresses : [];
+
+        try {
+            $out = QueryUtils::inTransaction(function () use ($pid, $relationship, $data, $telecoms, $addresses): array {
+                $personService = new PersonService();
+                $personResult = $personService->create([
+                    'first_name' => $data['first_name'] ?? '',
+                    'last_name' => $data['last_name'] ?? '',
+                    'middle_name' => $data['middle_name'] ?? '',
+                    'gender' => $data['gender'] ?? '',
+                    'birth_date' => $data['birth_date'] ?? '',
+                ]);
+                if (!$personResult->isValid() || !$personResult->hasData()) {
+                    throw new \RuntimeException(
+                        'Failed to create person: ' . json_encode($personResult->getValidationMessages())
+                    );
+                }
+                $personRow = $personResult->getData()[0];
+                $personId = (int) $personRow['id'];
+
+                $targetContact = $this->contactService->getOrCreateForEntity('person', $personId);
+                $ownerContact = $this->contactService->getOrCreateForEntity('patient_data', $pid);
+
+                $ownerContactId = $ownerContact->get_id();
+                $relation = new ContactRelation();
+                $relation->set_contact_id((int) $ownerContactId);
+                $relation->set_target_table('person');
+                $relation->set_target_id($personId);
+                $relation->set_relationship($relationship);
+                $relation->set_active(isset($data['active']) && (bool) $data['active'] ? 1 : 0);
+                if (!$relation->persist()) {
+                    throw new \RuntimeException('Failed to persist contact_relation');
+                }
+
+                $this->writeTelecoms((int) $targetContact->get_id(), $telecoms);
+                $this->writeAddresses((int) $targetContact->get_id(), $addresses);
+
+                $personUuidString = $personRow['uuid'] ?? null;
+                if (!is_string($personUuidString)) {
+                    $bytes = QueryUtils::fetchSingleValue(
+                        'SELECT uuid FROM person WHERE id = ?',
+                        'uuid',
+                        [$personId]
+                    );
+                    $personUuidString = is_string($bytes) ? UuidRegistry::uuidToString($bytes) : '';
+                }
+
+                return [
+                    'uuid' => $personUuidString,
+                    'person_id' => $personId,
+                    'relation_id' => $relation->get_id(),
+                ];
+            });
+
+            $result->addData($out);
+        } catch (\RuntimeException | SqlQueryException $e) {
+            $this->getLogger()->error('RelatedPerson insert failed', ['error' => $e->getMessage()]);
+            $result->addInternalError($e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * High-level orchestrator for FHIR RelatedPerson PUT. Locates the person row by uuid,
+     * updates demographics, the relationship code on the contact_relation link, and (FHIR
+     * PUT replace semantics) replaces all telecoms and addresses for the related person's
+     * contact. Transactional.
+     *
+     * The owning patient pid MUST be supplied — a single `person` row can be linked to
+     * multiple patients via separate `contact_relation` rows, so unscoped updates would
+     * leak across patients. The relationship/active update is restricted to the row
+     * owned by $ownerPid; demographics on the `person` row itself update once (intentional,
+     * since the shared person is the same human regardless of which patient they're related to).
+     *
+     * @param array<string, mixed> $data
+     */
+    public function updateRelatedPerson(string $uuid, array $data, int $ownerPid): ProcessingResult
+    {
+        $result = new ProcessingResult();
+
+        if (!UuidRegistry::isValidStringUUID($uuid)) {
+            $result->setValidationMessages(['uuid' => 'invalid uuid format']);
+            return $result;
+        }
+        if ($ownerPid <= 0) {
+            $result->setValidationMessages(['patient' => 'A resolvable patient reference is required']);
+            return $result;
+        }
+
+        $personIdValue = QueryUtils::fetchSingleValue(
+            'SELECT id FROM person WHERE uuid = ?',
+            'id',
+            [UuidRegistry::uuidToBytes($uuid)]
+        );
+        if ($personIdValue === null) {
+            $result->setValidationMessages(['uuid' => 'RelatedPerson not found']);
+            return $result;
+        }
+        $personId = (int) $personIdValue;
+
+        // Resolve the owner's contact id and verify the relationship row exists for
+        // *this* patient — if not, treat as not-found (avoids leaking existence of
+        // other-patient relationships).
+        $ownerContact = $this->contactService->getOrCreateForEntity('patient_data', $ownerPid);
+        $ownerContactId = (int) $ownerContact->get_id();
+        $relationExists = QueryUtils::fetchSingleValue(
+            "SELECT 1 AS x FROM contact_relation "
+            . "WHERE target_table = 'person' AND target_id = ? AND contact_id = ?",
+            'x',
+            [$personId, $ownerContactId]
+        );
+        if ($relationExists === null) {
+            $result->setValidationMessages(['uuid' => 'RelatedPerson not found']);
+            return $result;
+        }
+
+        try {
+            $out = QueryUtils::inTransaction(function () use ($personId, $ownerContactId, $uuid, $data): array {
+                $personService = new PersonService();
+                $personUpdate = array_filter([
+                    'first_name' => $data['first_name'] ?? null,
+                    'last_name' => $data['last_name'] ?? null,
+                    'middle_name' => $data['middle_name'] ?? null,
+                    'gender' => $data['gender'] ?? null,
+                    'birth_date' => $data['birth_date'] ?? null,
+                ], static fn($v): bool => $v !== null);
+                if ($personUpdate !== []) {
+                    $personService->update($personId, $personUpdate);
+                }
+
+                $targetContact = $this->contactService->getOrCreateForEntity('person', $personId);
+
+                if (!empty($data['relationship']) && is_string($data['relationship'])) {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE contact_relation SET relationship = ? "
+                        . "WHERE target_table = 'person' AND target_id = ? AND contact_id = ?",
+                        [$data['relationship'], $personId, $ownerContactId]
+                    );
+                }
+                if (isset($data['active'])) {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE contact_relation SET active = ? "
+                        . "WHERE target_table = 'person' AND target_id = ? AND contact_id = ?",
+                        [(int) (bool) $data['active'], $personId, $ownerContactId]
+                    );
+                }
+
+                $telecomsValue = $data['telecoms'] ?? null;
+                if (is_array($telecomsValue)) {
+                    QueryUtils::sqlStatementThrowException(
+                        "DELETE FROM contact_telecom WHERE contact_id = ?",
+                        [$targetContact->get_id()]
+                    );
+                    $this->writeTelecoms((int) $targetContact->get_id(), $telecomsValue);
+                }
+                $addressesValue = $data['addresses'] ?? null;
+                if (is_array($addressesValue)) {
+                    $addressIds = QueryUtils::fetchTableColumn(
+                        "SELECT address_id FROM contact_address WHERE contact_id = ?",
+                        'address_id',
+                        [$targetContact->get_id()]
+                    );
+                    QueryUtils::sqlStatementThrowException(
+                        "DELETE FROM contact_address WHERE contact_id = ?",
+                        [$targetContact->get_id()]
+                    );
+                    if ($addressIds !== []) {
+                        $placeholders = implode(',', array_fill(0, count($addressIds), '?'));
+                        QueryUtils::sqlStatementThrowException(
+                            "DELETE FROM addresses WHERE id IN ($placeholders)",
+                            $addressIds
+                        );
+                    }
+                    $this->writeAddresses((int) $targetContact->get_id(), $addressesValue);
+                }
+
+                return ['uuid' => $uuid, 'person_id' => $personId];
+            });
+
+            $result->addData($out);
+        } catch (\RuntimeException | SqlQueryException $e) {
+            $this->getLogger()->error('RelatedPerson update failed', ['uuid' => $uuid, 'error' => $e->getMessage()]);
+            $result->addInternalError($e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array<mixed> $telecoms
+     */
+    private function writeTelecoms(int $contactId, array $telecoms): void
+    {
+        foreach ($telecoms as $telecom) {
+            if (!is_array($telecom)) {
+                continue;
+            }
+            $value = $telecom['value'] ?? null;
+            if (!is_string($value) || $value === '') {
+                continue;
+            }
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO contact_telecom (contact_id, `system`, `use`, `value`, `status`) "
+                . "VALUES (?, ?, ?, ?, 'A')",
+                [
+                    $contactId,
+                    $telecom['system'] ?? 'phone',
+                    $telecom['use'] ?? 'home',
+                    $value,
+                ]
+            );
+        }
+    }
+
+    /**
+     * @param array<mixed> $addresses
+     */
+    private function writeAddresses(int $contactId, array $addresses): void
+    {
+        foreach ($addresses as $address) {
+            if (!is_array($address)) {
+                continue;
+            }
+            $line1 = $address['line1'] ?? '';
+            $city = $address['city'] ?? '';
+            if (!is_string($line1) || !is_string($city) || ($line1 === '' && $city === '')) {
+                continue;
+            }
+
+            // addresses has no AUTO_INCREMENT (legacy schema); allocate id with
+            // duplicate-key retry to close the concurrent-writer race. Proper fix
+            // is the AUTO_INCREMENT schema migration tracked separately.
+            $newAddressId = null;
+            $maxAttempts = 5;
+            for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+                $maxAddressId = QueryUtils::fetchSingleValue(
+                    "SELECT MAX(id) AS m FROM addresses",
+                    'm',
+                    []
+                );
+                $candidate = ((int) ($maxAddressId ?? 0)) + 1;
+                try {
+                    QueryUtils::sqlStatementThrowException(
+                        "INSERT INTO addresses (id, line1, line2, city, state, zip, country) "
+                        . "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        [
+                            $candidate,
+                            $line1,
+                            $address['line2'] ?? '',
+                            $city,
+                            $address['state'] ?? '',
+                            $address['postal_code'] ?? '',
+                            $address['country'] ?? '',
+                        ]
+                    );
+                    $newAddressId = $candidate;
+                    break;
+                } catch (SqlQueryException $e) {
+                    if (
+                        $attempt < $maxAttempts
+                        && str_contains($e->getMessage(), 'Duplicate entry')
+                    ) {
+                        continue;
+                    }
+                    throw $e;
+                }
+            }
+            if ($newAddressId === null) {
+                throw new \RuntimeException(
+                    'addresses id allocation failed after ' . $maxAttempts . ' attempts'
+                );
+            }
+
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO contact_address (contact_id, address_id, `use`, `type`, `status`) "
+                . "VALUES (?, ?, ?, ?, 'A')",
+                [
+                    $contactId,
+                    $newAddressId,
+                    $address['use'] ?? 'home',
+                    $address['type'] ?? 'both',
+                ]
+            );
+        }
     }
 
     /**
