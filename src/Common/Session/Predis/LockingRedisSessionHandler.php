@@ -174,6 +174,14 @@ class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUp
         return $this->inner->validateId($id);
     }
 
+    public function create_sid(): string
+    {
+        if ($this->inner instanceof \SessionIdInterface) {
+            return $this->inner->create_sid();
+        }
+        return session_create_id();
+    }
+
     /**
      * Spin-waits until the Redis lock for $sessionId is acquired.
      *
