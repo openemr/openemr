@@ -59912,11 +59912,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$response_code of function http_response_code expects int, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$searchInclude of method OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRCapabilityStatement\\\\FHIRCapabilityStatementResource\\:\\:addSearchInclude\\(\\) expects OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRString, string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/RestControllerHelper.php',
