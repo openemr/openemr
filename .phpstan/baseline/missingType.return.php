@@ -20782,11 +20782,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/PaymentProcessing/PaymentProcessing.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Pdf\\\\Config_Mpdf\\:\\:getConfigMpdf\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Pdf/Config_Mpdf.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Pdf\\\\PatientPortalPDFDocumentCreator\\:\\:createPdfObject\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Pdf/PatientPortalPDFDocumentCreator.php',
