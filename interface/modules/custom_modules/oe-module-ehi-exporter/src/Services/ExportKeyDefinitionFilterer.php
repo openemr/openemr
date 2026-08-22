@@ -66,7 +66,8 @@ class ExportKeyDefinitionFilterer
         ]
         , 'form_care_plan' => [
             'care_plan_type' => ['localValueOverride' => 'Plan_of_Care_Type', 'foreignKeyColumn' => 'list_id'],
-            'plan_status' => ['localValueOverride' => 'care_plan_status', 'foreignKeyColumn' => 'list_id']
+            'plan_status' => ['localValueOverride' => 'care_plan_status', 'foreignKeyColumn' => 'list_id'],
+            'plan_engagement_category' => ['localValueOverride' => 'care_plan_engagement_category', 'foreignKeyColumn' => 'list_id']
         ]
         ,'ar_session' => [
             'payment_type' => ['localValueOverride' => 'payment_type', 'foreignKeyColumn' => 'list_id'],

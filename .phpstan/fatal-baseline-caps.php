@@ -35,7 +35,7 @@ declare(strict_types=1);
 
 return [
     'all' => [
-        'class.notFound.php' => 107,
+        'class.notFound.php' => 105,
         'classConstant.notFound.php' => 0,
         'constant.notFound.php' => 0,
         'function.notFound.php' => 0,

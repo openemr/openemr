@@ -40,7 +40,7 @@
         </div>
 
         <div class="form-row w-100 my-2">
-            <div class="forms col-md-4">
+            <div class="forms col-md-3">
                 <label for="proposed_date_{{ rowIndex|attr }}" class="h5">{{ 'Target Date'|xlt }}:</label>
                 <input type="text"
                     id="proposed_date_{{ rowIndex|attr }}"
@@ -49,7 +49,7 @@
                     value="{{ row.proposed_date|default('')|attr }}"
                     title="{{ 'yyyy-mm-dd HH:MM Target or Achieve-by date'|xla }}" />
             </div>
-            <div class="forms col-md-4">
+            <div class="forms col-md-3">
                 <label for="end_date_{{ rowIndex|attr }}" class="h5">{{ 'End Date'|xlt }}:</label>
                 <input type="text"
                     id="end_date_{{ rowIndex|attr }}"
@@ -58,7 +58,15 @@
                     value="{{ row.date_end|default('')|attr }}"
                     title="{{ 'yyyy-mm-dd HH:MM planned end date'|xla }}" />
             </div>
-            <div class="forms col-md-4">
+            <div class="forms col-md-3">
+                <label for="engagement_category_{{ rowIndex|attr }}" class="h5">{{ 'Engagement Category'|xlt }}:</label>
+                {{ selectList('plan_engagement_category[]', 'care_plan_engagement_category', row.plan_engagement_category|default(''), '', {
+                    tag_id: 'engagement_category_' ~ rowIndex,
+                    class: 'form-control plan_engagement_category',
+                    empty_name: 'Select Engagement Category'|xl
+                }) }}
+            </div>
+            <div class="forms col-md-3">
                 <label for="status_{{ rowIndex|attr }}" class="h5">{{ 'Status'|xlt }}:</label>
                 {{ selectList('plan_status[]', 'care_plan_status', row.plan_status|default(''), '', {
                     tag_id: 'status_' ~ rowIndex,

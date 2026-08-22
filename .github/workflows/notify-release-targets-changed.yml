@@ -34,15 +34,18 @@ jobs:
         php-version:
         - '8.5'
     steps:
-    # Sparse checkout of just the composite action so the token-mint
-    # step below can resolve `uses: ./.github/actions/...`. Full
-    # checkout happens later (in this workflow that's just for
-    # setup-php-composer's autoload).
-    - name: Checkout composite action
+    # Full checkout first so composite actions (generate-app-token,
+    # setup-php-composer) resolve against a real workspace AND
+    # composer.json is present for setup-php-composer's cache/install
+    # steps. The earlier sparse-first pattern (fixed in
+    # openemr/openemr#13480 + #13509) worked around one bug but not
+    # the underlying git-sparse-then-full-checkout leak: files not in
+    # the initial sparse pattern (like composer.json) still weren't
+    # materialized by the second full checkout. Doing the full checkout
+    # first sidesteps the leak entirely.
+    - name: Checkout
       uses: actions/checkout@v7
       with:
-        sparse-checkout: .github/actions/generate-app-token
-        sparse-checkout-cone-mode: false
         persist-credentials: false
 
     - name: Mint App token
@@ -56,11 +59,6 @@ jobs:
         # Repository_dispatch only needs contents:write; without this the
         # token inherits every permission the App installation has.
         permission-contents: write
-
-    - name: Checkout
-      uses: actions/checkout@v7
-      with:
-        persist-credentials: false
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer

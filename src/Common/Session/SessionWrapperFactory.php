@@ -15,7 +15,7 @@
 
 namespace OpenEMR\Common\Session;
 
-use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
 use OpenEMR\Core\OEGlobalsBag;
@@ -148,7 +148,7 @@ class SessionWrapperFactory
 
     private function createPortalSession(): SessionInterface
     {
-        $request = HttpRestRequest::createFromGlobals();
+        $request = CurrentRequest::get();
         $sessionFactory = new HttpSessionFactory($request, $this->webRoot, HttpSessionFactory::SESSION_TYPE_PORTAL, $this->getEffectiveReadOnly());
         $this->activeSession = $sessionFactory->createSession();
         $this->activeStorage = $sessionFactory->getLastCreatedStorage();
@@ -157,7 +157,7 @@ class SessionWrapperFactory
 
     private function createCoreSession(): SessionInterface
     {
-        $request = HttpRestRequest::createFromGlobals();
+        $request = CurrentRequest::get();
         $sessionFactory = new HttpSessionFactory($request, $this->webRoot, HttpSessionFactory::SESSION_TYPE_CORE, $this->getEffectiveReadOnly());
         $this->activeSession = $sessionFactory->createSession();
         $this->activeStorage = $sessionFactory->getLastCreatedStorage();

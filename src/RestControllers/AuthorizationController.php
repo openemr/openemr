@@ -1101,8 +1101,28 @@ class AuthorizationController implements LoggerAwareInterface
         $offline_access_date = (new DateTimeImmutable())->add(new DateInterval(self::GRANT_TYPE_REFRESH_TOKEN_TTL))->format("Y-m-d");
         $claims = $session->get('claims', []);
 
-        $clientRepository = $this->getClientRepository();
-        $client = $clientRepository->getClientEntity($session->get('client_id', []));
+        $clientId = $session->get('client_id', '');
+        if (!is_string($clientId) || $clientId === '') {
+            $this->logger->error('scopeAuthorizeConfirm() session client_id was missing when it should not have been');
+            return $this->renderTwigPage(
+                'oauth2/authorize/scopes-authorize',
+                'error/general_http_error.html.twig',
+                ['statusCode' => Response::HTTP_BAD_REQUEST]
+            );
+        }
+
+        $client = $this->getClientRepository()->getClientEntity($clientId);
+        if ($client === false) {
+            $this->logger->error(
+                'scopeAuthorizeConfirm() session client_id was not found in oauth_clients',
+                ['client_id' => $clientId]
+            );
+            return $this->renderTwigPage(
+                'oauth2/authorize/scopes-authorize',
+                'error/general_http_error.html.twig',
+                ['statusCode' => Response::HTTP_BAD_REQUEST]
+            );
+        }
 
         $uuidToUser = $this->getUuidUserAccount($session->get('user_id', ''));
         $userRole = $uuidToUser->getUserRole();

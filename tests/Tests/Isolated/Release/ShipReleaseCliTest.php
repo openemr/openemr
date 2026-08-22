@@ -167,6 +167,47 @@ final class ShipReleaseCliTest extends TestCase
         );
     }
 
+    public function testIgnoreChecksFlagAcceptedBothSetAndUnset(): void
+    {
+        // Same proof pattern as testSummaryFileFlagAcceptedBothSetAndUnset:
+        // add a *later* deterministic failure so any registration error on
+        // --ignore-checks shows up as "does not exist" instead of the
+        // timeout error we're deliberately triggering.
+
+        // Set variant — --ignore-checks supplied with a CSV.
+        $processSet = new Process([
+            'php',
+            self::BIN,
+            '--release-version=8.1.0',
+            '--rel-branch=rel-810',
+            '--ignore-checks=PHP 8.6 - Isolated Tests,ci/flake',
+            '--timeout-seconds=0',
+        ]);
+        $processSet->run();
+        $combinedSet = $processSet->getOutput() . $processSet->getErrorOutput();
+        self::assertStringContainsString(
+            '--timeout-seconds must be a positive integer',
+            $processSet->getOutput(),
+        );
+        self::assertStringNotContainsString('does not exist', $combinedSet);
+
+        // Unset variant — --ignore-checks omitted (empty default).
+        $processUnset = new Process([
+            'php',
+            self::BIN,
+            '--release-version=8.1.0',
+            '--rel-branch=rel-810',
+            '--timeout-seconds=0',
+        ]);
+        $processUnset->run();
+        $combinedUnset = $processUnset->getOutput() . $processUnset->getErrorOutput();
+        self::assertStringContainsString(
+            '--timeout-seconds must be a positive integer',
+            $processUnset->getOutput(),
+        );
+        self::assertStringNotContainsString('does not exist', $combinedUnset);
+    }
+
     public function testSummaryFileFlagAcceptedBothSetAndUnset(): void
     {
         // Prove --summary-file parses at the option layer (both when

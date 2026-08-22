@@ -18,14 +18,13 @@ require_once(__DIR__ . "/../../globals.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\EncounterFormAccess;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FormService;
-use Symfony\Component\HttpFoundation\Request;
-
 use function OpenEMR\Forms\PhysicalExam\physical_exam_lines;
 use function OpenEMR\Forms\PhysicalExam\scalar_string;
 
@@ -46,7 +45,7 @@ if (!$encounter) {
 
 $returnurl = 'encounter_top.php';
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$request = Request::createFromGlobals();
+$request = CurrentRequest::get();
 
 // A stored checkbox value is "on" when it is non-empty and not '0'.
 $isChecked = static fn (string $value): bool => $value !== '' && $value !== '0';

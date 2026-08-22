@@ -22,19 +22,19 @@
  * @link    https://www.open-emr.org
  */
 
-require_once("../interface/globals.php");
 use OpenEMR\BC\ServiceContainer;
-require_once("../library/patient.inc.php");
-require_once "../library/options.inc.php";
-require_once("../library/clinical_rules.php");
-require_once "qrda_functions.php";
-
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
+
+require_once("../interface/globals.php");
+require_once("../library/patient.inc.php");
+require_once "../library/options.inc.php";
+require_once("../library/clinical_rules.php");
+require_once "qrda_functions.php";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);

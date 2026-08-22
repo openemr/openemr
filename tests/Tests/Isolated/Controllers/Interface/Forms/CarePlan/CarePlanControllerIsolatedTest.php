@@ -205,6 +205,45 @@ class CarePlanControllerIsolatedTest extends TestCase
         self::assertSame('', $rows[1]['reason_date_high']);
     }
 
+    /**
+     * The engagement category select is client-controlled, so a submitted value that the
+     * list does not define must not reach the database -- it would have no localized title
+     * and would export as an unresolvable EHI value.
+     */
+    #[Test]
+    public function testEngagementCategoryIsCheckedAgainstTheList(): void
+    {
+        $this->carePlanFormService->method('normalizeNullableString')
+            ->willReturnCallback(static fn(string $v): ?string => trim($v) !== '' ? trim($v) : null);
+        $this->carePlanFormService->method('parseNote')->willReturn('[]');
+        // Includes a deployment-added option at seq 70+ and a retired one, both of which
+        // must remain acceptable.
+        $this->carePlanFormService->method('getEngagementCategoryOptionIds')
+            ->willReturn(['active', 'site_specific_option', 'retired_option']);
+
+        $rows = $this->controller()->mapPostToRows([
+            'count' => ['1', '2', '3', '4'],
+            'plan_engagement_category' => ['active', 'site_specific_option', 'not-a-real-option', ''],
+        ], 42, 7, 1);
+
+        self::assertSame('active', $rows[0]['plan_engagement_category']);
+        self::assertSame('site_specific_option', $rows[1]['plan_engagement_category']);
+        self::assertNull($rows[2]['plan_engagement_category'], 'unknown option must be discarded');
+        self::assertNull($rows[3]['plan_engagement_category'], 'empty stays unset');
+    }
+
+    #[Test]
+    public function testEngagementCategoryListIsFetchedOncePerSaveNotPerRow(): void
+    {
+        $this->carePlanFormService->method('normalizeNullableString')->willReturn(null);
+        $this->carePlanFormService->method('parseNote')->willReturn('[]');
+        $this->carePlanFormService->expects($this->once())
+            ->method('getEngagementCategoryOptionIds')
+            ->willReturn(['active']);
+
+        $this->controller()->mapPostToRows(['count' => ['1', '2', '3']], 42, 7, 1);
+    }
+
     #[Test]
     public function testMapPostToRowsFallsBackToSessionUserWhenRowHasNone(): void
     {

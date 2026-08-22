@@ -87,4 +87,430 @@ final class GhPullRequestApiTest extends TestCase
         self::assertCount(1, $reasons);
         self::assertStringContainsString('EXPECTED', $reasons[0]);
     }
+
+    public function testRollupSkipsIgnoredCheckByName(): void
+    {
+        $rollup = [
+            ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ['name' => 'green-job', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup(
+            $rollup,
+            ShipReleaseOrchestrator::STATUS_CONTEXT,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testRollupSkipsIgnoredLegacyStatusByContext(): void
+    {
+        $rollup = [
+            ['context' => 'ci/upstream-flake', 'state' => 'FAILURE'],
+            ['context' => 'ci/build', 'state' => 'SUCCESS'],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup(
+            $rollup,
+            ShipReleaseOrchestrator::STATUS_CONTEXT,
+            ['ci/upstream-flake'],
+        );
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testRollupStillBlocksOnCheckNotInIgnoreList(): void
+    {
+        $rollup = [
+            ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup(
+            $rollup,
+            ShipReleaseOrchestrator::STATUS_CONTEXT,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertCount(1, $reasons);
+        self::assertStringContainsString('phpstan', $reasons[0]);
+    }
+
+    /**
+     * @param  list<array<string, mixed>>                                            $statusCheckRollup
+     * @param  list<array{state: string, author?: array{login?: string}}>            $latestReviews
+     * @return array{
+     *     isDraft: bool,
+     *     mergeable: string,
+     *     mergeStateStatus: string,
+     *     reviewDecision: ?string,
+     *     statusCheckRollup: list<array<string, mixed>>,
+     *     latestReviews: list<array{state: string, author?: array{login?: string}}>,
+     * }
+     */
+    private static function prData(
+        bool $isDraft = false,
+        string $mergeable = 'MERGEABLE',
+        string $mergeStateStatus = 'CLEAN',
+        ?string $reviewDecision = 'APPROVED',
+        array $statusCheckRollup = [],
+        array $latestReviews = [],
+    ): array {
+        return [
+            'isDraft' => $isDraft,
+            'mergeable' => $mergeable,
+            'mergeStateStatus' => $mergeStateStatus,
+            'reviewDecision' => $reviewDecision,
+            'statusCheckRollup' => $statusCheckRollup,
+            'latestReviews' => $latestReviews,
+        ];
+    }
+
+    public function testReadinessAcceptsCleanMergeStateWithNoBlockers(): void
+    {
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(self::prData(), true, []);
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessAcceptsUnstableWhenIgnoreListClearsRollup(): void
+    {
+        // Regression: pre-#13570-followup ship-release preflight rejected any
+        // mergeStateStatus != CLEAN, so UNSTABLE (= non-required check failing)
+        // caused by an ignored check still blocked. Now UNSTABLE passes when
+        // the rollup evaluation returned no blockers.
+        $data = self::prData(
+            mergeStateStatus: 'UNSTABLE',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessBlocksUnstableWhenRollupHasUnignoredFailure(): void
+    {
+        // UNSTABLE is only accepted when the ignore-list fully clears the
+        // rollup. A failing check outside the ignore-list keeps mergeStateStatus
+        // as a blocker AND surfaces the check itself.
+        $data = self::prData(
+            mergeStateStatus: 'UNSTABLE',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertContains('mergeStateStatus=UNSTABLE (need CLEAN)', $reasons);
+        self::assertTrue(
+            (bool) array_filter($reasons, static fn (string $r): bool => str_contains($r, 'phpstan')),
+            'phpstan failure must still surface as a blocking reason',
+        );
+    }
+
+    public function testReadinessAcceptsBlockedWhenMergeableAndRollupClean(): void
+    {
+        // mergeStateStatus is computed per-token by GitHub; the release App
+        // token's perspective can return BLOCKED on the same PR at the same
+        // head SHA that a human's UI session sees as UNSTABLE (empirically
+        // observed on the 8.3.0 conductor). When we've independently
+        // confirmed mergeable=MERGEABLE (GitHub says the PR can technically
+        // merge) AND our rollup enumeration is clean (all failures accounted
+        // for by the ignore-list), BLOCKED reflects the App-vs-user
+        // perspective difference, not a real mergeability blocker. Accept.
+        $data = self::prData(
+            mergeStateStatus: 'BLOCKED',
+            statusCheckRollup: [
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessAcceptsBlockedWhenIgnoreListClearsRollup(): void
+    {
+        // Same as UNSTABLE-with-ignore-list, extended to BLOCKED.
+        $data = self::prData(
+            mergeStateStatus: 'BLOCKED',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessBlocksBlockedWhenRollupHasUnignoredFailure(): void
+    {
+        // BLOCKED-accept requires the rollup to be clean via ignore-list. A
+        // failing check outside the ignore-list keeps mergeStateStatus as a
+        // blocker (in addition to surfacing the check itself) -- guards the
+        // "hide a real regression by getting to BLOCKED" case.
+        $data = self::prData(
+            mergeStateStatus: 'BLOCKED',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertContains('mergeStateStatus=BLOCKED (need CLEAN)', $reasons);
+        self::assertTrue(
+            (bool) array_filter($reasons, static fn (string $r): bool => str_contains($r, 'phpstan')),
+            'phpstan failure must still surface as a blocking reason',
+        );
+    }
+
+    public function testReadinessBlocksBlockedWhenMergeableNotMergeable(): void
+    {
+        // BLOCKED-accept requires mergeable=MERGEABLE. If GitHub reports the
+        // PR as UNKNOWN or CONFLICTING (can't actually merge), BLOCKED stays
+        // a hard block regardless of the rollup state -- the App-vs-user
+        // perspective loosening only applies when mergeability itself is
+        // confirmed.
+        $data = self::prData(
+            mergeable: 'CONFLICTING',
+            mergeStateStatus: 'BLOCKED',
+            statusCheckRollup: [
+                ['name' => 'phpstan', 'status' => 'COMPLETED', 'conclusion' => 'SUCCESS'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertContains('mergeStateStatus=BLOCKED (need CLEAN)', $reasons);
+        self::assertContains('mergeable=CONFLICTING (need MERGEABLE)', $reasons);
+    }
+
+    public function testReadinessBlocksDirtyMergeStateEvenWhenIgnoreListIsPresent(): void
+    {
+        // DIRTY means merge conflicts — not something an operator-supplied
+        // check ignore-list can plausibly clear. Any non-CLEAN + non-UNSTABLE
+        // state stays blocking.
+        $data = self::prData(
+            mergeStateStatus: 'DIRTY',
+            statusCheckRollup: [
+                ['name' => 'PHP 8.6 - Isolated Tests', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE'],
+            ],
+        );
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData(
+            $data,
+            true,
+            ['PHP 8.6 - Isolated Tests'],
+        );
+
+        self::assertContains('mergeStateStatus=DIRTY (need CLEAN)', $reasons);
+    }
+
+    public function testReadinessBlocksDraftPr(): void
+    {
+        $data = self::prData(isDraft: true, mergeStateStatus: 'BLOCKED');
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertContains('PR is a draft', $reasons);
+    }
+
+    public function testReadinessSkipsApprovalCheckWhenNotRequired(): void
+    {
+        $data = self::prData(reviewDecision: null);
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, false, []);
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testReadinessBlocksMissingApprovalWhenRequired(): void
+    {
+        $data = self::prData(reviewDecision: null);
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertContains('reviewDecision=null (need APPROVED)', $reasons);
+    }
+
+    public function testReadinessFlagsChangesRequestedReview(): void
+    {
+        $data = self::prData(latestReviews: [
+            ['state' => 'CHANGES_REQUESTED', 'author' => ['login' => 'gatekeeper']],
+            ['state' => 'APPROVED', 'author' => ['login' => 'other']],
+        ]);
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, true, []);
+
+        self::assertContains('CHANGES_REQUESTED review by gatekeeper', $reasons);
+    }
+
+    public function testReadinessToleratesDraftWhenRequireNonDraftIsFalse(): void
+    {
+        // Docs + Finalize PRs are auto-drafted by their generator workflows
+        // and auto-flipped by post-tag workflows. Blocking downstream targets
+        // on draft state at preflight would deadlock the ship. The orchestrator
+        // passes requireNonDraft=false for those roles.
+        $data = self::prData(isDraft: true);
+
+        $reasons = GhPullRequestApi::reasonsFromPullRequestData($data, false, [], false);
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testRollupDedupesStaleFailureWhenLatestSuccessExists(): void
+    {
+        // Regression: rerunning a workflow leaves the older attempt in the
+        // rollup alongside the newer one. Ship-release must only consider the
+        // latest per check name; otherwise a stale FAILURE from before a fix
+        // landed keeps blocking preflight even after a green re-run.
+        $rollup = [
+            [
+                'name' => 'validate',
+                'status' => 'COMPLETED',
+                'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:56:00Z',
+            ],
+            [
+                'name' => 'validate',
+                'status' => 'COMPLETED',
+                'conclusion' => 'SUCCESS',
+                'completedAt' => '2026-08-16T20:14:19Z',
+            ],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertSame([], $reasons);
+    }
+
+    public function testRollupDedupeKeepsLatestFailureOverStaleSuccess(): void
+    {
+        // Symmetric: if the newest run is FAILURE and an older SUCCESS exists,
+        // the FAILURE must still block. Prevents "hide bug by re-running until
+        // green" logic errors and confirms dedupe is timestamp-based, not
+        // biased toward SUCCESS.
+        $rollup = [
+            [
+                'name' => 'phpstan',
+                'status' => 'COMPLETED',
+                'conclusion' => 'SUCCESS',
+                'completedAt' => '2026-08-16T18:00:00Z',
+            ],
+            [
+                'name' => 'phpstan',
+                'status' => 'COMPLETED',
+                'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T19:00:00Z',
+            ],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertCount(1, $reasons);
+        self::assertStringContainsString('phpstan', $reasons[0]);
+        self::assertStringContainsString('FAILURE', $reasons[0]);
+    }
+
+    public function testRollupDedupeUsesStartedAtWhenCompletedAtMissing(): void
+    {
+        // In-progress reruns have startedAt but no completedAt. A new
+        // IN_PROGRESS re-run of an old FAILURE should win the dedupe (it's
+        // the more recent attempt) and block preflight as pending, so the
+        // operator waits for it to complete rather than acting on a stale
+        // result.
+        $rollup = [
+            [
+                'name' => 'validate',
+                'status' => 'COMPLETED',
+                'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:56:00Z',
+                'startedAt' => '2026-08-16T18:55:00Z',
+            ],
+            [
+                'name' => 'validate',
+                'status' => 'IN_PROGRESS',
+                'conclusion' => null,
+                'startedAt' => '2026-08-16T20:14:00Z',
+            ],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertCount(1, $reasons);
+        self::assertStringContainsString('IN_PROGRESS', $reasons[0]);
+    }
+
+    public function testRollupDedupePreservesFirstSeenOrderWhenReplacingNewerAttempt(): void
+    {
+        // Regression: replacing a check with a newer attempt must NOT
+        // overwrite its first-seen sequence position. Order in the rollup:
+        // check A (seq 1), check B (seq 2), check A newer (seq 3, replaces).
+        // Dedupe should emit A before B — A was first seen at seq 1, even
+        // though the winning entry is a later re-run.
+        $rollup = [
+            ['name' => 'A', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:00:00Z'],
+            ['name' => 'B', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T18:30:00Z'],
+            ['name' => 'A', 'status' => 'COMPLETED', 'conclusion' => 'FAILURE',
+                'completedAt' => '2026-08-16T19:00:00Z'],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertCount(2, $reasons);
+        self::assertStringContainsString('A', $reasons[0]);
+        self::assertStringContainsString('B', $reasons[1]);
+    }
+
+    public function testRollupDedupeAppliesToLegacyStatusesByContext(): void
+    {
+        // Legacy commit statuses re-post to the same context. Only the latest
+        // by createdAt should be considered.
+        $rollup = [
+            [
+                'context' => 'codecov/project',
+                'state' => 'FAILURE',
+                'createdAt' => '2026-08-16T18:00:00Z',
+            ],
+            [
+                'context' => 'codecov/project',
+                'state' => 'SUCCESS',
+                'createdAt' => '2026-08-16T20:00:00Z',
+            ],
+        ];
+
+        $reasons = GhPullRequestApi::reasonsFromStatusRollup($rollup, ShipReleaseOrchestrator::STATUS_CONTEXT);
+
+        self::assertSame([], $reasons);
+    }
 }

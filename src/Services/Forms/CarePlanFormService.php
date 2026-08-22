@@ -29,6 +29,8 @@ class CarePlanFormService
 
     public const FORM_NAME = 'Care Plan Form';
 
+    public const ENGAGEMENT_CATEGORY_LIST_ID = 'care_plan_engagement_category';
+
     public function __construct(private readonly FormService $formService)
     {
     }
@@ -42,6 +44,34 @@ class CarePlanFormService
         $records = QueryUtils::fetchRecords($sql, [self::FORM_DIR, $pid, $encounter]);
 
         return $this->toInt($records[0]['form_id'] ?? null);
+    }
+
+    /**
+     * Option ids defined for the engagement category list.
+     *
+     * Read from the database rather than hardcoded so that deployment-added options -- the
+     * seed set deliberately leaves seq 70+ free -- stay valid.
+     *
+     * Inactive options are included on purpose. A value recorded while an option was active
+     * has to survive a later re-save after that option is retired; filtering to active
+     * options only would silently blank historical data.
+     *
+     * @return list<string>
+     */
+    public function getEngagementCategoryOptionIds(): array
+    {
+        $sql = "SELECT option_id FROM `list_options` WHERE list_id = ?";
+        $records = QueryUtils::fetchRecords($sql, [self::ENGAGEMENT_CATEGORY_LIST_ID]);
+
+        $optionIds = [];
+        foreach ($records as $record) {
+            $optionId = $record['option_id'] ?? null;
+            if (is_scalar($optionId)) {
+                $optionIds[] = (string) $optionId;
+            }
+        }
+
+        return $optionIds;
     }
 
     /**
@@ -153,7 +183,8 @@ class CarePlanFormService
             reason_status = ?,
             reason_description = ?,
             reason_date_low = ?,
-            reason_date_high = ?";
+            reason_date_high = ?,
+            plan_engagement_category = ?";
 
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO `" . self::TABLE_NAME . "` SET " . $sets,
@@ -178,6 +209,7 @@ class CarePlanFormService
                 $data['reason_description'],
                 $data['reason_date_low'],
                 $data['reason_date_high'],
+                $data['plan_engagement_category'],
             ]
         );
     }

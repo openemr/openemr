@@ -1109,11 +1109,6 @@ class GaclApi extends Gacl {
 
         $this->db->CommitTrans();
 
-        if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-            //Expire all cache.
-            $this->Cache_Lite->clean('default');
-        }
-
         //Return only the ID in the first row.
         return $acl_id;
     }
@@ -1217,11 +1212,6 @@ class GaclApi extends Gacl {
 
         $this->debug_text("del_acl(): deleted ACL ID: $acl_id");
         $this->db->CommitTrans();
-
-        if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-            //Expire all cache.
-            $this->Cache_Lite->clean('default');
-        }
 
         return TRUE;
     }
@@ -1941,11 +1931,6 @@ class GaclApi extends Gacl {
 
         $this->debug_text('add_group_object(): Added Object: '. $object_id .' to Group ID: '. $group_id);
 
-        if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-            //Expire all cache.
-            $this->Cache_Lite->clean('default');
-        }
-
         return TRUE;
     }
 
@@ -1998,11 +1983,6 @@ class GaclApi extends Gacl {
         }
 
         $this->debug_text("del_group_object(): Deleted Value: $object_value to Group ID: $group_id assignment");
-
-        if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-            //Expire all cache.
-            $this->Cache_Lite->clean('default');
-        }
 
         return true;
     }
@@ -2124,11 +2104,6 @@ class GaclApi extends Gacl {
         }
 
         $this->db->CommitTrans();
-
-        if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-            // Expire all cache.
-            $this->Cache_Lite->clean('default');
-        }
 
         return TRUE;
     }
@@ -2464,11 +2439,6 @@ class GaclApi extends Gacl {
 
         $this->debug_text("del_group(): deleted group ID: $group_id");
         $this->db->CommitTrans();
-
-        if ($this->_caching == TRUE AND $this->_force_cache_expire == TRUE) {
-            //Expire all cache.
-            $this->Cache_Lite->clean('default');
-        }
 
         return true;
 

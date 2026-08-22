@@ -43,4 +43,4 @@ jobs:
       env:
         SKIP: php-syntax-check,composer-validate,composer-normalize,phpcbf,phpcs,phpstan,rector,composer-require-checker,conventional-commits
       with:
-        extra_args: --all-files
+        extra-args: --all-files

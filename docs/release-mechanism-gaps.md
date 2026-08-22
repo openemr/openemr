@@ -9,7 +9,7 @@ cycles that exercised the migrated automation (8.2.0 from rel-820,
 the Quick context below), and the affected entries carry the
 then-current framing preserved as historical context.
 
-**Last updated:** 2026-08-02
+**Last updated:** 2026-08-14
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
@@ -39,10 +39,16 @@ acceptance-testing owns the *verification that they work*.
   correct when those entries were written. It never shipped; the
   first release after the migration completed was 8.2.0 (shipped
   2026-07-08 to 2026-07-09 from `rel-820`).
-- **Next real release event:** `rel-830` cut from master, expected
-  in roughly 2 weeks. That will be the first cut exercising the
-  fully-migrated `branch-cut-automation.yml` flow end-to-end on a
-  brand-new rel branch.
+- **Latest rel-branch cut:** `rel-830` cut from master on 2026-08-12
+  — second exercise of `branch-cut-automation.yml` (rel-820 was the
+  first on 2026-07-02) and first exercise after ~6 weeks of
+  infrastructure refactors. Surfaced 6 latent regressions in the
+  release-mechanism surface; all shipped same-day. See [G31](#g31--rel-830-cut-surfaced-6-latent-release-mechanism-regressions-in-cascade--discovered-2026-08-12-all-shipped-2026-08-12)
+  for the full forensic + the systemic lesson (smoketest coverage
+  gaps around the branch-cut workflow shape).
+- **Next expected release event:** first ship of `8.3.0` from
+  `rel-830` (patch-cadence — no fixed date; happens when the QA
+  team signs off + ship-release.yml is triggered).
 - **Canonical runbook:** `docs/RELEASE_PROCESS.md` in
   `openemr/openemr` is the release manager's day-to-day reference.
   This doc is the follow-up gap log — things surfaced during automation
@@ -2510,6 +2516,223 @@ Implementation notes worth capturing (not obvious from the code):
   - RELEASE_PROCESS.md — release-event chain documentation
     (release-prep → ship-release → build-release → dispatches);
     worth adding a "rate-limit budget" note once these fixes land.
+
+### G31 — rel-830 cut surfaced 6 latent release-mechanism regressions in cascade  *(discovered 2026-08-12, all SHIPPED 2026-08-12)*
+
+**STATUS: SHIPPED 2026-08-12** as a same-day batch of 6 fixes (plus
+2 rel-830 cherry-picks and a docs update). Consolidated here because
+the findings share a single trigger event and related root causes,
+not to hide the individual bugs — see each PR link below for the
+full forensic.
+
+rel-830 was the first branch cut since PR #13287 (composite-action
+extraction, 2026-07-30) and related refactors landed. Multiple latent
+bugs surfaced in cascade as the branch-cut automation, release-prep
+conductor, acceptance dispatches, and downstream byte-identical sync
+fired for the first time against the new rel branch. Two failed cuts
++ a `git push --delete` recovery were needed before rel-830 stayed
+put; both branch-cut PRs eventually merged same day.
+
+**Findings + fixes (in the order they surfaced):**
+
+1. **[#13480](https://github.com/openemr/openemr/pull/13480)** —
+   Sparse-checkout leak in `branch-cut-automation.yml` +
+   `patch-prep-automation.yml`. The initial sparse checkout of only
+   `.github/actions/generate-app-token` left
+   `.github/actions/setup-php-composer/action.yml` unmaterialized,
+   and the subsequent full `actions/checkout@v7` of master didn't
+   reliably restore it (`git sparse-checkout disable` clears the
+   config but files never written on the first pass don't reappear
+   when the second target is byte-identical at those paths). Same
+   PR also added `GH_TOKEN: ${{ github.token }}` to the three
+   `Run release-prep mutators` steps in `release-prep.yml` —
+   `ChangelogMutator`'s `GitHubApi` shells out to `gh api compare`
+   which refuses to run under GitHub Actions without `GH_TOKEN`
+   in env. Both bugs shipped in #13287 (composite-action extraction).
+
+2. **[#13486](https://github.com/openemr/openemr/pull/13486)** —
+   `LOCAL_TAG="openemr/openemr:pr-built"` in `acceptance-docker.yml`
+   combined with the compose override's
+   `image: openemr/openemr:${OPENEMR_TAG:-latest}` to produce
+   `openemr/openemr:openemr/openemr:pr-built` — invalid Docker
+   reference. Same PR also added `branches-ignore` to `push:`
+   triggers on `acceptance-docker.yml` +
+   `acceptance-package.yml` for release-mechanism bot branches
+   (`branch-cut/**`, `patch-prep/**`, `release-prep/**`,
+   `release-finalize/**`) — peter-evans/create-pull-request pushes
+   to those branches AND opens a PR in one motion, and both events
+   were firing the acceptance workflows with different
+   `build_locally` resolutions (the push run silently tested
+   Docker Hub's published image, not the PR-built one).
+   LOCAL_TAG bug shipped in #13163 (Phase 2.5 build-from-codebase).
+
+3. **[#13487](https://github.com/openemr/openemr/pull/13487)** —
+   `shopt -p nullglob dotglob` exits 1 when any listed option is
+   disabled (the default bash state). The
+   `extract_zip_flattening_single_top_level_dir` helper captured
+   stdout of `shopt` into a variable and dropped the exit status
+   on the floor of the command substitution — under caller
+   `set -e` the script terminated silently at that line (stderr
+   was empty because the exit status was the only signal). Every
+   `.zip` cell on the `build_locally` path died silently past the
+   `==> Extracting into ...` echo. Fix: `|| true` on the shopt
+   capture. Added regression test that runs the helper directly
+   under `set -euo pipefail` (bypasses the existing `run_extract`
+   wrapper, which doesn't use `set -e` — the reason 16 prior
+   tests all passed while production died). Bug shipped in #13287
+   (shopt-leak fix that reused #13286's helper).
+
+4. **[#13496](https://github.com/openemr/openemr/pull/13496)** —
+   `BranchCutReleaseTargetsMutator::renderRelRowLines()` never
+   emitted `gate_with_acceptance: true` for freshly-cut rel
+   rows. Omission — Phase 12 (#13332, 2026-08-01) introduced the
+   flag and back-patched every existing row in
+   `release-targets.yml`, but the mutator (2026-06-30) was never
+   updated. #13484's diff showed the new rel-830 row missing the
+   flag; if merged as-is, docker-release-orchestrator would have
+   silently downgraded rel-830's publishes off the acceptance gate.
+
+5. **[#13499](https://github.com/openemr/openemr/pull/13499)** —
+   Byte-identical manifest gap: `src/Common/Command/ReleasePrep/**`
+   was byte-identical enforced, but the parallel isolated-test
+   tree at `tests/Tests/Isolated/Common/Command/ReleasePrep/**`
+   (PSR-4 mirror where every mutator's unit test + fixture lives)
+   was not. Byte-identical sync of the mutator PHP from #13496 to
+   rel-820 (openemr/openemr#13498) propagated only the production
+   file — test + fixture stayed at pre-#13496 content, so
+   rel-820's isolated tests failed on the mismatch. Fix: add the
+   missing manifest entry.
+
+6. **[#13509](https://github.com/openemr/openemr/pull/13509)** —
+   Sparse-checkout leak (same as #13480's finding) also present
+   in `notify-release-targets-changed.yml`, `build-patch.yml`,
+   `build-release.yml`, `ship-release.yml`,
+   `reusable-publish-release.yml`. #13480 only patched the two
+   workflows that were failing at that moment;
+   `notify-release-targets-changed.yml` fired on the rel-830
+   master-side merge later in the day and hit the identical
+   failure. Same fix (expand initial sparse pattern) applied to
+   all 5.
+
+**Cherry-picks + docs update (not counted above):**
+- [#13489](https://github.com/openemr/openemr/pull/13489) —
+  cherry-pick of #13480 + #13486 + #13487 fixes onto rel-830 to
+  unblock the branch-cut PRs (rel-830 was cut before byte-
+  identical sync could target it).
+- [#13503](https://github.com/openemr/openemr/pull/13503) —
+  same, for #13496 mutator fix + #13499 manifest addition.
+- [#13508](https://github.com/openemr/openemr/pull/13508) —
+  documented the branch-cut PR merge order (rel-side first)
+  in RELEASE_PROCESS.md; landing master-side first would silently
+  ship a broken rel-branch docker image because
+  `docker-release-orchestrator.yml` fires on that push and
+  dispatches a rel-branch build against a rel-branch tip that
+  hasn't yet received its rel-side mutations.
+
+**Root causes (all instances):**
+- **#13287 landed structural infrastructure changes** (composite-
+  action extraction; sparse-checkout pattern; shopt-preservation
+  in the extract-zip helper) with a "next release-mechanism firing
+  will validate this" test plan (per its own PR body). That firing
+  was rel-830's cut, ~2 weeks later, and it surfaced 3 distinct
+  bugs at once (findings 1, 3, and 6 above all trace back).
+- **#13332 (Phase 12) added a new mandatory field to
+  release-targets rows** and back-patched existing rows, but never
+  updated `BranchCutReleaseTargetsMutator` to emit the new field
+  going forward (finding 4).
+- **Byte-identical config for release-mechanism tests** never kept
+  pace with production code coverage additions (finding 5).
+
+**Systemic lesson:** every rel-branch cut is an integration event
+that exercises multiple workflow shapes not covered by the daily
+CI. Latent bugs accumulate between cuts (2 weeks to a few months
+apart) and surface as a cascade. The existing
+`release-mechanism-smoketest.yml` covers `openemr:release-prep
+--scope=rel` against rel-820 but not the branch-cut workflow shape
+(sparse checkout + composite resolution), not the acceptance
+dispatch paths (LOCAL_TAG, extract-zip), and not the byte-identical
+enforcement of test fixtures. Expanding smoketest coverage — or
+scheduling a periodic dry-run branch-cut against a throwaway rel
+branch — would catch these bug classes at land time instead of
+next-cut time. Left as a follow-up rather than a same-day fix.
+
+**Also observed (deferred):** flex-image webpack build fails
+intermittently with `Can't find stylesheet to import:
+../../public/assets/bootstrap-rtl/scss/bootstrap-rtl`.
+Root cause: `napa` fetches `bootstrap-rtl` from a GitHub URL
+zip during `postinstall`, silently fails on network flakes,
+leaving `public/assets/bootstrap-rtl/` empty for the webpack
+build inside the flex container.
+`docker-test-container-functionality.yml` on master's daily runs
+has been failing since ~2026-07-02 (over a month at time of
+writing) with cascading test failures (Fresh Install, Manual
+Setup, Redis, k8s-admin) all rooted in the same missing-asset
+issue. Not in rel-830 scope; belongs to its own gap.
+
+### G32 — Branch-cut PR content pins at open time and doesn't rebase; long-blocker windows drop intervening master commits from the new rel branch  *(discovered 2026-08-16, follow-up)*
+
+**STATUS: partial remedy via [#13589](https://github.com/openemr/openemr/pull/13589)** (migration-file moves to unbreak the shipped-8.3.0 → 8.4.0 upgrade path); root-cause auto-rebase / post-cut sweep still to design.
+
+Surfaced during post-rel-830 review of two apparent bugs:
+
+- **#13490** (feat(care-plan): engagement category, merged 2026-08-13 09:43 PDT) targeted `sql/8_2_0-to-8_3_0_upgrade.sql` even though master was already 8.4.0-dev by then. Reasonable at author-time — the file was left populated on master because the rel-830 branch-cut kept it in place; the empty template for the new dev cycle was created as `sql/8_3_0-to-8_4_0_upgrade.sql` in the same cut, but that file was silently the correct target and the misdirection wasn't caught in review.
+- **#13374** (feat(audit): api_log.client_id) and **#13504** (perf(db): memoize schema introspection) merged to master on 2026-08-12 at 21:35 and 22:24 UTC respectively — BEFORE the rel-830 cut PRs merged (22:44/22:46) but AFTER the cut PRs' fork point from master (`49e903f3ac`, 08:12 UTC on 2026-08-12). Both authors also targeted `sql/8_2_0-to-8_3_0_upgrade.sql` (correct for master AT their merge time), but neither commit made it to rel-830.
+
+**Root cause (the reason #13490's migration ended up in the wrong file, and the same shape applies to #13374's migration):** the "file-rename dance" at rel-830 cut created the empty `sql/8_3_0-to-8_4_0_upgrade.sql` correctly but left `sql/8_2_0-to-8_3_0_upgrade.sql` populated on master (that's the intended shape — it's what shipped to rel-830). Post-cut PRs authored against master saw an existing populated file for `8_3_0` and reasonably targeted it without noticing the new empty template was the correct scheduling. There's no review-time signal (lint, CI check, or PR template reminder) that redirects post-cut migration authors to the newly-created next-cycle upgrade file.
+
+**Confirmed defect (what #13589 fixes):** three migrations (#13374's `api_log.client_id`, #13490's `plan_engagement_category`, and — as a corollary of the same file-rename-dance omission — anything else that would land in that leftover 8_2_0-to-8_3_0 file post-cut) ended up in the wrong upgrade file on master. This creates a **shipped-8.3.0 → 8.4.0 upgrade path gap**: users upgrading from the shipped 8.3.0 to 8.4.0 would run only `sql/8_3_0-to-8_4_0_upgrade.sql`, which was empty. Their 8.4.0 code (which references `api_log.client_id` and the care_plan column) would attempt to INSERT/query columns that don't exist. Not a bug on 8.3.0 itself (rel-830 doesn't ship either feature's code or schema, so nothing tries to touch non-existent columns), but a real bug on the 8.3.0 → 8.4.0 upgrade path. #13589 moves all three migrations from `sql/8_2_0-to-8_3_0_upgrade.sql` to `sql/8_3_0-to-8_4_0_upgrade.sql` on master, closing the gap.
+
+**Contextual observation (not a defect, worth flagging):** the branch-cut PRs (rel-side #13482 + master-side #13484) snapshot master's tip at PR-open time and don't auto-rebase against master. On 2026-08-12 both cut PRs opened at 08:21-08:22 UTC based on the tip of master at that moment, sat for ~14 hours while G31's cascade of 6 blocker PRs shipped, and merged at 22:44/22:46 UTC without a rebase. Commits merged to master in that window (including #13374 at 21:35 UTC and #13504 at 22:24 UTC) exist on master but not on rel-830. This is **not automatically a bug** — the rel-side branch is intentionally isolated from post-fork master, and post-fork commits generally belong on master's next-cycle line (8.4.0) rather than being retroactively pulled into the shipping 8.3.0. In this specific case, #13374's `api_log.client_id` migration was file-targeted for 8.3.0 by its author, but whether it should ship in 8.3.0 vs 8.4.0 is a scoping decision, not a mechanical "carry every intervening commit onto rel-830" one. Verified via `git merge-base --is-ancestor` + PR-number grep + cherry-pick trailer search that neither #13374 nor #13504 has any presence on rel-830.
+
+**Fix directions (require explicit release-scope signal, not mechanical carry-over):**
+- **Post-cut PR template / lint that redirects migration authors to the newly-created next-cycle upgrade file.** A commit-time check that compares `version.php`'s current `$v_minor` against the target upgrade file's version prefix would catch the misfile at PR-open time. This is the load-bearing fix — it prevents the master-file misplacement class of defect (the actual gap this PR closes).
+- **A durable release-scope signal on each PR** (label, milestone, or PR-template checkbox — "intended for shipping in X.Y.Z"). A post-cut sweep would enumerate PRs marked for the just-shipped release that landed after fork-point but weren't in the cut, and prompt for explicit backport review per candidate. Not a mechanical "sweep all sql/ or docker/ changes" — those routinely include 8.4.0-scoped work that belongs on master only.
+- **Auto-rebase the branch-cut PR only when the operator explicitly opts in.** If the cut PR sits waiting on blocker fixes and the operator wants to carry intervening master commits, they should be able to trigger a rebase (re-run of the branch-cut mutator against master's fresh tip). Default: no rebase. Complication: `peter-evans/create-pull-request` force-pushes.
+
+Left as follow-up rather than a same-day fix. #13589 remedies the confirmed defect (migration file misplacement + 8.3.0 → 8.4.0 gap for the three known migrations). The systemic fixes above address the shape but require design work; none of them auto-backport arbitrary post-fork commits onto rel-830.
+
+### G33 — First automated ship (8.3.0) surfaced 7 latent preflight-deadlock gates in cascade  *(discovered 2026-08-17 through 08-18, all SHIPPED 2026-08-18)*
+
+**STATUS: SHIPPED 2026-08-18** as an emergent same-day-plus-next-day batch of 7 code fixes + 1 config change + 1 misfiled-migration cleanup. Consolidated here because every finding shares the same trigger event (first-ever real ship-release execution against production rel-830) and share the same class of root cause (preflight-side deadlocks that were latent until real merge-time was reached).
+
+Historical context: 8.2.0 shipped 2026-07-08/09 via manual click-through — `ship-release.yml` was never invoked on it end-to-end. rel-820's earlier ship-release test dispatches (2026-07-22) all failed at earlier preflight gates (PR-shape, review-decision, mergeStateStatus) and returned before hitting the merge API, so the merge-time and merge-API-permission classes of gate were never exercised. rel-830's cut on 2026-08-12 was the first time a production Conductor PR reached the merge attempt through ship-release. The 8.3.0 ship on 2026-08-18 was the first time it succeeded end-to-end.
+
+**Findings + fixes (in the order they surfaced during 8.3.0 ship attempts):**
+
+1. **[#13570](https://github.com/openemr/openemr/pull/13570)** — Preflight enumerated every check in `statusCheckRollup` and blocked on any non-{SUCCESS, NEUTRAL, SKIPPED} conclusion; no bypass. `PHP 8.6 - Isolated Tests` (upstream PHP bug) failing alone would deadlock every release for weeks until PHP upstream fixed it. Added `ignore_checks` CSV workflow_dispatch input that threads through the orchestrator into `reasonsFromStatusRollup`, exact-match on `name`/`context`.
+
+2. **[#13574](https://github.com/openemr/openemr/pull/13574)** — Even with #13570's ignore-list working, preflight still blocked on `mergeStateStatus=UNSTABLE (need CLEAN)`. GitHub reports UNSTABLE whenever a non-required check is failing, regardless of whether that check is on our ignore-list. Extended the mergeStateStatus rule: `UNSTABLE` passes when the rollup evaluation returned no blockers (i.e. every failing check was on the ignore-list). CLEAN + UNSTABLE-with-ignore now accept; DIRTY/BEHIND/HAS_HOOKS/UNKNOWN still hard-block.
+
+3. **[#13581](https://github.com/openemr/openemr/pull/13581)** — `docker-validate-release-targets.yml` on the finalize PR failed because the proposed `openemr_version_ref: v8_3_0` row references a tag that doesn't exist yet — the conductor merge is what creates the tag. `check validate conclusion=FAILURE` + `check All Checks Passed conclusion=FAILURE` (which aggregates validate) blocked preflight for the finalize target. Made the validator finalize-PR-aware: on `release-finalize/*` PRs (three-way guard: branch prefix + head repo == this repo + opener == `openemr-release-bot[bot]` to block spoofing), ref-resolution 404s degrade from error to warning; master-row alignment stays strict.
+
+4. **[#13582](https://github.com/openemr/openemr/pull/13582)** — Two issues in one PR: (a) `gh pr view --json statusCheckRollup` returns every re-run attempt on the head SHA, so a stale FAILURE from a pre-fix run kept blocking preflight even after a fresh green re-run — added dedupe by check name/context, latest-by-`completedAt`/`startedAt`/`createdAt` wins. (b) Docs + Finalize PRs are AUTO-drafted by their generator workflows and only auto-flipped by post-tag workflows; preflight blocking on their draft state deadlocked the ship (drafts don't flip until conductor merges, conductor won't merge until preflight passes). Added `$requireNonDraft` to `getReadiness`, defaults true; orchestrator passes false for Docs + Finalize (symmetric with `requireApproval`).
+
+5. **[#13590](https://github.com/openemr/openemr/pull/13590)** — Preflight required `reviewDecision=APPROVED` on the Conductor, but GitHub only populates `reviewDecision` when branch protection has enabled pull-request-review requirements on the target rel branch. rel-830 has `required_pull_request_reviews=null`, so `reviewDecision` stayed null regardless of how many times an admin clicked APPROVE. Verified via GraphQL that reviews were present, current-head-scoped, and APPROVED state — but `reviewDecision` remained null. Retired the APPROVED requirement across all roles. Human-ready signal for Conductor is now `isDraft=false` alone (already required per gate 4's `requireNonDraft`). CHANGES_REQUESTED reviews still block. Plumbing kept intact for future opt-in per-role if branch-protection posture changes.
+
+6. **[#13607](https://github.com/openemr/openemr/pull/13607)** — After all prior fixes landed and every settled-state signal came back clean via personal-token queries, ship-release STILL saw `mergeStateStatus=BLOCKED` on the same PR at the same head SHA that a human's UI session saw as UNSTABLE. GitHub computes `mergeStateStatus` per-token; App tokens are treated as service integrations and are more restrictive (likely interpret "no review completed" as blocking regardless of branch-protection config). Extended #13574's UNSTABLE conditional-accept to also cover BLOCKED, with stricter guard `mergeable=MERGEABLE` (UNSTABLE inherently implies mergeable; BLOCKED is broader so needs explicit check). DIRTY/BEHIND/HAS_HOOKS/UNKNOWN still hard-block.
+
+7. **[#13619](https://github.com/openemr/openemr/pull/13619)** — Preflight finally cleared for semi-auto dispatch. Merge attempt returned `GraphQL: Resource not accessible by integration (mergePullRequest)`. GitHub's `mergePullRequest` mutation requires **`contents:write`**, not `pull-requests:write` (merging a PR technically writes to the base branch's content, even though the trigger is a PR action). The App installation had contents:write on both openemr and website-openemr; the workflow was scope-DOWNing the minted token to `contents:read`. One-line bump: `permission-contents: read` → `write`. Covers Conductor + Finalize + Docs merges (all three route through the same mutation; token scoped to both repos with the same permission set).
+
+**Config-side gap (not a code fix, but part of the same ship-day story):**
+- **Rel-branch ruleset bypass for the release App.** Between fixes #13590 and #13619, semi-auto's first live merge attempt failed with `Pull request ... is not mergeable: the base branch policy prohibits the merge`. rel-830's `Restrict updates` ruleset was scoped to admins + associate-admins + the auto-merge app; the release App wasn't in the bypass list. No code change fixes this — it's a per-rel-branch ruleset config an admin must add. Documented in `RELEASE_PROCESS.md`'s "escalate to human/org owner" section post-ship. Website-openemr's master ruleset may need the same treatment before full-auto Docs merge works; not verified yet.
+
+**Also shipped as part of the ship-day batch (not preflight-deadlock but related):**
+- **[#13589](https://github.com/openemr/openemr/pull/13589)** — Moved three SQL migrations (from #13374 `api_log.client_id`, #13490 `care_plan` engagement category, plus the leftover contents of the file) from `sql/8_2_0-to-8_3_0_upgrade.sql` to `sql/8_3_0-to-8_4_0_upgrade.sql` on master. Two migrations landed post-rel-830-cut but were file-targeted to the wrong upgrade file due to the file-rename-dance-leftover pattern documented in G32. Fixed the shipped-8.3.0 → 8.4.0 upgrade-path gap. rel-830 unaffected (features not intended for 8.3.0).
+- **[#13586](https://github.com/openemr/openemr/pull/13586)** + **[#13587](https://github.com/openemr/openemr/pull/13587)** — Backports of `docker/fsupgrade` fix (#13583 by Stephen Waite, master-side) to rel-830 and rel-820. The docker fsupgrade scripts sed-patched `sql_upgrade.php` targeting a line that a code refactor had rewritten, silently no-ing out; upgrades replayed from 2.9.0 on every hop (~23 min instead of ~4). Backports needed on the 8.3.0 docker image before it built.
+
+**Shared trigger (all nine findings):** the 8.3.0 ship day was the first time ship-release-and-downstream ran end-to-end against a real production rel branch. All nine findings surfaced because that ship-day exercised code paths + config surfaces + downstream infrastructure that no prior dispatch or dry-run had reached.
+
+**Root causes (grouped by finding class):**
+
+- **Preflight-deadlock root cause (applies to the six preflight code fixes #13570 / #13574 / #13581 / #13582 / #13590 / #13607).** Ship-release preflight was designed against a mental model of "a human admin does the merge from the UI." Every preflight gate that surfaced (mergeStateStatus semantics per-token, reviewDecision null when branch protection doesn't require reviews, rollup dedup for stale re-runs, downstream draft tolerance, finalize-PR-aware validator, ignore-list for upstream-known-broken jobs) reflected an assumption about App-vs-human context that only got tested when a real ship's preflight had to evaluate a real production PR state. Prior test dispatches all hit blockers at these same gates but the blockers were removed by admin action (undraft, approve, etc.) rather than by loosening the code; the code stayed strict until a real ship exposed the design deadlocks.
+- **Merge-API permission root cause (applies to #13619).** After all six preflight fixes cleared, semi-auto's first live merge attempt returned `GraphQL: Resource not accessible by integration (mergePullRequest)`. GitHub's `mergePullRequest` mutation requires `contents:write` (merging writes to base branch content), not `pull-requests:write` (which only covers PR-lifecycle actions — open, close, comment, review). The ship-release workflow's token-scope-down was requesting `permission-contents: read` at mint time, so the ephemeral token literally couldn't merge regardless of the underlying App installation permissions. This is a merge-path permission gap, distinct from preflight — preflight had already succeeded when the mutation failed. Not preflight-deadlock: preflight-then-merge-permission-fail. Every prior ship-release test dispatch failed at earlier preflight gates and returned before reaching squashMerge, so this bug hid behind the six preflight fixes above.
+- **Configuration gap root cause (applies to the ruleset-bypass config change).** Rel-branch "Restrict updates" ruleset was scoped to admins + associate-admins + specific auto-merge apps. The release App wasn't in the bypass list. Not a code issue — a per-rel-branch admin config an operator has to apply proactively at cut time. Documented in `RELEASE_PROCESS.md`'s escalate-to-human section post-ship.
+- **Migration-cleanup root cause (applies to #13589 SQL file moves).** Post-cut PRs #13490 + #13374 landed schema work into `sql/8_2_0-to-8_3_0_upgrade.sql` on master — the leftover-populated file after rel-830 cut. See G32 for the file-rename-dance + no-review-time-signal root cause. #13589 was a same-day cleanup of the misfile, not a preflight-related fix.
+- **Docker upgrade root cause (applies to #13586 + #13587 backports).** Stephen Waite's #13583 fixed the docker fsupgrade sed pattern on master (sed targeted a `sql_upgrade.php` line that had been refactored away → silent no-op → upgrades replayed from 2.9.0 on every hop). Backports to rel-830 + rel-820 were needed before the 8.3.0 docker image built with the fix. Same shape as any per-release docker-side backport — not preflight-related.
+
+**Systemic lesson:** every real ship-release execution is an integration event that exercises multiple GitHub API surfaces + token-permission behaviors + branch-protection interactions not covered by dispatch tests that fail earlier. The `release-mechanism-smoketest.yml` covers `openemr:release-prep` against a shipped tag but not the ship-release merge-API path (which needs a live PR + live merge to exercise). Adding a periodic smoke-test dispatch of ship-release against a throwaway PR would catch this bug class at land time; deferred as follow-up. In the meantime, treat every first real ship after significant ship-release-code churn as a cascade-discovery event similar to G31 for cuts.
+
+**Also surfaced (deferred):** cosmetic gap in the forum announcement post — the `openemr_email_logo.png` referenced by `forum.md.twig` is designed to sit on the OpenEMR-blue `#00509d` email header block; it's white-on-transparent artwork that renders invisible against Discourse's default light theme. Additionally `|500x0` in the Discourse dimension syntax collapsed the image render box to zero height regardless of artwork. Durable fix: pre-composite an `openemr_forum_logo.png` (blue-background, padded) as a website asset on open-emr.org, update `forum.md.twig` to reference it. For 8.3.0 today the paster manually swapped in a `weserv.nl`-proxied composited variant; template still holds the broken reference for future releases.
 
 ## Timing picture: who does what, when
 

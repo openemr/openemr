@@ -159,61 +159,44 @@ function labcorp_gen_hl7_order(int $orderid): Hl7OrderResult
 
     $today = time();
     $out = '';
-    // init 2d barcode req record arrays
-    for ($i = 0; $i < 98; $i++) {
-        if ($i < 6) {
-            $H[$i] = '';
-        }
-        if ($i < 9) {
-            $G[$i] = '';
-        }
-        if ($i < 27) {
-            $C[$i] = '';
-        }
-        if ($i < 41) {
-            $A[$i] = '';
-            $T[$i] = '';
-        }
-        $P[$i] = '';
-    }
-    $H[0] = 'H';
-    $C[0] = 'C';
-    $C[19] = '^';
-    $A[0] = 'A';
-    $M[0] = 'M';
-    $T[0] = 'T';
-    $O[0] = 'O';
-    $S[0] = 'S';
-    $G[0] = 'G';
-    $D[0] = 'D';
-    $L[0] = 'L';
-    $E[0] = 'E';
-    $A[21] = "^^";
-    $A[22] = "^";
-    $A[23] = "^";
-    $A[29] = "^";
-    $A[30] = "^^^^^";
-    $A[33] = "^^^";
-    $G[1] = "^";
-    $S[1] = "^^^^^^";
-    $P[0] = 'P';
-    $P[36] = "^";
-    $P[45] = "^";
-    $P[54] = "^^^^^^^^^^^^^^";
-    $P[55] = "^^^^^^^";
-    $P[72] = "^^";
-    $P[73] = "^^";
-    $P[74] = "^^";
-    $P[75] = "^^";
-    $P[79] = "^";
-    $P[85] = "^";
-    $P[86] = "^^^^";
-    $P[89] = "^";
-    $P[94] = "^";
-    $P[95] = "^^";
-    $B = "B|||||||||||||||||||||";
-    $K = "K|^|||||||||||||||^^^^||||||";
-    $I = "I|^^|^^|^^|^^|^^|^^|^^|^^|";
+    // The 2D barcode requisition records. Each is a fixed-width run of
+    // fields joined on '|' when the requisition is assembled at the end of
+    // this function, so the widths below are the widths that assembly
+    // reads and the two must stay in step. Fields the record always
+    // carries -- the leading record-type letter, and the separator-only
+    // placeholders -- are declared here; everything else defaults to ''
+    // and is filled in from the order as it is built.
+    $H = array_replace(array_fill(0, 6, ''), [0 => 'H']);
+    $C = array_replace(array_fill(0, 27, ''), [0 => 'C', 19 => '^']);
+    $M = array_replace(array_fill(0, 6, ''), [0 => 'M']);
+    $D = array_replace(array_fill(0, 2, ''), [0 => 'D']);
+    $T = array_replace(array_fill(0, 41, ''), [0 => 'T']);
+    $A = array_replace(array_fill(0, 41, ''), [
+        0 => 'A',
+        21 => '^^',
+        22 => '^',
+        23 => '^',
+        29 => '^',
+        30 => '^^^^^',
+        33 => '^^^',
+    ]);
+    $P = array_replace(array_fill(0, 98, ''), [
+        0 => 'P',
+        36 => '^',
+        45 => '^',
+        54 => '^^^^^^^^^^^^^^',
+        55 => '^^^^^^^',
+        72 => '^^',
+        73 => '^^',
+        74 => '^^',
+        75 => '^^',
+        79 => '^',
+        85 => '^',
+        86 => '^^^^',
+        89 => '^',
+        94 => '^',
+        95 => '^^',
+    ]);
 
     $porow = sqlQuery(
         "SELECT " .

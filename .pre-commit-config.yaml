@@ -160,6 +160,21 @@ repos:
   hooks:
   - id: actionlint-docker
 
+# shellcheck
+- repo: https://github.com/shellcheck-py/shellcheck-py
+  rev: v0.9.0.6   # shellcheck 0.9.0 — matches ubuntu-24.04's package, which CI uses
+  hooks:
+  - id: shellcheck
+      # Match CI's invocation (.github/workflows/shellcheck.yml). enable=all
+      # comes from .shellcheckrc, which this hook reads too — don't repeat it.
+    args: [--check-sourced, --external-sources]
+      # Mirror CI's coverage: its path list skips docker/openemr/obsolete/ and
+      # never included tests/bats/ (**.sh / **.source / named scripts only).
+      # The bats suite carries an enable=all backlog (SC2250 etc.); bringing it
+      # under shellcheck is follow-up work, not part of mirroring CI.
+    exclude: (^docker/openemr/obsolete/|^tests/bats/)
+
+
 # hadolint for Dockerfile linting. Mirrors the CI workflow
 # (.github/workflows/docker-lint-hadolint.yml) so devs see the same findings
 # locally as CI. Shares .hadolint.yaml with CI.
@@ -184,6 +199,29 @@ repos:
 
 - repo: local
   hooks:
+  # OpenEMR once used a bare `.inc` extension for PHP includes, relying on the
+  # webserver not serving them. That is a fragile defence -- any server that is
+  # not configured to deny `.inc` hands the source out verbatim -- so the files
+  # were migrated to `.inc.php` (#5897) and the leftover redirect stubs deleted
+  # (#10495). No tracked file uses a bare `.inc` extension any more; this hook
+  # keeps it that way.
+  #
+  # The Rector rule fixtures are the one legitimate exception: Rector's
+  # AbstractRectorTestCase discovers fixtures by the `*.php.inc` suffix, and
+  # they are test data that is never included at runtime.
+  - id: forbid-inc-extension
+    name: Forbid bare .inc file extension
+    entry: >-
+      Files ending in .inc are not allowed: a misconfigured webserver serves
+      them as plain text, leaking source. Name PHP includes .inc.php (legacy
+      library helpers) or .php (new code).
+    language: fail
+    files: \.inc$
+    # Rector's fixture format is fixed at .php.inc, and each rule needs its own
+    # fixture directory so one rule's test does not pick up another's fixtures.
+    # These are test data, never served.
+    exclude: ^tests/Rector/Rules/Fixture[^/]*/[^/]+\.php\.inc$
+
   - id: php-syntax-check
     name: PHP Syntax Check
     entry: php -l

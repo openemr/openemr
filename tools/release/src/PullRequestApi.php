@@ -31,8 +31,40 @@ interface PullRequestApi
      * apply. Docs + Finalize PRs are auto-generated bot content with no
      * meaningful "human review" gate; Conductor is the one meaningful review
      * point and defaults to requiring approval for back-compat.
+     *
+     * $ignoreChecks holds check-run names (or legacy status contexts) that
+     * must be skipped in the status-check rollup. Used to bypass upstream
+     * known-broken jobs (e.g. `PHP 8.6 - Isolated Tests` during an upstream
+     * PHP bug window) so an operator-approved release can still ship.
+     * Matching is an exact string comparison against the check's `name` and
+     * `context` fields as returned by `gh pr view --json statusCheckRollup`.
+     * GitHub reports `mergeStateStatus=UNSTABLE` when a non-required check
+     * is failing; the ignore-list only removes matching failures from the
+     * blocking-reasons list. When it clears every rollup entry, both
+     * UNSTABLE and BLOCKED are treated as CLEAN (BLOCKED requires the
+     * additional guard `mergeable=MERGEABLE` since it's a broader state;
+     * see reasonsFromPullRequestData docblock for the App-vs-user token
+     * perspective rationale). DIRTY/BEHIND/HAS_HOOKS/UNKNOWN always block.
+     *
+     * $requireNonDraft gates the isDraft check. Defaults to true (Conductor
+     * PRs must be non-draft at preflight -- they're the meaningful human-
+     * review artifact). Docs + Finalize PRs pass false: those are auto-
+     * drafted by their generator workflows and only auto-flipped by post-
+     * tag workflows (docs on `openemr-tag`; finalize by the finalize job),
+     * so they're structurally draft at preflight time. Blocking on that
+     * would deadlock -- no way for downstream to un-draft before conductor
+     * merges. Full-auto re-checks readiness after auto-flip via
+     * refreshDownstreamBeforeMerge, so the relaxation is safe.
+     *
+     * @param list<string> $ignoreChecks
      */
-    public function getReadiness(string $repo, int $number, bool $requireApproval = true): PullRequestReadiness;
+    public function getReadiness(
+        string $repo,
+        int $number,
+        bool $requireApproval = true,
+        array $ignoreChecks = [],
+        bool $requireNonDraft = true,
+    ): PullRequestReadiness;
 
     /**
      * Whether a GitHub Release object exists for $tag in $repo. Used by the
