@@ -53,7 +53,7 @@
 #     this row. Set on branches that HAVE the acceptance mechanism (any
 #     rel branch with acceptance-docker.yml + the surrounding surface --
 #     rel-820 and above, plus master). Leave unset (or false) on legacy
-#     branches (rel-704 + rel-800) where the acceptance mechanism doesn't
+#     branches (rel-800) where the acceptance mechanism doesn't
 #     exist. Consumed by docker-release-orchestrator.yml when dispatching
 #     the per-row docker-build-release.yml runs; only rows with this flag
 #     set get `-f gate_with_acceptance=true` passed to the dispatch. See
@@ -132,7 +132,3 @@
   # "<tag>-YYYY-MM-DD" sibling for immutable per-build pinning.
   docker_tags: 8.0.0,8.0.0.3
   openemr_version_ref: v8_0_0_3
-
-- branch: rel-704
-  docker_tags: 7.0.4
-  openemr_version_ref: v7_0_4
