@@ -149,14 +149,14 @@ jobs:
         # extending the gate to all rows that support the mechanism
         # (master + rel-820, and any future rel-830+) is affordable and
         # gives a consistent "was this validated before shipping?" bar.
-        # rel-800 + rel-704 leave the flag unset — they don't carry
+        # rel-800 leaves the flag unset — it doesn't carry
         # acceptance-docker.yml (byte-identical exclusion) so the receiving
         # workflow wouldn't know how to run acceptance anyway; the docs
         # comment on the flag in release-targets.yml captures the rule.
         GATE="${MATRIX_GATE_WITH_ACCEPTANCE:-false}"
 
         # Only pass `-f gate_with_acceptance=...` when we actually want
-        # the gate on (GATE=true). rel-800 and rel-704 carry the pre-
+        # the gate on (GATE=true). rel-800 carries the pre-
         # Phase-7c docker-build-release.yml (see the exclude-branches
         # for that path in .github/byte-identical.yml) which doesn't
         # declare a `gate_with_acceptance` input — GitHub Actions
@@ -165,7 +165,7 @@ jobs:
         # before the target workflow even loads. Omitting the flag
         # lets the receiving workflow's input default (false) do the
         # right thing whether the input exists (master + rel-820) or
-        # not (rel-800 + rel-704).
+        # not (rel-800).
         GATE_ARGS=()
         if [[ "$GATE" == "true" ]]; then
           GATE_ARGS=(-f gate_with_acceptance=true)
