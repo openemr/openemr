@@ -127,7 +127,7 @@ teardown() {
 - path: entry-1.txt
   exclude-branches: [rel-800]
 - path: entry-2.txt
-  exclude-branches: [rel-810]
+  exclude-branches: [rel-830]
 - entry-3.txt
 '
     # rel-820 isn't excluded from anything -- all 3 print.
