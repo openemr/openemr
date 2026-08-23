@@ -1,7 +1,7 @@
 # This will run the OpenEMR flex dockers with Alpine 3.24 version. It will test the flex docker images in both
 #  development (ie. dev) mode (codebase used from a shared volume) and production (ie. prod) mode (codebase collected via git).
 #  - is_production_docker is required and needs to be false.
-#  - alpine_versions is set to 3.24
+#  - alpine_version is set to 3.24
 #  - php_versions are set to 8.3, 8.4 and 8.5
 #  - flex_timing is set to true to emit TIMING markers in openemr.sh (openemr-devops#797).
 #  - note not using the coverage settings (is_flex_coverage_docker, flex_coverage_php_version) in this workflow. see
