@@ -36,7 +36,7 @@
 #      `latest`, orchestrator misfires publishing a broken `next`).
 #
 #   2. workflow_dispatch -- manual dispatch to test arbitrary tag pairs
-#      (e.g. 7.0.4 -> 8.0.0.3 for a two-release skip test).
+#      (e.g. 8.0.0.3 -> 8.2.0 for a two-release skip test).
 #
 #   3. push / pull_request on the acceptance surface itself -- workflow,
 #      compose override, tests/Acceptance/**, and the acceptance-suite
