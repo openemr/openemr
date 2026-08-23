@@ -2569,3 +2569,131 @@ install); the rest remain worth periodic re-visit.
   than one idempotent method that runs on both), a dedicated
   pre-upgrade seeding stage would need to land — deferred until
   demand appears.
+
+## Post-8.4.0 acceptance-surface refactor plan
+
+**Status:** Deferred until after the next release cut. Captured here so
+the work is pickable-up-cold without relying on session context. Trigger
+that surfaced this: adding version-display coverage in
+openemr/openemr#13635 (three signals: DB via shell, About page via
+Panther, `/apis/default/api/version` via Panther) required workarounds
+whose shape teaches the wrong pattern for future contributors.
+
+### Motivating problem
+
+Group tags on acceptance tests do three unrelated jobs at once:
+1. **Scenario timeline** — "when in the boot→install→upgrade sequence
+   this test is meant to run" (e.g., `post-upgrade`).
+2. **Runtime state** — "what the app must be configured as before this
+   test can run" (e.g., `api-enabled`).
+3. **Workflow isolation** — "which of the two workflows can invoke this
+   test" (implicit; #13635 had to introduce `version-display` /
+   `version-api` groups purely because `acceptance-docker.yml` cannot
+   resolve floating tags to `X.Y.Z` at runtime and so cannot set
+   `ACCEPTANCE_EXPECTED_VERSION`).
+
+The overloading hides real coverage gaps. Two concrete instances that
+surfaced during #13635's design:
+- `api-enabled` group tests (`ApiSmokeTest`, `OAuth2ApiEnabledTest`)
+  historically ran only in the fresh-install scenario, never
+  post-upgrade — because the workflow only invokes `--group=api-enabled`
+  after fresh-install. #13635 partially closed this by adding
+  post-upgrade `api-enable.php` + `--group=api-enabled` steps to the
+  upgrade scenario.
+- `version-display` / `version-api` had to be their own groups (rather
+  than tagging the existing `post-install` / `post-upgrade` /
+  `api-enabled` groups) because `acceptance-docker.yml` would otherwise
+  pick them up and fail without `ACCEPTANCE_EXPECTED_VERSION`.
+
+### Current-state snapshot
+
+**Invocation contexts (`acceptance-package.yml`):**
+
+| # | Trigger | Artifact source | Version signal | Matrix |
+|---|---------|-----------------|----------------|--------|
+| 1 | schedule (daily) | GitHub Releases tarball | `TO_VERSION` default | Default (install-only) |
+| 2 | push (paths filter) | GitHub Releases tarball | Same | Default |
+| 3 | pull_request (paths filter) | GitHub Releases tarball | Same | Default |
+| 4 | push/PR touching `tools/release/**` | PR-built via PackageAssembler | Synthetic `99.99.99` | Expanded |
+| 5 | `release-prep/*` branch | PR-built | Parsed from PR title | Expanded |
+| 6 | workflow_dispatch | GitHub OR PR-built | Operator input | Expanded |
+| 7 | workflow_call (build-release.yml Phase 7c) | Caller artifact | Caller `to_version` | Expanded |
+| 8 | workflow_call (acceptance-only.yml Phase 9) | Same replayed | Same | Expanded |
+
+Plus per-branch `FROM_VERSION` derivation from `sql/*-to-*_upgrade.sql`
+× shipped-versions manifest (#13630).
+
+**Invocation contexts (`acceptance-docker.yml`):**
+
+| # | Trigger | Artifact source | Version signal | Matrix |
+|---|---------|-----------------|----------------|--------|
+| 1 | schedule (daily) | Docker Hub `:latest` + `:next` | Floating tag — no `X.Y.Z` resolution | Default |
+| 2 | push/PR (paths filter) | Docker Hub tags | Same | Default |
+| 3 | workflow_dispatch | Docker Hub OR PR-built image | Operator tag input | Expanded |
+| 4 | workflow_call (docker-build-release.yml) | PR-built image | Caller `to_tag` | Expanded |
+| 5 | workflow_call (docker-acceptance-only.yml) | Same | Same | Expanded |
+
+**Group → tests (as of 2026-08-20):**
+
+| Group | Tests |
+|-------|-------|
+| `fresh-install` | Aa, Appointment, Bb, Dd, Document, E2e, Ff, Fhir, FrontPayment, Gg, Install, Kk, OAuth2Smoke |
+| `post-upgrade` | Same 13 minus `InstallTest`, plus `UpgradeIntegrity` |
+| `wizard-install` | `InstallWizardUiTest` |
+| `wizard-upgrade` | `UpgradeWizardUiTest` |
+| `api-enabled` | `ApiSmokeTest`, `OAuth2ApiEnabledTest` |
+| `version-display` (workaround, #13635) | `VersionDisplayAcceptanceTest` |
+| `version-api` (workaround, #13635) | `VersionApiAcceptanceTest` |
+
+**Group invocation per scenario (package workflow):**
+
+- `fresh-install` scenario → `--group=fresh-install` → `api-enable.php` → `--group=api-enabled` → (post-#13635) `--group=version-display` + `--group=version-api`
+- `wizard-install` scenario → `--group=wizard-install` → (post-#13635) `--group=version-display`
+- `upgrade` scenario → `--group=fresh-install` (against from) → upgrade → `--group=post-upgrade` → (post-#13635) `--group=version-display` + `api-enable.php` + `--group=api-enabled` + `--group=version-api`
+- `wizard-upgrade` scenario → `--group=wizard-upgrade` → (post-#13635) `--group=version-display`
+
+### Friction points captured
+
+1. Same test, different context, no way to know from the test which workflow/scenario invoked it.
+2. Expected-version signal shape differs per context (env `TO_VERSION` vs matrix `image_tag` vs synthetic `99.99.99` vs PR-title parse).
+3. `api-enabled` post-upgrade coverage gap (partially closed in #13635 for package workflow; docker workflow still has the gap).
+4. Group tags overloaded across three concerns (scenario timeline, runtime state, workflow isolation).
+5. Workflow YAML duplication — both workflows walk the same boot→group→api-enable→group shape independently, with drift risk (e.g., #13635 added post-upgrade api-enable to package only).
+6. No mapping-doc reference table for "what runs where" — contributors have to grep both workflows to understand a test's blast radius.
+7. Docker workflow's default matrix excludes wizard-* — a wizard-flow regression on `:latest` wouldn't fire outside dispatch.
+
+### Refactor items (proposed, in priority order)
+
+**Item 1: `AcceptanceContext` support class** *(highest leverage, smallest surface)*
+Central resolver for "what am I running against?" — expected version, base URL, feature-flag state, scenario name — read from a common `ACCEPTANCE_*` env contract. Tests call `AcceptanceContext::expectedVersion()` instead of `getenv('ACCEPTANCE_EXPECTED_VERSION')`. Fail-fast diagnostic if the context isn't ready (rather than tests failing at their business assertions).
+
+Migration path: introduce class, migrate `VersionDisplayAcceptanceTest` + `VersionApiAcceptanceTest` as the first consumers (they're already env-aware), then adopt in future tests. Existing tests can migrate opportunistically.
+
+**Item 2: Split scenario-timeline from runtime-state group tags**
+Rename group tags into two dimensions:
+- Scenario timeline: `post-install`, `post-upgrade`, `wizard-completed`
+- Runtime state: `api-enabled`, `demo-data-seeded`
+
+Tests declare BOTH tags. Workflow steps advance state, then invoke tests via `--group=<scenario> --group=<state>` (PHPUnit's `--group` is OR — need a small custom filter for AND semantics, OR name-combined groups like `api-enabled-post-upgrade` if AND filter turns out to be too invasive).
+
+Once this lands, `version-display` and `version-api` collapse into `#[Group('post-install')] #[Group('post-upgrade')]` (plus `#[Group('api-enabled')]` for the api variant) — the isolation workaround becomes unnecessary.
+
+**Item 3: Shared boot-orchestration composite action**
+Both workflows repeat the boot→group→api-enable→group→teardown shape. Extract to a composite action at `.github/actions/run-acceptance-scenario/` (or a shared shell library at `tests/Acceptance/bin/lib/`). Workflows declare "here's the artifact, here's the expected version, run scenario X." Cuts YAML duplication; makes drift impossible (e.g., item #3 friction, and the `api-enabled` post-upgrade gap in docker workflow).
+
+**Item 4: Docker workflow tag→version resolution**
+So `ACCEPTANCE_EXPECTED_VERSION` can be set in docker context too and the `version-display` / `version-api` isolation isn't needed. Options: query Docker Hub API for the tag→digest→config manifest, OR pull the image and read `version.php`, OR require the caller to pass the version explicitly (already the case for workflow_call gates). Simplest is the last one — scheduled/floating-tag runs can skip version-check by not setting the env.
+
+**Item 5 (hygiene): "Invocation contexts" reference section in this doc**
+Table of ~6 contexts × what each provides. Not covered elsewhere. Cheap; prevents future confusion. (The table above is a starting point.)
+
+**Item 6 (hygiene): Directory structure by concern as suite grows**
+`tests/Acceptance/Version/`, `Upgrade/`, `OAuth/`, `Ui/`. Currently all flat under `tests/Acceptance/`. PHPUnit `<directory>` config handles it naturally.
+
+### Sequencing recommendation
+
+Item 1 first (small standalone refactor PR, highest leverage). Item 2 second (mechanical rename + workflow-invocation update). Item 3 third (biggest structural change; benefits from semantics being settled first). Items 4-6 opportunistic.
+
+### Interim workaround (as of #13635)
+
+`version-display` and `version-api` are dedicated groups purely because `acceptance-docker.yml` can't currently set `ACCEPTANCE_EXPECTED_VERSION`. The workaround is contained (2 test files + additive workflow YAML in package workflow only) and migrates cleanly to standard groups (`post-install`, `post-upgrade`, `api-enabled`) during item #2. No touch to existing tests, so no unwinding needed — just a rename pass.
