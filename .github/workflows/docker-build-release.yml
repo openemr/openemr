@@ -38,8 +38,8 @@
 #     carry the mechanism. Post-Phase-12 (openemr/openemr#13332, 2026-
 #     08-01) the orchestrator sets this true from an explicit per-row
 #     `gate_with_acceptance: true` flag in release-targets.yml (master
-#     + rel-820, plus any future rel-830+ at cut time); rel-800 +
-#     rel-704 leave the flag unset and stay on the non-gated shape.
+#     + rel-820, plus any future rel-830+ at cut time); rel-800
+#     leaves the flag unset and stays on the non-gated shape.
 #     Pre-Phase-12 the orchestrator auto-detected on "any tag ==
 #     latest" — replaced by the explicit flag when Phase 11 native
 #     arm64 made the ~1h QEMU acceptance cost drop to ~14 min, so
@@ -515,14 +515,14 @@ jobs:
   # Phase-7c shape). As of Phase 12 (openemr/openemr#13332, 2026-08-01)
   # the orchestrator sets this true from an explicit per-row
   # `gate_with_acceptance: true` flag in release-targets.yml — master
-  # + rel-820 (+ future rel-830+) have it; rel-800 + rel-704 don't
+  # + rel-820 (+ future rel-830+) have it; rel-800 doesn't
   # (legacy, no acceptance-docker.yml surface via byte-identical).
   #
   # Runs against THIS branch's copy of acceptance-docker.yml — matches
   # the acceptance surface the release branch says is canon. Downside:
   # acceptance-docker.yml must exist on the target rel-branch (byte-
   # identical propagation handles this for rel-820+ post-#13236; rel-800
-  # and rel-704 are excluded from the acceptance surface so they'd need
+  # is excluded from the acceptance surface so it'd need
   # this input kept false anyway).
   acceptance-gate:
     name: Acceptance gate

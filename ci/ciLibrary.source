@@ -347,6 +347,15 @@ setup_e2e_bookends() {
     local prepend_ini_file="${RUNNER_TEMP:-/tmp}/php_prepend.ini"
     {
         echo "auto_prepend_file=${OPENEMR_DIR}/${prepend_file}"
+        # pcov only records files below pcov.directory, which defaults to the
+        # process working directory. CLI PHPUnit runs from the OpenEMR tree and
+        # resolves it correctly, but the web SAPI starts in the image WORKDIR,
+        # so web request coverage silently comes back empty. The flex image
+        # pins this in docker/flex/pcov.sh; dev-php-fpm bakes in pcov without
+        # it, and the image cannot know the path anyway since it differs per
+        # webserver. pcov.directory is PHP_INI_SYSTEM, so ci/auto_prepend.php
+        # cannot set it. Harmless when pcov is not the driver.
+        echo "pcov.directory=${OPENEMR_DIR}"
     } > "${prepend_ini_file}"
     dc cp "${prepend_ini_file}" "openemr:${php_scan_dir}/php_prepend.ini"
 
@@ -359,6 +368,29 @@ setup_e2e_bookends() {
 
     echo "Verifying auto prepend configuration via web server (${webserver} at ${webserver_host})…"
     _exec sh -c "curl -fsSL http://${webserver_host}/ci/phpinfo.php | grep -E auto_prepend_file"
+
+    # A pcov.directory that does not cover the OpenEMR tree collects nothing,
+    # and that only surfaces much later as a missing raw coverage directory.
+    # Assert it here, against the SAPI that actually serves the tests.
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if _exec php -r 'exit(function_exists("pcov\\start") ? 0 : 1);'; then
+        echo 'Verifying pcov.directory covers the OpenEMR tree…'
+        # Capture the response before matching it. Piping curl into grep inside
+        # `_exec sh -c` would report only grep's status, because that nested
+        # shell does not inherit pipefail: a failed request would then be
+        # misreported as a bad pcov.directory, or a truncated one could match
+        # and pass.
+        local phpinfo
+        if ! phpinfo=$(_exec sh -c "curl -fsSL http://${webserver_host}/ci/phpinfo.php"); then
+            echo "Error: could not fetch /ci/phpinfo.php from ${webserver_host}"
+            return 1
+        fi
+        if ! grep -qE "pcov.directory.*${OPENEMR_DIR}" <<< "${phpinfo}"; then
+            echo "Error: pcov is the coverage driver but pcov.directory does not cover ${OPENEMR_DIR}"
+            echo 'Web request coverage would be empty. Check php_prepend.ini.'
+            return 1
+        fi
+    fi
 
     sleep 1  # Give filesystem time to flush
 

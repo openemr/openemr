@@ -14,8 +14,8 @@
 #
 #   2. schedule, daily at 09:00 UTC. Picked specifically to land
 #      AFTER the orchestrator-dispatched per-branch builds finish:
-#      orchestrator fires at 06:00 UTC, rel-704 + rel-800 builds take
-#      ~1h each, so they're done by ~07:15 UTC. 09:00 gives clear
+#      orchestrator fires at 06:00 UTC, rel-800 builds take
+#      ~1h, so it's done by ~07:15 UTC. 09:00 gives clear
 #      headroom; opening a sync PR while a build is still in flight
 #      on the same rel branch would queue two concurrent
 #      docker-build-release.yml runs against the same branch.
@@ -95,8 +95,10 @@ jobs:
     # Sparse checkout of master's composite action so the token-mint
     # step below can resolve `uses: ./.github/actions/...`. The rel-
     # branch checkout below overwrites this with the branch's own
-    # tree (which may or may not have the composite -- rel-800 +
-    # rel-704 don't; see .github/byte-identical.yml).
+    # tree (Phase 10b propagated the composite to every rel branch
+    # via .github/byte-identical.yml so it's now present everywhere,
+    # but the sparse pre-checkout keeps this job resilient to any
+    # future rel branch that happens to lack it).
     - name: Checkout composite action
       uses: actions/checkout@v7
       with:

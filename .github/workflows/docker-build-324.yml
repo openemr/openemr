@@ -1,12 +1,13 @@
-name: Flex 3.22 Dockers Build
+name: Flex 3.24 Dockers Build
 
-# This workflow builds the OpenEMR Flex Docker images with Alpine 3.22 and PHP versions 8.2, 8.3, and 8.4.
+# This workflow builds the OpenEMR Flex Docker images with Alpine 3.24 and PHP versions 8.3, 8.4, and 8.5.
 # And in this configuration will create following dockers (and tags):
-#    PHP 8.2: openemr/openemr:flex-3.22-php-8.2
-#    PHP 8.3: openemr/openemr:flex-3.22-php-8.3
-#    PHP 8.4: openemr/openemr:flex-3.22-php-8.4, openemr/openemr:flex-3.22
+#    PHP 8.3: openemr/openemr:flex-3.24-php-8.3
+#    PHP 8.4: openemr/openemr:flex-3.24-php-8.4
+#    PHP 8.5: openemr/openemr:flex-3.24-php-8.5, openemr/openemr:flex-3.24
 # (The bare openemr/openemr:flex tag is published by docker-build-323.yml, which is the
-#  default flex image; this 3.22 build sets is_default_flex: false in the workflow_call.)
+#  default flex image; this 3.24 build sets is_default_flex: false in the workflow_call.
+#  A follow-up PR will flip 3.24 to be the default flex image.)
 #
 # php_versions is a JSON array of PHP versions to build.
 #
@@ -25,9 +26,9 @@ jobs:
     uses: ./.github/workflows/docker-build-flex-core.yml
     with:
       is_default_flex: false
-      alpine_version: "3.22"
-      php_versions: '["8.2", "8.3", "8.4"]'
-      php_default: "8.4"
+      alpine_version: "3.24"
+      php_versions: '["8.3", "8.4", "8.5"]'
+      php_default: "8.5"
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

@@ -32,9 +32,6 @@ class AclMainTest extends TestCase
      */
     public function testAclCheckCore(): void
     {
-        // make sure we've cleared all GACL caches here...
-        AclMain::clearGaclCache();
-
         // we assume in our unit tests that our admin user will have access to certain parts of the database
         $adminUsername = getenv("OE_USER", true) ?: "admin";
         $userService = new UserService();

@@ -59,7 +59,6 @@ teardown() {
 - path: only-for-820.txt
   exclude-branches:
   - rel-800
-  - rel-704
 '
     run bash "$LIST_MANIFEST_PATHS_SCRIPT" "$MANIFEST" rel-800
     [[ $status -eq 0 ]]
@@ -73,7 +72,6 @@ teardown() {
 - path: only-for-820.txt
   exclude-branches:
   - rel-800
-  - rel-704
 '
     run bash "$LIST_MANIFEST_PATHS_SCRIPT" "$MANIFEST" rel-820
     [[ $status -eq 0 ]]
@@ -89,7 +87,7 @@ teardown() {
 - string-b.txt
 - path: object-b.txt
   exclude-branches:
-  - rel-704
+  - rel-800
 - string-c.txt
 '
     # rel-820: all 5 entries
@@ -97,8 +95,8 @@ teardown() {
     [[ $status -eq 0 ]]
     [[ ${#lines[@]} -eq 5 ]]
 
-    # rel-704: 4 entries (object-b.txt filtered)
-    run bash "$LIST_MANIFEST_PATHS_SCRIPT" "$MANIFEST" rel-704
+    # rel-800: 4 entries (object-b.txt filtered)
+    run bash "$LIST_MANIFEST_PATHS_SCRIPT" "$MANIFEST" rel-800
     [[ $status -eq 0 ]]
     [[ ${#lines[@]} -eq 4 ]]
     ! printf '%s\n' "${lines[@]}" | grep -qxF "object-b.txt"
@@ -129,7 +127,7 @@ teardown() {
 - path: entry-1.txt
   exclude-branches: [rel-800]
 - path: entry-2.txt
-  exclude-branches: [rel-704]
+  exclude-branches: [rel-830]
 - entry-3.txt
 '
     # rel-820 isn't excluded from anything -- all 3 print.

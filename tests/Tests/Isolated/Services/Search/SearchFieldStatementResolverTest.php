@@ -11,6 +11,8 @@
  * the resolver do not silently change query generation.
  *
  * @package   OpenEMR
+ * @author    Stephen Waite <stephen.waite@open-emr.org>
+ * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
  * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
