@@ -14,7 +14,7 @@ These three subdirectories each contain a `Dockerfile` that gets published to
 | Path | Image kind | Branch scope | Publishes |
 |---|---|---|---|
 | [`release/`](release/) | Production | Per-branch: master + every `rel-*` | Versioned tags like `8.0.0.3`, `7.0.4`; floating aliases `latest` / `next` / `dev` (which alias maps to which branch is set in [`.github/release-targets.yml`](../.github/release-targets.yml)) |
-| [`flex/`](flex/) | Flex (development) | Master only | `flex`, `flex-3.22`, `flex-3.23`, `flex-edge`, and `flex-<alpine>-php-<php>` variants |
+| [`flex/`](flex/) | Flex (development) | Master only | `flex`, `flex-3.22`, `flex-3.23`, `flex-3.24`, `flex-edge`, and `flex-<alpine>-php-<php>` variants |
 | [`binary/`](binary/) | Binary release | Master only | Specific binary builds for offline / appliance use |
 
 The release Dockerfile is per-branch because each rel branch pins its own
