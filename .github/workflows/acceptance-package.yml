@@ -33,7 +33,7 @@
 #      infrastructure regressions in the flex image or MariaDB base.
 #
 #   2. workflow_dispatch — manual dispatch to test arbitrary
-#      from/to version pairs (e.g. 7.0.4 → 8.2.0 for a large-jump
+#      from/to version pairs (e.g. 8.0.0 → 8.3.0 for a large-jump
 #      upgrade test).
 #
 #   3. push / pull_request on the acceptance-package surface itself

@@ -125,7 +125,7 @@ jobs:
     # `uses:` resolves against this workflow's own ref, so a rel-
     # branch dispatch would run against the rel-branch's copy of the
     # reusable (which may not exist on older rel branches — see
-    # byte-identical exclusion for rel-800/rel-704). Enforce master
+    # byte-identical exclusion for rel-800). Enforce master
     # here for symmetry with acceptance-only.yml.
     if: >-
       github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
