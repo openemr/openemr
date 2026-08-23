@@ -55,7 +55,7 @@ orchestrator completes, `docker-push-dockerhub-readme.yml` fires via
 `workflow_run` and republishes the Docker Hub overview rendered from
 `docker/dockerhub/overview.md`.
 
-The three flex publish workflows (`docker-build-{322,323,edge}.yml`) run on
+The four flex publish workflows (`docker-build-{322,323,324,edge}.yml`) run on
 their own daily 02:00 UTC cron, independent of the orchestrator.
 
 ## Validation guards
@@ -65,7 +65,7 @@ their own daily 02:00 UTC cron, independent of the orchestrator.
 | `validate-byte-identical.yml` | Files listed in [`.github/byte-identical.yml`](../.github/byte-identical.yml) must stay byte-identical across master + every rel branch. Fires on every PR to master or `rel-*` + daily 07:00 UTC cron. |
 | `sync-byte-identical.yml` | Auto-propagates byte-identical file changes from master to every rel branch (opens or updates a long-lived sync PR per branch). Fires on master push + daily 09:00 UTC backstop. Pairs with the canary above. |
 | `docker-validate-release-targets.yml` | Schema validation on `release-targets.yml`, git-ref resolution checks, and `docker_tags` ↔ `version.php` alignment on master. |
-| `docker-test-{bats,container-functionality,core,release}.yml` + `docker-test-flex-{322,323,edge}.yml` | Build the image locally and exercise it (BATS, container functionality, OpenEMR install). Catches build-time and runtime regressions before publish. |
+| `docker-test-{bats,container-functionality,core,release}.yml` + `docker-test-flex-{322,323,324,edge}.yml` | Build the image locally and exercise it (BATS, container functionality, OpenEMR install). Catches build-time and runtime regressions before publish. |
 | `docker-lint-hadolint.yml` + `docker-compose-lint.yml` | Lint Dockerfiles and compose files. |
 
 ## History
