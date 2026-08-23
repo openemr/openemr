@@ -637,16 +637,18 @@ jobs:
         ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
       run: composer acceptance -- --group=version-display
 
-    # api-enable bootstrap fires AFTER post-upgrade so the api-enabled
-    # group (ApiSmokeTest + OAuth2ApiEnabledTest + version-api check)
-    # can assert their contract against the upgraded artifact.
-    # Symmetric with the fresh-install scenario's api-enable ordering:
-    # pre-bootstrap tests verify API-disabled state (OAuth2SmokeTest's
-    # post-upgrade-tagged assertions), post-bootstrap verify enabled
-    # state. Prior to this the api-enabled group only ran in
-    # fresh-install — running it post-upgrade too closes the gap where
-    # a regression to /api/facility, OIDC discovery, or DCR wouldn't
-    # be caught on the upgrade path (see openemr/openemr#13634).
+    # api-enable bootstrap fires AFTER post-upgrade so both the
+    # api-enabled group (ApiSmokeTest + OAuth2ApiEnabledTest) and the
+    # separately-invoked version-api group (VersionApiAcceptanceTest,
+    # its own step below) can assert their contract against the
+    # upgraded artifact. Symmetric with the fresh-install scenario's
+    # api-enable ordering: pre-bootstrap tests verify API-disabled
+    # state (OAuth2SmokeTest's post-upgrade-tagged assertions), post-
+    # bootstrap verify enabled state. Prior to this the api-enabled
+    # group only ran in fresh-install — running it post-upgrade too
+    # closes the gap where a regression to /api/facility, OIDC
+    # discovery, or DCR wouldn't be caught on the upgrade path (see
+    # openemr/openemr#13634).
     - name: Bootstrap API via admin panel (post-upgrade)
       if: matrix.scenario == 'upgrade'
       env:
