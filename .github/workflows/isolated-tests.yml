@@ -70,31 +70,30 @@ jobs:
       run: |
         supported=( '8.3' '8.4' '8.5' )
         prerelease='8.6'
-        include_prerelease=false
 
-        if [[ "${EVENT_NAME}" = 'schedule' || "${EVENT_NAME}" = 'workflow_dispatch' ]]; then
-          include_prerelease=true
-        elif [[ "${EVENT_NAME}" = 'pull_request' ]]; then
+        case "${EVENT_NAME}" in
+        schedule | workflow_dispatch)
+          supported+=( "${prerelease}" )
+          ;;
+        pull_request)
           # The checkout with fetch-depth=0 already has full history
           if merge_base=$(git merge-base "origin/${BASE_REF}" HEAD); then
-            echo "::debug::Checking commits ${merge_base}..HEAD for PHP version trailers"
-            # Test-PHP takes a comma- or space-separated list of versions
-            version_pattern="(^|[[:space:],])${prerelease//./\\.}([[:space:],]|$)"
-            if git log --format='%(trailers:key=Test-PHP,valueonly)' "${merge_base}..HEAD" | grep -qE "${version_pattern}"; then
-              include_prerelease=true
-              echo "::notice::PHP ${prerelease} enabled via Test-PHP trailer"
-            elif git log --format='%(trailers:key=Test-Mode,valueonly)' "${merge_base}..HEAD" | grep -qi '^full$'; then
-              include_prerelease=true
-              echo "::notice::PHP ${prerelease} enabled via Test-Mode: full trailer"
+            echo "::debug::Checking commits ${merge_base}..HEAD for opt-in trailers"
+            # Test-PHP takes a comma- or space-separated list of versions;
+            # Test-Mode: full opts into everything, as it does in test-all.yml.
+            opt_in=$(git log --extended-regexp --regexp-ignore-case --format='%h' \
+                             --grep="^Test-PHP:([[:space:],]|.*[[:space:],])${prerelease//./\\.}([[:space:],]|\$)" \
+                             --grep='^Test-Mode:[[:space:]]*full[[:space:]]*$' \
+                             "${merge_base}..HEAD")
+            if [[ -n "${opt_in}" ]]; then
+              supported+=( "${prerelease}" )
+              echo "::notice::PHP ${prerelease} requested by commit ${opt_in//$'\n'/, }"
             fi
           else
             echo "::warning::Could not find merge base, skipping trailer check"
           fi
-        fi
-
-        if [[ "${include_prerelease}" = 'true' ]]; then
-          supported+=( "${prerelease}" )
-        fi
+          ;;
+        esac
 
         printf '%s\n' "${supported[@]}" |
           jq -Rrcn '[inputs] | "php-versions=\(.)"' >> "$GITHUB_OUTPUT"
