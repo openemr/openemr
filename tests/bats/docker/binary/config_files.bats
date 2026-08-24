@@ -30,6 +30,7 @@ setup() {
     [[ "$(echo "$php_version" | tr -d '.')" == "85" ]]
     [[ "$openemr_version" == "8_3_0" ]]
     [[ "$binary_release_date" == "08232026" ]]
+    [[ "$alpine_version" == "3.24" ]]
     assert_pattern_count_ge "$dockerfile" 'PHP_VERSION_ABBR="$(echo "\${PHP_VERSION}" | tr -d' 2
     assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}-.*-\${BINARY_RELEASE_DATE}/php-fpm-v\${OPENEMR_VERSION}'
     assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}-.*-\${BINARY_RELEASE_DATE}/php-cli-v\${OPENEMR_VERSION}'
