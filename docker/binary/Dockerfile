@@ -27,6 +27,9 @@ ARG BINARY_RELEASE_DATE=08232026
 ARG PHP_VERSION=8.5
 ENV OPENEMR_VERSION=${OPENEMR_VERSION}
 ENV PHP_VERSION=${PHP_VERSION}
+# Forge release tags use an abbreviated PHP version (e.g. "8.5" -> "php85")
+ARG PHP_VERSION_ABBR=${PHP_VERSION//./}
+ENV PHP_VERSION_ABBR=${PHP_VERSION_ABBR}
 
 # Architecture detection - Docker automatically provides TARGETARCH
 # TARGETARCH values: amd64, arm64
@@ -97,10 +100,10 @@ RUN usermod -u 1000 apache
 # Architecture naming: amd64 and arm64 are used directly in release URLs and filenames
 RUN ARCH_SUFFIX="${TARGETARCH}" \
     && cd /tmp \
-    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php85-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/php-fpm-v${OPENEMR_VERSION}-linux-${ARCH_SUFFIX}" -o php-fpm \
+    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php${PHP_VERSION_ABBR}-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/php-fpm-v${OPENEMR_VERSION}-linux-${ARCH_SUFFIX}" -o php-fpm \
     && test -s php-fpm || (echo "ERROR: php-fpm download failed - file is empty or missing" && exit 1) \
     && test "$(stat -f%z php-fpm 2>/dev/null || stat -c%s php-fpm 2>/dev/null || echo 0)" -gt 1000000 || (echo "ERROR: php-fpm download appears invalid (file too small)" && exit 1) \
-    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php85-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/php-cli-v${OPENEMR_VERSION}-linux-${ARCH_SUFFIX}" -o php-cli \
+    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php${PHP_VERSION_ABBR}-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/php-cli-v${OPENEMR_VERSION}-linux-${ARCH_SUFFIX}" -o php-cli \
     && test -s php-cli || (echo "ERROR: php-cli download failed - file is empty or missing" && exit 1) \
     && test "$(stat -f%z php-cli 2>/dev/null || stat -c%s php-cli 2>/dev/null || echo 0)" -gt 1000000 || (echo "ERROR: php-cli download appears invalid (file too small)" && exit 1) \
     && chmod +x php-fpm php-cli \
@@ -123,7 +126,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 # Architecture naming: amd64 and arm64 are used directly in release URLs
 RUN ARCH_SUFFIX="${TARGETARCH}" \
     && cd /tmp \
-    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php85-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/openemr.phar" -o openemr.phar \
+    && curl -fSL "https://github.com/Jmevorach/openemr-static-binary-forge/releases/download/linux_${ARCH_SUFFIX}-php${PHP_VERSION_ABBR}-openemr-v${OPENEMR_VERSION}-${ARCH_SUFFIX}-${BINARY_RELEASE_DATE}/openemr.phar" -o openemr.phar \
     && test -s openemr.phar || (echo "ERROR: openemr.phar download failed - file is empty or missing" && exit 1) \
     && test "$(stat -f%z openemr.phar 2>/dev/null || stat -c%s openemr.phar 2>/dev/null || echo 0)" -gt 10000000 || (echo "ERROR: openemr.phar download appears invalid (file too small, expected >10MB)" && exit 1) \
     && mkdir -p /tmp/openemr \

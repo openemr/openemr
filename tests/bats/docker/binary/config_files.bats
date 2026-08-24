@@ -15,6 +15,10 @@ setup() {
     assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'php-fpm'
 }
 
+@test "binary Dockerfile: forge URLs derive php selector from PHP_VERSION_ABBR" {
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'php\${PHP_VERSION_ABBR}-openemr'
+}
+
 @test "binary php-fpm.conf: exists" {
     assert_file_exists "${SCRIPT_DIR}/php-fpm.conf"
 }

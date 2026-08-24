@@ -26,7 +26,7 @@ docker build -t openemr-binary:latest .
 
 - `OPENEMR_VERSION`: OpenEMR version (default: `8_3_0`)
 - `BINARY_RELEASE_DATE`: Release date for binary package (default: `08232026`)
-- `PHP_VERSION`: PHP version used in binaries (default: `8.5`)
+- `PHP_VERSION`: PHP version used in binaries (default: `8.5`). Dots are stripped to form the Forge tag selector (`8.5` → `php85`).
 - `ALPINE_VERSION`: Alpine Linux version (default: `3.24`)
 
 Example:
