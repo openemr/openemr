@@ -678,22 +678,22 @@ cleanup_setup_scripts() {
 
 vendor_postconfig_hook() {
     [[ -d /root/hooks/postconfig ]] || return 0
-    chmod o+x /root/hooks/postconfig/*
-    run-parts --exit-on-error /root/hooks/postconfig
+    chmod o+x /root/hooks/postconfig/* || return 0
+    run-parts --exit-on-error /root/hooks/postconfig || return 1
     echo postconfig hook OK
 }
 
 vendor_postupgrade_hook() {
     [[ -d /root/hooks/postupgrade ]] || return 0
-    chmod o+x /root/hooks/postupgrade/*
-    run-parts --exit-on-error /root/hooks/postupgrade
+    chmod o+x /root/hooks/postupgrade/* || return 0
+    run-parts --exit-on-error /root/hooks/postupgrade || return 1
     echo postupgrade hook OK
 }
 
 vendor_prelaunch_hook() {
     [[ -d /root/hooks/prelaunch ]] || return 0
-    chmod o+x /root/hooks/prelaunch/*
-    run-parts --exit-on-error /root/hooks/prelaunch
+    chmod o+x /root/hooks/prelaunch/* || return 0
+    run-parts --exit-on-error /root/hooks/prelaunch || return 1
     echo prelaunch hook OK
 }
 
