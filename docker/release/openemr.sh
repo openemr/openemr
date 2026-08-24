@@ -558,6 +558,7 @@ run_upgrade() {
     # Final heartbeat update
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
 
+    vendor_postupgrade_hook
     echo "OpenEMR upgrade completed successfully"
 }
 
@@ -631,6 +632,7 @@ run_auto_configure() {
         return 1
     fi
 
+    vendor_postconfig_hook
     echo "OpenEMR configured successfully"
 }
 
@@ -654,6 +656,45 @@ cleanup_setup_scripts() {
               "${OE_ROOT}/ippf_upgrade.php"
         echo "Setup scripts removed (upgrade scripts preserved)"
     fi
+}
+
+# ============================================================================
+# VENDOR INSTALLATION HOOKS
+# ============================================================================
+
+# Provides vendors defined spots to interact with container stertup. The hooks
+# will check their assigned directories for run-parts-compatible script
+# content. Use a Docker volume to provide those scripts to these locations:
+#
+# /root/hooks/postconfig:   after first-time configuration is complete
+#                           runs once, and never again
+# /root/hooks/postupgrade:  after an upgrade process completes
+#                           runs every time an upgrade happens
+# /root/hooks/prelaunch:    right before Apache spins up
+#                           runs every launch
+#
+# Note: Maintainers should never use these entrypoints, they're strictly for
+# end-user support. 
+
+vendor_postconfig_hook() {
+    [[ -d /root/hooks/postconfig ]] || return 0
+    chmod o+x /root/hooks/postconfig/*
+    run-parts --exit-on-error /root/hooks/postconfig
+    echo postconfig hook OK
+}
+
+vendor_postupgrade_hook() {
+    [[ -d /root/hooks/postupgrade ]] || return 0
+    chmod o+x /root/hooks/postupgrade/*
+    run-parts --exit-on-error /root/hooks/postupgrade
+    echo postupgrade hook OK
+}
+
+vendor_prelaunch_hook() {
+    [[ -d /root/hooks/prelaunch ]] || return 0
+    chmod o+x /root/hooks/prelaunch/*
+    run-parts --exit-on-error /root/hooks/prelaunch
+    echo prelaunch hook OK
 }
 
 # ============================================================================
@@ -948,6 +989,8 @@ echo
 echo "Love OpenEMR? You can now support the project via the open collective:"
 echo " > https://opencollective.com/openemr/donate"
 echo
+
+vendor_prelaunch_hook
 
 # Step 15: Start Apache (if this container is an operator)
 log_timing "15-PreApache"
