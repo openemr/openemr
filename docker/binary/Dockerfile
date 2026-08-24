@@ -135,17 +135,22 @@ RUN ARCH_SUFFIX="${TARGETARCH}" \
     && /usr/local/bin/php -d memory_limit=512M -r "try { \$phar = new Phar('openemr.phar'); \$phar->extractTo('/tmp/openemr'); } catch (Exception \$e) { echo 'Error: ' . \$e->getMessage() . PHP_EOL; exit(1); }" \
     && rm openemr.phar
 
-# Download tests directory from GitHub to match the PHAR version
-# GitHub tag format is v8_3_0 (with v prefix and underscores)
-# Note: GitHub archives strip the 'v' prefix, so openemr-v8_3_0 becomes openemr-8_3_0
-RUN OPENEMR_TAG="v${OPENEMR_VERSION}" \
-    && cd /tmp \
-    && curl -fSL "https://github.com/openemr/openemr/archive/refs/tags/${OPENEMR_TAG}.tar.gz" -o openemr-source.tar.gz \
-    && OPENEMR_DIR="openemr-${OPENEMR_VERSION}" \
-    && tar -xzf openemr-source.tar.gz \
-    && test -d "${OPENEMR_DIR}/tests" || (echo "ERROR: tests directory not found in ${OPENEMR_DIR}" && exit 1) \
-    && mv "${OPENEMR_DIR}/tests" /tmp/openemr/tests \
-    && rm -rf "${OPENEMR_DIR}" openemr-source.tar.gz
+# Overlay the tests directory from the matching OpenEMR tag.
+# Use git clone, not the GitHub source archive: .gitattributes marks
+# tests/ as export-ignore, so tag tarballs omit it (same reason
+# docker/release/ clones instead of downloading the archive).
+RUN apk add --no-cache --virtual .fetch-tests git \
+    && git clone --depth 1 --branch "v${OPENEMR_VERSION}" \
+        https://github.com/openemr/openemr.git /tmp/openemr-src \
+    && if [ ! -d /tmp/openemr-src/tests ]; then \
+        echo "ERROR: tests directory not found in cloned v${OPENEMR_VERSION}"; \
+        echo "Top-level entries:"; \
+        ls -la /tmp/openemr-src; \
+        exit 1; \
+    fi \
+    && mv /tmp/openemr-src/tests /tmp/openemr/tests \
+    && rm -rf /tmp/openemr-src \
+    && apk del .fetch-tests
 
 # ============================================================================
 # OPENEMR SETUP AND PERMISSIONS

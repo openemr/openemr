@@ -15,6 +15,29 @@ setup() {
     assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'php-fpm'
 }
 
+@test "binary Dockerfile: fetches tests via git clone not GitHub archive" {
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'git clone'
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'export-ignore'
+    ! grep -q 'archive/refs/tags' "${SCRIPT_DIR}/Dockerfile"
+}
+
+# GitHub source tarballs honor export-ignore. tests/ is marked that way, so
+# archive/refs/tags/.../openemr-X/tests never exists on current tags.
+@test "binary Dockerfile: does not fetch export-ignored tests from GitHub archives" {
+    local root gitattributes
+    root="$(get_repo_root)"
+    gitattributes="${root}/.gitattributes"
+    assert_file_exists "$gitattributes"
+    grep -qE '^[[:space:]]*tests/[[:space:]]+export-ignore' "$gitattributes" \
+        || { echo "expected tests/ export-ignore in .gitattributes"; return 1; }
+    if grep -q 'archive/refs/tags' "${SCRIPT_DIR}/Dockerfile"; then
+        echo "tests/ is export-ignore; GitHub tag tarballs omit it."
+        echo "Fetch tests via git clone (see docker/release/Dockerfile)."
+        return 1
+    fi
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'git clone'
+}
+
 @test "binary Dockerfile: forge URLs derive php selector from PHP_VERSION_ABBR" {
     local dockerfile="${SCRIPT_DIR}/Dockerfile"
     local php_version
