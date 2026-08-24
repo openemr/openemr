@@ -16,7 +16,15 @@ setup() {
 }
 
 @test "binary Dockerfile: forge URLs derive php selector from PHP_VERSION_ABBR" {
-    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'php\${PHP_VERSION_ABBR}-openemr'
+    local dockerfile="${SCRIPT_DIR}/Dockerfile"
+    local php_version
+    php_version=$(sed -n 's/^ARG PHP_VERSION=//p' "$dockerfile" | head -1)
+    [[ "$php_version" == "8.5" ]]
+    [[ "${php_version//./}" == "85" ]]
+    assert_file_contains "$dockerfile" 'ARG PHP_VERSION_ABBR=\${PHP_VERSION//./}'
+    assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}.*php-fpm-v\${OPENEMR_VERSION}'
+    assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}.*php-cli-v\${OPENEMR_VERSION}'
+    assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}.*/openemr.phar'
 }
 
 @test "binary php-fpm.conf: exists" {
