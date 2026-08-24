@@ -20,13 +20,12 @@
 #       - path: tools/release/**
 #         exclude-branches:
 #         - rel-800
-#         - rel-704
 #     Use for files that master + newer rel branches carry but older
 #     rel branches predate. Applies to master + every rel branch NOT
 #     in the exclude list. The release-mechanism surface is the current
-#     motivating case: rel-800 + rel-704 predate the mechanism, and
+#     motivating case: rel-800 predates the mechanism, and
 #     forcing the PHP source there would fail phpstan + isolated
-#     tests + composer-require-checker on those branches (those
+#     tests + composer-require-checker on that branch (those
 #     linters run on every PHP file regardless of whether any
 #     workflow invokes them).
 #
@@ -39,7 +38,7 @@
 # Intentionally NOT in this list (per-branch divergence is correct or
 # tolerable):
 #   docker/release/Dockerfile                      version-pinned per branch
-#   .github/workflows/docker-test-bats.yml         master 3 jobs / rel-810 1 job / rel-800 + rel-704 absent
+#   .github/workflows/docker-test-bats.yml         master 3 jobs / rel-810 1 job / rel-800 absent
 #   .github/workflows/docker-test-container-functionality.yml
 #                                                  same shape as bats
 #   docker/README.md                               master describes the full
@@ -122,45 +121,45 @@ files:
 # `uses: ./.github/workflows/acceptance-docker.yml` reference (Phase 7c-
 # docker-latest-gate, openemr/openemr#13239). GitHub Actions parses the
 # reusable-workflow reference at workflow-dispatch time, BEFORE
-# evaluating the `if:` guard. So on rel-800 + rel-704 (which don't
+# evaluating the `if:` guard. So on rel-800 (which doesn't
 # carry acceptance-docker.yml — see the exclude-branches on that entry
 # below) the whole workflow file fails to load with HTTP 422
 # "workflow was not found". Excluding docker-build-release.yml from
-# those two branches keeps them on the pre-Phase-7c single-step
+# that branch keeps it on the pre-Phase-7c single-step
 # build+push shape (still working for months); future changes to
 # docker-build-release.yml propagate to master + rel-820+ automatically
-# and need a manual cherry-pick if they matter for rel-800/rel-704.
+# and need a manual cherry-pick if they matter for rel-800.
 # Same trade-off already accepted for acceptance-docker.yml itself.
 - path: .github/workflows/docker-build-release.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # verify-oci-labels.sh is called from docker-build-release.yml in three
-# places; same rel-800/rel-704 exclusion applies (those branches don't
+# places; same rel-800 exclusion applies (that branch doesn't
 # carry the caller workflow — see the docker-build-release.yml entry
 # above for the load-time reusable-workflow-reference constraint).
 - path: .github/scripts/verify-oci-labels.sh
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # Phase 10c (openemr/openemr#TBD, 2026-07-30): expand-docker-tags.sh is
 # called from docker-build-release.yml's `expand_docker_tags` step;
-# same rel-800/rel-704 exclusion applies (those branches don't carry
+# same rel-800 exclusion applies (that branch doesn't carry
 # the caller workflow — see the docker-build-release.yml entry above
 # for the load-time reusable-workflow-reference constraint).
 - path: .github/scripts/expand-docker-tags.sh
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # Phase 10c (openemr/openemr#TBD, 2026-07-30): reusable-docker-publish.yml
 # is called via `uses: ./.github/workflows/reusable-docker-publish.yml`
 # from docker-build-release.yml (gated path) — same reusable-workflow-
 # reference load-time constraint as docker-build-release.yml itself.
-# Same rel-800/rel-704 exclusion applies.
+# Same rel-800 exclusion applies.
 - path: .github/workflows/reusable-docker-publish.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # Phase 10e-3 (openemr/openemr#TBD, 2026-07-30): dockerhub-delete-tag.sh
 # is called from reusable-docker-publish.yml's cleanup-candidate job.
 # The reusable's `run: .github/scripts/dockerhub-delete-tag.sh` resolves
 # at runtime against the branch's own checkout, so every branch that
-# carries the reusable must also carry the script. Same rel-800/rel-704
-# exclusion applies (those branches don't carry the reusable).
+# carries the reusable must also carry the script. Same rel-800
+# exclusion applies (that branch doesn't carry the reusable).
 - path: .github/scripts/dockerhub-delete-tag.sh
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - .github/workflows/docker-test-core.yml
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
@@ -184,12 +183,12 @@ files:
 # (setup-php-composer composite is used by release-prep.yml; PR body
 # templates are read by peter-evans at rel-branch runtime).
 #
-# All entries in this block exclude rel-800 + rel-704: those branches
-# predate the release mechanism entirely. They lack the composer
+# All entries in this block exclude rel-800: that branch
+# predates the release mechanism entirely. It lacks the composer
 # autoload for OpenEMR\Release\* / OpenEMR\Common\Command\ReleasePrep\*
 # and the Symfony Console classes the release-prep code depends on.
 # Syncing the code there would fail phpstan + isolated tests +
-# composer-require-checker on those branches (see #12912/#12913 for
+# composer-require-checker on that branch (see #12912/#12913 for
 # the concrete failure mode this exclusion prevents).
 #
 # Master-only-firing workflows (notify-release-targets-changed,
@@ -197,13 +196,13 @@ files:
 # NOT in this set -- see the "Intentionally NOT in this list" block
 # above.
 - path: .github/workflows/release-prep.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/workflows/branch-cut-automation.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/workflows/patch-prep-automation.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/workflows/release-permissions-check.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/workflows/build-release.yml
   # rel-820 exclusion dropped 2026-07-28: rel-820 now has
   # acceptance-package.yml too (see the acceptance-surface block
@@ -212,61 +211,61 @@ files:
   # surface block below no longer excludes rel-820, so Phase 7c's
   # `uses: ./.github/workflows/acceptance-package.yml` reference
   # from build-release.yml resolves cleanly on rel-820.
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # Phase 10c (openemr/openemr#TBD, 2026-07-30): reusable-publish-release.yml
 # is called via `uses: ./.github/workflows/reusable-publish-release.yml`
 # from build-release.yml — GitHub Actions parses reusable-workflow
 # references at workflow-dispatch time against the target branch's
 # checkout, so the reusable must exist on every branch build-release.yml
-# can fire from. Same rel-800/rel-704 exclusion applies for the same
-# reason (those branches predate the release-mechanism entirely).
+# can fire from. Same rel-800 exclusion applies for the same
+# reason (that branch predates the release-mechanism entirely).
 - path: .github/workflows/reusable-publish-release.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # Phase 10e-5 (openemr/openemr#TBD, 2026-07-30): create-release-tag.sh
 # is called from reusable-publish-release.yml's "Create annotated tag
 # and GitHub release" step. The reusable's
 # `run: .github/scripts/create-release-tag.sh` resolves at runtime
 # against the branch's own checkout, so every branch that carries the
-# reusable must also carry the script. Same rel-800/rel-704 exclusion
-# applies (those branches don't carry the reusable).
+# reusable must also carry the script. Same rel-800 exclusion
+# applies (that branch doesn't carry the reusable).
 - path: .github/scripts/create-release-tag.sh
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/workflows/build-patch.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/actions/setup-php-composer/action.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # Phase 10b (openemr/openemr#TBD, 2026-07-30): generate-app-token
 # is called via `uses: ./.github/actions/generate-app-token` from a
 # spread of release-mechanism workflows (build-release, release-prep,
 # build-patch, patch-prep-automation, branch-cut-automation,
 # release-permissions-check, reusable-publish-release, etc.). Most of
-# those callers ARE excluded from rel-800/rel-704 -- but sync-byte-
+# those callers ARE excluded from rel-800 -- but sync-byte-
 # identical.yml (fires on master push, matrices over ALL rel branches
-# including rel-800/rel-704) also uses the composite, and its
+# including rel-800) also uses the composite, and its
 # `Checkout rel branch` step fully replaces the workspace with the
 # target rel branch's tree. At end-of-job GHA runs the composite's
 # POST-step for token invalidation, needs action.yml on disk, and if
 # the target rel branch doesn't carry the composite the job fails at
 # POST cleanup even though the sync itself completed cleanly (see PR
-# #13326). Propagate the composite to rel-800/rel-704 too so POST
+# #13326). Propagate the composite to rel-800 too so POST
 # resolves successfully there. The composite's action.yml carries
 # executable composite steps (wraps actions/create-github-app-token
-# @v3) but no caller workflow on those branches invokes it — it's
+# @v3) but no caller workflow on that branch invokes it — it's
 # kept present solely so POST cleanup can resolve action.yml.
-# Operational cost: none (dormant file on 2 rel branches).
+# Operational cost: none (dormant file on 1 rel branch).
 - path: .github/actions/generate-app-token/**
 - path: .github/PULL_REQUEST_TEMPLATE/release-prep.md
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/PULL_REQUEST_TEMPLATE/release-finalize.md
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: tools/release/**
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: src/Common/Command/ReleasePrep/**
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: src/Common/Command/ReleasePrepCommand.php
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: tests/Tests/Isolated/Release/**
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # Isolated tests + fixtures for src/Common/Command/ReleasePrep/**
 # (mirrors the production namespace under PSR-4). Kept in sync so
 # byte-identical propagation of a mutator change (e.g. #13496 adding
@@ -275,7 +274,7 @@ files:
 # (openemr/openemr#13498) when the mutator PHP synced without its
 # fixture/test file.
 - path: tests/Tests/Isolated/Common/Command/ReleasePrep/**
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 
 # Artifact acceptance surface (added 2026-07-24 -- see
 # docs/artifact-acceptance-testing-plan.md for the full architecture
@@ -298,34 +297,34 @@ files:
 # owns the `latest` docker tag and the nightly orchestrator
 # rebuilds `latest` daily — without the acceptance harness on
 # rel-820, we couldn't wire Phase 7c-docker-latest-gate to gate
-# those nightly builds until 8.3.0 shipped. rel-800 + rel-704
-# stay excluded (further behind the composer surface + no
+# those nightly builds until 8.3.0 shipped. rel-800
+# stays excluded (further behind the composer surface + no
 # active-release-line concern).
 - path: .github/workflows/acceptance-docker.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/workflows/acceptance-package.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # Phase 10e-4 (openemr/openemr#TBD, 2026-07-30): detect-acceptance-mode.sh
 # is called from acceptance-package.yml's detect-mode job. The workflow's
 # `run: .github/scripts/detect-acceptance-mode.sh` resolves at runtime
 # against the branch's own checkout, so every branch that carries the
-# workflow must also carry the script. Same rel-800/rel-704 exclusion
-# applies (those branches don't carry acceptance-package.yml).
+# workflow must also carry the script. Same rel-800 exclusion
+# applies (that branch doesn't carry acceptance-package.yml).
 - path: .github/scripts/detect-acceptance-mode.sh
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/docker/acceptance-docker-compose.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: .github/docker/acceptance-package-compose.yml
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 # Composite action used from acceptance-docker.yml (Phase 7d-1 arm64
 # ChromeDriver setup fix). Referenced via `uses: ./.github/actions/
 # setup-chromedriver-multiarch` — GitHub Actions resolves that path
 # against the workflow's checkout at dispatch time, so the action.yml
 # must exist on every branch that carries acceptance-docker.yml.
-# Excluded from rel-800 + rel-704 for the same reason acceptance-
-# docker.yml is: those branches don't carry the caller workflow, so
-# they don't need the callee action either.
+# Excluded from rel-800 for the same reason acceptance-
+# docker.yml is: that branch doesn't carry the caller workflow, so
+# it doesn't need the callee action either.
 - path: .github/actions/setup-chromedriver-multiarch/**
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]
 - path: tests/Acceptance/**
-  exclude-branches: [rel-800, rel-704]
+  exclude-branches: [rel-800]

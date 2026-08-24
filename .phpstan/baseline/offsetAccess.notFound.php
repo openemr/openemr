@@ -352,11 +352,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/ereq_form.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 1 might not exist on array\\{0\\: \'D\', 1\\?\\: non\\-falsy\\-string\\}\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/procedure_tools/labcorp/gen_hl7_order.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'adjustments\' might not exist on array\\{insname\\: string, ptname\\?\\: string, pid\\: mixed, count\\?\\: \\(float\\|int\\), id\\?\\: mixed, encounter\\?\\: mixed, invnumber\\?\\: mixed, custid\\?\\: mixed, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/collections_report.php',

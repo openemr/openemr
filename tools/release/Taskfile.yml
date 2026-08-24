@@ -140,4 +140,5 @@ tasks:
       {{if .TIMEOUT_SECONDS}}--timeout-seconds={{shellQuote .TIMEOUT_SECONDS}}{{end}}
       {{if .STATUS_TARGET_URL}}--status-target-url={{shellQuote .STATUS_TARGET_URL}}{{end}}
       {{if .SUMMARY_FILE}}--summary-file={{shellQuote .SUMMARY_FILE}}{{end}}
+      {{if .IGNORE_CHECKS}}--ignore-checks={{shellQuote .IGNORE_CHECKS}}{{end}}
       {{if eq .DRY_RUN "1"}}--dry-run{{end}}

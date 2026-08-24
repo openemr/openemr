@@ -652,6 +652,7 @@ class TwigTemplateRenderTest extends TestCase
                     [
                         'user' => 'admin',
                         'care_plan_type' => 'plan_of_care',
+                        'plan_engagement_category' => 'active',
                         'code' => 'SNOMED-CT:168731009',
                         'codetext' => 'Standard chest x-ray',
                         'description' => "First line\nSecond line",

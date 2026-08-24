@@ -22,11 +22,16 @@
  *     rather than propagating half-shipped state to dockers or the
  *     announcement pipeline.
  *
- * Approval gate is asymmetric: Conductor requires reviewDecision=APPROVED
- * (the one meaningful human review point in the pipeline); Docs and Finalize
- * are auto-generated bot content with no meaningful "human review" gate, so
- * their readiness checks skip the APPROVED requirement while still enforcing
- * not-draft + MERGEABLE + CLEAN + green status checks.
+ * Human-ready signal is Conductor's isDraft: the release-prep bot opens the
+ * Conductor as a draft PR and the maintainer undrafts it as the "ready to
+ * ship" signal. Docs + Finalize are auto-drafted and auto-flipped by post-
+ * tag workflows, so preflight tolerates their draft state. No target requires
+ * reviewDecision=APPROVED — the reviewDecision field is only populated by
+ * GitHub when branch protection has enabled pull-request-review requirements,
+ * which isn't universal across rel branches; making it a hard gate would
+ * deadlock preflight on any branch that hasn't opted into that protection.
+ * CHANGES_REQUESTED reviews still block preflight if present (that's a
+ * separate signal from the missing-APPROVED case).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -46,6 +51,11 @@ final readonly class ShipReleaseOrchestrator
     private const POLL_INTERVAL_SECONDS = 15;
     private const STATUS_DESCRIPTION_MAX = 140;
 
+    /**
+     * @param list<string> $ignoreChecks operator-supplied check names to skip during
+     *                                   the status-check rollup evaluation (bypass
+     *                                   for upstream known-broken jobs)
+     */
     public function __construct(
         private PullRequestApi $api,
         private Clock $clock,
@@ -53,6 +63,7 @@ final readonly class ShipReleaseOrchestrator
         private int $downstreamTimeoutSeconds = 600,
         private Mode $mode = Mode::SemiAuto,
         private string $statusTargetUrl = '',
+        private array $ignoreChecks = [],
     ) {
     }
 
@@ -196,6 +207,8 @@ final readonly class ShipReleaseOrchestrator
                 $target->repo,
                 $snapshot->number,
                 $this->requiresApproval($target->roleLabel),
+                $this->ignoreChecks,
+                $this->requiresNonDraft($target->roleLabel),
             );
             $readiness[$key] = $check;
             if (!$check->isReady()) {
@@ -544,6 +557,8 @@ final readonly class ShipReleaseOrchestrator
             $target->repo,
             $fresh->number,
             $this->requiresApproval($target->roleLabel),
+            $this->ignoreChecks,
+            $this->requiresNonDraft($target->roleLabel),
         );
         if (!$readiness->isReady()) {
             $stopReason = $conductorJustMerged
@@ -582,11 +597,43 @@ final readonly class ShipReleaseOrchestrator
     }
 
     /**
-     * Conductor is the one meaningful human-review point in the pipeline;
-     * Docs and Finalize are auto-generated bot content, so their readiness
-     * checks skip the APPROVED requirement.
+     * No target requires reviewDecision=APPROVED. The human-ready signal for
+     * the Conductor is `isDraft=false` (see `requiresNonDraft` — the release-
+     * prep bot opens Conductor as a draft; the maintainer undrafts it as the
+     * ready-to-ship signal). Docs + Finalize are auto-generated bot content
+     * with no meaningful "human review" gate at all.
+     *
+     * Historically the Conductor required APPROVED, but that only works when
+     * branch protection has enabled pull-request-review requirements on the
+     * rel branch — GitHub only populates `reviewDecision` when the branch
+     * gate is in place. On branches without that gate (like rel-830 at 8.3.0
+     * ship time), reviewDecision stays null regardless of how many approvals
+     * get clicked, deadlocking preflight. Dropping the APPROVED requirement
+     * unblocks ship-release without depending on per-branch protection
+     * config. `CHANGES_REQUESTED` reviews still block preflight if present.
+     *
+     * Kept the plumbing (parameter on getReadiness, this helper) so a future
+     * caller can opt back in per-role if branch protection posture changes.
      */
     private function requiresApproval(RoleLabel $role): bool
+    {
+        return match ($role) {
+            RoleLabel::Conductor, RoleLabel::Docs, RoleLabel::Finalize => false,
+        };
+    }
+
+    /**
+     * Conductor is a human-review artifact -- must be non-draft at preflight
+     * time (undrafted by the maintainer as the ready-to-ship signal). Docs
+     * and Finalize are AUTO-drafted by their generator workflows and only
+     * auto-flipped by post-tag workflows (docs on `openemr-tag`, finalize
+     * by the finalize job), which fire AFTER conductor merges. Preflight
+     * can't require non-draft on downstream targets without deadlocking
+     * the ship. Full-auto re-checks readiness after auto-flip via
+     * refreshDownstreamBeforeMerge, so downstream drafts are re-evaluated
+     * at the actually-safe moment.
+     */
+    private function requiresNonDraft(RoleLabel $role): bool
     {
         return match ($role) {
             RoleLabel::Conductor => true,

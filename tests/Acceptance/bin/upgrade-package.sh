@@ -305,6 +305,27 @@ for attempt in $(seq 1 60); do
     sleep 5
 done
 
+# Post-upgrade DB version assertion (openemr/openemr#13634).
+# sql_upgrade.php bumps the `version` row as its final step, so a
+# successful upgrade leaves DB=TO_VERSION. Catches the exact bug
+# class fixed in #13586/#13587 (fsupgrade sed pattern targeted a
+# refactored-away line → silent no-op → version row never advanced,
+# upgrade replayed from 2.9.0 on every run). Skipped in
+# --skip-sql-upgrade mode: that path exits before this point (line
+# ~281) because the Panther wizard test runs the upgrade later.
+# `mariadb` (not `mysql`) — the mariadb 11.8 image ships only the
+# `mariadb` client binary; `mysql` is not on $PATH.
+echo "==> Asserting DB version matches ${TO_VERSION}"
+DB_VERSION="$(docker compose exec -T mysql \
+    mariadb -uroot -proot openemr -sN \
+    -e "SELECT CONCAT(v_major,'.',v_minor,'.',v_patch) FROM version" \
+    2>/dev/null || echo "query-failed")"
+if [[ "${DB_VERSION}" != "${TO_VERSION}" ]]; then
+    echo "::error::post-upgrade DB version '${DB_VERSION}' does not match expected '${TO_VERSION}' (see openemr/openemr#13634)" >&2
+    exit 1
+fi
+echo "    DB version=${DB_VERSION}"
+
 echo ""
 echo "==> Upgrade complete: ${FROM_VERSION} → ${TO_VERSION}"
 echo "    Artifact URL:  http://localhost:8680  (now serving ${TO_VERSION})"

@@ -21,7 +21,7 @@
 # ============================================================================
 # Alpine Linux version - centralized setting for easy updates
 # Note: This is NOT meant to be used as a build argument (unlike the flex series)
-ARG ALPINE_VERSION=3.23
+ARG ALPINE_VERSION=3.24
 FROM alpine:${ALPINE_VERSION} AS base
 
 # PHP version configuration

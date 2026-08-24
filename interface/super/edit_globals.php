@@ -32,6 +32,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -40,7 +41,6 @@ use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\Request;
 
 // Set up crypto object
 $cryptoGen = ServiceContainer::getCrypto();
@@ -233,7 +233,7 @@ function checkBackgroundServices(): void
 
         // Get all the globals from DB
         $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', [], true);
-        $postedGlobals = Request::createFromGlobals()->request;
+        $postedGlobals = CurrentRequest::get()->request;
         QueryUtils::inTransaction(function () use ($GLOBALS_METADATA, $old_globals, $cryptoGen, $postedGlobals): void {
             $i = 0;
             foreach ($GLOBALS_METADATA as $grparr) {

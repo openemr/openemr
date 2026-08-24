@@ -152,31 +152,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Cache_Lite\\:\\:\\$_automaticSerialization has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Cache_Lite\\:\\:\\$_fileNameProtection has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Cache_Lite\\:\\:\\$_memoryCachingCounter has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Cache_Lite\\:\\:\\$_memoryCachingLimit has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Cache_Lite\\:\\:\\$_readControl has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Profiler\\:\\:\\$count has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
@@ -28997,11 +28972,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/DrugRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\EmployerRestController\\:\\:\\$employerService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EmployerRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirAllergyIntoleranceRestController\\:\\:\\$fhirAllergyIntoleranceService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
@@ -29165,21 +29135,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\ImmunizationRestController\\:\\:\\$immunizationService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ImmunizationRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\InsuranceCompanyRestController\\:\\:\\$addressService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\InsuranceCompanyRestController\\:\\:\\$insuranceCompanyService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\InsuranceRestController\\:\\:\\$insuranceService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\ListRestController\\:\\:\\$listService has no type specified\\.$#',
@@ -29363,11 +29318,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:\\$addressService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:\\$insuranceCompanyValidator has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];

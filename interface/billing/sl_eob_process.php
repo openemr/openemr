@@ -25,11 +25,17 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: ERA Posting", xl("ERA Posting"));
+}
 
 /** @var int $debug */
 $debug = $_GET['debug'] ? 1 : 0; // set to 1 for debugging mode
@@ -735,11 +741,15 @@ $info_msg = "";
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
-$eraname = $_REQUEST['eraname'];
-
-if (!$eraname) {
-    die(xlt("You cannot access this page directly."));
+$eraname = filter_input(INPUT_GET, 'eraname') ?? '';
+if (
+    !$eraname
+    || !preg_match('/^[A-Za-z0-9._-]+$/', $eraname)
+    || str_contains($eraname, '..')
+) {
+    die(xlt("Invalid ERA name"));
 }
+$eraname = basename($eraname);
 
 // Open the output file early so that in case it fails, we do not post a
 // bunch of stuff without saving the report.  Also be sure to retain any old
@@ -750,6 +760,19 @@ $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/er
 if (!is_dir($eraDir) && !mkdir($eraDir, 0755, true) && !is_dir($eraDir)) {
     die(xlt("Cannot create ERA directory") . " '" . text($eraDir) . "'");
 }
+
+// Containment check mirroring era_payments.php: the resolved read target must
+// sit inside $eraDir. The .edi is read/parsed; the .html write target is
+// protected by basename() above (realpath() can't validate a not-yet-created file).
+$realEraDir = realpath($eraDir);
+$realEraFile = realpath("$eraDir/$eraname.edi");
+if (
+    $realEraFile !== false && $realEraDir !== false
+    && !str_starts_with($realEraFile, $realEraDir . DIRECTORY_SEPARATOR)
+) {
+    die(xlt("Invalid ERA name"));
+}
+
 $nameprefix = "$eraDir/$eraname";
 $eraFilePath = $nameprefix . '.edi';
 

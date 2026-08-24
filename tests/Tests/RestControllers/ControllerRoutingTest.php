@@ -53,8 +53,13 @@ class ControllerRoutingTest extends TestCase
     #[Test]
     public function testDispatchExtractsControllerRegardlessOfOrder(array $params): void
     {
-        $controller = $this->createPartialMock(\Controller::class, ['i_once']);
+        // checkControllerAcl is stubbed because this test verifies routing
+        // (order-independent controller extraction), not authorization —
+        // controllers now carry ACL requirements and would otherwise deny
+        // before the routing logic under test is reached.
+        $controller = $this->createPartialMock(\Controller::class, ['i_once', 'checkControllerAcl']);
         $controller->method('i_once')->willReturn(false);
+        $controller->method('checkControllerAcl');
 
         $this->expectException(NotFoundHttpException::class);
         $this->expectExceptionMessage('X12Partner');
@@ -185,8 +190,9 @@ class ControllerRoutingTest extends TestCase
     #[Test]
     public function testDispatchMovesProcessParamToPost(): void
     {
-        $controller = $this->createPartialMock(\Controller::class, ['i_once']);
+        $controller = $this->createPartialMock(\Controller::class, ['i_once', 'checkControllerAcl']);
         $controller->method('i_once')->willReturn(false);
+        $controller->method('checkControllerAcl');
 
         $params = ['controller' => 'pharmacy', 'action' => 'list', 'process' => 'true'];
         $_GET['process'] = 'true';

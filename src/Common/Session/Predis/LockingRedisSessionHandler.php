@@ -38,8 +38,15 @@ namespace OpenEMR\Common\Session\Predis;
 
 use OpenEMR\BC\ServiceContainer;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use SessionHandlerInterface;
+use SessionIdInterface;
+use SessionUpdateTimestampHandlerInterface;
 
-class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUpdateTimestampHandlerInterface
+class LockingRedisSessionHandler implements
+    SessionHandlerInterface,
+    SessionIdInterface,
+    SessionUpdateTimestampHandlerInterface
 {
     /**
      * Prefix prepended to the session ID to form the Redis lock key.
@@ -172,6 +179,21 @@ class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUp
     public function validateId(string $id): bool
     {
         return $this->inner->validateId($id);
+    }
+
+    public function create_sid(): string
+    {
+        // We use Symfony's implementations in practice which don't implement
+        // this, so it can't be required in the constructor. Hopefully future
+        // versions will add it since create_sid will become required in PHP9.
+        if ($this->inner instanceof SessionIdInterface) {
+            return $this->inner->create_sid();
+        }
+        $id = session_create_id();
+        if ($id === false) {
+            throw new RuntimeException('Could not create session id');
+        }
+        return $id;
     }
 
     /**

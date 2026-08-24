@@ -196,6 +196,9 @@ class HttpRestRequest extends Request implements Stringable
         $this->query = new InputBag($queryParams);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getQueryParams(): array
     {
         return $this->query->all();
