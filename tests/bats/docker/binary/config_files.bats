@@ -20,17 +20,44 @@ setup() {
     local php_version
     local openemr_version
     local binary_release_date
+    local alpine_version
+    local probe
     php_version=$(sed -n 's/^ARG PHP_VERSION=//p' "$dockerfile" | head -1)
     openemr_version=$(sed -n 's/^ARG OPENEMR_VERSION=//p' "$dockerfile" | head -1)
     binary_release_date=$(sed -n 's/^ARG BINARY_RELEASE_DATE=//p' "$dockerfile" | head -1)
+    alpine_version=$(sed -n 's/^ARG ALPINE_VERSION=//p' "$dockerfile" | head -1)
     [[ "$php_version" == "8.5" ]]
-    [[ "${php_version//./}" == "85" ]]
+    [[ "$(echo "$php_version" | tr -d '.')" == "85" ]]
     [[ "$openemr_version" == "8_3_0" ]]
     [[ "$binary_release_date" == "08232026" ]]
-    assert_file_contains "$dockerfile" 'ARG PHP_VERSION_ABBR=\${PHP_VERSION//./}'
+    assert_pattern_count_ge "$dockerfile" 'PHP_VERSION_ABBR="$(echo "\${PHP_VERSION}" | tr -d' 2
     assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}-.*-\${BINARY_RELEASE_DATE}/php-fpm-v\${OPENEMR_VERSION}'
     assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}-.*-\${BINARY_RELEASE_DATE}/php-cli-v\${OPENEMR_VERSION}'
     assert_file_contains "$dockerfile" 'php\${PHP_VERSION_ABBR}-openemr-v\${OPENEMR_VERSION}-.*-\${BINARY_RELEASE_DATE}/openemr.phar'
+
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "docker not available; skipping bounded PHP_VERSION_ABBR build probe" >&3
+        return 0
+    fi
+    probe="${BATS_TEST_TMPDIR}/php-abbr-probe"
+    mkdir -p "$probe"
+    cat > "${probe}/Dockerfile" <<EOF
+# syntax=docker/dockerfile:1
+FROM alpine:${alpine_version}
+ARG PHP_VERSION=8.5
+ARG EXPECTED_PHP_VERSION_ABBR=85
+ENV PHP_VERSION=\${PHP_VERSION}
+RUN PHP_VERSION_ABBR="\$(echo "\${PHP_VERSION}" | tr -d '.')" \\
+    && test "\${PHP_VERSION_ABBR}" = "\${EXPECTED_PHP_VERSION_ABBR}"
+EOF
+    docker build --quiet \
+        --build-arg PHP_VERSION=8.5 \
+        --build-arg EXPECTED_PHP_VERSION_ABBR=85 \
+        "$probe"
+    docker build --quiet \
+        --build-arg PHP_VERSION=8.4 \
+        --build-arg EXPECTED_PHP_VERSION_ABBR=84 \
+        "$probe"
 }
 
 @test "binary php-fpm.conf: exists" {
