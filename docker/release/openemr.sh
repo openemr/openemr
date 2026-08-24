@@ -674,7 +674,7 @@ cleanup_setup_scripts() {
 #                           runs every launch
 #
 # Note: Maintainers should never use these entrypoints, they're strictly for
-# end-user support. 
+# end-user support.
 
 vendor_postconfig_hook() {
     [[ -d /root/hooks/postconfig ]] || return 0
