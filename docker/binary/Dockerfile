@@ -18,12 +18,12 @@
 # BASE IMAGE CONFIGURATION
 # ============================================================================
 # Alpine Linux version - centralized setting for easy updates
-ARG ALPINE_VERSION=3.22
+ARG ALPINE_VERSION=3.24
 FROM alpine:${ALPINE_VERSION} AS base
 
 # OpenEMR version and binary release information
-ARG OPENEMR_VERSION=7_0_4
-ARG BINARY_RELEASE_DATE=12292025
+ARG OPENEMR_VERSION=8_3_0
+ARG BINARY_RELEASE_DATE=08232026
 ARG PHP_VERSION=8.5
 ENV OPENEMR_VERSION=${OPENEMR_VERSION}
 ENV PHP_VERSION=${PHP_VERSION}
@@ -131,8 +131,8 @@ RUN ARCH_SUFFIX="${TARGETARCH}" \
     && rm openemr.phar
 
 # Download tests directory from GitHub to match the PHAR version
-# GitHub tag format is v7_0_4 (with v prefix and underscores)
-# Note: GitHub archives strip the 'v' prefix, so openemr-v7_0_4 becomes openemr-7_0_4
+# GitHub tag format is v8_3_0 (with v prefix and underscores)
+# Note: GitHub archives strip the 'v' prefix, so openemr-v8_3_0 becomes openemr-8_3_0
 RUN OPENEMR_TAG="v${OPENEMR_VERSION}" \
     && cd /tmp \
     && curl -fSL "https://github.com/openemr/openemr/archive/refs/tags/${OPENEMR_TAG}.tar.gz" -o openemr-source.tar.gz \
