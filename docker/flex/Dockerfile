@@ -169,6 +169,8 @@ RUN ln -sf /usr/bin/php${PHP_VERSION_ABBR} /usr/bin/php
 
 # Install Composer (PHP dependency manager) for OpenEMR package installation
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+# Per-file retries for GitHub zipball 504s during runtime composer install
+ENV COMPOSER_MAX_RETRIES=8
 
 # ============================================================================
 # BUILD TOOLS AND DIRECTORY SETUP
