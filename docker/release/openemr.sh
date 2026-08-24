@@ -696,8 +696,8 @@ vendor_postupgrade_hook() {
 
 vendor_prelaunch_hook() {
     [[ -d /root/hooks/prelaunch ]] || return 0
-    if compgen -G "/root/hooks/postupgrade/*" >/dev/null; then
-        chmod o+x /root/hooks/postupgrade/* || return 1
+    if compgen -G "/root/hooks/prelaunch/*" >/dev/null; then
+        chmod o+x /root/hooks/prelaunch/* || return 1
     fi
     run-parts --exit-on-error /root/hooks/prelaunch || return 1
     echo prelaunch hook OK
