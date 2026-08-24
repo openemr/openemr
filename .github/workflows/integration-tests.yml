@@ -35,9 +35,6 @@ jobs:
         - name: MySQL 9.7 (LTS)
           image: mysql:9.7
           health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
-        - name: MariaDB 10.6 (LTS)
-          image: mariadb:10.6
-          health-cmd: "healthcheck.sh --connect --innodb_initialized"
         - name: MariaDB 10.11 (LTS)
           image: mariadb:10.11
           health-cmd: "healthcheck.sh --connect --innodb_initialized"

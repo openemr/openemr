@@ -50,7 +50,6 @@ on:
         - apache_83_118
         - apache_84_118
         - apache_85_1011
-        - apache_85_106
         - apache_85_114
         - apache_85_118
         - apache_85_118_redis_sentinel

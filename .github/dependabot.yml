@@ -173,7 +173,6 @@ updates:
   - ci/apache_83_118/
   - ci/apache_84_118/
   - ci/apache_85_1011/
-  - ci/apache_85_106/
   - ci/apache_85_114/
   - ci/apache_85_118/
   - ci/apache_85_118_redis_sentinel/
