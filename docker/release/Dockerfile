@@ -167,9 +167,22 @@ RUN git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION
 FROM base AS openemr-composer
 COPY --from=openemr-source /openemr /openemr
 WORKDIR /openemr
+# GitHub zipball 504s are common when Composer pulls many dist files in
+# parallel. Retry both per-file (COMPOSER_MAX_RETRIES) and the whole
+# install; the cache mount keeps successful downloads so retries are cheap.
+ENV COMPOSER_MAX_RETRIES=8
 # Use Docker buildkit cache mount for Composer cache (requires DOCKER_BUILDKIT=1)
 RUN --mount=type=cache,target=/root/.composer/cache \
-    composer install --no-dev --optimize-autoloader \
+    attempt=1; \
+    until composer install --no-dev --optimize-autoloader; do \
+        if [ "${attempt}" -ge 5 ]; then \
+            echo "ERROR: composer install failed after ${attempt} attempts"; \
+            exit 1; \
+        fi; \
+        echo "WARNING: composer install failed (attempt ${attempt}/5), retrying in 15s..."; \
+        attempt=$((attempt + 1)); \
+        sleep 15; \
+    done \
     && composer dump-autoload --optimize --apcu
 
 # Stage 3: Build frontend assets (npm)
