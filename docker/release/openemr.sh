@@ -547,7 +547,10 @@ run_upgrade() {
             [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
             if ! sh "/root/fsupgrade-${c}.sh"; then
                 echo "ERROR: fsupgrade-${c}.sh failed; aborting upgrade." >&2
-                echo "Version marker NOT advanced; the upgrade will re-run on next container recreation (redeploy from image)." >&2
+                echo "The database may be partially upgraded. Review the errors above and either" >&2
+                echo "correct the underlying problem or restore your pre-upgrade backup." >&2
+                echo "Version marker NOT advanced, so the upgrade will be attempted again on the" >&2
+                echo "next container recreation." >&2
                 return 1
             fi
             echo "Completed: Processing fsupgrade-${c}.sh upgrade script"
