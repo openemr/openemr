@@ -41,8 +41,8 @@ jobs:
         - name: MariaDB 11.8 (LTS)
           image: mariadb:11.8
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
-        - name: MariaDB 12
-          image: mariadb:12
+        - name: MariaDB 12.3 (LTS)
+          image: mariadb:12.3
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
           coverage: true
         php:
