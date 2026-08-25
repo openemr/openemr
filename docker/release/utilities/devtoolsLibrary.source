@@ -818,6 +818,7 @@ generateMultisiteBank() {
 run_vendor_hook() {
     : "${HOOKS_ROOT:=/root/hooks}"
     [[ -d "${HOOKS_ROOT}/$1" ]] || return 0
+    # shellcheck disable=SC2312
     if [[ "$(run-parts --test "${HOOKS_ROOT}/$1" | wc -l)" -eq 0 ]]; then
         echo "$1 hook: can't find executable scripts, expected?"
         return 0
