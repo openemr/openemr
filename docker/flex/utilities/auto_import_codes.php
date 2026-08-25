@@ -21,6 +21,7 @@
  * @author    Luis M. Santos, MD <lsantos@medicalmasses.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+declare(strict_types=1);
 $sitePath = '/var/www/localhost/htdocs/openemr';
 $_GET['site'] = 'default';
 $ignoreAuth = true;
