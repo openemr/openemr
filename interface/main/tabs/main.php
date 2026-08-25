@@ -156,6 +156,180 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         const isServicesOther = (isSms || isFax);
         var telemetryEnabled = <?php echo js_escape((new TelemetryService())->isTelemetryEnabled()); ?>;
         var noBackgroundTasks = <?php echo $noBackgroundTasks ? 'true' : 'false'; ?>;
+        const sessionTimeoutWarningSeconds = 60;
+        var sessionTimeoutWarningDeadline = null;
+        var sessionTimeoutWarningTimer = null;
+        var sessionTimeoutCheckPending = false;
+
+        function formatSessionTimeoutRemaining(seconds) {
+            const safeSeconds = Math.max(0, parseInt(seconds, 10) || 0);
+            const minutes = Math.floor(safeSeconds / 60);
+            const remainder = safeSeconds % 60;
+            return `${minutes}:${String(remainder).padStart(2, '0')}`;
+        }
+
+        function getSessionTimeoutWarning() {
+            let warning = document.getElementById('sessionTimeoutWarning');
+            if (warning) {
+                return warning;
+            }
+
+            warning = document.createElement('div');
+            warning.id = 'sessionTimeoutWarning';
+            warning.className = 'alert alert-warning shadow';
+            warning.setAttribute('role', 'alert');
+            warning.setAttribute('aria-live', 'assertive');
+            warning.setAttribute('aria-atomic', 'true');
+            warning.style.position = 'fixed';
+            warning.style.top = '1rem';
+            warning.style.left = '50%';
+            warning.style.transform = 'translateX(-50%)';
+            warning.style.zIndex = '2000';
+            warning.style.display = 'none';
+            warning.style.maxWidth = 'calc(100% - 2rem)';
+
+            const message = document.createElement('span');
+            message.textContent = <?php echo xlj('Your session will expire due to inactivity in'); ?> + ' ';
+            warning.appendChild(message);
+
+            const countdown = document.createElement('strong');
+            countdown.id = 'sessionTimeoutCountdown';
+            countdown.textContent = '1:00';
+            warning.appendChild(countdown);
+
+            const period = document.createTextNode('. ');
+            warning.appendChild(period);
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.id = 'sessionTimeoutStayLoggedIn';
+            button.className = 'btn btn-sm btn-primary ml-2';
+            button.textContent = <?php echo xlj('Stay Logged In'); ?>;
+            button.addEventListener('click', stayLoggedInFromSessionWarning);
+            warning.appendChild(button);
+
+            document.body.appendChild(warning);
+            return warning;
+        }
+
+        function hideSessionTimeoutWarning() {
+            const warning = document.getElementById('sessionTimeoutWarning');
+            if (warning) {
+                warning.style.display = 'none';
+            }
+            sessionTimeoutWarningDeadline = null;
+            sessionTimeoutCheckPending = false;
+            if (sessionTimeoutWarningTimer !== null) {
+                window.clearInterval(sessionTimeoutWarningTimer);
+                sessionTimeoutWarningTimer = null;
+            }
+        }
+
+        function requestSessionTimeoutStatus(skipTimeoutReset) {
+            restoreSession();
+            const request = new FormData();
+            if (skipTimeoutReset) {
+                request.append('skip_timeout_reset', '1');
+            }
+            request.append('csrf_token_form', csrf_token_js);
+            return fetch(webroot_url + '/library/ajax/dated_reminders_counter.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: request
+            }).then((response) => {
+                if (!response.ok) {
+                    throw new Error('Session status request failed');
+                }
+                return response.json();
+            });
+        }
+
+        function confirmSessionTimeout() {
+            if (sessionTimeoutCheckPending) {
+                return;
+            }
+            sessionTimeoutCheckPending = true;
+            requestSessionTimeoutStatus(true).then((data) => {
+                sessionTimeoutCheckPending = false;
+                if (data.timeoutMessage && data.timeoutMessage === 'timeout') {
+                    timeoutLogout();
+                    return;
+                }
+
+                const secondsRemaining = parseInt(data.sessionSecondsRemaining, 10);
+                if (isNaN(secondsRemaining) || secondsRemaining <= 0) {
+                    timeoutLogout();
+                    return;
+                }
+                updateSessionTimeoutWarning(secondsRemaining);
+            }).catch(() => {
+                timeoutLogout();
+            });
+        }
+
+        function updateSessionTimeoutCountdown() {
+            if (sessionTimeoutWarningDeadline === null) {
+                return;
+            }
+
+            const millisecondsRemaining = sessionTimeoutWarningDeadline - Date.now();
+            const secondsRemaining = Math.max(0, Math.ceil(millisecondsRemaining / 1000));
+            const countdown = document.getElementById('sessionTimeoutCountdown');
+            if (countdown) {
+                countdown.textContent = formatSessionTimeoutRemaining(secondsRemaining);
+            }
+
+            if (secondsRemaining <= 0) {
+                if (sessionTimeoutWarningTimer !== null) {
+                    window.clearInterval(sessionTimeoutWarningTimer);
+                    sessionTimeoutWarningTimer = null;
+                }
+                confirmSessionTimeout();
+            }
+        }
+
+        function updateSessionTimeoutWarning(secondsRemaining) {
+            const remaining = Math.max(0, parseInt(secondsRemaining, 10) || 0);
+            if (remaining > sessionTimeoutWarningSeconds) {
+                hideSessionTimeoutWarning();
+                return;
+            }
+
+            const warning = getSessionTimeoutWarning();
+            sessionTimeoutWarningDeadline = Date.now() + (remaining * 1000);
+            sessionTimeoutCheckPending = false;
+            warning.style.display = 'block';
+            updateSessionTimeoutCountdown();
+
+            if (sessionTimeoutWarningTimer === null && sessionTimeoutWarningDeadline !== null) {
+                sessionTimeoutWarningTimer = window.setInterval(updateSessionTimeoutCountdown, 1000);
+            }
+        }
+
+        function stayLoggedInFromSessionWarning() {
+            const button = document.getElementById('sessionTimeoutStayLoggedIn');
+            if (button) {
+                button.disabled = true;
+            }
+
+            requestSessionTimeoutStatus(false).then((data) => {
+                if (data.timeoutMessage && data.timeoutMessage === 'timeout') {
+                    timeoutLogout();
+                    return;
+                }
+
+                const secondsRemaining = parseInt(data.sessionSecondsRemaining, 10);
+                if (!isNaN(secondsRemaining)) {
+                    updateSessionTimeoutWarning(secondsRemaining);
+                }
+            }).catch((error) => {
+                console.log('Unable to renew session', error);
+            }).finally(() => {
+                if (button) {
+                    button.disabled = false;
+                }
+            });
+        }
 
         /**
          * Async function to get session value from the server
@@ -217,9 +391,16 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
                 }
                 return response.json();
             }).then((data) => {
+                if (!data) {
+                    return;
+                }
                 if (data.timeoutMessage && (data.timeoutMessage == 'timeout')) {
                     // timeout has happened, so logout
                     timeoutLogout();
+                    return;
+                }
+                if (Object.prototype.hasOwnProperty.call(data, 'sessionSecondsRemaining')) {
+                    updateSessionTimeoutWarning(data.sessionSecondsRemaining);
                 }
                 if (isPortalEnabled) {
                     let mail = data.mailCnt;

@@ -20,6 +20,7 @@ require_once("$srcdir/dated_reminder_functions.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -49,5 +50,18 @@ $activeMessages = getPnotesByUser("1", "no", $session->get('authUser'), true);
 // Below for Message Button count display.
 $totalNumber = $dueReminders + $activeMessages;
 $total_counts['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');
+
+// Report the server-authoritative idle-session time remaining. Requests to this
+// endpoint from the background repeater include skip_timeout_reset=1, so reading
+// this value does not extend the session.
+$sessionTracker = sqlQueryNoLog(
+    "SELECT GREATEST(0, ? - TIMESTAMPDIFF(SECOND, `last_updated`, NOW())) AS `seconds_remaining` " .
+    "FROM `session_tracker` WHERE `uuid` = ?",
+    [
+        OEGlobalsBag::getInstance()->getInt('timeout'),
+        $session->get('session_database_uuid'),
+    ]
+);
+$total_counts['sessionSecondsRemaining'] = (int) ($sessionTracker['seconds_remaining'] ?? 0);
 
 echo json_encode($total_counts);
