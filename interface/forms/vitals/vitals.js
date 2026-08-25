@@ -140,8 +140,84 @@
             inputConv.value = "";
         }
 
-        if (targetSaveUnit == "weight_input_usa" || targetSaveUnit == "height_input_usa") {
+        if (targetSaveUnit == "weight_input" || targetSaveUnit == "height_input") {
             calculateBMI();
+        }
+    }
+
+    function syncHeightHelperFromTotal() {
+        let totalInput = document.getElementById('height_input_usa');
+        let feetInput = document.getElementById('height_input_usa_feet');
+        let inchesInput = document.getElementById('height_input_usa_inches');
+        if (!totalInput || !feetInput || !inchesInput) {
+            return;
+        }
+
+        let total = parseFloat(totalInput.value);
+        if (isNaN(total) || total < 0) {
+            feetInput.value = '';
+            inchesInput.value = '';
+            return;
+        }
+
+        total = Math.round(total * 100) / 100;
+        let feet = Math.floor(total / 12);
+        let inches = Math.round((total - (feet * 12)) * 100) / 100;
+        if (inches >= 12) {
+            feet += 1;
+            inches = 0;
+        }
+
+        feetInput.value = feet > 0 ? String(feet) : '';
+        inchesInput.value = String(inches);
+    }
+
+    function syncHeightTotalFromHelper() {
+        let totalInput = document.getElementById('height_input_usa');
+        let feetInput = document.getElementById('height_input_usa_feet');
+        let inchesInput = document.getElementById('height_input_usa_inches');
+        if (!totalInput || !feetInput || !inchesInput) {
+            return;
+        }
+
+        let feetValue = feetInput.value.trim();
+        let inchesValue = inchesInput.value.trim();
+        if (feetValue === '' && inchesValue === '') {
+            totalInput.value = '';
+            totalInput.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+        }
+
+        let feet = feetValue === '' ? 0 : parseFloat(feetValue);
+        let inches = inchesValue === '' ? 0 : parseFloat(inchesValue);
+        if (isNaN(feet) || isNaN(inches) || feet < 0 || inches < 0) {
+            return;
+        }
+
+        let total = Math.round(((feet * 12) + inches) * 100) / 100;
+        totalInput.value = String(total);
+        totalInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function initHeightFeetInches() {
+        let wrapper = document.getElementById('height_input_usa_feet_inches');
+        let totalInput = document.getElementById('height_input_usa');
+        let feetInput = document.getElementById('height_input_usa_feet');
+        let inchesInput = document.getElementById('height_input_usa_inches');
+        if (!wrapper || !totalInput || !feetInput || !inchesInput) {
+            return;
+        }
+
+        syncHeightHelperFromTotal();
+        wrapper.hidden = false;
+        totalInput.classList.add('vitals-height-total-inches-hidden');
+
+        feetInput.addEventListener('input', syncHeightTotalFromHelper);
+        inchesInput.addEventListener('input', syncHeightTotalFromHelper);
+
+        let metricInput = document.getElementById('height_input_metric');
+        if (metricInput) {
+            metricInput.addEventListener('change', syncHeightHelperFromTotal);
         }
     }
 
@@ -185,6 +261,20 @@
                 }
             });
         });
+
+        initHeightFeetInches();
+
+        let weightInput = document.getElementById('weight_input_usa');
+        if (weightInput) {
+            weightInput.addEventListener('input', calculateBMI);
+        }
+        let heightInput = document.getElementById('height_input_usa');
+        if (heightInput) {
+            heightInput.addEventListener('input', calculateBMI);
+        }
+        if (document.getElementById('BMI_input')) {
+            calculateBMI();
+        }
 
         // Real-time validation for non-conversion inputs
         let vitalsValidatedInputs = vitalsForm.querySelectorAll('input[data-min]:not(.vitals-conv-unit)');
