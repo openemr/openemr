@@ -46,6 +46,7 @@ function import_dir(string $type, $importFunction): void {
         echo " [" . $type . "] Uncompressing file => " . $file  . "!\n";
         if (!temp_unarchive($file, $type)) {
             error_log("Failed to unzip " . $file . " of type " . $type);
+            return;
         }
 
         # Import data
