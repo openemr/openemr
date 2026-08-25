@@ -63,10 +63,10 @@ function import_snomed(string $path): void {
     // TODO: Consider including auto detection in OpenEMR at a later date.
     try {
         snomedRF2_import();
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         try {
             snomed_import(true);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             snomed_import();
         }
     }
