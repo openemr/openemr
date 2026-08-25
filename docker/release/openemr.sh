@@ -662,7 +662,7 @@ cleanup_setup_scripts() {
 # VENDOR INSTALLATION HOOKS
 # ============================================================================
 
-# Provides vendors defined spots to interact with container stertup. The hooks
+# Provides vendors with defined spots to interact with container startup. The hooks
 # will check their assigned directories for run-parts-compatible script
 # content. Use a Docker volume to provide those scripts to these locations:
 #
