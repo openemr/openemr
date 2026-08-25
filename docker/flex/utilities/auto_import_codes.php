@@ -62,12 +62,14 @@ function import_dir(string $type, $importFunction): void {
 function import_snomed(string $path): void {
     // TODO: Consider including auto detection in OpenEMR at a later date.
     try {
-        snomedRF2_import();
+        if (!snomedRF2_import()) throw new Exception("Failed to import SNOMED with format => snomedRF2");
     } catch (Throwable $e) {
         try {
-            snomed_import(true);
+            if(!snomed_import(true)) throw new Exception("Failed to import SNOMED with format => US Extension");
         } catch (Throwable $e) {
-            snomed_import();
+            if (!snomed_import()) {
+                error_log("Failed to import SNOMED with format => Generic");
+            };
         }
     }
 }
