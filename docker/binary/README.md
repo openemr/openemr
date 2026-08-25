@@ -25,6 +25,7 @@ docker build -t openemr-binary:latest .
 ### Build Arguments
 
 - `OPENEMR_VERSION`: OpenEMR version (default: `7_0_4`)
+- `OPENEMR_GIT`: OpenEMR git repository to build from (default: `https://github.com/openemr/openemr.git`)
 - `BINARY_RELEASE_DATE`: Release date for binary package (default: `12282025`)
 - `PHP_VERSION`: PHP version used in binaries (default: `8.5`)
 - `ALPINE_VERSION`: Alpine Linux version (default: `3.22`)
@@ -32,6 +33,14 @@ docker build -t openemr-binary:latest .
 Example:
 ```bash
 docker build \
+  --build-arg OPENEMR_VERSION=7_0_4 \
+  --build-arg BINARY_RELEASE_DATE=12292025 \
+  -t openemr-binary:latest .
+```
+
+```bash
+docker build \
+  --build-arg OPENEMR_GIT=https://github.com/myuser/openemr.git \
   --build-arg OPENEMR_VERSION=7_0_4 \
   --build-arg BINARY_RELEASE_DATE=12292025 \
   -t openemr-binary:latest .
