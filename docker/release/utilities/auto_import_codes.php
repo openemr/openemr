@@ -50,8 +50,12 @@ function import_dir(string $type, $importFunction): void {
         }
 
         # Import data
-        echo " [" . $type . "] Importing file => " . $file  . "!\n";
-        $importFunction($type);
+        echo " [" . $type . "] Importing file => " . $file  . "!... \n";
+        if ($importFunction($type)) {
+            echo "SUCCESS\n";
+        } else {
+            error_log("Failed to import SNOMED !\n");
+        }
 
         # Cleanup
         echo " [" . $type . "] Cleaning up import for file => " . $file  . "!\n";
@@ -59,17 +63,19 @@ function import_dir(string $type, $importFunction): void {
     }
 }
 
-function import_snomed(string $path): void {
+function import_snomed(string $path): bool {
     // TODO: Consider including auto detection in OpenEMR at a later date.
     try {
-        if (!snomedRF2_import()) throw new Exception("Failed to import SNOMED with format => snomedRF2");
+        if (!snomedRF2_import()) throw new Exception("Failed to import SNOMED with format => snomedRF2\n");
+        return true;
     } catch (Throwable $e) {
         try {
-            if(!snomed_import(true)) throw new Exception("Failed to import SNOMED with format => US Extension");
+            error_log("\t$e");
+            if(!snomed_import(true)) throw new Exception("Failed to import SNOMED with format => US Extension\n");
+            return true;
         } catch (Throwable $e) {
-            if (!snomed_import()) {
-                error_log("Failed to import SNOMED with format => Generic");
-            };
+            error_log("\t$e");
+            return snomed_import();
         }
     }
 }
