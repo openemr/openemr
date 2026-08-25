@@ -789,17 +789,30 @@ generateMultisiteBank() {
 # ============================================================================
 # VENDOR INSTALLATION HOOKS
 # ============================================================================
-
-# Provides vendors with defined spots to interact with container startup. The hooks
-# will check their assigned directories for run-parts-compatible script
-# content. Use a Docker volume to provide those scripts to these locations:
 #
-# /root/hooks/postconfig:   after first-time configuration is complete
+# Provides vendors with defined spots to interact with container startup. The hooks
+# (provided through HOOKS_ROOT, defaulting to "/root/hooks") will check their 
+# assigned directories for run-parts-compatible script content. Use a Docker 
+# volume to provide those scripts to these locations:
+#
+# /root/hooks/postconfig    after first-time configuration is complete
 #                           runs once, and never again
-# /root/hooks/postupgrade:  after an upgrade process completes
+# /root/hooks/postupgrade   after an upgrade process completes
 #                           runs every time an upgrade happens
-# /root/hooks/prelaunch:    right before Apache spins up
+#                           runs on leader only
+# /root/hooks/prelaunch     runs after all container setup
 #                           runs every launch
+# /root/hooks/tooearly      before any container work has started
+#                           runs every launch, but you shouldn't use it
+#
+# postconfig and postupgrade run inside the envelope of the config and upgrade task,
+# after OpenEMR's completed its own work. Because these upgrades can't be rolled
+# back, these tasks will only have one opportunity to run, and although failure will
+# stop the container launch, on next launch the hook will be skipped.
+#
+# tooearly is mostly for debugging hooks or rescuing a problem like a missed upgrade
+# hook. You probably should make sure these hooks fail and stop container launch so
+# you can remove them before letting a container resume normal operations.
 #
 # Note: Maintainers should never use these entrypoints, they're strictly for
 # end-user support.
@@ -812,31 +825,4 @@ run_vendor_hook() {
     fi
     run-parts --exit-on-error "${HOOKS_ROOT}/$1" || return 1
     echo "$1 hook OK"
-}
-
-vendor_postconfig_hook() {
-    [[ -d /root/hooks/postconfig ]] || return 0
-    if compgen -G "${HOOKS_ROOT}/postconfig/*" >/dev/null; then
-        chmod o+x /root/hooks/postconfig/* || :
-    fi
-    run-parts --exit-on-error /root/hooks/postconfig || return 1
-    echo postconfig hook OK
-}
-
-vendor_postupgrade_hook() {
-    [[ -d /root/hooks/postupgrade ]] || return 0
-    if compgen -G "/root/hooks/postupgrade/*" >/dev/null; then
-        chmod o+x /root/hooks/postupgrade/* || :
-    fi
-    run-parts --exit-on-error /root/hooks/postupgrade || return 1
-    echo postupgrade hook OK
-}
-
-vendor_prelaunch_hook() {
-    [[ -d /root/hooks/prelaunch ]] || return 0
-    if compgen -G "/root/hooks/prelaunch/*" >/dev/null; then
-        chmod o+x /root/hooks/prelaunch/* || :
-    fi
-    run-parts --exit-on-error /root/hooks/prelaunch || return 1
-    echo prelaunch hook OK
 }

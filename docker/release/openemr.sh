@@ -662,6 +662,9 @@ cleanup_setup_scripts() {
 # MAIN EXECUTION FLOW
 # ============================================================================
 
+# recovery entrypoint for vendor hook
+run_vendor_hook tooearly
+
 # Initialize timing for performance analysis
 SCRIPT_START_TIME=$(date +%s.%N 2>/dev/null || date +%s)
 log_timing() {
