@@ -180,7 +180,6 @@ updates:
   - ci/apache_85_118_redis_sentinel_mtls/
   - ci/apache_85_118_upgrade/
   - ci/apache_85_123/
-  - ci/apache_85_80/
   - ci/apache_85_84/
   - ci/apache_85_93/
   - ci/compose-shared-mailpit/
