@@ -1,5 +1,8 @@
 <?php
 
+require_once(__DIR__ . "/../../globals.php");
+require_once(__DIR__ . "/../../../library/user.inc.php");
+
 /**
  * forms/eye_mag/save.php
  *

@@ -16,6 +16,7 @@ require_once("../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 $session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 $pid = $session->get('pid', 0);
+require_once(__DIR__ . "/../../../library/pnotes.inc.php");
 require_once($srcdir . "/patient.inc.php");
 require_once($srcdir . "/options.inc.php");
 
@@ -24,13 +25,12 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-
 // form parameter docid can be passed to restrict the display to a document.
 $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
 
 //ajax for type 2 notes widget
 if (isset($_GET['docUpdateId'])) {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     return disappearPnote($_GET['docUpdateId'], $pid);
 }
 

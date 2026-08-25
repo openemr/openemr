@@ -23,6 +23,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\UserService;
 
 
@@ -92,7 +93,7 @@ if ($_POST["control"] === "membership") {
 
         // check if user is protected. If so, then state message unable to remove from admin group.
         $userNametoID = (new UserService())->getIdByUsername($_POST["name"]);
-        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNametoID) || $_POST["name"] === "admin";
+        $gacl_protect = UserSettingsService::checkUserSetting("gacl_protect", "1", $userNametoID) || $_POST["name"] === "admin";
 
         if ($gacl_protect && in_array("Administrators", $_POST["selection"])) {
             //unable to remove admin user from administrators group, process remove,

@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Menu;
 
+require_once dirname(__DIR__, 2) . '/library/registry.inc.php';
+
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;

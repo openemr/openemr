@@ -1,0 +1,145 @@
+
+### Step 1: Get Keycloak Token
+
+#All Keycloak related variables
+@keycloakHost = localhost
+@keycloakport = 8002
+@keycloakRealm= ai_gateway
+@keycloakClientId= ai_gateway_frontend_client
+@username=banchanattu
+@password=banchanattu
+
+
+@apigateway= localhost
+@apigatewayport= 8888
+
+
+
+
+#client_secret=DTHsCfdApneXum0t0Pa7FB0DcYGsNNJI&
+
+# Let us talk to the keycloak as our idp to get th originail Authentication
+# @name getKeycloakToken
+POST http://{{keycloakHost}}:{{keycloakport}}/realms/{{keycloakRealm}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id={{keycloakClientId}}&username={{username}}&password={{password}}
+
+
+
+?? status == 200
+@keycloak_token="SUPPRESS WARNING"
+{{
+  exports.keycloak_token = response.parsedBody.access_token;
+  test.status(200);
+  test.totalTime(300);
+  test.header("content-type", "application/json");
+  test.headerContains("content-type", "json");
+  test.hasResponseBody();
+  console.log("Helped")
+}}
+
+
+@gateway_token="SUPPRESS WARNING"
+# @name exchangeNewGateWayToken
+POST http://{{apigateway}}:{{apigatewayport}}/auth/token
+Authorization: Bearer {{keycloak_token}}
+
+{{
+ exports.gateway_token = response.parsedBody.access_token;
+}}
+
+?? status == 200
+@self_issued_token="SUPPRESS WARNING"
+{{
+  exports.self_issued_token = response.parsedBody.access_token;
+  test.status(200);
+  test.totalTime(300);
+  test.header("content-type", "application/json");
+  test.headerContains("content-type", "json");
+  test.hasResponseBody();
+  console.log("Helped")
+}}
+
+
+# @name GetAll the roles using keycloak token
+GET http://{{apigateway}}:{{apigatewayport}}/userroles/all 
+Authorization: Bearer {{keycloak_token}}
+
+
+@userid1="SUPPRESS WARNING"
+# @name Test GetUserDetail
+GET http://{{apigateway}}:{{apigatewayport}}/user/all 
+Authorization: Bearer {{keycloak_token}}
+
+{{
+ exports.userid1 = response.parsedBody[0].keycloakId
+}}
+
+
+# @name Test Add Roles to user
+POST http://{{apigateway}}:{{apigatewayport}}/user/{{userid1}}/addroles 
+Authorization: Bearer {{keycloak_token}}
+Content-Type: application/json
+
+[1,2,3]
+
+
+# @name Test Get Roles
+GET http://{{apigateway}}:{{apigatewayport}}/user/{{userid1}}/roles
+Authorization: Bearer {{keycloak_token}}
+Content-Type: application/json
+
+[1,2,3]
+
+
+# @name Test Delete Roles
+DELETE http://{{apigateway}}:{{apigatewayport}}/user/{{userid1}}/roles
+Authorization: Bearer {{keycloak_token}}
+Content-Type: application/json
+
+[1,2]
+
+
+# @name Delete Role
+DELETE http://{{apigateway}}:{{apigatewayport}}/userroles/roles/delete
+Authorization: Bearer {{keycloak_token}}
+Content-Type: application/json
+
+[1,2]
+
+GET http://{{apigateway}}:{{apigatewayport}}/api/userinfo
+Authorization: Bearer {{keycloak_token}}
+Content-Type: application/json
+
+
+## Try with self issued toke too
+GET http://{{apigateway}}:{{apigatewayport}}/api/userinfo
+Authorization: Bearer {{self_issued_token}}
+Content-Type: application/json
+
+
+#Get User role give id
+
+# @name Get Role
+GET http://{{apigateway}}:{{apigatewayport}}/userroles/1
+Authorization: Bearer {{keycloak_token}}
+Content-Type: application/json
+
+
+#Get User role give id
+# @name Update Role
+POST http://{{apigateway}}:{{apigatewayport}}/userroles/1
+Authorization: Bearer {{keycloak_token}}
+Content-Type: application/json
+
+{
+  "roleName": "UPDATED_TEST_USER"
+}
+
+
+#Get User role give id
+# @name Delete Role
+DELETE http://{{apigateway}}:{{apigatewayport}}/userroles/1
+Authorization: Bearer {{keycloak_token}}
+Content-Type: application/json

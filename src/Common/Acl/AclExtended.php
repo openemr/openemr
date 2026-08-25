@@ -22,6 +22,7 @@ namespace OpenEMR\Common\Acl;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Gacl\GaclApi;
+use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\VersionService;
 
@@ -241,7 +242,7 @@ class AclExtended
         //removal from the Administrators group)
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
-        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin";
+        $gacl_protect = UserSettingsService::checkUserSetting("gacl_protect", "1", $userNameToID) || $user_name == "admin";
 
         //get array of all available group ID numbers
         $parent_id = $gacl->get_root_group_id();

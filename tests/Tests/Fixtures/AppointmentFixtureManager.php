@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Database\SqlQueryException;
 
 class AppointmentFixtureManager
@@ -39,7 +40,7 @@ class AppointmentFixtureManager
      * Installs patient and facility fixtures that appointments depend on.
      * Returns the pid and facility id for use in test data.
      *
-     * @return array{pid: int, facility_id: int}
+     * @return array{pid: int, puuid: string, facility_id: int}
      */
     public function installDependencies(): array
     {
@@ -51,15 +52,21 @@ class AppointmentFixtureManager
 
         // Get the first test patient's pid
         $patientRow = QueryUtils::querySingleRow(
-            "SELECT pid FROM patient_data WHERE pubpid LIKE ? LIMIT 1",
+            "SELECT pid, uuid FROM patient_data WHERE pubpid LIKE ? LIMIT 1",
             [self::FIXTURE_PREFIX . "%"]
         );
-        if ($patientRow === false || !isset($patientRow['pid']) || !is_numeric($patientRow['pid'])) {
+        if (
+            $patientRow === false
+            || !isset($patientRow['pid'])
+            || !is_numeric($patientRow['pid'])
+            || empty($patientRow['uuid'])
+        ) {
             // @codeCoverageIgnoreStart Defensive check — only fires if test infrastructure is broken.
             throw new \RuntimeException('Failed to find test patient fixture — did installPatientFixtures() succeed?');
             // @codeCoverageIgnoreEnd
         }
         $pid = (int) $patientRow['pid'];
+        $puuid = UuidRegistry::uuidToString($patientRow['uuid']);
 
         // Get the first test facility's id
         $facilityRow = QueryUtils::querySingleRow(
@@ -73,7 +80,7 @@ class AppointmentFixtureManager
         }
         $facilityId = (int) $facilityRow['id'];
 
-        return ['pid' => $pid, 'facility_id' => $facilityId];
+        return ['pid' => $pid, 'puuid' => $puuid, 'facility_id' => $facilityId];
     }
 
     /**

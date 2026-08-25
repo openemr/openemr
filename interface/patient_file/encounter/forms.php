@@ -16,6 +16,7 @@
 
 require_once(__DIR__ . "/../../globals.php");
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once(__DIR__ . "/../../../library/registry.inc.php");
 
 /**
  * @var string $srcdir
