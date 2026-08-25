@@ -820,9 +820,6 @@ generateMultisiteBank() {
 run_vendor_hook() {
 
     [[ -d "${HOOKS_ROOT}/$1" ]] || return 0
-    if compgen -G "${HOOKS_ROOT}/$1"/* >/dev/null; then
-        chmod o+x "${HOOKS_ROOT}/$1"/* || :
-    fi
     run-parts --exit-on-error "${HOOKS_ROOT}/$1" || return 1
     echo "$1 hook OK"
 }
