@@ -160,7 +160,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 ARG OPENEMR_VERSION=master
 FROM base AS openemr-source
 ARG OPENEMR_GIT=https://github.com/openemr/openemr.git
-RUN git clone "${OPENEMR_GIT}" --branch "${OPENEMR_VERSION}" --depth 1 \
+RUN git clone "${OPENEMR_GIT}" --branch "${OPENEMR_VERSION}" --depth 1 openemr \
     && rm -rf openemr/.git
 
 # Stage 2: Install PHP dependencies (Composer)
