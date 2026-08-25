@@ -807,15 +807,9 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
 
     # Install frontend dependencies and build if needed
     if [[ "${NEED_NPM_BUILD}" = "true" ]] && [[ -f /var/www/localhost/htdocs/openemr/package.json ]]; then
-        # install frontend dependencies (need unsafe-perm to run as root)
-        # IN ALPINE 3.14+, there is an odd permission thing happening where need to give non-root ownership
-        #  to several places ('node_modules' and 'public') in flex environment that npm is accessing via:
-        #    'chown -R apache:1000 node_modules'
-        #    'chown -R apache:1000 ccdaservice/node_modules'
-        #    'chown -R apache:1000 public'
-        # WILL KEEP TRYING TO REMOVE THESE LINES IN THE FUTURE SINCE APPEARS TO LIKELY BE A FLEETING NPM BUG WITH --unsafe-perm SETTING
-        #  should be ready to remove then the following npm error no long shows up on the build:
-        #    "ERR! warning: unable to access '/root/.config/git/attributes': Permission denied"
+        # In Alpine 3.14+, npm needs non-root ownership on a few paths it writes
+        # into ('node_modules', 'ccdaservice/node_modules', 'public'); pre-chown
+        # them to apache:1000 before running install.
         if [[ -d node_modules ]]; then
             chown -R apache:1000 node_modules
         fi
@@ -826,7 +820,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
             chown -R apache:1000 public
         fi
         flex_timing 'npm install (root) start (includes napa postinstall)'
-        npm install --unsafe-perm
+        npm install
         flex_timing 'npm install (root) done'
         # build css
         flex_timing 'npm run build (webpack) start'
@@ -839,7 +833,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
         # install ccdaservice
         flex_timing 'npm install (ccdaservice) start'
         cd /var/www/localhost/htdocs/openemr/ccdaservice
-        npm install --unsafe-perm
+        npm install --allow-git=all
         cd /var/www/localhost/htdocs/openemr
         flex_timing 'npm install (ccdaservice) done'
         RAN_ANY_BUILD=true
