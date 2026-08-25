@@ -57,7 +57,6 @@ on:
         - apache_85_118_redis_sentinel_mtls
         - apache_85_118_upgrade
         - apache_85_122
-        - apache_85_57
         - apache_85_80
         - apache_85_84
         - apache_85_93
