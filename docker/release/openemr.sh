@@ -659,51 +659,6 @@ cleanup_setup_scripts() {
 }
 
 # ============================================================================
-# VENDOR INSTALLATION HOOKS
-# ============================================================================
-
-# Provides vendors defined spots to interact with container stertup. The hooks
-# will check their assigned directories for run-parts-compatible script
-# content. Use a Docker volume to provide those scripts to these locations:
-#
-# /root/hooks/postconfig:   after first-time configuration is complete
-#                           runs once, and never again
-# /root/hooks/postupgrade:  after an upgrade process completes
-#                           runs every time an upgrade happens
-# /root/hooks/prelaunch:    right before Apache spins up
-#                           runs every launch
-#
-# Note: Maintainers should never use these entrypoints, they're strictly for
-# end-user support.
-
-vendor_postconfig_hook() {
-    [[ -d /root/hooks/postconfig ]] || return 0
-    if compgen -G "/root/hooks/postconfig/*" >/dev/null; then
-        chmod o+x /root/hooks/postconfig/* || return 1
-    fi
-    run-parts --exit-on-error /root/hooks/postconfig || return 1
-    echo postconfig hook OK
-}
-
-vendor_postupgrade_hook() {
-    [[ -d /root/hooks/postupgrade ]] || return 0
-    if compgen -G "/root/hooks/postupgrade/*" >/dev/null; then
-        chmod o+x /root/hooks/postupgrade/* || return 1
-    fi
-    run-parts --exit-on-error /root/hooks/postupgrade || return 1
-    echo postupgrade hook OK
-}
-
-vendor_prelaunch_hook() {
-    [[ -d /root/hooks/prelaunch ]] || return 0
-    if compgen -G "/root/hooks/prelaunch/*" >/dev/null; then
-        chmod o+x /root/hooks/prelaunch/* || return 1
-    fi
-    run-parts --exit-on-error /root/hooks/prelaunch || return 1
-    echo prelaunch hook OK
-}
-
-# ============================================================================
 # MAIN EXECUTION FLOW
 # ============================================================================
 
