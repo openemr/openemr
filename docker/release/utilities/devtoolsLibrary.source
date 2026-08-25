@@ -101,8 +101,7 @@ prepareVariables() {
         "${MYSQL_USER:=}" \
         "${OE_PASS:=}" \
         "${OE_USER:=}" \
-        "${SQL_DATA_DRIVE:=}" \
-        "${HOOKS_ROOT:=}"
+        "${SQL_DATA_DRIVE:=}"
 
     CONFIGURATION="server=${MYSQL_HOST} rootpass=${MYSQL_ROOT_PASS} loginhost=%"
     if [[ "${MYSQL_ROOT_USER}" != "" ]]; then
@@ -140,9 +139,6 @@ prepareVariables() {
     fi
     if [[ "${OE_PASS}" != "" ]]; then
         CONFIGURATION="${CONFIGURATION} iuserpass=${OE_PASS}"
-    fi
-    if [[ "${HOOKS_ROOT}" != "" ]]; then
-        HOOKS_ROOT="/root/hooks"
     fi
 }
 
@@ -818,7 +814,7 @@ generateMultisiteBank() {
 # end-user support.
 
 run_vendor_hook() {
-
+    : "${HOOKS_ROOT:=/root/hooks}"
     [[ -d "${HOOKS_ROOT}/$1" ]] || return 0
     run-parts --exit-on-error "${HOOKS_ROOT}/$1" || return 1
     echo "$1 hook OK"
