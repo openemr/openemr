@@ -114,12 +114,24 @@ wait_for_mysql() {
     echo "Waiting for MySQL at ${MYSQL_HOST}:${MYSQL_PORT}..."
 
     # Try immediate connection first (MySQL might already be ready)
+    # Honor the same mysql-ca convention as DatabaseConnectionOptions::inferSslPaths():
+    # if the site provides a CA bundle at sites/default/documents/certificates/mysql-ca,
+    # verify the server against it. The MariaDB 11.4+ client verifies certificates by
+    # default and otherwise rejects servers whose CA is not in the system trust store
+    # (e.g. Amazon RDS), which breaks these readiness checks.
+    MYSQL_CA_FILE="/var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca"
+    MYSQL_SSL_OPTS=()
+    if [[ -f "${MYSQL_CA_FILE}" ]]; then
+        MYSQL_SSL_OPTS=(--ssl-ca="${MYSQL_CA_FILE}")
+    fi
+
     # Use mysqladmin ping for more efficient health check
     if mysqladmin ping \
         --host="${MYSQL_HOST}" \
         --port="${MYSQL_PORT}" \
         --user="${MYSQL_ROOT_USER}" \
         --password="${MYSQL_ROOT_PASS}" \
+        "${MYSQL_SSL_OPTS[@]}" \
         --silent >/dev/null 2>&1; then
         echo "MySQL is ready!"
         return 0
@@ -132,6 +144,7 @@ wait_for_mysql() {
             --port="${MYSQL_PORT}" \
             --user="${MYSQL_ROOT_USER}" \
             --password="${MYSQL_ROOT_PASS}" \
+            "${MYSQL_SSL_OPTS[@]}" \
             --silent >/dev/null 2>&1; then
             echo "MySQL is ready!"
             return 0
@@ -501,6 +514,8 @@ check_upgrade() {
     if [[ "${docker_version_root}" = "${docker_version_code}" ]] &&
        [[ "${docker_version_root}" -gt "${docker_version_sites}" ]]; then
         echo "Upgrade detected: ${docker_version_sites} -> ${docker_version_root}"
+        # run_upgrade failure aborts the entrypoint via set -e -- do not
+        # wrap this call in a conditional or the failure will be swallowed.
         run_upgrade
         return 0
     fi
@@ -543,7 +558,14 @@ run_upgrade() {
             echo "Start: Processing fsupgrade-${c}.sh upgrade script"
             # Update heartbeat before each upgrade script
             [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
-            sh "/root/fsupgrade-${c}.sh"
+            if ! sh "/root/fsupgrade-${c}.sh"; then
+                echo "ERROR: fsupgrade-${c}.sh failed; aborting upgrade." >&2
+                echo "The database may be partially upgraded. Review the errors above and either" >&2
+                echo "correct the underlying problem or restore your pre-upgrade backup." >&2
+                echo "Version marker NOT advanced, so the upgrade will be attempted again on the" >&2
+                echo "next container recreation." >&2
+                return 1
+            fi
             echo "Completed: Processing fsupgrade-${c}.sh upgrade script"
             # Update heartbeat after each upgrade script
             [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat

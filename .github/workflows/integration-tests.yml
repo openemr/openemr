@@ -26,18 +26,12 @@ jobs:
       fail-fast: false
       matrix:
         database:
-        - name: MySQL 5.7
-          image: mysql:5.7
-          health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
         - name: MySQL 8.4 (LTS)
           image: mysql:8.4
           health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
         - name: MySQL 9.7 (LTS)
           image: mysql:9.7
           health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
-        - name: MariaDB 10.6 (LTS)
-          image: mariadb:10.6
-          health-cmd: "healthcheck.sh --connect --innodb_initialized"
         - name: MariaDB 10.11 (LTS)
           image: mariadb:10.11
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
@@ -47,8 +41,8 @@ jobs:
         - name: MariaDB 11.8 (LTS)
           image: mariadb:11.8
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
-        - name: MariaDB 12
-          image: mariadb:12
+        - name: MariaDB 12.3 (LTS)
+          image: mariadb:12.3
           health-cmd: "healthcheck.sh --connect --innodb_initialized"
           coverage: true
         php:

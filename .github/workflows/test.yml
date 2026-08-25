@@ -50,16 +50,13 @@ on:
         - apache_83_118
         - apache_84_118
         - apache_85_1011
-        - apache_85_106
         - apache_85_114
         - apache_85_118
         - apache_85_118_redis_sentinel
         - apache_85_118_redis_sentinel_tls
         - apache_85_118_redis_sentinel_mtls
         - apache_85_118_upgrade
-        - apache_85_122
-        - apache_85_57
-        - apache_85_80
+        - apache_85_123
         - apache_85_84
         - apache_85_93
         - nginx_82
