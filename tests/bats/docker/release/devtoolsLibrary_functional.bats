@@ -76,7 +76,7 @@ exit 0' > "${stub_dir}/mariadb"
 
 @test "run_vendor_hooks: no directory present" {
     test_root="${BATS_TEST_TMPDIR}"
-    run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hooks testing 2>&1"
+    run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
     [[ $status -eq 0 ]]
 }
 
@@ -87,7 +87,7 @@ exit 0' > "${stub_dir}/mariadb"
     echo '#!/bin/sh
 exit 1' > "${test_dir}/01test"
     chmod +x "${test_dir}/01test"
-    run bash -c "export HOOKS_ROOT="${test_dir}"; source '$LIB'; run_vendor_hooks testing 2>&1"
+    run bash -c "export HOOKS_ROOT="${test_dir}"; source '$LIB'; run_vendor_hook testing 2>&1"
     [[ $status -eq 1 ]]
     [[ $output == "run-parts: testing/01test exited with return code 1"  ]]
 }
@@ -103,7 +103,7 @@ exit 0' > "${test_dir}/01test"
 echo 02 OK
 exit 0' > "${test_dir}/02test"
     chmod +x "${test_dir}/01test" "${test_dir}/02test"
-    run bash -c "export HOOKS_ROOT="${test_dir}"; source '$LIB'; run_vendor_hooks testing 2>&1"
+    run bash -c "export HOOKS_ROOT="${test_dir}"; source '$LIB'; run_vendor_hook testing 2>&1"
     [[ $status -eq 0 ]]
     [[ $output == "01 OK" ]]
     [[ $output == "02 OK" ]]
@@ -117,7 +117,7 @@ exit 0' > "${test_dir}/02test"
     echo '#!/bin/sh
 echo 01 OK
 exit 0' > "${test_dir}/01test"
-    run bash -c "export HOOKS_ROOT="${test_dir}"; source '$LIB'; run_vendor_hooks testing 2>&1"
+    run bash -c "export HOOKS_ROOT="${test_dir}"; source '$LIB'; run_vendor_hook testing 2>&1"
     [[ $status -eq 0 ]]
     [[ $output == "WARNING: "${test_dir/01test}" has a shebang but is not executable; run-parts will skip it" ]]
     [[ $output == "testing hook: run-parts can't find executable scripts, expected?" ]]
