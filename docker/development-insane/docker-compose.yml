@@ -59,7 +59,7 @@
 
 #
 #    On the main setup input screen:
-#     1. for Server Host, use either 'mariadb' or `mariadb-ssl` or 'mysql' or 'mysql-old' or 'mariadb-old' or 'mariadb-very-old' (have both mariadb/mysql dockers ready to go make testing either one easy; mysql is version 9.7; mysql-old is version 8.4; mariadb is version 11.8; mariadb-ssl is version 11.8 with support for ssl; mariadb-old is version 11.4; mariadb-very-old is version 10.11)
+#     1. for Server Host, use either 'mariadb' or `mariadb-ssl` or 'mysql' or 'mysql-old' or 'mariadb-old' or 'mariadb-very-old' or 'mariadb-very-very-old' (have both mariadb/mysql dockers ready to go make testing either one easy; mysql is version 9.7; mysql-old is version 8.4; mariadb is version 12.3; mariadb-ssl is version 12.3 with support for ssl; mariadb-old is version 11.8; mariadb-very-old is version 11.4; mariadb-very-very-old is version 10.11)
 #     2. for Root Pass, use 'root'
 #     3. for User Hostname, use '%'
 #    And when need to tear it down and restart it
@@ -500,7 +500,7 @@ services:
       timeout: 5s
   mariadb:
     restart: always
-    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
+    image: mariadb:12.3.3@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
     command: [mariadbd, --character-set-server=utf8mb4]
     ports:
     - 8210:3306
@@ -520,7 +520,7 @@ services:
       retries: 3
   mariadb-ssl:
     restart: always
-    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
+    image: mariadb:12.3.3@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
     command: [mariadbd, --character-set-server=utf8mb4, --ssl-ca=/etc/ssl/ca.pem, --ssl_cert=/etc/ssl/server-cert.pem, --ssl_key=/etc/ssl/server-key.pem]
     volumes:
     - ../library/sql-ssl-certs-keys/insane/ca.pem:/etc/ssl/ca.pem:ro
@@ -542,7 +542,7 @@ services:
       retries: 3
   mariadb-old:
     restart: always
-    image: mariadb:11.4.10@sha256:3b4dfcc32247eb07adbebec0793afae2a8eafa6860ec523ee56af4d3dec42f7f
+    image: mariadb:11.8.6@sha256:78a5047d3ba33975f183f183c2464cc7f1eab13ec8667e57cc9a5821d6da7577
     command: [mariadbd, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
@@ -559,6 +559,24 @@ services:
       timeout: 5s
       retries: 3
   mariadb-very-old:
+    restart: always
+    image: mariadb:11.4.10@sha256:3b4dfcc32247eb07adbebec0793afae2a8eafa6860ec523ee56af4d3dec42f7f
+    command: [mariadbd, --character-set-server=utf8mb4]
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test:
+      - CMD
+      - /usr/local/bin/healthcheck.sh
+      - --su-mysql
+      - --connect
+      - --innodb_initialized
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+  mariadb-very-very-old:
     restart: always
     image: mariadb:10.11.18@sha256:8020e05c4c498d06c87f0a1db010eb79bd6f8fb30e9b763d4690c34ce1e61008
     command: [mysqld, --character-set-server=utf8mb4]
@@ -614,7 +632,7 @@ services:
     ports:
     - 8200:80
     environment:
-      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mysql,mysql-old,mariadb-ssl
+      PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mariadb-ssl
   couchdb:
     restart: always
     image: couchdb:3.5.2@sha256:b80216f643e99d31df318c740dbc556ac08b56444030ed1d5e6d7b0d4e625213

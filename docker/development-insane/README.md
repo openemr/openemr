@@ -95,12 +95,12 @@ options to choose from:
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
 setup input screen:
- - for `Server Host`, use either `mariadb` or `mariadb-ssl` or `mysql` or `mysql-old` or `mariadb-old` or `mariadb-very-old`
-   (you have all
+ - for `Server Host`, use either `mariadb` or `mariadb-ssl` or `mysql` or `mysql-old` or `mariadb-old` or `mariadb-very-old` or
+   `mariadb-very-very-old` (you have all
    mariadb/mysql dockers ready to go to make testing either one easy;
    `mysql` is version 9.7; `mysql-old` is version 8.4;
-   `mariadb` is version 11.8; `mariadb-ssl` is version 11.8 with support for ssl; `mariadb-old` is version 11.4; `mariadb-very-old` is
-   version 10.11)
+   `mariadb` is version 12.3; `mariadb-ssl` is version 12.3 with support for ssl; `mariadb-old` is version 11.8; `mariadb-very-old` is
+   version 11.4; `mariadb-very-very-old` is version 10.11)
  - for `Root Pass`, use `root`
  - for `User Hostname`, use `%`
 

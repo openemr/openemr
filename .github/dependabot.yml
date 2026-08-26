@@ -167,26 +167,24 @@ updates:
   # Tooling images (mailpit, dev-nginx, couchdb, redis) are unconstrained.
 - package-ecosystem: docker-compose
   directories:
-  - ci/apache_82_118/
-  - ci/apache_82_118_redis_sentinel_mtls/
-  - ci/apache_82_118_upgrade/
-  - ci/apache_83_118/
-  - ci/apache_84_118/
+  - ci/apache_83_123/
+  - ci/apache_83_123_redis_sentinel_mtls/
+  - ci/apache_83_123_upgrade/
+  - ci/apache_84_123/
   - ci/apache_85_1011/
   - ci/apache_85_114/
   - ci/apache_85_118/
-  - ci/apache_85_118_redis_sentinel/
-  - ci/apache_85_118_redis_sentinel_tls/
-  - ci/apache_85_118_redis_sentinel_mtls/
-  - ci/apache_85_118_upgrade/
   - ci/apache_85_123/
+  - ci/apache_85_123_redis_sentinel/
+  - ci/apache_85_123_redis_sentinel_tls/
+  - ci/apache_85_123_redis_sentinel_mtls/
+  - ci/apache_85_123_upgrade/
   - ci/apache_85_84/
   - ci/apache_85_93/
   - ci/compose-shared-mailpit/
   - ci/compose-shared-nginx/
   - ci/compose-shared-redis-sentinel/
   - ci/inferno/
-  - ci/nginx_82/
   - ci/nginx_83/
   - ci/nginx_84/
   - ci/nginx_85/
