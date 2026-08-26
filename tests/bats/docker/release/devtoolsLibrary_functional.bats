@@ -92,10 +92,10 @@ exit 1' > "${test_dir}/01test"
         echo "status = ${status}"
         echo "output = ${output}"
     }
-    
+
     run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
     [[ $status -eq 1 ]]
-    [[ $output == "run-parts: testing/01test exited with return code 1"  ]]
+    [[ $output == "run-parts: ${test_dir}/01test exited with return code 1"  ]]
 }
 
 @test "run_vendor_hooks: execution order" {
@@ -109,6 +109,12 @@ exit 0' > "${test_dir}/01test"
 echo 02 OK
 exit 0' > "${test_dir}/02test"
     chmod +x "${test_dir}/01test" "${test_dir}/02test"
+
+    bats::on_failure() {        
+        echo "status = ${status}"
+        echo "output = ${output}"
+    }
+
     run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
     [[ $status -eq 0 ]]
     [[ $output == "01 OK" ]]
@@ -123,8 +129,14 @@ exit 0' > "${test_dir}/02test"
     echo '#!/bin/sh
 echo 01 OK
 exit 0' > "${test_dir}/01test"
+
+    bats::on_failure() {        
+        echo "status = ${status}"
+        echo "output = ${output}"
+    }
+
     run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
     [[ $status -eq 0 ]]
-    [[ $output == "WARNING: "${test_dir/01test}" has a shebang but is not executable; run-parts will skip it" ]]
+    [[ $output == "WARNING: "${test_dir}"/01test has a shebang but is not executable; run-parts will skip it" ]]
     [[ $output == "testing hook: run-parts can't find executable scripts, expected?" ]]
 }
