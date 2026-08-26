@@ -6,10 +6,10 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
- * @author    Brady Miller <brady.miller@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Thomas Pantelis <tompantelis@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Thomas Pantelis <tompantelis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -1420,7 +1420,7 @@ function getCodeText($code)
                                 <div class="form-group col-sm-12 col-md-4 <?php echo (OEGlobalsBag::getInstance()->get('ippf_specific')) ? 'd-none' : '';?>">
                                     <label for="form_outcome"><?php echo xlt('Outcome'); ?>:</label>
                                     <?php
-                                    echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? null), '', 'NA', '', 'outcomeClicked(this);');
+                                    echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? null), '', '', '', 'outcomeClicked(this);');
                                     ?>
                                 </div>
                                 <div class="form-group col-sm-12 col-md-4" id='row_subtype'>
