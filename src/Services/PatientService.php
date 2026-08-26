@@ -658,6 +658,14 @@ class PatientService extends BaseService
         return $patientRow;
     }
 
+    public function hasPictureForPid(mixed $pid): bool
+    {
+        if (!is_numeric($pid)) {
+            return false;
+        }
+        return $this->getPatientPictureDocumentId((string) $pid) !== null;
+    }
+
     public function getPatientPictureDocumentId(string $pid): ?int
     {
         $sql = "SELECT doc.id AS id

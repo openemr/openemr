@@ -937,7 +937,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             } else {
                 echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($result['DOB_YMD'], $date_of_death));
             }
-            echo "," . ((new PatientService())->getPatientPictureDocumentId((string) $pid) !== null ? 'true' : 'false'); ?>);
+            echo "," . ((new PatientService())->hasPictureForPid($pid) ? 'true' : 'false'); ?>);
             var EncounterDateArray = [];
             var CalendarCategoryArray = [];
             var EncounterIdArray = [];

@@ -360,7 +360,7 @@ function submitform(attr) {
 if (!empty($_GET['set_pid'])) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
     ?>
- parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name, null, " . ((new PatientService())->getPatientPictureDocumentId((string) $patient_id) !== null ? 'true' : 'false'); ?>);
+ parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," . js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name, null, " . ((new PatientService())->hasPictureForPid($patient_id) ? 'true' : 'false'); ?>);
     <?php
 }
 
