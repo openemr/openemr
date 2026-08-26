@@ -355,7 +355,7 @@ class OemrUI
         if ($help_file) {
             $help_file = attr($help_file);
             $help_file = OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/Documentation/help_files/$help_file";
-            $modal_body = "<iframe src='' data-src=\"$help_file\" id='targetiframe' class='w-100 h-100 border-0' style='overflow-x: hidden;'
+            $modal_body = "<iframe src='' data-src='$help_file' id='targetiframe' class='w-100 h-100 border-0' style='overflow-x: hidden;'
                                 allowtransparency='true'></iframe>";
         } else {
             $modal_body = "<h3> <i class='fa fa-exclamation-triangle  oe-text-red' aria-hidden='true'></i> " . xlt("Check if a help file exists for this page in") . " " . text("Documentation/help_files") . ".<br /><br />" . xlt("Then pass it's name as a value to the element" . " " . text("'help_file_name'") . " " . "in the associative array") . " " . text("\$arrOeUiSettings") . ".<br /><br />" . xlt("If the help file does not exist create one and place it in") . " " . text("Documentation/help_files") . ".<br />" . "</h3>";
