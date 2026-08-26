@@ -793,15 +793,15 @@ generateMultisiteBank() {
 # will check their assigned directories for run-parts-compatible script content.
 # Use a Docker volume to provide those scripts to these locations:
 #
-# ${HOOKS_ROOT}/postconfig    after first-time configuration is complete
-#                           runs once, and never again
-# ${HOOKS_ROOT}/postupgrade   after an upgrade process completes
-#                           runs every time an upgrade happens
-#                           runs on leader only
-# ${HOOKS_ROOT}/prelaunch     runs after all container setup
-#                           runs every launch
-# ${HOOKS_ROOT}/tooearly      before any container work has started
-#                           runs every launch, but you shouldn't use it
+# ${HOOKS_ROOT}/postconfig      after first-time configuration is complete
+#                               runs once, and never again
+# ${HOOKS_ROOT}/postupgrade     after an upgrade process completes
+#                               runs every time an upgrade happens
+#                               runs on leader only
+# ${HOOKS_ROOT}/prelaunch       runs after all container setup
+#                               runs every launch
+# ${HOOKS_ROOT}/tooearly        before any container work has started
+#                               runs every launch, but you shouldn't use it
 #
 # postconfig and postupgrade run inside the envelope of the config and upgrade task,
 # after OpenEMR's completed its own work. Because these upgrades can't be rolled
@@ -818,9 +818,15 @@ generateMultisiteBank() {
 run_vendor_hook() {
     : "${HOOKS_ROOT:=/root/hooks}"
     [[ -d "${HOOKS_ROOT}/$1" ]] || return 0
+    local f
+    for f in "${HOOKS_ROOT}/$1"/*; do
+        if [[ -f "$f" && ! -x "$f" && "$(head -c2 "$f")" = '#!' ]]; then
+            echo "WARNING: $f has a shebang but is not executable; run-parts will skip it"
+        fi
+    done
     # shellcheck disable=SC2312
     if [[ "$(run-parts --test "${HOOKS_ROOT}/$1" | wc -l)" -eq 0 ]]; then
-        echo "$1 hook: can't find executable scripts, expected?"
+        echo "$1 hook: run-parts can't find executable scripts, expected?"
         return 0
     fi
     run-parts --exit-on-error "${HOOKS_ROOT}/$1" || return 1
