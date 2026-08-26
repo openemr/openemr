@@ -533,11 +533,15 @@ function getCodeText($code)
         $allCodeTypes = [];
     }
 
+    // The global registry contains active code types only. Query configuration
+    // directly as well so replacement removes a medication coding even if its
+    // code system was deactivated after the issue was created.
     $allMedicationCodeTypes = [];
-    foreach ($allCodeTypes as $codeTypeKey => $codeTypeConfig) {
-        if (!empty($codeTypeConfig['drug']) || !empty($codeTypeConfig['term'])) {
-            $allMedicationCodeTypes[] = $codeTypeKey;
-        }
+    $medicationCodeTypeRows = sqlStatement(
+        "SELECT ct_key FROM code_types WHERE ct_drug = 1 OR ct_term = 1 ORDER BY ct_seq, ct_key"
+    );
+    while ($medicationCodeTypeRow = sqlFetchArray($medicationCodeTypeRows)) {
+        $allMedicationCodeTypes[] = $medicationCodeTypeRow['ct_key'];
     }
 
     $medicationCodeTypes = array_values(array_filter(
@@ -1447,7 +1451,7 @@ function getCodeText($code)
                                 </div>
                             </div>
                             <div class="row">
-                                <!-- Verification Status for Medication Allergy -->
+                                <!-- Verification Status For Medication Allergy -->
                                 <div class="form-group col-sm-12 col-md-4" id='row_verification'>
                                     <label class="col-form-label" for="form_verification"><?php echo xlt('Verification Status'); ?>:</label>
                                     <?php
