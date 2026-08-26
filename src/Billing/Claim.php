@@ -185,7 +185,10 @@ class Claim
 
     public function getReferrerId()
     {
-        if (($this->billing_options['provider_id'] ?? '') && $this->box17Qualifier() !== 'DK') {
+        if (
+            ($this->billing_options['provider_id'] ?? '')
+            && in_array($this->box17Qualifier(), ['', 'DN'], true)
+        ) {
             $referrer_id = $this->billing_options['provider_id'];
         } elseif ($this->encounterService->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
             $referrer_id = $this->encounterService->getReferringProviderID($this->pid, $this->encounter_id);
