@@ -31642,11 +31642,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\OeUI\\\\OemrUI\\:\\:helpFileModal\\(\\) has parameter \\$help_file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Patient\\\\Cards\\\\BillingViewCard\\:\\:__construct\\(\\) has parameter \\$billingNote with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Patient/Cards/BillingViewCard.php',
