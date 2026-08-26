@@ -339,7 +339,7 @@ class OemrUI
     /**
      * Output the help modal html along with the jQuery to make it work.
      *
-     * $param string $help_file - name of the help file to be displayed, must exists in Documentation/help_files
+     * @param string $help_file - name of the help file to be displayed, must exists in Documentation/help_files
      * will echo the entire html string of the help modal and the jQuery, needs to be used as the first line after the container div
      *
      * @return void
