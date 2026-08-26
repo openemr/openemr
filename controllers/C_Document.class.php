@@ -638,6 +638,17 @@ class C_Document extends Controller
             }
         }
 
+        // For patient_picture context, non-portal users may only request the session's active patient.
+        // Runs before the missing-photo branch so 403 vs 404 does not leak whether the patient has a photo.
+        if ($context === 'patient_picture') {
+            if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
+                $allowed_pid = OEGlobalsBag::getInstance()->get('pid') ?? 0;
+                if ($allowed_pid === 0 || $patient_id === null || $patient_id !== (string)$allowed_pid) {
+                    AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
+                }
+            }
+        }
+
         switch ($context) {
             case "patient_picture":
                 $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
@@ -648,16 +659,6 @@ class C_Document extends Controller
                     (new RequestTerminator())->error(404, '');
                 }
                 break;
-        }
-
-        // For patient_picture context, non-portal users may only request the session's active patient.
-        if ($context === 'patient_picture') {
-            if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
-                $allowed_pid = OEGlobalsBag::getInstance()->get('pid') ?? 0;
-                if ($allowed_pid === 0 || $patient_id === null || $patient_id !== (string)$allowed_pid) {
-                    AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
-                }
-            }
         }
 
         $d = new Document($document_id);
