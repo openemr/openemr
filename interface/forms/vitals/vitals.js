@@ -12,6 +12,12 @@
     let translations = {};
     let webroot = null;
 
+    /**
+     * Validate a Vitals input against its configured numeric and warning ranges.
+     *
+     * @param {HTMLInputElement} element
+     * @returns {{valid: boolean, warning: boolean}}
+     */
     function validateVitalField(element) {
         let value = element.value.trim();
         let warningSpan = document.getElementById(element.id + '_warning');
@@ -73,6 +79,7 @@
 
     /**
      * Validate the visible feet/inches helper fields without accepting partial numbers.
+     * Blank feet remains valid so inches-only entry such as 72 inches is supported.
      *
      * @param {HTMLInputElement} feetInput
      * @param {HTMLInputElement} inchesInput
@@ -89,6 +96,11 @@
         return feetValid && inchesValid;
     }
 
+    /**
+     * Validate the Vitals form, including the visible feet/inches helpers, before submit.
+     *
+     * @returns {boolean}
+     */
     function vitalsFormSubmitted() {
         let vitalsForm = document.getElementById('vitalsForm');
         if (!vitalsForm) {
@@ -107,8 +119,18 @@
 
         let feetInput = document.getElementById('height_input_usa_feet');
         let inchesInput = document.getElementById('height_input_usa_inches');
-        if (feetInput && inchesInput && !validateHeightHelperInputs(feetInput, inchesInput)) {
-            hasErrors = true;
+        let totalInput = document.getElementById('height_input_usa');
+        if (feetInput && inchesInput) {
+            if (!validateHeightHelperInputs(feetInput, inchesInput)) {
+                hasErrors = true;
+            } else if (totalInput && totalInput.value.trim() !== '') {
+                let heightValidation = validateVitalField(totalInput);
+                if (!heightValidation.valid) {
+                    feetInput.classList.add('error');
+                    inchesInput.classList.add('error');
+                    hasErrors = true;
+                }
+            }
         }
 
         if (hasErrors) {
@@ -119,6 +141,11 @@
         return top.restoreSession();
     }
 
+    /**
+     * Convert a changed USA/metric Vitals input and update its stored counterpart.
+     *
+     * @param {Event} evt
+     */
     function convInputElement(evt) {
         let node = evt.currentTarget;
         if (!node) {
@@ -262,6 +289,9 @@
         }
     }
 
+    /**
+     * Attach Vitals form validation, conversion, helper, and live BMI event handlers.
+     */
     function initDOMEvents() {
         let vitalsForm = document.getElementById('vitalsForm');
         if (!vitalsForm) {
@@ -322,6 +352,13 @@
             });
         });
     }
+
+    /**
+     * Initialize the Vitals JavaScript module.
+     *
+     * @param {string} webRootParam
+     * @param {Object} vitalsTranslations
+     */
     function init(webRootParam, vitalsTranslations) {
         webroot = webRootParam;
         translations = vitalsTranslations;
