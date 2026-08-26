@@ -88,7 +88,7 @@ exit 0' > "${stub_dir}/mariadb"
 exit 1' > "${test_dir}/01test"
     chmod +x "${test_dir}/01test"
 
-    bats::on_failure() {        
+    bats::on_failure() {
         echo "status = ${status}"
         echo "output = ${output}"
     }
@@ -110,7 +110,7 @@ echo 02 OK
 exit 0' > "${test_dir}/02test"
     chmod +x "${test_dir}/01test" "${test_dir}/02test"
 
-    bats::on_failure() {        
+    bats::on_failure() {
         echo "status = ${status}"
         echo "output = ${output}"
     }
@@ -129,7 +129,7 @@ exit 0' > "${test_dir}/02test"
 echo 01 OK
 exit 0' > "${test_dir}/01test"
 
-    bats::on_failure() {        
+    bats::on_failure() {
         echo "status = ${status}"
         echo "output = ${output}"
     }
