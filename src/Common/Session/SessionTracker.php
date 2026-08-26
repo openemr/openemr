@@ -105,7 +105,7 @@ class SessionTracker
         sqlStatementNoLog("UPDATE `session_tracker` SET `number_scripts` = `number_scripts` + 1 WHERE `uuid` = ?", [$session->get('session_database_uuid')]);
     }
 
-    // Function to throttle down requests when using the online demos to prevent abuse of demo farm
+    // Function to throttle down requests when using the online demos to prevent abuse of the demo farm
     public static function processSessionThrottleDown($throttleDownWaitMilliseconds): void
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
