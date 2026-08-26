@@ -683,6 +683,66 @@ class PatientService extends BaseService
     }
 
     /**
+     * Annotate each event with a `patient_has_picture` bool using one
+     * batched query. The event's patient id is read from `$pidKey`.
+     *
+     * @param  array<int|string, array<string, mixed>> $events
+     * @return array<int|string, array<string, mixed>>
+     */
+    public static function annotateEventsWithPatientHasPicture(array $events, string $pidKey = 'pid'): array
+    {
+        $pids = [];
+        foreach ($events as $event) {
+            $pid = $event[$pidKey] ?? null;
+            if (is_numeric($pid) && (int) $pid > 0) {
+                $pids[(int) $pid] = (int) $pid;
+            }
+        }
+        $withPhoto = $pids === []
+            ? []
+            : array_flip((new self())->getPatientsWithPictures(array_values($pids)));
+        foreach ($events as $index => $event) {
+            $pid = $event[$pidKey] ?? null;
+            $events[$index]['patient_has_picture'] = is_numeric($pid) && isset($withPhoto[(int) $pid]);
+        }
+        return $events;
+    }
+
+    /**
+     * @param  list<int> $pids
+     * @return list<int> subset of $pids that have a photo document
+     */
+    public function getPatientsWithPictures(array $pids): array
+    {
+        if ($pids === []) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $sql = "SELECT DISTINCT doc.foreign_id AS pid
+                 FROM documents doc
+                 JOIN categories_to_documents cate_to_doc
+                   ON doc.id = cate_to_doc.document_id
+                 JOIN categories cate
+                   ON cate.id = cate_to_doc.category_id
+                WHERE cate.name LIKE ? AND doc.foreign_id IN ($placeholders)";
+
+        $params = array_merge(
+            [OEGlobalsBag::getInstance()->getString('patient_photo_category_name')],
+            $pids,
+        );
+
+        $rows = QueryUtils::fetchRecords($sql, $params);
+        $result = [];
+        foreach ($rows as $row) {
+            $pid = $row['pid'] ?? null;
+            if (is_numeric($pid)) {
+                $result[] = (int) $pid;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Fetch UUID for the patient id
      *
      * @param string $pid ID of Patient
