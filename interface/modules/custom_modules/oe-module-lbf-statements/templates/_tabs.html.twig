@@ -1,0 +1,11 @@
+{# Shared Generate / Rules tabs. One Modules menu entry. #}
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link {% if activeTab == 'generate' %}active{% endif %}" href="{{ generateUrl|attr }}">{{ "Generate"|xlt }}</a>
+    </li>
+    {% if canAdmin %}
+    <li class="nav-item">
+        <a class="nav-link {% if activeTab == 'rules' %}active{% endif %}" href="{{ adminUrl|attr }}">{{ "Rules"|xlt }}</a>
+    </li>
+    {% endif %}
+</ul>
