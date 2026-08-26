@@ -71,6 +71,24 @@
         return { valid: true, warning: false };
     }
 
+    /**
+     * Validate the visible feet/inches helper fields without accepting partial numbers.
+     *
+     * @param {HTMLInputElement} feetInput
+     * @param {HTMLInputElement} inchesInput
+     * @returns {boolean}
+     */
+    function validateHeightHelperInputs(feetInput, inchesInput) {
+        let feetValue = feetInput.value.trim();
+        let inchesValue = inchesInput.value.trim();
+        let feetValid = feetValue === '' || /^\d+$/.test(feetValue);
+        let inchesValid = inchesValue === '' || /^(?:\d+(?:\.\d*)?|\.\d+)$/.test(inchesValue);
+
+        feetInput.classList.toggle('error', !feetValid);
+        inchesInput.classList.toggle('error', !inchesValid);
+        return feetValid && inchesValid;
+    }
+
     function vitalsFormSubmitted() {
         let vitalsForm = document.getElementById('vitalsForm');
         if (!vitalsForm) {
@@ -86,6 +104,12 @@
                 hasErrors = true;
             }
         });
+
+        let feetInput = document.getElementById('height_input_usa_feet');
+        let inchesInput = document.getElementById('height_input_usa_inches');
+        if (feetInput && inchesInput && !validateHeightHelperInputs(feetInput, inchesInput)) {
+            hasErrors = true;
+        }
 
         if (hasErrors) {
             alert(vitalsTranslations['validateFailed']);
@@ -145,6 +169,9 @@
         }
     }
 
+    /**
+     * Populate the feet/inches helpers from OpenEMR's authoritative total-inch field.
+     */
     function syncHeightHelperFromTotal() {
         let totalInput = document.getElementById('height_input_usa');
         let feetInput = document.getElementById('height_input_usa_feet');
@@ -170,8 +197,12 @@
 
         feetInput.value = feet > 0 ? String(feet) : '';
         inchesInput.value = String(inches);
+        validateHeightHelperInputs(feetInput, inchesInput);
     }
 
+    /**
+     * Convert the visible feet/inches helpers back to the authoritative total-inch field.
+     */
     function syncHeightTotalFromHelper() {
         let totalInput = document.getElementById('height_input_usa');
         let feetInput = document.getElementById('height_input_usa_feet');
@@ -183,22 +214,32 @@
         let feetValue = feetInput.value.trim();
         let inchesValue = inchesInput.value.trim();
         if (feetValue === '' && inchesValue === '') {
+            validateHeightHelperInputs(feetInput, inchesInput);
             totalInput.value = '';
             totalInput.dispatchEvent(new Event('change', { bubbles: true }));
             return;
         }
 
-        let feet = feetValue === '' ? 0 : parseFloat(feetValue);
-        let inches = inchesValue === '' ? 0 : parseFloat(inchesValue);
-        if (isNaN(feet) || isNaN(inches) || feet < 0 || inches < 0) {
+        if (!validateHeightHelperInputs(feetInput, inchesInput)) {
+            // Do not leave a previously valid canonical height active after malformed helper input.
+            totalInput.value = '';
+            totalInput.dispatchEvent(new Event('change', { bubbles: true }));
             return;
         }
 
+        let feet = feetValue === '' ? 0 : Number(feetValue);
+        let inches = inchesValue === '' ? 0 : Number(inchesValue);
         let total = Math.round(((feet * 12) + inches) * 100) / 100;
         totalInput.value = String(total);
+        let validation = validateVitalField(totalInput);
+        feetInput.classList.toggle('error', !validation.valid);
+        inchesInput.classList.toggle('error', !validation.valid);
         totalInput.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
+    /**
+     * Initialize the optional feet/inches UI while retaining total inches as the stored value.
+     */
     function initHeightFeetInches() {
         let wrapper = document.getElementById('height_input_usa_feet_inches');
         let totalInput = document.getElementById('height_input_usa');
@@ -271,9 +312,6 @@
         let heightInput = document.getElementById('height_input_usa');
         if (heightInput) {
             heightInput.addEventListener('input', calculateBMI);
-        }
-        if (document.getElementById('BMI_input')) {
-            calculateBMI();
         }
 
         // Real-time validation for non-conversion inputs
