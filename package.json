@@ -120,5 +120,9 @@
   },
   "napa-config": {
     "cache": false
+  },
+  "allowScripts": {
+    "core-js@3.41.0": true,
+    "@parcel/watcher@2.5.1": true
   }
 }

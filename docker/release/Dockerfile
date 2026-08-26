@@ -180,10 +180,10 @@ WORKDIR /openemr
 RUN apk add --no-cache build-base nodejs npm
 # Use Docker buildkit cache mount for npm cache (requires DOCKER_BUILDKIT=1)
 RUN --mount=type=cache,target=/root/.npm \
-    npm install --unsafe-perm \
+    npm install \
     && npm run build \
     && cd ccdaservice \
-    && npm install --unsafe-perm \
+    && npm install --allow-git=all \
     && cd .. \
     && rm -fr node_modules \
     && apk del --no-cache build-base
