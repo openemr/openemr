@@ -25,6 +25,7 @@ use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -641,8 +642,10 @@ class C_Document extends Controller
             case "patient_picture":
                 $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
                 if ($document_id === null) {
-                    http_response_code(404);
-                    exit;
+                    if ($disable_exit == true) {
+                        return null;
+                    }
+                    (new RequestTerminator())->error(404, '');
                 }
                 break;
         }
