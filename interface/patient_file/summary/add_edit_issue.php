@@ -529,10 +529,17 @@ function getCodeText($code)
     // Medication issues use the configured drug and clinical terminology code systems.
     <?php
     $allCodeTypes = OEGlobalsBag::getInstance()->get('code_types', []);
-    $medicationCodeTypes = array_values(array_unique(array_merge(
-        collect_codetypes("drug"),
-        collect_codetypes("clinical_term")
-    )));
+    $allMedicationCodeTypes = [];
+    foreach ($allCodeTypes as $codeTypeKey => $codeTypeConfig) {
+        if (!empty($codeTypeConfig['drug']) || !empty($codeTypeConfig['term'])) {
+            $allMedicationCodeTypes[] = $codeTypeKey;
+        }
+    }
+
+    $medicationCodeTypes = array_values(array_filter(
+        $allMedicationCodeTypes,
+        static fn ($codeType) => !empty($allCodeTypes[$codeType]['active'])
+    ));
 
     if (
         !empty($allCodeTypes['RXCUI']) &&
@@ -544,11 +551,6 @@ function getCodeText($code)
         ));
         array_unshift($medicationCodeTypes, 'RXCUI');
     }
-
-    $medicationCodeTypes = array_values(array_filter(
-        $medicationCodeTypes,
-        static fn ($codeType) => !empty($allCodeTypes[$codeType]['active'])
-    ));
 
     // Advanced magnifier popup: keep the current medication terminology first,
     // but allow switching to any other active OpenEMR code system (for example ICD10).
@@ -563,6 +565,12 @@ function getCodeText($code)
     const medicationCodeTypes = <?php
         echo json_encode(
             $medicationCodeTypes,
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+    ?>;
+    const allMedicationCodeTypes = <?php
+        echo json_encode(
+            $allMedicationCodeTypes,
             JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         );
     ?>;
@@ -591,6 +599,15 @@ function getCodeText($code)
         }
         issueMedicationResults = [];
         issueMedicationActiveIndex = -1;
+    }
+
+    function cancelIssueMedicationSearch() {
+        clearTimeout(issueMedicationSearchTimer);
+        issueMedicationSearchTimer = null;
+        if (issueMedicationSearchRequest && issueMedicationSearchRequest.readyState !== 4) {
+            issueMedicationSearchRequest.abort();
+        }
+        issueMedicationSearchRequest = null;
     }
 
     function parseIssueMedicationResult(row, fallbackCodeType) {
@@ -720,6 +737,18 @@ function getCodeText($code)
         issueMedicationActiveIndex = index;
     }
 
+    function removeExistingMedicationCodes() {
+        const f = document.forms[0];
+        for (let i = f.form_selected_codes.options.length - 1; i >= 0; --i) {
+            const value = f.form_selected_codes.options[i].value;
+            const prefix = value.includes(':') ? value.substring(0, value.indexOf(':')) : '';
+            if (allMedicationCodeTypes.includes(prefix)) {
+                f.form_selected_codes.remove(i);
+            }
+        }
+        updateDiagnosisFromSelectedCodes();
+    }
+
     function chooseIssueMedicationResult(index) {
         const item = issueMedicationResults[index];
         if (!item) {
@@ -730,15 +759,9 @@ function getCodeText($code)
         const searchInput = document.getElementById('issue_medication_search_input');
 
         // One medication coding is primary for this issue. Remove prior
-        // medication/clinical-term code-system entries but preserve unrelated
-        // diagnosis or other codes that may have been deliberately attached.
-        for (let i = f.form_selected_codes.options.length - 1; i >= 0; --i) {
-            const value = f.form_selected_codes.options[i].value;
-            const prefix = value.includes(':') ? value.substring(0, value.indexOf(':')) : '';
-            if (medicationCodeTypes.includes(prefix)) {
-                f.form_selected_codes.remove(i);
-            }
-        }
+        // medication/clinical-term code-system entries, including configured
+        // systems that are currently inactive, while preserving unrelated codes.
+        removeExistingMedicationCodes();
 
         f.form_title.value = item.description;
         f.form_title_id.value = '';
@@ -769,11 +792,7 @@ function getCodeText($code)
             return;
         }
 
-        if (issueMedicationSearchRequest && issueMedicationSearchRequest.readyState !== 4) {
-            issueMedicationSearchRequest.abort();
-        }
-
-        issueMedicationSearchRequest = $.ajax({
+        const request = $.ajax({
             url: '../encounter/find_code_dynamic_ajax.php',
             dataType: 'json',
             data: {
@@ -782,12 +801,27 @@ function getCodeText($code)
                 inactive: 0,
                 sSearch: term,
                 iDisplayStart: 0,
-                iDisplayLength: 50,
+                iDisplayLength: 500,
                 sEcho: 1,
-                iSortingCols: 0,
+                iSortingCols: 1,
+                iSortCol_0: 1,
+                sSortDir_0: 'asc',
+                bSortable_1: 'true',
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             }
-        }).done(function(data) {
+        });
+        issueMedicationSearchRequest = request;
+
+        request.done(function(data) {
+            const currentInput = document.getElementById('issue_medication_search_input');
+            if (
+                !currentInput ||
+                currentInput.value.trim() !== term ||
+                getIssueMedicationDatabase() !== codeType
+            ) {
+                return;
+            }
+
             const rows = data && Array.isArray(data.aaData) ? data.aaData : [];
             const seen = new Set();
 
@@ -821,20 +855,25 @@ function getCodeText($code)
                 console.error('Medication search failed', status);
                 hideIssueMedicationResults();
             }
+        }).always(function() {
+            if (issueMedicationSearchRequest === request) {
+                issueMedicationSearchRequest = null;
+            }
         });
     }
 
     function scheduleIssueMedicationSearch() {
-        clearTimeout(issueMedicationSearchTimer);
+        cancelIssueMedicationSearch();
         issueMedicationSearchTimer = setTimeout(runIssueMedicationSearch, 250);
     }
 
     function handleIssueMedicationDatabaseChange() {
         const input = document.getElementById('issue_medication_search_input');
+        cancelIssueMedicationSearch();
         hideIssueMedicationResults();
 
         if (input && input.value.trim().length >= 2) {
-            scheduleIssueMedicationSearch();
+            issueMedicationSearchTimer = setTimeout(runIssueMedicationSearch, 250);
         }
     }
 
@@ -946,12 +985,16 @@ function getCodeText($code)
     // This is for callback by the select codes popup.
     // Appends to or erases the current list of diagnoses.
     function OnCodeSelected(codetype, code, selector, codedesc) {
-        var codeKey = codetype + ':' + code
-        addSelectedCode(codeKey, codeKey + ' (' + codedesc + ')')
-
         var f = document.forms[0]
         const medicationWrap = document.getElementById('issue_medication_search_wrap');
         const medicationMode = medicationWrap && medicationWrap.style.display !== 'none';
+
+        if (medicationMode) {
+            removeExistingMedicationCodes();
+        }
+
+        var codeKey = codetype + ':' + code
+        addSelectedCode(codeKey, codeKey + ' (' + codedesc + ')')
 
         if (medicationMode) {
             const database = document.getElementById('issue_medication_database');
@@ -964,6 +1007,7 @@ function getCodeText($code)
                 searchInput.value = codedesc;
             }
             f.form_title.value = codedesc;
+            f.form_title_id.value = '';
         } else if (f.form_title.value == '') {
             f.form_title.value = codedesc;
         }
