@@ -389,7 +389,8 @@ class OemrUI
             $(".modal-content").addClass('resize-action');
             var helpTitle = $('#help-href').prop('title');
             // Load the help iframe on first open, not at page render.
-            $('#myModal').on('show.bs.modal', function () {
+            // Delegated to document because #myModal is replaced after page load.
+            $(document).on('click', '#help-href', function () {
                 var iframe = $('#targetiframe');
                 if (!iframe.attr('src') && iframe.data('src')) {
                     iframe.attr('src', iframe.data('src'));
