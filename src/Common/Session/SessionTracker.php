@@ -11,8 +11,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Brady Miller <brady.miller@gmail.com>
- * @copyright Copyright (c) 2020 Brady Miller <brady.miller@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -123,7 +123,7 @@ class SessionTracker
                 die(xlt("These demos are not meant for headless server testing. Please do this on your own servers."));
             }
             // throttle down since the 'THROTTLE_DOWN_WAIT_MILLISECONDS' environment setting has been exceeded
-            error_log("DEBUG: throttling down for script number " . $timeThrottle['time_throttle'] . " for " . $timeThrottle['time_throttle'] . " milliseconds");
+            error_log("DEBUG: throttling down for script number " . $timeThrottle['number_scripts'] . " for " . $timeThrottle['time_throttle'] . " milliseconds");
             usleep($timeThrottle['time_throttle'] * 1000);
         }
     }
