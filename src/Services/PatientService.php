@@ -75,13 +75,6 @@ class PatientService extends BaseService
     ];
 
     /**
-     * In the case where a patient doesn't have a picture uploaded,
-     * this value will be returned so that the document controller
-     * can return an empty response.
-     */
-    private $patient_picture_fallback_id = -1;
-
-    /**
      * @var PatientValidator
      */
     private $patientValidator;
@@ -665,10 +658,7 @@ class PatientService extends BaseService
         return $patientRow;
     }
 
-    /**
-     * @return number
-     */
-    public function getPatientPictureDocumentId($pid)
+    public function getPatientPictureDocumentId(string $pid): ?int
     {
         $sql = "SELECT doc.id AS id
                  FROM documents doc
@@ -680,11 +670,16 @@ class PatientService extends BaseService
 
         $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
 
-        if (empty($result) || empty($result['id'])) {
-            return $this->patient_picture_fallback_id;
+        if (!is_array($result) || !array_key_exists('id', $result)) {
+            return null;
         }
 
-        return $result['id'];
+        $id = $result['id'];
+        if (!is_numeric($id)) {
+            return null;
+        }
+
+        return (int) $id;
     }
 
     /**

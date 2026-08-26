@@ -640,6 +640,10 @@ class C_Document extends Controller
         switch ($context) {
             case "patient_picture":
                 $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
+                if ($document_id === null) {
+                    http_response_code(404);
+                    exit;
+                }
                 break;
         }
 
