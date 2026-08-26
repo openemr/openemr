@@ -25,6 +25,7 @@ use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -637,13 +638,8 @@ class C_Document extends Controller
             }
         }
 
-        switch ($context) {
-            case "patient_picture":
-                $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
-                break;
-        }
-
         // For patient_picture context, non-portal users may only request the session's active patient.
+        // Runs before the missing-photo branch so 403 vs 404 does not leak whether the patient has a photo.
         if ($context === 'patient_picture') {
             if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
                 $allowed_pid = OEGlobalsBag::getInstance()->get('pid') ?? 0;
@@ -651,6 +647,18 @@ class C_Document extends Controller
                     AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
                 }
             }
+        }
+
+        switch ($context) {
+            case "patient_picture":
+                $document_id = $this->patientService->getPatientPictureDocumentId($patient_id);
+                if ($document_id === null) {
+                    if ($disable_exit == true) {
+                        return null;
+                    }
+                    (new RequestTerminator())->error(404, '');
+                }
+                break;
         }
 
         $d = new Document($document_id);
