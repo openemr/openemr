@@ -159,7 +159,9 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         const sessionTimeoutWarningSeconds = 60;
         var sessionTimeoutWarningDeadline = null;
         var sessionTimeoutWarningTimer = null;
+        var sessionTimeoutWarningStartTimer = null;
         var sessionTimeoutCheckPending = false;
+        var sessionTimeoutConfirmRetried = false;
 
         function formatSessionTimeoutRemaining(seconds) {
             const safeSeconds = Math.max(0, parseInt(seconds, 10) || 0);
@@ -178,8 +180,6 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             warning.id = 'sessionTimeoutWarning';
             warning.className = 'alert alert-warning shadow';
             warning.setAttribute('role', 'alert');
-            warning.setAttribute('aria-live', 'assertive');
-            warning.setAttribute('aria-atomic', 'true');
             warning.style.position = 'fixed';
             warning.style.top = '1rem';
             warning.style.left = '50%';
@@ -194,6 +194,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
 
             const countdown = document.createElement('strong');
             countdown.id = 'sessionTimeoutCountdown';
+            countdown.setAttribute('aria-live', 'off');
             countdown.textContent = '1:00';
             warning.appendChild(countdown);
 
@@ -212,6 +213,17 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             return warning;
         }
 
+        function clearSessionTimeoutWarningTimers() {
+            if (sessionTimeoutWarningTimer !== null) {
+                window.clearInterval(sessionTimeoutWarningTimer);
+                sessionTimeoutWarningTimer = null;
+            }
+            if (sessionTimeoutWarningStartTimer !== null) {
+                window.clearTimeout(sessionTimeoutWarningStartTimer);
+                sessionTimeoutWarningStartTimer = null;
+            }
+        }
+
         function hideSessionTimeoutWarning() {
             const warning = document.getElementById('sessionTimeoutWarning');
             if (warning) {
@@ -219,10 +231,8 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             }
             sessionTimeoutWarningDeadline = null;
             sessionTimeoutCheckPending = false;
-            if (sessionTimeoutWarningTimer !== null) {
-                window.clearInterval(sessionTimeoutWarningTimer);
-                sessionTimeoutWarningTimer = null;
-            }
+            sessionTimeoutConfirmRetried = false;
+            clearSessionTimeoutWarningTimers();
         }
 
         function requestSessionTimeoutStatus(skipTimeoutReset) {
@@ -256,13 +266,30 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
                     return;
                 }
 
+                if (!Object.prototype.hasOwnProperty.call(data, 'sessionSecondsRemaining')) {
+                    window.setTimeout(confirmSessionTimeout, 5000);
+                    return;
+                }
+
                 const secondsRemaining = parseInt(data.sessionSecondsRemaining, 10);
-                if (isNaN(secondsRemaining) || secondsRemaining <= 0) {
+                if (isNaN(secondsRemaining)) {
+                    window.setTimeout(confirmSessionTimeout, 5000);
+                    return;
+                }
+                if (secondsRemaining <= 0) {
                     timeoutLogout();
                     return;
                 }
+
+                sessionTimeoutConfirmRetried = false;
                 updateSessionTimeoutWarning(secondsRemaining);
             }).catch(() => {
+                sessionTimeoutCheckPending = false;
+                if (!sessionTimeoutConfirmRetried) {
+                    sessionTimeoutConfirmRetried = true;
+                    window.setTimeout(confirmSessionTimeout, 1000);
+                    return;
+                }
                 timeoutLogout();
             });
         }
@@ -288,22 +315,57 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             }
         }
 
-        function updateSessionTimeoutWarning(secondsRemaining) {
-            const remaining = Math.max(0, parseInt(secondsRemaining, 10) || 0);
-            if (remaining > sessionTimeoutWarningSeconds) {
-                hideSessionTimeoutWarning();
-                return;
-            }
-
+        function showSessionTimeoutWarning() {
             const warning = getSessionTimeoutWarning();
-            sessionTimeoutWarningDeadline = Date.now() + (remaining * 1000);
-            sessionTimeoutCheckPending = false;
             warning.style.display = 'block';
             updateSessionTimeoutCountdown();
-
             if (sessionTimeoutWarningTimer === null && sessionTimeoutWarningDeadline !== null) {
                 sessionTimeoutWarningTimer = window.setInterval(updateSessionTimeoutCountdown, 1000);
             }
+        }
+
+        function updateSessionTimeoutWarning(secondsRemaining) {
+            const parsedRemaining = parseInt(secondsRemaining, 10);
+            if (isNaN(parsedRemaining)) {
+                return;
+            }
+
+            const remaining = Math.max(0, parsedRemaining);
+            clearSessionTimeoutWarningTimers();
+            sessionTimeoutWarningDeadline = Date.now() + (remaining * 1000);
+            sessionTimeoutCheckPending = false;
+            sessionTimeoutConfirmRetried = false;
+
+            if (remaining <= sessionTimeoutWarningSeconds) {
+                showSessionTimeoutWarning();
+                return;
+            }
+
+            const warning = document.getElementById('sessionTimeoutWarning');
+            if (warning) {
+                warning.style.display = 'none';
+            }
+
+            // The normal reminder poll runs every 60 seconds. Schedule locally from
+            // the server-authoritative deadline so the warning starts at one minute,
+            // then confirm passively in case another tab renewed the same session.
+            const delay = Math.max(0, (remaining - sessionTimeoutWarningSeconds) * 1000);
+            sessionTimeoutWarningStartTimer = window.setTimeout(function() {
+                sessionTimeoutWarningStartTimer = null;
+                requestSessionTimeoutStatus(true).then((data) => {
+                    if (data.timeoutMessage && data.timeoutMessage === 'timeout') {
+                        timeoutLogout();
+                        return;
+                    }
+                    if (Object.prototype.hasOwnProperty.call(data, 'sessionSecondsRemaining')) {
+                        updateSessionTimeoutWarning(data.sessionSecondsRemaining);
+                    } else {
+                        showSessionTimeoutWarning();
+                    }
+                }).catch(() => {
+                    showSessionTimeoutWarning();
+                });
+            }, delay);
         }
 
         function stayLoggedInFromSessionWarning() {
@@ -318,9 +380,8 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
                     return;
                 }
 
-                const secondsRemaining = parseInt(data.sessionSecondsRemaining, 10);
-                if (!isNaN(secondsRemaining)) {
-                    updateSessionTimeoutWarning(secondsRemaining);
+                if (Object.prototype.hasOwnProperty.call(data, 'sessionSecondsRemaining')) {
+                    updateSessionTimeoutWarning(data.sessionSecondsRemaining);
                 }
             }).catch((error) => {
                 console.log('Unable to renew session', error);
