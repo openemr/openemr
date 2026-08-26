@@ -7,7 +7,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2009-2020 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2025 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2017-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
