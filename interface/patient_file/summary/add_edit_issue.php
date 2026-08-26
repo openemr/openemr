@@ -6,10 +6,10 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
- * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Brady Miller <brady.miller@gmail.com>
  * @author    Thomas Pantelis <tompantelis@gmail.com>
  * @copyright Copyright (c) 2005-2016 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2018 Brady Miller <brady.miller@gmail.com>
  * @copyright Copyright (c) 2020 Thomas Pantelis <tompantelis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -529,6 +529,10 @@ function getCodeText($code)
     // Medication issues use the configured drug and clinical terminology code systems.
     <?php
     $allCodeTypes = OEGlobalsBag::getInstance()->get('code_types', []);
+    if (!is_array($allCodeTypes)) {
+        $allCodeTypes = [];
+    }
+
     $allMedicationCodeTypes = [];
     foreach ($allCodeTypes as $codeTypeKey => $codeTypeConfig) {
         if (!empty($codeTypeConfig['drug']) || !empty($codeTypeConfig['term'])) {
@@ -552,11 +556,14 @@ function getCodeText($code)
         array_unshift($medicationCodeTypes, 'RXCUI');
     }
 
-    // Advanced magnifier popup: keep the current medication terminology first,
-    // but allow switching to any other active OpenEMR code system (for example ICD10).
+    // Keep the advanced popup within the same medication-relevant systems
+    // used by the stock workflow: diagnosis plus drug/clinical terminology.
     $allSelectableCodeTypes = [];
     foreach ($allCodeTypes as $codeTypeKey => $codeTypeConfig) {
-        if (!empty($codeTypeConfig['active'])) {
+        if (
+            !empty($codeTypeConfig['active']) &&
+            (!empty($codeTypeConfig['diag']) || !empty($codeTypeConfig['drug']) || !empty($codeTypeConfig['term']))
+        ) {
             $allSelectableCodeTypes[] = $codeTypeKey;
         }
     }
@@ -610,28 +617,22 @@ function getCodeText($code)
         issueMedicationSearchRequest = null;
     }
 
-    function parseIssueMedicationResult(row, fallbackCodeType) {
-        let payload = null;
-
-        if (row && row.DT_RowId && row.DT_RowId.indexOf('CID|') === 0) {
-            try {
-                payload = JSON.parse(row.DT_RowId.substring(4));
-            } catch (error) {
-                console.error('Unable to parse OpenEMR code-search result', error);
-            }
+    function parseIssueMedicationResult(row) {
+        if (!row || !row.DT_RowId || row.DT_RowId.indexOf('CID|') !== 0) {
+            return null;
         }
 
-        const code = payload && payload.code !== undefined
-            ? String(payload.code).split('|')[0]
-            : String((row && (row[0] ?? row['0'])) ?? '').split('|')[0];
+        let payload = null;
+        try {
+            payload = JSON.parse(row.DT_RowId.substring(4));
+        } catch (error) {
+            console.error('Unable to parse OpenEMR code-search result', error);
+            return null;
+        }
 
-        const description = payload && payload.description !== undefined
-            ? String(payload.description)
-            : String((row && (row[1] ?? row['1'])) ?? '');
-
-        const codeType = payload && payload.codetype
-            ? String(payload.codetype)
-            : fallbackCodeType;
+        const code = payload.code !== undefined ? String(payload.code).split('|')[0] : '';
+        const description = payload.description !== undefined ? String(payload.description) : '';
+        const codeType = payload.codetype ? String(payload.codetype) : '';
 
         if (!code || !description || !codeType) {
             return null;
@@ -826,7 +827,7 @@ function getCodeText($code)
             const seen = new Set();
 
             let items = rows
-                .map((row) => parseIssueMedicationResult(row, codeType))
+                .map((row) => parseIssueMedicationResult(row))
                 .filter((item) => item !== null)
                 .filter(function(item) {
                     const key = item.codeType + ':' + item.code;
@@ -864,6 +865,7 @@ function getCodeText($code)
 
     function scheduleIssueMedicationSearch() {
         cancelIssueMedicationSearch();
+        hideIssueMedicationResults();
         issueMedicationSearchTimer = setTimeout(runIssueMedicationSearch, 250);
     }
 
@@ -895,8 +897,8 @@ function getCodeText($code)
 
         // select_codes.php shows a dropdown whenever codetype contains more
         // than one allowed code system. Put the currently selected database
-        // first so it opens there, while preserving the ability to switch
-        // to ICD10 and every other active code system in the popup.
+        // first so it opens there, while preserving the medication-relevant
+        // and diagnosis systems supported by the stock issue workflow.
         const allowedCodeTypes = [
             codeType,
             ...allSelectableCodeTypes.filter((item) => item !== codeType)
@@ -917,16 +919,15 @@ function getCodeText($code)
 
         input.dataset.issueMedicationInitialized = '1';
 
-        // Default to RXCUI for new medication searches when it is available.
-        if (Array.from(database.options).some((option) => option.value === 'RXCUI')) {
-            database.value = 'RXCUI';
+        // When editing, preserve an existing medication terminology selection.
+        const existingCodeType = Array.from(document.forms[0].form_selected_codes.options)
+            .map((option) => option.value.includes(':') ? option.value.substring(0, option.value.indexOf(':')) : '')
+            .find((codeType) => medicationCodeTypes.includes(codeType));
+        if (existingCodeType) {
+            database.value = existingCodeType;
         }
 
         input.addEventListener('input', scheduleIssueMedicationSearch);
-
-        input.addEventListener('focus', function() {
-            // Deliberately do nothing on focus. Results only appear after typing.
-        });
 
         input.addEventListener('keydown', function(event) {
             if (event.key === 'ArrowDown') {
@@ -1419,7 +1420,7 @@ function getCodeText($code)
                                 <div class="form-group col-sm-12 col-md-4 <?php echo (OEGlobalsBag::getInstance()->get('ippf_specific')) ? 'd-none' : '';?>">
                                     <label for="form_outcome"><?php echo xlt('Outcome'); ?>:</label>
                                     <?php
-                                    echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? null), '', '', '', 'outcomeClicked(this);');
+                                    echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? null), '', 'NA', '', 'outcomeClicked(this);');
                                     ?>
                                 </div>
                                 <div class="form-group col-sm-12 col-md-4" id='row_subtype'>
