@@ -246,8 +246,11 @@
         let inchesValue = inchesInput.value.trim();
         if (feetValue === '' && inchesValue === '') {
             validateHeightHelperInputs(feetInput, inchesInput);
+            const hadHeight = totalInput.value.trim() !== '';
             totalInput.value = '';
-            totalInput.dispatchEvent(new Event('change', { bubbles: true }));
+            if (hadHeight) {
+                totalInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
             return;
         }
 
@@ -536,7 +539,14 @@ function calculateBMI() {
         return;
     }
     var height = parseFloat(heightNode.value);
-    var weight = parseFloat(weightNode.value);
+    var weightValue = weightNode.value;
+    var weight = parseFloat(weightValue);
+    var hashLocation = weightValue.indexOf("#");
+    if (hashLocation >= 0) {
+        var pounds = parseFloat(weightValue.substr(0, hashLocation));
+        var ounces = parseFloat(weightValue.substr(hashLocation + 1));
+        weight = (!isNaN(pounds) && !isNaN(ounces)) ? pounds + ounces / 16 : NaN;
+    }
     if(isNaN(height) || height == 0 || isNaN(weight) || weight == 0) {
         bmiNode.value = "";
     }
