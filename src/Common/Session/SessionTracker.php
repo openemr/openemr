@@ -11,8 +11,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Brady Miller <brady.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Brady Miller <brady.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -63,6 +63,34 @@ class SessionTracker
         return false;
     }
 
+    /**
+     * Return the server-authoritative number of seconds before the active session expires.
+     *
+     * A null result means the tracker value is unavailable and must not be interpreted as expiry.
+     */
+    public static function getSessionSecondsRemaining(): ?int
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $sessionUuid = $session->get('session_database_uuid');
+        if (empty($sessionUuid)) {
+            return null;
+        }
+
+        $sessionTracker = sqlQueryNoLog(
+            "SELECT GREATEST(0, ? - TIMESTAMPDIFF(SECOND, `last_updated`, NOW())) AS `seconds_remaining` " .
+            "FROM `session_tracker` WHERE `uuid` = ?",
+            [
+                OEGlobalsBag::getInstance()->getInt('timeout'),
+                $sessionUuid,
+            ]
+        );
+        if (!isset($sessionTracker['seconds_remaining']) || !is_numeric($sessionTracker['seconds_remaining'])) {
+            return null;
+        }
+
+        return max(0, (int) $sessionTracker['seconds_remaining']);
+    }
+
     public static function updateSessionExpiration(): void
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -77,7 +105,7 @@ class SessionTracker
         sqlStatementNoLog("UPDATE `session_tracker` SET `number_scripts` = `number_scripts` + 1 WHERE `uuid` = ?", [$session->get('session_database_uuid')]);
     }
 
-    // Function to throttle down requests when using the online demos to prevent abuse of the demo farm
+    // Function to throttle down requests when using the online demos to prevent abuse of demo farm
     public static function processSessionThrottleDown($throttleDownWaitMilliseconds): void
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -95,7 +123,7 @@ class SessionTracker
                 die(xlt("These demos are not meant for headless server testing. Please do this on your own servers."));
             }
             // throttle down since the 'THROTTLE_DOWN_WAIT_MILLISECONDS' environment setting has been exceeded
-            error_log("DEBUG: throttling down for script number " . $timeThrottle['number_scripts'] . " for " . $timeThrottle['time_throttle'] . " milliseconds");
+            error_log("DEBUG: throttling down for script number " . $timeThrottle['time_throttle'] . " for " . $timeThrottle['time_throttle'] . " milliseconds");
             usleep($timeThrottle['time_throttle'] * 1000);
         }
     }
