@@ -351,12 +351,24 @@ wait_for_mysql() {
     echo "Waiting for MySQL at ${MYSQL_HOST}:${MYSQL_PORT}..."
 
     # Try immediate connection first (MySQL might already be ready)
+    # Honor the same mysql-ca convention as DatabaseConnectionOptions::inferSslPaths():
+    # if the site provides a CA bundle at sites/default/documents/certificates/mysql-ca,
+    # verify the server against it. The MariaDB 11.4+ client verifies certificates by
+    # default and otherwise rejects servers whose CA is not in the system trust store
+    # (e.g. Amazon RDS), which breaks these readiness checks.
+    MYSQL_CA_FILE="/var/www/localhost/htdocs/openemr/sites/default/documents/certificates/mysql-ca"
+    MYSQL_SSL_OPTS=()
+    if [[ -f "${MYSQL_CA_FILE}" ]]; then
+        MYSQL_SSL_OPTS=(--ssl-ca="${MYSQL_CA_FILE}")
+    fi
+
     # Use mysqladmin ping for more efficient health check
     if mysqladmin ping \
         --host="${MYSQL_HOST}" \
         --port="${MYSQL_PORT}" \
         --user="${MYSQL_ROOT_USER}" \
         --password="${MYSQL_ROOT_PASS}" \
+        "${MYSQL_SSL_OPTS[@]}" \
         --silent >/dev/null 2>&1; then
         echo "MySQL is ready!"
         return 0
@@ -369,6 +381,7 @@ wait_for_mysql() {
             --port="${MYSQL_PORT}" \
             --user="${MYSQL_ROOT_USER}" \
             --password="${MYSQL_ROOT_PASS}" \
+            "${MYSQL_SSL_OPTS[@]}" \
             --silent >/dev/null 2>&1; then
             echo "MySQL is ready!"
             return 0
@@ -807,15 +820,9 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
 
     # Install frontend dependencies and build if needed
     if [[ "${NEED_NPM_BUILD}" = "true" ]] && [[ -f /var/www/localhost/htdocs/openemr/package.json ]]; then
-        # install frontend dependencies (need unsafe-perm to run as root)
-        # IN ALPINE 3.14+, there is an odd permission thing happening where need to give non-root ownership
-        #  to several places ('node_modules' and 'public') in flex environment that npm is accessing via:
-        #    'chown -R apache:1000 node_modules'
-        #    'chown -R apache:1000 ccdaservice/node_modules'
-        #    'chown -R apache:1000 public'
-        # WILL KEEP TRYING TO REMOVE THESE LINES IN THE FUTURE SINCE APPEARS TO LIKELY BE A FLEETING NPM BUG WITH --unsafe-perm SETTING
-        #  should be ready to remove then the following npm error no long shows up on the build:
-        #    "ERR! warning: unable to access '/root/.config/git/attributes': Permission denied"
+        # In Alpine 3.14+, npm needs non-root ownership on a few paths it writes
+        # into ('node_modules', 'ccdaservice/node_modules', 'public'); pre-chown
+        # them to apache:1000 before running install.
         if [[ -d node_modules ]]; then
             chown -R apache:1000 node_modules
         fi
@@ -826,7 +833,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
             chown -R apache:1000 public
         fi
         flex_timing 'npm install (root) start (includes napa postinstall)'
-        npm install --unsafe-perm
+        npm install
         flex_timing 'npm install (root) done'
         # build css
         flex_timing 'npm run build (webpack) start'
@@ -839,7 +846,7 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
         # install ccdaservice
         flex_timing 'npm install (ccdaservice) start'
         cd /var/www/localhost/htdocs/openemr/ccdaservice
-        npm install --unsafe-perm
+        npm install --allow-git=all
         cd /var/www/localhost/htdocs/openemr
         flex_timing 'npm install (ccdaservice) done'
         RAN_ANY_BUILD=true
