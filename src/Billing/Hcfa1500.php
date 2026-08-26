@@ -449,8 +449,8 @@ class Hcfa1500
         // Medicare forbids an entry here and other payers require one.
         // There is still confusion over this.
         if (
-            $claim->referrerLastName() || $claim->billingProviderLastName() &&
-            (!OEGlobalsBag::getInstance()->getBoolean('MedicareReferrerIsRenderer') || $claim->claimType() != 'MB')
+            ($claim->referrerLastName() || $claim->billingProviderLastName())
+            && (!OEGlobalsBag::getInstance()->getBoolean('MedicareReferrerIsRenderer') || $claim->claimType() != 'MB')
         ) {
             // Box 17a. Referring Provider Alternate Identifier
             // Commented this out because UPINs are obsolete, leaving the code as an
