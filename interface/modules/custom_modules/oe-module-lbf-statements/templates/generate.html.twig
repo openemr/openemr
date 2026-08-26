@@ -64,6 +64,30 @@
         </form>
 
         {% if instance_id %}
+            {% if measurements %}
+                <div class="d-flex flex-wrap mb-3" style="gap:0.35rem 0.7rem;">
+                    {% for m in measurements %}
+                        <span class="border rounded px-2 py-1 small bg-light">
+                            {{ m.title|text }}
+                            <strong>{{ m.value|text }}</strong>
+                        </span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% if traces %}
+                <table class="table table-sm table-borderless mb-3">
+                    <tbody>
+                        {% for t in traces %}
+                            <tr>
+                                <td class="text-muted text-nowrap pr-3" style="width:1%;">{{ t.from|text }}</td>
+                                <td>{{ t.sentence|text }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
             {% if paragraphCurrent %}
                 <h3>{{ "Current"|xlt }}</h3>
                 <p class="border p-3">{{ paragraphCurrent|text }}</p>
