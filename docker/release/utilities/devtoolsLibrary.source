@@ -820,8 +820,8 @@ run_vendor_hook() {
     [[ -d "${HOOKS_ROOT}/$1" ]] || return 0
     local f
     for f in "${HOOKS_ROOT}/$1"/*; do
-        if [[ -f "$f" && ! -x "$f" && "$(head -c2 "$f")" = '#!' ]]; then
-            echo "WARNING: $f has a shebang but is not executable; run-parts will skip it"
+        if [[ -f "${f}" && ! -x "${f}" && "$(head -c2 "${f}" || true)" = '#!' ]]; then
+            echo "WARNING: ${f} has a shebang but is not executable; run-parts will skip it"
         fi
     done
     # shellcheck disable=SC2312

@@ -87,6 +87,12 @@ exit 0' > "${stub_dir}/mariadb"
     echo '#!/bin/sh
 exit 1' > "${test_dir}/01test"
     chmod +x "${test_dir}/01test"
+
+    bats::on_failure() {        
+        echo "status = ${status}"
+        echo "output = ${output}"
+    }
+    
     run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
     [[ $status -eq 1 ]]
     [[ $output == "run-parts: testing/01test exited with return code 1"  ]]
