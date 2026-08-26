@@ -1,0 +1,104 @@
+{#
+  Generate one narrative paragraph onto an LBF textarea.
+
+  @package   OpenEMR
+  @author    Simon Quigley <squigley@altispeed.com>
+  @license   GNU General Public License 3
+#}
+<html>
+<head>
+    <title>{{ "Form statements"|xlt }}</title>
+    {{ setupHeader() }}
+</head>
+<body class="p-3">
+    <div class="container-fluid">
+        <h2>{{ "Form statements"|xlt }}</h2>
+        {% include '_tabs.html.twig' %}
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error|text }}</div>
+        {% endif %}
+        {% if message %}
+            <div class="alert alert-success">{{ message|text }}</div>
+        {% endif %}
+
+        <form method="get" action="{{ postUrl|attr }}" class="mb-3" id="lbf-stmt-pick">
+            <div class="form-row align-items-end">
+                <div class="form-group col-md-4 position-relative" style="overflow:visible;">
+                    <label for="patient_search">{{ "Patient"|xlt }}</label>
+                    <input type="hidden" name="pid" id="pid" value="{{ pid|attr }}" />
+                    <input type="text" class="form-control" id="patient_search" autocomplete="off"
+                           placeholder="{{ "Type a name"|xlt }}"
+                           value="{{ patient ? patient.name|attr : '' }}"
+                           data-search-url="{{ searchUrl|attr }}"
+                           data-form-id="{{ form_id|attr }}" />
+                    <div class="list-group position-absolute w-100 shadow-sm bg-white"
+                         id="patient_results"
+                         style="display:none; z-index:1050; max-height:16rem; overflow-y:auto; top:100%; left:0;"></div>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="form_id">{{ "Layout"|xlt }}</label>
+                    <select class="form-control" id="form_id" name="form_id" onchange="this.form.submit()">
+                        {% if formChoices is empty %}
+                            <option value="">{{ "No layouts with rules"|xlt }}</option>
+                        {% endif %}
+                        {% for layout in formChoices %}
+                            <option value="{{ layout.form_id|attr }}" {% if layout.form_id == form_id %}selected{% endif %}>
+                                {{ layout.title|text }} ({{ layout.form_id|text }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="instance_id">{{ "Form instance"|xlt }}</label>
+                    <select class="form-control" id="instance_id" name="instance_id" onchange="this.form.submit()">
+                        <option value="0">{{ "Select"|xlt }}</option>
+                        {% for inst in instances %}
+                            <option value="{{ inst.instance_id|attr }}" {% if inst.instance_id == instance_id %}selected{% endif %}>
+                                {{ inst.date|text }} — {{ "encounter"|xlt }} {{ inst.encounter|text }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </form>
+
+        {% if instance_id %}
+            {% if paragraphCurrent %}
+                <h3>{{ "Current"|xlt }}</h3>
+                <p class="border p-3">{{ paragraphCurrent|text }}</p>
+            {% endif %}
+
+            <form method="post" action="{{ postUrl|attr }}" class="mb-3">
+                {{ csrfToken('default', 'csrf_token_form') }}
+                <input type="hidden" name="form_id" value="{{ form_id|attr }}" />
+                <input type="hidden" name="pid" value="{{ pid|attr }}" />
+                <input type="hidden" name="instance_id" value="{{ instance_id|attr }}" />
+                <input type="hidden" name="generate" value="1" />
+                <div class="form-group">
+                    <label for="paragraph_text">{{ "Proposed paragraph"|xlt }}</label>
+                    <textarea class="form-control" id="paragraph_text" name="paragraph_text" rows="8">{{ paragraphProposed|text }}</textarea>
+                </div>
+                {% if needMode %}
+                    <div class="alert alert-warning">
+                        {{ "That field already has text. Append, overwrite, or cancel."|xlt }}
+                    </div>
+                    <button type="submit" name="write_mode" value="append" class="btn btn-secondary">{{ "Append"|xlt }}</button>
+                    <button type="submit" name="write_mode" value="overwrite" class="btn btn-primary">{{ "Overwrite"|xlt }}</button>
+                    <a href="{{ postUrl|attr }}?form_id={{ form_id|attr_url }}&pid={{ pid|attr_url }}&instance_id={{ instance_id|attr_url }}" class="btn btn-link">{{ "Cancel"|xlt }}</a>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">{{ "Save"|xlt }}</button>
+                {% endif %}
+            </form>
+
+            {% if formUrl %}
+                <a class="btn btn-outline-secondary" href="{{ formUrl|attr }}" target="_blank">{{ "Open form"|xlt }}</a>
+            {% endif %}
+            {% if printUrl %}
+                <a class="btn btn-outline-secondary" href="{{ printUrl|attr }}" target="_blank">{{ "Print"|xlt }}</a>
+            {% endif %}
+        {% endif %}
+    </div>
+    <script src="{{ assetBase|attr }}generate.js"></script>
+</body>
+</html>
