@@ -1088,7 +1088,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 11,
+    'count' => 12,
     'path' => __DIR__ . '/../../interface/orders/orders_results.php',
 ];
 $ignoreErrors[] = [
@@ -1328,12 +1328,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 15,
+    'count' => 16,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_full.php',
 ];
 $ignoreErrors[] = [
@@ -1378,12 +1378,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 8,
+    'count' => 9,
     'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_full.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_full_add.php',
 ];
 $ignoreErrors[] = [
