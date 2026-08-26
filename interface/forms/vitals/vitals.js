@@ -107,6 +107,10 @@
             return false;
         }
 
+        // Rebuild the canonical total-inch height before validation so a submit
+        // cannot persist stale data if helper values changed without an input event.
+        syncHeightTotalFromHelper();
+
         let inputs = vitalsForm.querySelectorAll('input[data-min]');
         let hasErrors = false;
 
@@ -338,10 +342,6 @@
         let weightInput = document.getElementById('weight_input_usa');
         if (weightInput) {
             weightInput.addEventListener('input', calculateBMI);
-        }
-        let heightInput = document.getElementById('height_input_usa');
-        if (heightInput) {
-            heightInput.addEventListener('input', calculateBMI);
         }
 
         // Real-time validation for non-conversion inputs
