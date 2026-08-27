@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Persistence for statement rules and run log.
+ * Statement rules and run log.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

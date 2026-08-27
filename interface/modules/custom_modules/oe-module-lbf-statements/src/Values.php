@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Narrow mixed database/request values without empty() or mixed casts.
+ * Cast mixed SQL and request values.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

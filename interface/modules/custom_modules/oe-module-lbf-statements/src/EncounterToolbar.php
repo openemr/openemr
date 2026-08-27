@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Inject a Generate control on encounter forms that have statement rules.
+ * Form statements button on the encounter form list.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -59,10 +59,19 @@ class EncounterToolbar
             . "    const a = document.createElement('a');\n"
             . "    a.className = 'btn btn-text btn-sm lbf-stmt-btn';\n"
             . "    a.href = item.url;\n"
-            . "    a.target = '_blank';\n"
             . "    a.title = label;\n"
             . "    a.textContent = label;\n"
-            . "    a.addEventListener('click', function() { if (top.restoreSession) { top.restoreSession(); } });\n"
+            . "    a.addEventListener('click', function(e) {\n"
+            . "      if (top.restoreSession) { top.restoreSession(); }\n"
+            . "      if (typeof top.navigateTab === 'function') {\n"
+            . "        e.preventDefault();\n"
+            . "        top.navigateTab(item.url, 'mod', function() {\n"
+            . "          if (typeof top.activateTabByName === 'function') {\n"
+            . "            top.activateTabByName('mod', true);\n"
+            . "          }\n"
+            . "        });\n"
+            . "      }\n"
+            . "    });\n"
             . "    bar.appendChild(a);\n"
             . "  });\n"
             . "})();\n"

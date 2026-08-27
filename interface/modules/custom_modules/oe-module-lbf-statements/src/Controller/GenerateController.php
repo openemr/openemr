@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Generate a paragraph onto an LBF textarea for one form instance.
+ * Generate screen.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -66,21 +66,8 @@ class GenerateController
         }
 
         $formId = $this->stringParam($request, 'form_id');
-        if ($formId === '' && $formChoices !== []) {
-            $formId = $formChoices[0]['form_id'];
-        }
         if ($formId !== '') {
             Identifiers::assertFieldId($formId);
-        }
-
-        if ($request->query->get('ajax') === 'patients') {
-            header('Content-Type: application/json; charset=utf-8');
-            $q = $this->stringParam($request, 'q');
-            echo json_encode(
-                $formId !== '' ? $reader->searchPatientsWithForm($formId, $q) : [],
-                JSON_THROW_ON_ERROR
-            );
-            return;
         }
 
         $pid = $this->intParam($request, 'pid');
@@ -94,15 +81,18 @@ class GenerateController
                         return in_array($layout['form_id'], $have, true);
                     }
                 ));
-                if ($formId === '' || !in_array($formId, $have, true)) {
-                    $formId = $have[0];
+                if ($formId !== '' && !in_array($formId, $have, true)) {
+                    $formId = '';
+                    $instanceId = 0;
                 }
+            }
+            if ($formId === '' && count($formChoices) === 1) {
+                $formId = $formChoices[0]['form_id'];
             }
         }
 
         $message = '';
         $error = '';
-        $needMode = false;
         $actions = [];
         $rules = [];
         $patient = $reader->patientName($pid);
@@ -114,9 +104,10 @@ class GenerateController
         $paragraphCurrent = '';
         $encounter = 0;
 
+        $selectedInstance = null;
         if ($formId !== '' && $pid > 0) {
             $instances = $reader->instancesForPatient($formId, $pid);
-            if ($instanceId === 0 && $instances !== []) {
+            if ($instanceId === 0 && count($instances) === 1) {
                 $instanceId = $instances[0]['instance_id'];
             }
         }
@@ -161,29 +152,30 @@ class GenerateController
                 } elseif (!$reader->encounterOwnedBy(Values::rowInt($row, 'pid'), Values::rowInt($row, 'encounter'))) {
                     $error = xl('Encounter does not belong to this patient.');
                 } else {
-                    $mode = $this->stringParam($request, 'write_mode');
-                    $nonempty = $applier->targetsNonempty($values, $actions, $paragraphField);
-                    if ($nonempty && !in_array($mode, ['append', 'overwrite'], true)) {
-                        $needMode = true;
-                    } else {
-                        if ($mode === '') {
-                            $mode = 'overwrite';
-                        }
-                        $edited = $this->stringParam($request, 'paragraph_text');
-                        $newValues = $applier->apply($values, $actions, $mode, $paragraphField, $edited);
-                        $writer->write($instanceId, $newValues, $values, $applier->writeActions($paragraphField));
-                        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                        $repo->logRun(
-                            $formId,
-                            $pid,
-                            $instanceId,
-                            Values::asString($session->get('authUser')),
-                            $mode
-                        );
-                        $values = $reader->readValues($instanceId);
-                        $paragraphCurrent = $values[$paragraphField] ?? '';
-                        $message = xl('Saved.');
-                    }
+                    $edited = $this->stringParam($request, 'paragraph_text');
+                    $newValues = $applier->apply($values, $actions, 'overwrite', $paragraphField, $edited);
+                    $writer->write($instanceId, $newValues, $values, $applier->writeActions($paragraphField));
+                    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                    $repo->logRun(
+                        $formId,
+                        $pid,
+                        $instanceId,
+                        Values::asString($session->get('authUser')),
+                        'overwrite'
+                    );
+                    $values = $reader->readValues($instanceId);
+                    $paragraphCurrent = $values[$paragraphField] ?? '';
+                    $instances = $reader->instancesForPatient($formId, $pid);
+                    $message = xl('Saved.');
+                }
+            }
+        }
+
+        if ($instanceId > 0) {
+            foreach ($instances as $inst) {
+                if ($inst['instance_id'] === $instanceId) {
+                    $selectedInstance = $inst;
+                    break;
                 }
             }
         }
@@ -229,13 +221,17 @@ class GenerateController
 
         $printUrl = '';
         $formUrl = '';
-        $webroot = OEGlobalsBag::getInstance()->getWebRoot();
+        $patientSetUrl = '';
         if ($instanceId > 0 && $formId !== '' && $pid > 0) {
-            $printUrl = $webroot . '/interface/forms/LBF/printable.php?formname='
-                . urlencode($formId) . '&formid=' . $instanceId
-                . '&patientid=' . $pid . '&visitid=' . $encounter;
-            $formUrl = $webroot . '/interface/forms/LBF/new.php?formname='
-                . urlencode($formId) . '&id=' . $instanceId;
+            $openBase = $this->bootstrap->getPublicUrl() . 'open_form.php?form_id=' . rawurlencode($formId)
+                . '&pid=' . $pid . '&instance_id=' . $instanceId;
+            $formUrl = $openBase . '&dest=form';
+            $printUrl = $openBase . '&dest=print';
+            if ($encounter > 0) {
+                $patientSetUrl = OEGlobalsBag::getInstance()->getWebRoot()
+                    . '/interface/patient_file/summary/demographics.php?set_pid=' . $pid
+                    . '&set_encounterid=' . $encounter;
+            }
         }
 
         echo $twig->render('generate.html.twig', [
@@ -245,19 +241,21 @@ class GenerateController
             'instance_id' => $instanceId,
             'encounter' => $encounter,
             'patient' => $patient,
-            'searchUrl' => $this->bootstrap->getPublicUrl() . 'index.php',
+            'finderUrl' => OEGlobalsBag::getInstance()->getWebRoot()
+                . '/interface/main/calendar/find_patient_popup.php?pflag=0',
             'instances' => $instances,
+            'selectedInstance' => $selectedInstance,
             'paragraphField' => $paragraphField,
             'paragraphTitle' => $paragraphTitle,
             'paragraphCurrent' => $paragraphCurrent,
             'paragraphProposed' => $paragraphProposed,
             'measurements' => $measurements,
             'traces' => $traces,
-            'needMode' => $needMode,
             'message' => $message,
             'error' => $error,
             'printUrl' => $printUrl,
             'formUrl' => $formUrl,
+            'patientSetUrl' => $patientSetUrl,
             'canAdmin' => AclMain::aclCheckCore('admin', 'super'),
             'activeTab' => 'generate',
             'postUrl' => $this->bootstrap->getPublicUrl() . 'index.php',
