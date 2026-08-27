@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Isolated tests for the measurement → sentence engine.
+ * StatementEngine tests.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
