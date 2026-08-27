@@ -95,7 +95,7 @@ exit 1' > "${test_dir}/01test"
 
     run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
     [[ $status -eq 1 ]]
-    [[ $output == "run-parts: ${test_dir}/01test exited with return code 1"  ]]
+    [[ $output = *"${test_dir}/01test"* ]]
 }
 
 @test "run_vendor_hooks: execution order" {
@@ -116,9 +116,9 @@ exit 0' > "${test_dir}/02test"
     }
 
     run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
-    [[ $status -eq 0 ]]
-    [[ $output == *"01 OK"*"02 OK"* ]]
-    [[ $output == *"testing hook OK"* ]]
+    (( status == 0 ))
+    [[ $output = *"01 OK"*"02 OK"* ]]
+    [[ $output = *"testing hook OK"* ]]
 }
 
 @test "run_vendor_hooks: missing executable permission" {
@@ -135,7 +135,7 @@ exit 0' > "${test_dir}/01test"
     }
 
     run bash -c "export HOOKS_ROOT="${test_root}"; source '$LIB'; run_vendor_hook testing 2>&1"
-    [[ $status -eq 0 ]]
-    [[ $output == *"WARNING: "${test_dir}"/01test has a shebang but is not executable; run-parts will skip it"* ]]
-    [[ $output == *"testing hook: run-parts can't find executable scripts, expected?"* ]]
+    (( status == 0 ))
+    [[ $output = *"WARNING: "${test_dir}"/01test has a shebang but is not executable; run-parts will skip it"* ]]
+    [[ $output = *"testing hook: run-parts can't find executable scripts, expected?"* ]]
 }

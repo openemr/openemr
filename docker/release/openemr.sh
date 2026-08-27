@@ -654,7 +654,7 @@ run_auto_configure() {
         return 1
     fi
 
-    run_vendor_hook postconfig
+    run_vendor_hook postconfig || exit 1
     echo "OpenEMR configured successfully"
 }
 
