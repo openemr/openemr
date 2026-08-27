@@ -654,6 +654,7 @@ run_auto_configure() {
         return 1
     fi
 
+    # shellcheck disable=SC2310
     run_vendor_hook postconfig || exit 1
     echo "OpenEMR configured successfully"
 }
