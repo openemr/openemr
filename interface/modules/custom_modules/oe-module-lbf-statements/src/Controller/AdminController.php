@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CRUD for statement rules, parameterized by LBF form_id.
+ * Rules editor.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

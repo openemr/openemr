@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Register the LBF Form Statements namespace and boot the module.
+ * Module bootstrap.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

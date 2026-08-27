@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Menu registration and extra Twig template path for this module.
+ * Menu item and Twig path.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

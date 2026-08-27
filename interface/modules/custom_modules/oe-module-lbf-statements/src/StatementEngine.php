@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Form-agnostic measurement → sentence evaluator. No SQL, no specialty branches.
+ * Evaluate statement rules against LBF field values.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LBF layouts and field metadata from layout_options / layout_group_properties.
+ * LBF layout metadata.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
