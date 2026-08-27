@@ -92,6 +92,7 @@ class ApiTestClient
         'patient/patient.read',
 
         'user/AllergyIntolerance.read',
+        'user/Appointment.read',
         'user/Binary.read',
         'user/CarePlan.read',
         'user/CareTeam.read',

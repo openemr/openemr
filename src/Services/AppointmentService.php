@@ -129,10 +129,10 @@ class AppointmentService extends BaseService
                        pd.lname,
                        pd.DOB,
                        pd.pid,
-                       providers.uuid AS pce_aid_uuid,
-                       providers.fname AS pce_aid_fname,
-                       providers.lname AS pce_aid_lname,
-                       providers.npi AS pce_aid_npi,
+                       providers.pce_aid_uuid,
+                       providers.pce_aid_fname,
+                       providers.pce_aid_lname,
+                       providers.pce_aid_npi,
                        pce.pc_aid,
                        pce.pc_apptstatus,
                        pce.pc_eventDate,
@@ -185,7 +185,15 @@ class AppointmentService extends BaseService
                            FROM
                                 patient_data
                       ) pd ON pd.pid = pce.pc_pid
-                       LEFT JOIN users as providers ON pce.pc_aid = providers.id";
+                       LEFT JOIN (
+                           select id AS pce_aid_id
+                           ,uuid AS pce_aid_uuid
+                           ,fname AS pce_aid_fname
+                           ,lname AS pce_aid_lname
+                           ,npi AS pce_aid_npi
+                           FROM
+                                users
+                      ) providers ON pce.pc_aid = providers.pce_aid_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
