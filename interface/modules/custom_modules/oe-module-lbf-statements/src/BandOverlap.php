@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Numeric band overlap on the same layout field. Open ends are infinities.
+ * Whether two numeric bands overlap.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
