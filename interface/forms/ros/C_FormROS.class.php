@@ -26,14 +26,11 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class C_FormROS extends Controller
 {
-    public $template_dir;
-
-    function __construct($template_mod = "general")
+    function __construct()
     {
         parent::__construct();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $returnurl = 'encounter_top.php';
-        $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/ros/";
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->getWebRoot());
         $this->assign("DONT_SAVE_LINK", FormActionBarSettings::EXIT_URL);
