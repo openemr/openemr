@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Apply engine actions as one paragraph on a single LBF textarea.
+ * Write the paragraph onto one LBF field.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -40,18 +40,6 @@ class StatementApplier
             $out[$paragraphField] = $this->appendText($existing, $paragraph);
         }
         return $out;
-    }
-
-    /**
-     * @param array<string, string> $current
-     * @param list<array<string, mixed>> $actions
-     */
-    public function targetsNonempty(array $current, array $actions, string $paragraphField): bool
-    {
-        if ($actions === []) {
-            return false;
-        }
-        return trim($current[$paragraphField] ?? '') !== '';
     }
 
     /**
