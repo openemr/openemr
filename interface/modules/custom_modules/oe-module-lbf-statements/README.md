@@ -34,11 +34,14 @@ editor.
 ## Use
 
 Open **Modules > Form statements**. You get Generate, and Rules if you have
-`admin|super`. On Generate, type a patient name. Encounter forms that have
-rules also get a **Form statements** button next to Print.
+`admin|super`. Generate uses the stock patient finder
+(`find_patient_popup.php`). Pick a layout, then click a visit. Encounter
+forms that have rules also get a **Form statements** button next to Print.
 
-Generate fills an editable paragraph and writes it to the field you
-configured. Open the encounter form and use **Print** for the PDF.
+Matched sentences stay above the editor. The editor shows the saved
+paragraph, or the generated text if that field is empty. **Save** overwrites
+the textarea. **Open encounter** selects that patient and visit in OpenEMR
+(a new app tab when you are in the main UI). **Print** writes the form PDF.
 
 ## Add a ruleset
 

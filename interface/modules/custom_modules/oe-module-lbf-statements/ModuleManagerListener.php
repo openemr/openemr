@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Module Manager hooks. Schema install is table.sql; unregister uses cleanup.sql.
+ * Module Manager action hooks.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

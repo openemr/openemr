@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Band range overlap (save-time guard).
+ * BandOverlap tests.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

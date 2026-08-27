@@ -1,160 +1,93 @@
 (function () {
-    const input = document.getElementById('patient_search');
-    const pid = document.getElementById('pid');
-    const list = document.getElementById('patient_results');
-    const form = document.getElementById('lbf-stmt-pick');
-    if (!input || !pid || !list || !form) {
-        return;
-    }
-    const searchUrl = input.getAttribute('data-search-url') || '';
-    const formId = input.getAttribute('data-form-id') || '';
-    let timer = null;
-    let lastItems = [];
-    let picking = false;
+    const input = document.getElementById('patient_display');
+    const finderUrl = (input && input.getAttribute('data-finder-url')) || '';
 
-    function hide() {
-        list.style.display = 'none';
-        list.classList.remove('show');
-        list.innerHTML = '';
-    }
-
-    function showList() {
-        list.style.display = 'block';
-        list.classList.add('show');
-    }
-
-    function pick(item) {
-        picking = true;
-        pid.value = String(item.pid);
-        input.value = item.name;
-        const inst = document.getElementById('instance_id');
-        if (inst) {
-            inst.value = '0';
+    window.sel_patient = function () {
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
+            top.restoreSession();
         }
-        hide();
-        form.submit();
-    }
-
-    function matchTypedName(items) {
-        const q = input.value.trim().toLowerCase();
-        if (!q || !items.length) {
-            return null;
+        if (typeof dlgopen === 'function') {
+            dlgopen(finderUrl, '_blank', 700, 550);
+            return;
         }
-        const exact = [];
-        const prefix = [];
-        items.forEach(function (item) {
-            const name = String(item.name || '').toLowerCase();
-            if (name === q) {
-                exact.push(item);
-            } else if (name.indexOf(q) === 0) {
-                prefix.push(item);
+        window.open(finderUrl, 'findPatient', 'width=700,height=550,scrollbars=yes');
+    };
+
+    function tabsWindow() {
+        try {
+            if (window.top && window.top !== window && typeof window.top.navigateTab === 'function') {
+                return window.top;
             }
-        });
-        if (exact.length === 1) {
-            return exact[0];
-        }
-        if (items.length === 1) {
-            return items[0];
-        }
-        if (prefix.length === 1 && exact.length === 0) {
-            return prefix[0];
+        } catch (e) {
+            /* cross-origin */
         }
         return null;
     }
 
-    function applyTypedName() {
-        if (picking || (pid.value && pid.value !== '0')) {
-            return;
+    // Same path as Patient Finder (dynamic_finder.php): open demographics in
+    // the Patient tab. demographics.php?set_encounterid= then loadFrame('enc').
+    function openPatientTab(shell, url) {
+        if (typeof shell.restoreSession === 'function') {
+            shell.restoreSession();
         }
-        const q = input.value.trim();
-        if (!q) {
-            return;
-        }
-        const local = matchTypedName(lastItems);
-        if (local) {
-            pick(local);
-            return;
-        }
-        const url = searchUrl + '?ajax=patients&form_id=' + encodeURIComponent(formId)
-            + '&q=' + encodeURIComponent(q);
-        fetch(url, { credentials: 'same-origin' })
-            .then(function (r) { return r.json(); })
-            .then(function (items) {
-                lastItems = Array.isArray(items) ? items : [];
-                const hit = matchTypedName(lastItems);
-                if (hit) {
-                    pick(hit);
+        if (typeof shell.navigateTab === 'function') {
+            shell.navigateTab(url, 'pat', function () {
+                if (typeof shell.activateTabByName === 'function') {
+                    shell.activateTabByName('pat', true);
                 }
-            })
-            .catch(function () { /* leave the field as typed */ });
-    }
-
-    function render(items) {
-        lastItems = items;
-        list.innerHTML = '';
-        if (!items.length) {
-            const empty = document.createElement('div');
-            empty.className = 'list-group-item text-muted';
-            empty.textContent = 'No matching patients';
-            list.appendChild(empty);
-            showList();
-            return;
-        }
-        items.forEach(function (item) {
-            const li = document.createElement('button');
-            li.type = 'button';
-            li.className = 'list-group-item list-group-item-action';
-            li.textContent = item.name + ' (' + item.pid + ')';
-            li.addEventListener('mousedown', function (e) {
-                e.preventDefault();
-                pick(item);
             });
-            list.appendChild(li);
-        });
-        showList();
-    }
-
-    input.addEventListener('input', function () {
-        pid.value = '0';
-        const q = input.value.trim();
-        if (timer) {
-            clearTimeout(timer);
-        }
-        if (q.length < 1) {
-            hide();
             return;
         }
-        timer = setTimeout(function () {
-            const url = searchUrl + '?ajax=patients&form_id=' + encodeURIComponent(formId)
-                + '&q=' + encodeURIComponent(q);
-            fetch(url, { credentials: 'same-origin' })
-                .then(function (r) { return r.json(); })
-                .then(render)
-                .catch(function () {
-                    render([]);
-                });
-        }, 100);
-    });
-
-    input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            applyTypedName();
+        if (shell.RTop) {
+            shell.RTop.location = url;
         }
-    });
+    }
 
-    input.addEventListener('blur', function () {
-        window.setTimeout(function () {
-            if (picking) {
-                return;
+    window.openEncounterTab = function (ev) {
+        if (ev) {
+            if (ev.preventDefault) {
+                ev.preventDefault();
             }
-            applyTypedName();
-        }, 120);
-    });
-
-    document.addEventListener('click', function (e) {
-        if (!list.contains(e.target) && e.target !== input) {
-            hide();
+            if (ev.stopPropagation) {
+                ev.stopPropagation();
+            }
         }
-    });
+        const el = (ev && ev.currentTarget)
+            ? ev.currentTarget
+            : document.getElementById('lbf-stmt-open-form');
+        if (!el) {
+            return false;
+        }
+        const tabsUrl = el.getAttribute('data-tabs-url');
+        const href = el.getAttribute('data-fallback-url') || el.getAttribute('href');
+        const shell = tabsWindow();
+        if (shell !== null && tabsUrl) {
+            try {
+                openPatientTab(shell, tabsUrl);
+            } catch (e) {
+                if (window.console && typeof console.error === 'function') {
+                    console.error('openEncounterTab', e);
+                }
+            }
+            return false;
+        }
+        // Unframed (no OpenEMR tab shell): follow the encounter view URL.
+        if (shell === null && href && href !== '#') {
+            window.location.href = href;
+        }
+        return false;
+    };
+
+    window.setpatient = function (pid, lname, fname) {
+        const pidEl = document.getElementById('pid');
+        const form = document.getElementById('lbf-stmt-pick');
+        if (!pidEl || !form) {
+            return;
+        }
+        pidEl.value = String(pid);
+        if (input) {
+            input.value = lname + ', ' + fname;
+        }
+        form.submit();
+    };
 })();
