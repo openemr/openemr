@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Persist applied LBF field values to lbf_data.
+ * Write lbf_data rows.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

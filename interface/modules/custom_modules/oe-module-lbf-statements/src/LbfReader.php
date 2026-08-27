@@ -42,48 +42,6 @@ class LbfReader
     }
 
     /**
-     * Patients matching name / pid / pubpid (any layout).
-     *
-     * @return list<array{pid:int,name:string}>
-     */
-    public function searchPatientsWithForm(string $formId, string $query, int $limit = 20): array
-    {
-        if ($formId !== '') {
-            Identifiers::assertFieldId($formId);
-        }
-        $query = trim($query);
-        if ($query === '') {
-            return [];
-        }
-        $limit = max(1, min(50, $limit));
-        $like = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $query) . '%';
-        $rows = QueryUtils::fetchRecords(
-            "SELECT pd.pid, pd.fname, pd.lname FROM patient_data pd " .
-            "WHERE pd.lname LIKE ? OR pd.fname LIKE ? OR pd.pubpid LIKE ? OR CAST(pd.pid AS CHAR) LIKE ? " .
-            "ORDER BY pd.lname, pd.fname, pd.pid LIMIT " . QueryUtils::escapeLimit($limit),
-            [$like, $like, $like, $like]
-        );
-        $out = [];
-        foreach ($rows as $raw) {
-            $row = Values::assocRow($raw);
-            if ($row === null) {
-                continue;
-            }
-            $pid = Values::rowInt($row, 'pid');
-            if ($pid <= 0) {
-                continue;
-            }
-            $out[] = [
-                'pid' => $pid,
-                'name' => trim(Values::rowString($row, 'lname') . ', ' . Values::rowString($row, 'fname')),
-            ];
-        }
-        return $out;
-    }
-
-    /**
-     * Eligible LBF instances on one encounter (formdir has statement rules).
-     *
      * @param list<string> $formIds
      * @return list<array{form_id:string,instance_id:int,name:string}>
      */
@@ -120,8 +78,6 @@ class LbfReader
     }
 
     /**
-     * Layouts (among $formIds) this patient already has an instance of, most recent first.
-     *
      * @param list<string> $formIds
      * @return list<string>
      */
@@ -160,14 +116,18 @@ class LbfReader
     }
 
     /**
-     * @return list<array{instance_id:int,encounter:int,date:string}>
+     * @return list<array{instance_id:int,encounter:int,date:string,reason:string,form_name:string}>
      */
     public function instancesForPatient(string $formId, int $pid): array
     {
         Identifiers::assertFieldId($formId);
         $rows = QueryUtils::fetchRecords(
-            "SELECT f.form_id, f.encounter, f.date FROM forms f " .
-            "WHERE f.formdir = ? AND f.pid = ? AND f.deleted = 0 ORDER BY f.date DESC, f.form_id DESC",
+            "SELECT f.form_id, f.encounter, f.date, f.form_name, " .
+            "fe.date AS encounter_date, fe.reason " .
+            "FROM forms f " .
+            "LEFT JOIN form_encounter fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
+            "WHERE f.formdir = ? AND f.pid = ? AND f.deleted = 0 " .
+            "ORDER BY COALESCE(fe.date, f.date) DESC, f.form_id DESC",
             [$formId, $pid]
         );
         $out = [];
@@ -176,10 +136,23 @@ class LbfReader
             if ($row === null) {
                 continue;
             }
+            $date = Values::rowString($row, 'encounter_date');
+            if ($date === '') {
+                $date = Values::rowString($row, 'date');
+            }
+            if (function_exists('oeFormatShortDate') && $date !== '') {
+                $date = oeFormatShortDate(substr($date, 0, 10));
+            }
+            $reason = trim(strip_tags(Values::rowString($row, 'reason')));
+            if (strlen($reason) > 80) {
+                $reason = substr($reason, 0, 77) . '...';
+            }
             $out[] = [
                 'instance_id' => Values::rowInt($row, 'form_id'),
                 'encounter' => Values::rowInt($row, 'encounter'),
-                'date' => Values::rowString($row, 'date'),
+                'date' => $date,
+                'reason' => $reason,
+                'form_name' => Values::rowString($row, 'form_name'),
             ];
         }
         return $out;
