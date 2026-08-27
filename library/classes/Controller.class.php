@@ -16,6 +16,7 @@
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\ControllerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Storage\CacheDirectory;
@@ -127,7 +128,9 @@ class Controller extends Smarty implements ControllerInterface
 
     public function function_argument_error(): never
     {
-         $this->display(OEGlobalsBag::getInstance()->getKernel()->getTemplateDir() . "error/" . $this->template_mod . "_function_argument.html");
+         echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+             ->getTwig()
+             ->render("error/" . $this->template_mod . "_function_argument.html.twig");
          exit;
     }
 
