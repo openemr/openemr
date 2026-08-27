@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Allowlist for layout and field identifiers stored on LBF forms.
+ * Layout and field id checks.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -25,7 +25,7 @@ final class Identifiers
     }
 
     /**
-     * Option ids in list_options may contain spaces or '+'; still reject path tricks.
+     * list_options.option_id may contain spaces or '+'.
      */
     public static function isSafeStoredOptionId(string $id): bool
     {

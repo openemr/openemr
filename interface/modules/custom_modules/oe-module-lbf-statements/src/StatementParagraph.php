@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Join fired rule sentences into one paragraph for an LBF textarea.
+ * Join sentences into one paragraph.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

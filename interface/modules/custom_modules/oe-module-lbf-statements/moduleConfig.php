@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Modules → Configure entry. Rules are edited from Form statements.
+ * Module Manager configure page.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
