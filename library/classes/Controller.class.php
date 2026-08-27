@@ -97,7 +97,7 @@ class Controller extends Smarty implements ControllerInterface
          $this->assign('GLOBALS', $GLOBALS);
     }
 
-    public function set_current_action($action)
+    public function set_current_action(string $action)
     {
          $this->_current_action = $action;
     }
