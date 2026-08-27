@@ -1296,10 +1296,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_bg_color' => '',
                         'card_text_color' => '',
                         'forceAlwaysOpen' => !$card->canCollapse(),
+                        // btnLabel/btnLink/linkMethod are owned by the card
+                        // class — it supplies them via getTemplateVariables(),
+                        // which wins the array_merge below.
                         'btnClass'   => 'js-card-toggle-edit',
-                        'btnLabel' => 'Add',
-                        'linkMethod' => 'javascript',
-                        'btnLink' => "void(0);",
                     ];
                     // Merge with ViewCard variables and render CARD template (not form!)
                     echo "<div class='col-12 m-0 p-0 px-2'>";
@@ -1323,10 +1323,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'card_bg_color' => '',
                         'card_text_color' => '',
                         'forceAlwaysOpen' =>  !$card->canCollapse(),
+                        // btnLabel/btnLink/linkMethod are owned by the card
+                        // class — it supplies them via getTemplateVariables(),
+                        // which wins the array_merge below.
                         'btnClass'   => 'js-card-toggle-edit',
-                        'btnLabel' => 'Add',
-                        'linkMethod' => 'javascript',
-                        'btnLink' => "void(0);",
                     ];
 
                     // Merge with ViewCard variables and render CARD template (not form!)
@@ -1660,7 +1660,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
+                            // Fallback only: a section card that needs a button
+                            // target supplies its own btnLink via
+                            // getTemplateVariables(), which wins the merge
+                            // below. It must stay a safe href — `javascript:`
+                            // URLs are rejected by |safe_href.
+                            'btnLink' => '#',
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));

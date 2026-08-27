@@ -101,8 +101,13 @@ class CareTeamViewCard extends CardModel
                 'id' => self::CARD_ID_EXPAND,
                 'btnLabel' => "Edit",
                 'btnClass' => 'btn-edit-care-team',
-                'btnLink' => "javascript:void(0);",
-                'linkMethod' => 'html',
+                // card_base emits this as an inline `onclick`; a `javascript:`
+                // href would be stripped by |safe_href. The click itself is
+                // handled by the `.btn-edit-care-team` listener in the card
+                // template, which does not call preventDefault() — so this
+                // must, or the `#` href jumps the page to the top.
+                'btnLink' => 'event.preventDefault();',
+                'linkMethod' => 'javascript',
                 'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]
