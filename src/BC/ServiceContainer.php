@@ -247,10 +247,8 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             TwigEnvironment::class,
-            static function (): TwigEnvironment {
-                return (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
-                    ->getTwig();
-            },
+            static fn(): TwigEnvironment => (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+                ->getTwig(),
         );
     }
 
