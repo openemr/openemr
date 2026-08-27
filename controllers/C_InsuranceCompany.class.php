@@ -9,7 +9,7 @@ class C_InsuranceCompany extends Controller
     public $icompanies;
     public $InsuranceCompany;
 
-    public function __construct(public $template_mod = "general")
+    public function __construct()
     {
         parent::__construct();
         $this->icompanies = [];

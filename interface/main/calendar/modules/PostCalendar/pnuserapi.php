@@ -25,6 +25,7 @@ use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 
 if (!defined('__POSTCALENDAR__')) {
@@ -1042,6 +1043,8 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $i++;
     }
 
+    $events = PatientService::annotateEventsWithPatientHasPicture($events);
+
     return $events;
 }
 
@@ -1465,6 +1468,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
             ? ($counselorsByEvent[(int) $eid] ?? '')
             : '';
     }
+
+    $events = PatientService::annotateEventsWithPatientHasPicture($events);
 
     return $events;
 }

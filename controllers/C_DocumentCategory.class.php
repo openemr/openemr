@@ -14,7 +14,7 @@ class C_DocumentCategory extends Controller
     public $link;
     public $_last_node;
 
-    function __construct(public $template_mod = "general")
+    function __construct()
     {
         parent::__construct();
         $this->document_categories = [];

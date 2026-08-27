@@ -7,19 +7,36 @@
  * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+// globals.php decides read-only vs writable session before it hands control
+// back, so the request has to be read here. globals.php calls CurrentRequest::get()
+// itself, so this is the same instance, not a second one.
+require_once dirname(__DIR__, 3) . '/vendor/autoload.php';
+
+use OpenEMR\Common\Http\CurrentRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Tabs\TabsWrapper;
+
+// When invoked with set_encounter this script writes pid/encounter to the
+// session, so declare the write intent up front and take the session lock once.
+// Without it globals.php opens the session read-only (read_and_close) and each
+// setpid()/setencounter() call has to reopen it mid-request, which logs a
+// "Session reopened for writing after read_and_close" warning per write.
+// Requests without set_encounter (returning from an encounter form) do not
+// write, so they stay lock-free.
+$sessionAllowWrite = CurrentRequest::get()->query->has('set_encounter');
 
 require_once(__DIR__ . '/../../globals.php');
 $srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 require_once($srcdir . "/encounter.inc.php");
 require_once($srcdir . "/forms.inc.php");
-
-use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\Header;
-use OpenEMR\Tabs\TabsWrapper;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $encounter = $session->get('encounter', 0);

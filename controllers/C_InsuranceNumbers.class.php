@@ -17,7 +17,7 @@ class C_InsuranceNumbers extends Controller
         public $providers;
         public $insurance_numbers;
 
-    function __construct(public $template_mod = "general")
+    function __construct()
     {
         parent::__construct();
         $this->providers = [];
