@@ -17,6 +17,7 @@ namespace OpenEMR\Modules\LbfStatements;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 use OpenEMR\Menu\MenuEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
@@ -46,6 +47,10 @@ class Bootstrap
     public function subscribeToEvents(): void
     {
         $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, $this->addCustomModuleMenuItem(...));
+        $this->eventDispatcher->addListener(
+            EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST,
+            (new EncounterToolbar())->onFormsListRender(...)
+        );
     }
 
     public function addCustomModuleMenuItem(MenuEvent $event): MenuEvent
