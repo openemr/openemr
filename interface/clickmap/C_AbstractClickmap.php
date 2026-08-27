@@ -40,16 +40,10 @@ abstract class C_AbstractClickmap extends Controller
      */
     public $template_dir;
 
-    /**
-     * @brief Initialize a newly created object belonging to this class
-     *
-     * @param string $template_mod template module name, passed to Controller's initializer.
-     */
-    function __construct($template_mod = "general")
+    function __construct()
     {
         parent::__construct();
         $returnurl = 'encounter_top.php';
-        $this->template_mod = $template_mod;
         $this->template_dir = OEGlobalsBag::getInstance()->getProjectDir() . "/interface/clickmap/template/";
         $this->assign("DONT_SAVE_LINK", OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/encounter/$returnurl");
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->getWebRoot());

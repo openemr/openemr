@@ -52,7 +52,6 @@ class C_Document extends Controller
     private bool $returnRetrieveKey = false;
 
     public function __construct(
-        $template_mod = "general",
         ?CryptoInterface $crypto = null,
     ) {
         parent::__construct();
@@ -60,7 +59,6 @@ class C_Document extends Controller
         $this->facilityService = new FacilityService();
         $this->patientService = new PatientService();
         $this->documents = [];
-        $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING'] ?? ''));
         $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "document&");
 

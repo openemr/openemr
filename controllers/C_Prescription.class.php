@@ -51,7 +51,7 @@ class C_Prescription extends Controller
         return $this->codeTypesService;
     }
 
-    function __construct(public $template_mod = "general")
+    function __construct()
     {
         parent::__construct();
         $this->assign("TOP_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "prescription" . "&");

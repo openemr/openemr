@@ -19,7 +19,7 @@ class C_Pharmacy extends Controller
     private $pageno;
     private $Pharmacy;
 
-    function __construct(public $template_mod = "general")
+    function __construct()
     {
         parent::__construct();
         $this->pharmacies = [];
