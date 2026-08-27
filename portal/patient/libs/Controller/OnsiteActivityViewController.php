@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
@@ -67,6 +68,12 @@ class OnsiteActivityViewController extends AppBasePortalController
     public function Query()
     {
         try {
+            // This view joins in patient demographics, so require the same
+            // patients/demo access the demographics screens enforce.
+            if (!AclMain::aclCheckCore('patients', 'demo')) {
+                throw new Exception('Unauthorized');
+            }
+
             $criteria = new OnsiteActivityViewCriteria();
             $status = RequestUtil::Get('status');
             $criteria->Status_Equals = $status;
@@ -132,6 +139,12 @@ class OnsiteActivityViewController extends AppBasePortalController
     public function Read()
     {
         try {
+            // This view joins in patient demographics, so require the same
+            // patients/demo access the demographics screens enforce.
+            if (!AclMain::aclCheckCore('patients', 'demo')) {
+                throw new Exception('Unauthorized');
+            }
+
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
             $this->RenderJSON($onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams());
