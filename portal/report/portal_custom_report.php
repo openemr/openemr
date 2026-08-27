@@ -718,6 +718,16 @@ foreach ($ar as $key => $val) {
                 $form_encounter = $val;
                 preg_match('/^(.*)_(\d+)$/', (string) $key, $res);
                 $form_id = $res[2];
+                // Only render a form that belongs to the logged-in portal patient.
+                // The request selects the form by id, so confirm ownership by the
+                // session pid before reading any of its data.
+                $owns_form = sqlQuery(
+                    "SELECT 1 FROM forms WHERE form_id = ? AND formdir = ? AND encounter = ? AND pid = ? AND deleted = 0 LIMIT 1",
+                    [$form_id, $res[1], $form_encounter, $pid]
+                );
+                if (empty($owns_form)) {
+                    continue;
+                }
                 $formres = getFormNameByFormdirAndFormid($res[1], $form_id);
                 $dateres = getEncounterDateByEncounter($form_encounter);
                 $formId = getFormIdByFormdirAndFormid($res[1], $form_id);
