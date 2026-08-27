@@ -107,6 +107,17 @@ on:
     - 'patch-prep/**'
     - 'release-prep/**'
     - 'release-finalize/**'
+    # Same duplicate-run problem, different bot: dependabot pushes the
+    # branch AND opens the PR, so both events fire. Worse, dependabot
+    # force-pushes on every rebase, and a push event's paths: filter is
+    # evaluated over `before..after` — which after a rebase spans every
+    # commit master gained in the interim. A composer.lock bump therefore
+    # matches paths it never touched, and detect-mode's diff of that same
+    # inflated range can resolve build_locally=true, spending an image
+    # build and the full pr-built upgrade suite on a dependency bump.
+    # Keep the pull_request run, which diffs against the PR base and sees
+    # only the bump itself.
+    - 'dependabot/**'
     paths:
     - '.github/workflows/acceptance-docker.yml'
     - '.github/docker/acceptance-docker-compose.yml'
