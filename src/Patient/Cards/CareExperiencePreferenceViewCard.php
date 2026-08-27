@@ -64,8 +64,11 @@ class CareExperiencePreferenceViewCard extends CardModel
                 'title' => xl('Care Experience Preferences'),
                 'id' => self::CARD_ID_EXPAND,
                 'btnLabel' => "Edit",
-                'btnLink' => "javascript:toggleEditMode(true);",
-                'linkMethod' => 'html',
+                // The header pencil is wired up by the delegated
+                // `.js-card-toggle-edit` handler in the card template; the
+                // inline handler only has to suppress the `#` href jump.
+                'btnLink' => 'event.preventDefault();',
+                'linkMethod' => 'javascript',
                 'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]

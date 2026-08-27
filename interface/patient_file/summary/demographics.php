@@ -1660,7 +1660,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_text_color' => $card->getTextColorClass(),
                             'forceAlwaysOpen' => !$card->canCollapse(),
                             'btnLabel' => $btnLabel,
-                            'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
+                            // No section card supplies a button target, so this
+                            // is only a fallback. It must stay a safe href:
+                            // `javascript:` URLs are rejected by |safe_href.
+                            'btnLink' => '#',
                         ];
 
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));

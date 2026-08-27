@@ -101,8 +101,11 @@ class CareTeamViewCard extends CardModel
                 'id' => self::CARD_ID_EXPAND,
                 'btnLabel' => "Edit",
                 'btnClass' => 'btn-edit-care-team',
-                'btnLink' => "javascript:void(0);",
-                'linkMethod' => 'html',
+                // The header pencil is wired up by the `.btn-edit-care-team`
+                // listener in the card template; the inline handler only has
+                // to suppress the `#` href jump.
+                'btnLink' => 'event.preventDefault();',
+                'linkMethod' => 'javascript',
                 'initiallyCollapsed' => $initiallyCollapsed,
                 'auth' => $authCheck
             ]
