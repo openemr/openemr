@@ -66,9 +66,14 @@ class Controller extends Smarty implements ControllerInterface
         'x12_partner' => ['admin', 'practice', 'Practice Settings'],
     ];
 
-    public $template_mod;
-    public $_current_action;
-    public $_state;
+    public string $template_mod;
+    /**
+     * Redeclared from parent to fix incorrect type info
+     * @var string|string[]
+     */
+    protected $template_dir;
+    public string $_current_action; // seems to be unneeded in practice
+    public bool $_state;
     public $_args = [];
     protected $form = null;
 
