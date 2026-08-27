@@ -792,21 +792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\DownloadWenoPharmacies\\:\\:extractFile\\(\\) should return string\\|null but returns false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\DownloadWenoPharmacies\\:\\:extractFile\\(\\) should return string\\|null but returns int\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\DownloadWenoPharmacies\\:\\:retrieveDataFile\\(\\) should return string\\|null but returns true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\TransmitProperties\\:\\:getAge\\(\\) should return string but returns int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php',

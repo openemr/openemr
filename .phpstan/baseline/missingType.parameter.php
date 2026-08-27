@@ -8792,16 +8792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/ModuleManagerListener.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function download_zipfile\\(\\) has parameter \\$fileUrl with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/scripts/file_download.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function download_zipfile\\(\\) has parameter \\$zipped_file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/scripts/file_download.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getModuleState\\(\\) has parameter \\$modId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/scripts/weno_log_sync.php',
@@ -8810,31 +8800,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Bootstrap\\:\\:moduleSqlUpgrade\\(\\) has parameter \\$installScript with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Bootstrap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\DownloadWenoPharmacies\\:\\:extractFile\\(\\) has parameter \\$path_to_extract with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\DownloadWenoPharmacies\\:\\:extractFile\\(\\) has parameter \\$storeLocation with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\DownloadWenoPharmacies\\:\\:processWenoPharmacyCsv\\(\\) has parameter \\$filePath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\DownloadWenoPharmacies\\:\\:retrieveDataFile\\(\\) has parameter \\$storelocation with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\DownloadWenoPharmacies\\:\\:retrieveDataFile\\(\\) has parameter \\$url with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\LogDataInsert\\:\\:insertPrescriptions\\(\\) has parameter \\$insertdata with no type specified\\.$#',

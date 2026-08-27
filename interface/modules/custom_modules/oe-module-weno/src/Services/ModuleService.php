@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -238,5 +239,24 @@ class ModuleService
         $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$session->get('authUser')]);
         $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
+    }
+
+    /**
+     * Active OpenEMR users eligible for Weno provider configuration.
+     * Excludes Greenway migration display-only staff (username gwstaff*, info GS:tag).
+     *
+     * @return list<array<mixed>>
+     */
+    public function getWenoProviderUsers(): array
+    {
+        return QueryUtils::fetchRecords(
+            "SELECT id, username, lname, fname, weno_prov_id, facility, facility_id
+               FROM `users`
+              WHERE active = 1
+                AND `username` > ''
+                AND `username` NOT LIKE 'gwstaff%'
+                AND (`info` IS NULL OR `info` NOT LIKE 'GS:%')
+              ORDER BY lname, fname"
+        );
     }
 }

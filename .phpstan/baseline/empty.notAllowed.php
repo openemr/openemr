@@ -1209,11 +1209,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/DownloadWenoPharmacies.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogImportBuild.php',
 ];
 $ignoreErrors[] = [
@@ -1233,7 +1228,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 42,
+    'count' => 36,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php',
 ];
 $ignoreErrors[] = [
@@ -1250,11 +1245,6 @@ $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/WenoValidate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/pharmacy_list_form.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
