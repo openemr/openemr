@@ -34,13 +34,13 @@ trait BaseTrait
 
     private function base(): void
     {
-        $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
+        $useGrid = getenv("SELENIUM_USE_GRID", true) ?: "false";
 
         if ($useGrid === "true") {
             // Use Selenium Grid (consistent testing environment with goal of stability)
-            $seleniumHost = getenv("SELENIUM_HOST", true) ?? "selenium";
+            $seleniumHost = getenv("SELENIUM_HOST", true) ?: "selenium";
             $e2eBaseUrl = getenv("SELENIUM_BASE_URL", true) ?: "http://openemr";
-            $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?? "false";
+            $forceHeadless = getenv("SELENIUM_FORCE_HEADLESS", true) ?: "false";
             // Implicit wait must be 0 when using explicit waits (waitFor,
             // waitForVisibility, wait()->until()). A non-zero implicit wait
             // causes each findElement() call inside an explicit wait condition
