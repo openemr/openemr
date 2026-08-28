@@ -25,12 +25,14 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Response;
 use XSLTProcessor;
 
 /**
@@ -243,17 +245,23 @@ class EncountermanagerController extends AbstractActionController
             $twig = ServiceContainer::getTwig();
             // can_access will check session if no params are passed.
             if (!$document->can_access()) {
-                echo $twig->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
-                exit;
+                (new RequestTerminator())->respond(new Response(
+                    $twig->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']),
+                    Response::HTTP_UNAUTHORIZED,
+                ));
             } elseif ($document->is_deleted()) {
-                echo $twig->render("templates/error/404.html.twig");
-                exit;
+                (new RequestTerminator())->respond(new Response(
+                    $twig->render("templates/error/404.html.twig"),
+                    Response::HTTP_NOT_FOUND,
+                ));
             }
 
             $content = $document->get_data();
             if (empty($content)) {
-                echo $twig->render("templates/error/404.html.twig");
-                exit;
+                (new RequestTerminator())->respond(new Response(
+                    $twig->render("templates/error/404.html.twig"),
+                    Response::HTTP_NOT_FOUND,
+                ));
             }
             $content = $document->get_data();
 
