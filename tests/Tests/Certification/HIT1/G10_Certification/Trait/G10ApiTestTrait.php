@@ -109,7 +109,7 @@ trait G10ApiTestTrait
     private static function getDisplayName(string $test_id): string
     {
         if (isset(self::$idMap[$test_id])) {
-            return (self::$idMap[$test_id]['short_id'] ?? '') . '.' . self::$idMap[$test_id]['title'] ?? ' Unknown Test';
+            return (self::$idMap[$test_id]['short_id'] ?? '') . '.' . (self::$idMap[$test_id]['title'] ?? ' Unknown Test');
         }
         return $test_id;
     }
