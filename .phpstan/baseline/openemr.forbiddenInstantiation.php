@@ -9,21 +9,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_DocumentCategory.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_InsuranceCompany.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/care_plan/new.php',
 ];
 $ignoreErrors[] = [
@@ -239,11 +224,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
 $ignoreErrors[] = [
@@ -325,11 +305,6 @@ $ignoreErrors[] = [
     'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/sign/assets/signer_modal.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Twig\\\\TwigContainer is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getTwig\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Acl/AccessDeniedHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Logging\\\\SystemLogger is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead\\.$#',

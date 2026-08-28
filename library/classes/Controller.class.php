@@ -14,15 +14,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Http\RequestTerminator;
 use OpenEMR\Core\ControllerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Storage\CacheDirectory;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Twig\Environment as TwigEnvironment;
 
 // TODO: @adunsulag move these into src/
 class Controller extends Smarty implements ControllerInterface
@@ -76,10 +78,12 @@ class Controller extends Smarty implements ControllerInterface
     public bool $_state;
     public $_args = [];
     protected $form = null;
+    protected TwigEnvironment $twig;
 
-    public function __construct()
+    public function __construct(?TwigEnvironment $twig = null)
     {
          parent::__construct();
+         $this->twig = $twig ?? ServiceContainer::getTwig();
          $this->template_mod = "general";
          $this->_current_action = "";
          $this->_state = true;
@@ -133,10 +137,8 @@ class Controller extends Smarty implements ControllerInterface
 
     public function function_argument_error(): never
     {
-         echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
-             ->getTwig()
-             ->render("error/" . $this->template_mod . "_function_argument.html.twig");
-         exit;
+         $body = $this->twig->render("error/" . $this->template_mod . "_function_argument.html.twig");
+         (new RequestTerminator())->error(400, $body);
     }
 
     public function i_once($file)
