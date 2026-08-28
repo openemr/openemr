@@ -52,11 +52,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification_helpers.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
@@ -145,11 +140,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_numeric\\(\\) with int\\<min, \\-1\\>\\|int\\<1, max\\> will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/contraception_billing_scan.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with list\\<array\\> will always evaluate to true\\.$#',
@@ -242,18 +232,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaimBatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array\\<mixed\\> will always evaluate to true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [

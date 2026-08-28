@@ -44,11 +44,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Right side of && is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Right side of && is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
 ];
 $ignoreErrors[] = [

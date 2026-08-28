@@ -27,21 +27,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type Patientvalidation\\\\Controller\\\\post is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type ADORecordSet_mysqli is incompatible with native type array\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/group_statuses_model.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type ADORecordSet_mysqli is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_models/therapy_groups_encounters_model.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type AmcItemizedActionData\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/library/AMC_Unimplemented.php',
@@ -95,11 +80,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type array\\|bool\\|null is not subtype of native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type mixed is not subtype of native type array\\|bool\\|null\\.$#',
@@ -157,11 +137,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/LogoService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Services\\\\Utils\\\\SQLStatement is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type void\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
@@ -170,11 +145,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type string is incompatible with native type stdClass\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/BulkPatientExport311APITest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\matching is incompatible with native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceMappingTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\the is incompatible with native type string\\|null\\.$#',

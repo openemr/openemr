@@ -8298,7 +8298,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getValue\\(\\) on mixed\\.$#',
-    'count' => 7,
+    'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceMappingTest.php',
 ];
 $ignoreErrors[] = [
