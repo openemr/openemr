@@ -173,7 +173,10 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id): void
         }
         deleter_row_delete("form_eye_mag_impplan", "form_id = ?", [$formid]);
         deleter_row_delete("form_eye_mag_wearing", "FORM_ID = ?", [$formid]);
-    } else {
+    }else if ($formdir == 'clinical_notes') {
+        deleter_row_delete("form_clinical_notes", "form_id = '" . add_escape_custom($formid) . "'");
+    }
+    else {
         deleter_row_delete("form_$formdir", "id = ?", [$formid]);
     }
 }
