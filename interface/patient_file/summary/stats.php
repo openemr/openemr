@@ -17,9 +17,9 @@ $pid = $session->get('pid', 0);
 require_once($srcdir . "/lists.inc.php");
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);

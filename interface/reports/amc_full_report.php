@@ -14,7 +14,6 @@ require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
-use OpenEMR\Core\OEGlobalsBag;
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {
