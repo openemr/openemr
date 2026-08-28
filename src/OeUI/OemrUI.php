@@ -12,9 +12,9 @@
 
 namespace OpenEMR\OeUI;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
@@ -103,8 +103,7 @@ class OemrUI
 
         $kernel = OEGlobalsBag::getInstance()->getKernel();
         $this->ed = $kernel->getEventDispatcher();
-        $twigContainer = new TwigContainer(null, $kernel);
-        $this->twig = $twigContainer->getTwig();
+        $this->twig = ServiceContainer::getTwig();
 
         if ($this->expandable) {
             $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, $this->expandIconListener(...));

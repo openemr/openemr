@@ -24,9 +24,9 @@ require_once($srcdir . "/options.inc.php");
 require_once($srcdir . "/patientvalidation.inc.php");
 require_once($srcdir . "/patient.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
@@ -80,7 +80,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('insurance_only_one')) {
     $insurance_headings = [xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider")];
 }
 
-$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+$twig = ServiceContainer::getTwig();
 //$insurance_info[0]['active'] = true;
 //$insuranceTypes = array_map(function($item) { return $item['type'];}, $insurance_info);
 //$insrender(uranceTypes = array_unique($insuranceTypes);

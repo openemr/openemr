@@ -26,7 +26,6 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -77,7 +76,7 @@ class ClientAdminController
     {
         $this->kernel = $this->globalsBag->getKernel();
         $this->actionUrlBuilder = new ActionUrlBuilder($this->session, $this->actionURL, self::CSRF_TOKEN_NAME);
-        $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
+        $this->twig = ServiceContainer::getTwig();
         $this->webroot = $this->globalsBag->getKernel()->getWebRoot();
     }
 

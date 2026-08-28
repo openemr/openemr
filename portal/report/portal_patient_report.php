@@ -16,7 +16,6 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Portal\PortalPatientReportController;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
@@ -61,7 +60,7 @@ $auth_demo = true; //AclMain::aclCheckCore('patients'  , 'demo');
 $ignoreAuth_onsite_portal = true;
 
 $portalPatientReportController = new PortalPatientReportController();
-$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
+$twig = ServiceContainer::getTwig();
 
 $issues = [];
 $data = [];
