@@ -2897,11 +2897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method render\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/messages/validate_messages_document_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method debug\\(\\) on mixed\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../library/ajax/person_search_ajax.php',
