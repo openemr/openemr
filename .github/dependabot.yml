@@ -28,11 +28,17 @@ updates:
       update-types:
       - minor
       - patch
+    # phpstan/* and rector/rector are deliberately absent, so each gets its
+    # own PR. A static-analyzer bump is never just a lock change: PHPStan
+    # sharpens inference and invalidates baseline entries, Rector shuffles
+    # rules between sets and rewrites source. Grouped with phpunit, that
+    # fallout arrives as one PR nobody can review or revert in pieces --
+    # 2.6.x pulled ExplicitPublicClassMethodRector into withPhpSets() and
+    # touched over a thousand files. Solo PRs keep each analyzer's fallout
+    # attributable to the bump that caused it.
     development:
       patterns:
       - phpunit/*
-      - phpstan/*
-      - rector/rector
       - shipmonk/*
       - friendsofphp/*
       update-types:
