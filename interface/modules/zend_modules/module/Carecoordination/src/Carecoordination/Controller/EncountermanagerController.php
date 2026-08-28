@@ -25,7 +25,6 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use OpenEMR\Services\FacilityService;
@@ -241,19 +240,19 @@ class EncountermanagerController extends AbstractActionController
 
         $document = new \Document($docId);
         try {
-            $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
+            $twig = ServiceContainer::getTwig();
             // can_access will check session if no params are passed.
             if (!$document->can_access()) {
-                echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
+                echo $twig->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
                 exit;
             } elseif ($document->is_deleted()) {
-                echo $twig->getTwig()->render("templates/error/404.html.twig");
+                echo $twig->render("templates/error/404.html.twig");
                 exit;
             }
 
             $content = $document->get_data();
             if (empty($content)) {
-                echo $twig->getTwig()->render("templates/error/404.html.twig");
+                echo $twig->render("templates/error/404.html.twig");
                 exit;
             }
             $content = $document->get_data();

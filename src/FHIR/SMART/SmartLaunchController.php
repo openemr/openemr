@@ -22,7 +22,7 @@ use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
@@ -94,7 +94,7 @@ class SmartLaunchController
                         'intent' => SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG
             ];
 
-            $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+            $twig = ServiceContainer::getTwig();
             echo $twig->render("patient/card/smart_launch.html.twig", $viewArgs);
             $this->renderLaunchScript();
     }

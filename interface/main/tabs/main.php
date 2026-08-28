@@ -28,7 +28,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
@@ -92,7 +92,7 @@ if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1) {
 }
 
 $esignApi = new Api();
-$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+$twig = ServiceContainer::getTwig();
 
 ?>
 <!DOCTYPE html>

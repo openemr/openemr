@@ -18,7 +18,7 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
@@ -472,8 +472,7 @@ $templateVars = [
     'rp' => $rp['rp'],
 ];
 
-$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-$t = $twig->getTwig();
+$t = ServiceContainer::getTwig();
 echo $t->render('patient_finder/finder.html.twig', $templateVars);
 
 ?>

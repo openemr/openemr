@@ -39,7 +39,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
@@ -644,8 +644,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
     $encounterMenuEvent = new EncounterMenuEvent();
     $menu = $eventDispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU_RENDER);
 
-    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-    $t = $twig->getTwig();
+    $t = ServiceContainer::getTwig();
     echo $t->render('encounter/forms/navbar.html.twig', [
         'encounterDate' => oeFormatShortDate($encounter_date),
         'patientName' => $patientName,

@@ -18,7 +18,6 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
@@ -26,7 +25,7 @@ $format = $_GET['format'] ?? "html";
 $format = in_array($format, ['json', 'html']) ? $format : "html";
 
 try {
-    $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
+    $twig = ServiceContainer::getTwig();
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf"], session: $session)) {
         CsrfUtils::csrfNotVerified(toScreen: false, beforeExit: static function () use ($twig, $format): void {

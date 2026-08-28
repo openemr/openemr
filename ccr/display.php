@@ -18,7 +18,6 @@
 require_once(__DIR__ . "/../interface/globals.php");
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 
@@ -28,19 +27,19 @@ $d = new Document($document_id);
 
 
 try {
-    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
+    $twig = ServiceContainer::getTwig();
     // can_access will check session if no params are passed.
     if (!$d->can_access()) {
-        echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
+        echo $twig->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
         exit;
     } elseif ($d->is_deleted()) {
-        echo $twig->getTwig()->render("templates/error/404.html.twig");
+        echo $twig->render("templates/error/404.html.twig");
         exit;
     }
 
     $xml = $d->get_data();
     if (empty($xml)) {
-        echo $twig->getTwig()->render("templates/error/404.html.twig");
+        echo $twig->render("templates/error/404.html.twig");
         exit;
     }
 
@@ -59,7 +58,7 @@ try {
     $content = $updatedViewCCDAEvent->getContent();
     if (empty($content)) {
         // TODO: @adunsulag log the security error as someone is trying to do a remote file inclusion
-        echo $twig->getTwig()->render("templates/error/general_http_error.html.twig", ['statusCode' => 500, 'errorMessage' => 'System error occurred in processing content']);
+        echo $twig->render("templates/error/general_http_error.html.twig", ['statusCode' => 500, 'errorMessage' => 'System error occurred in processing content']);
         exit;
     }
     echo $updatedViewCCDAEvent->getContent();
