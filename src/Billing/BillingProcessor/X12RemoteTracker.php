@@ -204,7 +204,7 @@ class X12RemoteTracker extends BaseService
             'data' => [$status]
         ]);
 
-        return $waiting;
+        return $waiting ?? [];
     }
 
     /**
@@ -217,6 +217,6 @@ class X12RemoteTracker extends BaseService
             'order' => 'ORDER BY R.updated_at DESC'
         ]);
 
-        return $all;
+        return $all ?? [];
     }
 }

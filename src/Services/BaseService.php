@@ -171,9 +171,9 @@ class BaseService implements BaseServiceInterface
      * Build SQL Query for Selecting Fields
      *
      * @param array $map
-     * @return array
+     * @return array of associative arrays, or null when `limit=1` matches no rows.
      */
-    public function queryFields($map = null, $data = null)
+    public function queryFields($map = null, $data = null): ?array
     {
         $value = in_array($data, [null, "*", "all"]) ? "*" : implode(", ", $data);
         $sql = "SELECT $value from $this->table";
@@ -320,15 +320,11 @@ class BaseService implements BaseServiceInterface
      *
      * @param $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
      * @param $map                  - Query information (where clause(s), join clause(s), order, data, etc).
-     * @return array of associative arrays
+     * @return array of associative arrays, or null when `limit=1` matches no rows.
      */
-    public function selectHelper($sqlUpToFromStatement, $map): array
+    public function selectHelper($sqlUpToFromStatement, $map): ?array
     {
-        $records = QueryUtils::selectHelper($sqlUpToFromStatement, $map);
-        if ($records !== null) {
-            $records = is_array($records) ? $records : [$records];
-        }
-        return $records;
+        return QueryUtils::selectHelper($sqlUpToFromStatement, $map);
     }
 
     /**

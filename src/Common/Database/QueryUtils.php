@@ -380,9 +380,10 @@ class QueryUtils
      *   limit?: int,
      * } $map - Query information (where clause(s), join clause(s), order, data, etc).
      * @throws SqlQueryException If the query is invalid
-     * @return array of associative arrays | one associative array.
+     * @return array of associative arrays, or one associative array when
+     *   `limit=1`, or null when `limit=1` and there are no matching rows.
      */
-    public static function selectHelper($sqlUpToFromStatement, $map): array
+    public static function selectHelper($sqlUpToFromStatement, $map): ?array
     {
         $where = $map["where"] ?? null;
         $data  = isset($map["data"]) && is_array($map['data']) ? $map["data"]  : [];
@@ -406,7 +407,7 @@ class QueryUtils
         }
 
         if ($limit === 1) {
-            return $results[0];
+            return $results[0] ?? null;
         }
 
         return $results;

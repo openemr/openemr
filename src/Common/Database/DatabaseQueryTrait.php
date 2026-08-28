@@ -142,9 +142,9 @@ trait DatabaseQueryTrait
      *   join?: string,
      *   limit?: int,
      * } $map
-     * @return array
+     * @return array of associative arrays, or null when `limit=1` matches no rows.
      */
-    protected function selectHelper($sqlUpToFromStatement, $map)
+    protected function selectHelper($sqlUpToFromStatement, $map): ?array
     {
         return QueryUtils::selectHelper($sqlUpToFromStatement, $map);
     }
