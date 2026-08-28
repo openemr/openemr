@@ -76,12 +76,11 @@ try {
     }
 } catch (\Throwable $exception) {
     ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
-    if ($twig !== null) {
-        (new RequestTerminator())->respond(new Response(
-            $twig->render('error/general_http_error', ['statusCode' => 500]),
-            Response::HTTP_INTERNAL_SERVER_ERROR,
-        ));
-    } else {
-        echo xlt("Server error occurred. Check logs for details");
-    }
+    $display = $twig?->render('error/general_http_error', ['statusCode' => 500])
+        ?? xlt("Server error occurred. Check logs for details");
+
+    (new RequestTerminator())->respond(new Response(
+        $display,
+        Response::HTTP_INTERNAL_SERVER_ERROR,
+    ));
 }
