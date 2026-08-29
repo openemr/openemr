@@ -9,10 +9,12 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @author    Ken Chapple <ken@mi-squared.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,7 +24,9 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -54,6 +58,20 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 }
 
 $iter = $result[0];
+
+// Fetch the forced-password-change flag from users_secure (skip for LDAP users,
+// whose passwords are not stored here). Hoisted so the render below reuses the
+// same decision rather than re-evaluating it.
+$isLdapUser = AuthUtils::useActiveDirectory($iter['username']);
+$forceNewPassword = false;
+if (!$isLdapUser) {
+    $secureRow = QueryUtils::querySingleRow(
+        'SELECT `force_new_password` FROM `users_secure` WHERE `id` = ?',
+        [$iter['id']]
+    );
+    $forceNewPasswordFlag = is_array($secureRow) ? ($secureRow['force_new_password'] ?? 0) : 0;
+    $forceNewPassword = is_numeric($forceNewPasswordFlag) && (int) $forceNewPasswordFlag !== 0;
+}
 ?>
 
 <html>
@@ -350,6 +368,10 @@ if ($iter["portal_user"]) {
 } ?> /></span>
 <span class='text'><?php echo xlt('Active'); ?>:
     <input type="checkbox" name="active"<?php echo ($iter["active"]) ? " checked" : ""; ?>/></span>
+<?php if (!$isLdapUser) { ?>
+<span class='text' title="<?php echo xla('Require this user to change their password on next login'); ?>"><?php echo xlt('Force Password Change'); ?>:
+    <input type="checkbox" name="force_new_password"<?php echo $forceNewPassword ? " checked" : ""; ?>/></span>
+<?php } ?>
 </TD>
 </TR>
 
