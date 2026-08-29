@@ -551,6 +551,9 @@ function icd_import($type)
         if (stripos($lower, "icd10cm_order_") !== false) {
             $has_dx_file = true;
         }
+        if ($has_pcs_file && $has_dx_file) {
+            break;
+        }
     }
 
     // Batching the inserts into one transaction drastically speeds up import with InnoDB
