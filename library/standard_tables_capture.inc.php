@@ -544,11 +544,16 @@ function icd_import($type)
     $has_pcs_file = false;
     $has_dx_file = false;
     foreach ($icd_files as $filename) {
-        $lower = strtolower($filename);
-        if (stripos($lower, "icd10pcs_codes_") !== false || stripos($lower, "pcs") !== false) {
+        // Apply the same predicate as the import loop below:
+        // must be a .txt file, not an addenda file, and must match
+        // one of the known incoming-format keys.
+        if (!str_contains($filename, ".txt") || str_contains($filename, "addenda")) {
+            continue;
+        }
+        if (str_contains($filename, "icd10pcs_codes_")) {
             $has_pcs_file = true;
         }
-        if (stripos($lower, "icd10cm_order_") !== false) {
+        if (str_contains($filename, "icd10cm_order_")) {
             $has_dx_file = true;
         }
         if ($has_pcs_file && $has_dx_file) {
@@ -608,8 +613,6 @@ function icd_import($type)
             }
         }
     });
-
-    closedir($handle);
 
     // now update the tables where necessary
     sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = dx_code");
