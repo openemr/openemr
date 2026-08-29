@@ -530,13 +530,42 @@ function icd_import($type)
         return;
     }
 
-    // Batching the inserts into one transaction drastically speeds up import with InnoDB
-    QueryUtils::inTransaction(function () use ($dir, $handle, $incoming): void {
-        // first inactivate older set(s)
-        sqlStatementNoLog("UPDATE icd10_pcs_order_code SET active = 0");
-        sqlStatementNoLog("UPDATE icd10_dx_order_code SET active = 0");
+    // Collect the files present in the incoming release so we can determine
+    // which table(s) to deactivate and which data to import in one pass.
+    // A mid-year CM-only release (e.g. CMS April 1) contains only diagnosis
+    // order files with no corresponding PCS file. We must not deactivate the
+    // PCS table when no new PCS file is provided to replace it.
+    $icd_files = [];
+    while (($filename = readdir($handle)) !== false) {
+        $icd_files[] = $filename;
+    }
+    closedir($handle);
 
-        while (false !== ($filename = readdir($handle))) {
+    $has_pcs_file = false;
+    $has_dx_file = false;
+    foreach ($icd_files as $filename) {
+        $lower = strtolower($filename);
+        if (stripos($lower, "icd10pcs_codes_") !== false || stripos($lower, "pcs") !== false) {
+            $has_pcs_file = true;
+        }
+        if (stripos($lower, "icd10cm_order_") !== false) {
+            $has_dx_file = true;
+        }
+    }
+
+    // Batching the inserts into one transaction drastically speeds up import with InnoDB
+    QueryUtils::inTransaction(function () use ($dir, $incoming, $icd_files, $has_pcs_file, $has_dx_file): void {
+        // Only inactivate tables that have a corresponding incoming file
+        // in this release. This preserves the active PCS revision during a
+        // mid-year CM-only update.
+        if ($has_pcs_file) {
+            QueryUtils::sqlStatementThrowException("UPDATE icd10_pcs_order_code SET active = 0", [], noLog: true);
+        }
+        if ($has_dx_file) {
+            QueryUtils::sqlStatementThrowException("UPDATE icd10_dx_order_code SET active = 0", [], noLog: true);
+        }
+
+        foreach ($icd_files as $filename) {
             // bypass unwanted entries
             if (!stripos($filename, ".txt") || stripos($filename, "addenda")) {
                 continue;
