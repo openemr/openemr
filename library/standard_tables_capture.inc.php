@@ -530,89 +530,92 @@ function icd_import($type)
         return;
     }
 
-    // Collect the files present in the incoming release so we can determine
-    // which table(s) to deactivate and which data to import in one pass.
-    // A mid-year CM-only release (e.g. CMS April 1) contains only diagnosis
-    // order files with no corresponding PCS file. We must not deactivate the
-    // PCS table when no new PCS file is provided to replace it.
-    $icd_files = [];
-    while (($filename = readdir($handle)) !== false) {
-        $icd_files[] = $filename;
-    }
-    closedir($handle);
-
-    $has_pcs_file = false;
-    $has_dx_file = false;
-    foreach ($icd_files as $filename) {
-        // Apply the same predicate as the import loop below:
-        // must be a .txt file, not an addenda file, and must match
-        // one of the known incoming-format keys.
-        if (!str_contains($filename, ".txt") || str_contains($filename, "addenda")) {
-            continue;
-        }
-        if (str_contains($filename, "icd10pcs_codes_")) {
-            $has_pcs_file = true;
-        }
-        if (str_contains($filename, "icd10cm_order_")) {
-            $has_dx_file = true;
-        }
-        if ($has_pcs_file && $has_dx_file) {
-            break;
-        }
-    }
-
-    // Batching the inserts into one transaction drastically speeds up import with InnoDB
-    QueryUtils::inTransaction(function () use ($dir, $incoming, $icd_files, $has_pcs_file, $has_dx_file): void {
-        // Only inactivate tables that have a corresponding incoming file
-        // in this release. This preserves the active PCS revision during a
-        // mid-year CM-only update.
-        if ($has_pcs_file) {
-            QueryUtils::sqlStatementThrowException("UPDATE icd10_pcs_order_code SET active = 0", [], noLog: true);
-        }
-        if ($has_dx_file) {
-            QueryUtils::sqlStatementThrowException("UPDATE icd10_dx_order_code SET active = 0", [], noLog: true);
+    try {
+        // Collect the files present in the incoming release so we can determine
+        // which table(s) to deactivate and which data to import in one pass.
+        // A mid-year CM-only release (e.g. CMS April 1) contains only diagnosis
+        // order files with no corresponding PCS file. We must not deactivate the
+        // PCS table when no new PCS file is provided to replace it.
+        $icd_files = [];
+        while (($filename = readdir($handle)) !== false) {
+            $icd_files[] = $filename;
         }
 
+        $has_pcs_file = false;
+        $has_dx_file = false;
         foreach ($icd_files as $filename) {
-            // bypass unwanted entries
-            if (!stripos($filename, ".txt") || stripos($filename, "addenda")) {
+            // Apply the same predicate as the import loop below:
+            // must be a .txt file, not an addenda file, and must match
+            // one of the known incoming-format keys.
+            if (!str_contains($filename, ".txt") || str_contains($filename, "addenda")) {
                 continue;
             }
+            if (str_contains($filename, "icd10pcs_codes_")) {
+                $has_pcs_file = true;
+            }
+            if (str_contains($filename, "icd10cm_order_")) {
+                $has_dx_file = true;
+            }
+            if ($has_pcs_file && $has_dx_file) {
+                break;
+            }
+        }
 
-            $keys = array_keys($incoming);
-            while ($this_key = array_pop($keys)) {
-                if (stripos($filename, $this_key) !== false) {
-                    $generator = getFileData($dir . $filename);
-                    foreach ($generator as $value) {
-                        $run_sql = "INSERT INTO `" . $incoming[$this_key]['TABLENAME'] . "` (";
-                        $sql_place = "(";
-                        $sql_values = [];
-                        foreach (range(1, 4) as $field) {
-                            $fld = "FLD" . $field;
-                            $nxtfld = "FLD" . ($field + 1);
-                            $pos = "POS" . $field;
-                            $len = "LEN" . $field;
-                            $run_sql .= $incoming[$this_key][$fld] . ", ";
-                            $sql_place .= "?, ";
-                            // concat this fields template in the sql string
-                            array_push($sql_values, substr((string) $value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
-                            if (!array_key_exists($nxtfld, $incoming[$this_key])) {
-                                $run_sql .= "active, revision) VALUES ";
-                                $sql_place .= "?, ?)";
-                                array_push($sql_values, 1);
-                                array_push($sql_values, $incoming[$this_key]['REV']);
-                                sqlStatementNoLog($run_sql . $sql_place, $sql_values);
-                                break;
-                            } else {
-                                $run_sql .= " ";
-                                $sql_place .= " ";
+        // Batching the inserts into one transaction drastically speeds up import with InnoDB
+        QueryUtils::inTransaction(function () use ($dir, $incoming, $icd_files, $has_pcs_file, $has_dx_file): void {
+            // Only inactivate tables that have a corresponding incoming file
+            // in this release. This preserves the active PCS revision during a
+            // mid-year CM-only update.
+            if ($has_pcs_file) {
+                QueryUtils::sqlStatementThrowException("UPDATE icd10_pcs_order_code SET active = 0", [], noLog: true);
+            }
+            if ($has_dx_file) {
+                QueryUtils::sqlStatementThrowException("UPDATE icd10_dx_order_code SET active = 0", [], noLog: true);
+            }
+
+            foreach ($icd_files as $filename) {
+                // bypass unwanted entries
+                if (!stripos($filename, ".txt") || stripos($filename, "addenda")) {
+                    continue;
+                }
+
+                $keys = array_keys($incoming);
+                while ($this_key = array_pop($keys)) {
+                    if (stripos($filename, $this_key) !== false) {
+                        $generator = getFileData($dir . $filename);
+                        foreach ($generator as $value) {
+                            $run_sql = "INSERT INTO `" . $incoming[$this_key]['TABLENAME'] . "` (";
+                            $sql_place = "(";
+                            $sql_values = [];
+                            foreach (range(1, 4) as $field) {
+                                $fld = "FLD" . $field;
+                                $nxtfld = "FLD" . ($field + 1);
+                                $pos = "POS" . $field;
+                                $len = "LEN" . $field;
+                                $run_sql .= $incoming[$this_key][$fld] . ", ";
+                                $sql_place .= "?, ";
+                                // concat this fields template in the sql string
+                                array_push($sql_values, substr((string) $value, $incoming[$this_key][$pos], $incoming[$this_key][$len]));
+                                if (!array_key_exists($nxtfld, $incoming[$this_key])) {
+                                    $run_sql .= "active, revision) VALUES ";
+                                    $sql_place .= "?, ?)";
+                                    array_push($sql_values, 1);
+                                    array_push($sql_values, $incoming[$this_key]['REV']);
+                                    sqlStatementNoLog($run_sql . $sql_place, $sql_values);
+                                    break;
+                                } else {
+                                    $run_sql .= " ";
+                                    $sql_place .= " ";
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-    });
+        });
+    } finally {
+        closedir($handle);
+    }
 
     // now update the tables where necessary
     sqlStatement("update `icd10_dx_order_code` SET formatted_dx_code = dx_code");
