@@ -126,6 +126,15 @@ class UserManagementApiTest extends TestCase
     {
         // QueryPagination::getLinks() advertises _count in the first/next links, so a client
         // following those links must get the same paging it asked for via _limit.
+        // Without more than one user available, asserting a single result would also pass
+        // against an endpoint that ignored _count entirely.
+        $unpagedBody = $this->decodeResponse($this->testClient->get(self::API_ENDPOINT));
+        /** @var list<array<string, mixed>> $unpagedData */
+        $unpagedData = $unpagedBody["data"] ?? [];
+        if (count($unpagedData) < 2) {
+            $this->markTestSkipped("Requires at least two users to verify _count paging");
+        }
+
         $response = $this->testClient->get(self::API_ENDPOINT, ["_count" => "1"]);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
@@ -297,6 +306,9 @@ class UserManagementApiTest extends TestCase
     {
         $adminPass = getenv("OE_PASS", true) ?: "pass";
         $username = "phpunit_badacl_" . bin2hex(random_bytes(4));
+        // Registered up front: if the pre-transaction guard ever regresses and the user is
+        // persisted anyway, teardown still knows to clean it up.
+        self::$createdUsernames[] = $username;
         $response = $this->testClient->post(self::API_ENDPOINT, [
             "username" => $username,
             "password" => "TestPass123!strong",
@@ -313,9 +325,18 @@ class UserManagementApiTest extends TestCase
         $validationErrors = $body["validationErrors"] ?? [];
         $this->assertArrayHasKey('access_group', $validationErrors);
 
-        // The check runs before any write, so the user must not exist afterwards.
+        // The check runs before any write, so the user must not exist afterwards. Assert the
+        // lookup itself succeeded first, otherwise a failed request would also yield an
+        // empty list and the absence assertion would prove nothing.
         $listResponse = $this->testClient->get(self::API_ENDPOINT, ["username" => $username]);
+        $this->assertEquals(Response::HTTP_OK, $listResponse->getStatusCode());
         $listBody = $this->decodeResponse($listResponse);
+        /** @var array<int, mixed> $listValidationErrors */
+        $listValidationErrors = $listBody["validationErrors"] ?? [];
+        /** @var array<int, mixed> $listInternalErrors */
+        $listInternalErrors = $listBody["internalErrors"] ?? [];
+        $this->assertCount(0, $listValidationErrors);
+        $this->assertCount(0, $listInternalErrors);
         /** @var list<array<string, mixed>> $listData */
         $listData = $listBody["data"] ?? [];
         $this->assertCount(0, $listData);
