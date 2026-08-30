@@ -24,7 +24,6 @@ class UserValidator extends BaseValidator
     {
         parent::configureValidator();
 
-        /** @phpstan-ignore method.nonObject (BaseValidator::$validator is untyped) */
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context): void {
