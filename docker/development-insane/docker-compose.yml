@@ -585,8 +585,6 @@ services:
     restart: always
     image: openemr/dev-nginx:latest@sha256:cd70ec94ddce2956b6acbc5f873c6bbfffda5129cc5fbf6f3f76979ae7afdb80
     ports:
-    - 8103:83
-    - 9103:443
     - 8104:84
     - 9104:444
     - 8105:85
@@ -597,8 +595,6 @@ services:
     - 9107:447
     - 8108:88
     - 9108:448
-    - 8153:93
-    - 9153:453
     - 8154:94
     - 9154:454
     - 8155:95
