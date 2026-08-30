@@ -14,6 +14,7 @@ namespace OpenEMR\Services\Admin;
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -50,18 +51,34 @@ class UserManagementService extends UserService
      *
      * @param array<string, mixed> $search Search fields (key => value)
      * @param bool $isAndCondition AND or OR for multiple criteria
+     * @param QueryPagination|null $pagination Optional limit/offset for the list endpoint
      * @return ProcessingResult
      */
-    public function searchUsers(array $search = [], bool $isAndCondition = true): ProcessingResult
-    {
+    public function searchUsers(
+        array $search = [],
+        bool $isAndCondition = true,
+        ?QueryPagination $pagination = null
+    ): ProcessingResult {
         /** @var ProcessingResult $processingResult */
-        $processingResult = $this->search($search, $isAndCondition);
-        /** @var list<array<string, mixed>> $enrichedData */
-        $enrichedData = [];
+        $processingResult = $this->search($search, $isAndCondition, $pagination);
         /** @var list<array<string, mixed>> $currentData */
         $currentData = $processingResult->getData();
+
+        $usernames = [];
         foreach ($currentData as $record) {
-            $this->enrichWithAclGroups($record);
+            $username = $record['username'] ?? null;
+            if (is_string($username) && $username !== '') {
+                $usernames[] = $username;
+            }
+        }
+        $aclGroupsByUsername = $this->fetchAclGroupTitles($usernames);
+
+        /** @var list<array<string, mixed>> $enrichedData */
+        $enrichedData = [];
+        foreach ($currentData as $record) {
+            $username = $record['username'] ?? null;
+            $key = is_string($username) ? strtolower($username) : '';
+            $record['acl_groups'] = $aclGroupsByUsername[$key] ?? [];
             $enrichedData[] = $record;
         }
         $processingResult->setData($enrichedData);
@@ -297,17 +314,51 @@ class UserManagementService extends UserService
     }
 
     /**
-     * Enrich a user record with ACL group titles.
+     * Fetch ACL group titles for a set of usernames in a single query.
      *
-     * @param array<string, mixed> $record
+     * Replaces a per-record AclExtended::aclGetGroupTitles() call, which issued
+     * several gacl API queries for every user in the result set. The join mirrors
+     * that helper: direct (non-recursive) ARO group memberships in the `users`
+     * section, with the group *name* column as the title, sorted per user.
+     *
+     * Matching stays case-insensitive, as the gacl lookup it replaces was, so the
+     * batched form returns the same titles the per-record calls did.
+     *
+     * @param list<string> $usernames
+     * @return array<string, list<string>> lowercased username => sorted group titles
      */
-    private function enrichWithAclGroups(array &$record): void
+    private function fetchAclGroupTitles(array $usernames): array
     {
-        $username = $record['username'] ?? '';
-        if (is_string($username) && $username !== '') {
-            $record['acl_groups'] = AclExtended::aclGetGroupTitles($username) ?? [];
-        } else {
-            $record['acl_groups'] = [];
+        if ($usernames === []) {
+            return [];
         }
+
+        $placeholders = implode(', ', array_fill(0, count($usernames), '?'));
+        $sql = "SELECT aro.value AS username, grp.name AS group_title
+                FROM gacl_aro aro
+                INNER JOIN gacl_groups_aro_map map ON map.aro_id = aro.id
+                INNER JOIN gacl_aro_groups grp ON grp.id = map.group_id
+                WHERE aro.section_value = 'users' AND aro.value IN (" . $placeholders . ")";
+
+        /** @var list<array<string, mixed>> $rows */
+        $rows = QueryUtils::fetchRecords($sql, $usernames);
+
+        /** @var array<string, list<string>> $titlesByUsername */
+        $titlesByUsername = [];
+        foreach ($rows as $row) {
+            $username = $row['username'] ?? null;
+            $title = $row['group_title'] ?? null;
+            if (!is_string($username) || !is_string($title)) {
+                continue;
+            }
+            $titlesByUsername[strtolower($username)][] = $title;
+        }
+
+        foreach ($titlesByUsername as &$titles) {
+            sort($titles);
+        }
+        unset($titles);
+
+        return $titlesByUsername;
     }
 }

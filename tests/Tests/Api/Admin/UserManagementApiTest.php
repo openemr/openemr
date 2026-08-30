@@ -109,6 +109,49 @@ class UserManagementApiTest extends TestCase
         }
     }
 
+    #[Test]
+    public function testGetAllRespectsLimit(): void
+    {
+        $response = $this->testClient->get(self::API_ENDPOINT, ["_limit" => "1"]);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var list<array<string, mixed>> $data */
+        $data = $body["data"] ?? [];
+        $this->assertCount(1, $data);
+    }
+
+    #[Test]
+    public function testGetAllPagesWithLimitAndOffset(): void
+    {
+        $unpagedBody = $this->decodeResponse($this->testClient->get(self::API_ENDPOINT));
+        /** @var list<array<string, mixed>> $unpagedData */
+        $unpagedData = $unpagedBody["data"] ?? [];
+        if (count($unpagedData) < 2) {
+            $this->markTestSkipped("Requires at least two users to verify offset paging");
+        }
+
+        $firstBody = $this->decodeResponse(
+            $this->testClient->get(self::API_ENDPOINT, ["_limit" => "1", "_offset" => "0"])
+        );
+        $secondBody = $this->decodeResponse(
+            $this->testClient->get(self::API_ENDPOINT, ["_limit" => "1", "_offset" => "1"])
+        );
+
+        /** @var list<array<string, mixed>> $firstPage */
+        $firstPage = $firstBody["data"] ?? [];
+        /** @var list<array<string, mixed>> $secondPage */
+        $secondPage = $secondBody["data"] ?? [];
+        $this->assertCount(1, $firstPage);
+        $this->assertCount(1, $secondPage);
+        $this->assertNotEquals($firstPage[0]["uuid"], $secondPage[0]["uuid"]);
+
+        // more records remain past the first page, so a next link must be offered
+        /** @var array<string, mixed> $links */
+        $links = $firstBody["links"] ?? [];
+        $this->assertArrayHasKey("next", $links);
+    }
+
     // ----------------------------------------------------------------
     // Happy path: GET one
     // ----------------------------------------------------------------

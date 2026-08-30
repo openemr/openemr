@@ -42,6 +42,20 @@ paths:
           required: false
           schema:
             type: string
+        -
+          name: _limit
+          in: query
+          description: 'Maximum number of records to return (`_count` and `_maxresults` are accepted aliases). Clamped to QueryPagination::MAX_LIMIT. Omit for the unpaged list.'
+          required: false
+          schema:
+            type: integer
+        -
+          name: _offset
+          in: query
+          description: 'Number of records to skip. Only applied when _limit is supplied.'
+          required: false
+          schema:
+            type: integer
       responses:
         200:
           $ref: '#/components/responses/standard'
@@ -81,6 +95,8 @@ paths:
                   type: string
                 mname:
                   type: string
+                suffix:
+                  type: string
                 email:
                   type: string
                 authorized:
@@ -90,10 +106,39 @@ paths:
                     - 1
                 facility_id:
                   type: integer
+                billing_facility_id:
+                  type: integer
+                npi:
+                  type: string
+                taxonomy:
+                  type: string
+                specialty:
+                  type: string
+                calendar:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                portal_user:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                federaltaxid:
+                  type: string
+                state_license_number:
+                  type: string
+                federaldrugid:
+                  type: string
+                upin:
+                  type: string
                 access_group:
                   type: array
                   items:
                     type: string
+                groupname:
+                  description: 'Group name (defaults to "Default")'
+                  type: string
               type: object
       responses:
         201:

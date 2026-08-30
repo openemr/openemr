@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\RestControllers\Admin;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Admin\UserManagementService;
@@ -53,6 +54,20 @@ class UserManagementRestController
             new OA\Parameter(name: 'username', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'active', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
             new OA\Parameter(name: 'authorized', in: 'query', required: false, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(
+                name: '_limit',
+                in: 'query',
+                description: 'Maximum number of records to return (`_count` and `_maxresults` are accepted aliases). Clamped to QueryPagination::MAX_LIMIT. Omit for the unpaged list.',
+                required: false,
+                schema: new OA\Schema(type: 'integer')
+            ),
+            new OA\Parameter(
+                name: '_offset',
+                in: 'query',
+                description: 'Number of records to skip. Only applied when _limit is supplied.',
+                required: false,
+                schema: new OA\Schema(type: 'integer')
+            ),
         ],
         responses: [
             new OA\Response(response: '200', ref: '#/components/responses/standard'),
@@ -64,8 +79,37 @@ class UserManagementRestController
     {
         $validKeys = array_combine(self::WHITELISTED_FIELDS, self::WHITELISTED_FIELDS);
         $validSearchFields = array_intersect_key($search, $validKeys);
-        $processingResult = $this->service->searchUsers($validSearchFields);
+        $processingResult = $this->service->searchUsers($validSearchFields, true, self::buildPagination($search));
         return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200, true);
+    }
+
+    /**
+     * Build the pagination for a list request from the `_limit` / `_offset` query parameters.
+     *
+     * `_count` and `_maxresults` are accepted as aliases for `_limit`: QueryPagination::getLinks()
+     * emits `_count` in the first/next links, so a client following those links has to land on the
+     * same paging behaviour it asked for.
+     *
+     * Returns null when no positive limit was supplied, which leaves the query unpaged.
+     * QueryPagination clamps the limit to its own MAX_LIMIT.
+     *
+     * @param array<string, mixed> $search
+     */
+    private static function buildPagination(array $search): ?QueryPagination
+    {
+        $limit = 0;
+        foreach (['_limit', '_maxresults', '_count'] as $limitParam) {
+            if (isset($search[$limitParam]) && is_numeric($search[$limitParam])) {
+                $limit = (int)$search[$limitParam];
+                break;
+            }
+        }
+        if ($limit <= 0) {
+            return null;
+        }
+        $offset = isset($search['_offset']) && is_numeric($search['_offset']) ? (int)$search['_offset'] : 0;
+
+        return new QueryPagination($limit, max(0, $offset));
     }
 
     #[OA\Get(

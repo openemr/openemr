@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -257,7 +258,7 @@ class UserService
         return ($records ?? null);
     }
 
-    public function search(array $search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true, ?QueryPagination $pagination = null)
     {
         $sql = "SELECT  " . $this->getSelectColumns() . ", last_updated";
         // grab our address book type, make sure to use the index w/ list_id and option_id
@@ -270,9 +271,23 @@ class UserService
 
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
+        // Callers that pass a pagination object get a bounded query; without one the
+        // statement is unchanged, so existing callers keep their current behavior.
+        if ($pagination !== null && $pagination->getLimit() > 0) {
+            $processingResult->setPagination($pagination);
+            $offset = $pagination->getCurrentOffsetId();
+            // Both values are integers, so they interpolate safely; LIMIT/OFFSET cannot be bound
+            // as parameters here. One row past the limit lets ProcessingResult::addData() flag
+            // that more data exists.
+            $limitClause = $pagination->getLimit() + 1;
+            $offsetClause = is_numeric($offset) ? (int)$offset : 0;
+            $sql .= " LIMIT " . $limitClause . " OFFSET " . $offsetClause;
+        }
+
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
         while ($row = sqlFetchArray($statementResults)) {
             $resultRecord = $this->createResultRecordFromDatabaseResult($row);
             $processingResult->addData($resultRecord);
