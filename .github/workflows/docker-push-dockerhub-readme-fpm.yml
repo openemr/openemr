@@ -59,6 +59,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v7
+      with:
+        # workflow_run runs against the default branch by default, so a
+        # naked checkout could read a master newer than the build that
+        # triggered us -- publishing tags the weekly build did not yet
+        # produce. Pin to the triggering run's head_sha; falls back to
+        # github.sha on pull_request / workflow_dispatch where
+        # workflow_run isn't present.
+        ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
     - name: Render readme
       run: |

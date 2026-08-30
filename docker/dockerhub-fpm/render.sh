@@ -67,7 +67,9 @@ mapfile -t OTHER_TAGS < <(
 )
 
 if (( ${#VERSION_TAGS[@]} == 0 )); then
-    echo "warning: no version-number tags discovered in ${WEEKLY_WORKFLOW}" >&2
+    echo "error: no version-number tags discovered in ${WEEKLY_WORKFLOW}" >&2
+    echo "       aborting to preserve the existing Docker Hub description" >&2
+    exit 1
 fi
 
 # Build the bullet block.
