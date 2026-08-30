@@ -283,7 +283,9 @@ class UserService
             // that more data exists.
             $limitClause = $pagination->getLimit() + 1;
             $offsetClause = is_numeric($offset) ? (int)$offset : 0;
-            $sql .= " LIMIT " . $limitClause . " OFFSET " . $offsetClause;
+            // A deterministic sort is required for paging: without it MySQL may return rows
+            // in any order, so consecutive pages could repeat or skip users.
+            $sql .= " ORDER BY users.id LIMIT " . $limitClause . " OFFSET " . $offsetClause;
         }
 
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);

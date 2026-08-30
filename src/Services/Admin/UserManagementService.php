@@ -187,6 +187,17 @@ class UserManagementService extends UserService
             'portal_user' => $portalUser,
         ];
 
+        // Reject unknown ACL group titles before any write. AclExtended::setUserAro() silently
+        // ignores titles that match no group, so without this a create would report 201 while
+        // leaving the user with none of the memberships that were asked for.
+        $invalidGroups = $this->validateAccessGroups($accessGroup);
+        if ($invalidGroups !== []) {
+            $processingResult->setValidationMessages([
+                'access_group' => ['Invalid access group(s): ' . implode(', ', $invalidGroups)],
+            ]);
+            return $processingResult;
+        }
+
         // AuthUtils::updatePassword() verifies the admin password and executes the INSERT
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $adminPass = self::strVal($data['admin_password'] ?? '');
@@ -360,5 +371,27 @@ class UserManagementService extends UserService
         unset($titles);
 
         return $titlesByUsername;
+    }
+
+    /**
+     * Return the requested ACL group titles that do not match an existing group.
+     *
+     * @param list<string> $groupTitles
+     * @return list<string> Invalid titles, empty when every title is known
+     */
+    private function validateAccessGroups(array $groupTitles): array
+    {
+        /** @var array<int|string, string> $validTitleMap */
+        $validTitleMap = AclExtended::aclGetGroupTitleList();
+        $validTitles = array_values($validTitleMap);
+
+        $invalid = [];
+        foreach ($groupTitles as $title) {
+            if (!in_array($title, $validTitles, true)) {
+                $invalid[] = $title;
+            }
+        }
+
+        return $invalid;
     }
 }

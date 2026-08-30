@@ -122,6 +122,20 @@ class UserManagementApiTest extends TestCase
     }
 
     #[Test]
+    public function testGetAllAcceptsCountAliasForLimit(): void
+    {
+        // QueryPagination::getLinks() advertises _count in the first/next links, so a client
+        // following those links must get the same paging it asked for via _limit.
+        $response = $this->testClient->get(self::API_ENDPOINT, ["_count" => "1"]);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var list<array<string, mixed>> $data */
+        $data = $body["data"] ?? [];
+        $this->assertCount(1, $data);
+    }
+
+    #[Test]
     public function testGetAllPagesWithLimitAndOffset(): void
     {
         $unpagedBody = $this->decodeResponse($this->testClient->get(self::API_ENDPOINT));
@@ -276,6 +290,35 @@ class UserManagementApiTest extends TestCase
         $fakeUuid = "00000000-0000-0000-0000-000000000000";
         $response = $this->testClient->getOne(self::API_ENDPOINT, $fakeUuid);
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function testPostUnknownAccessGroupReturns400(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_badacl_" . bin2hex(random_bytes(4));
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Bad",
+            "lname" => "AclGroup",
+            "access_group" => ["NoSuchAclGroup"],
+        ]);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('access_group', $validationErrors);
+
+        // The check runs before any write, so the user must not exist afterwards.
+        $listResponse = $this->testClient->get(self::API_ENDPOINT, ["username" => $username]);
+        $listBody = $this->decodeResponse($listResponse);
+        /** @var list<array<string, mixed>> $listData */
+        $listData = $listBody["data"] ?? [];
+        $this->assertCount(0, $listData);
     }
 
     #[Test]
