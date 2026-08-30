@@ -62,6 +62,9 @@ class UserService
         }
     }
 
+    /**
+     * Columns on this table that hold binary UUID values.
+     */
     public function getUuidFields()
     {
         return ['uuid'];
@@ -258,6 +261,13 @@ class UserService
         return ($records ?? null);
     }
 
+    /**
+     * Searches users, optionally bounded by a pagination window.
+     *
+     * Supplying a pagination object adds a stable sort and a LIMIT/OFFSET window;
+     * without one the statement is unchanged. Types are intentionally left off the
+     * tags here so this legacy signature keeps its existing analysis baseline.
+     */
     public function search(array $search, $isAndCondition = true, ?QueryPagination $pagination = null)
     {
         $sql = "SELECT  " . $this->getSelectColumns() . ", last_updated";

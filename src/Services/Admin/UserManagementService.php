@@ -30,6 +30,9 @@ class UserManagementService extends UserService
 {
     private readonly UserValidator $userValidator;
 
+    /**
+     * Exposes the username column, which the base user service hides, and wires the admin validator.
+     */
     public function __construct()
     {
         parent::__construct();

@@ -28,6 +28,9 @@ class UserManagementApiTest extends TestCase
     /** @var list<string> Usernames of users created during tests, for cleanup */
     private static array $createdUsernames = [];
 
+    /**
+     * Builds an authenticated API client for each test.
+     */
     protected function setUp(): void
     {
         $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
@@ -35,10 +38,16 @@ class UserManagementApiTest extends TestCase
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
     }
 
+    /**
+     * No per-test cleanup is required; created users are removed in tearDownAfterClass().
+     */
     protected function tearDown(): void
     {
     }
 
+    /**
+     * Removes group rows and deactivates every user created by this test class.
+     */
     public static function tearDownAfterClass(): void
     {
         // Clean up test users created during this test run
@@ -62,6 +71,9 @@ class UserManagementApiTest extends TestCase
     // Happy path: GET list
     // ----------------------------------------------------------------
 
+    /**
+     * The list endpoint returns users with the admin-only fields (username, authorized, acl_groups, uuid).
+     */
     #[Test]
     public function testGetAllReturnsUsers(): void
     {
@@ -87,6 +99,9 @@ class UserManagementApiTest extends TestCase
         $this->assertArrayHasKey('uuid', $firstUser);
     }
 
+    /**
+     * A username filter narrows the list to matching users only.
+     */
     #[Test]
     public function testGetAllWithFilter(): void
     {
@@ -109,6 +124,9 @@ class UserManagementApiTest extends TestCase
         }
     }
 
+    /**
+     * _limit bounds the number of records returned.
+     */
     #[Test]
     public function testGetAllRespectsLimit(): void
     {
@@ -121,6 +139,9 @@ class UserManagementApiTest extends TestCase
         $this->assertCount(1, $data);
     }
 
+    /**
+     * _count is honoured as an alias for _limit, as advertised by the pagination links.
+     */
     #[Test]
     public function testGetAllAcceptsCountAliasForLimit(): void
     {
@@ -144,6 +165,9 @@ class UserManagementApiTest extends TestCase
         $this->assertCount(1, $data);
     }
 
+    /**
+     * _offset walks to a distinct record and a next link is offered while more remain.
+     */
     #[Test]
     public function testGetAllPagesWithLimitAndOffset(): void
     {
@@ -179,6 +203,9 @@ class UserManagementApiTest extends TestCase
     // Happy path: GET one
     // ----------------------------------------------------------------
 
+    /**
+     * The detail endpoint returns a single user for a known UUID.
+     */
     #[Test]
     public function testGetOneReturnsUser(): void
     {
@@ -212,6 +239,9 @@ class UserManagementApiTest extends TestCase
     // Happy path: POST create
     // ----------------------------------------------------------------
 
+    /**
+     * A valid payload creates the user, returns 201 with a UUID, and the user is then listable with its ACL group.
+     */
     #[Test]
     public function testPostCreatesUser(): void
     {
@@ -255,6 +285,9 @@ class UserManagementApiTest extends TestCase
         $this->assertContains("Physicians", $aclGroups);
     }
 
+    /**
+     * Optional profile fields supplied on create are persisted.
+     */
     #[Test]
     public function testPostWithOptionalFields(): void
     {
@@ -292,6 +325,9 @@ class UserManagementApiTest extends TestCase
     // Sad path: GET one
     // ----------------------------------------------------------------
 
+    /**
+     * A well-formed UUID that matches no user returns 404.
+     */
     #[Test]
     public function testGetOneNotFoundReturns404(): void
     {
@@ -301,6 +337,9 @@ class UserManagementApiTest extends TestCase
         $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
+    /**
+     * An unknown ACL group title is rejected with 400 before any write, leaving no user behind.
+     */
     #[Test]
     public function testPostUnknownAccessGroupReturns400(): void
     {
@@ -342,6 +381,9 @@ class UserManagementApiTest extends TestCase
         $this->assertCount(0, $listData);
     }
 
+    /**
+     * A malformed UUID returns 400 with a uuid validation error rather than a server error.
+     */
     #[Test]
     public function testGetOneMalformedUuidReturnsError(): void
     {
@@ -359,6 +401,9 @@ class UserManagementApiTest extends TestCase
     // Sad path: POST create
     // ----------------------------------------------------------------
 
+    /**
+     * A payload missing the required fields is rejected.
+     */
     #[Test]
     public function testPostMissingRequiredFieldsReturns400(): void
     {
@@ -378,6 +423,9 @@ class UserManagementApiTest extends TestCase
         $this->assertEmpty($data);
     }
 
+    /**
+     * A payload without a username is rejected with a username validation error.
+     */
     #[Test]
     public function testPostMissingUsernameReturns400(): void
     {
@@ -398,6 +446,9 @@ class UserManagementApiTest extends TestCase
         $this->assertArrayHasKey('username', $validationErrors);
     }
 
+    /**
+     * Creating a user with an existing username is rejected.
+     */
     #[Test]
     public function testPostDuplicateUsernameReturns400(): void
     {
@@ -421,6 +472,9 @@ class UserManagementApiTest extends TestCase
         $this->assertNotEmpty($validationErrors);
     }
 
+    /**
+     * A username containing disallowed characters is rejected.
+     */
     #[Test]
     public function testPostInvalidUsernameFormatReturns400(): void
     {
@@ -442,6 +496,9 @@ class UserManagementApiTest extends TestCase
         $this->assertNotEmpty($validationErrors);
     }
 
+    /**
+     * An empty access_group array is rejected.
+     */
     #[Test]
     public function testPostEmptyAccessGroupReturns400(): void
     {
@@ -463,6 +520,9 @@ class UserManagementApiTest extends TestCase
         $this->assertNotEmpty($validationErrors);
     }
 
+    /**
+     * Creation fails when the acting admin's own password is wrong.
+     */
     #[Test]
     public function testPostWrongAdminPasswordReturns400(): void
     {
@@ -484,6 +544,9 @@ class UserManagementApiTest extends TestCase
         $this->assertArrayHasKey('admin_password', $validationErrors);
     }
 
+    /**
+     * A facility_id that matches no facility is rejected.
+     */
     #[Test]
     public function testPostInvalidFacilityIdReturns400(): void
     {
@@ -507,6 +570,9 @@ class UserManagementApiTest extends TestCase
         $this->assertArrayHasKey('facility_id', $validationErrors);
     }
 
+    /**
+     * A billing_facility_id that matches no facility is rejected.
+     */
     #[Test]
     public function testPostInvalidBillingFacilityIdReturns400(): void
     {
@@ -530,6 +596,9 @@ class UserManagementApiTest extends TestCase
         $this->assertArrayHasKey('billing_facility_id', $validationErrors);
     }
 
+    /**
+     * A valid facility_id is accepted and the user is created.
+     */
     #[Test]
     public function testPostWithValidFacilityIdSucceeds(): void
     {
@@ -562,6 +631,9 @@ class UserManagementApiTest extends TestCase
         self::$createdUsernames[] = $username;
     }
 
+    /**
+     * The detail and list endpoints return the same field shape for the same user.
+     */
     #[Test]
     public function testGetOneAndGetListReturnConsistentFields(): void
     {
@@ -595,6 +667,9 @@ class UserManagementApiTest extends TestCase
     // Sad path: Authentication / Authorization
     // ----------------------------------------------------------------
 
+    /**
+     * Requests without a bearer token are rejected with 401.
+     */
     #[Test]
     public function testUnauthenticatedRequestReturns401(): void
     {
@@ -603,6 +678,9 @@ class UserManagementApiTest extends TestCase
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
     }
 
+    /**
+     * A user without the admin/users ACL cannot read the admin user list.
+     */
     #[Test]
     public function testNonAdminUserGetReturns403(): void
     {
@@ -635,6 +713,9 @@ class UserManagementApiTest extends TestCase
         $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
+    /**
+     * A user without the admin/super ACL cannot create users.
+     */
     #[Test]
     public function testNonAdminUserPostReturns403(): void
     {
@@ -678,6 +759,9 @@ class UserManagementApiTest extends TestCase
     // Regression: existing /api/user endpoint still works
     // ----------------------------------------------------------------
 
+    /**
+     * The pre-existing /api/user endpoint is unaffected by the admin routes.
+     */
     #[Test]
     public function testExistingUserEndpointStillWorks(): void
     {

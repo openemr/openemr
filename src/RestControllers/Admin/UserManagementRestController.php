@@ -36,6 +36,9 @@ class UserManagementRestController
         'authorized',
     ];
 
+    /**
+     * Wires the admin user management service.
+     */
     public function __construct()
     {
         $this->service = new UserManagementService();
@@ -112,6 +115,11 @@ class UserManagementRestController
         return new QueryPagination($limit, max(0, $offset));
     }
 
+    /**
+     * Returns a single user by UUID, or 404 when no record matches.
+     *
+     * @param string $uuid UUID of the requested user
+     */
     #[OA\Get(
         path: '/api/admin/users/{uuid}',
         description: 'Retrieves a single user by UUID with admin-level detail',
