@@ -240,9 +240,12 @@ class UserManagementApiTest extends TestCase
     {
         $response = $this->testClient->getOne(self::API_ENDPOINT, "not-a-uuid");
 
-        // Invalid UUID may return 400, 404, or 500 depending on how deep the parsing goes
-        $this->assertNotEquals(Response::HTTP_OK, $response->getStatusCode());
-        $this->assertNotEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('uuid', $validationErrors);
     }
 
     // ----------------------------------------------------------------
