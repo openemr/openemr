@@ -159,6 +159,7 @@ paths:
         -
           name: uuid
           in: path
+          description: 'UUID of the requested user'
           required: true
           schema:
             type: string
