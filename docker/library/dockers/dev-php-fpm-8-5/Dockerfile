@@ -10,7 +10,7 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.2>
 #
-FROM php:8.5-rc-fpm
+FROM php:8.5-fpm
 
 # Add mariadb-client package that is needed in the OpenEMR Backup gui, which does direct command mysql commands
 # Add imagemagick that is needed for some image processing in OpenEMR
@@ -27,42 +27,6 @@ RUN curl -sL https://deb.nodesource.com/setup_24.x \
  && apt-get update \
  && apt-get install -y nodejs
 
-# Temporary fix to get magick install working by bypassing below install-php-extensions run (these issues are usually temporary
-#  in dev versions of PHP, so this is not a permanent solution)
-# TODO:
-# TODO: intermittently try to remove this block of code and add back imagick in below ../install-php-extensions run
-# TODO:
-RUN apt-get update && apt-get install -y \
-    libmagickwand-dev \
-    libmagickcore-dev \
-    git \
- && cd /tmp \
- && git clone https://github.com/Imagick/imagick.git \
- && cd imagick \
- && phpize \
- && ./configure \
- && make -j$(nproc) \
- && make install \
- && docker-php-ext-enable imagick \
- && rm -rf /tmp/imagick
-
-# Temporary fix to get redis install working by bypassing below install-php-extensions run (these issues are usually temporary
-#  in dev versions of PHP, so this is not a permanent solution)
-# TODO:
-# TODO: intermittently try to remove this block of code and add back redis in below ../install-php-extensions run
-# TODO:
-# Install Redis from GitHub develop branch
-RUN apt-get update && apt-get install -y git \
- && mkdir -p /tmp/redis \
- && cd /tmp/redis \
- && git clone https://github.com/phpredis/phpredis.git . \
- && git checkout develop \
- && phpize \
- && ./configure \
- && make && make install \
- && docker-php-ext-enable redis \
- && rm -rf /tmp/redis
-
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions \
@@ -72,11 +36,13 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
                            dom \
                            gd \
                            gettext \
+                           imagick \
                            intl \
                            ldap \
                            mysqli \
                            pcov \
                            pdo_mysql \
+                           redis \
                            soap \
                            sockets \
                            tokenizer \
