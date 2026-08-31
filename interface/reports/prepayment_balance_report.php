@@ -226,7 +226,7 @@ $shortDate = static function (?string $date): string {
 if ($isRefresh) {
     $service = new PrepaymentBalanceService();
     $balances = $service->getOpenBalances($formFromDate, $formToDate, $formPatientId, $formParkedOnly);
-    $totals = $service->totals($balances);
+    $totals = PrepaymentBalanceService::totals($balances);
     ?>
 <div id="report_results">
 <table class='table'>

@@ -129,7 +129,7 @@ class PrepaymentBalanceTest extends TestCase
             ])),
         ];
 
-        $totals = (new PrepaymentBalanceService())->totals($balances);
+        $totals = PrepaymentBalanceService::totals($balances);
 
         $this->assertSame(350.00, $totals['received']);
         $this->assertSame(75.00, $totals['applied']);
@@ -139,7 +139,7 @@ class PrepaymentBalanceTest extends TestCase
 
     public function testTotalsOfEmptyResultAreZero(): void
     {
-        $totals = (new PrepaymentBalanceService())->totals([]);
+        $totals = PrepaymentBalanceService::totals([]);
 
         $this->assertSame(
             ['received' => 0.0, 'applied' => 0.0, 'inGlobal' => 0.0, 'unapplied' => 0.0],

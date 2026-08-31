@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace OpenEMR\Billing;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\BaseService;
 
 /**
  * Finds pre-payment sessions whose received amount has not been fully applied.
@@ -25,12 +26,19 @@ use OpenEMR\Common\Database\QueryUtils;
  * Global Account has not satisfied a charge, so it remains an unapplied credit;
  * it is reported separately as inGlobal so parked credit stays visible.
  */
-class PrepaymentBalanceService
+class PrepaymentBalanceService extends BaseService
 {
+    public const TABLE_NAME = 'ar_session';
+
     /**
      * Amounts below this are rounding residue, not a real balance.
      */
     private const UNAPPLIED_EPSILON = 0.005;
+
+    public function __construct()
+    {
+        parent::__construct(self::TABLE_NAME);
+    }
 
     /**
      * @param string|null $fromDate Y-m-d lower bound on check_date, null for none
@@ -101,10 +109,14 @@ class PrepaymentBalanceService
     /**
      * Column totals for the report footer.
      *
+     * Static so that callers which only need to sum an existing result set --
+     * the isolated tests among them -- do not pay for BaseService's
+     * constructor, which reads table metadata from the database.
+     *
      * @param list<PrepaymentBalance> $balances
      * @return array{received: float, applied: float, inGlobal: float, unapplied: float}
      */
-    public function totals(array $balances): array
+    public static function totals(array $balances): array
     {
         $totals = ['received' => 0.0, 'applied' => 0.0, 'inGlobal' => 0.0, 'unapplied' => 0.0];
 
