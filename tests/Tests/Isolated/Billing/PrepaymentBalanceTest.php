@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Billing;
 
 use OpenEMR\Billing\PrepaymentBalance;
-use OpenEMR\Billing\PrepaymentBalanceService;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -129,7 +128,7 @@ class PrepaymentBalanceTest extends TestCase
             ])),
         ];
 
-        $totals = PrepaymentBalanceService::totals($balances);
+        $totals = PrepaymentBalance::totals($balances);
 
         $this->assertSame(350.00, $totals['received']);
         $this->assertSame(75.00, $totals['applied']);
@@ -139,7 +138,7 @@ class PrepaymentBalanceTest extends TestCase
 
     public function testTotalsOfEmptyResultAreZero(): void
     {
-        $totals = PrepaymentBalanceService::totals([]);
+        $totals = PrepaymentBalance::totals([]);
 
         $this->assertSame(
             ['received' => 0.0, 'applied' => 0.0, 'inGlobal' => 0.0, 'unapplied' => 0.0],

@@ -105,28 +105,4 @@ class PrepaymentBalanceService extends BaseService
 
         return $balances;
     }
-
-    /**
-     * Column totals for the report footer.
-     *
-     * Static so that callers which only need to sum an existing result set --
-     * the isolated tests among them -- do not pay for BaseService's
-     * constructor, which reads table metadata from the database.
-     *
-     * @param list<PrepaymentBalance> $balances
-     * @return array{received: float, applied: float, inGlobal: float, unapplied: float}
-     */
-    public static function totals(array $balances): array
-    {
-        $totals = ['received' => 0.0, 'applied' => 0.0, 'inGlobal' => 0.0, 'unapplied' => 0.0];
-
-        foreach ($balances as $balance) {
-            $totals['received'] += $balance->received;
-            $totals['applied'] += $balance->applied;
-            $totals['inGlobal'] += $balance->inGlobal;
-            $totals['unapplied'] += $balance->unapplied;
-        }
-
-        return $totals;
-    }
 }

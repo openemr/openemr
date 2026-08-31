@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 require_once("../globals.php");
 
+use OpenEMR\Billing\PrepaymentBalance;
 use OpenEMR\Billing\PrepaymentBalanceService;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -226,7 +227,7 @@ $shortDate = static function (?string $date): string {
 if ($isRefresh) {
     $service = new PrepaymentBalanceService();
     $balances = $service->getOpenBalances($formFromDate, $formToDate, $formPatientId, $formParkedOnly);
-    $totals = PrepaymentBalanceService::totals($balances);
+    $totals = PrepaymentBalance::totals($balances);
     ?>
 <div id="report_results">
 <table class='table'>

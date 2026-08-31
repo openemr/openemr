@@ -69,6 +69,31 @@ final readonly class PrepaymentBalance
     }
 
     /**
+     * Column totals for a result set.
+     *
+     * Lives on the read model rather than the service because BaseService
+     * require_once's custom/code_types.inc.php at file scope, which runs a
+     * query on include -- so merely autoloading the service needs a database,
+     * even for a static call.
+     *
+     * @param list<self> $balances
+     * @return array{received: float, applied: float, inGlobal: float, unapplied: float}
+     */
+    public static function totals(array $balances): array
+    {
+        $totals = ['received' => 0.0, 'applied' => 0.0, 'inGlobal' => 0.0, 'unapplied' => 0.0];
+
+        foreach ($balances as $balance) {
+            $totals['received'] += $balance->received;
+            $totals['applied'] += $balance->applied;
+            $totals['inGlobal'] += $balance->inGlobal;
+            $totals['unapplied'] += $balance->unapplied;
+        }
+
+        return $totals;
+    }
+
+    /**
      * "Last, First Middle", collapsing whatever parts are absent.
      */
     private static function formatName(string $lname, string $fname, string $mname): string
