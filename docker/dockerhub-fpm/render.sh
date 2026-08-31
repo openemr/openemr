@@ -72,13 +72,31 @@ if (( ${#VERSION_TAGS[@]} == 0 )); then
     exit 1
 fi
 
+# Derive a human description for a non-version tag. Currently understands
+# the `pre-build-dev-<XY>` convention (two-digit PHP version suffix, e.g.
+# `pre-build-dev-86` -> PHP 8.6). Any tag that doesn't match a known
+# convention renders without a description so nothing goes stale silently.
+describe_tag() {
+    local tag="$1"
+    if [[ "${tag}" =~ ^pre-build-dev-([0-9])([0-9])$ ]]; then
+        printf '(foundational base for PHP %s.%s development images)' \
+            "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+        return
+    fi
+}
+
 # Build the bullet block.
 BULLETS=""
 for t in "${VERSION_TAGS[@]}"; do
     BULLETS+="- \`${t}\`"$'\n'
 done
 for t in "${OTHER_TAGS[@]}"; do
-    BULLETS+="- \`${t}\` (foundational base for PHP 8.6 development images)"$'\n'
+    desc=$(describe_tag "${t}")
+    if [[ -n "${desc}" ]]; then
+        BULLETS+="- \`${t}\` ${desc}"$'\n'
+    else
+        BULLETS+="- \`${t}\`"$'\n'
+    fi
 done
 # Strip trailing newline for clean substitution.
 BULLETS="${BULLETS%$'\n'}"
