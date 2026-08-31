@@ -302,3 +302,173 @@ teardown() {
     [[ "${emitted}" == *"to_version=8.3.0"* ]]
     [[ "${emitted}" != *"to_version=8.2.1"* ]]
 }
+
+# --- from_version derivation from sql/*-to-*_upgrade.sql (openemr/openemr#13573) ---
+
+@test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (rel-820 shape)" {
+    # rel-820 shape: upgrade files stop at 8_1_1-to-8_2_0, so the
+    # max from-version is 8.1.1 -- guaranteed to be in the branch's
+    # sql_upgrade.php dropdown.
+    seed_sql_upgrade_fixtures \
+        7_0_4-to-8_0_0 \
+        8_0_0-to-8_1_0 \
+        8_1_0-to-8_1_1 \
+        8_1_1-to-8_2_0
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"from_version=8.1.1"* ]]
+    [[ "${output}" == *"resolved from_version=8.1.1"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (rel-830 shape)" {
+    # rel-830 shape: upgrade files include 8_2_0-to-8_3_0, so the
+    # max from-version is 8.2.0.
+    seed_sql_upgrade_fixtures \
+        8_1_0-to-8_1_1 \
+        8_1_1-to-8_2_0 \
+        8_2_0-to-8_3_0
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"from_version=8.2.0"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION -> derives from checkout's sql/*-to-*_upgrade.sql (master shape)" {
+    # Master (post-8.3.0 cut) shape: upgrade files include
+    # 8_3_0-to-8_4_0 (the empty template for the next dev cycle),
+    # so the max from-version is 8.3.0.
+    seed_sql_upgrade_fixtures \
+        8_1_1-to-8_2_0 \
+        8_2_0-to-8_3_0 \
+        8_3_0-to-8_4_0
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"from_version=8.3.0"* ]]
+}
+
+@test "explicit DISPATCH_FROM_VERSION overrides derivation" {
+    # Operator explicitly passes a version; derivation skipped even
+    # when sql/*.sql files exist and would derive something different.
+    seed_sql_upgrade_fixtures 8_1_0-to-8_1_1 8_1_1-to-8_2_0
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="false"
+    export DISPATCH_TO_VERSION="8.2.0"
+    export DISPATCH_FROM_VERSION="7.0.4"
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"from_version=7.0.4"* ]]
+    [[ "${emitted}" != *"from_version=8.1.1"* ]]
+}
+
+@test "empty DISPATCH_FROM_VERSION + no sql/ dir -> exit 1 with fail-loud error" {
+    # No sql/*.sql files means the checkout is either a branch older
+    # than the upgrade-file convention or genuinely broken. Fail
+    # loudly rather than emit an empty from_version that would
+    # bypass the wizard-step assertion downstream.
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::derive_from_version: no sql/*-to-*_upgrade.sql files found in checkout"* ]]
+}
+
+@test "malformed derivation input filtered out at enumeration" {
+    # Fixture with a non-X.Y.Z from-version (impossible in practice
+    # but guards against a hypothetical filename-format drift). The
+    # enumeration's X.Y.Z shape grep filters it out, leaving zero
+    # candidates → exits 1 with the "no well-formed files" error.
+    mkdir -p sql
+    touch sql/8_1-to-8_2_0_upgrade.sql
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::derive_from_version: no well-formed sql/*-to-*_upgrade.sql files found in checkout"* ]]
+}
+
+# --- manifest-membership filter (openemr/openemr#13573 followup) ---
+
+@test "manifest filter excludes unshipped max FROM (patch-prep scaffold scenario)" {
+    # Simulates the concrete failure the manifest filter fixes:
+    # a patch-prep run has scaffolded sql/8_3_1-to-8_4_0_upgrade.sql
+    # on master BEFORE 8.3.1 has shipped. sql-only derivation would
+    # return 8.3.1 (max FROM), and boot-package.sh would 404 trying
+    # to download openemr-8.3.1.tar.gz from GitHub Releases.
+    #
+    # With the manifest filter, 8.3.1 is excluded (not in the
+    # mocked shipped set), and derivation falls back to the next-
+    # highest FROM candidate that IS shipped (8.3.0).
+    seed_sql_upgrade_fixtures \
+        8_2_0-to-8_3_0 \
+        8_3_0-to-8_4_0 \
+        8_3_1-to-8_4_0
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    # Manifest reflects: 8.3.1 not yet shipped, everything else is.
+    export MOCK_SHIPPED_VERSIONS=$'8.2.0\n8.3.0'
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 0 ]]
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" == *"from_version=8.3.0"* ]]
+    [[ "${emitted}" != *"from_version=8.3.1"* ]]
+}
+
+@test "all candidates unshipped -> exit 1 with actionable no-match error" {
+    # Pathological: every sql/*.sql candidate is a future/unshipped
+    # version. Fail loudly with a message listing both sets + the
+    # manifest URL so operators can debug without reading source.
+    seed_sql_upgrade_fixtures \
+        9_0_0-to-9_1_0 \
+        9_1_0-to-9_2_0
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    export MOCK_SHIPPED_VERSIONS=$'8.2.0\n8.3.0'
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::derive_from_version: no sql-derived from-version candidate matches the shipped-versions manifest"* ]]
+    [[ "${output}" == *"Candidates from sql/: 9.0.0 9.1.0"* ]]
+    [[ "${output}" == *"Shipped per manifest: 8.2.0 8.3.0"* ]]
+    [[ "${output}" == *"raw.githubusercontent.com/openemr/website-openemr/master/data/releases.json"* ]]
+}
+
+@test "manifest fetch failure surfaces error (does not silently fall back)" {
+    # If the manifest fetch fails (network blip, GitHub 5xx, DNS
+    # failure), the derivation must exit with the fetch-error line
+    # rather than silently reverting to sql-only derivation — the
+    # whole point of the filter is to guarantee shipped-status.
+    seed_sql_upgrade_fixtures 8_2_0-to-8_3_0
+    export EVENT_NAME="schedule"
+    export DISPATCH_FROM_VERSION=""
+    export MOCK_SHIPPED_VERSIONS="__FAIL__"
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::fetch_shipped_versions: (mocked) simulated fetch failure"* ]]
+    # Must NOT have emitted a from_version.
+    local emitted
+    emitted="$(read_output)"
+    [[ "${emitted}" != *"from_version="* ]]
+}
+
+@test "malformed DISPATCH_FROM_VERSION rejected by shape validator" {
+    export EVENT_NAME="workflow_dispatch"
+    export DISPATCH_BUILD_LOCALLY="false"
+    export DISPATCH_TO_VERSION="8.2.0"
+    export DISPATCH_FROM_VERSION="8.2"
+    run bash "${DETECT_ACCEPTANCE_MODE_SCRIPT}"
+    [[ ${status} -eq 1 ]]
+    [[ "${output}" == *"::error::resolved from_version '8.2' does not match required X.Y.Z"* ]]
+}

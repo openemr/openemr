@@ -35,7 +35,7 @@ use OpenEMR\BC\ServiceContainer;
 class InsuranceCompanyService extends BaseService
 {
     private const INSURANCE_TABLE = "insurance_companies";
-    private $insuranceCompanyValidator;
+    private readonly InsuranceCompanyValidator $insuranceCompanyValidator;
     private $addressService = null;
     private $phoneNumberService = null;
 
@@ -426,6 +426,18 @@ class InsuranceCompanyService extends BaseService
             'id' => $id,
             'name' => $this->getInsuranceDisplayName($id),
         ];
+    }
+
+    /**
+     * Validates insurance company data for a database insert or update.
+     *
+     * @param array<string, mixed> $insuranceCompanyData
+     * @param string $context one of InsuranceCompanyValidator::DATABASE_INSERT_CONTEXT
+     *                        or InsuranceCompanyValidator::DATABASE_UPDATE_CONTEXT
+     */
+    public function validate(array $insuranceCompanyData, string $context = InsuranceCompanyValidator::DATABASE_INSERT_CONTEXT): ProcessingResult
+    {
+        return $this->insuranceCompanyValidator->validate($insuranceCompanyData, $context);
     }
 
     public function insert($data): int|string

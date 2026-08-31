@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -129,8 +128,7 @@ class MyMailer extends PHPMailer
 
                 if ($emailMethodConfigured) {
                     try {
-                        $twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-                        $twig = $twigContainer->getTwig();
+                        $twig = ServiceContainer::getTwig();
                         if (!empty($ret['template_name'])) {
                             $templateData = json_decode((string) $ret['body'], true);
                             // we make sure to prefix this so that people have to work inside the openemr namespace for email templates

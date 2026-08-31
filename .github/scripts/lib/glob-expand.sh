@@ -161,7 +161,7 @@ expand_patterns_into() {
 # Handles both entry shapes accepted in .github/byte-identical.yml:
 #   - simple string:   `- path/to/file`
 #   - object form:     `- path: path/to/file`
-#                      `  exclude-branches: [rel-800, rel-704]`
+#                      `  exclude-branches: [rel-800]`
 #
 # Uses Mike Farah yq (v4+). The `.path // .` expression returns the
 # object's `path` field when the entry is an object and the entry

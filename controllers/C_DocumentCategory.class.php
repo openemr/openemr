@@ -3,7 +3,6 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Acl\AclExtended;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 
@@ -14,7 +13,7 @@ class C_DocumentCategory extends Controller
     public $link;
     public $_last_node;
 
-    function __construct(public $template_mod = "general")
+    function __construct()
     {
         parent::__construct();
         $this->document_categories = [];
@@ -50,8 +49,7 @@ class C_DocumentCategory extends Controller
         $this->assign('add_node', (($this->getTemplateVars('add_node') ?? false) == true));
         $this->assign('edit_node', (($this->getTemplateVars('edit_node') ?? false) == true));
 
-        $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-        return $twig->getTwig()->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->getTemplateVars());
+        return $this->twig->render("document_categories/" . $this->template_mod . "_list.html.twig", $this->getTemplateVars());
     }
 
     function add_node_action($parent_is)

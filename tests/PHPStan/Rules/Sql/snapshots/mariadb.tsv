@@ -1,4 +1,4 @@
-# MariaDB reserved-word snapshot. Engine version: 12.3.2-MariaDB-ubu2404.
+# MariaDB reserved-word snapshot. Engine version: 12.3.3-MariaDB-ubu2404.
 # Captured by bin/refresh-reserved-word-supplement.php on cron.
 # Do not edit by hand -- changes here are computed.
 WORD	RESERVED
@@ -236,7 +236,6 @@ having	1
 help	0
 high_priority	1
 history	0
-host	0
 hosts	0
 hour	0
 hour_microsecond	1
@@ -311,6 +310,7 @@ localtimestamp	0
 lock	1
 locked	0
 locks	0
+log	0
 logs	0
 long	1
 longblob	1
@@ -422,7 +422,6 @@ outer	1
 outfile	1
 over	1
 overlaps	0
-owner	0
 package	0
 pack_keys	0
 page	0
@@ -556,7 +555,6 @@ slave_pos	0
 slow	0
 smallint	1
 snapshot	0
-socket	0
 soft	0
 some	0
 soname	0

@@ -13,6 +13,7 @@
 */
 
 use OpenEMR\Common\Calendar\Month;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
@@ -24,6 +25,7 @@ use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 
 if (!defined('__POSTCALENDAR__')) {
@@ -1041,6 +1043,8 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $i++;
     }
 
+    $events = PatientService::annotateEventsWithPatientHasPicture($events);
+
     return $events;
 }
 
@@ -1108,7 +1112,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     $table      =  $pntable['postcalendar_events'];
     $cattable   =  $pntable['postcalendar_categories'];
 
-    $sql = "SELECT DISTINCT a.pc_eid,  a.pc_informant, a.pc_catid, " .
+    $sql = "SELECT a.pc_eid,  a.pc_informant, a.pc_catid, " .
     "a.pc_title, a.pc_time, a.pc_hometext, a.pc_eventDate, a.pc_duration, " .
     "a.pc_endDate, a.pc_startTime, a.pc_recurrtype, a.pc_recurrfreq, " .
     "a.pc_recurrspec, a.pc_topic, a.pc_alldayevent, a.pc_location, " .
@@ -1117,14 +1121,13 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "b.pc_catdesc, a.pc_pid, a.pc_apptstatus, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
-    "concat(u2.fname, ' ', u2.lname) as owner_name, " .
+    "concat(u.fname, ' ', u.lname) as owner_name, " .
     "concat (pd.street, ', ', pd.street_line_2) as patient_address," .
     "DOB as patient_dob, a.pc_facility, pd.pubpid, a.pc_gid, " .
     "tg.group_name, tg.group_type, tg.group_status " .
     "FROM $table AS a " .
     "LEFT JOIN $cattable AS b ON b.pc_catid = a.pc_catid " .
     "LEFT JOIN users as u ON a.pc_aid = u.id " .
-    "LEFT JOIN users as u2 ON a.pc_aid = u2.id " .
     "LEFT JOIN patient_data as pd ON a.pc_pid = pd.pid " .
     "LEFT JOIN therapy_groups as tg ON a.pc_gid = tg.group_id " .
     "WHERE  a.pc_eventstatus = '" . pnVarPrepForStore($eventstatus) . "' " .
@@ -1241,6 +1244,16 @@ function &postcalendar_userapi_pcQueryEvents($args)
   // put the information into an array for easy access
     $events = [];
 
+  // Facilities number in the handful, and every event needs one; fetch the set
+  // once rather than per event.
+    $facilityRows = [];
+    foreach (QueryUtils::fetchRecords("SELECT id, name FROM facility") as $facilityRow) {
+        $facilityId = $facilityRow['id'] ?? null;
+        if (is_numeric($facilityId)) {
+            $facilityRows[(int) $facilityId] = $facilityRow;
+        }
+    }
+
     $i = 0;
     foreach ($result->iterateNumeric() as $row) {
         // WHY are we using an array for intermediate storage???  -- Rod
@@ -1335,7 +1348,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['patient_address'] = $tmp['patient_address']; //RM
         $events[$i]['patient_dob'] = $tmp['patient_dob'];
         $events[$i]['patient_age'] = getPatientAge($tmp['patient_dob']);
-        $events[$i]['facility']    = getFacility($tmp['facility']);
+        $events[$i]['facility_row'] = is_numeric($tmp['facility'])
+            ? ($facilityRows[(int) $tmp['facility']] ?? null)
+            : null;
         $events[$i]['sharing']     = $tmp['sharing'];
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
         $events[$i]['aid']         = $tmp['aid'];
@@ -1405,11 +1420,56 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['group_name']   = $tmp['group_name'];
         $events[$i]['group_type']   = $tmp['group_type'];
         $events[$i]['group_status'] = $tmp['group_status'];
-        $counselors = getProvidersOfEvent($tmp['eid']);
-        $events[$i]['group_counselors'] = $counselors;
 
         $i++;
     }
+
+  // Counselors are the providers assigned to the appointment -- the same source
+  // the pre-Twig template used, where each was resolved with its own query. Only
+  // group events display them, so only those are resolved, in one query.
+    $groupEventIds = [];
+    foreach ($events as $event) {
+        $eid = $event['eid'] ?? null;
+        $gid = $event['gid'] ?? null;
+        if (is_numeric($eid) && is_numeric($gid) && (int) $gid > 0) {
+            $groupEventIds[(int) $eid] = (int) $eid;
+        }
+    }
+
+    $counselorsByEvent = [];
+    if ($groupEventIds !== []) {
+        $placeholders = implode(',', array_fill(0, count($groupEventIds), '?'));
+        $counselorRows = QueryUtils::fetchRecords(
+            "SELECT e.pc_eid, CONCAT(u.fname, '   ', u.lname) AS counselor_name "
+            . "FROM openemr_postcalendar_events AS e "
+            . "JOIN openemr_postcalendar_events AS sib "
+            . "ON (e.pc_multiple > 0 AND sib.pc_multiple = e.pc_multiple) "
+            . "OR (e.pc_multiple = 0 AND sib.pc_eid = e.pc_eid) "
+            . "JOIN users AS u ON u.id = sib.pc_aid "
+            . "WHERE e.pc_eid IN ($placeholders) "
+            . "ORDER BY e.pc_eid, sib.pc_eid",
+            array_values($groupEventIds),
+        );
+        foreach ($counselorRows as $counselorRow) {
+            $counselorEventId = $counselorRow['pc_eid'] ?? null;
+            $counselorName = $counselorRow['counselor_name'] ?? null;
+            if (is_numeric($counselorEventId) && is_string($counselorName)) {
+                // The legacy template appended this separator after every name,
+                // including a trailing one; preserved so output is unchanged.
+                $counselorsByEvent[(int) $counselorEventId] ??= '';
+                $counselorsByEvent[(int) $counselorEventId] .= $counselorName . " \n ";
+            }
+        }
+    }
+
+    foreach ($events as $index => $event) {
+        $eid = $event['eid'] ?? null;
+        $events[$index]['group_counselors_text'] = is_numeric($eid)
+            ? ($counselorsByEvent[(int) $eid] ?? '')
+            : '';
+    }
+
+    $events = PatientService::annotateEventsWithPatientHasPicture($events);
 
     return $events;
 }

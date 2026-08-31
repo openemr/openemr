@@ -840,6 +840,54 @@ Follow-up documentation landed in #13508 (branch-cut PR merge order
 in RELEASE_PROCESS.md), #13510 (G31 itself), #13514 (release-prep +
 release-finalize PR template rewrites).
 
+## Third production exercise — 2026-08-18 (first automated ship)
+
+The `8.3.0` ship on 2026-08-18 was the third end-to-end exercise
+and the **first release shipped end-to-end via the automated
+ship-release path** (semi-auto mode). Historically 8.2.0 shipped
+via manual click-through per PR; 8.3.0 was the first time
+`ship-release.yml` merged the Conductor PR programmatically,
+triggering the full downstream cascade (tag → build-release-on-tag
+tarball+zip+checksums → Phase 7c pre-publish acceptance gate → GitHub
+Release publish → docker-release-orchestrator multi-branch build
+cascade → finalize auto-flip → docs auto-flip → announcement-drafts
+render). All acceptance surfaces green: 8/8 build-release-on-tag
+acceptance cells (fresh-install + wizard-install + upgrade +
+wizard-upgrade × tar + zip); rel-820 + rel-830 docker builds passed
+their 6-cell acceptance gates cleanly and published to Docker Hub
+(rel-820 → `latest`, rel-830 → `8.3.0`); rel-800 + rel-704 legacy
+single-job builds completed without acceptance (per Phase 12
+exclusion); master's docker acceptance gate failed on one arm64 cell
+so master's `next`/`dev` refresh was skipped this ship-day dispatch
+(recovery via next scheduled orchestrator run or
+`docker-acceptance-only.yml`); release-amendment post-ship picked up
+the 52 published GHSAs in a single 50KB CHANGELOG regeneration under
+the 124KB truncation limit (no hybrid pointer needed).
+
+**Seven latent ship-release preflight-deadlock gates surfaced in
+cascade** — same shape as G31 but for the SHIP path rather than the
+CUT path. First-ever real ship-release execution against a
+production rel branch surfaced deadlocks that were latent because
+prior test dispatches never got past preflight into merge-time. All
+shipped same day as PRs #13570 (`ignore_checks` for known-broken
+upstream jobs), #13574 (mergeStateStatus=UNSTABLE conditional
+accept), #13581 (docker-validate-release-targets finalize-PR-aware),
+#13582 (rollup dedup + downstream draft tolerance), #13590 (drop
+reviewDecision=APPROVED gate; use isDraft as human-ready signal),
+#13607 (mergeStateStatus=BLOCKED conditional accept for
+App-token perspective difference), #13619 (permission-contents:read
+→ write bump on the release App token — GitHub's
+`mergePullRequest` mutation requires contents:write despite
+pull-requests:write being intuitive). Plus one config-side gap
+(release App needs bypass on rel-branch "Restrict updates"
+ruleset — no code change, but has to be done per rel-branch by an
+org admin before ship-release can merge). Also #13589 landed
+post-cut migration files that were misfiled into
+`sql/8_2_0-to-8_3_0_upgrade.sql` on master (the leftover-populated
+file after rel-830 cut) — see G32 for the file-rename dance +
+review-time signal gap. Full forensic + systemic lesson in
+[`release-mechanism-gaps.md` G33](release-mechanism-gaps.md#g33--first-automated-ship-830-surfaced-7-latent-preflight-deadlock-gates-in-cascade--discovered-2026-08-17-through-08-18-all-shipped-2026-08-18).
+
 ## Status
 
 **Live.** The initial three release-flow workflows (branch-cut, patch-prep,

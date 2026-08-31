@@ -33,7 +33,7 @@
 #      infrastructure regressions in the flex image or MariaDB base.
 #
 #   2. workflow_dispatch — manual dispatch to test arbitrary
-#      from/to version pairs (e.g. 7.0.4 → 8.2.0 for a large-jump
+#      from/to version pairs (e.g. 8.0.0 → 8.3.0 for a large-jump
 #      upgrade test).
 #
 #   3. push / pull_request on the acceptance-package surface itself
@@ -51,10 +51,10 @@ on:
   workflow_dispatch:
     inputs:
       from_version:
-        description: 'Prior openemr version for the upgrade scenario (release tag suffix, e.g. 8.2.0)'
-        required: true
+        description: 'Prior openemr version for the upgrade scenario (release tag suffix, e.g. 8.2.0). Leave empty to auto-derive from the checkout''s sql/*-to-*_upgrade.sql files — the derived version is guaranteed to appear in the branch''s sql_upgrade.php wizard dropdown regardless of which branch fires the workflow. See openemr/openemr#13573.'
+        required: false
         type: string
-        default: '8.2.0'
+        default: ''
       to_version:
         description: 'Target openemr version (release tag suffix, e.g. 8.2.0)'
         required: true
@@ -75,10 +75,10 @@ on:
   workflow_call:
     inputs:
       from_version:
-        description: 'Prior openemr version for the upgrade scenario. Defaults to 8.2.0.'
+        description: 'Prior openemr version for the upgrade scenario. Defaults to empty, which triggers auto-derive from the checkout''s sql/*-to-*_upgrade.sql files — the derived version is guaranteed to appear in the branch''s sql_upgrade.php wizard dropdown. See openemr/openemr#13573.'
         required: false
         type: string
-        default: '8.2.0'
+        default: ''
       to_version:
         description: 'Version label for the caller-supplied tarball (drives artifact filename lookup + upgrade guards). Required when caller_tarball_artifact is set.'
         required: false
@@ -108,6 +108,15 @@ on:
     - 'patch-prep/**'
     - 'release-prep/**'
     - 'release-finalize/**'
+    # Same duplicate-run problem, different bot: dependabot pushes the
+    # branch AND opens the PR, so both events fire. Worse, dependabot
+    # force-pushes on every rebase, and a push event's paths: filter is
+    # evaluated over `before..after` — which after a rebase spans every
+    # commit master gained in the interim. A composer.lock bump therefore
+    # matches paths it never touched, and detect-mode diffs that same
+    # inflated range. Keep the pull_request run, which diffs against the
+    # PR base and sees only the bump itself.
+    - 'dependabot/**'
     paths:
     - '.github/workflows/acceptance-package.yml'
     - '.github/docker/acceptance-package-compose.yml'
@@ -175,13 +184,20 @@ jobs:
       # LOCAL_PATH all agree on the same value. On the build_locally
       # path with no explicit dispatch input, this becomes 99.99.99 so
       # the upgrade + wizard-upgrade scenarios (unblocked when
-      # build_locally=true) receive distinct FROM (8.2.0) / TO values
+      # build_locally=true) receive distinct FROM / TO values
       # rather than upgrade-package.sh's identical-version reject. The
       # version string is a naming label only (drives filenames + the
       # scratch-dir name; sql_upgrade.php reads --from=FROM_VERSION,
-      # not the to side), so any semver-shaped > 8.2.0 works and
-      # 99.99.99 is unmistakably synthetic in logs.
+      # not the to side), so any semver-shaped > from_version works
+      # and 99.99.99 is unmistakably synthetic in logs.
       to_version: ${{ steps.decide.outputs.to_version }}
+      # from_version resolved once here so the acceptance job's env
+      # gets the same value the detect-mode step logged. Explicit
+      # DISPATCH_FROM_VERSION overrides; otherwise derived from the
+      # checkout's `sql/*-to-*_upgrade.sql` filenames so the
+      # resulting version is guaranteed to be in the branch's
+      # sql_upgrade.php wizard dropdown (openemr/openemr#13573).
+      from_version: ${{ steps.decide.outputs.from_version }}
     steps:
     - uses: actions/checkout@v7
       with:
@@ -192,6 +208,7 @@ jobs:
         EVENT_NAME: ${{ github.event_name }}
         DISPATCH_BUILD_LOCALLY: ${{ inputs.build_locally }}
         DISPATCH_TO_VERSION: ${{ inputs.to_version }}
+        DISPATCH_FROM_VERSION: ${{ inputs.from_version }}
         CALLER_TARBALL_ARTIFACT: ${{ inputs.caller_tarball_artifact }}
         CALLER_ZIP_ARTIFACT: ${{ inputs.caller_zip_artifact }}
         PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -352,7 +369,11 @@ jobs:
         # --local-zip).
         include: ${{ (github.event_name == 'workflow_dispatch' || inputs.caller_tarball_artifact != '' || inputs.caller_zip_artifact != '' || needs.detect-mode.outputs.build_locally == 'true') && fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"},{"scenario":"upgrade","format":"tar"},{"scenario":"upgrade","format":"zip"},{"scenario":"wizard-upgrade","format":"tar"},{"scenario":"wizard-upgrade","format":"zip"}]') || fromJson('[{"scenario":"fresh-install","format":"tar"},{"scenario":"fresh-install","format":"zip"},{"scenario":"wizard-install","format":"tar"},{"scenario":"wizard-install","format":"zip"}]') }}
     env:
-      FROM_VERSION: ${{ inputs.from_version || '8.2.0' }}
+      # detect-mode's from_version output already honors the operator
+      # override (inputs.from_version), else derives from the checkout's
+      # sql/*-to-*_upgrade.sql files. Route the resolved value through
+      # here so the matrix job doesn't re-implement the derivation.
+      FROM_VERSION: ${{ needs.detect-mode.outputs.from_version }}
       # Single source of truth for to_version — see the
       # detect-mode.outputs.to_version comment for why the auto-fire
       # path resolves this to 99.99.99.
@@ -529,6 +550,18 @@ jobs:
       if: matrix.scenario == 'fresh-install'
       run: composer acceptance -- --group=fresh-install
 
+    # Version-display check: About page shows TO_VERSION. Own group
+    # (not piggybacking fresh-install) so this doesn't leak into
+    # acceptance-docker.yml — that workflow uses floating tags
+    # (`latest`, `next`) and doesn't resolve them into X.Y.Z at
+    # runtime, so it can't set ACCEPTANCE_EXPECTED_VERSION. See
+    # openemr/openemr#13634 for the full signal-source rationale.
+    - name: Run version-display check (fresh-install, expect ${{ env.TO_VERSION }})
+      if: matrix.scenario == 'fresh-install'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+      run: composer acceptance -- --group=version-display
+
     # api-enable bootstrap fires AFTER the fresh-install group. Order
     # matters: OAuth2SmokeTest's fresh-install-tagged assertions verify
     # the API-disabled 404 gate that ships by default; the bootstrap
@@ -543,6 +576,15 @@ jobs:
     - name: Run acceptance suite (api-enabled of to_version)
       if: matrix.scenario == 'fresh-install'
       run: composer acceptance -- --group=api-enabled
+
+    # Version-api check: /api/version returns TO_VERSION. Own group
+    # for the same reason as version-display above (avoid leaking
+    # into acceptance-docker.yml's api-enabled invocation).
+    - name: Run version-api check (fresh-install, expect ${{ env.TO_VERSION }})
+      if: matrix.scenario == 'fresh-install'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+      run: composer acceptance -- --group=version-api
 
     # ==== wizard-install scenario ====
     # Boots the artifact WITHOUT running install-helper.php so the
@@ -559,6 +601,12 @@ jobs:
       if: matrix.scenario == 'wizard-install'
       run: composer acceptance -- --group=wizard-install
 
+    - name: Run version-display check (wizard-install, expect ${{ env.TO_VERSION }})
+      if: matrix.scenario == 'wizard-install'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+      run: composer acceptance -- --group=version-display
+
     # ==== upgrade scenario ====
     # from_version is always the shipped GitHub-release tarball (no
     # --local-tarball flag — testing "install the currently-shipped
@@ -574,6 +622,14 @@ jobs:
       if: matrix.scenario == 'upgrade'
       run: composer acceptance -- --group=fresh-install
 
+    # Pre-upgrade the artifact is running FROM_VERSION; the
+    # version-display check at this step asserts against that.
+    - name: Run version-display check (pre-upgrade, expect ${{ env.FROM_VERSION }})
+      if: matrix.scenario == 'upgrade'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
+      run: composer acceptance -- --group=version-display
+
     - name: Upgrade from_version -> to_version
       if: matrix.scenario == 'upgrade'
       run: tests/Acceptance/bin/upgrade-package.sh ${{ steps.bootflags.outputs.to_upgrade_local_flag }} "${FROM_VERSION}" "${TO_VERSION}"
@@ -581,6 +637,42 @@ jobs:
     - name: Run post-upgrade suite against to_version
       if: matrix.scenario == 'upgrade'
       run: composer acceptance -- --group=post-upgrade
+
+    # Post-upgrade the artifact is running TO_VERSION; version-display
+    # check asserts against that.
+    - name: Run version-display check (post-upgrade, expect ${{ env.TO_VERSION }})
+      if: matrix.scenario == 'upgrade'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+      run: composer acceptance -- --group=version-display
+
+    # api-enable bootstrap fires AFTER post-upgrade so both the
+    # api-enabled group (ApiSmokeTest + OAuth2ApiEnabledTest) and the
+    # separately-invoked version-api group (VersionApiAcceptanceTest,
+    # its own step below) can assert their contract against the
+    # upgraded artifact. Symmetric with the fresh-install scenario's
+    # api-enable ordering: pre-bootstrap tests verify API-disabled
+    # state (OAuth2SmokeTest's post-upgrade-tagged assertions), post-
+    # bootstrap verify enabled state. Prior to this the api-enabled
+    # group only ran in fresh-install — running it post-upgrade too
+    # closes the gap where a regression to /api/facility, OIDC
+    # discovery, or DCR wouldn't be caught on the upgrade path (see
+    # openemr/openemr#13634).
+    - name: Bootstrap API via admin panel (post-upgrade)
+      if: matrix.scenario == 'upgrade'
+      env:
+        OPENEMR_ENABLE_API_BOOTSTRAP: '1'
+      run: php tests/Acceptance/bin/api-enable.php
+
+    - name: Run acceptance suite (api-enabled of to_version, post-upgrade)
+      if: matrix.scenario == 'upgrade'
+      run: composer acceptance -- --group=api-enabled
+
+    - name: Run version-api check (post-upgrade, expect ${{ env.TO_VERSION }})
+      if: matrix.scenario == 'upgrade'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+      run: composer acceptance -- --group=version-api
 
     # ==== wizard-upgrade scenario ====
     # Boots the from-version normally (install-helper.php runs, DB
@@ -601,6 +693,12 @@ jobs:
     - name: Run acceptance suite (wizard-upgrade)
       if: matrix.scenario == 'wizard-upgrade'
       run: composer acceptance -- --group=wizard-upgrade
+
+    - name: Run version-display check (wizard-upgrade, expect ${{ env.TO_VERSION }})
+      if: matrix.scenario == 'wizard-upgrade'
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.TO_VERSION }}
+      run: composer acceptance -- --group=version-display
 
     # ==== debug + teardown (all scenarios) ====
     - name: Capture container state (on failure)

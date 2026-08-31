@@ -200,6 +200,34 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/appointments-future-empty.html',
         ];
 
+        // The dashboard preference/care-team cards render the Edit pencil with
+        // linkMethod 'javascript': the href stays '#' and the expression goes
+        // in an onclick. A literal 'javascript:' href would be stripped to '#'
+        // by |safe_href and lose the behavior entirely.
+        yield 'patient/card/appointments edit button via javascript linkMethod' => [
+            'patient/card/appointments.html.twig',
+            [
+                'title'               => 'Appointments',
+                'id'                  => 'appointments_ps_expand',
+                'initiallyCollapsed'  => false,
+                'btnLabel'            => 'Edit',
+                'btnClass'            => 'js-card-toggle-edit',
+                'btnLink'             => 'event.preventDefault();',
+                'linkMethod'          => 'javascript',
+                'appts'               => [],
+                'recurrAppts'         => [],
+                'pastAppts'           => [],
+                'displayAppts'        => false,
+                'displayRecurrAppts'  => false,
+                'displayPastAppts'    => false,
+                'extraApptDate'       => '',
+                'therapyGroupCategories' => [],
+                'auth'                => true,
+                'resNotNull'          => false,
+            ],
+            $fixtureDir . '/appointments-edit-javascript-link.html',
+        ];
+
         // Calendar render cases — see CalendarRenderDataBuilder for the
         // shape each template iterates. Print views are tested with empty
         // events; the per-event content path is unit-covered by

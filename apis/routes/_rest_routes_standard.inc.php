@@ -462,7 +462,7 @@ return [
     },
     "GET /api/insurance_company" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "acct", "bill");
-        $return = (new InsuranceCompanyRestController())->getAll();
+        $return = (new InsuranceCompanyRestController())->getAll($request);
 
         return $return;
     },
@@ -482,14 +482,14 @@ return [
     "POST /api/insurance_company" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "acct", "bill", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new InsuranceCompanyRestController())->post($data);
+        $return = (new InsuranceCompanyRestController())->post($request, $data);
 
         return $return;
     },
     "PUT /api/insurance_company/:iid" => function ($iid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "acct", "bill", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new InsuranceCompanyRestController())->put($iid, $data);
+        $return = (new InsuranceCompanyRestController())->put($request, $iid, $data);
 
         return $return;
     },
@@ -532,7 +532,7 @@ return [
         }
 
         // Try to get the data. The service layer will handle non-existent UUIDs.
-        $return = (new EmployerRestController())->getAll($searchParams);
+        $return = (new EmployerRestController())->getAll($request, $searchParams);
 
         return $return;
     },
@@ -543,7 +543,7 @@ return [
         if ($request->isPatientRequest()) {
             $searchParams['puuid'] = $request->getPatientUUIDString();
         }
-        $return = (new InsuranceRestController())->getAll($searchParams);
+        $return = (new InsuranceRestController())->getAll($request, $searchParams);
 
         return $return;
     },

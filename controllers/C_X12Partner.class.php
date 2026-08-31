@@ -21,7 +21,7 @@ class C_X12Partner extends Controller
     /** @var X12Partner[] */
     public $x12_partners;
 
-    function __construct(public $template_mod = "general")
+    function __construct()
     {
         parent::__construct();
         $this->x12_partners = [];

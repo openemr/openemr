@@ -22,11 +22,11 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class C_FormSOAP extends Controller
 {
-    private readonly TwigContainer $twig;
     public function __construct()
     {
-        $path = $this->getTemplatePath();
-        $this->twig = new TwigContainer($path);
+        parent::__construct(
+            (new TwigContainer($this->getTemplatePath(), OEGlobalsBag::getInstance()->getKernel()))->getTwig(),
+        );
     }
 
     /**
@@ -37,7 +37,7 @@ class C_FormSOAP extends Controller
     function default_action(): string
     {
         $form = new FormSOAP();
-        return $this->twig->getTwig()->render(
+        return $this->twig->render(
             'soap_form.twig',
             [
                 "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),
@@ -54,7 +54,7 @@ class C_FormSOAP extends Controller
 
         $form = $formId > 0 ? new FormSOAP($formId) : new FormSOAP();
 
-        return $this->twig->getTwig()->render(
+        return $this->twig->render(
             'soap_form.twig',
             [
                 "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),

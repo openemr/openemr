@@ -20,14 +20,14 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "eslint": "^10.8.1",
-    "globals": "^17.9.0",
+    "globals": "^17.11.0",
     "mocha": "^11.8.0"
   },
   "dependencies": {
-    "@xmldom/xmldom": "0.9.10",
+    "@xmldom/xmldom": "0.9.12",
     "compression": "1.8.1",
-    "cqm-execution": "4.4.1",
-    "cqm-models": "4.3.1",
+    "cqm-execution": "4.4.3",
+    "cqm-models": "4.3.2",
     "express": "4.22.2",
     "xpath": "0.0.34"
   }

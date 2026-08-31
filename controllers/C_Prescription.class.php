@@ -23,7 +23,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Rx\RxList;
 use OpenEMR\Services\CodeTypesService;
@@ -51,7 +50,7 @@ class C_Prescription extends Controller
         return $this->codeTypesService;
     }
 
-    function __construct(public $template_mod = "general")
+    function __construct()
     {
         parent::__construct();
         $this->assign("TOP_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "prescription" . "&");
@@ -133,8 +132,7 @@ class C_Prescription extends Controller
             $vars['amcCollectReturnFormulary'] = amcCollect('e_prescribe_chk_formulary_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
             $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
         }
-        $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
-        return $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
+        return $this->twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
     function edit_action($id = "", $patient_id = "")
@@ -253,8 +251,7 @@ class C_Prescription extends Controller
         }
         // Pass prescription ID to auto-print on page load (used by Save and Print workflow)
         $vars['printPrescriptionId'] = $printPrescriptionId;
-        $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
-        echo $twig->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
+        echo $this->twig->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
     }
 
     function block_action($id, $sort = "")

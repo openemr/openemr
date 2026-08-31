@@ -5,12 +5,16 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.8.8@sha256:d9f7eb2637296652f24b484afd5d246f759f49f5babcadc6a9e344c9acb75fbf
+    image: mariadb:12.3.3@sha256:dd9b303aed4f4890ed09f766d8ca9ddfd176c0c6f6267feff53b3192ec65a979
     command: ['mariadbd', '--character-set-server=utf8mb4']
     volumes:
     - databasevolume:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
+      # Auto-run mariadb-upgrade when the container starts against a
+      # data directory left by an older MariaDB version. No-op when
+      # the datadir's version marker matches the running server.
+      MARIADB_AUTO_UPGRADE: '1'
     healthcheck:
       test:
       - CMD
@@ -25,7 +29,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:latest@sha256:1b21c64ad555bfcdc6816ecf1e087a7e5f468eeaa0eca2cff76b5ee0c5168c2c
+    image: openemr/openemr:latest@sha256:fe3edcace506ff2168d061e89f6ca2fdf57701a0f8332b16b24786c9deb6fdd3
     ports:
     - 80:80
     - 443:443

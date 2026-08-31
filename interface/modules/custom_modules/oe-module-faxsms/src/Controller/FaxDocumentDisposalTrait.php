@@ -46,7 +46,7 @@ trait FaxDocumentDisposalTrait
     public function disposeDocument(): string
     {
         if (!$this->authorizeDocumentAccess()) {
-            http_response_code(403);
+            header('HTTP/1.1 403 Forbidden', true, 403);
             return $this->disposalResponse(['success' => false, 'message' => xlt('Unauthorized')]);
         }
 
@@ -65,7 +65,7 @@ trait FaxDocumentDisposalTrait
                 'Fax disposeDocument denied: path outside allowed root',
                 ['target' => $targetPath]
             );
-            http_response_code(403);
+            header('HTTP/1.1 403 Forbidden', true, 403);
             return $this->disposalResponse(['success' => false, 'message' => xlt('Access denied')]);
         }
 

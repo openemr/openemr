@@ -243,7 +243,10 @@ trait FhirObservationTrait
                     $valueCoding = new FHIRCoding();
                     $valueCoding->setSystem(new FHIRUri($system));
                     $valueCoding->setCode(new FHIRCode($code));
-                    $valueCoding->setDisplay($codeDescription ?? $this->getCodeTypesService()->lookup_code_description($value));
+                    // The CodeableConcept branch is only selected when
+                    // $codeDescription is non-empty (see $valueType above), so
+                    // there is no description to look up here.
+                    $valueCoding->setDisplay($codeDescription);
                     $valueCC->addCoding($valueCoding);
                     $observation->setValueCodeableConcept($valueCC);
                     break;

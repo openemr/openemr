@@ -337,6 +337,17 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             f.bn_reopen.disabled = !can_bill;
             <?php } ?>
             f.bn_mark.disabled = !can_mark;
+            oeSyncClaimRowStates();
+        }
+
+        // Mirrors checkbox state onto the encounter's rows so the whole block
+        // shows as selected. The checkbox remains the source of truth.
+        function oeSyncClaimRowStates() {
+            $('.oe-claim-row').each(function () {
+                var enc = $(this).data('encounter');
+                var $cb = $('input[name="claims[' + enc + '][bill]"]');
+                $(this).toggleClass('oe-selected', $cb.length > 0 && $cb.prop('checked'));
+            });
         }
 
         async function toInsurance(type, pid, pubpid, pname, enc, datestr, dobstr, enc_pid_array, enc_date_array, cal_cat_array) {
@@ -885,15 +896,33 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             if (isset($_POST["mode"]) && $_POST["mode"] == "bill") {
                 BillingReport::billCodesList($list);
             }
+            // The units column renders empty unless this global is on, so it is
+            // omitted entirely rather than eating layout width. Column count is
+            // derived from it because the spacer rows need a matching colspan.
+            $showUnits = OEGlobalsBag::getInstance()->getBoolean('display_units_in_billing');
+            $colCount = $showUnits ? '9' : '8';
             ?>
             <div class="table-responsive">
                 <table class="table table-sm">
+                    <colgroup>
+                        <col style="width: 22%">
+                        <col style="width: 4rem">
+                        <col style="width: 12%">
+                        <col style="width: 5rem">
+                        <col style="width: 8rem">
+                        <?php if ($showUnits) { ?>
+                        <col style="width: 3rem">
+                        <?php } ?>
+                        <col style="width: 6rem">
+                        <col style="width: 2rem">
+                        <col style="width: 2.5rem">
+                    </colgroup>
                     <?php
                     $divnos = 0;
                     if ($ret = BillingReport::getBillsBetween("%")) {
                         if (is_array($ret)) { ?>
                     <tr>
-                        <td class="text-right" colspan='9'>
+                        <td class="text-right" colspan='<?php echo attr($colCount); ?>'>
                             <table>
                                 <tr>
                                     <td id='expandAllCollapseAll'>
@@ -955,7 +984,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             // This dumps all HTML for the previous encounter.
                                 if ($lhtml) {
                                     while ($rcount < $lcount) {
-                                        $rhtml .= "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9'></td></tr>";
+                                        $rhtml .= "<tr class='oe-claim-row' data-encounter='" . attr($last_encounter_id) . "' style='background-color: " . attr($bgcolor) . ";'><td colspan='" . attr($colCount) . "'></td></tr>";
                                         ++$rcount;
                                     }
                                     // This test handles the case where we are only listing encounters
@@ -965,8 +994,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             $lhtml .= '</div>';
                                             $divPut = false;
                                         }
-                                        echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
-                                        echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n\n";
+                                        echo "<tr class='oe-claim-row' data-encounter='" . attr($last_encounter_id) . "' style='background-color: " . attr($bgcolor) . ";'>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
+                                        echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='" . attr($colCount) . "' height='5'></td></tr>\n\n";
                                         ++$encount;
                                     }
                                 }
@@ -1019,7 +1048,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
                                 $bgcolor = (($encount & 1) ? "var(--light)" : "var(--gray300)");
-                                echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
+                                echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='" . attr($colCount) . "' height='5'></td></tr>\n";
                                 $lcount = 1;
                                 $rcount = 0;
                                 $oldcode = "";
@@ -1260,9 +1289,9 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             ++$rcount;
 
                             if ($rhtml) {
-                                $rhtml .= "<tr style='background-color: " . attr($bgcolor) . ";'>\n";
+                                $rhtml .= "<tr class='oe-claim-row' data-encounter='" . attr($this_encounter_id) . "' style='background-color: " . attr($bgcolor) . ";'>\n";
                             }
-                            $rhtml .= "<td width='50'>";
+                            $rhtml .= "<td>";
                             if ($iter['id'] && $oldcode != $iter['code_type']) {
                                 $rhtml .= "<span class='text'>" . text($iter['code_type']) . ": </span>";
                             }
@@ -1292,31 +1321,31 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             }
                             $rhtml .= "</span><span style='font-size:8pt;'>$justify</span></td>\n";
 
-                            $rhtml .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                            $rhtml .= '<td class="text-right text-nowrap px-2"><span style="font-size:8pt;">';
                             if ($iter['id'] && $iter['fee'] > 0) {
                                 $rhtml .= text(oeFormatMoney($iter['fee']));
                             }
                             $rhtml .= "</span></td>\n";
-                            $rhtml .= '<td><span style="font-size:8pt; font-weight:900; background:#ffff9e">&nbsp;&nbsp;&nbsp;';
+                            $rhtml .= '<td class="px-2"><span style="font-size:8pt; font-weight:900; background:#ffff9e">';
                             if ($iter['id']) {
                                 $rhtml .= getProviderName(empty($iter['provider_id']) ? text($iter['enc_provider_id']) : text($iter['provider_id']));
                             }
                             $rhtml .= "</span></td>\n";
-                            $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
-                            if (OEGlobalsBag::getInstance()->getBoolean('display_units_in_billing')) {
+                            if ($showUnits) {
+                                $rhtml .= '<td class="px-2"><span style="font-size:8pt;">';
                                 if ($iter['id']) {
                                     $rhtml .= xlt("Units") . ":" . text($iter["units"]);
                                 }
+                                $rhtml .= "</span></td>\n";
                             }
-                            $rhtml .= "</span></td>\n";
-                            $rhtml .= '<td width="100">&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
+                            $rhtml .= '<td class="text-nowrap px-2"><span style="font-size:8pt;">';
                             if ($iter['id']) {
                                 $rhtml .= text(oeFormatSDFT(strtotime((string) $iter["date"])));
                             }
                             $rhtml .= "</span></td>\n";
 // This error message is generated if the authorized check box is not checked
                             if ($iter['id'] && $iter['authorized'] != 1) {
-                                $rhtml .= "<td><span class='alert'>" . xlt("Note: This code has not been authorized.") . "</span></td>\n";
+                                $rhtml .= "<td class='text-center'><i class='fa fa-exclamation-triangle text-danger' title='" . attr(xl("Note: This code has not been authorized.")) . "'></i><span class='sr-only'>" . xlt("Note: This code has not been authorized.") . "</span></td>\n";
                             } else {
                                 $rhtml .= "<td></td>\n";
                             }
@@ -1325,7 +1354,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 if ($tmpbpr == '0' && $iter['billed']) {
                                     $tmpbpr = '2';
                                 }
-                                $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . $CheckBoxBilling . "'>&nbsp;</td>\n";
+                                $rhtml .= "<td class='text-center'><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . $CheckBoxBilling . "' aria-label='" . attr(xl("Select claim for billing")) . "'></td>\n";
                                 $CheckBoxBilling++;
                             } else {
                                 $rhtml .= "<td></td>\n";
@@ -1353,28 +1382,30 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $date = $rowMoneyGot['date'];
                                     if ($PatientPay > 0) {
                                         if ($rhtml) {
-                                            $rhtml2 .= "<tr style='background-color: " . attr($bgcolor) . ";'>\n";
+                                            $rhtml2 .= "<tr class='oe-claim-row' data-encounter='" . attr($this_encounter_id) . "' style='background-color: " . attr($bgcolor) . ";'>\n";
                                         }
-                                        $rhtml2 .= "<td width='50'>";
+                                        $rhtml2 .= "<td>";
                                         $rhtml2 .= "<span class='text'>" . xlt('COPAY') . ": </span>";
                                         $rhtml2 .= "</td>\n";
                                         $rhtml2 .= "<td><span class='text'>" . text(oeFormatMoney($PatientPay)) . "</span><span style='font-size:8pt;'>&nbsp;</span></td>\n";
-                                        $rhtml2 .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                                        $rhtml2 .= '<td class="text-right text-nowrap px-2"><span style="font-size:8pt;">';
                                         $rhtml2 .= "</span></td>\n";
-                                        $rhtml2 .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
+                                        $rhtml2 .= '<td class="px-2"><span style="font-size:8pt;">';
                                         $rhtml2 .= "</span></td>\n";
-                                        $rhtml2 .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
-                                        $rhtml2 .= "</span></td>\n";
-                                        $rhtml2 .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
+                                        if ($showUnits) {
+                                            $rhtml2 .= '<td class="px-2"><span style="font-size:8pt;">';
+                                            $rhtml2 .= "</span></td>\n";
+                                        }
+                                        $rhtml2 .= '<td class="text-nowrap px-2"><span style="font-size:8pt;">';
                                         $rhtml2 .= text(oeFormatSDFT(strtotime((string) $date)));
                                         $rhtml2 .= "</span></td>\n";
                                         if ($iter['id'] && $iter['authorized'] != 1) {
-                                            $rhtml2 .= "<td><span class='alert'>" . xlt("Note: This copay was entered against billing that has not been authorized. Please review status.") . "</span></td>\n";
+                                            $rhtml2 .= "<td class='text-center'><i class='fa fa-exclamation-triangle text-danger' title='" . attr(xl("Note: This copay was entered against billing that has not been authorized. Please review status.")) . "'></i><span class='sr-only'>" . xlt("Note: This copay was entered against billing that has not been authorized. Please review status.") . "</span></td>\n";
                                         } else {
                                             $rhtml2 .= "<td></td>\n";
                                         }
                                         if (!$iter['id'] && $rowcnt == 1) {
-                                            $rhtml2 .= "<td><input type='checkbox' value='0' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . $CheckBoxBilling . "'>&nbsp;</td>\n";
+                                            $rhtml2 .= "<td class='text-center'><input type='checkbox' value='0' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . $CheckBoxBilling . "' aria-label='" . attr(xl("Select claim for billing")) . "'></td>\n";
                                             $CheckBoxBilling++;
                                         } else {
                                             $rhtml2 .= "<td></td>\n";
@@ -1389,7 +1420,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
 
                         if ($lhtml) {
                             while ($rcount < $lcount) {
-                                $rhtml .= "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9'></td></tr>";
+                                $rhtml .= "<tr class='oe-claim-row' data-encounter='" . attr($last_encounter_id) . "' style='background-color: " . attr($bgcolor) . ";'><td colspan='" . attr($colCount) . "'></td></tr>";
                                 ++$rcount;
                             }
                             if (!$missing_mods_only || ($mmo_empty_mod && $mmo_num_charges > 1)) {
@@ -1397,8 +1428,8 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $lhtml .= '</div>';
                                     $divPut = false;
                                 }
-                                echo "<tr style='background-color: " . attr($bgcolor) . ";'>\n<td rowspan='" . attr($rcount) . "' valign='top' width='25%'>\n$lhtml</td>$rhtml\n";
-                                echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='9' height='5'></td></tr>\n";
+                                echo "<tr class='oe-claim-row' data-encounter='" . attr($last_encounter_id) . "' style='background-color: " . attr($bgcolor) . ";'>\n<td class='align-top' rowspan='" . attr($rcount) . "'>\n$lhtml</td>$rhtml\n";
+                                echo "<tr style='background-color: " . attr($bgcolor) . ";'><td colspan='" . attr($colCount) . "' height='5'></td></tr>\n";
                             }
                         }
                     }
@@ -1420,6 +1451,22 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         }
         ?>
         $(function () {
+            // Click anywhere in a claim block to toggle its checkbox. Clicks that
+            // landed on a real control are left alone -- the block contains the
+            // payer and X12 selects, the encounter buttons and the expand link.
+            $(document).on('click', '.oe-claim-row', function (e) {
+                if ($(e.target).closest('a, button, select, input, label, textarea, .btn').length) {
+                    return;
+                }
+                var enc = $(this).data('encounter');
+                var $cb = $('input[name="claims[' + enc + '][bill]"]');
+                if (!$cb.length) {
+                    return;
+                }
+                $cb.prop('checked', !$cb.prop('checked'));
+                set_button_states();
+            });
+
             $("#view-log-link").click(function() {
                 top.restoreSession();
                 dlgopen('customize_log.php', '_blank', 750, 400);

@@ -46,6 +46,23 @@ RUN apt-get update && apt-get install -y \
  && docker-php-ext-enable imagick \
  && rm -rf /tmp/imagick
 
+# Temporary fix to get redis install working by bypassing below install-php-extensions run (these issues are usually temporary
+#  in dev versions of PHP, so this is not a permanent solution)
+# TODO:
+# TODO: intermittently try to remove this block of code and add back redis in below ../install-php-extensions run
+# TODO:
+# Install Redis from GitHub develop branch
+RUN apt-get update && apt-get install -y git \
+ && mkdir -p /tmp/redis \
+ && cd /tmp/redis \
+ && git clone https://github.com/phpredis/phpredis.git . \
+ && git checkout develop \
+ && phpize \
+ && ./configure \
+ && make && make install \
+ && docker-php-ext-enable redis \
+ && rm -rf /tmp/redis
+
 # Add the php extensions (note using a very cool script by mlocati to do this)
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod uga+x /usr/local/bin/install-php-extensions \
@@ -70,8 +87,9 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
 # Needed to ensure permissions work across shared volumes with openemr, nginx, and php-fpm dockers
 RUN usermod -u 1000 www-data
 
-# Copy over the php.ini conf
-COPY php.ini /usr/local/etc/php/php.ini
+# Copy over the php.ini conf (default: plain; insane bind-mounts php-ini/redis/php.ini
+# for the redis-flavored fpm sidecars to flip session storage to redis)
+COPY php-ini/php.ini /usr/local/etc/php/php.ini
 
 # Copy xdebug installation script for CI coverage support
 # Script is placed at /usr/share/nginx/html/xdebug.sh so CI can call ../xdebug.sh

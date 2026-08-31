@@ -1032,7 +1032,53 @@ paths:
     get:
       tags:
         - standard
-      description: 'Retrieves all insurance companies'
+      description: 'Retrieves all insurance companies, optionally filtered by search parameters'
+      parameters:
+        -
+          name: uuid
+          in: query
+          description: 'The uuid of the insurance company.'
+          required: false
+          schema:
+            type: string
+        -
+          name: name
+          in: query
+          description: 'Partial match on the insurance company name.'
+          required: false
+          schema:
+            type: string
+        -
+          name: cms_id
+          in: query
+          description: 'Exact match on the cms id.'
+          required: false
+          schema:
+            type: string
+        -
+          name: alt_cms_id
+          in: query
+          description: 'Exact match on the alternate cms id.'
+          required: false
+          schema:
+            type: string
+        -
+          name: ins_type_code
+          in: query
+          description: 'The insurance type code.'
+          required: false
+          schema:
+            type: string
+        -
+          name: inactive
+          in: query
+          description: 'Whether the insurance company is inactive (0 or 1).'
+          required: false
+          schema:
+            type: string
+            enum:
+              - '0'
+              - '1'
       responses:
         200:
           $ref: '#/components/responses/standard'
@@ -2786,6 +2832,41 @@ paths:
           required: true
           schema:
             type: string
+        -
+          name: name
+          in: query
+          description: 'Partial match on the employer name.'
+          required: false
+          schema:
+            type: string
+        -
+          name: occupation
+          in: query
+          description: 'The ODH occupation code.'
+          required: false
+          schema:
+            type: string
+        -
+          name: industry
+          in: query
+          description: 'The ODH industry code.'
+          required: false
+          schema:
+            type: string
+        -
+          name: start_date
+          in: query
+          description: 'The employment start date, supports FHIR prefixes e.g. ge2024-01-01.'
+          required: false
+          schema:
+            type: string
+        -
+          name: end_date
+          in: query
+          description: 'The employment end date, supports FHIR prefixes e.g. lt2025-01-01.'
+          required: false
+          schema:
+            type: string
       responses:
         200:
           $ref: '#/components/responses/standard'
@@ -2960,6 +3041,59 @@ paths:
           in: path
           description: 'The uuid for the patient.'
           required: true
+          schema:
+            type: string
+        -
+          name: type
+          in: query
+          description: 'The insurance type (primary, secondary, or tertiary).'
+          required: false
+          schema:
+            type: string
+            enum:
+              - primary
+              - secondary
+              - tertiary
+        -
+          name: plan_name
+          in: query
+          description: 'Partial match on the plan name.'
+          required: false
+          schema:
+            type: string
+        -
+          name: policy_number
+          in: query
+          description: 'Exact match on the policy number.'
+          required: false
+          schema:
+            type: string
+        -
+          name: group_number
+          in: query
+          description: 'Exact match on the group number.'
+          required: false
+          schema:
+            type: string
+        -
+          name: policy_type
+          in: query
+          description: 'The policy type.'
+          required: false
+          schema:
+            type: string
+        -
+          name: date
+          in: query
+          description: 'The coverage effective date, supports FHIR prefixes e.g. ge2024-01-01.'
+          required: false
+          schema:
+            type: string
+        -
+          name: date_end
+          in: query
+          description: 'The coverage end date, supports FHIR prefixes e.g. lt2025-01-01.'
+          required: false
           schema:
             type: string
       responses:

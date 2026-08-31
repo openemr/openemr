@@ -1,0 +1,123 @@
+# Render docker/dockerhub-fpm/overview.md against the live weekly + nightly
+# fpm build workflows, then PATCH it to Docker Hub's repo description for
+# openemr/dev-php-fpm.
+#
+# Three trigger paths:
+#
+#   * workflow_run on Weekly Build php-fpm Dockers -- after each successful
+#     Sunday build the readme refreshes to match the tag set that was just
+#     pushed.
+#
+#   * pull_request, paths-filtered to the four inputs (this workflow, the
+#     weekly build workflow, the nightly base build, and the renderer +
+#     template). Renders to a job artifact + posts a one-line summary; never
+#     pushes to Docker Hub. Pre-merge preview only.
+#
+#   * workflow_dispatch with a `dry_run` input -- for maintainer-driven ad-hoc
+#     refreshes (or testing the renderer without publishing).
+#
+# Push only happens when the run was triggered by the weekly build's
+# workflow_run path, or by an explicit dispatch with dry_run=false.
+
+name: Push Docker Hub readme (dev-php-fpm)
+
+on:
+  workflow_run:
+    workflows: ["Weekly Build php-fpm Dockers"]
+    types: [completed]
+  pull_request:
+    branches: [master]
+    paths:
+    - 'docker/dockerhub-fpm/**'
+    - '.github/workflows/weekly-build-php-fpm-dockers.yml'
+    - '.github/workflows/build-dev-php-fpm-docker.yml'
+    - '.github/workflows/docker-push-dockerhub-readme-fpm.yml'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Render only -- skip pushing to Docker Hub'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  # Serialize so two near-simultaneous renders can't race the dockerhub
+  # PATCH endpoint.
+  group: docker-push-dockerhub-readme-fpm
+  cancel-in-progress: false
+
+jobs:
+  render-and-push:
+    # No conclusion gate: the readme reflects what the weekly workflow
+    # *declares* it will build (parsed from the workflow YAML at the
+    # triggering head_sha), not what individual jobs pushed. That stays
+    # accurate even when some builds fail -- a common state while
+    # PHP 8.6 tracks pre-release master and periodically breaks on
+    # upstream extension incompatibilities like pcov. Requiring
+    # all-green would let a long-standing single-job failure freeze
+    # the readme indefinitely, forcing manual dispatch every Sunday.
+    #
+    # Safety of skipping the gate:
+    #   - on.workflow_run.workflows already restricts the trigger to
+    #     the Weekly Build php-fpm Dockers workflow.
+    #   - actions/checkout below pins to
+    #     github.event.workflow_run.head_sha so we always read the
+    #     workflow YAML at the exact commit the build ran against
+    #     (no master-drift window).
+    #   - dockerhub-description is effectively a no-op when the
+    #     rendered markdown matches what's already on Docker Hub.
+    name: Render and push
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        # workflow_run runs against the default branch by default, so a
+        # naked checkout could read a master newer than the build that
+        # triggered us -- publishing tags the weekly build did not yet
+        # produce. Pin to the triggering run's head_sha; falls back to
+        # github.sha on pull_request / workflow_dispatch where
+        # workflow_run isn't present.
+        ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+    - name: Render readme
+      run: |
+        mkdir -p "${RUNNER_TEMP}/rendered"
+        ./docker/dockerhub-fpm/render.sh "${RUNNER_TEMP}/rendered/dockerhub-readme.md"
+        echo "✓ Rendered $(wc -l < "${RUNNER_TEMP}/rendered/dockerhub-readme.md") lines"
+
+    - name: Upload rendered readme as artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: dockerhub-readme-fpm
+        path: ${{ runner.temp }}/rendered/dockerhub-readme.md
+        retention-days: 14
+
+    - name: Decide whether to push
+      id: decide
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        DRY_RUN: ${{ github.event.inputs.dry_run }}
+      run: |
+        # Push when triggered by a successful weekly build run, OR when a
+        # maintainer manually dispatched with dry_run=false. Pull requests
+        # and dry_run dispatches stop at the artifact upload above.
+        if [[ "${EVENT_NAME}" == "workflow_run" ]]; then
+          echo "push=true" >> "${GITHUB_OUTPUT}"
+        elif [[ "${EVENT_NAME}" == "workflow_dispatch" ]] && [[ "${DRY_RUN}" == "false" ]]; then
+          echo "push=true" >> "${GITHUB_OUTPUT}"
+        else
+          echo "push=false" >> "${GITHUB_OUTPUT}"
+          echo "ℹ Skipping Docker Hub push (event=${EVENT_NAME} dry_run=${DRY_RUN:-n/a}). Rendered output uploaded as artifact only."
+        fi
+
+    - name: Push readme to Docker Hub
+      if: ${{ steps.decide.outputs.push == 'true' && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' }}
+      uses: peter-evans/dockerhub-description@v5
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        repository: openemr/dev-php-fpm
+        readme-filepath: ${{ runner.temp }}/rendered/dockerhub-readme.md

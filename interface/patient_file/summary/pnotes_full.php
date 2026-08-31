@@ -22,6 +22,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -733,7 +734,8 @@ if (!empty($_GET['set_pid'])) {
     $ndata = getPatientData($patient_id, "fname, lname, pubpid");
     ?>
  parent.left_nav.setPatient(<?php echo js_escape($ndata['fname'] . " " . $ndata['lname']) . "," .
-     js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name"; ?>);
+     js_escape($patient_id) . "," . js_escape($ndata['pubpid']) . ",window.name, null, " .
+     ((new PatientService())->hasPictureForPid($patient_id) ? 'true' : 'false'); ?>);
     <?php
 }
 

@@ -33,6 +33,7 @@ class ForbiddenInstantiationsRule implements Rule
         Common\Logging\SystemLogger::class => ServiceContainer::class . '::getLogger()',
         Common\Crypto\CryptoGen::class => ServiceContainer::class . '::getCrypto()',
         Common\Http\Psr17Factory::class => ServiceContainer::class . '::get{PsrType}Factory()',
+        Common\Twig\TwigContainer::class => ServiceContainer::class . '::getTwig()',
     ];
 
     /**
