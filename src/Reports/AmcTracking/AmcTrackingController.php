@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * AMC Tracking Controller
  *
@@ -12,6 +10,8 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2026 OpenEMR <dev@open-emr.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Reports\AmcTracking;
 
