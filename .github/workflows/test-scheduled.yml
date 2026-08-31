@@ -64,6 +64,6 @@ jobs:
     with:
       docker_dir: ${{ matrix.config.docker_dir }}
       display_name: ${{ matrix.config.display_name }}
-      enable_coverage: ${{ inputs.enable_coverage == '' || inputs.enable_coverage }}
+      enable_coverage: ${{ github.event_name == 'schedule' || inputs.enable_coverage }}
       save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
       save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}
