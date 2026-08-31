@@ -51,10 +51,24 @@ concurrency:
 
 jobs:
   render-and-push:
-    # Gate on success when triggered by the weekly build's workflow_run.
-    # workflow_run fires on completed regardless of conclusion, so without
-    # this check a failed weekly build would still update the readme.
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    # No conclusion gate: the readme reflects what the weekly workflow
+    # *declares* it will build (parsed from the workflow YAML at the
+    # triggering head_sha), not what individual jobs pushed. That stays
+    # accurate even when some builds fail -- a common state while
+    # PHP 8.6 tracks pre-release master and periodically breaks on
+    # upstream extension incompatibilities like pcov. Requiring
+    # all-green would let a long-standing single-job failure freeze
+    # the readme indefinitely, forcing manual dispatch every Sunday.
+    #
+    # Safety of skipping the gate:
+    #   - on.workflow_run.workflows already restricts the trigger to
+    #     the Weekly Build php-fpm Dockers workflow.
+    #   - actions/checkout below pins to
+    #     github.event.workflow_run.head_sha so we always read the
+    #     workflow YAML at the exact commit the build ran against
+    #     (no master-drift window).
+    #   - dockerhub-description is effectively a no-op when the
+    #     rendered markdown matches what's already on Docker Hub.
     name: Render and push
     runs-on: ubuntu-24.04
     steps:
