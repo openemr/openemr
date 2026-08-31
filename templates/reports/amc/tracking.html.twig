@@ -32,15 +32,14 @@
             const elecCheckbox = $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id);
             const sumCheckbox = $('#send_sum_flag_' + patient_id + '_' + transaction_id);
 
+            let mode = 'remove';
             if (elecCheckbox.prop('checked')) {
                 if (!sumCheckbox.prop('checked')) {
                     elecCheckbox.prop('checked', false);
                     alert({{ 'Can not set this unless the Summary of Care Sent toggle is set.'|xlj }});
                     return false;
                 }
-                var mode = 'add';
-            } else {
-                var mode = 'remove';
+                mode = 'add';
             }
 
             top.restoreSession();
@@ -57,7 +56,7 @@
 
         function provide_rec_pat(patient_id, date_created) {
             const checkbox = $('#provide_rec_pat_flag_' + patient_id);
-            const mode = checkbox.prop('checked') ? 'complete_safe' : 'uncomplete_safe';
+            const mode = checkbox.prop('checked') ? 'complete_safe' : 'incomplete_safe';
 
             top.restoreSession();
             $.post('../../library/ajax/amc_misc_data.php', {

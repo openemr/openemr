@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * AmcTrackingControllerTest - Unit tests for AmcTrackingController
  *
@@ -51,17 +53,21 @@ class AmcTrackingControllerTest extends TestCase
         // Setup mock to return srcdir
         $this->mockGlobalsBag
             ->method('get')
-            ->willReturnCallback(fn($key) => match ($key) {
+            ->willReturnCallback(fn($key): ?string => match ($key) {
                 'srcdir' => __DIR__ . '/../../../../library',
                 'kernel' => null,
                 default => null,
             });
 
+        $this->mockGlobalsBag
+            ->method('getSrcDir')
+            ->willReturn(__DIR__ . '/../../../../library');
+
         // Create mock SessionInterface with a CSRF private key
         $this->mockSession = $this->createMock(SessionInterface::class);
         $this->mockSession
             ->method('get')
-            ->willReturnCallback(fn($key, $default = null) => match ($key) {
+            ->willReturnCallback(fn($key, $default = null): mixed => match ($key) {
                 'csrf_private_key' => str_repeat('a', 32),
                 default => $default,
             });
@@ -223,9 +229,39 @@ class AmcTrackingControllerTest extends TestCase
      */
     public function testPrepareTemplateDataWithoutResults(): void
     {
-        $this->markTestIncomplete(
-            'prepareTemplateData() calls getProviders() and requires database access'
-        );
+        $controller = new class ($this->mockGlobalsBag) extends AmcTrackingController {
+            public function getProviders(): array
+            {
+                return [
+                    [
+                        'id' => 7,
+                        'lname' => 'Smith',
+                        'fname' => 'Pat',
+                        'display_name' => 'Smith, Pat',
+                    ],
+                ];
+            }
+        };
+
+        $params = [
+            'begin_date' => '',
+            'end_date' => '',
+            'rule' => '',
+            'provider' => '',
+        ];
+
+        $data = $controller->prepareTemplateData($params, false, $this->mockSession);
+
+        $this->assertFalse($data['show_results']);
+        $this->assertSame([], $data['results']);
+        $this->assertSame('', $data['rule']);
+        $this->assertSame('', $data['provider']);
+        $this->assertCount(1, $data['providers']);
+        $this->assertSame('Smith, Pat', $data['providers'][0]['display_name']);
+        $this->assertNotSame('', $data['csrf_token']);
+        $this->assertSame($data['csrf_token'], $data['csrf_token_raw']);
+        $this->assertSame('conceal', $data['oemrUiSettings']['action']);
+        $this->assertFalse($data['oemrUiSettings']['expandable']);
     }
 
     /**
@@ -233,9 +269,51 @@ class AmcTrackingControllerTest extends TestCase
      */
     public function testPrepareTemplateDataStructure(): void
     {
-        $this->markTestIncomplete(
-            'prepareTemplateData() calls getProviders() and requires database access'
-        );
+        $controller = new class ($this->mockGlobalsBag) extends AmcTrackingController {
+            public function getProviders(): array
+            {
+                return [];
+            }
+
+            public function getTrackingResults(
+                string $rule,
+                string $begin_date,
+                string $end_date,
+                string $provider
+            ): array {
+                return [
+                    [
+                        'pid' => 42,
+                        'lname' => 'Doe',
+                        'fname' => 'Jane',
+                        'date' => '2024-01-15 10:00:00',
+                        'id' => 99,
+                    ],
+                ];
+            }
+        };
+
+        $params = [
+            'begin_date' => '20240101000000',
+            'end_date' => '20241231235959',
+            'rule' => 'send_sum_amc',
+            'provider' => '5',
+        ];
+
+        $data = $controller->prepareTemplateData($params, true, $this->mockSession);
+
+        $this->assertTrue($data['show_results']);
+        $this->assertSame('send_sum_amc', $data['rule']);
+        $this->assertSame('5', $data['provider']);
+        $this->assertCount(1, $data['results']);
+        $this->assertSame(42, $data['results'][0]['pid']);
+        $this->assertSame('Doe', $data['results'][0]['lname']);
+        $this->assertSame('Jane', $data['results'][0]['fname']);
+        $this->assertSame(99, $data['results'][0]['id']);
+        $this->assertNotSame('', $data['begin_date']);
+        $this->assertNotSame('', $data['end_date']);
+        $this->assertSame('amc_tracking.php', $data['oemrUiSettings']['action_href']);
+        $this->assertFalse($data['oemrUiSettings']['include_patient_name']);
     }
 
     /**

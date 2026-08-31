@@ -89,11 +89,11 @@
                                             <input
                                                 type="checkbox"
                                                 class="form-check-input"
-                                                id="send_sum_flag_{{ result.pid }}_{{ result.id }}"
+                                                id="send_sum_flag_{{ result.pid|attr }}_{{ result.id|attr }}"
                                                 onclick="send_sum({{ result.pid|js_escape }}, {{ result.id|js_escape }})"
                                                 role="switch"
                                             />
-                                            <label class="form-check-label" for="send_sum_flag_{{ result.pid }}_{{ result.id }}">
+                                            <label class="form-check-label" for="send_sum_flag_{{ result.pid|attr }}_{{ result.id|attr }}">
                                                 {{ 'Yes'|xlt }}
                                             </label>
                                         </div>
@@ -102,11 +102,11 @@
                                             <input
                                                 type="checkbox"
                                                 class="form-check-input"
-                                                id="provide_rec_pat_flag_{{ result.pid }}"
+                                                id="provide_rec_pat_flag_{{ result.pid|attr }}"
                                                 onclick="provide_rec_pat({{ result.pid|js_escape }}, {{ result.date|js_escape }})"
                                                 role="switch"
                                             />
-                                            <label class="form-check-label" for="provide_rec_pat_flag_{{ result.pid }}">
+                                            <label class="form-check-label" for="provide_rec_pat_flag_{{ result.pid|attr }}">
                                                 {{ 'Yes'|xlt }}
                                             </label>
                                         </div>
@@ -115,11 +115,11 @@
                                             <input
                                                 type="checkbox"
                                                 class="form-check-input"
-                                                id="provide_sum_pat_flag_{{ result.pid }}_{{ result.id }}"
+                                                id="provide_sum_pat_flag_{{ result.pid|attr }}_{{ result.id|attr }}"
                                                 onclick="provide_sum_pat({{ result.pid|js_escape }}, {{ result.id|js_escape }})"
                                                 role="switch"
                                             />
-                                            <label class="form-check-label" for="provide_sum_pat_flag_{{ result.pid }}_{{ result.id }}">
+                                            <label class="form-check-label" for="provide_sum_pat_flag_{{ result.pid|attr }}_{{ result.id|attr }}">
                                                 {{ 'Yes'|xlt }}
                                             </label>
                                         </div>
@@ -131,11 +131,11 @@
                                             <input
                                                 type="checkbox"
                                                 class="form-check-input"
-                                                id="send_sum_elec_flag_{{ result.pid }}_{{ result.id }}"
+                                                id="send_sum_elec_flag_{{ result.pid|attr }}_{{ result.id|attr }}"
                                                 onclick="send_sum_elec({{ result.pid|js_escape }}, {{ result.id|js_escape }})"
                                                 role="switch"
                                             />
-                                            <label class="form-check-label" for="send_sum_elec_flag_{{ result.pid }}_{{ result.id }}">
+                                            <label class="form-check-label" for="send_sum_elec_flag_{{ result.pid|attr }}_{{ result.id|attr }}">
                                                 {{ 'Yes'|xlt }}
                                             </label>
                                         </div>

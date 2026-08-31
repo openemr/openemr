@@ -63,13 +63,13 @@
                                 {{ 'Rule'|xlt }}
                             </label>
                             <select name="form_rule" id="form_rule" class="form-select">
-                                <option value="send_sum_amc" {{ rule == 'send_sum_amc' ? 'selected' : '' }}>
+                                <option value="send_sum_amc"{% if rule == 'send_sum_amc' %} selected{% endif %}>
                                     {{ 'Send Summaries with Referrals'|xlt }}
                                 </option>
-                                <option value="provide_rec_pat_amc" {{ rule == 'provide_rec_pat_amc' ? 'selected' : '' }}>
+                                <option value="provide_rec_pat_amc"{% if rule == 'provide_rec_pat_amc' %} selected{% endif %}>
                                     {{ 'Patient Requested Medical Records'|xlt }}
                                 </option>
-                                <option value="provide_sum_pat_amc" {{ rule == 'provide_sum_pat_amc' ? 'selected' : '' }}>
+                                <option value="provide_sum_pat_amc"{% if rule == 'provide_sum_pat_amc' %} selected{% endif %}>
                                     {{ 'Provide Records to Patient for Visit'|xlt }}
                                 </option>
                             </select>
@@ -84,7 +84,7 @@
                                 {% for prov in providers %}
                                     <option
                                         value="{{ prov.id|attr }}"
-                                        {{ prov.id == provider ? 'selected' : '' }}
+                                        {% if prov.id == provider %}selected{% endif %}
                                     >
                                         {{ prov.display_name|text }}
                                     </option>
