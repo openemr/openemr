@@ -10,17 +10,19 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated;
+namespace OpenEMR\Tests\Isolated\library;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
 // Load the function file under test (no globals/database needed for pure helpers).
-require_once __DIR__ . '/../../../library/lab.inc.php';
+require_once __DIR__ . '/../../../../library/lab.inc.php';
 
 /**
  * Tests the pure helper functions in library/lab.inc.php.
  */
+#[Small]
 class LabIncTest extends TestCase
 {
     // ── buildResponsibleParty ───────────────────────────────────────────
@@ -153,7 +155,7 @@ class LabIncTest extends TestCase
 
         $this->assertSame('Test Clinic', $result['name']);
         $this->assertSame('', $result['address']);
-        $this->assertSame(',', $result['city_st_zip']);
+        $this->assertSame('', $result['city_st_zip']);
         $this->assertSame('Client Billing', $result['relationship']);
     }
 
@@ -192,20 +194,6 @@ class LabIncTest extends TestCase
         $this->assertTrue($result['relationship_is_list']);
     }
 
-    /**
-     * Test getProcedureOrderAnswers is defined for requisition AOE rendering.
-     */
-    public function testGetProcedureOrderAnswersFunctionExists(): void
-    {
-        $this->assertTrue(function_exists('getProcedureOrderAnswers'));
-        $this->assertTrue(function_exists('getLabconfig'));
-        $this->assertTrue(function_exists('getProcedureBillingType'));
-        $this->assertTrue(function_exists('buildResponsibleParty'));
-        $this->assertTrue(function_exists('lab_as_string'));
-        $this->assertTrue(function_exists('lab_normalize_row'));
-        $this->assertTrue(function_exists('lab_normalize_array_row'));
-        $this->assertTrue(function_exists('lab_normalize_rows'));
-    }
 
     // ── lab_as_string / lab_normalize_* ────────────────────────────────
 
@@ -468,6 +456,16 @@ class LabIncTest extends TestCase
             $result
         );
         $this->assertSame([], lab_collect_aoe_answers([], 1, 1, $fetcher));
+    }
+
+
+    public function testGetFacilityInfoRejectsMalformedIds(): void
+    {
+        $this->assertFalse(getFacilityInfo('onlyone'));
+        $this->assertFalse(getFacilityInfo('facility_12_extra'));
+        $this->assertFalse(getFacilityInfo('facility_not-an-id'));
+        $this->assertFalse(getFacilityInfo('facility_0'));
+        $this->assertFalse(getFacilityInfo('facility_-1'));
     }
 
     public function testLabAsStringFloatAndZeroEdgeCases(): void

@@ -457,43 +457,48 @@ function buildResponsibleParty(string $billingType, array $facility, array $pdat
     ];
 
     if ($billingType === 'C') {
-        $city = lab_as_string($facility['city'] ?? '');
-        $state = lab_as_string($facility['state'] ?? '');
-        $postal = lab_as_string($facility['postal_code'] ?? '');
         return [
             'name' => lab_as_string($facility['name'] ?? ''),
             'address' => lab_as_string($facility['street'] ?? ''),
-            'city_st_zip' => trim($city . ', ' . $state . ' ' . $postal),
+            'city_st_zip' => lab_format_city_state_zip(
+                lab_as_string($facility['city'] ?? ''),
+                lab_as_string($facility['state'] ?? ''),
+                lab_as_string($facility['postal_code'] ?? '')
+            ),
             'relationship' => 'Client Billing',
             'relationship_is_list' => false,
         ];
     }
 
     if ($billingType === 'P') {
-        $fname = lab_as_string($pdata['fname'] ?? '');
-        $lname = lab_as_string($pdata['lname'] ?? '');
-        $city = lab_as_string($pdata['city'] ?? '');
-        $state = lab_as_string($pdata['state'] ?? '');
-        $postal = lab_as_string($pdata['postal_code'] ?? '');
         return [
-            'name' => trim($fname . ' ' . $lname),
+            'name' => lab_format_person_name(
+                lab_as_string($pdata['fname'] ?? ''),
+                lab_as_string($pdata['lname'] ?? '')
+            ),
             'address' => lab_as_string($pdata['street'] ?? ''),
-            'city_st_zip' => trim($city . ', ' . $state . ' ' . $postal),
+            'city_st_zip' => lab_format_city_state_zip(
+                lab_as_string($pdata['city'] ?? ''),
+                lab_as_string($pdata['state'] ?? ''),
+                lab_as_string($pdata['postal_code'] ?? '')
+            ),
             'relationship' => 'Self',
             'relationship_is_list' => false,
         ];
     }
 
     if ($billingType === 'T' && $primaryIns !== []) {
-        $fname = lab_as_string($primaryIns['subscriber_fname'] ?? '');
-        $lname = lab_as_string($primaryIns['subscriber_lname'] ?? '');
-        $city = lab_as_string($primaryIns['city'] ?? '');
-        $state = lab_as_string($primaryIns['state'] ?? '');
-        $zip = lab_as_string($primaryIns['zip'] ?? '');
         return [
-            'name' => trim($fname . ' ' . $lname),
+            'name' => lab_format_person_name(
+                lab_as_string($primaryIns['subscriber_fname'] ?? ''),
+                lab_as_string($primaryIns['subscriber_lname'] ?? '')
+            ),
             'address' => lab_as_string($primaryIns['line1'] ?? ''),
-            'city_st_zip' => trim($city . ', ' . $state . ' ' . $zip),
+            'city_st_zip' => lab_format_city_state_zip(
+                lab_as_string($primaryIns['city'] ?? ''),
+                lab_as_string($primaryIns['state'] ?? ''),
+                lab_as_string($primaryIns['zip'] ?? '')
+            ),
             'relationship' => lab_as_string($primaryIns['subscriber_relationship'] ?? ''),
             'relationship_is_list' => true,
         ];
@@ -544,7 +549,8 @@ function getProcedureOrderAnswers($oid, $labId, $procedureCode, $procedureOrderS
 function getFacilityInfo($facilityID): array|false
 {
     $parts = explode('_', $facilityID);
-    if (count($parts) < 2) {
+    // Expect exactly XX_YY where YY is a positive numeric users.id.
+    if (count($parts) !== 2 || !ctype_digit($parts[1]) || (int) $parts[1] < 1) {
         return false;
     }
 
