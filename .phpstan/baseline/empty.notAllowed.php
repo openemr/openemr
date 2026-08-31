@@ -1853,11 +1853,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/reports/amc_tracking.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
     'count' => 26,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];

@@ -16,11 +16,12 @@ require_once("../../library/patient.inc.php");
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/amc.php";
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\AmcTracking\AmcTrackingController;
 
@@ -36,32 +37,24 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$request = CurrentRequest::get();
 
-// Security Check: CSRF
-if (!empty($_POST)) {
+// Security Check: CSRF on POST submissions
+if ($request->getMethod() === 'POST' || $request->request->count() > 0) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Initialize controller with OEGlobalsBag
 $controller = new AmcTrackingController($globalsBag);
 
-// Get form parameters
-$params = !empty($_POST) ? $controller->getFormParameters() : [
-    'begin_date' => '',
-    'end_date' => '',
-    'rule' => '',
-    'provider' => ''
-];
+// Get form parameters from the Symfony request bag
+$params = $controller->getFormParameters($request);
 
 // Determine if we should show results
-$showResults = !empty($_POST['form_refresh']) && !empty($params['rule']);
+$showResults = $request->request->getString('form_refresh') !== '' && $params['rule'] !== '';
 
 // Prepare data for template
 $templateData = $controller->prepareTemplateData($params, $showResults, $session);
 
-// Render template
-$kernel = $globalsBag->getKernel();
-$twigContainer = new TwigContainer(null, $kernel);
-$twig = $twigContainer->getTwig();
-
-echo $twig->render('reports/amc/tracking.html.twig', $templateData);
+// Render template via the shared Twig service
+echo ServiceContainer::getTwig()->render('reports/amc/tracking.html.twig', $templateData);

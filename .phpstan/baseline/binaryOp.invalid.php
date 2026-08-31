@@ -6812,21 +6812,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/amc_full_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \', \' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/amc_tracking.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \',\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/amc_tracking.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/reports/amc_tracking.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\'\\|\', \' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',

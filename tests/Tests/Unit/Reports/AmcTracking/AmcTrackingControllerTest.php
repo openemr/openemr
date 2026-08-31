@@ -4,7 +4,7 @@
  * AmcTrackingControllerTest - Unit tests for AmcTrackingController
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    OpenEMR <dev@open-emr.org>
  * @copyright Copyright (c) 2026 OpenEMR <dev@open-emr.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,6 +16,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\AmcTracking\AmcTrackingController;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -29,7 +30,7 @@ class AmcTrackingControllerTest extends TestCase
     private MockObject $mockGlobalsBag;
     /** @var MockObject&SessionInterface */
     private MockObject $mockSession;
-    private array $postBackup = [];
+    /** @var array<string, mixed> */
     private array $globalsBackup = [];
 
     /**
@@ -38,9 +39,6 @@ class AmcTrackingControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Backup $_POST
-        $this->postBackup = $_POST;
 
         // Backup $GLOBALS
         $this->globalsBackup = [
@@ -77,8 +75,6 @@ class AmcTrackingControllerTest extends TestCase
      */
     protected function tearDown(): void
     {
-        $_POST = $this->postBackup;
-
         foreach ($this->globalsBackup as $key => $value) {
             if ($value === null) {
                 unset($GLOBALS[$key]);
@@ -98,7 +94,7 @@ class AmcTrackingControllerTest extends TestCase
         // This should use the singleton
         $controller = new AmcTrackingController();
 
-        $this->assertInstanceOf(AmcTrackingController::class, $controller);
+        $this->assertSame(AmcTrackingController::class, $controller::class);
     }
 
     /**
@@ -106,28 +102,22 @@ class AmcTrackingControllerTest extends TestCase
      */
     public function testConstructorWithGlobalsBag(): void
     {
-        $this->assertInstanceOf(AmcTrackingController::class, $this->controller);
+        $this->assertSame(AmcTrackingController::class, $this->controller::class);
     }
 
     /**
-     * Test getFormParameters with empty POST data
+     * Test getFormParameters with empty request body
      */
     public function testGetFormParametersEmpty(): void
     {
-        $_POST = [];
+        $request = Request::create('/interface/reports/amc_tracking.php', 'POST', []);
 
-        $params = $this->controller->getFormParameters();
+        $params = $this->controller->getFormParameters($request);
 
-        $this->assertIsArray($params);
-        $this->assertArrayHasKey('begin_date', $params);
-        $this->assertArrayHasKey('end_date', $params);
-        $this->assertArrayHasKey('rule', $params);
-        $this->assertArrayHasKey('provider', $params);
-
-        $this->assertEquals('', $params['begin_date']);
-        $this->assertEquals('', $params['end_date']);
-        $this->assertEquals('', $params['rule']);
-        $this->assertEquals('', $params['provider']);
+        $this->assertSame('', $params['begin_date']);
+        $this->assertSame('', $params['end_date']);
+        $this->assertSame('', $params['rule']);
+        $this->assertSame('', $params['provider']);
     }
 
     /**
@@ -135,19 +125,19 @@ class AmcTrackingControllerTest extends TestCase
      */
     public function testGetFormParametersWithData(): void
     {
-        $_POST = [
+        $request = Request::create('/interface/reports/amc_tracking.php', 'POST', [
             'form_begin_date' => '2024-01-01 00:00:00',
             'form_end_date' => '2024-12-31 23:59:59',
             'form_rule' => 'send_sum_amc',
             'form_provider' => '5',
-        ];
+        ]);
 
-        $params = $this->controller->getFormParameters();
+        $params = $this->controller->getFormParameters($request);
 
-        $this->assertNotEmpty($params['begin_date']);
-        $this->assertNotEmpty($params['end_date']);
-        $this->assertEquals('send_sum_amc', $params['rule']);
-        $this->assertEquals('5', $params['provider']);
+        $this->assertNotSame('', $params['begin_date']);
+        $this->assertNotSame('', $params['end_date']);
+        $this->assertSame('send_sum_amc', $params['rule']);
+        $this->assertSame('5', $params['provider']);
     }
 
     /**
@@ -160,9 +150,6 @@ class AmcTrackingControllerTest extends TestCase
         $this->markTestIncomplete(
             'This test requires database access and should be run as an integration test'
         );
-
-        // $providers = $this->controller->getProviders();
-        // $this->assertIsArray($providers);
     }
 
     /**
@@ -210,7 +197,7 @@ class AmcTrackingControllerTest extends TestCase
         $this->assertStringContainsString('Referral', $sendSumHeader);
 
         $provideRecHeader = $this->controller->getIdColumnHeader('provide_rec_pat_amc');
-        $this->assertEquals('', $provideRecHeader);
+        $this->assertSame('', $provideRecHeader);
 
         $provideSumHeader = $this->controller->getIdColumnHeader('provide_sum_pat_amc');
         $this->assertStringContainsString('Encounter', $provideSumHeader);
@@ -236,29 +223,9 @@ class AmcTrackingControllerTest extends TestCase
      */
     public function testPrepareTemplateDataWithoutResults(): void
     {
-        $params = [
-            'begin_date' => '',
-            'end_date' => '',
-            'rule' => '',
-            'provider' => '',
-        ];
-
-        $data = $this->controller->prepareTemplateData($params, false, $this->mockSession);
-
-        $this->assertIsArray($data);
-        $this->assertArrayHasKey('csrf_token', $data);
-        $this->assertArrayHasKey('csrf_token_raw', $data);
-        $this->assertArrayHasKey('begin_date', $data);
-        $this->assertArrayHasKey('end_date', $data);
-        $this->assertArrayHasKey('rule', $data);
-        $this->assertArrayHasKey('provider', $data);
-        $this->assertArrayHasKey('providers', $data);
-        $this->assertArrayHasKey('show_results', $data);
-        $this->assertArrayHasKey('results', $data);
-        $this->assertArrayHasKey('oemrUiSettings', $data);
-
-        $this->assertFalse($data['show_results']);
-        $this->assertEmpty($data['results']);
+        $this->markTestIncomplete(
+            'prepareTemplateData() calls getProviders() and requires database access'
+        );
     }
 
     /**
@@ -266,28 +233,9 @@ class AmcTrackingControllerTest extends TestCase
      */
     public function testPrepareTemplateDataStructure(): void
     {
-        $params = [
-            'begin_date' => '20240101000000',
-            'end_date' => '20241231235959',
-            'rule' => 'send_sum_amc',
-            'provider' => '5',
-        ];
-
-        $data = $this->controller->prepareTemplateData($params, false, $this->mockSession);
-
-        // Verify oemrUiSettings structure
-        $this->assertArrayHasKey('oemrUiSettings', $data);
-        $settings = $data['oemrUiSettings'];
-
-        $this->assertArrayHasKey('heading_title', $settings);
-        $this->assertArrayHasKey('include_patient_name', $settings);
-        $this->assertArrayHasKey('expandable', $settings);
-        $this->assertArrayHasKey('action', $settings);
-        $this->assertArrayHasKey('action_href', $settings);
-
-        $this->assertFalse($settings['include_patient_name']);
-        $this->assertFalse($settings['expandable']);
-        $this->assertEquals('conceal', $settings['action']);
+        $this->markTestIncomplete(
+            'prepareTemplateData() calls getProviders() and requires database access'
+        );
     }
 
     /**
@@ -299,10 +247,6 @@ class AmcTrackingControllerTest extends TestCase
         $this->markTestIncomplete(
             'This test requires database access and amc.php file, should be run as integration test'
         );
-
-        // In integration test:
-        // $results = $this->controller->getTrackingResults('send_sum_amc', '20240101', '20241231', '');
-        // $this->assertIsArray($results);
     }
 
     /**
@@ -313,7 +257,7 @@ class AmcTrackingControllerTest extends TestCase
      */
     public function testOEGlobalsBagUsage(): void
     {
-        $this->assertInstanceOf(AmcTrackingController::class, $this->controller);
+        $this->assertSame(AmcTrackingController::class, $this->controller::class);
     }
 
     /**
@@ -328,10 +272,6 @@ class AmcTrackingControllerTest extends TestCase
         $property = $reflection->getProperty('globalsBag');
 
         $this->assertTrue($property->isPrivate());
-
-        // Check if readonly (PHP 8.1+)
-        if (method_exists($property, 'isReadOnly')) {
-            $this->assertTrue($property->isReadOnly());
-        }
+        $this->assertTrue($property->isReadOnly());
     }
 }

@@ -4,7 +4,7 @@
  * AMC Tracking Controller
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2026 OpenEMR <dev@open-emr.org>
@@ -15,8 +15,11 @@ namespace OpenEMR\Reports\AmcTracking;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\CurrentRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AmcTrackingController
@@ -28,31 +31,35 @@ class AmcTrackingController
         // Use provided OEGlobalsBag or get singleton with compatibility mode
         $this->globalsBag = $globalsBag ?? OEGlobalsBag::getInstance();
     }
+
     /**
-     * Get form parameters from POST request with defaults
+     * Get form parameters from the request body with defaults.
      *
-     * @return array
+     * @return array{begin_date: string, end_date: string, rule: string, provider: string}
      */
-    public function getFormParameters(): array
+    public function getFormParameters(?Request $request = null): array
     {
+        $request ??= CurrentRequest::get();
+        $beginDate = trim($request->request->getString('form_begin_date'));
+        $endDate = trim($request->request->getString('form_end_date'));
+        $rule = trim($request->request->getString('form_rule'));
+        $provider = trim($request->request->getString('form_provider'));
+
+        $beginConverted = $beginDate !== '' ? DateTimeToYYYYMMDDHHMMSS($beginDate) : '';
+        $endConverted = $endDate !== '' ? DateTimeToYYYYMMDDHHMMSS($endDate) : '';
+
         return [
-            'begin_date' => isset($_POST['form_begin_date'])
-                ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_begin_date']))
-                : '',
-            'end_date' => isset($_POST['form_end_date'])
-                ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_end_date']))
-                : '',
-            'rule' => isset($_POST['form_rule'])
-                ? trim((string) $_POST['form_rule'])
-                : '',
-            'provider' => trim($_POST['form_provider'] ?? ''),
+            'begin_date' => is_string($beginConverted) ? $beginConverted : '',
+            'end_date' => is_string($endConverted) ? $endConverted : '',
+            'rule' => $rule,
+            'provider' => $provider,
         ];
     }
 
     /**
-     * Get list of authorized providers
+     * Get list of authorized providers.
      *
-     * @return array
+     * @return list<array{id: int|string, lname: string, fname: string, display_name: string}>
      */
     public function getProviders(): array
     {
@@ -64,11 +71,18 @@ class AmcTrackingController
         $providers = [];
 
         foreach ($results as $row) {
+            $lname = is_string($row['lname'] ?? null) ? $row['lname'] : '';
+            $fname = is_string($row['fname'] ?? null) ? $row['fname'] : '';
+            $id = $row['id'] ?? '';
+            if (!is_int($id) && !is_string($id)) {
+                $id = '';
+            }
+
             $providers[] = [
-                'id' => $row['id'],
-                'lname' => $row['lname'],
-                'fname' => $row['fname'],
-                'display_name' => $row['lname'] . ', ' . $row['fname']
+                'id' => $id,
+                'lname' => $lname,
+                'fname' => $fname,
+                'display_name' => $lname . ', ' . $fname,
             ];
         }
 
@@ -76,13 +90,9 @@ class AmcTrackingController
     }
 
     /**
-     * Get tracking results based on rule and filters
+     * Get tracking results based on rule and filters.
      *
-     * @param string $rule
-     * @param string $begin_date
-     * @param string $end_date
-     * @param string $provider
-     * @return array
+     * @return list<array{pid: mixed, lname: string, fname: string, date: string, id: mixed}>
      */
     public function getTrackingResults(
         string $rule,
@@ -97,32 +107,32 @@ class AmcTrackingController
         $rawResults = amcTrackingRequest($rule, $begin_date, $end_date, $provider);
 
         // Format the results for template consumption
-        /** @var array<int, array<string, mixed>> $results */
-        $results = is_array($rawResults) ? $rawResults : [];
+        /** @var list<array<string, mixed>> $results */
+        $results = is_array($rawResults) ? array_values($rawResults) : [];
+
         return $this->formatResults($results);
     }
 
     /**
-     * Format results for template display
+     * Format results for template display.
      *
-     * @param array<int, array<string, mixed>> $results
-     * @return array<int, array<string, mixed>>
+     * @param list<array<string, mixed>> $results
+     * @return list<array{pid: mixed, lname: string, fname: string, date: string, id: mixed}>
      */
     private function formatResults(array $results): array
     {
         $formatted = [];
 
         foreach ($results as $result) {
-            if (!is_array($result)) {
-                continue;
-            }
+            $dateRaw = $result['date'] ?? '';
+            $date = is_string($dateRaw) ? $dateRaw : '';
 
             $formatted[] = [
-                'pid'   => $result['pid'] ?? null,
-                'lname' => $result['lname'] ?? '',
-                'fname' => $result['fname'] ?? '',
-                'date'  => oeFormatDateTime((string) ($result['date'] ?? ''), 'global', true),
-                'id'    => $result['id'] ?? null,
+                'pid' => $result['pid'] ?? null,
+                'lname' => is_string($result['lname'] ?? null) ? $result['lname'] : '',
+                'fname' => is_string($result['fname'] ?? null) ? $result['fname'] : '',
+                'date' => DateFormatterUtils::oeFormatDateTime($date, 'global', true),
+                'id' => $result['id'] ?? null,
             ];
         }
 
@@ -130,10 +140,7 @@ class AmcTrackingController
     }
 
     /**
-     * Get rule display name
-     *
-     * @param string $rule
-     * @return string
+     * Get rule display name.
      */
     public function getRuleDisplayName(string $rule): string
     {
@@ -146,10 +153,7 @@ class AmcTrackingController
     }
 
     /**
-     * Get column header for date based on rule
-     *
-     * @param string $rule
-     * @return string
+     * Get column header for date based on rule.
      */
     public function getDateColumnHeader(string $rule): string
     {
@@ -162,10 +166,7 @@ class AmcTrackingController
     }
 
     /**
-     * Get column header for ID based on rule
-     *
-     * @param string $rule
-     * @return string
+     * Get column header for ID based on rule.
      */
     public function getIdColumnHeader(string $rule): string
     {
@@ -178,10 +179,7 @@ class AmcTrackingController
     }
 
     /**
-     * Get checkbox column header based on rule
-     *
-     * @param string $rule
-     * @return string
+     * Get checkbox column header based on rule.
      */
     public function getCheckboxColumnHeader(string $rule): string
     {
@@ -194,30 +192,45 @@ class AmcTrackingController
     }
 
     /**
-     * Prepare data for Twig template
+     * Prepare data for Twig template.
      *
-     * @param array $params
-     * @param bool $showResults
+     * @param array{begin_date?: string, end_date?: string, rule?: string, provider?: string} $params
      * @param SessionInterface|null $session Active session for CSRF token generation;
      *                                       defaults to the current session via SessionWrapperFactory.
-     * @return array
+     * @return array{
+     *     csrf_token: string,
+     *     csrf_token_raw: string,
+     *     begin_date: string,
+     *     end_date: string,
+     *     rule: string,
+     *     provider: string,
+     *     providers: list<array{id: int|string, lname: string, fname: string, display_name: string}>,
+     *     show_results: bool,
+     *     results: list<array{pid: mixed, lname: string, fname: string, date: string, id: mixed}>,
+     *     oemrUiSettings: array<string, mixed>
+     * }
      */
     public function prepareTemplateData(array $params, bool $showResults = false, ?SessionInterface $session = null): array
     {
         $session ??= SessionWrapperFactory::getInstance()->getActiveSession();
         $csrfToken = CsrfUtils::collectCsrfToken($session);
 
+        $beginDate = $params['begin_date'] ?? '';
+        $endDate = $params['end_date'] ?? '';
+        $rule = $params['rule'] ?? '';
+        $provider = $params['provider'] ?? '';
+
         $data = [
             'csrf_token' => $csrfToken,
             'csrf_token_raw' => $csrfToken,
-            'begin_date' => isset($params['begin_date'])
-                ? oeFormatDateTime($params['begin_date'], 'global', true)
+            'begin_date' => $beginDate !== ''
+                ? DateFormatterUtils::oeFormatDateTime($beginDate, 'global', true)
                 : '',
-            'end_date' => isset($params['end_date'])
-                ? oeFormatDateTime($params['end_date'], 'global', true)
+            'end_date' => $endDate !== ''
+                ? DateFormatterUtils::oeFormatDateTime($endDate, 'global', true)
                 : '',
-            'rule' => $params['rule'] ?? '',
-            'provider' => $params['provider'] ?? '',
+            'rule' => $rule,
+            'provider' => $provider,
             'providers' => $this->getProviders(),
             'show_results' => $showResults,
             'results' => [],
@@ -230,17 +243,17 @@ class AmcTrackingController
                 'action_title' => '',
                 'action_href' => 'amc_tracking.php',
                 'show_help_icon' => false,
-                'help_file_name' => ''
-            ]
+                'help_file_name' => '',
+            ],
         ];
 
         // Get results if showing
-        if ($showResults && !empty($params['rule'])) {
+        if ($showResults && $rule !== '') {
             $data['results'] = $this->getTrackingResults(
-                $params['rule'],
-                $params['begin_date'],
-                $params['end_date'],
-                $params['provider']
+                $rule,
+                $beginDate,
+                $endDate,
+                $provider
             );
         }
 
