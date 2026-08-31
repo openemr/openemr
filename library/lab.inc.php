@@ -32,6 +32,184 @@ function lab_as_string(mixed $value): string
 }
 
 /**
+ * Coerce mixed request/session/DB identifiers to a non-negative int.
+ */
+function lab_coerce_non_negative_int(mixed $value): int
+{
+    if (is_int($value)) {
+        return $value >= 0 ? $value : 0;
+    }
+    if (is_string($value) && ctype_digit($value)) {
+        return (int) $value;
+    }
+
+    return 0;
+}
+
+/**
+ * Coerce a mixed lab/provider foreign key to int or null when absent/invalid.
+ */
+function lab_coerce_optional_int(mixed $value): ?int
+{
+    if (is_int($value)) {
+        return $value;
+    }
+    if (is_string($value) && ctype_digit($value)) {
+        return (int) $value;
+    }
+
+    return null;
+}
+
+/**
+ * Normalize a provider id for downstream helper calls.
+ */
+function lab_coerce_provider_id_string(mixed $value): string
+{
+    if (is_int($value)) {
+        return (string) $value;
+    }
+    if (is_string($value) && $value !== '') {
+        return $value;
+    }
+
+    return '';
+}
+
+/**
+ * Format "City, ST ZIP" lines used on requisition printouts.
+ */
+function lab_format_city_state_zip(string $city, string $state, string $zip): string
+{
+    return trim(
+        $city .
+        ($city !== '' && $state !== '' ? ', ' : '') .
+        $state .
+        ' ' .
+        $zip
+    );
+}
+
+/**
+ * Format a simple first/last person name.
+ */
+function lab_format_person_name(string $first, string $last): string
+{
+    return trim($first . ' ' . $last);
+}
+
+/**
+ * True when the responsible-party shape has any printable content.
+ *
+ * @param array{name?: string, address?: string, city_st_zip?: string, relationship?: string} $party
+ */
+function lab_has_responsible_party(array $party): bool
+{
+    return lab_as_string($party['name'] ?? '') !== ''
+        || lab_as_string($party['address'] ?? '') !== ''
+        || lab_as_string($party['city_st_zip'] ?? '') !== ''
+        || lab_as_string($party['relationship'] ?? '') !== '';
+}
+
+/**
+ * Resolve barcode text from getBarId() output without generating a new value.
+ *
+ * @param array<string, mixed>|string $storeBar
+ * @return array{found: bool, barcode: string}
+ */
+function lab_resolve_existing_barcode(array|string $storeBar): array
+{
+    if (is_array($storeBar)) {
+        $reqId = lab_as_string($storeBar['req_id'] ?? '');
+        if ($reqId !== '') {
+            return ['found' => true, 'barcode' => $reqId];
+        }
+    }
+
+    return ['found' => false, 'barcode' => ''];
+}
+
+/**
+ * Stable billing-type label keys for requisition UI (callers translate).
+ */
+function lab_billing_type_label_key(string $billingType): string
+{
+    return match ($billingType) {
+        'C' => 'Clinic Billing',
+        'P' => 'Patient Billing',
+        'T' => 'Third Party / Insurance',
+        default => 'Not Specified',
+    };
+}
+
+/**
+ * Relationship display strategy for requisition UI.
+ *
+ * @param array{relationship?: mixed, relationship_is_list?: mixed} $responsibleParty
+ * @return array{mode: 'empty'|'list'|'client'|'self'|'raw', value: string}
+ */
+function lab_relationship_display(array $responsibleParty): array
+{
+    $relationship = lab_as_string($responsibleParty['relationship'] ?? '');
+    if ($relationship === '') {
+        return ['mode' => 'empty', 'value' => ''];
+    }
+
+    $isList = (bool) ($responsibleParty['relationship_is_list'] ?? false);
+    if ($isList) {
+        return ['mode' => 'list', 'value' => $relationship];
+    }
+    if ($relationship === 'Client Billing') {
+        return ['mode' => 'client', 'value' => $relationship];
+    }
+    if ($relationship === 'Self') {
+        return ['mode' => 'self', 'value' => $relationship];
+    }
+
+    return ['mode' => 'raw', 'value' => $relationship];
+}
+
+/**
+ * Collect AOE Q&A pairs across ordered procedure code rows.
+ *
+ * @param list<array<string, mixed>> $orders
+ * @param callable(int|string, int|string, int|string, int|string): list<array{question_text: string, answer: string}> $answerFetcher
+ * @return list<array{question_text: string, answer: string}>
+ */
+function lab_collect_aoe_answers(array $orders, int $oid, int $lab, callable $answerFetcher): array
+{
+    $aoeAnswers = [];
+    foreach ($orders as $codeRow) {
+        $code = lab_as_string($codeRow['procedure_code'] ?? '');
+        $seq = lab_as_string($codeRow['procedure_order_seq'] ?? '');
+        if ($code === '' || $seq === '') {
+            continue;
+        }
+        foreach ($answerFetcher($oid, $lab, $code, $seq) as $aoeRow) {
+            $aoeAnswers[] = $aoeRow;
+        }
+    }
+
+    return $aoeAnswers;
+}
+
+/**
+ * Normalize insurance row lists from legacy getAllinsurances() output.
+ *
+ * @param mixed $insRaw
+ * @return list<array<string, mixed>>
+ */
+function lab_normalize_insurance_rows(mixed $insRaw): array
+{
+    $ins = [];
+    foreach ((array) $insRaw as $insRow) {
+        $ins[] = lab_normalize_array_row((array) $insRow);
+    }
+
+    return $ins;
+}
+
+/**
  * Normalize associative/list keys on a DB row to strings.
  *
  * @param array<mixed> $row

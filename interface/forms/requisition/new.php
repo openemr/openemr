@@ -33,38 +33,16 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $returnurl = 'encounter_top.php';
 
 $formIdInput = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-$formid = is_int($formIdInput) && $formIdInput >= 0 ? $formIdInput : 0;
+$formid = lab_coerce_non_negative_int($formIdInput);
 EncounterFormAccess::assertFormBelongsToSessionPatient($formid, 'requisition');
 $obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid;
 
 // Narrow mixed session/global values before helper calls (PHPStan).
-if (is_int($pid)) {
-    $safePid = $pid;
-} elseif (is_string($pid) && ctype_digit($pid)) {
-    $safePid = (int) $pid;
-} else {
-    $safePid = 0;
-}
-
-$encounterRaw = $session->get('encounter');
-if (is_int($encounterRaw)) {
-    $encounter = $encounterRaw;
-} elseif (is_string($encounterRaw) && ctype_digit($encounterRaw)) {
-    $encounter = (int) $encounterRaw;
-} else {
-    $encounter = 0;
-}
-
-$oidRaw = fetchProcedureId($safePid, $encounter);
-if (is_int($oidRaw)) {
-    $oid = $oidRaw;
-} elseif (is_string($oidRaw) && ctype_digit($oidRaw)) {
-    $oid = (int) $oidRaw;
-} else {
-    $oid = 0;
-}
+$safePid = lab_coerce_non_negative_int($pid);
+$encounter = lab_coerce_non_negative_int($session->get('encounter'));
+$oid = lab_coerce_non_negative_int(fetchProcedureId($safePid, $encounter));
 
 $patient_id = $safePid;
 // getPatientData() is documented to return array.
@@ -77,35 +55,16 @@ $facilityRaw = getFacility();
 $facilityData = is_array($facilityRaw) ? lab_normalize_array_row($facilityRaw) : [];
 
 // getAllinsurances() returns an array of rows; normalize keys for typed access.
-$insRaw = getAllinsurances($safePid);
 /** @var list<array<string, mixed>> $ins */
-$ins = [];
-foreach ((array) $insRaw as $insRow) {
-    $ins[] = lab_normalize_array_row((array) $insRow);
-}
+$ins = lab_normalize_insurance_rows(getAllinsurances($safePid));
 
 $hasOrder = $oid > 0;
 $orders = $hasOrder ? getProceduresInfo($oid, $encounter) : [];
 // Order-level fields are identical across rows; read from the first row.
 $firstRow = $orders[0] ?? [];
 
-$provIdRaw = $firstRow['provider_id'] ?? null;
-if (is_int($provIdRaw)) {
-    $prov_id = (string) $provIdRaw;
-} elseif (is_string($provIdRaw) && $provIdRaw !== '') {
-    $prov_id = $provIdRaw;
-} else {
-    $prov_id = '';
-}
-
-$labRaw = $firstRow['lab_id'] ?? null;
-if (is_int($labRaw)) {
-    $lab = $labRaw;
-} elseif (is_string($labRaw) && ctype_digit($labRaw)) {
-    $lab = (int) $labRaw;
-} else {
-    $lab = null;
-}
+$prov_id = lab_coerce_provider_id_string($firstRow['provider_id'] ?? null);
+$lab = lab_coerce_optional_int($firstRow['lab_id'] ?? null);
 
 $provider = $prov_id !== '' ? (getLabProviders($prov_id) ?? []) : [];
 $npi = $prov_id !== '' ? getNPI($prov_id) : ['', ''];
@@ -113,19 +72,9 @@ $pp = $lab !== null ? getProcedureProvider($lab) : [];
 $provLabId = $lab !== null ? getLabconfig($lab) : false;
 
 // Collect AOE Q&A pairs across all ordered procedure codes.
-$aoeAnswers = [];
-if ($hasOrder && $lab !== null) {
-    foreach ($orders as $codeRow) {
-        $code = lab_as_string($codeRow['procedure_code'] ?? '');
-        $seq = lab_as_string($codeRow['procedure_order_seq'] ?? '');
-        if ($code === '' || $seq === '') {
-            continue;
-        }
-        foreach (getProcedureOrderAnswers($oid, $lab, $code, $seq) as $aoeRow) {
-            $aoeAnswers[] = $aoeRow;
-        }
-    }
-}
+$aoeAnswers = ($hasOrder && $lab !== null)
+    ? lab_collect_aoe_answers($orders, $oid, $lab, getProcedureOrderAnswers(...))
+    : [];
 
 // Determine responsible party from the procedure order billing_type.
 // 'C' = Client/Clinic, 'P' = Patient, 'T' = Third Party/Insurance
@@ -133,10 +82,7 @@ $billingType = $hasOrder ? getProcedureBillingType($oid) : '';
 $primaryIns = $ins[0] ?? [];
 $secondaryIns = $ins[1] ?? [];
 $responsibleParty = buildResponsibleParty($billingType, $facilityData, $patientData, $primaryIns);
-$hasResponsibleParty = $responsibleParty['name'] !== ''
-    || $responsibleParty['address'] !== ''
-    || $responsibleParty['city_st_zip'] !== ''
-    || $responsibleParty['relationship'] !== '';
+$hasResponsibleParty = lab_has_responsible_party($responsibleParty);
 ?>
 
 <?php
@@ -162,15 +108,9 @@ if ($orders !== []) {
         $lab_id = (string) $oid;
     }
     $storeBar = getBarId($lab_id, $safePid);
-
-    if (is_array($storeBar)) {
-        $reqId = lab_as_string($storeBar['req_id'] ?? '');
-        if ($reqId !== '') {
-            $bar = $reqId;
-        } else {
-            $bar = (string) random_int(1000, 999999);
-            saveBarCode($bar, $safePid, $lab_id);
-        }
+    $existingBar = lab_resolve_existing_barcode($storeBar);
+    if ($existingBar['found']) {
+        $bar = $existingBar['barcode'];
     } else {
         $bar = (string) random_int(1000, 999999);
         saveBarCode($bar, $safePid, $lab_id);
@@ -178,30 +118,26 @@ if ($orders !== []) {
 
     $clientNumber = is_array($provLabId) ? lab_as_string($provLabId['recv_fac_id'] ?? '') : '';
 
-    $facilityCity = lab_as_string($facilityData['city'] ?? '');
-    $facilityState = lab_as_string($facilityData['state'] ?? '');
-    $facilityZip = lab_as_string($facilityData['postal_code'] ?? '');
-    $facilityCityLine = trim(
-        $facilityCity .
-        ($facilityCity !== '' && $facilityState !== '' ? ', ' : '') .
-        $facilityState .
-        ' ' .
-        $facilityZip
+    $facilityCityLine = lab_format_city_state_zip(
+        lab_as_string($facilityData['city'] ?? ''),
+        lab_as_string($facilityData['state'] ?? ''),
+        lab_as_string($facilityData['postal_code'] ?? '')
     );
 
-    $labCity = lab_as_string($pp['city'] ?? '');
-    $labState = lab_as_string($pp['state'] ?? '');
-    $labZip = lab_as_string($pp['zip'] ?? '');
-    $labCityLine = trim(
-        $labCity .
-        ($labCity !== '' && $labState !== '' ? ', ' : '') .
-        $labState .
-        ' ' .
-        $labZip
+    $labCityLine = lab_format_city_state_zip(
+        lab_as_string($pp['city'] ?? ''),
+        lab_as_string($pp['state'] ?? ''),
+        lab_as_string($pp['zip'] ?? '')
     );
 
-    $providerName = trim(lab_as_string($provider['fname'] ?? '') . ' ' . lab_as_string($provider['lname'] ?? ''));
-    $patientName = trim(lab_as_string($patientData['fname'] ?? '') . ' ' . lab_as_string($patientData['lname'] ?? ''));
+    $providerName = lab_format_person_name(
+        lab_as_string($provider['fname'] ?? ''),
+        lab_as_string($provider['lname'] ?? '')
+    );
+    $patientName = lab_format_person_name(
+        lab_as_string($patientData['fname'] ?? ''),
+        lab_as_string($patientData['lname'] ?? '')
+    );
     $patientDobRaw = lab_as_string($patientData['DOB'] ?? '');
     $patientDob = $patientDobRaw !== ''
         ? lab_as_string(DateFormatterUtils::oeFormatShortDate($patientDobRaw))
@@ -215,22 +151,19 @@ if ($orders !== []) {
         ? DateFormatterUtils::oeFormatDateTime($orderRaw)
         : '';
 
-    if ($responsibleParty['relationship'] !== '') {
-        if ($responsibleParty['relationship_is_list']) {
-            $relationshipDisplay = text(getListItemTitle('sub_relation', $responsibleParty['relationship']));
-        } elseif ($responsibleParty['relationship'] === 'Client Billing') {
-            $relationshipDisplay = text(xl('Client Billing'));
-        } elseif ($responsibleParty['relationship'] === 'Self') {
-            $relationshipDisplay = text(xl('Self'));
-        } else {
-            $relationshipDisplay = text($responsibleParty['relationship']);
-        }
-    }
+    $relationship = lab_relationship_display($responsibleParty);
+    $relationshipDisplay = match ($relationship['mode']) {
+        'list' => text(getListItemTitle('sub_relation', $relationship['value'])),
+        'client' => text(xl('Client Billing')),
+        'self' => text(xl('Self')),
+        'raw' => text($relationship['value']),
+        default => '/',
+    };
 
-    $billingLabel = match ($billingType) {
-        'C' => xl('Clinic Billing'),
-        'P' => xl('Patient Billing'),
-        'T' => xl('Third Party / Insurance'),
+    $billingLabel = match (lab_billing_type_label_key($billingType)) {
+        'Clinic Billing' => xl('Clinic Billing'),
+        'Patient Billing' => xl('Patient Billing'),
+        'Third Party / Insurance' => xl('Third Party / Insurance'),
         default => xl('Not Specified'),
     };
 }

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 // Load the function file under test (no globals/database needed for pure helpers).
@@ -277,6 +278,209 @@ class LabIncTest extends TestCase
         $this->assertSame('Austin, TX 78701', $result['city_st_zip']);
         $this->assertSame('1 Main', $result['address']);
         $this->assertTrue($result['relationship_is_list']);
+    }
+
+    // ── coercion / formatting helpers ──────────────────────────────────
+
+    /**
+     * @return array<string, array{mixed, int}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function nonNegativeIntProvider(): array
+    {
+        return [
+            'int' => [42, 42],
+            'zero' => [0, 0],
+            'negative int' => [-3, 0],
+            'digit string' => ['17', 17],
+            'empty string' => ['', 0],
+            'alpha string' => ['abc', 0],
+            'null' => [null, 0],
+            'float' => [3.2, 0],
+            'bool' => [true, 0],
+        ];
+    }
+
+    #[DataProvider('nonNegativeIntProvider')]
+    public function testLabCoerceNonNegativeInt(mixed $input, int $expected): void
+    {
+        $this->assertSame($expected, lab_coerce_non_negative_int($input));
+    }
+
+    /**
+     * @return array<string, array{mixed, int|null}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function optionalIntProvider(): array
+    {
+        return [
+            'int' => [9, 9],
+            'digit string' => ['8', 8],
+            'empty string' => ['', null],
+            'null' => [null, null],
+            'alpha' => ['x', null],
+        ];
+    }
+
+    #[DataProvider('optionalIntProvider')]
+    public function testLabCoerceOptionalInt(mixed $input, ?int $expected): void
+    {
+        $this->assertSame($expected, lab_coerce_optional_int($input));
+    }
+
+    public function testLabCoerceProviderIdString(): void
+    {
+        $this->assertSame('12', lab_coerce_provider_id_string(12));
+        $this->assertSame('ab', lab_coerce_provider_id_string('ab'));
+        $this->assertSame('', lab_coerce_provider_id_string(''));
+        $this->assertSame('', lab_coerce_provider_id_string(null));
+        $this->assertSame('', lab_coerce_provider_id_string([]));
+    }
+
+    public function testLabFormatCityStateZip(): void
+    {
+        $this->assertSame('Austin, TX 78701', lab_format_city_state_zip('Austin', 'TX', '78701'));
+        $this->assertSame('Austin 78701', lab_format_city_state_zip('Austin', '', '78701'));
+        $this->assertSame('TX 78701', lab_format_city_state_zip('', 'TX', '78701'));
+        $this->assertSame('', lab_format_city_state_zip('', '', ''));
+        $this->assertSame('78701', lab_format_city_state_zip('', '', '78701'));
+    }
+
+    public function testLabFormatPersonName(): void
+    {
+        $this->assertSame('Jane Doe', lab_format_person_name('Jane', 'Doe'));
+        $this->assertSame('Jane', lab_format_person_name('Jane', ''));
+        $this->assertSame('Doe', lab_format_person_name('', 'Doe'));
+        $this->assertSame('', lab_format_person_name('', ''));
+    }
+
+    public function testLabHasResponsibleParty(): void
+    {
+        $this->assertFalse(lab_has_responsible_party([
+            'name' => '',
+            'address' => '',
+            'city_st_zip' => '',
+            'relationship' => '',
+        ]));
+        $this->assertTrue(lab_has_responsible_party(['name' => 'Acme']));
+        $this->assertTrue(lab_has_responsible_party(['address' => '1 Main']));
+        $this->assertTrue(lab_has_responsible_party(['city_st_zip' => 'Austin, TX']));
+        $this->assertTrue(lab_has_responsible_party(['relationship' => 'Self']));
+    }
+
+    public function testLabResolveExistingBarcode(): void
+    {
+        $this->assertSame(
+            ['found' => true, 'barcode' => '998877'],
+            lab_resolve_existing_barcode(['req_id' => '998877'])
+        );
+        $this->assertSame(
+            ['found' => false, 'barcode' => ''],
+            lab_resolve_existing_barcode(['req_id' => ''])
+        );
+        $this->assertSame(
+            ['found' => false, 'barcode' => ''],
+            lab_resolve_existing_barcode([])
+        );
+        $this->assertSame(
+            ['found' => false, 'barcode' => ''],
+            lab_resolve_existing_barcode('')
+        );
+    }
+
+    public function testLabBillingTypeLabelKey(): void
+    {
+        $this->assertSame('Clinic Billing', lab_billing_type_label_key('C'));
+        $this->assertSame('Patient Billing', lab_billing_type_label_key('P'));
+        $this->assertSame('Third Party / Insurance', lab_billing_type_label_key('T'));
+        $this->assertSame('Not Specified', lab_billing_type_label_key(''));
+        $this->assertSame('Not Specified', lab_billing_type_label_key('X'));
+    }
+
+    public function testLabRelationshipDisplayModes(): void
+    {
+        $this->assertSame(
+            ['mode' => 'empty', 'value' => ''],
+            lab_relationship_display(['relationship' => '', 'relationship_is_list' => false])
+        );
+        $this->assertSame(
+            ['mode' => 'list', 'value' => 'spouse'],
+            lab_relationship_display(['relationship' => 'spouse', 'relationship_is_list' => true])
+        );
+        $this->assertSame(
+            ['mode' => 'client', 'value' => 'Client Billing'],
+            lab_relationship_display(['relationship' => 'Client Billing', 'relationship_is_list' => false])
+        );
+        $this->assertSame(
+            ['mode' => 'self', 'value' => 'Self'],
+            lab_relationship_display(['relationship' => 'Self', 'relationship_is_list' => false])
+        );
+        $this->assertSame(
+            ['mode' => 'raw', 'value' => 'Guardian'],
+            lab_relationship_display(['relationship' => 'Guardian', 'relationship_is_list' => false])
+        );
+    }
+
+    public function testLabNormalizeInsuranceRows(): void
+    {
+        $rows = lab_normalize_insurance_rows([
+            ['plan' => 'A', 1 => 'x'],
+            ['plan' => 'B'],
+        ]);
+        $this->assertSame('A', $rows[0]['plan']);
+        $this->assertArrayHasKey('1', $rows[0]);
+        $this->assertSame('B', $rows[1]['plan']);
+        $this->assertSame([], lab_normalize_insurance_rows(null));
+        $this->assertSame([], lab_normalize_insurance_rows([]));
+    }
+
+    public function testLabCollectAoeAnswersSkipsIncompleteRowsAndAggregates(): void
+    {
+        $orders = [
+            ['procedure_code' => 'CBC', 'procedure_order_seq' => '1'],
+            ['procedure_code' => '', 'procedure_order_seq' => '2'],
+            ['procedure_code' => 'CMP', 'procedure_order_seq' => ''],
+            ['procedure_code' => 'CMP', 'procedure_order_seq' => '3'],
+        ];
+
+        $calls = [];
+        $fetcher = static function (int|string $oid, int|string $lab, int|string $code, int|string $seq) use (&$calls): array {
+            $codeText = (string) $code;
+            $seqText = (string) $seq;
+            $calls[] = [$oid, $lab, $codeText, $seqText];
+            return [
+                ['question_text' => 'Q for ' . $codeText, 'answer' => 'A' . $seqText],
+            ];
+        };
+
+        $result = lab_collect_aoe_answers($orders, 55, 9, $fetcher);
+
+        $this->assertCount(2, $calls);
+        $this->assertSame([55, 9, 'CBC', '1'], $calls[0]);
+        $this->assertSame([55, 9, 'CMP', '3'], $calls[1]);
+        $this->assertSame(
+            [
+                ['question_text' => 'Q for CBC', 'answer' => 'A1'],
+                ['question_text' => 'Q for CMP', 'answer' => 'A3'],
+            ],
+            $result
+        );
+        $this->assertSame([], lab_collect_aoe_answers([], 1, 1, $fetcher));
+    }
+
+    public function testLabAsStringFloatAndZeroEdgeCases(): void
+    {
+        $this->assertSame('0', lab_as_string(0));
+        $this->assertSame('0', lab_as_string(0.0));
+        $this->assertSame('', lab_as_string(new \stdClass()));
+    }
+
+    public function testLabNormalizeArrayRowStringifiesIntegerKeys(): void
+    {
+        $normalized = lab_normalize_array_row([0 => 'a', 2 => 'b', 'name' => 'x']);
+        $this->assertSame(['0' => 'a', '2' => 'b', 'name' => 'x'], $normalized);
     }
 
 }
