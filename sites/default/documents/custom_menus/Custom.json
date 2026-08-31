@@ -1702,6 +1702,18 @@
                             "acct",
                             "rep_a"
                         ]
+                    },
+                    {
+                        "label": "Prepay Balances",
+                        "menu_id": "rep0",
+                        "target": "rep",
+                        "url": "/interface/reports/prepayment_balance_report.php",
+                        "children": [],
+                        "requirement": 0,
+                        "acl_req": [
+                            "acct",
+                            "rep_a"
+                        ]
                     }
                 ],
                 "requirement": 0
