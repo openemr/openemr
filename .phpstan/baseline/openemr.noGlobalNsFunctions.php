@@ -5076,74 +5076,53 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
-
-$ignoreErrors[] = [
-    'message' => '#^Function lab_normalize_insurance_rows may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-
-$ignoreErrors[] = [
-    'message' => '#^Function lab_collect_aoe_answers may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-
-$ignoreErrors[] = [
-    'message' => '#^Function lab_relationship_display may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-
 $ignoreErrors[] = [
     'message' => '#^Function lab_billing_type_label_key may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
-
-$ignoreErrors[] = [
-    'message' => '#^Function lab_resolve_existing_barcode may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-
-$ignoreErrors[] = [
-    'message' => '#^Function lab_has_responsible_party may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-
-$ignoreErrors[] = [
-    'message' => '#^Function lab_format_person_name may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-
-$ignoreErrors[] = [
-    'message' => '#^Function lab_format_city_state_zip may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-
-$ignoreErrors[] = [
-    'message' => '#^Function lab_coerce_provider_id_string may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-
-$ignoreErrors[] = [
-    'message' => '#^Function lab_coerce_optional_int may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-
 $ignoreErrors[] = [
     'message' => '#^Function lab_coerce_non_negative_int may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function lab_coerce_optional_int may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function lab_coerce_provider_id_string may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function lab_collect_aoe_answers may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function lab_format_city_state_zip may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function lab_format_person_name may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function lab_has_responsible_party may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function lab_normalize_array_row may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function lab_normalize_insurance_rows may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
@@ -5154,6 +5133,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function lab_normalize_rows may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function lab_relationship_display may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/lab.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function lab_resolve_existing_barcode may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
