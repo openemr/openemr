@@ -27,6 +27,42 @@ RUN curl -sL https://deb.nodesource.com/setup_24.x \
  && apt-get update \
  && apt-get install -y nodejs
 
+# Fetch the docker-php-extension-installer script here (rather than just before
+# the standard-install RUN below). It's needed both by the tripwire immediately
+# after and by the standard install several steps down; installing it once
+# keeps the two callers on the same version.
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod uga+x /usr/local/bin/install-php-extensions \
+ && sync
+
+# Tripwire: probe whether install-php-extensions can now install any of the
+# extensions we currently work around from source (imagick, redis, pcov). If
+# so, retire the corresponding from-source block below and add the extension
+# name(s) to the install-php-extensions arg list further down. Fires per-
+# extension so the failure message names which workarounds can be retired.
+#
+# Must run BEFORE the from-source blocks: install-php-extensions is
+# idempotent and reports success if the extension is already registered,
+# even without doing any real build work. Probing on a clean image forces a
+# real compile attempt, whose exit code is the honest signal.
+#
+# On probe success we exit 1 -- the image build fails loudly to signal
+# maintenance is due. Because install-php-extensions installs on success
+# (no dry-run mode), successful probes leave those extensions installed;
+# the exit-1 stops the build before that state gets published.
+RUN failed=""; \
+    for ext in imagick redis pcov; do \
+        if install-php-extensions "$ext" >/dev/null 2>&1; then \
+            failed="${failed}${ext} "; \
+        fi; \
+    done; \
+    if [ -n "$failed" ]; then \
+        echo "TRIPWIRE FIRED: install-php-extensions now supports: ${failed}on this PHP." >&2; \
+        echo "                Retire the from-source workaround(s) below and add the" >&2; \
+        echo "                extension name(s) to the install-php-extensions arg list further down." >&2; \
+        exit 1; \
+    fi
+
 # Temporary fix to get magick install working by bypassing below install-php-extensions run (these issues are usually temporary
 #  in dev versions of PHP, so this is not a permanent solution)
 # TODO:
@@ -63,11 +99,32 @@ RUN apt-get update && apt-get install -y git \
  && docker-php-ext-enable redis \
  && rm -rf /tmp/redis
 
-# Add the php extensions (note using a very cool script by mlocati to do this)
-ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod uga+x /usr/local/bin/install-php-extensions \
- && sync \
- && install-php-extensions bcmath \
+# Temporary fix to get pcov install working by bypassing below install-php-extensions run (these issues are usually temporary
+#  in dev versions of PHP, so this is not a permanent solution)
+# TODO:
+# TODO: intermittently try to remove this block of code and add back pcov in below ../install-php-extensions run
+# TODO:
+# krakjoe/pcov's `develop` (default) branch still uses INI_BOOL/INI_INT/INI_STR
+# macros that PHP 8.6's Zend engine removed. The fix lives on the
+# `issue-php86a2` topic branch (single commit from 2026-07-21), unmerged so
+# far. Track that branch until upstream merges it into develop; the tripwire
+# above fires when install-php-extensions can install pcov cleanly, prompting
+# a switch back to the standard install path.
+RUN apt-get update && apt-get install -y git \
+ && mkdir -p /tmp/pcov \
+ && cd /tmp/pcov \
+ && git clone https://github.com/krakjoe/pcov.git . \
+ && git checkout issue-php86a2 \
+ && phpize \
+ && ./configure \
+ && make && make install \
+ && docker-php-ext-enable pcov \
+ && rm -rf /tmp/pcov
+
+# Add the standard php extensions (note using a very cool script by mlocati to do this).
+# imagick, redis, and pcov are handled by the from-source workaround blocks above;
+# the tripwire above monitors when they can move back into this list.
+RUN install-php-extensions bcmath \
                            calendar \
                            dom \
                            gd \
@@ -75,7 +132,6 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions \
                            intl \
                            ldap \
                            mysqli \
-                           pcov \
                            pdo_mysql \
                            soap \
                            sockets \
