@@ -51,9 +51,7 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
 
     public function getQuestionnaireService(): QuestionnaireService
     {
-        if (!isset($this->service)) {
-            $this->service = new QuestionnaireService();
-        }
+        $this->service ??= new QuestionnaireService();
         return $this->service;
     }
 

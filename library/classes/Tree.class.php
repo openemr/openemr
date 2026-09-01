@@ -351,9 +351,7 @@ function array_merge_2(&$array, &$array_i): void
     foreach ($array_i as $k => $v) {
         // If the value itself is an array, the process repeats recursively:
         if (is_array($v)) {
-            if (!isset($array[$k])) {
-                $array[$k] = [];
-            }
+            $array[$k] ??= [];
 
             array_merge_2($array[$k], $v);
 

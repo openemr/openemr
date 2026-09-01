@@ -1070,17 +1070,14 @@ class CarecoordinationTable
         $groupResults = [];
         foreach ($lab_array as $result) {
             $formattedDate = date('Y-m-d H:i:s', strtotime((string) $result['date']));
-            if (!isset($groupResults[$formattedDate])) {
-                // Initialize a new group for this date
-                $groupResults[$formattedDate] = [
-                    'date' => $formattedDate,
-                    'proc_text' => $result['proc_text'],
-                    'proc_code' => $result['proc_code'],
-                    'extension' => $result['extension'],
-                    'status' => $result['status'],
-                    'results' => []
-                ];
-            }
+            $groupResults[$formattedDate] ??= [
+                'date' => $formattedDate,
+                'proc_text' => $result['proc_text'],
+                'proc_code' => $result['proc_code'],
+                'extension' => $result['extension'],
+                'status' => $result['status'],
+                'results' => []
+            ];
             $groupResults[$formattedDate]['results'][] = [
                 'result_date' => $result['results_date'] ?? '',
                 'result_text' => $result['results_text'] ?? '',

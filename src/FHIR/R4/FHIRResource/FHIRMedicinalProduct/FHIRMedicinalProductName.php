@@ -232,9 +232,7 @@ class FHIRMedicinalProductName extends FHIRBackboneElement implements \JsonSeria
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicinalProductName xmlns="http://hl7.org/fhir"></MedicinalProductName>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicinalProductName xmlns="http://hl7.org/fhir"></MedicinalProductName>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->productName)) {
             $this->productName->xmlSerialize(true, $sxe->addChild('productName'));

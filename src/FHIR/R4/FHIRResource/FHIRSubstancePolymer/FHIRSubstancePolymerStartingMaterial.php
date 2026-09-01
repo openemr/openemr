@@ -246,9 +246,7 @@ class FHIRSubstancePolymerStartingMaterial extends FHIRBackboneElement implement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstancePolymerStartingMaterial xmlns="http://hl7.org/fhir"></SubstancePolymerStartingMaterial>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstancePolymerStartingMaterial xmlns="http://hl7.org/fhir"></SubstancePolymerStartingMaterial>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->material)) {
             $this->material->xmlSerialize(true, $sxe->addChild('material'));

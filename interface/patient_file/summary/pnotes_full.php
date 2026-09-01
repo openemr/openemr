@@ -88,13 +88,9 @@ if (!empty($_REQUEST['s']) && ($_REQUEST['s'] == '1')) {
     $outbox_style = "style='display:none;border:5px solid var(--white);'";
 }
 
-if (!isset($offset)) {
-    $offset = 0;
-}
+$offset ??= 0;
 
-if (!isset($offset_sent)) {
-    $offset_sent = 0;
-}
+$offset_sent ??= 0;
 
 // Collect active variable and applicable html code for links
 if ($form_active) {

@@ -68,9 +68,7 @@ if (!empty($_POST['form_save'])) {
     for ($i = 0; $i < $numsets; ++$i) {
         $list_id   = $matches[1][$i];
         $encounter = $matches[2][$i];
-        if (!isset($encountersByListId[$list_id])) {
-            $encountersByListId[$list_id] = [];
-        }
+        $encountersByListId[$list_id] ??= [];
         $encountersByListId[$list_id][] = $encounter;
     }
     $patientIssuesService->replacePatientEncounterIssues($pid, $encountersByListId, $session->get('authUserID'));

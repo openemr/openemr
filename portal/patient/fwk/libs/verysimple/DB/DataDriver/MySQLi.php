@@ -214,9 +214,7 @@ class DataDriverMySQLi implements IDataDriver
 
         while ($row = $this->Fetch($connection, $rs)) {
             $tbl = $row ['Table'];
-            if (! isset($results [$tbl])) {
-                $results [$tbl] = "";
-            }
+            $results [$tbl] ??= "";
 
             $result .= trim($results [$tbl] . " " . $row ['Msg_type'] . "=\"" . $row ['Msg_text'] . "\"");
         }

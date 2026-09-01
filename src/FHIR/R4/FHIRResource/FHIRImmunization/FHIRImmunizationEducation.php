@@ -246,9 +246,7 @@ class FHIRImmunizationEducation extends FHIRBackboneElement implements \JsonSeri
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ImmunizationEducation xmlns="http://hl7.org/fhir"></ImmunizationEducation>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ImmunizationEducation xmlns="http://hl7.org/fhir"></ImmunizationEducation>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->documentType)) {
             $this->documentType->xmlSerialize(true, $sxe->addChild('documentType'));

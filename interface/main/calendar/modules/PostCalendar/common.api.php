@@ -197,17 +197,11 @@ function postcalendar_getDate($format = 'Ymd')
             $lastcaldate = $session->get('lastcaldate');
             $time = !empty($lastcaldate) ? strtotime((string) $lastcaldate) : time();
 
-            if (!isset($jumpday)) {
-                $jumpday   = date('d', $time);
-            }
+            $jumpday ??= date('d', $time);
 
-            if (!isset($jumpmonth)) {
-                $jumpmonth = date('m', $time);
-            }
+            $jumpmonth ??= date('m', $time);
 
-            if (!isset($jumpyear)) {
-                $jumpyear  = date('Y', $time);
-            }
+            $jumpyear ??= date('Y', $time);
         }
 
         // create the correct date string
@@ -400,15 +394,11 @@ function postcalendar_userapi_buildMonthSelect($args)
 {
     extract($args);
     unset($args);
-    if (!isset($pc_month)) {
-        $pc_month = Date_Calc::getMonth();
-    }
+    $pc_month ??= Date_Calc::getMonth();
 
     // create the return object to be inserted into the form
     $output = [];
-    if (!isset($selected)) {
-        $selected = '';
-    }
+    $selected ??= '';
 
     for ($c = 0,$i = 1; $i <= 12; $i++,$c++) {
         if ($selected) {
@@ -434,15 +424,11 @@ function postcalendar_userapi_buildDaySelect($args)
 {
     extract($args);
     unset($args);
-    if (!isset($pc_day)) {
-        $pc_day = Date_Calc::getDay();
-    }
+    $pc_day ??= Date_Calc::getDay();
 
     // create the return object to be inserted into the form
     $output = [];
-    if (!isset($selected)) {
-        $selected = '';
-    }
+    $selected ??= '';
 
     for ($c = 0,$i = 1; $i <= 31; $i++,$c++) {
         if ($selected) {
@@ -468,9 +454,7 @@ function postcalendar_userapi_buildYearSelect($args)
 {
     extract($args);
     unset($args);
-    if (!isset($pc_year)) {
-        $pc_year = date('Y');
-    }
+    $pc_year ??= date('Y');
 
     // create the return object to be inserted into the form
     $output = [];
@@ -478,9 +462,7 @@ function postcalendar_userapi_buildYearSelect($args)
     // maybe this will eventually become a user defined value
     $pc_start_year = date('Y') - 1;
     $pc_end_year = date('Y') + 30;
-    if (!isset($selected)) {
-        $selected = '';
-    }
+    $selected ??= '';
 
     for ($c = 0,$i = $pc_start_year; $i <= $pc_end_year; $i++,$c++) {
         if ($selected) {

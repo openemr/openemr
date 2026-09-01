@@ -202,9 +202,7 @@ class parseCSV
      */
     function parse($input = null, $offset = null, $limit = null, $conditions = null): bool
     {
-        if ($input === null) {
-            $input = $this->file;
-        }
+        $input ??= $this->file;
 
         if (! empty($input)) {
             if ($offset !== null) {
@@ -269,9 +267,7 @@ class parseCSV
             $filename = $this->output_filename;
         }
 
-        if ($delimiter === null) {
-            $delimiter = $this->output_delimiter;
-        }
+        $delimiter ??= $this->output_delimiter;
 
         $data = $this->unparse($data, $fields, null, null, $delimiter);
         if ($filename !== null) {
@@ -314,21 +310,15 @@ class parseCSV
      */
     function auto($file = null, $parse = true, $search_depth = null, $preferred = null, $enclosure = null)
     {
-        if ($file === null) {
-            $file = $this->file;
-        }
+        $file ??= $this->file;
 
         if (empty($search_depth)) {
             $search_depth = $this->auto_depth;
         }
 
-        if ($enclosure === null) {
-            $enclosure = $this->enclosure;
-        }
+        $enclosure ??= $this->enclosure;
 
-        if ($preferred === null) {
-            $preferred = $this->auto_preferred;
-        }
+        $preferred ??= $this->auto_preferred;
 
         if (empty($this->file_data)) {
             if ($this->_check_data($file)) {
@@ -414,9 +404,7 @@ class parseCSV
      */
     function parse_file($file = null)
     {
-        if ($file === null) {
-            $file = $this->file;
-        }
+        $file ??= $this->file;
 
         if (empty($this->file_data)) {
             $this->load_data($file);
@@ -469,15 +457,13 @@ class parseCSV
                         $this->error = 2;
                         $error_row = count($rows) + 1;
                         $error_col = $col + 1;
-                        if (! isset($this->error_info [$error_row . '-' . $error_col])) {
-                            $this->error_info [$error_row . '-' . $error_col] =  [
-                                    'type' => 2,
-                                    'info' => 'Syntax error found on row ' . $error_row . '. Non-enclosed fields can not contain double-quotes.',
-                                    'row' => $error_row,
-                                    'field' => $error_col,
-                                    'field_name' => (! empty($head [$col])) ? $head [$col] : null
-                            ];
-                        }
+                        $this->error_info [$error_row . '-' . $error_col] ??= [
+                                'type' => 2,
+                                'info' => 'Syntax error found on row ' . $error_row . '. Non-enclosed fields can not contain double-quotes.',
+                                'row' => $error_row,
+                                'field' => $error_col,
+                                'field_name' => (! empty($head [$col])) ? $head [$col] : null
+                        ];
 
                         $current .= $ch;
                     }
@@ -498,15 +484,13 @@ class parseCSV
 
                         $error_row = count($rows) + 1;
                         $error_col = $col + 1;
-                        if (! isset($this->error_info [$error_row . '-' . $error_col])) {
-                            $this->error_info [$error_row . '-' . $error_col] =  [
-                                    'type' => 1,
-                                    'info' => 'Syntax error found on row ' . (count($rows) + 1) . '. ' . 'A single double-quote was found within an enclosed string. ' . 'Enclosed double-quotes must be escaped with a second double-quote.',
-                                    'row' => count($rows) + 1,
-                                    'field' => $col + 1,
-                                    'field_name' => (! empty($head [$col])) ? $head [$col] : null
-                            ];
-                        }
+                        $this->error_info [$error_row . '-' . $error_col] ??= [
+                                'type' => 1,
+                                'info' => 'Syntax error found on row ' . (count($rows) + 1) . '. ' . 'A single double-quote was found within an enclosed string. ' . 'Enclosed double-quotes must be escaped with a second double-quote.',
+                                'row' => count($rows) + 1,
+                                'field' => $col + 1,
+                                'field_name' => (! empty($head [$col])) ? $head [$col] : null
+                        ];
 
                         $current .= $ch;
                         $enclosed = false;
@@ -607,9 +591,7 @@ class parseCSV
             $fields = &$this->titles;
         }
 
-        if ($delimiter === null) {
-            $delimiter = $this->delimiter;
-        }
+        $delimiter ??= $this->delimiter;
 
         $string = ($is_php) ? "<?php header('Status: 403'); die(' '); ?>" . $this->linefeed : '';
         $entry =  [];
@@ -838,9 +820,7 @@ class parseCSV
     function _check_data($file = null)
     {
         if (empty($this->file_data)) {
-            if ($file === null) {
-                $file = $this->file;
-            }
+            $file ??= $this->file;
 
             return $this->load_data($file);
         }

@@ -95,9 +95,7 @@ class Savant3_Plugin_date extends Savant3_Plugin
     {
         settype($format, 'string');
 
-        if (is_null($format)) {
-            $format = $this->default;
-        }
+        $format ??= $this->default;
 
         // does the format string have a % sign in it?
         if (!str_contains($format, '%')) {

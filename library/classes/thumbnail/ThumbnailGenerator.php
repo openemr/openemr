@@ -166,9 +166,7 @@ class ThumbnailGenerator
      */
     private function generate_couch_file($doc_id, $file_name)
     {
-        if (is_null($this->couch_obj)) {
-            $this->couch_obj = new CouchDB();
-        }
+        $this->couch_obj ??= new CouchDB();
 
         $resp = $this->couch_obj->retrieve_doc($doc_id);
 

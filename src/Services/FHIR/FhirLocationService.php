@@ -84,9 +84,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
     }
 
     public function getOrganizationService(): FhirOrganizationService {
-        if (!isset($this->fhirOrganizationService)) {
-            $this->fhirOrganizationService = new FhirOrganizationService();
-        }
+        $this->fhirOrganizationService ??= new FhirOrganizationService();
         return $this->fhirOrganizationService;
     }
 

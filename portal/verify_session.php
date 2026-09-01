@@ -34,16 +34,9 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 require_once(__DIR__ . "/../vendor/autoload.php");
 $session = SessionWrapperFactory::getInstance()->getPortalSession();
 
-// Landing page definition -- where to go if something goes wrong
-// if this script is included somewhere else we want to support them changing up the landingpage url such as adding
-// parameters, or even setting what the landing page should be for the portal verify session.
-if (!isset($landingpage)) {
-    $landingpage = "index.php?site=" . urlencode((string) ($session->get('site_id', null) ?? null));
-}
+$landingpage ??= "index.php?site=" . urlencode((string) ($session->get('site_id', null) ?? null));
 
-if (!isset($skipLandingPageError)) {
-    $skipLandingPageError = false;
-}
+$skipLandingPageError ??= false;
 //
 
 // kick out if patient not authenticated

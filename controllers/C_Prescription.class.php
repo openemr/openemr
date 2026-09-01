@@ -44,9 +44,7 @@ class C_Prescription extends Controller
 
     public function getCodeTypesService()
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 
