@@ -288,14 +288,14 @@ class UserService
         if ($pagination !== null && $pagination->getLimit() > 0) {
             $processingResult->setPagination($pagination);
             $offset = $pagination->getCurrentOffsetId();
-            // Both values are integers, so they interpolate safely; LIMIT/OFFSET cannot be bound
-            // as parameters here. One row past the limit lets ProcessingResult::addData() flag
-            // that more data exists.
+            // One row past the limit lets ProcessingResult::addData() flag that more data exists.
             $limitClause = $pagination->getLimit() + 1;
             $offsetClause = is_numeric($offset) ? (int)$offset : 0;
             // A deterministic sort is required for paging: without it MySQL may return rows
             // in any order, so consecutive pages could repeat or skip users.
-            $sql .= " ORDER BY users.id LIMIT " . $limitClause . " OFFSET " . $offsetClause;
+            $sql .= " ORDER BY users.id LIMIT ? OFFSET ?";
+            $sqlBindArray[] = $limitClause;
+            $sqlBindArray[] = $offsetClause;
         }
 
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
