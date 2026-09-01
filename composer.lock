@@ -424,23 +424,28 @@
         },
         {
             "name": "claimrevolution/oe-module-claimrev-connect",
-            "version": "v2.1.7",
+            "version": "v2.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/claimrevolution/oe-module-claimrev-connect.git",
-                "reference": "e819dd8f89dc43392fe1f78dfd01bf537a01e8e3"
+                "reference": "413a37528ee4a03feb18f717d3eb5ba5e7e3b03b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/claimrevolution/oe-module-claimrev-connect/zipball/e819dd8f89dc43392fe1f78dfd01bf537a01e8e3",
-                "reference": "e819dd8f89dc43392fe1f78dfd01bf537a01e8e3",
+                "url": "https://api.github.com/repos/claimrevolution/oe-module-claimrev-connect/zipball/413a37528ee4a03feb18f717d3eb5ba5e7e3b03b",
+                "reference": "413a37528ee4a03feb18f717d3eb5ba5e7e3b03b",
                 "shasum": ""
             },
             "require": {
+                "guzzlehttp/guzzle": "^7.5",
                 "nyholm/psr7": "^1.4",
                 "openemr/oe-module-installer-plugin": "^0.1.0",
-                "php": ">=7.1",
+                "php": ">=8.2",
                 "symfony/event-dispatcher": "^4.4 || ^5.0 || ^6.0 || ^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.0",
+                "psr/log": "^3.0"
             },
             "type": "openemr-module",
             "autoload": {
@@ -468,9 +473,9 @@
             ],
             "support": {
                 "issues": "https://github.com/claimrevolution/oe-module-claimrev-connect/issues",
-                "source": "https://github.com/claimrevolution/oe-module-claimrev-connect/tree/v2.1.7"
+                "source": "https://github.com/claimrevolution/oe-module-claimrev-connect/tree/v2.1.9"
             },
-            "time": "2026-07-08T22:43:03+00:00"
+            "time": "2026-08-26T21:20:51+00:00"
         },
         {
             "name": "clue/stream-filter",
