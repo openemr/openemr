@@ -56,10 +56,10 @@ on:
         type: string
         default: ''
       to_version:
-        description: 'Target openemr version (release tag suffix, e.g. 8.2.0)'
-        required: true
+        description: 'Target openemr version (release tag suffix, e.g. 8.2.0). Leave empty to use detect-acceptance-mode.sh emit_to_version defaults — 99.99.99 label on build_locally=true, 8.2.0 shipped-tarball fallback otherwise. Explicit value here still wins over both defaults (DISPATCH_TO_VERSION takes precedence). Matches the workflow_call variant''s shape (required: false, default: empty) — the two triggers used to diverge, which caused `-f build_locally=true` dispatches to accidentally test-against-8.2.0-shipped-tarball semantics instead of the 99.99.99 label the build_locally branch was designed for.'
+        required: false
         type: string
-        default: '8.2.0'
+        default: ''
       build_locally:
         description: 'Build target tarball from the PR checkout via PackageAssembler instead of downloading to_version from the GitHub release page (Phase 3.5 PR-tarball validation)'
         type: boolean
