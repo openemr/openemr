@@ -52,6 +52,9 @@ $formFromDate = is_string($formFromDate) ? $formFromDate : '';
 $formToDate = is_string($formToDate) ? $formToDate : '';
 $formPatient = trim($request->request->getString('form_patient'));
 $formPatientId = $formPatient === '' ? null : (int) $formPatient;
+// Display only. The pid drives the query; this is what the readonly box shows
+// so a submit does not replace the chosen name with its id.
+$formPatientName = trim($request->request->getString('form_patient_name'));
 $formParkedOnly = $request->request->getBoolean('form_parked_only');
 $isRefresh = $request->request->getBoolean('form_refresh');
 
@@ -68,6 +71,7 @@ echo ServiceContainer::getTwig()->render('reports/prepayment_balance/report.html
     'formFromDate' => $formFromDate,
     'formToDate' => $formToDate,
     'formPatient' => $formPatient,
+    'formPatientName' => $formPatientName,
     'formParkedOnly' => $formParkedOnly,
     'isRefresh' => $isRefresh,
     'balances' => $balances,

@@ -117,7 +117,7 @@
             <tr>
                 <td class='col-form-label'>{{ 'Patient'|xlt }}:</td>
                 <td>
-                    <input type='text' size='20' name='form_patient_name' id='form_patient_name' class='form-control' style='cursor: pointer;' value='{{ formPatient|attr }}' onclick='sel_patient()' readonly title='{{ 'Click to select patient'|xla }}' />
+                    <input type='text' size='20' name='form_patient_name' id='form_patient_name' class='form-control' style='cursor: pointer;' value='{{ formPatientName|attr }}' onclick='sel_patient()' readonly title='{{ 'Click to select patient'|xla }}' />
                     <input type='hidden' name='form_patient' id='form_patient' value='{{ formPatient|attr }}' />
                     <a href='#' onclick='clear_patient(); return false;'>{{ 'Clear'|xlt }}</a>
                 </td>
