@@ -292,6 +292,7 @@ class ServerScopeListEntity
                 ,'surgery' => ['c','r','u','d','s']
                 ,'transaction' => ['c','u','d','s']
                 ,'user' => ['r','s']
+                ,'users' => ['c','r','s']
                 ,'version' => ['s']
                 ,'vital' => ['c','r','u','s']
             ];
