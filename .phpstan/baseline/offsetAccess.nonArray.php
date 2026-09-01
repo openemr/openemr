@@ -7,8 +7,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 2,
+    'message' => '#^Cannot use array destructuring on array\\|false\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
