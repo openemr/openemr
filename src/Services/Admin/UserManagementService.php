@@ -214,11 +214,8 @@ class UserManagementService extends UserService
         // Wrap the DB writes on this connection in a transaction so a failure in any step
         // (user row, UUID, facility, groups) rolls back the entire user creation.
         //
-        // Caveat: the ACL write below does NOT participate. AclExtended::setUserAro() goes
-        // through GaclApi, whose constructor opens its own ADODB connection, so gacl_aro and
-        // gacl_groups_aro_map rows it creates survive a rollback here and are left orphaned
-        // against a username that no longer exists. Enrolling gacl in this transaction means
-        // giving it the caller's connection, which is beyond the scope of these endpoints.
+        // The ACL write cannot participate (GaclApi holds its own connection), so it is done
+        // after the commit instead — see the note there.
         //
         // Note: using manual transaction methods because inTransaction() closure
         // is incompatible with AuthUtils::updatePassword() by-reference parameters
@@ -274,9 +271,6 @@ class UserManagementService extends UserService
             // Insert into groups
             QueryUtils::sqlStatementThrowException("INSERT INTO `groups` SET name = ?, user = ?", [$groupname, $username]);
 
-            // Set ACL groups
-            AclExtended::setUserAro($accessGroup, $username, $fname, $mname, $lname);
-
             // Audit log
             EventAuditLogger::getInstance()->newEvent(
                 'user-create',
@@ -291,6 +285,18 @@ class UserManagementService extends UserService
             QueryUtils::rollbackTransaction(); // @phpstan-ignore openemr.deprecatedSqlFunction
             throw $e;
         }
+
+        // Moved out of the transaction deliberately. AclExtended::setUserAro() writes through
+        // GaclApi, which holds its own ADODB connection, so its rows were never covered by the
+        // rollback above: a failure in the audit step or the commit left gacl_aro and
+        // gacl_groups_aro_map rows behind, keyed to a username whose users row had just been
+        // rolled away. setUserAro() then *edits* a matching ARO rather than creating one, so the
+        // next create of that username would silently inherit the stale grants.
+        //
+        // Running it after the commit cannot produce that state. The failure mode instead becomes
+        // a user that exists with missing or partial ACL groups, which is visible in the user
+        // admin UI and fails closed rather than granting anything.
+        AclExtended::setUserAro($accessGroup, $username, $fname, $mname, $lname);
 
         // Dispatched after the commit, matching the event's documented "after a user has been
         // created" contract. Listeners do outside work (welcome mail, downstream provisioning)
