@@ -399,6 +399,18 @@ jobs:
       # into the DB `version` table. See openemr/openemr#13753 for
       # the failure trace when these two were coupled.
       EXPECTED_VERSION: ${{ needs.detect-mode.outputs.expected_version }}
+      # ACCEPTANCE_EXPECTED_VERSION at job level so every step can
+      # read it: the PHPUnit version-display / version-api groups
+      # (the six per-step assignments below still exist for readability
+      # + intent; they resolve to the same value so are effectively
+      # no-op overrides), AND the boot-package.sh / upgrade-package.sh
+      # post-install/post-upgrade DB-version guards. Those two shell
+      # guards previously compared DB_VERSION against the positional
+      # VERSION/TO_VERSION arg (i.e. the label), which on build_locally
+      # can never equal the DB value. Making them read this env
+      # completes the #13753 fix; the shell scripts fall back to their
+      # positional arg when the env is unset (dev-time standalone use).
+      ACCEPTANCE_EXPECTED_VERSION: ${{ needs.detect-mode.outputs.expected_version }}
       ACCEPTANCE_ARTIFACT_URL: http://localhost:8680
     name: ${{ matrix.scenario }} (${{ matrix.format }})
     steps:
@@ -640,6 +652,14 @@ jobs:
     # empty string when build-tarball didn't run).
     - name: Boot tarball artifact (from_version)
       if: matrix.scenario == 'upgrade'
+      # Override ACCEPTANCE_EXPECTED_VERSION from its job-level default
+      # (which points at the TO-side expected version) to FROM_VERSION —
+      # this step boots the from-side artifact, so the DB will contain
+      # FROM_VERSION at this point, not the TO-side expected. Without
+      # this override boot-package.sh's DB-version guard hard-fails
+      # comparing DB=<from> against expected=<to>.
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
       run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
 
     - name: Run acceptance suite (fresh-install of from_version)
@@ -710,6 +730,10 @@ jobs:
     # select → submit → verify / redirects to login).
     - name: Boot tarball artifact (from_version)
       if: matrix.scenario == 'wizard-upgrade'
+      # Same override as the upgrade scenario's from-side boot: the DB
+      # will contain FROM_VERSION at this point, not the TO expected.
+      env:
+        ACCEPTANCE_EXPECTED_VERSION: ${{ env.FROM_VERSION }}
       run: tests/Acceptance/bin/boot-package.sh "${FROM_VERSION}"
 
     - name: Swap bind mount to to_version without running CLI upgrade
