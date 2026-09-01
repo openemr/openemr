@@ -220,7 +220,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      *
      * @param string $filename Sql upgrade/patch filename
      */
-    function upgradeFromSqlFile($filename, $path = '')
+    public function upgradeFromSqlFile($filename, $path = '')
     {
         global $webserver_root;
 

@@ -91,7 +91,7 @@ class Savant3_Plugin_date extends Savant3_Plugin
      * @return string The formatted date string.
      *
      */
-    function date($datestring, $format = null)
+    public function date($datestring, $format = null)
     {
         settype($format, 'string');
 

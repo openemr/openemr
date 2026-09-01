@@ -29,7 +29,7 @@ class ControllerAlerts extends BaseController
         parent::__construct();
     }
 
-    function _action_listactmgr()
+    public function _action_listactmgr()
     {
         $c = new CdrAlertManager();
         $this->viewBean ??= new \stdClass();
@@ -39,7 +39,7 @@ class ControllerAlerts extends BaseController
     }
 
 
-    function _action_submitactmgr()
+    public function _action_submitactmgr()
     {
 
 

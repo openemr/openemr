@@ -52,7 +52,7 @@ class ThumbnailGenerator
         return $types_support;
     }
 
-    static function count_not_generated()
+    public static function count_not_generated()
     {
         $sql = "SELECT COUNT(*) AS c FROM documents
         WHERE mimetype IN (" . implode(',', self::get_types_support()) . ") AND thumb_url IS NULL";

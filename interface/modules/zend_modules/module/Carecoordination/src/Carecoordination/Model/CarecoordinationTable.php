@@ -2170,7 +2170,7 @@ class CarecoordinationTable
      * @return string Cleaned XML content.
      * @throws Exception If the input XML is invalid or cannot be parsed.
      */
-    function cleanCcdaXmlContent(string $xmlContent, bool $replaceBr = false): string
+    public function cleanCcdaXmlContent(string $xmlContent, bool $replaceBr = false): string
     {
         // Handle <br/> tags if required
         if ($replaceBr) {

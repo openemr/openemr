@@ -40,7 +40,7 @@ class SocialHistoryService extends BaseService
     // To prevent sql injection on this function, if a variable is used for $given parameter, then
     // it needs to be escaped via whitelisting prior to using this function; see lines 2020-2121 of
     // library/clinical_rules.php script for example of this.
-    function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
+    public function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
     {
         $where = '';
         if ($given == 'tobacco') {
@@ -199,7 +199,7 @@ class SocialHistoryService extends BaseService
         return $record;
     }
 
-    function getUuidFields(): array
+    public function getUuidFields(): array
     {
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.

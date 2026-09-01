@@ -53,7 +53,7 @@ class DataAdapter implements IObservable
      * @param ?IDataDriver $_driver (optional) if not provided, then DataAdapter will attempt to instantiate one based on ConnectionSetting->Type
      * @param string $label (optional) a label for the DataAdapter used in debug messages (if empty a random label will be generated)
      */
-    function __construct($csetting, $listener = null, private ?IDataDriver $_driver = null, $label = null)
+    public function __construct($csetting, $listener = null, private ?IDataDriver $_driver = null, $label = null)
     {
         if ($this->_driver) {
             DataAdapter::$DRIVER_INSTANCE = $this->_driver;
@@ -78,7 +78,7 @@ class DataAdapter implements IObservable
      *
      * @access public
      */
-    function __destruct()
+    public function __destruct()
     {
         $this->Observe("DataAdapter ($this->_label) Destructor Firing...", OBSERVE_DEBUG);
         $this->Close();
@@ -114,7 +114,7 @@ class DataAdapter implements IObservable
      * @access public
      * @return string
      */
-    function GetDBName()
+    public function GetDBName()
     {
         return $this->ConnectionSetting->DBName;
     }
@@ -124,7 +124,7 @@ class DataAdapter implements IObservable
      *
      * @access public
      */
-    function Open()
+    public function Open()
     {
         $this->Observe("DataAdapter ($this->_label) Opening Connection...", OBSERVE_DEBUG);
 
@@ -164,7 +164,7 @@ class DataAdapter implements IObservable
      *
      * @access public
      */
-    function Close()
+    public function Close()
     {
         $this->Observe("DataAdapter ($this->_label) Closing Connection...", OBSERVE_DEBUG);
 
@@ -206,7 +206,7 @@ class DataAdapter implements IObservable
      * @param string $sql
      * @return resultset (dependent on the type of driver used)
      */
-    function Select($sql)
+    public function Select($sql)
     {
         $this->RequireConnection(true);
         $this->Observe("DataAdapter ($this->_label) (DataAdapter.Select) " . $sql, OBSERVE_QUERY);
@@ -239,7 +239,7 @@ class DataAdapter implements IObservable
      * @param string $sql
      * @return int number of records affected
      */
-    function Execute($sql)
+    public function Execute($sql)
     {
         $result = null;
 
@@ -294,7 +294,7 @@ class DataAdapter implements IObservable
      *
      * @return bool
      */
-    function IsTransactionInProgress()
+    public function IsTransactionInProgress()
     {
         return $this->_transactionInProgress;
     }
@@ -304,7 +304,7 @@ class DataAdapter implements IObservable
      *
      * @access public
      */
-    function StartTransaction()
+    public function StartTransaction()
     {
         if ($this->IsTransactionInProgress()) {
             throw new Exception('Transaction is already in progress.  Commit or rollback must be called before beginning a new transaction');
@@ -325,7 +325,7 @@ class DataAdapter implements IObservable
      *
      * @access public
      */
-    function CommitTransaction()
+    public function CommitTransaction()
     {
         if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Transactions are not allowed on a read-only slave');
@@ -342,7 +342,7 @@ class DataAdapter implements IObservable
      *
      * @access public
      */
-    function RollbackTransaction()
+    public function RollbackTransaction()
     {
         if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Transactions are not allowed on a read-only slave');
@@ -405,7 +405,7 @@ class DataAdapter implements IObservable
      * @access public
      * @return int
      */
-    function GetLastInsertId()
+    public function GetLastInsertId()
     {
         $id = null;
 
@@ -429,7 +429,7 @@ class DataAdapter implements IObservable
      * @param resultset $rs
      * @return Array
      */
-    function Fetch($rs)
+    public function Fetch($rs)
     {
         $this->RequireConnection();
 
@@ -445,7 +445,7 @@ class DataAdapter implements IObservable
      * @access public
      * @param resultset $rs
      */
-    function Release($rs)
+    public function Release($rs)
     {
         $this->RequireConnection();
 

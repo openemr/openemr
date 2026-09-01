@@ -80,7 +80,7 @@ abstract class PortalController
      * @param Context $context (optional) a context object for persisting the state of the current page
      * @param IRouter|null $router (optional) a custom writer for URL formatting
      */
-    final function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
+    final public function __construct(Phreezer $phreezer, $renderEngine, $context = null, ?IRouter $router = null)
     {
         $this->Phreezer = & $phreezer;
         $this->RenderEngine = & $renderEngine;
@@ -550,7 +550,7 @@ abstract class PortalController
      * if Request::Get("SaveInline") is set then validate will call Save instead of
      * rendering JSON. In which case, your Save method should render the ValidationResponse
      */
-    function ValidateInput()
+    public function ValidateInput()
     {
         require_once("ValidationResponse.php");
         $vr = new ValidationResponse();
@@ -584,7 +584,7 @@ abstract class PortalController
     /**
      * Stub method
      */
-    function Save()
+    public function Save()
     {
         if (! RequestUtil::Get("SaveInline")) {
             throw new Exception("Save is not implemented by this controller");
@@ -966,7 +966,7 @@ abstract class PortalController
      * @param mixed $vars
      * @throws Exception
      */
-    function __call($name, $vars = null)
+    public function __call($name, $vars = null)
     {
         throw new Exception(static::class . "::" . $name . " is not implemented");
     }

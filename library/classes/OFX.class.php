@@ -14,12 +14,12 @@ class OFX
     /**
      * Constructor sets all OFX attributes to their default value
      */
-    function __construct(public $billing_array = [])
+    public function __construct(public $billing_array = [])
     {
         $this->config = OEGlobalsBag::getInstance()->get('oer_config')['ofx'];
     }
 
-    function get_OFX()
+    public function get_OFX()
     {
         $string = $this->_ofx_header() . "\n";
         $trns = [];
@@ -69,7 +69,7 @@ class OFX
         return $string;
     }
 
-    function _ofx_header()
+    public function _ofx_header()
     {
         $string .= "OFXHEADER:100\n";
         $string .= "DATA:OFXSGML\n";
@@ -123,7 +123,7 @@ class OFX
         return $string;
     }
 
-    function _ofx_footer($sum)
+    public function _ofx_footer($sum)
     {
         $string = "</BANKTRANLIST>\n";
         $string .= "<LEDGERBAL>\n";

@@ -171,7 +171,7 @@ class parseCSV
      *
      * @param string|null $input CSV file or string
      */
-    function __construct($input = null, $offset = null, $limit = null, $conditions = null)
+    public function __construct($input = null, $offset = null, $limit = null, $conditions = null)
     {
         if ($offset !== null) {
             $this->offset = $offset;
@@ -200,7 +200,7 @@ class parseCSV
      * @param string|null $input CSV file or string
      * @return bool
      */
-    function parse($input = null, $offset = null, $limit = null, $conditions = null): bool
+    public function parse($input = null, $offset = null, $limit = null, $conditions = null): bool
     {
         $input ??= $this->file;
 
@@ -241,7 +241,7 @@ class parseCSV
      * @param mixed $fields field names
      * @return true or false
      */
-    function save($file = null, $data = [], $append = false, $fields = [])
+    public function save($file = null, $data = [], $append = false, $fields = [])
     {
         if (empty($file)) {
             $file = &$this->file;
@@ -261,7 +261,7 @@ class parseCSV
      * @param mixed $delimiter delimiter used to separate data
      * @return CSV data using delimiter of choice, or default
      */
-    function output($filename = null, $data = [], $fields = [], $delimiter = null)
+    public function output($filename = null, $data = [], $fields = [], $delimiter = null)
     {
         if (empty($filename)) {
             $filename = $this->output_filename;
@@ -285,7 +285,7 @@ class parseCSV
      * @param string|null $input input character encoding, uses default if left blank
      * @param string|null $output output character encoding, uses default if left blank
      */
-    function encoding($input = null, $output = null): void
+    public function encoding($input = null, $output = null): void
     {
         $this->convert_encoding = true;
         if ($input !== null) {
@@ -308,7 +308,7 @@ class parseCSV
      * @param mixed $enclosure enclosure character, default is double quote (").
      * @return delimiter character
      */
-    function auto($file = null, $parse = true, $search_depth = null, $preferred = null, $enclosure = null)
+    public function auto($file = null, $parse = true, $search_depth = null, $preferred = null, $enclosure = null)
     {
         $file ??= $this->file;
 
@@ -402,7 +402,7 @@ class parseCSV
      * @param mixed $file local CSV file
      * @return array with CSV data, or false on failure
      */
-    function parse_file($file = null)
+    public function parse_file($file = null)
     {
         $file ??= $this->file;
 
@@ -419,7 +419,7 @@ class parseCSV
      * @param mixed $data CSV string
      * @return array with CSV data, or false on failure
      */
-    function parse_string($data = null)
+    public function parse_string($data = null)
     {
         if (empty($data)) {
             if ($this->_check_data()) {
@@ -581,7 +581,7 @@ class parseCSV
      * @param mixed $delimiter field delimiter to use
      * @return CSV data (text string)
      */
-    function unparse($data = [], $fields = [], $append = false, $is_php = false, $delimiter = null)
+    public function unparse($data = [], $fields = [], $append = false, $is_php = false, $delimiter = null)
     {
         if (! is_array($data) || empty($data)) {
             $data = &$this->data;
@@ -625,7 +625,7 @@ class parseCSV
      * @param mixed $input local CSV file
      * @return true or false
      */
-    function load_data($input = null): bool
+    public function load_data($input = null): bool
     {
         $data = null;
         $file = null;
@@ -672,7 +672,7 @@ class parseCSV
      * @param mixed $conditions specified conditions that the row must match
      * @return true of false
      */
-    function _validate_row_conditions($row = [], $conditions = null)
+    public function _validate_row_conditions($row = [], $conditions = null)
     {
         if (! empty($row)) {
             if (! empty($conditions)) {
@@ -710,7 +710,7 @@ class parseCSV
      * @param mixed $condition specified condition that the row must match
      * @return true of false
      */
-    function _validate_row_condition($row, $condition)
+    public function _validate_row_condition($row, $condition)
     {
         $operators =  [
                 '=',
@@ -781,7 +781,7 @@ class parseCSV
      * @param mixed $current_row the current row number being processed
      * @return true of false
      */
-    function _validate_offset($current_row): bool
+    public function _validate_offset($current_row): bool
     {
         if ($this->sort_by === null && $this->offset !== null && $current_row < $this->offset) {
             return false;
@@ -797,7 +797,7 @@ class parseCSV
      * @param mixed $value string to process
      * @return Processed value
      */
-    function _enclose_value($value = null)
+    public function _enclose_value($value = null)
     {
         if ($value !== null && $value != '') {
             $delimiter = preg_quote((string) $this->delimiter, '/');
@@ -817,7 +817,7 @@ class parseCSV
      * @param mixed $file local filename
      * @return true or false
      */
-    function _check_data($file = null)
+    public function _check_data($file = null)
     {
         if (empty($this->file_data)) {
             $file ??= $this->file;
@@ -834,7 +834,7 @@ class parseCSV
      *
      * @return string|false|null string used for delimiter selection, or false
      */
-    function _check_count($char, $array, $depth, $preferred)
+    public function _check_count($char, $array, $depth, $preferred)
     {
         if ($depth == count($array)) {
             $first = null;
@@ -872,7 +872,7 @@ class parseCSV
      * @param mixed $file local filename
      * @return Data from file, or false on failure
      */
-    function _rfile($file = null)
+    public function _rfile($file = null)
     {
         if (is_readable($file)) {
             if (! ($fh = fopen($file, 'r'))) {
@@ -896,7 +896,7 @@ class parseCSV
      * @param mixed $lock flock() mode
      * @return true or false
      */
-    function _wfile($file, $string = '', $mode = 'wb', $lock = 2): bool
+    public function _wfile($file, $string = '', $mode = 'wb', $lock = 2): bool
     {
         if ($fp = fopen($file, $mode)) {
             flock($fp, $lock);
