@@ -92,9 +92,9 @@
     <div class="table-responsive">
         <table class="table border-0">
             <tr>
-                <td id="times">
-                    <div class="table-responsive">
-                        <table class="table">
+                                <td id="times" class="calendar-times-col">
+                    <div class="calendar-times-inner">
+                        <table class="table calendar-times-table">
                             <tr><td class="timeslot providerXbtn" data-username="__PC_ALL__"><i class="fa fa-lg fa-user-md"></i></td></tr>
                                                     </table>
                     </div>
@@ -255,6 +255,43 @@
         $("#wrapper").toggleClass("toggled");
     });
 </script>
+
+<style>
+    #bigCal td#times,
+    #bigCal td.calendar-times-col {
+        box-sizing: border-box;
+        max-width: 3.25rem !important;
+        min-width: 3.25rem !important;
+        overflow: hidden;
+        padding: 0.3125rem !important;
+        vertical-align: top;
+        width: 3.25rem !important;
+    }
+    #bigCal .calendar-times-inner {
+        box-sizing: border-box;
+        max-width: 100%;
+        overflow: hidden;
+        width: 100%;
+    }
+    #bigCal td#times table,
+    #bigCal table.calendar-times-table {
+        border-collapse: collapse;
+        margin: 0;
+        padding: 0;
+        table-layout: fixed;
+        width: 100%;
+    }
+    #bigCal td#times table td,
+    #bigCal table.calendar-times-table td {
+        overflow: hidden;
+        text-overflow: clip;
+        white-space: nowrap;
+    }
+    #bigCal td.timeslot {
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
+</style>
 
 <script>
     $(function () { if (typeof setupDirectTime === 'function') { setupDirectTime(); } });
