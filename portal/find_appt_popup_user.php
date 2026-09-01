@@ -119,6 +119,36 @@ function portal_doOneDay($catid, $udate, $starttime, $duration, $prefcatid): voi
 // seconds per time slot
 $slotsecs = $globalsBag->get('calendar_interval') * 60;
 
+// Clinic day window from Admin -> Config -> Calendar (same as day/week grid).
+// schedule_end is exclusive for slot start/end fitting (Ending Hour 5 PM => last
+// 30-min start is 4:30).
+$scheduleStartHour = (int) $globalsBag->get('schedule_start');
+$scheduleEndHour = (int) $globalsBag->get('schedule_end');
+if ($scheduleStartHour < 0 || $scheduleStartHour > 23) {
+    $scheduleStartHour = 8;
+}
+if ($scheduleEndHour < 1 || $scheduleEndHour > 24) {
+    $scheduleEndHour = 17;
+}
+if ($scheduleEndHour <= $scheduleStartHour) {
+    $scheduleEndHour = min(24, $scheduleStartHour + 1);
+}
+
+/**
+ * True when the slot start is within configured clinic hours and the
+ * appointment duration fits before schedule_end.
+ */
+$isWithinConfiguredScheduleHours = static function (int $utime, int $durationSlots, int $slotsecs) use ($scheduleStartHour, $scheduleEndHour): bool {
+    $minuteOfDay = ((int) date('G', $utime) * 60) + (int) date('i', $utime);
+    $windowStartMinute = $scheduleStartHour * 60;
+    $windowEndMinute = $scheduleEndHour * 60;
+    if ($minuteOfDay < $windowStartMinute || $minuteOfDay >= $windowEndMinute) {
+        return false;
+    }
+    $endMinuteOfDay = $minuteOfDay + (int) max(1, $durationSlots) * (int) max(1, (int) ($slotsecs / 60));
+    return $endMinuteOfDay <= $windowEndMinute;
+};
+
 $catslots = 1;
 if ($input_catid) {
     $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$input_catid]);
@@ -328,7 +358,7 @@ if ($_REQUEST['providerid']) {
                     for ($i = 0; $i < $slotcount; ++$i) {
                         $available = true;
                         for ($j = $i; $j < $i + $catslots; ++$j) {
-                            if ($slots[$j] >= 4) {
+                            if (($slots[$j] ?? 0) >= 4) {
                                 $available = false;
                             }
                         }
@@ -338,6 +368,10 @@ if ($_REQUEST['providerid']) {
                         }
 
                         $utime = ($slotbase + $i) * $slotsecs;
+                        // Honor Admin -> Config -> Calendar start/end hours.
+                        if (!$isWithinConfiguredScheduleHours($utime, (int) $catslots, (int) $slotsecs)) {
+                            continue;
+                        }
                         $thisdate = date("Y-m-d", $utime);
                         if ($thisdate != $lastdate) {
                             // if a new day, start a new row

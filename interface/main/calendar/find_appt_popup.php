@@ -95,6 +95,36 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 // seconds per time slot
 $slotsecs = OEGlobalsBag::getInstance()->getInt('calendar_interval') * 60;
 
+// Clinic day window from Admin -> Config -> Calendar (same as day/week grid).
+// schedule_end is treated as exclusive of slot start times (Ending Hour 5 PM
+// allows slots that start before 17:00, e.g. last 30-min start is 4:30).
+$scheduleStartHour = OEGlobalsBag::getInstance()->getInt('schedule_start');
+$scheduleEndHour = OEGlobalsBag::getInstance()->getInt('schedule_end');
+if ($scheduleStartHour < 0 || $scheduleStartHour > 23) {
+    $scheduleStartHour = 8;
+}
+if ($scheduleEndHour < 1 || $scheduleEndHour > 24) {
+    $scheduleEndHour = 17;
+}
+if ($scheduleEndHour <= $scheduleStartHour) {
+    $scheduleEndHour = min(24, $scheduleStartHour + 1);
+}
+
+/**
+ * True when the slot start is within configured clinic hours and the
+ * appointment duration fits before schedule_end.
+ */
+$isWithinConfiguredScheduleHours = static function (int $utime, int $durationSlots, int $slotsecs) use ($scheduleStartHour, $scheduleEndHour): bool {
+    $minuteOfDay = ((int) date('G', $utime) * 60) + (int) date('i', $utime);
+    $windowStartMinute = $scheduleStartHour * 60;
+    $windowEndMinute = $scheduleEndHour * 60;
+    if ($minuteOfDay < $windowStartMinute || $minuteOfDay >= $windowEndMinute) {
+        return false;
+    }
+    // Duration must also finish by ending hour (exclusive end boundary).
+    $endMinuteOfDay = $minuteOfDay + (int) max(1, $durationSlots) * (int) max(1, (int) ($slotsecs / 60));
+    return $endMinuteOfDay <= $windowEndMinute;
+};
 
 $catslots = 1;
 if ($input_catid) {
@@ -260,8 +290,12 @@ if (in_array($sdateStr, $holidays, true)) {
 if (isset($_REQUEST['cktime'])) {
     $cktime = 0 + $_REQUEST['cktime'];
     $ckindex = (int) ($cktime * 60 / $slotsecs);
+    $ckUtime = ($slotbase + $ckindex) * $slotsecs;
+    if (!$isWithinConfiguredScheduleHours($ckUtime, $evslots, $slotsecs)) {
+        $ckavail = false;
+    }
     for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
-        if ($slots[$j] >= 4) {
+        if (($slots[$j] ?? 0) >= 4) {
             $ckavail = false;
             $isProv = false;
             if (isset($prov[$j])) {
@@ -389,6 +423,10 @@ if (isset($_REQUEST['cktime'])) {
                 }
 
                 $utime = ($slotbase + $i) * $slotsecs;
+                // Honor Admin -> Config -> Calendar start/end hours (e.g. no slots after 5 PM).
+                if (!$isWithinConfiguredScheduleHours($utime, $evslots, $slotsecs)) {
+                    continue;
+                }
                 $thisdate = date("Y-m-d", $utime);
                 if ($thisdate != $lastdate) {
                     // if a new day, start a new row
