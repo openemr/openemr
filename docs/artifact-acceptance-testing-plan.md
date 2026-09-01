@@ -618,17 +618,25 @@ release-prep sets `$v_tag=''` + `$v_realpatch=0`, so the strip is a
 no-op there; the divergence only shows up on `build_locally=true`
 against a dev-tagged checkout.
 
-**Also flagged for cleanup**: the workflow's `to_version`
-`workflow_dispatch` input is `required: true` with `default: '8.2.0'`.
-On a manual dispatch with `-f build_locally=true` but no
-`-f to_version=`, the input default (`8.2.0`) still overrides
+**Third follow-up (openemr/openemr#13791)** cleaned up a related
+ergonomic bug in the same code path: the workflow's `to_version`
+`workflow_dispatch` input had been `required: true` with
+`default: '8.2.0'`. On a manual dispatch with `-f build_locally=true`
+but no `-f to_version=`, the input default (`8.2.0`) still overrode
 `emit_to_version`'s build_locally branch (which would otherwise
-resolve to `99.99.99`). The stale default also drives downgrade
-failures when the derived `from_version` is >= `8.2.0` (currently
-`8.3.0` on master). Fix is to change the input default from `'8.2.0'`
-to `''` (empty), which `emit_to_version`'s `[[ -n "${DISPATCH_TO_VERSION}" ]]`
-guard already handles — cleanly falling through to the build_locally
-99.99.99 default. Separate PR when convenient; not blocking.
+resolve to `99.99.99`, matching the auto-fire path). The stale
+default also drove downgrade failures when the derived `from_version`
+was >= `8.2.0` (e.g., `8.3.0` on master → 4 of 8 acceptance jobs
+tripped `upgrade-package.sh`'s ordering guard for reasons unrelated
+to what the operator was actually testing). The `workflow_call`
+variant of the same input already had the correct shape
+(`required: false`, `default: ''`); the two triggers had diverged
+and `workflow_dispatch` never got updated. Matched `workflow_call`'s
+shape — `emit_to_version`'s `[[ -n "${DISPATCH_TO_VERSION}" ]]`
+guard already handled empty, so no shell script or downstream
+changes needed. Explicit `-f to_version=X.Y.Z` still wins over the
+empty default. Answer to "why isn't `to_version` required?" for
+future readers.
 
 Exit criterion (met): end-to-end `build_locally=true` demo on a
 real runner produced 6/6 green — `detect-mode`, `build-tarball`
