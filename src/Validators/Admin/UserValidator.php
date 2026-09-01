@@ -39,12 +39,12 @@ class UserValidator extends BaseValidator
                 $context->optional('facility_id')->numeric();
                 $context->optional('billing_facility_id')->numeric();
                 $context->optional('npi')->lengthBetween(0, 15);
-                $context->optional('taxonomy')->lengthBetween(0, 255);
+                $context->optional('taxonomy')->lengthBetween(0, 30);
                 $context->optional('specialty')->lengthBetween(0, 255);
                 $context->optional('calendar')->inArray([0, 1, '0', '1']);
                 $context->optional('portal_user')->inArray([0, 1, '0', '1']);
                 $context->optional('federaltaxid')->lengthBetween(0, 255);
-                $context->optional('state_license_number')->lengthBetween(0, 255);
+                $context->optional('state_license_number')->lengthBetween(0, 25);
                 $context->optional('federaldrugid')->lengthBetween(0, 255);
                 $context->optional('upin')->lengthBetween(0, 255);
                 $context->required('access_group')->isArray()->callback(function ($value): bool {
