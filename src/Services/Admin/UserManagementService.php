@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Admin;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Database\QueryPagination;
@@ -25,17 +26,21 @@ use OpenEMR\Services\UserService;
 use OpenEMR\Validators\Admin\UserValidator;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Log\LoggerInterface;
 
 class UserManagementService extends UserService
 {
     private readonly UserValidator $userValidator;
 
+    private readonly LoggerInterface $logger;
+
     /**
      * Exposes the username column, which the base user service hides, and wires the admin validator.
      */
-    public function __construct()
+    public function __construct(?LoggerInterface $logger = null)
     {
         parent::__construct();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->toggleSensitiveFields(['username']);
         $this->userValidator = new UserValidator();
     }
@@ -80,7 +85,7 @@ class UserManagementService extends UserService
         $enrichedData = [];
         foreach ($currentData as $record) {
             $username = $record['username'] ?? null;
-            $key = is_string($username) ? strtolower($username) : '';
+            $key = is_string($username) ? $username : '';
             $record['acl_groups'] = $aclGroupsByUsername[$key] ?? [];
             $enrichedData[] = $record;
         }
@@ -206,8 +211,15 @@ class UserManagementService extends UserService
         $adminPass = self::strVal($data['admin_password'] ?? '');
         $authUtils = new AuthUtils();
 
-        // Wrap all DB writes in a transaction so a failure in any step
-        // (UUID, facility, groups, ACL) rolls back the entire user creation.
+        // Wrap the DB writes on this connection in a transaction so a failure in any step
+        // (user row, UUID, facility, groups) rolls back the entire user creation.
+        //
+        // Caveat: the ACL write below does NOT participate. AclExtended::setUserAro() goes
+        // through GaclApi, whose constructor opens its own ADODB connection, so gacl_aro and
+        // gacl_groups_aro_map rows it creates survive a rollback here and are left orphaned
+        // against a username that no longer exists. Enrolling gacl in this transaction means
+        // giving it the caller's connection, which is beyond the scope of these endpoints.
+        //
         // Note: using manual transaction methods because inTransaction() closure
         // is incompatible with AuthUtils::updatePassword() by-reference parameters
         // in the CI environment.
@@ -227,11 +239,14 @@ class UserManagementService extends UserService
                 QueryUtils::rollbackTransaction(); // @phpstan-ignore openemr.deprecatedSqlFunction
                 $rawError = $authUtils->getErrorMessage();
                 $errorMsg = is_string($rawError) && $rawError !== '' ? $rawError : 'User creation failed';
+                // AuthUtils builds these messages with xl(), so they arrive translated. Comparing
+                // against English literals would misclassify every failure on a non-English
+                // install; running the same source strings through xl() here matches in any locale.
                 $field = match (true) {
-                    str_contains($errorMsg, 'Incorrect password') => 'admin_password',
-                    str_contains($errorMsg, 'not long enough'),
-                    str_contains($errorMsg, 'Empty Password') => 'password',
-                    str_contains($errorMsg, 'existing username') => 'username',
+                    $errorMsg === xl("Incorrect password!") => 'admin_password',
+                    $errorMsg === xl("Password not long enough"),
+                    $errorMsg === xl("Empty Password Not Allowed") => 'password',
+                    $errorMsg === xl("Trying to create user with existing username!") => 'username',
                     default => 'admin_password',
                 };
                 $processingResult->setValidationMessages([$field => [$errorMsg]]);
@@ -245,13 +260,13 @@ class UserManagementService extends UserService
             // Update facility name fields (IDs were validated above)
             if ($facilityId !== '') {
                 QueryUtils::sqlStatementThrowException(
-                    "UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND users.username = ?",
+                    "UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND BINARY users.username = ?",
                     [$facilityId, $username]
                 );
             }
             if ($billingFacilityId !== '') {
                 QueryUtils::sqlStatementThrowException(
-                    "UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND users.username = ?",
+                    "UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND BINARY users.username = ?",
                     [$billingFacilityId, $username]
                 );
             }
@@ -271,21 +286,42 @@ class UserManagementService extends UserService
                 "New user created via API: " . $username
             );
 
-            // Dispatch event
-            $eventData = $data;
-            $eventData['uuid'] = UuidRegistry::uuidToString($uuid);
-            $eventData['username'] = $username;
-            unset($eventData['password'], $eventData['admin_password']);
-            $userCreatedEvent = new UserCreatedEvent($eventData);
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
-                $userCreatedEvent,
-                UserCreatedEvent::EVENT_HANDLE
-            );
-
             QueryUtils::commitTransaction(); // @phpstan-ignore openemr.deprecatedSqlFunction
         } catch (\Throwable $e) {
             QueryUtils::rollbackTransaction(); // @phpstan-ignore openemr.deprecatedSqlFunction
             throw $e;
+        }
+
+        // Dispatched after the commit, matching the event's documented "after a user has been
+        // created" contract. Listeners do outside work (welcome mail, downstream provisioning)
+        // that must not run for a creation that then fails to commit, and a throwing listener
+        // must not roll back a user that is already persisted.
+        //
+        // The user exists at this point, so a listener failure must not be reported to the client
+        // as a failed create: that would return a 5xx for a user that was created, and the retry
+        // would then fail with "Username already exists". Log and continue instead.
+        $eventData = $data;
+        $eventData['uuid'] = UuidRegistry::uuidToString($uuid);
+        $eventData['username'] = $username;
+        unset($eventData['password'], $eventData['admin_password']);
+        $userCreatedEvent = new UserCreatedEvent($eventData);
+        try {
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
+                $userCreatedEvent,
+                UserCreatedEvent::EVENT_HANDLE
+            );
+        } catch (\ErrorException $e) {
+            // A promoted PHP error (Core\ErrorHandler turns warnings/notices into ErrorException)
+            // is a defect in the listener, not an operational failure — let it propagate.
+            throw $e;
+        } catch (\Exception $e) { // @phpstan-ignore openemr.forbiddenCatchType
+            // Narrowed deliberately: \Error subclasses are not \Exception and ErrorException is
+            // re-thrown above, so only genuine operational listener failures are absorbed here.
+            $this->logger->error('UserCreatedEvent listener failed after user creation', [
+                'username' => $username,
+                'uuid' => UuidRegistry::uuidToString($uuid),
+                'exception' => $e,
+            ]);
         }
 
         // Return created user
@@ -335,11 +371,13 @@ class UserManagementService extends UserService
      * that helper: direct (non-recursive) ARO group memberships in the `users`
      * section, with the group *name* column as the title, sorted per user.
      *
-     * Matching stays case-insensitive, as the gacl lookup it replaces was, so the
-     * batched form returns the same titles the per-record calls did.
+     * Matching is case-sensitive (BINARY), consistent with every other username lookup in
+     * the codebase. gacl_aro.value has no unique index and usernames are case-sensitive, so
+     * `Smith` and `smith` can both hold AROs; a case-insensitive match would report the union
+     * of both users' groups against each of them.
      *
      * @param list<string> $usernames
-     * @return array<string, list<string>> lowercased username => sorted group titles
+     * @return array<string, list<string>> username => sorted group titles
      */
     private function fetchAclGroupTitles(array $usernames): array
     {
@@ -352,7 +390,7 @@ class UserManagementService extends UserService
                 FROM gacl_aro aro
                 INNER JOIN gacl_groups_aro_map map ON map.aro_id = aro.id
                 INNER JOIN gacl_aro_groups grp ON grp.id = map.group_id
-                WHERE aro.section_value = 'users' AND aro.value IN (" . $placeholders . ")";
+                WHERE aro.section_value = 'users' AND BINARY aro.value IN (" . $placeholders . ")";
 
         /** @var list<array<string, mixed>> $rows */
         $rows = QueryUtils::fetchRecords($sql, $usernames);
@@ -365,7 +403,7 @@ class UserManagementService extends UserService
             if (!is_string($username) || !is_string($title)) {
                 continue;
             }
-            $titlesByUsername[strtolower($username)][] = $title;
+            $titlesByUsername[$username][] = $title;
         }
 
         foreach ($titlesByUsername as &$titles) {
