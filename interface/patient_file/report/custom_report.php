@@ -204,7 +204,7 @@ function getContent()
                 $plogo = glob(\OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/*");// let's give the user a little say in image format.
                 $plogo = preg_grep('~practice_logo\.(gif|png|jpg|jpeg)$~i', $plogo);
                 if (!empty($plogo)) {
-                    $k = current(array_keys($plogo));
+                    $k = array_key_first($plogo);
                     $practice_logo = $plogo[$k];
                 }
 
