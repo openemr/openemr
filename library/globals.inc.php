@@ -2814,8 +2814,10 @@ $GLOBALS_METADATA = [
         'audit_events_query' => [
             xl('Audit Logging SELECT Query'),
             'bool',                           // data type
-            '1',                              // default
+            '0',                              // default off; enable for ONC certified deployments
             xl('Enable logging of all SQL SELECT queries.') . ' (' . xl('Note that Audit Logging needs to be enabled above') . ')'
+                . ' ' . xl('Required for ONC certified deployments.')
+                . ' ' . xl('Warning: this logs every SELECT, so the audit log grows with query volume and can become far larger than the clinical data it describes.')
         ],
 
         'audit_events_cdr' => [
