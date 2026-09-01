@@ -1302,11 +1302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$s of method ADOConnection\\:\\:qStr\\(\\) expects string, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$aco_section_value of method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) expects string, mixed given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_debug.php',
@@ -27437,7 +27432,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleFilters.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$array of function array_keys expects array, mixed given\\.$#',
+    'message' => '#^Parameter \\#1 \\$array of function array_key_last expects array, mixed given\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];

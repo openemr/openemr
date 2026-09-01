@@ -342,6 +342,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$db might not be defined\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$gacl_api might not be defined\\.$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$smarty might not be defined\\.$#',
+    'count' => 36,
+    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$Table might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
