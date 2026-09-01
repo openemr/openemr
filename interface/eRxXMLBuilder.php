@@ -534,9 +534,6 @@ class eRxXMLBuilder
         return $element;
     }
 
-    /**
-     * @return list
-     */
     public function getStaffElements($authUserId, $destination): array
     {
         $userRole = $this->getStore()->getUserById($authUserId);

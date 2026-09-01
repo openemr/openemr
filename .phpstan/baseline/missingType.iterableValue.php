@@ -262,7 +262,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxStore.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method eRxXMLBuilder\\:\\:getStaffElements\\(\\) return type has no value type specified in iterable type list\\.$#',
+    'message' => '#^Method eRxXMLBuilder\\:\\:getStaffElements\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];
