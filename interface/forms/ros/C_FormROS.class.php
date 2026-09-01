@@ -26,7 +26,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class C_FormROS extends Controller
 {
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -38,7 +38,7 @@ class C_FormROS extends Controller
         $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
     }
 
-    function default_action(): string
+    public function default_action(): string
     {
         $ros = new FormROS();
         $this->assign("form", $ros);
@@ -56,7 +56,7 @@ class C_FormROS extends Controller
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
-    function default_action_process()
+    public function default_action_process()
     {
         if ($_POST['process'] != "true") {
             return;

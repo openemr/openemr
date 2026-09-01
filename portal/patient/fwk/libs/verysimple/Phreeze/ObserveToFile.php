@@ -30,7 +30,7 @@ class ObserveToFile implements IObserver
         @fclose($this->fh);
         $this->fileIsOpen = false;
     }
-    function Init()
+    public function Init()
     {
         $this->fh = fopen($this->filepath, "a");
         $this->fileIsOpen = true;

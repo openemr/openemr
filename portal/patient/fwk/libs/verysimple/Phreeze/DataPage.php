@@ -89,7 +89,7 @@ class DataPage implements Iterator
      * @param array $options options (only relevant if asSimpleObject is true) passed through to ToObject
      * @return array
      */
-    function ToObjectArray($asSimpleObject = false, $options = null)
+    public function ToObjectArray($asSimpleObject = false, $options = null)
     {
         $arr = null;
 

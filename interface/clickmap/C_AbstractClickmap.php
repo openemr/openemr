@@ -40,7 +40,7 @@ abstract class C_AbstractClickmap extends Controller
      */
     public $template_dir;
 
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
         $returnurl = 'encounter_top.php';
@@ -63,21 +63,21 @@ abstract class C_AbstractClickmap extends Controller
      *
      * @return string The path to the image backing this form relative to the webroot.
      */
-    abstract function getImage();
+    abstract public function getImage();
 
     /**
      * @brief Override this abstract function to return the label of the optionlists on this form.
      *
      * @return string The label used for all dropdown boxes on this form.
      */
-    abstract function getOptionsLabel();
+    abstract public function getOptionsLabel();
 
     /**
      * @brief Override this abstract function to return a hash of the optionlist (key=>value pairs).
      *
      * @return array A hash of key=>value pairs, representing all the possible options in the dropdown boxes on this form.
      */
-    abstract function getOptionList();
+    abstract public function getOptionList();
 
     /**
      * @brief set up the passed in Model object to model the form.
@@ -102,7 +102,7 @@ abstract class C_AbstractClickmap extends Controller
      * @brief generate an html document from the 'new form' template
      * @return string
      */
-    function default_action(): string
+    public function default_action(): string
     {
         $model = $this->createModel();
         $this->assign("form", $model);
@@ -116,7 +116,7 @@ abstract class C_AbstractClickmap extends Controller
      * @param string $form_id The id of the form to populate data from.
      * @return string
      */
-    function view_action($form_id)
+    public function view_action($form_id)
     {
         $model = $this->createModel($form_id);
         $this->assign("form", $model);
@@ -130,7 +130,7 @@ abstract class C_AbstractClickmap extends Controller
      * @param string $form_id The id of the form to populate data from.
      * @return string
      */
-    function report_action($form_id)
+    public function report_action($form_id)
     {
         $model = $this->createModel($form_id);
         $this->assign("form", $model);
@@ -143,7 +143,7 @@ abstract class C_AbstractClickmap extends Controller
      /**
      * @brief called to store the submitted form's contents to the database, adding the form to the encounter if necissary.
      */
-    function default_action_process()
+    public function default_action_process()
     {
         if ($_POST['process'] != "true") {
             return;

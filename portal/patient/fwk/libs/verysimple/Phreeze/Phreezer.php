@@ -99,7 +99,7 @@ class Phreezer extends Observable
 *
 * @return string
 */
-    static function PharPath()
+    public static function PharPath()
     {
         return class_exists("Phar") ? Phar::running() : '';
     }
@@ -353,7 +353,7 @@ class Phreezer extends Observable
 * @param mixed $b
 * @return int
 */
-    static function Compare($a, $b)
+    public static function Compare($a, $b)
     {
         return strcmp((string) $a->ToString(), (string) $b->ToString());
     }
@@ -367,7 +367,7 @@ class Phreezer extends Observable
 * @param array $objects
 *          array of objects
 */
-    static function Sort(&$objects)
+    public static function Sort(&$objects)
     {
         usort($objects, [
         "Phreezer",

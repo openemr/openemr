@@ -15,25 +15,25 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class PQRIXml extends XmlWriterOemr
 {
-    function __construct($indent = '  ')
+    public function __construct($indent = '  ')
     {
         parent::__construct($indent);
     }
 
-    function open_submission()
+    public function open_submission()
     {
 
         $this->push('submission', ['type' => 'PQRI-REGISTRY', 'option' => 'payment',
            'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:noNamespaceSchemaLocation' => 'Registry_Payment.xsd']);
     }
 
-    function close_submission()
+    public function close_submission()
     {
         $this->pop();
     }
 
 
-    function add_file_audit_data()
+    public function add_file_audit_data()
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $res = sqlQuery("select * from users where username=?", [$session->get('authUser')]);
@@ -49,7 +49,7 @@ class PQRIXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function add_registry($submission_method)
+    public function add_registry($submission_method)
     {
 
         $this->push('registry');
@@ -59,7 +59,7 @@ class PQRIXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function add_measure_group_stats($arrStats)
+    public function add_measure_group_stats($arrStats)
     {
         $this->push('measure-group-stat');
 
@@ -70,7 +70,7 @@ class PQRIXml extends XmlWriterOemr
         $this->pop();
     }
 
-    function add_pqri_measures($arrStats)
+    public function add_pqri_measures($arrStats)
     {
         $this->push('pqri-measure');
 
@@ -82,7 +82,7 @@ class PQRIXml extends XmlWriterOemr
     }
 
 
-    function open_provider($arrStats)
+    public function open_provider($arrStats)
     {
         $this->push('provider');
 
@@ -91,17 +91,17 @@ class PQRIXml extends XmlWriterOemr
         }
     }
 
-    function close_provider()
+    public function close_provider()
     {
         $this->pop();
     }
 
-    function open_measure_group($id)
+    public function open_measure_group($id)
     {
         $this->push('measure-group', ['ID' => $id]);
     }
 
-    function close_measure_group()
+    public function close_measure_group()
     {
         $this->pop();
     }

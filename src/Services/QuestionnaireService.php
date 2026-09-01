@@ -265,7 +265,7 @@ class QuestionnaireService extends BaseService
      * @return array
      * @throws Exception
      */
-    function createQuestionnaireFormDictionary($questionnaire): array
+    public function createQuestionnaireFormDictionary($questionnaire): array
     {
         $q = $this->parse($questionnaire);
 

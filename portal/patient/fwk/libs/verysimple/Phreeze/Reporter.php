@@ -106,7 +106,7 @@ abstract class Reporter
      * @param Phreezer $_phreezer
      * @param Array $row
      */
-    final function __construct(protected $_phreezer, $row = null)
+    final public function __construct(protected $_phreezer, $row = null)
     {
         if ($row) {
             $this->Load($row);
@@ -158,7 +158,7 @@ abstract class Reporter
      *          camelCase (bool) if true then first letter of each property is made lowercase
      * @return stdClass
      */
-    function ToObject($options = null)
+    public function ToObject($options = null)
     {
         $options ??= [];
 
@@ -184,7 +184,7 @@ abstract class Reporter
      * @param $phreezer
      * @param $row
      */
-    function Refresh(Phreezer $phreezer, $row = null)
+    public function Refresh(Phreezer $phreezer, $row = null)
     {
         $this->_phreezer = $phreezer;
 
@@ -212,7 +212,7 @@ abstract class Reporter
      * @param Criteria $criteria
      * @return string
      */
-    static function GetCustomQuery($criteria)
+    public static function GetCustomQuery($criteria)
     {
         return "";
     }
@@ -231,7 +231,7 @@ abstract class Reporter
      * @param Criteria $criteria
      * @return string
      */
-    static function GetCustomCountQuery($criteria)
+    public static function GetCustomCountQuery($criteria)
     {
         return "";
     }
@@ -243,7 +243,7 @@ abstract class Reporter
      * @access public
      * @return array
      */
-    function GetArray()
+    public function GetArray()
     {
         $fms = $this->_phreezer->GetFieldMaps(static::class);
         $cols =  [];
@@ -262,7 +262,7 @@ abstract class Reporter
      * @access public
      * @param Array $row
      */
-    function Load(&$row)
+    public function Load(&$row)
     {
         $this->_phreezer->Observe("Loading " . static::class, OBSERVE_DEBUG);
 
