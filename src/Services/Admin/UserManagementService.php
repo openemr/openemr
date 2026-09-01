@@ -297,9 +297,13 @@ class UserManagementService extends UserService
         // that must not run for a creation that then fails to commit, and a throwing listener
         // must not roll back a user that is already persisted.
         //
-        // The user exists at this point, so a listener failure must not be reported to the client
-        // as a failed create: that would return a 5xx for a user that was created, and the retry
-        // would then fail with "Username already exists". Log and continue instead.
+        // The user exists at this point, so a listener failure leaves the caller with a 5xx for a
+        // record that was in fact created, and a retry then fails with "Username already exists".
+        // Absorbing the failure is not an option here: openemr.forbiddenCatchType (phpstan) and
+        // CatchExceptionToThrowableRector (rector) between them rule out swallowing \Error and
+        // \ErrorException, which is the project's deliberate position. So the failure is logged
+        // with enough context to reconcile the created user, then propagates, matching the
+        // handling in interface/forms/questionnaire_assessments/native_save.php.
         $eventData = $data;
         $eventData['uuid'] = UuidRegistry::uuidToString($uuid);
         $eventData['username'] = $username;
@@ -310,18 +314,13 @@ class UserManagementService extends UserService
                 $userCreatedEvent,
                 UserCreatedEvent::EVENT_HANDLE
             );
-        } catch (\ErrorException $e) {
-            // A promoted PHP error (Core\ErrorHandler turns warnings/notices into ErrorException)
-            // is a defect in the listener, not an operational failure — let it propagate.
-            throw $e;
-        } catch (\Exception $e) { // @phpstan-ignore openemr.forbiddenCatchType
-            // Narrowed deliberately: \Error subclasses are not \Exception and ErrorException is
-            // re-thrown above, so only genuine operational listener failures are absorbed here.
+        } catch (\Throwable $e) {
             $this->logger->error('UserCreatedEvent listener failed after user creation', [
                 'username' => $username,
                 'uuid' => UuidRegistry::uuidToString($uuid),
                 'exception' => $e,
             ]);
+            throw $e;
         }
 
         // Return created user
