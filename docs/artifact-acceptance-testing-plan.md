@@ -586,6 +586,24 @@ assertion to `TO_VERSION` — the pattern that #13635 originally
 shipped, and #13753 later corrected — made the acceptance groups
 un-passable on `build_locally=true`. Do not re-couple.
 
+**Follow-up fix (openemr/openemr#13786)**: #13761 covered the six
+workflow-level `ACCEPTANCE_EXPECTED_VERSION` sites (the PHPUnit
+version-display / version-api groups) but missed the two identical
+shell-level DB assertions in `boot-package.sh` and `upgrade-package.sh`,
+which compared `DB_VERSION` against their positional `VERSION` /
+`TO_VERSION` args (i.e. the cosmetic label). Same divergence, same
+symptom (`post-install DB version '8.4.0' does not match expected
+'99.99.99'`), same failure mode as before the label-vs-actual split
+was recognized. Follow-up makes both shell guards read
+`ACCEPTANCE_EXPECTED_VERSION` env if set (falling back to the
+positional arg for dev-time standalone runs), and promotes
+`ACCEPTANCE_EXPECTED_VERSION` from per-step assignments to a job-level
+env so both the PHPUnit consumers and the shell scripts see the same
+value automatically. Discovered by a `workflow_dispatch -f
+build_locally=true` smoke test against master post-#13761 merge —
+that PR's own CI hadn't exercised the build_locally path because
+#13761 didn't touch `tools/release/**`.
+
 Exit criterion (met): end-to-end `build_locally=true` demo on a
 real runner produced 6/6 green — `detect-mode`, `build-tarball`
 (PackageAssembler produced tarball from PR HEAD), `fresh-install`,
