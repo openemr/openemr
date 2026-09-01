@@ -63,7 +63,6 @@ class FhirAppointmentRestController
                                 type: 'object'
                             ),
                         ],
-                        example: []
                     )
                 )
             ),

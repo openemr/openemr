@@ -217,13 +217,89 @@ use OpenApi\Attributes as OA;
                     type: 'array',
                     items: new OA\Items(type: 'object')
                 ),
+                new OA\Property(
+                    property: 'links',
+                    description: 'Pagination links for a multi-result response.',
+                    type: 'array',
+                    items: new OA\Items(type: 'object')
+                ),
             ],
             example: [
-                'validationErrors' => new \stdClass(),
-                'error_description' => new \stdClass(),
-                'data' => new \stdClass(),
+                'validationErrors' => [],
+                'internalErrors' => [],
+                'data' => [],
+                'links' => [],
             ]
         )
+    )
+)]
+#[OA\Response(
+    response: 'standardResource',
+    description: 'A response wrapping a single returned resource under the data key.',
+    content: new OA\MediaType(
+        mediaType: 'application/json',
+        schema: new OA\Schema(
+            properties: [
+                new OA\Property(
+                    property: 'validationErrors',
+                    description: 'Validation errors.',
+                    type: 'array',
+                    items: new OA\Items(type: 'object')
+                ),
+                new OA\Property(
+                    property: 'internalErrors',
+                    description: 'Internal errors.',
+                    type: 'array',
+                    items: new OA\Items(type: 'object')
+                ),
+                new OA\Property(
+                    property: 'data',
+                    description: 'The returned resource.',
+                    type: 'object'
+                ),
+                new OA\Property(
+                    property: 'links',
+                    description: 'Pagination links for a multi-result response.',
+                    type: 'array',
+                    items: new OA\Items(type: 'object')
+                ),
+            ]
+        )
+    )
+)]
+#[OA\Response(
+    response: 'resource',
+    description: 'A single resource returned as the response body.',
+    content: new OA\MediaType(
+        mediaType: 'application/json',
+        schema: new OA\Schema(type: 'object')
+    )
+)]
+#[OA\Response(
+    response: 'resourceList',
+    description: 'A list of resources returned as the response body.',
+    content: new OA\MediaType(
+        mediaType: 'application/json',
+        schema: new OA\Schema(
+            type: 'array',
+            items: new OA\Items(type: 'object')
+        )
+    )
+)]
+#[OA\Response(
+    response: 'booleanResult',
+    description: 'A boolean indicating whether the operation succeeded.',
+    content: new OA\MediaType(
+        mediaType: 'application/json',
+        schema: new OA\Schema(type: 'boolean')
+    )
+)]
+#[OA\Response(
+    response: 'filedownload',
+    description: 'The requested file streamed as an octet stream.',
+    content: new OA\MediaType(
+        mediaType: 'application/octet-stream',
+        schema: new OA\Schema(type: 'string', format: 'binary')
     )
 )]
 #[OA\Response(
@@ -297,7 +373,6 @@ use OpenApi\Attributes as OA;
                     type: 'object'
                 ),
             ],
-            example: new \stdClass()
         )
     )
 )]

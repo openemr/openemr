@@ -112,7 +112,7 @@ class InsuranceRestController
         tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: 'pid',
+                name: 'puuid',
                 in: 'path',
                 description: 'The uuid for the patient.',
                 required: true,
@@ -175,15 +175,22 @@ class InsuranceRestController
         tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: 'pid',
+                name: 'puuid',
                 in: 'path',
                 description: 'The uuid for the patient.',
                 required: true,
                 schema: new OA\Schema(type: 'string')
             ),
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the insurance policy.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/standardResource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -234,7 +241,7 @@ class InsuranceRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/standardResource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -287,7 +294,7 @@ class InsuranceRestController
             )
         ),
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/standardResource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
@@ -333,7 +340,7 @@ class InsuranceRestController
         tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: 'pid',
+                name: 'puuid',
                 in: 'path',
                 description: 'The uuid for the patient.',
                 required: true,
@@ -355,7 +362,7 @@ class InsuranceRestController
             ),
         ],
         responses: [
-            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '200', ref: '#/components/responses/standardResource'),
             new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
             new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
