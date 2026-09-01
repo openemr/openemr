@@ -1445,7 +1445,7 @@ class FPDF
 
     protected function _newobj($n=null)
     {
-    $n ??= ++$this->n;
+        $n ??= ++$this->n;
         $this->offsets[$n] = $this->_getoffset();
         $this->_put($n.' 0 obj');
     }

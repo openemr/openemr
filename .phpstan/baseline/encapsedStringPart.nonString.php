@@ -1228,7 +1228,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$file \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 19,
+    'count' => 18,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
@@ -1243,7 +1243,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$lab_name \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 15,
+    'count' => 12,
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [

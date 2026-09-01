@@ -433,7 +433,7 @@ class Phreezer extends Observable
             throw new Exception("\$objectclass argument is required");
         }
 
-    $criteria ??= new Criteria();
+        $criteria ??= new Criteria();
 
     // see if this object has a custom query designated
         $custom = $this->GetCustomQuery($objectclass, $criteria);

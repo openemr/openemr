@@ -2,6 +2,11 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthVideoRegistrationController\\:\\:\\$userRepository \\(Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Repository\\\\TeleHealthUserRepository\\) on left side of \\?\\?\\= is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthVideoRegistrationController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\Dorn\\\\Bootstrap\\:\\:\\$moduleDirectoryName \\(string\\) on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/Bootstrap.php',
@@ -770,6 +775,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResourceContainer\\:\\:\\$VisionPrescription \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRVisionPrescription\\) on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResourceContainer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Static property OpenEMR\\\\FHIR\\\\R4\\\\PHPFHIRResponseParser\\:\\:\\$sxeArgs \\(int\\) on left side of \\?\\?\\= is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRResponseParser.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\PaymentProcessing\\\\Sphere\\\\SpherePayment\\:\\:\\$mainUrlRetail \\(string\\) on left side of \\?\\? is not nullable\\.$#',
