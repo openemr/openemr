@@ -49,7 +49,7 @@ class FieldMap
      *
      * @param string $type
      */
-    static function GetConstantFromType($type)
+    public static function GetConstantFromType($type)
     {
         $const = 'FM_TYPE_' . strtoupper($type);
         return (defined($const)) ? $const : 'FM_TYPE_UNKNOWN';
@@ -76,7 +76,7 @@ class FieldMap
      *
      * @return bool
      */
-    function IsEnum()
+    public function IsEnum()
     {
         return $this->FieldType == FM_TYPE_ENUM;
     }
@@ -86,7 +86,7 @@ class FieldMap
      *
      * @return array
      */
-    function GetEnumValues()
+    public function GetEnumValues()
     {
         return $this->IsEnum() ? $this->FieldSize :  [];
     }

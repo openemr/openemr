@@ -19,6 +19,6 @@ require_once("KeyMap.php");
  */
 interface IDaoMap
 {
-    static function GetFieldMaps();
-    static function GetKeyMaps();
+    public static function GetFieldMaps();
+    public static function GetKeyMaps();
 }

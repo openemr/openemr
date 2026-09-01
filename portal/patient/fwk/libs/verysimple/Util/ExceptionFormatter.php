@@ -27,7 +27,7 @@ class ExceptionFormatter
      * @param bool $show_lines
      *          true to include line numbers
      */
-    static function GetTraceAsString($msg = "DEBUG", $depth = 0, $join = " :: ", $show_lines = true)
+    public static function GetTraceAsString($msg = "DEBUG", $depth = 0, $join = " :: ", $show_lines = true)
     {
         $error = new Exception($msg);
         return self::FormatTrace($error->getTrace(), $depth, $join, $show_lines);
@@ -48,7 +48,7 @@ class ExceptionFormatter
      * @param bool $show_lines
      *          true to include line numbers
      */
-    static function FormatTrace($tb, $depth = 0, $join = " :: ", $show_lines = true)
+    public static function FormatTrace($tb, $depth = 0, $join = " :: ", $show_lines = true)
     {
         $msg = "";
         $delim = "";

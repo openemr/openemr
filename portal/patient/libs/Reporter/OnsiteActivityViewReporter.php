@@ -77,7 +77,7 @@ class OnsiteActivityViewReporter extends Reporter
      * @param Criteria $criteria
      * @return string SQL statement
      */
-    static function GetCustomQuery($criteria)
+    public static function GetCustomQuery($criteria)
     {
         $sql = <<<'SQL'
         SELECT
@@ -143,7 +143,7 @@ class OnsiteActivityViewReporter extends Reporter
      * @param Criteria $criteria
      * @return string SQL statement
      */
-    static function GetCustomCountQuery($criteria)
+    public static function GetCustomCountQuery($criteria)
     {
         $sql = <<<'SQL'
         SELECT count(1) AS counter

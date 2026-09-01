@@ -21,7 +21,7 @@ class TimeUnit
     const Month = "month";
     const Year = "year";
 
-    function __construct(public string $code, public string $lbl)
+    public function __construct(public string $code, public string $lbl)
     {
     }
 

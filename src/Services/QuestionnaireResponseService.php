@@ -608,7 +608,7 @@ class QuestionnaireResponseService extends BaseService
      * @param array $flattenedArray
      * @return array
      */
-    function groupByItemsRecursively(array $flattenedArray): array
+    public function groupByItemsRecursively(array $flattenedArray): array
     {
         $grouped = [];
 
@@ -641,7 +641,7 @@ class QuestionnaireResponseService extends BaseService
      * @param $response
      * @return string
      */
-    function buildQuestionnaireResponseHtml($response): string
+    public function buildQuestionnaireResponseHtml($response): string
     {
         $html = '<div style="display: flex; flex-direction: column; flex-basis: 100%; line-height: 1.2 !important">';
         $html .= '<form class="form">';
@@ -665,7 +665,7 @@ class QuestionnaireResponseService extends BaseService
      * @param $flag
      * @return string
      */
-    function renderItem($item, $indentLevel = 0, $flag = 0): string
+    public function renderItem($item, $indentLevel = 0, $flag = 0): string
     {
         $html = '';
         // Render item text if it exists
@@ -706,7 +706,7 @@ class QuestionnaireResponseService extends BaseService
      * @param $answer
      * @return string
      */
-    function extractAnswerValue($answer)
+    public function extractAnswerValue($answer)
     {
         if (isset($answer['valueCoding'])) {
             return $answer['valueCoding']['display'];
