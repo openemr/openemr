@@ -61883,7 +61883,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$diagnosisCodes of static method OpenEMR\\\\Services\\\\FHIR\\\\UtilsService\\:\\:createCodeableConcept\\(\\) expects array, mixed given\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
 ];
 $ignoreErrors[] = [

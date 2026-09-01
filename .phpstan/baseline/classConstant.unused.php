@@ -17,6 +17,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/CareTeamService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Constant OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationAdvanceDirectiveService\\:\\:CATEGORY_DISPLAY is unused\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Constant OpenEMR\\\\Services\\\\PatientService\\:\\:PATIENT_HISTORY_TABLE is unused\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
