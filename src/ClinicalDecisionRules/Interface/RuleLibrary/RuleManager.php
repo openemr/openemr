@@ -235,7 +235,7 @@ class RuleManager
         $ruleTargetGroups = $this->fetchRuleTargetCriteria($rule);
         $ruleActionGroups = $this->fetchRuleActions($rule);
         $groups = [];
-        $groupCount = max(end(array_keys($ruleTargetGroups)), end(array_keys($ruleActionGroups)));
+        $groupCount = max(array_key_last($ruleTargetGroups), array_key_last($ruleActionGroups));
         for ($groupId = 0; $groupId <= $groupCount; $groupId++) {
             $group = new RuleTargetActionGroup($groupId);
             $addGroup = false;
