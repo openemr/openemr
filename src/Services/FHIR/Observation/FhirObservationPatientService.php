@@ -99,9 +99,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
 
@@ -120,9 +118,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
             ]);
             foreach ($listOptions as $record) {
                 $listId = $record['list_id'];
-                if (!isset($this->listOptionsByListId[$listId])) {
-                    $this->listOptionsByListId[$listId] = [];
-                }
+                $this->listOptionsByListId[$listId] ??= [];
                 $this->listOptionsByListId[$listId][$record['option_id']] = $record;
             }
         }

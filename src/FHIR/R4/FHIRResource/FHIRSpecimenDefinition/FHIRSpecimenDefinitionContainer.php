@@ -409,9 +409,7 @@ class FHIRSpecimenDefinitionContainer extends FHIRBackboneElement implements \Js
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SpecimenDefinitionContainer xmlns="http://hl7.org/fhir"></SpecimenDefinitionContainer>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SpecimenDefinitionContainer xmlns="http://hl7.org/fhir"></SpecimenDefinitionContainer>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->material)) {
             $this->material->xmlSerialize(true, $sxe->addChild('material'));

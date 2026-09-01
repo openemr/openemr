@@ -182,9 +182,7 @@ class FHIRMedicationKnowledgeSubstitution extends FHIRBackboneElement implements
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationKnowledgeSubstitution xmlns="http://hl7.org/fhir"></MedicationKnowledgeSubstitution>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicationKnowledgeSubstitution xmlns="http://hl7.org/fhir"></MedicationKnowledgeSubstitution>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

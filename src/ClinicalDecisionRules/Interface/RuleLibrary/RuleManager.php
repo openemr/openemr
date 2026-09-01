@@ -271,9 +271,7 @@ class RuleManager
         $ruleTargetGroups = [];
         if (count($criterion) > 0) {
             foreach ($criterion as $criteria) {
-                if (!isset($ruleTargetGroups[$criteria->groupId])) {
-                    $ruleTargetGroups[$criteria->groupId] = new RuleTargets();
-                }
+                $ruleTargetGroups[$criteria->groupId] ??= new RuleTargets();
 
                 $ruleTargetGroups[$criteria->groupId]->add($criteria);
             }
@@ -296,9 +294,7 @@ class RuleManager
             $action->item = $row['item'];
             $action->guid = $row['guid'];
             $action->groupId = $row['group_id'];
-            if (!isset($ruleActionGroups[$action->groupId])) {
-                $ruleActionGroups[$action->groupId] = new RuleActions();
-            }
+            $ruleActionGroups[$action->groupId] ??= new RuleActions();
 
             $ruleActionGroups[$action->groupId]->add($action);
         }

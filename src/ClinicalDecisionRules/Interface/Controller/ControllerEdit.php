@@ -34,9 +34,7 @@ class ControllerEdit extends BaseController
     {
         $ruleId = Common::get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        if (is_null($rule)) {
-            $rule = $this->getRuleManager()->newRule();
-        }
+        $rule ??= $this->getRuleManager()->newRule();
 
         $this->viewBean->rule = $rule;
         $this->set_view("summary.php");
@@ -64,9 +62,7 @@ class ControllerEdit extends BaseController
             ,'patient_sodh_usage'
         ];
         $rule = $this->getRuleManager()->getRule($ruleId);
-        if (is_null($rule)) {
-            $rule = $this->getRuleManager()->newRule();
-        }
+        $rule ??= $this->getRuleManager()->newRule();
             $ruleTypes = Common::post('fld_ruleTypes') ?? [];
         if (!is_array($ruleTypes)) {
             $ruleTypes = [$ruleTypes];

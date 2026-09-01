@@ -438,9 +438,7 @@ class FHIRExampleScenarioOperation extends FHIRBackboneElement implements \JsonS
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExampleScenarioOperation xmlns="http://hl7.org/fhir"></ExampleScenarioOperation>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExampleScenarioOperation xmlns="http://hl7.org/fhir"></ExampleScenarioOperation>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->number)) {
             $this->number->xmlSerialize(true, $sxe->addChild('number'));

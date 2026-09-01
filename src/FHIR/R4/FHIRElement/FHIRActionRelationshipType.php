@@ -144,9 +144,7 @@ class FHIRActionRelationshipType extends FHIRElement implements \JsonSerializabl
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ActionRelationshipType xmlns="http://hl7.org/fhir"></ActionRelationshipType>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ActionRelationshipType xmlns="http://hl7.org/fhir"></ActionRelationshipType>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

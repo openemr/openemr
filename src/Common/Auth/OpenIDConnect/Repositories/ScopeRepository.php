@@ -78,9 +78,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function getServerConfig(): ServerConfig
     {
-        if (!isset($this->config)) {
-            $this->config = new ServerConfig();
-        }
+        $this->config ??= new ServerConfig();
         return $this->config;
     }
 
@@ -189,9 +187,7 @@ class ScopeRepository implements ScopeRepositoryInterface
 
     public function getClaimRepository(): ClaimSetRepositoryInterface
     {
-        if (!isset($this->claimRepository)) {
-            $this->claimRepository = new ClaimRepository();
-        }
+        $this->claimRepository ??= new ClaimRepository();
         return $this->claimRepository;
     }
 

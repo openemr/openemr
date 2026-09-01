@@ -266,9 +266,7 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<MedicationKnowledgeDrugCharacteristic xmlns="http://hl7.org/fhir"></MedicationKnowledgeDrugCharacteristic>');
-        }
+        $sxe ??= new \SimpleXMLElement('<MedicationKnowledgeDrugCharacteristic xmlns="http://hl7.org/fhir"></MedicationKnowledgeDrugCharacteristic>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->type)) {
             $this->type->xmlSerialize(true, $sxe->addChild('type'));

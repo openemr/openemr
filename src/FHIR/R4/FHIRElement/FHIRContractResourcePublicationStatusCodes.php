@@ -144,9 +144,7 @@ class FHIRContractResourcePublicationStatusCodes extends FHIRElement implements 
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContractResourcePublicationStatusCodes xmlns="http://hl7.org/fhir"></ContractResourcePublicationStatusCodes>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ContractResourcePublicationStatusCodes xmlns="http://hl7.org/fhir"></ContractResourcePublicationStatusCodes>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

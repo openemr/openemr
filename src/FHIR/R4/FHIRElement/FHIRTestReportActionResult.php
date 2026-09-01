@@ -144,9 +144,7 @@ class FHIRTestReportActionResult extends FHIRElement implements \JsonSerializabl
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<TestReportActionResult xmlns="http://hl7.org/fhir"></TestReportActionResult>');
-        }
+        $sxe ??= new \SimpleXMLElement('<TestReportActionResult xmlns="http://hl7.org/fhir"></TestReportActionResult>');
         $sxe->addAttribute('value', $this->value);
         if ($returnSXE) {
             return $sxe;

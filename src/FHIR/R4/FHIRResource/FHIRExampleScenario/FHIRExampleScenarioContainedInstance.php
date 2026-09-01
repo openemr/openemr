@@ -182,9 +182,7 @@ class FHIRExampleScenarioContainedInstance extends FHIRBackboneElement implement
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ExampleScenarioContainedInstance xmlns="http://hl7.org/fhir"></ExampleScenarioContainedInstance>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ExampleScenarioContainedInstance xmlns="http://hl7.org/fhir"></ExampleScenarioContainedInstance>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->resourceId)) {
             $this->resourceId->xmlSerialize(true, $sxe->addChild('resourceId'));
