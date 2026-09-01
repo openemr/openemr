@@ -117,16 +117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'fname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'lname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'form_patient\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/custom_report_range.php',

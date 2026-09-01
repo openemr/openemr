@@ -92,7 +92,9 @@ if (isset($_GET['set_pid'])) {
     setpid($_GET['set_pid']);
     $ptService = new PatientService();
     $newPatient = $ptService->findByPid($pid);
-    $ptService->touchRecentPatientList($newPatient);
+    if ($newPatient !== null) {
+        $ptService->touchRecentPatientList($newPatient);
+    }
     if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
         $encounter = (int)$_GET['set_encounterid'];
         SessionUtil::setSession('encounter', $encounter);

@@ -47,6 +47,9 @@ class TelehealthRegistrationCodeService
     {
         $patientService = new PatientService();
         $patient = $patientService->findByPid($pid);
+        if ($patient === null) {
+            return null;
+        }
         $patientUsername = UuidRegistry::uuidToString($patient['uuid']);
         $user = $this->userRepository->getUser($patientUsername);
         return $user;

@@ -46,6 +46,9 @@ class TeleHealthPatientAdminController
     {
         $patientService = new PatientService();
         $patient = $patientService->findByPid($event->getPid());
+        if ($patient === null) {
+            return;
+        }
 
         $patient['uuid'] = UuidRegistry::uuidToString($patient['uuid']); // need to convert this over so we can work with it.
         $user = $this->userRepository->getUser($patient['uuid']);

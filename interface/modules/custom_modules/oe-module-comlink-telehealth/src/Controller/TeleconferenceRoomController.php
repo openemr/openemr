@@ -539,6 +539,9 @@ class TeleconferenceRoomController
 
         $pid = $patientResult[0]['pid'];
         $patientData = $patientService->findByPid($pid);
+        if ($patientData === null) {
+            throw new \RuntimeException("Patient was not found after creation");
+        }
 
         // now we need to create the portal credentials here
         $patientAccessService = new PatientAccessOnsiteService();
@@ -567,6 +570,9 @@ class TeleconferenceRoomController
         // for new patients we need to send out a different invitation versus an existing patient
         $patientService = new PatientService();
         $patient = $patientService->findByPid($pid);
+        if ($patient === null) {
+            throw new \RuntimeException('Patient not found for the given pid.');
+        }
         if (!$isNewPatient) {
             $this->mailerService->sendInvitationToExistingPatient($patient, $session, self::LAUNCH_PATIENT_SESSION);
         } else {

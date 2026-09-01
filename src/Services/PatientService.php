@@ -643,12 +643,12 @@ class PatientService extends BaseService
      * Given a pid, find the patient record
      *
      * @param int $pid
-     * @return PatientDataRow
+     * @return PatientDataRow|null
      */
-    public function findByPid($pid)
+    public function findByPid($pid): ?array
     {
         $table = PatientService::TABLE_NAME;
-        /** @var PatientDataRow $patientRow */
+        /** @var PatientDataRow|null $patientRow */
         $patientRow = self::selectHelper("SELECT * FROM `$table`", [
             'where' => 'WHERE pid = ?',
             'limit' => 1,
