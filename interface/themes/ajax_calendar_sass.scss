@@ -432,7 +432,10 @@ $side-calendar-date-padding: 0.3rem !default;
 
     &_out {
       @extend %highlight;
-      z-index: 3;
+      /* Above create-slot marker, editable on double-click. */
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 2;
     }
 
     &_appointment {
@@ -513,6 +516,8 @@ $side-calendar-date-padding: 0.3rem !default;
 
   .in_start {
     background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
     z-index: 2;
   }
 

@@ -1118,7 +1118,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     "a.pc_recurrspec, a.pc_topic, a.pc_alldayevent, a.pc_location, " .
     "a.pc_conttel, a.pc_contname, a.pc_contemail, a.pc_website, a.pc_fee, " .
     "a.pc_sharing, a.pc_prefcatid, b.pc_catcolor, b.pc_catname, " .
-    "b.pc_catdesc, a.pc_pid, a.pc_apptstatus, a.pc_aid, " .
+    "b.pc_catdesc, b.pc_cattype, a.pc_pid, a.pc_apptstatus, a.pc_aid, " .
     "concat(u.fname,' ',u.lname) as provider_name, " .
     "concat(pd.lname,', ',pd.fname) as patient_name, " .
     "concat(u.fname, ' ', u.lname) as owner_name, " .
@@ -1287,6 +1287,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $tmp['catcolor'],
             $tmp['catname'],
             $tmp['catdesc'],
+            $tmp['cattype'],
             $tmp['pid'],
             $tmp['apptstatus'],
             $tmp['aid'],
@@ -1339,6 +1340,10 @@ function &postcalendar_userapi_pcQueryEvents($args)
         // Modified 06-2009 by BM to translate the category if applicable
         $events[$i]['catname']     = xl_appt_category($tmp['catname']);
         $events[$i]['catdesc']     = $tmp['catdesc'];
+        // Provider categories (IN/OUT/LUNCH/etc. use pc_cattype=1) must open
+        // add_edit_event with prov=true — legacy templates set this as the
+        // third segment of the event DOM id after a per-event category lookup.
+        $events[$i]['pccattype']   = ((int) $tmp['cattype'] === 1) ? 'true' : '';
         $events[$i]['pid']         = $tmp['pid'];
         $events[$i]['apptstatus']  = $tmp['apptstatus'];
         $events[$i]['pubpid']      = $tmp['pubpid'];

@@ -188,9 +188,14 @@
           $(this).toggleClass("tdDatePickerHighlightCurrent");
         });
         $("#printview").click(function() { PrintView(this); });
-        $(".event").dblclick(function() { EditEvent(this); });
-        $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
-        $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
+        // Exclude the direct-select create marker (.apptMarker) — it is not an editable event.
+        $(".event").not(".apptMarker").dblclick(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            EditEvent(this);
+        });
+        $(".event").not(".apptMarker").mouseover(function() { $(this).toggleClass("event_highlight"); });
+        $(".event").not(".apptMarker").mouseout(function() { $(this).toggleClass("event_highlight"); });
         $(".tdMonthName-small").click(function() {
             dpCal = $("#datePicker > table");
             mp = $("#monthPicker");
@@ -203,15 +208,29 @@
 
     /* edit an existing event */
     var EditEvent = function(eObj) {
-        objID = eObj.id;
-        var parts = new Array();
-        parts = objID.split("-");
-        editing_group = $(eObj).hasClass("groups");
-        if(editing_group){
-            oldGroupEvt(parts[0], parts[1], parts[2]);
+        if (!eObj || $(eObj).hasClass('apptMarker')) {
+            return false;
+        }
+        // Prefer data-eid when present; fall back to legacy id="date-eid-prov".
+        var objID = eObj.id || '';
+        var parts = objID.split("-");
+        // IDs are YYYYMMDD-eid-pccattype; eid is numeric but keep join-safe parse:
+        // date (8 digits), eid (middle), pccattype ("true" or empty).
+        var eventDate = parts[0] || '';
+        var eventId = parts.length >= 2 ? parts[1] : '';
+        var pccattype = parts.length >= 3 ? parts.slice(2).join('-') : '';
+        if (!eventId && eObj.getAttribute) {
+            eventId = eObj.getAttribute('data-eid') || '';
+        }
+        if (!eventId) {
+            return false;
+        }
+        var editing_group = $(eObj).hasClass("groups");
+        if (editing_group) {
+            oldGroupEvt(eventDate, eventId, pccattype);
             return true;
         }
-        oldEvt(parts[0], parts[1], parts[2]);
+        oldEvt(eventDate, eventId, pccattype);
         return true;
     }
 
@@ -244,3 +263,37 @@
         $("#wrapper").toggleClass("toggled");
     });
 </script>
+
+<style>
+    /* IN body fill stays under appointments and does not capture clicks so
+       open hours remain creatable. The in_start label is the edit target. */
+    #bigCal .calendar_day .event_in {
+        pointer-events: none;
+        z-index: 1;
+    }
+    /* OUT/IN-label above the create-slot marker (z-index 0), below appointments. */
+    #bigCal .calendar_day .event_out {
+        cursor: pointer;
+        pointer-events: auto;
+        z-index: 2;
+    }
+    #bigCal .calendar_day .in_start {
+        cursor: pointer;
+        pointer-events: auto;
+        z-index: 2;
+    }
+    #bigCal .calendar_day .event_appointment,
+    #bigCal .calendar_day .event_reserved,
+    #bigCal .calendar_day .event_noshow,
+    #bigCal .calendar_day .event_holiday {
+        cursor: pointer;
+        z-index: 3;
+    }
+    #bigCal .calendar_day a.apptMarker {
+        z-index: 0;
+    }
+    #bigCal .calendar_day .event_out.event_highlight,
+    #bigCal .calendar_day .in_start.event_highlight {
+        z-index: 4;
+    }
+</style>
