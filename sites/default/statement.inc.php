@@ -25,6 +25,7 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Billing\StatementEnvelope;
 use OpenEMR\Core\OEGlobalsBag;
 
 // The location/name of a temporary file to hold printable statements.
@@ -57,6 +58,7 @@ function make_statement($stmt)
         return create_statement($stmt);
     }
 }
+
 /**
  * This prints a header for documents.  Keeps the brand uniform...
  *  @param string $pid patient_id
@@ -152,14 +154,28 @@ function create_HTML_statement($stmt)
     $remit_addr = "{$row['street']}";
     $remit_csz = "{$row['city']}, {$row['state']}, {$row['postal_code']}";
 
+    $env = new StatementEnvelope();
+    $windowed = $env->isWindowed();
     ob_start();
-    ?><div style="padding-left:25px; page-break-after:always;">
-    <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
-    $providerID = $find_provider['provider_id'];
-    echo report_header_2($stmt, $providerID);
+    $providerID = $find_provider['provider_id'] ?? '';
+    if ($windowed) {
+        echo '<html><head>' . $env->windowCss() . '</head><body style="margin:0;padding:0;">';
+        echo '<div class="stmt-env-sheet">';
+        echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, $stmt['to'] ?? []);
+        echo '<div class="stmt-env-body">';
+        echo '<table width="100%" style="width:100%;font-size:13pt;margin:0 0 12pt 0;"><tr>';
+        echo '<td valign="top"><b style="font-size:16pt;">' . text($clinic_name) . '</b><br />' . xlt('Statement') . '</td>';
+        echo '<td valign="top" align="right"><b style="font-size:16pt;">' . text($stmt['patient']) . '</b><br />';
+        echo xlt('Chart') . ': ' . text($stmt['pid']) . '<br />';
+        echo xlt('Date') . ': ' . text(oeFormatShortDate($stmt['today'])) . '<br />';
+        echo '<b>' . xlt('Amount due') . ': ' . text($stmt['amount']) . '</b></td></tr></table>';
+    } else {
+        echo '<div style="padding-left:25px; page-break-after:always;">';
+        echo report_header_2($stmt, $providerID);
+    }
 
     // dunning message setup
 
@@ -218,11 +234,19 @@ function create_HTML_statement($stmt)
     // Note that "\n" is a line feed (new line) character.
     // reformatted to handle i8n by tony
 
-    $out  = "<div style='margin-left:60px;margin-top:20px;'><pre>";
-    $out .= "\n";
-    $out .= sprintf("_______________________ %s _______________________\n", $label_pgbrk);
-    $out .= "\n";
-    $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
+    if ($windowed) {
+        $out  = "<div><pre style='font-size:12pt;line-height:1.3;margin:0;'>";
+        $out .= "\n";
+        $out .= sprintf("____________________ %s ____________________\n", $label_pgbrk);
+        $out .= "\n";
+        $out .= sprintf("%-14s %-42s %s\n", $label_visit, $label_desc, $label_amt);
+    } else {
+        $out  = "<div style='margin-left:60px;margin-top:20px;'><pre>";
+        $out .= "\n";
+        $out .= sprintf("_______________________ %s _______________________\n", $label_pgbrk);
+        $out .= "\n";
+        $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
+    }
 
     // This must be set to the number of lines generated above.
     $count = 5;
@@ -339,11 +363,12 @@ function create_HTML_statement($stmt)
         $aging[$age_index] += $line['amount'] - $line['paid'];
     }
 
-    // This generates blank lines until we are at line 20.
-    //  At line 20 we start middle third.
-
-    while ($count++ < 16) {
-        $out .= "\n";
+    if (!$windowed) {
+        // This generates blank lines until we are at line 20.
+        //  At line 20 we start middle third.
+        while ($count++ < 16) {
+            $out .= "\n";
+        }
     }
 
     # Generate the string of aging text.  This will look like:
@@ -368,7 +393,7 @@ function create_HTML_statement($stmt)
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the top portion of the page.
-    $out .= "\n\n\n";
+    $out .= $windowed ? "\n" : "\n\n\n";
     if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
@@ -440,20 +465,32 @@ function create_HTML_statement($stmt)
         }
     }
 
-    while ($count++ < 29) {
-        $out .= "\n";
-    }
-
-    $out .= sprintf("%-10s %s\n", null, $label_retpay);
-    $out .= '</pre></div>';
-    $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
+    if ($windowed) {
+        $out .= '</pre></div></div>';
+        $out .= '<div class="stmt-env-stub">';
+        $out .= '<div style="width:100%;border-top:1pt dotted black;font-size:12pt;margin:0;">';
+        $out .= '<div style="text-align:center;font-size:11pt;padding:6pt 0;">' . text($label_retpay) . '</div>';
+        $out .= '<table width="100%" style="width:100%;"><tr><td style="width:60%;">';
+        $out .= $label_payby . ' ' . $label_cards;
+        $out .= "<br />";
+        $out .= $label_cardnum . ': __________________________________  ' . $label_expiry . ': ___ / ____ ' . $label_cvv . ':____<br />';
+        $out .= $label_sign . '  ______________________________________________<br />';
+        $out .= "</td><td style='width:2.0in;vertical-align:middle;'>";
+    } else {
+        while ($count++ < 29) {
+            $out .= "\n";
+        }
+        $out .= sprintf("%-10s %s\n", null, $label_retpay);
+        $out .= '</pre></div>';
+        $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
       <table style="width:7in;margin-left:20px;"><tr><td style="width:4.5in;"><br />
  ';
-    $out .= $label_payby . ' ' . $label_cards;
-    $out .= "<br /><br />";
-    $out .= $label_cardnum . ': __________________________________  ' . $label_expiry . ': ___ / ____ ' . $label_cvv . ':____<br /><br />';
-    $out .= $label_sign . '  ______________________________________________<br />';
-    $out .= "</td><td style='width:2.0in;vertical-align:middle;'>";
+        $out .= $label_payby . ' ' . $label_cards;
+        $out .= "<br /><br />";
+        $out .= $label_cardnum . ': __________________________________  ' . $label_expiry . ': ___ / ____ ' . $label_cvv . ':____<br /><br />';
+        $out .= $label_sign . '  ______________________________________________<br />';
+        $out .= "</td><td style='width:2.0in;vertical-align:middle;'>";
+    }
     $practice_cards = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
     if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
         $out .= "<img src='$practice_cards' style='width:90px;height:auto; margin:4px auto;'><br /><p>\n<b>" .
@@ -468,30 +505,51 @@ function create_HTML_statement($stmt)
 
     $out .= "</td></tr></table>";
 
-    $out .= '</div><br />
-   <pre>';
-    if (!empty($stmt['to'][3])) { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
-    }
-
-    $out .= ' </pre>
-  <div style="width:7.0in;border-top:1pt solid black;"><br />';
-    $out .= " <table style='width:7.0in;margin:auto;'><tr>";
-    $out .= '<td style="margin:auto;"></td><td style="width:3.0in;"><b>'
-        . $label_addressee . '</b><br />'
-        . $stmt['to'][0] . '<br />'
-        . $stmt['to'][1] . '<br />'
-        . ($stmt['to'][2] ?? '') . '
-      </td><td style="width:0.5in;"></td>
-      <td style="margin:auto;"><b>' . $label_remitto . '</b><br />'
-        . $remit_name . '<br />'
-        . $remit_addr . '<br />'
-        . $remit_csz . '
+    if ($windowed) {
+        $out .= '</div>';
+        if (!empty($stmt['to'][3])) {
+            $out .= '<div>' . text($stmt['to'][3]) . '</div>';
+        }
+        $out .= '<div style="width:100%;border-top:1pt solid black;margin-top:8pt;padding-top:8pt;">';
+        $out .= '<table width="100%" style="width:100%;margin:0;"><tr>';
+        $out .= '<td style="width:3.3in;vertical-align:top;text-align:left;"><b>'
+            . text($label_addressee) . '</b><br />'
+            . text($stmt['to'][0] ?? '') . '<br />'
+            . text($stmt['to'][1] ?? '') . '<br />'
+            . text($stmt['to'][2] ?? '') . '
+      </td>
+      <td style="width:3.7in;vertical-align:top;text-align:right;"><b>'
+            . text($label_remitto) . '</b><br />'
+            . text($remit_name) . '<br />'
+            . nl2br(text($remit_addr), false) . '<br />'
+            . text($remit_csz) . '
       </td>
       </tr></table>';
-
-    $out .= "      </div></div>";
-    $out .= "\014";
+        $out .= '</div></div></div></body></html>';
+    } else {
+        $out .= '</div><br />
+   <pre>';
+        if (!empty($stmt['to'][3])) {
+            $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+        }
+        $out .= ' </pre>
+  <div style="width:7.0in;border-top:1pt solid black;"><br />';
+        $out .= " <table style='width:7.0in;margin:auto;'><tr>";
+        $out .= '<td style="margin:auto;"></td><td style="width:3.0in;"><b>'
+            . $label_addressee . '</b><br />'
+            . ($stmt['to'][0] ?? '') . '<br />'
+            . ($stmt['to'][1] ?? '') . '<br />'
+            . ($stmt['to'][2] ?? '') . '
+      </td><td style="width:0.5in;"></td>
+      <td style="margin:auto;"><b>' . $label_remitto . '</b><br />'
+            . $remit_name . '<br />'
+            . $remit_addr . '<br />'
+            . $remit_csz . '
+      </td>
+      </tr></table>';
+        $out .= "      </div></div>";
+        $out .= "\014";
+    }
     echo $out;
     $output = ob_get_clean();
     return $output;
@@ -664,20 +722,46 @@ function create_statement($stmt)
     //  %-25s = left-justified string of 25 characters padded with spaces
     // Note that "\n" is a line feed (new line) character.
     // reformatted to handle i8n by tony
-    $out = "\n\n";
+    $windowed = (new StatementEnvelope())->isWindowed();
     $providerNAME = getProviderName($stmt['provider_id']);
-    $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
-    $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
-    $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
-    $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, $stmt['amount']);
-    $out .= "\n";
-    $out .= sprintf("       %-30s %-s\n", $label_addressee, $label_remitto);
-    $out .= sprintf("       %-30s %s\n", $stmt['to'][0], $remit_name);
-    $out .= sprintf("       %-30s %s\n", $stmt['to'][1], $remit_addr);
-    $out .= sprintf("       %-30s %s\n", $stmt['to'][2], $remit_csz);
-
-    if ($stmt['to'][3] != '') { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    if ($windowed) {
+        $pad = '       ';
+        $out = "\n\n";
+        $out .= $pad . sprintf("%s\n", $remit_name);
+        foreach (preg_split("/\n/", (string) $remit_addr) as $line) {
+            $out .= $pad . sprintf("%s\n", $line);
+        }
+        $out .= $pad . sprintf("%s\n", $remit_csz);
+        $out .= "\n\n\n\n";
+        $out .= $pad . sprintf("%s\n", $stmt['to'][0] ?? '');
+        $out .= $pad . sprintf("%s\n", $stmt['to'][1] ?? '');
+        $out .= $pad . sprintf("%s\n", $stmt['to'][2] ?? '');
+        if (!empty($stmt['to'][3])) {
+            $out .= $pad . sprintf("%s\n", $stmt['to'][3]);
+        }
+        $out .= "\n\n\n\n\n";
+        $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
+        $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
+        $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
+        $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, $stmt['amount']);
+        $out .= "\n";
+        $count = 32;
+    } else {
+        $out = "\n\n";
+        $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
+        $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
+        $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
+        $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, $stmt['amount']);
+        $out .= "\n";
+        $out .= sprintf("       %-30s %-s\n", $label_addressee, $label_remitto);
+        $out .= sprintf("       %-30s %s\n", $stmt['to'][0], $remit_name);
+        $out .= sprintf("       %-30s %s\n", $stmt['to'][1], $remit_addr);
+        $out .= sprintf("       %-30s %s\n", $stmt['to'][2], $remit_csz);
+        if ($stmt['to'][3] != '') {
+            $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+        }
+        $out .= "\n";
+        $count = 25;
     }
 
     $out .= sprintf("_________________________________________________________________\n");
@@ -701,7 +785,6 @@ function create_statement($stmt)
 
     // This must be set to the number of lines generated above.
     //
-    $count = 25;
     $num_ages = 4;
     $aging = [];
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
@@ -891,19 +974,31 @@ function osp_create_HTML_statement($stmt)
 // Contacts
     $billing_contact = "{$row['attn']}";
     $billing_phone = "{$row['phone']}";
-// Billing location
     $remit_name = $clinic_name;
     $remit_addr = $clinic_addr;
     $remit_csz = $clinic_csz;
 
+    $env = new StatementEnvelope();
     ob_start();
-    ?><div style="padding-left:25px;">
-    <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
         "ORDER BY id DESC LIMIT 1", [$stmt['pid'],$stmt['encounter']]);
-    $providerID = $find_provider['provider_id'];
-    echo report_header_2($stmt, $providerID);
+    $providerID = $find_provider['provider_id'] ?? '';
+    if ($env->isWindowed()) {
+        echo $env->windowCss();
+        echo '<div class="stmt-env-sheet">';
+        echo $env->windowHtml($remit_name, $remit_addr, $remit_csz, $stmt['to'] ?? []);
+        echo '<div class="stmt-env-body">';
+        echo '<table width="100%" style="width:100%;font-size:13pt;margin:0 0 12pt 0;"><tr>';
+        echo '<td valign="top"><b style="font-size:16pt;">' . text($clinic_name) . '</b><br />' . xlt('Statement') . '</td>';
+        echo '<td valign="top" align="right"><b style="font-size:16pt;">' . text($stmt['patient']) . '</b><br />';
+        echo xlt('Chart') . ': ' . text($stmt['pid']) . '<br />';
+        echo xlt('Date') . ': ' . text(oeFormatShortDate($stmt['today'])) . '<br />';
+        echo '<b>' . xlt('Amount due') . ': ' . text($stmt['amount']) . '</b></td></tr></table>';
+    } else {
+        echo '<div style="padding-left:25px;">';
+        echo report_header_2($stmt, $providerID);
+    }
 
     // dunning message setup
 
@@ -1154,21 +1249,22 @@ function osp_create_HTML_statement($stmt)
 
     $out .= ' </pre>
   <div style="width:8in;border-top:1pt solid black;"><br />';
-    $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
-    $out .= '<td style="width:3.0in;"><b>'
-        . $label_addressee . '</b><br />'
-        . $stmt['to'][0] . '<br />'
-        . $stmt['to'][1] . '<br />'
-        . $stmt['to'][2] . '
+    $out .= " <table width=\"100%\" style='width:6.0in;margin-left:40px;'><tr>";
+    $out .= '<td style="width:3.0in;vertical-align:top;text-align:left;"><b>'
+        . text($label_addressee) . '</b><br />'
+        . text($stmt['to'][0] ?? '') . '<br />'
+        . text($stmt['to'][1] ?? '') . '<br />'
+        . text($stmt['to'][2] ?? '') . '
       </td>
-      <td style="width:3.0in;"><b>' . $label_remitto . '</b><br />'
-        . $remit_name . '<br />'
-        . $remit_addr . '<br />'
-        . $remit_csz . '
+      <td style="width:3.0in;vertical-align:top;text-align:right;"><b>'
+        . text($label_remitto) . '</b><br />'
+        . text($remit_name) . '<br />'
+        . nl2br(text($remit_addr), false) . '<br />'
+        . text($remit_csz) . '
       </td>
       </tr></table>';
 
-    $out .= "      </div></div>";
+    $out .= $env->isWindowed() ? "      </div></div></div>" : "      </div></div>";
     $out .= "\014
   <br /><br />"; // this is a form feed
     echo $out;
