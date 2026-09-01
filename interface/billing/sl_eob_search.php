@@ -32,6 +32,7 @@ use Mpdf\Mpdf;
 use OpenEMR\Billing\EraFilenameValidator;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Billing\StatementEnvelope;
 use OpenEMR\Billing\Statement\PatientCreditEncounters;
 use OpenEMR\Billing\Statement\StatementLines;
 use OpenEMR\Billing\Statement\StatementRecipient;
@@ -48,7 +49,6 @@ use OpenEMR\Common\Zip\ZipExtractionGuard;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Pdf\Config_Mpdf;
 use Symfony\Component\Process\Process;
 
 require_once("../globals.php");
@@ -283,7 +283,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     }
 
     if (OEGlobalsBag::getInstance()->get('statement_appearance') == '1') {
-        $config_mpdf = Config_Mpdf::getConfigMpdf();
+        $config_mpdf = (new StatementEnvelope())->mpdfConfig();
         $pdf2 = new mPDF($config_mpdf);
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($session->get('language_direction') === 'rtl') {
@@ -602,7 +602,7 @@ if (
                     $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
                     $mimetype = $isPdf ? 'pdf' : 'text/plain';
                     if ($isPdf) {
-                        $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
+                        $pdf2 = new mPDF((new StatementEnvelope())->mpdfConfig());
                         $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         if ($session->get('language_direction') === 'rtl') {
                             $pdf2->SetDirectionality('rtl');
