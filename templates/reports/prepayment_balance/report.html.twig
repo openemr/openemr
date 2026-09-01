@@ -36,6 +36,16 @@
             {{ jqueryDateTimePicker('.datepicker', false, false, true) }};
         });
 
+        // Opens the chart in the main frame. This leaves the report, and the
+        // filters are POST-only, so coming back lands on the empty form --
+        // same trade-off as collections_report.php and encounters_report.php.
+        function toPatient(newpid) {
+            top.restoreSession();
+            const params = new URLSearchParams({set_pid: newpid});
+            top.RTop.location = {{ webroot|js_escape }}
+                + "/interface/patient_file/summary/demographics.php?" + params;
+        }
+
         function setpatient(pid, lname, fname, dob) {
             document.forms[0].elements['form_patient'].value = pid;
             document.forms[0].elements['form_patient_name'].value = lname + ', ' + fname;
@@ -167,7 +177,11 @@
     <tbody>
     {% for balance in balances %}
         <tr>
-            <td class="detail">&nbsp;{{ balance.patientName|text }}</td>
+            <td class="detail">&nbsp;
+                <a href="#" onclick="toPatient({{ balance.patientId|attr_js }}); return false;" title="{{ 'Open patient chart'|xla }}">
+                    {{ balance.patientName|text }}
+                </a>
+            </td>
             <td class="detail">&nbsp;{{ balance.patientId|text }}</td>
             <td class="detail">&nbsp;
                 <a class="medium_modal" href='../billing/edit_payment.php?payment_id={{ balance.sessionId|attr_url }}'>
