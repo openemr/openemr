@@ -80,6 +80,124 @@ function listChecksum($list_id)
     return (0 + $row['checksum']);
 }
 
+/**
+ * Returns the number of editable rows for the given list editor list.
+ */
+function listEditorTotalRows(string $list_id): int
+{
+    if ($list_id === 'feesheet') {
+        $row = sqlQuery("SELECT count(*) AS total_rows FROM fee_sheet_options");
+    } elseif ($list_id === 'code_types') {
+        $row = sqlQuery("SELECT count(*) AS total_rows FROM code_types");
+    } elseif ($list_id === 'issue_types') {
+        $row = sqlQuery("SELECT count(*) AS total_rows FROM issue_types");
+    } elseif ($list_id !== '') {
+        $row = sqlQuery(
+            "SELECT count(*) AS total_rows
+             FROM list_options AS lo
+             RIGHT JOIN list_options AS lo2 ON lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
+             WHERE lo.list_id = ? AND lo.edit_options = 1",
+            [$list_id]
+        );
+    } else {
+        return 0;
+    }
+
+    return (int) ($row['total_rows'] ?? 0);
+}
+
+/**
+ * @return int[]
+ */
+function listEditorPerPageOptions(string $list_id): array
+{
+    if ($list_id === 'feesheet') {
+        return [50, 100, 150, 200];
+    }
+
+    return [10, 20, 40, 50, 100];
+}
+
+function listEditorDefaultPerPage(string $list_id): int
+{
+    return $list_id === 'feesheet' ? 150 : 20;
+}
+
+/**
+ * Renders rows-per-page, page controls, and item range summary for the list editor.
+ */
+function renderListEditorPagination(
+    int $list_page,
+    int $list_per_page,
+    int $total_rows,
+    int $total_pages,
+    int $range_start,
+    int $range_end,
+    array $per_page_options
+): void {
+    ?>
+    <div id="list-pagination" class="list-editor-pagination ml-2 my-2 my-lg-0">
+        <div class="list-editor-pagination__rows d-flex align-items-center">
+            <label for="list-per-page" class="mb-0 mr-1 text-nowrap"><?php echo xlt('Rows per page'); ?>:</label>
+            <select id="list-per-page" class="form-control form-control-sm" style="width: auto;" onchange="navigateListEditor(1)">
+                <?php foreach ($per_page_options as $option) { ?>
+                    <option value="<?php echo attr($option); ?>"<?php echo $option === $list_per_page ? ' selected' : ''; ?>>
+                        <?php echo text($option); ?>
+                    </option>
+                <?php } ?>
+            </select>
+        </div>
+        <?php if ($total_rows > 0) { ?>
+        <nav class="list-editor-pagination__nav" aria-label="<?php echo xla('List pagination'); ?>">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item<?php echo $list_page <= 1 ? ' disabled' : ''; ?>">
+                    <?php if ($list_page > 1) { ?>
+                        <a class="page-link" href="#" onclick="navigateListEditor(<?php echo attr($list_page - 1); ?>); return false;">
+                            <?php echo xlt('Prev'); ?>
+                        </a>
+                    <?php } else { ?>
+                        <span class="page-link"><?php echo xlt('Prev'); ?></span>
+                    <?php } ?>
+                </li>
+                <?php
+                $page_window = 5;
+                $start_page = max(1, $list_page - (int) floor($page_window / 2));
+                $end_page = min($total_pages, $start_page + $page_window - 1);
+                $start_page = max(1, $end_page - $page_window + 1);
+                for ($page = $start_page; $page <= $end_page; ++$page) {
+                    $active = $page === $list_page ? ' active' : '';
+                    ?>
+                    <li class="page-item<?php echo $active; ?>">
+                        <a class="page-link" href="#" onclick="navigateListEditor(<?php echo attr($page); ?>); return false;">
+                            <?php echo text($page); ?>
+                        </a>
+                    </li>
+                    <?php
+                }
+                ?>
+                <li class="page-item<?php echo $list_page >= $total_pages ? ' disabled' : ''; ?>">
+                    <?php if ($list_page < $total_pages) { ?>
+                        <a class="page-link" href="#" onclick="navigateListEditor(<?php echo attr($list_page + 1); ?>); return false;">
+                            <?php echo xlt('Next'); ?>
+                        </a>
+                    <?php } else { ?>
+                        <span class="page-link"><?php echo xlt('Next'); ?></span>
+                    <?php } ?>
+                </li>
+            </ul>
+        </nav>
+        <span id="total-record" class="list-editor-pagination__summary text-nowrap">
+            <?php echo text(sprintf(xl('Showing %d–%d of %d items'), $range_start, $range_end, $total_rows)); ?>
+        </span>
+        <?php } else { ?>
+        <span id="total-record" class="list-editor-pagination__summary text-muted text-nowrap">
+            <?php echo xlt('No items in this list'); ?>
+        </span>
+        <?php } ?>
+    </div>
+    <?php
+}
+
 $alertmsg = '';
 
 if (isset($_POST['form_checksum']) && $_POST['formaction'] == 'save') {
@@ -88,10 +206,36 @@ if (isset($_POST['form_checksum']) && $_POST['formaction'] == 'save') {
     }
 }
 
-//Limit variables for filter
-$records_per_page = 40;
-$list_from = (isset($_REQUEST["list_from"]) ? intval($_REQUEST["list_from"]) : 1);
-$list_to = (isset($_REQUEST["list_to"]) ? intval($_REQUEST["list_to"]) : 0);
+$list_id_container = (string) ($_REQUEST['list_id_container'] ?? '');
+if ($list_id_container !== '') {
+    $list_id = $list_id_container;
+}
+
+if ($blank_list_id) {
+    $row = sqlQuery(
+        "SELECT option_id FROM list_options WHERE list_id = 'lists' AND edit_options = 1 ORDER BY title, seq LIMIT 1"
+    );
+    if (!empty($row['option_id'])) {
+        $list_id = $row['option_id'];
+    }
+}
+
+$list_per_page_options = listEditorPerPageOptions($list_id);
+$list_per_page = (int) ($_REQUEST['list_per_page'] ?? listEditorDefaultPerPage($list_id));
+if (!in_array($list_per_page, $list_per_page_options, true)) {
+    $list_per_page = listEditorDefaultPerPage($list_id);
+}
+
+$list_page = max(1, (int) ($_REQUEST['list_page'] ?? 1));
+$total_rows = $list_id ? listEditorTotalRows($list_id) : 0;
+$total_pages = $total_rows > 0 ? (int) ceil($total_rows / $list_per_page) : 1;
+if ($list_page > $total_pages) {
+    $list_page = $total_pages;
+}
+
+$list_offset = ($list_page - 1) * $list_per_page;
+$range_start = $total_rows > 0 ? $list_offset + 1 : 0;
+$range_end = $total_rows > 0 ? min($list_offset + $list_per_page, $total_rows) : 0;
 
 // If we are saving, then save.
 if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
@@ -889,7 +1033,46 @@ function writeITLine($it_array): void
         .optin {
             color: var(--black);
         }
+
+        .list-editor-pagination {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .list-editor-pagination__summary {
+            font-size: 0.875rem;
+        }
     </style>
+    <script>
+        function navigateListEditor(page) {
+            var queryParams = getQueryStringAsObject();
+            var perPage = parseInt($('#list-per-page').val(), 10);
+            queryParams['list_page'] = page;
+            queryParams['list_per_page'] = perPage;
+            if ($('#list_id').length) {
+                queryParams['list_id'] = $('#list_id').val();
+            }
+            delete queryParams['list_from'];
+            delete queryParams['list_to'];
+            delete queryParams['list_id_container'];
+            var urlParts = document.URL.split('?');
+            window.location.replace(urlParts[0] + '?' + $.param(queryParams));
+        }
+
+        function getQueryStringAsObject() {
+            var paramsString = document.URL.split('?');
+            var paramsFull = (paramsString.length > 1) ? paramsString[1].split('&') : [];
+            var queryParameter;
+            var resObject = {};
+            for (var i = 0; i < paramsFull.length; i++) {
+                queryParameter = paramsFull[i].split('=');
+                resObject[decodeURIComponent(queryParameter[0])] = decodeURIComponent(queryParameter[1] || '');
+            }
+            return resObject;
+        }
+    </script>
     <script>
         $(function () {
             $(".select-dropdown").select2({
@@ -1140,8 +1323,8 @@ function writeITLine($it_array): void
 <body class="body_top">
     <form method='post' name='theform' id='theform' action='edit_list.php'>
         <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-        <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from); ?>" />
-        <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to); ?>" />
+        <input type="hidden" id="list_page" name="list_page" value="<?php echo attr($list_page); ?>" />
+        <input type="hidden" id="list_per_page" name="list_per_page" value="<?php echo attr($list_per_page); ?>" />
         <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top">
             <div class="container-fluid">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-list" aria-controls="navbar-list" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
@@ -1161,11 +1344,6 @@ function writeITLine($it_array): void
                              * Keep proper list name (otherwise list name changes according to
                              * the options shown on the screen).
                              */
-                            $list_id_container = (string) ($_GET["list_id_container"] ?? '');
-                            if ($list_id_container !== '') {
-                                $list_id = $list_id_container;
-                            }
-
                             // List order depends on language translation options.
                             $lang_id = empty($language_choice) ? '1' : $language_choice;
 
@@ -1206,48 +1384,15 @@ function writeITLine($it_array): void
                         </select>
                     </div>
 
-                    <!--Added filter-->
-                    <script>
-                        function lister() {
-                            var queryParams = getQueryStringAsObject();
-                            var list_from = parseInt($("#list-from").val());
-                            var list_to = parseInt($("#list-to").val());
-                            var list_id_container = $("#list_id").val();
-
-                            if (list_from > list_to) {
-                                alert(<?php echo xlj("Please enter a enter valid range"); ?>);
-                                return false;
-                            }
-                            if (list_from >= 0) {
-                                queryParams['list_from'] = list_from;
-                            }
-
-                            if (list_to >= 0) {
-                                queryParams['list_to'] = list_to;
-                            }
-                            if (list_id_container.length > 0) {
-                                queryParams['list_id_container'] = list_id_container;
-                            }
-                            var urlParts = document.URL.split('?');
-                            var newUrl = urlParts[0] + '?' + $.param(queryParams);
-                            window.location.replace(newUrl);
-                        }
-                    </script>
-                    <?php
-                    if ($list_id == 'feesheet') {
-                        $records_per_page = 150;
-                    }
-                    $urlFrom = ($list_from > 0 ? $list_from : 1);
-                    $urlTo = ($list_to > 0 ? $list_to : $records_per_page);
-                    ?>
-                    <div class="blck-filter float-left w-auto my-2 my-lg-0" style="display: none;">
-                        <div id="input-type-from" class="float-left"><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom); ?>" style="margin-right: 10px; width: 40px;">
-                            <?php echo xlt("To{{Range}}"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
-                        </div>
-                        <div class="float-left"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
-                    </div>
-                    <!--Happy end-->
-                    <div class="float-left ml-2 my-2 my-lg-0" id="total-record"></div>
+                    <?php renderListEditorPagination(
+                        $list_page,
+                        $list_per_page,
+                        $total_rows,
+                        $total_pages,
+                        $range_start,
+                        $range_end,
+                        $list_per_page_options
+                    ); ?>
                 </div><!-- /.navbar-collapse -->
             </div>
         </nav>
@@ -1395,20 +1540,10 @@ function writeITLine($it_array): void
             <tbody>
             <?php
             // Get the selected list's elements.
-            $total_rows = 0;
             if ($list_id) {
-                $sql_limits = 'ASC LIMIT 0, ' . escape_limit($records_per_page);
-                if ($list_from > 0) {
-                    $list_from--;
-                }
-                if ($list_to > 0) {
-                    $sql_limits = " ASC LIMIT " . escape_limit($list_from) . (intval($list_to) > 0 ? ", " . escape_limit($list_to - $list_from) : "");
-                }
+                $sql_limits = ' ASC LIMIT ' . escape_limit($list_offset) . ', ' . escape_limit($list_per_page);
 
                 if ($list_id == 'feesheet') {
-                    $res = sqlStatement("SELECT count(*) as total_rows FROM fee_sheet_options ORDER BY fs_category, fs_option");
-                    $total_rows = sqlFetchArray($res)["total_rows"];
-
                     $res = sqlStatement("SELECT * FROM fee_sheet_options " .
                         "ORDER BY fs_category, fs_option " . $sql_limits);
                     while ($row = sqlFetchArray($res)) {
@@ -1418,9 +1553,6 @@ function writeITLine($it_array): void
                         writeFSLine('', '', '');
                     }
                 } elseif ($list_id == 'code_types') {
-                    $res = sqlStatement("SELECT count(*) as total_rows FROM code_types ORDER BY ct_seq, ct_key");
-                    $total_rows = sqlFetchArray($res)["total_rows"];
-
                     $res = sqlStatement("SELECT * FROM code_types " .
                         "ORDER BY ct_seq, ct_key " . $sql_limits);
                     while ($row = sqlFetchArray($res)) {
@@ -1430,9 +1562,6 @@ function writeITLine($it_array): void
                         writeCTLine([]);
                     }
                 } elseif ($list_id == 'issue_types') {
-                    $res = sqlStatement("SELECT count(*) as total_rows FROM issue_types ORDER BY category, ordering");
-                    $total_rows = sqlFetchArray($res)["total_rows"];
-
                     $res = sqlStatement("SELECT * FROM issue_types " .
                         "ORDER BY category, ordering " . $sql_limits);
                     while ($row = sqlFetchArray($res)) {
@@ -1442,13 +1571,6 @@ function writeITLine($it_array): void
                         writeITLine([]);
                     }
                 } else {
-                    $res = sqlStatement("SELECT count(*) as total_rows
-                         FROM list_options AS lo
-                         RIGHT JOIN list_options as lo2 on lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
-                         WHERE lo.list_id = ? AND lo.edit_options = 1", [$list_id]);
-                    $total_rows = sqlFetchArray($res)["total_rows"];
-
-
                     $res = sqlStatement("SELECT lo.*
                          FROM list_options AS lo
                          RIGHT JOIN list_options as lo2 on lo2.option_id = lo.list_id AND lo2.list_id = 'lists' AND lo2.edit_options = 1
@@ -1525,10 +1647,8 @@ function writeITLine($it_array): void
                 SaveChanges();
             });
             $("#list_id").change(function () {
-                $("#list_from").val(1);
-                $("#list_to").val('');
-
-                $('#theform').submit();
+                $("#list_page").val(1);
+                navigateListEditor(1);
             });
 
             $(".newlist").click(function () {
@@ -1539,31 +1659,6 @@ function writeITLine($it_array): void
             });
             $(".deletelist").click(function () {
                 DeleteList(this);
-            });
-
-            var totalRecords = '<?php echo attr($res->_numOfRows);?>';
-            var totalRecordDiv = $('#total-record');
-            if (totalRecordDiv) {
-                totalRecordDiv.text("<?php echo xlt("Showing items"); ?>: <?php echo($list_to > 0 ? attr($list_from + 1) . " - " . attr($list_to) : attr($res->_numOfRows));?> of <?php echo attr($total_rows);?>");
-            }
-
-            var queryParams = getQueryStringAsObject();
-            var listIdCont = null;
-            if (typeof queryParams['list_id_container'] !== 'undefined') {
-                listIdCont = queryParams['list_id_container'];
-            }
-
-
-            if (totalRecords >= <?php echo attr($records_per_page);?> || listIdCont != null || $("#list_to").val() > 0) {
-                $(".blck-filter").show();
-            }
-
-            //prevent Enter button press on filter
-            $('.blck-filter').on('keyup keypress', function (e) {
-                var keyCode = e.keyCode || e.which;
-                if (keyCode == 13) {
-                    return false;
-                }
             });
 
             var SaveChanges = function () {
@@ -1622,19 +1717,6 @@ function writeITLine($it_array): void
                 console.error("The element with id 'form_submitted' does not exist.");
             }
         });
-
-        function getQueryStringAsObject() {
-            var paramsString = document.URL.split('?');
-            var paramsFull = (paramsString.length > 1) ? paramsString[1].split('&') : [];
-            var listIdCont = null;
-            var queryParameter;
-            var resObject = {};
-            for (var i = 0; i < paramsFull.length; i++) {
-                queryParameter = paramsFull[i].split('=');
-                resObject[queryParameter[0]] = queryParameter[1];
-            }
-            return resObject;
-        }
 
         <?php
         if (!empty($_POST['formaction']) && !$alertmsg) {
