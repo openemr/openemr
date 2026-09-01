@@ -622,14 +622,10 @@ class QuestionnaireResponseService extends BaseService
                 // If the segment is numeric, treat it as an array index
                 if (is_numeric($segment)) {
                     $segment = (int)$segment;
-                    if (!isset($current[$segment])) {
-                        $current[$segment] = [];
-                    }
+                    $current[$segment] ??= [];
                     $current = &$current[$segment];
                 } else {
-                    if (!isset($current[$segment])) {
-                        $current[$segment] = [];
-                    }
+                    $current[$segment] ??= [];
                     $current = &$current[$segment];
                 }
             }

@@ -176,9 +176,7 @@ class FHIRSpecimenDefinitionAdditive extends FHIRBackboneElement implements \Jso
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SpecimenDefinitionAdditive xmlns="http://hl7.org/fhir"></SpecimenDefinitionAdditive>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SpecimenDefinitionAdditive xmlns="http://hl7.org/fhir"></SpecimenDefinitionAdditive>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->additiveCodeableConcept)) {
             $this->additiveCodeableConcept->xmlSerialize(true, $sxe->addChild('additiveCodeableConcept'));

@@ -674,10 +674,7 @@ class Prescription extends ORDataObject
 
     public function set_medication($med): void
     {
-        // Store original value if not already tracked
-        if ($this->original_medication === null) {
-            $this->original_medication = $this->medication;
-        }
+        $this->original_medication ??= $this->medication;
 
         // Update the property value
         if (is_int($med)) {
@@ -956,10 +953,7 @@ class Prescription extends ORDataObject
 
     public function set_drug($drug): void
     {
-        // Store original value if not already tracked
-        if ($this->original_drug === null) {
-            $this->original_drug = $this->drug;
-        }
+        $this->original_drug ??= $this->drug;
 
         // Update the property value
         if (is_string($drug)) {

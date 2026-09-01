@@ -98,9 +98,7 @@ class MeasureService
      */
     public static function validateReportingYear($year = null)
     {
-        if ($year === null) {
-            $year = self::getCurrentReportingYear();
-        }
+        $year ??= self::getCurrentReportingYear();
 
         $tempGlobal = OEGlobalsBag::getInstance()->getString('cqm_performance_period');
         OEGlobalsBag::getInstance()->set('cqm_performance_period', $year);

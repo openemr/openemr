@@ -161,9 +161,7 @@ abstract class Phreezable
      */
     function ToObject($options = null)
     {
-        if ($options === null) {
-            $options =  [];
-        }
+        $options ??= [];
 
         $props = array_key_exists('props', $options) ? $options ['props'] : $this->GetPublicProperties();
         $omit = array_key_exists('omit', $options) ? $options ['omit'] :  [];

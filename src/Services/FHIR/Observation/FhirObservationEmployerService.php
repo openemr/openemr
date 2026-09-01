@@ -105,9 +105,7 @@ class FhirObservationEmployerService extends FhirServiceBase implements IPatient
 
     public function getListService(): ListService
     {
-        if (!isset($this->listService)) {
-            $this->listService = new ListService();
-        }
+        $this->listService ??= new ListService();
         return $this->listService;
     }
 
@@ -118,9 +116,7 @@ class FhirObservationEmployerService extends FhirServiceBase implements IPatient
 
     public function getEmployerService(): EmployerService
     {
-        if (!isset($this->employerService)) {
-            $this->employerService = new EmployerService();
-        }
+        $this->employerService ??= new EmployerService();
         return $this->employerService;
     }
 
@@ -142,9 +138,7 @@ class FhirObservationEmployerService extends FhirServiceBase implements IPatient
             ]);
             foreach ($listOptions as $record) {
                 $listId = $record['list_id'];
-                if (!isset($this->listOptionsByListId[$listId])) {
-                    $this->listOptionsByListId[$listId] = [];
-                }
+                $this->listOptionsByListId[$listId] ??= [];
                 $this->listOptionsByListId[$listId][$record['option_id']] = $record;
             }
             foreach (['IndustryODH', 'Industry'] as $listId) {

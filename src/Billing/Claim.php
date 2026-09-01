@@ -581,11 +581,7 @@ class Claim
         $amount = 0;
         foreach ($this->invoice as $codeval) {
             foreach ($codeval['dtl'] as $value) {
-                // plv exists to indicate the payer level.
-
-                if (!isset($value['pmt'])) {
-                    $value['pmt'] = 0;
-                }
+                $value['pmt'] ??= 0;
 
                 if (empty($value['plv'])) { // 0 indicates patient
                     $amount += $value['pmt'];

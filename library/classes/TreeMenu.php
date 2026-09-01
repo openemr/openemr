@@ -114,9 +114,7 @@ class HTML_TreeMenu
     */
     function createFromStructure($params)
     {
-        if (!isset($params['nodeOptions'])) {
-            $params['nodeOptions'] = [];
-        }
+        $params['nodeOptions'] ??= [];
 
         switch (@$params['type']) {
 

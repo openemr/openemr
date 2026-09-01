@@ -287,9 +287,7 @@ class FHIRSubstanceSpecificationCode extends FHIRBackboneElement implements \Jso
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<SubstanceSpecificationCode xmlns="http://hl7.org/fhir"></SubstanceSpecificationCode>');
-        }
+        $sxe ??= new \SimpleXMLElement('<SubstanceSpecificationCode xmlns="http://hl7.org/fhir"></SubstanceSpecificationCode>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->code)) {
             $this->code->xmlSerialize(true, $sxe->addChild('code'));

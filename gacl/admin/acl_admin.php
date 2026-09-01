@@ -20,18 +20,9 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once('gacl_admin.inc.php');
 
-// Variables defined in gacl_admin.inc.php
-/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api Defined in gacl_admin.inc.php line 53 */
-/** @var \ADOConnection $db Database connection reference from $gacl_api->db, defined in gacl_admin.inc.php line 57 */
-/** @var \Smarty $smarty Smarty template engine, defined in gacl_admin.inc.php line 59 */
+$_POST['action'] ??= FALSE;
 
-if (!isset($_POST['action']) ) {
-    $_POST['action'] = FALSE;
-}
-
-if (!isset($_GET['action']) ) {
-    $_GET['action'] = FALSE;
-}
+$_GET['action'] ??= FALSE;
 
 switch ($_POST['action']) {
     case 'Delete':

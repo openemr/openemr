@@ -100,9 +100,7 @@ class SMARTAuthorizationController
 
     public function getPatientContextSearchController(): PatientContextSearchController
     {
-        if (!isset($this->patientContextSearchController)) {
-            $this->patientContextSearchController = new PatientContextSearchController(new PatientService(), $this->logger);
-        }
+        $this->patientContextSearchController ??= new PatientContextSearchController(new PatientService(), $this->logger);
         return $this->patientContextSearchController;
     }
 
@@ -441,9 +439,7 @@ class SMARTAuthorizationController
 
     public function getLogoService(): LogoService
     {
-        if (!isset($this->logoService)) {
-            $this->logoService = new LogoService();
-        }
+        $this->logoService ??= new LogoService();
         return $this->logoService;
     }
 }

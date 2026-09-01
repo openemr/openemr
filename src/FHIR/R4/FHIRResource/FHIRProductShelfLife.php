@@ -257,9 +257,7 @@ class FHIRProductShelfLife extends FHIRBackboneElement implements \JsonSerializa
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ProductShelfLife xmlns="http://hl7.org/fhir"></ProductShelfLife>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ProductShelfLife xmlns="http://hl7.org/fhir"></ProductShelfLife>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->identifier)) {
             $this->identifier->xmlSerialize(true, $sxe->addChild('identifier'));

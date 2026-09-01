@@ -466,9 +466,7 @@ class FHIRContractAnswer extends FHIRBackboneElement implements \JsonSerializabl
      */
     public function xmlSerialize($returnSXE = false, $sxe = null)
     {
-        if (null === $sxe) {
-            $sxe = new \SimpleXMLElement('<ContractAnswer xmlns="http://hl7.org/fhir"></ContractAnswer>');
-        }
+        $sxe ??= new \SimpleXMLElement('<ContractAnswer xmlns="http://hl7.org/fhir"></ContractAnswer>');
         parent::xmlSerialize(true, $sxe);
         if (isset($this->valueBoolean)) {
             $this->valueBoolean->xmlSerialize(true, $sxe->addChild('valueBoolean'));

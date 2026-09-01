@@ -77,9 +77,7 @@ class TeleHealthCalendarController
 
     public function getAppointmentService()
     {
-        if (!isset($this->apptService)) {
-            $this->apptService = new AppointmentService();
-        }
+        $this->apptService ??= new AppointmentService();
         return $this->apptService;
     }
 

@@ -68,9 +68,7 @@ trait FhirObservationTrait
 
     public function getCodeTypesService(): CodeTypesService
     {
-        if (!isset($this->codeTypesService)) {
-            $this->codeTypesService = new CodeTypesService();
-        }
+        $this->codeTypesService ??= new CodeTypesService();
         return $this->codeTypesService;
     }
 
@@ -609,9 +607,7 @@ trait FhirObservationTrait
 
     public function getProvenanceService(): FhirProvenanceService
     {
-        if (!isset($this->fhirProvenanceService)) {
-            $this->fhirProvenanceService = new FhirProvenanceService();
-        }
+        $this->fhirProvenanceService ??= new FhirProvenanceService();
         return $this->fhirProvenanceService;
     }
 

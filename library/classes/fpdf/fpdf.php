@@ -179,8 +179,7 @@ class FPDF
     // Set left, top and right margins
         $this->lMargin = $left;
         $this->tMargin = $top;
-        if($right===null)
-        $right = $left;
+        $right ??= $left;
         $this->rMargin = $right;
     }
 
@@ -918,8 +917,7 @@ class FPDF
             $this->y += $h;
         }
 
-        if($x===null)
-        $x = $this->x;
+        $x ??= $this->x;
         $this->_out(sprintf('q %.2F 0 0 %.2F %.2F %.2F cm /I%d Do Q',$w*$this->k,$h*$this->k,$x*$this->k,($this->h-($y+$h))*$this->k,$info['i']));
         if($link)
         $this->Link($x,$y,$w,$h,$link);
@@ -1129,8 +1127,7 @@ class FPDF
         $this->Error('Could not include font definition file');
         if(isset($enc))
         $enc = strtolower($enc);
-        if(!isset($subsetted))
-        $subsetted = false;
+        $subsetted ??= false;
         return get_defined_vars();
     }
 
@@ -1448,9 +1445,7 @@ class FPDF
 
     protected function _newobj($n=null)
     {
-    // Begin a new object
-        if($n===null)
-        $n = ++$this->n;
+    $n ??= ++$this->n;
         $this->offsets[$n] = $this->_getoffset();
         $this->_put($n.' 0 obj');
     }

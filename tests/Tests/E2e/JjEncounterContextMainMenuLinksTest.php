@@ -47,13 +47,9 @@ class JjEncounterContextMainMenuLinksTest extends PantherTestCase
             $this->markTestSkipped('Test skipped because this environment does not support high enough nodejs version.');
         }
 
-        if (is_null($loading)) {
-            $loading = 'Loading';
-        }
+        $loading ??= 'Loading';
 
-        if (is_null($looseTabTitle)) {
-            $looseTabTitle = false;
-        }
+        $looseTabTitle ??= false;
 
         $this->base();
         try {
