@@ -242,6 +242,118 @@
     });
 </script>
 
+<style>
+    /* Scroll container: providers overflow to the right; times stay pinned. */
+    #bigCal {
+        overflow-x: auto !important;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+    }
+    #bigCal > .table-responsive {
+        overflow: visible !important;
+    }
+    #bigCal > .table-responsive > table.table {
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+        min-width: 100%;
+        table-layout: auto;
+        width: max-content;
+    }
+
+    /* Sticky time gutter — schedule columns slide under this while scrolling. */
+    #bigCal td#times {
+        background-color: var(--white, #fff);
+        border-right: 1px solid var(--gray300, #dee2e6);
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.08);
+        left: 0;
+        padding: 0.3125rem !important;
+        position: sticky;
+        vertical-align: top;
+        width: 3.25rem;
+        min-width: 3.25rem;
+        max-width: 3.5rem;
+        z-index: 8;
+    }
+    #bigCal td#times .table-responsive {
+        overflow: visible !important;
+    }
+    #bigCal td#times table {
+        width: 100%;
+    }
+    #bigCal td.timeslot {
+        box-sizing: border-box;
+        white-space: nowrap;
+    }
+
+    /* Each provider keeps a readable min width; more columns => horizontal scroll. */
+    #bigCal td.schedule {
+        min-width: 11.5rem;
+        padding: 0 !important;
+        position: relative;
+        vertical-align: top;
+        width: 11.5rem;
+    }
+
+    /* Header: name truncates, close (X) always visible. */
+    #bigCal .providerheader {
+        align-items: center;
+        box-sizing: border-box;
+        display: flex;
+        gap: 0.25rem;
+        justify-content: space-between;
+        overflow: hidden;
+        padding: 0 0.35rem;
+        position: relative;
+        white-space: nowrap;
+        z-index: 5;
+    }
+    #bigCal .providerheader .provider-name {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #bigCal .providerheader .providerXbtn {
+        flex: 0 0 auto;
+        float: none;
+        line-height: 1;
+        margin: 0;
+        opacity: 0.9;
+        padding: 0 0.15rem;
+    }
+
+    #bigCal .calendar_day .event_in {
+        pointer-events: none;
+        z-index: 1;
+    }
+    #bigCal .calendar_day .event_out {
+        z-index: 1;
+    }
+    #bigCal .calendar_day .in_start {
+        pointer-events: auto;
+        z-index: 1;
+    }
+    #bigCal .calendar_day .event_appointment,
+    #bigCal .calendar_day .event_reserved,
+    #bigCal .calendar_day .event_noshow,
+    #bigCal .calendar_day .event_holiday {
+        box-sizing: border-box;
+        line-height: 1.15;
+        overflow: hidden;
+        padding: 0 0.25rem;
+        white-space: normal;
+        z-index: 3;
+    }
+    #bigCal .calendar_day .event_out.event_highlight,
+    #bigCal .calendar_day .in_start.event_highlight {
+        z-index: 4;
+    }
+</style>
+
 <script>
     $(function () { if (typeof setupDirectTime === 'function') { setupDirectTime(); } });
 </script>
