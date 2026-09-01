@@ -562,6 +562,30 @@ from the checked-out ref. Using the workflow's `to_version` value
 keeps the artifact filename aligned with what `boot-package.sh`'s
 `<version>` arg + scratch-dir naming expects downstream.
 
+**`TO_VERSION` (label) vs `EXPECTED_VERSION` (actual) split**
+(openemr/openemr#13753): downstream of the label-is-cosmetic
+principle above, the version-display / version-api acceptance
+groups compare the running artifact's self-reported version
+against `ACCEPTANCE_EXPECTED_VERSION`. That env var is populated
+from `detect-mode.outputs.expected_version` (not `to_version`)
+precisely because on `build_locally=true` the two diverge — label
+stays `99.99.99` (cosmetic; drives filenames) while
+`expected_version` reads the checkout's `version.php` (what
+`sql_upgrade.php` actually writes to the DB `version` table). On
+the shipped-tarball path the two are equal (label = actual) because
+the release process bumps `version.php` in the checkout tree to the
+release version BEFORE packaging — so the tarball ships with
+`version.php` already equal to its download-URL label. The equality
+comes from the release-prep flow, NOT from `PackageAssembler` baking
+`--release-version` into anything (see the paragraph above; the
+assembler ships `version.php` as-is from the checked-out ref). On
+build_locally there is no release-prep pass, so `version.php` stays
+at whatever the checkout has (e.g. `8.4.0`) while the label defaults
+to the synthetic `99.99.99` — hence the divergence. Coupling the
+assertion to `TO_VERSION` — the pattern that #13635 originally
+shipped, and #13753 later corrected — made the acceptance groups
+un-passable on `build_locally=true`. Do not re-couple.
+
 Exit criterion (met): end-to-end `build_locally=true` demo on a
 real runner produced 6/6 green — `detect-mode`, `build-tarball`
 (PackageAssembler produced tarball from PR HEAD), `fresh-install`,
