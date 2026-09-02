@@ -28,8 +28,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Console\Command\Codes;
 
+use OpenEMR\Services\CodeTypes\CodeTypeImporter;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'codes:import',
@@ -37,15 +41,19 @@ use Symfony\Component\Console\Command\Command;
 )]
 class ImportCommand extends Command
 {
-    public function __construct(private readonly string $path = '/var/www/localhost/htdocs/openemr/contrib')
+    public function __construct(private readonly CodeTypeImporter $codeTypeImporter)
     {
         parent::__construct();
     }
 
-    public function __invoke(): int
+    public function __invoke(
+        InputInterface $input,
+        OutputInterface $output,
+        #[Option(description: 'Directory to scan and import codes from.')] string $path = '/var/www/localhost/htdocs/openemr/contrib'
+    ): int
     {
-        if (strlen($this->path)) {
-            $this->import(realpath($this->path));
+        if (strlen($path)) {
+            $this->codeTypeImporter->import(realpath($path));
 
             return Command::SUCCESS;
         } else {
